@@ -15,11 +15,11 @@ import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
 import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import { useMemo } from 'react';
 
+import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
+import { useSpacePresence } from '../use-space-presence';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
-import { getOrCreateSpaceClientId } from './space-open-session-store';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
-import { useSpacePresence } from '../use-space-presence';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
@@ -37,17 +37,19 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const deviceId = useMyDeviceId();
   const memberId = useMyId();
   const presence = useSpacePresence(spaceId);
+  const session = useSpaceOpenSession(spaceId);
   const configService = useConfigService();
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
-  const clientId = getOrCreateSpaceClientId(spaceId);
+  const clientId = session.clientId ?? '';
 
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
       spaceId.length === 0 ||
       deviceId.length === 0 ||
-      memberId.length === 0
+      memberId.length === 0 ||
+      clientId.length === 0
     ) {
       return null;
     }

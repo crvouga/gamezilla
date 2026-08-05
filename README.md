@@ -12,6 +12,6 @@ Auth is **token-only**: the API never reads or sets cookies. Authenticated reque
 
 ### Single session
 
-The client keeps **one signed-in account per install**. Sign-in opens that account’s `acct_<accountId>` SQLite file; sign-out returns to the anonymous `anon_<deviceId>` file. Turn off Clerk Dashboard **Multi-session handling** so a new sign-in replaces rather than stacks provider sessions.
+The client keeps **one signed-in account per install**. Sign-in opens that account’s `acct_<accountId>` SQLite file; sign-out returns to the anonymous `anon_<deviceId>` file. Turn off the auth-provider dashboard **Multi-session handling** so a new sign-in replaces rather than stacks provider sessions.
 
-**Restore multi-account later:** re-add `AuthClientPort.addAccount` / `switchAccount` (+ scoped `signOut`), a Kv roster for inactive display, `account-switch/*` chrome wired to sync boot readiness, warm multi-DB switch (disconnect sync without `disconnectAndClear`), Clerk multi-session, and a switcher UI. Identity-keyed SQLite naming (`resolveSqliteDbName` + PowerSync pool) already supports per-account files.
+**Restore multi-account later:** re-add `AuthClientPort.addAccount` / `switchAccount` (+ scoped `signOut`), a Kv roster for inactive display, `account-switch/*` chrome wired to sync boot readiness, warm multi-DB switch (disconnect sync without `disconnectAndClear`), auth-provider multi-session, and a switcher UI. Identity-keyed SQLite naming (`resolveSqliteDbName` + PowerSync pool) already supports per-account files.

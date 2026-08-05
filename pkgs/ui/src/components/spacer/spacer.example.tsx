@@ -31,7 +31,7 @@ export default function SpacerExample() {
           <Text variant="bodyBold" label="Title" />
           <Spacer />
           <Box sx={{ px: 3, py: 1, background: 'tint', borderRadius: 6 }}>
-            <Text variant="label" sx={{ color: 'onTint' }} label="Action" />
+            <Text variant="label" sx={{ color: 'onPrimary' }} label="Action" />
           </Box>
         </Stack>
       </Box>

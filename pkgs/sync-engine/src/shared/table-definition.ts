@@ -7,13 +7,47 @@ export type TableColumnDefinition = {
   readonly primaryKey?: boolean;
 };
 
+/** Public view names for PowerSync `localOnly` tables must match this. */
+export const LOCAL_ONLY_TABLE_NAME_RE = /^local_[a-z][a-z0-9_]*$/;
+
 export type TableDefinition = {
   readonly tableName: string;
   readonly columns: readonly TableColumnDefinition[];
+  /**
+   * PowerSync client-only table (never uploaded / never in sync streams).
+   * Requires `tableName` matching {@link LOCAL_ONLY_TABLE_NAME_RE}.
+   */
+  readonly localOnly?: boolean;
 };
 
+export function assertLocalOnlyTableName(args: {
+  readonly tableName: string;
+  readonly localOnly: boolean;
+}): void {
+  const isLocalName = args.tableName.startsWith('local_');
+  if (args.localOnly) {
+    if (!LOCAL_ONLY_TABLE_NAME_RE.test(args.tableName)) {
+      throw new Error(
+        `defineTable: localOnly table "${args.tableName}" must match ${String(LOCAL_ONLY_TABLE_NAME_RE)}`
+      );
+    }
+    return;
+  }
+  if (isLocalName) {
+    throw new Error(
+      `defineTable: table "${args.tableName}" uses local_ prefix but localOnly is not true`
+    );
+  }
+}
+
 export function defineTable(args: TableDefinition): TableDefinition {
-  return Object.freeze({ ...args, columns: Object.freeze([...args.columns]) });
+  const localOnly = args.localOnly === true;
+  assertLocalOnlyTableName({ tableName: args.tableName, localOnly });
+  return Object.freeze({
+    tableName: args.tableName,
+    localOnly,
+    columns: Object.freeze([...args.columns]),
+  });
 }
 
 export function tableColumnNames(table: TableDefinition): readonly string[] {

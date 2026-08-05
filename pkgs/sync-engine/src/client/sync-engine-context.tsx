@@ -9,10 +9,7 @@ import {
 
 import type { Sql } from '@pkgs/sql';
 import type { SyncEngine } from './sync-engine-port';
-import { clearWatchQueryCache } from './watch-query-cache';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
-
-export { clearWatchQueryCache };
 
 const Ctx = createContext<SyncEngine | null>(null);
 

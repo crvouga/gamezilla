@@ -9,6 +9,3 @@ export function mapAppAuthToRulesAuth(auth: AppAuth): AppRulesAuth {
     accountId: auth.accountId,
   };
 }
-
-/** @deprecated Use {@link mapAppAuthToRulesAuth}. */
-export const mapAppAuthToWriteContext = mapAppAuthToRulesAuth;

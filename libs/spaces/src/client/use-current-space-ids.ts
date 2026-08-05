@@ -1,22 +1,11 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { join, sql, type Sql } from '@pkgs/sql';
+import { sql, type Sql } from '@pkgs/sql';
 
-import {
-  useSyncStatus,
-  useWatchQuery,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
-import type { SyncEngineStatus } from '@pkgs/sync-engine/client/sync-status';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 import { isViewerSpaceHost } from '../shared/resolve-space-presence';
-import { useOpenSpaceIds } from './open-space/use-open-space-ids';
-
-function isSyncReconnecting(status: SyncEngineStatus): boolean {
-  return (
-    status.connection === 'disconnected' || status.connection === 'connecting'
-  );
-}
 
 export type CurrentSpaceEntry = {
   spaceId: string;
@@ -31,23 +20,21 @@ type SpaceRow = {
 };
 
 /**
- * Build miniplayer entries from locally-open space ids + live space rows.
+ * Build miniplayer entries from open-session JOIN live space rows.
+ * Ended rows are never included — DB `ended_at` is authoritative.
  */
 export function buildCurrentSpaceEntries(
   spaceRows: readonly SpaceRow[],
-  openSpaceIds: readonly string[],
   memberId: string
 ): CurrentSpaceEntry[] {
-  const byId = new Map(spaceRows.map((row) => [row.id, row]));
   const entries: CurrentSpaceEntry[] = [];
   const seen = new Set<string>();
-  for (const spaceId of openSpaceIds) {
-    if (spaceId.length === 0 || seen.has(spaceId)) continue;
-    const space = byId.get(spaceId);
-    if (space === undefined || space.ended_at !== null) continue;
-    seen.add(spaceId);
+  for (const space of spaceRows) {
+    if (space.id.length === 0 || seen.has(space.id)) continue;
+    if (space.ended_at !== null) continue;
+    seen.add(space.id);
     entries.push({
-      spaceId,
+      spaceId: space.id,
       role: isViewerSpaceHost(
         {
           host_member_id: space.host_member_id,
@@ -63,56 +50,26 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function openSpacesSql(
-  enabled: boolean,
-  openSpaceIds: readonly string[]
-): Sql<SpaceRow> {
-  if (!enabled || openSpaceIds.length === 0) {
+function currentSpacesSql(enabled: boolean): Sql<SpaceRow> {
+  if (!enabled) {
     return sql<SpaceRow>`
-      SELECT id, host_member_id, host_account_id, ended_at
-      FROM spaces
+      SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
+      FROM spaces AS s
       WHERE false
     `;
   }
   return sql<SpaceRow>`
-    SELECT id, host_member_id, host_account_id, ended_at
-    FROM spaces
-    WHERE id IN (${join([...openSpaceIds])})
+    SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
+    FROM spaces AS s
+    INNER JOIN local_space_open_sessions AS o ON o.id = s.id
+    WHERE s.ended_at IS NULL
+    ORDER BY o.opened_at DESC
   `;
-}
-
-function resolveDisplayEntries(
-  entries: CurrentSpaceEntry[],
-  reconnecting: boolean,
-  prevEntries: CurrentSpaceEntry[]
-): CurrentSpaceEntry[] {
-  if (entries.length > 0) return entries;
-  if (reconnecting && prevEntries.length > 0) return prevEntries;
-  return entries;
-}
-
-function useCurrentSpaceWatchQueries(
-  accountId: string | null,
-  openSpaceIds: readonly string[]
-): {
-  entries: CurrentSpaceEntry[];
-  queriesLoading: boolean;
-} {
-  const enabled = accountId !== null && accountId.length > 0;
-  const query = useMemo(
-    () => openSpacesSql(enabled, openSpaceIds),
-    [enabled, openSpaceIds]
-  );
-  const { rows, isLoading } = useWatchQuery(query);
-  const entries = useMemo(
-    () => buildCurrentSpaceEntries(rows, openSpaceIds, accountId ?? ''),
-    [rows, openSpaceIds, accountId]
-  );
-  return { entries, queriesLoading: isLoading };
 }
 
 /**
  * This account's locally-open live spaces (miniplayer).
+ * Visibility is the SQL join of open sessions × live spaces.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
@@ -120,37 +77,16 @@ export function useCurrentSpaceIds(): {
 } {
   const accountId = useMyAccountId();
   const paintReady = useSyncEnginePaintReady();
-  const { openSpaceIds } = useOpenSpaceIds();
-  const { entries, queriesLoading } = useCurrentSpaceWatchQueries(
-    paintReady ? accountId : null,
-    openSpaceIds
-  );
-  const status = useSyncStatus();
-  const prevEntriesRef = useRef<CurrentSpaceEntry[]>([]);
-  const identityRef = useRef(accountId);
-  if (identityRef.current !== accountId) {
-    identityRef.current = accountId;
-    prevEntriesRef.current = [];
-  }
+  const enabled = paintReady && accountId !== null && accountId.length > 0;
+  const query = useMemo(() => currentSpacesSql(enabled), [enabled]);
+  const { rows, isLoading } = useWatchQuery(query);
   if (!paintReady) {
-    prevEntriesRef.current = [];
     return { entries: [], isLoading: true };
   }
-  const reconnecting = isSyncReconnecting(status);
-  if (entries.length > 0) {
-    prevEntriesRef.current = entries;
-  } else if (!reconnecting) {
-    prevEntriesRef.current = [];
-  }
-  const displayEntries = resolveDisplayEntries(
-    entries,
-    reconnecting,
-    prevEntriesRef.current
-  );
-
+  const entries = buildCurrentSpaceEntries(rows, accountId ?? '');
   return {
-    entries: displayEntries,
-    isLoading: displayEntries.length === 0 && queriesLoading,
+    entries,
+    isLoading: entries.length === 0 && isLoading,
   };
 }
 

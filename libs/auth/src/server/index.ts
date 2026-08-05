@@ -10,8 +10,5 @@ export {
   buildAppAuthContextFromBearer,
 } from './bearer-resolve';
 export type { AppRulesAuth } from '../shared/app-rules-auth';
-export {
-  mapAppAuthToRulesAuth,
-  mapAppAuthToWriteContext,
-} from '../shared/map-app-auth-to-rules-auth';
+export { mapAppAuthToRulesAuth } from '../shared/map-app-auth-to-rules-auth';
 export { mapAppAuthToUploadAuth } from '../shared/map-app-auth-to-upload-auth';

@@ -7,7 +7,6 @@ import { AppGamesProvider } from './app-games-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppInboxProvider } from './app-inbox-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
-import { AppOpenSpacesProvider } from './app-open-spaces-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
@@ -20,7 +19,6 @@ void preventSplashAutoHide();
  *
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.
- * - Auth before open-spaces (account-scoped Kv key).
  * - Local database (PowerSync sync engine) before UI (portal bridge reads sync engine).
  * - UI (BottomSheetModalProvider, AuthModalsProvider) before inbox (opens sign-in modal).
  * - UI before modal hosts inside AppUiProvider.
@@ -32,7 +30,6 @@ const appProviders = [
   AppShellProvider,
   AppInfrastructureProvider,
   AppAuthProvider,
-  AppOpenSpacesProvider,
   AppServicesProvider,
   AppLocalDatabaseProvider,
   AppGamesProvider,

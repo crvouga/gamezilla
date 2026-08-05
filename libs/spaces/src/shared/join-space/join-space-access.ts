@@ -55,15 +55,6 @@ export async function readSpaceRowForJoin(
   };
 }
 
-/** @deprecated Prefer {@link isSpaceUserInStore}. */
-export async function isUserAllowlistedInStore(
-  db: SqlClient,
-  spaceId: string,
-  userId: string
-): Promise<boolean> {
-  return isSpaceUserInStore(db, spaceId, userId);
-}
-
 export async function authorizeJoinSpaceAccess(
   auth: AppRulesAuth,
   db: SqlClient,

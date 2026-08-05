@@ -13,8 +13,6 @@ type SpaceRow = {
   readonly ended_at: string | null;
 };
 
-type PresenceLatch = { spaceId: string; presence: SpacePresence };
-
 function nonEmptyEqual(a: string, b: string): boolean {
   return a.length > 0 && b.length > 0 && a === b;
 }
@@ -56,49 +54,4 @@ export function resolveSpacePresence(args: {
     };
   }
   return { status: 'join', ended: false };
-}
-
-function latchForSpace(
-  spaceId: string,
-  latch: PresenceLatch | null
-): PresenceLatch | null {
-  if (latch === null || latch.spaceId !== spaceId) return null;
-  return latch;
-}
-
-function holdActiveAcrossTransientJoin(
-  spaceId: string,
-  resolved: SpacePresence,
-  latch: PresenceLatch | null
-): PresenceLatch | null {
-  if (resolved.status !== 'join' || resolved.ended) return null;
-  if (latch === null || latch.presence.status !== 'active') return null;
-  return latchForSpace(spaceId, latch);
-}
-
-/**
- * Hold the last non-loading presence while queries report `loading`, and hold
- * `active` across transient `join` snapshots. Ended spaces always accept
- * `join`. Intentional leave/end must clear the shared latch store.
- */
-export function latchStaleSpacePresence(
-  spaceId: string,
-  resolved: SpacePresence,
-  latch: PresenceLatch | null
-): { presence: SpacePresence; latch: PresenceLatch | null } {
-  if (spaceId.length === 0) {
-    return { presence: resolved, latch: null };
-  }
-  const scoped = latchForSpace(spaceId, latch);
-  const heldActive = holdActiveAcrossTransientJoin(spaceId, resolved, scoped);
-  if (heldActive !== null) {
-    return { presence: heldActive.presence, latch: heldActive };
-  }
-  if (resolved.status !== 'loading') {
-    return { presence: resolved, latch: { spaceId, presence: resolved } };
-  }
-  if (scoped !== null) {
-    return { presence: scoped.presence, latch: scoped };
-  }
-  return { presence: resolved, latch: null };
 }

@@ -56,6 +56,14 @@ async function migrate(db: SqlClient): Promise<void> {
       created_by_account_id TEXT
     )
   `);
+  await db.run(sql<void>`
+    CREATE TABLE local_space_open_sessions (
+      id TEXT PRIMARY KEY,
+      opened_at TEXT,
+      client_id TEXT,
+      join_announced INTEGER
+    )
+  `);
 }
 
 function ctx(args: {

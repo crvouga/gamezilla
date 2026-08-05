@@ -15,27 +15,28 @@ import { useMemo, type ReactNode } from 'react';
 
 import { SpaceCard } from './card/space-card';
 import { useCreateSpace } from './create-space/use-create-space';
-import { useOpenSpaceIds } from './open-space/use-open-space-ids';
+import { useOpenSpaceSessionIds } from './open-space/use-open-space-session-ids';
 import { openSpaceDetail } from './space-routes';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
 function sortCurrentSpacesFirst(
   spaceIds: readonly string[],
-  isOpen: (spaceId: string) => boolean
+  openSet: ReadonlySet<string>
 ): string[] {
   return [...spaceIds].sort((a, b) => {
-    const aOpen = isOpen(a) ? 0 : 1;
-    const bOpen = isOpen(b) ? 0 : 1;
+    const aOpen = openSet.has(a) ? 0 : 1;
+    const bOpen = openSet.has(b) ? 0 : 1;
     return aOpen - bOpen;
   });
 }
 
 function SpacesListBody() {
   const { spaceIds, isLoading } = useJoinableLiveSpaceIds();
-  const { isOpen } = useOpenSpaceIds();
+  const { spaceIds: openSpaceIds } = useOpenSpaceSessionIds();
+  const openSet = useMemo(() => new Set(openSpaceIds), [openSpaceIds]);
   const orderedIds = useMemo(
-    () => sortCurrentSpacesFirst(spaceIds, isOpen),
-    [spaceIds, isOpen]
+    () => sortCurrentSpacesFirst(spaceIds, openSet),
+    [spaceIds, openSet]
   );
   if (isLoading) {
     return <LoadingState size="large" />;

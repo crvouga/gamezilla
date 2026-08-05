@@ -7,7 +7,6 @@ import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-st
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
-import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo, type ReactNode } from 'react';
 import { Platform } from 'react-native';
@@ -22,7 +21,6 @@ export async function clearLocalDatabaseAndReloadWithDeps(
   d: SyncLocalDataDeps
 ): Promise<void> {
   await d.clearLocalData();
-  clearWatchQueryCache();
 
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined') {

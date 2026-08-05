@@ -50,7 +50,7 @@ export function SpaceEndOrLeaveButton({
     >
       <Text
         variant="caption"
-        sx={{ color: 'onTint', fontWeight: '600' }}
+        sx={{ color: 'onPrimary', fontWeight: '600' }}
         label={isHost ? <Trans>End</Trans> : <Trans>Leave</Trans>}
       />
     </Pressable>

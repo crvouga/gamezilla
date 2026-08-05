@@ -1,6 +1,7 @@
 import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 import { useMyDeviceId } from './use-current-user';
 
@@ -53,31 +54,33 @@ function sortDeviceIds(
  * descending (falling back to `created_at`).
  */
 export function useAccountDeviceIds(accountId: string | null): string[] {
+  const paintReady = useSyncEnginePaintReady();
   const currentDeviceId = useMyDeviceId();
+  const scopedAccountId = paintReady ? accountId : null;
+  const scopedDeviceId = paintReady ? currentDeviceId : '';
 
   const { rows: localRows } = useWatchQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
-    WHERE id = ${currentDeviceId}
+    WHERE id = ${scopedDeviceId}
   `);
 
   const { rows: remoteRows } = useWatchQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
-    WHERE user_id = ${accountId}
+    WHERE user_id = ${scopedAccountId}
     LIMIT 500
   `);
 
-  return useMemo(
-    () =>
-      sortDeviceIds(
-        buildLastSeenMap({
-          accountId,
-          remoteDevices: remoteRows,
-          localDevices: localRows,
-        }),
-        currentDeviceId
-      ),
-    [accountId, remoteRows, localRows, currentDeviceId]
-  );
+  return useMemo(() => {
+    if (!paintReady) return [];
+    return sortDeviceIds(
+      buildLastSeenMap({
+        accountId,
+        remoteDevices: remoteRows,
+        localDevices: localRows,
+      }),
+      currentDeviceId
+    );
+  }, [paintReady, accountId, remoteRows, localRows, currentDeviceId]);
 }

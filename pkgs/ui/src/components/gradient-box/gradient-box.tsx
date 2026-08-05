@@ -8,7 +8,7 @@
  * custom hex pairs, etc).
  *
  * Children are wrapped in an {@link OnColorProvider} that always uses the
- * theme's `onTint` foreground (white in both schemes). Luminance heuristics
+ * theme's `onPrimary` foreground (white in both schemes). Luminance heuristics
  * mis-fire on lighter dark-mode blues and pick near-black labels; brand
  * gradient chrome is always light-on-blue. Pass `onColor` to derive from a
  * different reference (custom gradients).
@@ -40,18 +40,18 @@ export type GradientBoxProps = ViewProps & {
   end?: { x: number; y: number } | null;
   /**
    * When set, derive child text/icon colors via {@link bestOnColor} from this
-   * reference instead of the default `onTint` set.
+   * reference instead of the default `onPrimary` set.
    */
   onColor?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
-function defaultGradientOnColor(onTint: string): OnColorSet {
+function defaultGradientOnColor(onPrimary: string): OnColorSet {
   return {
-    fg: onTint,
+    fg: onPrimary,
     fgMuted: ON_DARK.fgMuted,
-    icon: onTint,
+    icon: onPrimary,
   };
 }
 
@@ -74,8 +74,8 @@ export function GradientBox({
     (): OnColorSet =>
       onColor !== undefined
         ? bestOnColor(onColor)
-        : defaultGradientOnColor(theme.colors.onTint),
-    [onColor, theme.colors.onTint]
+        : defaultGradientOnColor(theme.colors.onPrimary),
+    [onColor, theme.colors.onPrimary]
   );
   const idProps = componentDataSet('GradientBox', dataSet);
 

@@ -1,8 +1,6 @@
 import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
-import { clearAllSpacePresenceLatches } from '@libs/spaces/shared/space-presence-latch-store';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
-import { clearWatchQueryCache } from '@pkgs/sync-engine/client/watch-query-cache';
 import { useEffect, useRef, useState } from 'react';
 
 import { attachSqlCli } from '../../dev/attach-sql-cli';
@@ -63,8 +61,6 @@ export function useSyncEngineBootState(
     const generation = generationRef.current + 1;
     generationRef.current = generation;
     let cancelled = false;
-    clearWatchQueryCache();
-    clearAllSpacePresenceLatches();
     connectedKeyRef.current = null;
     if (warmEngine === null) {
       setBoot({ phase: 'loading' });

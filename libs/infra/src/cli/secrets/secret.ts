@@ -39,16 +39,6 @@ export class Secret {
   readonly validate: (input: SecretInput) => Promise<void>;
   readonly seed?: (input: SecretSeedInput) => Promise<string>;
 
-  /** @deprecated Prefer {@link name} — kept for call sites that used SecretEntry. */
-  get secretKey(): string {
-    return this.name;
-  }
-
-  /** @deprecated Prefer {@link name} — secret key == process.env key. */
-  get env(): string {
-    return this.name;
-  }
-
   constructor(config: SecretConfig) {
     this.name = config.name;
     this.hint = config.hint;

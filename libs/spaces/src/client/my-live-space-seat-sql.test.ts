@@ -151,7 +151,7 @@ describe('my-live-space-seat-sql — host / space_users lobby', () => {
     expect(sharedIds).toContain(SHARED_SPACE);
   });
 
-  test('buildCurrentSpaceEntries uses open ids + live rows', () => {
+  test('buildCurrentSpaceEntries uses live joined rows', () => {
     expect(
       buildCurrentSpaceEntries(
         [
@@ -162,7 +162,6 @@ describe('my-live-space-seat-sql — host / space_users lobby', () => {
             ended_at: null,
           },
         ],
-        [HOST_SPACE],
         ACCOUNT_ID
       )
     ).toEqual([{ spaceId: HOST_SPACE, role: 'host' }]);
@@ -176,7 +175,6 @@ describe('my-live-space-seat-sql — host / space_users lobby', () => {
             ended_at: '2026-01-02T01:00:00.000Z',
           },
         ],
-        [HOST_SPACE],
         ACCOUNT_ID
       )
     ).toEqual([]);

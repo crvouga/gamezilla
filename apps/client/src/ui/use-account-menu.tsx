@@ -13,6 +13,7 @@ import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
 import type { LocalizedString } from '@pkgs/i18n';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import {
   LogInIcon,
   LogOutIcon,
@@ -87,52 +88,83 @@ function useAccountMenuHandlers() {
   };
 }
 
+function useSessionEmail(): string | null {
+  const port = useAuthClientPort();
+  return port.useAuthSession().session?.email ?? null;
+}
+
+/** SQLite username only when account id is bound and the engine matches it. */
+function useReadyProfileUsername(): string | null {
+  const isSignedIn = useIsSignedIn();
+  const paintReady = useSyncEnginePaintReady();
+  const profileId = useMyProfileId();
+  const watchId =
+    isSignedIn && paintReady && profileId !== null ? profileId : '';
+  return useProfileColumn(watchId, 'username');
+}
+
+function signedOutAccountMenuItem(
+  labels: AccountMenuLabels,
+  onAccount: () => void,
+  email: string | null
+): ActionBarItem {
+  const label = email !== null && email.length > 0 ? email : labels.notSignedIn;
+  return {
+    id: 'account',
+    variant: 'avatar',
+    label,
+    accessibilityLabel: labels.account,
+    children: (
+      <DeviceAvatar
+        avatarConfig={null}
+        seedFallback="signed-out"
+        size={MENU_AVATAR_SIZE}
+      />
+    ),
+    onPress: onAccount,
+    overflow: 'always',
+  };
+}
+
+function signedInAccountMenuItem(
+  labels: AccountMenuLabels,
+  onAccount: () => void,
+  username: string | null,
+  email: string | null
+): ActionBarItem {
+  const title =
+    username !== null && username.length > 0
+      ? username
+      : email !== null && email.length > 0
+        ? email
+        : labels.account;
+  const subtitle =
+    email !== null && email.length > 0 && email !== title ? email : undefined;
+  return {
+    id: 'account',
+    variant: 'avatar',
+    label: title,
+    ...(subtitle !== undefined ? { subtitle } : {}),
+    accessibilityLabel: labels.account,
+    children: <MyProfileAvatar size={MENU_AVATAR_SIZE} />,
+    onPress: onAccount,
+    overflow: 'always',
+  };
+}
+
 function useCurrentUserMenuItem(
   labels: AccountMenuLabels,
   onAccount: () => void
 ): ActionBarItem {
   const isSignedIn = useIsSignedIn();
-  const profileId = useMyProfileId();
-  const username = useProfileColumn(profileId ?? '', 'username');
-  const port = useAuthClientPort();
-  const email = port.useAuthSession().session?.email ?? null;
+  const username = useReadyProfileUsername();
+  const email = useSessionEmail();
 
   return useMemo((): ActionBarItem => {
     if (!isSignedIn) {
-      return {
-        id: 'account',
-        variant: 'avatar',
-        label: labels.notSignedIn,
-        accessibilityLabel: labels.account,
-        children: (
-          <DeviceAvatar
-            avatarConfig={null}
-            seedFallback="signed-out"
-            size={MENU_AVATAR_SIZE}
-          />
-        ),
-        onPress: onAccount,
-        overflow: 'always',
-      };
+      return signedOutAccountMenuItem(labels, onAccount, email);
     }
-    const title =
-      username !== null && username.length > 0
-        ? username
-        : email !== null && email.length > 0
-          ? email
-          : labels.account;
-    const subtitle =
-      email !== null && email.length > 0 && email !== title ? email : undefined;
-    return {
-      id: 'account',
-      variant: 'avatar',
-      label: title,
-      ...(subtitle !== undefined ? { subtitle } : {}),
-      accessibilityLabel: labels.account,
-      children: <MyProfileAvatar size={MENU_AVATAR_SIZE} />,
-      onPress: onAccount,
-      overflow: 'always',
-    };
+    return signedInAccountMenuItem(labels, onAccount, username, email);
   }, [isSignedIn, username, email, labels, onAccount]);
 }
 

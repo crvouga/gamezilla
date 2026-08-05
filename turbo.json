@@ -218,6 +218,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:local-table-names": {
+      "inputs": [
+        "libs/db/src/shared/**/*.ts",
+        "pkgs/sync-engine/src/shared/table-definition.ts",
+        "tools/scripts/check-local-table-names.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-provider-leaks": {
       "inputs": ["tools/scripts/check-no-provider-leaks.ts"],
       "outputs": [],

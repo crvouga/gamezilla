@@ -2,7 +2,7 @@ import { borderRadius, Box, StatusDot, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import { useOpenSpaceIds } from './open-space/use-open-space-ids';
+import { useIsSpaceOpenLocally } from './open-space/use-open-space-session-ids';
 import { useSpaceColumn, SpaceField } from './use-space-column';
 
 export type SpaceLiveBadgeProps = {
@@ -30,7 +30,7 @@ function SpaceStatusPill({
       }}
     >
       {showDot ? <StatusDot status="online" size={8} /> : null}
-      <Text variant="caption" sx={{ color: 'onTint' }} label={label} />
+      <Text variant="caption" sx={{ color: 'onPrimary' }} label={label} />
     </Box>
   );
 }
@@ -41,9 +41,9 @@ function SpaceStatusPill({
  */
 export function SpaceLiveBadge({ spaceId }: SpaceLiveBadgeProps): ReactNode {
   const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
-  const { isOpen } = useOpenSpaceIds();
+  const isOpen = useIsSpaceOpenLocally(spaceId);
   if (endedAt !== null) return null;
-  if (isOpen(spaceId)) {
+  if (isOpen) {
     return <SpaceStatusPill label={<Trans>Current</Trans>} showDot={false} />;
   }
   return <SpaceStatusPill label={<Trans>Live</Trans>} showDot />;

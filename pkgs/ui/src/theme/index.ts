@@ -25,8 +25,8 @@ export {
   relativeLuminance,
   type ColorScheme,
   type ColorTokens,
+  type CssRgb8,
   type OnColorSet,
-  type Rgb,
 } from './colors';
 export { fonts, type FontStacks } from './fonts';
 export * from './navigation';

@@ -9,14 +9,3 @@
 export function resolveSpaceMemberId(accountId: string): string {
   return accountId;
 }
-
-/**
- * @deprecated Prefer {@link spaceUserEntityId} from `@libs/db/shared/space-tables`.
- * Legacy membership id was `${memberId}:${spaceId}` — do not use for space_users.
- */
-export function spaceMembershipEntityId(
-  memberId: string,
-  spaceId: string
-): string {
-  return `${memberId}:${spaceId}`;
-}

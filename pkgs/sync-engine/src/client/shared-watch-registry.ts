@@ -1,6 +1,10 @@
 import type { Sql } from '@pkgs/sql';
 import type { WatchSubscription } from './sync-engine-port';
-import { watchQueryCacheKey } from './watch-query-cache';
+
+/** Stable key for a watched SQL query (registry / identity). */
+function watchQueryKey(sql: string, paramsKey: string): string {
+  return `${sql}\0${paramsKey}`;
+}
 
 /**
  * Port-level handle for a single watched SQL query.
@@ -29,7 +33,7 @@ function getOrCreateEntry(
   open: OpenWatchSql,
   query: Sql<Record<string, unknown>>
 ): RegistryEntry {
-  const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
+  const key = watchQueryKey(query.sql, JSON.stringify(query.values));
   const existing = entries.get(key);
   if (existing !== undefined) {
     return existing;
@@ -55,7 +59,7 @@ function createWatchSubscription<T extends Record<string, unknown>>(
   open: OpenWatchSql,
   query: Sql<T>
 ): WatchSubscription<readonly T[]> {
-  const key = watchQueryCacheKey(query.sql, JSON.stringify(query.values));
+  const key = watchQueryKey(query.sql, JSON.stringify(query.values));
   let cachedSnapshot: readonly T[] = [];
   let cachedHydrated = false;
 

@@ -9,7 +9,6 @@ import {
   createSpace,
   createSpaceBeforeBatch,
 } from '../../shared/create-space/create-space-write';
-import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 
 export type CreateSpaceOptions = {
   readonly visibility?: SpaceVisibility;
@@ -18,7 +17,6 @@ export type CreateSpaceOptions = {
 export function useCreateSpace() {
   const auth = useRulesAuth();
   const engine = useSyncEngine();
-  const { markOpen } = useOpenSpaceIds();
 
   return useCallback(
     async (
@@ -37,10 +35,9 @@ export function useCreateSpace() {
         beforeBatch: createSpaceBeforeBatch(auth, input),
         fn: (tx) => createSpace(auth, input, tx),
       });
-      markOpen(spaceId);
       onCreated?.(spaceId);
       return spaceId;
     },
-    [auth, engine, markOpen]
+    [auth, engine]
   );
 }

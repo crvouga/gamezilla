@@ -3,7 +3,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
-import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
+import { useIsSpaceOpenLocally } from '../open-space/use-open-space-session-ids';
 import { openSpaceDetail } from '../space-routes';
 import { useSpaceDisplayTitle } from '../use-space-display-title';
 
@@ -22,11 +22,11 @@ export function SpaceCardOpenLink({
 }: SpaceCardOpenLinkProps): ReactNode {
   const router = useRouter();
   const { t } = useLingui();
-  const { isOpen } = useOpenSpaceIds();
+  const isOpen = useIsSpaceOpenLocally(spaceId);
   const resolvedTitle = useSpaceDisplayTitle(spaceId);
   const accessibilityLabel =
     accessibilityLabelOverride ??
-    (isOpen(spaceId)
+    (isOpen
       ? t`Open current space ${resolvedTitle}`
       : t`Open space ${resolvedTitle}`);
   return (

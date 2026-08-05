@@ -37,7 +37,7 @@ export default function BoxExample() {
           borderRadius: 8,
         }}
       >
-        <Text style={theme.sx({ color: 'onTint', fontWeight: '600' })}>
+        <Text style={theme.sx({ color: 'onPrimary', fontWeight: '600' })}>
           Tint background
         </Text>
       </Box>

@@ -102,7 +102,7 @@ export function MiniplayerStackedBar({
               <Text
                 variant="bodyBold"
                 numberOfLines={1}
-                sx={{ color: 'onTint' }}
+                sx={{ color: 'onPrimary' }}
                 label={t`${count} live spaces`}
               />
             </Box>

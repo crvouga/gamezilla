@@ -72,6 +72,3 @@ export async function runFriendsMutation<TOutput>(
     throw error;
   }
 }
-
-/** @deprecated Use {@link runFriendsMutation}. */
-export const runFriendsWrite = runFriendsMutation;

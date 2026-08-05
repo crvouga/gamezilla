@@ -1,6 +1,5 @@
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
-import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import { fail } from '@pkgs/rules/core/fail';
 import { throwRulesReject } from '@pkgs/rules/core/rules-reject';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
@@ -13,6 +12,10 @@ import {
   executeEndSpace,
   stampSpaceEnded,
 } from '../end-space/execute-end-space';
+import {
+  closeEndedSpaceSessions,
+  closeSpaceSession,
+} from '../open-space/space-open-session-write';
 import {
   asObjectRecord,
   isSpaceUserInStore,
@@ -121,8 +124,9 @@ export async function executeLeaveSpace(
     await executeEndSpace(auth, input, db);
     return;
   }
-  clearSpacePresenceLatch(input.spaceId);
   if (input.endIfLastSeat) {
     await stampSpaceEnded(auth, db, input.spaceId);
+    await closeEndedSpaceSessions(db);
   }
+  await closeSpaceSession(db, input.spaceId);
 }

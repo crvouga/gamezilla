@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import {
-  latchStaleSpacePresence,
-  resolveSpacePresence,
-} from '../shared/resolve-space-presence';
+import { resolveSpacePresence } from '../shared/resolve-space-presence';
 
 const hostSpaceRow = {
   host_member_id: 'user-1',
@@ -100,66 +97,5 @@ describe('resolveSpacePresence', () => {
         myId: 'user-1',
       })
     ).toEqual({ status: 'loading' });
-  });
-});
-
-describe('latchStaleSpacePresence', () => {
-  test('returns stale active presence during transient loading', () => {
-    const latch = {
-      spaceId: 'space-1',
-      presence: { status: 'active' as const, role: 'host' as const },
-    };
-    expect(
-      latchStaleSpacePresence('space-1', { status: 'loading' }, latch)
-    ).toEqual({
-      presence: { status: 'active', role: 'host' },
-      latch,
-    });
-  });
-
-  test('clears latch when space id changes', () => {
-    const latch = {
-      spaceId: 'space-1',
-      presence: { status: 'active' as const, role: 'host' as const },
-    };
-    expect(
-      latchStaleSpacePresence('space-2', { status: 'loading' }, latch)
-    ).toEqual({
-      presence: { status: 'loading' },
-      latch: null,
-    });
-  });
-
-  test('holds active across transient join after open blip', () => {
-    const latch = {
-      spaceId: 'space-1',
-      presence: { status: 'active' as const, role: 'host' as const },
-    };
-    expect(
-      latchStaleSpacePresence(
-        'space-1',
-        { status: 'join', ended: false },
-        latch
-      )
-    ).toEqual({
-      presence: { status: 'active', role: 'host' },
-      latch,
-    });
-  });
-
-  test('accepts ended join even when previously active', () => {
-    const latch = {
-      spaceId: 'space-1',
-      presence: { status: 'active' as const, role: 'host' as const },
-    };
-    expect(
-      latchStaleSpacePresence('space-1', { status: 'join', ended: true }, latch)
-    ).toEqual({
-      presence: { status: 'join', ended: true },
-      latch: {
-        spaceId: 'space-1',
-        presence: { status: 'join', ended: true },
-      },
-    });
   });
 });

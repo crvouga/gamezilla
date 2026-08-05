@@ -22,8 +22,11 @@ async function inboxApiJson<T>(opts: {
     },
   });
   if (!response.ok) {
+    const body = await response.text().catch(() => '');
     throw new Error(
-      `Inbox API ${opts.path} failed: ${String(response.status)}`
+      `Inbox API ${opts.path} failed: ${String(response.status)}${
+        body.length > 0 ? ` ${body}` : ''
+      }`
     );
   }
   return (await response.json()) as T;

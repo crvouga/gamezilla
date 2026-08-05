@@ -11,14 +11,12 @@ import {
   executeEndSpace,
 } from '../../shared/end-space/end-space-write';
 import { AnnounceEnded } from '../../shared/space-log/space-log-messages';
-import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
 
 export function useEndSpace() {
   const auth = useRulesAuth();
   const engine = useSyncEngine();
   const { dispatch: dispatchToSpace } = useSpaceOpenRooms();
-  const { markClosed } = useOpenSpaceIds();
 
   return useCallback(
     async (spaceId: string) => {
@@ -32,8 +30,7 @@ export function useEndSpace() {
         beforeBatch: endSpaceBeforeBatch(input),
         fn: (tx) => executeEndSpace(auth, input, tx),
       });
-      markClosed(spaceId);
     },
-    [auth, dispatchToSpace, engine, markClosed]
+    [auth, dispatchToSpace, engine]
   );
 }

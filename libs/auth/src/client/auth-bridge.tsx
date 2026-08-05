@@ -12,10 +12,10 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { flushSyncIdentityOnSignIn } from './sync-identity-flush';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { refreshAuth } from './refresh-auth-fetch';
+import { shouldClearAccountOnExternalUserChange } from './resolve-client-identity';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
@@ -41,6 +41,38 @@ function normalizeExpiresAt(raw: unknown): string | null {
   if (raw instanceof Date) return raw.toISOString();
   if (typeof raw === 'string' && raw.length > 0) return raw;
   return null;
+}
+
+function useClearStaleAccountOnExternalUserChange(args: {
+  authState: AuthSessionState;
+  deps: RefreshDeps;
+}): void {
+  const { authState, deps } = args;
+  const isHydrated = authState.isHydrated;
+  const isSignedIn = isAuthSessionSignedIn(authState);
+  const externalUserId = authState.session?.externalUserId ?? null;
+  const previousExternalUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (!isSignedIn || externalUserId === null) {
+      if (!isSignedIn) previousExternalUserIdRef.current = null;
+      return;
+    }
+    const previous = previousExternalUserIdRef.current;
+    previousExternalUserIdRef.current = externalUserId;
+    if (
+      !shouldClearAccountOnExternalUserChange(
+        previous,
+        externalUserId,
+        isSignedIn
+      )
+    ) {
+      return;
+    }
+    deps.lastSyncedTokenRef.current = null;
+    void writeSecureStorageItem(deps.storage, LAST_LOCAL_ACCOUNT_ID_KEY, null);
+  }, [deps, externalUserId, isHydrated, isSignedIn]);
 }
 
 function useReconcileAuthSession(args: {
@@ -146,6 +178,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     [apiUrl, deviceId, storage, log]
   );
 
+  useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
   useRefreshOnAppForeground({
     enabled: authToken !== null && currentAccountId !== null,
@@ -187,7 +220,6 @@ async function applyRefreshSuccess(args: {
     LAST_LOCAL_ACCOUNT_ID_KEY,
     accountId
   );
-  await flushSyncIdentityOnSignIn();
   deps.lastSyncedTokenRef.current = token;
 }
 

@@ -17,7 +17,6 @@ import {
   SpaceMembersRoomAttr,
 } from '../../shared/space-members/space-members-messages';
 import { AnnounceMemberLeft } from '../../shared/space-log/space-log-messages';
-import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
 import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
 
 export function useLeaveSpace() {
@@ -25,7 +24,6 @@ export function useLeaveSpace() {
   const engine = useSyncEngine();
   const { dispatch: dispatchToSpace, getEntry } = useSpaceOpenRooms();
   const myId = useMyId();
-  const { markClosed } = useOpenSpaceIds();
 
   return useCallback(
     async (spaceId: string) => {
@@ -54,8 +52,7 @@ export function useLeaveSpace() {
         ...(beforeBatch !== undefined ? { beforeBatch } : {}),
         fn: (tx) => executeLeaveSpace(auth, input, tx),
       });
-      markClosed(spaceId);
     },
-    [auth, dispatchToSpace, engine, getEntry, markClosed, myId]
+    [auth, dispatchToSpace, engine, getEntry, myId]
   );
 }

@@ -6,21 +6,21 @@ import { describe, expect, it } from 'bun:test';
  * effect cleanup must destroy an active room/transport so Close→reopen
  * cannot stack orphan WebSockets when the detail bridge remounts.
  *
- * The host owns lifetime via openSpaceIds; the connect effect still must
- * tear down on its own cleanup when a slot unmounts (leave/end).
+ * The host owns lifetime via `local_space_open_sessions`; the connect
+ * effect still must tear down on its own cleanup when a slot unmounts.
  */
 describe('space room connection cleanup contract', () => {
-  it('treats leave/markClosed as the only intentional disconnect', () => {
-    const openSpaceIds = ['space-a'];
-    const markClosed = (spaceId: string): string[] =>
-      openSpaceIds.filter((id) => id !== spaceId);
+  it('treats session-row delete as the only intentional disconnect', () => {
+    const openSessionIds = ['space-a'];
+    const closeSession = (spaceId: string): string[] =>
+      openSessionIds.filter((id) => id !== spaceId);
 
-    // Close detail does not call markClosed — connection host keeps the id.
-    const afterCloseDetail = [...openSpaceIds];
+    // Close detail does not delete the session — connection host keeps the id.
+    const afterCloseDetail = [...openSessionIds];
     expect(afterCloseDetail).toEqual(['space-a']);
 
-    // Leave removes the id → SpaceOpenRoomSlot unmount → tearDown.
-    const afterLeave = markClosed('space-a');
+    // Leave/end deletes the session → SpaceOpenRoomSlot unmount → tearDown.
+    const afterLeave = closeSession('space-a');
     expect(afterLeave).toEqual([]);
   });
 
@@ -37,7 +37,7 @@ describe('space room connection cleanup contract', () => {
     };
 
     const firstMount = getOrCreate('space-a');
-    // Detail unmount (Close) — session map not cleared.
+    // Detail unmount (Close) — session row (here: map) not cleared.
     const secondMount = getOrCreate('space-a');
     expect(secondMount).toBe(firstMount);
 

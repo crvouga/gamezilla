@@ -10,12 +10,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 
-import { useOpenSpaceIds } from '../open-space/use-open-space-ids';
-import { clearSpaceOpenSession } from './space-open-session-store';
+import { useOpenSpaceSessionIds } from '../open-space/use-open-space-session-ids';
 import { useSpaceRoom } from './use-space-room';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -57,26 +57,25 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
     };
   }, [setEntry, spaceId, state.room, state.clientId]);
 
-  useEffect(() => {
-    return () => {
-      clearSpaceOpenSession(spaceId);
-    };
-  }, [spaceId]);
-
   return null;
 }
 
 /**
  * Keeps one room WebSocket alive per locally-open space (Meet-style).
- * Close/minimize does not tear down; leave/end removes the space from
- * {@link useOpenSpaceIds} and unmounts that slot.
+ * Close/minimize does not tear down; leave/end deletes the
+ * `local_space_open_sessions` row and unmounts that slot.
  */
 export function SpaceOpenRoomsProvider({
   children,
 }: {
   readonly children: ReactNode;
 }): ReactNode {
-  const { openSpaceIds } = useOpenSpaceIds();
+  const { spaceIds, isLoading } = useOpenSpaceSessionIds();
+  const stableIdsRef = useRef<readonly string[]>([]);
+  if (!isLoading) {
+    stableIdsRef.current = spaceIds;
+  }
+  const mountedIds = isLoading ? stableIdsRef.current : spaceIds;
   const [entries, setEntries] = useState(
     (): ReadonlyMap<string, SpaceOpenRoomEntry> => new Map()
   );
@@ -111,7 +110,7 @@ export function SpaceOpenRoomsProvider({
   return (
     <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
       <SpaceOpenRoomsContext.Provider value={api}>
-        {openSpaceIds.map((spaceId) => (
+        {mountedIds.map((spaceId) => (
           <SpaceOpenRoomSlot key={spaceId} spaceId={spaceId} />
         ))}
         {children}

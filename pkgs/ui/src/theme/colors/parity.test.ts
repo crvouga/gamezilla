@@ -22,7 +22,6 @@ const REQUIRED_TOKENS: ReadonlyArray<keyof ColorTokens> = [
   'tintSubtle',
   'tintMuted',
   'tintHighlight',
-  'onTint',
   'onPrimary',
   'onDestructive',
   'onSuccess',

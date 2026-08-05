@@ -3,8 +3,7 @@ import { sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
-import { useAuthClientPort } from './auth-client-provider';
-import { isAuthSessionSignedIn } from './session-snapshot';
+import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
 import {
   getCachedCurrentAccountId,
   useCurrentAccountId,
@@ -63,29 +62,26 @@ export function useCurrentUser(): CurrentUser | null {
  * secure storage.
  */
 export function useIsSignedIn(): boolean {
-  const port = useAuthClientPort();
-  const authState = port.useAuthSession();
   const accountId = useCurrentAccountId();
   const token = useFreshAuthToken();
-
-  if (isAuthSessionSignedIn(authState)) return true;
-
-  return accountId !== null && token !== null;
+  return resolveIsSignedIn(accountId, token);
 }
 
 /**
  * Replication identity: account id when signed in, else the install device id.
+ * While a session token is present but `lastLocalAccountId` is not yet written,
+ * returns `''` so callers do not bind to the device/anon profile.
  */
 export function useMyId(): string {
   const accountId = useCurrentAccountId();
   const deviceId = useDeviceId();
   const token = useFreshAuthToken();
-  if (accountId !== null) return accountId;
-  if (token !== null) {
-    const cachedAccountId = getCachedCurrentAccountId();
-    if (cachedAccountId !== null) return cachedAccountId;
-  }
-  return deviceId ?? '';
+  return resolveMyId({
+    accountId,
+    cachedAccountId: getCachedCurrentAccountId(),
+    token,
+    deviceId,
+  });
 }
 
 /** Account id for the current session, or `null` if signed out. */

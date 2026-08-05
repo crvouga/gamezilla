@@ -16,6 +16,7 @@ import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { openSpaceSession } from '../open-space/space-open-session-write';
 import {
   asObjectRecord,
   isoNow,
@@ -107,4 +108,5 @@ export async function createSpace(
       ${accountId}
     )
   `);
+  await openSpaceSession(db, input.spaceId);
 }

@@ -209,6 +209,7 @@
     "rasterizing",
     "reconstructable",
     "recordset",
+    "Refcounted",
     "regclass",
     "regnamespace",
     "regs",

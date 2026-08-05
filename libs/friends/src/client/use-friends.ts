@@ -3,6 +3,7 @@ import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
 import { otherUserInPair } from '../shared/canonical-pair';
@@ -15,7 +16,17 @@ type FriendRow = {
   readonly friends_since: string;
 };
 
-function friendsSql(myId: string): Sql<FriendRow> {
+function friendsSql(myId: string, enabled: boolean): Sql<FriendRow> {
+  if (!enabled) {
+    return sql<FriendRow>`
+      SELECT
+        CAST(NULL AS TEXT) AS friend_id,
+        CAST(NULL AS TEXT) AS username,
+        CAST(NULL AS TEXT) AS avatar_config,
+        CAST(NULL AS TEXT) AS friends_since
+      WHERE false
+    `;
+  }
   return sql<FriendRow>`
     SELECT
       CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END AS friend_id,
@@ -43,13 +54,18 @@ export function useFriends(): {
   friends: readonly Friend[];
   isLoading: boolean;
 } {
+  const paintReady = useSyncEnginePaintReady();
   const myId = useMyId();
-  const query = useMemo(() => friendsSql(myId), [myId]);
+  const enabled = paintReady && myId.length > 0;
+  const query = useMemo(() => friendsSql(myId, enabled), [myId, enabled]);
   const { rows, isLoading } = useWatchQuery(query);
   const friends = useMemo(
     () => rows.filter((row) => row.friend_id.length > 0).map(mapFriendRow),
     [rows]
   );
+  if (!paintReady) {
+    return { friends: [], isLoading: true };
+  }
   return { friends, isLoading: myId.length === 0 ? false : isLoading };
 }
 

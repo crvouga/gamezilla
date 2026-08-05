@@ -3,6 +3,7 @@ import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
@@ -54,14 +55,18 @@ function friendshipStatusSql(
 }
 
 export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
+  const paintReady = useSyncEnginePaintReady();
   const myId = useMyId();
   const enabled =
-    myId.length > 0 && targetUserId.length > 0 && myId !== targetUserId;
+    paintReady &&
+    myId.length > 0 &&
+    targetUserId.length > 0 &&
+    myId !== targetUserId;
   const query = useMemo(
     () => (enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql()),
     [enabled, myId, targetUserId]
   );
   const { row } = useWatchOne(query);
-  if (!enabled) return 'none';
+  if (!paintReady || !enabled) return 'none';
   return row?.status ?? 'none';
 }

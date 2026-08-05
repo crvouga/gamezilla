@@ -20,9 +20,3 @@ export function buildRulesAuth(args: {
     myId: args.myId,
   });
 }
-
-/** @deprecated Use {@link useRulesAuth}. */
-export const useWriteContext = useRulesAuth;
-
-/** @deprecated Use {@link buildRulesAuth}. */
-export const buildWriteContext = buildRulesAuth;

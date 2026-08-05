@@ -52,14 +52,7 @@ const COLOR_GROUPS: readonly {
   },
   {
     title: 'On-color foregrounds',
-    tokens: [
-      'onTint',
-      'onPrimary',
-      'onDestructive',
-      'onSuccess',
-      'onWarning',
-      'onInfo',
-    ],
+    tokens: ['onPrimary', 'onDestructive', 'onSuccess', 'onWarning', 'onInfo'],
   },
   {
     title: 'Overlays',

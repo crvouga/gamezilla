@@ -4,7 +4,6 @@ import { SpaceJoinPrompt } from './join-space/space-join-prompt';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
-import { useAutoLeaveIfEnded } from './leave-space/use-auto-leave-if-ended';
 import { useSpacePresence } from './use-space-presence';
 import { type ReactNode } from 'react';
 import {
@@ -41,8 +40,6 @@ type SpaceDetailBodyProps = {
 
 function SpaceDetailBody({ spaceId }: SpaceDetailBodyProps): ReactNode {
   const presence = useSpacePresence(spaceId);
-
-  useAutoLeaveIfEnded(spaceId);
 
   if (presence.status === 'loading') {
     return <SpaceDetailInitialLoading spaceId={spaceId} />;

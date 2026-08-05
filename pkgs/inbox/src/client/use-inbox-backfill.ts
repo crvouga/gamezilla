@@ -6,18 +6,26 @@ import { useInboxShell } from './inbox-provider-registry';
 
 const log = createLogger({ name: 'inbox-backfill' });
 
+function logBackfillFailure(error: unknown): void {
+  log.error('backfill failed', {
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
+
 export function useInboxBackfill(): void {
   const { isSignedIn, isAuthReady, deps } = useInboxShell();
   const started = useRef(false);
 
   useEffect(() => {
-    if (!isSignedIn || !isAuthReady || started.current) return;
+    if (!isSignedIn) {
+      started.current = false;
+      return;
+    }
+    if (!isAuthReady || started.current) return;
     started.current = true;
     void backfillInboxRemote(deps).catch((error: unknown) => {
       started.current = false;
-      log.error('backfill failed', {
-        error: error instanceof Error ? error.message : String(error),
-      });
+      logBackfillFailure(error);
     });
   }, [deps, isAuthReady, isSignedIn]);
 }

@@ -34,7 +34,7 @@ export function DeviceAvatar({
         size={size}
         icon={UserIcon}
         background={vividBackdrop ? 'onTintScrim' : 'outline'}
-        foreground={vividBackdrop ? 'onTint' : 'tabIconDefault'}
+        foreground={vividBackdrop ? 'onPrimary' : 'tabIconDefault'}
       />
     );
   }

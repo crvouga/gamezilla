@@ -1,10 +1,13 @@
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
-import { clearSpacePresenceLatch } from '@libs/spaces/shared/space-presence-latch-store';
 import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import {
+  closeEndedSpaceSessions,
+  closeSpaceSession,
+} from '../open-space/space-open-session-write';
 import { isoNow, requireAccountId } from '../space-write-helpers';
 
 export type EndSpaceInput = {
@@ -31,13 +34,14 @@ export async function stampSpaceEnded(
 
 /**
  * End a live space. Shared by explicit End and host Leave (I4: host leave = end).
- * Presence latch must be cleared at the call site (not inside rules).
+ * Closes the local open-session row in the same txn.
  */
 export async function executeEndSpace(
   auth: AppRulesAuth,
   input: EndSpaceInput,
   db: SqlClient
 ): Promise<void> {
-  clearSpacePresenceLatch(input.spaceId);
   await stampSpaceEnded(auth, db, input.spaceId);
+  await closeSpaceSession(db, input.spaceId);
+  await closeEndedSpaceSessions(db);
 }

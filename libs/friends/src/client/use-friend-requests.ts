@@ -3,6 +3,7 @@ import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
 import type { FriendRequest } from '../shared/friends-types';
@@ -18,7 +19,26 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
-function pendingIncomingSql(myId: string): Sql<FriendRequestRow> {
+function emptyRequestsSql(): Sql<FriendRequestRow> {
+  return sql<FriendRequestRow>`
+    SELECT
+      CAST(NULL AS TEXT) AS id,
+      CAST(NULL AS TEXT) AS from_user_id,
+      CAST(NULL AS TEXT) AS to_user_id,
+      CAST(NULL AS TEXT) AS status,
+      CAST(NULL AS TEXT) AS message,
+      CAST(NULL AS TEXT) AS created_at,
+      CAST(NULL AS TEXT) AS updated_at,
+      CAST(NULL AS TEXT) AS responded_at
+    WHERE false
+  `;
+}
+
+function pendingIncomingSql(
+  myId: string,
+  enabled: boolean
+): Sql<FriendRequestRow> {
+  if (!enabled) return emptyRequestsSql();
   return sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
@@ -27,7 +47,11 @@ function pendingIncomingSql(myId: string): Sql<FriendRequestRow> {
   `;
 }
 
-function pendingOutgoingSql(myId: string): Sql<FriendRequestRow> {
+function pendingOutgoingSql(
+  myId: string,
+  enabled: boolean
+): Sql<FriendRequestRow> {
+  if (!enabled) return emptyRequestsSql();
   return sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
     FROM friend_requests
@@ -53,10 +77,18 @@ export function useIncomingFriendRequests(): {
   requests: readonly FriendRequest[];
   isLoading: boolean;
 } {
+  const paintReady = useSyncEnginePaintReady();
   const myId = useMyId();
-  const query = useMemo(() => pendingIncomingSql(myId), [myId]);
+  const enabled = paintReady && myId.length > 0;
+  const query = useMemo(
+    () => pendingIncomingSql(myId, enabled),
+    [myId, enabled]
+  );
   const { rows, isLoading } = useWatchQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
+  if (!paintReady) {
+    return { requests: [], isLoading: true };
+  }
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }
 
@@ -64,10 +96,18 @@ export function useOutgoingFriendRequests(): {
   requests: readonly FriendRequest[];
   isLoading: boolean;
 } {
+  const paintReady = useSyncEnginePaintReady();
   const myId = useMyId();
-  const query = useMemo(() => pendingOutgoingSql(myId), [myId]);
+  const enabled = paintReady && myId.length > 0;
+  const query = useMemo(
+    () => pendingOutgoingSql(myId, enabled),
+    [myId, enabled]
+  );
   const { rows, isLoading } = useWatchQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
+  if (!paintReady) {
+    return { requests: [], isLoading: true };
+  }
   return { requests, isLoading: myId.length === 0 ? false : isLoading };
 }
 

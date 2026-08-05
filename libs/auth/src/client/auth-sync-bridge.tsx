@@ -2,9 +2,8 @@ import type { ReactNode } from 'react';
 
 /**
  * Marker provider kept for composition stability. Identity transitions remount
- * {@link SyncEngineBoot}; watch-cache clearing lives in
- * {@link flushSyncIdentityOnSignIn} / boot effects. No longer registers a
- * clearLocalData flush (per-account SQLite files isolate data).
+ * {@link SyncEngineBoot}. No longer registers a clearLocalData flush
+ * (per-account SQLite files isolate data).
  */
 export function AuthSyncBridge({
   children,

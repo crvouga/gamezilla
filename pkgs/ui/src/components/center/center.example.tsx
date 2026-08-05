@@ -18,7 +18,7 @@ export default function CenterExample() {
       >
         <Text
           variant="bodyBold"
-          sx={{ color: 'onTint' }}
+          sx={{ color: 'onPrimary' }}
           label="Centered on tint"
         />
       </Center>

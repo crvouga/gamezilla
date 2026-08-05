@@ -9,6 +9,7 @@ import {
   getCachedAuthToken,
   useFreshAuthToken,
   useGetFreshAuthToken,
+  type GetFreshAuthTokenFn,
 } from '@libs/auth/client/use-fresh-auth-token';
 import {
   InboxProviderRegistry,
@@ -22,6 +23,25 @@ import { useMemo, type ReactNode } from 'react';
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
+async function resolveInboxBearer(
+  getFreshToken: GetFreshAuthTokenFn,
+  options?: { readonly skipCache?: boolean }
+): Promise<string | null> {
+  const fresh = await getFreshToken(options);
+  if (fresh !== null && fresh.length > 0) return fresh;
+  return getCachedAuthToken();
+}
+
+function applyInboxAuthHeaders(headers: Headers, token: string | null): void {
+  if (token !== null && token.length > 0) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const anon = getCachedDeviceId();
+  if (anon !== null && anon.length > 0) {
+    headers.set(X_ANON_ID, anon);
+  }
+}
+
 function useInboxClientDeps(): InboxClientDeps {
   const config = useConfigService();
   const apiBaseUrl = config.getApiUrl();
@@ -33,18 +53,17 @@ function useInboxClientDeps(): InboxClientDeps {
       apiBaseUrl,
       fetchFn: async (path, init) => {
         const headers = new Headers(init?.headers);
-        let token = getCachedAuthToken();
-        if (token === null || token.length === 0) {
-          token = await getFreshToken();
+        let token = await resolveInboxBearer(getFreshToken);
+        applyInboxAuthHeaders(headers, token);
+        let response = await fetch(path, { ...init, headers });
+        // Stale secure-storage / SWR bearer after idle — force-mint and retry once.
+        if (response.status === 401) {
+          token = await resolveInboxBearer(getFreshToken, { skipCache: true });
+          const retryHeaders = new Headers(init?.headers);
+          applyInboxAuthHeaders(retryHeaders, token);
+          response = await fetch(path, { ...init, headers: retryHeaders });
         }
-        if (token !== null && token.length > 0) {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
-        const anon = getCachedDeviceId();
-        if (anon !== null && anon.length > 0) {
-          headers.set(X_ANON_ID, anon);
-        }
-        return fetch(path, { ...init, headers });
+        return response;
       },
     }),
     [apiBaseUrl, getFreshToken]
@@ -59,9 +78,10 @@ export function AppInboxProvider({
   const userId = useMyId();
   const isSignedIn = useIsSignedIn();
   const authToken = useFreshAuthToken();
-  // Auth can report signed-in before the bearer lands in secure storage;
-  // hold inbox REST (incl. backfill) until the token is readable.
-  const isAuthReady = isSignedIn && authToken !== null;
+  const deviceId = useDeviceId();
+  // Account id + bearer can hydrate before Clerk mint / device cache settle;
+  // hold inbox REST (incl. backfill) until both are readable.
+  const isAuthReady = isSignedIn && authToken !== null && deviceId.length > 0;
   const deps = useInboxClientDeps();
   const friendsDeps = useFriendsClientDeps();
   const { open: openSignInModal } = useSignInModal();

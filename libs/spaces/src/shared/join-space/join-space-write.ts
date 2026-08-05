@@ -8,6 +8,7 @@ import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { openSpaceSession } from '../open-space/space-open-session-write';
 import {
   asObjectRecord,
   isSpaceUserInStore,
@@ -100,4 +101,5 @@ export async function executeJoinSpace(
       accountId,
     });
   }
+  await openSpaceSession(db, input.spaceId);
 }

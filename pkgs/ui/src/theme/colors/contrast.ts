@@ -17,8 +17,7 @@ import {
   type CssRgb8,
 } from './css-color';
 
-/** @deprecated Prefer {@link CssRgb8}; kept as `Rgb` for existing callers. */
-export type Rgb = CssRgb8;
+export type { CssRgb8 };
 
 /** Foreground colors to render on top of a given background. */
 export type OnColorSet = {
@@ -45,19 +44,19 @@ export const ON_LIGHT: OnColorSet = {
 };
 
 /** Parse a CSS color string to 0–255 RGB. Returns `null` for unsupported input. */
-export function parseColor(input: string): Rgb | null {
+export function parseColor(input: string): CssRgb8 | null {
   const c = parseCssColor(input);
   if (!c) return null;
   return rgbaToRgb8(c);
 }
 
 /** WCAG relative luminance (0 = black, 1 = white). Input channels are 0–255. */
-export function relativeLuminance(rgb: Rgb): number {
+export function relativeLuminance(rgb: CssRgb8): number {
   return relativeLuminanceUnit(rgb8ToRgba(rgb));
 }
 
 /** WCAG contrast ratio between two 0–255 RGB colors (1:1 to 21:1). */
-export function contrastRatio(a: Rgb, b: Rgb): number {
+export function contrastRatio(a: CssRgb8, b: CssRgb8): number {
   return contrastRatioUnit(rgb8ToRgba(a), rgb8ToRgba(b));
 }
 

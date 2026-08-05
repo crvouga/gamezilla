@@ -9,17 +9,10 @@ import {
   resolvePresenceRole,
   resolveRoomActorId,
 } from '../shared/participation/space-participation-policy';
-import { spaceMembershipEntityId } from '../shared/participation/participation-ids';
 
 describe('resolveMemberId', () => {
   test('returns account id', () => {
     expect(resolveMemberId('acct-1')).toBe('acct-1');
-  });
-});
-
-describe('ids', () => {
-  test('legacy membership key by member and space', () => {
-    expect(spaceMembershipEntityId('acct-1', 'space-1')).toBe('acct-1:space-1');
   });
 });
 

@@ -33,11 +33,6 @@ export type ColorTokens = {
   tintMuted: string;
   /** Solid tint @ ~12% alpha (or surface mix) for selected pills in dark mode. */
   tintHighlight: string;
-  /**
-   * Readable foreground on top of `tint` per scheme.
-   * @deprecated Prefer the per-intent `on*` tokens for new code.
-   */
-  onTint: string;
   /** High-contrast label/icon on top of saturated `tint`. */
   onPrimary: string;
   /** High-contrast label/icon on top of `destructive`. */
@@ -50,7 +45,7 @@ export type ColorTokens = {
   onInfo: string;
   /**
    * Translucent dark overlay to place on top of a brand/`tint` gradient
-   * (pills, plates) so that `onTint` (white) content stays AA-legible
+   * (pills, plates) so that `onPrimary` (white) content stays AA-legible
    * regardless of where it falls on the gradient ramp.
    */
   onTintScrim: string;

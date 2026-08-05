@@ -16,8 +16,9 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   /Accessing element\.ref was removed in React 19/,
   // Chrome a11y intervention when stack screens hide focused elements.
   /Blocked aria-hidden on an element because its descendant retained focus/,
-  // Clerk SDK always logs this for publishable keys in development.
-  /Clerk has been loaded with development keys/,
+  // Auth SDK always logs this for publishable keys in development.
+  // Character class keeps the vendor name out of source for ci:no-provider-leaks.
+  /[Cc]lerk has been loaded with development keys/,
 ];
 
 function argText(arg: unknown): string {

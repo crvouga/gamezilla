@@ -4,6 +4,7 @@ import { SpaceCardGradientBox } from '../card/space-card-gradient';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
+import { SpaceField, useSpaceColumn } from '../use-space-column';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
@@ -20,12 +21,16 @@ export type SpaceMiniplayerCardProps = {
   ) => void;
 };
 
-/** A single miniplayer entry — gradient + atoms. No `useQuery` here. */
+/** A single miniplayer entry — hidden once DB stamps `ended_at`. */
 export function SpaceMiniplayerCard({
   spaceId,
   requestEndSpace,
   requestLeaveSpace,
 }: SpaceMiniplayerCardProps): ReactNode {
+  const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
+  if (endedAt !== null) {
+    return null;
+  }
   return (
     <SpaceCardGradientBox
       sx={{
