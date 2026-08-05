@@ -2,17 +2,15 @@ import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 
-import { previewStackEnv } from '../src/preview-stack-env';
-
-import { applyClerkPlaywrightEnv } from './playwright-clerk-env';
+import { applyClerkPlaywrightEnv } from './clerk-env';
+import { previewStackEnv } from './preview-stack-env';
 
 /**
  * Applies secret-store-backed preview env when `DATABASE_URL` is already injected
- * (e.g. `bun run check:browser` under `secrets-run`). Returns `false` when the
- * config is loaded without secrets — Playwright's IDE test server only needs
- * to list files and must not assert-crash on missing secrets env.
+ * (e.g. `bun run check:browser` under `secrets-run`). Returns `false` when secrets
+ * are missing so callers can soft-skip during IDE probes.
  */
-export function applyPlaywrightPreviewEnv(args: {
+export function applyBrowserPreviewEnv(args: {
   readonly baseURL: string;
   readonly localApiPreviewOrigin: string;
 }): boolean {
@@ -61,11 +59,11 @@ export function applyPlaywrightPreviewEnv(args: {
   return true;
 }
 
-/** Called from globalSetup before tests — never during IDE config probe / `--list`. */
-export function assertPlaywrightPreviewEnvReady(): void {
+/** Hard-fail before tests — never during soft env probes. */
+export function assertBrowserPreviewEnvReady(): void {
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
-    'Playwright browser tests require secrets env `dev` — run `bun run check:browser` from the repo root (wraps `secrets-run`)'
+    'Browser E2E requires secrets env `dev` — run `bun run check:browser` from the repo root (wraps `secrets-run`)'
   );
   assert.nonEmptyString(
     process.env['EXPO_PUBLIC_API_URL'],

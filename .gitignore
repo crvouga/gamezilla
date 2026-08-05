@@ -92,4 +92,5 @@ libs/powersync/sync-fetched.yaml
 /check/
 **/playwright-report/
 **/test-results/
+check/browser-artifacts/
 **/blob-report/

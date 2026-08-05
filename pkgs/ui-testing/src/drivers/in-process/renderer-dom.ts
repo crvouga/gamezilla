@@ -9,6 +9,7 @@ import {
   pressDomKey,
   scrollElement,
   tapElement,
+  tapElementAt,
   typeIntoElement,
 } from './dom-actions';
 import {
@@ -54,6 +55,7 @@ function createRenderedApp(
     isVisible: isElementVisible,
     getText: readElementText,
     tap: (el) => act(async () => tapElement(el)),
+    tapAt: (el, position) => act(async () => tapElementAt(el, position)),
     typeText: (el, text) => act(async () => typeIntoElement(el, text)),
     clearText: (el) => act(async () => clearElement(el)),
     pressKey: (key) => act(async () => pressDomKey(key)),

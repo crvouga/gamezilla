@@ -13,7 +13,7 @@
 # 2. Non-Turbo tasks live in their own jobs only when they need a runner
 #    shape Turbo can't share: `static` (actionlint + gitleaks both want
 #    a fresh binary download, gitleaks needs `fetch-depth: 0`), `check-api`,
-#    `check-browser` (Playwright browser cache, screenshots/videos as
+#    `check-browser` (Chromium browser cache, failure screenshots as
 #    artifacts).
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
@@ -272,7 +272,7 @@ jobs:
     # so check-browser is the only place the web client is actually built
     # in CI before deploy. Sequencing on turbo-* would just delay this
     # job for little cache benefit (remote cache already shared). CI starts
-    # `turbo preview` in a prior step; Playwright never spawns servers —
+    # `turbo preview` in a prior step; browser E2E never spawns servers —
     # it fails fast when the stack is down.
     runs-on: ubuntu-latest
     env:
@@ -349,7 +349,7 @@ jobs:
             echo "::endgroup::"
             exit 1
           fi
-      - name: Check Playwright
+      - name: Check browser E2E
         run: bun run check:browser
       - name: Stop preview stack
         if: always()
@@ -358,59 +358,20 @@ jobs:
             kill "$(cat /tmp/preview-stack.pid)" 2>/dev/null || true
           fi
 
-      # Always upload the report (not just on failure) so the embedded
-      # videos -- recorded for every test via `video: 'on'` in
-      # `libs/integration-test/playwright/playwright.config.ts` -- are available for
-      # green runs too. `if: always()` excludes only manually cancelled
-      # runs; use `if: !cancelled()` if you want those too.
-      - name: Upload Playwright report
+      # Screenshots written by the web driver binding on failure.
+      - name: Upload browser artifacts
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: playwright-report
-          path: check/playwright-report/
+          name: browser-artifacts
+          path: check/browser-artifacts/
           retention-days: 7
+          if-no-files-found: ignore
       - uses: ./.github/actions/turbo-cache
         if: always() && !cancelled()
         with:
           job: check-browser
           mode: save
-
-  # Resolve a durable URL for the Playwright HTML report on every main push
-  # (green or red). Private repositories on the free plan cannot publish
-  # GitHub Pages (`deploy-pages` 422: "current plan does not support private
-  # GitHub Pages"), so we link the `playwright-report` Actions artifact that
-  # `check-browser` already uploads instead of calling deploy-pages.
-  publish-playwright-report:
-    if: >-
-      always() &&
-      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
-      (needs.check-browser.result == 'success' || needs.check-browser.result == 'failure')
-    needs: [check-browser]
-    runs-on: ubuntu-latest
-    outputs:
-      page_url: ${{ steps.report.outputs.page_url }}
-    permissions:
-      contents: read
-      actions: read
-    timeout-minutes: 10
-    steps:
-      - name: Resolve Playwright report artifact URL
-        id: report
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          artifact_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
-            --jq '.artifacts[] | select(.name=="playwright-report") | .id' | head -n 1)"
-          if [ -z "${artifact_id}" ]; then
-            echo "::warning::playwright-report artifact not found for run ${GITHUB_RUN_ID} (check-browser likely failed before Upload Playwright report)"
-            echo "page_url=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          page_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts/${artifact_id}"
-          echo "page_url=${page_url}" >> "$GITHUB_OUTPUT"
-          echo "Playwright report: ${page_url}"
 
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
@@ -522,7 +483,6 @@ jobs:
         static,
         check-api,
         check-browser,
-        publish-playwright-report,
         deploy,
         lock-release,
       ]

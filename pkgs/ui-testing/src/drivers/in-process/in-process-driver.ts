@@ -6,6 +6,7 @@ import type { RenderAdapter, RenderedApp } from '../../bootstrap/render-adapter'
 import type {
   Driver,
   ScrollDirection,
+  TapPosition,
   WaitState,
 } from '../../driver/driver';
 import { formatSelector } from '../../selector/format';
@@ -55,6 +56,13 @@ export class InProcessDriver<TContext = void> implements Driver {
 
   async tap(target: Selector): Promise<void> {
     await this.requireApp().tap(await this.requireElement(target));
+  }
+
+  async tapAt(target: Selector, position: TapPosition): Promise<void> {
+    await this.requireApp().tapAt(
+      await this.requireElement(target),
+      position
+    );
   }
 
   async typeText(target: Selector, text: string): Promise<void> {

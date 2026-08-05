@@ -5,7 +5,6 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
-    "./playwright/**/*.ts",
     "./e2e/**/*.ts"
   ],
   "exclude": ["node_modules"]

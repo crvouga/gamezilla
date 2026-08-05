@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 /**
- * Browser check orchestrator: ensures the preview/dev stack is up, then runs Playwright.
+ * Browser check orchestrator: ensures the preview/dev stack is up, then runs
+ * `@libs/integration-test` web UI tests (bun test + @pkgs/ui-testing Playwright driver).
  *
  * When ports :5173 / :8788 are already healthy (`bun dev`, `bun preview`, or CI's
  * prior "Start preview stack" step), runs tests immediately. Otherwise starts

@@ -104,10 +104,7 @@
     "test:e2e": {
       "dependsOn": ["^tc"],
       "cache": false,
-      "outputs": [
-        "../../check/playwright-report/**",
-        "../../check/test-results/**"
-      ]
+      "outputs": ["../../check/browser-artifacts/**"]
     },
     "//#ci:format": {
       "inputs": ["$TURBO_DEFAULT$"],

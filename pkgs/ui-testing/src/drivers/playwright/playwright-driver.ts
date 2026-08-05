@@ -5,6 +5,7 @@ import type { WaitOptions } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
+  TapPosition,
   WaitState,
 } from '../../driver/driver';
 import { formatSelector } from '../../selector/format';
@@ -44,6 +45,23 @@ export class PlaywrightDriver implements Driver {
 
   async tap(target: Selector): Promise<void> {
     await this.locator(target).click();
+  }
+
+  async tapAt(target: Selector, position: TapPosition): Promise<void> {
+    const loc = this.locator(target);
+    const box = await loc.boundingBox();
+    if (!box) {
+      throw new ElementNotFoundError(
+        formatSelector(target),
+        'no bounding box'
+      );
+    }
+    await loc.click({
+      position: {
+        x: box.width * position.xRatio,
+        y: box.height * position.yRatio,
+      },
+    });
   }
 
   async typeText(target: Selector, text: string): Promise<void> {
@@ -111,6 +129,14 @@ export class PlaywrightDriver implements Driver {
 }
 
 function toLocator(page: Page, selector: Selector): Locator {
+  const base = baseLocator(page, selector);
+  if (selector.nth !== undefined) {
+    return base.nth(selector.nth);
+  }
+  return base;
+}
+
+function baseLocator(page: Page, selector: Selector): Locator {
   switch (selector.kind) {
     case 'testId':
       return page.getByTestId(selector.value);

@@ -11,7 +11,12 @@
  * when the factory is too coarse.
  */
 
-export type { Driver, ScrollDirection, WaitState } from './driver/driver';
+export type {
+  Driver,
+  ScrollDirection,
+  TapPosition,
+  WaitState,
+} from './driver/driver';
 export {
   createDriver,
   type DetoxDriverConfig,
@@ -20,7 +25,13 @@ export {
   type PlaywrightDriverConfig,
 } from './driver/create-driver';
 
-export { by, type Selector, type SelectorRole } from './selector/selector';
+export {
+  by,
+  first,
+  nth,
+  type Selector,
+  type SelectorRole,
+} from './selector/selector';
 export { formatSelector } from './selector/format';
 
 export {

@@ -12,12 +12,10 @@
   "scripts": {
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
-    "lint": "eslint src scripts playwright e2e --max-warnings 0",
+    "lint": "eslint src scripts e2e --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test:e2e": "bun --bun x playwright test --config playwright/playwright.config.ts",
-    "test:e2e:headed": "bun --bun x playwright test --config playwright/playwright.config.ts --headed",
-    "test:e2e:report": "bun --bun x playwright show-report ../../check/playwright-report",
-    "test:e2e:ui": "bun --bun x playwright test --config playwright/playwright.config.ts --ui",
+    "test:e2e": "bun test ./e2e/targets --timeout 240000",
+    "test:e2e:headed": "HEADED=1 bun test ./e2e/targets --timeout 240000",
     "wait-for-api-health": "bun run scripts/wait-for-api-health.ts",
     "wait-for-browser-e2e-stack": "bun run scripts/wait-for-browser-e2e-stack.ts"
   },
@@ -28,7 +26,8 @@
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*"
   },
   "devDependencies": {
     "@clerk/testing": "catalog:",

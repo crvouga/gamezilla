@@ -24,11 +24,18 @@ export type SelectorRole =
   | 'menu'
   | 'menuitem';
 
-export type Selector =
+type SelectorModifiers = {
+  /** Zero-based match index when multiple elements match. */
+  nth?: number;
+};
+
+export type Selector = (
   | { kind: 'testId'; value: string }
   | { kind: 'text'; value: string; exact?: boolean }
   | { kind: 'label'; value: string }
-  | { kind: 'role'; role: SelectorRole; name?: string };
+  | { kind: 'role'; role: SelectorRole; name?: string }
+) &
+  SelectorModifiers;
 
 /** Fluent builders for {@link Selector}. Prefer these over object literals. */
 export const by = {
@@ -51,3 +58,13 @@ export const by = {
     return { kind: 'role', role };
   },
 } as const;
+
+/** Select the first match when multiple elements match. */
+export function first(selector: Selector): Selector {
+  return { ...selector, nth: 0 };
+}
+
+/** Select the match at a zero-based index. */
+export function nth(selector: Selector, index: number): Selector {
+  return { ...selector, nth: index };
+}

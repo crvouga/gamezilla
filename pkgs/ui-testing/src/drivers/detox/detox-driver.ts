@@ -4,6 +4,7 @@ import type { WaitOptions } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
+  TapPosition,
   WaitState,
 } from '../../driver/driver';
 import type { Selector } from '../../selector/selector';
@@ -17,7 +18,9 @@ import type { Selector } from '../../selector/selector';
  * - text → `by.text(value)`
  * - label → `by.label(value)`
  * - role → not first-class in Detox; approximate via label / traits
+ * - nth → `element(matcher).atIndex(n)`
  * - tap → `element(matcher).tap()`
+ * - tapAt → `element(matcher).tap({ x, y })` (absolute coords from ratios)
  * - typeText → `element(matcher).typeText(text)`
  * - clearText → `element(matcher).clearText()`
  * - pressKey → `device.pressBack()` / platform key APIs (limited)
@@ -62,6 +65,10 @@ export class DetoxDriver implements Driver {
 
   async tap(_target: Selector): Promise<void> {
     this.unsupported('tap', 'element(matcher).tap()');
+  }
+
+  async tapAt(_target: Selector, _position: TapPosition): Promise<void> {
+    this.unsupported('tapAt', 'element(matcher).tap({ x, y })');
   }
 
   async typeText(_target: Selector, _text: string): Promise<void> {

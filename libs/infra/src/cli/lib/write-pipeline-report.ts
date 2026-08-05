@@ -12,7 +12,6 @@ const KNOWN_JOB_ORDER: readonly string[] = [
   'static',
   'check-api',
   'check-browser',
-  'publish-playwright-report',
   'deploy',
   'lock-release',
 ];

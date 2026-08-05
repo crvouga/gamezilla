@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test';
 import type { Locator, Page } from '@playwright/test';
 import { createDriver } from '../../driver/create-driver';
-import { by } from '../../selector/selector';
+import { by, first } from '../../selector/selector';
 import type { PlaywrightDriver } from './playwright-driver';
 
 type FakeLocator = {
@@ -14,12 +14,14 @@ type FakeLocator = {
   inputValue: ReturnType<typeof mock>;
   innerText: ReturnType<typeof mock>;
   evaluate: ReturnType<typeof mock>;
+  boundingBox: ReturnType<typeof mock>;
+  nth: ReturnType<typeof mock>;
 };
 
 function createFakeLocator(
   overrides: Partial<FakeLocator> = {}
 ): FakeLocator {
-  return {
+  const locator: FakeLocator = {
     click: mock(() => Promise.resolve()),
     pressSequentially: mock(() => Promise.resolve()),
     fill: mock(() => Promise.resolve()),
@@ -29,8 +31,13 @@ function createFakeLocator(
     inputValue: mock(() => Promise.resolve('typed')),
     innerText: mock(() => Promise.resolve('label')),
     evaluate: mock(() => Promise.resolve()),
+    boundingBox: mock(() =>
+      Promise.resolve({ x: 0, y: 0, width: 100, height: 100 })
+    ),
+    nth: mock(() => locator as unknown as Locator),
     ...overrides,
   };
+  return locator;
 }
 
 function createFakePage(locator: FakeLocator): Page {
@@ -61,6 +68,15 @@ describe('PlaywrightDriver', () => {
     await driver.tap(by.testId('submit'));
     expect(page.getByTestId).toHaveBeenCalledWith('submit');
     expect(locator.click).toHaveBeenCalled();
+
+    await driver.tapAt(by.testId('board'), { xRatio: 0.5, yRatio: 0.25 });
+    expect(locator.boundingBox).toHaveBeenCalled();
+    expect(locator.click).toHaveBeenCalledWith({
+      position: { x: 50, y: 25 },
+    });
+
+    await driver.tap(first(by.role('heading', 'Spaces')));
+    expect(locator.nth).toHaveBeenCalledWith(0);
 
     await driver.typeText(by.label('Email'), 'a@b.c');
     expect(page.getByLabel).toHaveBeenCalledWith('Email');

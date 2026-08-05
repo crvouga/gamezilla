@@ -19,6 +19,12 @@ export interface RenderedApp {
   /** Tap / click the element. */
   tap(element: Element): Promise<void>;
 
+  /** Tap at a relative position within the element. */
+  tapAt(
+    element: Element,
+    position: { xRatio: number; yRatio: number }
+  ): Promise<void>;
+
   /** Type into the element (focuses first when needed). */
   typeText(element: Element, text: string): Promise<void>;
 

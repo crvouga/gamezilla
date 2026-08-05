@@ -22,6 +22,17 @@ export async function tapElement(element: Element): Promise<void> {
   }
 }
 
+export async function tapElementAt(
+  element: Element,
+  position: { xRatio: number; yRatio: number }
+): Promise<void> {
+  const node = element as HTMLElement;
+  const rect = node.getBoundingClientRect();
+  const clientX = rect.left + rect.width * position.xRatio;
+  const clientY = rect.top + rect.height * position.yRatio;
+  fireEvent.click(node, { clientX, clientY, bubbles: true });
+}
+
 export async function typeIntoElement(
   element: Element,
   text: string

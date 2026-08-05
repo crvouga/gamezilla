@@ -6,6 +6,12 @@ export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
 export type WaitState = 'visible' | 'hidden';
 
+/** Relative position within an element's bounding box (0..1 each axis). */
+export type TapPosition = {
+  xRatio: number;
+  yRatio: number;
+};
+
 /**
  * User-intent driver. Models what a person does with an app, not Playwright /
  * Detox / DOM primitives. Every concrete driver must satisfy this interface.
@@ -22,6 +28,12 @@ export interface Driver {
 
   /** Tap / click the element matching `target`. */
   tap(target: Selector): Promise<void>;
+
+  /**
+   * Tap at a relative position within the element matching `target`.
+   * Useful for canvases / boards where the hit target is a region, not a node.
+   */
+  tapAt(target: Selector, position: TapPosition): Promise<void>;
 
   /** Type `text` into the element matching `target` (appends by default). */
   typeText(target: Selector, text: string): Promise<void>;

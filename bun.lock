@@ -407,6 +407,7 @@
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
       },
       "devDependencies": {
         "@clerk/testing": "catalog:",

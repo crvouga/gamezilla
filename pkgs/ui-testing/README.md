@@ -65,10 +65,13 @@ by.testId('email')
 by.text('Sign in')
 by.label('Password')
 by.role('button', 'Submit')
+first(by.role('heading', 'Spaces'))
+nth(by.testId('row'), 2)
 ```
 
 Drivers translate these into native queries (`getByTestId`, Detox `by.id`, …).
 Never pass CSS / XPath / framework matchers into the public API.
+Use `first` / `nth` when multiple elements match.
 
 ## Page objects (consumer-owned)
 
@@ -179,6 +182,7 @@ first-class text read-back — `getText` remains unsupported by design.
 | --- | --- | --- | --- |
 | `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
 | `tap` | yes | yes | stub → `element().tap()` |
+| `tapAt` | yes | yes | stub → `element().tap({ x, y })` |
 | `typeText` / `clearText` | yes | yes | stub → `typeText` / `clearText` |
 | `pressKey` | yes | yes | stub (platform-limited) |
 | `scroll` | yes | yes | stub → `element().scroll` |

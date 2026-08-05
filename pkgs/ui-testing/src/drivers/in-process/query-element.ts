@@ -1,8 +1,8 @@
 import {
-  queryByLabelText,
-  queryByRole,
-  queryByTestId,
-  queryByText,
+  queryAllByLabelText,
+  queryAllByRole,
+  queryAllByTestId,
+  queryAllByText,
 } from '@testing-library/dom';
 import type { Selector } from '../../selector/selector';
 
@@ -11,19 +11,28 @@ export function queryElement(
   container: HTMLElement,
   selector: Selector
 ): Element | null {
+  const matches = queryAllElements(container, selector);
+  const index = selector.nth ?? 0;
+  return matches[index] ?? null;
+}
+
+function queryAllElements(
+  container: HTMLElement,
+  selector: Selector
+): Element[] {
   switch (selector.kind) {
     case 'testId':
-      return queryByTestId(container, selector.value);
+      return queryAllByTestId(container, selector.value);
     case 'text':
-      return queryByText(container, selector.value, {
+      return queryAllByText(container, selector.value, {
         exact: selector.exact !== false,
       });
     case 'label':
-      return queryByLabelText(container, selector.value);
+      return queryAllByLabelText(container, selector.value);
     case 'role':
       return selector.name !== undefined
-        ? queryByRole(container, selector.role, { name: selector.name })
-        : queryByRole(container, selector.role);
+        ? queryAllByRole(container, selector.role, { name: selector.name })
+        : queryAllByRole(container, selector.role);
   }
 }
 

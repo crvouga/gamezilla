@@ -159,6 +159,7 @@ export function ScreenBase({
   return (
     <Box
       sx={{ flex: 1 }}
+      testID={`screen-${screenId}`}
       {...componentDataSet('ScreenBase', { ...dataSet, screen: screenId })}
     >
       <ScreenBaseHeader
