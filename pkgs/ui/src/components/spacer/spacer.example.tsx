@@ -7,8 +7,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function SpacerExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Spacer" />
-
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label="Push items apart" />
         <Stack

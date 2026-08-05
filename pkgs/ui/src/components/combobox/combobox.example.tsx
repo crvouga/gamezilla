@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { Combobox } from './combobox';
 
 const FRUITS = [
@@ -20,8 +19,6 @@ export default function ComboboxExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Combobox" />
-
       <Stack spacing={3}>
         <Combobox
           label="Favorite fruit"

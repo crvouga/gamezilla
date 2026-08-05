@@ -15,8 +15,6 @@ const SAMPLE_SVG = `
 export default function AvatarGroupExample() {
   return (
     <ExampleRoot sx={{ gap: 6 }}>
-      <Text variant="heading" label="AvatarGroup" />
-
       <Text variant="caption" label="Default overlap (40% of size), size 36" />
       <AvatarGroup size={36}>
         <Avatar initials="A" size={36} background="tint" />

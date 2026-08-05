@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { Chip } from './chip';
 
 const tags = ['React Native', 'TypeScript', 'Expo', 'Design System', 'UI'];
@@ -20,8 +19,6 @@ export default function ChipExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Chip" />
-
       <SchemePreview>
         <Stack spacing={3}>
           <Stack direction="horizontal" spacing={2} wrap>

@@ -8,7 +8,6 @@ export default function NumberStepperExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="NumberStepper" />
       <NumberStepper label="Count" value={n} onChange={setN} min={0} max={20} />
       <Text variant="caption" sx={{ opacity: 0.75 }} label={`Value: ${n}`} />
     </ExampleRoot>

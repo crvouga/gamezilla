@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { ComponentDataSet } from '../../component-id';
 import type { MutationButtonLabels } from '../button/use-mutation-button';
 import type { IconComponent } from '../icons';
+import type { ScreenTitleScrollProps } from '../screen-title/use-screen-title-scroll';
 
 export type ScreenBaseBreadcrumb = {
   name: ReactNode;
@@ -34,6 +35,12 @@ export type BodyContentProps = {
    * {@link ScreenBodyScrollView} can shrink and scroll. Empty when `scroll`.
    */
   sx: { flex?: 1; minHeight?: 0 };
+  /**
+   * Present when {@link ScreenBaseProps.largeTitle} is enabled. Attach to a
+   * nested scroller (`ScreenBodyScrollView` / `ScrollView`) so the TopBar
+   * title reveals after scroll. Whole-body `scroll` wires this internally.
+   */
+  titleScroll?: ScreenTitleScrollProps;
 };
 
 export type ScreenBasePrimaryAction = {
@@ -65,6 +72,14 @@ export type ScreenBaseProps = {
    * scrollbars flush.
    */
   scroll?: boolean;
+  /**
+   * Large body title that syncs into the TopBar after scroll. Last breadcrumb
+   * `name` is the shared title; TopBar title stays hidden until scroll past
+   * the reveal offset. With `scroll`, the large title is injected automatically;
+   * with nested scrollers, render {@link ScreenLargeTitle} and attach
+   * `titleScroll` from the content render prop.
+   */
+  largeTitle?: boolean;
   keyboardAvoiding?: boolean;
   /**
    * Optional content rendered in the leading (left) slot of the top bar,
@@ -99,4 +114,9 @@ export type ScreenBaseHeaderProps = {
   leading?: ReactNode | undefined;
   /** Always-visible account menu rendered after header actions. */
   accountMenu?: ReactNode | undefined;
+  /**
+   * When true, TopBar title is shown only after the body large title scrolls
+   * past the reveal threshold (via {@link ScreenTitleProvider}).
+   */
+  largeTitle?: boolean | undefined;
 };

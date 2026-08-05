@@ -1,14 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Text } from '../text';
 import { CopyToClipboardField } from './copy-to-clipboard-field';
 import { ExampleRoot } from '../explorer/example-root';
 
 export default function CopyToClipboardFieldExample() {
   return (
     <ExampleRoot sx={{ gap: 6 }}>
-      <Text variant="heading" label={<Trans>CopyToClipboardField</Trans>} />
-
       <CopyToClipboardField
         label={<Trans>Commit hash</Trans>}
         helperText={t`Tap the field or icon to copy`}

@@ -11,7 +11,6 @@ export default function MultiSelectSwatchGridExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="MultiSelectSwatchGrid" />
       <MultiSelectSwatchGrid
         label="Colors"
         palette={[...new Set([...PALETTE, ...value])]}

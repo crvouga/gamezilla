@@ -20,6 +20,9 @@ import { SIGN_IN_PENDING_KEY } from './auth-storage-keys';
 /** A sign-in marker older than this is considered abandoned. */
 export const SIGN_IN_PENDING_TTL_MS = 30 * 60 * 1000;
 
+/** Fallback when no safe return path was stored (or it was the callback itself). */
+export const SIGN_IN_RETURN_FALLBACK_HREF = '/(tabs)';
+
 export type SignInIntent = 'signIn' | 'addAccount';
 
 export type SignInPending = {
@@ -27,17 +30,24 @@ export type SignInPending = {
   readonly intent: SignInIntent;
   /** Session ids present when add-account began (empty for first sign-in). */
   readonly baselineSessionIds: readonly string[];
+  /**
+   * App path (+ search) to restore after `/sso-callback`. Omitted when unknown
+   * or unsafe (callback route / absolute URL).
+   */
+  readonly returnHref?: string;
 };
 
 export type MarkSignInPendingOptions = {
   readonly intent?: SignInIntent;
   readonly baselineSessionIds?: readonly string[];
+  readonly returnHref?: string;
 };
 
 type SignInPendingWire = {
   readonly startedAt: string;
   readonly intent: SignInIntent;
   readonly baselineSessionIds: readonly string[];
+  readonly returnHref?: string;
 };
 
 function isSignInIntent(value: unknown): value is SignInIntent {
@@ -57,6 +67,61 @@ function isFreshStartedAt(startedAt: Date): boolean {
   return Date.now() - ms <= SIGN_IN_PENDING_TTL_MS;
 }
 
+/**
+ * Reject open redirects and the OAuth handoff route itself. Relative app paths
+ * (optionally with `?` / `#`) are kept.
+ */
+export function sanitizeSignInReturnHref(
+  href: string | null | undefined
+): string | undefined {
+  if (href === null || href === undefined) return undefined;
+  const trimmed = href.trim();
+  if (trimmed.length === 0) return undefined;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return undefined;
+  if (trimmed.startsWith('//')) return undefined;
+  const pathOnly = trimmed.split(/[?#]/)[0] ?? trimmed;
+  if (pathOnly === '/sso-callback' || pathOnly.endsWith('/sso-callback')) {
+    return undefined;
+  }
+  return trimmed;
+}
+
+/** Current screen to restore after hosted OAuth (web prefers `window.location`). */
+export function resolveSignInReturnHref(pathname: string): string | undefined {
+  if (typeof window !== 'undefined') {
+    return sanitizeSignInReturnHref(
+      `${window.location.pathname}${window.location.search}`
+    );
+  }
+  return sanitizeSignInReturnHref(pathname);
+}
+
+/** Href used by `/sso-callback` after the pending marker is available. */
+export function signInReturnHrefFromPending(
+  pending: SignInPending | null
+): string {
+  return (
+    sanitizeSignInReturnHref(pending?.returnHref) ??
+    SIGN_IN_RETURN_FALLBACK_HREF
+  );
+}
+
+/**
+ * Sync read for `/sso-callback` handoff. Must not wait on async secure-storage
+ * hydration — that path can stall and leave the blank callback mounted forever.
+ * Web reads `localStorage` directly (same backend as {@link createWebSecureStorage}).
+ */
+export function readSignInPendingSync(): SignInPending | null {
+  if (typeof globalThis.localStorage === 'undefined') return null;
+  try {
+    return parseSignInPending(
+      globalThis.localStorage.getItem(SIGN_IN_PENDING_KEY)
+    );
+  } catch {
+    return null;
+  }
+}
+
 function parseLegacySignInPending(value: string): SignInPending | null {
   const startedAt = new Date(value);
   if (!isFreshStartedAt(startedAt)) return null;
@@ -69,10 +134,14 @@ function parseSignInPendingWire(wire: unknown): SignInPending | null {
   if (typeof record.startedAt !== 'string') return null;
   const startedAt = new Date(record.startedAt);
   if (!isFreshStartedAt(startedAt)) return null;
+  const returnHref = sanitizeSignInReturnHref(
+    typeof record.returnHref === 'string' ? record.returnHref : undefined
+  );
   return {
     startedAt,
     intent: isSignInIntent(record.intent) ? record.intent : 'signIn',
     baselineSessionIds: readBaselineSessionIds(record.baselineSessionIds),
+    ...(returnHref !== undefined ? { returnHref } : {}),
   };
 }
 
@@ -94,10 +163,12 @@ export async function markSignInPending(
   storage: SecureStorage,
   options?: MarkSignInPendingOptions
 ): Promise<void> {
+  const returnHref = sanitizeSignInReturnHref(options?.returnHref);
   const wire: SignInPendingWire = {
     startedAt: new Date().toISOString(),
     intent: options?.intent ?? 'signIn',
     baselineSessionIds: options?.baselineSessionIds ?? [],
+    ...(returnHref !== undefined ? { returnHref } : {}),
   };
   await writeSecureStorageItem(
     storage,

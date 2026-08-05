@@ -14,7 +14,6 @@ export default function ChipGroupExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ChipGroup" />
       <ChipGroup
         label="Intensity"
         options={OPTIONS}

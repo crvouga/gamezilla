@@ -54,7 +54,6 @@ export default function PickerExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Picker" />
       <Picker
         label="With preview thumbs"
         options={OPTIONS}

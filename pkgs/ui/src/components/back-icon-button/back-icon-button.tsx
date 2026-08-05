@@ -16,6 +16,7 @@ import type { ReactNode } from 'react';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { useLingui } from '@lingui/react/macro';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { IconButton } from '../icon-button';
 import { ChevronLeftIcon } from '../icons';
 
@@ -50,7 +51,10 @@ export function BackIconButton({
     <IconButton
       size={size}
       background={background}
-      onPress={onPress}
+      onPress={() => {
+        releaseWebFocus();
+        onPress();
+      }}
       label={resolvedLabel}
       accessibilityLabel={resolvedLabel}
       {...(testID !== undefined ? { testID } : {})}

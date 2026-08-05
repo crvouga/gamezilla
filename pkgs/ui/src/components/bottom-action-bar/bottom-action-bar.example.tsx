@@ -89,7 +89,6 @@ const BUTTONS_ONLY: BottomActionBarItem[] = [
 export default function BottomActionBarExample(): ReactNode {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="BottomActionBar" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

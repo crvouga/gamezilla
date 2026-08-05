@@ -7,8 +7,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function SkeletonExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Skeleton" />
-
       <Stack spacing={2}>
         <Text variant="label" label="Text lines" />
         <Skeleton width="80%" height={16} />

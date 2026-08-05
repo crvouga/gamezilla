@@ -7,7 +7,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function TooltipExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Tooltip" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

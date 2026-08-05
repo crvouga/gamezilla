@@ -6,8 +6,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function StatusDotExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="StatusDot" />
-
       <Stack spacing={3}>
         <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="online" />

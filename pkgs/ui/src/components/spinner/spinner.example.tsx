@@ -1,4 +1,3 @@
-import { Text } from '../text';
 import { Stack } from '../stack';
 import { Spinner } from './spinner';
 import { ExampleRoot } from '../explorer/example-root';
@@ -6,8 +5,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function SpinnerExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Spinner" />
-
       <Stack direction="horizontal" spacing={4} align="center">
         <Spinner size="small" />
         <Spinner size="large" />

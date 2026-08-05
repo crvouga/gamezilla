@@ -79,7 +79,6 @@ export default function JsonViewExample() {
   const circular = useMemo(() => buildCircularPayload(), []);
   return (
     <ExampleRoot>
-      <Text variant="heading" label="JsonView" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

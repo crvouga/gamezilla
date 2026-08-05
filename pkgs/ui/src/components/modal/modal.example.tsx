@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '../button';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { ConfirmationModal } from './confirmation-modal';
 import { ExampleRoot } from '../explorer/example-root';
 
@@ -11,8 +10,6 @@ export default function ModalExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Modal" />
-
       <Stack spacing={2}>
         <Button
           title="Open Default Modal"

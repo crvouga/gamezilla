@@ -10,8 +10,6 @@ import { EmptyState } from './empty-state';
 export default function EmptyStateExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="EmptyState" />
-
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Fill" />
       <SchemePreview>
         <Box style={{ height: 280 }}>

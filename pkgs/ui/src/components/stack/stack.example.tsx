@@ -14,8 +14,6 @@ function ColorBox({ label, color }: { label: string; color: string }) {
 export default function StackExample() {
   return (
     <ExampleRoot sx={{ gap: 6 }}>
-      <Text variant="heading" label="Stack" />
-
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label="Vertical (default)" />
         <Stack spacing={2}>

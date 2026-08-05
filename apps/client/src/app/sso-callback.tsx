@@ -3,27 +3,28 @@ import { useAuthModals } from '@libs/auth/client/auth-modals-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth/client/auth-storage-keys';
 import {
   markSignInPending,
-  useSignInPending,
+  readSignInPendingSync,
+  signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
 import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import { seedCachedSecureStorageValue } from '@pkgs/secure-storage/use-secure-storage-item';
 import * as WebBrowser from 'expo-web-browser';
-import { useRouter } from 'expo-router';
-import { useEffect, useLayoutEffect } from 'react';
+import { type Href, useRouter } from 'expo-router';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 /**
  * OAuth callback route (handoff only). Completes same-tab web return via
- * `completeHostedAuthRedirect`, ensures the durable sign-in pending marker,
- * opens SignInModal for loading/success/error, then replaces into the app so
- * chrome never lives on this dedicated screen.
+ * `completeHostedAuthRedirect`, opens SignInModal, then immediately replaces
+ * back to the pre-OAuth screen. Navigation must not wait on async secure-storage
+ * hydration — that can stall and leave this blank route mounted forever.
  */
 export default function SsoCallbackScreen() {
   const router = useRouter();
   const storage = useSecureStorage();
   const port = useAuthClientPort();
   const authState = port.useAuthSession();
-  const { pending, isHydrated } = useSignInPending();
   const { openSignInModal } = useAuthModals();
+  const didNavigateRef = useRef(false);
 
   useEffect(() => {
     WebBrowser.maybeCompleteAuthSession();
@@ -37,28 +38,38 @@ export default function SsoCallbackScreen() {
     })();
   }, [port, authState.isHydrated]);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    if (pending !== null) return;
-    const wire = JSON.stringify({
-      startedAt: new Date().toISOString(),
-      intent: 'signIn',
-      baselineSessionIds: [],
-    });
-    seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, wire);
-    void markSignInPending(storage, { intent: 'signIn' });
-  }, [isHydrated, pending, storage]);
-
   useLayoutEffect(() => {
-    if (!isHydrated) return;
-    openSignInModal();
-  }, [isHydrated, openSignInModal]);
+    if (didNavigateRef.current) return;
+    didNavigateRef.current = true;
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    if (pending === null) return;
-    router.replace('/(tabs)');
-  }, [isHydrated, pending, router]);
+    const syncPending = readSignInPendingSync();
+    const target = signInReturnHrefFromPending(syncPending);
+
+    // Keep the reactive pending hook / modal resume path warm even if async
+    // hydrate is stalled.
+    const wire =
+      syncPending === null
+        ? JSON.stringify({
+            startedAt: new Date().toISOString(),
+            intent: 'signIn',
+            baselineSessionIds: [],
+          })
+        : JSON.stringify({
+            startedAt: syncPending.startedAt.toISOString(),
+            intent: syncPending.intent,
+            baselineSessionIds: syncPending.baselineSessionIds,
+            ...(syncPending.returnHref !== undefined
+              ? { returnHref: syncPending.returnHref }
+              : {}),
+          });
+    seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, wire);
+    if (syncPending === null) {
+      void markSignInPending(storage, { intent: 'signIn' });
+    }
+
+    openSignInModal();
+    router.replace(target as Href);
+  }, [router, openSignInModal, storage]);
 
   return null;
 }

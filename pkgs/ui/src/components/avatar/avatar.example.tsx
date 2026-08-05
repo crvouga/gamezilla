@@ -21,8 +21,6 @@ const SAMPLE_SVG = `
 export default function AvatarExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Avatar" />
-
       <Text variant="caption" label="Initials" />
       <Stack direction="horizontal" spacing={3} align="center">
         <Avatar initials="JD" size={32} />

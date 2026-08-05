@@ -15,7 +15,6 @@ export default function SocialSignInButtonExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SocialSignInButton" />
       <GoogleExamples onPress={handlePress} loading={loading} />
       <DevExamples onPress={handlePress} />
     </ExampleRoot>

@@ -26,7 +26,6 @@ export default function HorizontalPickerExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="HorizontalPicker" />
       <Text
         variant="body"
         sx={{ opacity: 0.75 }}

@@ -48,7 +48,6 @@ export default function ActionBarExample(): ReactNode {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ActionBar" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

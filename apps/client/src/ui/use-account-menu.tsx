@@ -24,6 +24,7 @@ import {
   LogOutIcon,
   SettingsIcon,
   iconButtonAvatarContentSize,
+  releaseWebFocus,
   type ActionBarItem,
 } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
@@ -71,18 +72,22 @@ function useAccountMenuHandlers() {
   const router = useRouter();
 
   const onAccount = useCallback(() => {
+    releaseWebFocus();
     router.push('/more/account');
   }, [router]);
 
   const onSettings = useCallback(() => {
+    releaseWebFocus();
     router.push('/more');
   }, [router]);
 
   const onSignIn = useCallback(() => {
+    releaseWebFocus();
     openSignInModal();
   }, [openSignInModal]);
 
   const onSignOut = useCallback(() => {
+    releaseWebFocus();
     openSignOutConfirm();
   }, [openSignOutConfirm]);
 

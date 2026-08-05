@@ -18,7 +18,6 @@ const variants = [
 export default function TextExample() {
   return (
     <ExampleRoot sx={{ gap: 3 }}>
-      <Text variant="heading" label="Text" />
       {variants.map((v) => (
         <Box key={v} sx={{ gap: 0.5 }}>
           <Text variant="caption" label={v} />

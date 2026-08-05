@@ -20,7 +20,6 @@ export default function AvatarHeroExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="AvatarHero" />
       <AvatarHero
         size={160}
         action={{

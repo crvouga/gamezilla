@@ -1,4 +1,4 @@
-import { Box, MenuList, MenuRow, ScreenBase, releaseWebFocus } from '@pkgs/ui';
+import { Box, MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
@@ -30,7 +30,6 @@ function SwitchAccountRow(): ReactNode {
         title={t`Switch account`}
         {...(caption !== undefined ? { caption } : {})}
         onPress={() => {
-          releaseWebFocus();
           router.push('/more/account/switch' as Href);
         }}
         testID="account-switch-row"
@@ -62,7 +61,6 @@ export function AccountScreen({ identity }: AccountScreenProps) {
               title={t`Devices`}
               caption={t`Installs signed into this account`}
               onPress={() => {
-                releaseWebFocus();
                 router.push('/more/account/devices' as Href);
               }}
             />
@@ -70,7 +68,6 @@ export function AccountScreen({ identity }: AccountScreenProps) {
               title={t`Sign-in providers`}
               caption={t`How you sign in`}
               onPress={() => {
-                releaseWebFocus();
                 router.push('/more/account/providers' as Href);
               }}
             />

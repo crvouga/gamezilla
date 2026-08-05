@@ -8,8 +8,6 @@ import { AppLogo } from './app-logo';
 export default function AppLogoExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="AppLogo" />
-
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}

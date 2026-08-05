@@ -9,8 +9,6 @@ import { LoadingState } from './loading-state';
 export default function LoadingStateExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="LoadingState" />
-
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}

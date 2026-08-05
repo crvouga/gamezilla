@@ -6,8 +6,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function ScrollViewExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ScrollView" />
-
       <Box
         sx={{
           height: 200,

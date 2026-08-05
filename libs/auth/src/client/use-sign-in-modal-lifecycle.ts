@@ -21,6 +21,7 @@ import { useSecureStorage } from '@pkgs/secure-storage/interface';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import type { AccountSession } from '@pkgs/auth/client/account-session';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import { usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 
@@ -29,6 +30,7 @@ import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import {
   clearSignInPending,
   markSignInPending,
+  resolveSignInReturnHref,
   type SignInIntent,
 } from './sign-in-pending';
 
@@ -202,6 +204,7 @@ function useSignInOutcomeEffect(args: {
 function useSignInStart(args: {
   storage: SecureStorage;
   intent: SignInIntent;
+  pathname: string;
   onError: ((error: Error) => void) | undefined;
   accountSessionsRef: RefObject<readonly AccountSession[]>;
   setBaselineSessionIds: (ids: readonly string[]) => void;
@@ -212,6 +215,7 @@ function useSignInStart(args: {
   const {
     storage,
     intent,
+    pathname,
     onError,
     accountSessionsRef,
     setBaselineSessionIds,
@@ -227,10 +231,12 @@ function useSignInStart(args: {
         (session) => session.sessionId
       );
       setBaselineSessionIds(baseline);
+      const returnHref = resolveSignInReturnHref(pathname);
       try {
         await markSignInPending(storage, {
           intent,
           baselineSessionIds: intent === 'addAccount' ? baseline : [],
+          ...(returnHref !== undefined ? { returnHref } : {}),
         });
         await runner();
       } catch (e) {
@@ -253,6 +259,7 @@ function useSignInStart(args: {
       storage,
       onError,
       intent,
+      pathname,
       accountSessionsRef,
       setBaselineSessionIds,
       setAwaitingCallback,
@@ -270,6 +277,7 @@ export function useSignInModalLifecycle({
 }: UseSignInModalLifecycleParams): UseSignInModalLifecycleResult {
   const storage = useSecureStorage();
   const port = useAuthClientPort();
+  const pathname = usePathname();
   const authState = port.useAuthSession();
   const accountSessions = port.useAccountSessions();
   const [phase, setPhase] = useState<SignInPhase>('idle');
@@ -312,6 +320,7 @@ export function useSignInModalLifecycle({
   const start = useSignInStart({
     storage,
     intent,
+    pathname,
     onError,
     accountSessionsRef,
     setBaselineSessionIds,

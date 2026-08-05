@@ -15,7 +15,6 @@ export default function ResponsiveSurfaceExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ResponsiveSurface" />
       <Text
         variant="caption"
         sx={{ opacity: 0.75 }}

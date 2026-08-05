@@ -10,6 +10,8 @@
  *   {@link ScreenBodyFlatList}; the body provides
  *   {@link ContentEdgePaddingProvider} so nested scrollers bleed under
  *   horizontal padding automatically.
+ *
+ * Pass `largeTitle` for a body heading that reveals in the TopBar after scroll.
  */
 
 import { useContext, useMemo, type ReactNode } from 'react';
@@ -22,6 +24,12 @@ import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
+import {
+  ScreenLargeTitle,
+  ScreenTitleProvider,
+  useScreenTitleScroll,
+  type ScreenTitleScrollProps,
+} from '../screen-title';
 import { ScrollView } from '../scroll-view';
 import {
   ScreenBasePrimaryActionMutation,
@@ -37,12 +45,16 @@ const SCROLL_BOTTOM_PADDING = 24;
 const FLOATING_ACTION_MARGIN = 16;
 const FLOATING_ACTION_Z_INDEX = 10;
 
+const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
+
 function BodyInner({
   children,
   scroll,
+  largeTitle,
 }: {
   children: ReactNode;
   scroll: boolean;
+  largeTitle: boolean;
 }) {
   return (
     <ContentEdgePaddingProvider
@@ -52,7 +64,15 @@ function BodyInner({
       <Box
         sx={{
           ...(scroll ? {} : { flex: 1, minHeight: 0 }),
-          p: SCREEN_BODY_PADDING_STEP,
+          // Large title sits flush under the TopBar; horizontal/bottom
+          // padding lives on scroll content (flush-edge cancel), not as a
+          // gap below the header.
+          ...(largeTitle
+            ? {
+                px: SCREEN_BODY_PADDING_STEP,
+                pb: SCREEN_BODY_PADDING_STEP,
+              }
+            : { p: SCREEN_BODY_PADDING_STEP }),
           gap: BODY_GAP_STEP,
         }}
       >
@@ -61,8 +81,6 @@ function BodyInner({
     </ContentEdgePaddingProvider>
   );
 }
-
-const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
 /** See note in `screen-base-header.tsx`: prefer context over the hook so Metro cannot bundle two copies. */
 function useSafeAreaBottom(): number {
@@ -131,12 +149,48 @@ function renderPrimaryActionFab(
   );
 }
 
+function lastBreadcrumbTitle(
+  breadcrumbs: ScreenBaseProps['breadcrumbs']
+): ReactNode {
+  return breadcrumbs[breadcrumbs.length - 1]?.name;
+}
+
+function buildBodyContentProps(
+  scroll: boolean,
+  titleScroll: ScreenTitleScrollProps | undefined
+): BodyContentProps {
+  const sx = scroll ? {} : { flex: 1 as const, minHeight: 0 as const };
+  if (titleScroll === undefined) {
+    return { sx };
+  }
+  return { sx, titleScroll };
+}
+
+function renderBodyChildren(
+  content: ScreenBaseProps['content'],
+  scroll: boolean,
+  largeTitle: boolean,
+  titleScroll: ScreenTitleScrollProps | undefined
+): ReactNode {
+  const rendered = content(buildBodyContentProps(scroll, titleScroll));
+  if (scroll && largeTitle) {
+    return (
+      <>
+        <ScreenLargeTitle />
+        {rendered}
+      </>
+    );
+  }
+  return rendered;
+}
+
 export function ScreenBase({
   screenId,
   breadcrumbs,
   actions,
   content,
   scroll = false,
+  largeTitle = false,
   keyboardAvoiding = false,
   leading,
   footer,
@@ -145,18 +199,7 @@ export function ScreenBase({
   accountMenu,
   dataSet,
 }: ScreenBaseProps) {
-  const body = (primaryActionProps?: ScreenBasePrimaryActionRenderProps) => (
-    <ScreenBody
-      scroll={scroll}
-      keyboardAvoiding={keyboardAvoiding}
-      content={content}
-      footer={footer}
-      primaryActionProps={primaryActionProps}
-      primaryActionBottomInset={primaryActionBottomInset}
-    />
-  );
-
-  return (
+  const inner = (
     <Box
       sx={{ flex: 1 }}
       testID={`screen-${screenId}`}
@@ -167,35 +210,117 @@ export function ScreenBase({
         actions={actions ?? []}
         leading={leading}
         accountMenu={accountMenu}
+        largeTitle={largeTitle}
       />
       {primaryAction !== undefined ? (
         <ScreenBasePrimaryActionMutation config={primaryAction}>
-          {(primaryActionProps) => body(primaryActionProps)}
+          {(primaryActionProps) =>
+            renderScreenBody({
+              scroll,
+              largeTitle,
+              keyboardAvoiding,
+              content,
+              footer,
+              primaryActionProps,
+              primaryActionBottomInset,
+            })
+          }
         </ScreenBasePrimaryActionMutation>
       ) : (
-        body(undefined)
+        renderScreenBody({
+          scroll,
+          largeTitle,
+          keyboardAvoiding,
+          content,
+          footer,
+          primaryActionProps: undefined,
+          primaryActionBottomInset,
+        })
       )}
     </Box>
   );
+
+  if (!largeTitle) {
+    return inner;
+  }
+
+  return (
+    <ScreenTitleProvider title={lastBreadcrumbTitle(breadcrumbs)}>
+      {inner}
+    </ScreenTitleProvider>
+  );
 }
 
-function renderConstrainedBody(args: {
+function renderScreenBody(args: {
   scroll: boolean;
+  largeTitle: boolean;
+  keyboardAvoiding: boolean;
   content: ScreenBaseProps['content'];
+  footer: ScreenBaseProps['footer'];
+  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
+  primaryActionBottomInset: number;
 }): ReactNode {
+  if (args.largeTitle) {
+    return (
+      <LargeTitleScreenBody
+        scroll={args.scroll}
+        keyboardAvoiding={args.keyboardAvoiding}
+        content={args.content}
+        footer={args.footer}
+        primaryActionProps={args.primaryActionProps}
+        primaryActionBottomInset={args.primaryActionBottomInset}
+      />
+    );
+  }
   return (
-    <BodyInner scroll={args.scroll}>
-      {args.content({
-        sx: args.scroll ? {} : { flex: 1, minHeight: 0 },
-      } satisfies BodyContentProps)}
-    </BodyInner>
+    <ScreenBody
+      scroll={args.scroll}
+      keyboardAvoiding={args.keyboardAvoiding}
+      content={args.content}
+      footer={args.footer}
+      primaryActionProps={args.primaryActionProps}
+      primaryActionBottomInset={args.primaryActionBottomInset}
+      titleScroll={undefined}
+      largeTitle={false}
+    />
+  );
+}
+
+function LargeTitleScreenBody({
+  scroll,
+  keyboardAvoiding,
+  content,
+  footer,
+  primaryActionProps,
+  primaryActionBottomInset,
+}: {
+  scroll: boolean;
+  keyboardAvoiding: boolean;
+  content: ScreenBaseProps['content'];
+  footer: ScreenBaseProps['footer'];
+  primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
+  primaryActionBottomInset: number;
+}): ReactNode {
+  const titleScroll = useScreenTitleScroll();
+  return (
+    <ScreenBody
+      scroll={scroll}
+      keyboardAvoiding={keyboardAvoiding}
+      content={content}
+      footer={footer}
+      primaryActionProps={primaryActionProps}
+      primaryActionBottomInset={primaryActionBottomInset}
+      titleScroll={titleScroll}
+      largeTitle
+    />
   );
 }
 
 function renderScrollableBody(
   scroll: boolean,
   inner: ReactNode,
-  paddingBottom: number
+  paddingBottom: number,
+  titleScroll: ScreenTitleScrollProps | undefined
 ): ReactNode {
   if (scroll) {
     return (
@@ -205,6 +330,7 @@ function renderScrollableBody(
           flexGrow: 1,
           paddingBottom,
         }}
+        {...(titleScroll ?? {})}
       >
         {inner}
       </ScrollView>
@@ -220,6 +346,8 @@ function ScreenBody({
   footer,
   primaryActionProps,
   primaryActionBottomInset,
+  titleScroll,
+  largeTitle,
 }: {
   scroll: boolean;
   keyboardAvoiding: boolean;
@@ -227,6 +355,8 @@ function ScreenBody({
   footer: ScreenBaseProps['footer'];
   primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
   primaryActionBottomInset: number;
+  titleScroll: ScreenTitleScrollProps | undefined;
+  largeTitle: boolean;
 }): ReactNode {
   const bottomInset = useSafeAreaBottom();
   const hasFooter = footer !== undefined;
@@ -234,8 +364,17 @@ function ScreenBody({
     () => scrollContentPaddingBottom(bottomInset, hasFooter),
     [bottomInset, hasFooter]
   );
-  const inner = renderConstrainedBody({ scroll, content });
-  const body = renderScrollableBody(scroll, inner, scrollPaddingBottom);
+  const inner = (
+    <BodyInner scroll={scroll} largeTitle={largeTitle}>
+      {renderBodyChildren(content, scroll, largeTitle, titleScroll)}
+    </BodyInner>
+  );
+  const body = renderScrollableBody(
+    scroll,
+    inner,
+    scrollPaddingBottom,
+    scroll ? titleScroll : undefined
+  );
 
   const bodyWithFooter = (
     <Box

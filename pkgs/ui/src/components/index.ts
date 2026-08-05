@@ -400,6 +400,22 @@ export {
 } from './menu-row';
 
 export {
+  CatalogList,
+  CatalogDetail,
+  CatalogDetailNav,
+  filterCatalogItems,
+  groupCatalogItems,
+  flattenCatalogItems,
+  resolveCatalogNeighbor,
+  type CatalogItem,
+  type CatalogGroup,
+  type CatalogNeighbor,
+  type CatalogListProps,
+  type CatalogDetailProps,
+  type CatalogDetailNavProps,
+} from './catalog';
+
+export {
   MainMenuScreen,
   MainMenuScreenHeader,
   MAIN_MENU_SCREEN_MAX_WIDTH,
@@ -424,6 +440,18 @@ export {
   type ScreenBodyFlatListProps,
   type ScreenBodyScrollViewProps,
 } from './screen-base';
+export {
+  ScreenLargeTitle,
+  ScreenTitleProvider,
+  useScreenTitleScroll,
+  useScreenTitleContext,
+  SCREEN_TITLE_REVEAL_OFFSET,
+  shouldShowTopBarTitle,
+  type ScreenLargeTitleProps,
+  type ScreenTitleContextValue,
+  type ScreenTitleProviderProps,
+  type ScreenTitleScrollProps,
+} from './screen-title';
 export {
   FormActionsFooter,
   type FormActionsFooterProps,

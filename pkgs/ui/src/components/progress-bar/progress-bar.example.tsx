@@ -16,8 +16,6 @@ export default function ProgressBarExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ProgressBar" />
-
       <Stack spacing={3}>
         <Text
           variant="label"

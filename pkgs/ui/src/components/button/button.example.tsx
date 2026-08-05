@@ -154,7 +154,6 @@ export default function ButtonExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Button" />
       <SizesBlock />
       <Divider />
       <FeedbackBlock />

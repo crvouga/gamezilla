@@ -8,8 +8,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function ListExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="List" />
-
       <Card elevation={0} sx={{ overflow: 'hidden' }}>
         <List>
           <ListItem

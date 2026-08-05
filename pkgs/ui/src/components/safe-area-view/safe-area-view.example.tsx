@@ -5,8 +5,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function SafeAreaViewExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SafeAreaView" />
-
       <SafeAreaView sx={{ background: 'surface', borderRadius: 8, p: 4 }}>
         <Text
           variant="body"

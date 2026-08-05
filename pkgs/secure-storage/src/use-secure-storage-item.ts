@@ -18,6 +18,9 @@ const cache = new Map<string, string | null>();
 const listeners = new Map<string, Set<Listener>>();
 const hydrated = new Set<string>();
 const hydrating = new Map<string, Promise<string | null>>();
+/** Bumped in {@link setCached} so `useSyncExternalStore` re-renders for hydration too. */
+const epochs = new Map<string, number>();
+let epochClock = 0;
 
 function ensureListeners(key: string): Set<Listener> {
   let set = listeners.get(key);
@@ -37,6 +40,7 @@ function notify(key: string): void {
 function setCached(key: string, value: string | null): void {
   cache.set(key, value);
   hydrated.add(key);
+  epochs.set(key, ++epochClock);
   notify(key);
 }
 
@@ -51,11 +55,15 @@ async function hydrateOnce(
   if (inflight !== undefined) {
     return inflight;
   }
-  const promise = storage.getItem(key).then((value) => {
-    setCached(key, value);
-    hydrating.delete(key);
-    return value;
-  });
+  const promise = storage
+    .getItem(key)
+    .then((value) => {
+      setCached(key, value);
+      return value;
+    })
+    .finally(() => {
+      hydrating.delete(key);
+    });
   hydrating.set(key, promise);
   return promise;
 }
@@ -86,6 +94,8 @@ export function resetSecureStorageCacheForTest(): void {
   cache.clear();
   hydrated.clear();
   hydrating.clear();
+  epochs.clear();
+  epochClock = 0;
   for (const set of listeners.values()) set.clear();
   listeners.clear();
 }
@@ -116,9 +126,11 @@ export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
     [key]
   );
 
-  const getSnapshot = useCallback(() => cache.get(key) ?? null, [key]);
+  const getSnapshot = useCallback(() => epochs.get(key) ?? 0, [key]);
 
-  const value = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const value = cache.get(key) ?? null;
+  const isHydrated = hydrated.has(key);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +161,7 @@ export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
   return {
     value,
     setValue,
-    isHydrated: hydrated.has(key),
+    isHydrated,
   };
 }
 

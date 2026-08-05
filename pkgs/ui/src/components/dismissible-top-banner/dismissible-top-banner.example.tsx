@@ -15,7 +15,6 @@ export default function DismissibleBannerExample() {
 
   return (
     <ExampleRoot sx={{ flex: 1, minHeight: 360 }}>
-      <Text variant="heading" label="DismissibleBanner" />
       <Text
         variant="caption"
         label="Banner UI portals to DismissibleBannerPortalProvider (mount once at app root, inside AppThemeRoot). The client app already does this. Turning visible on without that provider hits assert (fatal crash path). Position is a prop — like a toaster region."

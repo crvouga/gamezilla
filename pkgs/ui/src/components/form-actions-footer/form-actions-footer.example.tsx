@@ -16,7 +16,6 @@ export default function FormActionsFooterExample() {
   }, []);
   return (
     <ExampleRoot>
-      <Text variant="heading" label="FormActionsFooter" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

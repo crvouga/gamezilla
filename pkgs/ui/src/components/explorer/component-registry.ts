@@ -67,8 +67,10 @@ import { default as NumberStepperExample } from '../number-stepper/number-steppe
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
 import { default as SectionCardExample } from '../section-card/section-card.example';
 import { default as ScreenBaseExample } from '../screen-base/screen-base.example';
+import { default as ScreenTitleExample } from '../screen-title/screen-title.example';
 import { default as FormActionsFooterExample } from '../form-actions-footer/form-actions-footer.example';
 import { default as MenuRowExample } from '../menu-row/menu-row.example';
+import { default as CatalogExample } from '../catalog/catalog.example';
 
 export type ComponentEntry = {
   name: string;
@@ -95,6 +97,12 @@ const builtInEntries: ComponentEntry[] = [
   { name: 'ScrollView', category: 'Layout', Example: ScrollViewExample },
   { name: 'SafeAreaView', category: 'Layout', Example: SafeAreaViewExample },
   { name: 'ScreenBase', category: 'Layout', Example: ScreenBaseExample },
+  {
+    name: 'ScreenLargeTitle',
+    category: 'Layout',
+    Example: ScreenTitleExample,
+  },
+  { name: 'Catalog', category: 'Layout', Example: CatalogExample },
   {
     name: 'FormActionsFooter',
     category: 'Inputs',

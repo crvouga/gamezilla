@@ -39,6 +39,13 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
     );
   }, [dispatch]);
 
+  const onNavigate = useCallback(
+    (name: string) => {
+      dispatch(SetChessSelectedUiComponent({ name }));
+    },
+    [dispatch]
+  );
+
   return (
     <Box sx={{ alignSelf: 'stretch', flex: 1, minHeight: 0 }}>
       <DefineBackButton onPress={back} />
@@ -51,6 +58,8 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): ReactNode {
         <ExplorerDetail
           componentName={selectedName}
           entries={CHESS_COMPONENT_ENTRIES}
+          onNavigate={onNavigate}
+          largeTitle
         />
       )}
     </Box>

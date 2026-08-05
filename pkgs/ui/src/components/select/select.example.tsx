@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Text } from '../text';
 import { Stack } from '../stack';
 import { Select } from './select';
 import { ExampleRoot } from '../explorer/example-root';
@@ -24,8 +23,6 @@ export default function SelectExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Select" />
-
       <Stack spacing={3}>
         <Select
           label="Favorite fruit"

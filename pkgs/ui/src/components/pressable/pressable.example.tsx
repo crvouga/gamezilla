@@ -10,7 +10,6 @@ export default function PressableExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Pressable" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

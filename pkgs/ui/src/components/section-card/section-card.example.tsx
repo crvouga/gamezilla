@@ -5,7 +5,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function SectionCardExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SectionCard" />
       <SectionCard title="Details" defaultOpen={false}>
         <Text
           variant="body"

@@ -10,8 +10,6 @@ export default function SegmentedControlExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SegmentedControl" />
-
       <Stack spacing={4}>
         <SegmentedControl
           segments={[

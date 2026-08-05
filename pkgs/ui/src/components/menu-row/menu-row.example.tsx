@@ -183,7 +183,6 @@ function VariantsSection() {
 export default function MenuRowExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="MenuRow" />
       <FullBleedListSection />
       <DefaultRowsSection />
       <TitleOnlySection />

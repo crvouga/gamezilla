@@ -8,8 +8,6 @@ import { SuccessState } from './success-state';
 export default function SuccessStateExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SuccessState" />
-
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}

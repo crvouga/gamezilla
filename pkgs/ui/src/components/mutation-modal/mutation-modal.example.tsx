@@ -94,7 +94,6 @@ function FormExample() {
 export default function MutationModalExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="MutationModal" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

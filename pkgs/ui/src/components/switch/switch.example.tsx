@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { Switch } from './switch';
 
 export default function SwitchExample() {
@@ -12,8 +11,6 @@ export default function SwitchExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Switch" />
-
       <SchemePreview>
         <Stack spacing={3}>
           <Switch label="Notifications" value={a} onValueChange={setA} />

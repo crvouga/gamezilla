@@ -7,8 +7,6 @@ import { Badge } from './badge';
 export default function BadgeExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Badge" />
-
       <SchemePreview>
         <Stack spacing={3}>
           <Text

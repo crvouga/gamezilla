@@ -21,6 +21,7 @@ import type { ReactNode } from 'react';
 import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { ChevronRightIcon } from '../icons';
@@ -62,7 +63,14 @@ export function MenuRow({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={
+        onPress === undefined
+          ? undefined
+          : () => {
+              releaseWebFocus();
+              onPress();
+            }
+      }
       disabled={disabled}
       testID={testID}
       accessibilityRole="button"

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { Checkbox } from './checkbox';
 
 export default function CheckboxExample() {
@@ -12,8 +11,6 @@ export default function CheckboxExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Checkbox" />
-
       <SchemePreview>
         <Stack spacing={3}>
           <Checkbox label="Accept terms" checked={a} onToggle={setA} />

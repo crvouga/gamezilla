@@ -9,7 +9,6 @@ const AVATAR_BUTTON_SIZE = 40;
 export default function IconButtonExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="IconButton" />
       <Text
         variant="caption"
         sx={{ color: 'textSecondary' }}

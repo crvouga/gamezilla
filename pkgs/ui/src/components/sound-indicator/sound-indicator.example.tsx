@@ -17,8 +17,6 @@ export default function SoundIndicatorExample() {
   const [tappedMuted, setTappedMuted] = useState(false);
   return (
     <ExampleRoot>
-      <Text variant="heading" label="SoundIndicator" />
-
       <Text
         variant="caption"
         label="All three states (theme-resolved colors)"

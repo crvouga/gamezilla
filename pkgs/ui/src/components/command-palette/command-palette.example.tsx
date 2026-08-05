@@ -104,7 +104,6 @@ export default function CommandPaletteExample() {
     <CommandRegistryProvider enableDefaultShortcuts={false}>
       <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
       <ExampleRoot>
-        <Text variant="heading" label="Command palette" />
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}

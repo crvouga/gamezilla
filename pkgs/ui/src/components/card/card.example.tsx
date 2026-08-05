@@ -7,8 +7,6 @@ import { Card } from './card';
 export default function CardExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Card" />
-
       <SchemePreview>
         <Stack spacing={3}>
           {([0, 1, 2, 3, 4, 5] as const).map((level) => (

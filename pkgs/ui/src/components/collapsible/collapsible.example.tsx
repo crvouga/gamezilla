@@ -6,8 +6,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function CollapsibleExample() {
   return (
     <ExampleRoot sx={{ gap: 2 }}>
-      <Text variant="heading" label="Collapsible" />
-
       <Collapsible title="Default (closed)">
         <Text
           variant="body"

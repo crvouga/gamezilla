@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Stack } from '../stack';
-import { Text } from '../text';
 import { TextInput } from './text-input';
 
 export default function TextInputExample() {
@@ -13,8 +12,6 @@ export default function TextInputExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label={<Trans>TextInput</Trans>} />
-
       <SchemePreview>
         <Stack spacing={3}>
           <TextInput

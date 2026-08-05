@@ -45,8 +45,6 @@ export default function SpeakingAvatarExample() {
     <ObjectStoreProvider value={objectStore}>
       <TtsProvider apiUrl="http://localhost">
         <ExampleRoot sx={{ gap: 6 }}>
-          <Text variant="heading" label="SpeakingAvatar" />
-
           <Text variant="caption" label="Static message" />
           <SpeakingAvatar
             message="Hello! I'm your puzzle coach."

@@ -8,8 +8,6 @@ import { ErrorState } from './error-state';
 export default function ErrorStateExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="ErrorState" />
-
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}

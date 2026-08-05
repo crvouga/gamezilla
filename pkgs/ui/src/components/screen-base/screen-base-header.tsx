@@ -16,6 +16,7 @@ import type { ActionBarItem, ActionBarTextAction } from '../action-bar';
 import { useActionBarChrome } from '../../theme';
 import { BackIconButton } from '../back-icon-button';
 import { Box } from '../box';
+import { useScreenTitleContext } from '../screen-title';
 import { TopBar, TopBarTitle } from '../top-bar';
 import type {
   ScreenBaseAction,
@@ -93,7 +94,13 @@ function deriveHeaderLayout(breadcrumbs: BreadcrumbItem[]): {
   };
 }
 
-function renderCenterSlot(title: ReactNode | undefined): ReactNode {
+function renderCenterSlot(
+  title: ReactNode | undefined,
+  showTitle: boolean
+): ReactNode {
+  if (!showTitle) {
+    return null;
+  }
   if (title !== undefined && title !== null) {
     return <TopBarTitle label={title} />;
   }
@@ -105,14 +112,17 @@ export function ScreenBaseHeader({
   actions: actionsProp,
   leading: leadingProp,
   accountMenu,
+  largeTitle = false,
 }: ScreenBaseHeaderProps) {
   const insets = useSafeAreaInsetsCompat();
   const chrome = useActionBarChrome();
+  const titleCtx = useScreenTitleContext();
   const { iconItems, textActions } = useMemo(
     () => partitionScreenBaseActions(actionsProp ?? []),
     [actionsProp]
   );
   const { title, backCrumb, showBack } = deriveHeaderLayout(breadcrumbs);
+  const showTitle = largeTitle ? (titleCtx?.showInTopBar ?? false) : true;
 
   const onBack = () => {
     backCrumb?.onPress?.();
@@ -149,7 +159,7 @@ export function ScreenBaseHeader({
         safeAreaTop={false}
         centerAlign="center"
         leading={leadingSlot}
-        center={renderCenterSlot(title)}
+        center={renderCenterSlot(title, showTitle)}
         trailing={trailingSlot}
       />
     </Box>

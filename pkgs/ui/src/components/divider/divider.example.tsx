@@ -7,8 +7,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function DividerExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Divider" />
-
       <Box sx={{ gap: 1 }}>
         <Text variant="label" label="Horizontal" />
         <Stack spacing={3}>

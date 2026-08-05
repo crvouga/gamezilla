@@ -5,8 +5,6 @@ import { ExampleRoot } from '../explorer/example-root';
 export default function CenterExample() {
   return (
     <ExampleRoot>
-      <Text variant="heading" label="Center" />
-
       <Center sx={{ height: 120, background: 'surface', borderRadius: 8 }}>
         <Text variant="body" label="Centered content" />
       </Center>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChipGroup } from '../chip-group';
-import { Text } from '../text';
 import { PickerSection } from './picker-section';
 import { ExampleRoot } from '../explorer/example-root';
 
@@ -14,7 +13,6 @@ export default function PickerSectionExample() {
 
   return (
     <ExampleRoot>
-      <Text variant="heading" label="PickerSection" />
       <PickerSection
         label="Mood"
         description="Wraps any inline picker with consistent label spacing."
