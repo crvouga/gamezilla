@@ -30,6 +30,7 @@ export type MatchPassRow = {
   readonly participant_id: string;
   readonly joined_at: Date;
   readonly data: Record<string, unknown>;
+  readonly metadata: Record<string, unknown> | null;
 };
 
 export type RunMatchPassesOptions = {

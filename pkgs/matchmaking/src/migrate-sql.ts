@@ -355,6 +355,17 @@ $matchmaking_pair_match$;
 `.trim();
 
 /**
+ * Drop before recreate so a RETURNS TABLE shape change (e.g. v5
+ * adding `metadata`) is not blocked by Postgres's
+ * `CREATE OR REPLACE FUNCTION` rule that forbids altering OUT params.
+ */
+export const DROP_RUN_MATCH_PASS_SQL = `
+DROP FUNCTION IF EXISTS matchmaking_run_match_pass(
+  TEXT, NUMERIC, NUMERIC, NUMERIC, INT, NUMERIC, INT, TIMESTAMPTZ
+)
+`.trim();
+
+/**
  * One full match pass for one (partition, group_size) pair. v5
  * semantics:
  *
@@ -389,7 +400,8 @@ CREATE OR REPLACE FUNCTION matchmaking_run_match_pass(
   match_id       UUID,
   participant_id UUID,
   joined_at      TIMESTAMPTZ,
-  data           JSONB
+  data           JSONB,
+  metadata       JSONB
 )
 LANGUAGE plpgsql AS $matchmaking_run_match_pass$
 DECLARE
@@ -530,7 +542,7 @@ BEGIN
     v_claimed := v_claimed + 1;
 
     RETURN QUERY
-    SELECT v_match_id, m.id, m.joined_at, m.data
+    SELECT v_match_id, m.id, m.joined_at, m.data, m.metadata
     FROM matchmaking_matched m
     WHERE m.match_id = v_match_id
     ORDER BY m.joined_at;

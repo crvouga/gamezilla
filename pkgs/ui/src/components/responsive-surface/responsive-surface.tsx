@@ -62,6 +62,12 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
    * but is guaranteed to be at least this tall.
    */
   bodyHeight?: number;
+  /**
+   * Stable id for the desktop surface stack. Use for surfaces that remount
+   * while overlays stay open (e.g. live-spaces list) so they restore under
+   * the overlay instead of stealing the top slot.
+   */
+  stackId?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 }>;
@@ -298,10 +304,15 @@ function DesktopModal({
   maxHeight,
   bodyHeight,
   children,
+  stackId,
   dataSet,
 }: ResponsiveSurfaceProps) {
   return (
-    <ModalRoot visible={visible} onRequestClose={onClose}>
+    <ModalRoot
+      visible={visible}
+      onRequestClose={onClose}
+      {...(stackId !== undefined ? { stackId } : {})}
+    >
       <ModalBackdrop
         onPress={onClose}
         {...componentDataSet('ResponsiveSurface', dataSet)}

@@ -73,6 +73,11 @@ export type MutationModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Override default mutation success/error sounds. */
   sounds?: { success?: SoundId; error?: SoundId } | undefined;
+  /**
+   * Stable surface-stack id (desktop). Keeps this dialog above remounting
+   * underlays when the mutation phase updates chrome.
+   */
+  stackId?: string | undefined;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -108,6 +113,7 @@ export function MutationModal(props: MutationModalProps): ReactNode {
       visible={visible}
       onClose={surfaceClose}
       title={title}
+      {...(props.stackId !== undefined ? { stackId: props.stackId } : {})}
       {...componentDataSet('MutationModal', props.dataSet)}
     >
       <MutationStateTransition stateKey={phase} active={visible}>

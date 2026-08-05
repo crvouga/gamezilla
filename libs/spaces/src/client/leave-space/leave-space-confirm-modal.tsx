@@ -46,6 +46,7 @@ export function LeaveSpaceConfirmModal({
         successTitle={<Trans>Space ended</Trans>}
         successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
+        stackId="leave-space-confirm-as-host"
       />
     );
   }
@@ -76,6 +77,7 @@ export function LeaveSpaceConfirmModal({
         </Trans>
       }
       errorTitle={<Trans>Couldn't leave space</Trans>}
+      stackId="leave-space-confirm"
     />
   );
 }

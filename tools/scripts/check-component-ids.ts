@@ -23,6 +23,7 @@ const SKIP_FOLDERS = new Set([
   'overlay-portal',
   'portal-content-bridge',
   'skia-web-root',
+  'surface-stack',
   'symbol-icon',
   'theme-tokens',
   'use-breadcrumb-nav',

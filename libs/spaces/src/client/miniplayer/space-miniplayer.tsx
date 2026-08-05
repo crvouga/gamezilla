@@ -2,7 +2,7 @@ import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
 import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { Box } from '@pkgs/ui';
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
 import { ActiveSpacesSheet } from './active-spaces-sheet';
 import { MiniplayerStackedBar } from './miniplayer-stacked-bar';
@@ -19,6 +19,14 @@ export function SpaceMiniplayer(): ReactNode {
   const requestEndSpace = useRequestEndSpace();
   const requestLeaveSpace = useRequestLeaveSpace();
   const mode = resolveMiniplayerMode(spaceIds);
+
+  // Sheet is only opened from the stacked bar. Clear it when we leave stack
+  // mode (including a brief hidden gap after ending all spaces) so a later
+  // single-space remount does not reopen it.
+  useEffect(() => {
+    if (mode.mode !== 'stack') setSheetOpen(false);
+  }, [mode.mode]);
+
   if (!paintReady || mode.mode === 'hidden') return null;
 
   const sheet = (

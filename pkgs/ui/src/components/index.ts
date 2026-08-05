@@ -231,6 +231,19 @@ export {
   type OverlayPortalProviderProps,
 } from './overlay-portal';
 
+// Ordered modal / surface stack (monotonic z-index by open order)
+export {
+  SURFACE_STACK_BASE,
+  SURFACE_STACK_STEP,
+  SurfaceStackProvider,
+  useIsTopSurface,
+  useSurfaceStack,
+  useSurfaceStackOptional,
+  useSurfaceStackSlot,
+  type SurfaceStackApi,
+  type SurfaceStackProviderProps,
+} from './surface-stack';
+
 // Portal context bridge (ResponsiveSurface / bottom-sheet)
 export {
   PortalContentBridgeProvider,

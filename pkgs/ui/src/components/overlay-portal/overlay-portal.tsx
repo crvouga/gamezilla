@@ -1,6 +1,6 @@
 /**
  * Lightweight overlay portal that renders content above the entire app
- * (above any RN Modal stacking, BottomSheet, banner, etc.).
+ * (above surface-stack modals, bottom sheets, banners, etc.).
  *
  * Use it when a node needs to follow a pointer/cursor across stacking contexts
  * (e.g. drag previews, picker tooltips, top-of-app spinners).
