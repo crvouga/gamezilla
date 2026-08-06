@@ -1,4 +1,4 @@
-import type { PubSub } from '@pkgs/pub-sub/interface';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
@@ -47,14 +47,14 @@ export class SqlClientWithPubSub implements SqlClient {
 
   async connect(): Promise<void> {
     await this.client.connect();
-    this.pubSub.publish(this.topic, {
+    await this.pubSub.publish(this.topic, {
       type: 'connect',
     } satisfies SqlClientEvent);
   }
 
   async disconnect(): Promise<void> {
     await this.client.disconnect();
-    this.pubSub.publish(this.topic, {
+    await this.pubSub.publish(this.topic, {
       type: 'disconnect',
     } satisfies SqlClientEvent);
   }
@@ -63,7 +63,7 @@ export class SqlClientWithPubSub implements SqlClient {
     const start = performance.now();
     const rows = await this.client.query(query);
     const durationMs = performance.now() - start;
-    this.pubSub.publish(this.topic, {
+    await this.pubSub.publish(this.topic, {
       type: 'query',
       sql: query.sql,
       params: [...query.values],
@@ -77,7 +77,7 @@ export class SqlClientWithPubSub implements SqlClient {
     const start = performance.now();
     const result = await this.client.run(query);
     const durationMs = performance.now() - start;
-    this.pubSub.publish(this.topic, {
+    await this.pubSub.publish(this.topic, {
       type: 'run',
       sql: query.sql,
       params: [...query.values],
@@ -97,7 +97,7 @@ export class SqlClientWithPubSub implements SqlClient {
         const start = performance.now();
         const rows = await stmt.query(params);
         const durationMs = performance.now() - start;
-        this.pubSub.publish(this.topic, {
+        await this.pubSub.publish(this.topic, {
           type: 'query',
           sql: text,
           params: params ?? [],
@@ -110,7 +110,7 @@ export class SqlClientWithPubSub implements SqlClient {
         const start = performance.now();
         const result = await stmt.run(params);
         const durationMs = performance.now() - start;
-        this.pubSub.publish(this.topic, {
+        await this.pubSub.publish(this.topic, {
           type: 'run',
           sql: text,
           params: params ?? [],
@@ -123,7 +123,7 @@ export class SqlClientWithPubSub implements SqlClient {
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    this.pubSub.publish(this.topic, {
+    await this.pubSub.publish(this.topic, {
       type: 'transaction:begin',
     } satisfies SqlClientEvent);
     const start = performance.now();
@@ -133,14 +133,14 @@ export class SqlClientWithPubSub implements SqlClient {
         return fn(wrappedTx);
       });
       const durationMs = performance.now() - start;
-      this.pubSub.publish(this.topic, {
+      await this.pubSub.publish(this.topic, {
         type: 'transaction:commit',
         durationMs,
       } satisfies SqlClientEvent);
       return result;
     } catch (error) {
       const durationMs = performance.now() - start;
-      this.pubSub.publish(this.topic, {
+      await this.pubSub.publish(this.topic, {
         type: 'transaction:rollback',
         durationMs,
         error,

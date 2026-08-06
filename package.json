@@ -196,6 +196,7 @@
     "kysely": "^0.28.9",
     "lucide-react-native": "^0.511.0",
     "make-plural": "^8.1.0",
+    "mqtt": "^5.14.1",
     "pg": "^8.16.3",
     "pg-mem": "^3.0.14",
     "picocolors": "^1.1.1",

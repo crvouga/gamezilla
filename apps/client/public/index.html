@@ -15,7 +15,9 @@
           url.searchParams.delete('reset-db');
           var ret =
             url.pathname +
-            (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') +
+            (url.searchParams.toString()
+              ? '?' + url.searchParams.toString()
+              : '') +
             url.hash;
           window.location.replace(
             '/reset-opfs.html?return=' + encodeURIComponent(ret || '/')

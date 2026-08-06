@@ -65,7 +65,6 @@
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
     "@pkgs/polyfill": "workspace:*",
-    "@pkgs/pub-sub": "workspace:*",
     "@pkgs/queries": "workspace:*",
     "@pkgs/room-widgets": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

@@ -51,7 +51,6 @@
     "@pkgs/mutations": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
-    "@pkgs/pub-sub": "workspace:*",
     "@pkgs/queries": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

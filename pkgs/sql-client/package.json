@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/pub-sub": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",

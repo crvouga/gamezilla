@@ -12,7 +12,14 @@ export const chessPuzzleProfile = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, owner_id, rating, rating_deviation, last_interaction_at
+      SELECT 
+        id, 
+        owner_id, 
+        rating, 
+        rating_deviation, 
+        last_interaction_at,
+        created_at,
+        updated_at
       FROM chess_puzzle_profiles
       WHERE owner_id = ${ctx.env.actorId}
       LIMIT 1
@@ -32,8 +39,17 @@ export const chessPuzzleInteractions = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT
-        id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx,
-        uci, correct, rating_before, rating_after, at
+        id, 
+        owner_id, 
+        puzzle_id, 
+        puzzle_rating, 
+        kind, 
+        solve_idx,
+        uci, 
+        correct, 
+        rating_before, 
+        rating_after, 
+        at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${ctx.env.actorId}
       LIMIT 5000
@@ -56,8 +72,16 @@ export const chessPuzzlePool = defineQuery({
   async run(ctx, { ratingMin, ratingMax }) {
     const rows = await ctx.db.query(sql`
       SELECT
-        id, fen, moves, rating, rating_deviation, popularity,
-        nb_plays, themes, game_url, opening_tags
+        id, 
+        fen, 
+        moves, 
+        rating, 
+        rating_deviation, 
+        popularity,
+        nb_plays, 
+        themes, 
+        game_url, 
+        opening_tags
       FROM chess_puzzles
       WHERE sync_pool = true
         AND rating >= ${ratingMin}

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { InMemoryPubSub } from '@pkgs/pub-sub/impl-in-memory';
+import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
@@ -22,7 +22,7 @@ async function loadImplementations(): Promise<
         Promise.resolve(
           new SqlClientWithPubSub(
             SqlClientImplBunSqlite.open(':memory:'),
-            new InMemoryPubSub()
+            createInMemoryPubSub()
           )
         ),
     },

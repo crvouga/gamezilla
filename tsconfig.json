@@ -95,7 +95,9 @@
       "@pkgs/sql/*": ["./pkgs/sql/src/*"],
       "@pkgs/sql-map": ["./pkgs/sql-map/src/index.ts"],
       "@pkgs/sql-map/*": ["./pkgs/sql-map/src/*"],
-      "@pkgs/pub-sub/*": ["./pkgs/pub-sub/src/*"],
+      "@pkgs/pubsub/*": ["./pkgs/pubsub/src/*"],
+      "@pkgs/pubsub/testing": ["./pkgs/pubsub/src/testing/index.ts"],
+      "@pkgs/pubsub-emqx/*": ["./pkgs/pubsub-emqx/src/*"],
 
       "@pkgs/async/*": ["./pkgs/async/src/*"],
       "@pkgs/object-store/*": ["./pkgs/object-store/src/*"],
@@ -206,7 +208,8 @@
     "pkgs/sql/src/**/*.ts",
     "pkgs/sql/scripts/**/*.ts",
     "pkgs/sql-map/src/**/*.ts",
-    "pkgs/pub-sub/src/**/*.ts",
+    "pkgs/pubsub/src/**/*.ts",
+    "pkgs/pubsub-emqx/src/**/*.ts",
 
     "pkgs/async/src/**/*.ts",
     "pkgs/object-store/src/**/*.ts",
