@@ -4,6 +4,9 @@
  */
 import { assert } from '@pkgs/assert';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
+import type { TadaDocumentNode } from 'gql.tada';
+import { print } from 'graphql';
+import { MeIdQuery } from './railway-graphql/documents';
 
 const RAILWAY_GQL = 'https://backboard.railway.com/graphql/v2';
 
@@ -13,24 +16,27 @@ type GqlBody<T> = {
   readonly errors?: readonly GqlError[];
 };
 
-export async function railwayGql<T>(
+export async function railwayGql<TResult, TVariables>(
   token: string,
-  query: string,
-  variables?: Record<string, unknown>
-): Promise<T> {
+  document: TadaDocumentNode<TResult, TVariables>,
+  variables?: TVariables
+): Promise<TResult> {
   const res = await fetchWithRetry(RAILWAY_GQL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ query, variables }),
+    body: JSON.stringify({
+      query: print(document),
+      variables: variables ?? undefined,
+    }),
   });
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Railway GraphQL HTTP ${String(res.status)}: ${text}`);
   }
-  const body = JSON.parse(text) as GqlBody<T>;
+  const body = JSON.parse(text) as GqlBody<TResult>;
   if (body.errors !== undefined && body.errors.length > 0) {
     throw new Error(
       `Railway GraphQL: ${body.errors.map((e) => e.message ?? 'error').join('; ')}`
@@ -46,7 +52,7 @@ export async function railwayGql<T>(
  */
 export async function validateRailwayToken(token: string): Promise<void> {
   try {
-    await railwayGql<{ me: { id: string } }>(token, `query { me { id } }`);
+    await railwayGql(token, MeIdQuery);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/not authorized/i.test(msg)) {

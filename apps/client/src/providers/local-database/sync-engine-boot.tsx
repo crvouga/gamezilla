@@ -85,7 +85,7 @@ function useSyncEnginePromise(
         get auth() {
           return authRef.current;
         },
-        getFreshAuthToken: () => getFreshAuthTokenRef.current(),
+        getFreshAuthToken: (options) => getFreshAuthTokenRef.current(options),
         databaseName: dbName,
         userId,
       }),

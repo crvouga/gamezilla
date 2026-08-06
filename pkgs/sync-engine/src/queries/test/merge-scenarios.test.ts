@@ -4,9 +4,9 @@ import { sql } from '@pkgs/sql';
 import { applyFullMerge, purgeScope } from '../client/merge-applier';
 import { hashQueryTables, scopeHash } from '../shared/canonical';
 import {
-  ackThrough,
   createScenarioClients,
   openScenarioDb,
+  rejectThrough,
   setNote,
 } from './scenario-fixture';
 
@@ -19,8 +19,8 @@ describe('merge scenarios (Phase 0 invariants)', () => {
       body: 'offline',
     });
     expect(r.ok).toBe(true);
-    // Simulate server rejection by not applying; ack with local rejection store
-    await ackThrough(db, 1);
+    // Simulate server rejection by not applying; hard-delete pending log
+    await rejectThrough(db, 1);
     const notes = await db.query(sql<{ body: string }>`
       SELECT body FROM notes WHERE id = ${'n1'}
     `);

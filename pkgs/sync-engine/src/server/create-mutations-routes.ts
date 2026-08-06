@@ -74,11 +74,25 @@ function commitCheckpoint(seq: number): string {
   return `${Date.now()}${String(seq).padStart(6, '0')}`;
 }
 
-function collectInvalidates(
+function collectAppliedWrites(
+  registry: MutationRegistry,
+  applied: readonly { name: string }[]
+): string[] {
+  const tables = new Set<string>();
+  for (const row of applied) {
+    const mutation = registry[row.name];
+    if (mutation === undefined) continue;
+    for (const table of mutation.writes) tables.add(table);
+  }
+  return [...tables];
+}
+
+async function collectInvalidates(
   registry: MutationRegistry,
   auth: MutationsRouteAuth,
-  applied: readonly { name: string; argsJson: string }[]
-): Topic[] {
+  applied: readonly { name: string; argsJson: string }[],
+  db: SqlClient
+): Promise<Topic[]> {
   const env: MutationEnv = {
     actorId: auth.actorId,
     deviceId: auth.deviceId,
@@ -96,7 +110,8 @@ function collectInvalidates(
     } catch {
       continue;
     }
-    topics.push(...mutation.invalidates(args, env));
+    const next = await Promise.resolve(mutation.invalidates(args, env, db));
+    topics.push(...next);
   }
   return topics;
 }
@@ -136,11 +151,18 @@ export function createMutationsRoutes(deps: CreateMutationsRoutesDeps) {
 
     const pubsub = deps.pubsub;
     if (pubsub !== undefined && result.applied.length > 0) {
-      const topics = collectInvalidates(deps.registry, auth, result.applied);
+      const topics = await collectInvalidates(
+        deps.registry,
+        auth,
+        result.applied,
+        db
+      );
+      const tables = collectAppliedWrites(deps.registry, result.applied);
       notifyChannels({
         pubsub,
         topics,
         checkpoint: commitCheckpoint(result.ackSeq),
+        tables,
         label: result.applied.map((a) => a.name).join(','),
       });
     }

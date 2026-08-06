@@ -1,45 +1,22 @@
 import { assert } from '@pkgs/assert';
+import { print } from 'graphql';
 import {
   pickProductionEnv,
   railwayGql,
   type RailwayProject,
   type RailwayService,
 } from './railway-api-core';
+import {
+  ListProjectsQuery,
+  ProjectCreateMutation,
+  ServiceCreateMutation,
+  ServiceInstanceUpdateMutation,
+  VariableUpsertMutation,
+} from './railway-graphql/documents';
 
-type ProjectsQuery = {
-  readonly me: {
-    readonly workspaces: {
-      readonly edges: ReadonlyArray<{
-        readonly node: {
-          readonly projects: {
-            readonly edges: ReadonlyArray<{
-              readonly node: {
-                readonly id: string;
-                readonly name: string;
-                readonly environments: {
-                  readonly edges: ReadonlyArray<{
-                    readonly node: {
-                      readonly id: string;
-                      readonly name: string;
-                    };
-                  }>;
-                };
-                readonly services: {
-                  readonly edges: ReadonlyArray<{
-                    readonly node: {
-                      readonly id: string;
-                      readonly name: string;
-                    };
-                  }>;
-                };
-              };
-            }>;
-          };
-        };
-      }>;
-    };
-  };
-};
+export function listProjectsQuerySource(): string {
+  return print(ListProjectsQuery);
+}
 
 export async function listProjects(token: string): Promise<
   ReadonlyArray<{
@@ -47,35 +24,13 @@ export async function listProjects(token: string): Promise<
     readonly services: readonly RailwayService[];
   }>
 > {
-  const data = await railwayGql<ProjectsQuery>(
-    token,
-    `query {
-      me {
-        workspaces {
-          edges {
-            node {
-              projects {
-                edges {
-                  node {
-                    id
-                    name
-                    environments { edges { node { id name } } }
-                    services { edges { node { id name } } }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }`
-  );
+  const data = await railwayGql(token, ListProjectsQuery);
   const out: Array<{
     project: RailwayProject;
     services: RailwayService[];
   }> = [];
-  for (const ws of data.me.workspaces.edges) {
-    for (const edge of ws.node.projects.edges) {
+  for (const ws of data.me.workspaces) {
+    for (const edge of ws.projects.edges) {
       const node = edge.node;
       const envs = node.environments.edges.map((e) => e.node);
       const environmentId = pickProductionEnv(envs);
@@ -101,25 +56,9 @@ export async function ensureProject(
   );
   if (existing) return existing.project;
 
-  const created = await railwayGql<{
-    projectCreate: {
-      id: string;
-      name: string;
-      environments: {
-        edges: Array<{ node: { id: string; name: string } }>;
-      };
-    };
-  }>(
-    token,
-    `mutation($input: ProjectCreateInput!) {
-      projectCreate(input: $input) {
-        id
-        name
-        environments { edges { node { id name } } }
-      }
-    }`,
-    { input: { name } }
-  );
+  const created = await railwayGql(token, ProjectCreateMutation, {
+    input: { name },
+  });
   const envs = created.projectCreate.environments.edges.map((e) => e.node);
   const environmentId = pickProductionEnv(envs);
   assert.ok(environmentId.length > 0, 'Railway project has no environment');
@@ -145,21 +84,13 @@ export async function ensureService(options: {
     return existing;
   }
 
-  const created = await railwayGql<{
-    serviceCreate: { id: string; name: string };
-  }>(
-    options.token,
-    `mutation($input: ServiceCreateInput!) {
-      serviceCreate(input: $input) { id name }
-    }`,
-    {
-      input: {
-        projectId: options.project.id,
-        name: options.serviceName,
-        source: { repo: options.githubRepo },
-      },
-    }
-  );
+  const created = await railwayGql(options.token, ServiceCreateMutation, {
+    input: {
+      projectId: options.project.id,
+      name: options.serviceName,
+      source: { repo: options.githubRepo },
+    },
+  });
   const service = {
     id: created.serviceCreate.id,
     name: created.serviceCreate.name,
@@ -177,21 +108,14 @@ async function configureServiceSource(
   }
 ): Promise<void> {
   try {
-    await railwayGql(
-      token,
-      `mutation($serviceId: String!, $environmentId: String!, $input: ServiceInstanceUpdateInput!) {
-        serviceInstanceUpdate(serviceId: $serviceId, environmentId: $environmentId, input: $input)
-      }`,
-      {
-        serviceId,
-        environmentId: options.project.environmentId,
-        input: {
-          rootDirectory: options.rootDirectory,
-          builder: 'DOCKERFILE',
-          dockerfilePath: 'Dockerfile',
-        },
-      }
-    );
+    await railwayGql(token, ServiceInstanceUpdateMutation, {
+      serviceId,
+      environmentId: options.project.environmentId,
+      input: {
+        rootDirectory: options.rootDirectory,
+        dockerfilePath: 'Dockerfile',
+      },
+    });
   } catch {
     // Best-effort: service may already be configured / schema variant.
   }
@@ -205,20 +129,14 @@ export async function upsertVariables(options: {
   readonly variables: Readonly<Record<string, string>>;
 }): Promise<void> {
   for (const [name, value] of Object.entries(options.variables)) {
-    await railwayGql(
-      options.token,
-      `mutation($input: VariableUpsertInput!) {
-        variableUpsert(input: $input)
-      }`,
-      {
-        input: {
-          projectId: options.projectId,
-          environmentId: options.environmentId,
-          serviceId: options.serviceId,
-          name,
-          value,
-        },
-      }
-    );
+    await railwayGql(options.token, VariableUpsertMutation, {
+      input: {
+        projectId: options.projectId,
+        environmentId: options.environmentId,
+        serviceId: options.serviceId,
+        name,
+        value,
+      },
+    });
   }
 }

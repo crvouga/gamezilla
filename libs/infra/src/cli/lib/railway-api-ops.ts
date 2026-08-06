@@ -1,96 +1,69 @@
 import { railwayGql, type RailwayCustomDomain } from './railway-api-core';
+import {
+  CustomDomainCreateMutation,
+  DomainsQuery,
+  ServiceDeleteMutation,
+  ServiceDomainCreateMutation,
+  ServiceInstanceDeployV2Mutation,
+  ServiceInstanceRedeployMutation,
+  VolumeCreateMutation,
+} from './railway-graphql/documents';
+import type { ResultOf } from './railway-graphql/graphql';
+
+type CustomDomainNode = NonNullable<
+  ResultOf<typeof DomainsQuery>['domains']['customDomains'][number]
+>;
 
 export async function ensureCustomDomain(options: {
   readonly token: string;
+  readonly projectId: string;
   readonly serviceId: string;
   readonly environmentId: string;
   readonly domain: string;
   readonly targetPort: number;
 }): Promise<RailwayCustomDomain> {
-  const listed = await railwayGql<{
-    domains: {
-      customDomains?: ReadonlyArray<{
-        id: string;
-        domain: string;
-        status?: {
-          dnsRecords?: ReadonlyArray<{
-            requiredValue?: string;
-            type?: string;
-          }>;
-          verificationToken?: string;
-        };
-      }>;
-    };
-  }>(
-    options.token,
-    `query($environmentId: String!, $serviceId: String!) {
-      domains(environmentId: $environmentId, serviceId: $serviceId) {
-        customDomains { id domain status }
-      }
-    }`,
-    {
-      environmentId: options.environmentId,
-      serviceId: options.serviceId,
-    }
-  ).catch(() => ({ domains: { customDomains: [] } }));
+  const listed = await railwayGql(options.token, DomainsQuery, {
+    environmentId: options.environmentId,
+    projectId: options.projectId,
+    serviceId: options.serviceId,
+  }).catch(() => ({ domains: { customDomains: [] as CustomDomainNode[] } }));
 
-  const found = listed.domains.customDomains?.find(
+  const found = listed.domains.customDomains.find(
     (d) => d.domain === options.domain
   );
   if (found) return parseCustomDomain(found);
 
-  const created = await railwayGql<{
-    customDomainCreate: {
-      id: string;
-      domain: string;
-      status?: {
-        dnsRecords?: ReadonlyArray<{
-          requiredValue?: string;
-          type?: string;
-        }>;
-        verificationToken?: string;
-      };
-    };
-  }>(
-    options.token,
-    `mutation($input: CustomDomainCreateInput!) {
-      customDomainCreate(input: $input) {
-        id
-        domain
-        status
-      }
-    }`,
-    {
-      input: {
-        serviceId: options.serviceId,
-        environmentId: options.environmentId,
-        domain: options.domain,
-        targetPort: options.targetPort,
-      },
-    }
-  );
+  const created = await railwayGql(options.token, CustomDomainCreateMutation, {
+    input: {
+      serviceId: options.serviceId,
+      environmentId: options.environmentId,
+      projectId: options.projectId,
+      domain: options.domain,
+      targetPort: options.targetPort,
+    },
+  });
   return parseCustomDomain(created.customDomainCreate);
 }
 
 function parseCustomDomain(raw: {
   id: string;
   domain: string;
-  status?: {
-    dnsRecords?: ReadonlyArray<{
-      requiredValue?: string;
-      type?: string;
+  status: {
+    verificationToken?: string | null;
+    dnsRecords: ReadonlyArray<{
+      recordType: string;
+      requiredValue: string;
     }>;
-    verificationToken?: string;
   };
 }): RailwayCustomDomain {
-  const cname = raw.status?.dnsRecords?.find(
-    (r) => (r.type ?? '').toUpperCase() === 'CNAME'
+  const cname = raw.status.dnsRecords.find(
+    (r) => r.recordType === 'DNS_RECORD_TYPE_CNAME'
   );
   return {
     id: raw.id,
     domain: raw.domain,
     cnameTarget: cname?.requiredValue ?? null,
-    verificationToken: raw.status?.verificationToken ?? null,
+    verificationToken: raw.status.verificationToken ?? null,
   };
 }
 
@@ -100,13 +73,9 @@ export async function ensureServiceDomain(options: {
   readonly environmentId: string;
 }): Promise<string | null> {
   try {
-    const created = await railwayGql<{
-      serviceDomainCreate: { domain: string };
-    }>(
+    const created = await railwayGql(
       options.token,
-      `mutation($input: ServiceDomainCreateInput!) {
-        serviceDomainCreate(input: $input) { domain }
-      }`,
+      ServiceDomainCreateMutation,
       {
         input: {
           serviceId: options.serviceId,
@@ -126,24 +95,16 @@ export async function ensureVolume(options: {
   readonly environmentId: string;
   readonly serviceId: string;
   readonly mountPath: string;
-  readonly name: string;
 }): Promise<void> {
   try {
-    await railwayGql(
-      options.token,
-      `mutation($input: VolumeCreateInput!) {
-        volumeCreate(input: $input) { id }
-      }`,
-      {
-        input: {
-          projectId: options.projectId,
-          environmentId: options.environmentId,
-          serviceId: options.serviceId,
-          mountPath: options.mountPath,
-          name: options.name,
-        },
-      }
-    );
+    await railwayGql(options.token, VolumeCreateMutation, {
+      input: {
+        projectId: options.projectId,
+        environmentId: options.environmentId,
+        serviceId: options.serviceId,
+        mountPath: options.mountPath,
+      },
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (!/already|exist|duplicate/i.test(msg)) {
@@ -158,37 +119,25 @@ export async function redeployService(options: {
   readonly environmentId: string;
 }): Promise<void> {
   try {
-    await railwayGql(
-      options.token,
-      `mutation($serviceId: String!, $environmentId: String!) {
-        serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
-      }`,
-      {
-        serviceId: options.serviceId,
-        environmentId: options.environmentId,
-      }
-    );
+    await railwayGql(options.token, ServiceInstanceRedeployMutation, {
+      serviceId: options.serviceId,
+      environmentId: options.environmentId,
+    });
     return;
   } catch {
     // fall through
   }
-  await railwayGql(
-    options.token,
-    `mutation($serviceId: String!, $environmentId: String!) {
-      serviceInstanceDeployV2(serviceId: $serviceId, environmentId: $environmentId)
-    }`,
-    {
-      serviceId: options.serviceId,
-      environmentId: options.environmentId,
-    }
-  );
+  await railwayGql(options.token, ServiceInstanceDeployV2Mutation, {
+    serviceId: options.serviceId,
+    environmentId: options.environmentId,
+  });
 }
 
 export async function deleteService(
   token: string,
   serviceId: string
 ): Promise<void> {
-  await railwayGql(token, `mutation($id: String!) { serviceDelete(id: $id) }`, {
-    id: serviceId,
-  }).catch(() => undefined);
+  await railwayGql(token, ServiceDeleteMutation, { id: serviceId }).catch(
+    () => undefined
+  );
 }

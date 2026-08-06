@@ -12,9 +12,19 @@ import {
   useSpaceRoomSelector,
 } from './use-space-room-selector';
 
+function dispatchJoinAnnounce(
+  dispatch: ReturnType<typeof useSpaceRoomDispatch>,
+  memberId: string
+): void {
+  dispatch(JoinSpaceSeat({ memberId }));
+  dispatch(AnnounceMemberJoined({ memberId }));
+}
+
 /**
  * Once per open-space session (after the room first syncs), take a seat and
- * announce join for the collaborative event log.
+ * announce join for the collaborative event log. Hosts that created the space
+ * already have join_announced=1 — only room commands run. Joiners persist the
+ * flag via markSpaceJoinAnnounced first.
  */
 export function useAnnounceJoinedOnSync(spaceId: string): void {
   const dispatch = useSpaceRoomDispatch();
@@ -22,22 +32,31 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const session = useSpaceOpenSession(spaceId);
   const mutationClient = useMutationClient();
-  const announcingRef = useRef(false);
+  const announcedSpaceRef = useRef<string | null>(null);
+  const mutatingRef = useRef(false);
 
   useEffect(() => {
     if (!synced || myId.length === 0 || spaceId.length === 0) return;
-    if (!session.isOpen || session.joinAnnounced) return;
-    if (announcingRef.current) return;
-    announcingRef.current = true;
+    if (!session.isOpen) return;
+    if (announcedSpaceRef.current === spaceId) return;
+
+    if (session.joinAnnounced) {
+      announcedSpaceRef.current = spaceId;
+      dispatchJoinAnnounce(dispatch, myId);
+      return;
+    }
+
+    if (mutatingRef.current) return;
+    mutatingRef.current = true;
     void mutationClient
       .mutate(markSpaceJoinAnnouncedMutation, { spaceId })
       .then((result) => {
         if (!result.ok) return;
-        dispatch(JoinSpaceSeat({ memberId: myId }));
-        dispatch(AnnounceMemberJoined({ memberId: myId }));
+        announcedSpaceRef.current = spaceId;
+        dispatchJoinAnnounce(dispatch, myId);
       })
       .finally(() => {
-        announcingRef.current = false;
+        mutatingRef.current = false;
       });
   }, [
     synced,

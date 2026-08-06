@@ -65,7 +65,10 @@ async function upsertClientConfigRow(
 
 async function handleClientConfigRefresh(
   c: Context<ApiHonoEnv>,
-  deps: { logger: Logger }
+  deps: {
+    readonly logger: Logger;
+    readonly onConfigUpdated?: () => void;
+  }
 ): Promise<Response> {
   const db = c.get('sqlClient');
   const { logger } = deps;
@@ -95,6 +98,7 @@ async function handleClientConfigRefresh(
   const after = snapshotAttributes(
     (await readClientConfigRow(db)) ?? undefined
   );
+  deps.onConfigUpdated?.();
 
   logger.info('Client config updated successfully.', {
     outcome: 'updated',
@@ -110,8 +114,18 @@ async function handleClientConfigRefresh(
   return c.json(body, 200);
 }
 
-export function createClientConfigApp(logger: Logger) {
+export function createClientConfigApp(
+  logger: Logger,
+  options?: {
+    readonly onConfigUpdated?: () => void;
+  }
+) {
   return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
-    handleClientConfigRefresh(c, { logger })
+    handleClientConfigRefresh(c, {
+      logger,
+      ...(options?.onConfigUpdated !== undefined
+        ? { onConfigUpdated: options.onConfigUpdated }
+        : {}),
+    })
   );
 }

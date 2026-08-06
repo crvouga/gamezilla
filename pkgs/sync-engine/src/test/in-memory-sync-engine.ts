@@ -212,5 +212,7 @@ export function createInMemorySyncEngine(
     },
     subscribeQuery: createImmediateQuerySubscription(),
     status,
+    wakeUploads: () => undefined,
+    fanoutMutation: () => undefined,
   };
 }

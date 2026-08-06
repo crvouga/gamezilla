@@ -1,4 +1,5 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
+import type { MutationAppliedEvent } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
 import type {
   MutationEnv,
   MutationRegistry,
@@ -15,6 +16,7 @@ import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { TableRegistry } from '../shared/table-registry';
+import type { AppLifecycle } from './app-lifecycle';
 import { attachNudges } from './attach-nudges';
 import { clearLocalCache, migrateLocalSchema } from './local-schema-migrate';
 import {
@@ -26,6 +28,7 @@ import {
   type MutationUploadResult,
   type MutationUploadRow,
 } from './mutation-upload-queue';
+import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { SyncEngine } from './sync-engine-port';
 import {
@@ -39,6 +42,7 @@ export type SyncEngineNudgesOptions = {
   readonly queryRegistry: QueryRegistry;
   readonly createPubSub: () => PubSub;
   readonly getChannelsCtx: () => QueryChannelsCtx;
+  readonly onBindTopicRefresh?: (refresh: () => void) => void;
 };
 
 export type CreateLocalSyncEngineOptions = {
@@ -49,13 +53,21 @@ export type CreateLocalSyncEngineOptions = {
   readonly getClientId: () => string;
   readonly bootQueries: readonly QuerySubscriptionSpec[];
   readonly postQuery: (request: QueryRequest) => Promise<QueryResponse>;
+  readonly postQueryBatch?: (
+    requests: readonly QueryRequest[]
+  ) => Promise<readonly QueryResponse[]>;
   readonly postMutations: (
     mutations: readonly MutationUploadRow[]
   ) => Promise<MutationUploadResult>;
   readonly isAuthRevoked: (error: unknown) => boolean;
   readonly deleteDatabase: () => Promise<void>;
-  /** Optional; when omitted the engine polls exactly as before. */
+  /**
+   * Optional pubsub nudges. When omitted the engine runs the shared down-state
+   * fallback cadence (FALLBACK_POLL_MS sweeps) — there are no per-subscription
+   * interval timers.
+   */
   readonly nudges?: SyncEngineNudgesOptions;
+  readonly lifecycle?: AppLifecycle;
 };
 
 type LocalEngineState = {
@@ -70,6 +82,7 @@ type LocalEngineState = {
   revokePromise: Promise<void> | null;
   disposeNudges: (() => void) | null;
   debouncedWakeAll: (() => void) | null;
+  fanoutPubSub: PubSub | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -114,6 +127,12 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     db: options.db,
     boot: options.bootQueries,
     postQuery: options.postQuery,
+    ...(options.postQueryBatch !== undefined
+      ? { postQueryBatch: options.postQueryBatch }
+      : {}),
+    ...(options.lifecycle !== undefined
+      ? { lifecycle: options.lifecycle }
+      : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
     onSynced: () =>
@@ -131,13 +150,17 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     postBatch: options.postMutations,
     onUploaded: () => {
       const current = readState(stateRef);
-      if (current.debouncedWakeAll !== null) {
-        current.debouncedWakeAll();
-        return;
-      }
+      // Pubsub path: mutation invalidates already nudge overlapping scopes;
+      // local rows are already applied. Upload-ack wakeAll was storming every
+      // active scope after each batch (16+) and fighting the table filter.
+      if (current.debouncedWakeAll !== null) return;
       runtime.wakeAll();
     },
     onError: (error) => handleError(readState(stateRef), error),
+  });
+  // Don't wait for IDLE_DELAY_MS — local mutate commits emit `_mutations`.
+  bus.subscribe((tables) => {
+    if (tables.has('_mutations')) uploadQueue.wake();
   });
   const state: LocalEngineState = {
     options,
@@ -153,20 +176,45 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     revokePromise: null,
     disposeNudges: null,
     debouncedWakeAll: null,
+    fanoutPubSub: null,
   };
   stateRef.current = state;
   return state;
 }
 
+function fanoutFromState(
+  state: LocalEngineState,
+  event: MutationAppliedEvent
+): void {
+  const pubsub = state.fanoutPubSub;
+  if (pubsub === null) return;
+  publishMutationFanout({
+    pubsub,
+    event: {
+      mutationId: event.mutationId,
+      mutation: event.mutation,
+      args: event.args,
+      seq: event.seq,
+      createdAt: event.createdAt,
+      env: state.options.getMutationEnv(),
+      clientId: state.options.getClientId(),
+    },
+  });
+}
+
 function attachNudgesIfConfigured(state: LocalEngineState): void {
   const nudges = state.options.nudges;
-  if (nudges === undefined || state.disposeNudges !== null) return;
+  if (nudges === undefined || state.disposeNudges !== null) {
+    return;
+  }
   try {
     let pubsub = nudges.createPubSub();
     state.disposeNudges = attachNudges({
       pubsub,
       runtime: state.runtime,
       queryRegistry: nudges.queryRegistry,
+      mutationRegistry: state.options.mutationRegistry,
+      bus: state.bus,
       db: state.options.db,
       getChannelsCtx: nudges.getChannelsCtx,
       remakePubSub: () => {
@@ -176,9 +224,19 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
       onScheduleWakeAll: (wakeAll) => {
         state.debouncedWakeAll = wakeAll;
       },
+      onPubSubInstance: (instance) => {
+        state.fanoutPubSub = instance;
+      },
+      ...(nudges.onBindTopicRefresh !== undefined
+        ? { onBindTopicRefresh: nudges.onBindTopicRefresh }
+        : {}),
+      onTablesChanged: (listener) => state.bus.subscribe(listener),
     });
   } catch (error) {
-    console.warn('[sync] attachNudges failed; continuing poll-only', error);
+    console.warn(
+      '[sync] attachNudges failed; continuing fallback cadence',
+      error
+    );
   }
 }
 
@@ -186,6 +244,7 @@ function detachNudges(state: LocalEngineState): void {
   state.disposeNudges?.();
   state.disposeNudges = null;
   state.debouncedWakeAll = null;
+  state.fanoutPubSub = null;
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
@@ -253,13 +312,14 @@ function toEngine(state: LocalEngineState): SyncEngine {
     disconnect: () => disconnectState(state),
     clearLocalData: (args) => clearState(state, args?.reason ?? 'cache'),
     waitForFirstSync: () => state.runtime.waitForBoot(),
-    subscribeQuery: (name, params, options) =>
+    subscribeQuery: (name, params) =>
       state.runtime.subscribe({
         name,
         params,
-        ...(options?.pollMs !== undefined ? { pollMs: options.pollMs } : {}),
       }),
     status: state.status.status,
+    wakeUploads: () => state.uploadQueue.wake(),
+    fanoutMutation: (event) => fanoutFromState(state, event),
   };
 }
 

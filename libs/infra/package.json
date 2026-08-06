@@ -12,8 +12,11 @@
     "infra": "SECRETS_ENV=prd bun run ../../tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test src/shared/database-url-policy.test.ts src/cli/lib/build-llm-fix-prompt.test.ts src/cli/lib/eas-mobile.test.ts src/cli/lib/github-job-output-codec.test.ts src/cli/deps/pg-dump.test.ts"
+    "railway:gql:check": "gql.tada check --tsconfig ./tsconfig.tc.json",
+    "railway:gql:generate": "gql.tada generate-output --tsconfig ./tsconfig.tc.json",
+    "railway:gql:schema": "gql.tada generate-schema https://backboard.railway.com/graphql/v2 --output ./src/cli/lib/railway-graphql/schema.graphql",
+    "tc": "gql.tada check --tsconfig ./tsconfig.tc.json && tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test src/shared/database-url-policy.test.ts src/cli/lib/build-llm-fix-prompt.test.ts src/cli/lib/eas-mobile.test.ts src/cli/lib/github-job-output-codec.test.ts src/cli/deps/pg-dump.test.ts src/cli/lib/railway-graphql/list-projects.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -30,6 +33,8 @@
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "gql.tada": "catalog:",
+    "graphql": "catalog:",
     "picocolors": "catalog:"
   },
   "devDependencies": {

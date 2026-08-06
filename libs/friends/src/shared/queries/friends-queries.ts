@@ -1,4 +1,5 @@
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -7,6 +8,7 @@ export const friendships = defineQuery({
   params: z.object({}),
   hydrates: ['friendships'],
   limit: 2000,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },
@@ -27,6 +29,7 @@ export const friendRequests = defineQuery({
   params: z.object({}),
   hydrates: ['friend_requests'],
   limit: 500,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },
@@ -49,6 +52,7 @@ export const userBlocks = defineQuery({
   params: z.object({}),
   hydrates: ['user_blocks'],
   limit: 500,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },

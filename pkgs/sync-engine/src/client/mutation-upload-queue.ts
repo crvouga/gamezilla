@@ -1,9 +1,11 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
+import { bumpWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
 
 const BATCH_LIMIT = 64;
-const IDLE_DELAY_MS = 750;
+/** Fallback poll when nothing is pending; wakes interrupt this wait. */
+const IDLE_DELAY_MS = 100;
 const ERROR_DELAY_MS = 2_000;
 
 export type MutationUploadRow = {
@@ -68,7 +70,7 @@ async function readPending(
   return db.query(sql<StoredMutation>`
     SELECT id, name, args, client_id, seq, created_at
     FROM _mutations
-    WHERE client_id = ${clientId}
+    WHERE client_id = ${clientId} AND status = ${'pending'}
     ORDER BY seq ASC
     LIMIT ${BATCH_LIMIT}
   `);
@@ -99,6 +101,18 @@ async function storeRejection(
   `);
 }
 
+async function softAckApplied(
+  tx: SqlClient,
+  mutationId: string
+): Promise<void> {
+  const ackedEpoch = await bumpWriteEpoch(tx);
+  await tx.run(sql`
+    UPDATE _mutations
+    SET status = ${'uploaded'}, acked_epoch = ${ackedEpoch}
+    WHERE id = ${mutationId} AND status = ${'pending'}
+  `);
+}
+
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
   result: MutationUploadResult
@@ -108,7 +122,12 @@ async function applyUploadResult(
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
         await storeRejection(tx, clientId, verdict);
+        await tx.run(sql`
+          DELETE FROM _mutations WHERE id = ${verdict.mutationId}
+        `);
+        continue;
       }
+      await softAckApplied(tx, verdict.mutationId);
     }
     await tx.run(sql`
       UPDATE _upload_state
@@ -116,15 +135,11 @@ async function applyUploadResult(
           handoff_complete = ${1}
       WHERE id = ${'singleton'}
     `);
-    await tx.run(sql`
-      DELETE FROM _mutations
-      WHERE client_id = ${clientId} AND seq <= ${result.ackSeq}
-    `);
   });
   options.bus.emit(['_mutations', '_upload_state', 'write_rejections']);
 }
 
-/** Polling durable mutation uploader with ordered ack-watermark deletion. */
+/** Polling durable mutation uploader with soft-ack until query confirms. */
 export class MutationUploadQueue {
   private running = false;
   private loopPromise: Promise<void> | null = null;

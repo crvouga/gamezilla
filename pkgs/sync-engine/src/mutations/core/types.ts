@@ -49,7 +49,12 @@ type MutationRun<A> = {
 }['bivarianceHack'];
 
 type MutationInvalidates<A> = {
-  bivarianceHack(args: A, env: MutationEnv): Topic[];
+  bivarianceHack(
+    args: A,
+    env: MutationEnv,
+    /** Post-commit read client for party expansion (optional). */
+    db?: MutationDb
+  ): readonly Topic[] | Promise<readonly Topic[]>;
 }['bivarianceHack'];
 
 export type Mutation<A> = {

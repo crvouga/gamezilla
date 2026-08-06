@@ -14,12 +14,14 @@ import { APP_QUERIES } from './app-queries';
 import { tryCreateClientPubSub } from './create-client-pubsub';
 import {
   postAppQuery,
+  postAppQueryBatch,
   postMutationBatch,
   SyncApiAuthError,
   type GetFreshAuthToken,
   type SyncApiFetch,
   type SyncClientAuth,
 } from './sync-api';
+import { createAppSyncLifecycle } from './app-sync-lifecycle';
 
 const BOOT_QUERIES = [
   'ownUser',
@@ -57,48 +59,61 @@ async function loadMembershipSpaceIds(
 ): Promise<string[]> {
   const rows = await db.query(sql<{ id: string }>`
     SELECT id FROM spaces
-    WHERE host_member_id = ${actorId}
-       OR host_account_id = ${actorId}
-       OR id IN (
-         SELECT space_id FROM space_users WHERE user_id = ${actorId}
-       )
+    WHERE ended_at IS NULL
+      AND (
+        host_member_id = ${actorId}
+        OR host_account_id = ${actorId}
+        OR id IN (
+          SELECT space_id FROM space_users WHERE user_id = ${actorId}
+        )
+      )
   `);
   return rows.map((row) => row.id).filter((id) => id.length > 0);
 }
 
-function bootQuerySpecs() {
-  return BOOT_QUERIES.map((name) => {
-    const def = APP_QUERIES[name];
-    return {
-      name,
-      params: {},
-      ...(def?.pollMs !== undefined ? { pollMs: def.pollMs } : {}),
-      ...(def?.pollMsLazy !== undefined ? { pollMsLazy: def.pollMsLazy } : {}),
-    };
-  });
+function membershipKey(ids: readonly string[]): string {
+  return [...ids].sort().join('\0');
 }
 
-function createGetChannelsCtx(
-  db: SqlClient,
-  args: CreateAppLocalSyncEngineArgs,
-  initialMembership: string[]
-): () => AppChannelsCtx {
-  let membershipCache = initialMembership;
-  return () => {
-    const actorId = args.auth.getAccountId() ?? args.userId;
-    void loadMembershipSpaceIds(db, actorId).then((ids) => {
-      membershipCache = ids;
-    });
-    return { actorId, membershipSpaceIds: membershipCache };
+function bootQuerySpecs() {
+  return BOOT_QUERIES.map((name) => ({
+    name,
+    params: {},
+  }));
+}
+
+function createMembershipChannels(args: {
+  readonly db: SqlClient;
+  readonly auth: SyncClientAuth;
+  readonly userId: string;
+}): {
+  readonly getChannelsCtx: () => AppChannelsCtx;
+  readonly onBindTopicRefresh: (refresh: () => void) => void;
+} {
+  let membershipCache: string[] = [];
+  let topicRefresh: (() => void) | null = null;
+  return {
+    onBindTopicRefresh: (refresh) => {
+      topicRefresh = refresh;
+    },
+    getChannelsCtx: () => {
+      const actorId = args.auth.getAccountId() ?? args.userId;
+      void loadMembershipSpaceIds(args.db, actorId).then((ids) => {
+        if (membershipKey(ids) === membershipKey(membershipCache)) return;
+        membershipCache = ids;
+        topicRefresh?.();
+      });
+      return { actorId, membershipSpaceIds: membershipCache };
+    },
   };
 }
 
 function nudgeOptions(
   args: CreateAppLocalSyncEngineArgs,
-  getChannelsCtx: () => AppChannelsCtx
+  channels: ReturnType<typeof createMembershipChannels>
 ) {
-  const enabled =
-    (process.env['EXPO_PUBLIC_EMQX_WSS_URL']?.trim() ?? '').length > 0;
+  const raw = process.env['EXPO_PUBLIC_EMQX_WSS_URL']?.trim() ?? '';
+  const enabled = raw.length > 0;
   if (!enabled) return {};
   return {
     nudges: {
@@ -115,7 +130,8 @@ function nudgeOptions(
         }
         return next;
       },
-      getChannelsCtx,
+      getChannelsCtx: channels.getChannelsCtx,
+      onBindTopicRefresh: channels.onBindTopicRefresh,
     },
   };
 }
@@ -128,7 +144,11 @@ export async function createAppLocalSyncEngine(
   const db = await openMainSqlClient(args.userId);
   // Membership loads after migrateLocalSchema (inside createLocalSyncEngine);
   // querying `spaces` before migrate fails on a fresh DB.
-  const getChannelsCtx = createGetChannelsCtx(db, args, []);
+  const channels = createMembershipChannels({
+    db,
+    auth: args.auth,
+    userId: args.userId,
+  });
 
   return createLocalSyncEngine({
     db,
@@ -138,10 +158,12 @@ export async function createAppLocalSyncEngine(
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
     bootQueries: bootQuerySpecs(),
     postQuery: (request) => postAppQuery({ ...args, request }),
+    postQueryBatch: (requests) => postAppQueryBatch({ ...args, requests }),
     postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
     isAuthRevoked: (error) =>
       error instanceof SyncApiAuthError && error.reason === 'revoked',
     deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
-    ...nudgeOptions(args, getChannelsCtx),
+    lifecycle: createAppSyncLifecycle(),
+    ...nudgeOptions(args, channels),
   });
 }

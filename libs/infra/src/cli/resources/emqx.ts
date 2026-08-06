@@ -63,7 +63,6 @@ export class EmqxResource extends ResourceBase {
       environmentId: project.environmentId,
       serviceId: service.id,
       mountPath: '/opt/emqx/data',
-      name: 'emqx-data',
     });
 
     await ensureServiceDomain({
@@ -74,6 +73,7 @@ export class EmqxResource extends ResourceBase {
 
     const domain = await ensureCustomDomain({
       token,
+      projectId: project.id,
       serviceId: service.id,
       environmentId: project.environmentId,
       domain: cfg.hostname,

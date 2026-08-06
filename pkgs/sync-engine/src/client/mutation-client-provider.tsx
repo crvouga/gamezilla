@@ -41,6 +41,8 @@ export function MutationClientProvider({
         connectivity: connectivity ?? {
           isOnline: () => engine.status.getSnapshot().online,
         },
+        onQueued: () => engine.wakeUploads(),
+        onApplied: (event) => engine.fanoutMutation(event),
       }),
     [connectivity, engine, env, ids, registry]
   );

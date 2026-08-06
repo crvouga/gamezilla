@@ -1,5 +1,6 @@
 import {
   ensureFrameworkSchema,
+  ensureOptimisticSchema,
   SCHEMA_EPOCH,
 } from '@pkgs/sync-engine/queries/client/local-schema';
 import { unsafe } from '@pkgs/sql';
@@ -30,6 +31,9 @@ const MIGRATIONS: readonly Migration[] = [
         )
       );
     }
+  },
+  async (db) => {
+    await ensureOptimisticSchema(db);
   },
 ];
 

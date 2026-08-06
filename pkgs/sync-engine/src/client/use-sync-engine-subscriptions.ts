@@ -7,7 +7,6 @@ import type { QuerySubscription } from './subscription-runtime';
 export type SyncEngineQuerySubscriptionSpec = {
   readonly name: string;
   readonly params: Readonly<Record<string, unknown>>;
-  readonly pollMs?: number;
 };
 
 export type SyncEngineSubscriptionsState = {
@@ -22,7 +21,6 @@ function subscriptionsKey(
     specs.map((s) => ({
       name: s.name,
       params: s.params,
-      pollMs: s.pollMs,
     }))
   );
 }
@@ -47,11 +45,7 @@ async function subscribeOne(
   subscribe: SyncEngine['subscribeQuery'],
   spec: SyncEngineQuerySubscriptionSpec
 ): Promise<QuerySubscription> {
-  return subscribe(
-    spec.name,
-    spec.params,
-    spec.pollMs === undefined ? undefined : { pollMs: spec.pollMs }
-  );
+  return subscribe(spec.name, spec.params);
 }
 
 /**

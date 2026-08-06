@@ -8,15 +8,12 @@ import { z } from 'zod';
 
 import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
+import { createTableChangeBus } from '../queries/client/table-change-bus';
 import { scopeHash } from '../queries/shared/canonical';
 import { openScenarioDb } from '../queries/test/scenario-fixture';
 import type { QueryChannelsCtx } from '../shared/nudge-payload';
 import { attachNudges } from './attach-nudges';
-import {
-  DEFAULT_POLL_MS,
-  DEFAULT_POLL_MS_LAZY,
-  SubscriptionRuntime,
-} from './subscription-runtime';
+import { SubscriptionRuntime } from './subscription-runtime';
 
 type WideChannelsCtx = QueryChannelsCtx & {
   readonly membershipSpaceIds: readonly string[];
@@ -25,6 +22,9 @@ type WideChannelsCtx = QueryChannelsCtx & {
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const emptyMutationRegistry = {};
+const testBus = () => createTableChangeBus();
 
 describe('attachNudges', () => {
   const disposers: Array<() => void> = [];
@@ -110,6 +110,8 @@ describe('attachNudges', () => {
       pubsub,
       runtime,
       queryRegistry: registry,
+      mutationRegistry: emptyMutationRegistry,
+      bus: testBus(),
       db,
       getChannelsCtx: () => ({
         actorId: 'actor1',
@@ -155,6 +157,96 @@ describe('attachNudges', () => {
     void scope;
   });
 
+  test('shared-topic-nudge-batches-scopes', async () => {
+    const db = await openScenarioDb();
+    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
+    const postQueryBatch = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
+    const q1 = defineQuery({
+      name: 'ownStuff',
+      params: z.object({}),
+      hydrates: ['notes'],
+      limit: 10,
+      channels: (_p, ctx: QueryChannelsCtx) => [`user:${ctx.actorId}`],
+      async run() {
+        return { notes: [] };
+      },
+    });
+    const q2 = defineQuery({
+      name: 'ownStuff2',
+      params: z.object({}),
+      hydrates: ['notes'],
+      limit: 10,
+      channels: (_p, ctx: QueryChannelsCtx) => [`user:${ctx.actorId}`],
+      async run() {
+        return { notes: [] };
+      },
+    });
+    const q3 = defineQuery({
+      name: 'ownStuff3',
+      params: z.object({}),
+      hydrates: ['notes'],
+      limit: 10,
+      channels: (_p, ctx: QueryChannelsCtx) => [`user:${ctx.actorId}`],
+      async run() {
+        return { notes: [] };
+      },
+    });
+    const registry = queryRegistry([q1, q2, q3]);
+    const runtime = new SubscriptionRuntime({
+      db,
+      boot: [
+        { name: 'ownStuff', params: {} },
+        { name: 'ownStuff2', params: {} },
+        { name: 'ownStuff3', params: {} },
+      ],
+      postQuery,
+      postQueryBatch,
+      getMergeDeps: () => ({
+        db,
+        registry: {},
+        env: {
+          actorId: 'actor1',
+          deviceId: 'd1',
+          accountId: null,
+          isAnon: true,
+          now: () => new Date(),
+        },
+        bus: { emit: () => undefined, subscribe: () => () => undefined },
+        clientId: 'c1',
+      }),
+      onError: () => undefined,
+      onSynced: () => undefined,
+    });
+    runtime.start();
+    await runtime.waitForBoot();
+    postQuery.mockClear();
+    postQueryBatch.mockClear();
+    const pubsub = createInMemoryPubSub() as InMemoryPubSub;
+    disposers.push(
+      attachNudges({
+        pubsub,
+        runtime,
+        queryRegistry: registry,
+        mutationRegistry: emptyMutationRegistry,
+        bus: testBus(),
+        db,
+        getChannelsCtx: () => ({ actorId: 'actor1' }),
+        remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
+        debounceMs: 40,
+      })
+    );
+    disposers.push(() => runtime.stop());
+    await sleep(5);
+    postQuery.mockClear();
+    postQueryBatch.mockClear();
+    await pubsub.publish('user:actor1', {});
+    await sleep(20);
+    expect(postQueryBatch.mock.calls.length).toBe(1);
+    expect(postQuery.mock.calls.length).toBe(0);
+  });
+
   test('nudge-checkpoint-skip', async () => {
     const { db, postQuery, pubsub, scope } = await setup();
     await db.run(sql`
@@ -178,7 +270,7 @@ describe('attachNudges', () => {
     expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('socket-down-degrades-to-polling', async () => {
+  test('socket-down-degrades-to-fallback', async () => {
     const { runtime, postQuery, pubsub } = await setup();
     const wakeJitter = mock((_maxMs: number) => undefined);
     const original = runtime.wakeAllWithJitter.bind(runtime);
@@ -189,10 +281,8 @@ describe('attachNudges', () => {
 
     pubsub().setStatusForTest('down');
     await sleep(20);
-    expect(wakeJitter).toHaveBeenCalled();
-    const active = runtime.listActive()[0];
-    expect(active?.pollMs).toBe(DEFAULT_POLL_MS);
-    expect(active?.pollMsLazy).toBe(DEFAULT_POLL_MS_LAZY);
+    // Down only arms FALLBACK — no immediate sweep (avoids reconnect storms).
+    expect(wakeJitter).not.toHaveBeenCalled();
 
     postQuery.mockClear();
     wakeJitter.mockClear();
@@ -290,6 +380,8 @@ describe('attachNudges', () => {
       pubsub: first,
       runtime: runtime2,
       queryRegistry: registry,
+      mutationRegistry: emptyMutationRegistry,
+      bus: testBus(),
       db,
       getChannelsCtx: () => ({
         actorId: 'a',
@@ -314,12 +406,12 @@ describe('attachNudges', () => {
     void pubsub;
   });
 
-  test('no-pubsub-injected-app-polls-normally', async () => {
+  test('no-pubsub-injected-uses-shared-fallback', async () => {
     const db = await openScenarioDb();
     const postQuery = mock(async () => ({ status: 'not_modified' as const }));
     const runtime = new SubscriptionRuntime({
       db,
-      boot: [{ name: 'pollOnlyBoot', params: {}, pollMs: 30 }],
+      boot: [{ name: 'pollOnlyBoot', params: {} }],
       postQuery,
       getMergeDeps: () => ({
         db,
@@ -336,11 +428,15 @@ describe('attachNudges', () => {
       }),
       onError: () => undefined,
       onSynced: () => undefined,
+      fallbackPollMs: 40,
+      reconcileMs: 600_000,
+      random: () => 0,
     });
+    // No setConnectedMode(true) — default down-state shared fallback.
     runtime.start();
     await runtime.waitForBoot();
     postQuery.mockClear();
-    await sleep(70);
+    await sleep(90);
     expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
     runtime.stop();
   });

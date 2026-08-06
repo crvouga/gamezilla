@@ -41,11 +41,15 @@ async function warmPlayer(player: WarmablePlayer): Promise<void> {
 
 async function playFromStart(player: AudioPlayer): Promise<void> {
   try {
-    await player.seekTo(0);
+    try {
+      await player.seekTo(0);
+    } catch {
+      // seek can fail before load; still try play
+    }
+    playAudioOrIgnoreAutoplayBlock(() => player.play());
   } catch {
-    // seek can fail before load; still try play
+    // Released SharedObject / dispose races.
   }
-  playAudioOrIgnoreAutoplayBlock(() => player.play());
 }
 
 function isReducedMotionEnabled(): boolean {

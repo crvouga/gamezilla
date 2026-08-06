@@ -13,8 +13,16 @@ export { Sounds, isSoundId, type SoundId } from './sound-id';
 export { soundAssetSources, type SoundAssetSourceId } from './sound-sources';
 export {
   isAutoplayBlockedError,
+  isReleasedSharedObjectError,
   playAudioOrIgnoreAutoplayBlock,
 } from './safe-audio-play';
+export {
+  createPlayFromStart,
+  usePlayFromStartHandles,
+  useWarmAudioPlayers,
+  type PlayFromStartHandle,
+  type PlayableAudioPlayer,
+} from './play-from-start';
 export {
   SoundEngineProvider,
   useOptionalSoundEngine,

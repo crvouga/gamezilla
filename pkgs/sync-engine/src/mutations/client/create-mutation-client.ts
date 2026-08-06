@@ -2,6 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ZodError } from 'zod';
 
+import { bumpWriteEpoch } from '../../queries/client/write-epoch';
 import {
   isMutationError,
   mutationErrorToFailure,
@@ -28,12 +29,24 @@ export type MutationClient = {
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
 };
 
+export type MutationAppliedEvent = {
+  readonly mutationId: string;
+  readonly mutation: Mutation<unknown>;
+  readonly args: unknown;
+  readonly seq: number;
+  readonly createdAt: string;
+};
+
 export type CreateMutationClientOptions = {
   readonly db: SqlClient;
   readonly registry: MutationRegistry;
   readonly env: MutationEnv;
   readonly ids: MutationClientIds;
   readonly connectivity: MutationConnectivity;
+  /** Fired after a mutation is durably queued for upload. */
+  readonly onQueued?: () => void;
+  /** Fired after local apply + queue — MQTT fanout hook. */
+  readonly onApplied?: (event: MutationAppliedEvent) => void;
 };
 
 function isMissingUploadState(error: unknown): boolean {
@@ -93,21 +106,38 @@ export function createMutationClient(
       const mutationId = crypto.randomUUID();
       try {
         const parsed = m.args.parse(args);
+        let appliedSeq = 0;
+        let createdAt = '';
         await db.transaction(async (txc) => {
           const seq = await reserveMutationSeq(txc, ids);
+          const epoch = await bumpWriteEpoch(txc);
+          appliedSeq = seq;
+          createdAt = env.now().toISOString();
           await m.run({ tx: txc, env }, parsed);
           await txc.run(sql`
-            INSERT INTO _mutations (id, name, args, client_id, seq, created_at)
+            INSERT INTO _mutations (
+              id, name, args, client_id, seq, created_at, epoch, status
+            )
             VALUES (
               ${mutationId},
               ${m.name},
               ${JSON.stringify(parsed)},
               ${ids.clientId},
               ${seq},
-              ${env.now().toISOString()}
+              ${createdAt},
+              ${epoch},
+              ${'pending'}
             )
           `);
         });
+        options.onApplied?.({
+          mutationId,
+          mutation: m as Mutation<unknown>,
+          args: parsed,
+          seq: appliedSeq,
+          createdAt,
+        });
+        options.onQueued?.();
         return { ok: true, mutationId };
       } catch (e) {
         if (isMutationError(e)) {

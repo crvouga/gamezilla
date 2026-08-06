@@ -285,21 +285,27 @@ async function resolveExpoPublicEmqxWssUrl(
     );
     return fromEmqxEnv;
   }
-  if (store === null) return null;
-  const fromSecrets = (
-    await store.getOptional('EMQX_WSS_URL')
-  )?.readSecretValue();
-  const trimmed =
-    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
-      ? fromSecrets.trim()
-      : null;
-  if (trimmed !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from secret store EMQX_WSS_URL.\n'
-    );
-    return trimmed;
+  if (store !== null) {
+    const fromSecrets = (
+      await store.getOptional('EMQX_WSS_URL')
+    )?.readSecretValue();
+    const trimmed =
+      typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+        ? fromSecrets.trim()
+        : null;
+    if (trimmed !== null) {
+      process.stdout.write(
+        '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from secret store EMQX_WSS_URL.\n'
+      );
+      return trimmed;
+    }
   }
-  return null;
+  // Local @apps/emqx WebSocket listener (see apps/emqx/scripts/ports.ts).
+  const local = 'ws://127.0.0.1:8083/mqtt';
+  process.stdout.write(
+    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset in secrets; using local ${local}.\n`
+  );
+  return local;
 }
 
 async function resolveExpoPublicObservabilityBackend(

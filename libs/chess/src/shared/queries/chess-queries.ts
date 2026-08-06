@@ -1,4 +1,5 @@
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -7,6 +8,7 @@ export const chessPuzzleProfile = defineQuery({
   params: z.object({}),
   hydrates: ['chess_puzzle_profiles'],
   limit: 1,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },
@@ -31,6 +33,7 @@ export const chessPuzzleInteractions = defineQuery({
   params: z.object({}),
   hydrates: ['chess_puzzle_interactions'],
   limit: 5000,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },

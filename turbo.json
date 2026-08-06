@@ -262,6 +262,20 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:channel-exhaustiveness": {
+      "inputs": [
+        "apps/api/src/sync/app-mutations.ts",
+        "apps/api/src/sync/app-queries.ts",
+        "libs/**/mutations/**/*.ts",
+        "libs/**/queries/**/*.ts",
+        "pkgs/**/mutations/**/*.ts",
+        "pkgs/**/queries/**/*.ts",
+        "pkgs/sync-engine/src/shared/channel-exhaustiveness.ts",
+        "tools/scripts/check-channel-exhaustiveness.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-provider-leaks": {
       "inputs": ["tools/scripts/check-no-provider-leaks.ts"],
       "outputs": [],

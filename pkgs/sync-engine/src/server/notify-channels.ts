@@ -5,6 +5,8 @@ export type NotifyChannelsOptions = {
   readonly pubsub: PubSub;
   readonly topics: readonly Topic[];
   readonly checkpoint?: string;
+  /** Mutation `writes` — client filters scopes by query `hydrates` overlap. */
+  readonly tables?: readonly string[];
   /** Included in warn logs when publish fails. */
   readonly label?: string;
 };
@@ -15,8 +17,14 @@ export type NotifyChannelsOptions = {
  */
 export function notifyChannels(options: NotifyChannelsOptions): void {
   const seen = new Set<Topic>();
-  const payload: NudgePayload =
-    options.checkpoint !== undefined ? { checkpoint: options.checkpoint } : {};
+  const payload: NudgePayload = {
+    ...(options.checkpoint !== undefined
+      ? { checkpoint: options.checkpoint }
+      : {}),
+    ...(options.tables !== undefined && options.tables.length > 0
+      ? { tables: options.tables }
+      : {}),
+  };
   const label = options.label ?? 'notifyChannels';
   for (const topic of options.topics) {
     if (seen.has(topic)) continue;

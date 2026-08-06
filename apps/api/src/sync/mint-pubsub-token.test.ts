@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 import { mintPubSubToken } from './mint-pubsub-token';
 
 describe('mintPubSubToken', () => {
-  test('embeds subscribe-only ACL for user and rooms', async () => {
+  test('embeds subscribe+publish ACL for user and rooms', async () => {
     const secret = 'test-secret';
     const { token, expiresAt } = await mintPubSubToken({
       secret,
@@ -24,8 +24,21 @@ describe('mintPubSubToken', () => {
     }>;
     expect(acl).toEqual([
       { permission: 'allow', action: 'subscribe', topic: 'user:actor1' },
+      { permission: 'allow', action: 'publish', topic: 'user:actor1' },
+      {
+        permission: 'allow',
+        action: 'subscribe',
+        topic: 'system:client_config',
+      },
+      {
+        permission: 'allow',
+        action: 'publish',
+        topic: 'system:client_config',
+      },
       { permission: 'allow', action: 'subscribe', topic: 'room:space_a' },
+      { permission: 'allow', action: 'publish', topic: 'room:space_a' },
       { permission: 'allow', action: 'subscribe', topic: 'room:space_b' },
+      { permission: 'allow', action: 'publish', topic: 'room:space_b' },
     ]);
   });
 });

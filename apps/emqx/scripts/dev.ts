@@ -9,6 +9,7 @@ import {
   EMQX_DASHBOARD_PASS,
   EMQX_DASHBOARD_PORT,
   EMQX_DASHBOARD_USER,
+  EMQX_JWT_SECRET,
 } from './ports';
 
 const APP_DIR = join(import.meta.dirname, '..');
@@ -62,6 +63,11 @@ console.warn('[emqx] dashboard', {
   user: EMQX_DASHBOARD_USER,
   pass: EMQX_DASHBOARD_PASS,
 });
+
+/**
+ * Env auth chain must include JWT first. A password_based-only override was
+ * wiping emqx.conf JWT and leaving MQTT clients in a reconnect storm.
+ */
 const emqx = spawn(bin, ['foreground'], {
   cwd: APP_DIR,
   stdio: 'inherit',
@@ -74,10 +80,18 @@ const emqx = spawn(bin, ['foreground'], {
     EMQX_API_KEY__BOOTSTRAP_FILE: join(DATA_DIR, 'api-keys.bootstrap'),
     EMQX_DASHBOARD__DEFAULT_USERNAME: EMQX_DASHBOARD_USER,
     EMQX_DASHBOARD__DEFAULT_PASSWORD: EMQX_DASHBOARD_PASS,
-    EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
-    EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
+    EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
+    EMQX_AUTHENTICATION__1__FROM: 'password',
     EMQX_AUTHENTICATION__1__ENABLE: 'true',
-    EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
+    EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
+    EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
+    EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
+    EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
+    EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
+    EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
+    EMQX_AUTHENTICATION__2__ENABLE: 'true',
+    EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
       DATA_DIR,
       'auth-built-in-db-bootstrap.csv'
     ),

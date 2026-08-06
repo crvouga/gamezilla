@@ -19,6 +19,7 @@ export const TIGER_INVARIANTS = [
   'merge-single-flight',
   'scope-complete-membership',
   'rebase-keeps-queue-on-throw',
+  'optimistic-rebase-until-query-confirms',
   'checkpoint-order',
   'auth-wipe-revoked-only',
   'permanent-vs-transient-verdicts',

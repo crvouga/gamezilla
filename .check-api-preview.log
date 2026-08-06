@@ -1,0 +1,705 @@
+[?2026h[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m 
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[1 lines elided][0m
+[36m│[0m  ⛅️ wrangler 4.87.0
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[2 lines elided][0m
+[36m│[0m [38;2;255;136;0m───────────────────[39m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[3 lines elided][0m
+[36m│[0m Using secrets defined in .dev.vars
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[4 lines elided][0m
+[36m│[0m Your Worker has access to the following bindings:
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[5 lines elided][0m
+[36m│[0m [2mBinding[22m                                                 [2mResource[22m                  [2mMode[22m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[6 lines elided][0m
+[36m│[0m [37menv.ROOM[39m ([2mRoom[22m)                                         [38;2;189;91;8mDurable Object      [39m      [34mlocal[39m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[7 lines elided][0m
+[36m│[0m [37menv.SECRETS_ENV[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[8 lines elided][0m
+[36m│[0m [37menv.API_URL[39m ([2m"(hidden)"[22m)                                [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[9 lines elided][0m
+[36m│[0m [37menv.CLOUDFLARE_API_TOKEN[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[10 lines elided][0m
+[36m│[0m [37menv.CLOUDFLARE_ACCOUNT_ID[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[11 lines elided][0m
+[36m│[0m [37menv.DATABASE_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[12 lines elided][0m
+[36m│[0m [37menv.AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                   [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[13 lines elided][0m
+[36m│[0m [37menv.AUTH_SECRET_KEY[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[14 lines elided][0m
+[36m│[0m [37menv.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[15 lines elided][0m
+[36m│[0m [37menv.CLERK_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[16 lines elided][0m
+[36m│[0m [37menv.CLERK_SECRET_KEY[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[17 lines elided][0m
+[36m│[0m [37menv.STRIPE_SECRET_KEY[39m ([2m"(hidden)"[22m)                      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[18 lines elided][0m
+[36m│[0m [37menv.STRIPE_PUBLISHABLE_KEY[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[19 lines elided][0m
+[36m│[0m [37menv.TURBO_TOKEN[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TEAM[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_CACHE[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[22 lines elided][0m
+[36m│[0m [37menv.TURBO_LOG_ORDER[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[23 lines elided][0m
+[36m│[0m [37menv.TURBO_TELEMETRY_DISABLED[39m ([2m"(hidden)"[22m)               [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_TOKEN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[25 lines elided][0m
+[36m│[0m [37menv.B2_MASTER_KEY_ID[39m ([2m"(hidden)"[22m)                       [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[26 lines elided][0m
+[36m│[0m [37menv.B2_MASTER_KEY[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[27 lines elided][0m
+[36m│[0m [37menv.B2_APP_KEY_ID[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[28 lines elided][0m
+[36m│[0m [37menv.B2_APP_KEY[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[29 lines elided][0m
+[36m│[0m [37menv.S3_BUCKET[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[30 lines elided][0m
+[36m│[0m [37menv.S3_ENDPOINT[39m ([2m"(hidden)"[22m)                            [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[31 lines elided][0m
+[36m│[0m [37menv.S3_REGION[39m ([2m"(hidden)"[22m)                              [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[32 lines elided][0m
+[36m│[0m [37menv.ELEVEN_LABS_API_KEY[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[33 lines elided][0m
+[36m│[0m [37menv.OPENAI_API_KEY[39m ([2m"(hidden)"[22m)                         [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[34 lines elided][0m
+[36m│[0m [37menv.OPENAI_BASE_URL[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[35 lines elided][0m
+[36m│[0m [37menv.EXPO_PUBLIC_API_URL[39m ([2m"(hidden)"[22m)                    [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[36 lines elided][0m
+[36m│[0m [37menv.OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)                  [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[37 lines elided][0m
+[36m│[0m [37menv.SENTRY_DSN[39m ([2m"(hidden)"[22m)                             [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[38 lines elided][0m
+[36m│[0m [37menv.EXPO_PUBLIC_OBSERVABILITY_BACKEND[39m ([2m"(hidden)"[22m)      [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[39 lines elided][0m
+[36m│[0m [37menv.EXPO_PUBLIC_SENTRY_DSN[39m ([2m"(hidden)"[22m)                 [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[40 lines elided][0m
+[36m│[0m [37menv.RAILWAY_TOKEN[39m ([2m"(hidden)"[22m)                          [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[41 lines elided][0m
+[36m│[0m [37menv.EMQX_API_URL[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[42 lines elided][0m
+[36m│[0m [37menv.EMQX_API_KEY[39m ([2m"(hidden)"[22m)                           [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[43 lines elided][0m
+[36m│[0m [37menv.EMQX_API_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[44 lines elided][0m
+[36m│[0m [37menv.EMQX_JWT_SECRET[39m ([2m"(hidden)"[22m)                        [38;2;189;91;8mEnvironment Variable[39m      [34mlocal[39m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[45 lines elided][0m
+[36m│[0m 
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[46 lines elided][0m
+[36m│[0m [2m⎔ Starting local server...[22m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[47 lines elided][0m
+[36m│[0m [32m[wrangler:info][39m Ready on [32mhttp://localhost:8788[39m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[48 lines elided][0m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[49 lines elided][0m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[50 lines elided][0m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[51 lines elided][0m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l[?2026h[0G[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1m@apps/api[0m preview:serve $ [2mbun run scripts/preview-serve.ts[0m
+[36m│[0m [2m[52 lines elided][0m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m│[0m [2m⎔ Reloading local server...[22m
+[36m│[0m [2m⎔ Local server updated and ready[22m
+[36m└─[0m [36mRunning...[0m
+[?2026l

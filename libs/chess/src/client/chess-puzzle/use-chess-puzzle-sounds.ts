@@ -1,33 +1,20 @@
 import { chessSoundSources } from '@pkgs/sounds/chess-sound-sources';
-import { playAudioOrIgnoreAutoplayBlock } from '@pkgs/ui';
+import {
+  usePlayFromStartHandles,
+  useWarmAudioPlayers,
+} from '@pkgs/sounds/play-from-start';
 import { useAudioPlayer } from 'expo-audio';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-async function playFromStart(player: {
-  seekTo: (s: number) => Promise<void>;
-  play: () => void;
-}): Promise<void> {
-  try {
-    await player.seekTo(0);
-  } catch {
-    // seek can fail before load; still try play
-  }
-  playAudioOrIgnoreAutoplayBlock(() => player.play());
-}
+const PUZZLE_SOUND_KEYS = [
+  'solved',
+  'eloTick',
+  'correctMove',
+  'eloCompleteGain',
+  'eloCompleteLoss',
+] as const;
 
-type WarmablePlayer = {
-  seekTo: (s: number) => Promise<void>;
-  pause?: () => void;
-};
-
-async function warmPlayer(player: WarmablePlayer): Promise<void> {
-  try {
-    await player.seekTo(0);
-    player.pause?.();
-  } catch {
-    // Ignore warmup failures.
-  }
-}
+type PuzzleSoundKey = (typeof PUZZLE_SOUND_KEYS)[number];
 
 export function useChessPuzzleSounds(): {
   playSolved: () => void;
@@ -44,59 +31,40 @@ export function useChessPuzzleSounds(): {
     chessSoundSources.puzzleEloCompleteLoss
   );
 
-  useEffect(() => {
-    let cancelled = false;
-    const players: WarmablePlayer[] = [
-      checkmate,
-      eloTick,
-      correctMove,
-      eloCompleteGain,
-      eloCompleteLoss,
-    ];
-    async function warmAll(): Promise<void> {
-      for (const player of players) {
-        if (cancelled) return;
-        await warmPlayer(player);
-      }
-    }
-    void warmAll();
-    return () => {
-      cancelled = true;
-    };
-  }, [checkmate, correctMove, eloCompleteGain, eloCompleteLoss, eloTick]);
+  const playersRef = useRef({
+    solved: checkmate,
+    eloTick,
+    correctMove,
+    eloCompleteGain,
+    eloCompleteLoss,
+  });
+  playersRef.current = {
+    solved: checkmate,
+    eloTick,
+    correctMove,
+    eloCompleteGain,
+    eloCompleteLoss,
+  };
 
-  const playSolved = useCallback(
-    () => void playFromStart(checkmate),
-    [checkmate]
+  const handles = usePlayFromStartHandles(PUZZLE_SOUND_KEYS, playersRef);
+  const players = useMemo(
+    () => [checkmate, eloTick, correctMove, eloCompleteGain, eloCompleteLoss],
+    [checkmate, eloTick, correctMove, eloCompleteGain, eloCompleteLoss]
   );
-  const playEloTick = useCallback(() => void playFromStart(eloTick), [eloTick]);
-  const playEloCompleteGain = useCallback(
-    () => void playFromStart(eloCompleteGain),
-    [eloCompleteGain]
+  const handleList = useMemo(
+    () => PUZZLE_SOUND_KEYS.map((key: PuzzleSoundKey) => handles[key]),
+    [handles]
   );
-  const playEloCompleteLoss = useCallback(
-    () => void playFromStart(eloCompleteLoss),
-    [eloCompleteLoss]
-  );
-  const playCorrectMove = useCallback(
-    () => void playFromStart(correctMove),
-    [correctMove]
-  );
+  useWarmAudioPlayers(players, handleList);
 
   return useMemo(
     () => ({
-      playSolved,
-      playEloTick,
-      playEloCompleteGain,
-      playEloCompleteLoss,
-      playCorrectMove,
+      playSolved: handles.solved.play,
+      playEloTick: handles.eloTick.play,
+      playEloCompleteGain: handles.eloCompleteGain.play,
+      playEloCompleteLoss: handles.eloCompleteLoss.play,
+      playCorrectMove: handles.correctMove.play,
     }),
-    [
-      playCorrectMove,
-      playEloCompleteGain,
-      playEloCompleteLoss,
-      playEloTick,
-      playSolved,
-    ]
+    [handles]
   );
 }

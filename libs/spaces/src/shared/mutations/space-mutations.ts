@@ -1,25 +1,73 @@
 import {
-  spaceOpenSessionEntityId,
-  spaceUserEntityId,
   SPACE_OPEN_SESSIONS_TABLE,
   SPACE_USERS_TABLE,
+  spaceOpenSessionEntityId,
   SPACES_TABLE,
+  spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
+import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { SPACE_VISIBILITIES } from '@libs/spaces/shared/space-visibility';
+import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
   MutationError,
   type MutationDb,
   type MutationEnv,
 } from '@pkgs/sync-engine/mutations/core/types';
-import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
-import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
 function spaceActorInvalidates(spaceId: string, env: MutationEnv) {
   return [roomTopic(spaceId), userTopic(env.actorId)];
+}
+
+function addUserTopic(
+  topics: Set<ReturnType<typeof userTopic>>,
+  id: string | null | undefined
+): void {
+  if (id === null || id === undefined || id.length === 0) return;
+  topics.add(userTopic(id));
+}
+
+async function loadSpacePartyUserIds(
+  db: MutationDb,
+  spaceId: string
+): Promise<string[]> {
+  const members = await db.query(sql<{ readonly user_id: string }>`
+    SELECT DISTINCT user_id FROM space_users WHERE space_id = ${spaceId}
+  `);
+  const hosts = await db.query(sql<{
+    readonly host_member_id: string | null;
+    readonly host_account_id: string | null;
+  }>`
+    SELECT host_member_id, host_account_id FROM spaces
+    WHERE id = ${spaceId}
+    LIMIT 1
+  `);
+  const host = hosts[0];
+  return [
+    ...members.map((row) => row.user_id),
+    host?.host_member_id ?? '',
+    host?.host_account_id ?? '',
+  ];
+}
+
+/**
+ * Room + actor + every space_users member (and host ids). Peers only subscribe
+ * to `user:{self}` for openSpaceSessions; without their user topic they wait
+ * for reconcile after end/leave/join.
+ */
+async function spacePartyInvalidates(
+  spaceId: string,
+  env: MutationEnv,
+  db?: MutationDb
+) {
+  const topics = new Set(spaceActorInvalidates(spaceId, env));
+  if (db === undefined) return [...topics];
+  const ids = await loadSpacePartyUserIds(db, spaceId);
+  for (const id of ids) addUserTopic(topics, id);
+  return [...topics];
 }
 
 type SpaceHostRow = {
@@ -89,7 +137,8 @@ async function requireHost(
 async function openSession(
   tx: MutationDb,
   env: MutationEnv,
-  spaceId: string
+  spaceId: string,
+  joinAnnounced: 0 | 1 = 0
 ): Promise<void> {
   const id = spaceOpenSessionEntityId(env.deviceId, spaceId);
   const existing = await tx.query(sql<{ readonly id: string }>`
@@ -98,7 +147,13 @@ async function openSession(
   if (existing.length > 0) return;
   await tx.run(sql`
     INSERT INTO space_open_sessions (id, space_id, device_id, opened_at, join_announced)
-    VALUES (${id}, ${spaceId}, ${env.deviceId}, ${env.now().toISOString()}, ${0})
+    VALUES (
+      ${id},
+      ${spaceId},
+      ${env.deviceId},
+      ${env.now().toISOString()},
+      ${joinAnnounced}
+    )
     ON CONFLICT (id) DO NOTHING
   `);
 }
@@ -145,6 +200,7 @@ export const createSpaceMutation = defineMutation({
     SPACE_USERS_TABLE.tableName,
     SPACE_OPEN_SESSIONS_TABLE.tableName,
   ],
+  // Host-only at create — skip party DB lookup (was ~700ms on remote Postgres).
   invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
   async run({ tx, env }, { spaceId, visibility }) {
     const actorAccountId = accountId(env);
@@ -164,7 +220,7 @@ export const createSpaceMutation = defineMutation({
       VALUES (${spaceUserEntityId(spaceId, actorMemberId)}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId})
       ON CONFLICT (id) DO NOTHING
     `);
-    await openSession(tx, env, spaceId);
+    await openSession(tx, env, spaceId, 1);
   },
 });
 
@@ -172,7 +228,8 @@ export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
   writes: [SPACE_USERS_TABLE.tableName, SPACE_OPEN_SESSIONS_TABLE.tableName],
-  invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
+  invalidates: ({ spaceId }, env, db) =>
+    spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId }) {
     const actorAccountId = accountId(env);
     const row = await getSpaceHost(tx, spaceId);
@@ -216,7 +273,8 @@ export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
   writes: [SPACES_TABLE.tableName, SPACE_OPEN_SESSIONS_TABLE.tableName],
-  invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
+  invalidates: ({ spaceId }, env, db) =>
+    spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, endIfLastSeat }) {
     const row = await getSpaceHost(tx, spaceId);
     if (isHost(env, row) || endIfLastSeat === true) {
@@ -237,7 +295,8 @@ export const endSpaceMutation = defineMutation({
   name: 'endSpace',
   args: spaceIdArgs,
   writes: [SPACES_TABLE.tableName, SPACE_OPEN_SESSIONS_TABLE.tableName],
-  invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
+  invalidates: ({ spaceId }, env, db) =>
+    spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId }) {
     await requireHost(tx, env, spaceId, 'Only the host can end this space.');
     await endSpace(tx, env, spaceId);
@@ -248,6 +307,8 @@ export const renameSpaceMutation = defineMutation({
   name: 'renameSpace',
   args: spaceIdArgs.extend({ title: z.string() }),
   writes: [SPACES_TABLE.tableName],
+  invalidates: ({ spaceId }, env, db) =>
+    spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, title }) {
     await requireHost(tx, env, spaceId, 'Only the host can rename this space.');
     await tx.run(sql`
@@ -264,6 +325,8 @@ export const setVisibilityMutation = defineMutation({
   name: 'setVisibility',
   args: spaceIdArgs.extend({ visibility: visibilityArgs }),
   writes: [SPACES_TABLE.tableName],
+  invalidates: ({ spaceId }, env, db) =>
+    spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, visibility }) {
     await requireHost(tx, env, spaceId, 'Only the host can change visibility.');
     if (visibility !== 'private' && env.isAnon) {
@@ -338,6 +401,7 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
   name: 'markSpaceJoinAnnounced',
   args: spaceIdArgs,
   writes: [SPACE_OPEN_SESSIONS_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { spaceId }) {
     await tx.run(sql`
       UPDATE space_open_sessions
@@ -353,6 +417,7 @@ export const closeEndedOpenSessionsMutation = defineMutation({
   name: 'closeEndedOpenSessions',
   args: z.object({}),
   writes: [SPACE_OPEN_SESSIONS_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx }) {
     await tx.run(sql`
       DELETE FROM space_open_sessions

@@ -3,6 +3,7 @@
  */
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { MutationAppliedEvent } from '../mutations/client/create-mutation-client';
 import type { SyncStatusSubscription } from './sync-status';
 import type { QuerySubscription } from './subscription-runtime';
 
@@ -68,11 +69,17 @@ export type SyncEngine = {
   /** Starts a parameterized API query subscription. */
   readonly subscribeQuery: (
     queryName: string,
-    parameters: Readonly<Record<string, unknown>>,
-    options?: { readonly pollMs?: number }
+    parameters: Readonly<Record<string, unknown>>
   ) => QuerySubscription;
   /**
    * Provides a subscription to sync status changes.
    */
   readonly status: SyncStatusSubscription;
+  /** Wake the mutation upload loop (e.g. after a local `mutate` commit). */
+  readonly wakeUploads: () => void;
+  /**
+   * Best-effort MQTT mutation fanout after local apply. No-op when pubsub is
+   * unavailable or disconnected.
+   */
+  readonly fanoutMutation: (event: MutationAppliedEvent) => void;
 };

@@ -16,6 +16,7 @@ export * from './explorer';
 export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
 export {
   isAutoplayBlockedError,
+  isReleasedSharedObjectError,
   playAudioOrIgnoreAutoplayBlock,
 } from './expo/safe-audio-play';
 export { releaseWebFocus } from './web/release-web-focus';

@@ -1,0 +1,8507 @@
+type AccessRule {
+  disallowed: String
+}
+
+enum ActiveFeatureFlag {
+  ACCESS_GROUPS
+  AGENT_BYOK
+  AGENT_CONTEXT_SOURCES
+  CHAT_SANDBOX
+  CLOUD_AGENTS
+  DEBUG_SMART_DIAGNOSIS
+  HA_FOR_ALL_TEMPLATES
+  IN_DASHBOARD_SUPPORT
+  MAGIC_CONFIG
+  POSTGRES_VULN_AUTO_UPDATE
+  PRIORITY_BOARDING
+  PROJECT_SANDBOXES
+  TEMPLATE_CHANGE_SETS
+}
+
+enum ActivePlatformFlag {
+  ALERT_SUS_USERS_CRON_KILLSWITCH
+  BAN_APPEAL_FORM
+  BUILD_DEPLOY_QUEUE_V2
+  CANVAS_CROSS_ENV_GUARD_ENFORCE
+  CHAT_SANDBOX
+  CLICKHOUSE_WORKSPACE_LIMIT_ENFORCE
+  CS_MCP
+  CTRD_IMAGE_STORE_ROLLOUT
+  DEFAULT_USAGE_ALERTS
+  DEMO_PERCENTAGE_ROLLOUT
+  DEPLOYMENT_DIAGNOSIS_KILLSWITCH
+  DEPLOY_SUPERSEDE_ON_PUSH
+  DEV_STUDIO
+  DEV_STUDIO_ANON_PROVISIONS
+  IN_DASHBOARD_SUPPORT
+  KAFKA_EPHEMERAL_ENVIRONMENT_UPDATES
+  LOGS_V2_READS
+  NEW_STRIPE_WEBHOOK_VERSION_ROLLOUT
+  OAUTH_DCR_KILLSWITCH
+  REMOVE_DEPLOYMENT_COMPACT
+  SERVICEINSTANCE_DATALOADER_FOR_STATIC_URL
+  SPLIT_USAGE_QUERIES
+  STRIPE_METERS_NEW_ACCOUNTS
+  STRIPE_METERS_SHADOW_ENABLED
+  UPDATED_VM_QUERIES
+  WORKSPACE_MCP_KILLSWITCH
+}
+
+enum ActiveProjectFeatureFlag {
+  PLACEHOLDER
+}
+
+enum ActiveServiceFeatureFlag {
+  COPY_VOLUME_TO_ENVIRONMENT
+  ENABLE_DOCKER_EXTENSION
+  PLACEHOLDER
+  SKIPPED_BUILDS
+  USE_EXPRESS_DEPLOY
+  USE_EXPRESS_PACKSTORE
+  USE_VM_RUNTIME
+}
+
+type AdoptionInfo implements Node {
+  adoptionLevel: Float
+  createdAt: DateTime!
+  deltaLevel: Float
+  id: ID!
+  matchedIcpEmail: String
+  monthlyEstimatedUsage: Float
+  numConfigFile: Int!
+  numCronSchedule: Int!
+  numDeploys: Int!
+  numEnvs: Int!
+  numFailedDeploys: Int!
+  numHealthcheck: Int!
+  numIconConfig: Int!
+  numRegion: Int!
+  numReplicas: Int!
+  numRootDirectory: Int!
+  numSeats: Int!
+  numServices: Int!
+  numVariables: Int!
+  numWatchPatterns: Int!
+  totalCores: Float
+  totalDisk: Float
+  totalNetwork: Float
+  updatedAt: DateTime!
+  workspace: Workspace!
+}
+
+input AgentUsageLimitSetInput {
+  hardLimitCents: Int!
+  softLimitCents: Int
+  workspaceId: String!
+}
+
+type AgentUsageSummary {
+  billingPeriodEnd: DateTime!
+  hardLimitCents: Int
+  softLimitCents: Int
+  totalUsedCents: Int!
+  usageRemaining: Float
+}
+
+"""
+The aggregated usage of a single measurement.
+"""
+type AggregatedUsage {
+  """
+  The measurement that was aggregated.
+  """
+  measurement: MetricMeasurement!
+
+  """
+  The tags that were used to group the metric. Only the tags that were used in the `groupBy` will be present.
+  """
+  tags: MetricTags!
+
+  """
+  The aggregated value.
+  """
+  value: Float!
+}
+
+type AllDomains {
+  customDomains: [CustomDomain!]!
+  serviceDomains: [ServiceDomain!]!
+}
+
+type ApiToken implements Node {
+  displayToken: String!
+  expiresAt: DateTime
+  id: ID!
+  name: String!
+  workspaceId: String
+}
+
+"""
+Information about the current API token and its accessible workspaces.
+"""
+type ApiTokenContext {
+  """
+  Workspaces this subject can operate on via this token or session.
+  """
+  workspaces: [ApiTokenWorkspace!]!
+}
+
+input ApiTokenCreateInput {
+  name: String!
+  workspaceId: String
+}
+
+type ApiTokenRateLimit {
+  remainingPoints: Int!
+  resetsAt: String!
+}
+
+type ApiTokenWorkspace {
+  id: String!
+  name: String!
+}
+
+type AppliedByMember {
+  avatar: String
+  email: String!
+  id: String!
+  name: String
+  username: String
+}
+
+type AuditLog implements Node {
+  context: JSON
+  createdAt: DateTime!
+  environment: Environment
+  environmentId: String
+  eventType: String!
+  id: ID!
+  payload: JSON
+  project: Project
+  projectId: String
+  workspaceId: String
+}
+
+type AuditLogEventTypeInfo {
+  description: String!
+  eventType: String!
+}
+
+input AuditLogFilterInput {
+  """
+  Filter events created on or before this date
+  """
+  endDate: DateTime
+
+  """
+  Filter events for a single environment
+  """
+  environmentId: String
+
+  """
+  List of event types to filter by
+  """
+  eventTypes: [String!]
+
+  """
+  Filter events for a single project
+  """
+  projectId: String
+
+  """
+  Filter events created on or after this date
+  """
+  startDate: DateTime
+}
+
+input BaseEnvironmentOverrideInput {
+  baseEnvironmentOverrideId: String
+}
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
+"""
+The billing period for a customers subscription.
+"""
+type BillingPeriod {
+  end: DateTime!
+  start: DateTime!
+}
+
+type BotScopeBindingInfo {
+  canRemove: Boolean!
+  id: String!
+  platform: String!
+  scopeId: String!
+  scopeName: String
+  scopeType: String!
+  workspaceId: String!
+  workspaceName: String!
+}
+
+type Bucket implements Node {
+  createdAt: DateTime!
+  groupId: String
+  id: ID!
+  name: String!
+  project: Project!
+  projectId: String!
+  updatedAt: DateTime!
+}
+
+input BucketCreateInput {
+  """
+  [unimplemented] The environment to deploy the bucket instances into. If `null`, the bucket will not be deployed to any environment. `undefined` will deploy to all environments.
+  """
+  environmentId: String
+
+  """
+  The name of the bucket
+  """
+  name: String
+
+  """
+  The project to create the bucket in
+  """
+  projectId: String!
+}
+
+type BucketInstanceDetails {
+  objectCount: BigInt!
+  sizeBytes: BigInt!
+}
+
+type BucketS3CompatibleCredentials {
+  accessKeyId: String!
+  bucketName: String!
+  createdAt: DateTime!
+  endpoint: String!
+  region: String!
+  secretAccessKey: String!
+  urlStyle: String!
+}
+
+input BucketUpdateInput {
+  name: String!
+}
+
+enum Builder {
+  HEROKU
+  NIXPACKS
+  PAKETO
+  RAILPACK
+}
+
+enum CDNProvider {
+  DETECTED_CDN_PROVIDER_CLOUDFLARE
+  DETECTED_CDN_PROVIDER_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+scalar CanvasConfig
+
+type CanvasViewMergePreview {
+  mutations: [JSON!]!
+  state: JSON!
+}
+
+"""
+The type of error that occurred during certificate issuance
+"""
+enum CertificateErrorType {
+  CERTIFICATE_ERROR_TYPE_AUTHORIZATION_FAILED
+  CERTIFICATE_ERROR_TYPE_DNS_VALIDATION
+  CERTIFICATE_ERROR_TYPE_INTERNAL
+  CERTIFICATE_ERROR_TYPE_KEY_GENERATION
+  CERTIFICATE_ERROR_TYPE_ORDER_CREATION
+  CERTIFICATE_ERROR_TYPE_RATE_LIMIT
+  CERTIFICATE_ERROR_TYPE_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+type CertificatePublicData {
+  domainNames: [String!]!
+  expiresAt: DateTime
+  fingerprintSha256: String!
+  issuedAt: DateTime
+  keyType: KeyType!
+}
+
+enum CertificateStatus {
+  CERTIFICATE_STATUS_TYPE_ISSUE_FAILED
+  CERTIFICATE_STATUS_TYPE_ISSUING
+  CERTIFICATE_STATUS_TYPE_UNSPECIFIED
+  CERTIFICATE_STATUS_TYPE_VALID
+  CERTIFICATE_STATUS_TYPE_VALIDATING_OWNERSHIP
+  UNRECOGNIZED
+}
+
+enum CertificateStatusDetailed {
+  CERTIFICATE_STATUS_TYPE_DETAILED_CLEANING_UP
+  CERTIFICATE_STATUS_TYPE_DETAILED_COMPLETE
+  CERTIFICATE_STATUS_TYPE_DETAILED_CREATING_ORDER
+  CERTIFICATE_STATUS_TYPE_DETAILED_DOWNLOADING_CERTIFICATE
+  CERTIFICATE_STATUS_TYPE_DETAILED_FAILED
+  CERTIFICATE_STATUS_TYPE_DETAILED_FETCHING_AUTHORIZATIONS
+  CERTIFICATE_STATUS_TYPE_DETAILED_FINALIZING_ORDER
+  CERTIFICATE_STATUS_TYPE_DETAILED_GENERATING_KEYS
+  CERTIFICATE_STATUS_TYPE_DETAILED_INITIATING_CHALLENGES
+  CERTIFICATE_STATUS_TYPE_DETAILED_POLLING_AUTHORIZATIONS
+  CERTIFICATE_STATUS_TYPE_DETAILED_PRESENTING_CHALLENGES
+  CERTIFICATE_STATUS_TYPE_DETAILED_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+type ChangeOperationResult {
+  kind: String!
+  outputs: JSON
+  path: String
+  status: String!
+  summary: String
+}
+
+type ChangeSetApplyResult {
+  changes: [ChangeOperationResult!]!
+  deploymentId: String
+  diagnostics: JSON!
+  id: String!
+  stagedPatchId: String
+  status: String!
+}
+
+type ChangeSetPreview {
+  changeSet: JSON!
+  diagnostics: JSON!
+  effects: JSON!
+}
+
+input CliAuthEventTrackInput {
+  agentSessionId: String
+  arch: String
+  caller: String
+  cliVersion: String
+  errorMessage: String
+  installRequestId: String
+  isCi: Boolean
+  os: String
+  outcome: String!
+  sessionId: String
+  success: Boolean!
+  transport: String!
+  transportReason: String
+}
+
+input CliEventTrackInput {
+  agentSessionId: String
+  arch: String!
+  caller: String
+  cliVersion: String!
+  command: String!
+  durationMs: Int!
+  environmentId: String
+  errorClass: String
+  errorMessage: String
+  installRequestId: String
+  isCi: Boolean!
+  os: String!
+  projectId: String
+  serviceId: String
+  sessionId: String
+  subCommand: String
+  success: Boolean!
+  workspaceId: String
+}
+
+"""
+A persistent cloud agent for running coding harnesses.
+"""
+type CloudAgent {
+  """
+  Target ID for console or command execution. Null while unavailable.
+  """
+  consoleTargetId: String
+  createdAt: DateTime!
+
+  """
+  The first of the agent machine's public domains. Stable across sleep and wake; returns no endpoints while the machine sleeps.
+  """
+  domain: String
+
+  """
+  Every public domain on the agent's machine, one per port, in the order the machine declared them.
+  """
+  domains: [CloudAgentDomain!]!
+  environmentId: String!
+  id: ID!
+  name: String!
+  projectId: String!
+
+  """
+  Live coding-agent sessions, one entry per session. Retained for 24h after the last report, so a sleeping agent still shows what it was last doing.
+  """
+  sessions: [CloudAgentSnapshot!]!
+  status: CloudAgentStatus!
+}
+
+input CloudAgentCreateInput {
+  environmentId: String!
+  name: String
+  variables: JSON
+}
+
+"""
+One public domain on an agent's machine.
+"""
+type CloudAgentDomain {
+  """
+  Resolved FQDN.
+  """
+  domain: String!
+
+  """
+  Target port on the workload this domain routes to.
+  """
+  port: Int!
+
+  """
+  Label prefix the machine declared, e.g. app.
+  """
+  prefix: String!
+}
+
+"""
+The state of one coding agent session in a cloud agent.
+"""
+type CloudAgentSnapshot {
+  harness: String!
+  lastEventKind: String!
+
+  """
+  Truncated first prompt of the session, display-only. Null when the harness never reported one.
+  """
+  prompt: String
+  sessionId: String!
+
+  """
+  Durable console session name the harness ran inside. Null on older VMs that don't report it.
+  """
+  sessionName: String
+
+  """
+  One of: unknown, working, waiting, idle, failed, done.
+  """
+  state: String!
+  taskId: String
+  terminal: Boolean!
+  updatedAt: String!
+}
+
+input CloudAgentSnapshotInput {
+  harness: String!
+  lastEventKind: String!
+  prompt: String
+  sessionId: String!
+  sessionName: String
+  state: String!
+  taskId: String
+  terminal: Boolean!
+  updatedAt: String!
+}
+
+"""
+State reported by a cloud agent.
+"""
+input CloudAgentStateReportInput {
+  agents: [CloudAgentSnapshotInput!]!
+  cloudAgentId: String
+  environmentId: String
+  reportedAt: String!
+  serviceId: String
+}
+
+"""
+The current lifecycle state of a cloud agent.
+"""
+enum CloudAgentStatus {
+  CRASHED
+  DELETING
+  FAILED
+  RUNNING
+  SLEEPING
+  STARTING
+}
+
+type CnameCheck {
+  link: String
+  message: String!
+  status: CnameCheckStatus!
+}
+
+enum CnameCheckStatus {
+  ERROR
+  INFO
+  INVALID
+  VALID
+  WAITING
+}
+
+type ComplianceAgreementsInfo {
+  """
+  Whether the workspace has a signed Business Associate Agreement (HIPAA)
+  """
+  hasBAA: Boolean!
+
+  """
+  Whether the workspace has a Data Processing Agreement (GDPR)
+  """
+  hasDPA: Boolean!
+}
+
+type ConnectedServiceInstance {
+  environmentId: String!
+  projectId: String!
+  serviceId: String!
+  serviceName: String
+}
+
+type Container implements Node {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  environment: Environment!
+  environmentId: String!
+  id: ID!
+  migratedAt: DateTime
+  plugin: Plugin!
+  pluginId: String!
+}
+
+input CreateNotificationRuleInput {
+  channelConfigs: [NotificationChannelConfig!]!
+  ephemeralEnvironments: Boolean
+  eventTypes: [String!]!
+  projectId: String
+  severities: [NotificationSeverity!]
+  workspaceId: String!
+}
+
+type Credit implements Node {
+  amount: Float!
+  createdAt: DateTime!
+  customerId: String!
+  id: ID!
+  memo: String
+  type: CreditType!
+  updatedAt: DateTime!
+}
+
+enum CreditType {
+  APPLIED
+  CREDIT
+  DEBIT
+  STRIPE
+  TRANSFER
+  WAIVED
+}
+
+type CustomDomain implements Domain {
+  cdnMode: String @deprecated(reason: "Removed; always null.")
+  cnameCheck: CnameCheck! @deprecated(reason: "Use the `status` field instead.")
+  createdAt: DateTime
+  deletedAt: DateTime
+  domain: String!
+  edgeId: String
+  environmentId: String!
+  id: ID!
+  isRailwayDomain: Boolean!
+  projectId: String
+  serviceId: String!
+  status: CustomDomainStatus!
+  syncStatus: CustomDomainSyncStatus!
+  targetPort: Int
+  updatedAt: DateTime
+}
+
+input CustomDomainCreateInput {
+  domain: String!
+  environmentId: String!
+  projectId: String!
+  serviceId: String!
+  targetPort: Int
+}
+
+type CustomDomainStatus {
+  cdnProvider: CDNProvider
+
+  """
+  Human-readable error message when certificate issuance fails
+  """
+  certificateErrorMessage: String
+
+  """
+  Structured error type for programmatic handling
+  """
+  certificateErrorType: CertificateErrorType
+
+  """
+  Whether the certificate issuance can be retried
+  """
+  certificateRetryable: Boolean
+  certificateStatus: CertificateStatus!
+  certificateStatusDetailed: CertificateStatusDetailed
+  certificates: [CertificatePublicData!]
+  dnsRecords: [DNSRecords!]!
+  verificationDnsHost: String
+  verificationToken: String
+  verified: Boolean!
+}
+
+enum CustomDomainSyncStatus {
+  ACTIVE
+  CREATING
+  DELETED
+  DELETING
+  UNSPECIFIED
+  UPDATING
+}
+
+type Customer implements Node {
+  """
+  The total amount of credits that have been applied during the current billing period.
+  """
+  appliedCredits: Float!
+  billingAddress: CustomerAddress
+  billingEmail: String
+  billingPeriod: BillingPeriod!
+
+  """
+  The total amount of unused credits for the customer.
+  """
+  creditBalance: Float!
+  credits(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): CustomerCreditsConnection!
+
+  """
+  The current usage for the customer. This value is cached and may not be up to date.
+  """
+  currentUsage: Float!
+  defaultPaymentMethod: PaymentMethod
+  defaultPaymentMethodId: String
+  hasExhaustedFreePlan: Boolean!
+  id: ID!
+  invoices: [CustomerInvoice!]!
+  isPrepaying: Boolean!
+  isTrialing: Boolean!
+  isUsageSubscriber: Boolean!
+  isWithdrawingToCredits: Boolean!
+  planLimitOverride: PlanLimitOverride
+  remainingUsageCreditBalance: Float!
+  spendCommitment: SpendCommitment
+  state: SubscriptionState!
+  stripeCustomerId: String!
+  subscriptions: [CustomerSubscription!]!
+  supportedWithdrawalPlatforms: [WithdrawalPlatformTypes!]!
+  taxIds: [CustomerTaxId!]!
+  trialDaysRemaining: Int!
+  usageLimit: UsageLimit
+  workspace: Workspace!
+}
+
+type CustomerAddress {
+  city: String
+  country: String
+  line1: String
+  line2: String
+  name: String
+  postalCode: String
+  state: String
+}
+
+type CustomerCreditsConnection {
+  edges: [CustomerCreditsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CustomerCreditsConnectionEdge {
+  cursor: String!
+  node: Credit!
+}
+
+type CustomerInvoice {
+  amountDue: Float!
+  amountPaid: Float!
+  hostedURL: String
+  invoiceId: String!
+  items: [SubscriptionItem!]!
+  lastPaymentError: String
+  paymentIntentStatus: String
+  pdfURL: String
+  periodEnd: String!
+  periodStart: String!
+  reissuedInvoiceFrom: String
+  reissuedInvoiceOf: String
+  spendCommitmentPrepayment: Boolean
+  status: String
+  subscriptionId: String
+  subscriptionStatus: String
+  total: Int!
+}
+
+type CustomerSubscription {
+  billingCycleAnchor: DateTime!
+  cancelAt: String
+  cancelAtPeriodEnd: Boolean!
+  couponId: String
+  discounts: [SubscriptionDiscount!]!
+  id: String!
+  items: [SubscriptionItem!]!
+  latestInvoiceId: String!
+  nextInvoiceCurrentTotal: Int!
+  nextInvoiceDate: String!
+  status: String!
+}
+
+type CustomerTaxId {
+  id: String!
+  type: String!
+  value: String!
+}
+
+enum DNSRecordPurpose {
+  DNS_RECORD_PURPOSE_ACME_DNS01_CHALLENGE
+  DNS_RECORD_PURPOSE_TRAFFIC_ROUTE
+  DNS_RECORD_PURPOSE_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+enum DNSRecordStatus {
+  DNS_RECORD_STATUS_PROPAGATED
+  DNS_RECORD_STATUS_REQUIRES_UPDATE
+  DNS_RECORD_STATUS_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+enum DNSRecordType {
+  DNS_RECORD_TYPE_A
+  DNS_RECORD_TYPE_CNAME
+  DNS_RECORD_TYPE_NS
+  DNS_RECORD_TYPE_TXT
+  DNS_RECORD_TYPE_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+type DNSRecords {
+  currentValue: String!
+  fqdn: String!
+  hostlabel: String!
+  purpose: DNSRecordPurpose!
+  recordType: DNSRecordType!
+  requiredValue: String!
+  status: DNSRecordStatus!
+  zone: String!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type Deployment implements Node {
+  canRedeploy: Boolean!
+  canRollback: Boolean!
+  createdAt: DateTime!
+  creator: DeploymentCreator
+
+  """
+  Check if a deployment's instances have all stopped
+  """
+  deploymentStopped: Boolean!
+  diagnosis: DeploymentDiagnosis
+  environment: Environment!
+  environmentId: String!
+  id: ID!
+  instances: [DeploymentDeploymentInstance!]!
+  meta: DeploymentMeta
+  projectId: String!
+  service: Service!
+  serviceId: String
+  snapshotId: String
+  sockets: [DeploymentSocket!]!
+  staticUrl: String
+  status: DeploymentStatus!
+  statusUpdatedAt: DateTime
+  suggestAddServiceDomain: Boolean!
+  updatedAt: DateTime!
+  url: String
+}
+
+type DeploymentCreator {
+  avatar: String
+  email: String!
+  id: String!
+  name: String
+}
+
+type DeploymentDeploymentInstance {
+  id: String!
+  status: DeploymentInstanceStatus!
+}
+
+scalar DeploymentDiagnosis
+
+type DeploymentEvent implements Node {
+  completedAt: DateTime
+  createdAt: DateTime!
+  id: ID!
+  payload: DeploymentEventPayload
+  step: DeploymentEventStep!
+}
+
+type DeploymentEventPayload {
+  attempt: Int
+  detail: String
+  durationMs: Int
+  error: String
+  maxAttempts: Int
+  reason: String
+  skipped: Boolean
+}
+
+enum DeploymentEventStep {
+  BUILD_IMAGE
+  CONFIGURE_NETWORK
+  CREATE_CONTAINER
+  DRAIN_INSTANCES
+  HEALTHCHECK
+  MIGRATE_VOLUMES
+  PRE_DEPLOY_COMMAND
+  PUBLISH_IMAGE
+  SNAPSHOT_CODE
+  WAIT_FOR_DEPENDENCIES
+}
+
+type DeploymentInstanceExecution implements Node {
+  completedAt: DateTime
+  createdAt: DateTime!
+  deploymentId: String!
+  deploymentMeta: DeploymentMeta!
+  id: ID!
+  status: DeploymentInstanceStatus!
+  updatedAt: DateTime!
+}
+
+input DeploymentInstanceExecutionCreateInput {
+  serviceInstanceId: String!
+}
+
+input DeploymentInstanceExecutionInput {
+  deploymentId: String!
+}
+
+input DeploymentInstanceExecutionListInput {
+  environmentId: String!
+  serviceId: String!
+}
+
+enum DeploymentInstanceStatus {
+  CRASHED
+  CREATED
+  EXITED
+  INITIALIZING
+  REMOVED
+  REMOVING
+  RESTARTING
+  RUNNING
+  SKIPPED
+  STOPPED
+}
+
+input DeploymentListInput {
+  environmentId: String
+  includeDeleted: Boolean
+  projectId: String
+  serviceId: String
+  status: DeploymentStatusInput
+}
+
+scalar DeploymentMeta
+
+type DeploymentSnapshot implements Node {
+  createdAt: DateTime!
+  id: ID!
+  updatedAt: DateTime!
+  variables: EnvironmentVariables!
+}
+
+type DeploymentSocket {
+  ipv6: Boolean!
+  port: Int!
+  processName: String!
+  updatedAt: Int!
+}
+
+enum DeploymentStatus {
+  BUILDING
+  CRASHED
+  DEPLOYING
+  FAILED
+  INITIALIZING
+  NEEDS_APPROVAL
+  QUEUED
+  REMOVED
+  REMOVING
+  SKIPPED
+  SLEEPING
+  SUCCESS
+  WAITING
+}
+
+input DeploymentStatusInput {
+  in: [DeploymentStatus!]
+  notIn: [DeploymentStatus!]
+}
+
+type DeploymentTrigger implements Node {
+  baseEnvironmentOverrideId: String
+  branch: String!
+  checkSuites: Boolean!
+  environmentId: String!
+  id: ID!
+  projectId: String!
+  provider: String!
+  repository: String!
+  serviceId: String
+  validCheckSuites: Int!
+}
+
+input DeploymentTriggerCreateInput {
+  branch: String!
+  checkSuites: Boolean
+  environmentId: String!
+  projectId: String!
+  provider: String!
+  repository: String!
+  rootDirectory: String
+  serviceId: String!
+}
+
+input DeploymentTriggerUpdateInput {
+  branch: String
+  checkSuites: Boolean
+  repository: String
+  rootDirectory: String
+}
+
+input DisableServiceCdnInput {
+  environmentId: String!
+  serviceId: String!
+}
+
+scalar DisplayConfig
+
+"""
+A single DNS query resolved for a service (one row per query, not aggregated)
+"""
+type DnsQueryLog {
+  """
+  The IP addresses the name resolved to
+  """
+  answers: [String!]!
+
+  """
+  Ordered CNAME targets the queried name aliased through before the final answer (empty when the response had no CNAME)
+  """
+  cnameChain: [String!]!
+
+  """
+  The deployment ID
+  """
+  deploymentId: String!
+
+  """
+  The deployment instance ID
+  """
+  deploymentInstanceId: String!
+
+  """
+  The domain name that was looked up
+  """
+  qname: String!
+
+  """
+  The DNS record type queried (A, AAAA, TXT, ...)
+  """
+  qtype: String!
+
+  """
+  When the query was resolved (ISO timestamp)
+  """
+  queriedAt: String!
+
+  """
+  Whether the query targeted the internal zone or the public internet
+  """
+  queryZone: DnsQueryZone!
+
+  """
+  The DNS response code (NOERROR, NXDOMAIN, SERVFAIL, ...) or synthetic TIMEOUT/ERROR when no upstream response was received
+  """
+  rcode: String!
+
+  """
+  The service ID that made the queries
+  """
+  serviceId: String!
+}
+
+"""
+Whether a DNS query targeted the internal zone or the public internet
+"""
+enum DnsQueryZone {
+  external
+  internal
+}
+
+type DockerComposeImport {
+  errors: [String!]!
+  patch: EnvironmentConfig
+}
+
+interface Domain {
+  cdnMode: String @deprecated(reason: "Removed; always null.")
+  createdAt: DateTime
+  deletedAt: DateTime
+  domain: String!
+  edgeId: String
+  environmentId: String!
+  id: ID!
+  projectId: String
+  serviceId: String!
+  targetPort: Int
+  updatedAt: DateTime
+}
+
+type DomainAvailable {
+  available: Boolean!
+  message: String!
+}
+
+type DomainWithStatus {
+  cdnProvider: CDNProvider
+
+  """
+  Human-readable error message when certificate issuance fails
+  """
+  certificateErrorMessage: String
+
+  """
+  Structured error type for programmatic handling
+  """
+  certificateErrorType: CertificateErrorType
+
+  """
+  Whether the certificate issuance can be retried
+  """
+  certificateRetryable: Boolean
+  certificateStatus: CertificateStatus!
+  certificateStatusDetailed: CertificateStatusDetailed
+  certificates: [CertificatePublicData!]
+  dnsRecords: [DNSRecords!]!
+  domain: Domain
+}
+
+type EdgeCachingConfig {
+  defaultTtlSeconds: Int!
+  htmlCaching: String!
+  mode: String!
+  purgeOnDeploy: PurgeOnDeploy!
+  staleWhileRevalidate: StaleWhileRevalidateConfig!
+}
+
+input EdgeCachingConfigInput {
+  defaultTtlSeconds: Int
+  htmlCaching: String
+  mode: String
+  purgeOnDeploy: PurgeOnDeploy
+  staleWhileRevalidate: StaleWhileRevalidateInput
+}
+
+type EdgeConfig {
+  caching: EdgeCachingConfig
+  enabled: Boolean!
+  id: String!
+  overrides: JSON!
+  purgeEpoch: Int!
+  purgeEpochByKind: JSON!
+  underAttackModeUntil: Int
+}
+
+input EdgeConfigInput {
+  caching: EdgeCachingConfigInput
+}
+
+type EgressGateway {
+  ipv4: String!
+  region: String!
+  zone: String
+}
+
+input EgressGatewayCreateInput {
+  environmentId: String!
+  region: String
+  serviceId: String!
+}
+
+input EgressGatewayServiceTargetInput {
+  allEnvironments: Boolean
+  environmentId: String!
+  serviceId: String!
+}
+
+type EgressMigrationEnvironmentResult {
+  environmentId: String!
+  environmentName: String!
+  error: String
+  gateways: [EgressGateway!]!
+  success: Boolean!
+}
+
+type EgressMigrationResult {
+  environments: [EgressMigrationEnvironmentResult!]!
+  ips: [EgressGateway!]!
+}
+
+input EnableServiceCdnInput {
+  config: EdgeConfigInput
+  environmentId: String!
+  serviceId: String!
+}
+
+type Environment implements Node {
+  canAccess: Boolean!
+  canvasGroupRefs: JSON!
+  config(decryptVariables: Boolean): EnvironmentConfig!
+
+  """
+  Opaque snapshot token of the environment's IaC-relevant config. Echo it back as baseConfigEtag on environmentApplyChangeSet for optimistic concurrency.
+  """
+  configEtag: String!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  deploymentTriggers(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EnvironmentDeploymentTriggersConnection!
+  deployments(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EnvironmentDeploymentsConnection!
+  id: ID!
+  isEphemeral: Boolean!
+  meta: EnvironmentMeta
+  name: String!
+  projectId: String!
+  serviceInstances(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EnvironmentServiceInstancesConnection!
+  sourceEnvironment: Environment
+  unmergedChangesCount: Int
+  updatedAt: DateTime!
+  variables(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EnvironmentVariablesConnection!
+  volumeInstances(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EnvironmentVolumeInstancesConnection!
+}
+
+"\nEnvironmentConfig is a custom scalar type that represents the serializedConfig for an environment.\nJSON Schema: https://backboard.railway.com/schema/environment.schema.json\n"
+scalar EnvironmentConfig
+
+input EnvironmentCreateInput {
+  """
+  If true, the changes will be applied in the background and the mutation will return immediately. If false, the mutation will wait for the changes to be applied before returning.
+  """
+  applyChangesInBackground: Boolean
+  ephemeral: Boolean
+  name: String!
+  projectId: String!
+
+  """
+  When committing the changes immediately, skip any initial deployments.
+  """
+  skipInitialDeploys: Boolean
+
+  """
+  Create the environment with all of the services, volumes, configuration, and variables from this source environment.
+  """
+  sourceEnvironmentId: String
+
+  """
+  Stage the initial changes for the environment. If false (default), the changes will be committed immediately.
+  """
+  stageInitialChanges: Boolean
+}
+
+type EnvironmentDeploymentTriggersConnection {
+  edges: [EnvironmentDeploymentTriggersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EnvironmentDeploymentTriggersConnectionEdge {
+  cursor: String!
+  node: DeploymentTrigger!
+}
+
+type EnvironmentDeploymentsConnection {
+  edges: [EnvironmentDeploymentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EnvironmentDeploymentsConnectionEdge {
+  cursor: String!
+  node: Deployment!
+}
+
+type EnvironmentMeta {
+  baseBranch: String
+  branch: String
+  latestSuccessfulGitHubDeploymentId: Int
+  prCommentId: Int
+  prNumber: Int
+  prRepo: String
+  prTitle: String
+  skippedResourceIds: SkippedResourceIds
+}
+
+type EnvironmentPatch implements Node {
+  appliedAt: DateTime
+  appliedBy: AppliedByMember
+  createdAt: DateTime!
+  environment: Environment!
+  environmentId: String!
+  id: ID!
+  lastAppliedError: String
+  message: String
+  patch(decryptVariables: Boolean): EnvironmentConfig!
+  status: EnvironmentPatchStatus!
+  updatedAt: DateTime!
+}
+
+enum EnvironmentPatchStatus {
+  APPLYING
+  COMMITTED
+  STAGED
+}
+
+input EnvironmentRenameInput {
+  name: String!
+}
+
+type EnvironmentServiceInstancesConnection {
+  edges: [EnvironmentServiceInstancesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EnvironmentServiceInstancesConnectionEdge {
+  cursor: String!
+  node: ServiceInstance!
+}
+
+input EnvironmentTriggersDeployInput {
+  environmentId: String!
+  projectId: String!
+  serviceId: String!
+}
+
+"""
+EnvironmentVariables is a custom scalar type that represents a map of environment variables.
+"""
+scalar EnvironmentVariables
+
+type EnvironmentVariablesConnection {
+  edges: [EnvironmentVariablesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EnvironmentVariablesConnectionEdge {
+  cursor: String!
+  node: Variable!
+}
+
+type EnvironmentVolumeInstancesConnection {
+  edges: [EnvironmentVolumeInstancesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EnvironmentVolumeInstancesConnectionEdge {
+  cursor: String!
+  node: VolumeInstance!
+}
+
+"""
+The estimated usage of a single measurement.
+"""
+type EstimatedUsage {
+  """
+  The estimated value.
+  """
+  estimatedValue: Float!
+
+  """
+  The measurement that was estimated.
+  """
+  measurement: MetricMeasurement!
+  projectId: String!
+}
+
+type Event implements Node {
+  action: String!
+
+  """
+  Minimal event payload for activity feed list rendering. Avoids returning large deployment payload fields like commit messages.
+  """
+  activityPayload: JSON
+  createdAt: DateTime!
+  environment: Environment
+  environmentId: String
+  id: ID!
+  object: String!
+  payload: JSON
+  project: Project!
+  projectId: String
+  severity: EventSeverity!
+}
+
+input EventFilterInput {
+  action: EventStringListFilter
+  object: EventStringListFilter
+  serviceId: EventStringListFilter
+}
+
+enum EventSeverity {
+  CRITICAL
+  INFO
+  NOTICE
+  WARNING
+}
+
+input EventStringListFilter {
+  in: [String!]
+  notIn: [String!]
+}
+
+input ExplicitOwnerInput {
+  """
+  The ID of the owner
+  """
+  id: String!
+
+  """
+  The type of owner
+  """
+  type: ResourceOwnerType
+}
+
+type ExternalWorkspace {
+  allowDeprecatedRegions: Boolean
+    @deprecated(reason: "Deprecated regions are no longer supported.")
+  avatar: String
+  banReason: String
+  createdAt: DateTime!
+  currentSessionHasAccess: Boolean
+  customerId: String
+  customerState: SubscriptionState!
+  discordRole: String
+  has2FAEnforcement: Boolean!
+  hasAutomaticDiagnosis: Boolean!
+  hasBAA: Boolean!
+    @deprecated(reason: "Deprecated in favour of the SpendCommitment schema.")
+  hasGuardrailsAccess: Boolean!
+  hasRBAC: Boolean!
+    @deprecated(reason: "Deprecated in favour of the SpendCommitment schema.")
+  hasSAML: Boolean!
+  id: String!
+  isTrialing: Boolean
+  name: String!
+  plan: Plan!
+  preferredRegion: String
+  projects: [Project!]!
+  redactedDueTo2FAPending: Boolean!
+  subscriptionPlanLimit: SubscriptionPlanLimit
+  supportTierOverride: String
+  teamId: String
+}
+
+input FeatureFlagToggleInput {
+  flag: ActiveFeatureFlag!
+}
+
+type FunctionRuntime {
+  """
+  The image of the function runtime
+  """
+  image: String!
+
+  """
+  The latest version of the function runtime
+  """
+  latestVersion: FunctionRuntimeVersion!
+
+  """
+  The name of the function runtime
+  """
+  name: FunctionRuntimeName!
+
+  """
+  The versions of the function runtime
+  """
+  versions: [FunctionRuntimeVersion!]!
+}
+
+"""
+Supported function runtime environments
+"""
+enum FunctionRuntimeName {
+  bun
+}
+
+type FunctionRuntimeVersion {
+  image: String!
+  tag: String!
+}
+
+type GitHubAccess {
+  hasAccess: Boolean!
+  isPublic: Boolean!
+}
+
+type GitHubBranch {
+  name: String!
+}
+
+type GitHubCheck {
+  name: String!
+  status: String!
+}
+
+type GitHubPRInfo {
+  additions: Int!
+  author: String!
+  body: String!
+  changedFiles: Int!
+  checks: [GitHubCheck!]!
+  deletions: Int!
+  mergeable: Boolean
+  state: String!
+  title: String!
+}
+
+type GitHubPRInfoResult {
+  error: String
+  prInfo: GitHubPRInfo
+}
+
+type GitHubRepo {
+  defaultBranch: String!
+  description: String
+  fullName: String!
+  id: Int!
+  installationId: String!
+  isPrivate: Boolean!
+  name: String!
+  ownerAvatarUrl: String
+}
+
+input GitHubRepoDeployInput {
+  branch: String
+  environmentId: String
+  projectId: String!
+  repo: String!
+}
+
+input GitHubRepoUpdateInput {
+  environmentId: String!
+  projectId: String!
+  serviceId: String!
+}
+
+type GitHubRepoWithoutInstallation {
+  defaultBranch: String!
+  description: String
+  fullName: String!
+  id: Int!
+  isPrivate: Boolean!
+  name: String!
+}
+
+"""
+An SSH public key from GitHub.
+"""
+type GitHubSshKey {
+  id: Int!
+  key: String!
+  title: String!
+}
+
+type Group implements Node {
+  color: String
+  groupId: String
+  icon: String
+  id: ID!
+  isCollapsed: Boolean
+  name: String
+  project: Project!
+  projectId: String!
+}
+
+type HerokuApp {
+  id: String!
+  name: String!
+}
+
+input HerokuImportVariablesInput {
+  environmentId: String!
+  herokuAppId: String!
+  projectId: String!
+  serviceId: String!
+}
+
+"""
+The result of an HTTP duration metrics query.
+"""
+type HttpDurationMetricsResult {
+  """
+  The samples of HTTP duration metrics.
+  """
+  samples: [HttpDurationMetricsSample!]!
+}
+
+"""
+A single sample of HTTP duration metrics.
+"""
+type HttpDurationMetricsSample {
+  """
+  50th percentile (median) request duration in milliseconds.
+  """
+  p50: Float!
+
+  """
+  90th percentile request duration in milliseconds.
+  """
+  p90: Float!
+
+  """
+  95th percentile request duration in milliseconds.
+  """
+  p95: Float!
+
+  """
+  99th percentile request duration in milliseconds.
+  """
+  p99: Float!
+
+  """
+  The timestamp of the sample. Represented as number of seconds since the Unix epoch.
+  """
+  ts: Int!
+}
+
+"""
+The result of a http logs query.
+"""
+type HttpLog {
+  """
+  The client user agent
+  """
+  clientUa: String!
+
+  """
+  The deployment ID that was requested
+  """
+  deploymentId: String!
+
+  """
+  The deployment instance ID that was requested
+  """
+  deploymentInstanceId: String!
+
+  """
+  The downstream HTTP protocol version
+  """
+  downstreamProto: String!
+
+  """
+  The edge region the client connected to
+  """
+  edgeRegion: String!
+
+  """
+  The requested host
+  """
+  host: String!
+
+  """
+  The http status of the log
+  """
+  httpStatus: Int!
+
+  """
+  The request HTTP method
+  """
+  method: String!
+
+  """
+  The requested path
+  """
+  path: String!
+
+  """
+  The unique request ID
+  """
+  requestId: String!
+
+  """
+  Details about the upstream response
+  """
+  responseDetails: String!
+
+  """
+  Received bytes
+  """
+  rxBytes: Int!
+
+  """
+  The source IP of the request
+  """
+  srcIp: String!
+
+  """
+  The timestamp the log was created
+  """
+  timestamp: String!
+
+  """
+  The total duration the request took
+  """
+  totalDuration: Int!
+
+  """
+  Outgoing bytes
+  """
+  txBytes: Int!
+
+  """
+  The upstream address
+  """
+  upstreamAddress: String!
+
+  """
+  Any upstream errors that occurred
+  """
+  upstreamErrors: String!
+
+  """
+  The upstream HTTP protocol version
+  """
+  upstreamProto: String!
+
+  """
+  How long the upstream request took to respond
+  """
+  upstreamRqDuration: Int!
+}
+
+"""
+Which HTTP metric an HTTP_METRICS_ITEM widget renders.
+"""
+enum HttpMetricKind {
+  LATENCY
+  REQUESTS
+  STATUS_RATIO
+}
+
+"""
+HTTP metrics grouped by status code.
+"""
+type HttpMetricsByStatusResult {
+  """
+  The samples of HTTP metrics for this status code.
+  """
+  samples: [HttpMetricsSample!]!
+
+  """
+  The HTTP status code.
+  """
+  statusCode: Int!
+}
+
+"""
+The result of an HTTP metrics query.
+"""
+type HttpMetricsResult {
+  """
+  The samples of HTTP metrics.
+  """
+  samples: [HttpMetricsSample!]!
+}
+
+"""
+A single sample of an HTTP metric.
+"""
+type HttpMetricsSample {
+  """
+  The timestamp of the sample. Represented as number of seconds since the Unix epoch.
+  """
+  ts: Int!
+
+  """
+  The value of the sample (count of requests).
+  """
+  value: Float!
+}
+
+type Incident {
+  createdAt: DateTime
+  id: String!
+  message: String!
+  status: IncidentStatus!
+  url: String!
+}
+
+enum IncidentStatus {
+  IDENTIFIED
+  INVESTIGATING
+  MONITORING
+  RESOLVED
+}
+
+type Integration implements Node {
+  config: JSON!
+  id: ID!
+  name: String!
+  projectId: String!
+}
+
+type IntegrationAuth implements Node {
+  id: ID!
+  integrations(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): IntegrationAuthIntegrationsConnection!
+  provider: String!
+  providerId: String!
+}
+
+type IntegrationAuthIntegrationsConnection {
+  edges: [IntegrationAuthIntegrationsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type IntegrationAuthIntegrationsConnectionEdge {
+  cursor: String!
+  node: Integration!
+}
+
+input IntegrationCreateInput {
+  config: JSON!
+  integrationAuthId: String
+  name: String!
+  projectId: String!
+}
+
+input IntegrationUpdateInput {
+  config: JSON!
+  integrationAuthId: String
+  name: String!
+  projectId: String!
+}
+
+type InviteCode implements Node {
+  code: String!
+  createdAt: DateTime!
+  id: ID!
+  project: Project!
+  projectId: String!
+  role: ProjectRole!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input JobApplicationCreateInput {
+  email: String!
+  jobId: String!
+  name: String!
+  why: String!
+}
+
+enum KeyType {
+  KEY_TYPE_ECDSA
+  KEY_TYPE_RSA_2048
+  KEY_TYPE_RSA_4096
+  KEY_TYPE_UNSPECIFIED
+  UNRECOGNIZED
+}
+
+"""
+The result of a logs query.
+"""
+type Log {
+  """
+  The attributes that were parsed from a structured log
+  """
+  attributes: [LogAttribute!]!
+
+  """
+  The contents of the log message
+  """
+  message: String!
+
+  """
+  The severity of the log message (eg. err)
+  """
+  severity: String
+
+  """
+  The tags that were associated with the log
+  """
+  tags: LogTags
+
+  """
+  The timestamp of the log message in format RFC3339 (nano)
+  """
+  timestamp: String!
+}
+
+"""
+The attributes associated with a structured log
+"""
+type LogAttribute {
+  key: String!
+  value: String!
+}
+
+"""
+The tags associated with a specific log
+"""
+type LogTags {
+  deploymentId: String
+  deploymentInstanceId: String
+  environmentId: String
+  pluginId: String @deprecated(reason: "Plugins have been removed")
+  projectId: String
+  serviceId: String
+  snapshotId: String
+}
+
+input LoginSessionAuthInput {
+  code: String!
+  hostname: String
+}
+
+type MaintainerWorkspace {
+  avatar: String
+  id: String!
+  name: String!
+  partnerProfile: PartnerProfile
+}
+
+type Maintenance {
+  id: String!
+  message: String!
+  start: DateTime!
+  status: MaintenanceStatus!
+  url: String!
+}
+
+enum MaintenanceStatus {
+  COMPLETED
+  INPROGRESS
+  NOTSTARTEDYET
+}
+
+"""
+A single sample of a metric.
+"""
+type Metric {
+  """
+  The timestamp of the sample. Represented has number of seconds since the Unix epoch.
+  """
+  ts: Int!
+
+  """
+  The value of the sample.
+  """
+  value: Float!
+}
+
+"""
+A thing that can be measured on Railway.
+"""
+enum MetricMeasurement {
+  BACKUP_USAGE_GB
+  CPU_LIMIT
+  CPU_USAGE
+  CPU_USAGE_2
+  DISK_USAGE_GB
+  EPHEMERAL_DISK_USAGE_GB
+  MEASUREMENT_UNSPECIFIED
+  MEMORY_LIMIT_GB
+  MEMORY_USAGE_GB
+  NETWORK_RX_GB
+  NETWORK_TX_GB
+  UNRECOGNIZED
+}
+
+"""
+A property that can be used to group metrics.
+"""
+enum MetricTag {
+  DEPLOYMENT_ID
+  DEPLOYMENT_INSTANCE_ID
+  ENVIRONMENT_ID
+  HOST_TYPE
+  KEY_UNSPECIFIED
+  PLUGIN_ID
+  PROJECT_ID
+  REGION
+  SERVICE_ID
+  UNRECOGNIZED
+  VOLUME_ID
+  VOLUME_INSTANCE_ID
+}
+
+"""
+The tags that were used to group the metric.
+"""
+type MetricTags {
+  deploymentId: String
+  deploymentInstanceId: String
+  environmentId: String
+  pluginId: String @deprecated(reason: "Plugins have been removed")
+  projectId: String
+  region: String
+  serviceId: String
+  volumeId: String
+  volumeInstanceId: String
+}
+
+"""
+The result of a metrics query.
+"""
+type MetricsResult {
+  """
+  The measurement of the metric.
+  """
+  measurement: MetricMeasurement!
+
+  """
+  The tags that were used to group the metric. Only the tags that were used to by will be present.
+  """
+  tags: MetricTags!
+
+  """
+  The samples of the metric.
+  """
+  values: [Metric!]!
+}
+
+enum MonitorAlertResourceType {
+  SERVICE
+  VOLUME
+}
+
+enum MonitorStatus {
+  ALERT
+  OK
+}
+
+enum MonitorThresholdCondition {
+  above
+  below
+}
+
+type MonitorThresholdConfig {
+  condition: MonitorThresholdCondition!
+  measurement: MetricMeasurement
+  threshold: Float!
+  type: String!
+}
+
+type Mutation {
+  """
+  Set agent usage limit for a workspace
+  """
+  agentUsageLimitSet(input: AgentUsageLimitSetInput!): Boolean!
+
+  """
+  Creates a new API token.
+  """
+  apiTokenCreate(input: ApiTokenCreateInput!): String!
+
+  """
+  Deletes an API token.
+  """
+  apiTokenDelete(id: String!): Boolean!
+
+  """
+  Sets the base environment override for a deployment trigger.
+  """
+  baseEnvironmentOverride(
+    id: String!
+    input: BaseEnvironmentOverrideInput!
+  ): Boolean!
+
+  """
+  Remove a Railway agent chat binding. Requires admin on the binding's workspace.
+  """
+  botScopeBindingRemove(id: String!): Boolean!
+
+  """
+  Create a bucket in a project
+  """
+  bucketCreate(input: BucketCreateInput!): Bucket!
+
+  """
+  Reset the credentials for a bucket in an environment
+  """
+  bucketCredentialsReset(
+    bucketId: String!
+    environmentId: String!
+    projectId: String!
+    redeployDependents: Boolean
+  ): BucketS3CompatibleCredentials!
+
+  """
+  Updates a bucket.
+  """
+  bucketUpdate(id: String!, input: BucketUpdateInput!): Bucket!
+
+  """
+  Merge a canvas layout from one environment into another. Re-computes the merge from current state and applies mutations.
+  """
+  canvasViewMerge(
+    sourceEnvironmentId: String!
+    targetEnvironmentId: String!
+  ): Boolean!
+
+  """
+  Track CLI authentication-attempt outcomes (signup / sign-in funnel)
+  """
+  cliAuthEventTrack(input: CliAuthEventTrackInput!): Boolean!
+
+  """
+  Track events from the Railway CLI
+  """
+  cliEventTrack(input: CliEventTrackInput!): Boolean!
+
+  """
+  Create a cloud agent.
+  """
+  cloudAgentCreate(input: CloudAgentCreateInput!): CloudAgent!
+
+  """
+  Delete a cloud agent.
+  """
+  cloudAgentDelete(id: ID!): Boolean!
+
+  """
+  Sleep a running cloud agent, keeping its volume. Processes on the machine are terminated; waking re-runs its entrypoint.
+  """
+  cloudAgentSleep(id: ID!): CloudAgent!
+
+  """
+  Report the current coding-agent session state.
+  """
+  cloudAgentStateReport(input: CloudAgentStateReportInput!): Boolean!
+
+  """
+  Wake a sleeping cloud agent.
+  """
+  cloudAgentWake(id: ID!): CloudAgent!
+
+  """
+  Creates a new custom domain.
+  """
+  customDomainCreate(input: CustomDomainCreateInput!): CustomDomain!
+
+  """
+  Deletes a custom domain.
+  """
+  customDomainDelete(id: String!): Boolean!
+
+  """
+  Issues a new certificate
+  """
+  customDomainIssueCertificate(id: String!): Boolean!
+
+  """
+  Updates a custom domain.
+  """
+  customDomainUpdate(
+    environmentId: String!
+    id: String!
+    targetPort: Int
+  ): Boolean!
+
+  """
+  Create a free plan subscription for a customer
+  """
+  customerCreateFreePlanSubscription(id: String!): Boolean!
+
+  """
+  Toggle whether a customer is automatically withdrawing to credits
+  """
+  customerTogglePayoutsToCredits(
+    customerId: String!
+    input: customerTogglePayoutsToCreditsInput!
+  ): Boolean!
+
+  """
+  Approves a deployment.
+  """
+  deploymentApprove(id: String!): Boolean!
+
+  """
+  Cancels a deployment.
+  """
+  deploymentCancel(id: String!): Boolean!
+
+  """
+  Invoke a deployment instance execution.
+  """
+  deploymentInstanceExecutionCreate(
+    input: DeploymentInstanceExecutionCreateInput!
+  ): Boolean!
+
+  """
+  Redeploys a deployment.
+  """
+  deploymentRedeploy(id: String!, usePreviousImageTag: Boolean): Deployment!
+
+  """
+  Removes a deployment.
+  """
+  deploymentRemove(id: String!): Boolean!
+
+  """
+  Restarts a deployment.
+  """
+  deploymentRestart(id: String!): Boolean!
+
+  """
+  Rolls back to a deployment.
+  """
+  deploymentRollback(id: String!): Boolean!
+
+  """
+  Stops a deployment.
+  """
+  deploymentStop(id: String!): Boolean!
+
+  """
+  Creates a deployment trigger.
+  """
+  deploymentTriggerCreate(
+    input: DeploymentTriggerCreateInput!
+  ): DeploymentTrigger!
+
+  """
+  Deletes a deployment trigger.
+  """
+  deploymentTriggerDelete(id: String!): Boolean!
+
+  """
+  Updates a deployment trigger.
+  """
+  deploymentTriggerUpdate(
+    id: String!
+    input: DeploymentTriggerUpdateInput!
+  ): DeploymentTrigger!
+
+  """
+  Disables CDN for a service, soft-deleting the edge config.
+  """
+  disableServiceCdn(input: DisableServiceCdnInput!): Boolean!
+
+  """
+  Create services and volumes from docker compose
+  """
+  dockerComposeImport(
+    environmentId: String!
+    projectId: String!
+    skipStagingPatch: Boolean
+    yaml: String!
+  ): DockerComposeImport!
+
+  """
+  Create a new egress gateway association for a service instance
+  """
+  egressGatewayAssociationCreate(
+    input: EgressGatewayCreateInput!
+  ): [EgressGateway!]!
+
+  """
+  Clear all egress gateway associations for a service instance
+  """
+  egressGatewayAssociationsClear(
+    input: EgressGatewayServiceTargetInput!
+  ): Boolean!
+
+  """
+  Preview the HA static egress IPs that would be assigned, without applying them. Set allEnvironments to cover all of the service's environments.
+  """
+  egressGatewayHAMigrationPreview(
+    input: EgressGatewayServiceTargetInput!
+  ): EgressMigrationResult!
+
+  """
+  Switch a service from HA static egress IPs back to a standard static IP. Set allEnvironments to apply to all of the service's environments.
+  """
+  egressGatewayRollbackFromHA(
+    input: EgressGatewayServiceTargetInput!
+  ): [EgressGateway!]!
+
+  """
+  Enable HA static egress IPs for a service. Set allEnvironments to apply to all of the service's environments.
+  """
+  egressGatewayUpgradeToHA(
+    input: EgressGatewayServiceTargetInput!
+  ): [EgressGateway!]!
+
+  """
+  Change the User's account email if there is a valid change email request.
+  """
+  emailChangeConfirm(nonce: String!): Boolean!
+
+  """
+  Initiate an email change request for a user
+  """
+  emailChangeInitiate(newEmail: String!): Boolean!
+
+  """
+  Enables CDN for a service, creating an edge config and attaching all live domains.
+  """
+  enableServiceCdn(input: EnableServiceCdnInput!): EdgeConfig!
+
+  """
+  Experimental: applies an intent-level RailwayChangeSet and returns operation results.
+  """
+  environmentApplyChangeSet(
+    """
+    Snapshot token from Environment.configEtag the plan was computed against. When set, the apply is rejected if the environment has changed since.
+    """
+    baseConfigEtag: String
+    commitMessage: String
+    environmentId: String!
+    input: JSON!
+
+    """
+    Defaults to true for compatibility. Async-capable clients set false and poll environmentChangeSetApply.
+    """
+    waitForCompletion: Boolean
+  ): ChangeSetApplyResult!
+
+  """
+  Creates a new environment.
+  """
+  environmentCreate(input: EnvironmentCreateInput!): Environment!
+
+  """
+  Deletes an environment.
+  """
+  environmentDelete(id: String!): Boolean!
+
+  """
+  Commit the provided patch to the environment.
+  """
+  environmentPatchCommit(
+    commitMessage: String
+    environmentId: String!
+    patch: EnvironmentConfig
+  ): String!
+
+  """
+  Commits the staged changes for a single environment.
+  """
+  environmentPatchCommitStaged(
+    commitMessage: String
+    environmentId: String!
+
+    """
+    Skip deploys for services affected by this patch.
+    """
+    skipDeploys: Boolean
+  ): String!
+
+  """
+  Experimental: previews an intent-level RailwayChangeSet without side effects.
+  """
+  environmentPreviewChangeSet(
+    environmentId: String!
+    input: JSON!
+  ): ChangeSetPreview!
+
+  """
+  Renames an environment.
+  """
+  environmentRename(id: String!, input: EnvironmentRenameInput!): Environment!
+
+  """
+  Sets the staged patch for a single environment.
+  """
+  environmentStageChanges(
+    environmentId: String!
+    input: EnvironmentConfig!
+
+    """
+    Merge the input patch into the existing staged patch.
+    """
+    merge: Boolean
+  ): EnvironmentPatch!
+
+  """
+  Deploys all connected triggers for an environment.
+  """
+  environmentTriggersDeploy(input: EnvironmentTriggersDeployInput!): Boolean!
+
+  """
+  Deploy a service that was skipped when its environment was created, along with its skipped transitive dependencies.
+  """
+  environmentUnskipService(environmentId: String!, serviceId: String!): Boolean!
+
+  """
+  Agree to the fair use policy for the currently authenticated user
+  """
+  fairUseAgree(agree: Boolean!): Boolean!
+
+  """
+  Add a feature flag for a user
+  """
+  featureFlagAdd(input: FeatureFlagToggleInput!): Boolean!
+
+  """
+  Remove a feature flag for a user
+  """
+  featureFlagRemove(input: FeatureFlagToggleInput!): Boolean!
+
+  """
+  Mints a 5-minute JWT for opening a browser WS session against tcp-proxy.
+  """
+  generateShellToken(input: ShellTokenInput!): String!
+
+  """
+  Deploys a GitHub repo
+  """
+  githubRepoDeploy(input: GitHubRepoDeployInput!): String!
+
+  """
+  Updates a GitHub repo through the linked template
+  """
+  githubRepoUpdate(input: GitHubRepoUpdateInput!): Boolean!
+
+  """
+  Import variables from a Heroku app into a Railway service. Returns the number of variables imports
+  """
+  herokuImportVariables(input: HerokuImportVariablesInput!): Int!
+
+  """
+  Create an integration for a project
+  """
+  integrationCreate(input: IntegrationCreateInput!): Integration!
+
+  """
+  Delete an integration for a project
+  """
+  integrationDelete(id: String!): Boolean!
+
+  """
+  Update an integration for a project
+  """
+  integrationUpdate(id: String!, input: IntegrationUpdateInput!): Integration!
+
+  """
+  Join a project using an invite code
+  """
+  inviteCodeUse(code: String!): Project!
+
+  """
+  Creates a new job application.
+  """
+  jobApplicationCreate(
+    input: JobApplicationCreateInput!
+    resume: Upload!
+  ): Boolean!
+
+  """
+  Auth a login session for a user
+  """
+  loginSessionAuth(input: LoginSessionAuthInput!): Boolean!
+
+  """
+  Cancel a login session
+  """
+  loginSessionCancel(code: String!): Boolean!
+
+  """
+  Get a token for a login session if it exists
+  """
+  loginSessionConsume(code: String!): String
+
+  """
+  Start a CLI login session
+  """
+  loginSessionCreate: String!
+
+  """
+  Verify if a login session is valid
+  """
+  loginSessionVerify(code: String!): Boolean!
+
+  """
+  Marks notification deliveries as read
+  """
+  notificationDeliveriesMarkAsRead(deliveryIds: [String!]!): Boolean!
+
+  """
+  Create a new notification rule
+  """
+  notificationRuleCreate(input: CreateNotificationRuleInput!): NotificationRule!
+
+  """
+  Delete a notification rule
+  """
+  notificationRuleDelete(id: String!): Boolean!
+
+  """
+  Update a notification rule
+  """
+  notificationRuleUpdate(
+    id: String!
+    input: UpdateNotificationRuleInput!
+  ): NotificationRule!
+
+  """
+  Create an observability dashboard
+  """
+  observabilityDashboardCreate(
+    input: ObservabilityDashboardCreateInput!
+  ): Boolean!
+
+  """
+  Reset an observability dashboard to default dashboard items
+  """
+  observabilityDashboardReset(id: String!): Boolean!
+
+  """
+  Update an observability dashboard
+  """
+  observabilityDashboardUpdate(
+    id: String!
+    input: [ObservabilityDashboardUpdateInput!]!
+  ): Boolean!
+
+  """
+  Deletes a Passkey
+  """
+  passkeyDelete(id: String!): Boolean!
+
+  """
+  Creates a new plugin.
+  """
+  pluginCreate(input: PluginCreateInput!): Plugin!
+    @deprecated(
+      reason: "Plugins are deprecated on Railway. Use database templates instead."
+    )
+
+  """
+  Deletes a plugin.
+  """
+  pluginDelete(environmentId: String, id: String!): Boolean!
+    @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Reset envs and container for a plugin in an environment
+  """
+  pluginReset(id: String!, input: ResetPluginInput!): Boolean!
+    @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Resets the credentials for a plugin in an environment
+  """
+  pluginResetCredentials(
+    id: String!
+    input: ResetPluginCredentialsInput!
+  ): String! @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Restarts a plugin.
+  """
+  pluginRestart(id: String!, input: PluginRestartInput!): Plugin!
+    @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Force start a plugin
+  """
+  pluginStart(id: String!, input: PluginRestartInput!): Boolean!
+    @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Updates an existing plugin.
+  """
+  pluginUpdate(id: String!, input: PluginUpdateInput!): Plugin!
+    @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Update the email preferences for a user
+  """
+  preferencesUpdate(input: PreferencesUpdateData!): Preferences!
+
+  """
+  Create or get a private network.
+  """
+  privateNetworkCreateOrGet(
+    input: PrivateNetworkCreateOrGetInput!
+  ): PrivateNetwork!
+
+  """
+  Create or get a private network endpoint.
+  """
+  privateNetworkEndpointCreateOrGet(
+    input: PrivateNetworkEndpointCreateOrGetInput!
+  ): PrivateNetworkEndpoint!
+
+  """
+  Delete a private network endpoint.
+  """
+  privateNetworkEndpointDelete(id: String!): Boolean!
+
+  """
+  Rename a private network endpoint.
+  """
+  privateNetworkEndpointRename(
+    dnsName: String!
+    id: String!
+    privateNetworkId: String!
+  ): Boolean!
+
+  """
+  Delete all private networks for an environment.
+  """
+  privateNetworksForEnvironmentDelete(environmentId: String!): Boolean!
+
+  """
+  Claims a project.
+  """
+  projectClaim(id: String!, workspaceId: String!): Project!
+
+  """
+  Creates a new project.
+  """
+  projectCreate(input: ProjectCreateInput!): Project!
+
+  """
+  Deletes a project.
+  """
+  projectDelete(id: String!): Boolean!
+
+  """
+  Add a feature flag for a project
+  """
+  projectFeatureFlagAdd(input: ProjectFeatureFlagToggleInput!): Boolean!
+
+  """
+  Remove a feature flag for a project
+  """
+  projectFeatureFlagRemove(input: ProjectFeatureFlagToggleInput!): Boolean!
+
+  """
+  Accept a project invitation using the invite code
+  """
+  projectInvitationAccept(code: String!): ProjectPermission!
+
+  """
+  Create an invitation for a project
+  """
+  projectInvitationCreate(
+    id: String!
+    input: ProjectInvitee!
+  ): ProjectInvitation!
+
+  """
+  Delete an invitation for a project
+  """
+  projectInvitationDelete(id: String!): Boolean!
+
+  """
+  Resend an invitation for a project
+  """
+  projectInvitationResend(id: String!): ProjectInvitation!
+
+  """
+  Invite a user by email to a project
+  """
+  projectInviteUser(id: String!, input: ProjectInviteUserInput!): Boolean!
+
+  """
+  Leave project as currently authenticated user
+  """
+  projectLeave(id: String!): Boolean!
+
+  """
+  Add a workspace member to a project with a specific role. The user must already be a member of the project's workspace.
+  """
+  projectMemberAdd(input: ProjectMemberAddInput!): ProjectMember!
+
+  """
+  Remove user from a project
+  """
+  projectMemberRemove(input: ProjectMemberRemoveInput!): [ProjectMember!]!
+
+  """
+  Change the role for a user within a project
+  """
+  projectMemberUpdate(input: ProjectMemberUpdateInput!): ProjectMember!
+
+  """
+  Deletes a project with a 48 hour grace period.
+  """
+  projectScheduleDelete(id: String!): Boolean!
+
+  """
+  Cancel scheduled deletion of a project
+  """
+  projectScheduleDeleteCancel(id: String!): Boolean!
+
+  """
+  Force delete a scheduled deletion of a project (skips the grace period)
+  """
+  projectScheduleDeleteForce(id: String!): Boolean!
+
+  """
+  Create a token for a project that has access to a specific environment
+  """
+  projectTokenCreate(input: ProjectTokenCreateInput!): String!
+
+  """
+  Delete a project token
+  """
+  projectTokenDelete(id: String!): Boolean!
+
+  """
+  Transfer a project to a workspace
+  """
+  projectTransfer(input: ProjectTransferInput!, projectId: String!): Boolean!
+
+  """
+  Confirm the transfer of project ownership
+  """
+  projectTransferConfirm(input: ProjectTransferConfirmInput!): Boolean!
+
+  """
+  Initiate the transfer of project ownership
+  """
+  projectTransferInitiate(input: ProjectTransferInitiateInput!): Boolean!
+
+  """
+  Transfer a project to a team
+  """
+  projectTransferToTeam(
+    id: String!
+    input: ProjectTransferToTeamInput!
+  ): Boolean! @deprecated(reason: "Use projectTransfer instead")
+
+  """
+  Updates a project.
+  """
+  projectUpdate(id: String!, input: ProjectUpdateInput!): Project!
+
+  """
+  Deletes a ProviderAuth.
+  """
+  providerAuthRemove(id: String!): Boolean!
+
+  """
+  Purges the CDN cache for a service. Bumps the edge config's purge epoch so every edge node treats prior cached entries as stale on next request. Idempotent; returns true even if CDN is disabled for the service.
+  """
+  purgeServiceCache(input: PurgeServiceCacheInput!): Boolean!
+
+  """
+  Create a DNS record for a Railway domain
+  """
+  railwayDomainDnsRecordCreate(
+    input: RailwayDomainDnsRecordCreateInput!
+  ): RailwayDomainDnsRecord!
+
+  """
+  Delete a DNS record for a Railway domain
+  """
+  railwayDomainDnsRecordDelete(
+    input: RailwayDomainDnsRecordDeleteInput!
+  ): Boolean!
+
+  """
+  Update a DNS record for a Railway domain
+  """
+  railwayDomainDnsRecordUpdate(
+    input: RailwayDomainDnsRecordUpdateInput!
+  ): RailwayDomainDnsRecord!
+
+  """
+  Delegate the domain's authoritative nameservers to an external DNS provider, or reset to Railway defaults by passing an empty list.
+  """
+  railwayDomainNameserversSet(
+    input: RailwayDomainNameserversSetInput!
+  ): RailwayDomainNameservers!
+
+  """
+  Update a Railway domain's settings
+  """
+  railwayDomainUpdate(input: RailwayDomainUpdateInput!): RailwayDomain!
+
+  """
+  Generates a new set of recovery codes for the authenticated user.
+  """
+  recoveryCodeGenerate: RecoveryCodes!
+
+  """
+  Validates a recovery code.
+  """
+  recoveryCodeValidate(input: RecoveryCodeValidateInput!): Boolean!
+
+  """
+  Updates the ReferralInfo for the authenticated user.
+  """
+  referralInfoUpdate(input: ReferralInfoUpdateInput!): ReferralInfo!
+
+  """
+  Capture a running sandbox's current disk into a reusable, named checkpoint. Synchronous: the checkpoint is ready when this returns.
+  """
+  sandboxCheckpointCreate(
+    environmentId: String!
+    name: String!
+    sandboxId: String!
+  ): SandboxCheckpoint!
+
+  """
+  Delete a sandbox checkpoint.
+  """
+  sandboxCheckpointDelete(environmentId: String!, id: ID!): Boolean!
+
+  """
+  Rename a sandbox checkpoint.
+  """
+  sandboxCheckpointRename(
+    environmentId: String!
+    id: ID!
+    name: String!
+  ): SandboxCheckpoint!
+
+  """
+  Create a sandbox in an environment.
+  """
+  sandboxCreate(input: SandboxCreateInput!): Sandbox!
+
+  """
+  Destroy a sandbox.
+  """
+  sandboxDestroy(environmentId: String!, id: String!): Sandbox
+
+  """
+  Execute a command inside a running sandbox.
+  """
+  sandboxExec(
+    command: String!
+    environmentId: String!
+    id: String!
+    timeoutSec: Int
+  ): SandboxExecResult!
+
+  """
+  Extend a sandbox's lifetime.
+  """
+  sandboxHeartbeat(environmentId: String!, id: String!): Sandbox
+
+  """
+  Build a sandbox template into a bootable checkpoint.
+  """
+  sandboxTemplateBuild(
+    environmentId: String!
+    input: SandboxTemplateInput!
+  ): SandboxTemplateBuild!
+
+  """
+  Connect a service to a source
+  """
+  serviceConnect(id: String!, input: ServiceConnectInput!): Service!
+
+  """
+  Creates a new service.
+  """
+  serviceCreate(input: ServiceCreateInput!): Service!
+
+  """
+  Deletes a service.
+  """
+  serviceDelete(
+    """
+    [Experimental] Environment ID. If the environment is a forked environment, the service will only be deleted in the specified environment, otherwise it will deleted in all environments that are not forks of other environments
+    """
+    environmentId: String
+    id: String!
+  ): Boolean!
+
+  """
+  Disconnect a service from a repo
+  """
+  serviceDisconnect(id: String!): Service!
+
+  """
+  Creates a new service domain.
+  """
+  serviceDomainCreate(input: ServiceDomainCreateInput!): ServiceDomain!
+
+  """
+  Deletes a service domain.
+  """
+  serviceDomainDelete(id: String!): Boolean!
+
+  """
+  Updates a service domain.
+  """
+  serviceDomainUpdate(input: ServiceDomainUpdateInput!): Boolean!
+
+  """
+  Duplicate a service, including its configuration, variables, and volumes.
+  """
+  serviceDuplicate(environmentId: String!, serviceId: String!): Service!
+    @deprecated(
+      reason: "This API route is used only by the CLI. We plan to remove it in a future version. Please use the UI to duplicate services."
+    )
+
+  """
+  Add a feature flag for a service
+  """
+  serviceFeatureFlagAdd(input: ServiceFeatureFlagToggleInput!): Boolean!
+
+  """
+  Remove a feature flag for a service
+  """
+  serviceFeatureFlagRemove(input: ServiceFeatureFlagToggleInput!): Boolean!
+
+  """
+  Enables or disables auto-deploy for a service instance.
+  """
+  serviceInstanceAutoDeployUpdate(
+    input: ServiceInstanceAutoDeployUpdateInput!
+  ): ServiceInstanceAutoDeployUpdateResult!
+
+  """
+  Deploy a service instance
+  """
+  serviceInstanceDeploy(
+    commitSha: String
+    environmentId: String!
+    latestCommit: Boolean
+    serviceId: String!
+  ): Boolean!
+
+  """
+  Deploy a service instance. Returns a deployment ID
+  """
+  serviceInstanceDeployV2(
+    commitSha: String
+    environmentId: String!
+    serviceId: String!
+  ): String!
+
+  """
+  Update the resource limits for a service instance
+  """
+  serviceInstanceLimitsUpdate(
+    input: ServiceInstanceLimitsUpdateInput!
+  ): Boolean!
+
+  """
+  Redeploy a service instance
+  """
+  serviceInstanceRedeploy(environmentId: String!, serviceId: String!): Boolean!
+
+  """
+  Update a service instance
+  """
+  serviceInstanceUpdate(
+    """
+    [Experimental] Environment ID. If the environment is a fork, the service will only be updated in it. Otherwise it will updated in all environments that are not forks of other environments
+    """
+    environmentId: String
+    input: ServiceInstanceUpdateInput!
+    serviceId: String!
+  ): Boolean!
+
+  """
+  Dismiss a platform-armed Postgres security update notice and stand down the scheduled redeploy
+  """
+  serviceInstanceVulnRemediationDismiss(
+    environmentId: String!
+    serviceId: String!
+  ): Boolean!
+
+  """
+  Immediately apply a platform-armed Postgres security update (backup + redeploy). Returns the new deployment id.
+  """
+  serviceInstanceVulnRemediationPatchNow(
+    environmentId: String!
+    serviceId: String!
+  ): String!
+
+  """
+  Remove the upstream URL from all service instances for this service
+  """
+  serviceRemoveUpstreamUrl(id: String!): Service!
+
+  """
+  Updates a service.
+  """
+  serviceUpdate(id: String!, input: ServiceUpdateInput!): Service!
+
+  """
+  Deletes a session.
+  """
+  sessionDelete(id: String!): Boolean!
+
+  """
+  Enables or disables Under Attack Mode for a service. While enabled, the edge serves a browser challenge to unverified visitors of the service's edge-routed domains; non-browser clients (APIs, webhooks) without a clearance cookie are rejected with a 429. Optionally time-boxed via durationSeconds, after which the mode disarms automatically.
+  """
+  setServiceUnderAttackMode(input: SetServiceUnderAttackModeInput!): EdgeConfig!
+
+  """
+  Track setup agent lifecycle events from the Railway CLI
+  """
+  setupAgentEventTrack(input: SetupAgentEventTrackInput!): Boolean!
+
+  """
+  Configure a shared variable.
+  """
+  sharedVariableConfigure(input: SharedVariableConfigureInput!): Variable!
+
+  """
+  Register a new signal for an owner scope.
+  """
+  signalCreate(input: SignalCreateInput!): Signal!
+
+  """
+  Change a signal's canonical default (production floor).
+  """
+  signalDefaultSet(input: SignalDefaultSetInput!): Signal!
+
+  """
+  Delete a signal and its audit log.
+  """
+  signalDelete(input: SignalDeleteInput!): Signal!
+
+  """
+  Replace a signal's type and default, clearing all rules. Destructive — intended for CLI --force re-type.
+  """
+  signalReplace(input: SignalReplaceInput!): Signal!
+
+  """
+  Restore a signal to the snapshot captured before a change (reads prevState from the target change row).
+  """
+  signalRollback(input: SignalRollbackInput!): Signal!
+
+  """
+  Attach or replace a rule on a signal. Matching rules must agree at resolution time or the default is returned.
+  """
+  signalRuleSet(input: SignalRuleSetInput!): Signal!
+
+  """
+  Remove a rule from a signal.
+  """
+  signalRuleUnset(input: SignalRuleUnsetInput!): Signal!
+
+  """
+  Creates a new SSH public key. When workspaceId is provided (or omitted under a workspace-scoped API token, in which case it defaults to the token's workspace), the key is owned by the workspace and can be used by anyone authenticating as that workspace via native SSH; requires workspace ADMIN access. Otherwise the key is owned by the authenticated user.
+  """
+  sshPublicKeyCreate(input: SshPublicKeyCreateInput!): SshPublicKey!
+
+  """
+  Deletes an SSH public key.
+  """
+  sshPublicKeyDelete(id: String!): Boolean!
+
+  """
+  Approve an SSH signup: register the offered SSH key on the authenticated account so the agent is recognized.
+  """
+  sshSignupApprove(code: String!): Boolean!
+
+  """
+  Creates a new TCP proxy for a service instance.
+  """
+  tcpProxyCreate(input: TCPProxyCreateInput!): TCPProxy!
+    @deprecated(
+      reason: "Use staged changes and apply them. Creating a TCP proxy with this endpoint requires you to redeploy the service for it to be active."
+    )
+
+  """
+  Deletes a TCP proxy by id
+  """
+  tcpProxyDelete(id: String!): Boolean!
+
+  """
+  Duplicates an existing template
+  """
+  templateClone(input: TemplateCloneInput!): Template!
+
+  """
+  Deletes a template.
+  """
+  templateDelete(id: String!, input: TemplateDeleteInput!): Boolean!
+
+  """
+  Deploys a template.
+  """
+  templateDeploy(input: TemplateDeployInput!): TemplateDeployPayload!
+    @deprecated(reason: "Deprecated in favor of templateDeployV2")
+
+  """
+  Deploys a template using the serialized template config
+  """
+  templateDeployV2(input: TemplateDeployV2Input!): TemplateDeployPayload!
+
+  """
+  Generate a template for a project
+  """
+  templateGenerate(input: TemplateGenerateInput!): Template!
+
+  """
+  Publishes a template.
+  """
+  templatePublish(id: String!, input: TemplatePublishInput!): Template!
+
+  """
+  Ejects a service from the template and creates a new repo in the provided org.
+  """
+  templateServiceSourceEject(input: TemplateServiceSourceEjectInput!): Boolean!
+
+  """
+  Unpublishes a template.
+  """
+  templateUnpublish(id: String!): Boolean!
+
+  """
+  Sets the default size (in MB) for a volume mount in a template's config. New volumes created when the template is deployed are provisioned at this size, clamped to the deployer's plan maximum. Pass sizeMB: null to clear the pre-size and fall back to the plan default. Editing a template requires maintainer access.
+  """
+  templateVolumeUpdate(
+    serviceId: String!
+    sizeMB: Int
+    templateId: String!
+    volumeId: String!
+  ): Template!
+
+  """
+  Create a new trusted domain for this workspace
+  """
+  trustedDomainCreate(input: WorkspaceTrustedDomainCreateInput!): TrustedDomain!
+
+  """
+  Delete a trusted domain
+  """
+  trustedDomainDelete(id: String!): Boolean!
+
+  """
+  Retrigger verification for a failed trusted domain
+  """
+  trustedDomainRetriggerVerification(id: String!): TrustedDomain
+
+  """
+  Update the role of a trusted domain
+  """
+  trustedDomainUpdate(input: WorkspaceTrustedDomainUpdateInput!): TrustedDomain!
+
+  """
+  Setup 2FA authorization for authenticated user.
+  """
+  twoFactorInfoCreate(input: TwoFactorInfoCreateInput!): RecoveryCodes!
+
+  """
+  Deletes the TwoFactorInfo for the authenticated user.
+  """
+  twoFactorInfoDelete: Boolean!
+
+  """
+  Generates the 2FA app secret for the authenticated user.
+  """
+  twoFactorInfoSecret: TwoFactorInfoSecret!
+
+  """
+  Validates the token for a 2FA action or for a login request.
+  """
+  twoFactorInfoValidate(input: TwoFactorInfoValidateInput!): Boolean!
+
+  """
+  Updates the edge config (caching settings) for a service.
+  """
+  updateServiceEdgeConfig(input: UpdateServiceEdgeConfigInput!): EdgeConfig!
+
+  """
+  Generate a Slack channel for a workspace
+  """
+  upsertSlackChannel(workspaceId: String!): Boolean!
+
+  """
+  Remove the usage limit for a customer
+  """
+  usageLimitRemove(input: UsageLimitRemoveInput!): Boolean!
+
+  """
+  Set the usage limit for a customer
+  """
+  usageLimitSet(input: UsageLimitSetInput!): Boolean!
+
+  """
+  Unsubscribe from the Beta program.
+  """
+  userBetaLeave: Boolean!
+
+  """
+  Delete the currently authenticated user
+  """
+  userDelete: Boolean!
+
+  """
+  Disconnect your Railway account from Discord.
+  """
+  userDiscordDisconnect: Boolean!
+
+  """
+  Remove a flag on the user.
+  """
+  userFlagsRemove(input: UserFlagsRemoveInput!): Boolean!
+
+  """
+  Set flags on the authenticated user.
+  """
+  userFlagsSet(input: UserFlagsSetInput!): Boolean!
+
+  """
+  Updates the profile for the authenticated user
+  """
+  userProfileUpdate(input: UserProfileUpdateInput!): Boolean!
+
+  """
+  Update date of TermsAgreedOn
+  """
+  userTermsUpdate: User
+
+  """
+  Upserts a collection of variables.
+  """
+  variableCollectionUpsert(input: VariableCollectionUpsertInput!): Boolean!
+
+  """
+  Deletes a variable.
+  """
+  variableDelete(input: VariableDeleteInput!): Boolean!
+
+  """
+  Upserts a variable.
+  """
+  variableUpsert(input: VariableUpsertInput!): Boolean!
+
+  """
+  Create a persistent volume in a project
+  """
+  volumeCreate(input: VolumeCreateInput!): Volume!
+
+  """
+  Delete a persistent volume in a project
+  """
+  volumeDelete(volumeId: String!): Boolean!
+
+  """
+  Create backup of a volume instance
+  """
+  volumeInstanceBackupCreate(
+    """
+    Optional name/label for the backup. Defaults to 'Manual' if not provided.
+    """
+    name: String
+
+    """
+    The id of the volume instance to create a backup of
+    """
+    volumeInstanceId: String!
+  ): WorkflowId!
+
+  """
+  Deletes volume instance backup
+  """
+  volumeInstanceBackupDelete(
+    """
+    The volume instance's backup id
+    """
+    volumeInstanceBackupId: String!
+
+    """
+    The volume instance's id
+    """
+    volumeInstanceId: String!
+  ): WorkflowId!
+
+  """
+  Removes backup expiration date
+  """
+  volumeInstanceBackupLock(
+    """
+    The id of the backup to lock
+    """
+    volumeInstanceBackupId: String!
+
+    """
+    The id of the volume instance to be restored from
+    """
+    volumeInstanceId: String!
+  ): Boolean!
+
+  """
+  Restore a volume instance from a backup
+  """
+  volumeInstanceBackupRestore(
+    """
+    The id of the backup to be restored from
+    """
+    volumeInstanceBackupId: String!
+
+    """
+    The id of the volume instance to be restored from
+    """
+    volumeInstanceId: String!
+  ): WorkflowId!
+
+  """
+  Manage schedule for backups of a volume instance
+  """
+  volumeInstanceBackupScheduleUpdate(
+    """
+    The frequency/retention of the backups
+    """
+    kinds: [VolumeInstanceBackupScheduleKind!]!
+
+    """
+    The id of the volume instance to create a backup of
+    """
+    volumeInstanceId: String!
+  ): Boolean!
+
+  """
+  Point-in-time restore. Creates a brand-new Postgres service in the project. The image populates the new service's volume from the source bucket via `pgbackrest restore --type=time --target=<T>` on first boot, replays WAL forward, and promotes. Source service stays online and untouched.
+  """
+  volumeInstancePITRRestore(
+    """
+    Optional name for the new restored service. Defaults to '<source>-restored-YYYYMMDD-HHMM'.
+    """
+    newServiceName: String
+
+    """
+    Caller-supplied source archive sub-prefix (e.g. `/pgbackrest/cluster-<sysid>`), as an absolute bucket path (leading slash, `[A-Za-z0-9._-]` segments) at or under the source service's archive root (`WAL_ARCHIVE_PATH`). Provided by the multi-history picker when the user selects a specific cluster lifetime out of multiple sub-prefixes in the source bucket. Scopes both the pre-flight restore-window validation and the restored fork's archive source, treating the selected history's archive as frozen (no allowance for in-flight archiving). Pass null to restore the live source's current cluster.
+    """
+    sourceRepoPath: String
+
+    """
+    Point-in-time target. Must be within the available restore window.
+    """
+    targetTimestamp: DateTime!
+
+    """
+    The id of the volume instance to restore from
+    """
+    volumeInstanceId: String!
+  ): WorkflowId!
+
+  """
+  Update a volume instance. If no environmentId is provided, all volume instances for the volume will be updated.
+  """
+  volumeInstanceUpdate(
+    """
+    The environment of the volume instance to update. If null, all instances for the volume will be updated
+    """
+    environmentId: String
+    input: VolumeInstanceUpdateInput!
+
+    """
+    The id of the volume to update
+    """
+    volumeId: String!
+  ): Boolean!
+
+  """
+  Update a persistent volume in a project
+  """
+  volumeUpdate(input: VolumeUpdateInput!, volumeId: String!): Volume!
+
+  """
+  Test a webhook URL by sending a sample payload. Returns the HTTP status code.
+  """
+  webhookTest(payload: String!, url: String!): Int!
+
+  """
+  Delete a workspace and all data associated with it
+  """
+  workspaceDelete(id: String!): Boolean!
+
+  """
+  Get an invite code for a workspace and role
+  """
+  workspaceInviteCodeCreate(
+    input: WorkspaceInviteCodeCreateInput!
+    workspaceId: String!
+  ): String!
+
+  """
+  Use an invite code to join a workspace
+  """
+  workspaceInviteCodeUse(code: String!): Workspace!
+
+  """
+  Leave a workspace
+  """
+  workspaceLeave(id: String!): Boolean!
+
+  """
+  Changes a user workspace permissions.
+  """
+  workspacePermissionChange(input: WorkspacePermissionChangeInput!): Boolean!
+
+  """
+  Add a deploy source to a workspace policy allowlist.
+  """
+  workspacePolicyDeploySourceAllowlistAdd(
+    sourceId: String!
+    sourceType: WorkspacePolicyDeploySourceType!
+    workspaceId: String!
+  ): WorkspacePolicyDeploySourceAllowlist!
+
+  """
+  Remove a deploy source from a workspace policy allowlist.
+  """
+  workspacePolicyDeploySourceAllowlistRemove(id: String!): Boolean!
+
+  """
+  Enable or disable a workspace policy. Enterprise workspaces only.
+  """
+  workspacePolicyItemUpdate(
+    enabled: Boolean
+    input: WorkspacePolicyItemUpdateInput
+    policy: WorkspacePolicyName
+    workspaceId: String!
+  ): Boolean!
+
+  """
+  Enable or disable 2FA enforcement for a workspace
+  """
+  workspaceTwoFactorEnforcementUpdate(
+    enabled: Boolean!
+    workspaceId: String!
+  ): Boolean!
+
+  """
+  Update a workspace by id
+  """
+  workspaceUpdate(id: String!, input: WorkspaceUpdateInput!): Boolean!
+
+  """
+  Generate a Slack channel for a workspace
+  """
+  workspaceUpsertSlackChannel(id: String!): Boolean!
+
+  """
+  Invite a user by email to a workspace
+  """
+  workspaceUserInvite(
+    input: WorkspaceUserInviteInput!
+    workspaceId: String!
+  ): Boolean!
+
+  """
+  Remove a user from a workspace
+  """
+  workspaceUserRemove(
+    input: WorkspaceUserRemoveInput!
+    workspaceId: String!
+  ): Boolean!
+}
+
+"""
+The direction of a network flow relative to the service
+"""
+enum NetworkFlowDirection {
+  egress
+  ingress
+}
+
+"""
+The layer 4 protocol of a network flow
+"""
+enum NetworkFlowL4Protocol {
+  icmp
+  icmpv6
+  tcp
+  udp
+  unknown
+}
+
+"""
+A single network flow log entry
+"""
+type NetworkFlowLog {
+  """
+  Number of bytes transferred
+  """
+  byteCount: Int!
+
+  """
+  When the flow capture ended (ISO timestamp)
+  """
+  captureEnd: String!
+
+  """
+  When the flow capture started (ISO timestamp)
+  """
+  captureStart: String!
+
+  """
+  The deployment ID
+  """
+  deploymentId: String!
+
+  """
+  The deployment instance ID
+  """
+  deploymentInstanceId: String!
+
+  """
+  Traffic direction (ingress or egress)
+  """
+  direction: NetworkFlowDirection!
+
+  """
+  If packets were dropped, the reason
+  """
+  dropCause: String
+
+  """
+  Destination IP address
+  """
+  dstAddr: String!
+
+  """
+  Destination port number
+  """
+  dstPort: Int!
+
+  """
+  Unique identifier for the flow
+  """
+  flowId: String!
+
+  """
+  Whether the flow is partial or complete
+  """
+  flowState: NetworkFlowState!
+
+  """
+  Layer 4 latency in milliseconds
+  """
+  l4LatencyMs: Float!
+
+  """
+  Layer 4 protocol (TCP, UDP, ICMP, etc)
+  """
+  l4Protocol: NetworkFlowL4Protocol!
+
+  """
+  Number of packets transferred
+  """
+  packetCount: Int!
+
+  """
+  Type of peer (service, internet, DNS, etc)
+  """
+  peerKind: NetworkFlowPeerKind!
+
+  """
+  Service instance ID of the peer (for service-to-service flows)
+  """
+  peerServiceId: String
+
+  """
+  The service ID this flow belongs to
+  """
+  serviceId: String!
+
+  """
+  Source IP address
+  """
+  srcAddr: String!
+
+  """
+  Source port number
+  """
+  srcPort: Int!
+}
+
+"""
+The type of peer in a network flow
+"""
+enum NetworkFlowPeerKind {
+  edge_proxy
+  internet
+  local_dns
+  service
+  unknown
+}
+
+"""
+The state of a network flow
+"""
+enum NetworkFlowState {
+  complete
+  partial
+}
+
+interface Node {
+  id: ID!
+}
+
+type NotificationChannel implements Node {
+  config: NotificationChannelConfig!
+  createdAt: DateTime!
+  id: ID!
+  updatedAt: DateTime!
+  workspaceId: String!
+}
+
+scalar NotificationChannelConfig
+
+type NotificationDelivery implements Node {
+  createdAt: DateTime!
+  id: ID!
+  notificationInstance: NotificationInstance!
+  readAt: DateTime
+  status: NotificationDeliveryStatus!
+  type: NotificationDeliveryType!
+  updatedAt: DateTime!
+  userId: String
+}
+
+type NotificationDeliveryCreated {
+  delivery: NotificationDelivery!
+  type: String!
+}
+
+input NotificationDeliveryFilterInput {
+  environmentId: String
+  onlyUnread: Boolean
+  projectId: String
+  status: NotificationStatus
+  type: NotificationDeliveryType
+  workspaceId: String
+}
+
+type NotificationDeliveryResolved {
+  deliveryIds: [String!]!
+  type: String!
+}
+
+enum NotificationDeliveryStatus {
+  FAILED
+  PENDING
+  SENT
+}
+
+enum NotificationDeliveryType {
+  EMAIL
+  INAPP
+  WEBHOOK
+}
+
+union NotificationDeliveryUpdate =
+  | NotificationDeliveryCreated
+  | NotificationDeliveryResolved
+
+type NotificationInstance implements Node {
+  createdAt: DateTime!
+  environmentId: String
+  event: Event!
+  eventId: String!
+  eventType: String
+  id: ID!
+  payload: NotificationPayload!
+  projectId: String
+  resolvedAt: DateTime
+  resourceId: String
+  resourceType: String
+  serviceId: String
+  severity: NotificationSeverity!
+  status: NotificationStatus!
+  updatedAt: DateTime!
+  volumeId: String
+  workspaceId: String!
+}
+
+scalar NotificationPayload
+
+type NotificationRule implements Node {
+  channels: [NotificationChannel!]!
+  createdAt: DateTime!
+  environmentId: String
+  ephemeralEnvironments: Boolean
+  eventTypes: [String!]!
+  id: ID!
+  projectId: String
+  serviceId: String
+  severities: [NotificationSeverity!]!
+  updatedAt: DateTime!
+  workspaceId: String!
+}
+
+enum NotificationSeverity {
+  CRITICAL
+  INFO
+  NOTICE
+  WARNING
+}
+
+enum NotificationStatus {
+  ACTIVE
+  RESOLVED
+}
+
+type ObservabilityDashboard implements Node {
+  id: ID!
+  items: [ObservabilityDashboardItemInstance!]!
+}
+
+type ObservabilityDashboardAlert implements Node {
+  createdAt: DateTime!
+  id: ID!
+  resolvedAt: DateTime
+  resourceId: String
+  resourceType: MonitorAlertResourceType!
+  status: MonitorStatus!
+}
+
+input ObservabilityDashboardCreateInput {
+  environmentId: String!
+
+  """
+  If no items are provided, a default dashboard will be created.
+  """
+  items: [ObservabilityDashboardUpdateInput!]
+}
+
+type ObservabilityDashboardItem implements Node {
+  config: ObservabilityDashboardItemConfig!
+  description: String
+  id: ID!
+  monitors: [ObservabilityDashboardMonitor!]!
+  name: String!
+  type: ObservabilityDashboardItemType!
+}
+
+type ObservabilityDashboardItemConfig {
+  httpMetric: HttpMetricKind
+  logsFilter: String
+  measurements: [MetricMeasurement!]
+  projectUsageProperties: [ProjectUsageProperty!]
+  resourceIds: [String!]
+}
+
+input ObservabilityDashboardItemConfigInput {
+  httpMetric: HttpMetricKind
+  logsFilter: String
+  measurements: [MetricMeasurement!]
+  projectUsageProperties: [ProjectUsageProperty!]
+  resourceIds: [String!]
+}
+
+input ObservabilityDashboardItemCreateInput {
+  config: ObservabilityDashboardItemConfigInput!
+  description: String
+  id: String!
+  name: String!
+  type: ObservabilityDashboardItemType!
+}
+
+type ObservabilityDashboardItemInstance implements Node {
+  dashboardItem: ObservabilityDashboardItem!
+  displayConfig: DisplayConfig!
+  id: ID!
+}
+
+enum ObservabilityDashboardItemType {
+  DNS_LOGS_ITEM
+  HTTP_LOGS_ITEM
+  HTTP_METRICS_ITEM
+  NETWORK_LOGS_ITEM
+  PROJECT_USAGE_ITEM
+  SERVICE_LOGS_ITEM
+  SERVICE_METRICS_ITEM
+  VOLUME_METRICS_ITEM
+}
+
+type ObservabilityDashboardMonitor implements Node {
+  alerts(
+    endDate: DateTime
+    startDate: DateTime
+  ): [ObservabilityDashboardAlert!]!
+  config: ObservabilityDashboardMonitorConfig!
+  createdAt: DateTime!
+  id: ID!
+  updatedAt: DateTime!
+}
+
+union ObservabilityDashboardMonitorConfig = MonitorThresholdConfig
+
+input ObservabilityDashboardUpdateInput {
+  dashboardItem: ObservabilityDashboardItemCreateInput!
+  displayConfig: DisplayConfig!
+  id: String!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type PartnerProfile {
+  category: String!
+  description: String!
+  slug: String!
+  type: PartnerProfileType!
+  website: String!
+}
+
+enum PartnerProfileType {
+  BASIC_PARTNER
+  LIMITED_PARTNER
+  TEMPLATE_MAINTAINER
+}
+
+type Passkey implements Node {
+  aaguid: String
+  backedUp: Boolean!
+  createdAt: DateTime!
+  credentialId: String!
+  deviceName: String!
+  deviceType: String!
+  displayName: String
+  id: ID!
+  lastUsedAt: DateTime
+  lastUsedDevice: String
+  transports: [String!]!
+  updatedAt: DateTime!
+}
+
+type PaymentMethod {
+  card: PaymentMethodCard
+  id: String!
+}
+
+type PaymentMethodCard {
+  brand: String!
+  country: String
+  last4: String!
+}
+
+enum Plan {
+  FREE
+  HOBBY
+  PRO
+}
+
+type PlanLimitOverride implements Node {
+  config: SubscriptionPlanLimit!
+  id: ID!
+}
+
+enum PlatformFeatureFlag {
+  ALERT_SUS_USERS_CRON_KILLSWITCH
+  BAN_APPEAL_FORM
+  BUILD_DEPLOY_QUEUE_V2
+  CANVAS_CROSS_ENV_GUARD_ENFORCE
+  CHAT_SANDBOX
+  CLICKHOUSE_WORKSPACE_LIMIT_ENFORCE
+  CS_MCP
+  CTRD_IMAGE_STORE_ROLLOUT
+  DEFAULT_USAGE_ALERTS
+  DEMO_PERCENTAGE_ROLLOUT
+  DEPLOYMENT_DIAGNOSIS_KILLSWITCH
+  DEPLOY_SUPERSEDE_ON_PUSH
+  DEV_STUDIO
+  DEV_STUDIO_ANON_PROVISIONS
+  IN_DASHBOARD_SUPPORT
+  KAFKA_EPHEMERAL_ENVIRONMENT_UPDATES
+  LOGS_V2_READS
+  NEW_STRIPE_WEBHOOK_VERSION_ROLLOUT
+  OAUTH_DCR_KILLSWITCH
+  REMOVE_DEPLOYMENT_COMPACT
+  SERVICEINSTANCE_DATALOADER_FOR_STATIC_URL
+  SPLIT_USAGE_QUERIES
+  STRIPE_METERS_NEW_ACCOUNTS
+  STRIPE_METERS_SHADOW_ENABLED
+  UPDATED_VM_QUERIES
+  WORKSPACE_MCP_KILLSWITCH
+}
+
+type PlatformFeatureFlagStatus {
+  flag: PlatformFeatureFlag!
+  rolloutPercentage: Int!
+  status: Boolean!
+  type: PlatformFeatureFlagType!
+}
+
+enum PlatformFeatureFlagType {
+  BOOLEAN
+  PERCENTAGE
+}
+
+type PlatformStatus {
+  incident: Incident
+  isStable: Boolean!
+  maintenance: Maintenance
+}
+
+type Plugin implements Node {
+  containers(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): PluginContainersConnection!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  deprecatedAt: DateTime
+  friendlyName: String!
+  id: ID!
+  logsEnabled: Boolean!
+  migrationDatabaseServiceId: String
+  name: PluginType!
+  project: Project!
+  status: PluginStatus!
+  variables(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): PluginVariablesConnection!
+}
+
+type PluginContainersConnection {
+  edges: [PluginContainersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PluginContainersConnectionEdge {
+  cursor: String!
+  node: Container!
+}
+
+input PluginCreateInput {
+  environmentId: String
+  friendlyName: String
+  name: String!
+  projectId: String!
+}
+
+input PluginRestartInput {
+  environmentId: String
+}
+
+enum PluginStatus {
+  DEPRECATED
+  LOCKED
+  REMOVED
+  RUNNING
+  STOPPED
+}
+
+enum PluginType {
+  mongodb
+  mysql
+  postgresql
+  redis
+}
+
+input PluginUpdateInput {
+  friendlyName: String!
+}
+
+type PluginVariablesConnection {
+  edges: [PluginVariablesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PluginVariablesConnectionEdge {
+  cursor: String!
+  node: Variable!
+}
+
+type Preferences implements Node {
+  buildFailedEmail: Boolean!
+  changelogEmail: Boolean!
+  communityEmail: Boolean!
+  deployCrashedEmail: Boolean!
+  ephemeralEnvironmentEmail: Boolean!
+  id: ID!
+  marketingEmail: Boolean!
+  subprocessorUpdatesEmail: Boolean!
+  templateQueueEmail: Boolean!
+  usageEmail: Boolean!
+}
+
+input PreferencesUpdateData {
+  buildFailedEmail: Boolean
+  changelogEmail: Boolean
+  communityEmail: Boolean
+  deployCrashedEmail: Boolean
+  ephemeralEnvironmentEmail: Boolean
+  marketingEmail: Boolean
+  subprocessorUpdatesEmail: Boolean
+  templateQueueEmail: Boolean
+  token: String
+  usageEmail: Boolean
+}
+
+type PrivateNetwork {
+  createdAt: DateTime
+  deletedAt: DateTime
+  dnsName: String!
+  environmentId: String!
+  name: String!
+  networkId: BigInt!
+  projectId: String!
+  publicId: String!
+  tags: [String!]!
+}
+
+input PrivateNetworkCreateOrGetInput {
+  environmentId: String!
+  name: String!
+  projectId: String!
+  tags: [String!]!
+}
+
+type PrivateNetworkEndpoint {
+  createdAt: DateTime
+  deletedAt: DateTime
+  dnsName: String!
+  newDnsName: String
+  privateIps: [String!]!
+  publicId: String!
+  serviceInstanceId: String!
+  syncStatus: PrivateNetworkEndpointSyncStatus!
+  tags: [String!]!
+}
+
+input PrivateNetworkEndpointCreateOrGetInput {
+  environmentId: String!
+  privateNetworkId: String!
+  serviceId: String!
+  serviceName: String!
+  tags: [String!]!
+}
+
+enum PrivateNetworkEndpointSyncStatus {
+  ACTIVE
+  CREATING
+  DELETED
+  DELETING
+  UNSPECIFIED
+  UPDATING
+}
+
+type Project implements Node {
+  baseEnvironment: Environment
+  baseEnvironmentId: String
+  botPrEnvironments: Boolean!
+  buckets(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectBucketsConnection!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  deploymentTriggers(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectDeploymentTriggersConnection!
+    @deprecated(
+      reason: "Use environment.deploymentTriggers for properly scoped access control"
+    )
+  deployments(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectDeploymentsConnection!
+    @deprecated(
+      reason: "Use environment.deployments for properly scoped access control"
+    )
+  description: String
+  environments(
+    after: String
+    before: String
+    first: Int
+    isEphemeral: Boolean
+    last: Int
+    sort: SortOrder
+  ): ProjectEnvironmentsConnection!
+  expiredAt: DateTime
+  featureFlags: [ActiveProjectFeatureFlag!]!
+  focusedPrEnvironments: Boolean!
+  groups(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectGroupsConnection!
+  id: ID!
+  isPublic: Boolean!
+  isTempProject: Boolean!
+  members: [ProjectMember!]!
+  name: String!
+  plugins(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectPluginsConnection! @deprecated(reason: "Plugins have been removed")
+  prDeploys: Boolean!
+
+  """
+  The id of the oldest non-ephemeral environment for this project (typically production). Used by the dashboard to render project cards without fetching the full environments connection.
+  """
+  primaryEnvironmentId: String
+  projectPermissions(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectProjectPermissionsConnection!
+  services(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectServicesConnection!
+  subscriptionPlanLimit: SubscriptionPlanLimit!
+  subscriptionType: SubscriptionPlanType!
+  team: Team @deprecated(reason: "Use workspace")
+  teamId: String @deprecated(reason: "Use workspaceId")
+  updatedAt: DateTime!
+  volumes(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ProjectVolumesConnection!
+  workspace: Workspace
+  workspaceId: String
+}
+
+type ProjectBucketsConnection {
+  edges: [ProjectBucketsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectBucketsConnectionEdge {
+  cursor: String!
+  node: Bucket!
+}
+
+type ProjectComplianceInfo {
+  """
+  Permissions for each project member
+  """
+  memberPermissions: [ProjectMemberPermissionsInfo!]!
+  projectId: String!
+  projectName: String!
+
+  """
+  Backup schedules for database services
+  """
+  serviceBackups: [ServiceBackupInfo!]!
+
+  """
+  2FA status for each project member
+  """
+  twoFactorMembers: [ProjectMemberTwoFactorInfo!]!
+  workspaceId: String!
+}
+
+input ProjectCreateInput {
+  defaultEnvironmentName: String
+  description: String
+  isMonorepo: Boolean
+  isPublic: Boolean
+  name: String
+  plugins: [String!] @deprecated(reason: "Plugins are no longer supported")
+  prDeploys: Boolean
+  repo: ProjectCreateRepo
+  runtime: PublicRuntime
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  workspaceId: String
+}
+
+input ProjectCreateRepo {
+  branch: String!
+  fullRepoName: String!
+}
+
+type ProjectDeploymentTriggersConnection {
+  edges: [ProjectDeploymentTriggersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectDeploymentTriggersConnectionEdge {
+  cursor: String!
+  node: DeploymentTrigger!
+}
+
+type ProjectDeploymentsConnection {
+  edges: [ProjectDeploymentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectDeploymentsConnectionEdge {
+  cursor: String!
+  node: Deployment!
+}
+
+type ProjectEnvironmentsConnection {
+  edges: [ProjectEnvironmentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectEnvironmentsConnectionEdge {
+  cursor: String!
+  node: Environment!
+}
+
+input ProjectFeatureFlagToggleInput {
+  flag: ActiveProjectFeatureFlag!
+  projectId: String!
+}
+
+type ProjectGroupsConnection {
+  edges: [ProjectGroupsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectGroupsConnectionEdge {
+  cursor: String!
+  node: Group!
+}
+
+type ProjectInvitation {
+  email: String!
+  expiresAt: DateTime!
+  id: ID!
+  inviter: ProjectInvitationInviter
+  isExpired: Boolean!
+  project: PublicProjectInformation!
+}
+
+type ProjectInvitationInviter {
+  email: String!
+  name: String
+}
+
+input ProjectInviteUserInput {
+  email: String!
+  link: String!
+}
+
+input ProjectInvitee {
+  email: String!
+  role: ProjectRole!
+}
+
+type ProjectMember {
+  avatar: String
+  email: String!
+  id: String!
+  name: String
+  role: ProjectRole!
+}
+
+input ProjectMemberAddInput {
+  projectId: String!
+  role: ProjectRole!
+  userId: String!
+}
+
+type ProjectMemberPermissionsInfo {
+  email: String!
+  name: String
+  role: ProjectRole!
+}
+
+input ProjectMemberRemoveInput {
+  projectId: String!
+  userId: String!
+}
+
+type ProjectMemberTwoFactorInfo {
+  email: String!
+
+  """
+  List of enabled 2FA methods (AUTHENTICATOR, PASSKEY)
+  """
+  enabledMethods: [TwoFactorMethodCompliance!]!
+  name: String
+  twoFactorAuthEnabled: Boolean!
+}
+
+input ProjectMemberUpdateInput {
+  projectId: String!
+  role: ProjectRole!
+  userId: String!
+}
+
+type ProjectPermission implements Node {
+  id: ID!
+  projectId: String!
+  role: ProjectRole!
+  userId: String!
+}
+
+type ProjectPluginsConnection {
+  edges: [ProjectPluginsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectPluginsConnectionEdge {
+  cursor: String!
+  node: Plugin!
+}
+
+type ProjectProjectPermissionsConnection {
+  edges: [ProjectProjectPermissionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectProjectPermissionsConnectionEdge {
+  cursor: String!
+  node: ProjectPermission!
+}
+
+type ProjectResourceAccess {
+  customDomain: AccessRule!
+  databaseDeployment: AccessRule!
+  deployment: AccessRule!
+  environment: AccessRule!
+  plugin: AccessRule! @deprecated(reason: "Plugins have been removed")
+  sandbox: AccessRule!
+}
+
+enum ProjectRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+type ProjectServiceUsagePage {
+  pageInfo: ProjectServiceUsagePageInfo!
+  usage: [AggregatedUsage!]!
+}
+
+type ProjectServiceUsagePageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+}
+
+type ProjectServicesConnection {
+  edges: [ProjectServicesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectServicesConnectionEdge {
+  cursor: String!
+  node: Service!
+}
+
+type ProjectToken implements Node {
+  createdAt: DateTime!
+  displayToken: String!
+  environment: Environment!
+  environmentId: String!
+  id: ID!
+  name: String!
+  project: Project!
+  projectId: String!
+}
+
+input ProjectTokenCreateInput {
+  environmentId: String!
+  name: String!
+  projectId: String!
+}
+
+input ProjectTransferConfirmInput {
+  destinationWorkspaceId: String
+  ownershipTransferId: String!
+  projectId: String!
+}
+
+input ProjectTransferInitiateInput {
+  memberId: String!
+  projectId: String!
+}
+
+input ProjectTransferInput {
+  workspaceId: String!
+}
+
+input ProjectTransferToTeamInput {
+  teamId: String!
+}
+
+input ProjectUpdateInput {
+  baseEnvironmentId: String
+
+  """
+  Enable/disable pull request environments for PRs created by bots
+  """
+  botPrEnvironments: Boolean
+  description: String
+
+  """
+  Enable focused PR environments that only deploy services affected by changed files
+  """
+  focusedPrEnvironments: Boolean
+  isPublic: Boolean
+  name: String
+  prDeploys: Boolean
+}
+
+enum ProjectUsageProperty {
+  BACKUP_USAGE
+  CPU_USAGE
+  CURRENT_USAGE
+  DISK_USAGE
+  ESTIMATED_USAGE
+  MEMORY_USAGE
+  NETWORK_USAGE
+}
+
+type ProjectVolumesConnection {
+  edges: [ProjectVolumesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProjectVolumesConnectionEdge {
+  cursor: String!
+  node: Volume!
+}
+
+type ProjectWorkspaceMember {
+  email: String!
+
+  """
+  List of enabled 2FA methods (AUTHENTICATOR, PASSKEY)
+  """
+  enabledMethods: [TwoFactorMethodProjectWorkspace!]!
+  name: String
+  twoFactorAuthEnabled: Boolean!
+}
+
+type ProjectWorkspaceMembersResponse {
+  members: [ProjectWorkspaceMember!]!
+  projectId: String!
+  projectName: String!
+  workspaceId: String!
+}
+
+enum ProjectsOrderBy {
+  CREATED_AT_DESC
+  NAME_ASC
+  UPDATED_AT_DESC
+}
+
+type ProviderAuth implements Node {
+  email: String!
+  id: ID!
+  isAuthEnabled: Boolean!
+  metadata: JSON!
+  provider: String!
+  userId: String!
+}
+
+type PublicProjectInformation {
+  id: ID!
+  name: String!
+}
+
+union PublicProjectInvitation = InviteCode | ProjectInvitation
+
+enum PublicRuntime {
+  LEGACY
+  UNSPECIFIED
+  V2
+}
+
+type PublicStats {
+  totalDeploymentsLastMonth: Int!
+  totalLogsLastMonth: BigInt!
+  totalProjects: Int!
+  totalRequestsLastMonth: BigInt!
+  totalServices: Int!
+  totalUsers: Int!
+}
+
+enum PurgeCacheScope {
+  ALL
+  HTML
+}
+
+enum PurgeOnDeploy {
+  ALL
+  HTML
+  OFF
+}
+
+input PurgeServiceCacheInput {
+  environmentId: String!
+  scope: PurgeCacheScope!
+  serviceId: String!
+}
+
+type Query {
+  """
+  Get all volume instances for a given volume
+  """
+  adminVolumeInstancesForVolume(volumeId: String!): [VolumeInstance!]!
+
+  """
+  Get unified AI usage for a workspace
+  """
+  agentUsage(workspaceId: String!): AgentUsageSummary!
+
+  """
+  Returns the platform feature flags enabled for the current user
+  """
+  allPlatformFeatureFlags: [PlatformFeatureFlagStatus!]!
+
+  """
+  Introspect the current API token and its accessible workspaces.
+  """
+  apiToken: ApiTokenContext!
+
+  """
+  Gets all API tokens for the authenticated user.
+  """
+  apiTokens(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryApiTokensConnection!
+
+  """
+  Get an audit log by ID
+  """
+  auditLog(
+    """
+    The ID of the audit log entry
+    """
+    id: String!
+
+    """
+    The ID of the workspace
+    """
+    workspaceId: String!
+  ): AuditLog!
+
+  """
+  Get a list of all audit log event types and their description
+  """
+  auditLogEventTypeInfo: [AuditLogEventTypeInfo!]!
+
+  """
+  Gets audit logs for a workspace.
+  """
+  auditLogs(
+    after: String
+    before: String
+    filter: AuditLogFilterInput
+    first: Int
+    last: Int
+    sort: SortOrder
+    workspaceId: String!
+  ): QueryAuditLogsConnection!
+
+  """
+  Railway agent chat bindings (Slack/Discord scope → workspace) across the caller's workspaces.
+  """
+  botScopeBindings: [BotScopeBindingInfo!]!
+
+  """
+  Get the S3-compatible credentials for a bucket
+  """
+  bucketInstanceDetails(
+    bucketId: String!
+    environmentId: String!
+  ): BucketInstanceDetails
+
+  """
+  Get the S3-compatible credentials for a bucket
+  """
+  bucketS3Credentials(
+    bucketId: String!
+    environmentId: String!
+    projectId: String!
+  ): [BucketS3CompatibleCredentials!]!
+
+  """
+  Fetch logs for a build
+  """
+  buildLogs(
+    deploymentId: String!
+    endDate: DateTime
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+    startDate: DateTime
+  ): [Log!]!
+
+  """
+  Preview a canvas layout merge from one environment to another. Returns the merged state and the mutations needed to reach it.
+  """
+  canvasViewMergePreview(
+    sourceEnvironmentId: String!
+    targetEnvironmentId: String!
+  ): CanvasViewMergePreview!
+
+  """
+  Gets the image URL for a Notion image block
+  """
+  changelogBlockImage(id: String!): String!
+
+  """
+  A cloud agent by ID, within an environment. Null when the agent belongs to another one, so a caller cannot render an agent it has switched away from.
+  """
+  cloudAgent(environmentId: ID!, id: ID!): CloudAgent
+
+  """
+  Shell and exec sessions running on a cloud agent's VM that you can reconnect to. Null if the agent has no running machine.
+  """
+  cloudAgentConsoleSessions(
+    after: String
+    before: String
+    cloudAgentId: ID!
+    first: Int
+    last: Int
+  ): QueryCloudAgentConsoleSessionsConnection
+
+  """
+  Cloud agents in an environment.
+  """
+  cloudAgents(
+    environmentId: ID!
+
+    """
+    Return only the agents that belong to you. By default every agent in the environment is returned, including your teammates'.
+    """
+    mine: Boolean
+  ): [CloudAgent!]!
+
+  """
+  Get compliance agreements for a workspace including HIPAA BAA and GDPR DPA status.
+  """
+  complianceAgreements(workspaceId: String!): ComplianceAgreementsInfo!
+
+  """
+  Fetch details for a custom domain
+  """
+  customDomain(id: String!, projectId: String!): CustomDomain!
+
+  """
+  Checks if a custom domain is available.
+  """
+  customDomainAvailable(domain: String!): DomainAvailable!
+
+  """
+  Find a single deployment
+  """
+  deployment(id: String!): Deployment!
+
+  """
+  Get the deployment events for a deployment
+  """
+  deploymentEvents(
+    after: String
+    before: String
+    first: Int
+    id: String!
+    last: Int
+  ): QueryDeploymentEventsConnection!
+
+  """
+  Get the deployment instance executions for a deployment.
+  """
+  deploymentInstanceExecutions(
+    after: String
+    before: String
+    first: Int
+    input: DeploymentInstanceExecutionListInput!
+    last: Int
+  ): QueryDeploymentInstanceExecutionsConnection!
+
+  """
+  Fetch logs for a deployment
+  """
+  deploymentLogs(
+    deploymentId: String!
+    endDate: DateTime
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+    startDate: DateTime
+  ): [Log!]!
+
+  """
+  Shell and exec sessions running on this deployment's VM that you can reconnect to. Null if the deployment has no running VM.
+  """
+  deploymentSessions(
+    after: String
+    before: String
+    deploymentId: String!
+    first: Int
+    last: Int
+  ): QueryDeploymentSessionsConnection
+
+  """
+  Find a single DeploymentSnapshot
+  """
+  deploymentSnapshot(deploymentId: String!): DeploymentSnapshot
+
+  """
+  All deployment triggers.
+  """
+  deploymentTriggers(
+    after: String
+    before: String
+    environmentId: String!
+    first: Int
+    last: Int
+    projectId: String!
+    serviceId: String!
+  ): QueryDeploymentTriggersConnection!
+
+  """
+  Get all deployments
+  """
+  deployments(
+    after: String
+    before: String
+    first: Int
+    input: DeploymentListInput!
+    last: Int
+  ): QueryDeploymentsConnection!
+
+  """
+  Fetch individual DNS query logs for an environment
+  """
+  dnsQueryLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit logs returned before the anchor
+    """
+    beforeLimit: Int
+
+    """
+    Filter by deployment instance / sandbox ID (optional)
+    """
+    deploymentInstanceId: String
+    environmentId: String!
+
+    """
+    Filter expression (e.g., @rcode:NXDOMAIN @qtype:A @domain:example.com @status:failed). Prefix a term with - to exclude it; repeat a key to match any of its values
+    """
+    filter: String
+
+    """
+    Filter by service ID (optional)
+    """
+    serviceId: String
+  ): [DnsQueryLog!]!
+
+  """
+  Domain with status
+  """
+  domainStatus(id: String!, projectId: String!): DomainWithStatus!
+    @deprecated(
+      reason: "Use the `status` field within the `domain` query instead"
+    )
+
+  """
+  All domains for a service instance
+  """
+  domains(
+    environmentId: String!
+    projectId: String!
+    serviceId: String!
+  ): AllDomains!
+
+  """
+  Preview HA static egress IPs that would be assigned without persisting
+  """
+  egressGatewayHAPreview(
+    environmentId: String!
+    serviceId: String!
+  ): [EgressGateway!]!
+
+  """
+  Preview legacy static egress IP that would be assigned without persisting
+  """
+  egressGatewayLegacyPreview(
+    environmentId: String!
+    serviceId: String!
+  ): [EgressGateway!]!
+
+  """
+  All egress gateways assigned to a service instance
+  """
+  egressGateways(environmentId: String!, serviceId: String!): [EgressGateway!]!
+
+  """
+  Find a single environment
+  """
+  environment(id: String!, projectId: String): Environment!
+
+  """
+  Returns the status or completed result of an asynchronous RailwayChangeSet apply.
+  """
+  environmentChangeSetApply(
+    environmentId: String!
+    id: String!
+  ): ChangeSetApplyResult!
+
+  """
+  Whether any service in the environment is on legacy static egress (not HA). Used to surface the HA migration banner.
+  """
+  environmentHasLegacyStaticEgress(environmentId: String!): Boolean!
+
+  """
+  Fetch logs for a project environment. Build logs are excluded unless a snapshot ID is explicitly provided in the filter
+  """
+  environmentLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit the number of logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit the number of logs returned before the anchor
+    """
+    beforeLimit: Int
+    environmentId: String!
+
+    """
+    Filter logs using a query syntax
+    """
+    filter: String
+  ): [Log!]!
+
+  """
+  Get a single environment patch by ID
+  """
+  environmentPatch(id: String!): EnvironmentPatch!
+
+  """
+  Get the patches for an environment
+  """
+  environmentPatches(
+    after: String
+    before: String
+    environmentId: String!
+    first: Int
+    last: Int
+  ): QueryEnvironmentPatchesConnection!
+
+  """
+  Get the latest staged commit for a single environment.
+  """
+  environmentStagedChanges(environmentId: String!): EnvironmentPatch!
+
+  """
+  Gets all environments for a project.
+  """
+  environments(
+    after: String
+    before: String
+    first: Int
+    isEphemeral: Boolean
+    last: Int
+    projectId: String!
+  ): QueryEnvironmentsConnection!
+
+  """
+  Get the estimated total cost of the project at the end of the current billing cycle. If no `startDate` is provided, the usage for the current billing period of the project owner is returned.
+  """
+  estimatedUsage(
+    """
+    Whether to include deleted projects in estimations.
+    """
+    includeDeleted: Boolean
+    measurements: [MetricMeasurement!]!
+    projectId: String
+    teamId: String
+      @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+    userId: String
+      @deprecated(
+        reason: "This field is ignored and will be removed pretty soon, please access usage through your teamId, everybody has one now"
+      )
+    workspaceId: String
+  ): [EstimatedUsage!]!
+
+  """
+  Gets the events for a project.
+  """
+  events(
+    after: String
+    before: String
+    environmentId: String
+    filter: EventFilterInput
+    first: Int
+    last: Int
+    projectId: String!
+  ): QueryEventsConnection!
+
+  """
+  Get the workspaces the user doesn't belong to, but needs access (like when invited to a project)
+  """
+  externalWorkspaces(projectId: String): [ExternalWorkspace!]!
+
+  """
+  Get information about a specific function runtime
+  """
+  functionRuntime(name: FunctionRuntimeName!): FunctionRuntime!
+
+  """
+  List available function runtimes
+  """
+  functionRuntimes: [FunctionRuntime!]!
+
+  """
+  Checks if user has access to GitHub repository
+  """
+  gitHubRepoAccessAvailable(fullRepoName: String!): GitHubAccess!
+
+  """
+  Gets SSH public keys from the authenticated user's GitHub account.
+  """
+  gitHubSshKeys: [GitHubSshKey!]!
+
+  """
+  Check if a repo name is available
+  """
+  githubIsRepoNameAvailable(fullRepoName: String!): Boolean!
+
+  """
+  Get info for a GitHub pull request
+  """
+  githubPRInfo(prNumber: Int!, serviceId: String!): GitHubPRInfo
+
+  """
+  Get info for a GitHub pull request, including fetch errors
+  """
+  githubPRInfoResult(prNumber: Int!, serviceId: String!): GitHubPRInfoResult!
+
+  """
+  Checks if user has access to GitHub repository
+  """
+  githubRepo(fullRepoName: String!): GitHubRepoWithoutInstallation!
+
+  """
+  Get branches for a GitHub repo that the authenticated user has access to
+  """
+  githubRepoBranches(owner: String!, repo: String!): [GitHubBranch!]!
+
+  """
+  Get a list of repos for a user that Railway has access to
+  """
+  githubRepos: [GitHubRepo!]!
+
+  """
+  Get a list of scopes the user has installed the installation to
+  """
+  githubWritableScopes: [String!]!
+
+  """
+  Get the Herokus apps for the current user
+  """
+  herokuApps: [HerokuApp!]!
+
+  """
+  Get HTTP request duration metrics for a service (avg, p50, p90, p95, p99)
+  """
+  httpDurationMetrics(
+    """
+    The end of the period to get metrics for.
+    """
+    endDate: DateTime!
+    environmentId: String!
+
+    """
+    Filter by HTTP method (e.g., GET, POST)
+    """
+    method: String
+
+    """
+    Filter by request path
+    """
+    path: String
+    serviceId: String!
+
+    """
+    The start of the period to get metrics for.
+    """
+    startDate: DateTime!
+
+    """
+    Filter by HTTP status code (e.g., 200, 404, 500)
+    """
+    statusCode: Int
+
+    """
+    The frequency of data points in the response. If the `stepSeconds` is 60, then the response will contain one data point per minute.
+    """
+    stepSeconds: Int
+  ): HttpDurationMetricsResult!
+
+  """
+  Fetch HTTP logs for a deployment
+  """
+  httpLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit the number of logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit the number of logs returned before the anchor
+    """
+    beforeLimit: Int
+    deploymentId: String!
+    endDate: String
+      @deprecated(
+        reason: "This argument has no effect. Use beforeDate/anchorDate/afterDate instead."
+      )
+
+    """
+    Filter logs using a query syntax
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+    startDate: String
+      @deprecated(
+        reason: "This argument has no effect. Use beforeDate/anchorDate/afterDate instead."
+      )
+  ): [HttpLog!]!
+
+  """
+  Get HTTP request metrics for a service
+  """
+  httpMetrics(
+    """
+    The end of the period to get metrics for.
+    """
+    endDate: DateTime!
+    environmentId: String!
+
+    """
+    Filter by HTTP method (e.g., GET, POST)
+    """
+    method: String
+
+    """
+    Filter by request path
+    """
+    path: String
+    serviceId: String!
+
+    """
+    The start of the period to get metrics for.
+    """
+    startDate: DateTime!
+
+    """
+    Filter by HTTP status code (e.g., 200, 404, 500)
+    """
+    statusCode: Int
+
+    """
+    The frequency of data points in the response. If the `stepSeconds` is 60, then the response will contain one data point per minute.
+    """
+    stepSeconds: Int
+  ): HttpMetricsResult!
+
+  """
+  Get HTTP request metrics for a service, grouped by status code
+  """
+  httpMetricsGroupedByStatus(
+    """
+    The end of the period to get metrics for.
+    """
+    endDate: DateTime!
+    environmentId: String!
+
+    """
+    Filter by HTTP method (e.g., GET, POST)
+    """
+    method: String
+
+    """
+    Filter by request path
+    """
+    path: String
+    serviceId: String!
+
+    """
+    The start of the period to get metrics for.
+    """
+    startDate: DateTime!
+
+    """
+    The frequency of data points in the response. If the `stepSeconds` is 60, then the response will contain one data point per minute.
+    """
+    stepSeconds: Int
+  ): [HttpMetricsByStatusResult!]!
+
+  """
+  Get an integration auth by provider providerId
+  """
+  integrationAuth(provider: String!, providerId: String!): IntegrationAuth!
+
+  """
+  Get all integration auths for a user
+  """
+  integrationAuths(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryIntegrationAuthsConnection!
+
+  """
+  Get all integrations for a project
+  """
+  integrations(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    projectId: String!
+  ): QueryIntegrationsConnection!
+
+  """
+  Get an invite code by the code
+  """
+  inviteCode(code: String!): InviteCode!
+
+  """
+  Gets the authenticated user.
+  """
+  me: User!
+
+  """
+  Get metrics for a project, environment, and service
+  """
+  metrics(
+    """
+    The averaging window when computing CPU usage. By default, it is the same as the `sampleRateSeconds`.
+    """
+    averagingWindowSeconds: Int
+
+    """
+    The end of the period to get metrics for. If not provided, the current datetime is used.
+    """
+    endDate: DateTime
+    environmentId: String
+
+    """
+    What to group the aggregated usage by. By default, it is grouped over the entire project.
+    """
+    groupBy: [MetricTag!]
+
+    """
+    Whether or not to include deleted projects in the results
+    """
+    includeDeleted: Boolean
+    measurements: [MetricMeasurement!]!
+    pluginId: String @deprecated(reason: "Plugins have been removed")
+    projectId: String
+
+    """
+    The frequency of data points in the response. If the `sampleRateSeconds` is 60, then the response will contain one data point per minute.
+    """
+    sampleRateSeconds: Int
+    serviceId: String
+
+    """
+    The start of the period to get metrics for.
+    """
+    startDate: DateTime!
+    teamId: String
+      @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+    volumeId: String
+    volumeInstanceExternalId: String
+    workspaceId: String
+  ): [MetricsResult!]!
+
+  """
+  Fetch individual network flow logs for an environment
+  """
+  networkFlowLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit logs returned before the anchor
+    """
+    beforeLimit: Int
+
+    """
+    Filter by deployment instance / sandbox ID (optional)
+    """
+    deploymentInstanceId: String
+    environmentId: String!
+
+    """
+    Filter expression (e.g., @protocol:tcp @direction:egress @dropped:true)
+    """
+    filter: String
+
+    """
+    Filter by service ID (optional)
+    """
+    serviceId: String
+  ): [NetworkFlowLog!]!
+
+  """
+  Gets notification deliveries for the authenticated user
+  """
+  notificationDeliveries(
+    after: String
+    before: String
+    filter: NotificationDeliveryFilterInput
+    first: Int
+    last: Int
+  ): QueryNotificationDeliveriesConnection!
+
+  """
+  Gets a notification delivery by ID for the authenticated user
+  """
+  notificationDelivery(id: String!): NotificationDelivery
+
+  """
+  Get all notification rules for a workspace and project
+  """
+  notificationRules(
+    projectId: String
+    workspaceId: String!
+  ): [NotificationRule!]!
+
+  """
+  Get all observability dashboards for an environment
+  """
+  observabilityDashboards(
+    after: String
+    before: String
+    environmentId: String!
+    first: Int
+    last: Int
+  ): QueryObservabilityDashboardsConnection!
+
+  """
+  Gets all passkeys for the authenticated user
+  """
+  passkeys(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryPasskeysConnection!
+
+  """
+  Get the current status of the platform
+  """
+  platformStatus: PlatformStatus!
+
+  """
+  Get a plugin by ID.
+  """
+  plugin(id: String!): Plugin! @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Fetch logs for a plugin
+  """
+  pluginLogs(
+    endDate: DateTime
+    environmentId: String!
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+    pluginId: String!
+    startDate: DateTime
+  ): [Log!]! @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Get the email preferences for a user
+  """
+  preferences(token: String): Preferences!
+
+  """
+  Get a private network endpoint for a service instance.
+  """
+  privateNetworkEndpoint(
+    environmentId: String!
+    privateNetworkId: String!
+    serviceId: String!
+  ): PrivateNetworkEndpoint
+
+  """
+  Check if an endpoint name is available.
+  """
+  privateNetworkEndpointNameAvailable(
+    environmentId: String!
+    prefix: String!
+    privateNetworkId: String!
+  ): Boolean!
+
+  """
+  List private networks for an environment.
+  """
+  privateNetworks(environmentId: String!): [PrivateNetwork!]!
+
+  """
+  Get a project by ID
+  """
+  project(id: String!): Project!
+
+  """
+  Get comprehensive compliance information for a project including 2FA status, member permissions, backup schedules, and compliance agreements. Requires workspace API token with admin access.
+  """
+  projectCompliance(projectId: String!): ProjectComplianceInfo!
+
+  """
+  Get a project invitation by code
+  """
+  projectInvitation(code: String!): PublicProjectInvitation!
+
+  """
+  Get invitations for a project
+  """
+  projectInvitations(id: String!): [ProjectInvitation!]!
+
+  """
+  Get an invite code for a project for a specifc role
+  """
+  projectInviteCode(projectId: String!, role: ProjectRole!): InviteCode!
+
+  """
+  Gets users who belong to a project along with their role
+  """
+  projectMembers(projectId: String!): [ProjectMember!]!
+
+  """
+  Get resource access rules for project-specific actions
+  """
+  projectResourceAccess(projectId: String!): ProjectResourceAccess!
+
+  """
+  Get paginated usage grouped by project and service for a workspace.
+  """
+  projectServiceUsage(
+    """
+    Project ID cursor returned from the previous page.
+    """
+    after: String
+    endDate: DateTime!
+
+    """
+    Number of projects to include in this page. Max 50.
+    """
+    first: Int
+
+    """
+    Whether to include deleted projects in usage.
+    """
+    includeDeleted: Boolean
+    measurements: [MetricMeasurement!]!
+    startDate: DateTime!
+    workspaceId: String!
+  ): ProjectServiceUsagePage!
+
+  """
+  Get a single project token by the value in the header
+  """
+  projectToken: ProjectToken!
+
+  """
+  Get all project tokens for a project
+  """
+  projectTokens(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    projectId: String!
+  ): QueryProjectTokensConnection!
+
+  """
+  Get workspace members for a project with 2FA details
+  """
+  projectWorkspaceMembers(projectId: String!): ProjectWorkspaceMembersResponse!
+
+  """
+  Gets all projects for a user or workspace.
+  """
+  projects(
+    after: String
+    before: String
+    first: Int
+    includeDeleted: Boolean
+    last: Int
+    orderBy: ProjectsOrderBy
+    teamId: String
+      @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+    userId: String
+    workspaceId: String
+  ): QueryProjectsConnection!
+
+  """
+  Fetch multiple projects by id. Skips ids the caller cannot access (does not throw on partial denial). Intended for batched dashboard hydration of a small viewport-sized set of cards.
+  """
+  projectsByIds(ids: [String!]!): [Project!]!
+
+  """
+  Get public Railway stats.
+  """
+  publicStats: PublicStats!
+
+  """
+  Get a Railway domain by ID
+  """
+  railwayDomain(id: String!): RailwayDomain!
+
+  """
+  Get a Railway domain by its domain name within a workspace
+  """
+  railwayDomainByName(domain: String!, workspaceId: String!): RailwayDomain!
+
+  """
+  List DNS records for a Railway domain
+  """
+  railwayDomainDnsRecords(
+    domain: String!
+    workspaceId: String!
+  ): [RailwayDomainDnsRecord!]!
+
+  """
+  Get Railway domains for a workspace
+  """
+  railwayDomains(
+    status: RailwayDomainStatus
+    workspaceId: String!
+  ): [RailwayDomain!]!
+
+  """
+  Gets the ReferralInfo for the authenticated user.
+  """
+  referralInfo(workspaceId: String!): ReferralInfo!
+
+  """
+  List available regions
+  """
+  regions(projectId: String): [Region!]!
+
+  """
+  Get resource access for the current user or workspace
+  """
+  resourceAccess(explicitResourceOwner: ExplicitOwnerInput!): ResourceAccess!
+
+  """
+  Get a sandbox by id.
+  """
+  sandbox(environmentId: String!, id: String!): Sandbox
+
+  """
+  List named sandbox checkpoints in an environment.
+  """
+  sandboxCheckpoints(environmentId: String!): [SandboxCheckpoint!]!
+
+  """
+  Resumable sessions inside a sandbox — interactive shells and one-off exec commands, live or recently exited. Null when the sandbox can't report them (e.g. its vm-init predates session listing).
+  """
+  sandboxSessions(
+    after: String
+    before: String
+    environmentId: String!
+    first: Int
+    id: String!
+    last: Int
+  ): QuerySandboxSessionsConnection
+
+  """
+  Get a template's build state by id (the recipe content hash). READY once its checkpoint exists; BUILDING/FAILED reflect the build workflow.
+  """
+  sandboxTemplateBuild(environmentId: String!, id: ID!): SandboxTemplateBuild!
+
+  """
+  List sandboxes in an environment.
+  """
+  sandboxes(
+    after: String
+    before: String
+    environmentId: String!
+    first: Int
+    last: Int
+  ): QuerySandboxesConnection!
+
+  """
+  Get a service by ID
+  """
+  service(id: String!): Service!
+
+  """
+  Checks if a service domain is available
+  """
+  serviceDomainAvailable(domain: String!): DomainAvailable!
+
+  """
+  Get a service instance belonging to a service and environment
+  """
+  serviceInstance(environmentId: String!, serviceId: String!): ServiceInstance!
+
+  """
+  Returns the auto-deploy status for a service instance, including whether it can be enabled.
+  """
+  serviceInstanceAutoDeployStatus(
+    environmentId: String!
+    projectId: String!
+    serviceId: String!
+  ): ServiceInstanceAutoDeployStatus!
+
+  """
+  Check if the upstream repo for a service has an update available
+  """
+  serviceInstanceIsUpdatable(
+    environmentId: String!
+    serviceId: String!
+  ): Boolean!
+
+  """
+  Get the service instance resource limit overrides (null if no overrides set)
+  """
+  serviceInstanceLimitOverride(
+    environmentId: String!
+    serviceId: String!
+  ): ServiceInstanceLimit
+
+  """
+  Get the merged resource limits for a service instance (includes plan defaults)
+  """
+  serviceInstanceLimits(
+    environmentId: String!
+    projectId: String
+      @deprecated(
+        reason: "This field is no longer needed and ignored. Use serviceId and environmentId instead."
+      )
+    serviceId: String!
+  ): ServiceInstanceLimit!
+
+  """
+  Gets all sessions for authenticated user.
+  """
+  sessions(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QuerySessionsConnection!
+
+  """
+  Fetch a single signal by owner scope and name.
+  """
+  signal(name: String!, owner: String): Signal
+
+  """
+  Recent audit log entries for a signal.
+  """
+  signalChanges(limit: Int = 50, name: String!, owner: String): [SignalChange!]!
+
+  """
+  Evaluate a signal against an evaluation context (pure resolution; does not mutate registry state).
+  """
+  signalEvaluate(
+    context: JSON!
+    name: String!
+    owner: String
+  ): SignalEvaluation!
+
+  """
+  List signals registered for an owner scope.
+  """
+  signals(owner: String): [Signal!]!
+
+  """
+  Gets SSH public keys. If workspaceId is provided, returns the keys owned by that workspace (requires workspace MEMBER access). Under a workspace-scoped API token, workspaceId defaults to the token's workspace when omitted; otherwise returns the authenticated user's personal keys.
+  """
+  sshPublicKeys(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    workspaceId: String
+  ): QuerySshPublicKeysConnection!
+
+  """
+  Details for an SSH signup confirm page: the SSH key fingerprint to verify before binding it to the account.
+  """
+  sshSignupInfo(code: String!): SSHSignupInfo!
+
+  """
+  All TCP proxies for a service instance
+  """
+  tcpProxies(environmentId: String!, serviceId: String!): [TCPProxy!]!
+
+  """
+  Find a team by ID
+  """
+  team(id: String!): Team!
+    @deprecated(
+      reason: "Teams are now workspaces. Use the workspace query instead."
+    )
+
+  """
+  Get all templates for a team.
+  """
+  teamTemplates(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    teamId: String!
+  ): QueryTeamTemplatesConnection!
+    @deprecated(reason: "Use templates instead - teams are now workspaces")
+
+  """
+  Get a template by code or ID or GitHub owner and repo.
+  """
+  template(code: String, id: String, owner: String, repo: String): Template!
+
+  """
+  Get the metrics for a template.
+  """
+  templateMetrics(id: String!): TemplateMetrics!
+
+  """
+  Search published templates using the backend-ranked template search index.
+  """
+  templateSearch(
+    after: String
+    before: String
+
+    """
+    If set, only templates in this category will be returned.
+    """
+    category: String
+    first: Int
+    last: Int
+
+    """
+    Search term to filter templates. Empty query returns browse-style results.
+    """
+    query: String!
+
+    """
+    If set, only templates matching this verification state will be returned.
+    """
+    verified: Boolean
+  ): QueryTemplateSearchConnection!
+
+  """
+  Get the source template for a project.
+  """
+  templateSourceForProject(projectId: String!): Template
+
+  """
+  Get all published templates.
+  """
+  templates(
+    after: String
+    before: String
+    first: Int
+    last: Int
+
+    """
+    If set to true, only recommended templates will be returned.
+    """
+    recommended: Boolean
+
+    """
+    If set to true, only verified templates will be returned.
+    """
+    verified: Boolean
+  ): QueryTemplatesConnection!
+
+  """
+  Count all published templates.
+  """
+  templatesCount: Int!
+
+  """
+  Get all trusted domains for a workspace
+  """
+  trustedDomains(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    workspaceId: String!
+  ): QueryTrustedDomainsConnection!
+
+  """
+  Gets the TwoFactorInfo for the authenticated user.
+  """
+  twoFactorInfo: TwoFactorInfo!
+
+  """
+  Get the usage for a single project or all projects for a user/workspace. If no `projectId` or `workspaceId` is provided, the usage for the current user is returned. If no `startDate` is provided, the usage for the current billing period of the project owner is returned.
+  """
+  usage(
+    endDate: DateTime
+
+    """
+    What to group the aggregated usage by. By default, it is grouped over the entire project.
+    """
+    groupBy: [MetricTag!]
+
+    """
+    Whether to include deleted projects in the usage.
+    """
+    includeDeleted: Boolean
+    measurements: [MetricMeasurement!]!
+    projectId: String
+    startDate: DateTime
+    teamId: String
+      @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+    userId: String
+      @deprecated(
+        reason: "This field is ignored and will be removed pretty soon, please access usage through your workspaceId, everybody has one now"
+      )
+    workspaceId: String
+  ): [AggregatedUsage!]!
+
+  """
+  Get the total kickback earnings for a user.
+  """
+  userKickbackEarnings(userId: String!): UserKickbackEarnings!
+    @deprecated(
+      reason: "This field is deprecated and will be removed in future versions."
+    )
+
+  """
+  Get the public profile for a user
+  """
+  userProfile(username: String!): UserProfileResponse!
+
+  """
+  Get all templates for the current user.
+  """
+  userTemplates(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryUserTemplatesConnection!
+    @deprecated(
+      reason: "Users don't have personal templates anymore, they belong to their team now"
+    )
+
+  """
+  All variables by pluginId or serviceId. If neither are provided, all shared variables are returned.
+  """
+  variables(
+    environmentId: String!
+
+    """
+    Provide a pluginId to get all variables for a specific plugin.
+    """
+    pluginId: String @deprecated(reason: "Plugins have been removed")
+    projectId: String!
+
+    """
+    Provide a serviceId to get all variables for a specific service.
+    """
+    serviceId: String
+    unrendered: Boolean
+  ): EnvironmentVariables!
+
+  """
+  All rendered variables that are required for a service deployment.
+  """
+  variablesForServiceDeployment(
+    environmentId: String!
+    projectId: String!
+    serviceId: String!
+  ): EnvironmentVariables!
+
+  """
+  Get information about the user's Vercel accounts
+  """
+  vercelInfo: VercelInfo!
+
+  """
+  Get a single volume instance by id
+  """
+  volumeInstance(id: String!): VolumeInstance!
+
+  """
+  List backups of a volume instance
+  """
+  volumeInstanceBackupList(
+    """
+    The id of the volume instance to list the backups of
+    """
+    volumeInstanceId: String!
+  ): [VolumeInstanceBackup!]!
+
+  """
+  List backups schedules of a volume instance
+  """
+  volumeInstanceBackupScheduleList(
+    """
+    The id of the volume instance to list the schedules of
+    """
+    volumeInstanceId: String!
+  ): [VolumeInstanceBackupSchedule!]!
+
+  """
+  Gets the status of a workflow
+  """
+  workflowStatus(workflowId: String!): WorkflowResult!
+
+  """
+  Get the workspace
+  """
+  workspace(workspaceId: String!): Workspace!
+
+  """
+  Find a workspace by invite code
+  """
+  workspaceByCode(code: String!): Workspace!
+
+  """
+  Gets all identity providers of a workspace
+  """
+  workspaceIdentityProviders(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    workspaceId: String!
+  ): QueryWorkspaceIdentityProvidersConnection!
+
+  """
+  Get the policies for a workspace
+  """
+  workspacePolicy(workspaceId: String!): WorkspacePolicy
+
+  """
+  List deploy sources that can be added to a workspace policy.
+  """
+  workspacePolicySelectableDeploySources(
+    sourceType: WorkspacePolicyDeploySourceType!
+    workspaceId: String!
+  ): [WorkspacePolicySelectableDeploySource!]!
+
+  """
+  Get all templates for a workspace.
+  """
+  workspaceTemplates(
+    after: String
+    before: String
+    first: Int
+    last: Int
+    workspaceId: String!
+  ): QueryWorkspaceTemplatesConnection!
+}
+
+type QueryApiTokensConnection {
+  edges: [QueryApiTokensConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryApiTokensConnectionEdge {
+  cursor: String!
+  node: ApiToken!
+}
+
+type QueryAuditLogsConnection {
+  edges: [QueryAuditLogsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryAuditLogsConnectionEdge {
+  cursor: String!
+  node: AuditLog!
+}
+
+type QueryCloudAgentConsoleSessionsConnection {
+  edges: [QueryCloudAgentConsoleSessionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryCloudAgentConsoleSessionsConnectionEdge {
+  cursor: String!
+  node: SandboxSession!
+}
+
+type QueryDeploymentEventsConnection {
+  edges: [QueryDeploymentEventsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryDeploymentEventsConnectionEdge {
+  cursor: String!
+  node: DeploymentEvent!
+}
+
+type QueryDeploymentInstanceExecutionsConnection {
+  edges: [QueryDeploymentInstanceExecutionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryDeploymentInstanceExecutionsConnectionEdge {
+  cursor: String!
+  node: DeploymentInstanceExecution!
+}
+
+type QueryDeploymentSessionsConnection {
+  edges: [QueryDeploymentSessionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryDeploymentSessionsConnectionEdge {
+  cursor: String!
+  node: SandboxSession!
+}
+
+type QueryDeploymentTriggersConnection {
+  edges: [QueryDeploymentTriggersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryDeploymentTriggersConnectionEdge {
+  cursor: String!
+  node: DeploymentTrigger!
+}
+
+type QueryDeploymentsConnection {
+  edges: [QueryDeploymentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryDeploymentsConnectionEdge {
+  cursor: String!
+  node: Deployment!
+}
+
+type QueryEnvironmentPatchesConnection {
+  edges: [QueryEnvironmentPatchesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryEnvironmentPatchesConnectionEdge {
+  cursor: String!
+  node: EnvironmentPatch!
+}
+
+type QueryEnvironmentsConnection {
+  edges: [QueryEnvironmentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryEnvironmentsConnectionEdge {
+  cursor: String!
+  node: Environment!
+}
+
+type QueryEventsConnection {
+  edges: [QueryEventsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryEventsConnectionEdge {
+  cursor: String!
+  node: Event!
+}
+
+type QueryIntegrationAuthsConnection {
+  edges: [QueryIntegrationAuthsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryIntegrationAuthsConnectionEdge {
+  cursor: String!
+  node: IntegrationAuth!
+}
+
+type QueryIntegrationsConnection {
+  edges: [QueryIntegrationsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryIntegrationsConnectionEdge {
+  cursor: String!
+  node: Integration!
+}
+
+type QueryNotificationDeliveriesConnection {
+  edges: [QueryNotificationDeliveriesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryNotificationDeliveriesConnectionEdge {
+  cursor: String!
+  node: NotificationDelivery!
+}
+
+type QueryObservabilityDashboardsConnection {
+  edges: [QueryObservabilityDashboardsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryObservabilityDashboardsConnectionEdge {
+  cursor: String!
+  node: ObservabilityDashboard!
+}
+
+type QueryPasskeysConnection {
+  edges: [QueryPasskeysConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryPasskeysConnectionEdge {
+  cursor: String!
+  node: Passkey!
+}
+
+type QueryProjectTokensConnection {
+  edges: [QueryProjectTokensConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryProjectTokensConnectionEdge {
+  cursor: String!
+  node: ProjectToken!
+}
+
+type QueryProjectsConnection {
+  edges: [QueryProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+type QuerySandboxSessionsConnection {
+  edges: [QuerySandboxSessionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QuerySandboxSessionsConnectionEdge {
+  cursor: String!
+  node: SandboxSession!
+}
+
+type QuerySandboxesConnection {
+  edges: [QuerySandboxesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QuerySandboxesConnectionEdge {
+  cursor: String!
+  node: Sandbox!
+}
+
+type QuerySessionsConnection {
+  edges: [QuerySessionsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QuerySessionsConnectionEdge {
+  cursor: String!
+  node: Session!
+}
+
+type QuerySshPublicKeysConnection {
+  edges: [QuerySshPublicKeysConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QuerySshPublicKeysConnectionEdge {
+  cursor: String!
+  node: SshPublicKey!
+}
+
+type QueryTeamTemplatesConnection {
+  edges: [QueryTeamTemplatesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTeamTemplatesConnectionEdge {
+  cursor: String!
+  node: Template!
+}
+
+type QueryTemplateSearchConnection {
+  edges: [QueryTemplateSearchConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTemplateSearchConnectionEdge {
+  cursor: String!
+  node: TemplateSearchResult!
+}
+
+type QueryTemplatesConnection {
+  edges: [QueryTemplatesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTemplatesConnectionEdge {
+  cursor: String!
+  node: Template!
+}
+
+type QueryTrustedDomainsConnection {
+  edges: [QueryTrustedDomainsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryTrustedDomainsConnectionEdge {
+  cursor: String!
+  node: TrustedDomain!
+}
+
+type QueryUserTemplatesConnection {
+  edges: [QueryUserTemplatesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryUserTemplatesConnectionEdge {
+  cursor: String!
+  node: Template!
+}
+
+type QueryWorkspaceIdentityProvidersConnection {
+  edges: [QueryWorkspaceIdentityProvidersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryWorkspaceIdentityProvidersConnectionEdge {
+  cursor: String!
+  node: WorkspaceIdentityProvider!
+}
+
+type QueryWorkspaceTemplatesConnection {
+  edges: [QueryWorkspaceTemplatesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type QueryWorkspaceTemplatesConnectionEdge {
+  cursor: String!
+  node: Template!
+}
+
+scalar RailpackInfo
+
+type RailwayDomain {
+  autoRenewEnabled: Boolean!
+  connectedServiceInstances: [ConnectedServiceInstance!]!
+  createdAt: DateTime!
+  domain: String!
+  id: ID!
+
+  """
+  Authoritative nameservers currently delegated for this domain at the registrar.
+  """
+  nameservers: RailwayDomainNameservers!
+  nextBillingDate: DateTime
+  purchasePrice: Int!
+  registrationYears: Int!
+  renewalPrice: Int!
+  status: RailwayDomainStatus!
+  workspaceId: String!
+  workspaceName: String
+}
+
+type RailwayDomainDnsRecord {
+  answer: String!
+  domainName: String!
+  fqdn: String!
+  host: String!
+  id: Int!
+  priority: Int
+  ttl: Int!
+  type: RailwayDomainDnsRecordType!
+}
+
+input RailwayDomainDnsRecordCreateInput {
+  answer: String!
+  domain: String!
+  host: String!
+  priority: Int
+  ttl: Int
+  type: RailwayDomainDnsRecordType!
+  workspaceId: String!
+}
+
+input RailwayDomainDnsRecordDeleteInput {
+  domain: String!
+  recordId: Int!
+  workspaceId: String!
+}
+
+enum RailwayDomainDnsRecordType {
+  A
+  AAAA
+  ANAME
+  CNAME
+  MX
+  NS
+  SRV
+  TXT
+}
+
+input RailwayDomainDnsRecordUpdateInput {
+  answer: String!
+  domain: String!
+  host: String!
+  priority: Int
+  recordId: Int!
+  ttl: Int
+  type: RailwayDomainDnsRecordType!
+  workspaceId: String!
+}
+
+type RailwayDomainNameservers {
+  """
+  True when the domain is delegated to Name.com's nameservers (Railway-managed DNS).
+  """
+  isDefault: Boolean!
+  nameservers: [String!]!
+}
+
+input RailwayDomainNameserversSetInput {
+  id: String!
+
+  """
+  Hostnames of the nameservers to delegate to (2-13). Pass an empty list to reset to Name.com's account-level defaults for this domain.
+  """
+  nameservers: [String!]!
+}
+
+enum RailwayDomainStatus {
+  ACTIVE
+  EXPIRED
+  PURCHASING
+  REFUNDED
+}
+
+input RailwayDomainUpdateInput {
+  autoRenewEnabled: Boolean
+  id: String!
+}
+
+input RecoveryCodeValidateInput {
+  code: String!
+  twoFactorLinkingKey: String
+}
+
+type RecoveryCodes {
+  recoveryCodes: [String!]!
+}
+
+type ReferralInfo implements Node {
+  code: String!
+  id: ID!
+  referralStats: ReferralStats!
+  status: String!
+}
+
+input ReferralInfoUpdateInput {
+  code: String!
+  workspaceId: String!
+}
+
+type ReferralStats {
+  credited: Int!
+  pending: Int!
+}
+
+enum ReferralStatus {
+  REFEREE_CREDITED
+  REFERRER_CREDITED
+  REGISTERED
+}
+
+type ReferralUser {
+  code: String!
+  id: String!
+  status: ReferralStatus!
+}
+
+type Region {
+  """
+  Region country
+  """
+  country: String!
+  deploymentConstraints: RegionDeploymentConstraints
+
+  """
+  Region ID (airport code)
+  """
+  id: String
+  location: String!
+  name: String!
+  region: String
+  workspaceId: String
+}
+
+type RegionDeploymentConstraints {
+  """
+  Deprecation information for the region
+  """
+  deprecationInfo: RegionDeprecationInfo
+}
+
+type RegionDeprecationInfo {
+  """
+  Specifies if the region is deprecated
+  """
+  isDeprecated: Boolean!
+
+  """
+  Replacement region for the deprecated region
+  """
+  replacementRegion: String!
+}
+
+enum RegistrationStatus {
+  ONBOARDED
+  REGISTERED
+  WAITLISTED
+}
+
+"""
+Private Docker registry credentials. Only available for Pro plan deployments.
+"""
+input RegistryCredentialsInput {
+  password: String!
+  username: String!
+}
+
+enum ReplicateVolumeInstanceSnapshotStatus {
+  COMPLETED
+  FAILED
+  INITIATED
+  TRANSFERRING
+  UNRECOGNIZED
+}
+
+"""
+The status of a volume instance replication
+"""
+enum ReplicateVolumeInstanceStatus {
+  COMPLETED
+  ERROR
+  QUEUED
+  TRANSFERRING_OFFLINE
+  TRANSFERRING_ONLINE
+}
+
+input ResetPluginCredentialsInput {
+  environmentId: String!
+}
+
+input ResetPluginInput {
+  environmentId: String!
+}
+
+type ResourceAccess {
+  deployment: AccessRule!
+  project: AccessRule!
+}
+
+enum ResourceOwnerType {
+  WORKSPACE
+}
+
+enum RestartPolicyType {
+  ALWAYS
+  NEVER
+  ON_FAILURE
+}
+
+type SSHSignupInfo {
+  fingerprint: String!
+}
+
+type Sandbox {
+  createdAt: DateTime!
+  environmentId: String!
+  id: ID!
+  idleTimeoutMinutes: Int
+  networkIsolation: SandboxNetworkIsolation!
+  region: String!
+  status: SandboxStatus!
+}
+
+"""
+A bootable snapshot of a sandbox's disk, scoped to an environment. Built from a template recipe or captured from a running sandbox.
+"""
+type SandboxCheckpoint {
+  createdAt: DateTime!
+  environmentId: String!
+  id: ID!
+
+  """
+  The checkpoint's identity within the environment (same as id): a recipe content hash for a built template, or the user-given name for one captured from a sandbox.
+  """
+  key: String!
+}
+
+input SandboxCreateInput {
+  environmentId: String!
+  idleTimeoutMinutes: Int
+
+  """
+  Network access for the sandbox. Defaults to ISOLATED (no private network access).
+  """
+  networkIsolation: SandboxNetworkIsolation
+
+  """
+  Region to place the sandbox in (e.g. us-west2, us-east4-eqdc4a). Defaults to the platform default region when omitted.
+  """
+  region: String
+
+  """
+  Fork an existing running sandbox in this environment. Mutually exclusive with template.
+  """
+  sourceSandboxId: String
+  template: SandboxTemplateInput
+
+  """
+  Environment variables baked into the sandbox, available to every command. Values may contain Railway variable references (e.g. ${{shared.FOO}}, ${{ServiceName.BAR}}), resolved at create time.
+  """
+  variables: EnvironmentVariables
+}
+
+type SandboxExecResult {
+  exitCode: Int!
+  stderr: String!
+  stdout: String!
+  timedOut: Boolean!
+  truncated: Boolean!
+}
+
+"""
+Controls a sandbox's access to the environment's private network.
+"""
+enum SandboxNetworkIsolation {
+  """
+  Peer-isolated with public NAT egress only; no access to the environment's private network. Default.
+  """
+  ISOLATED
+
+  """
+  Joins the environment's private network.
+  """
+  PRIVATE
+}
+
+"""
+A resumable session inside a sandbox: an interactive shell or a one-off exec command.
+"""
+type SandboxSession {
+  """
+  Whether a client is currently connected.
+  """
+  attached: Boolean!
+
+  """
+  The command being run; empty for an interactive shell.
+  """
+  command: String!
+  createdAt: DateTime
+
+  """
+  For an interactive shell, whether a foreground program currently holds the terminal. Null otherwise, or when the runtime can't report it.
+  """
+  foregroundActive: Boolean
+  kind: SandboxSessionKind!
+
+  """
+  Stable session name; reconnect/attach by this.
+  """
+  name: String!
+  runState: SandboxSessionRunState!
+}
+
+"""
+Whether a session is an interactive shell or a one-off exec command.
+"""
+enum SandboxSessionKind {
+  EXEC
+  SHELL
+}
+
+"""
+A session's process lifecycle.
+"""
+type SandboxSessionRunState {
+  """
+  Process exit code; only meaningful once running is false.
+  """
+  exitCode: Int!
+
+  """
+  When the process exited; null while running.
+  """
+  exitedAt: DateTime
+
+  """
+  Whether the process is still alive.
+  """
+  running: Boolean!
+}
+
+enum SandboxStatus {
+  CREATING
+  DESTROYED
+  DESTROYING
+  FAILED
+  RUNNING
+}
+
+"""
+The state of a template build, derived from its workflow and the existence of its checkpoint. READY means the checkpoint exists and can be booted.
+"""
+type SandboxTemplateBuild {
+  environmentId: String!
+
+  """
+  The template's resolved-content hash.
+  """
+  id: ID!
+  status: SandboxTemplateBuildStatus!
+}
+
+enum SandboxTemplateBuildStatus {
+  BUILDING
+  FAILED
+  PENDING
+  READY
+}
+
+input SandboxTemplateInput {
+  baseImageDigest: String
+
+  """
+  Build a template by running these shell instructions on the base image. Mutually exclusive with name.
+  """
+  instructions: [String!]
+
+  """
+  Boot from a saved checkpoint with this name (one captured from a sandbox). Mutually exclusive with instructions.
+  """
+  name: String
+
+  """
+  Environment variables available to the template's build instructions. Values may contain Railway variable references (e.g. ${{shared.FOO}}, ${{ServiceName.BAR}}), resolved at build time.
+  """
+  variables: EnvironmentVariables
+}
+
+"\nSerializedTemplateConfig is a custom scalar type that represents the serializedConfig for a template.\nJSON Schema: https://backboard.railway.com/schema/template.schema.json\n"
+scalar SerializedTemplateConfig
+
+type Service implements Node {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  deployments(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ServiceDeploymentsConnection!
+    @deprecated(
+      reason: "Use environment.deployments for properly scoped access control"
+    )
+  featureFlags: [ActiveServiceFeatureFlag!]!
+  groupId: String
+
+  """
+  Whether this service has hidden registry credentials from a template. When true, the credentials are stored in the template and used during deployment.
+  """
+  hasHiddenRegistryCredentialsFromTemplate: Boolean!
+  icon: String
+  id: ID!
+
+  """
+  Whether this service has an active restriction that limits its capabilities.
+  """
+  isRestricted: Boolean!
+  name: String!
+  project: Project!
+  projectId: String!
+  repoTriggers(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ServiceRepoTriggersConnection!
+  serviceInstances(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ServiceServiceInstancesConnection!
+    @deprecated(
+      reason: "Use environment.serviceInstances for properly scoped access control"
+    )
+  templateId: String
+  templateServiceId: String
+  templateThreadSlug: String
+  updatedAt: DateTime!
+}
+
+type ServiceBackupInfo {
+  """
+  List of enabled backup schedule kinds (DAILY, WEEKLY, MONTHLY)
+  """
+  schedules: [VolumeInstanceBackupScheduleKind!]!
+  serviceId: String!
+  serviceName: String!
+}
+
+input ServiceConnectInput {
+  """
+  The branch to connect to. e.g. 'main'
+  """
+  branch: String
+
+  """
+  Name of the Dockerhub or GHCR image to connect this service to.
+  """
+  image: String
+
+  """
+  The full name of the repo to connect to. e.g. 'railwayapp/starters'
+  """
+  repo: String
+}
+
+input ServiceCreateInput {
+  branch: String
+
+  """
+  Environment ID. If the specified environment is a fork, the service will only be created in it. Otherwise it will created in all environments that are not forks of other environments
+  """
+  environmentId: String
+  icon: String
+  name: String
+  projectId: String!
+  registryCredentials: RegistryCredentialsInput
+  source: ServiceSourceInput
+
+  """
+  Template ID. Required when templateServiceId is provided.
+  """
+  templateId: String
+
+  """
+  Template service ID within the template's serializedConfig. Required when templateId is provided.
+  """
+  templateServiceId: String
+  variables: EnvironmentVariables
+}
+
+type ServiceDeploymentsConnection {
+  edges: [ServiceDeploymentsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ServiceDeploymentsConnectionEdge {
+  cursor: String!
+  node: Deployment!
+}
+
+type ServiceDomain implements Domain {
+  cdnMode: String @deprecated(reason: "Removed; always null.")
+  createdAt: DateTime
+  deletedAt: DateTime
+  domain: String!
+  edgeId: String
+  environmentId: String!
+  id: ID!
+  newDomainName: String
+  newHostLabel: String
+  projectId: String
+  serviceId: String!
+  suffix: String
+  syncStatus: ServiceDomainSyncStatus!
+  targetPort: Int
+  updatedAt: DateTime
+}
+
+input ServiceDomainCreateInput {
+  environmentId: String!
+  serviceId: String!
+  targetPort: Int
+}
+
+enum ServiceDomainSyncStatus {
+  ACTIVE
+  CREATING
+  DELETED
+  DELETING
+  UNSPECIFIED
+  UPDATING
+}
+
+input ServiceDomainUpdateInput {
+  domain: String!
+  environmentId: String!
+  serviceDomainId: String!
+  serviceId: String!
+  targetPort: Int
+}
+
+input ServiceFeatureFlagToggleInput {
+  flag: ActiveServiceFeatureFlag!
+  serviceId: String!
+}
+
+type ServiceInstance implements Node {
+  """
+  All currently active (deployed and running) deployments for this service instance
+  """
+  activeDeployments: [Deployment!]!
+  buildCommand: String
+  builder: Builder!
+  createdAt: DateTime!
+  cronSchedule: String
+  deletedAt: DateTime
+  dockerfilePath: String
+  domains: AllDomains!
+  drainingSeconds: Int
+  edgeConfig: EdgeConfig
+  environmentId: String!
+  healthcheckPath: String
+  healthcheckTimeout: Int
+  id: ID!
+  ipv6EgressEnabled: Boolean
+  isUpdatable: Boolean!
+
+  """
+  The most recent deployment for this service instance
+  """
+  latestDeployment: Deployment
+  nextCronRunAt: DateTime
+  nixpacksPlan: JSON
+  numReplicas: Int
+  overlapSeconds: Int
+  preDeployCommand: JSON
+  railpackInfo: RailpackInfo
+  railwayConfigFile: String
+  region: String
+  restartPolicyMaxRetries: Int!
+  restartPolicyType: RestartPolicyType!
+  rootDirectory: String
+  service: Service!
+  serviceId: String!
+  serviceName: String!
+  sleepApplication: Boolean
+  source: ServiceSource
+  startCommand: String
+  updatedAt: DateTime!
+  upstreamUrl: String
+  watchPatterns: [String!]!
+}
+
+type ServiceInstanceAutoDeployStatus {
+  canEnable: Boolean!
+  enabled: Boolean!
+  reason: String
+}
+
+input ServiceInstanceAutoDeployUpdateInput {
+  enabled: Boolean!
+  environmentId: String!
+  projectId: String!
+  serviceId: String!
+}
+
+type ServiceInstanceAutoDeployUpdateResult {
+  enabled: Boolean!
+}
+
+scalar ServiceInstanceLimit
+
+input ServiceInstanceLimitsUpdateInput {
+  environmentId: String!
+
+  """
+  Amount of memory in GB to allocate to the service instance
+  """
+  memoryGB: Float
+  serviceId: String!
+
+  """
+  Number of vCPUs to allocate to the service instance
+  """
+  vCPUs: Float
+}
+
+input ServiceInstanceUpdateInput {
+  buildCommand: String
+  builder: Builder
+  cronSchedule: String
+  dockerfilePath: String
+  drainingSeconds: Int
+  healthcheckPath: String
+  healthcheckTimeout: Int
+  ipv6EgressEnabled: Boolean
+  multiRegionConfig: JSON
+  nixpacksPlan: JSON
+  numReplicas: Int
+  overlapSeconds: Int
+  preDeployCommand: [String!]
+  railwayConfigFile: String
+  region: String
+  registryCredentials: RegistryCredentialsInput
+  restartPolicyMaxRetries: Int
+  restartPolicyType: RestartPolicyType
+  rootDirectory: String
+  sleepApplication: Boolean
+  source: ServiceSourceInput
+  startCommand: String
+  watchPatterns: [String!]
+}
+
+type ServiceRepoTriggersConnection {
+  edges: [ServiceRepoTriggersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ServiceRepoTriggersConnectionEdge {
+  cursor: String!
+  node: DeploymentTrigger!
+}
+
+type ServiceServiceInstancesConnection {
+  edges: [ServiceServiceInstancesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ServiceServiceInstancesConnectionEdge {
+  cursor: String!
+  node: ServiceInstance!
+}
+
+type ServiceSource {
+  image: String
+  repo: String
+}
+
+input ServiceSourceInput {
+  image: String
+  repo: String
+}
+
+input ServiceUpdateInput {
+  icon: String
+  name: String
+}
+
+type Session implements Node {
+  createdAt: DateTime!
+  expiredAt: DateTime!
+  id: ID!
+  isCurrent: Boolean!
+  name: String!
+  type: SessionType!
+  updatedAt: DateTime!
+}
+
+enum SessionType {
+  BROWSER
+  CLI
+  FORUMS
+}
+
+input SetServiceUnderAttackModeInput {
+  durationSeconds: Int
+  enabled: Boolean!
+  environmentId: String!
+  serviceId: String!
+}
+
+input SetupAgentEventTrackInput {
+  agentSessionId: String
+  arch: String
+  caller: String
+  cliVersion: String
+  configuredClients: [String!]
+  errorMessage: String
+  installRequestId: String
+  isCi: Boolean
+  os: String
+  phase: String!
+  sessionId: String
+  success: Boolean
+}
+
+input SharedVariableConfigureInput {
+  disabledServiceIds: [String!]!
+  enabledServiceIds: [String!]!
+  environmentId: String!
+  name: String!
+  projectId: String!
+}
+
+input ShellTokenInput {
+  environmentId: String!
+  instanceId: String!
+  kind: String
+  port: Int
+  scope: String!
+  serviceId: String
+}
+
+type Signal implements Node {
+  createdAt: DateTime!
+  createdBy: String
+  default: JSON!
+  id: ID!
+  name: String!
+  owner: String!
+  rules: JSON!
+  type: SignalType!
+  updatedAt: DateTime!
+  version: BigInt!
+  writableBy: [String!]!
+}
+
+type SignalChange implements Node {
+  authorId: String
+  createdAt: DateTime!
+  id: ID!
+  kind: SignalChangeKind!
+  payload: JSON!
+  prevState: JSON!
+  seq: BigInt!
+  signalId: String!
+}
+
+enum SignalChangeKind {
+  default_changed
+  replaced
+  rollback
+  set
+  unset
+}
+
+input SignalCreateInput {
+  default: JSON!
+  name: String!
+  owner: String!
+  type: SignalType!
+  writableBy: [String!]
+}
+
+input SignalDefaultSetInput {
+  default: JSON!
+  name: String!
+  owner: String!
+}
+
+input SignalDeleteInput {
+  name: String!
+  owner: String!
+}
+
+type SignalEvaluation {
+  reason: SignalEvaluationReason!
+  trace: JSON!
+  value: JSON!
+}
+
+enum SignalEvaluationReason {
+  DEFAULT
+  SPLIT
+  TARGETING_MATCH
+}
+
+input SignalReplaceInput {
+  default: JSON!
+  name: String!
+  owner: String!
+  type: SignalType!
+}
+
+input SignalRollbackInput {
+  name: String!
+  owner: String!
+  seq: BigInt!
+}
+
+input SignalRuleSetInput {
+  expression: JSON!
+  name: String!
+  owner: String!
+  ruleId: String!
+  value: JSON!
+}
+
+input SignalRuleUnsetInput {
+  name: String!
+  owner: String!
+  ruleId: String!
+}
+
+enum SignalType {
+  bool
+  json
+  number
+  string
+}
+
+type SimilarTemplate {
+  code: String!
+  createdAt: DateTime!
+  creator: TemplateCreator
+  deploys: Int!
+  description: String
+  health: Float
+  image: String
+  name: String!
+  teamId: String @deprecated(reason: "Use workspaceId")
+  userId: String
+  workspaceId: String
+}
+
+scalar SkippedResourceIds
+
+enum SortOrder {
+  asc
+  desc
+}
+
+type SpendCommitment implements Node {
+  features: [SpendCommitmentFeatureId!]!
+  id: ID!
+  minSpendAmountCents: Int!
+}
+
+scalar SpendCommitmentFeatureId
+
+type SshPublicKey implements Node {
+  createdAt: DateTime!
+  fingerprint: String!
+  id: ID!
+  name: String!
+  publicKey: String!
+  updatedAt: DateTime!
+  userId: String
+  workspaceId: String
+}
+
+input SshPublicKeyCreateInput {
+  name: String!
+  publicKey: String!
+  workspaceId: String
+}
+
+type StaleWhileRevalidateConfig {
+  enabled: Boolean!
+}
+
+input StaleWhileRevalidateInput {
+  enabled: Boolean!
+}
+
+type Subscription {
+  """
+  Stream logs for a build
+  """
+  buildLogs(
+    deploymentId: String!
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+  ): [Log!]!
+
+  """
+  Subscribe to updates for a specific deployment
+  """
+  deployment(id: String!): Deployment!
+
+  """
+  Subscribe to deployment events for a specific deployment
+  """
+  deploymentEvents(id: String!): DeploymentEvent!
+
+  """
+  Subscribe to deployment instance executions for a specific deployment
+  """
+  deploymentInstanceExecutions(
+    input: DeploymentInstanceExecutionInput!
+  ): DeploymentInstanceExecution!
+
+  """
+  Stream logs for a deployment
+  """
+  deploymentLogs(
+    deploymentId: String!
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+  ): [Log!]!
+
+  """
+  Stream individual DNS query logs for an environment
+  """
+  dnsQueryLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit logs returned before the anchor
+    """
+    beforeLimit: Int
+
+    """
+    Filter by deployment instance / sandbox ID (optional)
+    """
+    deploymentInstanceId: String
+    environmentId: String!
+
+    """
+    Filter expression (e.g., @rcode:NXDOMAIN @qtype:A @domain:example.com @status:failed). Prefix a term with - to exclude it; repeat a key to match any of its values
+    """
+    filter: String
+
+    """
+    Filter by service ID (optional)
+    """
+    serviceId: String
+  ): [DnsQueryLog!]!
+
+  """
+  Stream logs for a project environment
+  """
+  environmentLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit the number of logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit the number of logs returned before the anchor
+    """
+    beforeLimit: Int
+    environmentId: String!
+
+    """
+    Filter logs using a query syntax
+    """
+    filter: String
+  ): [Log!]!
+
+  """
+  Subscribe to updates for the staged patch for a single environment.
+  """
+  environmentStagedPatch(environmentId: String!): EnvironmentPatch!
+
+  """
+  Stream HTTP logs for a deployment
+  """
+  httpLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit the number of logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit the number of logs returned before the anchor
+    """
+    beforeLimit: Int
+    deploymentId: String!
+
+    """
+    Filter logs using a query syntax
+    """
+    filter: String
+  ): [HttpLog!]!
+
+  """
+  Stream network flow logs for an environment
+  """
+  networkFlowLogs(
+    """
+    Latest date to look for logs after the anchor
+    """
+    afterDate: String
+
+    """
+    Limit logs returned after the anchor
+    """
+    afterLimit: Int
+
+    """
+    Target date time to look for logs
+    """
+    anchorDate: String
+
+    """
+    Oldest date to look for logs before the anchor
+    """
+    beforeDate: String
+
+    """
+    Limit logs returned before the anchor
+    """
+    beforeLimit: Int
+
+    """
+    Filter by deployment instance / sandbox ID (optional)
+    """
+    deploymentInstanceId: String
+    environmentId: String!
+
+    """
+    Filter expression (e.g., @protocol:tcp @direction:egress @dropped:true)
+    """
+    filter: String
+
+    """
+    Filter by service ID (optional)
+    """
+    serviceId: String
+  ): [NetworkFlowLog!]!
+
+  """
+  Subscribe to notification delivery updates (created and resolved) for the authenticated user
+  """
+  notificationDeliveryUpdated: NotificationDeliveryUpdate!
+
+  """
+  Stream logs for a plugin
+  """
+  pluginLogs(
+    environmentId: String!
+
+    """
+    Filter logs by a string. Providing an empty value will match all logs.
+    """
+    filter: String
+
+    """
+    Limit the number of logs returned (defaults 100, max 5000)
+    """
+    limit: Int
+    pluginId: String!
+  ): [Log!]! @deprecated(reason: "Plugins are deprecated")
+
+  """
+  Subscribe to migration progress updates for a volume
+  """
+  replicationProgress(
+    volumeInstanceId: String!
+  ): VolumeReplicationProgressUpdate!
+}
+
+type SubscriptionDiscount {
+  couponId: String!
+  couponName: String!
+}
+
+type SubscriptionItem {
+  itemId: String!
+  priceDollars: Float
+  priceId: String!
+  productId: String!
+  quantity: BigInt
+}
+
+enum SubscriptionModel {
+  FREE
+  TEAM
+  USER
+}
+
+scalar SubscriptionPlanLimit
+
+enum SubscriptionPlanType {
+  free
+  hobby
+  pro
+  trial
+}
+
+enum SubscriptionState {
+  ACTIVE
+  CANCELLED
+  INACTIVE
+  PAST_DUE
+  UNPAID
+}
+
+"\nSupport Health Metrics for Template Support Bonus Calculation..\nContains metrics calculated from community support thread performance:\n- solved: Percentage (0-100) of solved threads\n- csat: Percentage (0-100) of threads with positive customer satisfaction\n- aggregateHealth: Average of solved and csat when both available, otherwise just solved percentage\nTemplates with aggregateHealth >= 80 qualify for support bonus (additional 10% kickback).\n"
+scalar SupportHealthMetrics
+
+enum SupportTierOverride {
+  BUSINESS_CLASS
+  BUSINESS_CLASS_TRIAL
+}
+
+type TCPProxy {
+  applicationPort: Int!
+  createdAt: DateTime
+  deletedAt: DateTime
+  domain: String!
+  environmentId: String!
+  id: ID!
+  proxyPort: Int!
+  serviceId: String!
+  syncStatus: TCPProxySyncStatus!
+  updatedAt: DateTime
+}
+
+input TCPProxyCreateInput {
+  applicationPort: Int!
+  environmentId: String!
+  serviceId: String!
+}
+
+enum TCPProxySyncStatus {
+  ACTIVE
+  CREATING
+  DELETED
+  DELETING
+  UNSPECIFIED
+  UPDATING
+}
+
+type Team implements Node {
+  adoptionHistory: [AdoptionInfo!]!
+    @deprecated(reason: "Use workspace object instead")
+  adoptionLevel: Float! @deprecated(reason: "Use workspace object instead")
+  apiTokenRateLimit: ApiTokenRateLimit
+    @deprecated(reason: "Use workspace object instead")
+  avatar: String @deprecated(reason: "Use workspace object instead")
+  createdAt: DateTime! @deprecated(reason: "Use workspace object instead")
+  customer: Customer! @deprecated(reason: "Use workspace object instead")
+  id: ID! @deprecated(reason: "Use workspace object instead")
+  members: [TeamMember!]! @deprecated(reason: "Use workspace object instead")
+  name: String! @deprecated(reason: "Use workspace object instead")
+  preferredRegion: String @deprecated(reason: "Use workspace object instead")
+  projects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): TeamProjectsConnection! @deprecated(reason: "Use workspace object instead")
+  slackChannelId: String @deprecated(reason: "Use workspace object instead")
+  supportTierOverride: SupportTierOverride
+    @deprecated(reason: "Use workspace object instead")
+  teamPermissions: [TeamPermission!]!
+    @deprecated(reason: "Use workspace object instead")
+  updatedAt: DateTime! @deprecated(reason: "Use workspace object instead")
+  workspace: Workspace! @deprecated(reason: "Use workspace object instead")
+}
+
+type TeamMember {
+  avatar: String
+  email: String!
+
+  """
+  Only retrieved if requested by an admin
+  """
+  featureFlags: [ActiveFeatureFlag!]
+  id: String!
+  name: String
+  role: TeamRole!
+}
+
+type TeamPermission implements Node {
+  createdAt: DateTime!
+  id: ID!
+  role: TeamRole!
+  updatedAt: DateTime!
+  userId: String!
+  workspaceId: String!
+}
+
+type TeamProjectsConnection {
+  edges: [TeamProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type TeamProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+enum TeamRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+type Template implements Node {
+  activeProjects: Int!
+  canvasConfig: CanvasConfig
+  category: String
+  code: String!
+  communityThreadSlug: String
+  config: TemplateConfig! @deprecated(reason: "Use serializedConfig instead")
+  createdAt: DateTime!
+  creator: TemplateCreator
+  demoProjectId: String
+  description: String
+  guides: TemplateGuide
+  health: Float
+  id: ID!
+  image: String
+  isApproved: Boolean!
+  isV2Template: Boolean!
+  isVerified: Boolean!
+  languages: [String!]
+  maintainer: MaintainerWorkspace
+  metadata: TemplateMetadata!
+    @deprecated(
+      reason: "Deprecated in favor of listing the fields individually."
+    )
+  name: String!
+  projects: Int!
+  readme: String
+  recentProjects: Int!
+  serializedConfig: SerializedTemplateConfig
+  services(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): TemplateServicesConnection!
+  similarTemplates: [SimilarTemplate!]!
+  status: TemplateStatus!
+  supportHealthMetrics: SupportHealthMetrics
+  tags: [String!]
+  teamId: String @deprecated(reason: "Use workspaceId")
+  totalPayout: Float!
+  updatedAt: DateTime!
+  workspaceId: String
+}
+
+input TemplateCloneInput {
+  code: String!
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  workspaceId: String
+}
+
+scalar TemplateConfig
+
+type TemplateCreator {
+  avatar: String
+  hasPublicProfile: Boolean!
+  name: String
+  username: String
+}
+
+input TemplateDeleteInput {
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  workspaceId: String
+}
+
+input TemplateDeployInput {
+  environmentId: String
+  plugins: [String!]
+    @deprecated(reason: "The databases from the template will be used.")
+  projectId: String
+  services: [TemplateDeployService!]!
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  templateCode: String
+  workspaceId: String
+}
+
+type TemplateDeployPayload {
+  projectId: String!
+  workflowId: String
+}
+
+input TemplateDeployService {
+  commit: String
+  hasDomain: Boolean
+  healthcheckPath: String
+  id: String!
+  isPrivate: Boolean
+  name: String
+  owner: String
+  preDeployCommand: [String!]
+  rootDirectory: String
+  serviceIcon: String
+  serviceName: String!
+  startCommand: String
+  tcpProxyApplicationPort: Int
+  template: String!
+  variables: EnvironmentVariables
+  volumes: [TemplateVolume!]
+}
+
+input TemplateDeployV2Input {
+  environmentId: String
+  projectId: String
+  serializedConfig: SerializedTemplateConfig!
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  templateId: String!
+  workspaceId: String
+}
+
+input TemplateGenerateInput {
+  environmentId: String
+  projectId: String!
+  teamId: String @deprecated(reason: "This argument is unused")
+}
+
+type TemplateGuide {
+  post: String
+  video: String
+}
+
+scalar TemplateMetadata
+
+type TemplateMetrics {
+  activeDeployments: Int!
+  deploymentsLast90Days: Int!
+  earningsLast30Days: Float!
+  earningsLast90Days: Float!
+  eligibleForSupportBonus: Boolean!
+  supportHealth: Float!
+  templateHealth: Float!
+  totalDeployments: Int!
+  totalEarnings: Float!
+}
+
+input TemplatePublishInput {
+  category: String!
+  demoProjectId: String
+  description: String!
+  image: String
+  readme: String!
+  teamId: String
+    @deprecated(reason: "Use workspaceId instead - teams are now workspaces")
+  workspaceId: String
+}
+
+type TemplateSearchResult {
+  code: String!
+  creatorName: String
+  deploymentCount: Int!
+  description: String
+  healthScore: Float
+  id: String!
+  image: String
+  isVerified: Boolean!
+  name: String!
+}
+
+type TemplateService implements Node {
+  config: TemplateServiceConfig!
+  createdAt: DateTime!
+  id: ID!
+  templateId: String!
+  updatedAt: DateTime!
+}
+
+scalar TemplateServiceConfig
+
+input TemplateServiceSourceEjectInput {
+  projectId: String!
+  repoName: String!
+  repoOwner: String!
+
+  """
+  Provide multiple serviceIds when ejecting services from a monorepo.
+  """
+  serviceIds: [String!]!
+  upstreamUrl: String!
+}
+
+type TemplateServicesConnection {
+  edges: [TemplateServicesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type TemplateServicesConnectionEdge {
+  cursor: String!
+  node: TemplateService!
+}
+
+enum TemplateStatus {
+  HIDDEN
+  PUBLISHED
+  UNPUBLISHED
+}
+
+scalar TemplateVolume
+
+type TrustedDomain {
+  domainName: String!
+  id: ID!
+  role: String!
+  status: TrustedDomainStatus!
+  verificationData: TrustedDomainVerificationData!
+  verificationType: String!
+  workspaceId: String!
+}
+
+enum TrustedDomainStatus {
+  FAILED
+  PENDING
+  VERIFIED
+}
+
+type TrustedDomainVerificationData {
+  dnsHost: String
+  domainMatch: Domain
+  domainStatus: CustomDomainStatus
+  token: String
+}
+
+type TwoFactorInfo {
+  hasRecoveryCodes: Boolean!
+  isVerified: Boolean!
+}
+
+input TwoFactorInfoCreateInput {
+  token: String!
+}
+
+type TwoFactorInfoSecret {
+  secret: String!
+  uri: String!
+}
+
+input TwoFactorInfoValidateInput {
+  token: String!
+  twoFactorLinkingKey: String
+}
+
+enum TwoFactorMethodCompliance {
+  AUTHENTICATOR
+  PASSKEY
+}
+
+enum TwoFactorMethodProjectWorkspace {
+  AUTHENTICATOR
+  PASSKEY
+}
+
+input UpdateNotificationRuleInput {
+  channelConfigs: [NotificationChannelConfig!]
+  ephemeralEnvironments: Boolean
+  eventTypes: [String!]
+  severities: [NotificationSeverity!]
+}
+
+input UpdateServiceEdgeConfigInput {
+  config: EdgeConfigInput!
+  environmentId: String!
+  serviceId: String!
+}
+
+"""
+The `Upload` scalar type represents a file upload.
+"""
+scalar Upload
+
+type UsageLimit implements Node {
+  agentHardLimitCents: Int
+  agentSoftLimitCents: Int
+  customerId: String!
+  hardLimit: Int
+  id: ID!
+  isOverLimit: Boolean!
+  softLimit: Int!
+}
+
+input UsageLimitRemoveInput {
+  customerId: String!
+}
+
+input UsageLimitSetInput {
+  customerId: String!
+  hardLimitDollars: Int
+  softLimitDollars: Int!
+}
+
+type User implements Node {
+  agreedFairUse: Boolean!
+  apiTokenRateLimit: ApiTokenRateLimit
+  avatar: String
+  banReason: String
+    @deprecated(
+      reason: "Resolve via the user's workspaces and check for an active BAN restriction. This field will be removed after the WorkspaceRestriction migration completes."
+    )
+  createdAt: DateTime!
+  email: String!
+  featureFlags: [ActiveFeatureFlag!]!
+  flags: [UserFlag!]!
+  githubProviderId: String
+  githubUsername: String
+  has2FA: Boolean!
+  hasPasskeys: Boolean!
+  id: ID!
+  isAdmin: Boolean!
+  isConductor: Boolean!
+  isVerified: Boolean!
+  lastLogin: DateTime!
+  name: String
+  platformFeatureFlags: [ActivePlatformFlag!]!
+  profile: UserProfile
+  projects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): UserProjectsConnection!
+    @deprecated(
+      reason: "This field will not return anything anymore, go through the workspace's projects"
+    )
+  providerAuths(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): UserProviderAuthsConnection!
+  registrationStatus: RegistrationStatus!
+  riskLevel: Float
+  termsAgreedOn: DateTime
+  username: String
+  workspace: Workspace
+    @deprecated(
+      reason: "Use user.workspaces instead, no user are associated to a workspace"
+    )
+
+  """
+  Workspaces user is member of
+  """
+  workspaces: [Workspace!]!
+}
+
+enum UserFlag {
+  BETA
+}
+
+input UserFlagsRemoveInput {
+  flags: [UserFlag!]!
+  userId: String
+}
+
+input UserFlagsSetInput {
+  flags: [UserFlag!]!
+  userId: String
+}
+
+type UserKickbackEarnings {
+  total_amount: Float!
+}
+
+type UserProfile {
+  bio: String
+  isPublic: Boolean!
+  website: String
+}
+
+type UserProfileResponse {
+  avatar: String
+  createdAt: DateTime!
+  customerId: String
+  id: String!
+  isTrialing: Boolean
+  name: String
+  profile: UserProfile!
+
+  """
+  Gets all public projects for a user.
+  """
+  publicProjects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): UserProfileResponsePublicProjectsConnection!
+  publishedTemplates: [SimilarTemplate!]!
+    @deprecated(
+      reason: "There are no personal templates anymore, they all belong to a workspace"
+    )
+  state: String
+  totalDeploys: Int!
+  username: String
+}
+
+type UserProfileResponsePublicProjectsConnection {
+  edges: [UserProfileResponsePublicProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserProfileResponsePublicProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+input UserProfileUpdateInput {
+  bio: String
+  isPublic: Boolean!
+  website: String
+}
+
+type UserProjectsConnection {
+  edges: [UserProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+type UserProviderAuthsConnection {
+  edges: [UserProviderAuthsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserProviderAuthsConnectionEdge {
+  cursor: String!
+  node: ProviderAuth!
+}
+
+type Variable implements Node {
+  createdAt: DateTime!
+  environment: Environment!
+  environmentId: String
+  id: ID!
+  isSealed: Boolean!
+  name: String!
+  plugin: Plugin!
+  pluginId: String @deprecated(reason: "Plugins have been removed")
+  references: [String!]!
+  service: Service!
+  serviceId: String
+  updatedAt: DateTime!
+}
+
+input VariableCollectionUpsertInput {
+  environmentId: String!
+  projectId: String!
+
+  """
+  When set to true, removes all existing variables before upserting the new collection.
+  """
+  replace: Boolean = false
+  serviceId: String
+
+  """
+  Skip deploys for affected services
+  """
+  skipDeploys: Boolean = false
+  variables: EnvironmentVariables!
+}
+
+input VariableDeleteInput {
+  environmentId: String!
+  name: String!
+  projectId: String!
+  serviceId: String
+}
+
+input VariableUpsertInput {
+  environmentId: String!
+  name: String!
+  projectId: String!
+  serviceId: String
+
+  """
+  Skip deploys for affected services
+  """
+  skipDeploys: Boolean = false
+  value: String!
+}
+
+type VercelAccount {
+  id: String!
+  integrationAuthId: String!
+  isUser: Boolean!
+  name: String
+  projects: [VercelProject!]!
+  slug: String
+}
+
+type VercelInfo {
+  accounts: [VercelAccount!]!
+}
+
+type VercelProject {
+  accountId: String!
+  id: String!
+  name: String!
+}
+
+type Volume implements Node {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  project: Project!
+  projectId: String!
+  volumeInstances(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): VolumeVolumeInstancesConnection!
+    @deprecated(
+      reason: "Use environment.volumeInstances for properly scoped access control"
+    )
+}
+
+input VolumeCreateInput {
+  """
+  The environment to deploy the volume instances into. If `null`, the volume will not be deployed to any environment. `undefined` will deploy to all environments.
+  """
+  environmentId: String
+
+  """
+  The path in the container to mount the volume to
+  """
+  mountPath: String!
+
+  """
+  The project to create the volume in
+  """
+  projectId: String!
+
+  """
+  The region to create the volume instances in. If not provided, the default region will be used.
+  """
+  region: String
+
+  """
+  The service to attach the volume to. If not provided, the volume will be disconnected.
+  """
+  serviceId: String
+}
+
+type VolumeInstance implements Node {
+  createdAt: DateTime!
+  currentSizeMB: Float!
+  deletedAt: DateTime
+  environment: Environment!
+  environmentId: String!
+  externalId: String
+  id: ID!
+  isPendingDeletion: Boolean!
+  mountPath: String!
+  region: String
+  service: Service!
+  serviceId: String
+  sizeMB: Int!
+  state: VolumeState
+  volume: Volume!
+  volumeId: String!
+}
+
+type VolumeInstanceBackup {
+  createdAt: DateTime!
+  creatorId: String
+  expiresAt: DateTime
+  externalId: String!
+  id: String!
+  name: String
+  referencedMB: Int
+  scheduleId: String
+  usedMB: Int
+  volumeInstanceSizeMB: Int
+}
+
+type VolumeInstanceBackupSchedule implements Node {
+  createdAt: DateTime!
+  cron: String!
+  id: ID!
+  kind: VolumeInstanceBackupScheduleKind!
+  name: String!
+  retentionSeconds: Int
+}
+
+enum VolumeInstanceBackupScheduleKind {
+  DAILY
+  MONTHLY
+  WEEKLY
+}
+
+type VolumeInstanceReplicationProgress {
+  bytesTransferred: BigInt!
+  percentComplete: Float!
+  timestamp: DateTime!
+  transferRateMbps: Float
+}
+
+input VolumeInstanceUpdateInput {
+  """
+  The mount path of the volume instance. If not provided, the mount path will not be updated.
+  """
+  mountPath: String
+
+  """
+  The service to attach the volume to. If not provided, the volume will be disconnected.
+  """
+  serviceId: String
+
+  """
+  The state of the volume instance. If not provided, the state will not be updated.
+  """
+  state: VolumeState
+}
+
+type VolumeReplicationProgressUpdate {
+  currentSnapshot: VolumeSnapshotReplicationProgressUpdate!
+  destExternalId: String!
+  destRegion: String
+  destStackerId: String
+  error: String
+  estimatedTimeRemainingMs: BigInt
+  history: [VolumeInstanceReplicationProgress!]!
+  nbSnapshots: Int!
+  offlineBytesTransferred: BigInt!
+  offlineTotalBytes: BigInt!
+  onlineBytesTransferred: BigInt!
+  onlineTotalBytes: BigInt!
+  percentComplete: Float!
+  snapshotsSizes: [BigInt!]!
+  srcExternalId: String!
+  srcRegion: String
+  srcStackerId: String
+  status: ReplicateVolumeInstanceStatus!
+  transferRateMbps: Float
+}
+
+type VolumeSnapshotReplicationProgressUpdate {
+  bytesTransferred: BigInt!
+  compressedBytesTransferred: BigInt!
+  compressedTransferRateMbps: Float
+  elapsedMs: Int!
+  error: String
+  estimatedTimeRemainingMs: BigInt
+  index: Int!
+  percentComplete: Float!
+  startedAt: DateTime
+  status: ReplicateVolumeInstanceSnapshotStatus!
+  totalBytes: BigInt!
+  transferRateMbps: Float
+}
+
+enum VolumeState {
+  DELETED
+  DELETING
+  ERROR
+  MIGRATING
+  MIGRATION_PENDING
+  READY
+  RESTORING
+  UPDATING
+}
+
+input VolumeUpdateInput {
+  """
+  The name of the volume
+  """
+  name: String
+}
+
+type VolumeVolumeInstancesConnection {
+  edges: [VolumeVolumeInstancesConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type VolumeVolumeInstancesConnectionEdge {
+  cursor: String!
+  node: VolumeInstance!
+}
+
+enum WithdrawalPlatformTypes {
+  BMAC
+  GITHUB
+  PAYPAL
+  STRIPE_CONNECT
+}
+
+type WorkflowId {
+  workflowId: String
+}
+
+type WorkflowResult {
+  error: String
+  status: WorkflowStatus!
+}
+
+enum WorkflowStatus {
+  Complete
+  Error
+  NotFound
+  Running
+}
+
+type Workspace implements Node {
+  adoptionHistory: [AdoptionInfo!]!
+  adoptionLevel: Float!
+  allowDeprecatedRegions: Boolean
+    @deprecated(reason: "Deprecated regions are no longer supported.")
+  apiTokenRateLimit: ApiTokenRateLimit
+  avatar: String
+  banReason: String
+    @deprecated(
+      reason: "Use `workspace.restriction` and check for an active BAN restriction. This field will be removed after the WorkspaceRestriction migration completes."
+    )
+  createdAt: DateTime!
+  customer: Customer!
+  discordRole: String
+
+  """
+  Whether 2FA enforcement is enabled for this workspace.
+  """
+  has2FAEnforcement: Boolean!
+
+  """
+  Whether automatic deployment diagnosis is enabled for this workspace.
+  """
+  hasAutomaticDiagnosis: Boolean!
+
+  """
+  Whether this workspace has access to guardrails policies.
+  """
+  hasGuardrailsAccess: Boolean!
+
+  """
+  Whether this workspace has a signed HIPAA Business Associate Agreement, from either the legacy hasBAA flag or the HIPAA_BAA spend commitment feature.
+  """
+  hasHipaaBAA: Boolean!
+  hasSAML: Boolean!
+  id: ID!
+  identityProviders(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): WorkspaceIdentityProvidersConnection!
+  members: [WorkspaceMember!]!
+  name: String!
+  partnerProfile: PartnerProfile
+  plan: Plan!
+  preferredRegion: String
+
+  """
+  Total number of projects in this workspace. Used by the dashboard to show an exact count without paginating through every project.
+  """
+  projectCount(includeDeleted: Boolean): Int!
+  projects(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): WorkspaceProjectsConnection!
+
+  """
+  Whether the current user's access is redacted due to pending 2FA requirement. Returns true if the user is a workspace member, workspace has 2FA enforcement enabled, and the current user needs to enable 2FA.
+  """
+  redactedDueTo2FAPending: Boolean!
+  referredUsers: [ReferralUser!]!
+  slackChannelId: String
+  subscriptionModel: SubscriptionModel!
+    @deprecated(reason: "Use plan field instead")
+  subscriptionPlanLimit: SubscriptionPlanLimit
+  supportTierOverride: SupportTierOverride
+  team: Team
+    @deprecated(reason: "Teams are being removed from the system, don't use it")
+  updatedAt: DateTime!
+
+  """
+  Get a list of user emails in the workspace who do not have verified 2FA enabled. Returns an empty array if all users have 2FA enabled.
+  """
+  usersWithout2FA: [String!]!
+}
+
+type WorkspaceIdPConnection {
+  createdAt: DateTime
+  provider: String
+  status: WorkspaceIdPConnectionStatus!
+  updatedAt: DateTime
+}
+
+enum WorkspaceIdPConnectionStatus {
+  ACTIVE
+  DRAFT
+  INACTIVE
+  PENDING
+  VALIDATING
+}
+
+type WorkspaceIdentityProvider implements Node {
+  connection: WorkspaceIdPConnection!
+  createdAt: DateTime!
+  enforcementEnabledAt: DateTime
+  id: ID!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+type WorkspaceIdentityProvidersConnection {
+  edges: [WorkspaceIdentityProvidersConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type WorkspaceIdentityProvidersConnectionEdge {
+  cursor: String!
+  node: WorkspaceIdentityProvider!
+}
+
+input WorkspaceInviteCodeCreateInput {
+  role: String!
+}
+
+type WorkspaceMember {
+  avatar: String
+  email: String!
+
+  """
+  Only retrieved if requested by an admin
+  """
+  featureFlags: [ActiveFeatureFlag!]
+  id: String!
+  name: String
+  role: TeamRole!
+
+  """
+  Only retrieved if requested by an admin
+  """
+  twoFactorAuthEnabled: Boolean
+}
+
+input WorkspacePermissionChangeInput {
+  role: TeamRole!
+  userId: String!
+  workspaceId: String!
+}
+
+type WorkspacePolicy implements Node {
+  deploySourceAllowlist(
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): WorkspacePolicyDeploySourceAllowlistConnection!
+  id: ID!
+  restrictDeploysToAllowedSources: Boolean!
+  restrictPublicTcpProxies: Boolean!
+  restrictRailwayDomainGeneration: Boolean!
+}
+
+type WorkspacePolicyDeploySourceAllowlist implements Node {
+  addedBy: User
+  createdAt: DateTime!
+  id: ID!
+  sourceIcon: String
+  sourceId: String!
+  sourceName: String!
+  sourceType: WorkspacePolicyDeploySourceType!
+}
+
+type WorkspacePolicyDeploySourceAllowlistConnection {
+  edges: [WorkspacePolicyDeploySourceAllowlistConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type WorkspacePolicyDeploySourceAllowlistConnectionEdge {
+  cursor: String!
+  node: WorkspacePolicyDeploySourceAllowlist!
+}
+
+enum WorkspacePolicyDeploySourceType {
+  GITHUB_ORG
+}
+
+input WorkspacePolicyItemUpdateInput {
+  enabled: Boolean!
+  policy: WorkspacePolicyName!
+}
+
+enum WorkspacePolicyName {
+  RESTRICT_DEPLOYS_TO_ALLOWED_SOURCES
+  RESTRICT_PUBLIC_TCP_PROXIES
+  RESTRICT_RAILWAY_DOMAIN_GENERATION
+}
+
+type WorkspacePolicySelectableDeploySource {
+  sourceIcon: String
+  sourceId: String!
+  sourceName: String!
+  sourceType: WorkspacePolicyDeploySourceType!
+}
+
+type WorkspaceProjectsConnection {
+  edges: [WorkspaceProjectsConnectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type WorkspaceProjectsConnectionEdge {
+  cursor: String!
+  node: Project!
+}
+
+input WorkspaceTrustedDomainCreateInput {
+  domainName: String!
+  role: String!
+  workspaceId: String!
+}
+
+input WorkspaceTrustedDomainUpdateInput {
+  id: String!
+  role: String!
+}
+
+input WorkspaceUpdateInput {
+  avatar: String
+  name: String
+  preferredRegion: String
+}
+
+input WorkspaceUserInviteInput {
+  code: String!
+  email: String!
+}
+
+input WorkspaceUserRemoveInput {
+  userId: String!
+}
+
+input customerTogglePayoutsToCreditsInput {
+  isWithdrawingToCredits: Boolean!
+}

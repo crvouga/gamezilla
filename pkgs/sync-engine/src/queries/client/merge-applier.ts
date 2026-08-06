@@ -2,13 +2,13 @@ import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type {
-  Mutation,
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine/mutations/core/types';
 
 import type { QueryRow } from '../core/types';
 import type { TableChangeBus } from './table-change-bus';
+import { confirmOptimistic, rebaseUnconfirmed } from './merge-rebase';
 import {
   deleteOrphanRow,
   deleteUntaggedOrphans,
@@ -23,6 +23,8 @@ export type MergeFullInput = {
   readonly checkpoint: string;
   readonly hash: string;
   readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
+  /** write_epoch at query request start; omitted → 0 (legacy callers). */
+  readonly basisEpoch?: number;
 };
 
 export type MergeApplierDeps = {
@@ -31,14 +33,6 @@ export type MergeApplierDeps = {
   readonly env: MutationEnv;
   readonly bus: TableChangeBus;
   readonly clientId: string;
-};
-
-type PendingMutation = {
-  readonly id: string;
-  readonly name: string;
-  readonly args: string;
-  readonly seq: number;
-  readonly created_at: string;
 };
 
 /** Per-db single-flight chain — concurrent polls queue; never overlap writers. */
@@ -79,6 +73,7 @@ async function runMerge(
 ): Promise<'applied' | 'stale'> {
   let applied = false;
   const changed = new Set<string>();
+  const basisEpoch = input.basisEpoch ?? 0;
   await deps.db.transaction(async (tx) => {
     if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
     for (const [table, rows] of Object.entries(input.tables)) {
@@ -87,7 +82,17 @@ async function runMerge(
     }
     changed.add('_row_scopes');
     await touchScopeMeta(tx, input);
-    await rebasePending(tx, deps, changed);
+    await rebaseUnconfirmed(
+      tx,
+      {
+        registry: deps.registry,
+        env: deps.env,
+        clientId: deps.clientId,
+      },
+      basisEpoch,
+      changed
+    );
+    await confirmOptimistic(tx, deps.clientId, basisEpoch);
     applied = true;
   });
   if (!applied) return 'stale';
@@ -148,52 +153,6 @@ async function mergeTable(
   }
   await purgeScopeAbsence(tx, table, scopeHash, ids);
   await deleteUntaggedOrphans(tx, table, ids);
-}
-
-async function rebasePending(
-  tx: SqlClient,
-  deps: MergeApplierDeps,
-  changed: Set<string>
-): Promise<void> {
-  const pending = await tx.query(sql<PendingMutation>`
-    SELECT id, name, args, seq, created_at
-    FROM _mutations
-    WHERE client_id = ${deps.clientId}
-      AND seq > COALESCE(
-        (SELECT last_acked_seq FROM _upload_state WHERE id = ${'singleton'}),
-        ${0}
-      )
-    ORDER BY seq ASC
-  `);
-  for (const row of pending) {
-    await rebaseOne(tx, deps, row, changed);
-  }
-}
-
-async function rebaseOne(
-  tx: SqlClient,
-  deps: MergeApplierDeps,
-  row: PendingMutation,
-  changed: Set<string>
-): Promise<void> {
-  const m = deps.registry[row.name] as Mutation<unknown> | undefined;
-  if (m === undefined) return;
-  let args: unknown;
-  try {
-    args = m.args.parse(JSON.parse(row.args));
-  } catch {
-    return;
-  }
-  const env: MutationEnv = {
-    ...deps.env,
-    now: () => new Date(row.created_at),
-  };
-  try {
-    await m.run({ tx, env }, args);
-    for (const t of m.writes) changed.add(t);
-  } catch {
-    // Keep queued; hide optimistic effect.
-  }
 }
 
 export async function purgeScope(

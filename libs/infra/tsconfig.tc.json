@@ -1,5 +1,18 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["../../pkgs/ts-reset/src/index.ts", "src/**/*.ts"],
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "gql.tada/ts-plugin",
+        "schema": "./src/cli/lib/railway-graphql/schema.graphql",
+        "tadaOutputLocation": "./src/cli/lib/railway-graphql/graphql-env.d.ts"
+      }
+    ]
+  },
+  "include": [
+    "../../pkgs/ts-reset/src/index.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

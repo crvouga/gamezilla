@@ -59,12 +59,20 @@ export async function fetchPubSubToken(args: {
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
 }): Promise<PubSubTokenCreds> {
   const base = args.config.getApiUrl().replace(/\/$/, '');
-  const token = await resolveSessionToken(args);
-  const res = await args.fetchFn(`${base}/api/pubsub/token`, {
-    method: 'POST',
-    headers: authHeaders(args.auth.getDeviceId() ?? '', token),
-    body: '{}',
-  });
+  const deviceId = args.auth.getDeviceId() ?? '';
+  const url = `${base}/api/pubsub/token`;
+  const post = (bearer: string | null) =>
+    args.fetchFn(url, {
+      method: 'POST',
+      headers: authHeaders(deviceId, bearer),
+      body: '{}',
+    });
+  let token = await resolveSessionToken(args);
+  let res = await post(token);
+  if (res.status === 401 && args.getFreshAuthToken !== undefined) {
+    token = await args.getFreshAuthToken({ skipCache: true });
+    res = await post(token);
+  }
   if (res.status === 401) {
     throw new SyncApiAuthError('expired');
   }

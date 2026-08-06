@@ -7,7 +7,8 @@ import { getApiPubSub } from './api-pubsub';
 /** Best-effort user-topic nudge after a non-replay DOMAIN write. */
 export function notifyUserChannels(
   userIds: readonly string[],
-  label: string
+  label: string,
+  tables?: readonly string[]
 ): void {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
@@ -16,6 +17,8 @@ export function notifyUserChannels(
     notifyChannels({
       pubsub,
       topics: userIds.filter((id) => id.length > 0).map((id) => userTopic(id)),
+      checkpoint: `${Date.now()}000000`,
+      ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
       label,
     });
   });

@@ -57,8 +57,12 @@ export function validateMutationInvalidates(m: Mutation<unknown>): void {
     avatarConfig: {},
   });
   const args = parsed.success ? parsed.data : {};
-  assertTopics(
-    `Mutation ${m.name} invalidates`,
-    m.invalidates(args, SENTINEL_MUTATION_ENV)
-  );
+  const result = m.invalidates(args, SENTINEL_MUTATION_ENV);
+  if (result instanceof Promise) {
+    void result.then((topics) =>
+      assertTopics(`Mutation ${m.name} invalidates`, topics)
+    );
+    return;
+  }
+  assertTopics(`Mutation ${m.name} invalidates`, result);
 }

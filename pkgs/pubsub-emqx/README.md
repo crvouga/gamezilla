@@ -24,7 +24,9 @@ Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/db/shared/sync-topics`:
 - `user:{actorId}`
 - `room:{spaceId}`
 
-JWT ACL grants subscribe-only on those topics; clients never publish in v1.
+JWT ACL grants subscribe **and** publish on the actor's topic set (`user:{self}`,
+membership `room:*`, `system:client_config`). Clients publish mutation fanout on
+those topics; server nudges still use the HTTP publish API.
 
 Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
 

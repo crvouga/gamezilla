@@ -1,6 +1,10 @@
 import { SignJWT } from 'jose';
 import type { Topic } from '@pkgs/pubsub/interface';
-import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
+import {
+  clientConfigTopic,
+  roomTopic,
+  userTopic,
+} from '@libs/db/shared/sync-topics';
 
 const TOKEN_TTL_SEC = 15 * 60;
 
@@ -10,19 +14,33 @@ export type EmqxAclRule = {
   readonly topic: string;
 };
 
+/** Subscribe + publish on the same actor topic set (mutation fanout). */
 export function buildSubscribeAcl(topics: readonly Topic[]): EmqxAclRule[] {
-  return topics.map((topic) => ({
-    permission: 'allow' as const,
-    action: 'subscribe' as const,
-    topic,
-  }));
+  const rules: EmqxAclRule[] = [];
+  for (const topic of topics) {
+    rules.push({
+      permission: 'allow',
+      action: 'subscribe',
+      topic,
+    });
+    rules.push({
+      permission: 'allow',
+      action: 'publish',
+      topic,
+    });
+  }
+  return rules;
 }
 
 export function pubsubTopicsForActor(
   actorId: string,
   spaceIds: readonly string[]
 ): Topic[] {
-  return [userTopic(actorId), ...spaceIds.map((id) => roomTopic(id))];
+  return [
+    userTopic(actorId),
+    clientConfigTopic(),
+    ...spaceIds.map((id) => roomTopic(id)),
+  ];
 }
 
 export async function mintPubSubToken(args: {

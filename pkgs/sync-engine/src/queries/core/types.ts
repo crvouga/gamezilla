@@ -42,12 +42,8 @@ export type QueryDef<P> = {
   readonly hydrates: readonly string[];
   /** Hard row limit — required; enforced at registry time. */
   readonly limit: number;
-  /** Topics whose nudges affect this query's scope (optional; poll-only if omitted). */
+  /** Topics whose nudges affect this query's scope (optional; reconcile-only if omitted). */
   readonly channels?: QueryChannels<P>;
-  /** Client poll interval while pubsub is down / absent. */
-  readonly pollMs?: number;
-  /** Client poll interval while pubsub is connected (default max(pollMs, 30s)). */
-  readonly pollMsLazy?: number;
   readonly authorize?: QueryAuthorize<P>;
   readonly run: QueryRun<P>;
 };

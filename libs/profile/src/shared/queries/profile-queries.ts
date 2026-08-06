@@ -30,6 +30,7 @@ export const profilesByIds = defineQuery({
   }),
   hydrates: ['profiles'],
   limit: 200,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx, params) {
     return ctx.env.actorId.length > 0 && params.ids.length > 0;
   },

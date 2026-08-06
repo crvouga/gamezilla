@@ -17,6 +17,14 @@ const repoRoot = join(apiRoot, '../..');
 const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
+/** Local @apps/emqx defaults when the secret store has not seeded EMQX_* yet. */
+const LOCAL_EMQX_DEV_DEFAULTS: Readonly<Record<string, string>> = {
+  EMQX_API_URL: 'http://127.0.0.1:18083',
+  EMQX_API_KEY: 'pubsub-test',
+  EMQX_API_SECRET: 'pubsub-test-secret',
+  EMQX_JWT_SECRET: 'local-emqx-jwt-secret-change-me',
+};
+
 function readApiUrlForDevVars(): string {
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
@@ -53,6 +61,15 @@ async function main(): Promise<void> {
     }
     lines.push(`${entry.name}=${encodeDevVarValue(value)}`);
     written.add(entry.name);
+  }
+
+  for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_DEFAULTS)) {
+    if (written.has(name)) continue;
+    lines.push(`${name}=${encodeDevVarValue(value)}`);
+    written.add(name);
+    process.stdout.write(
+      `[setup-dev-vars] ${name} unset in secrets; using local default.\n`
+    );
   }
 
   const body = `${lines.join('\n')}\n`;

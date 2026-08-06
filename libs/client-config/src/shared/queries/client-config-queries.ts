@@ -1,4 +1,5 @@
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { clientConfigChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -7,6 +8,7 @@ export const clientConfig = defineQuery({
   params: z.object({}),
   hydrates: ['client_config'],
   limit: 1,
+  channels: () => clientConfigChannels(),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },

@@ -1,3 +1,4 @@
+import type { Topic } from '@pkgs/pubsub/interface';
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
@@ -7,6 +8,7 @@ export const inboxActive = defineQuery({
   params: z.object({}),
   hydrates: ['inbox_interactions'],
   limit: 500,
+  channels: (_params, ctx) => [`user:${ctx.actorId}` as Topic],
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },

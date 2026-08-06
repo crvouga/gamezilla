@@ -3,6 +3,27 @@ export function isAutoplayBlockedError(error: unknown): boolean {
   return 'name' in error && error.name === 'NotAllowedError';
 }
 
+/**
+ * `expo-audio` SharedObjects are released on unmount / Fast Refresh. An
+ * in-flight `seekTo` → `play()` that outlives that release throws
+ * `NativeSharedObjectNotFoundException` — treat as a no-op, not a crash.
+ */
+export function isReleasedSharedObjectError(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
+  const message =
+    'message' in error && typeof error.message === 'string'
+      ? error.message
+      : '';
+  return (
+    message.includes('NativeSharedObjectNotFoundException') ||
+    message.includes('Unable to find the native shared object')
+  );
+}
+
+function isIgnorableAudioPlayError(error: unknown): boolean {
+  return isAutoplayBlockedError(error) || isReleasedSharedObjectError(error);
+}
+
 /** Web browsers reject `play()` until the user has interacted with the page. */
 export function playAudioOrIgnoreAutoplayBlock(
   play: () => void | Promise<void>,
@@ -15,16 +36,16 @@ export function playAudioOrIgnoreAutoplayBlock(
       typeof (result as Promise<void>).then === 'function'
     ) {
       void (result as Promise<void>).catch((error: unknown) => {
-        if (isAutoplayBlockedError(error)) {
-          onBlocked();
+        if (isIgnorableAudioPlayError(error)) {
+          if (isAutoplayBlockedError(error)) onBlocked();
           return;
         }
         throw error;
       });
     }
   } catch (error) {
-    if (isAutoplayBlockedError(error)) {
-      onBlocked();
+    if (isIgnorableAudioPlayError(error)) {
+      if (isAutoplayBlockedError(error)) onBlocked();
       return;
     }
     throw error;
