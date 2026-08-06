@@ -1,30 +1,17 @@
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { FRIENDS_RULES } from '@libs/friends/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useCallback } from 'react';
 
-import {
-  authorizeDecline,
-  declineFriendRequest,
-  declineFriendRequestBeforeBatch,
-} from '../../shared/decline-friend-request/decline-friend-request-write';
+import { declineFriendRequestMutation } from '../../shared/mutations/friends-mutations';
 
 export function useDeclineFriendRequest() {
-  const engine = useSyncEngine();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   return useCallback(
     async (requestId: string) => {
-      const input = { requestId };
-      await authorizeDecline(auth, input, engine.db);
-      return validatedWrite({
-        sql: engine.db,
-        auth,
-        rules: FRIENDS_RULES,
-        beforeBatch: declineFriendRequestBeforeBatch(input),
-        fn: (tx) => declineFriendRequest(auth, input, tx),
+      const result = await mutationClient.mutate(declineFriendRequestMutation, {
+        requestId,
       });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, engine]
+    [mutationClient]
   );
 }

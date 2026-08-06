@@ -68,10 +68,7 @@ function laneEnv(bunScript: string): NodeJS.ProcessEnv {
   return env;
 }
 
-async function runLane(
-  stepId: string,
-  bunScript: string
-): Promise<LaneResult> {
+async function runLane(stepId: string, bunScript: string): Promise<LaneResult> {
   const proc = Bun.spawn(['bun', 'run', bunScript], {
     cwd: REPO_ROOT,
     env: laneEnv(bunScript),

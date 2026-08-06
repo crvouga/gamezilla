@@ -179,6 +179,15 @@ CREATE TABLE IF NOT EXISTS public.spaces (
     host_member_id text
 );
 
+-- Per-install open-space sessions (miniplayer + room lifetime). Synced by device_id.
+CREATE TABLE IF NOT EXISTS public.space_open_sessions (
+    id text NOT NULL,
+    space_id text NOT NULL,
+    device_id text NOT NULL,
+    opened_at timestamp with time zone NOT NULL,
+    join_announced boolean DEFAULT false NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS public.user_blocks (
     id text NOT NULL,
     blocker_id text NOT NULL,
@@ -195,6 +204,38 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 ALTER TABLE public.users
   ADD COLUMN IF NOT EXISTS is_anon boolean DEFAULT false NOT NULL;
+
+-- Mutators framework: client-insert log (uploads; not synced down).
+CREATE TABLE IF NOT EXISTS public._mutations (
+    id text NOT NULL,
+    name text NOT NULL,
+    args text NOT NULL,
+    client_id text NOT NULL,
+    seq bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL
+);
+
+-- Mutators framework: server-only idempotency + audit (never synced).
+CREATE TABLE IF NOT EXISTS public._mutations_applied (
+    mutation_id text NOT NULL,
+    client_id text NOT NULL,
+    seq bigint NOT NULL,
+    status text NOT NULL,
+    applied_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT _mutations_applied_status_check CHECK ((status = ANY (ARRAY['applied'::text, 'rejected'::text])))
+);
+
+-- Mutators framework: permanent failures synced down by client_id (= device_id).
+CREATE TABLE IF NOT EXISTS public.write_rejections (
+    id text NOT NULL,
+    mutation_id text NOT NULL,
+    client_id text NOT NULL,
+    code text NOT NULL,
+    message text NOT NULL,
+    meta jsonb,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    acknowledged boolean DEFAULT false NOT NULL
+);
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_interactions
@@ -341,6 +382,15 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_open_sessions
+    ADD CONSTRAINT space_open_sessions_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.user_blocks
     ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id)';
 EXCEPTION
@@ -395,6 +445,15 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_open_sessions
+    ADD CONSTRAINT space_open_sessions_device_id_space_id_key UNIQUE (device_id, space_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.user_blocks
     ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id)';
 EXCEPTION
@@ -432,6 +491,8 @@ ALTER TABLE ONLY public.inbox_schema_state REPLICA IDENTITY FULL;
 ALTER TABLE ONLY public.space_users REPLICA IDENTITY FULL;
 
 ALTER TABLE ONLY public.spaces REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.space_open_sessions REPLICA IDENTITY FULL;
 
 ALTER TABLE ONLY public.user_blocks REPLICA IDENTITY FULL;
 
@@ -485,6 +546,15 @@ END $$;
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.space_users
     ADD CONSTRAINT space_users_space_id_spaces_id_fk FOREIGN KEY (space_id) REFERENCES public.spaces(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_open_sessions
+    ADD CONSTRAINT space_open_sessions_space_id_spaces_id_fk FOREIGN KEY (space_id) REFERENCES public.spaces(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -564,6 +634,10 @@ CREATE INDEX IF NOT EXISTS space_users_space_id_idx ON public.space_users USING 
 
 CREATE INDEX IF NOT EXISTS space_users_user_id_idx ON public.space_users USING btree (user_id);
 
+CREATE INDEX IF NOT EXISTS space_open_sessions_device_id_idx ON public.space_open_sessions USING btree (device_id);
+
+CREATE INDEX IF NOT EXISTS space_open_sessions_space_id_idx ON public.space_open_sessions USING btree (space_id);
+
 CREATE INDEX IF NOT EXISTS spaces_created_at_idx ON public.spaces USING btree (created_at DESC NULLS LAST);
 
 CREATE INDEX IF NOT EXISTS spaces_ended_at_idx ON public.spaces USING btree (ended_at);
@@ -583,3 +657,38 @@ CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx ON public.fr
 CREATE UNIQUE INDEX IF NOT EXISTS inbox_interactions_source_uidx ON public.inbox_interactions USING btree (user_id, source_namespace, source_type, source_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx ON public.profiles USING btree (username_norm) WHERE (username <> ''::text);
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public._mutations
+    ADD CONSTRAINT _mutations_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public._mutations_applied
+    ADD CONSTRAINT _mutations_applied_pkey PRIMARY KEY (mutation_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.write_rejections
+    ADD CONSTRAINT write_rejections_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+CREATE INDEX IF NOT EXISTS _mutations_client_id_seq_idx ON public._mutations USING btree (client_id, seq);
+
+CREATE INDEX IF NOT EXISTS _mutations_applied_client_id_seq_idx ON public._mutations_applied USING btree (client_id, seq);
+
+CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx ON public.write_rejections USING btree (client_id);
+
+CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx ON public.write_rejections USING btree (mutation_id);

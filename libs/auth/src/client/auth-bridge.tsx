@@ -249,11 +249,7 @@ async function applyRefreshSuccess(args: {
     accountId
   );
   if (readSessionToken(deps.store) !== token) {
-    await writeSecureStorageItem(
-      deps.store,
-      LAST_LOCAL_ACCOUNT_ID_KEY,
-      null
-    );
+    await writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
     return;
   }
   deps.lastSyncedTokenRef.current = token;
@@ -331,6 +327,46 @@ async function runRefresh(args: {
   }
 }
 
+const ANON_ENSURE_RETRY_DELAYS_MS = [500, 1500, 3000] as const;
+
+async function sleepMs(ms: number): Promise<void> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function ensureAnonUserWithRetries(deps: RefreshDeps): Promise<string> {
+  let lastError: unknown;
+  for (
+    let attempt = 0;
+    attempt <= ANON_ENSURE_RETRY_DELAYS_MS.length;
+    attempt++
+  ) {
+    try {
+      const { userId } = await ensureAnonAuth({
+        apiUrl: deps.apiUrl,
+        deviceId: deps.deviceId,
+        // First cold start / already-anon: reuse. After sign-out from a
+        // signed-in session the device is still bound to a non-anon user on
+        // the server, so forceNew is unnecessary — ensureAnonUserForDevice
+        // mints when the bound user is non-anon.
+        forceNew: false,
+      });
+      return userId;
+    } catch (e) {
+      lastError = e;
+      const delay = ANON_ENSURE_RETRY_DELAYS_MS[attempt];
+      if (delay === undefined) break;
+      deps.log.warn('auth/anon/ensure failed; retrying', {
+        attempt: attempt + 1,
+        error: e instanceof Error ? e.message : String(e),
+      });
+      await sleepMs(delay);
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
 async function handleSignedOut(deps: RefreshDeps): Promise<void> {
   deps.lastSyncedTokenRef.current = null;
   deps.pendingTokenRef.current = null;
@@ -346,26 +382,14 @@ async function handleSignedOut(deps: RefreshDeps): Promise<void> {
   try {
     const hadUser =
       typeof deps.store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY) === 'string';
-    const { userId } = await ensureAnonAuth({
-      apiUrl: deps.apiUrl,
-      deviceId: deps.deviceId,
-      // First cold start / already-anon: reuse. After sign-out from a
-      // signed-in session the device is still bound to a non-anon user on
-      // the server, so forceNew is unnecessary — ensureAnonUserForDevice
-      // mints when the bound user is non-anon.
-      forceNew: false,
-    });
+    const userId = await ensureAnonUserWithRetries(deps);
     // Sign-in may have written a session token while ensure was in flight —
     // never clobber the signed-in account id with this stale anon bind.
     if (!shouldBindAnonUserAfterEnsure(readSessionToken(deps.store))) {
       deps.log.info('anon ensure discarded; session token present');
       return;
     }
-    await writeSecureStorageItem(
-      deps.store,
-      LAST_LOCAL_ACCOUNT_ID_KEY,
-      userId
-    );
+    await writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, userId);
     if (!hadUser) {
       deps.log.info('anon user ensured', { userId });
     }

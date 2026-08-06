@@ -1,6 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useEffect, type ReactNode } from 'react';
 
 import {
@@ -15,9 +14,8 @@ import { useProfileClientDeps } from './use-profile-client-deps';
  * then asks the API to assign a globally unique username if needed.
  */
 function ProfileEntityBootstrap(): null {
-  const engine = useSyncEngine();
   const myId = useMyId();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   const deps = useProfileClientDeps();
 
   useEffect(() => {
@@ -25,7 +23,7 @@ function ProfileEntityBootstrap(): null {
     void (async () => {
       try {
         if (myId.length === 0) return;
-        await ensureProfile(engine.db, auth, myId);
+        await ensureProfile(mutationClient);
         if (cancelled) return;
         const card = await ensureProfileOnline(deps);
         if (cancelled) return;
@@ -33,10 +31,7 @@ function ProfileEntityBootstrap(): null {
           return;
         }
         if (card.username.length > 0) {
-          await applyEnsuredUsername(engine.db, auth, {
-            profileId: myId,
-            username: card.username,
-          });
+          await applyEnsuredUsername(mutationClient, card.username);
         }
       } catch {
         // Best-effort: re-asserted on the next identity change.
@@ -45,7 +40,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [auth, deps, engine, myId]);
+  }, [deps, mutationClient, myId]);
 
   return null;
 }

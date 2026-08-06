@@ -34,8 +34,8 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/mutations": "workspace:*",
     "@pkgs/object-store": "workspace:*",
-    "@pkgs/rules": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -53,7 +53,8 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:"
+    "react-native": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

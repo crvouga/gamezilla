@@ -7,6 +7,11 @@ import type {
 
 import type { PowerSyncDatabasePort } from './powersync-database-port';
 
+/** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
+function sqliteCompatSql(sqlText: string): string {
+  return sqlText.replace(/\s+FOR UPDATE\b/gi, '');
+}
+
 export function createSqlClientFromPowerSync(
   db: PowerSyncDatabasePort
 ): SqlClient {
@@ -14,9 +19,11 @@ export function createSqlClientFromPowerSync(
     connect: () => db.connect(),
     disconnect: () => db.disconnect(),
     query: <T extends Record<string, unknown>>(query: Sql<T>) =>
-      db.getAll<T>(query.sql, [...query.values]),
+      db.getAll<T>(sqliteCompatSql(query.sql), [...query.values]),
     run: async (query: Sql<unknown>): Promise<RunResult> => {
-      const result = await db.execute(query.sql, [...query.values]);
+      const result = await db.execute(sqliteCompatSql(query.sql), [
+        ...query.values,
+      ]);
       return {
         changes: result.rowsAffected ?? 0,
         lastInsertRowid: Number(result.lastInsertRowid ?? 0),
@@ -31,7 +38,7 @@ export function createSqlClientFromPowerSync(
     prepare: <T extends Record<string, unknown>>(
       query: Sql<T>
     ): PreparedStatement<T> => {
-      const text = query.sql;
+      const text = sqliteCompatSql(query.sql);
       return {
         query: (params?: Value[]) =>
           db.getAll<T>(text, params === undefined ? undefined : [...params]),

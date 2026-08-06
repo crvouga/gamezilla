@@ -1,6 +1,7 @@
 export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 32;
-export const USERNAME_CHANGE_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
+// export const USERNAME_CHANGE_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+export const USERNAME_CHANGE_COOLDOWN_MS = 1000; // 1 second
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
 

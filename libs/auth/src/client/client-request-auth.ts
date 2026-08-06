@@ -16,8 +16,7 @@ export function clientAuthHeaders(
   auth: ClientRequestAuth,
   options?: { readonly requireAccountIdForBearer?: boolean }
 ): Record<string, string> {
-  const requireAccount =
-    options?.requireAccountIdForBearer === true;
+  const requireAccount = options?.requireAccountIdForBearer === true;
   const token = auth.sessionToken;
   const deviceId = auth.deviceId;
   const accountId = auth.accountId;

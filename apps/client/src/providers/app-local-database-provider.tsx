@@ -3,6 +3,7 @@ import { ProfileProvider } from '@libs/profile/client/profile-provider';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { MutationClientProvider } from './mutation-client-provider';
 import { DeviceEntityBootstrap } from './local-database/device-bootstrap';
 import { SyncLocalDataActions } from './local-database/local-data-actions';
 import { SyncEngineBoot } from './local-database/sync-engine-boot';
@@ -12,6 +13,7 @@ const localDatabaseProviders = [
   SqliteRecoveryGate,
   SyncEngineBoot,
   AuthSyncBridge,
+  MutationClientProvider,
   SyncLocalDataActions,
   DeviceEntityBootstrap,
   ProfileProvider,

@@ -8,10 +8,7 @@ import {
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import {
-  findUserIdByDeviceId,
-  readUserAnonState,
-} from './anon-user-ensure';
+import { findUserIdByDeviceId, readUserAnonState } from './anon-user-ensure';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -70,7 +67,9 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
 
     if (header === null || !header.startsWith('Bearer ')) {
       if (anonRaw.length > 0) {
-        return (await buildAnonAppAuthContext(sql, anonRaw)) ?? UNAUTH_CLIENT_CONTEXT;
+        return (
+          (await buildAnonAppAuthContext(sql, anonRaw)) ?? UNAUTH_CLIENT_CONTEXT
+        );
       }
       return UNAUTH_CLIENT_CONTEXT;
     }

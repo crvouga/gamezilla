@@ -1,9 +1,9 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { RoomMetaAttr } from '@pkgs/room';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, useRef } from 'react';
 
-import { markSpaceSessionJoinAnnounced } from '../../shared/open-space/space-open-session-write';
+import { markSpaceJoinAnnouncedMutation } from '../../shared/mutations/space-mutations';
 import { JoinSpaceSeat } from '../../shared/space-members/space-members-messages';
 import { AnnounceMemberJoined } from '../../shared/space-log/space-log-messages';
 import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
@@ -21,7 +21,7 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
   const myId = useMyId();
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const session = useSpaceOpenSession(spaceId);
-  const engine = useSyncEngine();
+  const mutationClient = useMutationClient();
   const announcingRef = useRef(false);
 
   useEffect(() => {
@@ -29,10 +29,10 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
     if (!session.isOpen || session.joinAnnounced) return;
     if (announcingRef.current) return;
     announcingRef.current = true;
-    void engine.db
-      .transaction(async (tx) => markSpaceSessionJoinAnnounced(tx, spaceId))
-      .then((didMark) => {
-        if (!didMark) return;
+    void mutationClient
+      .mutate(markSpaceJoinAnnouncedMutation, { spaceId })
+      .then((result) => {
+        if (!result.ok) return;
         dispatch(JoinSpaceSeat({ memberId: myId }));
         dispatch(AnnounceMemberJoined({ memberId: myId }));
       })
@@ -44,7 +44,7 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
     myId,
     spaceId,
     dispatch,
-    engine,
+    mutationClient,
     session.isOpen,
     session.joinAnnounced,
   ]);

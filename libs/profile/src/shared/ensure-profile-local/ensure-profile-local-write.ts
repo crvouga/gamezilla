@@ -79,9 +79,6 @@ async function fillEmptyUsername(
  * Seeds / backfills the local `profiles` row for `myId`. Username assignment
  * stays online via `POST /profile/ensure`; pass `username` to apply that
  * result locally when the row is still empty (avoids waiting on sync).
- * Username UPDATEs may enqueue PowerSync PATCHes — upload strips those
- * server-owned columns (`stripServerOwnedProfileUploadColumns`) so they
- * do not apply (or assert) on `/api/sync/upload`.
  */
 export async function ensureProfileLocal(
   db: SqlClient,

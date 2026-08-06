@@ -1,16 +1,13 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { isRulesReject } from '@pkgs/rules/core/rules-reject';
-import { messageForFailure } from '@pkgs/rules/core/messages';
-import { FRIENDS_MESSAGES } from '@libs/friends/shared/rules/messages';
-import { mapAppAuthToRulesAuth } from '@libs/auth/shared/map-app-auth-to-rules-auth';
+import type { MutationEnv } from '@pkgs/mutations/core/types';
+import { sql } from '@pkgs/sql';
 
 import {
-  acceptFriendRequest,
-  authorizeAccept,
-  publishAcceptFriendRequestEvent,
-} from '../shared/accept-friend-request/accept-friend-request-write';
-import { cancelFriendRequest } from '../shared/cancel-friend-request/cancel-friend-request-write';
-import { declineFriendRequest } from '../shared/decline-friend-request/decline-friend-request-write';
+  acceptFriendRequestMutation,
+  cancelFriendRequestMutation,
+  declineFriendRequestMutation,
+} from '../shared/mutations/friends-mutations';
+import type { FriendRequest } from '../shared/friends-types';
 import {
   deactivateFriendRequestInteraction,
   publishFriendRequestAcceptedInteraction,
@@ -24,58 +21,88 @@ type InboxFriendsCtx = {
   readonly requestId: string;
 };
 
-function rulesAuthFromInbox(ctx: InboxFriendsCtx) {
-  return mapAppAuthToRulesAuth({
+function mutationEnv(ctx: InboxFriendsCtx): MutationEnv {
+  return {
+    actorId: ctx.actorId,
     deviceId: ctx.deviceId,
     accountId: ctx.actorId,
-    myId: ctx.actorId,
     isAnon: false,
-  });
+    now: () => new Date(),
+  };
 }
 
-async function runInboxMutation<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (isRulesReject(error) && error.failures[0] !== undefined) {
-      const failure = error.failures[0];
-      throw new Error(
-        `${failure.code}: ${messageForFailure(failure, FRIENDS_MESSAGES)}`
-      );
-    }
-    throw error;
+async function getRequest(
+  db: SqlClient,
+  requestId: string
+): Promise<FriendRequest> {
+  const rows = await db.query<{
+    readonly id: string;
+    readonly from_user_id: string;
+    readonly to_user_id: string;
+    readonly status: FriendRequest['status'];
+    readonly message: string | null;
+    readonly created_at: string;
+    readonly updated_at: string;
+    readonly responded_at: string | null;
+  }>(sql`
+    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    FROM friend_requests WHERE id = ${requestId}
+  `);
+  const request = rows[0];
+  if (request === undefined) {
+    throw new Error(`Friend request not found: ${requestId}`);
   }
+  return {
+    id: request.id,
+    fromUserId: request.from_user_id,
+    toUserId: request.to_user_id,
+    status: request.status,
+    message: request.message,
+    createdAt: request.created_at,
+    updatedAt: request.updated_at,
+    respondedAt: request.responded_at,
+  };
 }
 
 export async function handleFriendsInboxAction(
   ctx: InboxFriendsCtx
 ): Promise<void> {
-  const auth = rulesAuthFromInbox(ctx);
-  const input = { requestId: ctx.requestId };
+  const env = mutationEnv(ctx);
 
   if (ctx.actionId === 'accept') {
-    const result = await runInboxMutation(async () => {
-      await authorizeAccept(auth, input, ctx.sql);
-      return acceptFriendRequest(auth, input, ctx.sql);
-    });
-    if (result.accepted) {
-      publishAcceptFriendRequestEvent(auth, result.request);
-    }
-    await deactivateFriendRequestInteraction(ctx.sql, result.request);
-    await publishFriendRequestAcceptedInteraction(ctx.sql, result.request);
+    await acceptFriendRequestMutation.run(
+      {
+        tx: ctx.sql,
+        env,
+      },
+      { requestId: ctx.requestId }
+    );
+    const request = await getRequest(ctx.sql, ctx.requestId);
+    await deactivateFriendRequestInteraction(ctx.sql, request);
+    await publishFriendRequestAcceptedInteraction(ctx.sql, request);
     return;
   }
   if (ctx.actionId === 'decline') {
-    const request = await runInboxMutation(() =>
-      declineFriendRequest(auth, input, ctx.sql)
+    await declineFriendRequestMutation.run(
+      {
+        tx: ctx.sql,
+        env,
+      },
+      { requestId: ctx.requestId }
     );
+    const request = await getRequest(ctx.sql, ctx.requestId);
     await deactivateFriendRequestInteraction(ctx.sql, request);
     return;
   }
   if (ctx.actionId === 'cancel') {
-    const request = await runInboxMutation(() =>
-      cancelFriendRequest(auth, input, ctx.sql)
+    await cancelFriendRequestMutation.run(
+      {
+        tx: ctx.sql,
+        env,
+      },
+      { requestId: ctx.requestId }
     );
+    const request = await getRequest(ctx.sql, ctx.requestId);
     await deactivateFriendRequestInteraction(ctx.sql, request);
     return;
   }

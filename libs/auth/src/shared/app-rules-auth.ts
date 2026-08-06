@@ -1,11 +1,9 @@
-import type { RulesAuth } from '@pkgs/rules/core/types';
-
 /**
- * App-level auth passed into domain rules / validatedWrite.
- * Extends the engine's agnostic {@link RulesAuth} with identity fields
- * product rules need (account, device, anon flag).
+ * App identity used by legacy-named auth hooks while callers migrate to
+ * mutation clients.
  */
-export type AppRulesAuth = RulesAuth & {
+export type AppRulesAuth = {
+  readonly userId: string;
   /** `users.id` when resolved; null only before anon ensure. */
   readonly accountId: string | null;
   readonly deviceId: string;

@@ -52,6 +52,14 @@ streams:
               )
          )
 
+  # Per-install miniplayer / room open state (JWT claim device_id).
+  space_open_sessions:
+    priority: 2
+    auto_subscribe: true
+    query: |
+      SELECT * FROM space_open_sessions
+      WHERE device_id = auth.parameter('device_id')
+
   client_config:
     priority: 1
     auto_subscribe: true
@@ -135,3 +143,12 @@ streams:
       SELECT * FROM inbox_interactions
       WHERE user_id = auth.user_id()
         AND active = true
+
+  # Mutation rejections for this install (JWT claim device_id).
+  # `_mutations` uploads only — no download stream. `_mutations_applied` never syncs.
+  write_rejections:
+    priority: 1
+    auto_subscribe: true
+    query: |
+      SELECT * FROM write_rejections
+      WHERE client_id = auth.parameter('device_id')

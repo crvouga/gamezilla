@@ -85,46 +85,6 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
-      name: 'rules-no-cross-context',
-      severity: 'error',
-      comment:
-        '@pkgs/rules domain modules must not import sibling domains. Share only via core/.',
-      from: { path: '^pkgs/rules/src/auth/' },
-      to: { path: '^pkgs/rules/src/(chess|friends|profile|spaces)/' },
-    },
-    {
-      name: 'rules-no-cross-context-chess',
-      severity: 'error',
-      comment:
-        '@pkgs/rules domain modules must not import sibling domains. Share only via core/.',
-      from: { path: '^pkgs/rules/src/chess/' },
-      to: { path: '^pkgs/rules/src/(auth|friends|profile|spaces)/' },
-    },
-    {
-      name: 'rules-no-cross-context-friends',
-      severity: 'error',
-      comment:
-        '@pkgs/rules domain modules must not import sibling domains. Share only via core/.',
-      from: { path: '^pkgs/rules/src/friends/' },
-      to: { path: '^pkgs/rules/src/(auth|chess|profile|spaces)/' },
-    },
-    {
-      name: 'rules-no-cross-context-profile',
-      severity: 'error',
-      comment:
-        '@pkgs/rules domain modules must not import sibling domains. Share only via core/.',
-      from: { path: '^pkgs/rules/src/profile/' },
-      to: { path: '^pkgs/rules/src/(auth|chess|friends|spaces)/' },
-    },
-    {
-      name: 'rules-no-cross-context-spaces',
-      severity: 'error',
-      comment:
-        '@pkgs/rules domain modules must not import sibling domains. Share only via core/.',
-      from: { path: '^pkgs/rules/src/spaces/' },
-      to: { path: '^pkgs/rules/src/(auth|chess|friends|profile)/' },
-    },
-    {
       name: 'libs-not-apps',
       severity: 'error',
       comment:

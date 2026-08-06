@@ -63,7 +63,13 @@ async function bindDeviceToUser(
     SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
   `);
   if (rows[0] === undefined) {
-    const cols = ['id', 'user_id', 'created_at', 'first_seen_at', 'last_seen_at'];
+    const cols = [
+      'id',
+      'user_id',
+      'created_at',
+      'first_seen_at',
+      'last_seen_at',
+    ];
     const vals: Value[] = [deviceId, userId, now, now, now];
     await db.run(sql<void>`
       INSERT INTO devices (${raw(cols.join(', '))})

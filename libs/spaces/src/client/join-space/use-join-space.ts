@@ -1,17 +1,18 @@
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useCallback } from 'react';
 
-import { joinSpaceAction } from './space-join-action';
+import { joinSpaceMutation } from '../../shared/mutations/space-mutations';
 
 export function useJoinSpace() {
-  const auth = useRulesAuth();
-  const engine = useSyncEngine();
+  const mutationClient = useMutationClient();
 
   return useCallback(
     async (spaceId: string) => {
-      await joinSpaceAction(engine.db, auth, { spaceId });
+      const result = await mutationClient.mutate(joinSpaceMutation, {
+        spaceId,
+      });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, engine]
+    [mutationClient]
   );
 }

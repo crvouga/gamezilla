@@ -26,7 +26,7 @@ function toPowerSyncTable(def: TableDefinition): Table {
   return new Table(cols);
 }
 
-/** Build a PowerSync Schema from one or more table registries (sync + localOnly). */
+/** Build a PowerSync Schema from one or more table registries. */
 export function createPowerSyncSchema(
   ...registries: readonly TableRegistry[]
 ): Schema {

@@ -1,25 +1,26 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
+import { FriendService } from '@libs/friends/server/friend-service';
 import { Hono } from 'hono';
 
-import {
-  handleAcceptFriendRequest,
-  handleBlockUser,
-  handleCancelFriendRequest,
-  handleDeclineFriendRequest,
-  handleRemoveFriend,
-  handleSearchUsers,
-  handleSendFriendRequest,
-  handleUnblockUser,
-} from './friends-route-handlers';
+import { withFriendsAuth } from './friends-route-auth';
+import { readRequiredString } from './friends-route-utils';
+
+type SearchBody = { readonly query?: string; readonly limit?: number };
+
+async function handleSearchUsers(c: Parameters<typeof withFriendsAuth>[0]) {
+  return withFriendsAuth(c, async (auth) => {
+    const body = (await c.req.json()) as SearchBody;
+    const query = readRequiredString(body.query, 'query');
+    const results = await FriendService.searchUsers(
+      c.get('sqlClient'),
+      auth.myId,
+      query,
+      typeof body.limit === 'number' ? body.limit : undefined
+    );
+    return c.json({ results });
+  });
+}
 
 export function createFriendsApp(): Hono<ApiHonoEnv> {
-  return new Hono<ApiHonoEnv>()
-    .post('/friends/search', handleSearchUsers)
-    .post('/friends/requests', handleSendFriendRequest)
-    .post('/friends/requests/:id/accept', handleAcceptFriendRequest)
-    .post('/friends/requests/:id/decline', handleDeclineFriendRequest)
-    .post('/friends/requests/:id/cancel', handleCancelFriendRequest)
-    .delete('/friends/:userId', handleRemoveFriend)
-    .post('/friends/blocks', handleBlockUser)
-    .delete('/friends/blocks/:userId', handleUnblockUser);
+  return new Hono<ApiHonoEnv>().post('/friends/search', handleSearchUsers);
 }

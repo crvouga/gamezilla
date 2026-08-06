@@ -4,18 +4,21 @@ import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
 
-import { applyEnsuredUsername, ensureProfile } from './ensure-profile';
+import {
+  applyEnsuredUsernameMutation,
+  ensureProfileMutation,
+} from '../../shared/mutations/profile-mutations';
 
 const MY_ID = '550e8400-e29b-41d4-a716-446655440000';
 
-function rulesAuthFor(myId: string): AppRulesAuth {
+function mutationEnv(myId: string) {
   return {
-    userId: myId,
+    actorId: myId,
     deviceId: myId,
     accountId: null,
     isAnon: true,
+    now: () => new Date('2026-08-06T00:00:00.000Z'),
   };
 }
 
@@ -30,21 +33,30 @@ function openTestSql(): SqlClientImplBunSqlite {
       avatar_config TEXT NOT NULL
     )
   `);
-  // validatedWrite reads ps_crud watermarks (PowerSync queue); empty stub is enough.
-  db.run(`
-    CREATE TABLE ps_crud (
-      id INTEGER PRIMARY KEY,
-      tx_id INTEGER,
-      data TEXT
-    )
-  `);
   return new SqlClientImplBunSqlite(db);
+}
+
+async function ensureProfile(sqlClient: SqlClientImplBunSqlite): Promise<void> {
+  await ensureProfileMutation.run(
+    { tx: sqlClient, env: mutationEnv(MY_ID) },
+    {}
+  );
+}
+
+async function applyEnsuredUsername(
+  sqlClient: SqlClientImplBunSqlite,
+  username: string
+): Promise<void> {
+  await applyEnsuredUsernameMutation.run(
+    { tx: sqlClient, env: mutationEnv(MY_ID) },
+    { username }
+  );
 }
 
 describe('ensureProfile', () => {
   test('creates a row with empty username and avatar', async () => {
     const sqlClient = openTestSql();
-    await ensureProfile(sqlClient, rulesAuthFor(MY_ID), MY_ID);
+    await ensureProfile(sqlClient);
 
     const row = (
       await sqlClient.query(sql<Record<string, string>>`
@@ -60,9 +72,8 @@ describe('ensureProfile', () => {
 
   test('does not insert a second row when profile already exists', async () => {
     const sqlClient = openTestSql();
-    const auth = rulesAuthFor(MY_ID);
-    await ensureProfile(sqlClient, auth, MY_ID);
-    await ensureProfile(sqlClient, auth, MY_ID);
+    await ensureProfile(sqlClient);
+    await ensureProfile(sqlClient);
 
     const rows = await sqlClient.query(sql<{ n: number }>`
       SELECT count(*) AS n
@@ -74,12 +85,8 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername fills an empty local username', async () => {
     const sqlClient = openTestSql();
-    const auth = rulesAuthFor(MY_ID);
-    await ensureProfile(sqlClient, auth, MY_ID);
-    await applyEnsuredUsername(sqlClient, auth, {
-      profileId: MY_ID,
-      username: 'AssignedName',
-    });
+    await ensureProfile(sqlClient);
+    await applyEnsuredUsername(sqlClient, 'AssignedName');
     const row = (
       await sqlClient.query(sql<Record<string, string>>`
         SELECT username
@@ -92,16 +99,9 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername corrects wrong auto username', async () => {
     const sqlClient = openTestSql();
-    const auth = rulesAuthFor(MY_ID);
-    await ensureProfile(sqlClient, auth, MY_ID);
-    await applyEnsuredUsername(sqlClient, auth, {
-      profileId: MY_ID,
-      username: 'WrongOtherAccount',
-    });
-    await applyEnsuredUsername(sqlClient, auth, {
-      profileId: MY_ID,
-      username: 'CorrectName',
-    });
+    await ensureProfile(sqlClient);
+    await applyEnsuredUsername(sqlClient, 'WrongOtherAccount');
+    await applyEnsuredUsername(sqlClient, 'CorrectName');
     const row = (
       await sqlClient.query(sql<Record<string, string>>`
         SELECT username
@@ -114,17 +114,13 @@ describe('ensureProfile', () => {
 
   test('applyEnsuredUsername does not overwrite user-chosen username', async () => {
     const sqlClient = openTestSql();
-    const auth = rulesAuthFor(MY_ID);
-    await ensureProfile(sqlClient, auth, MY_ID);
+    await ensureProfile(sqlClient);
     await sqlClient.run(sql<void>`
       UPDATE profiles
       SET username = ${'MyHandle'}, username_changed_at = ${new Date().toISOString()}
       WHERE id = ${MY_ID}
     `);
-    await applyEnsuredUsername(sqlClient, auth, {
-      profileId: MY_ID,
-      username: 'ServerName',
-    });
+    await applyEnsuredUsername(sqlClient, 'ServerName');
     const row = (
       await sqlClient.query(sql<Record<string, string>>`
         SELECT username

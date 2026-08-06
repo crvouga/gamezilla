@@ -35,16 +35,16 @@ function presenceSql(spaceId: string, enabled: boolean): Sql<PresenceRow> {
       s.host_member_id,
       s.host_account_id,
       s.ended_at,
-      CASE WHEN o.id IS NOT NULL THEN 1 ELSE 0 END AS is_open
+      CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open
     FROM spaces AS s
-    LEFT JOIN local_space_open_sessions AS o ON o.id = s.id
+    LEFT JOIN space_open_sessions AS o ON o.space_id = s.id
     WHERE s.id = ${spaceId}
   `;
 }
 
 /**
- * Resolves whether this account has `spaceId` open locally.
- * One SQL watch joins `spaces` + `local_space_open_sessions`.
+ * Resolves whether this account has `spaceId` open on this install.
+ * One SQL watch joins `spaces` + `space_open_sessions`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const accountId = useMyAccountId();

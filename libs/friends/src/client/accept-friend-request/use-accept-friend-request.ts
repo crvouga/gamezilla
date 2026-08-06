@@ -1,35 +1,17 @@
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { FRIENDS_RULES } from '@libs/friends/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useCallback } from 'react';
 
-import {
-  acceptFriendRequest,
-  acceptFriendRequestBeforeBatch,
-  authorizeAccept,
-  publishAcceptFriendRequestEvent,
-} from '../../shared/accept-friend-request/accept-friend-request-write';
+import { acceptFriendRequestMutation } from '../../shared/mutations/friends-mutations';
 
 export function useAcceptFriendRequest() {
-  const engine = useSyncEngine();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   return useCallback(
     async (requestId: string) => {
-      const input = { requestId };
-      await authorizeAccept(auth, input, engine.db);
-      const result = await validatedWrite({
-        sql: engine.db,
-        auth,
-        rules: FRIENDS_RULES,
-        beforeBatch: acceptFriendRequestBeforeBatch(input),
-        fn: (tx) => acceptFriendRequest(auth, input, tx),
+      const result = await mutationClient.mutate(acceptFriendRequestMutation, {
+        requestId,
       });
-      if (result.accepted) {
-        publishAcceptFriendRequestEvent(auth, result.request);
-      }
-      return result.request;
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, engine]
+    [mutationClient]
   );
 }

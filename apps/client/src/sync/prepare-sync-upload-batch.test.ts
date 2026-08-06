@@ -6,7 +6,7 @@ import { prepareSyncUploadBatch } from './sync-api';
 const AUTH = { accountId: 'account-1' as string | null };
 
 describe('prepareSyncUploadBatch', () => {
-  test('drops username-only profile patches so they are not uploaded', () => {
+  test('keeps profile username patches (server mutators discard DOMAIN residue)', () => {
     const prepared = prepareSyncUploadBatch(
       {
         rows: [
@@ -20,10 +20,17 @@ describe('prepareSyncUploadBatch', () => {
       },
       AUTH
     );
-    expect(prepared.rows).toEqual([]);
+    expect(prepared.rows).toEqual([
+      {
+        op: 'patch',
+        table: PROFILES_TABLE.tableName,
+        id: 'account-1',
+        values: { username: 'Assigned' },
+      },
+    ]);
   });
 
-  test('keeps avatar patches after stripping username', () => {
+  test('keeps avatar and username together on profile patches', () => {
     const prepared = prepareSyncUploadBatch(
       {
         rows: [
@@ -45,7 +52,10 @@ describe('prepareSyncUploadBatch', () => {
         op: 'patch',
         table: PROFILES_TABLE.tableName,
         id: 'account-1',
-        values: { avatar_config: '{"style":"bottts"}' },
+        values: {
+          username: 'Assigned',
+          avatar_config: '{"style":"bottts"}',
+        },
       },
     ]);
   });
@@ -166,5 +176,35 @@ describe('prepareSyncUploadBatch', () => {
         values: { id: 'space-1', host_member_id: 'account-1' },
       },
     ]);
+  });
+
+  test('strips SERVER_ONLY rows like write_rejections', () => {
+    const prepared = prepareSyncUploadBatch(
+      {
+        rows: [
+          {
+            op: 'patch',
+            table: 'write_rejections',
+            id: 'rej-1',
+            values: { acknowledged: 1 },
+          },
+          {
+            op: 'put',
+            table: '_mutations',
+            id: 'mut-1',
+            values: {
+              id: 'mut-1',
+              name: 'acknowledgeWriteRejection',
+              args: '{}',
+              client_id: 'device-1',
+              seq: 1,
+              created_at: '2026-01-01T00:00:00.000Z',
+            },
+          },
+        ],
+      },
+      AUTH
+    );
+    expect(prepared.rows.map((row) => row.table)).toEqual(['_mutations']);
   });
 });

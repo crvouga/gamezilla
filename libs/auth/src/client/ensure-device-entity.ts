@@ -1,17 +1,21 @@
-import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { AUTH_RULES } from '@libs/auth/shared/rules/rules';
-import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import type { MutationClient } from '@pkgs/mutations/client/create-mutation-client';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-import { assertDeviceId } from '../shared';
-import {
-  ensureDeviceRow,
-  type DeviceSnapshot,
-} from '../shared/writes/ensure-device-write';
+import { ensureDeviceMutation } from '../shared/mutations/auth-mutations';
+
+export type DeviceSnapshot = {
+  readonly platform: string | null;
+  readonly os_name: string | null;
+  readonly os_version: string | null;
+  readonly device_model_name: string | null;
+  readonly device_brand: string | null;
+  readonly device_name: string | null;
+  readonly app_version: string | null;
+  readonly app_build_number: string | null;
+  readonly user_agent: string | null;
+};
 
 function normString(v: unknown): string | null {
   if (v === null || v === undefined) return null;
@@ -67,26 +71,9 @@ export function collectDeviceSnapshot(): DeviceSnapshot {
  * then on every launch refreshes `last_seen_at` and any changed device metadata.
  */
 export async function ensureDeviceEntity(
-  sql: SqlClient,
-  auth: AppRulesAuth,
-  deviceId: string = auth.deviceId
+  mutationClient: MutationClient
 ): Promise<void> {
-  assertDeviceId(deviceId);
   const snapshot = collectDeviceSnapshot();
-  await validatedWrite({
-    sql,
-    auth,
-    rules: AUTH_RULES,
-    beforeBatch: {
-      rows: [
-        {
-          op: 'put',
-          table: DEVICES_TABLE.tableName,
-          id: deviceId,
-          values: { id: deviceId },
-        },
-      ],
-    },
-    fn: (tx) => ensureDeviceRow(tx, deviceId, snapshot),
-  });
+  const result = await mutationClient.mutate(ensureDeviceMutation, snapshot);
+  if (!result.ok) throw new Error(result.failures[0]?.message);
 }

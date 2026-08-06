@@ -37,8 +37,8 @@
     "@pkgs/inbox": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/mutations": "workspace:*",
     "@pkgs/room": "workspace:*",
-    "@pkgs/rules": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
@@ -50,7 +50,8 @@
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
-    "react-native-safe-area-context": "catalog:"
+    "react-native-safe-area-context": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

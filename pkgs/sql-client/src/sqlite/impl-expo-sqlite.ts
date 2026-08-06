@@ -10,6 +10,11 @@ import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
+/** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
+function sqliteCompatSql(sqlText: string): string {
+  return sqlText.replace(/\s+FOR UPDATE\b/gi, '');
+}
+
 export {
   isRecoverableExpoSqliteWebRuntimeError,
   subscribeExpoSqliteWebFatalError,
@@ -282,7 +287,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     return this.runSerialized(() =>
       this.db.getAllAsync<T>(
-        query.sql,
+        sqliteCompatSql(query.sql),
         query.values as SQLite.SQLiteBindValue[]
       )
     );
@@ -291,7 +296,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   async run(query: Sql<unknown>): Promise<RunResult> {
     return this.runSerialized(async () => {
       const result = await this.db.runAsync(
-        query.sql,
+        sqliteCompatSql(query.sql),
         query.values as SQLite.SQLiteBindValue[]
       );
       return {
@@ -304,7 +309,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   prepare<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
-    const stmt = this.db.prepareSync(query.sql);
+    const stmt = this.db.prepareSync(sqliteCompatSql(query.sql));
     return {
       query: async (params?: Value[]) =>
         this.runSerialized(async () => {

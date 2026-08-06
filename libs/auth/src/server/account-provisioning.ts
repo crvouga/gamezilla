@@ -3,10 +3,7 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import {
-  clearUserAnonFlag,
-  readUserAnonState,
-} from './anon-user-ensure';
+import { clearUserAnonFlag, readUserAnonState } from './anon-user-ensure';
 import { upsertAuthUserSnapshot } from './entity-store-sql';
 import {
   findUserIdByPrimaryAuthExternalId,

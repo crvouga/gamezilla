@@ -1,11 +1,8 @@
 import {
-  CHESS_PUZZLE_INTERACTIONS_TABLE,
-  CHESS_PUZZLE_PROFILES_TABLE,
-} from '@libs/db/shared/chess-tables';
-import { CHESS_RULES } from '@libs/chess/shared/rules/rules';
-import type { AppRulesAuth } from '@libs/auth/shared/app-rules-auth';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+  appendPuzzleInteractionMutation,
+  upsertPuzzleProfileMutation,
+} from '../../shared/mutations/chess-mutations';
+import type { MutationClient } from '@pkgs/mutations/client/create-mutation-client';
 
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {
@@ -14,68 +11,30 @@ import {
   sliceCurrentPlay,
 } from '../../shared/chess-puzzle-derive';
 import { updatePuzzleRating } from '../../shared/chess-puzzle-rating';
-import {
-  appendPuzzleInteractionRowSql,
-  type AppendPuzzleInteractionInput,
-} from '../../shared/writes/append-puzzle-interaction-write';
-import {
-  upsertPuzzleProfileRow,
-  type UpsertPuzzleProfileInput,
-} from '../../shared/writes/upsert-puzzle-profile-write';
+import { type AppendPuzzleInteractionInput } from '../../shared/writes/append-puzzle-interaction-write';
+import { type UpsertPuzzleProfileInput } from '../../shared/writes/upsert-puzzle-profile-write';
 
 function nowIso(): string {
   return new Date().toISOString();
 }
 
 export async function appendPuzzleInteractionRow(
-  sql: SqlClient,
-  auth: AppRulesAuth,
+  mutationClient: MutationClient,
   args: AppendPuzzleInteractionInput
 ): Promise<void> {
-  await validatedWrite({
-    sql,
-    auth,
-    rules: CHESS_RULES,
-    beforeBatch: {
-      rows: [
-        {
-          op: 'put',
-          table: CHESS_PUZZLE_INTERACTIONS_TABLE.tableName,
-          id: 'pending',
-          values: {
-            owner_id: args.ownerId,
-          },
-        },
-      ],
-    },
-    fn: (tx) => appendPuzzleInteractionRowSql(tx, args),
+  const result = await mutationClient.mutate(appendPuzzleInteractionMutation, {
+    interactionId: crypto.randomUUID(),
+    ...args,
   });
+  if (!result.ok) throw new Error(result.failures[0]?.message);
 }
 
 async function upsertPuzzleProfile(
-  sql: SqlClient,
-  auth: AppRulesAuth,
+  mutationClient: MutationClient,
   args: UpsertPuzzleProfileInput
 ): Promise<void> {
-  await validatedWrite({
-    sql,
-    auth,
-    rules: CHESS_RULES,
-    beforeBatch: {
-      rows: [
-        {
-          op: 'put',
-          table: CHESS_PUZZLE_PROFILES_TABLE.tableName,
-          id: args.ownerId,
-          values: {
-            id: args.ownerId,
-            owner_id: args.ownerId,
-          },
-        },
-      ],
-    },
-    fn: (tx) => upsertPuzzleProfileRow(tx, args),
-  });
+  const result = await mutationClient.mutate(upsertPuzzleProfileMutation, args);
+  if (!result.ok) throw new Error(result.failures[0]?.message);
 }
 
 function computeFinalizeRatings(args: {
@@ -126,8 +85,7 @@ function computeFinalizeRatings(args: {
 
 /** Client orchestration: append terminal interaction, then upsert profile. */
 export async function finalizePuzzlePlayWithProfile(
-  sql: SqlClient,
-  auth: AppRulesAuth,
+  mutationClient: MutationClient,
   args: {
     ownerId: string;
     puzzleId: string;
@@ -141,7 +99,7 @@ export async function finalizePuzzlePlayWithProfile(
 ): Promise<void> {
   if (isPlayClosed(args.interactions, args.puzzleId)) return;
   const ratings = computeFinalizeRatings(args);
-  await appendPuzzleInteractionRow(sql, auth, {
+  await appendPuzzleInteractionRow(mutationClient, {
     ownerId: args.ownerId,
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
@@ -150,7 +108,7 @@ export async function finalizePuzzlePlayWithProfile(
     ratingBefore: ratings.ratingBefore,
     ratingAfter: ratings.ratingAfter,
   });
-  await upsertPuzzleProfile(sql, auth, {
+  await upsertPuzzleProfile(mutationClient, {
     ownerId: args.ownerId,
     rating: ratings.ratingAfter,
     ratingDeviation: ratings.ratingDeviation,

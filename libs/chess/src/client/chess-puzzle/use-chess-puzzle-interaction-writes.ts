@@ -1,6 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useCallback } from 'react';
 
 import type {
@@ -32,15 +31,14 @@ export function useChessPuzzleInteractionWrites(args: {
   finalizePlay: (terminalKind: 'solved' | 'abandoned') => Promise<void>;
 } {
   const { puzzleId, puzzleRating, solveIdx, interactions } = args;
-  const engine = useSyncEngine();
   const myId = useMyId();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
 
   const appendInteraction = useCallback(
     async (kind: ChessPuzzleInteractionKind, extra?: AppendExtra) => {
       if (myId.length === 0) return;
-      await appendPuzzleInteractionRow(engine.db, auth, {
+      await appendPuzzleInteractionRow(mutationClient, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -50,13 +48,13 @@ export function useChessPuzzleInteractionWrites(args: {
         correct: extra?.correct ?? null,
       });
     },
-    [auth, engine, myId, puzzleId, puzzleRating, solveIdx]
+    [mutationClient, myId, puzzleId, puzzleRating, solveIdx]
   );
 
   const finalizePlay = useCallback(
     async (terminalKind: 'solved' | 'abandoned') => {
       if (myId.length === 0) return;
-      await finalizePuzzlePlayWithProfile(engine.db, auth, {
+      await finalizePuzzlePlayWithProfile(mutationClient, {
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -68,9 +66,8 @@ export function useChessPuzzleInteractionWrites(args: {
       });
     },
     [
-      auth,
-      engine,
       interactions,
+      mutationClient,
       myId,
       profileRating,
       profileRd,

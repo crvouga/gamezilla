@@ -1,17 +1,9 @@
 import { useCallback } from 'react';
 
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 
-import {
-  actorIsSpaceHost,
-  authorizeLeaveSpace,
-  executeLeaveSpace,
-  leaveSpaceBeforeBatch,
-} from '../../shared/leave-space/leave-space-write';
+import { leaveSpaceMutation } from '../../shared/mutations/space-mutations';
 import {
   LeaveSpaceSeat,
   SpaceMembersRoomAttr,
@@ -20,8 +12,7 @@ import { AnnounceMemberLeft } from '../../shared/space-log/space-log-messages';
 import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
 
 export function useLeaveSpace() {
-  const auth = useRulesAuth();
-  const engine = useSyncEngine();
+  const mutationClient = useMutationClient();
   const { dispatch: dispatchToSpace, getEntry } = useSpaceOpenRooms();
   const myId = useMyId();
 
@@ -39,20 +30,12 @@ export function useLeaveSpace() {
         dispatchToSpace(spaceId, LeaveSpaceSeat({ memberId: myId }));
         dispatchToSpace(spaceId, AnnounceMemberLeft({ memberId: myId }));
       }
-      const input = { spaceId, endIfLastSeat };
-      await authorizeLeaveSpace(auth, input, engine.db);
-      const willWrite =
-        endIfLastSeat === true ||
-        (await actorIsSpaceHost(auth, engine.db, spaceId));
-      const beforeBatch = leaveSpaceBeforeBatch(auth, input, willWrite);
-      await validatedWrite({
-        sql: engine.db,
-        auth,
-        rules: SPACE_RULES,
-        ...(beforeBatch !== undefined ? { beforeBatch } : {}),
-        fn: (tx) => executeLeaveSpace(auth, input, tx),
+      const result = await mutationClient.mutate(leaveSpaceMutation, {
+        spaceId,
+        endIfLastSeat,
       });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, dispatchToSpace, engine, getEntry, myId]
+    [dispatchToSpace, getEntry, mutationClient, myId]
   );
 }

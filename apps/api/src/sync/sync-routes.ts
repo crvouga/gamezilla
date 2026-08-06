@@ -1,47 +1,20 @@
 import type { AuthContext } from '@libs/auth/server/types';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { mapAppAuthToUploadAuth } from '@libs/auth/shared/map-app-auth-to-upload-auth';
-import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
-import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
-import { loadMemberOfSpaceIdsFromSql } from '@libs/spaces/server/load-member-of-space-ids-sql';
+import { tablePolicyFor } from '@libs/db/shared/table-policy';
 import { assert } from '@pkgs/assert';
-import { runRules } from '@pkgs/rules/core/run-rules';
-import { isRulesReject } from '@pkgs/rules/core/rules-reject';
-import type { Failure } from '@pkgs/rules/core/types';
+import { processUploadWithMutations } from '@pkgs/mutations/server/process-upload-with-mutations';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { ApplyBatchReject } from '@pkgs/sync-engine/server/apply-batch';
-import { processUploadWithRules } from '@pkgs/sync-engine/server/process-upload-with-rules';
 import { parseUploadBody } from '@pkgs/sync-engine/server/upload-handler';
-import type { UploadAuth } from '@pkgs/sync-engine/shared/rules-auth';
-import type {
-  UploadBatch,
-  UploadRow,
-} from '@pkgs/sync-engine/shared/upload-batch';
+import type { UploadRow } from '@pkgs/sync-engine/shared/upload-batch';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
 import type { ApiHonoEnv } from '../app/api-hono-types';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { APP_RULES } from './app-rules';
-import { APP_TABLE_POLICIES } from './table-policies';
-import { recordUploadRejection } from './upload-rejection-metrics';
+import { APP_MUTATIONS } from './app-mutations';
 
-function uploadTablePriority(table: string): number {
-  if (table === SPACES_TABLE.tableName) return 0;
-  if (table === SPACE_USERS_TABLE.tableName) return 1;
-  return 2;
-}
-
-/** Parent tables before children so create-space FK applies in one pass. */
-function orderUploadRowsForParentsFirst(
-  rows: readonly UploadRow[]
-): UploadRow[] {
-  return [...rows].sort(
-    (a, b) => uploadTablePriority(a.table) - uploadTablePriority(b.table)
-  );
-}
-
-async function resolveUploadAuth(request: Request): Promise<UploadAuth | null> {
+async function resolveReplayAuth(request: Request) {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
   assert.defined(requestStore, 'sync upload: request store missing');
   const ctx = await requestStore.sessionAuth.resolveAuthContext(
@@ -49,12 +22,15 @@ async function resolveUploadAuth(request: Request): Promise<UploadAuth | null> {
     request
   );
   const auth = appAuth(ctx);
-  if (auth === null || auth.deviceId === '') return null;
-  const memberOfSpaceIds = await loadMemberOfSpaceIdsFromSql(
-    requestStore.sqlClient,
-    auth.myId
-  );
-  return mapAppAuthToUploadAuth(auth, memberOfSpaceIds);
+  if (auth === null || auth.deviceId === '' || auth.myId.length === 0) {
+    return null;
+  }
+  return {
+    actorId: auth.myId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+  };
 }
 
 function openRequestSqlClient(): SqlClient {
@@ -71,73 +47,73 @@ function openRequestSqlClient(): SqlClient {
   };
 }
 
-function readAppVersion(request: Request): string {
-  const header = request.headers.get('x-app-version');
-  if (header !== null && header.length > 0) return header;
-  return 'unknown';
+function uploadRowToCrud(row: UploadRow) {
+  return {
+    table: row.table,
+    op: row.op.toUpperCase(),
+    id: row.id,
+    data: {
+      id: row.id,
+      ...(row.values ?? {}),
+    },
+  };
 }
 
-function recordFailures(
-  failures: readonly Failure[],
-  appVersion: string
-): void {
-  for (const failure of failures) {
-    recordUploadRejection(failure.code, appVersion);
+async function acquireUploadAdvisoryLock(
+  tx: SqlClient,
+  lockUserId: string
+): Promise<void> {
+  try {
+    await tx.run(
+      sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockUserId}))`
+    );
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    if (
+      message.includes('no such function') ||
+      message.includes('pg_advisory_xact_lock') ||
+      message.includes('hashtext')
+    ) {
+      return;
+    }
+    throw e;
   }
 }
 
-function prepareUploadBatch(batch: UploadBatch): UploadBatch {
+function asNestedTxClient(tx: SqlClient): SqlClient {
   return {
-    rows: orderUploadRowsForParentsFirst(
-      batch.rows.map(stripServerOwnedProfileUploadColumns)
-    ),
+    connect: () => tx.connect(),
+    disconnect: () => Promise.resolve(),
+    query: (q) => tx.query(q),
+    run: (q) => tx.run(q),
+    transaction: async (fn) => fn(tx),
+    prepare: (q) => tx.prepare(q),
   };
 }
 
 async function handleSyncUpload(
   c: Context<ApiHonoEnv<AuthContext>>
 ): Promise<Response> {
-  const auth = await resolveUploadAuth(c.req.raw);
+  const auth = await resolveReplayAuth(c.req.raw);
   if (auth === null) {
     return c.json({ error: 'unauthorized' }, 401);
   }
-  const batch = prepareUploadBatch(parseUploadBody(await c.req.json()));
-  const sql = openRequestSqlClient();
-  const appVersion = readAppVersion(c.req.raw);
+  const batch = parseUploadBody(await c.req.json());
+  const db = openRequestSqlClient();
 
-  try {
-    await processUploadWithRules({
-      db: sql,
+  await db.transaction(async (tx) => {
+    await acquireUploadAdvisoryLock(tx, auth.actorId);
+    await processUploadWithMutations({
+      serverDb: asNestedTxClient(tx),
+      registry: APP_MUTATIONS,
       auth,
-      batch,
-      policies: APP_TABLE_POLICIES,
-      lockUserId: auth.userId,
-      runRules: async ({ phase, auth: uploadAuth, batch: b, db }) => {
-        await runRules(
-          {
-            phase,
-            auth: {
-              userId: uploadAuth.userId,
-              accountId: uploadAuth.accountId,
-              deviceId: uploadAuth.deviceId,
-              isAnon: uploadAuth.isAnon,
-            },
-            batch: b,
-            db,
-          },
-          APP_RULES
-        );
-      },
+      crud: batch.rows.map(uploadRowToCrud),
+      transactionId: null,
+      tablePolicyFor,
     });
-    return c.json({ ok: true }, 200);
-  } catch (e) {
-    if (isRulesReject(e) || e instanceof ApplyBatchReject) {
-      const failures = e.failures;
-      recordFailures(failures, appVersion);
-      return c.json({ discard: true, failures }, 409);
-    }
-    throw e;
-  }
+  });
+
+  return c.json({ ok: true }, 200);
 }
 
 /** PowerSync client upload endpoint (`POST /sync/upload`). */

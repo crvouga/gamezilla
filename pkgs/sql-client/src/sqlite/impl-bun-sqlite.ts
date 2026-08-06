@@ -4,9 +4,9 @@ import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
-/** Strip Postgres-only casts so the same SQL works in bun:sqlite tests. */
+/** Strip Postgres-only syntax so the same SQL works in bun:sqlite tests. */
 function sqliteCompatSql(sql: string): string {
-  return sql.replace(/\?::jsonb/g, '?');
+  return sql.replace(/\?::jsonb/g, '?').replace(/\s+FOR UPDATE\b/gi, '');
 }
 
 export class SqlClientImplBunSqlite implements SqlClient {

@@ -31,7 +31,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/inbox": "workspace:*",
-    "@pkgs/rules": "workspace:*",
+    "@pkgs/mutations": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
@@ -41,7 +41,8 @@
     "expo-router": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:"
+    "react-native": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

@@ -1,28 +1,17 @@
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { FRIENDS_RULES } from '@libs/friends/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useCallback } from 'react';
 
-import {
-  unblockUser,
-  unblockUserBeforeBatch,
-} from '../../shared/unblock-user/unblock-user-write';
+import { unblockUserMutation } from '../../shared/mutations/friends-mutations';
 
 export function useUnblockUser() {
-  const engine = useSyncEngine();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   return useCallback(
     async (userId: string) => {
-      const input = { userId };
-      await validatedWrite({
-        sql: engine.db,
-        auth,
-        rules: FRIENDS_RULES,
-        beforeBatch: unblockUserBeforeBatch(auth, input),
-        fn: (tx) => unblockUser(auth, input, tx),
+      const result = await mutationClient.mutate(unblockUserMutation, {
+        userId,
       });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, engine]
+    [mutationClient]
   );
 }

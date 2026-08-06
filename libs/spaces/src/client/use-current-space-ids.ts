@@ -61,7 +61,7 @@ function currentSpacesSql(enabled: boolean): Sql<SpaceRow> {
   return sql<SpaceRow>`
     SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
     FROM spaces AS s
-    INNER JOIN local_space_open_sessions AS o ON o.id = s.id
+    INNER JOIN space_open_sessions AS o ON o.space_id = s.id
     WHERE s.ended_at IS NULL
     ORDER BY o.opened_at DESC
   `;

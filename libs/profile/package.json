@@ -29,7 +29,7 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/attribute": "workspace:*",
-    "@pkgs/rules": "workspace:*",
+    "@pkgs/mutations": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
@@ -41,7 +41,8 @@
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
-    "unique-names-generator": "catalog:"
+    "unique-names-generator": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

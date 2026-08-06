@@ -1,36 +1,24 @@
 import { useCallback } from 'react';
 
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { SPACE_RULES } from '@libs/spaces/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 
-import {
-  authorizeRenameSpace,
-  renameSpace,
-  renameSpaceBeforeBatch,
-} from '../../shared/rename-space/rename-space-write';
+import { renameSpaceMutation } from '../../shared/mutations/space-mutations';
 import { AnnounceRenamed } from '../../shared/space-log/space-log-messages';
 import { useSpaceRoomDispatch } from '../room/use-space-room-selector';
 
 export function useRenameSpace() {
-  const auth = useRulesAuth();
-  const engine = useSyncEngine();
+  const mutationClient = useMutationClient();
   const dispatch = useSpaceRoomDispatch();
 
   return useCallback(
     async (spaceId: string, title: string) => {
       dispatch(AnnounceRenamed({ title }));
-      const input = { spaceId, title };
-      await authorizeRenameSpace(auth, input, engine.db);
-      await validatedWrite({
-        sql: engine.db,
-        auth,
-        rules: SPACE_RULES,
-        beforeBatch: renameSpaceBeforeBatch(input),
-        fn: (tx) => renameSpace(auth, input, tx),
+      const result = await mutationClient.mutate(renameSpaceMutation, {
+        spaceId,
+        title,
       });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [auth, dispatch, engine]
+    [dispatch, mutationClient]
   );
 }

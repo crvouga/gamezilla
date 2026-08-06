@@ -1,8 +1,6 @@
 import { useMyProfileId } from '../use-my-profile-id';
 import { useProfileRow, type ProfileRow } from '../use-profile-row';
-import { ProfileError, isProfileError } from '../../shared/profile-errors';
-import { setUsernameOnline } from './set-username-online';
-import { useProfileClientDeps } from '../use-profile-client-deps';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import {
   Box,
@@ -20,6 +18,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+
+import { claimUsernameMutation } from '../../shared/mutations/profile-mutations';
 
 function useSyncedUsername(row: ProfileRow | null) {
   const [value, setValue] = useState('');
@@ -67,22 +67,24 @@ function ProfileHandleScreenBody({
   );
 }
 
-function usernameErrorLabel(error: unknown): ReactNode {
-  if (!isProfileError(error)) {
+function usernameErrorLabel(
+  error: { readonly code: string } | null
+): ReactNode {
+  if (error === null) {
     return <Trans>Couldn't save</Trans>;
   }
   switch (error.code) {
-    case 'PROFILE_USERNAME_TAKEN':
+    case 'USERNAME_TAKEN':
       return <Trans>Username is taken</Trans>;
-    case 'PROFILE_USERNAME_COOLDOWN':
+    case 'USERNAME_COOLDOWN':
       return <Trans>Username was changed recently</Trans>;
-    case 'PROFILE_USERNAME_TOO_SHORT':
+    case 'USERNAME_TOO_SHORT':
       return <Trans>Username is too short</Trans>;
-    case 'PROFILE_USERNAME_TOO_LONG':
+    case 'USERNAME_TOO_LONG':
       return <Trans>Username is too long</Trans>;
-    case 'PROFILE_USERNAME_INVALID_FORMAT':
+    case 'USERNAME_INVALID_FORMAT':
       return <Trans>Username can only use letters, numbers, and _</Trans>;
-    case 'PROFILE_USERNAME_EMPTY':
+    case 'USERNAME_EMPTY':
       return <Trans>Username is required</Trans>;
     default:
       return <Trans>Couldn't save</Trans>;
@@ -95,19 +97,26 @@ export function ProfileHandleScreen() {
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
   const nav = useBreadcrumbNav();
-  const deps = useProfileClientDeps();
-  const [lastError, setLastError] = useState<unknown>(null);
+  const mutationClient = useMutationClient();
+  const [lastError, setLastError] = useState<{ readonly code: string } | null>(
+    null
+  );
 
   const save = useCallback(async () => {
     if (profileId === null) return;
     setLastError(null);
-    try {
-      await setUsernameOnline(deps, value.trim());
-    } catch (error) {
-      setLastError(error);
-      throw error instanceof ProfileError ? error : new Error("Couldn't save");
+    const result = await mutationClient.mutate(claimUsernameMutation, {
+      username: value,
+    });
+    if (!result.ok) {
+      const failure = result.failures[0];
+      if (failure !== undefined) {
+        setLastError(failure);
+        throw new Error(failure.message);
+      }
+      throw new Error("Couldn't save");
     }
-  }, [deps, profileId, value]);
+  }, [mutationClient, profileId, value]);
 
   return (
     <ScreenBase

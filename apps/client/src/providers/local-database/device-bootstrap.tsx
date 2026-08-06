@@ -1,7 +1,5 @@
 import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useEffect, type ReactNode } from 'react';
 
 /**
@@ -12,15 +10,13 @@ export function DeviceEntityBootstrap({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const { db } = useSyncEngine();
-  const deviceId = useDeviceId();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        await ensureDeviceEntity(db, auth, deviceId);
+        await ensureDeviceEntity(mutationClient);
         if (cancelled) return;
       } catch {
         // Best-effort: the next refresh from the server will re-assert.
@@ -29,7 +25,7 @@ export function DeviceEntityBootstrap({
     return () => {
       cancelled = true;
     };
-  }, [auth, db, deviceId]);
+  }, [mutationClient]);
 
   return <>{children}</>;
 }

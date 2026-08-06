@@ -1,4 +1,4 @@
-import { sql } from '@pkgs/sql';
+import { sql, type Sql } from '@pkgs/sql';
 import {
   useWatchOne,
   useWatchQuery,
@@ -7,19 +7,19 @@ import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-pa
 import { useMemo } from 'react';
 
 type SessionIdRow = {
-  readonly id: string;
+  readonly space_id: string;
 };
 
 type SessionRow = {
-  readonly id: string;
-  readonly client_id: string | null;
+  readonly space_id: string;
+  readonly device_id: string | null;
   readonly join_announced: number | null;
 };
 
 const EMPTY_IDS: readonly string[] = [];
 
 /**
- * Space ids with a local open-session row (newest first).
+ * Space ids with an open-session row for this install (newest first).
  * Source of truth for miniplayer + room host lifetime.
  */
 export function useOpenSpaceSessionIds(): {
@@ -31,11 +31,11 @@ export function useOpenSpaceSessionIds(): {
     () =>
       paintReady
         ? sql<SessionIdRow>`
-            SELECT id FROM local_space_open_sessions
+            SELECT space_id FROM space_open_sessions
             ORDER BY opened_at DESC
           `
         : sql<SessionIdRow>`
-            SELECT id FROM local_space_open_sessions WHERE false
+            SELECT space_id FROM space_open_sessions WHERE false
           `,
     [paintReady]
   );
@@ -44,12 +44,12 @@ export function useOpenSpaceSessionIds(): {
     return { spaceIds: EMPTY_IDS, isLoading: true };
   }
   return {
-    spaceIds: rows.map((row) => row.id),
+    spaceIds: rows.map((row) => row.space_id),
     isLoading,
   };
 }
 
-/** Whether this install currently has `spaceId` open locally. */
+/** Whether this install currently has `spaceId` open. */
 export function useIsSpaceOpenLocally(spaceId: string): boolean {
   const paintReady = useSyncEnginePaintReady();
   const enabled = paintReady && spaceId.length > 0;
@@ -57,11 +57,11 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
     () =>
       enabled
         ? sql<SessionIdRow>`
-            SELECT id FROM local_space_open_sessions
-            WHERE id = ${spaceId} LIMIT 1
+            SELECT space_id FROM space_open_sessions
+            WHERE space_id = ${spaceId} LIMIT 1
           `
         : sql<SessionIdRow>`
-            SELECT id FROM local_space_open_sessions WHERE false
+            SELECT space_id FROM space_open_sessions WHERE false
           `,
     [enabled, spaceId]
   );
@@ -69,7 +69,7 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
   return row !== null;
 }
 
-/** Local open-session fields for room clientId / join announce. */
+/** Open-session fields for room clientId / join announce. */
 export function useSpaceOpenSession(spaceId: string): {
   readonly clientId: string | null;
   readonly joinAnnounced: boolean;
@@ -79,16 +79,16 @@ export function useSpaceOpenSession(spaceId: string): {
   const paintReady = useSyncEnginePaintReady();
   const enabled = paintReady && spaceId.length > 0;
   const query = useMemo(
-    () =>
+    (): Sql<SessionRow> =>
       enabled
         ? sql<SessionRow>`
-            SELECT id, client_id, join_announced
-            FROM local_space_open_sessions
-            WHERE id = ${spaceId} LIMIT 1
+            SELECT space_id, device_id, join_announced
+            FROM space_open_sessions
+            WHERE space_id = ${spaceId} LIMIT 1
           `
         : sql<SessionRow>`
-            SELECT id, client_id, join_announced
-            FROM local_space_open_sessions WHERE false
+            SELECT space_id, device_id, join_announced
+            FROM space_open_sessions WHERE false
           `,
     [enabled, spaceId]
   );
@@ -102,7 +102,7 @@ export function useSpaceOpenSession(spaceId: string): {
     };
   }
   return {
-    clientId: row?.client_id ?? null,
+    clientId: row?.device_id ?? null,
     joinAnnounced: row?.join_announced === 1,
     isOpen: row !== null,
     isLoading,

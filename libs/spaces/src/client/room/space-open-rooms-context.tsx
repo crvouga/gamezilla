@@ -63,7 +63,7 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
 /**
  * Keeps one room WebSocket alive per locally-open space (Meet-style).
  * Close/minimize does not tear down; leave/end deletes the
- * `local_space_open_sessions` row and unmounts that slot.
+ * `space_open_sessions` row and unmounts that slot.
  */
 export function SpaceOpenRoomsProvider({
   children,

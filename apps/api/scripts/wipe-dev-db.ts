@@ -110,7 +110,9 @@ async function main(): Promise<void> {
     log.info('public schema dropped and recreated; remigrating');
     await runPostgresMigrations({ sqlClient, logger: log, dbScope });
     log.info('wipe + remigrate finished');
-    process.stdout.write('[api:wipe-dev] completed (schema empty + remigrated)\n');
+    process.stdout.write(
+      '[api:wipe-dev] completed (schema empty + remigrated)\n'
+    );
   } finally {
     await pool.end();
   }

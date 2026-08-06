@@ -1,4 +1,3 @@
-import { LOCAL_CLIENT_TABLE_REGISTRY } from '@libs/db/shared/local-table-registry';
 import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
 import { createPowerSyncSchema } from '@pkgs/sync-engine-powersync/client/schema-from-registry';
 import { Platform } from 'react-native';
@@ -9,10 +8,7 @@ export type { PowerSyncSdkDatabase } from './powersync-sdk-database';
 
 const PS_WEB_ASSET_PREFIX = '/generated/powersync/@powersync';
 
-const schema = createPowerSyncSchema(
-  SYNC_TABLE_REGISTRY,
-  LOCAL_CLIENT_TABLE_REGISTRY
-);
+const schema = createPowerSyncSchema(SYNC_TABLE_REGISTRY);
 
 type DatabasePool = {
   readonly byName: Map<string, PowerSyncSdkDatabase>;

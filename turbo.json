@@ -218,11 +218,41 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:local-table-names": {
+    "//#ci:no-local-tables": {
       "inputs": [
         "libs/db/src/shared/**/*.ts",
         "pkgs/sync-engine/src/shared/table-definition.ts",
-        "tools/scripts/check-local-table-names.ts"
+        "tools/scripts/check-no-local-tables.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-legacy-writes": {
+      "inputs": [
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.js",
+        "pkgs/**/*.cjs",
+        "pkgs/**/*.mjs",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
+        "tools/scripts/check-no-legacy-writes.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:mutation-determinism": {
+      "inputs": [
+        "libs/**/mutations/**/*.ts",
+        "libs/**/mutations/**/*.tsx",
+        "pkgs/**/mutations/**/*.ts",
+        "pkgs/**/mutations/**/*.tsx",
+        "tools/scripts/check-mutation-determinism.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"

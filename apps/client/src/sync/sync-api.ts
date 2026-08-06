@@ -2,8 +2,8 @@ import type { ClientRequestAuth } from '@libs/auth/client/client-request-auth';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
+import { tablePolicyFor } from '@libs/db/shared/table-policy';
 import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
-import { stripServerOwnedProfileUploadColumns } from '@libs/profile/shared/strip-server-owned-profile-upload-columns';
 import type { Kv } from '@pkgs/kv/interface';
 import {
   uploadRowNeedsApply,
@@ -40,6 +40,11 @@ function orderUploadRowsForParentsFirst(
  */
 function keepRegisteredSyncTableRow(row: UploadRow): boolean {
   return SYNC_TABLE_REGISTRY.get(row.table) !== undefined;
+}
+
+/** Never upload SERVER_ONLY rows (optimistic mutation side effects stay local). */
+function keepUploadablePolicyRow(row: UploadRow): boolean {
+  return tablePolicyFor(row.table) !== 'SERVER_ONLY';
 }
 
 function stripUnknownSyncColumns(row: UploadRow): UploadRow {
@@ -262,12 +267,6 @@ function keepUploadableProfileRow(
   return row.id === accountId;
 }
 
-/**
- * Drop server-owned profile columns and skip put/patch rows that become
- * empty (e.g. local `applyEnsuredUsername` → username-only PATCH). Completing
- * those as accepted no-ops clears the PowerSync CRUD queue without a round
- * trip that would otherwise assert on the API.
- */
 export function prepareSyncUploadBatch(
   batch: UploadBatch,
   auth: Pick<ClientRequestAuth, 'accountId'> | SyncClientAuth
@@ -278,8 +277,8 @@ export function prepareSyncUploadBatch(
     rows: orderUploadRowsForParentsFirst(
       batch.rows
         .filter(keepRegisteredSyncTableRow)
+        .filter(keepUploadablePolicyRow)
         .map(stripUnknownSyncColumns)
-        .map(stripServerOwnedProfileUploadColumns)
         .filter((row) => keepUploadableProfileRow(row, accountId))
         .filter(uploadRowNeedsApply)
     ),

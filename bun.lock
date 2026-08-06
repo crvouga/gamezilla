@@ -61,11 +61,11 @@
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/matchmaking": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -119,12 +119,12 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/room-widgets": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sounds": "workspace:*",
@@ -213,8 +213,8 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -233,6 +233,7 @@
         "jose": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -260,8 +261,8 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -276,6 +277,7 @@
         "pg": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -319,6 +321,7 @@
       "dependencies": {
         "@pkgs/inbox": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -341,7 +344,7 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/inbox": "workspace:*",
-        "@pkgs/rules": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -352,6 +355,7 @@
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -430,7 +434,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",
-        "@pkgs/rules": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -443,6 +447,7 @@
         "react": "catalog:",
         "react-native": "catalog:",
         "unique-names-generator": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -490,8 +495,8 @@
         "@pkgs/inbox": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
         "@pkgs/room": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -504,6 +509,7 @@
         "react": "catalog:",
         "react-native": "catalog:",
         "react-native-safe-area-context": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -897,6 +903,21 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/mutations": {
+      "name": "@pkgs/mutations",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/ndjson": {
       "name": "@pkgs/ndjson",
       "version": "0.0.0",
@@ -1022,21 +1043,6 @@
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "eslint-plugin-lingui": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/rules": {
-      "name": "@pkgs/rules",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1223,7 +1229,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
-        "@pkgs/rules": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -2419,6 +2424,8 @@
 
     "@pkgs/message": ["@pkgs/message@workspace:pkgs/message"],
 
+    "@pkgs/mutations": ["@pkgs/mutations@workspace:pkgs/mutations"],
+
     "@pkgs/ndjson": ["@pkgs/ndjson@workspace:pkgs/ndjson"],
 
     "@pkgs/object-store": ["@pkgs/object-store@workspace:pkgs/object-store"],
@@ -2434,8 +2441,6 @@
     "@pkgs/room": ["@pkgs/room@workspace:pkgs/room"],
 
     "@pkgs/room-widgets": ["@pkgs/room-widgets@workspace:pkgs/room-widgets"],
-
-    "@pkgs/rules": ["@pkgs/rules@workspace:pkgs/rules"],
 
     "@pkgs/secret-provider": ["@pkgs/secret-provider@workspace:pkgs/secret-provider"],
 

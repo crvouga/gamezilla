@@ -35,6 +35,11 @@ export type UseSecureStorageItemResult = {
  * store value, `null` until hydrated or genuinely absent), `setValue` (writes
  * through to disk and notifies subscribers), and `isHydrated` (`true` once the
  * initial async read has completed).
+ *
+ * Value and hydration are read inside `useSyncExternalStore` snapshots (not
+ * after an epoch-only subscription). Reading `getValue` outside `getSnapshot`
+ * could tear under concurrent React and leave `useCurrentAccountId` stuck on
+ * `null` after anon ensure had already written the id to the store.
  */
 export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
   const store = useSecureStorageStore();
@@ -44,11 +49,22 @@ export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
     [store, key]
   );
 
-  const getSnapshot = useCallback(() => store.getEpoch(key), [store, key]);
+  const getValueSnapshot = useCallback(() => store.getValue(key), [store, key]);
+  const getHydratedSnapshot = useCallback(
+    () => store.isHydrated(key),
+    [store, key]
+  );
 
-  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  const value = store.getValue(key);
-  const isHydrated = store.isHydrated(key);
+  const value = useSyncExternalStore(
+    subscribe,
+    getValueSnapshot,
+    getValueSnapshot
+  );
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    getHydratedSnapshot,
+    getHydratedSnapshot
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -97,7 +113,7 @@ export function useHydratedSecureStorageItem(
 ): UseSecureStorageItemResult {
   const store = useSecureStorageStore();
   const result = useSecureStorageItem(key);
-  if (!store.isHydrated(key)) {
+  if (!result.isHydrated) {
     throw store.hydrate(key);
   }
   return result;

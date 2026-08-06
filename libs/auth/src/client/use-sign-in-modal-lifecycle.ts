@@ -70,14 +70,8 @@ function resolveSignInOutcome(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  const {
-    authState,
-    store,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  } = args;
+  const { authState, store, onError, setAwaitingCallback, setError, setPhase } =
+    args;
   if (isAuthSessionSignedIn(authState)) {
     setAwaitingCallback(false);
     setPhase('success');
@@ -158,14 +152,8 @@ function useSignInStart(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): (runner: () => Promise<void>) => Promise<void> {
-  const {
-    store,
-    pathname,
-    onError,
-    setAwaitingCallback,
-    setError,
-    setPhase,
-  } = args;
+  const { store, pathname, onError, setAwaitingCallback, setError, setPhase } =
+    args;
   return useCallback(
     async (runner: () => Promise<void>): Promise<void> => {
       setError(null);

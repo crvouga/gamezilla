@@ -9,19 +9,15 @@ import {
   resolveAvatarSeed,
   serializeAvatarConfig,
 } from '../../shared/avatar-config';
-import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { PROFILE_RULES } from '@libs/profile/shared/rules/rules';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { validatedWrite } from '@pkgs/sync-engine-powersync/client/validated-write';
+import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMyProfileId } from '../use-my-profile-id';
 import { useProfileRow } from '../use-profile-row';
-import { patchProfileAvatar } from '../../shared/patch-avatar/profile-patch-write';
+import { patchAvatarMutation } from '../../shared/mutations/profile-mutations';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
@@ -177,28 +173,14 @@ function useSaveAction(args: {
   profileId: string | null;
 }) {
   const { draft, profileId } = args;
-  const engine = useSyncEngine();
-  const auth = useRulesAuth();
+  const mutationClient = useMutationClient();
   return useCallback(async () => {
     if (profileId === null) return;
-    const avatarConfig = serializeAvatarConfig(draft);
-    await validatedWrite({
-      sql: engine.db,
-      auth,
-      rules: PROFILE_RULES,
-      beforeBatch: {
-        rows: [
-          {
-            op: 'patch',
-            table: PROFILES_TABLE.tableName,
-            id: profileId,
-            values: { id: profileId },
-          },
-        ],
-      },
-      fn: (tx) => patchProfileAvatar(tx, { profileId, avatarConfig }),
+    const result = await mutationClient.mutate(patchAvatarMutation, {
+      avatarConfig: serializeAvatarConfig(draft),
     });
-  }, [engine, draft, profileId, auth]);
+    if (!result.ok) throw new Error(result.failures[0]?.message);
+  }, [draft, mutationClient, profileId]);
 }
 
 function useEditorActions(args: {
