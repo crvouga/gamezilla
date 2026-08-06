@@ -1,7 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-import { clearExpoSqliteWebOpfsBestEffort } from '@pkgs/sqlite/clear-expo-sqlite-web-opfs';
 import {
   isRecoverableExpoSqliteWebRuntimeError,
   publishExpoSqliteWebFatalError,
@@ -9,6 +8,8 @@ import {
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
+import { clearExpoSqliteWebOpfsBestEffort } from './clear-expo-sqlite-web-opfs';
+
 
 /** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
 function sqliteCompatSql(sqlText: string): string {

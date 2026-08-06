@@ -160,4 +160,3 @@ describe('query harness stubs', () => {
     expect(message).toMatch(/hard limit/);
   });
 });
-

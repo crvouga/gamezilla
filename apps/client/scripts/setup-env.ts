@@ -284,7 +284,6 @@ async function resolveExpoPublicObservabilityBackend(
   );
 }
 
-
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';

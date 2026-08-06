@@ -125,10 +125,7 @@ export function createScenarioClients(db: SqlClient) {
   return { mutateClient, mergeDeps, bus, env, scopeHash };
 }
 
-export async function ackThrough(
-  db: SqlClient,
-  seq: number
-): Promise<void> {
+export async function ackThrough(db: SqlClient, seq: number): Promise<void> {
   await db.run(sql`
     UPDATE _upload_state SET last_acked_seq = ${seq} WHERE id = ${'singleton'}
   `);

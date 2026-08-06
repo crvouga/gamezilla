@@ -45,9 +45,4 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, secretBackend];
  * Stripe catalog sync (`runStripeSyncPhase`) uses the npm `stripe` SDK via
  * Bun and does not require a native Stripe CLI.
  */
-export const DEPLOY_DEPS: readonly Dep[] = [
-  wrangler,
-  bun,
-  secretBackend,
-  eas,
-];
+export const DEPLOY_DEPS: readonly Dep[] = [wrangler, bun, secretBackend, eas];

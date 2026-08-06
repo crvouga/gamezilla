@@ -12,7 +12,9 @@ const violations: string[] = [];
 
 for (const name of SYNC_TABLE_REGISTRY.tableNames()) {
   if (name.startsWith('local_')) {
-    violations.push(`${name}: local_ prefix forbidden (use CACHE domain tables)`);
+    violations.push(
+      `${name}: local_ prefix forbidden (use CACHE domain tables)`
+    );
   }
   if (DURABLE.has(name)) {
     // Domain registry may still declare _mutations for upload policy; OK.

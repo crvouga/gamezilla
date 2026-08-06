@@ -1,8 +1,5 @@
 import type { Sql } from '@pkgs/sql';
-import type {
-  PreparedStatement,
-  SqlClient,
-} from '@pkgs/sql-client/interface';
+import type { PreparedStatement, SqlClient } from '@pkgs/sql-client/interface';
 import type { TableChangeBus } from '@pkgs/queries/client/table-change-bus';
 
 function changedTable(sqlText: string): string | null {

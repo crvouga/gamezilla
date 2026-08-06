@@ -54,10 +54,12 @@ export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
       )
     );
   }
-  await db.run(unsafe(`
+  await db.run(
+    unsafe(`
     INSERT OR IGNORE INTO _upload_state (
       id, last_acked_seq, handoff_complete, next_seq
     )
     VALUES ('singleton', 0, 0, 1)
-  `));
+  `)
+  );
 }

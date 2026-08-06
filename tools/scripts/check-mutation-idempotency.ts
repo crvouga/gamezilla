@@ -13,8 +13,7 @@ const files = new Glob('{libs,pkgs}/**/mutations/**/*.{ts,tsx}').scan({
 });
 
 const violations: string[] = [];
-const relativeUpdate =
-  /\bSET\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*\1\s*[\+\-]/i;
+const relativeUpdate = /\bSET\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*\1\s*[\+\-]/i;
 
 for await (const file of files) {
   if (file.includes('.test.') || file.includes('/test/')) continue;

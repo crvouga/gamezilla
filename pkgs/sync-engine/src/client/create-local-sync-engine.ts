@@ -56,7 +56,8 @@ type LocalEngineState = {
 type LocalEngineStateRef = { current: LocalEngineState | null };
 
 function readState(ref: LocalEngineStateRef): LocalEngineState {
-  if (ref.current === null) throw new Error('Local sync engine not initialized');
+  if (ref.current === null)
+    throw new Error('Local sync engine not initialized');
   return ref.current;
 }
 

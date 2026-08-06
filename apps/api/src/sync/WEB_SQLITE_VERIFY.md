@@ -13,11 +13,11 @@
 
 ## Blocking criteria (plan)
 
-| Check | Status |
-| --- | --- |
-| Open + connect on web SqlClient | Supported by `SqlClientImplExpoSqlite.open` |
-| Migrations / framework DDL | Same SQL as Bun harness (`ensureFrameworkSchema`) |
-| Merge load | Phase 0 scenarios + file-backed parity green |
-| COOP/COEP headers | Present for Expo web setup |
+| Check                           | Status                                            |
+| ------------------------------- | ------------------------------------------------- |
+| Open + connect on web SqlClient | Supported by `SqlClientImplExpoSqlite.open`       |
+| Migrations / framework DDL      | Same SQL as Bun harness (`ensureFrameworkSchema`) |
+| Merge load                      | Phase 0 scenarios + file-backed parity green      |
+| COOP/COEP headers               | Present for Expo web setup                        |
 
 No alternate web `SqlClient` substitute selected — expo-sqlite remains the sole driver.

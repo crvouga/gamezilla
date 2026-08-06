@@ -54,7 +54,10 @@ async function checkEnv(env: SecretsEnv): Promise<number> {
   const managed = getRegistrySecretNames();
   const orphans = [...secrets.keys()].filter((name) => !managed.has(name));
   for (const name of orphans) {
-    warn(name, `orphan in ${env} — not in SECRETS registry (allowed; purged on provision)`);
+    warn(
+      name,
+      `orphan in ${env} — not in SECRETS registry (allowed; purged on provision)`
+    );
   }
 
   await mapPool(SECRETS, CONCURRENCY, async (entry) => {

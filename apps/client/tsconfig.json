@@ -70,9 +70,8 @@
       "@pkgs/sql-client/*": ["../../pkgs/sql-client/src/*"],
       "@pkgs/sql": ["../../pkgs/sql/src/index.ts"],
       "@pkgs/sql/*": ["../../pkgs/sql/src/*"],
-      "@pkgs/sqlite": ["../../pkgs/sqlite/src/index.ts"],
-      "@pkgs/sqlite/*": ["../../pkgs/sqlite/src/*"],
       "@pkgs/sync-engine/*": ["../../pkgs/sync-engine/src/*"],
+
       "@pkgs/static-file-server/*": ["../../pkgs/static-file-server/src/*"],
       "@pkgs/task-dag": ["../../pkgs/task-dag/src/index.ts"],
       "@pkgs/task-dag/*": ["../../pkgs/task-dag/src/*"],

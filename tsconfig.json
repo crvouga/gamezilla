@@ -95,9 +95,8 @@
       "@pkgs/sql/*": ["./pkgs/sql/src/*"],
       "@pkgs/sql-map": ["./pkgs/sql-map/src/index.ts"],
       "@pkgs/sql-map/*": ["./pkgs/sql-map/src/*"],
-      "@pkgs/sqlite": ["./pkgs/sqlite/src/index.ts"],
-      "@pkgs/sqlite/*": ["./pkgs/sqlite/src/*"],
       "@pkgs/pub-sub/*": ["./pkgs/pub-sub/src/*"],
+
       "@pkgs/async/*": ["./pkgs/async/src/*"],
       "@pkgs/object-store/*": ["./pkgs/object-store/src/*"],
       "@pkgs/secure-storage": ["./pkgs/secure-storage/src/index.ts"],
@@ -207,8 +206,8 @@
     "pkgs/sql/src/**/*.ts",
     "pkgs/sql/scripts/**/*.ts",
     "pkgs/sql-map/src/**/*.ts",
-    "pkgs/sqlite/src/**/*.ts",
     "pkgs/pub-sub/src/**/*.ts",
+
     "pkgs/async/src/**/*.ts",
     "pkgs/object-store/src/**/*.ts",
     "pkgs/object-store/src/**/*.tsx",

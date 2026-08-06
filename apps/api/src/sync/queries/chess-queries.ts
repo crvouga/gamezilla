@@ -51,9 +51,7 @@ export const chessPuzzlePool = defineQuery({
   hydrates: ['chess_puzzles'],
   limit: 5000,
   async authorize(ctx, params) {
-    return (
-      ctx.env.actorId.length > 0 && params.ratingMin <= params.ratingMax
-    );
+    return ctx.env.actorId.length > 0 && params.ratingMin <= params.ratingMax;
   },
   async run(ctx, { ratingMin, ratingMax }) {
     const rows = await ctx.db.query(sql`

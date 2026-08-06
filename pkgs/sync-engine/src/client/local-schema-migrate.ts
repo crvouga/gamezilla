@@ -1,9 +1,9 @@
-import { unsafe } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ensureFrameworkSchema,
   SCHEMA_EPOCH,
 } from '@pkgs/queries/client/local-schema';
+import { unsafe } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { TableDefinition } from '../shared/table-definition';
 import type { TableRegistry } from '../shared/table-registry';
@@ -60,7 +60,9 @@ function cacheTableNames(registry: TableRegistry): readonly string[] {
 }
 
 async function readUserVersion(db: SqlClient): Promise<number> {
-  const rows = await db.query(unsafe<{ user_version: number }>('PRAGMA user_version'));
+  const rows = await db.query(
+    unsafe<{ user_version: number }>('PRAGMA user_version')
+  );
   return Number(rows[0]?.user_version ?? 0);
 }
 

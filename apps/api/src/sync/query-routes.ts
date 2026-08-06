@@ -54,9 +54,7 @@ async function handleQuery(
       name: body.name,
       params: body.params,
       ...(body.lastHash !== undefined ? { lastHash: body.lastHash } : {}),
-      ...(body.checkpoint !== undefined
-        ? { checkpoint: body.checkpoint }
-        : {}),
+      ...(body.checkpoint !== undefined ? { checkpoint: body.checkpoint } : {}),
     }
   );
   return c.json(response, 200);

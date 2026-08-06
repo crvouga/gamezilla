@@ -1167,7 +1167,6 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
         "@pkgs/sql": "workspace:*",
-        "@pkgs/sqlite": "workspace:*",
         "expo-sqlite": "catalog:",
         "pg": "catalog:",
         "pg-mem": "catalog:",
@@ -1188,19 +1187,6 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/sqlite": {
-      "name": "@pkgs/sqlite",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/assert": "workspace:*",
-        "react-native": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2451,8 +2437,6 @@
     "@pkgs/sql-client": ["@pkgs/sql-client@workspace:pkgs/sql-client"],
 
     "@pkgs/sql-map": ["@pkgs/sql-map@workspace:pkgs/sql-map"],
-
-    "@pkgs/sqlite": ["@pkgs/sqlite@workspace:pkgs/sqlite"],
 
     "@pkgs/static-file-server": ["@pkgs/static-file-server@workspace:pkgs/static-file-server"],
 
