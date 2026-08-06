@@ -45,6 +45,10 @@ export function buildVendorDashboardMarkdown(): string[] {
     );
   }
 
+  lines.push(
+    `- **Railway (EMQX):** [railway.com/dashboard](https://railway.com/dashboard) · project \`${PROJECT_CONFIG.emqx.railwayProjectName}\` / service \`${PROJECT_CONFIG.emqx.railwayServiceName}\` · [\`${PROJECT_CONFIG.emqx.hostname}\`](https://${PROJECT_CONFIG.emqx.hostname}/healthz)`
+  );
+
   lines.push('');
   return lines;
 }

@@ -15,6 +15,12 @@ import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY } from './clerk-alias-secrets';
 import { DATABASE_URL } from './db-url';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_API_URL,
+  EMQX_WSS_URL,
+} from './emqx-secrets';
 import { EXPO_TOKEN } from './expo-token';
 import {
   ELEVEN_LABS_API_KEY,
@@ -27,6 +33,7 @@ import {
   OBSERVABILITY_BACKEND,
   SENTRY_DSN,
 } from './observability-secrets';
+import { RAILWAY_TOKEN } from './railway-token';
 import {
   B2_APP_KEY,
   B2_APP_KEY_ID,
@@ -84,6 +91,11 @@ export const SECRETS: readonly Secret[] = [
   SENTRY_DSN,
   EXPO_PUBLIC_OBSERVABILITY_BACKEND,
   EXPO_PUBLIC_SENTRY_DSN,
+  RAILWAY_TOKEN,
+  EMQX_API_URL,
+  EMQX_WSS_URL,
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
 ];
 
 export function getSecretMap(): readonly Secret[] {

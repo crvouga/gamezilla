@@ -208,7 +208,7 @@ async function checkDns(outputs: InfraOutputs): Promise<void> {
     return;
   }
 
-  for (const sub of ['www', 'api']) {
+  for (const sub of ['www', 'api', 'emqx']) {
     const host = `${sub}.${domain}`;
 
     const localRecords = await lookupViaDefaultResolver(host);
@@ -368,4 +368,15 @@ export async function runHttpSmokeTests(
   }
 
   platform.notice(`HTTP smoke: all checks passed.`);
+
+  const emqxUrl = probeUrl(outputs.emqx_url, '/healthz');
+  const emqx = await httpProbe(emqxUrl);
+  if (emqx.ok) {
+    ok('EMQX /healthz', emqxUrl);
+  } else {
+    warn(
+      'EMQX /healthz',
+      `${emqxUrl} not healthy yet (HTTP ${String(emqx.status ?? 0)}) — provision Railway emqx if missing`
+    );
+  }
 }

@@ -1,0 +1,13 @@
+# Caddyfile used when CADDY_CONFIG=Caddyfile (default entrypoint uses Caddyfile.json).
+# Kept as documentation of the route table.
+:{$PORT} {
+  handle /mqtt* {
+    reverse_proxy 127.0.0.1:8083
+  }
+  handle /healthz {
+    respond "ok" 200
+  }
+  handle {
+    reverse_proxy 127.0.0.1:18083
+  }
+}

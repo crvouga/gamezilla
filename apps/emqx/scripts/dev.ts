@@ -1,0 +1,85 @@
+/**
+ * Foreground entry for `@apps/emqx dev`. Spawns `emqx foreground` under one
+ * Node process so turbo SIGINT/SIGTERM tear down the broker (no shell &).
+ */
+import { spawn, type ChildProcess } from 'node:child_process';
+import { join } from 'node:path';
+import { ensureEmqxBin } from './ensure-emqx';
+
+const APP_DIR = join(import.meta.dirname, '..');
+const DATA_DIR = join(APP_DIR, 'data');
+const ETC_DIR = join(DATA_DIR, 'etc');
+
+const children: ChildProcess[] = [];
+let shuttingDown = false;
+
+function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
+  if (child.exitCode !== null || child.killed) return;
+  try {
+    child.kill(signal);
+  } catch {
+    // process may have exited
+  }
+}
+
+function killChildren(): void {
+  for (const child of children) {
+    killChild(child, 'SIGTERM');
+  }
+  setTimeout(() => {
+    for (const child of children) {
+      killChild(child, 'SIGKILL');
+    }
+  }, 2_000);
+}
+
+function shutdown(exitCode: number): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  killChildren();
+  process.exit(exitCode);
+}
+
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
+  process.on(sig, () => {
+    const codes: Record<string, number> = {
+      SIGHUP: 129,
+      SIGINT: 130,
+      SIGTERM: 143,
+    };
+    shutdown(codes[sig] ?? 1);
+  });
+}
+
+const bin = ensureEmqxBin();
+const emqx = spawn(bin, ['foreground'], {
+  cwd: APP_DIR,
+  stdio: 'inherit',
+  env: {
+    ...process.env,
+    EMQX_NODE__DATA_DIR: DATA_DIR,
+    EMQX_NODE__ETC_DIR: ETC_DIR,
+    EMQX_NODE__NAME: 'emqx@127.0.0.1',
+    EMQX_NODE__COOKIE: 'gamezilla_emqx_local',
+    EMQX_API_KEY__BOOTSTRAP_FILE: join(DATA_DIR, 'api-keys.bootstrap'),
+    EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
+    EMQX_AUTHENTICATION__1__ENABLE: 'true',
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
+      DATA_DIR,
+      'auth-built-in-db-bootstrap.csv'
+    ),
+  },
+});
+children.push(emqx);
+
+const exitCode = await new Promise<number>((resolve) => {
+  emqx.on('exit', (code) => resolve(code ?? 1));
+  emqx.on('error', (err) => {
+    console.error('[emqx] failed to start', err);
+    resolve(1);
+  });
+});
+
+killChildren();
+process.exit(exitCode);

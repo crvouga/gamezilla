@@ -44,6 +44,9 @@ libs/chess/.cache/
 # Legacy Lichess cache location (kept ignored so old checkouts that still
 # have files under apps/api/.cache don't dirty the tree).
 apps/api/.cache/
+apps/emqx/.cache/
+apps/emqx/data/
+
 
 # Local PostgreSQL cluster + lifecycle artifacts (pkgs/postgres)
 pkgs/postgres/.postgres/

@@ -12,14 +12,12 @@ export const chessPuzzleProfile = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT 
-        id, 
-        owner_id, 
-        rating, 
-        rating_deviation, 
-        last_interaction_at,
-        created_at,
-        updated_at
+      SELECT
+        id,
+        owner_id,
+        rating,
+        rating_deviation,
+        last_interaction_at
       FROM chess_puzzle_profiles
       WHERE owner_id = ${ctx.env.actorId}
       LIMIT 1

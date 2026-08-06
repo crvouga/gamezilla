@@ -40,4 +40,12 @@ export const PROJECT_CONFIG = {
       production: 'gamezilla-production',
     },
   },
+  emqx: {
+    hostname: 'emqx.gamezilla.app',
+    railwayProjectName: 'gamezilla',
+    railwayServiceName: 'emqx',
+    githubRootDirectory: 'apps/emqx',
+    /** Container public listen port (Caddy → Railway `$PORT`). */
+    targetPort: 8080,
+  },
 } as const;

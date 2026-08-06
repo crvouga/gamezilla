@@ -7,7 +7,9 @@ EMQX adapter for `@pkgs/pubsub`. Two factories, **one** returned type (`PubSub`)
 
 ## Broker config expectations (EMQX 5.x)
 
-Not provisioned by this package. Operators should configure:
+Preferred local broker: `@apps/emqx` via `bun dev` (ports 8083 / 18083). Production: Railway at `emqx.gamezilla.app` (provisioned by `@libs/infra`).
+
+Operators / broker should configure:
 
 - `allow_anonymous = false`
 - MQTT authentication (JWT-as-password is the intended client pattern: `auth()` returns fresh `{ username, password }` on every reconnect)
@@ -15,7 +17,7 @@ Not provisioned by this package. Operators should configure:
 - Dashboard API key + secret for `POST /api/v5/publish` and `DELETE /api/v5/clients/{clientid}`
 - No retained messages required for this port (adapter always publishes `qos: 0`, `retain: false`)
 
-Local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
+Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
 
 ## Usage — full-duplex (WSS)
 

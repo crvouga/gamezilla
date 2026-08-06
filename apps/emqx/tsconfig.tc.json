@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../ts-reset/src/index.ts",
+    "./scripts/**/*.ts",
+    "./scripts/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", ".cache", "data"]
+}
