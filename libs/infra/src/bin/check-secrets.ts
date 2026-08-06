@@ -1,10 +1,11 @@
 /**
- * Read-only gate: validate every registry secret in both `dev` and `prd`,
- * and fail on orphans (stored secrets not defined in code).
+ * Read-only gate: validate every registry secret in both `dev` and `prd`.
+ * Orphans (stored secrets not defined in code) are allowed here — they are
+ * warned and purged during `infra provision`.
  *
- * Never seeds, writes, or deletes — purge runs during `infra provision`.
+ * Never seeds, writes, or deletes.
  */
-import { ok, fail as fmtFail, banner } from '../cli/lib/fmt';
+import { ok, fail as fmtFail, warn, banner } from '../cli/lib/fmt';
 import { getRegistrySecretNames, SECRETS } from '../cli/secrets/registry';
 import { SECRETS_ENVS, type SecretsEnv } from '../cli/secrets/secret';
 import {
@@ -53,9 +54,7 @@ async function checkEnv(env: SecretsEnv): Promise<number> {
   const managed = getRegistrySecretNames();
   const orphans = [...secrets.keys()].filter((name) => !managed.has(name));
   for (const name of orphans) {
-    const msg = `orphan in ${env} — not defined in SECRETS registry`;
-    fmtFail(name, msg);
-    issues.push(`${name}: ${msg}`);
+    warn(name, `orphan in ${env} — not in SECRETS registry (allowed; purged on provision)`);
   }
 
   await mapPool(SECRETS, CONCURRENCY, async (entry) => {
@@ -94,8 +93,8 @@ async function main(): Promise<void> {
   if (total > 0) {
     process.stderr.write(
       `\ncheck:secrets failed with ${String(total)} issue(s).\n` +
-        'Add missing secrets to libs/infra/src/cli/secrets/registry.ts, ' +
-        'fix invalid values, or run `bun run infra provision` to purge orphans.\n'
+        'Add missing secrets to libs/infra/src/cli/secrets/registry.ts ' +
+        'or fix invalid values.\n'
     );
     process.exit(1);
   }

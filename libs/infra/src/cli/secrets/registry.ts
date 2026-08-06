@@ -55,7 +55,7 @@ import {
 
 /**
  * Exhaustive registry of every managed secret. Orphans (stored keys not in
- * this list) are purged on provision and fail `check:secrets`.
+ * this list) are purged on provision; `check:secrets` allows them.
  */
 export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
