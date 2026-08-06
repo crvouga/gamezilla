@@ -1,8 +1,11 @@
-import type { MutationEnv, MutationRegistry } from '@pkgs/mutations/core/types';
-import { createSqlWatch } from '@pkgs/queries/client/sql-watch';
-import { createTableChangeBus } from '@pkgs/queries/client/table-change-bus';
-import type { QueryResponse } from '@pkgs/queries/core/types';
-import '@pkgs/queries/shared/tiger-invariants';
+import type {
+  MutationEnv,
+  MutationRegistry,
+} from '@pkgs/sync-engine/mutations/core/types';
+import { createSqlWatch } from '@pkgs/sync-engine/queries/client/sql-watch';
+import { createTableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
+import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
+import '@pkgs/sync-engine/queries/shared/tiger-invariants';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

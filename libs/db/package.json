@@ -20,10 +20,10 @@
   "dependencies": {
     "@pkgs/inbox": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*"
+    "@pkgs/sync-engine": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

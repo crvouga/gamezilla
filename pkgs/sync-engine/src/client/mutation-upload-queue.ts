@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { TableChangeBus } from '@pkgs/queries/client/table-change-bus';
+import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
 
 const BATCH_LIMIT = 64;
 const IDLE_DELAY_MS = 750;

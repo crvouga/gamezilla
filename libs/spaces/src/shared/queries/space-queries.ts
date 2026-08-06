@@ -1,4 +1,4 @@
-import { defineQuery } from '@pkgs/queries/core/define-query';
+import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 

@@ -2,8 +2,8 @@ import {
   CHESS_PUZZLE_INTERACTIONS_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
 } from '@libs/db/shared/chess-tables';
-import { defineMutation } from '@pkgs/mutations/core/define-mutation';
-import { MutationError } from '@pkgs/mutations/core/types';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
+import { MutationError } from '@pkgs/sync-engine/mutations/core/types';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 

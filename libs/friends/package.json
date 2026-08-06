@@ -31,7 +31,6 @@
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/inbox": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

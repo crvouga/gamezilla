@@ -12,14 +12,16 @@ import {
   listProjects,
   redeployService,
   upsertVariables,
+  validateRailwayToken,
 } from '../lib/railway-api';
 import type { CiPlatform } from '../platform/platform';
 import { cfHeaders } from '../secrets/cloudflare';
 import { ResourceBase, type InfraContext } from './types';
 
-function railwayToken(): string {
+async function railwayToken(): Promise<string> {
   const t = (process.env['RAILWAY_TOKEN'] ?? '').trim();
   assert.ok(t.length > 0, 'RAILWAY_TOKEN required to provision EMQX');
+  await validateRailwayToken(t);
   return t;
 }
 
@@ -28,7 +30,7 @@ export class EmqxResource extends ResourceBase {
 
   async provision(_platform: CiPlatform, ctx: InfraContext): Promise<void> {
     assert.ok(!!ctx.zoneId, 'emqx: ctx.zoneId must be set by ZoneResource');
-    const token = railwayToken();
+    const token = await railwayToken();
     const cfg = PROJECT_CONFIG.emqx;
     const githubRepo = `${PROJECT_CONFIG.github.owner}/${PROJECT_CONFIG.github.repo}`;
 
@@ -102,12 +104,10 @@ export class EmqxResource extends ResourceBase {
   }
 
   async deploy(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    const token = railwayToken();
+    const token = await railwayToken();
     const cfg = PROJECT_CONFIG.emqx;
     const listed = await listProjects(token);
-    const match = listed.find(
-      (p) => p.project.name === cfg.railwayProjectName
-    );
+    const match = listed.find((p) => p.project.name === cfg.railwayProjectName);
     const service = match?.services.find(
       (s) => s.name === cfg.railwayServiceName
     );
@@ -131,9 +131,7 @@ export class EmqxResource extends ResourceBase {
     }
     const cfg = PROJECT_CONFIG.emqx;
     const listed = await listProjects(token);
-    const match = listed.find(
-      (p) => p.project.name === cfg.railwayProjectName
-    );
+    const match = listed.find((p) => p.project.name === cfg.railwayProjectName);
     const service = match?.services.find(
       (s) => s.name === cfg.railwayServiceName
     );
@@ -167,7 +165,5 @@ async function findZoneId(): Promise<string | null> {
   const body = (await res.json()) as {
     result?: Array<{ id: string; name: string }>;
   };
-  return (
-    body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null
-  );
+  return body.result?.find((z) => z.name === PROJECT_CONFIG.domain)?.id ?? null;
 }

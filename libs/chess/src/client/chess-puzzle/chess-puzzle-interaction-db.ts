@@ -2,7 +2,7 @@ import {
   appendPuzzleInteractionMutation,
   upsertPuzzleProfileMutation,
 } from '../../shared/mutations/chess-mutations';
-import type { MutationClient } from '@pkgs/mutations/client/create-mutation-client';
+import type { MutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
 
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {

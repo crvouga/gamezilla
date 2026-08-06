@@ -1,5 +1,5 @@
 import { ALL_INBOX_SYNC_TABLES } from '@pkgs/inbox/sync/table-defs';
-import type { TablePolicy } from '@pkgs/mutations/shared/table-policy';
+import type { TablePolicy } from '@pkgs/sync-engine/mutations/shared/table-policy';
 
 import { AUTH_TABLE_DEFINITIONS } from './auth-tables';
 import { ALL_CHESS_SYNC_TABLES } from './chess-tables';

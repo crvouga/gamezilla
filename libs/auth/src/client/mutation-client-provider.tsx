@@ -1,14 +1,14 @@
 import {
-  createMutationClient,
-  type MutationClient,
-} from '@pkgs/mutations/client/create-mutation-client';
-import type { MutationRegistry } from '@pkgs/mutations/core/types';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
+  MutationClientProvider as SyncMutationClientProvider,
+  useMutationClient,
+} from '@pkgs/sync-engine/client/mutation-client-provider';
+import type { MutationRegistry } from '@pkgs/sync-engine/mutations/core/types';
+import { type ReactNode, useMemo, useRef } from 'react';
 
 import { useRulesAuth } from './use-rules-auth';
 
-const MutationClientContext = createContext<MutationClient | null>(null);
+export { useMutationClient };
+
 const sequenceByDevice = new Map<string, number>();
 
 function nextSequence(deviceId: string): number {
@@ -17,6 +17,7 @@ function nextSequence(deviceId: string): number {
   return next;
 }
 
+/** Product wrapper: injects rules auth into the sync-engine mutation client. */
 export function MutationClientProvider({
   children,
   registry,
@@ -24,41 +25,29 @@ export function MutationClientProvider({
   readonly children: ReactNode;
   readonly registry: MutationRegistry;
 }): ReactNode {
-  const engine = useSyncEngine();
   const auth = useRulesAuth();
-  const client = useMemo(
-    () =>
-      createMutationClient({
-        db: engine.db,
-        registry,
-        env: {
-          actorId: auth.userId,
-          deviceId: auth.deviceId,
-          accountId: auth.accountId,
-          isAnon: auth.isAnon,
-          now: () => new Date(),
-        },
-        ids: {
-          clientId: auth.deviceId,
-          nextSeq: () => nextSequence(auth.deviceId),
-        },
-        connectivity: { isOnline: () => engine.status.getSnapshot().online },
-      }),
-    [auth, engine, registry]
+  const authRef = useRef(auth);
+  authRef.current = auth;
+  const env = useMemo(
+    () => ({
+      actorId: auth.userId,
+      deviceId: auth.deviceId,
+      accountId: auth.accountId,
+      isAnon: auth.isAnon,
+      now: () => new Date(),
+    }),
+    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId]
+  );
+  const ids = useMemo(
+    () => ({
+      clientId: auth.deviceId,
+      nextSeq: () => nextSequence(authRef.current.deviceId),
+    }),
+    [auth.deviceId]
   );
   return (
-    <MutationClientContext.Provider value={client}>
+    <SyncMutationClientProvider registry={registry} env={env} ids={ids}>
       {children}
-    </MutationClientContext.Provider>
+    </SyncMutationClientProvider>
   );
-}
-
-export function useMutationClient(): MutationClient {
-  const client = useContext(MutationClientContext);
-  if (client === null) {
-    throw new Error(
-      'useMutationClient: provider missing — mount inside MutationClientProvider'
-    );
-  }
-  return client;
 }

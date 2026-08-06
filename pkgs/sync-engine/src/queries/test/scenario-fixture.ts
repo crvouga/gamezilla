@@ -4,10 +4,10 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { z } from 'zod';
 
-import { defineMutation } from '@pkgs/mutations/core/define-mutation';
-import { registry } from '@pkgs/mutations/core/registry';
-import { MutationError } from '@pkgs/mutations/core/types';
-import { createMutationClient } from '@pkgs/mutations/client/create-mutation-client';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
+import { registry } from '@pkgs/sync-engine/mutations/core/registry';
+import { MutationError } from '@pkgs/sync-engine/mutations/core/types';
+import { createMutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
 
 import { ensureFrameworkSchema } from '../client/local-schema';
 import { createTableChangeBus } from '../client/table-change-bus';

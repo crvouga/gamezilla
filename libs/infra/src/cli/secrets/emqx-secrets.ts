@@ -25,7 +25,10 @@ async function validateEmqxWssUrl(input: SecretInput): Promise<void> {
   }
 }
 
-async function validateNonEmpty(name: string, input: SecretInput): Promise<void> {
+async function validateNonEmpty(
+  name: string,
+  input: SecretInput
+): Promise<void> {
   if (input.secretValue.trim().length === 0) return;
   requireNonEmpty(input.secretValue, name);
 }

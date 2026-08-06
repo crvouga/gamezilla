@@ -6,11 +6,11 @@ Local EMQX 5.x broker for `bun dev`, plus Railway deploy artifacts for productio
 
 Turbo starts this package alongside `@apps/api` and `@apps/client`.
 
-| Port | Role |
-| --- | --- |
-| 1883 | MQTT TCP |
-| 8083 | MQTT WebSocket (`/mqtt`) |
-| 18083 | Dashboard + HTTP API |
+| Port  | Role                     |
+| ----- | ------------------------ |
+| 1883  | MQTT TCP                 |
+| 8083  | MQTT WebSocket (`/mqtt`) |
+| 18083 | Dashboard + HTTP API     |
 
 **Defaults** (match `@pkgs/pubsub-emqx` contract-test env):
 

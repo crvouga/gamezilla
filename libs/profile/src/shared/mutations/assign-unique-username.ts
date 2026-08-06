@@ -1,4 +1,7 @@
-import { MutationError, type MutationDb } from '@pkgs/mutations/core/types';
+import {
+  MutationError,
+  type MutationDb,
+} from '@pkgs/sync-engine/mutations/core/types';
 import { sql } from '@pkgs/sql';
 
 import { generateRandomUsername } from '../username-generator';

@@ -8,12 +8,12 @@ import {
 import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { SPACE_VISIBILITIES } from '@libs/spaces/shared/space-visibility';
-import { defineMutation } from '@pkgs/mutations/core/define-mutation';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
   MutationError,
   type MutationDb,
   type MutationEnv,
-} from '@pkgs/mutations/core/types';
+} from '@pkgs/sync-engine/mutations/core/types';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 

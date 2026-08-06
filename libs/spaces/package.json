@@ -37,7 +37,6 @@
     "@pkgs/inbox": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",

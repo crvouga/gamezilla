@@ -34,7 +34,6 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",

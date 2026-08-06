@@ -3,12 +3,12 @@ import {
   FRIENDSHIPS_TABLE,
   USER_BLOCKS_TABLE,
 } from '@libs/db/shared/friends-tables';
-import { defineMutation } from '@pkgs/mutations/core/define-mutation';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
   MutationError,
   type MutationDb,
   type MutationEnv,
-} from '@pkgs/mutations/core/types';
+} from '@pkgs/sync-engine/mutations/core/types';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 

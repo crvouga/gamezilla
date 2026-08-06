@@ -4,9 +4,9 @@ import {
   applyFullMerge,
   purgeScope,
   type MergeApplierDeps,
-} from '@pkgs/queries/client/merge-applier';
-import type { QueryResponse } from '@pkgs/queries/core/types';
-import { scopeHash } from '@pkgs/queries/shared/canonical';
+} from '@pkgs/sync-engine/queries/client/merge-applier';
+import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
+import { scopeHash } from '@pkgs/sync-engine/queries/shared/canonical';
 
 const DEFAULT_POLL_MS = 5_000;
 const ERROR_POLL_MS = 2_000;

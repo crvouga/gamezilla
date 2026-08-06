@@ -1,6 +1,7 @@
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
-import type { AuthErrorBody } from '@pkgs/queries/core/types';
+import { isAuthErrorBody } from '@pkgs/sync-engine/server/auth-error';
+import type { AuthErrorBody } from '@pkgs/sync-engine/queries/core/types';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 
@@ -10,6 +11,8 @@ export type SessionReplayAuth = {
   readonly accountId: string | null;
   readonly isAnon: boolean;
 };
+
+export { isAuthErrorBody };
 
 /**
  * Resolve actor/device from session auth (Bearer + x-anon-id).
@@ -38,13 +41,4 @@ export async function resolveSessionReplayAuth(
   } catch {
     return { error: 'auth', reason: 'expired' };
   }
-}
-
-export function isAuthErrorBody(v: unknown): v is AuthErrorBody {
-  return (
-    typeof v === 'object' &&
-    v !== null &&
-    'error' in v &&
-    (v as AuthErrorBody).error === 'auth'
-  );
 }

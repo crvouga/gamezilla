@@ -188,9 +188,7 @@ export async function deleteService(
   token: string,
   serviceId: string
 ): Promise<void> {
-  await railwayGql(
-    token,
-    `mutation($id: String!) { serviceDelete(id: $id) }`,
-    { id: serviceId }
-  ).catch(() => undefined);
+  await railwayGql(token, `mutation($id: String!) { serviceDelete(id: $id) }`, {
+    id: serviceId,
+  }).catch(() => undefined);
 }

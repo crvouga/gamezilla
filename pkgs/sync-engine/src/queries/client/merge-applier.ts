@@ -5,7 +5,7 @@ import type {
   Mutation,
   MutationEnv,
   MutationRegistry,
-} from '@pkgs/mutations/core/types';
+} from '@pkgs/sync-engine/mutations/core/types';
 
 import type { QueryRow } from '../core/types';
 import type { TableChangeBus } from './table-change-bus';

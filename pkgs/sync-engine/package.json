@@ -15,13 +15,13 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
-    "@pkgs/queries": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
-    "react": "catalog:"
+    "react": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

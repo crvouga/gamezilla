@@ -18,12 +18,18 @@ type ProjectsQuery = {
                 readonly name: string;
                 readonly environments: {
                   readonly edges: ReadonlyArray<{
-                    readonly node: { readonly id: string; readonly name: string };
+                    readonly node: {
+                      readonly id: string;
+                      readonly name: string;
+                    };
                   }>;
                 };
                 readonly services: {
                   readonly edges: ReadonlyArray<{
-                    readonly node: { readonly id: string; readonly name: string };
+                    readonly node: {
+                      readonly id: string;
+                      readonly name: string;
+                    };
                   }>;
                 };
               };
@@ -35,9 +41,7 @@ type ProjectsQuery = {
   };
 };
 
-export async function listProjects(
-  token: string
-): Promise<
+export async function listProjects(token: string): Promise<
   ReadonlyArray<{
     readonly project: RailwayProject;
     readonly services: readonly RailwayService[];

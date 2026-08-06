@@ -40,7 +40,6 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
-    "@pkgs/mutations": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sounds": "workspace:*",

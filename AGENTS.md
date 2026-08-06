@@ -8,17 +8,18 @@
 
 - **Local SQLite + defineQuery/mutations is the default for client reads and writes.** Client UI reads local SQLite via `useQuery*` (table-change reactivity). Hydration polls `POST /api/query`; client mutations call `mutate()` and drain through `POST /api/mutations`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: cross-user search (`POST /friends/search`), system config refresh (`POST /client-config/refresh`), and Stripe/external APIs. Prefer shrinking that list, never growing it casually. Username claims go through the `claimUsername` mutation (not REST). Profile bootstrap uses the `ensureProfile` mutation (auto username on upload). Breaking mutation changes ship as a new `name` (`joinSpaceV2`); keep old handlers until client adoption allows removal.
 
-- **Writes are mutations.** Client business code calls `mutate()` through `@pkgs/mutations`; each mutation applies its domain SQL in the local transaction and queues an idempotent mutation record for upload. Server upload replays mutations in one Postgres transaction with the authenticated actor and records permanent `MutationError` / validation failures as write rejections. Server-initiated inbox actions invoke the same mutation definitions. Do not add a second rules engine, raw CRUD upload, or feature REST write path. Organize mutations by vertical slice:
+- **Writes are mutations.** Client business code calls `mutate()` through `@pkgs/sync-engine/mutations`; each mutation applies its domain SQL in the local transaction and queues an idempotent mutation record for upload. Server upload replays mutations in one Postgres transaction with the authenticated actor and records permanent `MutationError` / validation failures as write rejections. Server-initiated inbox actions invoke the same mutation definitions. Do not add a second rules engine, raw CRUD upload, or feature REST write path. Organize mutations by vertical slice:
 
   ```
   libs/<feature>/src/
     client/<slice>/     # hooks + UI calling mutate()
     shared/<slice>/     # pure helpers / SQL helpers for that slice
     shared/mutations/   # defineMutation defs for the feature
+    shared/queries/     # defineQuery defs for the feature (hydrated via POST /api/query)
     server/<slice>/     # REST/inbox only when absolute exception needs it
   ```
 
-  Domain mutation definitions and their SQL live under `libs/<feature>/src/shared/mutations/`. The mutation environment contains the actor, account, and device identity. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
+  Domain mutation definitions and their SQL live under `libs/<feature>/src/shared/mutations/`. Domain query definitions live under `libs/<feature>/src/shared/queries/`. The mutation environment contains the actor, account, and device identity. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
 
 ## `@pkgs/ui` design system
 

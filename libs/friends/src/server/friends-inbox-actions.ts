@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { MutationEnv } from '@pkgs/mutations/core/types';
+import type { MutationEnv } from '@pkgs/sync-engine/mutations/core/types';
 import { sql } from '@pkgs/sql';
 
 import {

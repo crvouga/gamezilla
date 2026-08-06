@@ -61,10 +61,8 @@
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/matchmaking": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
-        "@pkgs/queries": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -118,11 +116,9 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
-        "@pkgs/queries": "workspace:*",
         "@pkgs/room-widgets": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
@@ -222,7 +218,6 @@
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
@@ -269,7 +264,6 @@
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sounds": "workspace:*",
@@ -315,6 +309,7 @@
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -328,10 +323,10 @@
       "dependencies": {
         "@pkgs/inbox": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
@@ -351,7 +346,6 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/inbox": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -440,7 +434,6 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -499,7 +492,6 @@
         "@pkgs/inbox": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -801,6 +793,7 @@
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/react": "catalog:",
@@ -906,21 +899,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/mutations": {
-      "name": "@pkgs/mutations",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/ndjson": {
       "name": "@pkgs/ndjson",
       "version": "0.0.0",
@@ -1009,23 +987,6 @@
       "dependencies": {
         "@pkgs/pubsub": "workspace:*",
         "mqtt": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/queries": {
-      "name": "@pkgs/queries",
-      "version": "0.0.0",
-      "dependencies": {
-        "@noble/hashes": "catalog:",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1230,13 +1191,13 @@
       "name": "@pkgs/sync-engine",
       "version": "0.0.0",
       "dependencies": {
+        "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
-        "@pkgs/mutations": "workspace:*",
-        "@pkgs/queries": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2424,8 +2385,6 @@
 
     "@pkgs/message": ["@pkgs/message@workspace:pkgs/message"],
 
-    "@pkgs/mutations": ["@pkgs/mutations@workspace:pkgs/mutations"],
-
     "@pkgs/ndjson": ["@pkgs/ndjson@workspace:pkgs/ndjson"],
 
     "@pkgs/object-store": ["@pkgs/object-store@workspace:pkgs/object-store"],
@@ -2439,8 +2398,6 @@
     "@pkgs/pubsub": ["@pkgs/pubsub@workspace:pkgs/pubsub"],
 
     "@pkgs/pubsub-emqx": ["@pkgs/pubsub-emqx@workspace:pkgs/pubsub-emqx"],
-
-    "@pkgs/queries": ["@pkgs/queries@workspace:pkgs/queries"],
 
     "@pkgs/room": ["@pkgs/room@workspace:pkgs/room"],
 

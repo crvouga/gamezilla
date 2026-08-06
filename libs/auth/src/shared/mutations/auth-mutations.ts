@@ -1,5 +1,5 @@
 import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
-import { defineMutation } from '@pkgs/mutations/core/define-mutation';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 

@@ -17,11 +17,7 @@ function ensureBootstrap(): void {
 
   const bootstrap = join(DATA_DIR, 'api-keys.bootstrap');
   if (!existsSync(bootstrap)) {
-    writeFileSync(
-      bootstrap,
-      `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`,
-      'utf8'
-    );
+    writeFileSync(bootstrap, `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`, 'utf8');
   }
 
   const confSrc = join(APP_DIR, 'config', 'emqx.conf');

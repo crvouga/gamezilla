@@ -7,7 +7,7 @@ import { assert } from '@pkgs/assert';
 import {
   MAX_IN_FLIGHT_POLLS,
   MAX_MUTATIONS_BATCH,
-} from '@pkgs/queries/server/bounds';
+} from '@pkgs/sync-engine/queries/server/bounds';
 
 assert.ok(MAX_MUTATIONS_BATCH <= 128, 'Tiger: mutation batch upper bound');
 assert.ok(MAX_IN_FLIGHT_POLLS <= 32, 'Tiger: poll concurrency upper bound');

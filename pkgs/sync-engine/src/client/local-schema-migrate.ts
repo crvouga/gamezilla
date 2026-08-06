@@ -1,7 +1,7 @@
 import {
   ensureFrameworkSchema,
   SCHEMA_EPOCH,
-} from '@pkgs/queries/client/local-schema';
+} from '@pkgs/sync-engine/queries/client/local-schema';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

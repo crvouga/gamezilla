@@ -29,7 +29,7 @@ const violations: string[] = [];
 
 for await (const file of files) {
   if (
-    file.includes('/pkgs/mutations/') ||
+    file.includes('/pkgs/sync-engine/src/mutations/') ||
     file.includes('/dist/') ||
     file.includes('/build/')
   )
