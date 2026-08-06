@@ -11,9 +11,7 @@ export const profileNs = createAttrNamespace('profile');
 export const PROFILE_ENTITY_TYPE = profileNs.prefix;
 
 /**
- * One profile per identity:
- * - Guest / device-local: `entityId === deviceId`
- * - Signed-in account: `entityId === userId`
+ * One profile per user (`users.id`).
  */
 export const ProfileAttr = {
   id: profileNs.uuid('id', readString),

@@ -118,7 +118,7 @@ async function checkOneSpaceUserRow(
   row: UploadRow
 ): Promise<Failure | null> {
   const accountId = ctx.auth.accountId;
-  if (accountId === null || accountId.length === 0) {
+  if (accountId === null || accountId.length === 0 || ctx.auth.isAnon) {
     return fail(SPACE_NOT_SIGNED_IN, { table: SPACE_USERS_TABLE, id: row.id });
   }
   const spaceId = resolveSpaceId(row);

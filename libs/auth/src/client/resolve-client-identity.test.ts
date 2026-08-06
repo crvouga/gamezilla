@@ -3,72 +3,27 @@ import { describe, expect, test } from 'bun:test';
 import {
   resolveIsSignedIn,
   resolveMyId,
+  shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
 } from './resolve-client-identity';
 
 describe('resolveIsSignedIn', () => {
-  test('requires both account id and token', () => {
-    expect(resolveIsSignedIn(null, null)).toBe(false);
-    expect(resolveIsSignedIn('acct', null)).toBe(false);
-    expect(resolveIsSignedIn(null, 'tok')).toBe(false);
-    expect(resolveIsSignedIn('acct', 'tok')).toBe(true);
+  test('requires user id, token, and non-anon', () => {
+    expect(resolveIsSignedIn(null, null, false)).toBe(false);
+    expect(resolveIsSignedIn('user', null, false)).toBe(false);
+    expect(resolveIsSignedIn(null, 'tok', false)).toBe(false);
+    expect(resolveIsSignedIn('user', 'tok', true)).toBe(false);
+    expect(resolveIsSignedIn('user', 'tok', false)).toBe(true);
   });
 });
 
 describe('resolveMyId', () => {
-  test('prefers bound account id', () => {
-    expect(
-      resolveMyId({
-        accountId: 'acct',
-        cachedAccountId: 'cached',
-        token: 'tok',
-        deviceId: 'device',
-      })
-    ).toBe('acct');
+  test('returns bound user id', () => {
+    expect(resolveMyId('user')).toBe('user');
   });
 
-  test('uses cached account id while token present and storage hook lagging', () => {
-    expect(
-      resolveMyId({
-        accountId: null,
-        cachedAccountId: 'cached',
-        token: 'tok',
-        deviceId: 'device',
-      })
-    ).toBe('cached');
-  });
-
-  test('does not fall back to device id while session token awaits account id', () => {
-    expect(
-      resolveMyId({
-        accountId: null,
-        cachedAccountId: null,
-        token: 'tok',
-        deviceId: 'device',
-      })
-    ).toBe('');
-  });
-
-  test('uses device id when fully signed out', () => {
-    expect(
-      resolveMyId({
-        accountId: null,
-        cachedAccountId: null,
-        token: null,
-        deviceId: 'device',
-      })
-    ).toBe('device');
-  });
-
-  test('returns empty when signed out and device id missing', () => {
-    expect(
-      resolveMyId({
-        accountId: null,
-        cachedAccountId: null,
-        token: null,
-        deviceId: null,
-      })
-    ).toBe('');
+  test('returns empty when no user id bound', () => {
+    expect(resolveMyId(null)).toBe('');
   });
 });
 
@@ -95,5 +50,15 @@ describe('shouldClearAccountOnExternalUserChange', () => {
     expect(shouldClearAccountOnExternalUserChange('user_a', null, true)).toBe(
       false
     );
+  });
+});
+
+describe('shouldBindAnonUserAfterEnsure', () => {
+  test('binds when still signed out', () => {
+    expect(shouldBindAnonUserAfterEnsure(null)).toBe(true);
+  });
+
+  test('discards when a session token landed during ensure', () => {
+    expect(shouldBindAnonUserAfterEnsure('tok')).toBe(false);
   });
 });

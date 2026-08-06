@@ -26,6 +26,8 @@ const SKIP_DIRS = new Set([
   '.expo',
   '.wrangler',
   '.check-dist-prodcheck',
+  // Generated check artifacts echo failing logs (may name providers).
+  'check',
   'playwright-report',
   'test-results',
   'ios',

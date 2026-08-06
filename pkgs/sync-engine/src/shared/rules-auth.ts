@@ -10,5 +10,7 @@ export type UploadAuth = {
   readonly userId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
+  /** True when the caller is an anon `users` row (not provider-linked). */
+  readonly isAnon: boolean;
   readonly memberOfSpaceIds: readonly string[];
 };

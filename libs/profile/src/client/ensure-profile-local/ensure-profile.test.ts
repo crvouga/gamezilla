@@ -15,6 +15,7 @@ function rulesAuthFor(myId: string): AppRulesAuth {
     userId: myId,
     deviceId: myId,
     accountId: null,
+    isAnon: true,
   };
 }
 

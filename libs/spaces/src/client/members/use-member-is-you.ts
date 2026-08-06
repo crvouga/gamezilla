@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 
-/** Whether `memberId` is this user's member identity (account or anon device). */
+/** Whether `memberId` is this user's member identity (`users.id`). */
 export function useMemberIsYou(memberId: string): boolean {
   return useMyId() === memberId;
 }

@@ -11,6 +11,7 @@ const auth: AppRulesAuth = {
   userId: 'me',
   deviceId: 'd1',
   accountId: 'me',
+  isAnon: false,
 };
 
 function queryOnlyFromBunSqlite(db: Database): Pick<RulesCtx['db'], 'query'> {

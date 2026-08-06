@@ -7,10 +7,14 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
+import { findUserIdByDeviceId } from './anon-user-ensure';
 
 /**
  * Validates the bearer token via the auth server port and resolves the internal
  * account id, or `null` if verification fails.
+ *
+ * When the device is bound to an anon user and this external identity is new,
+ * that anon row is upgraded in place.
  */
 export async function resolveAccountIdFromBearer(args: {
   sql: SqlClient;
@@ -26,10 +30,13 @@ export async function resolveAccountIdFromBearer(args: {
   const session = await authServer.verifySessionToken(trimmed);
   if (session === null) return null;
 
+  const upgradeUserId = await findUserIdByDeviceId(sql, deviceId);
+
   return await ensureInternalAccountIdForExternalUser({
     sql,
     authServer,
     externalUserId: session.externalUserId,
+    upgradeUserId,
   });
 }
 
@@ -47,5 +54,6 @@ export async function buildAppAuthContextFromBearer(args: {
     deviceId,
     accountId,
     myId: accountId,
+    isAnon: false,
   });
 }

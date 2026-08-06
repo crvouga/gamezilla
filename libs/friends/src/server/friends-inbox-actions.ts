@@ -29,6 +29,7 @@ function rulesAuthFromInbox(ctx: InboxFriendsCtx) {
     deviceId: ctx.deviceId,
     accountId: ctx.actorId,
     myId: ctx.actorId,
+    isAnon: false,
   });
 }
 

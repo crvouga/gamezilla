@@ -74,6 +74,7 @@ function ctx(args: {
     userId: args.accountId ?? args.deviceId,
     deviceId: args.deviceId,
     accountId: args.accountId,
+    isAnon: args.accountId === null,
   };
 }
 

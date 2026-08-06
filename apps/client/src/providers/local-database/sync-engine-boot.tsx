@@ -1,7 +1,10 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
-import { useGetFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import {
+  useFreshAuthToken,
+  useGetFreshAuthToken,
+} from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
@@ -13,7 +16,7 @@ import { useMemo, useRef, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 import { resolveSqliteDbName } from '../../storage/resolve-sqlite-db-name';
-import type { SyncApiFetch } from '../../sync/sync-api';
+import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';
 import {
   getOrCreateAppPowerSyncSyncEngine,
   peekReadyAppSyncEngine,
@@ -34,21 +37,37 @@ function readOrCreateWebTabDbId(): string {
   return id;
 }
 
-function useIdentitySqliteDbName(
-  accountId: string | null,
-  deviceId: string
-): string {
+function useIdentitySqliteDbName(userId: string): string {
   return useMemo(() => {
     const webTabSuffix =
       Platform.OS === 'web' && typeof sessionStorage !== 'undefined'
         ? readOrCreateWebTabDbId()
         : undefined;
     return resolveSqliteDbName({
-      accountId,
-      deviceId,
+      userId,
       ...(webTabSuffix !== undefined ? { webTabSuffix } : {}),
     });
-  }, [accountId, deviceId]);
+  }, [userId]);
+}
+
+function useSyncClientAuthRef(): SyncClientAuth {
+  const accountId = useCurrentAccountId();
+  const deviceId = useDeviceId();
+  const sessionToken = useFreshAuthToken();
+  const accountIdRef = useRef(accountId);
+  const deviceIdRef = useRef(deviceId);
+  const sessionTokenRef = useRef(sessionToken);
+  accountIdRef.current = accountId;
+  deviceIdRef.current = deviceId;
+  sessionTokenRef.current = sessionToken;
+  return useMemo(
+    () => ({
+      getAccountId: () => accountIdRef.current,
+      getDeviceId: () => deviceIdRef.current,
+      getSessionToken: () => sessionTokenRef.current,
+    }),
+    []
+  );
 }
 
 function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
@@ -56,6 +75,7 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const kv = useKv();
   const observability = useObservability();
   const getFreshAuthToken = useGetFreshAuthToken();
+  const auth = useSyncClientAuthRef();
   const fetchFn = useMemo(
     () =>
       instrumentFetch(
@@ -68,10 +88,12 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   const fetchFnRef = useRef(fetchFn);
   const kvRef = useRef(kv);
   const getFreshAuthTokenRef = useRef(getFreshAuthToken);
+  const authRef = useRef(auth);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   kvRef.current = kv;
   getFreshAuthTokenRef.current = getFreshAuthToken;
+  authRef.current = auth;
   return useMemo(
     () =>
       getOrCreateAppPowerSyncSyncEngine({
@@ -83,6 +105,9 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
         },
         get kv() {
           return kvRef.current;
+        },
+        get auth() {
+          return authRef.current;
         },
         getFreshAuthToken: () => getFreshAuthTokenRef.current(),
         databaseName: dbName,
@@ -108,26 +133,39 @@ function renderSyncEngineTree(args: {
 }
 
 /**
- * Opens PowerSync for the active auth identity and exposes the sync engine.
+ * Opens PowerSync for the active `users.id` and exposes the sync engine.
  *
- * After the first successful open, keep the navigation tree mounted across
- * identity changes (sticky prior engine until the next one is ready). Replacing
- * children with a loading screen unmounts Expo Router and resets to `/`.
- * Space chrome (miniplayer / current spaces) must not paint from a sticky
- * prior-identity engine — see {@link SyncEnginePaintGateContext}.
+ * Waits for AuthBridge anon ensure / refresh to bind `currentUserId`. After
+ * the first successful open, keeps the navigation tree mounted across identity
+ * changes (sticky prior engine until the next one is ready).
  */
 export function SyncEngineBoot({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const accountId = useCurrentAccountId();
-  const deviceId = useDeviceId();
-  const dbName = useIdentitySqliteDbName(accountId, deviceId);
+  const userId = useCurrentAccountId();
+  if (userId === null) {
+    return <LocalDatabaseBootLoadingScreen />;
+  }
+
+  return (
+    <SyncEngineBootWithUser userId={userId}>{children}</SyncEngineBootWithUser>
+  );
+}
+
+function SyncEngineBootWithUser({
+  userId,
+  children,
+}: {
+  readonly userId: string;
+  readonly children: ReactNode;
+}): ReactNode {
+  const dbName = useIdentitySqliteDbName(userId);
   const warmEngine = peekReadyAppSyncEngine(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const enginePromise = useSyncEnginePromise(dbName);
-  const boot = useSyncEngineBootState(enginePromise, warmEngine);
+  const boot = useSyncEngineBootState(enginePromise, warmEngine, userId);
 
   if (boot.phase === 'ready') {
     lastReadyEngineRef.current = boot.engine;

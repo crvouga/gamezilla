@@ -74,7 +74,7 @@ async function checkOneSendRow(
 ): Promise<Failure | null> {
   const targets = readSendTargets(row);
   if (targets === null || targets.fromUserId !== ctx.auth.userId) return null;
-  if (ctx.auth.accountId === null) {
+  if (ctx.auth.accountId === null || ctx.auth.isAnon) {
     return fail(FRIENDS_NOT_SIGNED_IN, {
       table: FRIEND_REQUESTS_TABLE,
       id: row.id,

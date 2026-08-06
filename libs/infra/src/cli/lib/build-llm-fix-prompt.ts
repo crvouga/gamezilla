@@ -174,27 +174,37 @@ interface LocalPromptOptions {
   readonly constraints?: ReadonlyArray<string>;
 }
 
+const LOCAL_CHECK_CONSTRAINTS = [
+  'Never patch dependencies (`bun patch`, `patch-package`, `patches/`, etc.).',
+  'Never disable Tiger-style size-limit ESLint rules (`max-lines`, `max-lines-per-function`, etc.). Refactor instead.',
+  'Fix the root cause; do not suppress rules or add blanket eslint-disable comments.',
+  'Do not create git commits unless explicitly asked.',
+  'After edits, re-run the failing step(s) to verify before finishing.',
+] as const;
+
 const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
   title: `Fix local pipeline failures for ${PROJECT_CONFIG.domain}`,
   failureIntro:
     'The Deployment Pipeline checks failed when run locally via `bun run check`.',
   fixInstructions:
     'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run check:api`, `bun run check:browser`).',
+  constraints: LOCAL_CHECK_CONSTRAINTS,
+};
+
+/** Prompt body written by `bun check` to `check/llm-fix-prompt.md` for agents. */
+const LOCAL_BUN_CHECK_PROMPT: LocalPromptOptions = {
+  title: `Fix \`bun check\` failures for ${PROJECT_CONFIG.domain}`,
+  failureIntro:
+    'The `bun check` gates failed (same six lanes as the deployment pipeline). An agent should fix every failing lane below in one pass.',
+  fixInstructions:
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`, `bun run check:api`, `bun run check:browser`).',
+  constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
 const CHECK_HEAL_LOCAL_PROMPT: LocalPromptOptions = {
-  title: `Fix \`bun check\` failures for ${PROJECT_CONFIG.domain}`,
+  ...LOCAL_BUN_CHECK_PROMPT,
   failureIntro:
     'The `bun check` gates failed when run locally via `bun run check:heal` (same six lanes as `bun run check`).',
-  fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci`, `bun run check:api`, `bun run check:browser`).',
-  constraints: [
-    'Never patch dependencies (`bun patch`, `patch-package`, `patches/`, etc.).',
-    'Never disable Tiger-style size-limit ESLint rules (`max-lines`, `max-lines-per-function`, etc.). Refactor instead.',
-    'Fix the root cause; do not suppress rules or add blanket eslint-disable comments.',
-    'Do not create git commits unless explicitly asked.',
-    'After edits, re-run the failing step(s) to verify before finishing.',
-  ],
 };
 
 function renderLocalPromptBody(
@@ -380,6 +390,22 @@ export function buildLocalLlmFixPromptMarkdown(
     renderLocalPromptBody(failures, DEPLOYMENT_PIPELINE_LOCAL_PROMPT),
     'Click to expand. Copy the entire fenced block into an LLM to fix all local pipeline failures.'
   );
+}
+
+/**
+ * Plain-text prompt body for local `bun check` failures. Written to
+ * `check/llm-fix-prompt.md` so an LLM agent can fix every failing lane in
+ * one pass (no GitHub Actions / clipboard wrapper).
+ */
+export function buildLocalCheckFixPromptBody(
+  failures: ReadonlyArray<{ readonly stepId: string; readonly output: string }>
+): string {
+  if (failures.length === 0) return '';
+  const mapped = failures.map((f) => ({
+    jobId: f.stepId,
+    output: f.output,
+  }));
+  return renderLocalPromptBody(mapped, LOCAL_BUN_CHECK_PROMPT);
 }
 
 /** Plain-text prompt body for the `check:heal` agent loop (no markdown wrapper). */

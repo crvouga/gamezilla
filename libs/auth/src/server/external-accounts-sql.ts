@@ -72,12 +72,13 @@ export async function readExternalAccountId(
 export async function insertUser(
   db: SqlClient,
   userId: string,
-  createdAt?: string
+  createdAt?: string,
+  isAnon = false
 ): Promise<void> {
   const now = createdAt ?? new Date().toISOString();
   await db.run(sql<void>`
-    INSERT INTO users (id, created_at)
-    VALUES (${userId}, ${now})
+    INSERT INTO users (id, created_at, is_anon)
+    VALUES (${userId}, ${now}, ${isAnon})
     ON CONFLICT (id) DO NOTHING
   `);
 }

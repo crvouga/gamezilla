@@ -189,8 +189,12 @@ CREATE TABLE IF NOT EXISTS public.user_blocks (
 
 CREATE TABLE IF NOT EXISTS public.users (
     id text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    is_anon boolean DEFAULT false NOT NULL
 );
+
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS is_anon boolean DEFAULT false NOT NULL;
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_interactions
@@ -201,8 +205,6 @@ EXCEPTION
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.chess_puzzle_interactions REPLICA IDENTITY FULL;
-
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_load
     ADD CONSTRAINT chess_puzzle_load_pkey PRIMARY KEY (id)';
@@ -211,8 +213,6 @@ EXCEPTION
   WHEN duplicate_table THEN NULL;
   WHEN invalid_table_definition THEN NULL;
 END $$;
-
-ALTER TABLE ONLY public.chess_puzzle_load REPLICA IDENTITY FULL;
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.chess_puzzle_profiles
@@ -223,8 +223,6 @@ EXCEPTION
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.chess_puzzle_profiles REPLICA IDENTITY FULL;
-
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.chess_puzzles
     ADD CONSTRAINT chess_puzzles_pkey PRIMARY KEY (id)';
@@ -233,8 +231,6 @@ EXCEPTION
   WHEN duplicate_table THEN NULL;
   WHEN invalid_table_definition THEN NULL;
 END $$;
-
-ALTER TABLE ONLY public.chess_puzzles REPLICA IDENTITY FULL;
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.client_config
@@ -245,22 +241,9 @@ EXCEPTION
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.client_config REPLICA IDENTITY FULL;
-
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.devices
     ADD CONSTRAINT devices_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.devices REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.entity_store
-    ADD CONSTRAINT entity_store_namespace_type_external_id_key UNIQUE (namespace, type, external_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -276,31 +259,9 @@ EXCEPTION
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.entity_store REPLICA IDENTITY FULL;
-
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.external_accounts
     ADD CONSTRAINT external_accounts_provider_external_id_pk PRIMARY KEY (provider, external_id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.external_accounts
-    ADD CONSTRAINT external_accounts_user_id_provider_key UNIQUE (user_id, provider)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.external_accounts REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.friend_requests
-    ADD CONSTRAINT friend_requests_from_user_id_profiles_id_fk FOREIGN KEY (from_user_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -317,19 +278,177 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.friend_requests
-    ADD CONSTRAINT friend_requests_to_user_id_profiles_id_fk FOREIGN KEY (to_user_id) REFERENCES public.profiles(id)';
+  EXECUTE 'ALTER TABLE ONLY public.friendships
+    ADD CONSTRAINT friendships_pkey PRIMARY KEY (id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.friend_requests REPLICA IDENTITY FULL;
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_interactions
+    ADD CONSTRAINT inbox_interactions_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_preferences
+    ADD CONSTRAINT inbox_preferences_pkey PRIMARY KEY (user_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.inbox_schema_state
+    ADD CONSTRAINT inbox_schema_state_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.spaces
+    ADD CONSTRAINT spaces_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.entity_store
+    ADD CONSTRAINT entity_store_namespace_type_external_id_key UNIQUE (namespace, type, external_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.external_accounts
+    ADD CONSTRAINT external_accounts_user_id_provider_key UNIQUE (user_id, provider)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
 
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.friendships
-    ADD CONSTRAINT friendships_pkey PRIMARY KEY (id)';
+    ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.space_users
+    ADD CONSTRAINT space_users_space_id_user_id_key UNIQUE (space_id, user_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.user_blocks
+    ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+ALTER TABLE ONLY public.chess_puzzle_interactions REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.chess_puzzle_load REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.chess_puzzle_profiles REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.chess_puzzles REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.client_config REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.devices REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.entity_store REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.external_accounts REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.friend_requests REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.friendships REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.inbox_interactions REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.inbox_preferences REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.inbox_schema_state REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.space_users REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.spaces REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.user_blocks REPLICA IDENTITY FULL;
+
+ALTER TABLE ONLY public.users REPLICA IDENTITY FULL;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_from_user_id_profiles_id_fk FOREIGN KEY (from_user_id) REFERENCES public.profiles(id)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_to_user_id_profiles_id_fk FOREIGN KEY (to_user_id) REFERENCES public.profiles(id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -364,79 +483,8 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.friendships
-    ADD CONSTRAINT friendships_user_low_user_high_key UNIQUE (user_low, user_high)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.friendships REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.inbox_interactions
-    ADD CONSTRAINT inbox_interactions_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.inbox_interactions REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.inbox_preferences
-    ADD CONSTRAINT inbox_preferences_pkey PRIMARY KEY (user_id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.inbox_preferences REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.inbox_schema_state
-    ADD CONSTRAINT inbox_schema_state_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.inbox_schema_state REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.profiles
-    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.space_users
-    ADD CONSTRAINT space_users_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.space_users
     ADD CONSTRAINT space_users_space_id_spaces_id_fk FOREIGN KEY (space_id) REFERENCES public.spaces(id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.space_users
-    ADD CONSTRAINT space_users_space_id_user_id_key UNIQUE (space_id, user_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -452,31 +500,9 @@ EXCEPTION
   WHEN invalid_table_definition THEN NULL;
 END $$;
 
-ALTER TABLE ONLY public.space_users REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.spaces
-    ADD CONSTRAINT spaces_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.spaces REPLICA IDENTITY FULL;
-
 DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.user_blocks
     ADD CONSTRAINT user_blocks_blocked_id_profiles_id_fk FOREIGN KEY (blocked_id) REFERENCES public.profiles(id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.user_blocks
-    ADD CONSTRAINT user_blocks_blocker_id_blocked_id_key UNIQUE (blocker_id, blocked_id)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -491,28 +517,6 @@ EXCEPTION
   WHEN duplicate_table THEN NULL;
   WHEN invalid_table_definition THEN NULL;
 END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.user_blocks
-    ADD CONSTRAINT user_blocks_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.user_blocks REPLICA IDENTITY FULL;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-ALTER TABLE ONLY public.users REPLICA IDENTITY FULL;
 
 CREATE INDEX IF NOT EXISTS chess_puzzle_interactions_at_idx ON public.chess_puzzle_interactions USING btree (at DESC NULLS LAST);
 
@@ -546,8 +550,6 @@ CREATE INDEX IF NOT EXISTS friend_requests_from_pending_idx ON public.friend_req
 
 CREATE INDEX IF NOT EXISTS friend_requests_history_idx ON public.friend_requests USING btree (from_user_id, to_user_id, updated_at DESC NULLS LAST);
 
-CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx ON public.friend_requests USING btree (from_user_id, to_user_id) WHERE (status = 'pending'::text);
-
 CREATE INDEX IF NOT EXISTS friend_requests_to_pending_idx ON public.friend_requests USING btree (to_user_id, created_at DESC NULLS LAST) WHERE (status = 'pending'::text);
 
 CREATE INDEX IF NOT EXISTS friendships_user_high_idx ON public.friendships USING btree (user_high);
@@ -556,11 +558,7 @@ CREATE INDEX IF NOT EXISTS friendships_user_low_idx ON public.friendships USING 
 
 CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx ON public.inbox_interactions USING btree (user_id, active, archived_at, priority DESC, created_at DESC);
 
-CREATE UNIQUE INDEX IF NOT EXISTS inbox_interactions_source_uidx ON public.inbox_interactions USING btree (user_id, source_namespace, source_type, source_id);
-
 CREATE INDEX IF NOT EXISTS profiles_username_norm_prefix_idx ON public.profiles USING btree (username_norm text_pattern_ops);
-
-CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx ON public.profiles USING btree (username_norm) WHERE (username <> ''::text);
 
 CREATE INDEX IF NOT EXISTS space_users_space_id_idx ON public.space_users USING btree (space_id);
 
@@ -579,3 +577,9 @@ CREATE INDEX IF NOT EXISTS spaces_host_member_id_idx ON public.spaces USING btre
 CREATE INDEX IF NOT EXISTS spaces_visibility_live_idx ON public.spaces USING btree (visibility, created_at DESC NULLS LAST) WHERE (ended_at IS NULL);
 
 CREATE INDEX IF NOT EXISTS user_blocks_blocked_idx ON public.user_blocks USING btree (blocked_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS friend_requests_pending_pair_uidx ON public.friend_requests USING btree (from_user_id, to_user_id) WHERE (status = 'pending'::text);
+
+CREATE UNIQUE INDEX IF NOT EXISTS inbox_interactions_source_uidx ON public.inbox_interactions USING btree (user_id, source_namespace, source_type, source_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_norm_uidx ON public.profiles USING btree (username_norm) WHERE (username <> ''::text);

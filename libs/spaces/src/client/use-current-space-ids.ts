@@ -1,4 +1,4 @@
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql, type Sql } from '@pkgs/sql';
 
 import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
@@ -75,28 +75,25 @@ export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
-  const accountId = useMyAccountId();
+  const myId = useMyId();
   const paintReady = useSyncEnginePaintReady();
-  const enabled = paintReady && accountId !== null && accountId.length > 0;
+  const enabled = paintReady && myId.length > 0;
   const query = useMemo(() => currentSpacesSql(enabled), [enabled]);
   const { rows, isLoading } = useWatchQuery(query);
   if (!paintReady) {
     return { entries: [], isLoading: true };
   }
-  const entries = buildCurrentSpaceEntries(rows, accountId ?? '');
+  const entries = buildCurrentSpaceEntries(rows, myId);
   return {
     entries,
     isLoading: entries.length === 0 && isLoading,
   };
 }
 
-/** Account ids used for space host/guest checks. */
+/** User ids used for space host/guest checks. */
 export function useReplicationIdentityIds(): readonly string[] {
-  const accountId = useMyAccountId();
-  return useMemo(
-    () => (accountId !== null && accountId.length > 0 ? [accountId] : []),
-    [accountId]
-  );
+  const myId = useMyId();
+  return useMemo(() => (myId.length > 0 ? [myId] : []), [myId]);
 }
 
 export function isReplicationHost(

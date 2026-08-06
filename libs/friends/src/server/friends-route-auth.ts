@@ -15,7 +15,7 @@ async function requireSignedInFriendsAuth(
   const sql = c.get('sqlClient');
   const ctx = await sessionAuth.requireAuthContext(sql, c.req.raw);
   const auth = appAuth(ctx);
-  if (auth === null || auth.accountId === null) {
+  if (auth === null || auth.accountId === null || auth.isAnon) {
     throw new UnauthorizedError('Friends requires a signed-in account');
   }
   return auth;

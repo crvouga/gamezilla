@@ -31,6 +31,8 @@ export const USERS_TABLE_DEF = defineTable({
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'created_at', type: 'text' },
+    // Postgres boolean → SQLite integer (0/1) via PowerSync.
+    { name: 'is_anon', type: 'integer' },
   ],
 });
 

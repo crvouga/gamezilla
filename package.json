@@ -44,6 +44,7 @@
     "client:sentry-dsn": "bun run --filter @apps/client setup:sentry-dsn",
     "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:migrate",
     "db:schema:sync": "bun run tools/scripts/sync-postgres-schema-sql.ts",
+    "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
     "dev": "bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"tools/package.json\" && bun run tools/scripts/prettier-git-files.ts --write",

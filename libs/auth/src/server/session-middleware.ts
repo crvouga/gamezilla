@@ -8,6 +8,10 @@ import {
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  findUserIdByDeviceId,
+  readUserAnonState,
+} from './anon-user-ensure';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -23,12 +27,20 @@ export type SessionAuthDeps = {
   readonly authServer: AuthServerPort;
 };
 
-function buildAnonAppAuthContext(anonId: string): AppAuthContext {
-  assertDeviceId(anonId);
+async function buildAnonAppAuthContext(
+  sql: SqlClient,
+  deviceId: string
+): Promise<AppAuthContext | null> {
+  assertDeviceId(deviceId);
+  const userId = await findUserIdByDeviceId(sql, deviceId);
+  if (userId === null) return null;
+  const state = await readUserAnonState(sql, userId);
+  if (!state.exists) return null;
   return buildAppAuthContext({
-    deviceId: anonId,
-    accountId: null,
-    myId: anonId,
+    deviceId,
+    accountId: userId,
+    myId: userId,
+    isAnon: state.isAnon,
   });
 }
 
@@ -46,8 +58,8 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
   /**
    * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
    * {@link ANON_ID_HEADER} (install UUID) for `deviceId`; or anonymous
-   * {@link AppAuthContext} when only `x-anon-id` is set; or unauthenticated
-   * marker when neither applies.
+   * {@link AppAuthContext} when only `x-anon-id` is set and the device is bound
+   * to a `users` row; or unauthenticated marker when neither applies.
    */
   async function resolveAuthContext(
     sql: SqlClient,
@@ -58,7 +70,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
 
     if (header === null || !header.startsWith('Bearer ')) {
       if (anonRaw.length > 0) {
-        return buildAnonAppAuthContext(anonRaw);
+        return (await buildAnonAppAuthContext(sql, anonRaw)) ?? UNAUTH_CLIENT_CONTEXT;
       }
       return UNAUTH_CLIENT_CONTEXT;
     }
@@ -97,7 +109,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
     }
     const ctx = await resolveAuthContext(sql, request);
     const auth = appAuth(ctx);
-    if (auth === null || auth.accountId === null) {
+    if (auth === null || auth.accountId === null || auth.isAnon) {
       throw new UnauthorizedError('Invalid or expired session');
     }
     return ctx as AuthContext;

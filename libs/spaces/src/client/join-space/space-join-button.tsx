@@ -1,4 +1,4 @@
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { useJoinSpace } from './use-join-space';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import { Button, useMutationButton } from '@pkgs/ui';
@@ -20,8 +20,7 @@ export function SpaceJoinButton({
 }: SpaceJoinButtonProps): ReactNode {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
-  const accountId = useMyAccountId();
-  const signedIn = accountId !== null && accountId.length > 0;
+  const signedIn = useIsSignedIn();
   const disabled = !signedIn || !joinable || spaceId.length === 0;
 
   const join = useMutationButton({

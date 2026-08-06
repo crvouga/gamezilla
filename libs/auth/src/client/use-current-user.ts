@@ -3,96 +3,121 @@ import { sql } from '@pkgs/sql';
 import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
+import { useAuthClientPort } from './auth-client-provider';
 import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
-import {
-  getCachedCurrentAccountId,
-  useCurrentAccountId,
-} from './use-current-account-id';
+import { isAuthSessionSignedIn } from './session-snapshot';
+import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
 export type CurrentUser = {
-  accountId: string;
-  createdAt: string | null;
-  stripeCustomerId: string | null;
+  /** `users.id` — always set after anon ensure / auth refresh. */
+  readonly id: string;
+  readonly isAnon: boolean;
+  readonly createdAt: string | null;
+  readonly stripeCustomerId: string | null;
 };
 
 type UserRow = {
   readonly created_at: string | null;
+  readonly is_anon: number | boolean | string | null;
 };
 
 type StripeLinkRow = {
   readonly external_id: string | null;
 };
 
+function readIsAnonFlag(value: unknown): boolean {
+  return value === true || value === 1 || value === '1' || value === 't';
+}
+
 /**
- * Source of truth for "who is signed in" on the client. Reads:
- *   - `accountId` from secure storage (instant, survives cold start)
- *   - the `users` row + stripe link from local sync (populated by the most
- *     recent `POST /auth/refresh`, replicated via PowerSync)
+ * Source of truth for "who am I" on the client. Always a real `users` row
+ * after auth boot (anon or signed-in). Returns a stub while the `users` row
+ * is still syncing.
  *
- * Returns `null` when signed out. Returns a stub `{ accountId, ... }` while
- * rows are still syncing; consumers can render off the non-null `accountId`
- * and let column reads fill in over time.
+ * Call only under SyncEngine + after `currentUserId` is bound (anon ensure).
  */
-export function useCurrentUser(): CurrentUser | null {
-  const accountId = useCurrentAccountId();
+export function useCurrentUser(): CurrentUser {
+  const userId = useMyId();
+  const hasSession = useHasAuthSession();
   const { row: userRow } = useWatchOne(sql<UserRow>`
-    SELECT created_at
+    SELECT created_at, is_anon
     FROM users
-    WHERE id = ${accountId}
+    WHERE id = ${userId}
   `);
   const { row: stripeRow } = useWatchOne(sql<StripeLinkRow>`
     SELECT external_id
     FROM external_accounts
-    WHERE user_id = ${accountId}
+    WHERE user_id = ${userId}
       AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
   `);
-  if (accountId === null) return null;
+
+  const isAnon =
+    !hasSession &&
+    (userRow === null || userRow === undefined
+      ? true
+      : readIsAnonFlag(userRow.is_anon));
 
   return {
-    accountId,
+    id: userId,
+    isAnon,
     createdAt: userRow?.created_at ?? null,
     stripeCustomerId: stripeRow?.external_id ?? null,
   };
 }
 
 /**
- * Convenience: `true` iff a session token + account id are both present in
- * secure storage.
+ * `true` when bound to a non-anon user with a session token.
  */
 export function useIsSignedIn(): boolean {
-  const accountId = useCurrentAccountId();
+  const userId = useCurrentAccountId();
   const token = useFreshAuthToken();
-  return resolveIsSignedIn(accountId, token);
+  const isAnon = useIsAnon();
+  return resolveIsSignedIn(userId, token, isAnon);
 }
 
 /**
- * Replication identity: account id when signed in, else the install device id.
- * While a session token is present but `lastLocalAccountId` is not yet written,
- * returns `''` so callers do not bind to the device/anon profile.
+ * Provider session hydrated and present (sign-in / sign-out chrome).
  */
-export function useMyId(): string {
-  const accountId = useCurrentAccountId();
-  const deviceId = useDeviceId();
-  const token = useFreshAuthToken();
-  return resolveMyId({
-    accountId,
-    cachedAccountId: getCachedCurrentAccountId(),
-    token,
-    deviceId,
-  });
+export function useHasAuthSession(): boolean {
+  const port = useAuthClientPort();
+  return isAuthSessionSignedIn(port.useAuthSession());
 }
 
-/** Account id for the current session, or `null` if signed out. */
+/**
+ * Replication / profile identity: `users.id` from secure storage.
+ * Empty string only before anon ensure writes `currentUserId`.
+ */
+export function useMyId(): string {
+  return resolveMyId(useCurrentAccountId());
+}
+
+/** Same as {@link useMyId} when bound; `null` before anon ensure. */
 export function useMyAccountId(): string | null {
   return useCurrentAccountId();
 }
 
 /**
- * Stable device id for the current install. Crashes if called before the
- * cold-start UUID write has completed; mount `<DeviceIdReady>` near the app
- * root if you need to gate render until then.
+ * `true` when the active `users` row is anon (no provider session / link).
+ */
+export function useIsAnon(): boolean {
+  const hasSession = useHasAuthSession();
+  const myId = useMyId();
+  const watchId = myId.length > 0 ? myId : '';
+  const { row } = useWatchOne(sql<{ is_anon: number | boolean | null }>`
+    SELECT is_anon
+    FROM users
+    WHERE id = ${watchId}
+  `);
+  if (hasSession) return false;
+  if (myId.length === 0) return true;
+  if (row === null || row === undefined) return true;
+  return readIsAnonFlag(row.is_anon);
+}
+
+/**
+ * Stable install device id (`devices.id`). Not a user/profile identity.
  */
 export function useMyDeviceId(): string {
   const id = useDeviceId();

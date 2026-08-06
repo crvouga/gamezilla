@@ -23,6 +23,15 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
+    file: 'apps/api/scripts/wipe-dev-db.ts',
+    mustInclude: [
+      'assertDevSecretsEnv',
+      'ALLOW_PRODUCTION_DATABASE_URL',
+      'assertWipeDatabasePolicy',
+      'fetchSecretFrom',
+    ],
+  },
+  {
     file: 'apps/api/src/app/request-db-middleware.ts',
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnv'],
   },

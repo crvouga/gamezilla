@@ -9,6 +9,7 @@ export function mapAppAuthToUploadAuth(
     userId: auth.myId,
     deviceId: auth.deviceId,
     accountId: auth.accountId,
+    isAnon: auth.isAnon,
     memberOfSpaceIds,
   };
 }

@@ -1,6 +1,7 @@
 import { Box, Card, CopyToClipboardField, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
+import { useIsSignedIn } from '../use-current-user';
 import { useAccountDeviceIds } from '../use-account-device-ids';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
 
@@ -21,13 +22,14 @@ export function AccountDevicesCard({
   onOpenDevice,
 }: AccountDevicesCardProps): ReactNode {
   const { t } = useLingui();
-  const deviceIds = useAccountDeviceIds(accountId);
+  const signedIn = useIsSignedIn();
+  const deviceIds = useAccountDeviceIds(signedIn ? accountId : null);
 
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Text variant="bodyBold" label={<Trans>Devices</Trans>} />
       <CaptionLine label={<Trans>Tap a device for details.</Trans>} />
-      {accountId !== null ? (
+      {signedIn && accountId !== null ? (
         <CopyToClipboardField
           label={<Trans>Account ID</Trans>}
           helperText={t`Tap to copy`}

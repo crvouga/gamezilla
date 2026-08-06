@@ -25,7 +25,7 @@ function requireSignedIn(
   table: string,
   id: string
 ): Failure | null {
-  if (ctx.auth.accountId === null) {
+  if (ctx.auth.accountId === null || ctx.auth.isAnon) {
     return fail(FRIENDS_NOT_SIGNED_IN, { table, id });
   }
   return null;

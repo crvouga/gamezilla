@@ -22,13 +22,19 @@ function readNullableString(v: unknown): string | null {
  * Use the tag's call form (`AuthClaimAttr.deviceId(id)`) to spread a single
  * claim into a context, and `.from(state)` to extract it.
  */
+function readBool(v: unknown): boolean {
+  return v === true || v === 1 || v === '1' || v === 'true';
+}
+
 export const AuthClaimAttr = {
-  /** Install / replication device UUID. Empty string when truly anonymous. */
+  /** Install UUID (`devices.id`). Never used as user/profile identity. */
   deviceId: authNs.text('device-id', readNonEmptyString),
-  /** Account UUID when signed in, else `null`. */
+  /** `users.id` when resolved (anon or signed-in), else `null`. */
   accountId: authNs.textOrNull('account-id', readNullableString),
-  /** Author id used by write metadata: `accountId ?? deviceId`. */
+  /** Author id for writes / sync: always `users.id` (= accountId when set). */
   myId: authNs.text('my-id', readNonEmptyString),
+  /** True when `users.is_anon` for the resolved account. */
+  isAnon: authNs.boolean('is-anon', readBool),
 } as const;
 
 /**
@@ -49,6 +55,7 @@ export type AppAuth = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly myId: string;
+  readonly isAnon: boolean;
 };
 
 /** Reads {@link AuthClaimAttr} keys off a context. */
@@ -62,6 +69,7 @@ export function appAuth(
     deviceId,
     accountId: AuthClaimAttr.accountId.from(state),
     myId: AuthClaimAttr.myId.from(state),
+    isAnon: AuthClaimAttr.isAnon.from(state),
   };
 }
 
@@ -69,6 +77,7 @@ export type BuildAppAuthContextArgs = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly myId: string;
+  readonly isAnon?: boolean;
 };
 
 /** Builds an {@link AppAuthContext} from convenience args. */
@@ -79,5 +88,6 @@ export function buildAppAuthContext(
     ...AuthClaimAttr.deviceId(args.deviceId),
     ...AuthClaimAttr.accountId(args.accountId),
     ...AuthClaimAttr.myId(args.myId),
+    ...AuthClaimAttr.isAnon(args.isAnon ?? false),
   };
 }

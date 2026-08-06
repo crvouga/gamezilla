@@ -282,7 +282,19 @@ function statementSortKey(statement: string): string {
   }
   const alter = /^ALTER TABLE(?: ONLY)?\s+([^\s]+)/i.exec(s);
   if (alter) {
-    return `2:alter:${alter[1]!.toLowerCase()}:${s.toLowerCase()}`;
+    const table = alter[1]!.toLowerCase();
+    // Fresh empty-schema migrate needs every PK/UNIQUE before any FK that
+    // references it. Sort keys globally ahead of FKs (not merely per-table).
+    if (/\bADD CONSTRAINT\b/i.test(s) && /\bPRIMARY KEY\b/i.test(s)) {
+      return `2:alter-a-pk:${table}:${s.toLowerCase()}`;
+    }
+    if (/\bADD CONSTRAINT\b/i.test(s) && /\bUNIQUE\b/i.test(s)) {
+      return `2:alter-b-uq:${table}:${s.toLowerCase()}`;
+    }
+    if (/\bADD CONSTRAINT\b/i.test(s) && /\bFOREIGN KEY\b/i.test(s)) {
+      return `2:alter-d-fk:${table}:${s.toLowerCase()}`;
+    }
+    return `2:alter-c-misc:${table}:${s.toLowerCase()}`;
   }
   return `9:other:${s.toLowerCase()}`;
 }

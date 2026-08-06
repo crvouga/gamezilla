@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 
 import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/db/shared/auth-tables';
+import { ensureAnonUserForDevice } from './anon-user-ensure';
 import { resolveAccountIdFromBearer } from './bearer-resolve';
 import { ANON_ID_HEADER } from './session-middleware';
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
@@ -10,6 +11,10 @@ import type { AuthContext } from './types';
 
 type RefreshBody = {
   device: Record<string, string | null>;
+};
+
+type AnonEnsureBody = {
+  forceNew: boolean;
 };
 
 /**
@@ -40,19 +45,45 @@ function readRefreshBody(raw: unknown): RefreshBody {
   };
 }
 
+function readAnonEnsureBody(raw: unknown): AnonEnsureBody {
+  const obj =
+    raw === null || typeof raw !== 'object'
+      ? {}
+      : (raw as Record<string, unknown>);
+  return {
+    forceNew: obj['forceNew'] === true,
+  };
+}
+
 /**
- * Single client-facing auth endpoint. Validates the bearer + device pair,
- * upserts the canonical auth snapshot for the current account / device,
- * and returns just `{ accountId }`. Clients read everything else from
- * local sync after PowerSync replicates the rows.
- *
- * Requires `Authorization: Bearer <jwt>` (auth provider session token) and
- * `x-anon-id: <deviceId>` (install UUID).
+ * Auth routes:
+ * - `POST /auth/anon/ensure` — mint/bind anon `users` row for the install
+ * - `POST /auth/refresh` — upgrade-or-switch on provider sign-in
  */
 export function createAuthApiRoutes() {
-  return new Hono<ApiHonoEnv<AuthContext>>().post(
-    '/auth/refresh',
-    async (c) => {
+  return new Hono<ApiHonoEnv<AuthContext>>()
+    .post('/auth/anon/ensure', async (c) => {
+      const sql = c.get('sqlClient');
+      const deviceId = c.req.header(ANON_ID_HEADER)?.trim() ?? '';
+      if (deviceId.length === 0) {
+        throw new UnauthorizedError('Missing x-anon-id for device binding');
+      }
+
+      const rawBody: unknown = await c.req.json().catch(() => null);
+      const body = readAnonEnsureBody(rawBody);
+
+      const result = await ensureAnonUserForDevice({
+        sql,
+        deviceId,
+        forceNew: body.forceNew,
+      });
+
+      return c.json(
+        { userId: result.userId, accountId: result.userId, isAnon: true },
+        200
+      );
+    })
+    .post('/auth/refresh', async (c) => {
       const sql = c.get('sqlClient');
       const authServer = c.get('authServer');
 
@@ -91,7 +122,6 @@ export function createAuthApiRoutes() {
         deviceAttributes: body.device,
       });
 
-      return c.json({ accountId }, 200);
-    }
-  );
+      return c.json({ accountId, userId: accountId, isAnon: false }, 200);
+    });
 }

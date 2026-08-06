@@ -2,19 +2,17 @@ import { LinkedProvidersList } from './linked-providers-list';
 import { Card, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
-
-export type LinkedProvidersCardProps = {
-  accountId: string | null;
-};
+import { useIsSignedIn, useMyAccountId } from '../use-current-user';
 
 /**
- * Sign-in providers body. When signed-out, shows a caption hint instead of
- * the list.
+ * Sign-in providers body. When signed-out or anon, shows a caption hint instead
+ * of the list.
  */
-export function LinkedProvidersCard({
-  accountId,
-}: LinkedProvidersCardProps): ReactNode {
+export function LinkedProvidersCard(): ReactNode {
   const { t } = useLingui();
+  const signedIn = useIsSignedIn();
+  const accountId = useMyAccountId();
+
   return (
     <Card elevation={1} sx={{ p: 4, gap: 3 }}>
       <Text variant="bodyBold" label={<Trans>Sign-in providers</Trans>} />
@@ -23,7 +21,7 @@ export function LinkedProvidersCard({
         sx={{ color: 'textSecondary' }}
         label={t`Accounts you use to sign in.`}
       />
-      {accountId === null ? (
+      {!signedIn || accountId === null ? (
         <Text
           variant="caption"
           sx={{ color: 'textSecondary' }}

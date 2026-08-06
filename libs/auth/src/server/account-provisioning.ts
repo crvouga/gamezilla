@@ -3,6 +3,10 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import {
+  clearUserAnonFlag,
+  readUserAnonState,
+} from './anon-user-ensure';
 import { upsertAuthUserSnapshot } from './entity-store-sql';
 import {
   findUserIdByPrimaryAuthExternalId,
@@ -35,15 +39,19 @@ async function acquireExternalUserAdvisoryLock(
 
 /**
  * Resolves the immutable internal `users.id` for a primary-auth external user.
- * Concurrent callers serialize on an advisory lock and adopt the winning link
- * — never mint a second account that steals the external identity.
+ *
+ * 1. Existing `external_accounts` link → that `users.id` (switch).
+ * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
+ * 3. Else mint a new non-anon `users` row.
  */
 export async function ensureInternalAccountIdForExternalUser(args: {
   sql: SqlClient;
   authServer: AuthServerPort;
   externalUserId: string;
+  /** Device-bound anon user to upgrade when this external id is new. */
+  upgradeUserId?: string | null;
 }): Promise<string> {
-  const { sql: db, authServer, externalUserId } = args;
+  const { sql: db, authServer, externalUserId, upgradeUserId } = args;
   const provider = authServer.providerLabel;
   const lockKey = `${provider}:${externalUserId}`;
 
@@ -61,9 +69,14 @@ export async function ensureInternalAccountIdForExternalUser(args: {
     }
 
     const snapshot = await authServer.getUserSnapshot(externalUserId);
-    const candidateUserId = crypto.randomUUID();
+    const candidateUserId = await resolveCandidateUserId(tx, upgradeUserId);
     const now = new Date().toISOString();
-    await insertUser(tx, candidateUserId, now);
+    if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
+      await clearUserAnonFlag(tx, candidateUserId);
+    } else {
+      await insertUser(tx, candidateUserId, now, false);
+    }
+
     const ownerId = await insertExternalAccountOrGet(tx, {
       userId: candidateUserId,
       provider,
@@ -72,6 +85,11 @@ export async function ensureInternalAccountIdForExternalUser(args: {
     });
     assertUuid(ownerId, 'userId must be UUID');
 
+    // Race: another txn linked the external id to a different user.
+    if (ownerId !== candidateUserId && candidateUserId === upgradeUserId) {
+      // Leave the anon row upgraded but unlinked; canonical owner wins.
+    }
+
     await upsertAuthUserSnapshot(tx, {
       externalUserId,
       ownerId,
@@ -79,4 +97,18 @@ export async function ensureInternalAccountIdForExternalUser(args: {
     });
     return ownerId;
   });
+}
+
+async function resolveCandidateUserId(
+  tx: SqlClient,
+  upgradeUserId: string | null | undefined
+): Promise<string> {
+  if (typeof upgradeUserId === 'string' && upgradeUserId.length > 0) {
+    assertUuid(upgradeUserId, 'upgradeUserId must be UUID');
+    const state = await readUserAnonState(tx, upgradeUserId);
+    if (state.exists && state.isAnon) {
+      return upgradeUserId;
+    }
+  }
+  return crypto.randomUUID();
 }

@@ -120,6 +120,7 @@ async function handleSyncUpload(
               userId: uploadAuth.userId,
               accountId: uploadAuth.accountId,
               deviceId: uploadAuth.deviceId,
+              isAnon: uploadAuth.isAnon,
             },
             batch: b,
             db,

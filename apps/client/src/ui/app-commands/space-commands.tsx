@@ -1,4 +1,4 @@
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { useCreateSpace } from '@libs/spaces/client/create-space/use-create-space';
 import { useRequestEndSpace } from '@libs/spaces/client/end-space/end-space-modal-provider';
 import { useJoinSpace } from '@libs/spaces/client/join-space/use-join-space';
@@ -36,8 +36,7 @@ function SpaceCreateCommand(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const accountId = useMyAccountId();
-  const signedIn = accountId !== null && accountId.length > 0;
+  const signedIn = useIsSignedIn();
   return (
     <RegisterCommand
       id="space:new"
@@ -59,10 +58,9 @@ function SpaceJoinCurrentCommand(): ReactNode {
   const { t } = useLingui();
   const pathname = usePathname();
   const joinSpace = useJoinSpace();
-  const accountId = useMyAccountId();
   const spaceId = SPACE_ROUTE_RE.exec(pathname)?.[1] ?? '';
   const role = useCurrentSpaceRole(spaceId);
-  const signedIn = accountId !== null && accountId.length > 0;
+  const signedIn = useIsSignedIn();
 
   if (spaceId.length === 0) return null;
   if (role !== null) return null;
@@ -99,8 +97,7 @@ function LiveSpaceCommand({ spaceId }: { spaceId: string }): ReactNode {
   const joinSpace = useJoinSpace();
   const label = useSpaceCommandLabel(spaceId);
   const role = useCurrentSpaceRole(spaceId);
-  const accountId = useMyAccountId();
-  const signedIn = accountId !== null && accountId.length > 0;
+  const signedIn = useIsSignedIn();
   const canJoin = role === null && signedIn;
   return (
     <>

@@ -50,7 +50,7 @@ export async function authorizeSetSpaceVisibility(
     input.spaceId,
     'Only the host can change visibility'
   );
-  if (input.visibility !== 'private' && auth.accountId === null) {
+  if (input.visibility !== 'private' && auth.isAnon) {
     throwRulesReject([fail(SIGN_IN_REQUIRED)]);
   }
 }

@@ -59,7 +59,11 @@ function readDataSpaceId(data: Record<string, unknown>): string | undefined {
 }
 
 function requireSignedIn(auth: UploadAuth, code: string): AuthzResult | null {
-  if (auth.accountId === null || auth.accountId.length === 0) {
+  if (
+    auth.accountId === null ||
+    auth.accountId.length === 0 ||
+    auth.isAnon
+  ) {
     return deny(code);
   }
   return null;

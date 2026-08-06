@@ -34,7 +34,7 @@ export function requireNonEmptyString(value: unknown, field: string): string {
 }
 
 export function requireSignedIn(auth: AppRulesAuth): void {
-  if (auth.accountId === null) {
+  if (auth.accountId === null || auth.isAnon) {
     throwRulesReject([fail(FRIENDS_NOT_SIGNED_IN)]);
   }
 }

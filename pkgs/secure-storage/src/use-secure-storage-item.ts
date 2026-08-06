@@ -1,115 +1,27 @@
-import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from 'react';
 
-import { useSecureStorage } from './interface';
-import type { SecureStorage } from './interface';
+import type { SecureStorageStore } from './secure-storage-store';
 
-/**
- * Reactive view over a single {@link SecureStorage} key.
- *
- * Per-key state lives in module-level maps so:
- *   1. Multiple components reading the same key share one underlying read.
- *   2. Non-React code (e.g. sync transport) can read the latest value
- *      synchronously via {@link getCachedSecureStorageValue}.
- *   3. Writes from one consumer are immediately visible to all others.
- */
-type Listener = () => void;
+const SecureStorageStoreContext = createContext<SecureStorageStore | null>(
+  null
+);
 
-const cache = new Map<string, string | null>();
-const listeners = new Map<string, Set<Listener>>();
-const hydrated = new Set<string>();
-const hydrating = new Map<string, Promise<string | null>>();
-/** Bumped in {@link setCached} so `useSyncExternalStore` re-renders for hydration too. */
-const epochs = new Map<string, number>();
-let epochClock = 0;
+export const SecureStorageStoreProvider = SecureStorageStoreContext.Provider;
 
-function ensureListeners(key: string): Set<Listener> {
-  let set = listeners.get(key);
-  if (set === undefined) {
-    set = new Set();
-    listeners.set(key, set);
+export function useSecureStorageStore(): SecureStorageStore {
+  const store = useContext(SecureStorageStoreContext);
+  if (store === null) {
+    throw new Error(
+      'useSecureStorageStore: SecureStorageStoreProvider missing'
+    );
   }
-  return set;
-}
-
-function notify(key: string): void {
-  const set = listeners.get(key);
-  if (set === undefined) return;
-  for (const l of set) l();
-}
-
-function setCached(key: string, value: string | null): void {
-  cache.set(key, value);
-  hydrated.add(key);
-  epochs.set(key, ++epochClock);
-  notify(key);
-}
-
-async function hydrateOnce(
-  storage: SecureStorage,
-  key: string
-): Promise<string | null> {
-  if (hydrated.has(key)) {
-    return cache.get(key) ?? null;
-  }
-  const inflight = hydrating.get(key);
-  if (inflight !== undefined) {
-    return inflight;
-  }
-  const promise = storage
-    .getItem(key)
-    .then((value) => {
-      // A seed/write may have won while `getItem` was in flight — keep it.
-      if (hydrated.has(key)) {
-        return cache.get(key) ?? null;
-      }
-      setCached(key, value);
-      return value;
-    })
-    .finally(() => {
-      hydrating.delete(key);
-    });
-  hydrating.set(key, promise);
-  return promise;
-}
-
-/** @internal Test seam for the seed-vs-hydrate race. */
-export async function hydrateSecureStorageItemForTest(
-  storage: SecureStorage,
-  key: string
-): Promise<string | null> {
-  return hydrateOnce(storage, key);
-}
-
-/**
- * Returns the most recently observed value for `key`, or `null` if the value
- * has not been hydrated yet (or is genuinely absent). Safe to call from non-React
- * code (e.g. sync transport getter callbacks).
- */
-export function getCachedSecureStorageValue(key: string): string | null {
-  return cache.get(key) ?? null;
-}
-
-/**
- * Eagerly seeds the module cache for `key` and notifies subscribers. Use this
- * when a sync caller (e.g. a render that just generated a fresh UUID) needs
- * other consumers to see the value before the async storage write completes.
- */
-export function seedCachedSecureStorageValue(
-  key: string,
-  value: string | null
-): void {
-  setCached(key, value);
-}
-
-/** Test-only: clears the module cache between tests. */
-export function resetSecureStorageCacheForTest(): void {
-  cache.clear();
-  hydrated.clear();
-  hydrating.clear();
-  epochs.clear();
-  epochClock = 0;
-  for (const set of listeners.values()) set.clear();
-  listeners.clear();
+  return store;
 }
 
 export type UseSecureStorageItemResult = {
@@ -120,54 +32,41 @@ export type UseSecureStorageItemResult = {
 
 /**
  * Reactive hook over a single secure-storage key. Returns `value` (the latest
- * cached value, `null` until hydrated or genuinely absent), `setValue` (writes
+ * store value, `null` until hydrated or genuinely absent), `setValue` (writes
  * through to disk and notifies subscribers), and `isHydrated` (`true` once the
  * initial async read has completed).
  */
 export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
-  const storage = useSecureStorage();
+  const store = useSecureStorageStore();
 
   const subscribe = useCallback(
-    (listener: Listener) => {
-      const set = ensureListeners(key);
-      set.add(listener);
-      return () => {
-        set.delete(listener);
-      };
-    },
-    [key]
+    (listener: () => void) => store.subscribe(key, listener),
+    [store, key]
   );
 
-  const getSnapshot = useCallback(() => epochs.get(key) ?? 0, [key]);
+  const getSnapshot = useCallback(() => store.getEpoch(key), [store, key]);
 
   useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  const value = cache.get(key) ?? null;
-  const isHydrated = hydrated.has(key);
+  const value = store.getValue(key);
+  const isHydrated = store.isHydrated(key);
 
   useEffect(() => {
     let cancelled = false;
-    void hydrateOnce(storage, key).catch(() => {
+    void store.hydrate(key).catch(() => {
       if (cancelled) return;
-      // Treat read failure as "absent"; consumers see `null`. We don't crash
-      // because secure storage on web reads can throw when localStorage is
-      // unavailable (private browsing, etc.).
-      setCached(key, null);
+      // Treat read failure as "absent"; consumers see `null`.
+      store.setValue(key, null);
     });
     return () => {
       cancelled = true;
     };
-  }, [storage, key]);
+  }, [store, key]);
 
   const setValue = useCallback(
     async (next: string | null): Promise<void> => {
-      if (next === null) {
-        await storage.deleteItem(key);
-      } else {
-        await storage.setItem(key, next);
-      }
-      setCached(key, next);
+      await store.write(key, next);
     },
-    [storage, key]
+    [store, key]
   );
 
   return {
@@ -178,36 +77,36 @@ export function useSecureStorageItem(key: string): UseSecureStorageItemResult {
 }
 
 /**
- * Imperative writer for use from non-React contexts (e.g. inside an effect that
- * already has access to {@link SecureStorage}). Updates the module cache so
- * `useSecureStorageItem` consumers re-render in the same tick.
+ * Imperative writer for non-React contexts that already hold a
+ * {@link SecureStorageStore}. Updates the store mirror before awaiting disk I/O.
  */
 export async function writeSecureStorageItem(
-  storage: SecureStorage,
+  store: SecureStorageStore,
   key: string,
   value: string | null
 ): Promise<void> {
-  if (value === null) {
-    await storage.deleteItem(key);
-  } else {
-    await storage.setItem(key, value);
-  }
-  setCached(key, value);
+  await store.write(key, value);
 }
 
 /**
  * Suspending variant: throws the hydration promise when the key has not been
- * read yet. Mount inside a `<Suspense>` boundary; consumers that need a value
- * synchronously at render time (e.g. sync engine boot) can call this without
- * a fallback path.
+ * read yet. Mount inside a `<Suspense>` boundary.
  */
 export function useHydratedSecureStorageItem(
   key: string
 ): UseSecureStorageItemResult {
-  const storage = useSecureStorage();
+  const store = useSecureStorageStore();
   const result = useSecureStorageItem(key);
-  if (!hydrated.has(key)) {
-    throw hydrateOnce(storage, key);
+  if (!store.isHydrated(key)) {
+    throw store.hydrate(key);
   }
   return result;
+}
+
+/** @internal Test seam for the setValue-vs-hydrate race. */
+export async function hydrateSecureStorageItemForTest(
+  store: SecureStorageStore,
+  key: string
+): Promise<string | null> {
+  return store.hydrate(key);
 }

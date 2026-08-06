@@ -1,6 +1,4 @@
-import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
-import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import type { ClientRequestAuth } from '@libs/auth/client/client-request-auth';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { SPACE_USERS_TABLE, SPACES_TABLE } from '@libs/db/shared/space-tables';
@@ -72,6 +70,16 @@ export type GetFreshAuthToken = (options?: {
   readonly skipCache?: boolean;
 }) => Promise<string | null>;
 
+/**
+ * Live identity/token getters injected from React. Must not close over stale
+ * render values — pass refs that track the latest hooks.
+ */
+export type SyncClientAuth = {
+  readonly getAccountId: () => string | null;
+  readonly getDeviceId: () => string | null;
+  readonly getSessionToken: () => string | null;
+};
+
 const FRESH_TOKEN_TIMEOUT_MS = 4_000;
 
 function raceFreshToken(
@@ -98,29 +106,36 @@ function raceFreshToken(
 }
 
 async function resolveBearerToken(
+  auth: SyncClientAuth,
   getFreshAuthToken: GetFreshAuthToken | undefined,
   options?: { readonly skipCache?: boolean }
 ): Promise<string | null> {
+  // No users.id yet (anon ensure still in flight) — do not mint/upload.
+  if (auth.getAccountId() === null) {
+    return null;
+  }
   if (getFreshAuthToken !== undefined) {
     const fresh = await raceFreshToken(() => getFreshAuthToken(options));
     if (fresh !== null && fresh.length > 0) return fresh;
   }
-  return getCachedAuthToken();
+  return auth.getSessionToken();
 }
 
-function authHeadersFromBearer(token: string | null): Record<string, string> {
-  const anon = getCachedDeviceId();
+function authHeadersFromBearer(
+  token: string | null,
+  deviceId: string | null
+): Record<string, string> {
   if (token !== null && token.length > 0) {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${token}`,
     };
-    if (anon !== null && anon.length > 0) {
-      headers[X_ANON_ID] = anon;
+    if (deviceId !== null && deviceId.length > 0) {
+      headers[X_ANON_ID] = deviceId;
     }
     return headers;
   }
-  if (anon !== null && anon.length > 0) {
-    return { [X_ANON_ID]: anon };
+  if (deviceId !== null && deviceId.length > 0) {
+    return { [X_ANON_ID]: deviceId };
   }
   return {};
 }
@@ -131,9 +146,9 @@ type SyncTokenResponse = {
 };
 
 /** Identity key only — auth JWT rotation must not bust a valid PowerSync JWT. */
-function syncAuthCacheKey(): string {
-  const accountId = getCachedCurrentAccountId() ?? '';
-  const anon = getCachedDeviceId() ?? '';
+function syncAuthCacheKey(auth: SyncClientAuth): string {
+  const accountId = auth.getAccountId() ?? '';
+  const anon = auth.getDeviceId() ?? '';
   return `${accountId}\0${anon}`;
 }
 
@@ -141,12 +156,13 @@ async function postSyncToken(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly bearer: string | null;
+  readonly deviceId: string | null;
 }): Promise<Response> {
   return args.fetchFn(`${args.config.getApiUrl()}/api/sync/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...authHeadersFromBearer(args.bearer),
+      ...authHeadersFromBearer(args.bearer, args.deviceId),
     },
   });
 }
@@ -155,10 +171,11 @@ async function mintSyncTokenCredentials(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly kv: Kv;
+  readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
   readonly nowSeconds: number;
 }): Promise<SyncTokenCredentials> {
-  const authKey = syncAuthCacheKey();
+  const authKey = syncAuthCacheKey(args.auth);
   const cached = await readCachedSyncToken({
     kv: args.kv,
     authKey,
@@ -168,21 +185,24 @@ async function mintSyncTokenCredentials(args: {
     return cached;
   }
 
-  let bearer = await resolveBearerToken(args.getFreshAuthToken);
+  const deviceId = args.auth.getDeviceId();
+  let bearer = await resolveBearerToken(args.auth, args.getFreshAuthToken);
   let res = await postSyncToken({
     config: args.config,
     fetchFn: args.fetchFn,
     bearer,
+    deviceId,
   });
   // Stale secure-storage / SWR bearer after idle — force-mint and retry once.
   if (res.status === 401 && args.getFreshAuthToken !== undefined) {
-    bearer = await resolveBearerToken(args.getFreshAuthToken, {
+    bearer = await resolveBearerToken(args.auth, args.getFreshAuthToken, {
       skipCache: true,
     });
     res = await postSyncToken({
       config: args.config,
       fetchFn: args.fetchFn,
       bearer,
+      deviceId,
     });
   }
   if (!res.ok) {
@@ -216,35 +236,30 @@ export async function fetchSyncToken(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly kv: Kv;
+  readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
 }): Promise<SyncTokenCredentials> {
   return mintSyncTokenCredentials({
     config: args.config,
     fetchFn: args.fetchFn,
     kv: args.kv,
+    auth: args.auth,
     getFreshAuthToken: args.getFreshAuthToken,
     nowSeconds: Math.floor(Date.now() / 1000),
   });
-}
-
-/** Account id when signed in, else install device id (matches server `myId`). */
-function resolveClientMyId(): string | null {
-  const accountId = getCachedCurrentAccountId();
-  if (accountId !== null && accountId.length > 0) return accountId;
-  const deviceId = getCachedDeviceId();
-  if (deviceId !== null && deviceId.length > 0) return deviceId;
-  return null;
 }
 
 /**
  * Synced-down profiles for other users must not re-enter the upload queue.
  * Ownership mismatches permanently reject and used to stall all CRUD.
  */
-function keepUploadableProfileRow(row: UploadRow): boolean {
+function keepUploadableProfileRow(
+  row: UploadRow,
+  accountId: string | null
+): boolean {
   if (row.table !== PROFILES_TABLE.tableName) return true;
-  const myId = resolveClientMyId();
-  if (myId === null) return true;
-  return row.id === myId;
+  if (accountId === null || accountId.length === 0) return true;
+  return row.id === accountId;
 }
 
 /**
@@ -253,14 +268,19 @@ function keepUploadableProfileRow(row: UploadRow): boolean {
  * those as accepted no-ops clears the PowerSync CRUD queue without a round
  * trip that would otherwise assert on the API.
  */
-export function prepareSyncUploadBatch(batch: UploadBatch): UploadBatch {
+export function prepareSyncUploadBatch(
+  batch: UploadBatch,
+  auth: Pick<ClientRequestAuth, 'accountId'> | SyncClientAuth
+): UploadBatch {
+  const accountId =
+    'getAccountId' in auth ? auth.getAccountId() : auth.accountId;
   return {
     rows: orderUploadRowsForParentsFirst(
       batch.rows
         .filter(keepRegisteredSyncTableRow)
         .map(stripUnknownSyncColumns)
         .map(stripServerOwnedProfileUploadColumns)
-        .filter(keepUploadableProfileRow)
+        .filter((row) => keepUploadableProfileRow(row, accountId))
         .filter(uploadRowNeedsApply)
     ),
   };
@@ -270,13 +290,14 @@ async function postSyncUpload(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly bearer: string | null;
+  readonly deviceId: string | null;
   readonly body: string;
 }): Promise<Response> {
   return args.fetchFn(`${args.config.getApiUrl()}/api/sync/upload`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...authHeadersFromBearer(args.bearer),
+      ...authHeadersFromBearer(args.bearer, args.deviceId),
     },
     body: args.body,
   });
@@ -296,28 +317,32 @@ export async function uploadSyncBatch(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly batch: UploadBatch;
+  readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
 }): Promise<void> {
-  const prepared = prepareSyncUploadBatch(args.batch);
+  const prepared = prepareSyncUploadBatch(args.batch, args.auth);
   if (prepared.rows.length === 0) {
     return;
   }
   const body = JSON.stringify(prepared);
-  let bearer = await resolveBearerToken(args.getFreshAuthToken);
+  const deviceId = args.auth.getDeviceId();
+  let bearer = await resolveBearerToken(args.auth, args.getFreshAuthToken);
   let res = await postSyncUpload({
     config: args.config,
     fetchFn: args.fetchFn,
     bearer,
+    deviceId,
     body,
   });
   if (res.status === 401 && args.getFreshAuthToken !== undefined) {
-    bearer = await resolveBearerToken(args.getFreshAuthToken, {
+    bearer = await resolveBearerToken(args.auth, args.getFreshAuthToken, {
       skipCache: true,
     });
     res = await postSyncUpload({
       config: args.config,
       fetchFn: args.fetchFn,
       bearer,
+      deviceId,
       body,
     });
   }

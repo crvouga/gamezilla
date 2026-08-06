@@ -6,8 +6,10 @@ import {
   readSignInPendingSync,
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
-import { useSecureStorage } from '@pkgs/secure-storage/interface';
-import { seedCachedSecureStorageValue } from '@pkgs/secure-storage/use-secure-storage-item';
+import {
+  useSecureStorageStore,
+  writeSecureStorageItem,
+} from '@pkgs/secure-storage/use-secure-storage-item';
 import * as WebBrowser from 'expo-web-browser';
 import { type Href, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
@@ -20,7 +22,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
  */
 export default function SsoCallbackScreen() {
   const router = useRouter();
-  const storage = useSecureStorage();
+  const store = useSecureStorageStore();
   const port = useAuthClientPort();
   const authState = port.useAuthSession();
   const { openSignInModal } = useAuthModals();
@@ -58,14 +60,16 @@ export default function SsoCallbackScreen() {
               ? { returnHref: syncPending.returnHref }
               : {}),
           });
-    seedCachedSecureStorageValue(SIGN_IN_PENDING_KEY, wire);
+    store.setValue(SIGN_IN_PENDING_KEY, wire);
     if (syncPending === null) {
-      void markSignInPending(storage);
+      void markSignInPending(store);
+    } else {
+      void writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, wire);
     }
 
     openSignInModal();
     router.replace(target as Href);
-  }, [router, openSignInModal, storage]);
+  }, [router, openSignInModal, store]);
 
   return null;
 }

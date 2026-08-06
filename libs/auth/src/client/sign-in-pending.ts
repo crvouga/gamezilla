@@ -9,7 +9,7 @@
  * re-opens the modal on a cold start.
  */
 
-import type { SecureStorage } from '@pkgs/secure-storage/interface';
+import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageItem,
   writeSecureStorageItem,
@@ -138,7 +138,7 @@ export function parseSignInPending(value: string | null): SignInPending | null {
 }
 
 export async function markSignInPending(
-  storage: SecureStorage,
+  store: SecureStorageStore,
   options?: MarkSignInPendingOptions
 ): Promise<void> {
   const returnHref = sanitizeSignInReturnHref(options?.returnHref);
@@ -147,16 +147,16 @@ export async function markSignInPending(
     ...(returnHref !== undefined ? { returnHref } : {}),
   };
   await writeSecureStorageItem(
-    storage,
+    store,
     SIGN_IN_PENDING_KEY,
     JSON.stringify(wire)
   );
 }
 
 export async function clearSignInPending(
-  storage: SecureStorage
+  store: SecureStorageStore
 ): Promise<void> {
-  await writeSecureStorageItem(storage, SIGN_IN_PENDING_KEY, null);
+  await writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, null);
 }
 
 /**

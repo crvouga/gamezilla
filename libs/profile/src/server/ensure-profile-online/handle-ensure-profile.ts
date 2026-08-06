@@ -12,8 +12,8 @@ export function handleEnsureProfile(c: Context<ApiHonoEnv>): Promise<Response> {
       sql,
       auth.myId,
       {
-        // Signed-in: profile id is users.id — refuse minting without that row.
-        requireUserRow: auth.accountId !== null,
+        // Anon and signed-in users both have a real `users` row.
+        requireUserRow: true,
       }
     );
     return c.json({ profile });

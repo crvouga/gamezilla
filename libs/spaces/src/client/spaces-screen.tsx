@@ -1,4 +1,4 @@
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
@@ -76,8 +76,7 @@ export type SpacesScreenProps = {
 };
 
 export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
-  const accountId = useMyAccountId();
-  const canCreateSpace = accountId !== null && accountId.length > 0;
+  const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
   const { t } = useLingui();

@@ -18,7 +18,8 @@ async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      is_anon INTEGER NOT NULL DEFAULT 0
     )
   `);
   await db.run(sql<void>`

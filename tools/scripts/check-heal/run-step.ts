@@ -1,4 +1,5 @@
 import type { Writable } from 'node:stream';
+import { withForcedColorEnv } from '../force-color-env';
 import { combineStreams } from './combine-streams';
 import { formatDuration, healLog } from './log';
 import type { CheckHealStep } from './steps';
@@ -54,7 +55,7 @@ export async function runStep(
   const started = Date.now();
   const proc = Bun.spawn(['bun', 'run', step.bunScript], {
     cwd: repoRoot,
-    env: { ...process.env, ...step.env },
+    env: withForcedColorEnv({ ...process.env, ...step.env }),
     stdout: 'pipe',
     stderr: 'pipe',
   });

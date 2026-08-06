@@ -6,21 +6,16 @@ function shortId(id: string): string {
 }
 
 /**
- * Resolves the local SQLite database name for an auth identity.
+ * Resolves the local SQLite database name for a `users.id`.
  *
- * - Signed in: `acct_<shortAccountId>`
- * - Signed out: `anon_<shortDeviceId>`
+ * - Always `user_<shortUserId>` (anon and signed-in share one naming scheme)
  * - Web: append `_<shortTabId>` so OPFS tabs do not contend
  */
 export function resolveSqliteDbName(args: {
-  readonly accountId: string | null;
-  readonly deviceId: string;
+  readonly userId: string;
   readonly webTabSuffix?: string;
 }): string {
-  const base =
-    args.accountId !== null
-      ? `acct_${shortId(args.accountId)}`
-      : `anon_${shortId(args.deviceId)}`;
+  const base = `user_${shortId(args.userId)}`;
   const name =
     args.webTabSuffix !== undefined && args.webTabSuffix.length > 0
       ? `${base}_${shortId(args.webTabSuffix)}`

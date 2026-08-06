@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -29,9 +27,7 @@ import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings
 const DEFAULT_PLAYER_ELO = 1200;
 
 function usePuzzleSessionIdentityReady(): boolean {
-  const token = useFreshAuthToken();
-  const accountId = useCurrentAccountId();
-  return token === null || accountId !== null;
+  return useMyId().length > 0;
 }
 
 /**

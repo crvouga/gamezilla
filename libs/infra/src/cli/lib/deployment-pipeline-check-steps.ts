@@ -6,7 +6,8 @@
  * prompts, `write-pipeline-report.ts` tables) lines up with CI naming.
  *
  * Also the single source of truth for `bun run check`
- * (`tools/scripts/check.ts`) and `check:heal` steps.
+ * (`tools/scripts/check.ts`; on failure writes `check/llm-fix-prompt.md`)
+ * and `check:heal` steps.
  *
  * Turbo-cacheable work is split across `check-gates` / `check-verify` /
  * `check-build` (plus non-cacheable `check:secrets` on gates).

@@ -83,7 +83,7 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   try {
     const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, c.req.raw);
     const auth = appAuth(ctx);
-    if (auth === null || auth.accountId === null) {
+    if (auth === null || auth.accountId === null || auth.isAnon) {
       throw new UnauthorizedError('Matchmaking requires a signed-in account');
     }
   } catch (err: unknown) {

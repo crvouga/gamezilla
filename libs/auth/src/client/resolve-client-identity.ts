@@ -1,38 +1,26 @@
 /**
  * Pure identity resolution for signed-in / myId. Kept free of React so unit
- * tests can cover the sign-in race matrix without mounting hooks.
+ * tests can cover the race matrix without mounting hooks.
  */
 
 export function resolveIsSignedIn(
-  accountId: string | null,
-  token: string | null
+  userId: string | null,
+  token: string | null,
+  isAnon: boolean
 ): boolean {
-  return accountId !== null && token !== null;
+  return userId !== null && token !== null && !isAnon;
 }
 
-export type ResolveMyIdInput = {
-  readonly accountId: string | null;
-  readonly cachedAccountId: string | null;
-  readonly token: string | null;
-  readonly deviceId: string | null;
-};
-
 /**
- * Replication identity: account id when bound, empty while a session token is
- * waiting for `lastLocalAccountId`, else the install device id.
+ * Current user id from secure storage. Empty only before anon ensure lands.
  */
-export function resolveMyId(input: ResolveMyIdInput): string {
-  if (input.accountId !== null) return input.accountId;
-  if (input.token !== null) {
-    if (input.cachedAccountId !== null) return input.cachedAccountId;
-    return '';
-  }
-  return input.deviceId ?? '';
+export function resolveMyId(userId: string | null): string {
+  return userId ?? '';
 }
 
 /**
  * True when the auth-port external user id changed across accounts without a
- * signed-out intermediate — stale `lastLocalAccountId` must clear.
+ * signed-out intermediate — stale `currentUserId` must clear before refresh.
  */
 export function shouldClearAccountOnExternalUserChange(
   previousExternalUserId: string | null,
@@ -45,4 +33,15 @@ export function shouldClearAccountOnExternalUserChange(
     nextExternalUserId !== null &&
     previousExternalUserId !== nextExternalUserId
   );
+}
+
+/**
+ * After `POST /auth/anon/ensure` returns, only bind the anon `users.id` when
+ * no session token landed while the request was in flight. Otherwise a stale
+ * signed-out ensure overwrites the signed-in account id and refresh is skipped.
+ */
+export function shouldBindAnonUserAfterEnsure(
+  sessionToken: string | null
+): boolean {
+  return sessionToken === null;
 }

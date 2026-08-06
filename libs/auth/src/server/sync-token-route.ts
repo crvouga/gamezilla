@@ -60,7 +60,8 @@ async function mintPowerSyncJwt(args: {
 
 /**
  * Mints a short-lived PowerSync JWT for the current session.
- * Requires `x-anon-id`; uses account id when signed in, else device id.
+ * Requires `x-anon-id` and a device-bound `users` row; subject is always
+ * `users.id` (anon or signed-in).
  */
 export function createSyncTokenRoute(deps: SyncTokenRouteDeps) {
   const {
@@ -80,11 +81,16 @@ export function createSyncTokenRoute(deps: SyncTokenRouteDeps) {
 
     const ctx = await sessionAuth.resolveAuthContext(sqlClient, c.req.raw);
     const auth = appAuth(ctx);
-    if (auth === null || auth.deviceId !== deviceHeader) {
+    if (
+      auth === null ||
+      auth.deviceId !== deviceHeader ||
+      auth.accountId === null ||
+      auth.myId.length === 0
+    ) {
       throw new UnauthorizedError('Invalid session for sync token');
     }
 
-    const subject = auth.accountId ?? auth.deviceId;
+    const subject = auth.myId;
     const [privateKeyPem, audience] = await Promise.all([
       readPrivateKeyPem(secretStore, jwtPrivateKeySecret),
       readOptionalAudience(secretStore, powersyncAudienceSecret),

@@ -1,6 +1,11 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useGetFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
+import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
+import {
+  useFreshAuthToken,
+  useGetFreshAuthToken,
+} from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
@@ -28,6 +33,9 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
   const kv = useKv();
   const observability = useObservability();
   const myId = useMyId();
+  const accountId = useCurrentAccountId();
+  const deviceId = useDeviceId();
+  const sessionToken = useFreshAuthToken();
   const getFreshAuthToken = useGetFreshAuthToken();
   const fetchFn = useMemo(
     () =>
@@ -43,12 +51,25 @@ export function PowerSyncDiagnosticsCommand(): ReactNode {
       config,
       fetchFn,
       kv,
+      auth: {
+        getAccountId: () => accountId,
+        getDeviceId: () => deviceId,
+        getSessionToken: () => sessionToken,
+      },
       getFreshAuthToken,
     });
     const url = new URL(DIAGNOSTICS_APP_URL);
     url.searchParams.set('token', token);
     openDiagnosticsTab(url.toString());
-  }, [config, fetchFn, getFreshAuthToken, kv]);
+  }, [
+    accountId,
+    config,
+    deviceId,
+    fetchFn,
+    getFreshAuthToken,
+    kv,
+    sessionToken,
+  ]);
 
   return (
     <RegisterCommand

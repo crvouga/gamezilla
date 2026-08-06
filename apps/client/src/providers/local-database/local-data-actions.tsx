@@ -4,15 +4,17 @@ import {
   SESSION_TOKEN_KEY,
 } from '@libs/auth/client/auth-storage-keys';
 import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-state';
-import { useSecureStorage } from '@pkgs/secure-storage/interface';
-import type { SecureStorage } from '@pkgs/secure-storage/interface';
-import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import {
+  useSecureStorageStore,
+  writeSecureStorageItem,
+} from '@pkgs/secure-storage/use-secure-storage-item';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
 export type SyncLocalDataDeps = {
-  readonly secure: SecureStorage;
+  readonly store: SecureStorageStore;
   readonly clearLocalData: () => Promise<void>;
 };
 
@@ -30,8 +32,8 @@ export async function clearLocalDatabaseAndReloadWithDeps(
     return;
   }
 
-  await writeSecureStorageItem(d.secure, SESSION_TOKEN_KEY, null);
-  await writeSecureStorageItem(d.secure, LAST_LOCAL_ACCOUNT_ID_KEY, null);
+  await writeSecureStorageItem(d.store, SESSION_TOKEN_KEY, null);
+  await writeSecureStorageItem(d.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
 }
 
 export function SyncLocalDataActions({
@@ -39,15 +41,15 @@ export function SyncLocalDataActions({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const secure = useSecureStorage();
+  const store = useSecureStorageStore();
   const engine = useSyncEngine();
 
   const deps: SyncLocalDataDeps = useMemo(
     () => ({
-      secure,
+      store,
       clearLocalData: () => engine.clearLocalData(),
     }),
-    [secure, engine]
+    [store, engine]
   );
 
   const actions = useMemo(

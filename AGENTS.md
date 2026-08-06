@@ -80,6 +80,7 @@ Local dev and CI use **hosted dev Postgres** only — there is no embedded/local
 
 - **`bun run dev`** — `secrets-run` → turbo starts api + client; `@apps/api` `setup` writes `.dev.vars` with the secrets env `dev` `DATABASE_URL` (mirrored, not loopback).
 - **`bun db:migrate`** — `secrets-run` → `@apps/api db:migrate` against secrets env `dev` `DATABASE_URL`.
+- **`bun run db:wipe:dev`** — secrets env `dev` only: `DROP SCHEMA public CASCADE`, then remigrate. Production blocked by fail-closed Tiger guards (no confirm flag).
 - **Production** — only `bun run infra` sets `SECRETS_ENV=prd`; deploy runs `db:migrate` against secrets env `prd` `DATABASE_URL`.
 
 ### Database safety (Tiger policy)
@@ -90,7 +91,7 @@ Non-deploy contexts must never reach production Postgres. Guards live in `@libs/
 2. **`assertNonProdDatabaseUrl`** — rejects loopback URLs and URLs equal to secrets env `prd` `DATABASE_URL` (dual-fetch at setup/migrate time).
 3. **API worker** — when `SECRETS_ENV` binding is `dev`, the first DB request asserts non-prod URL.
 4. **`ci:database-url-policy`** — static check that every DATABASE_URL entrypoint wires the guards.
-5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL` for the API).
+5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live `prd` dual-fetch before any destructive SQL.
 
 ## Per-feature package layout
 

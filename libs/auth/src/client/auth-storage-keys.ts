@@ -15,9 +15,9 @@ export const DEVICE_ID_KEY = 'deviceId';
 export const SESSION_TOKEN_KEY = 'sessionToken';
 
 /**
- * Last known internal `accountId` for this install. Acts as a cold-start hint
- * so `useCurrentUser` resolves before any network round-trip; refreshed on
- * every successful `/auth/refresh`.
+ * Current `users.id` for this install (anon or signed-in). Written by
+ * `POST /auth/anon/ensure` and `POST /auth/refresh`. Storage key kept as
+ * `lastLocalAccountId` for existing installs.
  */
 export const LAST_LOCAL_ACCOUNT_ID_KEY = 'lastLocalAccountId';
 

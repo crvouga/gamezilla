@@ -1,10 +1,9 @@
-import { beforeAll, describe, expect, mock, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import type { UploadBatch } from '@pkgs/sync-engine/shared/upload-batch';
 
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 
-import type { SyncApiFetch } from './sync-api';
+import { uploadSyncBatch, type SyncClientAuth } from './sync-api';
 
 function fakeConfig(): ConfigService {
   return {
@@ -12,26 +11,13 @@ function fakeConfig(): ConfigService {
   } as unknown as ConfigService;
 }
 
+const AUTH: SyncClientAuth = {
+  getAccountId: () => 'account-1',
+  getDeviceId: () => 'device-1',
+  getSessionToken: () => 'token',
+};
+
 describe('uploadSyncBatch discard protocol', () => {
-  let uploadSyncBatch: (args: {
-    readonly config: ConfigService;
-    readonly fetchFn: SyncApiFetch;
-    readonly batch: UploadBatch;
-  }) => Promise<void>;
-
-  beforeAll(async () => {
-    await mock.module('@libs/auth/client/use-current-account-id', () => ({
-      getCachedCurrentAccountId: () => 'account-1',
-    }));
-    await mock.module('@libs/auth/client/use-device-id', () => ({
-      getCachedDeviceId: () => 'device-1',
-    }));
-    await mock.module('@libs/auth/client/use-fresh-auth-token', () => ({
-      getCachedAuthToken: () => 'token',
-    }));
-    ({ uploadSyncBatch } = await import('./sync-api'));
-  });
-
   test('409 with discard:true resolves without throw (connector can complete)', async () => {
     const fetchFn = async () =>
       new Response(
@@ -45,6 +31,7 @@ describe('uploadSyncBatch discard protocol', () => {
     await uploadSyncBatch({
       config: fakeConfig(),
       fetchFn,
+      auth: AUTH,
       batch: {
         rows: [
           {
@@ -64,6 +51,7 @@ describe('uploadSyncBatch discard protocol', () => {
       uploadSyncBatch({
         config: fakeConfig(),
         fetchFn,
+        auth: AUTH,
         batch: {
           rows: [
             {

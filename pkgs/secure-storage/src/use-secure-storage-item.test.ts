@@ -1,11 +1,9 @@
-import { afterEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 
 import type { SecureStorage } from './interface';
+import { createSecureStorageStore } from './secure-storage-store';
 import {
-  getCachedSecureStorageValue,
   hydrateSecureStorageItemForTest,
-  resetSecureStorageCacheForTest,
-  seedCachedSecureStorageValue,
   writeSecureStorageItem,
 } from './use-secure-storage-item';
 
@@ -29,43 +27,65 @@ class InMemorySecureStorage implements SecureStorage {
   }
 }
 
-describe('secure-storage cache', () => {
-  afterEach(() => {
-    resetSecureStorageCacheForTest();
+describe('SecureStorageStore', () => {
+  test('getValue returns null for unhydrated key', () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    expect(store.getValue('missing')).toBeNull();
   });
 
-  test('getCachedSecureStorageValue returns null for unseeded key', () => {
-    expect(getCachedSecureStorageValue('missing')).toBeNull();
+  test('setValue makes value visible synchronously', () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    store.setValue('k', 'v');
+    expect(store.getValue('k')).toBe('v');
+    expect(store.isHydrated('k')).toBe(true);
   });
 
-  test('seedCachedSecureStorageValue makes value visible synchronously', () => {
-    seedCachedSecureStorageValue('k', 'v');
-    expect(getCachedSecureStorageValue('k')).toBe('v');
+  test('setValue with null marks the key as absent', () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    store.setValue('k', null);
+    expect(store.getValue('k')).toBeNull();
+    expect(store.isHydrated('k')).toBe(true);
   });
 
-  test('seed with null marks the key as absent', () => {
-    seedCachedSecureStorageValue('k', null);
-    expect(getCachedSecureStorageValue('k')).toBeNull();
-  });
-
-  test('writeSecureStorageItem writes through to storage and updates cache', async () => {
+  test('write writes through to storage and updates store', async () => {
     const storage = new InMemorySecureStorage();
-    await writeSecureStorageItem(storage, 'token', 'abc');
+    const store = createSecureStorageStore(storage);
+    await writeSecureStorageItem(store, 'token', 'abc');
 
-    expect(getCachedSecureStorageValue('token')).toBe('abc');
+    expect(store.getValue('token')).toBe('abc');
     expect(await storage.getItem('token')).toBe('abc');
   });
 
-  test('writeSecureStorageItem with null deletes from storage and clears cache', async () => {
+  test('write with null deletes from storage and clears store', async () => {
     const storage = new InMemorySecureStorage();
-    await writeSecureStorageItem(storage, 'token', 'abc');
-    await writeSecureStorageItem(storage, 'token', null);
+    const store = createSecureStorageStore(storage);
+    await writeSecureStorageItem(store, 'token', 'abc');
+    await writeSecureStorageItem(store, 'token', null);
 
-    expect(getCachedSecureStorageValue('token')).toBeNull();
+    expect(store.getValue('token')).toBeNull();
     expect(storage.has('token')).toBe(false);
   });
 
-  test('seed during in-flight hydrate is not overwritten by a late null read', async () => {
+  test('write updates store before slow storage I/O resolves', async () => {
+    let resolveDelete: (() => void) | undefined;
+    const storage: SecureStorage = {
+      getItem: async () => null,
+      setItem: async () => undefined,
+      deleteItem: () =>
+        new Promise<void>((resolve) => {
+          resolveDelete = resolve;
+        }),
+    };
+    const store = createSecureStorageStore(storage);
+
+    store.setValue('token', 'stale');
+    const writePromise = writeSecureStorageItem(store, 'token', null);
+    expect(store.getValue('token')).toBeNull();
+    resolveDelete?.();
+    await writePromise;
+  });
+
+  test('setValue during in-flight hydrate is not overwritten by a late null read', async () => {
     let resolveGet: ((value: string | null) => void) | undefined;
     const storage: SecureStorage = {
       getItem: () =>
@@ -75,25 +95,23 @@ describe('secure-storage cache', () => {
       setItem: async () => undefined,
       deleteItem: async () => undefined,
     };
+    const store = createSecureStorageStore(storage);
 
     const hydratePromise = hydrateSecureStorageItemForTest(
-      storage,
+      store,
       'signInPending'
     );
-    seedCachedSecureStorageValue('signInPending', '{"startedAt":"x"}');
+    store.setValue('signInPending', '{"startedAt":"x"}');
     resolveGet?.(null);
     await hydratePromise;
 
-    expect(getCachedSecureStorageValue('signInPending')).toBe(
-      '{"startedAt":"x"}'
-    );
+    expect(store.getValue('signInPending')).toBe('{"startedAt":"x"}');
   });
 
-  test('resetSecureStorageCacheForTest clears all keys', () => {
-    seedCachedSecureStorageValue('a', '1');
-    seedCachedSecureStorageValue('b', '2');
-    resetSecureStorageCacheForTest();
-    expect(getCachedSecureStorageValue('a')).toBeNull();
-    expect(getCachedSecureStorageValue('b')).toBeNull();
+  test('stores are isolated — no shared module state', () => {
+    const a = createSecureStorageStore(new InMemorySecureStorage());
+    const b = createSecureStorageStore(new InMemorySecureStorage());
+    a.setValue('k', '1');
+    expect(b.getValue('k')).toBeNull();
   });
 });

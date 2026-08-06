@@ -4,9 +4,6 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertDatabaseName } from '@pkgs/sql';
 import { Platform } from 'react-native';
 
-import { getCachedCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { getCachedDeviceId } from '@libs/auth/client/use-device-id';
-
 import { resolveSqliteDbName } from './resolve-sqlite-db-name';
 
 export { resolveSqliteDbName } from './resolve-sqlite-db-name';
@@ -25,14 +22,12 @@ function readOrCreateWebTabDbId(): string {
 }
 
 /**
- * Resolves the local SQLite database name for this app instance from secure
- * storage identity pointers. Not memoized — account switches change the name.
+ * Resolves the local SQLite database name for this app instance from the
+ * bound `users.id`. Not memoized — identity switches change the name.
  */
-export function getMainSqliteDbName(): string {
-  const accountId = getCachedCurrentAccountId();
-  const deviceId = getCachedDeviceId();
-  if (deviceId === null || deviceId.length === 0) {
-    const fallback = 'anon_pending';
+export function getMainSqliteDbName(userId: string | null): string {
+  if (userId === null || userId.length === 0) {
+    const fallback = 'user_pending';
     assertDatabaseName(fallback);
     return fallback;
   }
@@ -41,8 +36,7 @@ export function getMainSqliteDbName(): string {
       ? readOrCreateWebTabDbId()
       : undefined;
   return resolveSqliteDbName({
-    accountId,
-    deviceId,
+    userId,
     ...(webTabSuffix !== undefined ? { webTabSuffix } : {}),
   });
 }
@@ -53,9 +47,9 @@ export function getMainSqliteDbName(): string {
  * inside `createPowerSyncDatabase` via PowerSync schema setup, so this function
  * only worries about establishing a connected `SqlClient`.
  */
-export async function openMainSqlClient(): Promise<SqlClient> {
+export async function openMainSqlClient(userId: string): Promise<SqlClient> {
   await tryAcquireExpoSqliteWebSessionLock();
-  const databaseName = getMainSqliteDbName();
+  const databaseName = getMainSqliteDbName(userId);
   const client = await SqlClientImplExpoSqlite.open(databaseName);
   await client.connect();
   return client;

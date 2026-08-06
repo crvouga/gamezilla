@@ -1,5 +1,4 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
-import { getCachedAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
   Room,
@@ -186,10 +185,7 @@ function makeGetSessionToken(args: {
     } catch {
       fresh = null;
     }
-    const cached = getCachedAuthToken();
-    return normalizeSessionToken(
-      fresh ?? cached ?? args.sessionTokenRef.current
-    );
+    return normalizeSessionToken(fresh ?? args.sessionTokenRef.current);
   };
 }
 

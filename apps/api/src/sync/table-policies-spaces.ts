@@ -54,7 +54,11 @@ async function querySpace(
 }
 
 function requireAccountId(auth: UploadAuth): AuthzResult | string {
-  if (auth.accountId === null || auth.accountId.length === 0) {
+  if (
+    auth.accountId === null ||
+    auth.accountId.length === 0 ||
+    auth.isAnon
+  ) {
     return deny(SPACE_NOT_SIGNED_IN);
   }
   return auth.accountId;

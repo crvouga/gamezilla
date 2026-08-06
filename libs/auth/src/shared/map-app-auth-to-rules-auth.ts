@@ -7,5 +7,6 @@ export function mapAppAuthToRulesAuth(auth: AppAuth): AppRulesAuth {
     userId: auth.myId,
     deviceId: auth.deviceId,
     accountId: auth.accountId,
+    isAnon: auth.isAnon,
   };
 }

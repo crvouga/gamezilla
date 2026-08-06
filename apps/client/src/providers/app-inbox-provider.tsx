@@ -1,12 +1,8 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useIsSignedIn, useMyId } from '@libs/auth/client/use-current-user';
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
 import {
-  getCachedDeviceId,
-  useDeviceId,
-} from '@libs/auth/client/use-device-id';
-import {
-  getCachedAuthToken,
   useFreshAuthToken,
   useGetFreshAuthToken,
   type GetFreshAuthTokenFn,
@@ -18,27 +14,31 @@ import {
 } from '@pkgs/inbox/client';
 import { createFriendsInteractionProvider } from '@libs/friends/client/friends-interaction-provider';
 import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
 
 async function resolveInboxBearer(
   getFreshToken: GetFreshAuthTokenFn,
+  sessionToken: string | null,
   options?: { readonly skipCache?: boolean }
 ): Promise<string | null> {
   const fresh = await getFreshToken(options);
   if (fresh !== null && fresh.length > 0) return fresh;
-  return getCachedAuthToken();
+  return sessionToken;
 }
 
-function applyInboxAuthHeaders(headers: Headers, token: string | null): void {
+function applyInboxAuthHeaders(
+  headers: Headers,
+  token: string | null,
+  deviceId: string
+): void {
   if (token !== null && token.length > 0) {
     headers.set('Authorization', `Bearer ${token}`);
   }
-  const anon = getCachedDeviceId();
-  if (anon !== null && anon.length > 0) {
-    headers.set(X_ANON_ID, anon);
+  if (deviceId.length > 0) {
+    headers.set(X_ANON_ID, deviceId);
   }
 }
 
@@ -46,21 +46,32 @@ function useInboxClientDeps(): InboxClientDeps {
   const config = useConfigService();
   const apiBaseUrl = config.getApiUrl();
   const getFreshToken = useGetFreshAuthToken();
-  // Ensure the install device id is hydrated for getCachedDeviceId().
-  useDeviceId();
+  const deviceId = useDeviceId();
+  const sessionToken = useFreshAuthToken();
+  const deviceIdRef = useRef(deviceId);
+  const sessionTokenRef = useRef(sessionToken);
+  deviceIdRef.current = deviceId;
+  sessionTokenRef.current = sessionToken;
   return useMemo(
     () => ({
       apiBaseUrl,
       fetchFn: async (path, init) => {
         const headers = new Headers(init?.headers);
-        let token = await resolveInboxBearer(getFreshToken);
-        applyInboxAuthHeaders(headers, token);
+        let token = await resolveInboxBearer(
+          getFreshToken,
+          sessionTokenRef.current
+        );
+        applyInboxAuthHeaders(headers, token, deviceIdRef.current);
         let response = await fetch(path, { ...init, headers });
-        // Stale secure-storage / SWR bearer after idle — force-mint and retry once.
+        // Stale bearer after idle — force-mint and retry once.
         if (response.status === 401) {
-          token = await resolveInboxBearer(getFreshToken, { skipCache: true });
+          token = await resolveInboxBearer(
+            getFreshToken,
+            sessionTokenRef.current,
+            { skipCache: true }
+          );
           const retryHeaders = new Headers(init?.headers);
-          applyInboxAuthHeaders(retryHeaders, token);
+          applyInboxAuthHeaders(retryHeaders, token, deviceIdRef.current);
           response = await fetch(path, { ...init, headers: retryHeaders });
         }
         return response;
@@ -79,7 +90,7 @@ export function AppInboxProvider({
   const isSignedIn = useIsSignedIn();
   const authToken = useFreshAuthToken();
   const deviceId = useDeviceId();
-  // Account id + bearer can hydrate before Clerk mint / device cache settle;
+  // Account id + bearer can hydrate before session mint / device settle;
   // hold inbox REST (incl. backfill) until both are readable.
   const isAuthReady = isSignedIn && authToken !== null && deviceId.length > 0;
   const deps = useInboxClientDeps();

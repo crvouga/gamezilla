@@ -133,7 +133,7 @@ function createStripeSubApp(stripe: Stripe) {
       assert.defined(s, 'stripe auth: request store missing');
       const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
       const auth = appAuth(ctx);
-      if (auth === null || auth.accountId === null) {
+      if (auth === null || auth.accountId === null || auth.isAnon) {
         throw new UnauthorizedError(
           'Stripe routes require a signed-in account'
         );

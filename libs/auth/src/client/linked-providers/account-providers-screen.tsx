@@ -1,12 +1,10 @@
 import { Box, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { Trans } from '@lingui/react/macro';
-import { useMyAccountId } from '../use-current-user';
 import { LinkedProvidersCard } from './linked-providers-card';
 
 export function AccountProvidersScreen() {
   const nav = useBreadcrumbNav();
-  const accountId = useMyAccountId();
 
   return (
     <ScreenBase
@@ -23,7 +21,7 @@ export function AccountProvidersScreen() {
       scroll
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
-          <LinkedProvidersCard accountId={accountId} />
+          <LinkedProvidersCard />
         </Box>
       )}
     />

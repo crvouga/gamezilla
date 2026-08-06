@@ -23,6 +23,7 @@ import {
   uploadSyncBatch,
   type GetFreshAuthToken,
   type SyncApiFetch,
+  type SyncClientAuth,
 } from './sync-api';
 
 export type CreateAppPowerSyncSyncEngineArgs = {
@@ -36,6 +37,8 @@ export type CreateAppPowerSyncSyncEngineArgs = {
    * stale React callback — pass a getter that reads the latest port method.
    */
   readonly getFreshAuthToken: GetFreshAuthToken;
+  /** Live identity/token getters from React hooks (via refs). */
+  readonly auth: SyncClientAuth;
 };
 
 /**
@@ -214,6 +217,7 @@ export async function createAppPowerSyncSyncEngine(
         config: args.config,
         fetchFn: args.fetchFn,
         kv: args.kv,
+        auth: args.auth,
         getFreshAuthToken: args.getFreshAuthToken,
       }),
     uploadBatch: async (batch) => {
@@ -221,6 +225,7 @@ export async function createAppPowerSyncSyncEngine(
         config: args.config,
         fetchFn: args.fetchFn,
         batch,
+        auth: args.auth,
         getFreshAuthToken: args.getFreshAuthToken,
       });
     },

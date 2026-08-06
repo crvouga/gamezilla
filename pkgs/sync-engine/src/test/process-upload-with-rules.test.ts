@@ -14,6 +14,7 @@ const auth: UploadAuth = {
   userId: 'user-1',
   deviceId: 'device-1',
   accountId: 'user-1',
+  isAnon: false,
   memberOfSpaceIds: [],
 };
 

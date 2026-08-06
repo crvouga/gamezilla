@@ -50,6 +50,35 @@ CREATE TABLE public.devices (
     expect(tableAt).toBeGreaterThanOrEqual(0);
     expect(indexAt).toBeGreaterThan(tableAt);
   });
+
+  it('orders primary keys before foreign keys across tables', () => {
+    const dump = `CREATE TABLE public.friend_requests (
+    id text NOT NULL,
+    from_user_id text NOT NULL
+);
+
+CREATE TABLE public.profiles (
+    id text NOT NULL
+);
+
+ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_from_user_id_profiles_id_fk FOREIGN KEY (from_user_id) REFERENCES public.profiles(id);
+
+ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.friend_requests
+    ADD CONSTRAINT friend_requests_pkey PRIMARY KEY (id);
+`;
+    const out = stabilizeSchemaStatements(normalizeSchemaDump(dump));
+    const profilesPk = out.indexOf('profiles_pkey');
+    const friendPk = out.indexOf('friend_requests_pkey');
+    const friendFk = out.indexOf('friend_requests_from_user_id_profiles_id_fk');
+    expect(profilesPk).toBeGreaterThanOrEqual(0);
+    expect(friendPk).toBeGreaterThanOrEqual(0);
+    expect(friendFk).toBeGreaterThan(profilesPk);
+    expect(friendFk).toBeGreaterThan(friendPk);
+  });
 });
 
 describe('canonicalizeSchemaForCompare', () => {

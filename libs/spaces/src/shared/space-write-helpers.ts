@@ -21,7 +21,11 @@ export function isoNow(): string {
 }
 
 export function requireAccountId(auth: AppRulesAuth): string {
-  if (auth.accountId === null || auth.accountId.length === 0) {
+  if (
+    auth.accountId === null ||
+    auth.accountId.length === 0 ||
+    auth.isAnon
+  ) {
     throwRulesReject([fail(SPACE_NOT_SIGNED_IN)]);
   }
   return auth.accountId;

@@ -14,8 +14,8 @@
  * found on mount).
  */
 
-import { useSecureStorage } from '@pkgs/secure-storage/interface';
-import type { SecureStorage } from '@pkgs/secure-storage/interface';
+import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { usePathname } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -64,7 +64,7 @@ function useResumePendingEffect(args: {
 
 function resolveSignInOutcome(args: {
   authState: AuthSessionState;
-  storage: SecureStorage;
+  store: SecureStorageStore;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
   setError: (error: Error | null) => void;
@@ -72,7 +72,7 @@ function resolveSignInOutcome(args: {
 }): void {
   const {
     authState,
-    storage,
+    store,
     onError,
     setAwaitingCallback,
     setError,
@@ -86,7 +86,7 @@ function resolveSignInOutcome(args: {
   const err = authSessionError(authState);
   if (err === null) return;
   setAwaitingCallback(false);
-  void clearSignInPending(storage);
+  void clearSignInPending(store);
   onError?.(err);
   setError(err);
   setPhase('error');
@@ -97,7 +97,7 @@ function useSignInOutcomeEffect(args: {
   awaitingCallback: boolean;
   resumePending: boolean;
   authState: AuthSessionState;
-  storage: SecureStorage;
+  store: SecureStorageStore;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
   setError: (error: Error | null) => void;
@@ -108,7 +108,7 @@ function useSignInOutcomeEffect(args: {
     awaitingCallback,
     resumePending,
     authState,
-    storage,
+    store,
     onError,
     setAwaitingCallback,
     setError,
@@ -131,7 +131,7 @@ function useSignInOutcomeEffect(args: {
     if (phase !== 'loading' || !awaitingCallback) return;
     resolveSignInOutcome({
       authState,
-      storage,
+      store,
       onError,
       setAwaitingCallback,
       setError,
@@ -142,7 +142,7 @@ function useSignInOutcomeEffect(args: {
     awaitingCallback,
     resumePending,
     authState,
-    storage,
+    store,
     onError,
     setAwaitingCallback,
     setError,
@@ -151,7 +151,7 @@ function useSignInOutcomeEffect(args: {
 }
 
 function useSignInStart(args: {
-  storage: SecureStorage;
+  store: SecureStorageStore;
   pathname: string;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
@@ -159,7 +159,7 @@ function useSignInStart(args: {
   setPhase: (phase: SignInPhase) => void;
 }): (runner: () => Promise<void>) => Promise<void> {
   const {
-    storage,
+    store,
     pathname,
     onError,
     setAwaitingCallback,
@@ -172,12 +172,12 @@ function useSignInStart(args: {
       setPhase('loading');
       const returnHref = resolveSignInReturnHref(pathname);
       try {
-        await markSignInPending(storage, {
+        await markSignInPending(store, {
           ...(returnHref !== undefined ? { returnHref } : {}),
         });
         await runner();
       } catch (e) {
-        await clearSignInPending(storage);
+        await clearSignInPending(store);
         const err = e instanceof Error ? e : new Error(String(e));
         onError?.(err);
         setError(err);
@@ -189,7 +189,7 @@ function useSignInStart(args: {
       setAwaitingCallback(false);
       setPhase('success');
     },
-    [storage, onError, pathname, setAwaitingCallback, setError, setPhase]
+    [store, onError, pathname, setAwaitingCallback, setError, setPhase]
   );
 }
 
@@ -197,7 +197,7 @@ export function useSignInModalLifecycle({
   resumePending,
   onError,
 }: UseSignInModalLifecycleParams): UseSignInModalLifecycleResult {
-  const storage = useSecureStorage();
+  const store = useSecureStorageStore();
   const port = useAuthClientPort();
   const pathname = usePathname();
   const authState = port.useAuthSession();
@@ -217,7 +217,7 @@ export function useSignInModalLifecycle({
     awaitingCallback,
     resumePending,
     authState,
-    storage,
+    store,
     onError,
     setAwaitingCallback,
     setError,
@@ -225,7 +225,7 @@ export function useSignInModalLifecycle({
   });
 
   const start = useSignInStart({
-    storage,
+    store,
     pathname,
     onError,
     setAwaitingCallback,
@@ -240,9 +240,9 @@ export function useSignInModalLifecycle({
   }, []);
 
   const dismiss = useCallback(() => {
-    void clearSignInPending(storage);
+    void clearSignInPending(store);
     reset();
-  }, [storage, reset]);
+  }, [store, reset]);
 
   return { phase, error, start, reset, dismiss };
 }

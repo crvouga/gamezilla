@@ -1,7 +1,4 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { useFreshAuthToken } from '@libs/auth/client/use-fresh-auth-token';
 import { useRulesAuth } from '@libs/auth/client/use-rules-auth';
 import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, type ReactNode } from 'react';
@@ -11,40 +8,27 @@ import {
   ensureProfile,
 } from './ensure-profile-local/ensure-profile';
 import { ensureProfileOnline } from './ensure-profile-online/ensure-profile-online';
+import { useProfileClientDeps } from './use-profile-client-deps';
 
 /**
- * Profile bootstrap: ensures a local profile row exists, then asks the API to
- * assign a globally unique username if needed. Applies the ensure response
- * username locally when the card matches the active account.
+ * Profile bootstrap: ensures a local profile row for the current `users.id`,
+ * then asks the API to assign a globally unique username if needed.
  */
 function ProfileEntityBootstrap(): null {
   const engine = useSyncEngine();
   const myId = useMyId();
-  const accountId = useCurrentAccountId();
-  const sessionToken = useFreshAuthToken();
   const auth = useRulesAuth();
-  const config = useConfigService();
+  const deps = useProfileClientDeps();
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
         if (myId.length === 0) return;
-        // Session present but /auth/refresh has not written lastLocalAccountId
-        // yet — useMyId would fall back to deviceId and seed a throwaway
-        // device profile. Wait for a stable account id.
-        if (sessionToken !== null && accountId === null) return;
-        // Seed local row immediately. Do not block on waitForFirstSync — a hung
-        // connect() left us with empty usernames forever. Online ensure is the
-        // uniqueness authority; apply only when card.userId matches myId.
         await ensureProfile(engine.db, auth, myId);
         if (cancelled) return;
-        const card = await ensureProfileOnline({
-          config,
-          fetchFn: globalThis.fetch.bind(globalThis),
-        });
+        const card = await ensureProfileOnline(deps);
         if (cancelled) return;
-        // Token/myId can skew during sign-in — never apply a mismatched card.
         if (card.userId !== myId) {
           return;
         }
@@ -61,14 +45,14 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [accountId, auth, config, engine, myId, sessionToken]);
+  }, [auth, deps, engine, myId]);
 
   return null;
 }
 
 /**
- * Mounts {@link ProfileEntityBootstrap}. The identity-change ensure effect
- * reacts to sign-in / sign-out via {@link useMyId}.
+ * Mounts {@link ProfileEntityBootstrap}. Reacts to identity changes via
+ * {@link useMyId}.
  */
 export function ProfileProvider({
   children,
