@@ -24,6 +24,12 @@ import {
   SharedPollScheduler,
   type SweepReason,
 } from './shared-poll-scheduler';
+import {
+  REAL_TIMERS,
+  resolveNow,
+  resolveRandom,
+  type Timers,
+} from './sim-ports';
 
 export type { QueryRequest };
 
@@ -72,6 +78,7 @@ export type SubscriptionRuntimeOptions = {
   readonly reconcileMs?: number;
   readonly now?: () => number;
   readonly random?: () => number;
+  readonly timers?: Timers;
   /** Fired when a reconcile sweep applies a full (changed) response. */
   readonly onMissedEvent?: (info: {
     readonly scope: string;
@@ -115,11 +122,12 @@ function resetFirst(entry: Entry): void {
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
   private readonly changeListeners = new Set<() => void>();
-  private readonly jitterTimers = new Set<ReturnType<typeof setTimeout>>();
+  private readonly jitterTimers = new Set<unknown>();
   private readonly lifecycle: AppLifecycle;
   private readonly scheduler: SharedPollScheduler;
   private readonly now: () => number;
   private readonly random: () => number;
+  private readonly timers: Timers;
   private running = false;
   private connectedMode = false;
   private foregrounded = true;
@@ -128,8 +136,9 @@ export class SubscriptionRuntime {
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
-    this.now = options.now ?? Date.now;
-    this.random = options.random ?? Math.random;
+    this.now = resolveNow(options.now);
+    this.random = resolveRandom(options.random);
+    this.timers = options.timers ?? REAL_TIMERS;
     this.foregrounded = this.lifecycle.isForeground();
     this.scheduler = new SharedPollScheduler({
       isRunning: () => this.running,
@@ -141,6 +150,7 @@ export class SubscriptionRuntime {
       random: this.random,
       fallbackPollMs: resolveFallbackPollMs(options.fallbackPollMs),
       reconcileMs: resolveReconcileMs(options.reconcileMs),
+      timers: this.timers,
     });
     for (const spec of options.boot) this.ensureEntry(spec, true);
   }
@@ -193,7 +203,7 @@ export class SubscriptionRuntime {
     if (!this.running || !this.foregrounded) return;
     this.clearJitterTimers();
     const delayMs = Math.floor(this.random() * Math.max(0, maxMs));
-    const timer = setTimeout(() => {
+    const timer = this.timers.setTimeout(() => {
       this.jitterTimers.delete(timer);
       this.wakeAll(reason);
     }, delayMs);
@@ -460,7 +470,7 @@ export class SubscriptionRuntime {
   }
 
   private clearJitterTimers(): void {
-    for (const timer of this.jitterTimers) clearTimeout(timer);
+    for (const timer of this.jitterTimers) this.timers.clearTimeout(timer);
     this.jitterTimers.clear();
   }
 }

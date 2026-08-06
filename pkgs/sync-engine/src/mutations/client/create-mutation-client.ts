@@ -47,6 +47,8 @@ export type CreateMutationClientOptions = {
   readonly onQueued?: () => void;
   /** Fired after local apply + queue — MQTT fanout hook. */
   readonly onApplied?: (event: MutationAppliedEvent) => void;
+  /** Deterministic id mint for sim; defaults to crypto.randomUUID. */
+  readonly createId?: () => string;
 };
 
 function isMissingUploadState(error: unknown): boolean {
@@ -103,7 +105,7 @@ export function createMutationClient(
         };
       }
 
-      const mutationId = crypto.randomUUID();
+      const mutationId = (options.createId ?? (() => crypto.randomUUID()))();
       try {
         const parsed = m.args.parse(args);
         let appliedSeq = 0;

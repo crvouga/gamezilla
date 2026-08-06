@@ -30,6 +30,7 @@ import {
 } from './mutation-upload-queue';
 import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
+import type { CreateId, Timers } from './sim-ports';
 import type { SyncEngine } from './sync-engine-port';
 import {
   SubscriptionRuntime,
@@ -68,6 +69,14 @@ export type CreateLocalSyncEngineOptions = {
    */
   readonly nudges?: SyncEngineNudgesOptions;
   readonly lifecycle?: AppLifecycle;
+  /** Virtual clock / timers / RNG for deterministic simulation. */
+  readonly now?: () => number;
+  readonly random?: () => number;
+  readonly timers?: Timers;
+  readonly createId?: CreateId;
+  /** Test overrides for poll cadence (forwarded to SubscriptionRuntime). */
+  readonly fallbackPollMs?: number;
+  readonly reconcileMs?: number;
 };
 
 type LocalEngineState = {
@@ -133,6 +142,15 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     ...(options.lifecycle !== undefined
       ? { lifecycle: options.lifecycle }
       : {}),
+    ...(options.now !== undefined ? { now: options.now } : {}),
+    ...(options.random !== undefined ? { random: options.random } : {}),
+    ...(options.timers !== undefined ? { timers: options.timers } : {}),
+    ...(options.fallbackPollMs !== undefined
+      ? { fallbackPollMs: options.fallbackPollMs }
+      : {}),
+    ...(options.reconcileMs !== undefined
+      ? { reconcileMs: options.reconcileMs }
+      : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
     onSynced: () =>
@@ -157,6 +175,8 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       runtime.wakeAll();
     },
     onError: (error) => handleError(readState(stateRef), error),
+    ...(options.timers !== undefined ? { timers: options.timers } : {}),
+    ...(options.now !== undefined ? { now: options.now } : {}),
   });
   // Don't wait for IDLE_DELAY_MS — local mutate commits emit `_mutations`.
   bus.subscribe((tables) => {
@@ -229,6 +249,9 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
       },
       ...(nudges.onBindTopicRefresh !== undefined
         ? { onBindTopicRefresh: nudges.onBindTopicRefresh }
+        : {}),
+      ...(state.options.timers !== undefined
+        ? { timers: state.options.timers }
         : {}),
       onTablesChanged: (listener) => state.bus.subscribe(listener),
     });

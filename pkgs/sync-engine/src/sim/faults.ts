@@ -1,0 +1,43 @@
+import type { SeededRng } from './rng';
+
+/** VOPR-style network fault knobs derived from a seed stream. */
+export type SimFaultOptions = {
+  readonly oneWayDelayMeanMs: number;
+  readonly oneWayDelayJitterMs: number;
+  readonly packetLossProbability: number;
+  readonly packetReplayProbability: number;
+  readonly reorderWindow: number;
+  readonly partitionProbability: number;
+  readonly unpartitionProbability: number;
+};
+
+export const RELIABLE_FAULTS: SimFaultOptions = {
+  oneWayDelayMeanMs: 0,
+  oneWayDelayJitterMs: 0,
+  packetLossProbability: 0,
+  packetReplayProbability: 0,
+  reorderWindow: 0,
+  partitionProbability: 0,
+  unpartitionProbability: 0,
+};
+
+/** Sample fault options from RNG (bounded ranges suitable for sync tests). */
+export function sampleFaultOptions(rng: SeededRng): SimFaultOptions {
+  return {
+    oneWayDelayMeanMs: rng.int(80),
+    oneWayDelayJitterMs: rng.int(40),
+    packetLossProbability: rng.int(31) / 100,
+    packetReplayProbability: rng.int(21) / 100,
+    reorderWindow: rng.int(5),
+    partitionProbability: rng.int(6) / 100,
+    unpartitionProbability: (1 + rng.int(10)) / 100,
+  };
+}
+
+export function sampleDelayMs(faults: SimFaultOptions, rng: SeededRng): number {
+  const mean = faults.oneWayDelayMeanMs;
+  const jitter = faults.oneWayDelayJitterMs;
+  if (mean === 0 && jitter === 0) return 0;
+  const delta = jitter === 0 ? 0 : Math.floor((rng.random() * 2 - 1) * jitter);
+  return Math.max(0, mean + delta);
+}

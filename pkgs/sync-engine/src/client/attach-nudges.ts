@@ -11,6 +11,7 @@ import type {
 } from '@pkgs/sync-engine/shared/nudge-payload';
 
 import { peerApplyMutation } from './peer-apply-mutation';
+import { REAL_TIMERS, type Timers } from './sim-ports';
 import { STATUS_POLL_JITTER_MS } from './subscription-constants';
 import type { SubscriptionRuntime } from './subscription-runtime';
 
@@ -28,6 +29,7 @@ export type AttachNudgesOptions = {
   readonly remakePubSub: () => PubSub;
   readonly debounceMs?: number;
   readonly lateTopicRemakeMs?: number;
+  readonly timers?: Timers;
   /** When set, upload-ack refreshes coalesce through the same debounce path. */
   readonly onScheduleWakeAll?: (wakeAll: () => void) => void;
   /** Register a callback to re-derive MQTT topics after channels ctx changes. */
@@ -47,6 +49,7 @@ type NudgeBag = {
   readonly options: AttachNudgesOptions;
   readonly debounceMs: number;
   readonly lateTopicRemakeMs: number;
+  readonly timers: Timers;
   pubsub: PubSub;
   disposed: boolean;
   lastStatus: PubSubStatus;
@@ -54,11 +57,11 @@ type NudgeBag = {
   unbindStatus: (() => void) | null;
   remakeScheduled: boolean;
   coalesceInWindow: boolean;
-  coalesceTrailing: ReturnType<typeof setTimeout> | null;
+  coalesceTrailing: unknown | null;
   pendingSweep: PendingSweep | null;
   readonly topicUnsubs: Map<Topic, () => void>;
   readonly topicToScopes: Map<Topic, Set<string>>;
-  readonly lateTopics: Map<Topic, ReturnType<typeof setTimeout>>;
+  readonly lateTopics: Map<Topic, unknown>;
   readonly topicsAtInstanceBirth: Set<Topic>;
   readonly disposers: Array<() => void>;
 };
@@ -113,6 +116,7 @@ function createBag(options: AttachNudgesOptions): NudgeBag {
     debounceMs: options.debounceMs ?? DEFAULT_DEBOUNCE_MS,
     lateTopicRemakeMs:
       options.lateTopicRemakeMs ?? DEFAULT_LATE_TOPIC_REMAKE_MS,
+    timers: options.timers ?? REAL_TIMERS,
     pubsub: options.pubsub,
     disposed: false,
     lastStatus: options.pubsub.status(),
@@ -168,14 +172,16 @@ function scheduleSweep(bag: NudgeBag, scopes: 'all' | Iterable<string>): void {
   if (!bag.coalesceInWindow) {
     bag.coalesceInWindow = true;
     flushPendingSweep(bag);
-    bag.coalesceTrailing = setTimeout(() => {
+    bag.coalesceTrailing = bag.timers.setTimeout(() => {
       bag.coalesceInWindow = false;
       bag.coalesceTrailing = null;
     }, bag.debounceMs);
     return;
   }
-  if (bag.coalesceTrailing !== null) clearTimeout(bag.coalesceTrailing);
-  bag.coalesceTrailing = setTimeout(() => {
+  if (bag.coalesceTrailing !== null) {
+    bag.timers.clearTimeout(bag.coalesceTrailing);
+  }
+  bag.coalesceTrailing = bag.timers.setTimeout(() => {
     bag.coalesceInWindow = false;
     bag.coalesceTrailing = null;
     flushPendingSweep(bag);
@@ -270,7 +276,7 @@ async function collectNeedingScopes(
 function clearLateTimer(bag: NudgeBag, topic: Topic): void {
   const timer = bag.lateTopics.get(topic);
   if (timer === undefined) return;
-  clearTimeout(timer);
+  bag.timers.clearTimeout(timer);
   bag.lateTopics.delete(topic);
 }
 
@@ -310,7 +316,7 @@ function armLateTopicTimer(bag: NudgeBag, topic: Topic): void {
   if (!bag.trackLateTopics) return;
   if (bag.topicsAtInstanceBirth.has(topic)) return;
   if (bag.lateTopics.has(topic)) return;
-  const timer = setTimeout(() => {
+  const timer = bag.timers.setTimeout(() => {
     bag.lateTopics.delete(topic);
     if (bag.disposed || bag.remakeScheduled) return;
     if (!bag.topicToScopes.has(topic)) return;
@@ -348,7 +354,7 @@ function clearTopicState(bag: NudgeBag): void {
   for (const unsub of bag.topicUnsubs.values()) unsub();
   bag.topicUnsubs.clear();
   bag.topicToScopes.clear();
-  for (const timer of bag.lateTopics.values()) clearTimeout(timer);
+  for (const timer of bag.lateTopics.values()) bag.timers.clearTimeout(timer);
   bag.lateTopics.clear();
   bag.topicsAtInstanceBirth.clear();
 }
@@ -411,7 +417,9 @@ function disposeBag(bag: NudgeBag): void {
   bag.disposed = true;
   bag.options.runtime.setConnectedMode(false);
   clearTopicState(bag);
-  if (bag.coalesceTrailing !== null) clearTimeout(bag.coalesceTrailing);
+  if (bag.coalesceTrailing !== null) {
+    bag.timers.clearTimeout(bag.coalesceTrailing);
+  }
   bag.coalesceTrailing = null;
   bag.pendingSweep = null;
   bag.coalesceInWindow = false;

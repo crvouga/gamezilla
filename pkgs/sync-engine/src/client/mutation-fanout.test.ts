@@ -217,7 +217,8 @@ describe('publishMutationFanout', () => {
         clientId: 'c1',
       },
     });
-    await new Promise((r) => setTimeout(r, 10));
+    await Promise.resolve();
+    await Promise.resolve();
     expect(received.length).toBe(1);
     expect(parseMutationFanout(received[0])?.mutationId).toBe('m-pub');
   });

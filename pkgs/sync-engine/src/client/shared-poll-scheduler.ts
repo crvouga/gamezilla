@@ -4,6 +4,7 @@ import {
   RECONCILE_JITTER_RATIO,
   RECONCILE_MS,
 } from './subscription-constants';
+import { REAL_TIMERS, type Timers } from './sim-ports';
 
 export type SharedSchedulerHooks = {
   readonly isRunning: () => boolean;
@@ -15,6 +16,7 @@ export type SharedSchedulerHooks = {
   readonly random: () => number;
   readonly fallbackPollMs: number;
   readonly reconcileMs: number;
+  readonly timers?: Timers;
 };
 
 export type SweepReason =
@@ -27,10 +29,13 @@ export type SweepReason =
 
 /** Owns the shared FALLBACK + RECONCILE timers (no per-subscription intervals). */
 export class SharedPollScheduler {
-  private fallbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private reconcileTimer: ReturnType<typeof setTimeout> | null = null;
+  private fallbackTimer: unknown = null;
+  private reconcileTimer: unknown = null;
+  private readonly timers: Timers;
 
-  constructor(private readonly hooks: SharedSchedulerHooks) {}
+  constructor(private readonly hooks: SharedSchedulerHooks) {
+    this.timers = hooks.timers ?? REAL_TIMERS;
+  }
 
   start(): void {
     this.armFallback();
@@ -50,13 +55,13 @@ export class SharedPollScheduler {
 
   private clearFallback(): void {
     if (this.fallbackTimer === null) return;
-    clearTimeout(this.fallbackTimer);
+    this.timers.clearTimeout(this.fallbackTimer);
     this.fallbackTimer = null;
   }
 
   private clearReconcile(): void {
     if (this.reconcileTimer === null) return;
-    clearTimeout(this.reconcileTimer);
+    this.timers.clearTimeout(this.reconcileTimer);
     this.reconcileTimer = null;
   }
 
@@ -65,7 +70,7 @@ export class SharedPollScheduler {
     if (!this.hooks.isRunning()) return;
     if (!this.hooks.isForeground()) return;
     if (this.hooks.isConnectedMode()) return;
-    this.fallbackTimer = setTimeout(() => {
+    this.fallbackTimer = this.timers.setTimeout(() => {
       this.fallbackTimer = null;
       if (!this.hooks.isRunning()) return;
       if (!this.hooks.isForeground()) return;
@@ -85,7 +90,7 @@ export class SharedPollScheduler {
       1,
       Math.floor(base + (this.hooks.random() * 2 - 1) * jitter)
     );
-    this.reconcileTimer = setTimeout(() => {
+    this.reconcileTimer = this.timers.setTimeout(() => {
       this.reconcileTimer = null;
       if (!this.hooks.isRunning()) return;
       if (!this.hooks.isForeground()) return;

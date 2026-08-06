@@ -3,6 +3,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
 import { bumpWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
 
+import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
+
 const BATCH_LIMIT = 64;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
 const IDLE_DELAY_MS = 100;
@@ -50,6 +52,8 @@ export type MutationUploadQueueOptions = {
   ) => Promise<MutationUploadResult>;
   readonly onError: (error: unknown) => void;
   readonly onUploaded?: (() => void) | undefined;
+  readonly timers?: Timers;
+  readonly now?: () => number;
 };
 
 function toWireRow(row: StoredMutation): MutationUploadRow {
@@ -79,7 +83,8 @@ async function readPending(
 async function storeRejection(
   tx: SqlClient,
   clientId: string,
-  verdict: Extract<MutationUploadVerdict, { status: 'rejected' }>
+  verdict: Extract<MutationUploadVerdict, { status: 'rejected' }>,
+  createdAt: string
 ): Promise<void> {
   await tx.run(sql`
     INSERT INTO write_rejections (
@@ -92,7 +97,7 @@ async function storeRejection(
       ${verdict.code},
       ${verdict.message},
       ${null},
-      ${new Date().toISOString()},
+      ${createdAt},
       ${0}
     )
     ON CONFLICT (id) DO UPDATE SET
@@ -115,13 +120,15 @@ async function softAckApplied(
 
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
-  result: MutationUploadResult
+  result: MutationUploadResult,
+  now: () => number
 ): Promise<void> {
   const clientId = options.clientId();
+  const createdAt = new Date(now()).toISOString();
   await options.db.transaction(async (tx) => {
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
-        await storeRejection(tx, clientId, verdict);
+        await storeRejection(tx, clientId, verdict, createdAt);
         await tx.run(sql`
           DELETE FROM _mutations WHERE id = ${verdict.mutationId}
         `);
@@ -144,8 +151,13 @@ export class MutationUploadQueue {
   private running = false;
   private loopPromise: Promise<void> | null = null;
   private wakeWaiter: (() => void) | null = null;
+  private readonly timers: Timers;
+  private readonly now: () => number;
 
-  constructor(private readonly options: MutationUploadQueueOptions) {}
+  constructor(private readonly options: MutationUploadQueueOptions) {
+    this.timers = options.timers ?? REAL_TIMERS;
+    this.now = resolveNow(options.now);
+  }
 
   start(): void {
     if (this.running) return;
@@ -167,12 +179,12 @@ export class MutationUploadQueue {
   private async wait(ms: number): Promise<void> {
     if (!this.running) return;
     await new Promise<void>((resolve) => {
-      const timer = setTimeout(() => {
+      const timer = this.timers.setTimeout(() => {
         this.wakeWaiter = null;
         resolve();
       }, ms);
       this.wakeWaiter = () => {
-        clearTimeout(timer);
+        this.timers.clearTimeout(timer);
         this.wakeWaiter = null;
         resolve();
       };
@@ -183,7 +195,7 @@ export class MutationUploadQueue {
     const pending = await readPending(this.options.db, this.options.clientId());
     if (pending.length === 0) return false;
     const result = await this.options.postBatch(pending.map(toWireRow));
-    await applyUploadResult(this.options, result);
+    await applyUploadResult(this.options, result, this.now);
     this.options.onUploaded?.();
     return true;
   }

@@ -110,7 +110,8 @@ describe('replay nudge publish', () => {
       }),
     });
     expect(res.status).toBe(200);
-    await new Promise((r) => setTimeout(r, 10));
+    await Promise.resolve();
+    await Promise.resolve();
     expect(published.length).toBe(1);
     expect(published[0]?.topic).toBe('user:actor1');
     expect(
@@ -160,7 +161,8 @@ describe('replay nudge publish', () => {
       verdicts: Array<{ status: string }>;
     };
     expect(body.verdicts[0]?.status).toBe('rejected');
-    await new Promise((r) => setTimeout(r, 10));
+    await Promise.resolve();
+    await Promise.resolve();
     expect(published.length).toBe(0);
   });
 
@@ -207,7 +209,8 @@ describe('replay nudge publish', () => {
       expect(res.status).toBe(200);
       const body = (await res.json()) as { ok: boolean };
       expect(body.ok).toBe(true);
-      await new Promise((r) => setTimeout(r, 20));
+      await Promise.resolve();
+      await Promise.resolve();
       expect(warn).toHaveBeenCalled();
     } finally {
       console.warn = originalWarn;
@@ -227,7 +230,8 @@ describe('replay nudge publish', () => {
       topics: ['user:a', 'user:a', 'room:b'],
       checkpoint: '1',
     });
-    await new Promise((r) => setTimeout(r, 10));
+    await Promise.resolve();
+    await Promise.resolve();
     expect(published.sort()).toEqual(['room:b', 'user:a']);
   });
 });

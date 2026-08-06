@@ -13,24 +13,10 @@ import {
   assertChannelExhaustiveness,
   findChannelExhaustivenessGaps,
 } from '../shared/channel-exhaustiveness';
+import { createSimTestDriver } from '../sim/test-driver';
 import { createControllableLifecycle } from './app-lifecycle';
 import { attachNudges } from './attach-nudges';
 import { SubscriptionRuntime } from './subscription-runtime';
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function waitUntil(
-  pred: () => boolean,
-  timeoutMs: number
-): Promise<void> {
-  const start = Date.now();
-  while (!pred()) {
-    if (Date.now() - start >= timeoutMs) return;
-    await sleep(10);
-  }
-}
 
 function stubMergeDeps(db: Awaited<ReturnType<typeof openScenarioDb>>) {
   return {
@@ -87,6 +73,7 @@ describe('event-driven-sync', () => {
 
   async function harness(opts?: Parameters<typeof resolveHarnessOpts>[0]) {
     const cfg = resolveHarnessOpts(opts);
+    const sim = createSimTestDriver();
     const db = await openScenarioDb();
     const postQuery = mock(async () => ({ status: 'not_modified' as const }));
     const queries = makeQueries(cfg.subscriptionCount);
@@ -106,24 +93,34 @@ describe('event-driven-sync', () => {
       lifecycle,
       fallbackPollMs: cfg.fallbackPollMs,
       reconcileMs: cfg.reconcileMs,
-      random: () => 0,
+      random: sim.random,
+      now: sim.now,
+      timers: sim.timers,
     });
     runtime.start();
     if (cfg.connectedMode) runtime.setConnectedMode(true);
     await runtime.waitForBoot();
     postQuery.mockClear();
     disposers.push(() => runtime.stop());
-    return { runtime, postQuery, setForeground, setOnline, registry, db };
+    return {
+      runtime,
+      postQuery,
+      setForeground,
+      setOnline,
+      registry,
+      db,
+      sim,
+    };
   }
 
   test('no-timer-queries-when-connected', async () => {
-    const { postQuery } = await harness({ subscriptionCount: 5 });
-    await sleep(80);
+    const { postQuery, sim } = await harness({ subscriptionCount: 5 });
+    await sim.runFor(80);
     expect(postQuery.mock.calls.length).toBe(0);
   });
 
   test('nudge-is-sole-fast-path', async () => {
-    const { runtime, postQuery, registry, db } = await harness({
+    const { runtime, postQuery, registry, db, sim } = await harness({
       subscriptionCount: 1,
     });
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
@@ -138,50 +135,52 @@ describe('event-driven-sync', () => {
         getChannelsCtx: () => ({ actorId: 'actor1' }),
         remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
         debounceMs: 20,
+        timers: sim.timers,
       })
     );
-    await sleep(5);
+    await sim.runFor(5);
     postQuery.mockClear();
     await pubsub.publish('user:actor1', {});
-    await sleep(40);
+    await sim.runFor(40);
     expect(postQuery.mock.calls.length).toBe(1);
-    await sleep(60);
+    await sim.runFor(60);
     expect(postQuery.mock.calls.length).toBe(1);
   });
 
   test('foreground-triggers-jittered-sweep', async () => {
-    const { postQuery, setForeground } = await harness({
+    const { postQuery, setForeground, sim } = await harness({
       subscriptionCount: 3,
     });
     setForeground(false);
     postQuery.mockClear();
     setForeground(true);
-    await sleep(20);
+    await sim.runFor(20);
     expect(postQuery.mock.calls.length).toBe(3);
   });
 
   test('down-state-shared-slow-fallback', async () => {
-    const { postQuery, runtime } = await harness({
+    const { postQuery, runtime, sim } = await harness({
       connectedMode: false,
       fallbackPollMs: 50,
       subscriptionCount: 3,
       reconcileMs: 600_000,
     });
     runtime.setConnectedMode(false);
-    await sleep(10);
+    await sim.runFor(10);
     postQuery.mockClear();
-    await sleep(60);
+    await sim.runFor(60);
     expect(postQuery.mock.calls.length).toBe(3);
-    await sleep(60);
+    await sim.runFor(60);
     expect(postQuery.mock.calls.length).toBe(6);
   });
 
   test('background-silence', async () => {
-    const { postQuery, setForeground, runtime, registry, db } = await harness({
-      subscriptionCount: 2,
-      connectedMode: false,
-      fallbackPollMs: 30,
-    });
+    const { postQuery, setForeground, runtime, registry, db, sim } =
+      await harness({
+        subscriptionCount: 2,
+        connectedMode: false,
+        fallbackPollMs: 30,
+      });
     setForeground(false);
     postQuery.mockClear();
     disposers.push(
@@ -195,13 +194,15 @@ describe('event-driven-sync', () => {
         getChannelsCtx: () => ({ actorId: 'actor1' }),
         remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
         debounceMs: 10,
+        timers: sim.timers,
       })
     );
-    await sleep(80);
+    await sim.runFor(80);
     expect(postQuery.mock.calls.length).toBe(0);
   });
 
   test('reconciliation-tick-runs-and-detects', async () => {
+    const sim = createSimTestDriver();
     const db = await openScenarioDb();
     let call = 0;
     const postQuery = mock(async () => {
@@ -235,7 +236,9 @@ describe('event-driven-sync', () => {
       lifecycle,
       reconcileMs: 40,
       fallbackPollMs: 600_000,
-      random: () => 0,
+      random: sim.random,
+      now: sim.now,
+      timers: sim.timers,
       onMissedEvent: (info) => missed.push(info),
     });
     runtime.start();
@@ -243,11 +246,10 @@ describe('event-driven-sync', () => {
     await runtime.waitForBoot();
     postQuery.mockClear();
     missed.length = 0;
-    // Re-arm from a known point; skip-if-recent may defer one tick under load.
     runtime.setConnectedMode(true);
-    await waitUntil(
+    await sim.runUntil(
       () => postQuery.mock.calls.length >= 1 && missed.length >= 1,
-      1_000
+      { maxVirtualMs: 2_000 }
     );
     expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
     expect(missed.length).toBeGreaterThanOrEqual(1);

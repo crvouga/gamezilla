@@ -3,6 +3,7 @@ import type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
+import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
 import type { QueryRequest } from './subscription-fetch';
 
 export type SyncHttpFetch = (
@@ -48,6 +49,8 @@ export type CreateSyncHttpClientOptions = {
   readonly paths?: SyncHttpClientPaths | undefined;
   /** Extra header name for device/anon id. Default `x-anon-id`. */
   readonly anonIdHeader?: string | undefined;
+  readonly timers?: Timers;
+  readonly now?: () => number;
 };
 
 const FRESH_TOKEN_TIMEOUT_MS = 4_000;
@@ -60,7 +63,7 @@ const DEFAULT_PATHS: SyncHttpClientPaths = {
 };
 
 /** True when JWT `exp` is missing/unparseable or still valid beyond skew. */
-function sessionTokenLikelyValid(token: string): boolean {
+function sessionTokenLikelyValid(token: string, now: () => number): boolean {
   const parts = token.split('.');
   if (parts.length < 2) return false;
   try {
@@ -68,7 +71,7 @@ function sessionTokenLikelyValid(token: string): boolean {
     const json = globalThis.atob(b64);
     const payload = JSON.parse(json) as { readonly exp?: unknown };
     if (typeof payload.exp !== 'number') return true;
-    return payload.exp * 1000 > Date.now() + TOKEN_EXPIRY_SKEW_MS;
+    return payload.exp * 1000 > now() + TOKEN_EXPIRY_SKEW_MS;
   } catch {
     return false;
   }
@@ -76,7 +79,8 @@ function sessionTokenLikelyValid(token: string): boolean {
 const DEFAULT_ANON_ID_HEADER = 'x-anon-id';
 
 function raceFreshToken(
-  getFresh: () => Promise<string | null>
+  getFresh: () => Promise<string | null>,
+  timers: Timers
 ): Promise<string | null> {
   return new Promise((resolve) => {
     let settled = false;
@@ -85,14 +89,14 @@ function raceFreshToken(
       settled = true;
       resolve(v);
     };
-    const timer = setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
+    const timer = timers.setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
     void getFresh()
       .then((t) => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         done(t);
       })
       .catch(() => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         done(null);
       });
   });
@@ -101,6 +105,7 @@ function raceFreshToken(
 async function resolveBearerToken(
   auth: SyncClientAuth,
   getFreshAuthToken: GetFreshAuthToken | undefined,
+  deps: { readonly now: () => number; readonly timers: Timers },
   options?: { readonly skipCache?: boolean }
 ): Promise<string | null> {
   if (auth.getAccountId() === null) return null;
@@ -113,13 +118,16 @@ async function resolveBearerToken(
     if (
       cached !== null &&
       cached.length > 0 &&
-      sessionTokenLikelyValid(cached)
+      sessionTokenLikelyValid(cached, deps.now)
     ) {
       return cached;
     }
   }
   if (getFreshAuthToken !== undefined) {
-    const fresh = await raceFreshToken(() => getFreshAuthToken(options));
+    const fresh = await raceFreshToken(
+      () => getFreshAuthToken(options),
+      deps.timers
+    );
     if (fresh !== null && fresh.length > 0) return fresh;
   }
   return auth.getSessionToken();
@@ -181,10 +189,15 @@ async function postAuthedJson(
   path: string,
   body: string
 ): Promise<unknown> {
+  const deps = {
+    now: resolveNow(options.now),
+    timers: options.timers ?? REAL_TIMERS,
+  };
   const deviceId = options.auth.getDeviceId();
   let bearer = await resolveBearerToken(
     options.auth,
-    options.getFreshAuthToken
+    options.getFreshAuthToken,
+    deps
   );
   let response = await postJson({
     options,
@@ -195,9 +208,12 @@ async function postAuthedJson(
     deviceId,
   });
   if (response.status === 401 && options.getFreshAuthToken !== undefined) {
-    bearer = await resolveBearerToken(options.auth, options.getFreshAuthToken, {
-      skipCache: true,
-    });
+    bearer = await resolveBearerToken(
+      options.auth,
+      options.getFreshAuthToken,
+      deps,
+      { skipCache: true }
+    );
     response = await postJson({
       options,
       anonIdHeader,
