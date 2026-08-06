@@ -71,7 +71,7 @@ export function ClientConfigServerRefreshCard() {
         <SuccessState
           variant="compact"
           title={t`Server client config updated`}
-          body={t`Local view updates after the next PowerSync sync.`}
+          body={t`Local view updates after the next sync sync.`}
         />
       ) : null}
       {refreshServer.error !== null ? (

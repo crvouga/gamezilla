@@ -34,7 +34,7 @@ function useMoreRows(): readonly MoreRow[] {
     },
     {
       title: t`Sync status`,
-      caption: t`PowerSync connection and sync state`,
+      caption: t`Local database and API sync state`,
       href: '/more/sync',
     },
     {

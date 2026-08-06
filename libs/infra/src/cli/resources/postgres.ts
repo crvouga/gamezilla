@@ -215,19 +215,3 @@ export async function resolveDatabaseUrl(): Promise<string> {
   databaseUrlVerifiedInProcess = true;
   return url;
 }
-
-export async function verifyWalLevelLogical(url: string): Promise<void> {
-  const db = SqlClientImplPostgresTcp.connect(url, appPostgresDbScope());
-  try {
-    await db.connect();
-    const rows = await db.query(raw<{ wal_level: string }>('SHOW wal_level'));
-    const level = rows[0]?.wal_level?.trim().toLowerCase() ?? '';
-    if (level !== 'logical') {
-      throw new Error(
-        `Postgres wal_level is "${level}" — enable logical replication (expected wal_level=logical for PowerSync)`
-      );
-    }
-  } finally {
-    await db.disconnect().catch(() => undefined);
-  }
-}

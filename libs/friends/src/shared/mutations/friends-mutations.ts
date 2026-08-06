@@ -258,6 +258,7 @@ export const sendFriendRequestMutation = defineMutation({
         ${requestId}, ${fromUserId}, ${toUserId}, 'pending',
         ${message?.slice(0, 200) ?? null}, ${now}, ${now}
       )
+      ON CONFLICT (id) DO NOTHING
     `);
   },
 });

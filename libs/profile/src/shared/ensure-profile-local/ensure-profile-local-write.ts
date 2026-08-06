@@ -68,7 +68,7 @@ async function fillEmptyUsername(
         username = ''
         OR username IS NULL
         OR (
-          (username_changed_at IS NULL OR username_changed_at = '')
+          username_changed_at IS NULL
           AND username != ${username}
         )
       )

@@ -2,18 +2,15 @@ import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-en
 import { useMemo } from 'react';
 
 /**
- * Explicitly subscribe to the global `chess_puzzles` stream (source:
- * `chess_puzzles` WHERE sync_pool). Relying on auto_subscribe alone left
- * local feed counts at 0 while other streams set hasSynced=true.
+ * Poll the bounded puzzle-pool query while the feed is mounted.
  */
 export function useChessPuzzleFeedSubscription(): void {
   const specs = useMemo(
     () =>
       [
         {
-          stream: 'chess_puzzles',
-          params: {},
-          priority: 2,
+          name: 'chessPuzzlePool',
+          params: { ratingMin: 0, ratingMax: 4000 },
         },
       ] as const,
     []

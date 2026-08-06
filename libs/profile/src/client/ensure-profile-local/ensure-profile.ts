@@ -19,7 +19,7 @@ export async function ensureProfile(
 
 /**
  * Writes a server-assigned username into the local row when still empty so the
- * profile UI does not wait on PowerSync download after `POST /profile/ensure`.
+ * profile UI does not wait on sync download after `POST /profile/ensure`.
  */
 export async function applyEnsuredUsername(
   mutationClient: MutationClient,

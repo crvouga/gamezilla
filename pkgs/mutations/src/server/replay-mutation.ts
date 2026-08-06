@@ -40,7 +40,7 @@ export type ReplayMutationDeps = {
 /**
  * Replay one mutation against authoritative Postgres.
  * Permanent failures record write_rejections + _mutations_applied rejected.
- * Infra errors rethrow for PowerSync retry (idempotency makes retries safe).
+ * Infra errors rethrow for sync retry (idempotency makes retries safe).
  */
 export async function replayMutation(
   deps: ReplayMutationDeps,

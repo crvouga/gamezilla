@@ -43,7 +43,7 @@ export function useSyncStatus() {
   );
 }
 
-export function useWatchSubscription<T>(
+export function useQuerySubscription<T>(
   subscription: ReturnType<SyncEngine['watch']>
 ): T {
   return useSyncExternalStore(
@@ -57,7 +57,7 @@ export function useWatchSubscription<T>(
  * Live SQL watch — always returns the current SQLite snapshot (no process
  * row cache). `isLoading` is true until the watch hydrates.
  */
-export function useWatchQuery<T extends Record<string, unknown>>(
+export function useQuery<T extends Record<string, unknown>>(
   query: Sql<T>
 ): { readonly rows: readonly T[]; readonly isLoading: boolean } {
   const engine = useSyncEngine();
@@ -68,7 +68,7 @@ export function useWatchQuery<T extends Record<string, unknown>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
     [engine, sqlText, paramsKey]
   );
-  const rows = useWatchSubscription<readonly T[]>(subscription);
+  const rows = useQuerySubscription<readonly T[]>(subscription);
   const hydrated = useSyncExternalStore(
     subscription.subscribe,
     subscription.getHydrated,
@@ -83,10 +83,10 @@ export function useWatchQuery<T extends Record<string, unknown>>(
   return { rows, isLoading };
 }
 
-export function useWatchOne<T extends Record<string, unknown>>(
+export function useQueryOne<T extends Record<string, unknown>>(
   query: Sql<T>
 ): { readonly row: T | null; readonly isLoading: boolean } {
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   return { row: rows[0] ?? null, isLoading };
 }
 
@@ -101,11 +101,11 @@ function readRowField<T extends Record<string, unknown>, K extends keyof T>(
 }
 
 /**
- * Subscribe to a multi-column SQL watch but only re-render when `column`
+ * Subscribe to a multi-column SQL query but only re-render when `column`
  * changes (`Object.is` on the field value). Shares the underlying watch via
  * the engine registry when the same query is used elsewhere.
  */
-export function useWatchField<
+export function useQueryField<
   T extends Record<string, unknown>,
   K extends keyof T & string,
 >(
@@ -137,10 +137,10 @@ export function useWatchField<
   return { value, isLoading: !hydrated && value === null };
 }
 
-export function useWatchValue<
+export function useQueryValue<
   T extends Record<string, unknown> & { readonly value: unknown },
 >(
   query: Sql<T>
 ): { readonly value: T['value'] | null; readonly isLoading: boolean } {
-  return useWatchField(query, 'value');
+  return useQueryField(query, 'value');
 }

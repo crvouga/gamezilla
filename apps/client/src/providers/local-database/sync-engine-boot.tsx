@@ -5,7 +5,6 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/client/use-fresh-auth-token';
-import { useKv } from '@pkgs/kv/kv-context';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
@@ -13,12 +12,11 @@ import { SyncEnginePaintGateContext } from '@pkgs/sync-engine/client/sync-engine
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
 import { useMemo, useRef, type ReactNode } from 'react';
-import { Platform } from 'react-native';
 
-import { resolveSqliteDbName } from '../../storage/resolve-sqlite-db-name';
+import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
 import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';
 import {
-  getOrCreateAppPowerSyncSyncEngine,
+  getOrCreateAppLocalSyncEngine,
   peekReadyAppSyncEngine,
 } from '../../sync/sync-engine-pool';
 import {
@@ -27,27 +25,8 @@ import {
 } from './boot-screens';
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
-const WEB_TAB_DB_ID_KEY = 'main-sqlite-tab-id';
-
-function readOrCreateWebTabDbId(): string {
-  const existing = sessionStorage.getItem(WEB_TAB_DB_ID_KEY);
-  if (existing !== null && existing.length > 0) return existing;
-  const id = crypto.randomUUID().replace(/-/g, '');
-  sessionStorage.setItem(WEB_TAB_DB_ID_KEY, id);
-  return id;
-}
-
 function useIdentitySqliteDbName(userId: string): string {
-  return useMemo(() => {
-    const webTabSuffix =
-      Platform.OS === 'web' && typeof sessionStorage !== 'undefined'
-        ? readOrCreateWebTabDbId()
-        : undefined;
-    return resolveSqliteDbName({
-      userId,
-      ...(webTabSuffix !== undefined ? { webTabSuffix } : {}),
-    });
-  }, [userId]);
+  return useMemo(() => getMainSqliteDbName(userId), [userId]);
 }
 
 function useSyncClientAuthRef(): SyncClientAuth {
@@ -70,9 +49,11 @@ function useSyncClientAuthRef(): SyncClientAuth {
   );
 }
 
-function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
+function useSyncEnginePromise(
+  dbName: string,
+  userId: string
+): Promise<SyncEngine> {
   const config = useConfigService();
-  const kv = useKv();
   const observability = useObservability();
   const getFreshAuthToken = useGetFreshAuthToken();
   const auth = useSyncClientAuthRef();
@@ -86,33 +67,29 @@ function useSyncEnginePromise(dbName: string): Promise<SyncEngine> {
   );
   const configRef = useRef(config);
   const fetchFnRef = useRef(fetchFn);
-  const kvRef = useRef(kv);
   const getFreshAuthTokenRef = useRef(getFreshAuthToken);
   const authRef = useRef(auth);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
-  kvRef.current = kv;
   getFreshAuthTokenRef.current = getFreshAuthToken;
   authRef.current = auth;
   return useMemo(
     () =>
-      getOrCreateAppPowerSyncSyncEngine({
+      getOrCreateAppLocalSyncEngine({
         get config() {
           return configRef.current;
         },
         get fetchFn() {
           return fetchFnRef.current;
         },
-        get kv() {
-          return kvRef.current;
-        },
         get auth() {
           return authRef.current;
         },
         getFreshAuthToken: () => getFreshAuthTokenRef.current(),
         databaseName: dbName,
+        userId,
       }),
-    [dbName]
+    [dbName, userId]
   );
 }
 
@@ -133,7 +110,7 @@ function renderSyncEngineTree(args: {
 }
 
 /**
- * Opens PowerSync for the active `users.id` and exposes the sync engine.
+ * Opens local SQLite for the active `users.id` and exposes the sync engine.
  *
  * Waits for AuthBridge anon ensure / refresh to bind `currentUserId`. After
  * the first successful open, keeps the navigation tree mounted across identity
@@ -164,8 +141,8 @@ function SyncEngineBootWithUser({
   const dbName = useIdentitySqliteDbName(userId);
   const warmEngine = peekReadyAppSyncEngine(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
-  const enginePromise = useSyncEnginePromise(dbName);
-  const boot = useSyncEngineBootState(enginePromise, warmEngine, userId);
+  const enginePromise = useSyncEnginePromise(dbName, userId);
+  const boot = useSyncEngineBootState(enginePromise, warmEngine);
 
   if (boot.phase === 'ready') {
     lastReadyEngineRef.current = boot.engine;

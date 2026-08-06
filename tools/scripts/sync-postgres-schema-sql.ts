@@ -519,10 +519,10 @@ export function collapseDumpToIdempotentSql(normalizedDump: string): string {
   }
   const date = new Date().toISOString().slice(0, 10);
   const header = `-- ============ Base schema ============
--- Idempotent Postgres DDL for the PowerSync source database.
+-- Idempotent Postgres DDL for the sync source database.
 -- Collapsed from live secrets-env \`dev\` + \`prd\` schemas (${date}).
 -- Re-run in full on every deploy. Statements must stay safe to repeat.
--- PowerSync publication remains in libs/infra powersync-source-db.sql.
+-- sync publication remains in libs/infra sync-source-db.sql.
 `;
   return `${header}\n${out.join('\n\n')}\n`;
 }

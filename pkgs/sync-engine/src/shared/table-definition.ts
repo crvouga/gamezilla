@@ -1,4 +1,4 @@
-/** Column type for local SQLite / PowerSync schema mapping. */
+/** Column type for local SQLite / sync schema mapping. */
 export type TableColumnType = 'text' | 'integer' | 'real';
 
 export type TableColumnDefinition = {
@@ -7,14 +7,14 @@ export type TableColumnDefinition = {
   readonly primaryKey?: boolean;
 };
 
-/** Public view names for PowerSync `localOnly` tables must match this. */
+/** Public view names for sync `localOnly` tables must match this. */
 export const LOCAL_ONLY_TABLE_NAME_RE = /^local_[a-z][a-z0-9_]*$/;
 
 export type TableDefinition = {
   readonly tableName: string;
   readonly columns: readonly TableColumnDefinition[];
   /**
-   * PowerSync client-only table (never uploaded / never in sync streams).
+   * sync client-only table (never uploaded / never in sync streams).
    * Requires `tableName` matching {@link LOCAL_ONLY_TABLE_NAME_RE}.
    */
   readonly localOnly?: boolean;

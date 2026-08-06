@@ -71,7 +71,7 @@ export const SpaceEnded = spaceLogEvtNs('ended', validateEmptyPayload);
  * Space-log commands are best-effort announcements into the room event log.
  * Authorization: the actor may only announce about themselves for join/leave;
  * rename / visibility / end require the claimer to be the acting identity
- * (host checks live in the PowerSync write path — here we only bind identity
+ * (host checks live in the mutation write path — here we only bind identity
  * to the memberId / ensure non-spoofed self-announcements).
  */
 export const spaceLogCommandRouter: MessageRouter<

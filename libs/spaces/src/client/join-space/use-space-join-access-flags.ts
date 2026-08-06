@@ -1,7 +1,7 @@
 import { spaceUserEntityId } from '@libs/db/shared/space-tables';
 import { sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /** True when the viewer has a local space_users ACL row for this space. */
 export function useHasSpaceUserLocal(
@@ -11,7 +11,7 @@ export function useHasSpaceUserLocal(
   const enabled = spaceId.length > 0 && userId !== null && userId.length > 0;
   const id =
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
-  const { row } = useWatchOne(sql<{ readonly id: string }>`
+  const { row } = useQueryOne(sql<{ readonly id: string }>`
     SELECT id
     FROM space_users
     WHERE id = ${id}

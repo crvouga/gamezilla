@@ -1,67 +1,64 @@
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 
 import {
-  isActivePowerSyncDatabase,
-  openPowerSyncDatabase,
-} from './create-power-sync-database';
-import {
-  createAppPowerSyncSyncEngine,
-  type CreateAppPowerSyncSyncEngineArgs,
-} from './create-powersync-sync-engine';
+  createAppLocalSyncEngine,
+  type CreateAppLocalSyncEngineArgs,
+} from './create-local-sync-engine';
 
 type SyncEnginePool = {
   readonly ready: Map<string, SyncEngine>;
   readonly pending: Map<string, Promise<SyncEngine>>;
-  readonly stableReady: Map<string, Promise<SyncEngine>>;
+  activeName: string | null;
 };
 
-/**
- * Survives Metro/HMR. Per-identity SyncEngine wrappers stay warm so account
- * switches reuse the same engine after the DB pool reactivates the file.
- */
 function getSyncEnginePool(): SyncEnginePool {
-  const g = globalThis as typeof globalThis & {
-    // V6: connector refreshes auth bearer on sync token / upload (idle 401 loop).
-    __gamezillaSyncEnginePoolV6?: SyncEnginePool;
+  const global = globalThis as typeof globalThis & {
+    __gamezillaLocalSyncEnginePoolV1?: SyncEnginePool;
   };
-  if (g.__gamezillaSyncEnginePoolV6 === undefined) {
-    g.__gamezillaSyncEnginePoolV6 = {
-      ready: new Map(),
-      pending: new Map(),
-      stableReady: new Map(),
-    };
-  }
-  return g.__gamezillaSyncEnginePoolV6;
+  global.__gamezillaLocalSyncEnginePoolV1 ??= {
+    ready: new Map(),
+    pending: new Map(),
+    activeName: null,
+  };
+  return global.__gamezillaLocalSyncEnginePoolV1;
 }
 
-/** Synchronous peek — non-null when this identity was opened earlier this session. */
+async function deactivatePrevious(
+  pool: SyncEnginePool,
+  nextName: string
+): Promise<void> {
+  if (pool.activeName === null || pool.activeName === nextName) return;
+  const previous = pool.ready.get(pool.activeName);
+  pool.activeName = null;
+  await previous?.disconnect();
+}
+
+/** Synchronous peek for a previously opened identity. */
 export function peekReadyAppSyncEngine(
   databaseName: string
 ): SyncEngine | null {
   return getSyncEnginePool().ready.get(databaseName) ?? null;
 }
 
-/**
- * Returns a pooled SyncEngine for `databaseName`, creating one on first visit.
- * Underlying DB activation (disconnect previous sync) happens inside create.
- */
-export function getOrCreateAppPowerSyncSyncEngine(
-  args: CreateAppPowerSyncSyncEngineArgs
+/** Returns one local engine per identity-scoped SQLite database. */
+export async function getOrCreateAppLocalSyncEngine(
+  args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
   const pool = getSyncEnginePool();
+  await deactivatePrevious(pool, args.databaseName);
   const ready = pool.ready.get(args.databaseName);
   if (ready !== undefined) {
-    return openWarmEngine(args.databaseName, ready, pool);
+    pool.activeName = args.databaseName;
+    return ready;
   }
   const pending = pool.pending.get(args.databaseName);
   if (pending !== undefined) return pending;
 
-  const created = createAppPowerSyncSyncEngine(args).then(
+  const created = createAppLocalSyncEngine(args).then(
     (engine) => {
       pool.pending.delete(args.databaseName);
       pool.ready.set(args.databaseName, engine);
-      const stable = Promise.resolve(engine);
-      pool.stableReady.set(args.databaseName, stable);
+      pool.activeName = args.databaseName;
       return engine;
     },
     (error: unknown) => {
@@ -71,31 +68,4 @@ export function getOrCreateAppPowerSyncSyncEngine(
   );
   pool.pending.set(args.databaseName, created);
   return created;
-}
-
-/**
- * Warm path: re-activate the pooled DB when another identity was active.
- * When already active, return a stable Promise so React `useMemo` callers do
- * not allocate a new promise (and re-trigger boot effects) every render.
- */
-function openWarmEngine(
-  databaseName: string,
-  engine: SyncEngine,
-  pool: SyncEnginePool
-): Promise<SyncEngine> {
-  if (isActivePowerSyncDatabase(databaseName)) {
-    const stable = pool.stableReady.get(databaseName);
-    if (stable !== undefined) return stable;
-    const resolved = Promise.resolve(engine);
-    pool.stableReady.set(databaseName, resolved);
-    return resolved;
-  }
-  pool.stableReady.delete(databaseName);
-  const opened = openPowerSyncDatabase(databaseName).then(() => {
-    const stable = Promise.resolve(engine);
-    pool.stableReady.set(databaseName, stable);
-    return engine;
-  });
-  pool.stableReady.set(databaseName, opened);
-  return opened;
 }

@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import type { SyncEngine } from './sync-engine-port';
 import { useSyncEngine } from './sync-engine-context';
-import type { SyncStreamSubscription } from './sync-stream-subscription';
+import type { SyncEngine } from './sync-engine-port';
+import type { QuerySubscription } from './subscription-runtime';
 
-export type SyncEngineStreamSubscriptionSpec = {
-  readonly stream: string;
-  readonly params: Readonly<Record<string, string | number>>;
-  /** Lower is higher priority (PowerSync: 0–3). Omit to use the stream default. */
-  readonly priority?: number;
+export type SyncEngineQuerySubscriptionSpec = {
+  readonly name: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  readonly pollMs?: number;
 };
 
 export type SyncEngineSubscriptionsState = {
@@ -17,41 +16,41 @@ export type SyncEngineSubscriptionsState = {
 };
 
 function subscriptionsKey(
-  specs: readonly SyncEngineStreamSubscriptionSpec[]
+  specs: readonly SyncEngineQuerySubscriptionSpec[]
 ): string {
   return JSON.stringify(
     specs.map((s) => ({
-      stream: s.stream,
+      name: s.name,
       params: s.params,
-      priority: s.priority,
+      pollMs: s.pollMs,
     }))
   );
 }
 
 async function waitForSubscriptionReady(
-  sub: SyncStreamSubscription,
+  sub: QuerySubscription,
   abort: AbortSignal
 ): Promise<void> {
-  if (sub.waitForFirstSync === undefined) return;
-  await sub.waitForFirstSync(abort);
+  if (abort.aborted) return;
+  await sub.waitForFirstSync();
 }
 
 export type SubscribeAllArgs = {
-  readonly subscribe: NonNullable<SyncEngine['subscribeSyncStream']>;
-  readonly specs: readonly SyncEngineStreamSubscriptionSpec[];
+  readonly subscribe: SyncEngine['subscribeQuery'];
+  readonly specs: readonly SyncEngineQuerySubscriptionSpec[];
   readonly isCancelled: () => boolean;
   readonly liveUnsubs: Array<() => void>;
   readonly abort: AbortSignal;
 };
 
 async function subscribeOne(
-  subscribe: NonNullable<SyncEngine['subscribeSyncStream']>,
-  spec: SyncEngineStreamSubscriptionSpec
-): Promise<SyncStreamSubscription> {
+  subscribe: SyncEngine['subscribeQuery'],
+  spec: SyncEngineQuerySubscriptionSpec
+): Promise<QuerySubscription> {
   return subscribe(
-    spec.stream,
+    spec.name,
     spec.params,
-    spec.priority === undefined ? undefined : { priority: spec.priority }
+    spec.pollMs === undefined ? undefined : { pollMs: spec.pollMs }
   );
 }
 
@@ -65,7 +64,7 @@ export async function subscribeAll(args: SubscribeAllArgs): Promise<{
   readonly ready: boolean;
 }> {
   const { subscribe, specs, isCancelled, liveUnsubs, abort } = args;
-  const subs: SyncStreamSubscription[] = [];
+  const subs: QuerySubscription[] = [];
   for (const spec of specs) {
     if (isCancelled() || abort.aborted) break;
     const sub = await subscribeOne(subscribe, spec);
@@ -89,19 +88,18 @@ export async function subscribeAll(args: SubscribeAllArgs): Promise<{
 
 /**
  * Subscribes to the given parameterized sync streams for the lifetime of the
- * caller. No-ops (ready immediately) when the engine does not support stream
- * subscriptions. Re-subscribes when the specs list changes (by value).
+ * caller. Re-subscribes when the specs list changes (by value).
  */
 export function useSyncEngineSubscriptions(
-  specs: readonly SyncEngineStreamSubscriptionSpec[]
+  specs: readonly SyncEngineQuerySubscriptionSpec[]
 ): SyncEngineSubscriptionsState {
   const engine = useSyncEngine();
   const key = useMemo(() => subscriptionsKey(specs), [specs]);
   const [ready, setReady] = useState(specs.length === 0);
 
   useEffect(() => {
-    const subscribe = engine.subscribeSyncStream;
-    if (subscribe === undefined || specs.length === 0) {
+    const subscribe = engine.subscribeQuery;
+    if (specs.length === 0) {
       setReady(true);
       return;
     }

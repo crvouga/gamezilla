@@ -1,7 +1,7 @@
 import { sql, type Sql } from '@pkgs/sql';
 import {
-  useWatchOne,
-  useWatchQuery,
+  useQuery,
+  useQueryOne,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
@@ -39,7 +39,7 @@ export function useOpenSpaceSessionIds(): {
           `,
     [paintReady]
   );
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   if (!paintReady) {
     return { spaceIds: EMPTY_IDS, isLoading: true };
   }
@@ -65,7 +65,7 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
           `,
     [enabled, spaceId]
   );
-  const { row } = useWatchOne(query);
+  const { row } = useQueryOne(query);
   return row !== null;
 }
 
@@ -92,7 +92,7 @@ export function useSpaceOpenSession(spaceId: string): {
           `,
     [enabled, spaceId]
   );
-  const { row, isLoading } = useWatchOne(query);
+  const { row, isLoading } = useQueryOne(query);
   if (!paintReady) {
     return {
       clientId: null,

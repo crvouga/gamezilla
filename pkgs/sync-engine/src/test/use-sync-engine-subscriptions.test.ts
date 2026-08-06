@@ -1,28 +1,28 @@
 import { describe, expect, test } from 'bun:test';
 
-import type { SyncStreamSubscription } from '../client/sync-stream-subscription';
+import type { QuerySubscription } from '../client/subscription-runtime';
 import { subscribeAll } from '../client/use-sync-engine-subscriptions';
 
-describe('sync stream subscription readiness', () => {
-  test('subscribes every stream before waiting for first sync', async () => {
+describe('query subscription readiness', () => {
+  test('subscribes every query before waiting for first sync', async () => {
     const order: string[] = [];
     const liveUnsubs: Array<() => void> = [];
     const abort = new AbortController();
     const result = await subscribeAll({
-      subscribe: async (stream, params) => {
-        order.push(`subscribe:${stream}:${JSON.stringify(params)}`);
+      subscribe: (name, params) => {
+        order.push(`subscribe:${name}:${JSON.stringify(params)}`);
         return {
           unsubscribe: () => {
-            order.push(`unsub:${stream}`);
+            order.push(`unsub:${name}`);
           },
           waitForFirstSync: async () => {
-            order.push(`wait:${stream}`);
+            order.push(`wait:${name}`);
           },
         };
       },
       specs: [
-        { stream: 'chess_puzzles', params: { band: 0 } },
-        { stream: 'chess_puzzles', params: { band: 1 } },
+        { name: 'chessPuzzlePool', params: { band: 0 } },
+        { name: 'chessPuzzlePool', params: { band: 1 } },
       ],
       isCancelled: () => false,
       liveUnsubs,
@@ -30,16 +30,16 @@ describe('sync stream subscription readiness', () => {
     });
     expect(result.ready).toBe(true);
     expect(order).toEqual([
-      'subscribe:chess_puzzles:{"band":0}',
-      'subscribe:chess_puzzles:{"band":1}',
-      'wait:chess_puzzles',
-      'wait:chess_puzzles',
+      'subscribe:chessPuzzlePool:{"band":0}',
+      'subscribe:chessPuzzlePool:{"band":1}',
+      'wait:chessPuzzlePool',
+      'wait:chessPuzzlePool',
     ]);
     expect(liveUnsubs).toHaveLength(2);
     for (const unsub of liveUnsubs) unsub();
     expect(order.slice(-2)).toEqual([
-      'unsub:chess_puzzles',
-      'unsub:chess_puzzles',
+      'unsub:chessPuzzlePool',
+      'unsub:chessPuzzlePool',
     ]);
   });
 
@@ -57,7 +57,7 @@ describe('sync stream subscription readiness', () => {
     const abort = new AbortController();
     let cancelled = false;
     const subscribePromise = subscribeAll({
-      subscribe: async () =>
+      subscribe: () =>
         ({
           unsubscribe: () => {
             unsubscribed = true;
@@ -75,8 +75,8 @@ describe('sync stream subscription readiness', () => {
               });
             });
           },
-        }) satisfies SyncStreamSubscription,
-      specs: [{ stream: 'spaces', params: {} }],
+        }) satisfies QuerySubscription,
+      specs: [{ name: 'mySpaces', params: {} }],
       isCancelled: () => cancelled,
       liveUnsubs,
       abort: abort.signal,
@@ -97,14 +97,14 @@ describe('sync stream subscription readiness', () => {
     const liveUnsubs: Array<() => void> = [];
     const abort = new AbortController();
     const result = await subscribeAll({
-      subscribe: async () => {
+      subscribe: () => {
         cancelled = true;
         return {
           unsubscribe: () => undefined,
           waitForFirstSync: async () => undefined,
         };
       },
-      specs: [{ stream: 'spaces', params: {} }],
+      specs: [{ name: 'mySpaces', params: {} }],
       isCancelled: () => cancelled,
       liveUnsubs,
       abort: abort.signal,

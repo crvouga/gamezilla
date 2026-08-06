@@ -137,12 +137,10 @@ export type InMemorySyncEngineOptions = {
   readonly registry: TableRegistry;
 };
 
-function createImmediateSyncStream(): NonNullable<
-  SyncEngine['subscribeSyncStream']
-> {
-  return async () => ({
+function createImmediateQuerySubscription(): SyncEngine['subscribeQuery'] {
+  return () => ({
     unsubscribe: () => undefined,
-    waitForFirstSync: async () => undefined,
+    waitForFirstSync: () => Promise.resolve(),
   });
 }
 
@@ -212,7 +210,7 @@ export function createInMemorySyncEngine(
         lastError: null,
       });
     },
-    subscribeSyncStream: createImmediateSyncStream(),
+    subscribeQuery: createImmediateQuerySubscription(),
     status,
   };
 }

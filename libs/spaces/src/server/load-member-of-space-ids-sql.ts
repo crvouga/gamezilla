@@ -4,7 +4,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
  * Loads space ids the member may access via space_users ACL
- * (PowerSync upload auth / write context).
+ * (sync upload auth / write context).
  */
 export async function loadMemberOfSpaceIdsFromSql(
   db: SqlClient,

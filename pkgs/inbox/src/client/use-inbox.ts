@@ -1,4 +1,4 @@
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, useMemo, useState } from 'react';
 
 import { clientRowToInteraction } from '../shared/row-mapper';
@@ -25,7 +25,7 @@ export function useInbox(options?: { readonly filter?: InteractionFilter }): {
     }
   }, [options?.filter]);
   const query = useMemo(() => inboxListSql(userId, filter), [userId, filter]);
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   const interactions = useMemo(
     () => rows.map((row) => clientRowToInteraction({ ...row })),
     [rows]

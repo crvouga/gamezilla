@@ -1,4 +1,4 @@
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { profileRowByIdSql } from './profile-row-sql';
 
@@ -11,7 +11,7 @@ export const ProfileField = {
 export type ProfileFieldKey = keyof typeof ProfileField;
 
 /**
- * Profile column for `profileId`. Uses {@link useWatchOne} (same display/cache
+ * Profile column for `profileId`. Uses {@link useQueryOne} (same display/cache
  * path as other account UI).
  */
 export function useProfileColumn(
@@ -19,7 +19,7 @@ export function useProfileColumn(
   field: ProfileFieldKey
 ): string | null {
   const column = ProfileField[field];
-  const { row } = useWatchOne(profileRowByIdSql(profileId));
+  const { row } = useQueryOne(profileRowByIdSql(profileId));
   if (row === null) return null;
   const value = row[column];
   if (typeof value !== 'string') return null;

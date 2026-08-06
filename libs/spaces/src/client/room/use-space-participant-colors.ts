@@ -12,7 +12,7 @@ import { SPACE_ROOM_NAME } from './use-space-room-selector';
 /**
  * Stable participant colors from the live roster. Offline / unknown ids still
  * get a deterministic color via {@link resolveParticipantColor} on demand —
- * avoids extra PowerSync watches on the hot presence/log path (those watches
+ * avoids extra sync watches on the hot presence/log path (those watches
  * were contributing to max-update-depth storms on native).
  */
 export function useSpaceParticipantColors(_spaceId: string): {

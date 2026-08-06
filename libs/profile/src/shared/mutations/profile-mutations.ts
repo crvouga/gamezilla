@@ -107,17 +107,23 @@ export const applyEnsuredUsernameMutation = defineMutation({
   args: z.object({ username: z.string().min(1) }),
   writes: [PROFILES_TABLE.tableName],
   async run({ tx, env }, { username }) {
+    const next = normalizeUsername(username);
+    // Fill empty, or replace an auto-assigned name. Never overwrite a
+    // user-chosen username (`username_changed_at` set). Do not compare
+    // timestamptz to '' — Postgres rejects that cast.
     await tx.run(sql`
       UPDATE profiles
-      SET username = ${normalizeUsername(username)}
+      SET username = ${next}
       WHERE id = ${env.actorId}
         AND (
           username = ''
           OR username IS NULL
-          OR username_changed_at IS NULL
-          OR username_changed_at = ''
+          OR (
+            username_changed_at IS NULL
+            AND username != ${next}
+          )
         )
-  `);
+    `);
   },
 });
 

@@ -10,7 +10,7 @@ import { ALL_MUTATION_SYNC_TABLES } from './mutation-tables';
 import { ALL_PROFILE_SYNC_TABLES } from './profile-tables';
 import { ALL_SPACE_SYNC_TABLES } from './space-tables';
 
-/** Composed PowerSync / local SQLite table registry for the source DB. */
+/** Composed sync / local SQLite table registry for the source DB. */
 export const SYNC_TABLE_REGISTRY = createTableRegistry([
   ...AUTH_TABLE_DEFINITIONS,
   ...ALL_PROFILE_SYNC_TABLES,

@@ -18,7 +18,7 @@ export type SyncLocalDataDeps = {
   readonly clearLocalData: () => Promise<void>;
 };
 
-/** Wipes PowerSync local data and reloads the app (web) or clears session keys (native). */
+/** Wipes re-hydratable local data and reloads web or clears native session keys. */
 export async function clearLocalDatabaseAndReloadWithDeps(
   d: SyncLocalDataDeps
 ): Promise<void> {

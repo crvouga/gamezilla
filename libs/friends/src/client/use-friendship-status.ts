@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -66,7 +66,7 @@ export function useFriendshipStatus(targetUserId: string): FriendshipStatus {
     () => (enabled ? friendshipStatusSql(myId, targetUserId) : noneStatusSql()),
     [enabled, myId, targetUserId]
   );
-  const { row } = useWatchOne(query);
+  const { row } = useQueryOne(query);
   if (!paintReady || !enabled) return 'none';
   return row?.status ?? 'none';
 }

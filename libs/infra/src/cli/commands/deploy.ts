@@ -9,7 +9,6 @@ import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
 import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runWithGlobalLock } from '../lib/global-lock-session';
 import { runMigratePhase } from '../lib/phases/migrate';
-import { runPowerSyncDeployPhase } from '../lib/phases/powersync-deploy';
 import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
@@ -54,8 +53,6 @@ export class DeployCommand implements Command {
     const ctx: InfraContext = {};
     await runProvisionPhase(p, ctx);
     await runMigratePhase(p);
-
-    await runPowerSyncDeployPhase(p, ctx);
 
     await runWithGlobalLock(p, this.id, async () => {
       await runDryRunPhase(p, ctx);

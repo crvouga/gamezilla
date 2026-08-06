@@ -1,8 +1,8 @@
 -- ============ Base schema ============
--- Idempotent Postgres DDL for the PowerSync source database.
+-- Idempotent Postgres DDL for the sync source database.
 -- Collapsed from live secrets-env `dev` + `prd` schemas (2026-08-05).
 -- Re-run in full on every deploy. Statements must stay safe to repeat.
--- PowerSync publication remains in libs/infra powersync-source-db.sql.
+-- sync publication remains in libs/infra sync-source-db.sql.
 
 CREATE TABLE IF NOT EXISTS public.chess_puzzle_interactions (
     id text NOT NULL,

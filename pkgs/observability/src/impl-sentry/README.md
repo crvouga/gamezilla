@@ -36,10 +36,10 @@ Then set the backend env vars above when you want to smoke-test Sentry.
 
 Existing port instrumentation exports to Sentry Performance when the sentry backend is active:
 
-- `http.client.request` — PowerSync sync fetch on client
+- `http.client.request` — sync sync fetch on client
 - `http.server.request` — all `/api/*` routes on Workers
 - `db.query` / `db.transaction` — Postgres (API) and SQLite (client)
-- `sync.upload` — PowerSync upload handler on API
+- `sync.upload` — sync upload handler on API
 
 Slow spans are tagged with `performance.slow=true` when duration exceeds defaults in `shared/slow-thresholds.ts` (override via `OBSERVABILITY_SLOW_MS_<SPAN_NAME>`).
 

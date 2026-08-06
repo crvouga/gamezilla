@@ -65,6 +65,7 @@
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/queries": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -76,6 +77,7 @@
         "hono": "catalog:",
         "pg": "catalog:",
         "stripe": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@pkgs/os": "workspace:*",
@@ -94,8 +96,6 @@
         "@expo-google-fonts/nunito": "catalog:",
         "@expo/metro-runtime": "catalog:",
         "@gorhom/bottom-sheet": "catalog:",
-        "@journeyapps/react-native-quick-sqlite": "catalog:",
-        "@journeyapps/wa-sqlite": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
@@ -124,6 +124,7 @@
         "@pkgs/observability": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/pub-sub": "workspace:*",
+        "@pkgs/queries": "workspace:*",
         "@pkgs/room-widgets": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
@@ -132,11 +133,8 @@
         "@pkgs/sql-cli": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/ui": "workspace:*",
-        "@powersync/react-native": "catalog:",
-        "@powersync/web": "catalog:",
         "@react-native-async-storage/async-storage": "catalog:",
         "@react-native/virtualized-lists": "catalog:",
         "@react-navigation/bottom-tabs": "catalog:",
@@ -220,7 +218,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "expo-constants": "catalog:",
@@ -268,7 +265,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "chess.js": "catalog:",
         "csv-parse": "catalog:",
@@ -349,7 +345,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "expo-router": "catalog:",
         "hono": "catalog:",
@@ -438,7 +433,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "expo-clipboard": "catalog:",
@@ -501,7 +495,6 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/sync-engine-powersync": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "expo-clipboard": "catalog:",
         "expo-router": "catalog:",
@@ -1000,6 +993,23 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/queries": {
+      "name": "@pkgs/queries",
+      "version": "0.0.0",
+      "dependencies": {
+        "@noble/hashes": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/room": {
       "name": "@pkgs/room",
       "version": "0.0.0",
@@ -1212,6 +1222,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+        "@pkgs/mutations": "workspace:*",
+        "@pkgs/queries": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
@@ -1220,22 +1232,6 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/sync-engine-powersync": {
-      "name": "@pkgs/sync-engine-powersync",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-        "@powersync/common": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1399,17 +1395,13 @@
     "@gorhom/bottom-sheet": "^5.1.6",
     "@happy-dom/global-registrator": "^20.0.0",
     "@hono/zod-validator": "^0.7.6",
-    "@journeyapps/react-native-quick-sqlite": "^2.5.2",
-    "@journeyapps/wa-sqlite": "^1.7.0",
     "@lingui/babel-plugin-lingui-macro": "5.9.5",
     "@lingui/cli": "5.9.5",
     "@lingui/conf": "5.9.5",
     "@lingui/core": "5.9.5",
     "@lingui/react": "5.9.5",
+    "@noble/hashes": "^2.2.0",
     "@playwright/test": "^1.56.0",
-    "@powersync/common": "^1.57.1",
-    "@powersync/react-native": "^1.35.8",
-    "@powersync/web": "^1.38.7",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@react-native/virtualized-lists": "0.83.10",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -2162,10 +2154,6 @@
 
     "@jest/types": ["@jest/types@29.6.3", "", { "dependencies": { "@jest/schemas": "^29.6.3", "@types/istanbul-lib-coverage": "^2.0.0", "@types/istanbul-reports": "^3.0.0", "@types/node": "*", "@types/yargs": "^17.0.8", "chalk": "^4.0.0" } }, "sha512-u3UPsIilWKOM3F9CXtrG8LEJmNxwoCQC/XVj4IKYXvvpx7QIi/Kg1LI5uDmDpKlac62NUtX7eLjRh+jVZcLOzw=="],
 
-    "@journeyapps/react-native-quick-sqlite": ["@journeyapps/react-native-quick-sqlite@2.5.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-fMv+Lq+tK9HHbrgBc2pP1JcGtRSOyY6oHCcgmWhengw/ryCry5p+RUjbpsFrCxU1lw8T4B+VrQ6U9Hhysgkseg=="],
-
-    "@journeyapps/wa-sqlite": ["@journeyapps/wa-sqlite@1.7.0", "", {}, "sha512-xQZ670aKDo4FWxIFpLqY0AGDpURr09aYIO08UkLdWvFw8C018nCiqY0ILJudGRhRdXORhv7K2xD2OXZ2QxU39w=="],
-
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
     "@jridgewell/remapping": ["@jridgewell/remapping@2.3.5", "", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.5", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ=="],
@@ -2228,7 +2216,7 @@
 
     "@noble/curves": ["@noble/curves@1.9.7", "", { "dependencies": { "@noble/hashes": "1.8.0" } }, "sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw=="],
 
-    "@noble/hashes": ["@noble/hashes@1.4.0", "", {}, "sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg=="],
+    "@noble/hashes": ["@noble/hashes@2.2.0", "", {}, "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="],
 
     "@nodable/entities": ["@nodable/entities@2.1.1", "", {}, "sha512-Pig3HxDIoMgjdEH8OCf/dkcTmLFjJRjWuq8jSnklu284/TKOPibSRERmOykiwmyXTtv61mP+44f3GMx0tLAyjg=="],
 
@@ -2438,6 +2426,8 @@
 
     "@pkgs/pub-sub": ["@pkgs/pub-sub@workspace:pkgs/pub-sub"],
 
+    "@pkgs/queries": ["@pkgs/queries@workspace:pkgs/queries"],
+
     "@pkgs/room": ["@pkgs/room@workspace:pkgs/room"],
 
     "@pkgs/room-widgets": ["@pkgs/room-widgets@workspace:pkgs/room-widgets"],
@@ -2468,8 +2458,6 @@
 
     "@pkgs/sync-engine": ["@pkgs/sync-engine@workspace:pkgs/sync-engine"],
 
-    "@pkgs/sync-engine-powersync": ["@pkgs/sync-engine-powersync@workspace:pkgs/sync-engine-powersync"],
-
     "@pkgs/task-dag": ["@pkgs/task-dag@workspace:pkgs/task-dag"],
 
     "@pkgs/ts-reset": ["@pkgs/ts-reset@workspace:pkgs/ts-reset"],
@@ -2489,14 +2477,6 @@
     "@poppinss/dumper": ["@poppinss/dumper@0.6.5", "", { "dependencies": { "@poppinss/colors": "^4.1.5", "@sindresorhus/is": "^7.0.2", "supports-color": "^10.0.0" } }, "sha512-NBdYIb90J7LfOI32dOewKI1r7wnkiH6m920puQ3qHUeZkxNkQiFnXVWoE6YtFSv6QOiPPf7ys6i+HWWecDz7sw=="],
 
     "@poppinss/exception": ["@poppinss/exception@1.2.3", "", {}, "sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw=="],
-
-    "@powersync/common": ["@powersync/common@1.57.1", "", { "dependencies": { "js-logger": "^1.6.1" } }, "sha512-Ip2x/NtxOiVcd8C+CRWfsZ23Pro0bD/Jbjz5CU5dH9u/qyX8Fa/xv81RhBt7NBrAFJqmRea/SrvtAu5wZVwynQ=="],
-
-    "@powersync/react": ["@powersync/react@1.10.0", "", { "peerDependencies": { "@powersync/common": "^1.51.0", "react": "*" } }, "sha512-orM29qocbF8zYTBM27j9nPNztyplpbNVaw8djpqxl8N2wESqHTbHOKpatg+Fa5aofgjzmrkiGwevJvCbiWYYWQ=="],
-
-    "@powersync/react-native": ["@powersync/react-native@1.35.8", "", { "dependencies": { "@powersync/common": "1.57.1", "@powersync/react": "1.10.0" }, "peerDependencies": { "@journeyapps/react-native-quick-sqlite": "^2.5.2", "react": "*", "react-native": "*" }, "optionalPeers": ["@journeyapps/react-native-quick-sqlite"] }, "sha512-lkwqU25EBTovMPyY5lBQ5pbORJ1/Z+kWNTf8sL8z3+7jL6HfmdZInbvyx4JJvKS0AMq2JzSV1mUq/1FRfP2J8g=="],
-
-    "@powersync/web": ["@powersync/web@1.38.7", "", { "dependencies": { "@powersync/common": "1.57.1", "comlink": "^4.4.2", "commander": "^12.1.0" }, "peerDependencies": { "@journeyapps/wa-sqlite": "^1.5.0" }, "bin": { "powersync-web": "bin/powersync.cjs" } }, "sha512-vRKY38TmoUVu6ITUpBMvDH0RuOa8PeXpx1q1G0WuR14IgRVxd3jcjUWleb0T3PKRcIhtHUEDAXZgGw90lwxJhQ=="],
 
     "@preact/signals": ["@preact/signals@2.9.2", "", { "dependencies": { "@preact/signals-core": "^1.14.3" }, "peerDependencies": { "preact": ">= 10.25.0 || >=11.0.0-0" } }, "sha512-DvFPISNMSh3vPqRwPa1tAVAHl85aDq4pTyNu1bTGfrKr64F3EOCHjdUl9aUdohKBf1v9PRGLYuGFcJpfztkdoQ=="],
 
@@ -3260,8 +3240,6 @@
 
     "colors": ["colors@1.0.3", "", {}, "sha512-pFGrxThWcWQ2MsAz6RtgeWe4NK2kUE1WfsrvvlctdII745EW9I0yflqhe7++M5LEc7bV2c/9/5zc8sFcpL0Drw=="],
 
-    "comlink": ["comlink@4.4.2", "", {}, "sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g=="],
-
     "commander": ["commander@10.0.1", "", {}, "sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug=="],
 
     "common-tags": ["common-tags@1.8.2", "", {}, "sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA=="],
@@ -3935,8 +3913,6 @@
     "js-beautify": ["js-beautify@1.15.4", "", { "dependencies": { "config-chain": "^1.1.13", "editorconfig": "^1.0.4", "glob": "^10.4.2", "js-cookie": "^3.0.5", "nopt": "^7.2.1" }, "bin": { "css-beautify": "js/bin/css-beautify.js", "html-beautify": "js/bin/html-beautify.js", "js-beautify": "js/bin/js-beautify.js" } }, "sha512-9/KXeZUKKJwqCXUdBxFJ3vPh467OCckSBmYDwSK/EtV090K+iMJ7zx2S3HLVDIWFQdqMIsZWbnaGiba18aWhaA=="],
 
     "js-cookie": ["js-cookie@3.0.7", "", {}, "sha512-z/wZZgDrkNV1eA0ULjM/F9/50Ya8fbzgKneSpoPsXSGd0KnpdtHfOZWK+GcwLk+EZbS4F9RBhU+K2RgzuDaItw=="],
-
-    "js-logger": ["js-logger@1.6.1", "", {}, "sha512-yTgMCPXVjhmg28CuUH8CKjU+cIKL/G+zTu4Fn4lQxs8mRFH/03QTNvEFngcxfg/gRDiQAOoyCKmMTOm9ayOzXA=="],
 
     "js-sha256": ["js-sha256@0.10.1", "", {}, "sha512-5obBtsz9301ULlsgggLg542s/jqtddfOpV5KJc4hajc9JV8GeY2gZHSVpYBn4nWqAUTJ9v+xwtbJ1mIBgIH5Vw=="],
 
@@ -4976,6 +4952,8 @@
 
     "@babel/preset-env/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
+    "@base-org/account/@noble/hashes": ["@noble/hashes@1.4.0", "", {}, "sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg=="],
+
     "@base-org/account/preact": ["preact@10.24.2", "", {}, "sha512-1cSoF0aCC8uaARATfrlz4VCBqE8LwZwRfLgkxJOQwAlQt6ayTmi0D9OF7nXid1POI5SZidFuG9CnlXbDfLqY/Q=="],
 
     "@clerk/backend/@clerk/shared": ["@clerk/shared@4.24.0", "", { "dependencies": { "@tanstack/query-core": "^5.100.6", "dequal": "2.0.3", "glob-to-regexp": "0.4.1", "js-cookie": "3.0.7" }, "peerDependencies": { "react": "^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0", "react-dom": "^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-QgAihmKS4ld3YSqSPMaKnzU4RGV+60k5khcjiz0xi4BCUST+UJAbV8f3Hw0osxq/Rw9rsxmRlcoxhEMsN5SOFA=="],
@@ -4997,6 +4975,8 @@
     "@clerk/shared/react-dom": ["react-dom@19.1.0", "", { "dependencies": { "scheduler": "^0.26.0" }, "peerDependencies": { "react": "^19.1.0" } }, "sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g=="],
 
     "@clerk/testing/@clerk/backend": ["@clerk/backend@2.33.5", "", { "dependencies": { "@clerk/shared": "^3.47.7", "@clerk/types": "^4.101.25", "standardwebhooks": "^1.0.0", "tslib": "2.8.1" } }, "sha512-YOzUYJfb1d4w+0rKKm+LnnNpkJGQ+NI/g7qmF3mgaSN9X9huteuwCZyufdsI7z2DDkwy/yGRgb9eUWV96t7xLg=="],
+
+    "@coinbase/wallet-sdk/@noble/hashes": ["@noble/hashes@1.4.0", "", {}, "sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg=="],
 
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 
@@ -5057,8 +5037,6 @@
     "@poppinss/colors/kleur": ["kleur@4.1.5", "", {}, "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="],
 
     "@poppinss/dumper/supports-color": ["supports-color@10.2.2", "", {}, "sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g=="],
-
-    "@powersync/web/commander": ["commander@12.1.0", "", {}, "sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA=="],
 
     "@react-grab/cli/agent-install": ["agent-install@0.0.6", "", { "dependencies": { "@iarna/toml": "^2.2.5", "commander": "^14.0.0", "jsonc-parser": "^3.3.1", "picocolors": "^1.1.1", "prompts": "^2.4.2", "yaml": "^2.8.3" }, "bin": { "agent-install": "bin/agent-install.mjs" } }, "sha512-7NRMZ/ZDz2vHevQTgJsocBFpakB1/Wx5ip19YSJuj4VOXpraWztTerViNtdSyARKZT9e2yVwUUB5JXXCE7mNrA=="],
 

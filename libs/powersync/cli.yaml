@@ -1,2 +1,0 @@
-type: cloud
-instance_id: !env PS_INSTANCE_ID

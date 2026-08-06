@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/mutations": "workspace:*",
+    "@pkgs/queries": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",

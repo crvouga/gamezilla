@@ -1,6 +1,6 @@
 import { sql, type Sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 export const SpaceField = {
   title: 'title',
@@ -36,15 +36,15 @@ function spaceRowByIdSql(spaceId: string): Sql<SpaceColumnRow> {
 }
 
 /**
- * Space column for `spaceId`. Uses {@link useWatchOne} (same path as profile
- * columns) — `useWatchField` can stick on an empty snapshot after create and
+ * Space column for `spaceId`. Uses {@link useQueryOne} (same path as profile
+ * columns) — field-only subscriptions can stick on an empty snapshot after create and
  * leave host ids null forever (ID-suffix titles).
  */
 export function useSpaceColumn(
   spaceId: string,
   field: SpaceFieldColumn
 ): string | null {
-  const { row } = useWatchOne(spaceRowByIdSql(spaceId));
+  const { row } = useQueryOne(spaceRowByIdSql(spaceId));
   if (row === null) return null;
   const value = row[field];
   if (typeof value !== 'string') return null;

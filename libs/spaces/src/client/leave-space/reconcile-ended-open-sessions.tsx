@@ -1,6 +1,6 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { sql } from '@pkgs/sql';
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 
@@ -32,7 +32,7 @@ export function ReconcileEndedOpenSessions(): ReactNode {
           `,
     [paintReady]
   );
-  const { rows } = useWatchQuery(query);
+  const { rows } = useQuery(query);
 
   useEffect(() => {
     if (!paintReady || rows.length === 0 || runningRef.current) return;

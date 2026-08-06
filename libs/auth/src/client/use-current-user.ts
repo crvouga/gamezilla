@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
@@ -41,12 +41,12 @@ function readIsAnonFlag(value: unknown): boolean {
 export function useCurrentUser(): CurrentUser {
   const userId = useMyId();
   const hasSession = useHasAuthSession();
-  const { row: userRow } = useWatchOne(sql<UserRow>`
+  const { row: userRow } = useQueryOne(sql<UserRow>`
     SELECT created_at, is_anon
     FROM users
     WHERE id = ${userId}
   `);
-  const { row: stripeRow } = useWatchOne(sql<StripeLinkRow>`
+  const { row: stripeRow } = useQueryOne(sql<StripeLinkRow>`
     SELECT external_id
     FROM external_accounts
     WHERE user_id = ${userId}
@@ -105,7 +105,7 @@ export function useIsAnon(): boolean {
   const hasSession = useHasAuthSession();
   const myId = useMyId();
   const watchId = myId.length > 0 ? myId : '';
-  const { row } = useWatchOne(sql<{ is_anon: number | boolean | null }>`
+  const { row } = useQueryOne(sql<{ is_anon: number | boolean | null }>`
     SELECT is_anon
     FROM users
     WHERE id = ${watchId}

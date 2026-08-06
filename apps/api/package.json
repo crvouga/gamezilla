@@ -52,6 +52,7 @@
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
     "@pkgs/pub-sub": "workspace:*",
+    "@pkgs/queries": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -62,7 +63,8 @@
     "@sentry/cloudflare": "catalog:",
     "hono": "catalog:",
     "pg": "catalog:",
-    "stripe": "catalog:"
+    "stripe": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pkgs/os": "workspace:*",

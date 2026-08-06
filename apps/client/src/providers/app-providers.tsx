@@ -19,7 +19,7 @@ void preventSplashAutoHide();
  *
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.
- * - Local database (PowerSync sync engine) before UI (portal bridge reads sync engine).
+ * - Local database sync engine before UI (portal bridge reads sync engine).
  * - UI (BottomSheetModalProvider, AuthModalsProvider) before inbox (opens sign-in modal).
  * - UI before modal hosts inside AppUiProvider.
  * - Games (SpaceModule) before space room host (opens WebSockets with that module).

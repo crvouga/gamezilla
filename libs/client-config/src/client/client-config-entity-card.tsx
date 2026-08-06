@@ -3,14 +3,14 @@ import {
   ClientConfigAttr,
 } from '../shared/client-config-entities';
 import { Box, Card, Text } from '@pkgs/ui';
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 
 import { clientConfigRowQuery } from './client-config-queries';
 
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { row } = useWatchOne(clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID));
+  const { row } = useQueryOne(clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID));
 
   const googleRaw = row?.google_web_client_id;
   const googleLine =

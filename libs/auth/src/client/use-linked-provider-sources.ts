@@ -4,7 +4,7 @@ import {
 } from '@libs/db/shared/entity-store-table';
 import { sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -68,7 +68,7 @@ export function useLinkedProviderSources(
   const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const scopedAccountId = paintReady ? accountId : null;
   const { row: authExternalAccountRow } =
-    useWatchOne(sql<PrimaryAuthExternalAccountRow>`
+    useQueryOne(sql<PrimaryAuthExternalAccountRow>`
       SELECT external_id, metadata, created_at
       FROM external_accounts
       WHERE user_id = ${scopedAccountId}
@@ -76,7 +76,7 @@ export function useLinkedProviderSources(
       LIMIT 1
     `);
 
-  const { row: entityRow } = useWatchOne(sql<AuthEntityStoreRow>`
+  const { row: entityRow } = useQueryOne(sql<AuthEntityStoreRow>`
     SELECT data, created_at
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}

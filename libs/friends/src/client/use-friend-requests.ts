@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -84,7 +84,7 @@ export function useIncomingFriendRequests(): {
     () => pendingIncomingSql(myId, enabled),
     [myId, enabled]
   );
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   if (!paintReady) {
     return { requests: [], isLoading: true };
@@ -103,7 +103,7 @@ export function useOutgoingFriendRequests(): {
     () => pendingOutgoingSql(myId, enabled),
     [myId, enabled]
   );
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   const requests = useMemo(() => rows.map(mapRequestRow), [rows]);
   if (!paintReady) {
     return { requests: [], isLoading: true };

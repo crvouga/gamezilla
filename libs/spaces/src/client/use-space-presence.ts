@@ -1,7 +1,7 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { sql, type Sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -54,7 +54,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
     () => presenceSql(spaceId, spaceEnabled),
     [spaceId, spaceEnabled]
   );
-  const { row, isLoading } = useWatchOne(query);
+  const { row, isLoading } = useQueryOne(query);
   if (!paintReady) {
     return { status: 'loading' };
   }

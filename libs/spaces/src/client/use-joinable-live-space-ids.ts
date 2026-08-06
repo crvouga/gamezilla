@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
@@ -12,7 +12,7 @@ export function useJoinableLiveSpaceIds(): {
   const memberId = useMyId();
   const enabled = memberId.length > 0;
   const query = useMemo(() => sharedLiveSpaceIdsSql({ memberId }), [memberId]);
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   const spaceIds = useMemo(
     () => (enabled ? rows.map((r) => r.id) : []),
     [enabled, rows]

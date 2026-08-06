@@ -43,9 +43,7 @@ export function getMainSqliteDbName(userId: string | null): string {
 
 /**
  * Opens the local client SQLite database on every platform (expo-sqlite
- * native + OPFS on web). PowerSync schema setup runs later
- * inside `createPowerSyncDatabase` via PowerSync schema setup, so this function
- * only worries about establishing a connected `SqlClient`.
+ * native + OPFS on web). Local sync schema migration runs after open.
  */
 export async function openMainSqlClient(userId: string): Promise<SqlClient> {
   await tryAcquireExpoSqliteWebSessionLock();

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import {
   buildPuzzleCandidatesSql,
@@ -28,6 +28,6 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
       }),
     [args.rating, args.ownerId, args.currentPuzzleId, halfWindow, pickOffset]
   );
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   return { rows, isLoading };
 }

@@ -1,7 +1,7 @@
 import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
 
 /**
- * Full catalog on Postgres; PowerSync clients only receive rows with
+ * Full catalog on Postgres; sync clients only receive rows with
  * `sync_pool = true` (~4k). Must match the sync-stream source table name
  * exactly — `AS` aliases do not remap apply targets here.
  */

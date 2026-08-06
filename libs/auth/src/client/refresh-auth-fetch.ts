@@ -23,7 +23,7 @@ export type RefreshAuthResult = {
  * `POST /auth/refresh` — idempotent server upsert of the auth-related sync
  * entities (auth user snapshot, device binding) for the current bearer +
  * device. Returns just the internal `accountId`; everything else flows back
- * to the client through PowerSync sync.
+ * to the client through sync sync.
  */
 export async function refreshAuth(
   args: RefreshAuthArgs

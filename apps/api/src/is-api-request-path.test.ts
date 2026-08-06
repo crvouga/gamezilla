@@ -6,7 +6,8 @@ describe('isApiRequestPath', () => {
     expect(isApiRequestPath('/api/health')).toBe(true);
     expect(isApiRequestPath('/api/auth/sign-in')).toBe(true);
     expect(isApiRequestPath('/api/auth/refresh')).toBe(true);
-    expect(isApiRequestPath('/api/sync/upload')).toBe(true);
+    expect(isApiRequestPath('/api/query')).toBe(true);
+    expect(isApiRequestPath('/api/mutations')).toBe(true);
     expect(isApiRequestPath('/api/room')).toBe(true);
     expect(isApiRequestPath('/api/matchmaking/join')).toBe(true);
     expect(isApiRequestPath('/api/stripe/checkout')).toBe(true);

@@ -28,6 +28,7 @@
   },
   "cSpell.words": [
     "ABAC",
+    "acked",
     "affordances",
     "alphanum",
     "amortise",
@@ -126,7 +127,6 @@
     "Inspectable",
     "isready",
     "jlongster",
-    "journeyapps",
     "Kenney",
     "killall",
     "Knip",
@@ -193,7 +193,6 @@
     "pooler",
     "Postchecks",
     "postgres",
-    "powersync",
     "prebuild",
     "Prechecks",
     "preflights",

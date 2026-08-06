@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 import { useMyDeviceId } from './use-current-user';
@@ -59,13 +59,13 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
   const scopedAccountId = paintReady ? accountId : null;
   const scopedDeviceId = paintReady ? currentDeviceId : '';
 
-  const { rows: localRows } = useWatchQuery(sql<DeviceRow>`
+  const { rows: localRows } = useQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
     WHERE id = ${scopedDeviceId}
   `);
 
-  const { rows: remoteRows } = useWatchQuery(sql<DeviceRow>`
+  const { rows: remoteRows } = useQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM devices
     WHERE user_id = ${scopedAccountId}

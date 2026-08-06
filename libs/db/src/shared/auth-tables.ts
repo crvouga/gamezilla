@@ -31,7 +31,7 @@ export const USERS_TABLE_DEF = defineTable({
   columns: [
     { name: 'id', type: 'text', primaryKey: true },
     { name: 'created_at', type: 'text' },
-    // Postgres boolean → SQLite integer (0/1) via PowerSync.
+    // Postgres boolean → SQLite integer (0/1) via sync.
     { name: 'is_anon', type: 'integer' },
   ],
 });
@@ -39,6 +39,7 @@ export const USERS_TABLE_DEF = defineTable({
 export const EXTERNAL_ACCOUNTS_TABLE_DEF = defineTable({
   tableName: EXTERNAL_ACCOUNTS_TABLE,
   columns: [
+    { name: 'id', type: 'text', primaryKey: true },
     { name: 'user_id', type: 'text' },
     { name: 'provider', type: 'text' },
     { name: 'external_id', type: 'text' },

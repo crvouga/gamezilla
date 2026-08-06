@@ -219,6 +219,10 @@ msgstr "API endpoint"
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
+#: apps/client/src/sync/sync-screen.tsx
+#~ msgid "API sync"
+#~ msgstr "API sync"
+
 #: apps/client/src/settings/about-screen.tsx
 #: libs/auth/src/client/account-device/account-device-meta-grid.tsx
 msgid "App"
@@ -618,9 +622,8 @@ msgstr "Current"
 msgid "Current streak"
 msgstr "Current streak"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "Current user: {myId}"
-msgstr "Current user: {myId}"
+#~ msgid "Current user: {myId}"
+#~ msgstr "Current user: {myId}"
 
 #: libs/chess/src/client/chess-settings/chess-settings-puzzle-feed-screen.tsx
 msgid "Custom"
@@ -646,9 +649,8 @@ msgstr "database"
 msgid "day"
 msgstr "day"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "debug"
-msgstr "debug"
+#~ msgid "debug"
+#~ msgstr "debug"
 
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Default board, drag or tap-to-move, orientation toggle."
@@ -666,11 +668,9 @@ msgstr "Deleted"
 msgid "Deleting…"
 msgstr "Deleting…"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "developer"
-msgstr "developer"
+#~ msgid "developer"
+#~ msgstr "developer"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 #: libs/chess/src/client/chess-settings/chess-settings-screen.tsx
 msgid "Developer"
@@ -706,9 +706,8 @@ msgstr "Devices"
 msgid "Devices, sign-in methods, and sign out"
 msgstr "Devices, sign-in methods, and sign out"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "diagnostics"
-msgstr "diagnostics"
+#~ msgid "diagnostics"
+#~ msgstr "diagnostics"
 
 #: libs/chess/src/client/chess-settings/chess-settings-puzzle-feed-screen.tsx
 msgid "Difficulty mode"
@@ -1091,6 +1090,10 @@ msgstr "lobby"
 msgid "local"
 msgstr "local"
 
+#: apps/client/src/settings/settings-screen.tsx
+msgid "Local database and API sync state"
+msgstr "Local database and API sync state"
+
 #: apps/client/src/providers/local-database/boot-screens.tsx
 msgid "Local database needs a reset"
 msgstr "Local database needs a reset"
@@ -1108,8 +1111,12 @@ msgid "Local sync (client_config)"
 msgstr "Local sync (client_config)"
 
 #: libs/client-config/src/client/client-config-server-refresh.tsx
-msgid "Local view updates after the next PowerSync sync."
-msgstr "Local view updates after the next PowerSync sync."
+#~ msgid "Local view updates after the next sync poll."
+#~ msgstr "Local view updates after the next sync poll."
+
+#: libs/client-config/src/client/client-config-server-refresh.tsx
+msgid "Local view updates after the next sync sync."
+msgstr "Local view updates after the next sync sync."
 
 #: apps/client/src/ui/app-commands/account-command.tsx
 msgid "login"
@@ -1134,10 +1141,6 @@ msgstr "Match puzzles to your profile rating ({profileCaption})."
 #: libs/chess/src/client/chess-main-menu.tsx
 msgid "Matchmaking"
 msgstr "Matchmaking"
-
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "Mint sync token and open diagnostics app"
-msgstr "Mint sync token and open diagnostics app"
 
 #: libs/auth/src/client/account-device/account-device-detail-screen.tsx
 msgid "Missing device id."
@@ -1286,12 +1289,12 @@ msgid "None"
 msgstr "None"
 
 #: apps/client/src/sync/sync-screen.tsx
-msgid "Not configured"
-msgstr "Not configured"
+#~ msgid "Not configured"
+#~ msgstr "Not configured"
 
 #: apps/client/src/ui/use-account-menu.tsx
-msgid "Not signed in"
-msgstr "Not signed in"
+#~ msgid "Not signed in"
+#~ msgstr "Not signed in"
 
 #: libs/client-config/src/client/client-config-entity-card.tsx
 msgid "null"
@@ -1327,13 +1330,12 @@ msgstr "Open command palette"
 msgid "Open current space {resolvedTitle}"
 msgstr "Open current space {resolvedTitle}"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "Open PowerSync diagnostics"
-msgstr "Open PowerSync diagnostics"
-
 #: libs/spaces/src/client/card/space-card-open-link.tsx
 msgid "Open space {resolvedTitle}"
 msgstr "Open space {resolvedTitle}"
+
+#~ msgid "Open sync diagnostics"
+#~ msgstr "Open sync diagnostics"
 
 #: libs/spaces/src/client/spaces-screen.tsx
 msgid "Opening…"
@@ -1419,18 +1421,6 @@ msgstr "Plays a fresh game and prints SAN moves as they happen."
 #: libs/client-config/src/client/client-config-server-refresh.tsx
 msgid "POST /client-config/refresh writes the Worker secret into Postgres on the server (deploy pipeline uses this too)."
 msgstr "POST /client-config/refresh writes the Worker secret into Postgres on the server (deploy pipeline uses this too)."
-
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "powersync"
-msgstr "powersync"
-
-#: apps/client/src/settings/settings-screen.tsx
-msgid "PowerSync connection and sync state"
-msgstr "PowerSync connection and sync state"
-
-#: apps/client/src/sync/sync-screen.tsx
-msgid "PowerSync URL"
-msgstr "PowerSync URL"
 
 #: libs/chess/src/client/chess-main-menu.tsx
 msgid "Preferences and developer tools."
@@ -1965,9 +1955,8 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 msgid "Style"
 msgstr "Style"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "sync"
-msgstr "sync"
+#~ msgid "sync"
+#~ msgstr "sync"
 
 #: apps/client/src/connection/offline-indicator.tsx
 msgid "Sync issue"
@@ -2072,9 +2061,8 @@ msgstr "This tab"
 #~ msgid "Todos, UI explorer, and sync status"
 #~ msgstr "Todos, UI explorer, and sync status"
 
-#: apps/client/src/ui/app-commands/powersync-diagnostics-command.tsx
-msgid "token"
-msgstr "token"
+#~ msgid "token"
+#~ msgstr "token"
 
 #: libs/chess/src/client/chess-settings/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."

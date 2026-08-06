@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql, type Sql } from '@pkgs/sql';
 
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -79,7 +79,7 @@ export function useCurrentSpaceIds(): {
   const paintReady = useSyncEnginePaintReady();
   const enabled = paintReady && myId.length > 0;
   const query = useMemo(() => currentSpacesSql(enabled), [enabled]);
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   if (!paintReady) {
     return { entries: [], isLoading: true };
   }

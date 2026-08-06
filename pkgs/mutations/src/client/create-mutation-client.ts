@@ -36,6 +36,35 @@ export type CreateMutationClientOptions = {
   readonly connectivity: MutationConnectivity;
 };
 
+function isMissingUploadState(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes('no such table') ||
+    message.includes('no such column') ||
+    message.includes('does not exist')
+  );
+}
+
+async function reserveMutationSeq(
+  tx: SqlClient,
+  ids: MutationClientIds
+): Promise<number> {
+  try {
+    const rows = await tx.query(sql<{ next_seq: number }>`
+      SELECT next_seq FROM _upload_state WHERE id = ${'singleton'} LIMIT 1
+    `);
+    const next = Number(rows[0]?.next_seq ?? 1);
+    await tx.run(sql`
+      UPDATE _upload_state SET next_seq = ${next + 1}
+      WHERE id = ${'singleton'}
+    `);
+    return next;
+  } catch (error) {
+    if (isMissingUploadState(error)) return ids.nextSeq();
+    throw error;
+  }
+}
+
 /**
  * THE client write API. Exposes read-only `query` and `mutate` only —
  * never a writable transaction outside a mutation's `run`.
@@ -65,6 +94,7 @@ export function createMutationClient(
       try {
         const parsed = m.args.parse(args);
         await db.transaction(async (txc) => {
+          const seq = await reserveMutationSeq(txc, ids);
           await m.run({ tx: txc, env }, parsed);
           await txc.run(sql`
             INSERT INTO _mutations (id, name, args, client_id, seq, created_at)
@@ -73,7 +103,7 @@ export function createMutationClient(
               ${m.name},
               ${JSON.stringify(parsed)},
               ${ids.clientId},
-              ${ids.nextSeq()},
+              ${seq},
               ${env.now().toISOString()}
             )
           `);

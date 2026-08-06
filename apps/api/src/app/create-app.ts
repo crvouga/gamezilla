@@ -1,5 +1,4 @@
 import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
-import { createSyncTokenRoute } from '@libs/auth/server/sync-token-route';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
@@ -21,7 +20,8 @@ import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
-import { createSyncRoutes } from '../sync/sync-routes';
+import { createMutationsRoutes } from '../sync/mutations-routes';
+import { createQueryRoutes } from '../sync/query-routes';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -179,16 +179,8 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', createFriendsApp())
     .route('/', createProfileApp())
     .route('/', createAuthApiRoutes())
-    .route(
-      '/',
-      createSyncTokenRoute({
-        secretStore,
-        jwtPrivateKeySecret: ApiSecretName.powersyncJwtPrivateKey,
-        jwtKeyId: 'powersync',
-        powersyncAudienceSecret: ApiSecretName.powersyncUrl,
-      })
-    )
-    .route('/', createSyncRoutes())
+    .route('/', createQueryRoutes())
+    .route('/', createMutationsRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
     .route('/', createStripeSubApp(stripe))

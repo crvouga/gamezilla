@@ -28,15 +28,6 @@ import {
   SENTRY_DSN,
 } from './observability-secrets';
 import {
-  EXPO_PUBLIC_PS_URL,
-  PS_ADMIN_TOKEN,
-  PS_INSTANCE_ID,
-  PS_JWT_PRIVATE_KEY,
-  PS_JWT_PUBLIC_JWK,
-  PS_PROJECT_ID,
-  PS_URL,
-} from './powersync-secrets';
-import {
   B2_APP_KEY,
   B2_APP_KEY_ID,
   S3_BUCKET,
@@ -81,13 +72,6 @@ export const SECRETS: readonly Secret[] = [
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
-  PS_INSTANCE_ID,
-  PS_PROJECT_ID,
-  PS_URL,
-  PS_ADMIN_TOKEN,
-  PS_JWT_PUBLIC_JWK,
-  PS_JWT_PRIVATE_KEY,
-  EXPO_PUBLIC_PS_URL,
   ELEVEN_LABS_API_KEY,
   OPENAI_API_KEY,
   OPENAI_BASE_URL,

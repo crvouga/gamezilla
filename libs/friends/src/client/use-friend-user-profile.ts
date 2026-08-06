@@ -12,7 +12,7 @@ export function readRouteParam(value: string | string[] | undefined): string {
 }
 
 /**
- * Resolves another user's display profile from PowerSync `profiles` (via the
+ * Resolves another user's display profile from sync `profiles` (via the
  * friends list join) or route search-param seed for non-friends.
  */
 export function useFriendUserProfile(userId: string) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Forbid PowerSync `localOnly` / `local_*` app tables.
+ * Forbid sync `localOnly` / `local_*` app tables.
  * Client schema must be a pure subset of the remote Postgres schema.
  */
 import { SYNC_TABLE_REGISTRY } from '../../libs/db/src/shared/table-registry';

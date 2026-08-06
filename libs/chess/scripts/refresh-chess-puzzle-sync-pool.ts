@@ -1,6 +1,6 @@
 /**
  * Rebuilds the `chess_puzzles.sync_pool` flag with the top puzzles per rating
- * band for PowerSync client sync (`WHERE sync_pool = true`).
+ * band for sync client sync (`WHERE sync_pool = true`).
  */
 import { raw, sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';

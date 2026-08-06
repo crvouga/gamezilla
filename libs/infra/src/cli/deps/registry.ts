@@ -4,7 +4,6 @@ import { EasDep } from './eas';
 import { PgDumpDep } from './pg-dump';
 import type { Dep } from './types';
 import { TurboDep } from './turbo';
-import { PowerSyncDep } from './powersync';
 import { WranglerDep } from './wrangler';
 
 const wrangler = new WranglerDep();
@@ -12,7 +11,6 @@ const turbo = new TurboDep();
 const bun = new BunDep();
 const secretBackend = new SecretBackendDep();
 const eas = new EasDep();
-const powerSync = new PowerSyncDep();
 const pgDump = new PgDumpDep();
 
 /**
@@ -29,7 +27,6 @@ export const ALL_DEPS: readonly Dep[] = [
   bun,
   secretBackend,
   eas,
-  powerSync,
   pgDump,
 ];
 
@@ -43,7 +40,7 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, secretBackend];
  * Deps required by the legacy single-process `deploy` lifecycle: the
  * provision set plus the EAS CLI (for the `publish-client-eas-update` phase —
  * OTA `eas update`; the manual `build-client-native` command reuses the same
- * dep) and PowerSync CLI.
+ * dep).
  *
  * Stripe catalog sync (`runStripeSyncPhase`) uses the npm `stripe` SDK via
  * Bun and does not require a native Stripe CLI.
@@ -53,5 +50,4 @@ export const DEPLOY_DEPS: readonly Dep[] = [
   bun,
   secretBackend,
   eas,
-  powerSync,
 ];

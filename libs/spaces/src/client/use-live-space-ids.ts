@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 type SpaceIdRow = { readonly id: string };
 
@@ -11,7 +11,7 @@ export function useLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
 } {
-  const { rows, isLoading } = useWatchQuery(
+  const { rows, isLoading } = useQuery(
     sql<SpaceIdRow>`
       SELECT id
       FROM spaces

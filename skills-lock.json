@@ -106,12 +106,6 @@
       "sourceType": "github",
       "computedHash": "3cd0ba91f359f9f84cd40f36f356287994a0e952520fac6e03ef7952d0397879"
     },
-    "powersync": {
-      "source": "powersync-ja/agent-skills",
-      "sourceType": "github",
-      "skillPath": "skills/powersync/SKILL.md",
-      "computedHash": "e1ed105d3441224da9aeb718ffb30038850e02becf0f25af7c3603ac1b2f0b33"
-    },
     "sandbox-sdk": {
       "source": "cloudflare/skills",
       "sourceType": "github",

@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable } from 'react-native';
 
 /**
- * Shows when the browser is offline or PowerSync sync has failed.
+ * Shows when the browser is offline or API sync has failed.
  */
 export function OfflineIndicator(): ReactNode {
   const { t } = useLingui();

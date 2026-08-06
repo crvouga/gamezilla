@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { useWatchValue } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryValue } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
@@ -60,7 +60,7 @@ function usePuzzleProfileRating(): number {
     `,
     [myId]
   );
-  const { value: profileRatingRaw } = useWatchValue(query);
+  const { value: profileRatingRaw } = useQueryValue(query);
   if (typeof profileRatingRaw === 'number' && profileRatingRaw > 0) {
     return profileRatingRaw;
   }
@@ -117,7 +117,7 @@ function useWaitingForLocalPuzzles(args: {
   puzzleId: string | null;
   noCandidates: boolean;
 }): boolean {
-  const { value: localPuzzleTotal } = useWatchValue(sql<PuzzleCountRow>`
+  const { value: localPuzzleTotal } = useQueryValue(sql<PuzzleCountRow>`
     SELECT COUNT(*) AS value
     FROM chess_puzzles
   `);

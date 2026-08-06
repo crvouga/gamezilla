@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchField } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryField } from '@pkgs/sync-engine/client/sync-engine-context';
 
 export const DeviceField = {
   id: 'id',
@@ -63,6 +63,6 @@ export function useDeviceColumn(
   field: DeviceFieldKey
 ): string | null {
   const column = DeviceField[field];
-  const { value } = useWatchField(deviceRowByIdSql(deviceId), column);
+  const { value } = useQueryField(deviceRowByIdSql(deviceId), column);
   return value;
 }

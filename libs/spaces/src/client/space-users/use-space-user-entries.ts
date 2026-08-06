@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 export type SpaceUserEntry = {
@@ -29,7 +29,7 @@ export function useSpaceUserEntries(spaceId: string): {
     `,
     [spaceId]
   );
-  const { rows, isLoading } = useWatchQuery(query);
+  const { rows, isLoading } = useQuery(query);
   const entries = useMemo(
     () =>
       rows.map((row) => ({

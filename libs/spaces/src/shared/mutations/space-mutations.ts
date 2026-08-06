@@ -94,6 +94,7 @@ async function openSession(
   await tx.run(sql`
     INSERT INTO space_open_sessions (id, space_id, device_id, opened_at, join_announced)
     VALUES (${id}, ${spaceId}, ${env.deviceId}, ${env.now().toISOString()}, ${0})
+    ON CONFLICT (id) DO NOTHING
   `);
 }
 
@@ -146,10 +147,16 @@ export const createSpaceMutation = defineMutation({
     await tx.run(sql`
       INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at)
       VALUES (${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${visibility}, ${now})
+      ON CONFLICT (id) DO UPDATE SET
+        host_id = excluded.host_id,
+        host_member_id = excluded.host_member_id,
+        host_account_id = excluded.host_account_id,
+        visibility = excluded.visibility
     `);
     await tx.run(sql`
       INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
       VALUES (${spaceUserEntityId(spaceId, actorMemberId)}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId})
+      ON CONFLICT (id) DO NOTHING
     `);
     await openSession(tx, env, spaceId);
   },
@@ -184,6 +191,7 @@ export const joinSpaceMutation = defineMutation({
       await tx.run(sql`
         INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
         VALUES (${id}, ${spaceId}, ${actorMemberId}, ${env.now().toISOString()}, ${actorAccountId})
+        ON CONFLICT (id) DO NOTHING
       `);
     }
     if (isHost(env, row)) {

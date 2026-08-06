@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql } from '@pkgs/sql';
 
 import {
-  useWatchOne,
-  useWatchQuery,
+  useQuery,
+  useQueryOne,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
@@ -74,7 +74,7 @@ export function usePuzzleEntity(puzzleId: string): {
   rating: number;
   themes: readonly string[];
 } {
-  const { row } = useWatchOne(sql<PuzzleEntityRow>`
+  const { row } = useQueryOne(sql<PuzzleEntityRow>`
     SELECT fen, moves, rating, themes
     FROM chess_puzzles
     WHERE id = ${puzzleId}
@@ -112,7 +112,7 @@ export function usePuzzleInteractions(
     `,
     [myId, puzzleId]
   );
-  const { rows } = useWatchQuery(query);
+  const { rows } = useQuery(query);
   return useMemo(() => rows.map(interactionRowFromSql), [rows]);
 }
 
@@ -137,7 +137,7 @@ export function useChessPuzzleAllInteractions(): ChessPuzzleInteractionRow[] {
     `,
     [myId]
   );
-  const { rows } = useWatchQuery(query);
+  const { rows } = useQuery(query);
   return useMemo(() => rows.map(interactionRowFromSql), [rows]);
 }
 

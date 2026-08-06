@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useWatchOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
@@ -31,7 +31,7 @@ export function useChessPuzzleProfileRatings(myId: string): {
           `,
     [enabled, myId]
   );
-  const { row } = useWatchOne(query);
+  const { row } = useQueryOne(query);
   if (!paintReady) {
     return { profileRating: 0, profileRd: 0 };
   }

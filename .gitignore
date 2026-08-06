@@ -82,11 +82,6 @@ apps/client/android/
 # Turborepo
 .turbo
 
-# PowerSync CLI setup artifacts
-libs/powersync/.pull-state.json
-libs/powersync/*.backup-*
-libs/powersync/service-fetched.yaml
-libs/powersync/sync-fetched.yaml
 
 # Playwright check artifacts (reports, traces, videos)
 /check/

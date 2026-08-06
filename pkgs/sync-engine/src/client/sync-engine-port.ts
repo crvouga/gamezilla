@@ -4,7 +4,7 @@
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SyncStatusSubscription } from './sync-status';
-import type { SyncStreamSubscription } from './sync-stream-subscription';
+import type { QuerySubscription } from './subscription-runtime';
 
 /**
  * A subscription handle for observing changes in a watched query.
@@ -57,20 +57,20 @@ export type SyncEngine = {
    * Clears all local data managed by the sync engine.
    * @returns A promise resolved when the data has been cleared.
    */
-  clearLocalData(): Promise<void>;
+  clearLocalData(options?: {
+    readonly reason?: 'cache' | 'revoked';
+  }): Promise<void>;
   /**
    * Waits until the first successful sync is completed.
    * @returns A promise resolved after the first sync.
    */
   waitForFirstSync(): Promise<void>;
-  /**
-   * Subscribes to a parameterized PowerSync sync stream when supported.
-   */
-  readonly subscribeSyncStream?: (
-    streamName: string,
-    parameters: Readonly<Record<string, string | number>>,
-    options?: { readonly priority?: number }
-  ) => Promise<SyncStreamSubscription>;
+  /** Starts a parameterized API query subscription. */
+  readonly subscribeQuery: (
+    queryName: string,
+    parameters: Readonly<Record<string, unknown>>,
+    options?: { readonly pollMs?: number }
+  ) => QuerySubscription;
   /**
    * Provides a subscription to sync status changes.
    */

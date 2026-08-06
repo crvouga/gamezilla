@@ -70,8 +70,7 @@ config.resolver.nodeModulesPaths = [
 // @ts-ignore
 config.resolver.unstable_enablePackageExports = true;
 
-// PowerSync web on RN-web: resolve RN-specific export conditions and keep each
-// platform SDK out of the other's bundle (see powersync-js demo metro.config.js).
+// Resolve RN-web export conditions for packages that ship dual entrypoints.
 config.resolver.unstable_conditionsByPlatform = {
   ...config.resolver.unstable_conditionsByPlatform,
   web: [
@@ -269,17 +268,6 @@ function resolveWithNodeRequire(context, moduleName) {
 
 // @ts-ignore
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (platform === 'web' && moduleName === '@powersync/react-native') {
-    return { type: 'empty' };
-  }
-  if (
-    platform !== 'web' &&
-    (moduleName === '@powersync/web' ||
-      moduleName.startsWith('@powersync/web/'))
-  ) {
-    return { type: 'empty' };
-  }
-
   const matchesDedupeAlias = dedupeAliasPrefixes.some(
     (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/')
   );

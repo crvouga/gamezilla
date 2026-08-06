@@ -1,10 +1,10 @@
 /**
  * Postgres migrations using secret-store `DATABASE_URL` (ignores stale `.dev.vars`).
- * Used by PowerSync setup/deploy so schema + publication target the same DB.
+ * Used by sync setup/deploy so schema + publication target the same DB.
  *
  * Retries on transient Postgres errors (deadlock / too many clients) — same
  * policy as `apps/api/scripts/migrate-db.ts`. Dropping sync tables while
- * PowerSync holds replication locks commonly surfaces `40P01`.
+ * sync holds replication locks commonly surfaces `40P01`.
  */
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
@@ -70,7 +70,7 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
   try {
     await runPostgresMigrations({ sqlClient, logger, dbScope });
     process.stdout.write(
-      '[postgres:migrate-secrets] schema + powersync publication OK\n'
+      '[postgres:migrate-secrets] schema + sync publication OK\n'
     );
   } finally {
     await pool.end();
