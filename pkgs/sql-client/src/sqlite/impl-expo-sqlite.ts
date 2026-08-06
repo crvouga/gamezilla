@@ -10,7 +10,6 @@ import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 import { clearExpoSqliteWebOpfsBestEffort } from './clear-expo-sqlite-web-opfs';
 
-
 /** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
 function sqliteCompatSql(sqlText: string): string {
   return sqlText.replace(/\s+FOR UPDATE\b/gi, '');
@@ -58,7 +57,12 @@ function formatErrorChain(parts: unknown[]): string {
     .join(' → ');
 }
 
-/** Runs before the first open attempt. Non-fatal: failures here are best-effort. */
+/**
+ * Runs before the first open attempt. When `?reset-db=1` is present, bounce to
+ * the static `/reset-opfs.html` page (no expo-sqlite worker) so OPFS wipe can
+ * succeed. Prefer the synchronous redirect in `public/index.html`; this is the
+ * fallback when the query param survives into the JS bundle.
+ */
 async function maybeHandleResetDbQueryParam(
   databaseName: string
 ): Promise<void> {
@@ -70,13 +74,19 @@ async function maybeHandleResetDbQueryParam(
     return;
   }
   clearExpoSqliteWebRecoverySessionFlag();
-  await clearExpoSqliteWebOpfsBestEffort();
-  await SQLite.deleteDatabaseAsync(databaseName);
   url.searchParams.delete(RESET_DB_QUERY_PARAM);
-  window.history.replaceState(null, '', url.toString());
+  const returnTo =
+    url.pathname +
+    (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '') +
+    url.hash;
   console.warn(
-    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected — wiped expo-sqlite OPFS and deleted "${databaseName}" before opening.`
+    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected for "${databaseName}" — redirecting to /reset-opfs.html (in-app OPFS wipe races the SQLite worker).`
   );
+  window.location.replace(
+    `/reset-opfs.html?return=${encodeURIComponent(returnTo || '/')}`
+  );
+  // Hang this open until navigation completes so we never race a half-open DB.
+  await new Promise<void>(() => {});
 }
 
 function buildLockedOpfsError(
@@ -93,8 +103,8 @@ function buildLockedOpfsError(
   return new Error(
     `SQLite could not open the local database "${databaseName}" and automatic recovery is blocked: ` +
       `another tab or worker is holding the OPFS handle (${clearMessage}). ` +
-      `Fix: close every other tab of ${origin}, unregister any Service Worker in DevTools → Application → Service Workers, ` +
-      `then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL (or use DevTools → Application → Clear site data). ` +
+      `Fix: close every other tab of ${origin} (including Cursor IDE browser / Playwright), ` +
+      `then open ${origin}/reset-opfs.html (or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
       `Underlying open errors: ${formatErrorChain(previous)}`
   );
 }
@@ -495,8 +505,8 @@ function buildPostRecoveryError(
   return new Error(
     `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
       `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
-      `Fix: close every other tab of ${origin}, then reload with ?${RESET_DB_QUERY_PARAM}=1 appended to the URL ` +
-      `(or use DevTools → Application → Clear site data). ` +
+      `Fix: close every other tab of ${origin}, then open ${origin}/reset-opfs.html ` +
+      `(or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
       `Underlying errors: ${formatErrorChain(errors)}`
   );
 }

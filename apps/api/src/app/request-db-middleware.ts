@@ -117,16 +117,16 @@ async function attachRequestDatabase(
     try {
       return await next();
     } finally {
-      c.executionCtx.waitUntil(
-        Promise.all([sqlClient.disconnect(), pool.end()])
-          .then(() => undefined)
-          .catch((error: unknown) => {
-            observability.recordException(error, {
-              operation: 'request-db-cleanup',
-            });
-            throw error;
-          })
-      );
+      // Await close on the request path. Deferred `waitUntil` teardown left
+      // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
+      // fan-out (ephemeral-port exhaustion → "proxy request failed").
+      try {
+        await Promise.all([sqlClient.disconnect(), pool.end()]);
+      } catch (error: unknown) {
+        observability.recordException(error, {
+          operation: 'request-db-cleanup',
+        });
+      }
     }
   });
 }

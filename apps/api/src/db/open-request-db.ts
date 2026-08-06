@@ -16,9 +16,11 @@ export type RequestDb = {
  * and auth provisioning via {@link adaptPgClientAsPool} (one TCP session, no pool
  * deadlocks).
  *
- * Do not share sockets across requests in the Workers runtime — a module-scoped
- * `pg.Pool` hangs concurrent handlers (wrangler cancels with "Worker's code had
- * hung and would never generate a response").
+ * Do not share sockets or wait-queues across requests. A module-scoped open
+ * semaphore that `resolve()`s another request's Promise is illegal in Workers
+ * (cross-request I/O → `SpanParent` / "Promise will never complete" under
+ * wrangler boot fan-out). Cap concurrent DB work by awaiting disconnect on the
+ * request path instead (`request-db-middleware`).
  */
 export async function openRequestDb(
   connectionString: string,

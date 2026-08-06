@@ -4,7 +4,6 @@ import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { createClientConfigApp } from '@libs/client-config/server/route';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
-import { createProfileApp } from '@libs/profile/server/profile-routes';
 import { createStripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
@@ -177,7 +176,6 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', healthApp)
     .route('/', createClientConfigApp(log))
     .route('/', createFriendsApp())
-    .route('/', createProfileApp())
     .route('/', createAuthApiRoutes())
     .route('/', createQueryRoutes())
     .route('/', createMutationsRoutes())

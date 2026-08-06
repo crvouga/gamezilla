@@ -18,7 +18,7 @@
     "lint": "eslint src --max-warnings 0",
     "migrate": "bun run scripts/migrate-db.ts",
     "preview": "bun run scripts/migrate-db.ts --wait && bun run preview:serve",
-    "preview:serve": "wrangler dev --port 8788",
+    "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
     "stripe:check": "bun run --filter @libs/stripe check",
     "stripe:sync": "bun run --filter @libs/stripe sync",

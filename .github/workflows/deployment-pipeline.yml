@@ -336,12 +336,12 @@ jobs:
       # Build first so the wait step only covers migrate + wrangler + static server
       # startup — cold CI can exceed 240s when build + preview run together.
       - name: Build preview stack artifacts
-        run: bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun run tools/scripts/turbo-ci-run.ts setup build --filter=@apps/api --filter=@apps/client'
+        run: bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_API_URL=http://localhost:8788 API_URL=http://localhost:8788 EXPO_PUBLIC_E2E=1 bun run tools/scripts/turbo-ci-run.ts setup build --filter=@apps/api --filter=@apps/client'
       - name: Start preview stack
         env:
           BROWSER_E2E_STACK_WAIT_MS: 480000
         run: |
-          nohup bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=4' > /tmp/preview-stack.log 2>&1 &
+          nohup bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_API_URL=http://localhost:8788 API_URL=http://localhost:8788 EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=4' > /tmp/preview-stack.log 2>&1 &
           echo $! > /tmp/preview-stack.pid
           if ! bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
             echo "::group::preview-stack.log (last 200 lines)"

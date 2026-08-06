@@ -299,6 +299,11 @@ async function main(): Promise<void> {
 
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 
+  // Expo prefers process.env over `.env.local`. secrets-run may inject a
+  // production EXPO_PUBLIC_API_URL; keep the resolved loopback in-process so
+  // `expo export` cannot bake api.gamezilla.app after we rewrote `.env.local`.
+  process.env['EXPO_PUBLIC_API_URL'] = origin;
+
   const commitHash = resolveExpoPublicCommitHash();
   const commitDate = resolveExpoPublicCommitDate();
   const e2eFlag = trimStringOrNull(process.env['EXPO_PUBLIC_E2E']);

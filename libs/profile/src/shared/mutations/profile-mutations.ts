@@ -14,6 +14,7 @@ import {
   normalizeUsername,
   validateUsername,
 } from '../username';
+import { assignUniqueUsernameIfEmpty } from './assign-unique-username';
 
 const avatarConfigArgs = z.union([
   z.string(),
@@ -90,6 +91,12 @@ export const ensureProfileMutation = defineMutation({
     avatarConfig: avatarConfigArgs.optional(),
   }),
   writes: [PROFILES_TABLE.tableName],
+  constraintErrors: {
+    profiles_username_norm_uidx: {
+      code: 'USERNAME_TAKEN',
+      message: 'Username is taken.',
+    },
+  },
   async run({ tx, env }, { avatarConfig }) {
     await seedProfile(
       tx,
@@ -99,6 +106,7 @@ export const ensureProfileMutation = defineMutation({
         ? serializeDefaultAvatarConfig(env.actorId)
         : avatarConfigJson(avatarConfig)
     );
+    await assignUniqueUsernameIfEmpty(tx, env.actorId);
   },
 });
 

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset local SQLite</title>
+  </head>
+  <body>
+    <p id="status">Resetting local SQLite (OPFS)…</p>
+    <script>
+      (async function () {
+        const status = document.getElementById('status');
+        const params = new URLSearchParams(location.search);
+        const returnTo = params.get('return') || '/';
+        const safeReturn =
+          returnTo.startsWith('/') && !returnTo.startsWith('//')
+            ? returnTo
+            : '/';
+
+        function setStatus(text) {
+          if (status) status.textContent = text;
+        }
+
+        try {
+          try {
+            sessionStorage.removeItem('expo-sqlite.web-recovery-reloaded');
+            sessionStorage.removeItem('main-sqlite-tab-id');
+          } catch (_) {}
+
+          if (!navigator.storage?.getDirectory) {
+            setStatus('OPFS unavailable in this browser. Redirecting…');
+            location.replace(safeReturn);
+            return;
+          }
+
+          const root = await navigator.storage.getDirectory();
+          try {
+            await root.removeEntry('expo-sqlite', { recursive: true });
+          } catch (e) {
+            if (!(e instanceof DOMException && e.name === 'NotFoundError')) {
+              throw e;
+            }
+          }
+
+          setStatus('Done. Reloading app…');
+          location.replace(safeReturn);
+        } catch (e) {
+          const message = e && e.message ? e.message : String(e);
+          setStatus(
+            'Could not wipe OPFS (' +
+              message +
+              '). Close every other tab of this origin (including Cursor IDE browser / Playwright), wait a second, then reload this page.'
+          );
+        }
+      })();
+    </script>
+  </body>
+</html>

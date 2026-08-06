@@ -9,7 +9,8 @@ import { join } from 'node:path';
 const API_DIR = join(import.meta.dirname, '..');
 const REPO_ROOT = join(API_DIR, '../..');
 const API_PORT = 8788;
-const INSPECTOR_PORT = 9231;
+/** `0` = OS-assigned free port. Fixed 9229/9231 hit EADDRNOTAVAIL on some hosts. */
+const INSPECTOR_PORT = 0;
 
 const children: ChildProcess[] = [];
 let shuttingDown = false;

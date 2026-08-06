@@ -7,10 +7,22 @@
  *   - `check/llm-fix-prompt.md` — full fix prompt with per-lane logs
  *   - `check/failures.json` — machine-readable index of failed steps
  * An LLM agent can read those and fix every failure in one pass.
+ *
+ * Locally (not CI), if :5173/:8788 are down, starts one shared `turbo preview`
+ * before the parallel lanes so `check:api` and `check:browser` do not race
+ * starting overlapping servers.
  */
+import { spawn } from 'node:child_process';
+import { closeSync, openSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Writable } from 'node:stream';
 import { DEPLOYMENT_PIPELINE_CHECK_STEPS } from '../../libs/infra/src/cli/lib/deployment-pipeline-check-steps';
+import { ensureDevStackPortsFree } from '../../libs/integration-test/src/ensure-dev-stack-ports-free';
+import {
+  isLocalE2eStackReadySync,
+  waitForLocalE2eStack,
+} from '../../libs/integration-test/src/local-e2e-stack';
+import { previewStackEnv } from '../../libs/integration-test/src/preview-stack-env';
 import {
   CHECK_FAILURES_JSON_REL,
   CHECK_LLM_FIX_PROMPT_REL,
@@ -28,6 +40,34 @@ interface LaneResult {
   readonly bunScript: string;
   readonly exitCode: number;
   readonly output: string;
+}
+
+function isCi(): boolean {
+  const ci = process.env['CI']?.trim();
+  return ci === '1' || ci === 'true';
+}
+
+function startSharedPreviewStack(): { readonly stop: () => void } {
+  ensureDevStackPortsFree();
+  const logPath = join(REPO_ROOT, '.check-preview-stack.log');
+  const logFd = openSync(logPath, 'w');
+  const child = spawn(
+    'turbo',
+    ['run', 'preview', '--filter=@apps/api', '--filter=@apps/client'],
+    {
+      cwd: REPO_ROOT,
+      detached: true,
+      stdio: ['ignore', logFd, logFd],
+      env: { ...process.env, ...previewStackEnv() },
+    }
+  );
+  closeSync(logFd);
+  child.unref();
+  return {
+    stop: () => {
+      ensureDevStackPortsFree();
+    },
+  };
 }
 
 async function mirrorStream(
@@ -107,21 +147,36 @@ function toFailures(results: ReadonlyArray<LaneResult>): CheckStepFailure[] {
     }));
 }
 
-const results = await Promise.all(
-  DEPLOYMENT_PIPELINE_CHECK_STEPS.map((s) => runLane(s.jobId, s.bunScript))
-);
-const failures = toFailures(results);
-
-if (failures.length === 0) {
-  await clearCheckFailureArtifact(REPO_ROOT);
-  process.exit(0);
+let stopSharedPreview: (() => void) | undefined;
+if (!isCi() && !isLocalE2eStackReadySync()) {
+  process.stdout.write(
+    '[check] preview stack not running — starting shared stack for api + browser…\n'
+  );
+  stopSharedPreview = startSharedPreviewStack().stop;
+  await waitForLocalE2eStack();
 }
 
-const { promptPath } = await writeCheckFailureArtifact(REPO_ROOT, failures);
-const failedIds = failures.map((f) => f.stepId).join(', ');
-console.error(`check: failed: ${failedIds}`);
-console.error(
-  `check: agent fix artifact → ${CHECK_LLM_FIX_PROMPT_REL} (index: ${CHECK_FAILURES_JSON_REL})`
-);
-console.error(`check: absolute path → ${promptPath}`);
-process.exit(1);
+let exitCode = 1;
+try {
+  const results = await Promise.all(
+    DEPLOYMENT_PIPELINE_CHECK_STEPS.map((s) => runLane(s.jobId, s.bunScript))
+  );
+  const failures = toFailures(results);
+
+  if (failures.length === 0) {
+    await clearCheckFailureArtifact(REPO_ROOT);
+    exitCode = 0;
+  } else {
+    const { promptPath } = await writeCheckFailureArtifact(REPO_ROOT, failures);
+    const failedIds = failures.map((f) => f.stepId).join(', ');
+    console.error(`check: failed: ${failedIds}`);
+    console.error(
+      `check: agent fix artifact → ${CHECK_LLM_FIX_PROMPT_REL} (index: ${CHECK_FAILURES_JSON_REL})`
+    );
+    console.error(`check: absolute path → ${promptPath}`);
+    exitCode = 1;
+  }
+} finally {
+  stopSharedPreview?.();
+}
+process.exit(exitCode);

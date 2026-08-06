@@ -93,8 +93,16 @@ export function LocalDatabaseBootErrorScreen({
             if (typeof window === 'undefined') return;
             if (canResetLocalData) {
               const url = new URL(window.location.href);
-              url.searchParams.set(RESET_DB_QUERY_PARAM, '1');
-              window.location.replace(url.toString());
+              url.searchParams.delete(RESET_DB_QUERY_PARAM);
+              const returnTo =
+                url.pathname +
+                (url.searchParams.toString()
+                  ? `?${url.searchParams.toString()}`
+                  : '') +
+                url.hash;
+              window.location.replace(
+                `/reset-opfs.html?return=${encodeURIComponent(returnTo || '/')}`
+              );
               return;
             }
             window.location.reload();

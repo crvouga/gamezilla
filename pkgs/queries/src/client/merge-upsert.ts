@@ -8,6 +8,21 @@ export function assertTableName(table: string): void {
   assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
 }
 
+/**
+ * Postgres jsonb / JSON wire values arrive as objects or arrays. expo-sqlite
+ * only accepts string | number | null | Uint8Array binds — objects throw
+ * `Unsupported parameter type: object` and abort the whole merge txn.
+ */
+export function sqliteWireValue(value: unknown): Value {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' || typeof value === 'number') return value;
+  if (typeof value === 'boolean') return value ? 1 : 0;
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'bigint') return value.toString();
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
 export async function tableColumns(
   tx: SqlClient,
   table: string
@@ -31,7 +46,7 @@ export async function upsertRowIntersect(
   );
   assert.ok(cols.includes('id'), `${table}: id required`);
   const colIdents = cols.map((c) => ident(c));
-  const valueFrags = cols.map((c) => sql`${(row[c] ?? null) as Value}`);
+  const valueFrags = cols.map((c) => sql`${sqliteWireValue(row[c])}`);
   const assignments = cols
     .filter((c) => c !== 'id')
     .map((c) => sql`${ident(c)} = excluded.${ident(c)}`);

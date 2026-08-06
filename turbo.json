@@ -75,6 +75,11 @@
     },
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "EXPO_PUBLIC_API_URL",
+        "EXPO_PUBLIC_E2E",
+        "EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL"
+      ],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",

@@ -9,7 +9,7 @@
  *
  * Invoked via `bun run check:browser` (wraps `secrets-run` for dev secrets).
  */
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { closeSync, openSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,8 +18,10 @@ import {
   isLocalE2eStackReadySync,
   waitForLocalE2eStack,
 } from '../../libs/integration-test/src/local-e2e-stack';
+import { previewStackEnv } from '../../libs/integration-test/src/preview-stack-env';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
+const PREVIEW_LOG = join(REPO_ROOT, '.check-preview-stack.log');
 
 function isCi(): boolean {
   const ci = process.env['CI']?.trim();
@@ -35,26 +37,48 @@ function runE2eTests(): number {
   return result.status ?? 1;
 }
 
-function startPreviewStack(): { readonly stop: () => void } {
-  const logPath = join(REPO_ROOT, '.check-preview-stack.log');
-  const logFd = openSync(logPath, 'a');
-  const child = spawn(
+type PreviewHandle = {
+  readonly stop: () => void;
+  readonly exited: Promise<number>;
+};
+
+function startPreviewStack(): PreviewHandle {
+  ensureDevStackPortsFree();
+  const logFd = openSync(PREVIEW_LOG, 'w');
+  const child: ChildProcess = spawn(
     'turbo',
     ['run', 'preview', '--filter=@apps/api', '--filter=@apps/client'],
     {
       cwd: REPO_ROOT,
       detached: true,
       stdio: ['ignore', logFd, logFd],
-      env: { ...process.env, EXPO_PUBLIC_E2E: '1' },
+      env: { ...process.env, ...previewStackEnv() },
     }
   );
   closeSync(logFd);
+  const exited = new Promise<number>((resolve) => {
+    child.once('exit', (code) => resolve(code ?? 1));
+  });
   child.unref();
   return {
     stop: () => {
       ensureDevStackPortsFree();
     },
+    exited,
   };
+}
+
+async function waitForStackOrPreviewExit(
+  preview: PreviewHandle
+): Promise<void> {
+  await Promise.race([
+    waitForLocalE2eStack(),
+    preview.exited.then((code) => {
+      throw new Error(
+        `[check-browser] turbo preview exited early (code ${String(code)}); see ${PREVIEW_LOG}`
+      );
+    }),
+  ]);
 }
 
 async function main(): Promise<void> {
@@ -71,12 +95,14 @@ async function main(): Promise<void> {
     '[check-browser] preview stack not running — starting…\n'
   );
   const preview = startPreviewStack();
+  let code = 1;
   try {
-    await waitForLocalE2eStack();
-    process.exit(runE2eTests());
+    await waitForStackOrPreviewExit(preview);
+    code = runE2eTests();
   } finally {
     preview.stop();
   }
+  process.exit(code);
 }
 
 await main().catch((error: unknown) => {

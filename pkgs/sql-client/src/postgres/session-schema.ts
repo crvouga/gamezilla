@@ -122,40 +122,48 @@ export async function assertPgSessionSchema(
 }
 
 /**
- * Pins and verifies `search_path` on a new session. Neon/PgBouncer pooler
- * endpoints can hand out a backend before session GUCs stick — retry SET +
- * verify when {@link postgresRejectsStartupSearchPathOption} is true.
+ * On Neon/PgBouncer transaction poolers, session `SET` does not survive the
+ * next round trip — pin + verify must share one backend transaction (same
+ * pattern as {@link pgQueryOnPinnedSession}).
+ */
+async function pinAndVerifyOnPooler(
+  queryable: PgQueryable,
+  dbScope: PostgresDbScope
+): Promise<void> {
+  await queryable.query('BEGIN');
+  try {
+    await queryable.query(
+      `SET LOCAL search_path TO ${quotePgIdent(dbScope.schema)}`
+    );
+    await assertPgSessionSchema(queryable, dbScope);
+    await queryable.query('COMMIT');
+  } catch (error: unknown) {
+    try {
+      await queryable.query('ROLLBACK');
+    } catch (rollbackError: unknown) {
+      throw new AggregateError(
+        [error, rollbackError],
+        'Postgres search_path pin failed and transaction rollback also failed'
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Pins and verifies `search_path` on a new session. Direct Postgres keeps a
+ * session GUC; pooler URLs verify inside one BEGIN/SET LOCAL/COMMIT so the
+ * check is not split across backends.
  */
 export async function pinAndVerifyPgSessionSchema(
   queryable: PgQueryable,
   dbScope: PostgresDbScope,
   connectionString: string
 ): Promise<void> {
-  const pooler = postgresRejectsStartupSearchPathOption(connectionString);
-  const maxAttempts = pooler ? 4 : 1;
-  let lastCurrent: string | null = null;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    await setPgSessionSchema(queryable, dbScope);
-    const result = await queryable.query<{ current_schema: string | null }>(
-      'SELECT current_schema() AS current_schema'
-    );
-    lastCurrent = result.rows[0]?.current_schema ?? null;
-    if (lastCurrent === dbScope.schema) {
-      return;
-    }
-    if (dbScope.schema === 'public' && lastCurrent === null) {
-      const paths = await queryable.query<{ includes_public: boolean }>(
-        `SELECT 'public' = ANY (current_schemas(true)) AS includes_public`
-      );
-      if (paths.rows[0]?.includes_public === true) {
-        return;
-      }
-    }
+  if (postgresRejectsStartupSearchPathOption(connectionString)) {
+    await pinAndVerifyOnPooler(queryable, dbScope);
+    return;
   }
-  assert.equals(
-    lastCurrent,
-    dbScope.schema,
-    'Postgres session search_path must resolve to the application schema',
-    { expected: dbScope.schema, current: lastCurrent }
-  );
+  await setPgSessionSchema(queryable, dbScope);
+  await assertPgSessionSchema(queryable, dbScope);
 }

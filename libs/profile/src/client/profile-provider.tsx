@@ -2,21 +2,16 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useEffect, type ReactNode } from 'react';
 
-import {
-  applyEnsuredUsername,
-  ensureProfile,
-} from './ensure-profile-local/ensure-profile';
-import { ensureProfileOnline } from './ensure-profile-online/ensure-profile-online';
-import { useProfileClientDeps } from './use-profile-client-deps';
+import { ensureProfile } from './ensure-profile-local/ensure-profile';
 
 /**
- * Profile bootstrap: ensures a local profile row for the current `users.id`,
- * then asks the API to assign a globally unique username if needed.
+ * Profile bootstrap: ensures a local profile row (with auto username) for the
+ * current `users.id`. Upload via `/api/mutations` assigns uniqueness on
+ * Postgres.
  */
 function ProfileEntityBootstrap(): null {
   const myId = useMyId();
   const mutationClient = useMutationClient();
-  const deps = useProfileClientDeps();
 
   useEffect(() => {
     let cancelled = false;
@@ -25,14 +20,6 @@ function ProfileEntityBootstrap(): null {
         if (myId.length === 0) return;
         await ensureProfile(mutationClient);
         if (cancelled) return;
-        const card = await ensureProfileOnline(deps);
-        if (cancelled) return;
-        if (card.userId !== myId) {
-          return;
-        }
-        if (card.username.length > 0) {
-          await applyEnsuredUsername(mutationClient, card.username);
-        }
       } catch {
         // Best-effort: re-asserted on the next identity change.
       }
@@ -40,7 +27,7 @@ function ProfileEntityBootstrap(): null {
     return () => {
       cancelled = true;
     };
-  }, [deps, mutationClient, myId]);
+  }, [mutationClient, myId]);
 
   return null;
 }

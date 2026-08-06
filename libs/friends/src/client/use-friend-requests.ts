@@ -40,7 +40,15 @@ function pendingIncomingSql(
 ): Sql<FriendRequestRow> {
   if (!enabled) return emptyRequestsSql();
   return sql<FriendRequestRow>`
-    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    SELECT 
+      id, 
+      from_user_id, 
+      to_user_id, 
+      status, 
+      message, 
+      created_at, 
+      updated_at, 
+      responded_at
     FROM friend_requests
     WHERE to_user_id = ${myId} AND status = 'pending'
     ORDER BY created_at DESC
@@ -53,7 +61,15 @@ function pendingOutgoingSql(
 ): Sql<FriendRequestRow> {
   if (!enabled) return emptyRequestsSql();
   return sql<FriendRequestRow>`
-    SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+    SELECT 
+      id, 
+      from_user_id, 
+      to_user_id, 
+      status, 
+      message, 
+      created_at, 
+      updated_at, 
+      responded_at
     FROM friend_requests
     WHERE from_user_id = ${myId} AND status = 'pending'
     ORDER BY created_at DESC

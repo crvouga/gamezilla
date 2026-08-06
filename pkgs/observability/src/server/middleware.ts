@@ -71,24 +71,24 @@ export function createObservabilityMiddleware(
         throw err;
       } finally {
         const res = c.res;
-        // WebSocket upgrade (101) cannot be re-wrapped via `new Response(...)`.
+        // Never re-wrap `res.body` — cloning a Response stream across concurrent
+        // Worker invocations triggers "Cannot perform I/O on behalf of a
+        // different request" (ReadableStreamSource / SpanParent). Mutate headers
+        // in place; skip WebSocket upgrades (immutable 101 responses).
         const webSocket = (res as Response & { webSocket?: WebSocket })
           .webSocket;
-        if (res.status === 101 || webSocket !== undefined) {
-          span.end();
-          return;
+        if (res.status !== 101 && webSocket === undefined) {
+          const carrier: Record<string, string> = {};
+          observability.inject(span.spanContext, carrier);
+          const traceparent = carrier[TRACEPARENT_HEADER];
+          if (traceparent !== undefined) {
+            try {
+              res.headers.set(TRACEPARENT_HEADER, traceparent);
+            } catch {
+              c.header(TRACEPARENT_HEADER, traceparent);
+            }
+          }
         }
-        const headers = new Headers(res.headers);
-        const carrier: Record<string, string> = {};
-        observability.inject(span.spanContext, carrier);
-        if (carrier[TRACEPARENT_HEADER] !== undefined) {
-          headers.set(TRACEPARENT_HEADER, carrier[TRACEPARENT_HEADER]!);
-        }
-        c.res = new Response(res.body, {
-          status: res.status,
-          statusText: res.statusText,
-          headers,
-        });
         span.end();
       }
     });

@@ -9,9 +9,9 @@
     "tools"
   ],
   "scripts": {
-    "check": "bun run tools/scripts/check.ts",
+    "check": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check.ts",
     "check:actionlint": "actionlint -color",
-    "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts test:integration --filter=@apps/api",
+    "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-api.ts",
     "check:browser": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-browser.ts",
     "check:browser:headed": "bun run tools/scripts/secrets-run.ts -- bun run --filter '@libs/integration-test' test:e2e:headed",
     "check:ci": "bun run tools/scripts/check-ci.ts",
@@ -49,7 +49,7 @@
     "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
     "dev": "bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui",
-    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"tools/package.json\" && bun run tools/scripts/prettier-git-files.ts --write",
+    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"tools/package.json\" && bun run tools/scripts/prettier-git-files.ts --write && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",
