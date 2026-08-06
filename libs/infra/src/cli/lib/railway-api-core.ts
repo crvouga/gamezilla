@@ -40,8 +40,25 @@ export async function railwayGql<T>(
   return body.data;
 }
 
+/**
+ * Account tokens only — workspace/project tokens reject `me`.
+ * Also fails when Railway has suspended the account (e.g. past-due bill).
+ */
 export async function validateRailwayToken(token: string): Promise<void> {
-  await railwayGql<{ me: { id: string } }>(token, `query { me { id } }`);
+  try {
+    await railwayGql<{ me: { id: string } }>(token, `query { me { id } }`);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/not authorized/i.test(msg)) {
+      throw new Error(
+        'Railway rejected RAILWAY_TOKEN — Not Authorized. ' +
+          'Use an account token (https://railway.com/account/tokens → "No workspace"). ' +
+          'If the token is an account token, check https://railway.com/workspace/billing ' +
+          'for past-due invoices or account holds — those also return Not Authorized.'
+      );
+    }
+    throw e;
+  }
 }
 
 export type RailwayProject = {
