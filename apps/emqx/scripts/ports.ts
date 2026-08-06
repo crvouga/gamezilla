@@ -13,6 +13,9 @@ export const EMQX_MQTT_USER = 'pubsub';
 export const EMQX_MQTT_PASS = 'pubsub';
 export const EMQX_API_KEY = 'pubsub-test';
 export const EMQX_API_SECRET = 'pubsub-test-secret';
+/** EMQX stock dashboard defaults (local only). */
+export const EMQX_DASHBOARD_USER = 'admin';
+export const EMQX_DASHBOARD_PASS = 'public';
 
 /** Pinned open-source EMQX release for tarball fallback. */
 export const EMQX_VERSION = '5.8.6';

@@ -10,6 +10,7 @@ import type { MiddlewareHandler } from 'hono';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
+import { notifyUserChannels } from '../sync/notify-user-channels';
 
 type InboxActor = {
   readonly accountId: string;
@@ -33,13 +34,14 @@ function ensureInboxHandlers(): void {
     }
     const actor = inboxActorStorage.getStore();
     assert.defined(actor, 'friends inbox: actor missing');
-    await handleFriendsInboxAction({
+    const result = await handleFriendsInboxAction({
       sql: ctx.sql,
       actorId: ctx.actorId,
       deviceId: actor.deviceId,
       actionId: ctx.actionId,
       requestId,
     });
+    notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
   });
 }
 

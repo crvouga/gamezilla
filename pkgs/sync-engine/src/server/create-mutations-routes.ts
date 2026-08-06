@@ -1,14 +1,16 @@
+import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import type { MutationRegistry } from '../mutations/core/types';
+import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody } from '../queries/core/types';
 import { MAX_MUTATIONS_BATCH } from '../queries/server/bounds';
 import { isAuthErrorBody } from './auth-error';
+import { notifyChannels } from './notify-channels';
 
 const mutationRowSchema = z.object({
   id: z.string().min(1),
@@ -36,6 +38,8 @@ export type CreateMutationsRoutesDeps = {
   ) => Promise<MutationsRouteAuth | AuthErrorBody>;
   readonly getSql: () => SqlClient;
   readonly registry: MutationRegistry;
+  /** Optional nudge transport; omit to keep upload correct without pubsub. */
+  readonly pubsub?: PubSub;
 };
 
 function asNestedTxClient(tx: SqlClient): SqlClient {
@@ -64,6 +68,37 @@ async function acquireLock(tx: SqlClient, lockUserId: string): Promise<void> {
     }
     throw e;
   }
+}
+
+function commitCheckpoint(seq: number): string {
+  return `${Date.now()}${String(seq).padStart(6, '0')}`;
+}
+
+function collectInvalidates(
+  registry: MutationRegistry,
+  auth: MutationsRouteAuth,
+  applied: readonly { name: string; argsJson: string }[]
+): Topic[] {
+  const env: MutationEnv = {
+    actorId: auth.actorId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+    now: () => new Date(),
+  };
+  const topics: Topic[] = [];
+  for (const row of applied) {
+    const mutation = registry[row.name];
+    if (mutation?.invalidates === undefined) continue;
+    let args: unknown;
+    try {
+      args = mutation.args.parse(JSON.parse(row.argsJson));
+    } catch {
+      continue;
+    }
+    topics.push(...mutation.invalidates(args, env));
+  }
+  return topics;
 }
 
 /** `POST /mutations` — ordered mutation log replay with verdicts. */
@@ -98,6 +133,21 @@ export function createMutationsRoutes(deps: CreateMutationsRoutesDeps) {
         mutations,
       });
     });
-    return c.json(result, 200);
+
+    const pubsub = deps.pubsub;
+    if (pubsub !== undefined && result.applied.length > 0) {
+      const topics = collectInvalidates(deps.registry, auth, result.applied);
+      notifyChannels({
+        pubsub,
+        topics,
+        checkpoint: commitCheckpoint(result.ackSeq),
+        label: result.applied.map((a) => a.name).join(','),
+      });
+    }
+
+    return c.json(
+      { ok: result.ok, verdicts: result.verdicts, ackSeq: result.ackSeq },
+      200
+    );
   });
 }

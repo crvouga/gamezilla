@@ -89,3 +89,18 @@ export const EMQX_API_SECRET = new Secret({
   validate: (i) => validateNonEmpty('EMQX_API_SECRET', i),
   seed: seedApiSecret,
 });
+
+async function seedJwtSecret(_input: SecretSeedInput): Promise<string> {
+  // Local/dev only — operators must rotate for production.
+  return 'local-emqx-jwt-secret-change-me';
+}
+
+export const EMQX_JWT_SECRET = new Secret({
+  name: 'EMQX_JWT_SECRET',
+  hint: 'HMAC secret shared with EMQX JWT authenticator (MQTT password = JWT)',
+  optional: true,
+  pushToApiWorker: true,
+  mirrorToDev: true,
+  validate: (i) => validateNonEmpty('EMQX_JWT_SECRET', i),
+  seed: seedJwtSecret,
+});

@@ -5,6 +5,11 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { join } from 'node:path';
 import { ensureEmqxBin } from './ensure-emqx';
+import {
+  EMQX_DASHBOARD_PASS,
+  EMQX_DASHBOARD_PORT,
+  EMQX_DASHBOARD_USER,
+} from './ports';
 
 const APP_DIR = join(import.meta.dirname, '..');
 const DATA_DIR = join(APP_DIR, 'data');
@@ -52,6 +57,11 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 }
 
 const bin = ensureEmqxBin();
+console.warn('[emqx] dashboard', {
+  url: 'http://127.0.0.1:' + String(EMQX_DASHBOARD_PORT),
+  user: EMQX_DASHBOARD_USER,
+  pass: EMQX_DASHBOARD_PASS,
+});
 const emqx = spawn(bin, ['foreground'], {
   cwd: APP_DIR,
   stdio: 'inherit',
@@ -62,6 +72,8 @@ const emqx = spawn(bin, ['foreground'], {
     EMQX_NODE__NAME: 'emqx@127.0.0.1',
     EMQX_NODE__COOKIE: 'gamezilla_emqx_local',
     EMQX_API_KEY__BOOTSTRAP_FILE: join(DATA_DIR, 'api-keys.bootstrap'),
+    EMQX_DASHBOARD__DEFAULT_USERNAME: EMQX_DASHBOARD_USER,
+    EMQX_DASHBOARD__DEFAULT_PASSWORD: EMQX_DASHBOARD_PASS,
     EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
     EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
     EMQX_AUTHENTICATION__1__ENABLE: 'true',

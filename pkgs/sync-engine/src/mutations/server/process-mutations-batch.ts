@@ -17,9 +17,16 @@ export type MutationVerdict =
       readonly message: string;
     };
 
+export type AppliedMutationRef = {
+  readonly mutationId: string;
+  readonly name: string;
+  readonly argsJson: string;
+};
+
 export type ProcessMutationsBatchResult = {
   readonly ok: true;
   readonly verdicts: readonly MutationVerdict[];
+  readonly applied: readonly AppliedMutationRef[];
   readonly ackSeq: number;
 };
 
@@ -40,6 +47,7 @@ export async function processMutationsBatch(
 ): Promise<ProcessMutationsBatchResult> {
   const sorted = [...deps.mutations].sort((a, b) => a.seq - b.seq);
   const verdicts: MutationVerdict[] = [];
+  const applied: AppliedMutationRef[] = [];
   let ackSeq = 0;
 
   for (const row of sorted) {
@@ -62,11 +70,16 @@ export async function processMutationsBatch(
       });
     } else {
       verdicts.push({ mutationId: row.id, status: 'applied' });
+      applied.push({
+        mutationId: row.id,
+        name: row.name,
+        argsJson: row.args,
+      });
     }
     ackSeq = Math.max(ackSeq, row.seq);
   }
 
-  return { ok: true, verdicts, ackSeq };
+  return { ok: true, verdicts, applied, ackSeq };
 }
 
 async function loadRejection(

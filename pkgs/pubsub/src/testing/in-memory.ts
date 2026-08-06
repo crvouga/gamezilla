@@ -33,6 +33,7 @@ export class InMemoryPubSub implements PubSub {
   private readonly handlers = new Map<Topic, Set<Handler>>();
   private readonly statusListeners = new Set<(s: PubSubStatus) => void>();
   private closed = false;
+  private forcedStatus: PubSubStatus | null = null;
   private readonly bus: InMemoryBus;
 
   constructor(bus?: InMemoryBus) {
@@ -65,7 +66,8 @@ export class InMemoryPubSub implements PubSub {
   }
 
   status(): PubSubStatus {
-    return this.closed ? 'down' : 'connected';
+    if (this.closed) return 'down';
+    return this.forcedStatus ?? 'connected';
   }
 
   onStatus(cb: (s: PubSubStatus) => void): () => void {
@@ -89,6 +91,24 @@ export class InMemoryPubSub implements PubSub {
     this.assertOpen();
     assertValidTopic(topic);
     this.dispatchDecoded(topic, decodePayload(raw));
+  }
+
+  /** Test hook: force status transitions without closing. */
+  setStatusForTest(status: PubSubStatus): void {
+    if (this.closed) return;
+    this.forcedStatus = status;
+    for (const cb of [...this.statusListeners]) {
+      try {
+        cb(status);
+      } catch (err) {
+        console.warn('[pubsub] status listener error contained', err);
+      }
+    }
+  }
+
+  /** Test hook: topics with at least one handler. */
+  subscribedTopicsForTest(): readonly Topic[] {
+    return [...this.handlers.keys()];
   }
 
   receiveEncoded(topic: Topic, encoded: string, _source: InMemoryPubSub): void {

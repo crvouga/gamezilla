@@ -50,6 +50,8 @@
     "@pkgs/matchmaking": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -59,6 +61,7 @@
     "@pkgs/uuid": "workspace:*",
     "@sentry/cloudflare": "catalog:",
     "hono": "catalog:",
+    "jose": "catalog:",
     "pg": "catalog:",
     "stripe": "catalog:",
     "zod": "catalog:"

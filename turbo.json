@@ -267,6 +267,19 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:pubsub-emqx-imports": {
+      "inputs": [
+        "tools/scripts/check-pubsub-emqx-imports.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:audit": {
       "cache": false
     }

@@ -1,4 +1,5 @@
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { spaceListChannels, userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -7,6 +8,7 @@ export const mySpaces = defineQuery({
   params: z.object({}),
   hydrates: ['spaces'],
   limit: 200,
+  channels: (_params, ctx) => spaceListChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },
@@ -33,6 +35,7 @@ export const mySpaceUsers = defineQuery({
   params: z.object({}),
   hydrates: ['space_users'],
   limit: 2000,
+  channels: (_params, ctx) => spaceListChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0;
   },
@@ -61,6 +64,7 @@ export const openSpaceSessions = defineQuery({
   params: z.object({}),
   hydrates: ['space_open_sessions'],
   limit: 20,
+  channels: (_params, ctx) => userChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0 && ctx.env.deviceId.length > 0;
   },

@@ -55,19 +55,37 @@ function readAnonEnsureBody(raw: unknown): AnonEnsureBody {
   };
 }
 
+function requireDeviceId(header: string | undefined): string {
+  const deviceId = header?.trim() ?? '';
+  if (deviceId.length === 0) {
+    throw new UnauthorizedError('Missing x-anon-id for device binding');
+  }
+  return deviceId;
+}
+
+function requireBearerToken(header: string | null): string {
+  if (header === null || !header.startsWith('Bearer ')) {
+    throw new UnauthorizedError('Missing bearer token');
+  }
+  const bearerToken = header.slice('Bearer '.length).trim();
+  if (bearerToken.length === 0) {
+    throw new UnauthorizedError('Missing bearer token');
+  }
+  return bearerToken;
+}
+
 /**
  * Auth routes:
  * - `POST /auth/anon/ensure` — mint/bind anon `users` row for the install
  * - `POST /auth/refresh` — upgrade-or-switch on provider sign-in
  */
-export function createAuthApiRoutes() {
+export function createAuthApiRoutes(deps?: {
+  readonly onUserDomainWrite?: (userId: string) => void;
+}) {
   return new Hono<ApiHonoEnv<AuthContext>>()
     .post('/auth/anon/ensure', async (c) => {
       const sql = c.get('sqlClient');
-      const deviceId = c.req.header(ANON_ID_HEADER)?.trim() ?? '';
-      if (deviceId.length === 0) {
-        throw new UnauthorizedError('Missing x-anon-id for device binding');
-      }
+      const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
       const rawBody: unknown = await c.req.json().catch(() => null);
       const body = readAnonEnsureBody(rawBody);
@@ -78,6 +96,8 @@ export function createAuthApiRoutes() {
         forceNew: body.forceNew,
       });
 
+      deps?.onUserDomainWrite?.(result.userId);
+
       return c.json(
         { userId: result.userId, accountId: result.userId, isAnon: true },
         200
@@ -86,19 +106,10 @@ export function createAuthApiRoutes() {
     .post('/auth/refresh', async (c) => {
       const sql = c.get('sqlClient');
       const authServer = c.get('authServer');
-
-      const header = c.req.header('Authorization') ?? null;
-      if (header === null || !header.startsWith('Bearer ')) {
-        throw new UnauthorizedError('Missing bearer token');
-      }
-      const bearerToken = header.slice('Bearer '.length).trim();
-      if (bearerToken.length === 0) {
-        throw new UnauthorizedError('Missing bearer token');
-      }
-      const deviceId = c.req.header(ANON_ID_HEADER)?.trim() ?? '';
-      if (deviceId.length === 0) {
-        throw new UnauthorizedError('Missing x-anon-id for device binding');
-      }
+      const bearerToken = requireBearerToken(
+        c.req.header('Authorization') ?? null
+      );
+      const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
       const accountId = await resolveAccountIdFromBearer({
         sql,
@@ -121,6 +132,8 @@ export function createAuthApiRoutes() {
         deviceId,
         deviceAttributes: body.device,
       });
+
+      deps?.onUserDomainWrite?.(accountId);
 
       return c.json({ accountId, userId: accountId, isAnon: false }, 200);
     });

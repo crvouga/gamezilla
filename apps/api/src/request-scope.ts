@@ -1,6 +1,7 @@
 import type { SessionAuth } from '@libs/auth/server/session-middleware';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
+import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
@@ -13,6 +14,7 @@ export type ApiRequestAsyncStore = {
   /** Postgres-backed {@link Kv} for LLM response caching (per request). */
   readonly kv: Kv;
   readonly observability: Observability;
+  readonly secretStore: SecretStore;
 };
 
 export const apiRequestAsyncLocalStorage =

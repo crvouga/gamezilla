@@ -66,7 +66,7 @@ async function getRequest(
 
 export async function handleFriendsInboxAction(
   ctx: InboxFriendsCtx
-): Promise<void> {
+): Promise<{ readonly userIds: readonly string[] }> {
   const env = mutationEnv(ctx);
 
   if (ctx.actionId === 'accept') {
@@ -80,7 +80,7 @@ export async function handleFriendsInboxAction(
     const request = await getRequest(ctx.sql, ctx.requestId);
     await deactivateFriendRequestInteraction(ctx.sql, request);
     await publishFriendRequestAcceptedInteraction(ctx.sql, request);
-    return;
+    return { userIds: [request.fromUserId, request.toUserId] };
   }
   if (ctx.actionId === 'decline') {
     await declineFriendRequestMutation.run(
@@ -92,7 +92,7 @@ export async function handleFriendsInboxAction(
     );
     const request = await getRequest(ctx.sql, ctx.requestId);
     await deactivateFriendRequestInteraction(ctx.sql, request);
-    return;
+    return { userIds: [request.fromUserId, request.toUserId] };
   }
   if (ctx.actionId === 'cancel') {
     await cancelFriendRequestMutation.run(
@@ -104,7 +104,7 @@ export async function handleFriendsInboxAction(
     );
     const request = await getRequest(ctx.sql, ctx.requestId);
     await deactivateFriendRequestInteraction(ctx.sql, request);
-    return;
+    return { userIds: [request.fromUserId, request.toUserId] };
   }
   throw new Error(`Unknown friends inbox action: ${ctx.actionId}`);
 }

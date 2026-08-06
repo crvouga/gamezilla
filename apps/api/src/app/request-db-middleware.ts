@@ -94,7 +94,7 @@ async function openObservedRequestDb(
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
-  const { c, next, dbScope, dbUrl, options } = args;
+  const { c, next, dbScope, dbUrl, options, secretStore } = args;
   const { authServer, observability } = options;
   const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
   const sqlClient = wrapSqlClientForObservability(
@@ -109,6 +109,7 @@ async function attachRequestDatabase(
     sessionAuth,
     kv,
     observability,
+    secretStore,
   };
   return await apiRequestAsyncLocalStorage.run(store, async () => {
     c.set('sqlClient', sqlClient);

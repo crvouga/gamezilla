@@ -19,6 +19,7 @@ import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_API_URL,
+  EMQX_JWT_SECRET,
   EMQX_WSS_URL,
 } from './emqx-secrets';
 import { EXPO_TOKEN } from './expo-token';
@@ -96,6 +97,7 @@ export const SECRETS: readonly Secret[] = [
   EMQX_WSS_URL,
   EMQX_API_KEY,
   EMQX_API_SECRET,
+  EMQX_JWT_SECRET,
 ];
 
 export function getSecretMap(): readonly Secret[] {

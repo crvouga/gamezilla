@@ -17,6 +17,15 @@ Operators / broker should configure:
 - Dashboard API key + secret for `POST /api/v5/publish` and `DELETE /api/v5/clients/{clientid}`
 - No retained messages required for this port (adapter always publishes `qos: 0`, `retain: false`)
 
+### Product topic helpers (Gamezilla)
+
+Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/db/shared/sync-topics`:
+
+- `user:{actorId}`
+- `room:{spaceId}`
+
+JWT ACL grants subscribe-only on those topics; clients never publish in v1.
+
 Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
 
 ## Usage — full-duplex (WSS)
@@ -78,3 +87,14 @@ bun run --filter @pkgs/pubsub-emqx test:broker
 ```
 
 `disruptTransport` uses `DELETE /api/v5/clients/{clientid}` to exercise reconnect + full re-SUBSCRIBE.
+
+## Production JWT authn
+
+App clients authenticate with MQTT username `jwt` and password = short-lived HS256 JWT from `POST /api/pubsub/token`. Configure EMQX:
+
+1. JWT authenticator (`mechanism = jwt`, `from = password`, HMAC secret = secrets `EMQX_JWT_SECRET`)
+2. `acl_claim_name = acl` — subscribe-only rules embedded in the token
+3. Prefer `authorization.no_match = deny` in production so clients cannot subscribe outside their ACL
+4. Keep HTTP API keys (`EMQX_API_KEY` / `EMQX_API_SECRET`) for Worker publish-only nudges
+
+Local `@apps/emqx` ships a matching JWT authenticator secret (`local-emqx-jwt-secret-change-me`) aligned with the `EMQX_JWT_SECRET` seed.

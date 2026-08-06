@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 
+import { validateQueryChannels } from '../../shared/validate-topics';
 import type { QueryDef, QueryRegistry } from './types';
 
 export function queryRegistry(qs: readonly QueryDef<unknown>[]): QueryRegistry {
@@ -10,6 +11,7 @@ export function queryRegistry(qs: readonly QueryDef<unknown>[]): QueryRegistry {
       Number.isFinite(q.limit) && q.limit > 0,
       `Query ${q.name}: hard limit required`
     );
+    validateQueryChannels(q);
     out[q.name] = q;
   }
   return out;

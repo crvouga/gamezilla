@@ -1,12 +1,12 @@
 /**
  * Read-only gate: validate every registry secret in both `dev` and `prd`.
- * Orphans (stored secrets not defined in code) are allowed here — they are
- * warned and purged during `infra provision`.
+ * Orphans (stored secrets not defined in code) are ignored here — they are
+ * purged during `infra provision`.
  *
  * Never seeds, writes, or deletes.
  */
-import { ok, fail as fmtFail, warn, banner } from '../cli/lib/fmt';
-import { getRegistrySecretNames, SECRETS } from '../cli/secrets/registry';
+import { ok, fail as fmtFail, banner } from '../cli/lib/fmt';
+import { SECRETS } from '../cli/secrets/registry';
 import { SECRETS_ENVS, type SecretsEnv } from '../cli/secrets/secret';
 import {
   exportSecretsMap,
@@ -49,15 +49,6 @@ async function checkEnv(env: SecretsEnv): Promise<number> {
       `failed to export secrets: ${e instanceof Error ? e.message : String(e)}`
     );
     return 1;
-  }
-
-  const managed = getRegistrySecretNames();
-  const orphans = [...secrets.keys()].filter((name) => !managed.has(name));
-  for (const name of orphans) {
-    warn(
-      name,
-      `orphan in ${env} — not in SECRETS registry (allowed; purged on provision)`
-    );
   }
 
   await mapPool(SECRETS, CONCURRENCY, async (entry) => {

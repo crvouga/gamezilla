@@ -20,7 +20,9 @@ import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
 import { createMutationsRoutes } from '../sync/mutations-routes';
+import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createQueryRoutes } from '../sync/query-routes';
+import { notifyUserChannels } from '../sync/notify-user-channels';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -176,9 +178,16 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/', healthApp)
     .route('/', createClientConfigApp(log))
     .route('/', createFriendsApp())
-    .route('/', createAuthApiRoutes())
+    .route(
+      '/',
+      createAuthApiRoutes({
+        onUserDomainWrite: (userId) =>
+          notifyUserChannels([userId], 'auth-domain-write'),
+      })
+    )
     .route('/', createQueryRoutes())
     .route('/', createMutationsRoutes())
+    .route('/', createPubSubTokenRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)
     .route('/', createStripeSubApp(stripe))

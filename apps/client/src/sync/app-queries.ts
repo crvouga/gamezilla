@@ -1,0 +1,21 @@
+import { AUTH_QUERIES } from '@libs/auth/shared/queries/auth-queries';
+import { CHESS_QUERIES } from '@libs/chess/shared/queries/chess-queries';
+import { CLIENT_CONFIG_QUERIES } from '@libs/client-config/shared/queries/client-config-queries';
+import { ENTITY_STORE_QUERIES } from '@libs/db/shared/queries/entity-store-queries';
+import { FRIENDS_QUERIES } from '@libs/friends/shared/queries/friends-queries';
+import { PROFILE_QUERIES } from '@libs/profile/shared/queries/profile-queries';
+import { SPACE_QUERIES } from '@libs/spaces/shared/queries/space-queries';
+import { INBOX_QUERIES } from '@pkgs/inbox/shared/inbox-queries';
+import { queryRegistry } from '@pkgs/sync-engine/queries/core/registry';
+
+/** Client mirror of API query registry — needed for `channels()` metadata. */
+export const APP_QUERIES = queryRegistry([
+  ...AUTH_QUERIES,
+  ...PROFILE_QUERIES,
+  ...SPACE_QUERIES,
+  ...FRIENDS_QUERIES,
+  ...CHESS_QUERIES,
+  ...CLIENT_CONFIG_QUERIES,
+  ...ENTITY_STORE_QUERIES,
+  ...INBOX_QUERIES,
+]);

@@ -64,6 +64,8 @@
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
     "@pkgs/polyfill": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room-widgets": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",

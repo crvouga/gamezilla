@@ -1,15 +1,21 @@
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type {
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine/mutations/core/types';
 import { createSqlWatch } from '@pkgs/sync-engine/queries/client/sql-watch';
 import { createTableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
-import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
+import type {
+  QueryRegistry,
+  QueryResponse,
+} from '@pkgs/sync-engine/queries/core/types';
 import '@pkgs/sync-engine/queries/shared/tiger-invariants';
+import type { QueryChannelsCtx } from '@pkgs/sync-engine/shared/nudge-payload';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { TableRegistry } from '../shared/table-registry';
+import { attachNudges } from './attach-nudges';
 import { clearLocalCache, migrateLocalSchema } from './local-schema-migrate';
 import {
   createLocalSyncStatusStore,
@@ -29,6 +35,12 @@ import {
 } from './subscription-runtime';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
+export type SyncEngineNudgesOptions = {
+  readonly queryRegistry: QueryRegistry;
+  readonly createPubSub: () => PubSub;
+  readonly getChannelsCtx: () => QueryChannelsCtx;
+};
+
 export type CreateLocalSyncEngineOptions = {
   readonly db: SqlClient;
   readonly tableRegistry: TableRegistry;
@@ -42,6 +54,8 @@ export type CreateLocalSyncEngineOptions = {
   ) => Promise<MutationUploadResult>;
   readonly isAuthRevoked: (error: unknown) => boolean;
   readonly deleteDatabase: () => Promise<void>;
+  /** Optional; when omitted the engine polls exactly as before. */
+  readonly nudges?: SyncEngineNudgesOptions;
 };
 
 type LocalEngineState = {
@@ -54,6 +68,8 @@ type LocalEngineState = {
   readonly watches: ReturnType<typeof createSharedWatchRegistry>;
   connected: boolean;
   revokePromise: Promise<void> | null;
+  disposeNudges: (() => void) | null;
+  debouncedWakeAll: (() => void) | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -113,7 +129,14 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     bus,
     clientId: options.getClientId,
     postBatch: options.postMutations,
-    onUploaded: () => runtime.wakeAll(),
+    onUploaded: () => {
+      const current = readState(stateRef);
+      if (current.debouncedWakeAll !== null) {
+        current.debouncedWakeAll();
+        return;
+      }
+      runtime.wakeAll();
+    },
     onError: (error) => handleError(readState(stateRef), error),
   });
   const state: LocalEngineState = {
@@ -128,9 +151,41 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     ),
     connected: false,
     revokePromise: null,
+    disposeNudges: null,
+    debouncedWakeAll: null,
   };
   stateRef.current = state;
   return state;
+}
+
+function attachNudgesIfConfigured(state: LocalEngineState): void {
+  const nudges = state.options.nudges;
+  if (nudges === undefined || state.disposeNudges !== null) return;
+  try {
+    let pubsub = nudges.createPubSub();
+    state.disposeNudges = attachNudges({
+      pubsub,
+      runtime: state.runtime,
+      queryRegistry: nudges.queryRegistry,
+      db: state.options.db,
+      getChannelsCtx: nudges.getChannelsCtx,
+      remakePubSub: () => {
+        pubsub = nudges.createPubSub();
+        return pubsub;
+      },
+      onScheduleWakeAll: (wakeAll) => {
+        state.debouncedWakeAll = wakeAll;
+      },
+    });
+  } catch (error) {
+    console.warn('[sync] attachNudges failed; continuing poll-only', error);
+  }
+}
+
+function detachNudges(state: LocalEngineState): void {
+  state.disposeNudges?.();
+  state.disposeNudges = null;
+  state.debouncedWakeAll = null;
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
@@ -147,11 +202,13 @@ async function connectState(state: LocalEngineState): Promise<void> {
   });
   state.uploadQueue.start();
   state.runtime.start();
+  attachNudgesIfConfigured(state);
   state.status.patch({ connection: 'syncing' });
 }
 
 async function disconnectState(state: LocalEngineState): Promise<void> {
   state.connected = false;
+  detachNudges(state);
   state.runtime.stop();
   await state.uploadQueue.stop();
   state.status.patch({ connection: 'disconnected', hasSynced: false });
@@ -159,6 +216,7 @@ async function disconnectState(state: LocalEngineState): Promise<void> {
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
   state.connected = false;
+  detachNudges(state);
   state.runtime.stop();
   await state.uploadQueue.stop();
   await state.options.db.disconnect();

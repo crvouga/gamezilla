@@ -17,6 +17,7 @@
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",

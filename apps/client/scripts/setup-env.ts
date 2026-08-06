@@ -268,6 +268,40 @@ async function resolveExpoPublicAuthPublishableKey(
   return null;
 }
 
+async function resolveExpoPublicEmqxWssUrl(
+  store: SecretStore | null
+): Promise<string | null> {
+  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_EMQX_WSS_URL']);
+  if (fromEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from process env.\n'
+    );
+    return fromEnv;
+  }
+  const fromEmqxEnv = trimStringOrNull(process.env['EMQX_WSS_URL']);
+  if (fromEmqxEnv !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from EMQX_WSS_URL in process env.\n'
+    );
+    return fromEmqxEnv;
+  }
+  if (store === null) return null;
+  const fromSecrets = (
+    await store.getOptional('EMQX_WSS_URL')
+  )?.readSecretValue();
+  const trimmed =
+    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
+      ? fromSecrets.trim()
+      : null;
+  if (trimmed !== null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from secret store EMQX_WSS_URL.\n'
+    );
+    return trimmed;
+  }
+  return null;
+}
+
 async function resolveExpoPublicObservabilityBackend(
   store: SecretStore | null
 ): Promise<string | null> {
@@ -323,6 +357,7 @@ async function main(): Promise<void> {
   const authPublishableKey = await resolveExpoPublicAuthPublishableKey(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
+  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
@@ -331,6 +366,11 @@ async function main(): Promise<void> {
   if (authPublishableKey === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY unset; sign-in disabled until AUTH_PUBLISHABLE_KEY is provisioned.\n'
+    );
+  }
+  if (emqxWssUrl === null) {
+    process.stdout.write(
+      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; sync nudges disabled (poll-only).\n'
     );
   }
 
@@ -347,6 +387,9 @@ async function main(): Promise<void> {
   }
   if (observabilityBackend !== null) {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;
+  }
+  if (emqxWssUrl !== null) {
+    body += `EXPO_PUBLIC_EMQX_WSS_URL=${JSON.stringify(emqxWssUrl)}\n`;
   }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;

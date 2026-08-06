@@ -8,13 +8,15 @@ import {
 import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
 import { scopeHash } from '@pkgs/sync-engine/queries/shared/canonical';
 
-const DEFAULT_POLL_MS = 5_000;
+export const DEFAULT_POLL_MS = 5_000;
 const ERROR_POLL_MS = 2_000;
+export const DEFAULT_POLL_MS_LAZY = 30_000;
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
   readonly params: Readonly<Record<string, unknown>>;
   readonly pollMs?: number | undefined;
+  readonly pollMsLazy?: number | undefined;
 };
 
 export type QuerySubscription = {
@@ -29,6 +31,14 @@ export type QueryRequest = {
   readonly checkpoint?: string | undefined;
 };
 
+export type ActiveSubscription = {
+  readonly scope: string;
+  readonly name: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  readonly pollMs: number;
+  readonly pollMsLazy: number;
+};
+
 type ScopeBasis = {
   readonly last_checkpoint: string | null;
   readonly last_hash: string | null;
@@ -37,6 +47,8 @@ type ScopeBasis = {
 type Entry = {
   readonly spec: QuerySubscriptionSpec;
   readonly scope: string;
+  readonly pollMs: number;
+  readonly pollMsLazy: number;
   firstSync: Promise<void>;
   resolveFirst: () => void;
   firstDone: boolean;
@@ -55,6 +67,15 @@ export type SubscriptionRuntimeOptions = {
   readonly onSynced: () => void;
 };
 
+function resolvePollMs(spec: QuerySubscriptionSpec): number {
+  return spec.pollMs ?? DEFAULT_POLL_MS;
+}
+
+function resolvePollMsLazy(spec: QuerySubscriptionSpec): number {
+  if (spec.pollMsLazy !== undefined) return spec.pollMsLazy;
+  return Math.max(resolvePollMs(spec), DEFAULT_POLL_MS_LAZY);
+}
+
 function createEntry(spec: QuerySubscriptionSpec, boot: boolean): Entry {
   let resolveFirst = (): void => undefined;
   const firstSync = new Promise<void>((resolve) => {
@@ -63,6 +84,8 @@ function createEntry(spec: QuerySubscriptionSpec, boot: boolean): Entry {
   return {
     spec,
     scope: scopeHash(spec.name, spec.params),
+    pollMs: resolvePollMs(spec),
+    pollMsLazy: resolvePollMsLazy(spec),
     firstSync,
     resolveFirst,
     firstDone: false,
@@ -152,7 +175,10 @@ function delay(ms: number): Promise<void> {
 /** Owns polling query scopes and applies full responses to local SQLite. */
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
+  private readonly changeListeners = new Set<() => void>();
   private running = false;
+  private connectedMode = false;
+  private readonly jitterTimers = new Set<ReturnType<typeof setTimeout>>();
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     for (const spec of options.boot) this.ensureEntry(spec, true);
@@ -166,6 +192,7 @@ export class SubscriptionRuntime {
 
   stop(): void {
     this.running = false;
+    this.clearJitterTimers();
     for (const entry of this.entries.values()) entry.generation += 1;
   }
 
@@ -181,6 +208,48 @@ export class SubscriptionRuntime {
     }
   }
 
+  wakeScope(scope: string): void {
+    if (!this.running) return;
+    const entry = this.entries.get(scope);
+    if (entry === undefined) return;
+    entry.generation += 1;
+    this.startEntry(entry);
+  }
+
+  wakeAllWithJitter(maxMs: number): void {
+    if (!this.running) return;
+    this.clearJitterTimers();
+    for (const entry of this.entries.values()) {
+      const delayMs = Math.floor(Math.random() * Math.max(0, maxMs));
+      const timer = setTimeout(() => {
+        this.jitterTimers.delete(timer);
+        this.wakeScope(entry.scope);
+      }, delayMs);
+      this.jitterTimers.add(timer);
+    }
+  }
+
+  setConnectedMode(connected: boolean): void {
+    this.connectedMode = connected;
+  }
+
+  listActive(): readonly ActiveSubscription[] {
+    return [...this.entries.values()].map((entry) => ({
+      scope: entry.scope,
+      name: entry.spec.name,
+      params: entry.spec.params,
+      pollMs: entry.pollMs,
+      pollMsLazy: entry.pollMsLazy,
+    }));
+  }
+
+  onSubscriptionsChange(cb: () => void): () => void {
+    this.changeListeners.add(cb);
+    return () => {
+      this.changeListeners.delete(cb);
+    };
+  }
+
   waitForBoot(): Promise<void> {
     const waits = [...this.entries.values()]
       .filter((entry) => entry.boot)
@@ -193,6 +262,7 @@ export class SubscriptionRuntime {
     entry.refs += 1;
     entry.stopped = false;
     if (this.running) this.startEntry(entry);
+    this.emitSubscriptionsChange();
     return {
       waitForFirstSync: () => entry.firstSync,
       unsubscribe: () => this.unsubscribe(entry),
@@ -208,6 +278,7 @@ export class SubscriptionRuntime {
     }
     const entry = createEntry(spec, boot);
     this.entries.set(key, entry);
+    this.emitSubscriptionsChange();
     return entry;
   }
 
@@ -216,6 +287,7 @@ export class SubscriptionRuntime {
     if (entry.boot || entry.refs > 0) return;
     entry.generation += 1;
     this.entries.delete(entry.scope);
+    this.emitSubscriptionsChange();
     void purgeScope(this.options.getMergeDeps(), entry.scope).catch(
       this.options.onError
     );
@@ -230,7 +302,7 @@ export class SubscriptionRuntime {
 
   private async pollLoop(entry: Entry, generation: number): Promise<void> {
     while (this.running && entry.generation === generation && !entry.stopped) {
-      let waitMs = entry.spec.pollMs ?? DEFAULT_POLL_MS;
+      let waitMs = this.connectedMode ? entry.pollMsLazy : entry.pollMs;
       try {
         const basis = await loadBasis(this.options.db, entry.scope);
         const response = await this.options.postQuery(
@@ -245,5 +317,20 @@ export class SubscriptionRuntime {
       }
       if (!entry.stopped) await delay(waitMs);
     }
+  }
+
+  private emitSubscriptionsChange(): void {
+    for (const cb of [...this.changeListeners]) {
+      try {
+        cb();
+      } catch (error) {
+        this.options.onError(error);
+      }
+    }
+  }
+
+  private clearJitterTimers(): void {
+    for (const timer of this.jitterTimers) clearTimeout(timer);
+    this.jitterTimers.clear();
   }
 }

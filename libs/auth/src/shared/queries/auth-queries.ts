@@ -1,4 +1,5 @@
 import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -13,6 +14,7 @@ export const ownUser = defineQuery({
   params: z.object({}),
   hydrates: ['users'],
   limit: 1,
+  channels: (_params, ctx) => userChannels(ctx),
   authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
@@ -30,6 +32,7 @@ export const ownDevices = defineQuery({
   params: z.object({}),
   hydrates: ['devices'],
   limit: 50,
+  channels: (_params, ctx) => userChannels(ctx),
   authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
@@ -61,6 +64,7 @@ export const ownExternalAccounts = defineQuery({
   params: z.object({}),
   hydrates: ['external_accounts'],
   limit: 20,
+  channels: (_params, ctx) => userChannels(ctx),
   authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`

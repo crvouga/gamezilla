@@ -4,6 +4,7 @@ import {
   MutationError,
   type MutationDb,
 } from '@pkgs/sync-engine/mutations/core/types';
+import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
@@ -94,6 +95,7 @@ export const ensureProfileMutation = defineMutation({
     avatarConfig: avatarConfigArgs.optional(),
   }),
   writes: [PROFILES_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   constraintErrors: {
     profiles_username_norm_uidx: {
       code: 'USERNAME_TAKEN',
@@ -117,6 +119,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
   name: 'applyEnsuredUsername',
   args: z.object({ username: z.string().min(1) }),
   writes: [PROFILES_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { username }) {
     const next = normalizeUsername(username);
     // Fill empty, or replace an auto-assigned name. Never overwrite a
@@ -142,6 +145,7 @@ export const claimUsernameMutation = defineMutation({
   name: 'claimUsername',
   args: z.object({ username: z.string() }),
   writes: [PROFILES_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   pendingUx: 'pending',
   requiresOnline: true,
   constraintErrors: {
@@ -174,6 +178,7 @@ export const patchAvatarMutation = defineMutation({
   name: 'patchAvatar',
   args: z.object({ avatarConfig: avatarConfigArgs }),
   writes: [PROFILES_TABLE.tableName],
+  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { avatarConfig }) {
     await tx.run(sql`
       UPDATE profiles

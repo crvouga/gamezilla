@@ -29,4 +29,8 @@ export const ApiSecretName = {
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',
+  emqxApiUrl: 'EMQX_API_URL',
+  emqxApiKey: 'EMQX_API_KEY',
+  emqxApiSecret: 'EMQX_API_SECRET',
+  emqxJwtSecret: 'EMQX_JWT_SECRET',
 } as const;

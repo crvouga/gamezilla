@@ -1,3 +1,4 @@
+import type { Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { z } from 'zod';
 
@@ -47,6 +48,10 @@ type MutationRun<A> = {
   bivarianceHack(ctx: MutationCtx, args: A): Promise<void>;
 }['bivarianceHack'];
 
+type MutationInvalidates<A> = {
+  bivarianceHack(args: A, env: MutationEnv): Topic[];
+}['bivarianceHack'];
+
 export type Mutation<A> = {
   /** Stable wire contract; version by suffix (joinSpaceV2). */
   readonly name: string;
@@ -61,6 +66,8 @@ export type Mutation<A> = {
   readonly pendingUx?: 'instant' | 'pending';
   /** If true, client runner refuses to initiate while offline. */
   readonly requiresOnline?: boolean;
+  /** Topics to nudge after successful server replay (optional). */
+  readonly invalidates?: MutationInvalidates<A>;
   readonly run: MutationRun<A>;
 };
 
