@@ -1,4 +1,4 @@
-import { sampleFaultOptions } from './faults';
+import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { applyWorkloadAction, generateWorkload } from './workload';
 import type { SimWorld } from './world';
 
@@ -22,9 +22,8 @@ export async function bootClients(args: {
     ids.push(id);
   }
   if (args.sampleFaults) {
-    args.world.network.setFaults(
-      sampleFaultOptions(args.world.rng.fork('faults'))
-    );
+    const sampled = sampleFaultOptions(args.world.rng.fork('faults'));
+    args.world.network.setDefaultFaults(sampled);
   }
   await args.world.runFor(200);
   return ids;
@@ -64,12 +63,15 @@ export async function runWorkloadLoop(args: {
   return { done, fail: null };
 }
 
-/** Heal partitions, bring clients online/foreground, assert convergence. */
+/** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
   readonly world: SimWorld;
   readonly ids: readonly string[];
 }): Promise<void> {
+  args.world.releaseAll();
   args.world.healAll();
+  args.world.clearFaults();
+  args.world.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const id of args.ids) {
     if (!args.world.clients.has(id)) {
       await args.world.restartClient(id);

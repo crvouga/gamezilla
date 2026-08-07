@@ -10,6 +10,7 @@ import type { SimPubSubBroker } from './pubsub-bridge';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
+import { SERVER_HTTP } from './traffic';
 import { type AssertConvergedCtx, assertConvergedImpl } from './world-converge';
 
 export type { AssertConvergedCtx };
@@ -24,9 +25,9 @@ export type ClientMeta = {
 export type WorldClientOpts = {
   readonly faults?: SimFaultOptions;
   readonly sampleFaults?: boolean;
+  /** When false, pushes wake query refetch instead of row-image apply. */
+  readonly rowImageFanout?: boolean;
 };
-
-const SERVER_HTTP = 'http:server';
 
 export type AddClientCtx = {
   readonly worldArgs: WorldClientOpts;
@@ -113,6 +114,7 @@ export async function addClientImpl(
       pubsubInstance = ctx.broker.createPubSub(pubEndpoint);
       return pubsubInstance;
     },
+    rowImageFanout: ctx.worldArgs.rowImageFanout !== false,
   });
   ctx.clients.set(clientArgs.id, handle);
   await waitForSessionSync(ctx.scheduler, handle, clientArgs.id);

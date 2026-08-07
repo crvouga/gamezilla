@@ -1,20 +1,17 @@
-import { postgres } from '@pkgs/db-schema/postgres';
-import { createLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared';
 
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimHttpServerHandlers } from './http-bridge';
 import {
-  notesAppSchema,
+  notesLocalSchema,
   notesMutationRegistry,
   notesQueryRegistry,
   readLiveFolders,
   readLiveNotes,
 } from './notes-app';
-import { openSimPostgres } from './open-sim-postgres';
+import { openSimSqliteServer } from './open-sim-sqlite';
 import {
   commitCheckpoint,
   createHandleMutations,
@@ -38,6 +35,7 @@ export type OpenSimServerArgs = {
   readonly resolveAuth: (clientId: string) => SimServerAuth;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
+  readonly rowImageFanout?: boolean;
 };
 
 function buildHandlerCtx(args: {
@@ -50,6 +48,7 @@ function buildHandlerCtx(args: {
   readonly getAuth: () => SimServerAuth;
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly nextCheckpoint: () => string;
+  readonly rowImageFanout: boolean;
 }): SimServerHandlerCtx {
   return {
     db: args.db,
@@ -61,21 +60,16 @@ function buildHandlerCtx(args: {
     getAuth: args.getAuth,
     setAuth: args.setAuth,
     nextCheckpoint: args.nextCheckpoint,
-    rowImageFanout: true,
+    rowImageFanout: args.rowImageFanout,
   };
 }
 
-/** In-process PGlite server for sim HTTP bridge. */
+/** In-memory Bun SQLite server for sim HTTP bridge. */
 export async function openSimServer(
   args: OpenSimServerArgs
 ): Promise<SimServer> {
-  const pg = await openSimPostgres();
-  const db = pg.sqlClient;
-  await db.connect();
-
-  const logger = createLogger({ name: 'sim-server', level: 'silent' });
-  await applyFrameworkServerDdl({ sqlClient: db, logger });
-  await postgres(notesAppSchema, db, { skipAdvisoryLock: true }).reconcile();
+  const bundle = await openSimSqliteServer(notesLocalSchema);
+  const db = bundle.sqlClient;
 
   const mutations = args.mutationRegistry ?? notesMutationRegistry;
   const queries = args.queryRegistry ?? notesQueryRegistry;
@@ -102,6 +96,7 @@ export async function openSimServer(
       checkpointSeq += 1;
       return commitCheckpoint(args.now(), checkpointSeq);
     },
+    rowImageFanout: args.rowImageFanout !== false,
   });
 
   const handleOneQuery = createHandleQuery(ctx);
@@ -116,10 +111,7 @@ export async function openSimServer(
       handleQuery: (reqs) => Promise.all(reqs.map((r) => handleOneQuery(r))),
       handleMutations,
     },
-    dispose: async () => {
-      await db.disconnect();
-      await pg.close();
-    },
+    dispose: () => bundle.close(),
   };
 }
 

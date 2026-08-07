@@ -13,7 +13,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-schema": "workspace:*",

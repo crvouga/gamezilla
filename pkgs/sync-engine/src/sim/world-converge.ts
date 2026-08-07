@@ -1,6 +1,7 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SimClientHandle } from './client-factory';
+import { RELIABLE_FAULTS } from './faults';
 import {
   checkAllClientsConverged,
   type InvariantViolation,
@@ -40,7 +41,10 @@ async function settleOnce(
 export async function assertConvergedImpl(
   ctx: AssertConvergedCtx
 ): Promise<void> {
+  ctx.network.releaseAll();
   ctx.network.healAll();
+  ctx.network.clearNodeFaults();
+  ctx.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const client of ctx.clients.values()) {
     client.lifecycle.setOnline(true);
     client.lifecycle.setForeground(true);

@@ -35,6 +35,7 @@ export type CreateEngineOptionsArgs = {
   readonly timers: Timers;
   readonly createId: () => string;
   readonly createPubSub: () => PubSub;
+  readonly rowImageFanout?: boolean;
 };
 
 /** Options bag for {@link createLocalSyncEngine} from sim client args. */
@@ -61,7 +62,7 @@ export async function createEngineFromParts(
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,
       getChannelsCtx: () => ({ actorId: args.actorId }),
-      rowImageFanout: true,
+      rowImageFanout: args.rowImageFanout !== false,
     },
   });
 }

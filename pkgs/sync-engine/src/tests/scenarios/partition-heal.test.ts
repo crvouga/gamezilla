@@ -13,7 +13,8 @@ describe('partition heal', () => {
       await a.mutate(setNote, { id: 'warm', body: 'w' });
       await world.assertConverged();
 
-      world.partition('alice', 'bob');
+      world.partition('alice');
+      world.partition('bob');
       await a.mutate(setNote, { id: 'n1', body: 'during-partition' });
       await world.runFor(100);
       world.healAll();

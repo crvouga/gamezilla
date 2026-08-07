@@ -11,13 +11,10 @@ describe('network faults', () => {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
 
-      world.network.setFaults({
-        ...RELIABLE_FAULTS,
-        packetLossProbability: 1,
-      });
+      world.setFaults('bob', 'live', { packetLossProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost' });
       await world.runFor(50);
-      world.network.setFaults(RELIABLE_FAULTS);
+      world.clearFaults('bob');
       world.healAll();
       await world.assertConverged();
 

@@ -16,17 +16,45 @@ never framework tables or private modules.
 | Wall clocks | Per-node skew via `setClockSkew` / `nowFor` (scheduler stays on base clock) |
 | Timers   | `createSimTimers` implements the production `Timers` port     |
 | RNG      | `createSeededRng` (splitmix64)                                |
-| Network  | `SimNetwork` — delay, loss, reorder, replay, partition        |
+| Network  | `SimNetwork` — delay, loss, reorder, replay, partition, hold  |
 | HTTP     | `createSimHttpClient` / `bindSimHttpServer` over the mesh     |
 | PubSub   | `createSimPubSubBroker` (delayed fanout over the same mesh)   |
-| Server   | in-process PGlite + `applyFrameworkServerDdl` + schema reconcile |
+| Server   | Bun `:memory:` SQLite + framework DDL + schema reconcile      |
 | Clients  | Bun `:memory:` SQLite + real `createLocalSyncEngine`          |
 
 Not simulated: disk bitflips, real EMQX, Cloudflare Worker runtime.
 
+## Per-node traffic controls
+
+Public API on `SimWorld` uses semantic traffic classes (not transport names):
+
+| Traffic | Intent |
+|---------|--------|
+| `live` | Realtime peer updates (pushes / fanout) |
+| `sync` | Pull / request-response hydration |
+| `all` | Both |
+
+```ts
+world.hold('bob', 'sync');     // pause bob's pull deliveries (queued)
+world.release('bob', 'sync');  // drain without re-sampling faults
+world.partition('bob', 'live'); // drop bob's realtime; sync still works
+world.heal('bob');
+world.setFaults('bob', 'live', { packetLossProbability: 1 });
+world.clearFaults('bob');
+```
+
+**Live is unreliable by design.** Never assume live messages arrive exactly once,
+in order, or at all. Control loss / dup / reorder / delay **per node** via
+`setFaults(nodeId, 'live', …)`. Named tests assert domain convergence after
+settle, not push ordering. `sync` stays near-reliable by default; use
+`hold`/`release` to script push↔query races.
+
+`OpenSimWorldArgs.rowImageFanout` (default `true`) — set `false` when a race
+needs live → refetch instead of row-image apply.
+
 ## Network fault model
 
-`SimFaultOptions` (`faults.ts`) applies to **both** HTTP and pubsub deliveries:
+`SimFaultOptions` (`faults.ts`):
 
 | Knob | Effect |
 |------|--------|
@@ -36,9 +64,9 @@ Not simulated: disk bitflips, real EMQX, Cloudflare Worker runtime.
 | `reorderWindow` | Extra delay for reordering |
 | `partitionProbability` / `unpartitionProbability` | Fuzz partitions |
 
-`RELIABLE_FAULTS` zeros all of the above. Scenarios that need a one-shot drop
-should `setFaults` after clients connect, then restore `RELIABLE_FAULTS` before
-`assertConverged` (100% loss also blocks HTTP session sync).
+World-open `faults` / `sampleFaults` set the **default** profile. Per-node
+overrides win for that node's `live` / `sync` / `all`. `RELIABLE_FAULTS` zeros
+all knobs. `assertConverged` / settle clear holds, partitions, and node overrides.
 
 ## Quick start
 
@@ -68,13 +96,14 @@ world.nowFor('alice'); // base.now() + skew
 ## Fanout / correctness scenarios
 
 Named coverage lives in `src/tests/scenarios/` (row-image fanout enabled in
-sim clients + server):
+sim clients + server unless overridden):
 
 - Happy path peer visibility, dropped/reordered/duped fanout, tombstones
 - Offline conflict, pending-mutation race, crash/restart rehydrate
 - Folders multi-table, authz deny, hard-delete reject, latency budget
-- Clock-skew orderings (all A/B/S permutations) + node down/up matrix
-- Seed corpus fuzz with skew / crash / restart workload actions (`fuzz.test.ts`)
+- Clock-skew orderings + node down/up matrix
+- Push↔query races (`hold`/`release`) + live delivery chaos (per-node faults)
+- Seed corpus fuzz with skew / crash / hold / setFaults workload actions
 
 Convergence check: after quiescence, every client’s live domain view
 (notes + folders) matches the server.
@@ -116,8 +145,8 @@ Harness self-checks (RNG / scheduler / timers) live in
 ```
 sim/                                 # DST implementation (not a public export)
   rng.ts clock.ts scheduler.ts timers.ts
-  network.ts http-bridge.ts pubsub-bridge.ts
-  world.ts client-factory.ts server.ts
+  network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
+  world.ts client-factory.ts server.ts open-sim-sqlite.ts
   notes-app/                         # tiny defineSchema + mutations/queries
   faults.ts workload.ts invariants.ts replay.ts
   test-driver.ts

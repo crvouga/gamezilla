@@ -1,15 +1,24 @@
 import type { SimClientHandle } from './client-factory';
 import type { SimClock } from './clock';
 import type { SimFaultOptions } from './faults';
+import { RELIABLE_FAULTS } from './faults';
 import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
 import type { SimNetwork } from './network';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
-import { BROKER, bootSimKernel, SERVER_HTTP } from './world-boot';
+import {
+  BROKER,
+  liveEndpoint,
+  SERVER_HTTP,
+  type SimTraffic,
+  syncEndpoint,
+} from './traffic';
+import { bootSimKernel } from './world-boot';
 import { addClientImpl, assertConvergedImpl } from './world-ops';
 
 export { SIM_SERVER_NODE_ID } from './clock-skew';
+export type { SimTraffic } from './traffic';
 
 export type SimWorld = {
   readonly seed: bigint;
@@ -25,8 +34,20 @@ export type SimWorld = {
   }) => Promise<SimClientHandle>;
   readonly crashClient: (id: string) => Promise<void>;
   readonly restartClient: (id: string) => Promise<SimClientHandle>;
-  readonly partition: (a: string, b: string) => void;
+  /** Drop traffic between this node and the server (default all). */
+  readonly partition: (nodeId: string, traffic?: SimTraffic) => void;
+  /** Clear partitions for one node. */
+  readonly heal: (nodeId: string) => void;
   readonly healAll: () => void;
+  readonly hold: (nodeId: string, traffic: SimTraffic) => void;
+  readonly release: (nodeId: string, traffic: SimTraffic) => void;
+  readonly releaseAll: () => void;
+  readonly setFaults: (
+    nodeId: string,
+    traffic: SimTraffic,
+    faults: Partial<SimFaultOptions>
+  ) => void;
+  readonly clearFaults: (nodeId?: string) => void;
   /** Logical wall-clock offset for a client id or {@link SIM_SERVER_NODE_ID}. */
   readonly setClockSkew: (nodeId: string, skewMs: number) => void;
   readonly nowFor: (nodeId: string) => number;
@@ -45,6 +66,8 @@ export type OpenSimWorldArgs = {
   readonly faults?: SimFaultOptions;
   /** Sample faults from seed when true (overrides faults). */
   readonly sampleFaults?: boolean;
+  /** When false, pushes wake query refetch instead of row-image apply. */
+  readonly rowImageFanout?: boolean;
 };
 
 async function checkClientSeqs(
@@ -57,9 +80,27 @@ async function checkClientSeqs(
   return null;
 }
 
+function partitionNode(
+  network: SimNetwork,
+  nodeId: string,
+  traffic: SimTraffic
+): void {
+  if (traffic === 'sync' || traffic === 'all') {
+    network.partition(syncEndpoint(nodeId), SERVER_HTTP);
+  }
+  if (traffic === 'live' || traffic === 'all') {
+    network.partition(liveEndpoint(nodeId), BROKER);
+  }
+}
+
+function healNode(network: SimNetwork, nodeId: string): void {
+  network.heal(syncEndpoint(nodeId), SERVER_HTTP);
+  network.heal(liveEndpoint(nodeId), BROKER);
+}
+
 /**
  * Multi-client deterministic sync world: virtual clock, lossy network,
- * PGlite server, Bun SQLite clients running real createLocalSyncEngine.
+ * in-memory SQLite server + clients running real createLocalSyncEngine.
  */
 export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
   const k = await bootSimKernel({ seed: args.seed, worldArgs: args });
@@ -98,14 +139,31 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
     addClient,
     crashClient,
     restartClient,
-    partition: (a, b) => {
-      // Partition each named client from server HTTP + pubsub broker.
-      for (const id of [a, b]) {
-        network.partition(`http:${id}`, SERVER_HTTP);
-        network.partition(`pubsub:${id}`, BROKER);
-      }
+    partition: (nodeId, traffic = 'all') => {
+      partitionNode(network, nodeId, traffic);
+    },
+    heal: (nodeId) => {
+      healNode(network, nodeId);
     },
     healAll: () => network.healAll(),
+    hold: (nodeId, traffic) => {
+      network.hold(nodeId, traffic);
+    },
+    release: (nodeId, traffic) => {
+      network.release(nodeId, traffic);
+    },
+    releaseAll: () => {
+      network.releaseAll();
+    },
+    setFaults: (nodeId, traffic, faults) => {
+      network.setNodeFaults(nodeId, traffic, {
+        ...RELIABLE_FAULTS,
+        ...faults,
+      });
+    },
+    clearFaults: (nodeId) => {
+      network.clearNodeFaults(nodeId);
+    },
     setClockSkew: (nodeId, skewMs) => {
       clockSkew.set(nodeId, skewMs);
     },

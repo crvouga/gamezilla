@@ -130,7 +130,8 @@ describe('node lifecycle consistency', () => {
       await world.assertConverged();
 
       // Server unreachable = both partitioned from server HTTP/pubsub.
-      world.partition('alice', 'bob');
+      world.partition('alice');
+      world.partition('bob');
       await a.mutate(setNote, { id: 'n1', body: 'a-local' });
       await b.mutate(setNote, { id: 'n2', body: 'b-local' });
       await world.runFor(100);
@@ -152,7 +153,7 @@ describe('node lifecycle consistency', () => {
       await a.mutate(setNote, { id: 'warm', body: 'w' });
       await world.assertConverged();
 
-      world.partition('alice', 'alice');
+      world.partition('alice');
       await b.mutate(setNote, { id: 'n1', body: 'from-b' });
       await world.runFor(80);
       world.healAll();
@@ -182,9 +183,9 @@ describe('node lifecycle consistency', () => {
       a.lifecycle.setOnline(true);
       await world.runFor(40);
 
-      world.partition('bob', 'bob');
+      world.partition('bob');
       await b.mutate(setNote, { id: 'flip', body: 'b1' });
-      world.healAll();
+      world.heal('bob');
       await world.runFor(40);
 
       b.lifecycle.setOnline(false);

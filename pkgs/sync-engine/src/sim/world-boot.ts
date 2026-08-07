@@ -14,11 +14,8 @@ import { createSeededRng, type SeededRng } from './rng';
 import { createSimScheduler, type SimScheduler } from './scheduler';
 import { openSimServer, type SimServer } from './server';
 import { createSimTimers } from './timers';
+import { BROKER, SERVER_HTTP, SERVER_PUB } from './traffic';
 import type { ClientMeta, WorldClientOpts } from './world-ops';
-
-const SERVER_HTTP = 'http:server';
-const BROKER = 'pubsub:broker';
-const SERVER_PUB = 'pubsub:server';
 
 export type BootedSimKernel = {
   readonly rng: SeededRng;
@@ -58,7 +55,7 @@ function resolveAuthForDevice(
   };
 }
 
-/** Clock, network, broker, and PGlite server for a sim world. */
+/** Clock, network, broker, and in-memory SQLite server for a sim world. */
 export async function bootSimKernel(args: {
   readonly seed: number | bigint | string;
   readonly worldArgs: WorldClientOpts;
@@ -86,6 +83,7 @@ export async function bootSimKernel(args: {
     now: () => nowFor(SIM_SERVER_NODE_ID),
     pubsub: broker.createPubSub(SERVER_PUB),
     resolveAuth: (clientId) => resolveAuthForDevice(authByDevice, clientId),
+    rowImageFanout: args.worldArgs.rowImageFanout !== false,
   });
 
   bindSimHttpServer({
@@ -118,4 +116,4 @@ export async function bootSimKernel(args: {
   };
 }
 
-export { BROKER, SERVER_HTTP };
+export { BROKER, SERVER_HTTP } from './traffic';

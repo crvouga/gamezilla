@@ -1211,7 +1211,6 @@
       "name": "@pkgs/sync-engine",
       "version": "0.0.0",
       "dependencies": {
-        "@electric-sql/pglite": "catalog:",
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/db-schema": "workspace:*",

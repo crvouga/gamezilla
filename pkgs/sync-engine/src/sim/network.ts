@@ -1,11 +1,22 @@
 import type { SimFaultOptions } from './faults';
-import { RELIABLE_FAULTS, sampleDelayMs } from './faults';
+import { RELIABLE_FAULTS } from './faults';
+import {
+  clearNodeFaults as clearStateNodeFaults,
+  edgeKey,
+  faultKey,
+  holdKey,
+  networkRelease,
+  networkReleaseAll,
+  networkSend,
+  type SimDeliver,
+  type SimEndpointId,
+  type SimNetworkState,
+} from './network-parts';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
+import type { SimTraffic } from './traffic';
 
-export type SimEndpointId = string;
-
-export type SimDeliver = (payload: unknown) => void | Promise<void>;
+export type { SimDeliver, SimEndpointId } from './network-parts';
 
 /**
  * Lossy point-to-point mesh. `send` schedules delivery and returns immediately
@@ -23,12 +34,37 @@ export type SimNetwork = {
   readonly partition: (a: SimEndpointId, b: SimEndpointId) => void;
   readonly heal: (a: SimEndpointId, b: SimEndpointId) => void;
   readonly healAll: () => void;
+  /** World default fault profile (fallback when no per-node override). */
+  readonly setDefaultFaults: (faults: SimFaultOptions) => void;
+  /** @deprecated Prefer {@link setDefaultFaults} / per-node world.setFaults. */
   readonly setFaults: (faults: SimFaultOptions) => void;
   readonly faults: () => SimFaultOptions;
+  readonly hold: (nodeId: string, traffic: SimTraffic) => void;
+  readonly release: (nodeId: string, traffic: SimTraffic) => void;
+  readonly releaseAll: () => void;
+  readonly setNodeFaults: (
+    nodeId: string,
+    traffic: SimTraffic,
+    faults: SimFaultOptions
+  ) => void;
+  readonly clearNodeFaults: (nodeId?: string) => void;
 };
 
-function edgeKey(a: SimEndpointId, b: SimEndpointId): string {
-  return `${a}\0${b}`;
+function createNetworkState(args: {
+  readonly scheduler: SimScheduler;
+  readonly rng: SeededRng;
+  readonly faults?: SimFaultOptions;
+}): SimNetworkState {
+  return {
+    endpoints: new Map(),
+    partitioned: new Set(),
+    nodeFaults: new Map(),
+    heldKeys: new Set(),
+    holdQueues: new Map(),
+    scheduler: args.scheduler,
+    rng: args.rng,
+    defaultFaults: args.faults ?? RELIABLE_FAULTS,
+  };
 }
 
 export function createSimNetwork(args: {
@@ -36,68 +72,49 @@ export function createSimNetwork(args: {
   readonly rng: SeededRng;
   readonly faults?: SimFaultOptions;
 }): SimNetwork {
-  const endpoints = new Map<SimEndpointId, SimDeliver>();
-  const partitioned = new Set<string>();
-  let faults = args.faults ?? RELIABLE_FAULTS;
-
-  const isPartitioned = (from: string, to: string): boolean =>
-    partitioned.has(edgeKey(from, to)) || partitioned.has(edgeKey(to, from));
-
-  const scheduleDeliver = (
-    from: SimEndpointId,
-    to: SimEndpointId,
-    payload: unknown
-  ): void => {
-    const delay = sampleDelayMs(faults, args.rng);
-    const reorderExtra =
-      faults.reorderWindow > 0 ? args.rng.int(faults.reorderWindow + 1) : 0;
-    const deliverAt = args.scheduler.clock.now() + delay + reorderExtra;
-    args.scheduler.scheduleAt(deliverAt, async () => {
-      if (isPartitioned(from, to)) return;
-      const dest = endpoints.get(to);
-      if (dest === undefined) return;
-      await dest(payload);
-    });
-  };
-
+  const state = createNetworkState(args);
   return {
     register(id, deliver) {
-      endpoints.set(id, deliver);
+      state.endpoints.set(id, deliver);
     },
     unregister(id) {
-      endpoints.delete(id);
+      state.endpoints.delete(id);
     },
     send(from, to, payload) {
-      if (from === to) {
-        const local = endpoints.get(to);
-        if (local !== undefined) {
-          args.scheduler.scheduleAt(args.scheduler.clock.now(), async () => {
-            await local(payload);
-          });
-        }
-        return;
-      }
-      if (isPartitioned(from, to)) return;
-      if (args.rng.bool(faults.packetLossProbability)) return;
-      scheduleDeliver(from, to, payload);
-      if (args.rng.bool(faults.packetReplayProbability)) {
-        scheduleDeliver(from, to, payload);
-      }
+      networkSend(state, from, to, payload);
     },
     partition(a, b) {
-      partitioned.add(edgeKey(a, b));
-      partitioned.add(edgeKey(b, a));
+      state.partitioned.add(edgeKey(a, b));
+      state.partitioned.add(edgeKey(b, a));
     },
     heal(a, b) {
-      partitioned.delete(edgeKey(a, b));
-      partitioned.delete(edgeKey(b, a));
+      state.partitioned.delete(edgeKey(a, b));
+      state.partitioned.delete(edgeKey(b, a));
     },
     healAll() {
-      partitioned.clear();
+      state.partitioned.clear();
+    },
+    setDefaultFaults(next) {
+      state.defaultFaults = next;
     },
     setFaults(next) {
-      faults = next;
+      state.defaultFaults = next;
     },
-    faults: () => faults,
+    faults: () => state.defaultFaults,
+    hold(nodeId, traffic) {
+      state.heldKeys.add(holdKey(nodeId, traffic));
+    },
+    release(nodeId, traffic) {
+      networkRelease(state, nodeId, traffic);
+    },
+    releaseAll() {
+      networkReleaseAll(state);
+    },
+    setNodeFaults(nodeId, traffic, faults) {
+      state.nodeFaults.set(faultKey(nodeId, traffic), faults);
+    },
+    clearNodeFaults(nodeId) {
+      clearStateNodeFaults(state, nodeId);
+    },
   };
 }

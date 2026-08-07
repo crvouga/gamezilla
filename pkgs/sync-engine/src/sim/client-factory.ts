@@ -58,6 +58,7 @@ export type BuildSimClientArgs = {
   readonly tableRegistry?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
+  readonly rowImageFanout?: boolean;
 };
 
 async function openMemoryDb(): Promise<SqlClient> {
@@ -123,6 +124,7 @@ export async function buildSimClient(
     timers: args.timers,
     createId: args.createId,
     createPubSub: args.createPubSub,
+    rowImageFanout: args.rowImageFanout !== false,
   });
 
   const mutationClient = createMutationSide({
