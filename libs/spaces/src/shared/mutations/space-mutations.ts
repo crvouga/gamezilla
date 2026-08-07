@@ -140,12 +140,7 @@ async function openSession(
 ): Promise<void> {
   const id = spaceOpenSessionEntityId(env.deviceId, spaceId);
   const now = env.now().toISOString();
-  const live = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM space_open_sessions
-    WHERE id = ${id} AND _deleted_at IS NULL
-    LIMIT 1
-  `);
-  if (live.length > 0) return;
+  // Single upsert — skip pre-SELECT (saves a remote Postgres RTT).
   await tx.run(sql`
     INSERT INTO space_open_sessions (
       id, space_id, device_id, opened_at, join_announced, _deleted_at
@@ -215,6 +210,11 @@ export const createSpaceMutation = defineMutation({
   writes: ['spaces', 'space_users', 'space_open_sessions'],
   // Host-only at create — skip party DB lookup (was ~700ms on remote Postgres).
   invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
+  affectedRows: ({ spaceId }, env) => ({
+    spaces: [spaceId],
+    space_users: [spaceUserEntityId(spaceId, env.accountId ?? env.actorId)],
+    space_open_sessions: [spaceOpenSessionEntityId(env.deviceId, spaceId)],
+  }),
   async run({ tx, env }, { spaceId, visibility }) {
     const actorAccountId = accountId(env);
     const actorMemberId = memberId(env);
@@ -251,6 +251,11 @@ export const joinSpaceMutation = defineMutation({
   writes: ['space_users', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
+  affectedRows: ({ spaceId }, env) => ({
+    space_users: [spaceUserEntityId(spaceId, env.accountId ?? env.actorId)],
+    space_open_sessions: [spaceOpenSessionEntityId(env.deviceId, spaceId)],
+    spaces: [spaceId],
+  }),
   async run({ tx, env }, { spaceId }) {
     const actorAccountId = accountId(env);
     const row = await getSpaceHost(tx, spaceId);
@@ -306,6 +311,10 @@ export const leaveSpaceMutation = defineMutation({
   writes: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
+  affectedRows: ({ spaceId }, env) => ({
+    spaces: [spaceId],
+    space_open_sessions: [spaceOpenSessionEntityId(env.deviceId, spaceId)],
+  }),
   async run({ tx, env }, { spaceId, endIfLastSeat }) {
     const row = await getSpaceHost(tx, spaceId);
     if (isHost(env, row) || endIfLastSeat === true) {
@@ -328,6 +337,8 @@ export const endSpaceMutation = defineMutation({
   writes: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
+  // Session tombstones are multi-row; space `ended_at` is the peer-visible signal.
+  affectedRows: ({ spaceId }) => ({ spaces: [spaceId] }),
   async run({ tx, env }, { spaceId }) {
     await requireHost(tx, env, spaceId, 'Only the host can end this space.');
     await endSpace(tx, env, spaceId);
@@ -340,6 +351,7 @@ export const renameSpaceMutation = defineMutation({
   writes: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
+  affectedRows: ({ spaceId }) => ({ spaces: [spaceId] }),
   async run({ tx, env }, { spaceId, title }) {
     await requireHost(tx, env, spaceId, 'Only the host can rename this space.');
     await tx.run(sql`
@@ -358,6 +370,7 @@ export const setVisibilityMutation = defineMutation({
   writes: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
+  affectedRows: ({ spaceId }) => ({ spaces: [spaceId] }),
   async run({ tx, env }, { spaceId, visibility }) {
     await requireHost(tx, env, spaceId, 'Only the host can change visibility.');
     if (visibility !== 'private' && env.isAnon) {

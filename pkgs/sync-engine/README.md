@@ -17,21 +17,30 @@ The client is a **replicator**: the server sends **full query snapshots that
 include soft-deleted rows**; the client **upserts every row verbatim**, then
 **re-applies its pending local mutations on top**. Deletion is data
 (`_deleted_at`), never inferred from absence. Peers learn about each other’s
-changes only via **pubsub nudge → query refetch** (no peer mutation fanout).
+changes via **pubsub nudge → (optional row-image apply) or query refetch**.
+Snapshots alone define correctness; row-image fanout is a **lossy
+optimization**. There is **no peer mutation fanout**.
 
 ```text
 mutate() ──► local SQL + _mutations row ──► POST /mutations ──► Postgres replay
                                                               │
                                                               ▼
-UI ◄── useQuery(watch) ◄── SQLite ◄── merge(upsert + re-apply) ◄── POST /query
-                                         ▲
-                                         └── pubsub nudge (tables filter)
+                                              post-replay SELECT → nudge
+                                                              │
+UI ◄── useQuery(watch) ◄── SQLite ◄── merge(upsert + re-apply) ◄─┤
+                                         ▲                        │
+                                         ├── row images (lossy)   │
+                                         └── POST /query refetch ─┘
 ```
 
 **This package is not a CRDT, not OT, not a realtime game bus.** Realtime
 shared play lives on the **Room Durable Object** (spaces). Sync-engine is the
 authoritative **durable domain mirror** (friends, profile, spaces metadata,
 puzzle catalog/progress, client config, inbox rows, auth entities).
+
+**Latency goal:** sub-200ms p95 peer-visible domain writes (device A mutates →
+device B’s SQLite reflects it) via immediate upload drain + row-image fanout.
+**Anti-goal:** sub-50ms shared realtime state stays on the Room DO.
 
 ---
 
@@ -47,11 +56,11 @@ When recommending changes, optimize in this order unless the user overrides:
 4. **Operability** — CI gates catch policy drift; deterministic sim catches
    races; four public entrypoints only.
 5. **Efficiency** — hash/`not_modified`, nudge table filtering, coalesce,
-   single-flight merge. Secondary to 1–4.
+   single-flight merge, row-image fanout. Secondary to 1–4.
 
-**Anti-goals:** sub-100ms multi-device domain edits via MQTT; perfect GC of
-every row the moment it leaves a query; zero stale locals; custom per-feature
-REST sync.
+**Anti-goals:** sub-50ms multi-device domain edits via MQTT (use Room DO);
+perfect GC of every row the moment it leaves a query; zero stale locals;
+custom per-feature REST sync; peer mutation replay.
 
 ---
 
@@ -158,6 +167,7 @@ defineMutation({
   args: z.object({ ... }),
   writes: ['friendships'],       // docs + nudge table filter (not runtime-enforced)
   invalidates: (args, env, db) => topics, // post-replay pubsub topics
+  affectedRows: (args) => ({ friendships: [id] }), // optional fanout ids
   requiresOnline: false,
   constraintErrors: { ... },     // map PG unique violations → business codes
   run: async ({ tx, env }, args) => { /* SQL only */ },
@@ -169,6 +179,9 @@ Rules:
   `DELETE FROM` domain tables. `wrapMutationDb` throws `MutationError`
   `NO_HARD_DELETE` on domain hard deletes at apply **and** replay.
 - Use `softDeleteById` / `LIVE_ROW_SQL` from `@pkgs/sync-engine/shared`.
+- Optional `affectedRows` declares entity ids for post-replay fanout SELECTs.
+  Undeclared → checkpoint-only nudge. Framework owns the SELECT — never derive
+  row images from mutation args.
 - Breaking wire changes → new `name` (`joinSpaceV2`); keep old handlers until
   clients adopt.
 - Server replay is idempotent via `_mutations_applied` (keyed by mutation id).
@@ -222,6 +235,7 @@ server writes is a separate runtime footgun — prefer mutations.
 |-------|----------|---------|
 | `_mutations` | yes | Pending upload queue only: `id, name, args, client_id, seq, created_at` |
 | `_scope_meta` | cache | Per-scope `last_checkpoint`, `last_hash`, `last_active_at` |
+| `_topic_applied` | cache | Per-topic `last_applied` nudge checkpoint (fanout gap detection) |
 | `write_rejections` | cache | Permanent failures (local or synced) |
 
 `seq` = `COALESCE(MAX(seq),0)+1` inside the mutate transaction. Server
@@ -247,6 +261,7 @@ Applied by `applyFrameworkServerDdl` at migrate time (not domain
 |-------|---------|
 | `_mutations_applied` | Idempotency + audit (`applied` / `rejected`) |
 | `write_rejections` | Permanent failures keyed by `client_id` (= device id) |
+| `_sync_topic_checkpoint` | Per-topic monotonic nudge checkpoints (`n` bigint) |
 
 `public._mutations` is **dropped**. Uploads are JSON to `POST /mutations`, not
 row sync of a `_mutations` table.
@@ -284,22 +299,34 @@ row sync of a `_mutations` table.
 
 ```ts
 { mutations: Array<{ id, name, args /* JSON string */, clientId, seq, createdAt }> }
-→ { ok: true, verdicts: Array<applied | rejected>, ackSeq }
+→ { ok: true, verdicts: Array<applied | rejected>, ackSeq, topicCheckpoints? }
 ```
 
 Bounds: `MAX_MUTATIONS_BATCH = 64`. Client ack = **delete** local `_mutations`
 row (applied or rejected). Rejected also writes local `write_rejections`.
+Optional `topicCheckpoints` floors the mutating client’s `_topic_applied` so
+own echoed fanout is skipped.
 
-After successful replay, server `notifyChannels({ topics, checkpoint, tables })`.
+After successful replay, server `notifyChannels` per invalidated topic with a
+**strictly monotonic per-topic checkpoint** (from `_sync_topic_checkpoint`).
+When `rowImageFanout` is enabled and the mutation declares `affectedRows`, the
+nudge may also carry post-replay **row images** (size-capped).
 
 ### Pubsub nudge
 
 ```ts
-{ checkpoint?: string; tables?: string[] }
+{ checkpoint: string; tables?: string[]; rows?: Record<string, QueryRow[]> }
 ```
 
-No mutation SQL on the wire. Client may ignore checkpoints that are already
-applied only by refetching; wasted wakes cost a `not_modified` (acceptable).
+`checkpoint` is required and monotonic per topic. Optional `rows` are
+server-authored post-replay images (incl. `_deleted_at`) — a **lossy
+optimization**. Any dropped, reordered, duplicated, or ignored fanout must
+degrade to nudge → refetch. Snapshots alone define correctness.
+
+**Removed forever (unless redesign):** peer **mutation** fanout / MQTT as a
+mutation log. Peer-executed mutations diverge under state skew, and
+`lastHash`-based `not_modified` cannot detect or repair peer-local divergence.
+Row-image fanout is different: peers upsert server facts, never execute.
 
 ---
 
@@ -378,7 +405,7 @@ guaranteed absence of flicker after ack (see tradeoffs).
 
 - Soft-delete-only domain rows + tombstones on the wire
 - Snapshot merge (not delta protocol) as the default truth path
-- No peer mutation fanout / no `_peer_mutations`
+- Locked: no peer **mutation** fanout / no `_peer_mutations` (row-image fanout is the latency path)
 - No `_row_scopes` / absence-as-delete
 - No write-epoch soft-ack barrier (ack deletes queue row)
 - Four public package entrypoints
@@ -459,12 +486,15 @@ status, it needs a stronger justification than “might be useful.”
 ## Performance characteristics (current)
 
 - Query HTTP: batched, max 64 per POST; 1 in-flight batch per client runtime
-- Mutation HTTP: batched, max 64; upload loop idle wake ~100ms / error 2s
+- Mutation HTTP: batched, max 64; upload wake is sticky-immediate (100ms idle is backstop only) / error 2s
 - Coalesce: microtask (0 ms) — bursts collapse without timer delay
 - Cache hit: content hash → `not_modified` (empty body)
 - Merge: column-intersect upsert per row (not bulk COPY)
 - Watches: table-change bus; SQL re-run on overlapping table names
-- Nudges: table-filtered scope wake; reconnect full wakeAll
+- Nudges: required per-topic monotonic checkpoint; optional row images
+  (`MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES`); table-filtered scope wake; reconnect full wakeAll
+- Peer-visible latency budget (happy path): immediate drain + replay/publish +
+  pubsub hop &lt; 200ms p95 simulated
 
 Measure before proposing deltas, indexes, or parallel in-flight polls.
 Raising `MAX_IN_FLIGHT_POLLS` re-opens merge races unless merge stays
@@ -551,6 +581,7 @@ mutation `onSuccess` — stay and let SQLite drive UI.
 bun run --filter @pkgs/sync-engine tc
 bun run --filter @pkgs/sync-engine test
 bun run ci:no-domain-hard-delete
+bun run ci:fanout-rows-from-reads
 bun run ci:channel-exhaustiveness
 bun run ci:lint
 ```
@@ -560,25 +591,29 @@ bun run ci:lint
 - Dual-platform harness: mutation parity SQLite ↔ Postgres
 - `@pkgs/sync-engine/test`: `createInMemorySyncEngine`
 
-`queries/shared/tiger-invariants.ts` lists named invariants; some names still
-refer to the pre-simplification rebase/epoch era — **trust this README’s
-behavior section over stale invariant titles**, and update that list when
-touching sync core.
+`queries/shared/tiger-invariants.ts` lists named invariants aligned with current
+behavior (re-apply, nudge checkpoint monotonicity, lossy fanout).
 
 ---
 
 ## Invariants / non-goals (do not “fix” these)
 
 1. No domain hard deletes — soft-delete only.
-2. No peer mutation replay — nudge + query only; realtime = Room DO.
-3. No `_row_scopes` / multi-scope absence GC.
-4. No write-epoch / soft-ack barrier — ack deletes queue row.
-5. No delta / resync / gone wire shapes.
-6. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).
-7. No deep public imports — four entrypoints only.
-8. No dependency patches; no biome size-rule disables for app code.
-9. No pkgs → libs/apps imports.
-10. Actor identity comes from session auth only (never trust client-supplied
+2. No peer mutation replay — realtime = Room DO. Row-image fanout (server
+   facts only) is allowed as a lossy optimization; snapshots define correctness.
+3. Fanout messages may be lost, reordered, duplicated, or ignored at any time
+   without affecting convergence.
+4. Fanout row images are produced from post-replay reads only, never from
+   mutation args or peer-executed logic.
+5. No `_row_scopes` / multi-scope absence GC.
+6. No write-epoch / soft-ack barrier — ack deletes queue row.
+7. No delta / resync / gone **query** wire shapes (`POST /query` stays
+   `ok` / `not_modified` / `denied`).
+8. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).
+9. No deep public imports — four entrypoints only.
+10. No dependency patches; no biome size-rule disables for app code.
+11. No pkgs → libs/apps imports.
+12. Actor identity comes from session auth only (never trust client-supplied
     actor for authorization).
 
 ---

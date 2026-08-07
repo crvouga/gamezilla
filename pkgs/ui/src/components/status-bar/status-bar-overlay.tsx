@@ -1,7 +1,7 @@
 /**
  * Full-screen Control Center-style status overlay. Progress (0..1) drives
- * fade + a subtle vertical slide that tracks the open/close gesture.
- * Dismiss via bottom grabber pan (swipe up) or close button.
+ * fade + a subtle vertical slide. Frosted glass lets content underneath
+ * remain faintly visible. Dismiss via grabber pan or close.
  */
 
 import type { ReactNode } from 'react';
@@ -20,6 +20,7 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { borderRadius, useTheme } from '../../theme';
 import { CloseIconButton } from '../close-icon-button';
 import { statusBarGrabCursor } from './status-bar-cursor';
+import { StatusBarFrostBackdrop } from './status-bar-frost-backdrop';
 import { StatusBarPanel } from './status-bar-panel';
 import type { RegisteredStatusBarItem } from './types';
 import type { StatusBarReveal } from './use-status-bar-reveal';
@@ -88,7 +89,7 @@ export function StatusBarOverlay({
     opacity: progress.value,
   }));
 
-  // Content (not the full-bleed fill) tracks the pointer with a short slide.
+  // Content (not the frost fill) tracks the pointer with a short slide.
   const contentStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: (1 - progress.value) * -CONTENT_SLIDE_PX }],
   }));
@@ -104,12 +105,9 @@ export function StatusBarOverlay({
         }
       }}
       pointerEvents={interactive ? 'auto' : 'none'}
-      style={[
-        styles.root,
-        { backgroundColor: theme.colors.surfaceElevated },
-        surfaceStyle,
-      ]}
+      style={[styles.root, surfaceStyle]}
     >
+      <StatusBarFrostBackdrop colorScheme={theme.colorScheme} />
       <Animated.View style={[styles.content, contentStyle]}>
         <View
           pointerEvents="box-none"

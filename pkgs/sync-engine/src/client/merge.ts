@@ -9,6 +9,7 @@ import type {
 } from '../mutations/core/types';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
+import { compareCheckpoint } from './topic-applied';
 
 export type MergeFullInput = {
   readonly scopeHash: string;
@@ -118,20 +119,15 @@ async function mergeTable(
   tx: SqlClient,
   table: string,
   rows: readonly QueryRow[]
-): Promise<void> {
+): Promise<boolean> {
   const cols = await tableColumns(tx, table);
+  if (cols.length === 0) return false;
   for (const row of rows) {
     const id = row['id'];
     assert.ok(typeof id === 'string' && id.length > 0, 'row id required');
     await upsertRowIntersect(tx, table, row, cols);
   }
-}
-
-function compareCheckpoint(a: string, b: string): number {
-  const na = Number(a);
-  const nb = Number(b);
-  if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
-  return a < b ? -1 : a > b ? 1 : 0;
+  return true;
 }
 
 async function isStale(
@@ -215,8 +211,8 @@ async function runMerge(
   await deps.db.transaction(async (tx) => {
     if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
     for (const [table, rows] of Object.entries(input.tables)) {
-      await mergeTable(tx, table, rows);
-      changed.add(table);
+      const ok = await mergeTable(tx, table, rows);
+      if (ok) changed.add(table);
     }
     await touchScopeMeta(tx, input);
     await reapplyPending(tx, deps, changed);
@@ -232,6 +228,35 @@ export async function applyFullMerge(
   input: MergeFullInput
 ): Promise<'applied' | 'stale'> {
   return withMergeSingleFlight(deps.db, () => runMerge(deps, input));
+}
+
+/**
+ * Apply post-replay row images from a nudge through the same upsert +
+ * re-apply path as a full snapshot merge.
+ *
+ * Intentionally does **not** update `_scope_meta.last_hash`: the hash echoes
+ * the server's last full-snapshot content so `not_modified` stays sound. A
+ * rows-apply changes local content without claiming a full snapshot.
+ */
+export async function applyRowImages(
+  deps: MergeApplierDeps,
+  tables: Readonly<Record<string, readonly QueryRow[]>>
+): Promise<void> {
+  await withMergeSingleFlight(deps.db, async () => {
+    const changed = new Set<string>();
+    await deps.db.transaction(async (tx) => {
+      for (const [table, rows] of Object.entries(tables)) {
+        try {
+          const ok = await mergeTable(tx, table, rows);
+          if (ok) changed.add(table);
+        } catch {
+          // Table absent from local schema — skip (mirrors snapshot tolerance).
+        }
+      }
+      await reapplyPending(tx, deps, changed);
+    });
+    if (changed.size > 0) deps.bus.emit([...changed]);
+  });
 }
 
 /**

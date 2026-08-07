@@ -48,7 +48,10 @@ export function MutationClientProvider({
         connectivity: connectivity ?? {
           isOnline: () => engine.status.getSnapshot().online,
         },
-        onQueued: () => engine.wakeUploads(),
+        onQueued: ({ mutation, args }) => {
+          engine.wakeUploads();
+          engine.notifyLocalMutation(mutation, args);
+        },
       }),
     [connectivity, engine, env, ids, mergedRegistry]
   );

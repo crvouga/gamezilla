@@ -91,6 +91,7 @@ describe('attachNudges', () => {
         actorId: 'actor1',
         membershipSpaceIds: memberships,
       }),
+      db,
       remakePubSub: () => {
         remakes += 1;
         current = createInMemoryPubSub() as InMemoryPubSub;
@@ -120,7 +121,7 @@ describe('attachNudges', () => {
   test('nudge refetches the subscribed scope', async () => {
     const { sim, postQueries, pubsub } = await setup();
 
-    await pubsub().publish('user:actor1', {});
+    await pubsub().publish('user:actor1', { checkpoint: '1' });
     await sim.runFor(40);
 
     expect(postQueries.mock.calls).toHaveLength(1);
@@ -136,11 +137,17 @@ describe('attachNudges', () => {
     refreshTopics();
     postQueries.mockClear();
 
-    await pubsub().publish('user:actor1', { tables: ['rooms'] });
+    await pubsub().publish('user:actor1', {
+      checkpoint: '1',
+      tables: ['rooms'],
+    });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(0);
 
-    await pubsub().publish('room:space-a', { tables: ['rooms'] });
+    await pubsub().publish('room:space-a', {
+      checkpoint: '1',
+      tables: ['rooms'],
+    });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(1);
     expect(postQueries.mock.calls[0]?.[0]).toHaveLength(1);
@@ -167,6 +174,8 @@ describe('attachNudges', () => {
     const room = runtime.subscribe({ name: 'roomStuff', params: {} });
     await room.waitForFirstSync();
     refreshTopics();
+    await Promise.resolve();
+    await Promise.resolve();
     await sim.runFor(1);
 
     expect(remakes()).toBeGreaterThan(initialRemakes);
@@ -181,8 +190,43 @@ describe('attachNudges', () => {
     const before = remakes();
 
     refreshTopics();
+    await Promise.resolve();
+    await Promise.resolve();
     refreshTopics();
+    await Promise.resolve();
+    await Promise.resolve();
 
     expect(remakes()).toBe(before);
+  });
+
+  test('duplicate and out-of-order nudges are dropped after applied', async () => {
+    const { sim, postQueries, pubsub } = await setup();
+
+    await pubsub().publish('user:actor1', { checkpoint: '2' });
+    await sim.runFor(40);
+    expect(postQueries.mock.calls).toHaveLength(1);
+    postQueries.mockClear();
+
+    // Duplicate — stale.
+    await pubsub().publish('user:actor1', { checkpoint: '2' });
+    await sim.runFor(40);
+    expect(postQueries.mock.calls).toHaveLength(0);
+
+    // Older — stale.
+    await pubsub().publish('user:actor1', { checkpoint: '1' });
+    await sim.runFor(40);
+    expect(postQueries.mock.calls).toHaveLength(0);
+
+    // Newer — wake.
+    await pubsub().publish('user:actor1', { checkpoint: '3' });
+    await sim.runFor(40);
+    expect(postQueries.mock.calls).toHaveLength(1);
+  });
+
+  test('nudge without checkpoint is ignored', async () => {
+    const { sim, postQueries, pubsub } = await setup();
+    await pubsub().publish('user:actor1', { tables: ['notes'] });
+    await sim.runFor(40);
+    expect(postQueries.mock.calls).toHaveLength(0);
   });
 });

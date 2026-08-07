@@ -248,6 +248,7 @@ export const sendFriendRequestMutation = defineMutation({
   }),
   writes: ['friend_requests'],
   invalidates: ({ toUserId }, env) => friendsPartyInvalidates(env, toUserId),
+  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId, toUserId, message }) {
     const fromUserId = otherUserId(env, toUserId, 'send a friend request to');
     const nowDate = env.now();
@@ -319,6 +320,7 @@ export const declineFriendRequestMutation = defineMutation({
   args: requestIdArgs,
   writes: ['friend_requests'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
     const request = await requireRequestParty(tx, {
       requestId,
@@ -342,6 +344,7 @@ export const cancelFriendRequestMutation = defineMutation({
   args: requestIdArgs,
   writes: ['friend_requests'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
     const request = await requireRequestParty(tx, {
       requestId,

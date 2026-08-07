@@ -15,6 +15,8 @@ const ALLOWED_TABLES = new Set([
   '_mutations',
   '_mutations_applied',
   '_scope_meta',
+  '_topic_applied',
+  '_sync_topic_checkpoint',
   'write_rejections',
 ]);
 
@@ -24,6 +26,7 @@ const SCAN_GLOBS = [
   'libs/**/shared/friends-sql/**/*.{ts,tsx}',
   'libs/friends/src/server/friend-repository.ts',
   'libs/friends/src/server/block-service.ts',
+  'pkgs/sync-engine/src/server/select-fanout-rows.ts',
 ] as const;
 
 const violations: string[] = [];

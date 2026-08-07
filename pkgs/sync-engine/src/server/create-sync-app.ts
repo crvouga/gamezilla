@@ -19,6 +19,8 @@ export type CreateSyncAppDeps = {
   /** Optional nudge transport; omit to keep upload correct without pubsub. */
   readonly pubsub?: PubSub;
   readonly nextCheckpoint?: () => string;
+  /** When true, publish post-replay row images on nudges (default false). */
+  readonly rowImageFanout?: boolean;
 };
 
 let checkpointSeq = 0;
@@ -47,6 +49,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     getSql: deps.getSql,
     mutations,
     ...(deps.pubsub !== undefined ? { pubsub: deps.pubsub } : {}),
+    ...(deps.rowImageFanout === true ? { rowImageFanout: true } : {}),
   });
   return app;
 }

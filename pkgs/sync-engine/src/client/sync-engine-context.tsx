@@ -67,6 +67,7 @@ export function useSyncEngine(): SyncEngineApi {
       subscribeQuery: engine.subscribeQuery,
       subscribeQueries: engine.subscribeQueries,
       wakeUploads: engine.wakeUploads,
+      notifyLocalMutation: engine.notifyLocalMutation,
       status,
       getStatus: () => engine.status.getSnapshot(),
       paintReady,

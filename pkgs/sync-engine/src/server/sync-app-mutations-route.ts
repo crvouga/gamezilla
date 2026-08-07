@@ -7,10 +7,16 @@ import { z } from 'zod';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
-import type { AuthErrorBody } from '../queries/core/types';
+import type { AuthErrorBody, QueryRow } from '../queries/core/types';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
+import { allocateTopicCheckpoints } from './allocate-topic-checkpoint';
 import { isAuthErrorBody } from './auth-error';
 import { notifyChannels } from './notify-channels';
+import {
+  fanoutRowsWithinCap,
+  mergeAffectedRows,
+  selectFanoutRows,
+} from './select-fanout-rows';
 import type { SyncAppAuth } from './sync-app-auth';
 
 const mutationRowSchema = z.object({
@@ -54,10 +60,6 @@ async function acquireLock(tx: SqlClient, lockUserId: string): Promise<void> {
   }
 }
 
-function commitCheckpoint(seq: number): string {
-  return `${Date.now()}${String(seq).padStart(6, '0')}`;
-}
-
 function collectAppliedWrites(
   mutationRegistry: MutationRegistry,
   applied: readonly { name: string }[]
@@ -84,6 +86,7 @@ async function collectInvalidates(
     isAnon: auth.isAnon,
     now: () => new Date(),
   };
+  const seen = new Set<Topic>();
   const topics: Topic[] = [];
   for (const row of applied) {
     const mutation = mutationRegistry[row.name];
@@ -95,9 +98,130 @@ async function collectInvalidates(
       continue;
     }
     const next = await Promise.resolve(mutation.invalidates(args, env, db));
-    topics.push(...next);
+    for (const topic of next) {
+      if (seen.has(topic)) continue;
+      seen.add(topic);
+      topics.push(topic);
+    }
   }
   return topics;
+}
+
+function collectAffectedRowMaps(
+  mutationRegistry: MutationRegistry,
+  auth: SyncAppAuth,
+  applied: readonly { name: string; argsJson: string }[]
+): Record<string, string[]> {
+  const env: MutationEnv = {
+    actorId: auth.actorId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+    now: () => new Date(),
+  };
+  const parts: Array<Readonly<Record<string, readonly string[]>>> = [];
+  for (const row of applied) {
+    const mutation = mutationRegistry[row.name];
+    if (mutation?.affectedRows === undefined) continue;
+    let args: unknown;
+    try {
+      args = mutation.args.parse(JSON.parse(row.argsJson));
+    } catch {
+      continue;
+    }
+    parts.push(mutation.affectedRows(args, env));
+  }
+  return mergeAffectedRows(parts);
+}
+
+async function buildFanoutRows(args: {
+  readonly db: SqlClient;
+  readonly mutationRegistry: MutationRegistry;
+  readonly auth: SyncAppAuth;
+  readonly applied: readonly { name: string; argsJson: string }[];
+  readonly rowImageFanout: boolean;
+}): Promise<Record<string, QueryRow[]> | undefined> {
+  if (!args.rowImageFanout) return undefined;
+  const affected = collectAffectedRowMaps(
+    args.mutationRegistry,
+    args.auth,
+    args.applied
+  );
+  if (Object.keys(affected).length === 0) return undefined;
+  const rows = await selectFanoutRows(args.db, affected);
+  if (Object.keys(rows).length === 0) return undefined;
+  if (!fanoutRowsWithinCap(rows)) return undefined;
+  return rows;
+}
+
+type PreparedMutationNotify = {
+  readonly result: Awaited<ReturnType<typeof processMutationsBatch>>;
+  readonly tables: readonly string[];
+  readonly rows: Record<string, QueryRow[]> | undefined;
+  readonly checkpoints: ReadonlyMap<Topic, string>;
+};
+
+async function prepareMutationNotify(
+  deps: MountMutationsRouteDeps,
+  auth: SyncAppAuth,
+  mutationRows: MutationRow[]
+): Promise<PreparedMutationNotify> {
+  const db = deps.getSql();
+  // Replay + fanout SELECT + checkpoint allocate share one transaction so
+  // remote Postgres pays one connection RTT chain instead of post-commit
+  // round-trips (was dominating peer-visible latency).
+  return db.transaction(async (tx) => {
+    await acquireLock(tx, auth.actorId);
+    const nested = asNestedTxClient(tx);
+    const result = await processMutationsBatch({
+      serverDb: nested,
+      registry: deps.mutations,
+      auth,
+      mutations: mutationRows,
+    });
+    if (result.applied.length === 0 || deps.pubsub === undefined) {
+      return {
+        result,
+        tables: [] as string[],
+        rows: undefined,
+        checkpoints: new Map<Topic, string>(),
+      };
+    }
+    const topics = await collectInvalidates(
+      deps.mutations,
+      auth,
+      result.applied,
+      nested
+    );
+    const tables = collectAppliedWrites(deps.mutations, result.applied);
+    const rows = await buildFanoutRows({
+      db: nested,
+      mutationRegistry: deps.mutations,
+      auth,
+      applied: result.applied,
+      rowImageFanout: deps.rowImageFanout === true,
+    });
+    const checkpoints = await allocateTopicCheckpoints(nested, topics);
+    return { result, tables, rows, checkpoints };
+  });
+}
+
+function publishMutationNudges(
+  deps: MountMutationsRouteDeps,
+  prepared: PreparedMutationNotify
+): void {
+  if (deps.pubsub === undefined || prepared.result.applied.length === 0) return;
+  const label = prepared.result.applied.map((a) => a.name).join(',');
+  for (const [topic, checkpoint] of prepared.checkpoints) {
+    notifyChannels({
+      pubsub: deps.pubsub,
+      topics: [topic],
+      checkpoint,
+      tables: prepared.tables,
+      ...(prepared.rows !== undefined ? { rows: prepared.rows } : {}),
+      label,
+    });
+  }
 }
 
 export type MountMutationsRouteDeps = {
@@ -107,6 +231,8 @@ export type MountMutationsRouteDeps = {
   readonly getSql: () => SqlClient;
   readonly mutations: MutationRegistry;
   readonly pubsub?: PubSub;
+  /** When true, publish post-replay row images on nudges (default false). */
+  readonly rowImageFanout?: boolean;
 };
 
 export function mountMutationsRoute(
@@ -133,35 +259,20 @@ export function mountMutationsRoute(
       seq: m.seq,
       createdAt: m.createdAt,
     }));
-    const db = deps.getSql();
-    const result = await db.transaction(async (tx) => {
-      await acquireLock(tx, auth.actorId);
-      return processMutationsBatch({
-        serverDb: asNestedTxClient(tx),
-        registry: deps.mutations,
-        auth,
-        mutations: mutationRows,
-      });
-    });
-
-    const pubsub = deps.pubsub;
-    if (pubsub !== undefined && result.applied.length > 0) {
-      const topics = await collectInvalidates(
-        deps.mutations,
-        auth,
-        result.applied,
-        db
+    const prepared = await prepareMutationNotify(deps, auth, mutationRows);
+    const { result, checkpoints } = prepared;
+    if (deps.pubsub !== undefined && result.applied.length > 0) {
+      publishMutationNudges(deps, prepared);
+      return c.json(
+        {
+          ok: result.ok,
+          verdicts: result.verdicts,
+          ackSeq: result.ackSeq,
+          topicCheckpoints: Object.fromEntries(checkpoints),
+        },
+        200
       );
-      const tables = collectAppliedWrites(deps.mutations, result.applied);
-      notifyChannels({
-        pubsub,
-        topics,
-        checkpoint: commitCheckpoint(result.ackSeq),
-        tables,
-        label: result.applied.map((a) => a.name).join(','),
-      });
     }
-
     return c.json(
       { ok: result.ok, verdicts: result.verdicts, ackSeq: result.ackSeq },
       200

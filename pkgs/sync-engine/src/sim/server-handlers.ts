@@ -6,9 +6,20 @@ import type { QueryRequest } from '../client/subscription-runtime';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
-import type { QueryRegistry, QueryResponse } from '../queries/core/types';
+import type {
+  QueryRegistry,
+  QueryResponse,
+  QueryRow,
+} from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
+import { allocateTopicCheckpoints } from '../server/allocate-topic-checkpoint';
 import { notifyChannels } from '../server/notify-channels';
+import {
+  fanoutRowsWithinCap,
+  mergeAffectedRows,
+  selectFanoutRows,
+} from '../server/select-fanout-rows';
+
 export type SimServerAuth = {
   readonly actorId: string;
   readonly deviceId: string;
@@ -27,6 +38,7 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
   };
 }
 
+/** Query-response checkpoint (scope merge). Distinct from per-topic nudge seq. */
 function commitCheckpoint(nowMs: number, seq: number): string {
   return `${nowMs}${String(seq).padStart(6, '0')}`;
 }
@@ -76,6 +88,7 @@ export type SimServerHandlerCtx = {
   readonly getAuth: () => SimServerAuth;
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly nextCheckpoint: () => string;
+  readonly rowImageFanout: boolean;
 };
 
 type MutationUploadRow = {
@@ -87,13 +100,42 @@ type MutationUploadRow = {
   readonly createdAt: string;
 };
 
+async function buildFanoutRows(
+  ctx: SimServerHandlerCtx,
+  auth: SimServerAuth,
+  applied: readonly { name: string; argsJson: string }[]
+): Promise<Record<string, QueryRow[]> | undefined> {
+  if (!ctx.rowImageFanout) return undefined;
+  const env: MutationEnv = {
+    ...auth,
+    now: () => new Date(ctx.now()),
+  };
+  const parts: Array<Readonly<Record<string, readonly string[]>>> = [];
+  for (const row of applied) {
+    const mutation = ctx.mutations[row.name];
+    if (mutation?.affectedRows === undefined) continue;
+    let args: unknown;
+    try {
+      args = mutation.args.parse(JSON.parse(row.argsJson));
+    } catch {
+      continue;
+    }
+    parts.push(mutation.affectedRows(args, env));
+  }
+  const affected = mergeAffectedRows(parts);
+  if (Object.keys(affected).length === 0) return undefined;
+  const rows = await selectFanoutRows(ctx.db, affected);
+  if (Object.keys(rows).length === 0) return undefined;
+  if (!fanoutRowsWithinCap(rows)) return undefined;
+  return rows;
+}
+
 async function notifyApplied(args: {
   readonly ctx: SimServerHandlerCtx;
   readonly auth: SimServerAuth;
   readonly applied: readonly { name: string; argsJson: string }[];
-  readonly ackSeq: number;
-}): Promise<void> {
-  if (args.applied.length === 0) return;
+}): Promise<ReadonlyMap<Topic, string>> {
+  if (args.applied.length === 0) return new Map();
   const env: MutationEnv = {
     ...args.auth,
     now: () => new Date(args.ctx.now()),
@@ -104,13 +146,21 @@ async function notifyApplied(args: {
     args.applied,
     args.ctx.db
   );
-  notifyChannels({
-    pubsub: args.ctx.pubsub,
-    topics,
-    checkpoint: commitCheckpoint(args.ctx.now(), args.ackSeq),
-    tables: collectWrites(args.ctx.mutations, args.applied),
-    label: args.applied.map((a) => a.name).join(','),
-  });
+  const tables = collectWrites(args.ctx.mutations, args.applied);
+  const rows = await buildFanoutRows(args.ctx, args.auth, args.applied);
+  const checkpoints = await allocateTopicCheckpoints(args.ctx.db, topics);
+  const label = args.applied.map((a) => a.name).join(',');
+  for (const [topic, checkpoint] of checkpoints) {
+    notifyChannels({
+      pubsub: args.ctx.pubsub,
+      topics: [topic],
+      checkpoint,
+      tables,
+      ...(rows !== undefined ? { rows } : {}),
+      label,
+    });
+  }
+  return checkpoints;
 }
 
 /** Build mutations HTTP handler for the sim server. */
@@ -139,16 +189,18 @@ export function createHandleMutations(
         serverNow: () => new Date(ctx.now()),
       })
     );
-    await notifyApplied({
+    const checkpoints = await notifyApplied({
       ctx,
       auth: stickyAuth,
       applied: result.applied,
-      ackSeq: result.ackSeq,
     });
     return {
       ok: true,
       verdicts: result.verdicts,
       ackSeq: result.ackSeq,
+      ...(checkpoints.size > 0
+        ? { topicCheckpoints: Object.fromEntries(checkpoints) }
+        : {}),
     };
   };
 }

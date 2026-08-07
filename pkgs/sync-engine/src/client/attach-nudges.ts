@@ -1,111 +1,46 @@
 import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
+import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { QueryRegistry } from '../queries/core/types';
-import type { NudgePayload, QueryChannelsCtx } from '../shared/nudge-payload';
-import { REAL_TIMERS, type Timers } from './sim-ports';
-import type { SubscriptionRuntime } from './subscription-runtime';
+import {
+  type AttachNudgesOptions,
+  createNudgeBag,
+  type NudgeBag,
+} from './attach-nudges-bag';
+import { commitPendingCheckpoints, handleNudge } from './attach-nudges-handle';
+import { clearRemovedTopicApplied } from './topic-applied';
 
-export type AttachNudgesOptions = {
-  readonly pubsub: PubSub;
-  readonly runtime: SubscriptionRuntime;
-  readonly queryRegistry: QueryRegistry;
-  readonly getChannelsCtx: () => QueryChannelsCtx;
-  readonly remakePubSub: () => PubSub;
-  readonly timers?: Timers;
-  /** Register a callback to re-derive MQTT topics after channels ctx changes. */
-  readonly onBindTopicRefresh?: (refresh: () => void) => void;
-  /** Re-sync topics when membership tables change locally. */
-  readonly onTablesChanged?: (
-    listener: (tables: ReadonlySet<string>) => void
-  ) => () => void;
-};
+export type { AttachNudgesOptions } from './attach-nudges-bag';
 
-type NudgeBag = {
-  readonly options: AttachNudgesOptions;
-  readonly timers: Timers;
-  pubsub: PubSub;
-  disposed: boolean;
-  lastStatus: PubSubStatus;
-  unbindStatus: (() => void) | null;
-  readonly topicUnsubs: Map<Topic, () => void>;
-  readonly topicToScopes: Map<Topic, Set<string>>;
-  readonly disposers: Array<() => void>;
-  /** Sorted topic key of the last remake — skip remake when unchanged. */
-  lastTopicKey: string;
-};
-
-function parseNudgeTables(value: unknown): readonly string[] | undefined {
-  if (value === undefined) return undefined;
-  if (!Array.isArray(value)) return undefined;
-  const tables: string[] = [];
-  for (const item of value) {
-    if (typeof item === 'string' && item.length > 0) tables.push(item);
-  }
-  return tables.length > 0 ? tables : undefined;
+async function countPendingMutations(db: SqlClient): Promise<number> {
+  const rows = await db.query(sql<{ c: number | string }>`
+    SELECT COUNT(*) AS c FROM _mutations
+  `);
+  return Number(rows[0]?.c ?? 0);
 }
 
-function parseNudge(data: unknown): NudgePayload | null {
-  if (data === null || typeof data !== 'object') return null;
-  const record = data as Record<string, unknown>;
-  const tables = parseNudgeTables(record['tables']);
-  if (!('checkpoint' in record) || record['checkpoint'] === undefined) {
-    return tables !== undefined ? { tables } : {};
-  }
-  if (typeof record['checkpoint'] !== 'string') return null;
-  return {
-    checkpoint: record['checkpoint'],
-    ...(tables !== undefined ? { tables } : {}),
-  };
+function scheduleMembershipRemake(bag: NudgeBag): void {
+  bag.membershipRemakePending = true;
+  void flushMembershipRemake(bag);
 }
 
-/** When nudge lists tables, only wake scopes whose query hydrates them. */
-function filterScopesByTables(
-  bag: NudgeBag,
-  scopes: ReadonlySet<string>,
-  tables: readonly string[] | undefined
-): Set<string> {
-  if (tables === undefined || tables.length === 0) return new Set(scopes);
-  const tableSet = new Set(tables);
-  const out = new Set<string>();
-  for (const sub of bag.options.runtime.listActive()) {
-    if (!scopes.has(sub.scope)) continue;
-    const query = bag.options.queryRegistry[sub.name];
-    if (query === undefined) continue;
-    if (query.hydrates.some((table) => tableSet.has(table))) {
-      out.add(sub.scope);
-    }
-  }
-  return out;
-}
-
-function createBag(options: AttachNudgesOptions): NudgeBag {
-  return {
-    options,
-    timers: options.timers ?? REAL_TIMERS,
-    pubsub: options.pubsub,
-    disposed: false,
-    lastStatus: options.pubsub.status(),
-    unbindStatus: null,
-    topicUnsubs: new Map(),
-    topicToScopes: new Map(),
-    disposers: [],
-    lastTopicKey: '',
-  };
-}
-
-function handleNudge(bag: NudgeBag, topic: Topic, data: unknown): void {
-  if (bag.disposed) return;
-  const payload = parseNudge(data);
-  if (payload === null) return;
-  const topicScopes = bag.topicToScopes.get(topic);
-  if (topicScopes === undefined) return;
-  const scopes = filterScopesByTables(bag, topicScopes, payload.tables);
-  if (scopes.size === 0) return;
-  if (scopes.size === 1) {
-    bag.options.runtime.wakeScope([...scopes][0]!);
+async function flushMembershipRemake(bag: NudgeBag): Promise<void> {
+  if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
-  bag.options.runtime.wakeScopes([...scopes]);
+  bag.remakeFlushInFlight = true;
+  try {
+    const pending = await countPendingMutations(bag.options.db);
+    if (bag.disposed) return;
+    if (pending > 0) {
+      // Stay pending; retry only when `_mutations` bus fires (do not recurse).
+      return;
+    }
+    bag.membershipRemakePending = false;
+    syncTopics(bag);
+  } finally {
+    bag.remakeFlushInFlight = false;
+  }
 }
 
 function collectDesiredTopics(bag: NudgeBag): Map<Topic, Set<string>> {
@@ -148,19 +83,25 @@ function remake(bag: NudgeBag, desired: Map<Topic, Set<string>>): void {
     // ignore
   }
   bag.pubsub = bag.options.remakePubSub();
+  bag.options.onPubSubChanged?.(bag.pubsub);
   bag.lastTopicKey = topicKey(desired);
   bindStatus(bag, bag.pubsub);
   for (const [topic, scopes] of desired) {
     bag.topicToScopes.set(topic, scopes);
     try {
-      const unsub = bag.pubsub.subscribe(topic, (data) =>
-        handleNudge(bag, topic, data)
-      );
+      const unsub = bag.pubsub.subscribe(topic, (data) => {
+        void handleNudge(bag, topic, data);
+      });
       bag.topicUnsubs.set(topic, unsub);
     } catch (error) {
       console.warn('[nudges] subscribe failed', topic, error);
     }
   }
+  void clearRemovedTopicApplied(bag.options.db, new Set(desired.keys())).catch(
+    (error) => {
+      console.warn('[nudges] clearRemovedTopicApplied failed', error);
+    }
+  );
 }
 
 function syncTopics(bag: NudgeBag): void {
@@ -168,7 +109,6 @@ function syncTopics(bag: NudgeBag): void {
   const desired = collectDesiredTopics(bag);
   const nextKey = topicKey(desired);
   if (nextKey === bag.lastTopicKey && bag.topicUnsubs.size === desired.size) {
-    // Same topics — only refresh scope membership maps.
     for (const [topic, scopes] of desired) {
       bag.topicToScopes.set(topic, scopes);
     }
@@ -204,19 +144,27 @@ function disposeBag(bag: NudgeBag): void {
 /**
  * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
  * When the desired topic set changes, remakes the pubsub instance so every
- * topic is subscribed at birth (no late-topic timers).
+ * topic is subscribed at birth (no late-topic timers). Membership remakes
+ * wait until `_mutations` is idle so upload fanout is not lost mid-reconnect.
  */
 export function attachNudges(options: AttachNudgesOptions): () => void {
-  const bag = createBag(options);
+  const bag = createNudgeBag(options);
+  options.runtime.setAfterSweep((scopes) => {
+    void commitPendingCheckpoints(bag, scopes);
+  });
   options.onBindTopicRefresh?.(() => {
-    if (!bag.disposed) syncTopics(bag);
+    if (!bag.disposed) scheduleMembershipRemake(bag);
   });
   if (options.onTablesChanged !== undefined) {
     bag.disposers.push(
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
-        if (!tables.has('spaces') && !tables.has('space_users')) return;
-        syncTopics(bag);
+        if (tables.has('spaces') || tables.has('space_users')) {
+          scheduleMembershipRemake(bag);
+        }
+        if (tables.has('_mutations')) {
+          void flushMembershipRemake(bag);
+        }
       })
     );
   }

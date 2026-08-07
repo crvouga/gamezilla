@@ -35,18 +35,39 @@ export const simSetNote = defineMutation({
   args: z.object({ id: z.string(), body: z.string() }),
   writes: ['notes'],
   invalidates: (): Topic[] => [SIM_WORLD_TOPIC],
+  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, body, owner_id)
       VALUES (${id}, ${body}, ${env.actorId})
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
-        owner_id = excluded.owner_id
+        owner_id = excluded.owner_id,
+        _deleted_at = NULL
     `);
   },
 });
 
-export const simMutationRegistry = mutationRegistry([simSetNote]);
+/** Soft-delete a note (tombstone on the wire). */
+export const simDeleteNote = defineMutation({
+  name: 'simDeleteNote',
+  args: z.object({ id: z.string() }),
+  writes: ['notes'],
+  invalidates: (): Topic[] => [SIM_WORLD_TOPIC],
+  affectedRows: ({ id }) => ({ notes: [id] }),
+  async run({ tx, env }, { id }) {
+    await tx.run(sql`
+      UPDATE notes
+      SET _deleted_at = ${env.now().toISOString()}
+      WHERE id = ${id}
+    `);
+  },
+});
+
+export const simMutationRegistry = mutationRegistry([
+  simSetNote,
+  simDeleteNote,
+]);
 
 /** Global notes query — all clients share scope for convergence checks. */
 export const simNotesQuery = defineQuery({
@@ -60,8 +81,9 @@ export const simNotesQuery = defineQuery({
       id: string;
       body: string;
       owner_id: string;
+      _deleted_at: string | null;
     }>`
-      SELECT id, body, owner_id FROM notes
+      SELECT id, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
       LIMIT ${500}
     `);
@@ -94,6 +116,10 @@ CREATE TABLE IF NOT EXISTS write_rejections (
   meta jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   acknowledged boolean NOT NULL DEFAULT false
+);
+CREATE TABLE IF NOT EXISTS _sync_topic_checkpoint (
+  topic text PRIMARY KEY,
+  n bigint NOT NULL
 );
 `;
 

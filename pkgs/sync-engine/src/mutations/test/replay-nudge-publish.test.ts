@@ -33,6 +33,10 @@ CREATE TABLE write_rejections (
   created_at TEXT NOT NULL,
   acknowledged INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE _sync_topic_checkpoint (
+  topic TEXT PRIMARY KEY,
+  n INTEGER NOT NULL
+);
 `;
 
 async function openDb() {

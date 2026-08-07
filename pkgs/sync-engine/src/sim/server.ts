@@ -57,6 +57,7 @@ function buildHandlerCtx(args: {
     getAuth: args.getAuth,
     setAuth: args.setAuth,
     nextCheckpoint: args.nextCheckpoint,
+    rowImageFanout: true,
   };
 }
 

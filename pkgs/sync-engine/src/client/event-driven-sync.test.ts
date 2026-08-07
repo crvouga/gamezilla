@@ -161,7 +161,7 @@ describe('event-driven-sync', () => {
   });
 
   test('nudge-is-sole-fast-path', async () => {
-    const { runtime, postQueries, registry, sim } = await harness({
+    const { runtime, postQueries, registry, sim, db } = await harness({
       subscriptionCount: 1,
     });
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
@@ -172,6 +172,7 @@ describe('event-driven-sync', () => {
         runtime,
         queryRegistry: registry,
         getChannelsCtx: () => ({ actorId: 'actor1' }),
+        db,
         remakePubSub: () => {
           activePubSub = createInMemoryPubSub() as InMemoryPubSub;
           return activePubSub;
@@ -181,7 +182,7 @@ describe('event-driven-sync', () => {
     );
     await sim.runFor(5);
     postQueries.mockClear();
-    await activePubSub.publish('user:actor1', {});
+    await activePubSub.publish('user:actor1', { checkpoint: '1' });
     await sim.runFor(40);
     expect(postQueries.mock.calls.length).toBe(1);
     await sim.runFor(60);
@@ -210,7 +211,7 @@ describe('event-driven-sync', () => {
   });
 
   test('background-silence', async () => {
-    const { postQueries, setForeground, runtime, registry, sim } =
+    const { postQueries, setForeground, runtime, registry, sim, db } =
       await harness({
         subscriptionCount: 2,
       });
@@ -222,6 +223,7 @@ describe('event-driven-sync', () => {
         runtime,
         queryRegistry: registry,
         getChannelsCtx: () => ({ actorId: 'actor1' }),
+        db,
         remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
         timers: sim.timers,
       })

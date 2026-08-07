@@ -43,5 +43,6 @@ export function createSyncApp() {
     queries: APP_QUERIES,
     mutations: APP_MUTATIONS,
     pubsub: createRequestScopedPubSub(),
+    rowImageFanout: true,
   });
 }

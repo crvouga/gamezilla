@@ -1,5 +1,8 @@
 import { clientConfigTopic } from '@libs/db/shared/sync-topics';
-import { notifyChannels } from '@pkgs/sync-engine/server';
+import {
+  allocateTopicCheckpoint,
+  notifyChannels,
+} from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
@@ -8,12 +11,16 @@ import { getApiPubSub } from './api-pubsub';
 export function notifyClientConfigChannels(label: string): void {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
-  void getApiPubSub(store.secretStore).then((pubsub) => {
+  void (async () => {
+    const pubsub = await getApiPubSub(store.secretStore);
     if (pubsub === undefined) return;
+    const topic = clientConfigTopic();
+    const checkpoint = await allocateTopicCheckpoint(store.sqlClient, topic);
     notifyChannels({
       pubsub,
-      topics: [clientConfigTopic()],
+      topics: [topic],
+      checkpoint,
       label,
     });
-  });
+  })();
 }

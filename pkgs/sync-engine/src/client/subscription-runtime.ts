@@ -127,6 +127,7 @@ async function loadBasis(
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
   private readonly changeListeners = new Set<() => void>();
+  private afterSweep: ((scopes: readonly string[]) => void) | null = null;
   private readonly lifecycle: AppLifecycle;
   private readonly timers: Timers;
   private readonly coalesceMs: number;
@@ -196,6 +197,14 @@ export class SubscriptionRuntime {
     return () => {
       this.changeListeners.delete(cb);
     };
+  }
+
+  /**
+   * Called after a successful sweep applies responses (ok / not_modified /
+   * denied). Used by attachNudges to advance `_topic_applied` after refetch.
+   */
+  setAfterSweep(cb: ((scopes: readonly string[]) => void) | null): void {
+    this.afterSweep = cb;
   }
 
   /** Await first sync of the given scopes (or all active if omitted). */
@@ -308,6 +317,7 @@ export class SubscriptionRuntime {
       const requests = await this.buildRequests(active);
       const responses = await this.options.postQueries(requests);
       await this.applySweepResponses({ active, gens, responses });
+      this.afterSweep?.(active.map((e) => e.scope));
     } catch (error) {
       this.options.onError(error);
     }

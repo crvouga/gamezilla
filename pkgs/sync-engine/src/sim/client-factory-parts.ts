@@ -61,6 +61,7 @@ export async function createEngineFromParts(
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,
       getChannelsCtx: () => ({ actorId: args.actorId }),
+      rowImageFanout: true,
     },
   });
 }
@@ -86,6 +87,9 @@ export function createMutationSide(
     ids: { clientId: args.deviceId },
     connectivity: { isOnline: () => args.lifecycle.lifecycle.isOnline() },
     createId: args.createId,
-    onQueued: () => args.engine.wakeUploads(),
+    onQueued: ({ mutation, args: mutationArgs }) => {
+      args.engine.wakeUploads();
+      args.engine.notifyLocalMutation(mutation, mutationArgs);
+    },
   });
 }

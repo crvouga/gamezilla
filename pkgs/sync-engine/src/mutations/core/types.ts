@@ -57,6 +57,14 @@ type MutationInvalidates<A> = {
   ): readonly Topic[] | Promise<readonly Topic[]>;
 }['bivarianceHack'];
 
+/** Declare entity ids touched so the framework can post-replay SELECT fanout rows. */
+type MutationAffectedRows<A> = {
+  bivarianceHack(
+    args: A,
+    env: MutationEnv
+  ): Readonly<Record<string, readonly string[]>>;
+}['bivarianceHack'];
+
 export type Mutation<A> = {
   /** Stable wire contract; version by suffix (joinSpaceV2). */
   readonly name: string;
@@ -73,6 +81,12 @@ export type Mutation<A> = {
   readonly requiresOnline?: boolean;
   /** Topics to nudge after successful server replay (optional). */
   readonly invalidates?: MutationInvalidates<A>;
+  /**
+   * Entity ids touched by this mutation. Framework SELECTs post-replay row
+   * images for fanout when `rowImageFanout` is enabled. Undeclared →
+   * checkpoint-only nudge (today's behavior).
+   */
+  readonly affectedRows?: MutationAffectedRows<A>;
   readonly run: MutationRun<A>;
 };
 

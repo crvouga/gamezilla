@@ -55,6 +55,22 @@ CREATE INDEX IF NOT EXISTS _mutations_applied_client_id_seq_idx ON public._mutat
 CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx ON public.write_rejections USING btree (client_id);
 
 CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx ON public.write_rejections USING btree (mutation_id);
+
+-- Per-topic monotonic nudge checkpoints (replay serialization order).
+-- Advanced with INSERT … ON CONFLICT DO UPDATE … RETURNING; wire as decimal string.
+CREATE TABLE IF NOT EXISTS public._sync_topic_checkpoint (
+    topic text NOT NULL,
+    n bigint NOT NULL
+);
+
+DO $$ BEGIN
+  EXECUTE 'ALTER TABLE ONLY public._sync_topic_checkpoint
+    ADD CONSTRAINT _sync_topic_checkpoint_pkey PRIMARY KEY (topic)';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN duplicate_table THEN NULL;
+  WHEN invalid_table_definition THEN NULL;
+END $$;
 `;
 
 /** Table names owned by framework DDL (server + local). */
@@ -63,6 +79,8 @@ export const FRAMEWORK_TABLE_NAMES = [
   '_mutations_applied',
   'write_rejections',
   '_scope_meta',
+  '_topic_applied',
+  '_sync_topic_checkpoint',
 ] as const;
 
 /** Local SQLite durable tables (survive CACHE clear). */
@@ -72,4 +90,5 @@ export const FRAMEWORK_DURABLE_TABLE_NAMES = ['_mutations'] as const;
 export const FRAMEWORK_CACHE_TABLE_NAMES = [
   '_scope_meta',
   'write_rejections',
+  '_topic_applied',
 ] as const;

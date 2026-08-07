@@ -212,5 +212,6 @@ export async function createInMemorySyncEngine(
     ),
     status,
     wakeUploads: () => undefined,
+    notifyLocalMutation: () => undefined,
   };
 }

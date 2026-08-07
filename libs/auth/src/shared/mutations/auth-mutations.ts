@@ -20,6 +20,7 @@ export const ensureDeviceMutation = defineMutation({
   args: deviceSnapshot,
   writes: ['devices'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: (_args, env) => ({ devices: [env.deviceId] }),
   async run({ tx, env }, snapshot) {
     const now = env.now().toISOString();
     await tx.run(sql`

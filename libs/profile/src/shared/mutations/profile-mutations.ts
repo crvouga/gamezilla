@@ -95,6 +95,7 @@ export const ensureProfileMutation = defineMutation({
   }),
   writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { avatarConfig }) {
     await seedProfile(
       tx,
@@ -113,6 +114,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
   args: z.object({ username: z.string().min(1) }),
   writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { username }) {
     const next = normalizeUsername(username);
     // Fill empty, or replace an auto-assigned name. Never overwrite a
@@ -139,6 +141,7 @@ export const claimUsernameMutation = defineMutation({
   args: z.object({ username: z.string() }),
   writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   pendingUx: 'pending',
   requiresOnline: true,
   async run({ tx, env }, { username: rawUsername }) {
@@ -179,6 +182,7 @@ export const patchAvatarMutation = defineMutation({
   args: z.object({ avatarConfig: avatarConfigArgs }),
   writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
+  affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { avatarConfig }) {
     await tx.run(sql`
       UPDATE profiles

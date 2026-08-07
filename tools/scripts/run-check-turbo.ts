@@ -23,6 +23,7 @@ const CI_GATE_TASKS = [
   'ci:no-local-tables',
   'ci:no-legacy-writes',
   'ci:no-domain-hard-delete',
+  'ci:fanout-rows-from-reads',
   'ci:mutation-determinism',
   'ci:channel-exhaustiveness',
   'ci:no-provider-leaks',

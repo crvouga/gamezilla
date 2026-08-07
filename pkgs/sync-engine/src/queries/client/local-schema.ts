@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS _scope_meta (
   last_checkpoint TEXT,
   last_hash TEXT
 );
+CREATE TABLE IF NOT EXISTS _topic_applied (
+  topic TEXT PRIMARY KEY,
+  last_applied TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS write_rejections (
   id TEXT PRIMARY KEY,
   mutation_id TEXT NOT NULL,
@@ -39,7 +43,7 @@ CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 4;
+export const SCHEMA_EPOCH = 6;
 
 /** Retired local tables dropped on epoch migrate. */
 export const RETIRED_LOCAL_TABLES = [

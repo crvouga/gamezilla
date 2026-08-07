@@ -38,6 +38,15 @@ export type ReplayMutationDeps = {
   readonly serverNow?: () => Date;
 };
 
+export type ReplayOutcome =
+  | { readonly status: 'applied' }
+  | { readonly status: 'duplicate' }
+  | {
+      readonly status: 'rejected';
+      readonly code: string;
+      readonly message: string;
+    };
+
 /**
  * Replay one mutation against authoritative Postgres.
  * Permanent failures record write_rejections + _mutations_applied rejected.
@@ -46,22 +55,27 @@ export type ReplayMutationDeps = {
 export async function replayMutation(
   deps: ReplayMutationDeps,
   m: MutationRow
-): Promise<void> {
+): Promise<ReplayOutcome> {
   try {
-    await deps.serverDb.transaction(async (txc) => {
+    return await deps.serverDb.transaction(async (txc) => {
       const seen = await txc.query(sql<{ one: number }>`
         SELECT 1 AS one FROM _mutations_applied WHERE mutation_id = ${m.id}
       `);
-      if (seen.length > 0) return;
+      if (seen.length > 0) return { status: 'duplicate' as const };
 
       const mutation = deps.registry[m.name];
       if (mutation === undefined) {
-        await recordRejectedInTxn(txc, m, {
+        const failure = {
           rule: m.name,
           code: 'UNKNOWN_MUTATION',
           message: 'Unknown operation.',
-        });
-        return;
+        };
+        await recordRejectedInTxn(txc, m, failure);
+        return {
+          status: 'rejected' as const,
+          code: failure.code,
+          message: failure.message,
+        };
       }
 
       let parsed: unknown;
@@ -70,8 +84,13 @@ export async function replayMutation(
       } catch (e) {
         if (e instanceof ZodError) {
           const failures = zodFailures(e, m.name);
-          await recordRejectedInTxn(txc, m, failures[0]!);
-          return;
+          const failure = failures[0]!;
+          await recordRejectedInTxn(txc, m, failure);
+          return {
+            status: 'rejected' as const,
+            code: failure.code,
+            message: failure.message,
+          };
         }
         throw e;
       }
@@ -91,6 +110,7 @@ export async function replayMutation(
         INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
         VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'})
       `);
+      return { status: 'applied' as const };
     });
   } catch (e) {
     const mutation = deps.registry[m.name];
@@ -102,7 +122,11 @@ export async function replayMutation(
           ? mutationErrorToFailure(e, m.name)
           : zodFailures(e as ZodError, m.name)[0]!);
       await recordMutationRejection(deps.serverDb, m, failure);
-      return;
+      return {
+        status: 'rejected',
+        code: failure.code,
+        message: failure.message,
+      };
     }
     throw e;
   }

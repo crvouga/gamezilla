@@ -35,7 +35,10 @@ export type CreateMutationClientOptions = {
   readonly ids: MutationClientIds;
   readonly connectivity: MutationConnectivity;
   /** Fired after a mutation is durably queued for upload. */
-  readonly onQueued?: () => void;
+  readonly onQueued?: (info: {
+    readonly mutation: Mutation<unknown>;
+    readonly args: unknown;
+  }) => void;
   /** Deterministic id mint for sim; defaults to crypto.randomUUID. */
   readonly createId?: () => string;
 };
@@ -93,7 +96,10 @@ export function createMutationClient(
             )
           `);
         });
-        options.onQueued?.();
+        options.onQueued?.({
+          mutation: m as Mutation<unknown>,
+          args: parsed,
+        });
         return { ok: true, mutationId };
       } catch (e) {
         if (isMutationError(e)) {

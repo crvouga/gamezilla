@@ -2,7 +2,11 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
+import type {
+  Mutation,
+  MutationEnv,
+  MutationRegistry,
+} from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import { createSqlWatch } from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
@@ -25,6 +29,7 @@ import {
   type MutationUploadResult,
   type MutationUploadRow,
 } from './mutation-upload-queue';
+import { publishOptimisticFanout } from './optimistic-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
 import { createSubscribeQueries } from './subscribe-queries';
@@ -42,6 +47,8 @@ export type SyncEngineNudgesOptions = {
   readonly createPubSub: () => PubSub;
   readonly getChannelsCtx: () => QueryChannelsCtx;
   readonly onBindTopicRefresh?: (refresh: () => void) => void;
+  /** When true, apply contiguous nudge row images (default false). */
+  readonly rowImageFanout?: boolean;
 };
 
 export type CreateLocalSyncEngineOptions = {
@@ -85,6 +92,7 @@ type LocalEngineState = {
   connected: boolean;
   revokePromise: Promise<void> | null;
   disposeNudges: (() => void) | null;
+  nudgePubSub: PubSub | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -172,6 +180,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     connected: false,
     revokePromise: null,
     disposeNudges: null,
+    nudgePubSub: null,
   };
   stateRef.current = state;
   return state;
@@ -189,9 +198,15 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
       runtime: state.runtime,
       queryRegistry: nudges.queryRegistry,
       getChannelsCtx: nudges.getChannelsCtx,
+      db: state.options.db,
+      getMergeDeps: () => mergeDeps(state),
+      ...(nudges.rowImageFanout === true ? { rowImageFanout: true } : {}),
       remakePubSub: () => {
         pubsub = nudges.createPubSub();
         return pubsub;
+      },
+      onPubSubChanged: (next) => {
+        state.nudgePubSub = next;
       },
       ...(nudges.onBindTopicRefresh !== undefined
         ? { onBindTopicRefresh: nudges.onBindTopicRefresh }
@@ -212,6 +227,25 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
 function detachNudges(state: LocalEngineState): void {
   state.disposeNudges?.();
   state.disposeNudges = null;
+  state.nudgePubSub = null;
+}
+
+function notifyLocalMutation(
+  state: LocalEngineState,
+  mutation: Mutation<unknown>,
+  args: unknown
+): void {
+  const pubsub = state.nudgePubSub;
+  const nudges = state.options.nudges;
+  if (pubsub === null || nudges === undefined) return;
+  if (nudges.rowImageFanout !== true) return;
+  void publishOptimisticFanout({
+    pubsub,
+    db: state.options.db,
+    env: state.options.getMutationEnv(),
+    mutation,
+    args,
+  });
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
@@ -291,6 +325,8 @@ function toEngine(state: LocalEngineState): SyncEngine {
     subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,
     wakeUploads: () => state.uploadQueue.wake(),
+    notifyLocalMutation: (mutation, args) =>
+      notifyLocalMutation(state, mutation, args),
   };
 }
 

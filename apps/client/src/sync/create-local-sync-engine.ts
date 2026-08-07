@@ -145,6 +145,7 @@ function nudgeOptions(
       },
       getChannelsCtx: channels.getChannelsCtx,
       onBindTopicRefresh: channels.onBindTopicRefresh,
+      rowImageFanout: true,
     },
   };
 }

@@ -273,6 +273,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:fanout-rows-from-reads": {
+      "inputs": [
+        "pkgs/sync-engine/src/server/**/*.ts",
+        "pkgs/sync-engine/src/sim/server-handlers.ts",
+        "tools/scripts/check-fanout-rows-from-reads.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:mutation-determinism": {
       "inputs": [
         "libs/**/mutations/**/*.ts",

@@ -3,6 +3,7 @@
  */
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { Mutation } from '../mutations/core/types';
 import type {
   SubscribeQueriesHandle,
   SyncEngineQuerySubscriptionSpec,
@@ -87,4 +88,12 @@ export type SyncEngine = {
   readonly status: SyncStatusSubscription;
   /** Wake the mutation upload loop (e.g. after a local `mutate` commit). */
   readonly wakeUploads: () => void;
+  /**
+   * After a successful local mutate: publish lossy row images over MQTT so
+   * peers can paint before server replay (~tens of ms locally).
+   */
+  readonly notifyLocalMutation: (
+    mutation: Mutation<unknown>,
+    args: unknown
+  ) => void;
 };

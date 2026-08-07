@@ -11,11 +11,27 @@ TigerBeetle-style DST for `@pkgs/sync-engine`. One seed → identical timeline.
 | RNG      | `createSeededRng` (splitmix64)                                |
 | Network  | `SimNetwork` — delay, loss, reorder, replay, partition        |
 | HTTP     | `createSimHttpClient` / `bindSimHttpServer` over the mesh     |
-| PubSub   | `createSimPubSubBroker` (delayed fanout)                      |
+| PubSub   | `createSimPubSubBroker` (delayed fanout over the same mesh)   |
 | Server   | in-process pg-mem + real `processMutationsBatch` / `runQuery` |
 | Clients  | Bun `:memory:` SQLite + real `createLocalSyncEngine`          |
 
 Not simulated: disk bitflips, real EMQX, Cloudflare Worker runtime.
+
+## Network fault model
+
+`SimFaultOptions` (`faults.ts`) applies to **both** HTTP and pubsub deliveries:
+
+| Knob | Effect |
+|------|--------|
+| `oneWayDelayMeanMs` / `oneWayDelayJitterMs` | Delivery delay |
+| `packetLossProbability` | Drop message |
+| `packetReplayProbability` | Duplicate delivery |
+| `reorderWindow` | Extra delay for reordering |
+| `partitionProbability` / `unpartitionProbability` | Fuzz partitions |
+
+`RELIABLE_FAULTS` zeros all of the above. Scenarios that need a one-shot drop
+should `setFaults` after clients connect, then restore `RELIABLE_FAULTS` before
+`assertConverged` (100% loss also blocks HTTP session sync).
 
 ## Quick start
 
@@ -29,6 +45,17 @@ await a.mutate(simSetNote, { id: 'n1', body: 'hi' });
 await world.assertConverged();
 await world.dispose();
 ```
+
+## Fanout scenarios
+
+Named coverage lives in `fanout.scenario.test.ts` (row-image fanout enabled in
+sim clients + server):
+
+- Happy path contiguous apply, dropped/reordered/duped fanout, tombstones
+- Pending-mutation race, epoch wipe, seed sweep, &lt;200ms latency budget
+
+Convergence check: after quiescence, every client’s live-row view matches the
+server and pending `_mutations` queues are empty.
 
 ## Replay a failing seed
 
@@ -68,5 +95,6 @@ sim/
   network.ts http-bridge.ts pubsub-bridge.ts
   world.ts client-factory.ts server.ts profile.ts
   faults.ts workload.ts invariants.ts replay.ts
+  fanout.scenario.test.ts                  # row-image fanout acceptance
   test-driver.ts                           # lightweight unit-test helper
 ```
