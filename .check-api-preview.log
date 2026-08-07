@@ -55,3 +55,9 @@
 @apps/api preview:serve: 
 @apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
 @apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1ms)
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready

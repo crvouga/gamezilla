@@ -522,7 +522,6 @@
         "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
         "stripe": "catalog:",
@@ -721,6 +720,21 @@
       "name": "@pkgs/colors",
       "version": "0.0.0",
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/db-schema": {
+      "name": "@pkgs/db-schema",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+      },
+      "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2372,6 +2386,8 @@
     "@pkgs/collab-ui": ["@pkgs/collab-ui@workspace:pkgs/collab-ui"],
 
     "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
+
+    "@pkgs/db-schema": ["@pkgs/db-schema@workspace:pkgs/db-schema"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 

@@ -1,0 +1,25 @@
+{
+  "name": "@pkgs/db-schema",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./postgres": "./src/postgres/index.ts",
+    "./sqlite": "./src/sqlite/index.ts"
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}
