@@ -5,7 +5,7 @@ import { runAsync } from '../../subprocess';
 import { withLockDbSuspended } from '../lock-db-session';
 
 /**
- * Runs the `@libs/stripe sync` script: catalog + entity_store backfill.
+ * Runs the `@libs/stripe sync` script: Stripe catalog reconcile.
  */
 export async function runStripeSyncPhase(platform: CiPlatform): Promise<void> {
   await withLockDbSuspended(async () => {
@@ -16,7 +16,7 @@ export async function runStripeSyncPhase(platform: CiPlatform): Promise<void> {
         ['run', '--filter', '@libs/stripe', '--elide-lines=0', 'sync'],
         {
           cwd: REPO_ROOT,
-          label: 'stripe: catalog + entity_store backfill',
+          label: 'stripe: catalog reconcile',
         }
       );
     });

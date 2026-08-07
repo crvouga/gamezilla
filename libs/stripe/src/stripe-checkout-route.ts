@@ -1,8 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import {
-  readExternalAccountId,
-  upsertExternalAccount,
-} from '@libs/auth/server/external-accounts-sql';
+import { readExternalAccountId } from '@libs/auth/server/external-accounts-sql';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -12,7 +9,6 @@ import { HTTPException } from 'hono/http-exception';
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
-import { getStripeCatalogPriceStripeId } from './stripe-catalog-mirror';
 
 const log = createLogger({ name: 'stripe:checkout' });
 
@@ -50,73 +46,30 @@ async function readStripeCustomerId(
   );
 }
 
-async function ensureStripeCustomerId(args: {
-  readonly sql: SqlClient;
-  readonly stripe: Stripe;
-  readonly auth: StripeAuthContext;
-}): Promise<string> {
-  const { sql, stripe, auth } = args;
-  const { accountId, deviceId } = auth;
-  const existing = await readStripeCustomerId(sql, accountId);
-  if (existing !== null) return existing;
-
-  const customer = await stripe.customers.create({
-    metadata: { account_id: accountId, device_id: deviceId },
-  });
-  await upsertExternalAccount(sql, {
-    userId: accountId,
-    provider: EXTERNAL_ACCOUNT_PROVIDER_STRIPE,
-    externalId: customer.id,
-  });
-  return customer.id;
-}
-
 async function handleStripeCheckout(
   c: Context,
   body: CheckoutValidated,
   args: {
     readonly sql: SqlClient;
-    readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
   }
 ): Promise<Response> {
-  const { sql, stripe, requireAuth } = args;
-  const auth = await requireAuth(sql, c.req.raw);
+  const { sql, requireAuth } = args;
+  await requireAuth(sql, c.req.raw);
 
-  const priceId = await getStripeCatalogPriceStripeId(sql, body.priceKey);
-  if (priceId === null || priceId.length === 0) {
-    log.error(
-      'checkout: no catalog_price row for priceKey — run stripe catalog sync'
-    );
-    return c.json(
-      {
-        error:
-          'Stripe price is not available yet (missing catalog row in entity_store)',
-      },
-      503
-    );
-  }
-
-  const stripeCustomerId = await ensureStripeCustomerId({ sql, stripe, auth });
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    customer: stripeCustomerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: body.successUrl,
-    cancel_url: body.cancelUrl,
-    allow_promotion_codes: true,
-    automatic_tax: { enabled: true },
-  });
-
-  if (session.url === null || session.url.length === 0) {
-    log.error('checkout: Stripe returned empty session.url', {
-      sessionId: session.id,
-    });
-    return c.json({ error: 'Checkout session URL missing' }, 502);
-  }
-
-  return c.json({ url: session.url }, 200);
+  // Catalog price → Stripe price id previously came from entity_store.
+  // Fail closed until Stripe rewires onto `@pkgs/entity-store`.
+  log.error(
+    'checkout: catalog price lookup unavailable — entity_store dump removed; rewire onto @pkgs/entity-store',
+    { priceKey: body.priceKey }
+  );
+  return c.json(
+    {
+      error:
+        'Stripe checkout is temporarily unavailable (catalog price lookup not wired)',
+    },
+    503
+  );
 }
 
 async function handleStripePortal(
@@ -172,7 +125,6 @@ export function createStripeCheckoutRoutes(args: {
         const sql = getSqlClient();
         return handleStripeCheckout(c, body, {
           sql,
-          stripe,
           requireAuth,
         });
       }

@@ -4,17 +4,13 @@ import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import {
-  readPrimaryEmailFromAuthSnapshot,
-  upsertAuthUserSnapshot,
-} from './entity-store-sql';
+import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
 import { upsertExternalAccount } from './external-accounts-sql';
 
 /**
  * Idempotent server-side upsert run from `POST /auth/refresh`. Given a
  * resolved `accountId` (users.id) plus the client's device snapshot, mirrors
- * the auth provider user into entity_store + external_accounts and binds
- * the device row.
+ * the auth provider user into external_accounts and binds the device row.
  */
 export async function refreshAuthSnapshot(args: {
   sql: SqlClient;
@@ -75,11 +71,6 @@ async function upsertAuthUserFromBearer(args: {
     provider: authServer.providerLabel,
     externalId: session.externalUserId,
     metadata: email === undefined ? {} : { email },
-  });
-  await upsertAuthUserSnapshot(db, {
-    externalUserId: session.externalUserId,
-    ownerId: accountId,
-    data,
   });
 }
 

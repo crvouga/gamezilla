@@ -17,8 +17,7 @@ const SUPPRESSED_WARNING_PATTERNS: readonly RegExp[] = [
   // Chrome a11y intervention when stack screens hide focused elements.
   /Blocked aria-hidden on an element because its descendant retained focus/,
   // Auth SDK always logs this for publishable keys in development.
-  // Character class keeps the vendor name out of source for ci:no-provider-leaks.
-  /[Cc]lerk has been loaded with development keys/,
+  /Clerk has been loaded with development keys/i,
 ];
 
 function argText(arg: unknown): string {

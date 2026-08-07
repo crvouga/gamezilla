@@ -446,6 +446,35 @@ function isKvOwnedStatement(statement: string): boolean {
   return false;
 }
 
+/**
+ * `entity_store` DDL is owned by `EntityStoreImplPostgres.migrateUp` —
+ * never fold into schema.sql.
+ */
+function isEntityStoreOwnedStatement(statement: string): boolean {
+  const s = statement.replace(/\s+/gu, ' ').trim();
+  if (
+    /^CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+(?:public\.)?entity_store\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  if (/^ALTER\s+TABLE(?:\s+ONLY)?\s+(?:public\.)?entity_store\b/i.test(s)) {
+    return true;
+  }
+  if (
+    /^CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+(?:public\.)?entity_store\b/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  if (/^DO\s+\$\$/i.test(s) && /(?:public\.)?entity_store\b/i.test(s)) {
+    return true;
+  }
+  return false;
+}
+
 /** Sync-engine framework tables — owned by FRAMEWORK_SERVER_DDL. */
 const FRAMEWORK_TABLE_RE =
   /(?:public\.)?(?:_mutations|_mutations_applied|write_rejections)\b/i;
@@ -491,6 +520,9 @@ function makeIdempotentStatement(statement: string): string | null {
     return null;
   }
   if (isKvOwnedStatement(s)) {
+    return null;
+  }
+  if (isEntityStoreOwnedStatement(s)) {
     return null;
   }
   if (isFrameworkOwnedStatement(s)) {

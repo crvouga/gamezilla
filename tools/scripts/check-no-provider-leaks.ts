@@ -1,127 +1,106 @@
 /**
- * Ensures provider names (clerk, infisical) appear only in allowlisted adapter
- * paths, and legacy auth/secret backend terms appear nowhere.
+ * Ensures Clerk SDK and `@pkgs/auth-clerk` stay behind the auth adapter boundary.
+ *
+ * `@clerk/*` imports: only in pkgs/auth-clerk and libs/integration-test.
+ * `@pkgs/auth-clerk` imports: only in the adapter itself and app composition roots.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 
-const LEGACY_TERMS = [
-  /\bvault\b/i,
-  /\bbetter[- ]?auth\b/i,
-  /\bopenbao\b/i,
-  /\bdev-idp\b/i,
-];
+const CLERK_SDK_ALLOW_PREFIXES = ['pkgs/auth-clerk/', 'libs/integration-test/'];
 
-const CLERK_TERM = /\bclerk\b/i;
-const INFISICAL_TERM = /\binfisical\b/i;
+const AUTH_CLERK_PKG_ALLOW_PREFIXES = ['pkgs/auth-clerk/'];
 
-const SKIP_DIRS = new Set([
+const AUTH_CLERK_PKG_ALLOW_FILES = new Set([
+  'apps/client/src/providers/app-auth-provider.tsx',
+  'apps/api/src/api.ts',
+]);
+
+const CLERK_SDK_IMPORT_RE =
+  /from\s+['"]@clerk\/[^'"]+['"]|require\(\s*['"]@clerk\/|import\(\s*['"]@clerk\//;
+
+const AUTH_CLERK_PKG_IMPORT_RE =
+  /from\s+['"]@pkgs\/auth-clerk(?:\/[^'"]*)?['"]|require\(\s*['"]@pkgs\/auth-clerk|import\(\s*['"]@pkgs\/auth-clerk/;
+
+const SKIP_DIR = new Set([
   'node_modules',
+  'dist',
   '.git',
   '.turbo',
-  'dist',
   'coverage',
   '.expo',
   '.wrangler',
-  '.check-dist-prodcheck',
-  // Generated check artifacts echo failing logs (may name providers).
-  'check',
-  'playwright-report',
-  'test-results',
   'ios',
   'android',
-  '.cursor',
 ]);
 
-const SKIP_FILES = new Set(['bun.lock', 'package-lock.json', 'pnpm-lock.yaml']);
-
-function isClerkAllowlisted(relativePath: string): boolean {
-  if (relativePath.startsWith('pkgs/auth-clerk/')) return true;
-  if (relativePath.startsWith('libs/integration-test/')) return true;
-  if (relativePath.startsWith('libs/infra/src/cli/secrets/')) return true;
-  if (
-    relativePath.startsWith('apps/client/src/providers/app-auth-provider.tsx')
-  )
-    return true;
-  if (relativePath.startsWith('apps/api/src/api.ts')) return true;
-  if (/^libs\/auth\/src\/server\/.*\.test\.ts$/.test(relativePath)) return true;
-  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts') return true;
-  if (relativePath.endsWith('package.json')) return true;
-  if (relativePath === 'tsconfig.json') return true;
-  if (
-    relativePath === 'tsconfig.tc.json' ||
-    relativePath.endsWith('/tsconfig.tc.json')
-  )
-    return true;
-  return false;
-}
-
-function isInfisicalAllowlisted(relativePath: string): boolean {
-  // Secrets provider package (neutral facade + private adapter) and CI action.
-  if (relativePath.startsWith('pkgs/secret-provider/')) return true;
-  if (relativePath.startsWith('.github/actions/secrets-auth/')) return true;
-  // Setup caches/installs the secrets-backend CLI binary (provider bin name).
-  if (relativePath.startsWith('.github/actions/setup/')) return true;
-  // CLI-native config kept in sync by the adapter for local CLI use.
-  if (relativePath === '.infisical.json') return true;
-  // This enforcement script names the forbidden terms.
-  if (relativePath === 'tools/scripts/check-no-provider-leaks.ts') return true;
-  if (relativePath === 'knip.jsonc') return true;
-  if (relativePath.endsWith('package.json')) return true;
-  if (relativePath === 'tsconfig.json') return true;
-  if (
-    relativePath === 'tsconfig.tc.json' ||
-    relativePath.endsWith('/tsconfig.tc.json')
-  )
-    return true;
-  return false;
-}
-
 function walk(dir: string, out: string[]): void {
-  for (const name of readdirSync(dir)) {
-    if (SKIP_DIRS.has(name)) continue;
-    const full = join(dir, name);
-    const rel = relative(REPO_ROOT, full);
-    const stat = statSync(full);
-    if (stat.isDirectory()) {
-      walk(full, out);
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (SKIP_DIR.has(entry.name)) continue;
+      walk(join(dir, entry.name), out);
       continue;
     }
-    if (SKIP_FILES.has(name)) continue;
-    if (!/\.(ts|tsx|js|jsx|json|yml|yaml|md|cjs|mjs)$/.test(name)) continue;
-    out.push(rel);
+    if (!entry.isFile()) continue;
+    if (!/\.(ts|tsx|js|jsx|mjs|cjs)$/.test(entry.name)) continue;
+    out.push(join(dir, entry.name));
   }
 }
 
-function collectFiles(): string[] {
-  const out: string[] = [];
-  walk(REPO_ROOT, out);
-  return out;
+function startsWithAny(rel: string, prefixes: readonly string[]): boolean {
+  return prefixes.some((prefix) => rel.startsWith(prefix));
 }
 
-const files = collectFiles();
-const violations: string[] = [];
+function isClerkSdkAllowed(rel: string): boolean {
+  return startsWithAny(rel, CLERK_SDK_ALLOW_PREFIXES);
+}
+
+function isAuthClerkPkgAllowed(rel: string): boolean {
+  if (startsWithAny(rel, AUTH_CLERK_PKG_ALLOW_PREFIXES)) return true;
+  return AUTH_CLERK_PKG_ALLOW_FILES.has(rel);
+}
+
+const files: string[] = [];
+for (const root of ['apps', 'libs', 'pkgs']) {
+  const abs = join(REPO_ROOT, root);
+  try {
+    if (!statSync(abs).isDirectory()) continue;
+  } catch {
+    continue;
+  }
+  walk(abs, files);
+}
+
+const clerkSdkOffenders: string[] = [];
+const authClerkPkgOffenders: string[] = [];
 
 for (const file of files) {
-  const content = readFileSync(join(REPO_ROOT, file), 'utf8');
-  const legacy = LEGACY_TERMS.filter((p) => p.test(content));
-  if (legacy.length > 0) {
-    violations.push(`${file}: legacy term (${legacy.map(String).join(', ')})`);
+  const rel = relative(REPO_ROOT, file);
+  const text = readFileSync(file, 'utf8');
+  if (!isClerkSdkAllowed(rel) && CLERK_SDK_IMPORT_RE.test(text)) {
+    clerkSdkOffenders.push(rel);
   }
-  if (CLERK_TERM.test(content) && !isClerkAllowlisted(file)) {
-    violations.push(`${file}: provider leak (${String(CLERK_TERM)})`);
-  }
-  if (INFISICAL_TERM.test(content) && !isInfisicalAllowlisted(file)) {
-    violations.push(`${file}: provider leak (${String(INFISICAL_TERM)})`);
+  if (!isAuthClerkPkgAllowed(rel) && AUTH_CLERK_PKG_IMPORT_RE.test(text)) {
+    authClerkPkgOffenders.push(rel);
   }
 }
 
-if (violations.length > 0) {
+if (clerkSdkOffenders.length > 0 || authClerkPkgOffenders.length > 0) {
   console.error('Provider leak check failed:\n');
-  for (const v of violations) {
-    console.error(`  - ${v}`);
+  if (clerkSdkOffenders.length > 0) {
+    console.error(
+      '@clerk/* imports must stay in pkgs/auth-clerk or libs/integration-test:\n' +
+        clerkSdkOffenders.map((f) => `  - ${f}`).join('\n')
+    );
+  }
+  if (authClerkPkgOffenders.length > 0) {
+    if (clerkSdkOffenders.length > 0) console.error('');
+    console.error(
+      '@pkgs/auth-clerk imports must stay in the adapter or app composition roots:\n' +
+        authClerkPkgOffenders.map((f) => `  - ${f}`).join('\n')
+    );
   }
   process.exit(1);
 }

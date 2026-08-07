@@ -1,9 +1,10 @@
 /**
  * Canonical Postgres migration order: ensure schema → apply idempotent
- * `schema.sql` → kv migrate.
+ * `schema.sql` → kv migrate → entity_store migrate.
  */
 
 import { runSchemaSql } from '@libs/db/server/run-schema-sql';
+import { EntityStoreImplPostgres } from '@pkgs/entity-store/impl-postgres';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
@@ -49,5 +50,6 @@ export async function runPostgresMigrations(
     await tx.run(raw("SET LOCAL lock_timeout = '5min'"));
     await runSchemaSql({ sqlClient: tx, logger });
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
+    await EntityStoreImplPostgres.migrateUp({ sqlClient: tx, logger });
   });
 }

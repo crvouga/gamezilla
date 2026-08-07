@@ -1,9 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import {
-  ENTITY_STORE_NAMESPACE_AUTH,
-  ENTITY_STORE_TYPE_USER,
-} from '@libs/db/shared/entity-store-table';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { sql } from '@pkgs/sql';
 
@@ -44,19 +40,6 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
       created_at TEXT NOT NULL,
       PRIMARY KEY (provider, external_id),
       UNIQUE (user_id, provider)
-    )
-  `);
-  await db.run(sql<void>`
-    CREATE TABLE entity_store (
-      id TEXT PRIMARY KEY,
-      namespace TEXT NOT NULL,
-      type TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      owner_id TEXT,
-      data TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL,
-      UNIQUE (namespace, type, external_id)
     )
   `);
 }
@@ -110,7 +93,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     expect(resolved).toBe(userId);
   });
 
-  test('creates user, clerk external_account row, and entity_store snapshot', async () => {
+  test('creates user and clerk external_account row', async () => {
     const resolved = await ensureInternalAccountIdForExternalUser({
       sql: sqlClient,
       authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
@@ -127,15 +110,6 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     expect(
       await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
     ).toBe(EXTERNAL_USER_ID);
-
-    const entityRows = await sqlClient.query(sql<{ owner_id: string | null }>`
-      SELECT owner_id
-      FROM entity_store
-      WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
-        AND type = ${ENTITY_STORE_TYPE_USER}
-        AND external_id = ${EXTERNAL_USER_ID}
-    `);
-    expect(entityRows[0]?.owner_id).toBe(resolved);
   });
 
   test('repeated ensures resolve to the same account id and single link', async () => {

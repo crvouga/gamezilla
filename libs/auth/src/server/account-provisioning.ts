@@ -4,7 +4,6 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { clearUserAnonFlag, readUserAnonState } from './anon-user-ensure';
-import { upsertAuthUserSnapshot } from './entity-store-sql';
 import {
   findUserIdByPrimaryAuthExternalId,
   insertExternalAccountOrGet,
@@ -65,7 +64,6 @@ export async function ensureInternalAccountIdForExternalUser(args: {
       return existingUserId;
     }
 
-    const snapshot = await authServer.getUserSnapshot(externalUserId);
     const candidateUserId = await resolveCandidateUserId(tx, upgradeUserId);
     const now = new Date().toISOString();
     if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
@@ -87,11 +85,6 @@ export async function ensureInternalAccountIdForExternalUser(args: {
       // Leave the anon row upgraded but unlinked; canonical owner wins.
     }
 
-    await upsertAuthUserSnapshot(tx, {
-      externalUserId,
-      ownerId,
-      data: snapshot ?? { id: externalUserId },
-    });
     return ownerId;
   });
 }

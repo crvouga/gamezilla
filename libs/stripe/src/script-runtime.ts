@@ -87,9 +87,8 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 }
 
 /**
- * Optional `DATABASE_URL` resolver — preserves soft-skip semantics for callers that
- * want catalog reconcile without entity_store persistence (e.g. CI gate scripts
- * running where no Postgres is reachable).
+ * Optional `DATABASE_URL` resolver — soft-skip when Postgres is unreachable
+ * (legacy helper; catalog sync no longer requires SQL).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = await createStripeScriptSecretStore();

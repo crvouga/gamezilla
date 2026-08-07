@@ -4,7 +4,6 @@ import type { TablePolicy } from '@pkgs/sync-engine/mutations/shared/table-polic
 import { AUTH_TABLE_NAMES } from './auth-tables';
 import { ALL_CHESS_SYNC_TABLES } from './chess-tables';
 import { ALL_CLIENT_CONFIG_SYNC_TABLES } from './client-config-tables';
-import { ENTITY_STORE_TABLE } from './entity-store-table';
 import { ALL_FRIENDS_SYNC_TABLES } from './friends-tables';
 import { ALL_PROFILE_SYNC_TABLES } from './profile-tables';
 import { ALL_SPACE_SYNC_TABLES } from './space-tables';
@@ -16,7 +15,6 @@ const DOMAIN_TABLES = [
   'devices',
   'chess_puzzle_profiles',
   'chess_puzzle_interactions',
-  ENTITY_STORE_TABLE,
 ] as const;
 
 const SERVER_ONLY_TABLES = [

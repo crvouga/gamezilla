@@ -287,7 +287,15 @@
       "outputLogs": "new-only"
     },
     "//#ci:no-provider-leaks": {
-      "inputs": ["tools/scripts/check-no-provider-leaks.ts"],
+      "inputs": [
+        "tools/scripts/check-no-provider-leaks.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },

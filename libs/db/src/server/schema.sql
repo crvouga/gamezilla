@@ -70,17 +70,6 @@ CREATE TABLE IF NOT EXISTS public.devices (
     user_id text
 );
 
-CREATE TABLE IF NOT EXISTS public.entity_store (
-    id text NOT NULL,
-    namespace text NOT NULL,
-    type text NOT NULL,
-    external_id text NOT NULL,
-    owner_id text,
-    data jsonb NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS public.external_accounts (
     user_id text NOT NULL,
     provider text NOT NULL,
@@ -263,15 +252,6 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.entity_store
-    ADD CONSTRAINT entity_store_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.external_accounts
     ADD CONSTRAINT external_accounts_provider_external_id_pk PRIMARY KEY (provider, external_id)';
 EXCEPTION
@@ -380,15 +360,6 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.entity_store
-    ADD CONSTRAINT entity_store_namespace_type_external_id_key UNIQUE (namespace, type, external_id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
   EXECUTE 'ALTER TABLE ONLY public.external_accounts
     ADD CONSTRAINT external_accounts_user_id_provider_key UNIQUE (user_id, provider)';
 EXCEPTION
@@ -444,8 +415,6 @@ ALTER TABLE ONLY public.chess_puzzles REPLICA IDENTITY FULL;
 ALTER TABLE ONLY public.client_config REPLICA IDENTITY FULL;
 
 ALTER TABLE ONLY public.devices REPLICA IDENTITY FULL;
-
-ALTER TABLE ONLY public.entity_store REPLICA IDENTITY FULL;
 
 ALTER TABLE ONLY public.external_accounts REPLICA IDENTITY FULL;
 
@@ -580,10 +549,6 @@ CREATE INDEX IF NOT EXISTS devices_account_id_idx ON public.devices USING btree 
 CREATE INDEX IF NOT EXISTS devices_id_idx ON public.devices USING btree (id);
 
 CREATE INDEX IF NOT EXISTS devices_user_id_idx ON public.devices USING btree (user_id);
-
-CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON public.entity_store USING btree (namespace, owner_id);
-
-CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON public.entity_store USING btree (namespace, type);
 
 CREATE INDEX IF NOT EXISTS external_accounts_user_id_idx ON public.external_accounts USING btree (user_id);
 

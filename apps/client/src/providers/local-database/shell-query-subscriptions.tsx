@@ -8,8 +8,6 @@ const SHELL_QUERY_NAMES = [
   'friendRequests',
   'userBlocks',
   'inboxActive',
-  'entityStoreCatalog',
-  'entityStoreOwned',
   'chessPuzzleProfile',
   'chessPuzzleInteractions',
 ] as const;

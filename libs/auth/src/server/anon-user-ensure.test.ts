@@ -41,19 +41,6 @@ async function migrate(db: SqlClient): Promise<void> {
       UNIQUE (user_id, provider)
     )
   `);
-  await db.run(sql<void>`
-    CREATE TABLE entity_store (
-      id TEXT PRIMARY KEY,
-      namespace TEXT NOT NULL,
-      type TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      owner_id TEXT,
-      data TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL,
-      UNIQUE (namespace, type, external_id)
-    )
-  `);
 }
 
 describe('ensureAnonUserForDevice', () => {

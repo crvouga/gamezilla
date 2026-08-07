@@ -36,13 +36,6 @@ export function AccountScreen({ identity }: AccountScreenProps) {
                 router.push('/more/account/devices' as Href);
               }}
             />
-            <MenuRow
-              title={t`Sign-in providers`}
-              caption={t`How you sign in`}
-              onPress={() => {
-                router.push('/more/account/providers' as Href);
-              }}
-            />
           </MenuList>
           <AccountActionsRow />
         </Box>

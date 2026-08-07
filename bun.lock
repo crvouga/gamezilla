@@ -47,6 +47,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-clerk": "workspace:*",
+        "@pkgs/entity-store": "workspace:*",
         "@pkgs/inbox": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -513,9 +514,7 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
-        "@pkgs/attribute": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -750,6 +749,22 @@
         "@pkgs/kv": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/entity-store": {
+      "name": "@pkgs/entity-store",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+      },
+      "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2390,6 +2405,8 @@
     "@pkgs/db-schema": ["@pkgs/db-schema@workspace:pkgs/db-schema"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
+
+    "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
 

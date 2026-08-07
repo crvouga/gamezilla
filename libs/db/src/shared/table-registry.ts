@@ -10,10 +10,6 @@ import {
   ALL_CLIENT_CONFIG_SYNC_TABLES,
 } from './client-config-tables';
 import {
-  ENTITY_STORE_LOCAL_DDL,
-  ENTITY_STORE_TABLE,
-} from './entity-store-table';
-import {
   ALL_FRIENDS_LOCAL_DDL,
   ALL_FRIENDS_SYNC_TABLES,
 } from './friends-tables';
@@ -32,7 +28,6 @@ export const LOCAL_DOMAIN_TABLE_NAMES = [
   ...ALL_CLIENT_CONFIG_SYNC_TABLES,
   ...ALL_FRIENDS_SYNC_TABLES,
   ...ALL_INBOX_SYNC_TABLES,
-  ENTITY_STORE_TABLE,
 ] as const;
 
 /** Raw SQLite DDL for domain tables (applied by sync-engine migrate). */
@@ -44,7 +39,6 @@ export const LOCAL_DOMAIN_DDL = [
   ...ALL_CLIENT_CONFIG_LOCAL_DDL,
   ...ALL_FRIENDS_LOCAL_DDL,
   ...ALL_INBOX_LOCAL_DDL,
-  ENTITY_STORE_LOCAL_DDL,
 ] as const;
 
 /** @deprecated Prefer LOCAL_DOMAIN_TABLE_NAMES / LOCAL_DOMAIN_DDL. */
