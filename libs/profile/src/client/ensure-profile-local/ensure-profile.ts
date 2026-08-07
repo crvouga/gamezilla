@@ -1,4 +1,4 @@
-import type { MutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
+import type { MutationClient } from '@pkgs/sync-engine/client';
 
 import { ensureProfileMutation } from '../../shared/mutations/profile-mutations';
 

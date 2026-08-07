@@ -1,8 +1,8 @@
 import {
   MutationClientProvider as SyncMutationClientProvider,
   useMutationClient,
-} from '@pkgs/sync-engine/client/mutation-client-provider';
-import type { MutationRegistry } from '@pkgs/sync-engine/mutations/core/types';
+} from '@pkgs/sync-engine/client';
+import type { MutationRegistry } from '@pkgs/sync-engine/shared';
 import { type ReactNode, useMemo, useRef } from 'react';
 
 import { useRulesAuth } from './use-rules-auth';

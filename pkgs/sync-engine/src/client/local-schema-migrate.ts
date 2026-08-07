@@ -2,15 +2,16 @@ import type { Schema } from '@pkgs/db-schema';
 import { sqlite } from '@pkgs/db-schema/sqlite';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import {
   ensureFrameworkSchema,
   ensureOptimisticSchema,
   SCHEMA_EPOCH,
-} from '@pkgs/sync-engine/queries/client/local-schema';
+} from '../queries/client/local-schema';
 import {
   FRAMEWORK_CACHE_TABLE_NAMES,
   FRAMEWORK_DURABLE_TABLE_NAMES,
-} from '@pkgs/sync-engine/shared/framework-server-ddl';
+} from '../shared/framework-server-ddl';
 
 const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
@@ -79,7 +80,9 @@ async function ensureDomainTables(
     }).reconcile();
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`ensureDomainTables/reconcile: ${detail}`, { cause: error });
+    throw new Error(`ensureDomainTables/reconcile: ${detail}`, {
+      cause: error,
+    });
   }
 }
 

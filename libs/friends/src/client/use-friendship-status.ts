@@ -2,10 +2,7 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
@@ -30,12 +27,16 @@ function friendshipStatusSql(
       WHEN EXISTS (
         SELECT blocker_id
         FROM user_blocks
-        WHERE blocker_id = ${myId} AND blocked_id = ${targetUserId}
+        WHERE blocker_id = ${myId}
+          AND blocked_id = ${targetUserId}
+          AND _deleted_at IS NULL
       ) THEN 'blocked_by_me'
       WHEN EXISTS (
         SELECT user_low
         FROM friendships
-        WHERE user_low = ${userLow} AND user_high = ${userHigh}
+        WHERE user_low = ${userLow}
+          AND user_high = ${userHigh}
+          AND _deleted_at IS NULL
       ) THEN 'friends'
       WHEN EXISTS (
         SELECT from_user_id

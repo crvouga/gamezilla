@@ -1,4 +1,4 @@
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import { Box } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useRequestEndSpace } from '../end-space/end-space-modal-provider';

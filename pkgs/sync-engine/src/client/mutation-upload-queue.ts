@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
-import { bumpWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
+import type { TableChangeBus } from '../queries/client/table-change-bus';
+import { bumpWriteEpoch } from '../queries/client/write-epoch';
 
 import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
 

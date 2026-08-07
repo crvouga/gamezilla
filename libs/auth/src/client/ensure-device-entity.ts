@@ -1,4 +1,4 @@
-import type { MutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
+import type { MutationClient } from '@pkgs/sync-engine/client';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';

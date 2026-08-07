@@ -1,7 +1,4 @@
-import type {
-  AppLifecycle,
-  AppLifecycleEvent,
-} from '@pkgs/sync-engine/client/app-lifecycle';
+import type { AppLifecycle, AppLifecycleEvent } from '@pkgs/sync-engine/client';
 import { AppState, type AppStateStatus, Platform } from 'react-native';
 
 type Listener = (event: AppLifecycleEvent) => void;

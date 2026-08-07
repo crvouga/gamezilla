@@ -1,6 +1,6 @@
 import { spaceListChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 export const mySpaces = defineQuery({
@@ -22,7 +22,8 @@ export const mySpaces = defineQuery({
       WHERE host_member_id = ${actor}
          OR host_account_id = ${actor}
          OR id IN (
-           SELECT space_id FROM space_users WHERE user_id = ${actor}
+           SELECT space_id FROM space_users
+           WHERE user_id = ${actor} AND _deleted_at IS NULL
          )
       LIMIT 200
     `);
@@ -50,20 +51,22 @@ export const mySpaceUsers = defineQuery({
            OR id IN (
              SELECT space_id
              FROM space_users
-             WHERE user_id = ${actor}
+             WHERE user_id = ${actor} AND _deleted_at IS NULL
            )
       )
-      SELECT 
-        id, 
-        space_id, 
-        user_id, 
-        created_at, 
+      SELECT
+        id,
+        space_id,
+        user_id,
+        created_at,
         created_by_account_id
       FROM space_users
-      WHERE user_id = ${actor}
-         OR space_id IN (SELECT id FROM related_spaces)
+      WHERE _deleted_at IS NULL
+        AND (
+          user_id = ${actor}
+          OR space_id IN (SELECT id FROM related_spaces)
+        )
       LIMIT 2000
- 
     `);
     return { space_users: rows };
   },
@@ -84,6 +87,7 @@ export const openSpaceSessions = defineQuery({
       SELECT id, space_id, device_id, opened_at, join_announced
       FROM space_open_sessions
       WHERE device_id = ${ctx.env.deviceId}
+        AND _deleted_at IS NULL
       LIMIT 20
     `);
     return { space_open_sessions: rows };

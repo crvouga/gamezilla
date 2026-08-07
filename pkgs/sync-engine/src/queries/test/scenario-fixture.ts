@@ -2,12 +2,12 @@ import { Database } from 'bun:sqlite';
 import { sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { createMutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
-
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
-import { registry } from '@pkgs/sync-engine/mutations/core/registry';
-import { MutationError } from '@pkgs/sync-engine/mutations/core/types';
 import { z } from 'zod';
+
+import { createMutationClient } from '../../mutations/client/create-mutation-client';
+import { defineMutation } from '../../mutations/core/define-mutation';
+import { mutationRegistry } from '../../mutations/core/registry';
+import { MutationError } from '../../mutations/core/types';
 import { ensureFrameworkSchema } from '../client/local-schema';
 import type { MergeApplierDeps } from '../client/merge-applier';
 import { createTableChangeBus } from '../client/table-change-bus';
@@ -18,11 +18,13 @@ export const DOMAIN_DDL = `
 CREATE TABLE IF NOT EXISTS notes (
   id TEXT PRIMARY KEY,
   body TEXT NOT NULL DEFAULT '',
-  owner_id TEXT NOT NULL DEFAULT ''
+  owner_id TEXT NOT NULL DEFAULT '',
+  _deleted_at TEXT
 );
 CREATE TABLE IF NOT EXISTS rooms (
   id TEXT PRIMARY KEY,
-  title TEXT NOT NULL DEFAULT ''
+  title TEXT NOT NULL DEFAULT '',
+  _deleted_at TEXT
 );
 CREATE TABLE IF NOT EXISTS write_rejections (
   id TEXT PRIMARY KEY,
@@ -92,7 +94,7 @@ export const failOnRebase = defineMutation({
   },
 });
 
-export const scenarioRegistry = registry([
+export const scenarioRegistry = mutationRegistry([
   setNote,
   bumpNoteForbidden,
   failOnRebase,
@@ -165,11 +167,6 @@ export async function rejectThrough(db: SqlClient, seq: number): Promise<void> {
   await db.run(sql`
     DELETE FROM _mutations WHERE seq <= ${seq}
   `);
-}
-
-/** @deprecated use softAckThrough / rejectThrough */
-export async function ackThrough(db: SqlClient, seq: number): Promise<void> {
-  await rejectThrough(db, seq);
 }
 
 export async function readWriteEpochFixture(db: SqlClient): Promise<number> {

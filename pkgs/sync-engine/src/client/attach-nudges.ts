@@ -1,15 +1,12 @@
 import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { MutationRegistry } from '@pkgs/sync-engine/mutations/core/types';
-import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
-import type { QueryRegistry } from '@pkgs/sync-engine/queries/core/types';
-import { parseMutationFanout } from '@pkgs/sync-engine/shared/mutation-fanout-payload';
-import type {
-  NudgePayload,
-  QueryChannelsCtx,
-} from '@pkgs/sync-engine/shared/nudge-payload';
 
+import type { MutationRegistry } from '../mutations/core/types';
+import type { TableChangeBus } from '../queries/client/table-change-bus';
+import type { QueryRegistry } from '../queries/core/types';
+import { parseMutationFanout } from '../shared/mutation-fanout-payload';
+import type { NudgePayload, QueryChannelsCtx } from '../shared/nudge-payload';
 import { peerApplyMutation } from './peer-apply-mutation';
 import { REAL_TIMERS, type Timers } from './sim-ports';
 import { STATUS_POLL_JITTER_MS } from './subscription-constants';

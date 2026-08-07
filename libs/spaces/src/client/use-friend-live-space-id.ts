@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 
 /**
  * Returns the live space id hosted by `hostAccountId` when that space is

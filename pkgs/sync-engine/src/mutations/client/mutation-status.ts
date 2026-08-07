@@ -63,5 +63,3 @@ export async function listUnackedWriteRejections(
       AND wr.acknowledged = ${0}
   `);
 }
-
-export { acknowledgeWriteRejectionMutation } from '../shared/acknowledge-write-rejection';

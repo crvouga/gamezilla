@@ -1,4 +1,4 @@
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { useEffect, useMemo, useState } from 'react';
 import type { Interaction, InteractionFilter } from '../shared/interaction';
 import { clientRowToInteraction } from '../shared/row-mapper';

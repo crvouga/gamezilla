@@ -1,12 +1,13 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import {
   applyFullMerge,
   type MergeApplierDeps,
-  purgeScope,
-} from '@pkgs/sync-engine/queries/client/merge-applier';
-import { readWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
-import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
+  tombstoneScope,
+} from '../queries/client/merge-applier';
+import { readWriteEpoch } from '../queries/client/write-epoch';
+import type { QueryResponse } from '../queries/core/types';
 
 export type QueryRequest = {
   readonly name: string;
@@ -88,7 +89,7 @@ export async function applyQueryResponse(
     return 'resync';
   }
   if (response.status === 'denied' || response.status === 'gone') {
-    await purgeScope(options.getMergeDeps(), entry.scope);
+    await tombstoneScope(options.getMergeDeps(), entry.scope);
     options.markFirst(entry.scope);
     return 'stop';
   }

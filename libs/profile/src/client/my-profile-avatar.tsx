@@ -1,4 +1,4 @@
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
 
 import { DeviceAvatar } from './device-avatar';

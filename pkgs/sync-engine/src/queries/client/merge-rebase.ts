@@ -1,10 +1,11 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
 import type {
   Mutation,
   MutationEnv,
   MutationRegistry,
-} from '@pkgs/sync-engine/mutations/core/types';
+} from '../../mutations/core/types';
 
 type OwnMutation = {
   readonly id: string;

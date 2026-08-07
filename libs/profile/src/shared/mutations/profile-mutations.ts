@@ -1,10 +1,10 @@
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
+  defineMutation,
   type MutationDb,
   MutationError,
-} from '@pkgs/sync-engine/mutations/core/types';
+} from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import {

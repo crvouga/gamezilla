@@ -8,9 +8,11 @@ import {
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
-import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
-import { SyncEnginePaintGateContext } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
-import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
+import {
+  type SyncEngine,
+  SyncEnginePaintGateContext,
+  SyncEngineProvider,
+} from '@pkgs/sync-engine/client';
 import { type ReactNode, useMemo, useRef } from 'react';
 
 import { getMainSqliteDbName } from '../../storage/open-main-sql-client';

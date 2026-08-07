@@ -12,7 +12,7 @@ import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
-import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared/apply-framework-server-ddl';
+import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared';
 
 /**
  * Session/transaction advisory lock for `api:migrate`. Serializes concurrent

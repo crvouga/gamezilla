@@ -1,4 +1,4 @@
-import { useSyncEngineInstance } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/client';
 import { useEffect, useMemo } from 'react';
 
 /**

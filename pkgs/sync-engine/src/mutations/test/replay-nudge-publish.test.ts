@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { createSyncApp } from '../../server/create-sync-app';
 import { notifyChannels } from '../../server/notify-channels';
 import { defineMutation } from '../core/define-mutation';
-import { registry } from '../core/registry';
+import { mutationRegistry } from '../core/registry';
 import { MutationError } from '../core/types';
 
 const DDL = `
@@ -89,7 +89,7 @@ describe('replay nudge publish', () => {
       }),
       getSql: () => db,
       queries: {},
-      mutations: registry([setNote, failNote]),
+      mutations: mutationRegistry([setNote, failNote]),
       pubsub,
     });
 
@@ -137,7 +137,7 @@ describe('replay nudge publish', () => {
       }),
       getSql: () => db,
       queries: {},
-      mutations: registry([setNote, failNote]),
+      mutations: mutationRegistry([setNote, failNote]),
       pubsub,
     });
 
@@ -188,7 +188,7 @@ describe('replay nudge publish', () => {
         }),
         getSql: () => db,
         queries: {},
-        mutations: registry([setNote]),
+        mutations: mutationRegistry([setNote]),
         pubsub,
       });
 

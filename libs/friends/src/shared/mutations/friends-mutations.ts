@@ -1,14 +1,19 @@
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
+  defineMutation,
   type MutationDb,
   type MutationEnv,
   MutationError,
-} from '@pkgs/sync-engine/mutations/core/types';
+} from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../canonical-pair';
+import {
+  friendshipExists as friendshipExistsSql,
+  softDeleteBlock,
+  softDeleteFriendship,
+} from '../friends-sql/friendship-block-sql';
 import { pairId } from '../pair-id';
 import {
   FRIEND_REQUEST_RESEND_COOLDOWN_MS,
@@ -83,8 +88,11 @@ async function blockedEitherDirection(
 ): Promise<boolean> {
   const rows = await tx.query(sql<{ readonly id: string }>`
     SELECT id FROM user_blocks
-    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
-       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    WHERE _deleted_at IS NULL
+      AND (
+        (blocker_id = ${userA} AND blocked_id = ${userB})
+        OR (blocker_id = ${userB} AND blocked_id = ${userA})
+      )
     LIMIT 1
   `);
   return rows.length > 0;
@@ -95,13 +103,7 @@ async function friendshipExists(
   userA: string,
   userB: string
 ): Promise<boolean> {
-  const { userLow, userHigh } = canonicalUserPair(userA, userB);
-  const rows = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM friendships
-    WHERE user_low = ${userLow} AND user_high = ${userHigh}
-    LIMIT 1
-  `);
-  return rows.length > 0;
+  return friendshipExistsSql(tx, userA, userB);
 }
 
 async function requireRequestParty(
@@ -297,9 +299,17 @@ export const acceptFriendRequestMutation = defineMutation({
       request.from_user_id
     );
     await tx.run(sql`
-      INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
-      VALUES (${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${now}, ${requestId})
-      ON CONFLICT (user_low, user_high) DO NOTHING
+      INSERT INTO friendships (
+        id, user_low, user_high, created_at, source_request_id, _deleted_at
+      )
+      VALUES (
+        ${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${now},
+        ${requestId}, ${null}
+      )
+      ON CONFLICT (user_low, user_high) DO UPDATE SET
+        _deleted_at = NULL,
+        created_at = excluded.created_at,
+        source_request_id = excluded.source_request_id
     `);
   },
 });
@@ -360,11 +370,7 @@ export const removeFriendMutation = defineMutation({
     if (!(await friendshipExists(tx, actor, userId))) {
       throw new MutationError(FRIENDS_NOT_FOUND, 'Friendship not found.');
     }
-    const { userLow, userHigh } = canonicalUserPair(actor, userId);
-    await tx.run(sql`
-      DELETE FROM friendships
-      WHERE user_low = ${userLow} AND user_high = ${userHigh}
-    `);
+    await softDeleteFriendship(tx, actor, userId, env.now().toISOString());
   },
 });
 
@@ -376,16 +382,14 @@ export const blockUserMutation = defineMutation({
   async run({ tx, env }, { userId, blockId }) {
     const actor = otherUserId(env, userId, 'block');
     const now = env.now().toISOString();
-    const { userLow, userHigh } = canonicalUserPair(actor, userId);
-    await tx.run(sql`
-      DELETE FROM friendships
-      WHERE user_low = ${userLow} AND user_high = ${userHigh}
-    `);
+    await softDeleteFriendship(tx, actor, userId, now);
     await cancelPendingRequests(tx, actor, userId, now);
     await tx.run(sql`
-      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
-      VALUES (${blockId}, ${actor}, ${userId}, ${now})
-      ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
+      VALUES (${blockId}, ${actor}, ${userId}, ${now}, ${null})
+      ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
+        _deleted_at = NULL,
+        created_at = excluded.created_at
     `);
   },
 });
@@ -397,10 +401,7 @@ export const unblockUserMutation = defineMutation({
   invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'unblock');
-    await tx.run(sql`
-      DELETE FROM user_blocks
-      WHERE blocker_id = ${actor} AND blocked_id = ${userId}
-    `);
+    await softDeleteBlock(tx, actor, userId, env.now().toISOString());
   },
 });
 

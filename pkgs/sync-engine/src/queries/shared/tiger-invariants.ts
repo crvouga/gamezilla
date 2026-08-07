@@ -4,10 +4,7 @@ import { assert } from '@pkgs/assert';
  * Named Tiger Style invariants for the local sync stack.
  * Importing this module asserts load-time resource bounds.
  */
-import {
-  MAX_IN_FLIGHT_POLLS,
-  MAX_MUTATIONS_BATCH,
-} from '@pkgs/sync-engine/queries/server/bounds';
+import { MAX_IN_FLIGHT_POLLS, MAX_MUTATIONS_BATCH } from './bounds';
 
 assert.ok(MAX_MUTATIONS_BATCH <= 128, 'Tiger: mutation batch upper bound');
 assert.ok(

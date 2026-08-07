@@ -1,7 +1,7 @@
 import { loadMySpaceIdsFromSql } from '@libs/spaces/server/load-my-space-ids-sql';
 import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { isAuthErrorBody } from '@pkgs/sync-engine/server/auth-error';
+import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import { Hono } from 'hono';
 
 import { ApiSecretName } from '../config/secret-names';

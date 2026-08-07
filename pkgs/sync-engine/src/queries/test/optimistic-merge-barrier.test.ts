@@ -107,10 +107,11 @@ describe('optimistic merge barrier', () => {
       basisEpoch: 0,
       tables: { notes: [] },
     });
-    const after = await db.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${'n1'}
+    const after = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
     `);
-    expect(after.length).toBe(0);
+    expect(after.length).toBe(1);
+    expect(after[0]?.deleted).not.toBeNull();
   });
 
   test('ordered-multi-mutation-rebase', async () => {

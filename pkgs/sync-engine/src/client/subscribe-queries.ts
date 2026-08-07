@@ -4,11 +4,6 @@ import type {
 } from './subscribe-queries-types';
 import type { QuerySubscription } from './subscription-runtime';
 
-export type {
-  SubscribeQueriesHandle,
-  SyncEngineQuerySubscriptionSpec,
-} from './subscribe-queries-types';
-
 type SubscribeQueryFn = (
   queryName: string,
   parameters: Readonly<Record<string, unknown>>

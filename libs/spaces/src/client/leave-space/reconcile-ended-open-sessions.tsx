@@ -1,9 +1,6 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { sql } from '@pkgs/sql';
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 
 import { closeEndedOpenSessionsMutation } from '../../shared/mutations/space-mutations';
@@ -27,7 +24,7 @@ export function ReconcileEndedOpenSessions(): ReactNode {
             SELECT o.space_id
             FROM space_open_sessions AS o
             INNER JOIN spaces AS s ON s.id = o.space_id
-            WHERE s.ended_at IS NOT NULL
+            WHERE o._deleted_at IS NULL AND s.ended_at IS NOT NULL
           `
         : sql<EndedSessionRow>`
             SELECT space_id FROM space_open_sessions WHERE false

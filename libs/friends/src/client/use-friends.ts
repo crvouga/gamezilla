@@ -2,10 +2,7 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import { otherUserInPair } from '../shared/canonical-pair';
@@ -38,7 +35,8 @@ function friendsSql(myId: string, enabled: boolean): Sql<FriendRow> {
     FROM friendships AS f
     INNER JOIN profiles AS p
       ON p.id = CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END
-    WHERE f.user_low = ${myId} OR f.user_high = ${myId}
+    WHERE (f.user_low = ${myId} OR f.user_high = ${myId})
+      AND f._deleted_at IS NULL
     ORDER BY p.username COLLATE NOCASE ASC
   `;
 }

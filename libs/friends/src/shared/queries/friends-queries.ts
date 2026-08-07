@@ -1,6 +1,6 @@
 import { userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 export const friendships = defineQuery({
@@ -17,7 +17,8 @@ export const friendships = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT id, user_low, user_high, created_at, source_request_id
       FROM friendships
-      WHERE user_low = ${actor} OR user_high = ${actor}
+      WHERE (user_low = ${actor} OR user_high = ${actor})
+        AND _deleted_at IS NULL
       LIMIT 2000
     `);
     return { friendships: rows };
@@ -61,6 +62,7 @@ export const userBlocks = defineQuery({
       SELECT id, blocker_id, blocked_id, created_at
       FROM user_blocks
       WHERE blocker_id = ${ctx.env.actorId}
+        AND _deleted_at IS NULL
       LIMIT 500
     `);
     return { user_blocks: rows };

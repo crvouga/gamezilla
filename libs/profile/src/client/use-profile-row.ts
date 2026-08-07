@@ -1,4 +1,4 @@
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 
 import { type ProfileRow, profileRowByIdSql } from './profile-row-sql';
 

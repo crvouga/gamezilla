@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 
-import { applyFullMerge, purgeScope } from '../client/merge-applier';
+import {
+  applyFullMerge,
+  detachScope,
+  tombstoneScope,
+} from '../client/merge-applier';
 import { hashQueryTables, scopeHash } from '../shared/canonical';
 import {
   createScenarioClients,
@@ -33,10 +37,11 @@ describe('merge scenarios (Phase 0 invariants)', () => {
       hash: 'h',
       tables: { notes: [] },
     });
-    const after = await db.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${'n1'}
+    const after = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
     `);
-    expect(after.length).toBe(0);
+    expect(after.length).toBe(1);
+    expect(after[0]?.deleted).not.toBeNull();
   });
 
   test('poll-response-arrives-during-local-mutation', async () => {
@@ -149,14 +154,15 @@ describe('merge scenarios (Phase 0 invariants)', () => {
       hash: 'h2',
       tables: { notes: [row] },
     });
-    await purgeScope(mergeDeps, s1);
-    const notes = await db.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${'shared'}
+    await detachScope(mergeDeps, s1);
+    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'shared'}
     `);
     expect(notes.length).toBe(1);
+    expect(notes[0]?.deleted).toBeNull();
   });
 
-  test('denied-purges-scope-and-stops-polling', async () => {
+  test('denied-tombstones-scope-and-stops-polling', async () => {
     const db = await openScenarioDb();
     const { mergeDeps } = createScenarioClients(db);
     const sh = scopeHash('notes', {});
@@ -168,9 +174,12 @@ describe('merge scenarios (Phase 0 invariants)', () => {
         notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
       },
     });
-    await purgeScope(mergeDeps, sh);
-    const notes = await db.query(sql<{ id: string }>`SELECT id FROM notes`);
-    expect(notes.length).toBe(0);
+    await tombstoneScope(mergeDeps, sh);
+    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes
+    `);
+    expect(notes.length).toBe(1);
+    expect(notes[0]?.deleted).not.toBeNull();
     const meta = await db.query(sql<{ scope_hash: string }>`
       SELECT scope_hash FROM _scope_meta WHERE scope_hash = ${sh}
     `);
@@ -209,10 +218,15 @@ describe('merge scenarios (Phase 0 invariants)', () => {
         notes: [{ id: 'f1', body: 'friend', owner_id: 'actor' }],
       },
     });
-    const gone = await db.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${'f2'}
+    const gone = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'f2'}
     `);
-    expect(gone.length).toBe(0);
+    expect(gone.length).toBe(1);
+    expect(gone[0]?.deleted).not.toBeNull();
+    const live = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'f1'}
+    `);
+    expect(live[0]?.deleted).toBeNull();
   });
 
   test('kicked-from-room-via-denied', async () => {
@@ -227,9 +241,12 @@ describe('merge scenarios (Phase 0 invariants)', () => {
         rooms: [{ id: 'r1', title: 'lobby' }],
       },
     });
-    await purgeScope(mergeDeps, sh);
-    const rooms = await db.query(sql<{ id: string }>`SELECT id FROM rooms`);
-    expect(rooms.length).toBe(0);
+    await tombstoneScope(mergeDeps, sh);
+    const rooms = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM rooms
+    `);
+    expect(rooms.length).toBe(1);
+    expect(rooms[0]?.deleted).not.toBeNull();
   });
 
   test('params-change-keeps-old-rows-until-hydrated', async () => {
@@ -370,11 +387,62 @@ describe('merge scenarios (Phase 0 invariants)', () => {
       SET last_active_at = ${'2000-01-01T00:00:00.000Z'}
       WHERE scope_hash = ${sh}
     `);
-    await purgeScope(mergeDeps, sh);
+    await tombstoneScope(mergeDeps, sh);
     const tags = await db.query(sql<{ n: number }>`
       SELECT COUNT(*) AS n FROM _row_scopes WHERE scope_hash = ${sh}
     `);
     expect(tags[0]?.n).toBe(0);
+  });
+
+  test('detach-scope-keeps-domain-rows-live', async () => {
+    const db = await openScenarioDb();
+    const { mergeDeps } = createScenarioClients(db);
+    const sh = scopeHash('notes', {});
+    await applyFullMerge(mergeDeps, {
+      scopeHash: sh,
+      checkpoint: '1',
+      hash: 'h',
+      tables: {
+        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
+      },
+    });
+    await detachScope(mergeDeps, sh);
+    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
+      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
+    `);
+    expect(notes.length).toBe(1);
+    expect(notes[0]?.deleted).toBeNull();
+    const tags = await db.query(sql<{ n: number }>`
+      SELECT COUNT(*) AS n FROM _row_scopes WHERE scope_hash = ${sh}
+    `);
+    expect(tags[0]?.n).toBe(0);
+  });
+
+  test('present-merge-revives-soft-tombstoned-row', async () => {
+    const db = await openScenarioDb();
+    const { mergeDeps } = createScenarioClients(db);
+    const sh = scopeHash('notes', {});
+    await applyFullMerge(mergeDeps, {
+      scopeHash: sh,
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
+      },
+    });
+    await tombstoneScope(mergeDeps, sh);
+    await applyFullMerge(mergeDeps, {
+      scopeHash: sh,
+      checkpoint: '2',
+      hash: 'h2',
+      tables: {
+        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
+      },
+    });
+    const notes = await db.query(sql<{ deleted: string | null }>`
+      SELECT _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
+    `);
+    expect(notes[0]?.deleted).toBeNull();
   });
 
   test('merge-single-flight-queues-concurrent-writers', async () => {

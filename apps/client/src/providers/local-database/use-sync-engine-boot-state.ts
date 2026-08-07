@@ -1,4 +1,4 @@
-import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
+import type { SyncEngine } from '@pkgs/sync-engine/client';
 import { useEffect, useRef, useState } from 'react';
 
 import { attachSqlCli } from '../../dev/attach-sql-cli';

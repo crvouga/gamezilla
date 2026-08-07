@@ -1,9 +1,9 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
-import { bumpWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
+import type { TableChangeBus } from '../queries/client/table-change-bus';
+import { bumpWriteEpoch } from '../queries/client/write-epoch';
 import type { MutationFanoutPayload } from '../shared/mutation-fanout-payload';
 import type { QueryChannelsCtx } from '../shared/nudge-payload';
 

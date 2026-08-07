@@ -12,6 +12,7 @@ import type {
   MutationFailure,
   MutationRegistry,
 } from '../core/types';
+import { wrapMutationDb } from '../shared/wrap-mutation-db';
 import { mapConstraintError } from './map-constraint-error';
 
 export type MutationRow = {
@@ -84,7 +85,7 @@ export async function replayMutation(
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       };
 
-      await mutation.run({ tx: txc, env }, parsed);
+      await mutation.run({ tx: wrapMutationDb(txc), env }, parsed);
 
       await txc.run(sql`
         INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)

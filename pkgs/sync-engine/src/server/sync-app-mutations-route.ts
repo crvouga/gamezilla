@@ -8,7 +8,7 @@ import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody } from '../queries/core/types';
-import { MAX_MUTATIONS_BATCH } from '../queries/server/bounds';
+import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { isAuthErrorBody } from './auth-error';
 import { notifyChannels } from './notify-channels';
 import type { SyncAppAuth } from './sync-app-auth';

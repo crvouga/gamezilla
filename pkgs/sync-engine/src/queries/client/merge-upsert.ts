@@ -4,6 +4,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRow } from '../core/types';
 
+export const DELETED_AT_COLUMN = '_deleted_at';
+
 export function assertTableName(table: string): void {
   assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
 }
@@ -34,6 +36,20 @@ export async function tableColumns(
   return info.map((c) => c.name);
 }
 
+export function assertHasDeletedAt(
+  table: string,
+  localCols: readonly string[]
+): void {
+  assert.ok(
+    localCols.includes(DELETED_AT_COLUMN),
+    `${table}: hydrated domain tables require ${DELETED_AT_COLUMN}`
+  );
+}
+
+/**
+ * Upsert intersecting columns and always revive `_deleted_at = NULL` when the
+ * local table has that column (present in a live query ⇒ live row).
+ */
 export async function upsertRowIntersect(
   tx: SqlClient,
   table: string,
@@ -41,15 +57,25 @@ export async function upsertRowIntersect(
   localCols: readonly string[]
 ): Promise<void> {
   assertTableName(table);
-  const cols = localCols.filter((c) =>
-    Object.prototype.hasOwnProperty.call(row, c)
+  assertHasDeletedAt(table, localCols);
+  const cols = localCols.filter(
+    (c) =>
+      c !== DELETED_AT_COLUMN && Object.prototype.hasOwnProperty.call(row, c)
   );
   assert.ok(cols.includes('id'), `${table}: id required`);
-  const colIdents = cols.map((c) => ident(c));
-  const valueFrags = cols.map((c) => sql`${sqliteWireValue(row[c])}`);
-  const assignments = cols
+
+  const writeCols = [...cols, DELETED_AT_COLUMN];
+  const colIdents = writeCols.map((c) => ident(c));
+  const valueFrags = writeCols.map((c) =>
+    c === DELETED_AT_COLUMN ? sql`${null}` : sql`${sqliteWireValue(row[c])}`
+  );
+  const assignments = writeCols
     .filter((c) => c !== 'id')
-    .map((c) => sql`${ident(c)} = excluded.${ident(c)}`);
+    .map((c) =>
+      c === DELETED_AT_COLUMN
+        ? sql`${ident(c)} = NULL`
+        : sql`${ident(c)} = excluded.${ident(c)}`
+    );
 
   if (assignments.length === 0) {
     await tx.run(sql`
@@ -79,13 +105,50 @@ export async function tagRow(
   `);
 }
 
-/** Remove scope tags for absent ids; delete rows with empty tag sets. */
-export async function purgeScopeAbsence(
+async function softTombstoneRow(
   tx: SqlClient,
   table: string,
-  scopeHash: string,
-  presentIds: readonly string[]
+  rowId: string,
+  now: string
 ): Promise<void> {
+  assertTableName(table);
+  await tx.run(sql`
+    UPDATE ${ident(table)}
+    SET ${ident(DELETED_AT_COLUMN)} = ${now}
+    WHERE id = ${rowId} AND ${ident(DELETED_AT_COLUMN)} IS NULL
+  `);
+}
+
+/** Soft-tombstone a row when no scope tags remain. */
+export async function softTombstoneOrphanRow(
+  tx: SqlClient,
+  table: string,
+  rowId: string,
+  now: string
+): Promise<void> {
+  assertTableName(table);
+  const remaining = await tx.query(sql<{ n: number }>`
+    SELECT COUNT(*) AS n FROM _row_scopes
+    WHERE tbl = ${table} AND row_id = ${rowId}
+  `);
+  if ((remaining[0]?.n ?? 0) === 0) {
+    await softTombstoneRow(tx, table, rowId, now);
+  }
+}
+
+/**
+ * Remove scope tags for absent ids; soft-tombstone rows with empty tag sets.
+ */
+export async function softTombstoneScopeAbsence(
+  tx: SqlClient,
+  args: {
+    readonly table: string;
+    readonly scopeHash: string;
+    readonly presentIds: readonly string[];
+    readonly now: string;
+  }
+): Promise<void> {
+  const { table, scopeHash, presentIds, now } = args;
   assertTableName(table);
   const tagged = await tx.query(sql<{ row_id: string }>`
     SELECT row_id FROM _row_scopes
@@ -98,53 +161,33 @@ export async function purgeScopeAbsence(
       DELETE FROM _row_scopes
       WHERE tbl = ${table} AND row_id = ${row_id} AND scope_hash = ${scopeHash}
     `);
-    const remaining = await tx.query(sql<{ n: number }>`
-      SELECT COUNT(*) AS n FROM _row_scopes
-      WHERE tbl = ${table} AND row_id = ${row_id}
-    `);
-    if ((remaining[0]?.n ?? 0) === 0) {
-      await tx.run(sql`
-        DELETE FROM ${ident(table)} WHERE id = ${row_id}
-      `);
-    }
-  }
-}
-
-export async function deleteOrphanRow(
-  tx: SqlClient,
-  table: string,
-  rowId: string
-): Promise<void> {
-  assertTableName(table);
-  const remaining = await tx.query(sql<{ n: number }>`
-    SELECT COUNT(*) AS n FROM _row_scopes
-    WHERE tbl = ${table} AND row_id = ${rowId}
-  `);
-  if ((remaining[0]?.n ?? 0) === 0) {
-    await tx.run(sql`DELETE FROM ${ident(table)} WHERE id = ${rowId}`);
+    await softTombstoneOrphanRow(tx, table, row_id, now);
   }
 }
 
 /**
- * Drop optimistic rows with no scope tags that are absent from this merge.
- * Rebase re-inserts still-pending mutations afterward.
+ * Soft-tombstone optimistic rows with no scope tags that are absent from this
+ * merge. Rebase re-inserts still-pending mutations afterward.
  */
-export async function deleteUntaggedOrphans(
+export async function softTombstoneUntaggedOrphans(
   tx: SqlClient,
   table: string,
-  presentIds: readonly string[]
+  presentIds: readonly string[],
+  now: string
 ): Promise<void> {
   assertTableName(table);
   const present = new Set(presentIds);
   const orphans = await tx.query(sql<{ id: string }>`
-    SELECT t.id AS id FROM ${ident(table)} t
-    WHERE NOT EXISTS (
-      SELECT 1 FROM _row_scopes r
-      WHERE r.tbl = ${table} AND r.row_id = t.id
-    )
+    SELECT t.id AS id
+    FROM ${ident(table)} AS t
+    WHERE t._deleted_at IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM _row_scopes AS r
+        WHERE r.tbl = ${table} AND r.row_id = t.id
+      )
   `);
   for (const { id } of orphans) {
     if (present.has(id)) continue;
-    await tx.run(sql`DELETE FROM ${ident(table)} WHERE id = ${id}`);
+    await softTombstoneRow(tx, table, id, now);
   }
 }

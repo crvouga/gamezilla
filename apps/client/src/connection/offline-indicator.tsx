@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import { Box, borderRadius, Text } from '@pkgs/ui';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Platform, Pressable } from 'react-native';

@@ -6,8 +6,10 @@ import {
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createLocalSyncEngine } from '@pkgs/sync-engine/client/create-local-sync-engine';
-import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
+import {
+  createLocalSyncEngine,
+  type SyncEngine,
+} from '@pkgs/sync-engine/client';
 import * as SQLite from 'expo-sqlite';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';

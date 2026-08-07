@@ -1,6 +1,6 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 
 export const SpaceField = {
   title: 'title',

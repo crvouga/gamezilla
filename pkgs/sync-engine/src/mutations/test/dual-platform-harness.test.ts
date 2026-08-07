@@ -7,7 +7,7 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import { z } from 'zod';
 import { createMutationClient } from '../client/create-mutation-client';
 import { defineMutation } from '../core/define-mutation';
-import { registry } from '../core/registry';
+import { mutationRegistry } from '../core/registry';
 import { MutationError } from '../core/types';
 import { mapConstraintError } from '../server/map-constraint-error';
 import { processUploadWithMutations } from '../server/process-upload-with-mutations';
@@ -155,7 +155,10 @@ export const testClaimUsername = defineMutation({
   },
 });
 
-export const TEST_MUTATIONS = registry([testSetNote, testClaimUsername]);
+export const TEST_MUTATIONS = mutationRegistry([
+  testSetNote,
+  testClaimUsername,
+]);
 
 function openSqlite(): SqlClient {
   const db = new Database(':memory:');

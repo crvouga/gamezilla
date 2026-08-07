@@ -7,12 +7,12 @@ import {
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { SPACE_VISIBILITIES } from '@libs/spaces/shared/space-visibility';
 import { sql } from '@pkgs/sql';
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
+  defineMutation,
   type MutationDb,
   type MutationEnv,
   MutationError,
-} from '@pkgs/sync-engine/mutations/core/types';
+} from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 function spaceActorInvalidates(spaceId: string, env: MutationEnv) {
@@ -32,7 +32,8 @@ async function loadSpacePartyUserIds(
   spaceId: string
 ): Promise<string[]> {
   const members = await db.query(sql<{ readonly user_id: string }>`
-    SELECT DISTINCT user_id FROM space_users WHERE space_id = ${spaceId}
+    SELECT DISTINCT user_id FROM space_users
+    WHERE space_id = ${spaceId} AND _deleted_at IS NULL
   `);
   const hosts = await db.query(sql<{
     readonly host_member_id: string | null;
@@ -138,20 +139,31 @@ async function openSession(
   joinAnnounced: 0 | 1 = 0
 ): Promise<void> {
   const id = spaceOpenSessionEntityId(env.deviceId, spaceId);
-  const existing = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM space_open_sessions WHERE id = ${id} LIMIT 1
+  const now = env.now().toISOString();
+  const live = await tx.query(sql<{ readonly id: string }>`
+    SELECT id FROM space_open_sessions
+    WHERE id = ${id} AND _deleted_at IS NULL
+    LIMIT 1
   `);
-  if (existing.length > 0) return;
+  if (live.length > 0) return;
   await tx.run(sql`
-    INSERT INTO space_open_sessions (id, space_id, device_id, opened_at, join_announced)
+    INSERT INTO space_open_sessions (
+      id, space_id, device_id, opened_at, join_announced, _deleted_at
+    )
     VALUES (
       ${id},
       ${spaceId},
       ${env.deviceId},
-      ${env.now().toISOString()},
-      ${joinAnnounced}
+      ${now},
+      ${joinAnnounced},
+      ${null}
     )
-    ON CONFLICT (id) DO NOTHING
+    ON CONFLICT (id) DO UPDATE SET
+      _deleted_at = NULL,
+      opened_at = excluded.opened_at,
+      join_announced = excluded.join_announced,
+      space_id = excluded.space_id,
+      device_id = excluded.device_id
   `);
 }
 
@@ -160,9 +172,12 @@ async function closeSession(
   env: MutationEnv,
   spaceId: string
 ): Promise<void> {
+  const now = env.now().toISOString();
   await tx.run(sql`
-    DELETE FROM space_open_sessions
+    UPDATE space_open_sessions
+    SET _deleted_at = ${now}
     WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
+      AND _deleted_at IS NULL
   `);
 }
 
@@ -172,20 +187,25 @@ async function endSpace(
   spaceId: string
 ): Promise<void> {
   const actorAccountId = accountId(env);
+  const now = env.now().toISOString();
   await tx.run(sql`
     UPDATE spaces
-    SET ended_at = ${env.now().toISOString()},
+    SET ended_at = ${now},
         host_id = ${env.deviceId},
         host_member_id = ${memberId(env)},
         host_account_id = ${actorAccountId}
     WHERE id = ${spaceId} AND ended_at IS NULL
   `);
   await tx.run(sql`
-    DELETE FROM space_open_sessions WHERE space_id = ${spaceId}
+    UPDATE space_open_sessions
+    SET _deleted_at = ${now}
+    WHERE space_id = ${spaceId} AND _deleted_at IS NULL
   `);
   await tx.run(sql`
-    DELETE FROM space_open_sessions
-    WHERE space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
+    UPDATE space_open_sessions
+    SET _deleted_at = ${now}
+    WHERE _deleted_at IS NULL
+      AND space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
   `);
 }
 
@@ -209,9 +229,17 @@ export const createSpaceMutation = defineMutation({
         visibility = excluded.visibility
     `);
     await tx.run(sql`
-      INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
-      VALUES (${spaceUserEntityId(spaceId, actorMemberId)}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId})
-      ON CONFLICT (id) DO NOTHING
+      INSERT INTO space_users (
+        id, space_id, user_id, created_at, created_by_account_id, _deleted_at
+      )
+      VALUES (
+        ${spaceUserEntityId(spaceId, actorMemberId)}, ${spaceId},
+        ${actorMemberId}, ${now}, ${actorAccountId}, ${null}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        _deleted_at = NULL,
+        created_at = excluded.created_at,
+        created_by_account_id = excluded.created_by_account_id
     `);
     await openSession(tx, env, spaceId, 1);
   },
@@ -232,7 +260,9 @@ export const joinSpaceMutation = defineMutation({
     const actorMemberId = memberId(env);
     const id = spaceUserEntityId(spaceId, actorMemberId);
     const present = await tx.query(sql<{ readonly id: string }>`
-      SELECT id FROM space_users WHERE id = ${id} LIMIT 1
+      SELECT id FROM space_users
+      WHERE id = ${id} AND _deleted_at IS NULL
+      LIMIT 1
     `);
     if (
       row.visibility !== 'public' &&
@@ -245,10 +275,18 @@ export const joinSpaceMutation = defineMutation({
       );
     }
     if (present.length === 0) {
+      const now = env.now().toISOString();
       await tx.run(sql`
-        INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
-        VALUES (${id}, ${spaceId}, ${actorMemberId}, ${env.now().toISOString()}, ${actorAccountId})
-        ON CONFLICT (id) DO NOTHING
+        INSERT INTO space_users (
+          id, space_id, user_id, created_at, created_by_account_id, _deleted_at
+        )
+        VALUES (
+          ${id}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId}, ${null}
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          _deleted_at = NULL,
+          created_at = excluded.created_at,
+          created_by_account_id = excluded.created_by_account_id
       `);
     }
     if (isHost(env, row)) {
@@ -360,10 +398,16 @@ export const addSpaceUserMutation = defineMutation({
       );
     }
     const id = spaceUserEntityId(spaceId, userId);
+    const now = env.now().toISOString();
     await tx.run(sql`
-      INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
-      VALUES (${id}, ${spaceId}, ${userId}, ${env.now().toISOString()}, ${accountId(env)})
-      ON CONFLICT (id) DO NOTHING
+      INSERT INTO space_users (
+        id, space_id, user_id, created_at, created_by_account_id, _deleted_at
+      )
+      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${accountId(env)}, ${null})
+      ON CONFLICT (id) DO UPDATE SET
+        _deleted_at = NULL,
+        created_at = excluded.created_at,
+        created_by_account_id = excluded.created_by_account_id
     `);
   },
 });
@@ -384,7 +428,10 @@ export const removeSpaceUserMutation = defineMutation({
       'Only the host can manage space users.'
     );
     await tx.run(sql`
-      DELETE FROM space_users WHERE id = ${spaceUserEntityId(spaceId, userId)}
+      UPDATE space_users
+      SET _deleted_at = ${env.now().toISOString()}
+      WHERE id = ${spaceUserEntityId(spaceId, userId)}
+        AND _deleted_at IS NULL
     `);
   },
 });
@@ -401,20 +448,23 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
       SET join_announced = ${1}
       WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
         AND join_announced = ${0}
+        AND _deleted_at IS NULL
     `);
   },
 });
 
-/** Drop open-session rows whose spaces are already ended (orphan cleanup). */
+/** Soft-close open-session rows whose spaces are already ended (orphan cleanup). */
 export const closeEndedOpenSessionsMutation = defineMutation({
   name: 'closeEndedOpenSessions',
   args: z.object({}),
   writes: ['space_open_sessions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
-  async run({ tx }) {
+  async run({ tx, env }) {
     await tx.run(sql`
-      DELETE FROM space_open_sessions
-      WHERE space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
+      UPDATE space_open_sessions
+      SET _deleted_at = ${env.now().toISOString()}
+      WHERE _deleted_at IS NULL
+        AND space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
     `);
   },
 });

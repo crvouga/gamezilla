@@ -54,6 +54,7 @@ import { default as SpacerExample } from '../spacer/spacer.example';
 import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
 import { default as SpinnerExample } from '../spinner/spinner.example';
 import { default as StackExample } from '../stack/stack.example';
+import { default as StatusBarExample } from '../status-bar/status-bar.example';
 import { default as StatusDotExample } from '../status-dot/status-dot.example';
 import { default as SuccessStateExample } from '../success-state/success-state.example';
 import { default as SwitchExample } from '../switch/switch.example';
@@ -189,6 +190,7 @@ const builtInEntries: ComponentEntry[] = [
 
   // Status
   { name: 'StatusDot', category: 'Data Display', Example: StatusDotExample },
+  { name: 'StatusBar', category: 'Overlay', Example: StatusBarExample },
 
   // Overlay
   { name: 'Modal', category: 'Overlay', Example: ModalExample },

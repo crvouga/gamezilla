@@ -405,6 +405,33 @@ export {
   type StateBlockProps,
   type StateBlockVariant,
 } from './state-block';
+export {
+  compareStatusBarItems,
+  isStatusBarItemVisible,
+  type RegisteredStatusBarItem,
+  RegisterStatusBarItem,
+  type RegisterStatusBarItemProps,
+  STATUS_BAR_BODY_HEIGHT,
+  StatusBar,
+  type StatusBarItem,
+  type StatusBarItemId,
+  StatusBarPanel,
+  type StatusBarPanelProps,
+  type StatusBarProps,
+  type StatusBarRegistryContextValue,
+  StatusBarRegistryPortalBridge,
+  type StatusBarRegistryPortalBridgeProps,
+  StatusBarRegistryProvider,
+  type StatusBarRegistryProviderProps,
+  StatusBarRegistryStore,
+  StatusBarStrip,
+  type StatusBarStripProps,
+  statusBarItemOrder,
+  useStatusBar,
+  useStatusBarPushHeight,
+  useStatusBarRegistry,
+  useStatusBarRegistryOptional,
+} from './status-bar';
 // Status
 export {
   StatusDot,

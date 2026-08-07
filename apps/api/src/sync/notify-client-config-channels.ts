@@ -1,5 +1,5 @@
 import { clientConfigTopic } from '@libs/db/shared/sync-topics';
-import { notifyChannels } from '@pkgs/sync-engine/server/notify-channels';
+import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';

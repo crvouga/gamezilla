@@ -9,7 +9,7 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import { useSyncEngineInstance } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/client';
 import { type ReactNode, useMemo } from 'react';
 import { Platform } from 'react-native';
 

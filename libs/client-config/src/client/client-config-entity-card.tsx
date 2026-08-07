@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { Box, Card, Text } from '@pkgs/ui';
 import {
   CLIENT_CONFIG_ENTITY_ID,

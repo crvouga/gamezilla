@@ -1,17 +1,14 @@
 import { assert } from '@pkgs/assert';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type {
-  MutationEnv,
-  MutationRegistry,
-} from '@pkgs/sync-engine/mutations/core/types';
 
+import type { MutationEnv, MutationRegistry } from '../../mutations/core/types';
 import type { QueryRow } from '../core/types';
 import { confirmOptimistic, rebaseUnconfirmed } from './merge-rebase';
 import {
-  deleteOrphanRow,
-  deleteUntaggedOrphans,
-  purgeScopeAbsence,
+  softTombstoneOrphanRow,
+  softTombstoneScopeAbsence,
+  softTombstoneUntaggedOrphans,
   tableColumns,
   tagRow,
   upsertRowIntersect,
@@ -47,7 +44,7 @@ function mergeGateFor(db: object): MergeGate {
   return created;
 }
 
-async function withMergeSingleFlight<T>(
+export async function withMergeSingleFlight<T>(
   db: object,
   write: () => Promise<T>
 ): Promise<T> {
@@ -74,10 +71,16 @@ async function runMerge(
   let applied = false;
   const changed = new Set<string>();
   const basisEpoch = input.basisEpoch ?? 0;
+  const now = deps.env.now().toISOString();
   await deps.db.transaction(async (tx) => {
     if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
     for (const [table, rows] of Object.entries(input.tables)) {
-      await mergeTable(tx, input.scopeHash, table, rows);
+      await mergeTable(tx, {
+        scopeHash: input.scopeHash,
+        table,
+        rows,
+        now,
+      });
       changed.add(table);
     }
     changed.add('_row_scopes');
@@ -138,10 +141,14 @@ async function touchScopeMeta(
 
 async function mergeTable(
   tx: SqlClient,
-  scopeHash: string,
-  table: string,
-  rows: readonly QueryRow[]
+  args: {
+    readonly scopeHash: string;
+    readonly table: string;
+    readonly rows: readonly QueryRow[];
+    readonly now: string;
+  }
 ): Promise<void> {
+  const { scopeHash, table, rows, now } = args;
   const cols = await tableColumns(tx, table);
   const ids: string[] = [];
   for (const row of rows) {
@@ -151,22 +158,59 @@ async function mergeTable(
     await upsertRowIntersect(tx, table, row, cols);
     await tagRow(tx, table, id, scopeHash);
   }
-  await purgeScopeAbsence(tx, table, scopeHash, ids);
-  await deleteUntaggedOrphans(tx, table, ids);
+  await softTombstoneScopeAbsence(tx, {
+    table,
+    scopeHash,
+    presentIds: ids,
+    now,
+  });
+  await softTombstoneUntaggedOrphans(tx, table, ids, now);
 }
 
-export async function purgeScope(
+/**
+ * Drop scope tags + meta only. Domain rows stay (unsubscribe / detach).
+ */
+export async function detachScope(
   deps: Pick<MergeApplierDeps, 'db' | 'bus'>,
   scopeHash: string
 ): Promise<void> {
-  await withMergeSingleFlight(deps.db, () => runPurgeScope(deps, scopeHash));
+  await withMergeSingleFlight(deps.db, () => runDetachScope(deps, scopeHash));
 }
 
-async function runPurgeScope(
+async function runDetachScope(
   deps: Pick<MergeApplierDeps, 'db' | 'bus'>,
+  scopeHash: string
+): Promise<void> {
+  await deps.db.transaction(async (tx) => {
+    await tx.run(sql`
+      DELETE FROM _row_scopes WHERE scope_hash = ${scopeHash}
+    `);
+    await tx.run(sql`
+      DELETE FROM _scope_meta WHERE scope_hash = ${scopeHash}
+    `);
+  });
+  deps.bus.emit(['_row_scopes', '_scope_meta']);
+}
+
+/**
+ * Soft-tombstone domain rows tagged by this scope (when last tag drops), then
+ * clear framework scope tables. Used for denied/gone.
+ */
+export async function tombstoneScope(
+  deps: Pick<MergeApplierDeps, 'db' | 'bus' | 'env'>,
+  scopeHash: string
+): Promise<void> {
+  await withMergeSingleFlight(deps.db, () =>
+    runTombstoneScope(deps, scopeHash)
+  );
+}
+
+async function runTombstoneScope(
+  deps: Pick<MergeApplierDeps, 'db' | 'bus' | 'env'>,
   scopeHash: string
 ): Promise<void> {
   const changed = new Set<string>();
+  const now = deps.env.now().toISOString();
   await deps.db.transaction(async (tx) => {
     const tags = await tx.query(sql<{ tbl: string; row_id: string }>`
       SELECT tbl, row_id FROM _row_scopes WHERE scope_hash = ${scopeHash}
@@ -179,7 +223,7 @@ async function runPurgeScope(
     `);
     for (const { tbl, row_id } of tags) {
       changed.add(tbl);
-      await deleteOrphanRow(tx, tbl, row_id);
+      await softTombstoneOrphanRow(tx, tbl, row_id, now);
     }
   });
   deps.bus.emit([...changed, '_row_scopes', '_scope_meta']);

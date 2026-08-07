@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 export type SpaceUserEntry = {
@@ -24,7 +24,7 @@ export function useSpaceUserEntries(spaceId: string): {
       SELECT a.user_id, p.username, p.avatar_config
       FROM space_users AS a
       INNER JOIN profiles AS p ON p.id = a.user_id
-      WHERE a.space_id = ${spaceId}
+      WHERE a.space_id = ${spaceId} AND a._deleted_at IS NULL
       ORDER BY p.username COLLATE NOCASE ASC
     `,
     [spaceId]

@@ -1,10 +1,7 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { type Sql, sql } from '@pkgs/sql';
 
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import {
@@ -39,7 +36,8 @@ function presenceSql(spaceId: string, enabled: boolean): Sql<PresenceRow> {
       s.ended_at,
       CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open
     FROM spaces AS s
-    LEFT JOIN space_open_sessions AS o ON o.space_id = s.id
+    LEFT JOIN space_open_sessions AS o
+      ON o.space_id = s.id AND o._deleted_at IS NULL
     WHERE s.id = ${spaceId}
   `;
 }

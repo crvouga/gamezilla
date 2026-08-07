@@ -1,6 +1,6 @@
 import { clientConfigChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
+import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 export const clientConfig = defineQuery({

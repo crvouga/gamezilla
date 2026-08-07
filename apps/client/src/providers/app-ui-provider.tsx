@@ -19,8 +19,9 @@ const uiProviders = [
 ];
 
 /**
- * Overlays, bottom sheets, portal sync-engine bridge, app modals, and command palette.
- * Must render after {@link AppLocalDatabaseProvider} (sync engine + portal bridge).
+ * Overlays, bottom sheets, portal sync-engine bridge, app modals, and command
+ * palette. Must render after {@link AppLocalDatabaseProvider} (sync engine +
+ * portal bridge). Global status bar mounts after inbox (see AppProviders).
  */
 export function AppUiProvider({
   children,

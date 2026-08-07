@@ -21,7 +21,7 @@ export function sharedLiveSpaceIdsSql(args: {
         OR id IN (
           SELECT space_id
           FROM space_users
-          WHERE user_id = ${args.memberId}
+          WHERE user_id = ${args.memberId} AND _deleted_at IS NULL
         )
       )
     ORDER BY created_at DESC

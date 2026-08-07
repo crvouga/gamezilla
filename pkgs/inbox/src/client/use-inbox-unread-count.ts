@@ -1,4 +1,4 @@
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 import { useInboxShell } from './inbox-provider-registry';
 import { inboxUnreadCountSql } from './inbox-queries';

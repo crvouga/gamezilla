@@ -1,7 +1,10 @@
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-/** Framework local tables for defineQuery sync (CACHE + DURABLE). */
+/** Framework local tables for defineQuery sync (CACHE + DURABLE).
+ * Domain hydration is soft-delete only: merge never hard-deletes domain rows;
+ * `_row_scopes` / `_scope_meta` remain cache metadata that may hard-delete.
+ */
 export const FRAMEWORK_LOCAL_DDL = `
 CREATE TABLE IF NOT EXISTS _mutations (
   id TEXT PRIMARY KEY,

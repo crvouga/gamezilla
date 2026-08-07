@@ -14,6 +14,7 @@ import type {
   MutationEnv,
   MutationRegistry,
 } from '../core/types';
+import { wrapMutationDb } from '../shared/wrap-mutation-db';
 
 export type MutationClientIds = {
   readonly clientId: string;
@@ -115,7 +116,7 @@ export function createMutationClient(
           const epoch = await bumpWriteEpoch(txc);
           appliedSeq = seq;
           createdAt = env.now().toISOString();
-          await m.run({ tx: txc, env }, parsed);
+          await m.run({ tx: wrapMutationDb(txc), env }, parsed);
           await txc.run(sql`
             INSERT INTO _mutations (
               id, name, args, client_id, seq, created_at, epoch, status

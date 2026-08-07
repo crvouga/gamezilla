@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';

@@ -2,7 +2,7 @@ import { assert } from '@pkgs/assert';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server/create-sync-app';
+import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';

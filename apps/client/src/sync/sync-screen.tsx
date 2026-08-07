@@ -1,6 +1,6 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import { Box, ScreenBase, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 

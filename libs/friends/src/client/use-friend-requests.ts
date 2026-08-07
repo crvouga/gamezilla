@@ -2,10 +2,7 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import type { FriendRequest } from '../shared/friends-types';

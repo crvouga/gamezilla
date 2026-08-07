@@ -1,6 +1,7 @@
-import { createSyncEnginePool } from '@pkgs/sync-engine/client/sync-engine-pool';
-import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
-
+import {
+  createSyncEnginePool,
+  type SyncEngine,
+} from '@pkgs/sync-engine/client';
 import {
   type CreateAppLocalSyncEngineArgs,
   createAppLocalSyncEngine,

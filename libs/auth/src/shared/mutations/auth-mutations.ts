@@ -1,6 +1,6 @@
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
+import { defineMutation } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 const deviceSnapshot = z.object({

@@ -16,7 +16,7 @@ import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
 import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
   type ActionBarItem,
   iconButtonAvatarContentSize,

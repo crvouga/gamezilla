@@ -1,7 +1,7 @@
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
-import type { AuthErrorBody } from '@pkgs/sync-engine/queries/core/types';
-import { isAuthErrorBody } from '@pkgs/sync-engine/server/auth-error';
+import { isAuthErrorBody } from '@pkgs/sync-engine/server';
+import type { AuthErrorBody } from '@pkgs/sync-engine/shared';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 

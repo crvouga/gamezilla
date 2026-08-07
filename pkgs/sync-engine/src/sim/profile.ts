@@ -5,7 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { z } from 'zod';
 
 import { defineMutation } from '../mutations/core/define-mutation';
-import { registry } from '../mutations/core/registry';
+import { mutationRegistry } from '../mutations/core/registry';
 import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
 export const SIM_NOTES_TABLE = 'notes' as const;
@@ -46,7 +46,7 @@ export const simSetNote = defineMutation({
   },
 });
 
-export const simMutationRegistry = registry([simSetNote]);
+export const simMutationRegistry = mutationRegistry([simSetNote]);
 
 /** Global notes query — all clients share scope for convergence checks. */
 export const simNotesQuery = defineQuery({
@@ -75,7 +75,8 @@ export const SIM_SERVER_DDL = `
 CREATE TABLE IF NOT EXISTS notes (
   id text PRIMARY KEY,
   body text NOT NULL DEFAULT '',
-  owner_id text NOT NULL DEFAULT ''
+  owner_id text NOT NULL DEFAULT '',
+  _deleted_at text
 );
 CREATE TABLE IF NOT EXISTS _mutations_applied (
   mutation_id text PRIMARY KEY,

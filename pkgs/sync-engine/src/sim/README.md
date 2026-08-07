@@ -20,8 +20,8 @@ Not simulated: disk bitflips, real EMQX, Cloudflare Worker runtime.
 ## Quick start
 
 ```ts
-import { openSimWorld } from '@pkgs/sync-engine/sim/world';
-import { simSetNote } from '@pkgs/sync-engine/sim/profile';
+import { openSimWorld } from './world';
+import { simSetNote } from './profile';
 
 const world = await openSimWorld({ seed: 42 });
 const a = await world.addClient({ id: 'alice' });
@@ -41,7 +41,7 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/sim/world.fuzz.test.ts
 Or:
 
 ```ts
-import { runSeed } from '@pkgs/sync-engine/sim/replay';
+import { runSeed } from './replay';
 await runSeed({ seed: 0x2a, steps: 16 });
 ```
 
@@ -53,7 +53,7 @@ Env knobs:
 ## Unit tests without a full world
 
 ```ts
-import { createSimTestDriver } from '@pkgs/sync-engine/sim/test-driver';
+import { createSimTestDriver } from './test-driver';
 
 const sim = createSimTestDriver();
 // pass sim.timers / sim.now / sim.random into SubscriptionRuntime, attachNudges, etc.

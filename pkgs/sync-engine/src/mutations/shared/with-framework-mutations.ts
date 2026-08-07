@@ -1,4 +1,4 @@
-import { registry } from '../core/registry';
+import { mutationRegistry } from '../core/registry';
 import type { Mutation, MutationRegistry } from '../core/types';
 import { FRAMEWORK_MUTATIONS } from './acknowledge-write-rejection';
 
@@ -11,5 +11,5 @@ export function withFrameworkMutations(
   const withoutFramework = productList.filter(
     (m) => !frameworkNames.has(m.name)
   );
-  return registry([...FRAMEWORK_MUTATIONS, ...withoutFramework]);
+  return mutationRegistry([...FRAMEWORK_MUTATIONS, ...withoutFramework]);
 }

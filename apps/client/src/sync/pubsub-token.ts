@@ -4,7 +4,7 @@ import {
   SyncApiAuthError,
   type SyncClientAuth,
   type SyncHttpFetch,
-} from '@pkgs/sync-engine/client/sync-http-client';
+} from '@pkgs/sync-engine/client';
 
 export type SyncApiFetch = SyncHttpFetch;
 

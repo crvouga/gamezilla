@@ -38,6 +38,7 @@
     "ci:lint": "bunx biome check --error-on-warnings .",
     "ci:mutation-determinism": "bun run tools/scripts/check-mutation-determinism.ts && bun run tools/scripts/check-mutation-idempotency.ts",
     "ci:no-direct-pg-imports": "bun run tools/scripts/check-no-direct-pg-imports.ts",
+    "ci:no-domain-hard-delete": "bun run tools/scripts/check-no-domain-hard-delete.ts",
     "ci:no-legacy-writes": "bun run tools/scripts/check-no-legacy-writes.ts",
     "ci:no-local-tables": "bun run tools/scripts/check-local-table-categories.ts",
     "ci:no-provider-leaks": "bun run tools/scripts/check-no-provider-leaks.ts",

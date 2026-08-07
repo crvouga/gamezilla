@@ -1,8 +1,5 @@
 import { type Sql, sql } from '@pkgs/sql';
-import {
-  useQuery,
-  useSyncEngine,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 type SessionIdRow = {
@@ -31,6 +28,7 @@ export function useOpenSpaceSessionIds(): {
       paintReady
         ? sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions
+            WHERE _deleted_at IS NULL
             ORDER BY opened_at DESC
           `
         : sql<SessionIdRow>`
@@ -57,7 +55,8 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
       enabled
         ? sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions
-            WHERE space_id = ${spaceId} LIMIT 1
+            WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+            LIMIT 1
           `
         : sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions WHERE false
@@ -84,7 +83,8 @@ export function useSpaceOpenSession(spaceId: string): {
         ? sql<SessionRow>`
             SELECT space_id, device_id, join_announced
             FROM space_open_sessions
-            WHERE space_id = ${spaceId} LIMIT 1
+            WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+            LIMIT 1
           `
         : sql<SessionRow>`
             SELECT space_id, device_id, join_announced

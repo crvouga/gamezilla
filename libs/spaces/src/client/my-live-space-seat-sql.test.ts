@@ -29,7 +29,8 @@ async function migrate(db: SqlClient): Promise<void> {
       ended_at TEXT,
       visibility TEXT,
       host_account_id TEXT,
-      host_member_id TEXT
+      host_member_id TEXT,
+      _deleted_at TEXT
     )
   `);
   await db.run(sql<void>`
@@ -38,7 +39,8 @@ async function migrate(db: SqlClient): Promise<void> {
       space_id TEXT,
       user_id TEXT,
       created_at TEXT,
-      created_by_account_id TEXT
+      created_by_account_id TEXT,
+      _deleted_at TEXT
     )
   `);
 }

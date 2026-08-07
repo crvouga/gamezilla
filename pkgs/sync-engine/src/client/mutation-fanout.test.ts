@@ -7,7 +7,7 @@ import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
 import { defineMutation } from '../mutations/core/define-mutation';
-import { registry as mutationRegistryOf } from '../mutations/core/registry';
+import { mutationRegistry as mutationRegistryOf } from '../mutations/core/registry';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import { openScenarioDb, setNote } from '../queries/test/scenario-fixture';
 import {

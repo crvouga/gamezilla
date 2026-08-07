@@ -1,21 +1,15 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
-import type { MutationAppliedEvent } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
-import type {
-  MutationEnv,
-  MutationRegistry,
-} from '@pkgs/sync-engine/mutations/core/types';
-import { createSqlWatch } from '@pkgs/sync-engine/queries/client/sql-watch';
-import { createTableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
-import type {
-  QueryRegistry,
-  QueryResponse,
-} from '@pkgs/sync-engine/queries/core/types';
-import '@pkgs/sync-engine/queries/shared/tiger-invariants';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { QueryChannelsCtx } from '@pkgs/sync-engine/shared/nudge-payload';
 
+import type { MutationAppliedEvent } from '../mutations/client/create-mutation-client';
+import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
+import { createSqlWatch } from '../queries/client/sql-watch';
+import { createTableChangeBus } from '../queries/client/table-change-bus';
+import type { QueryRegistry, QueryResponse } from '../queries/core/types';
+import '../queries/shared/tiger-invariants';
+import type { QueryChannelsCtx } from '../shared/nudge-payload';
 import type { AppLifecycle } from './app-lifecycle';
 import { attachNudges } from './attach-nudges';
 import {
@@ -36,8 +30,8 @@ import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
 import { createSubscribeQueries } from './subscribe-queries';
+import type { QueryRequest } from './subscription-fetch';
 import {
-  type QueryRequest,
   type QuerySubscriptionSpec,
   SubscriptionRuntime,
 } from './subscription-runtime';

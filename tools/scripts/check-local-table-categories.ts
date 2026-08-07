@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
+import {
+  FRAMEWORK_CACHE_TABLE_NAMES,
+  FRAMEWORK_DURABLE_TABLE_NAMES,
+} from '@pkgs/sync-engine/shared';
 /**
  * Enforce CACHE vs DURABLE table categories for local.db.
  * DURABLE tables must never appear as wipeable cache-only names without listing.
  */
 import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/app-schema';
-import {
-  FRAMEWORK_CACHE_TABLE_NAMES,
-  FRAMEWORK_DURABLE_TABLE_NAMES,
-} from '../../pkgs/sync-engine/src/shared/framework-server-ddl';
 
 const DURABLE = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 const FRAMEWORK_CACHE = new Set<string>(FRAMEWORK_CACHE_TABLE_NAMES);

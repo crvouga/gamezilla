@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';

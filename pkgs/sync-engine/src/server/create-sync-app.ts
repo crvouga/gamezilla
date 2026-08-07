@@ -9,8 +9,6 @@ import type { SyncAppAuth } from './sync-app-auth';
 import { mountMutationsRoute } from './sync-app-mutations-route';
 import { mountQueryRoutes } from './sync-app-query-routes';
 
-export type { SyncAppAuth } from './sync-app-auth';
-
 export type CreateSyncAppDeps = {
   readonly resolveAuth: (
     request: Request

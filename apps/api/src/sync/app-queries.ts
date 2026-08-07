@@ -5,7 +5,7 @@ import { FRIENDS_QUERIES } from '@libs/friends/shared/queries/friends-queries';
 import { PROFILE_QUERIES } from '@libs/profile/shared/queries/profile-queries';
 import { SPACE_QUERIES } from '@libs/spaces/shared/queries/space-queries';
 import { INBOX_QUERIES } from '@pkgs/inbox/shared/inbox-queries';
-import { queryRegistry } from '@pkgs/sync-engine/queries/core/registry';
+import { queryRegistry } from '@pkgs/sync-engine/shared';
 
 export const APP_QUERIES = queryRegistry([
   ...AUTH_QUERIES,

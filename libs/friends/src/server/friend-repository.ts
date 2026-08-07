@@ -112,7 +112,9 @@ export async function friendshipExists(
   const rows = await db.query(sql<Record<string, unknown>>`
     SELECT id
     FROM friendships
-    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+    WHERE user_low = ${userLow}
+      AND user_high = ${userHigh}
+      AND _deleted_at IS NULL
     LIMIT 1
   `);
   return rows.length > 0;
@@ -126,8 +128,11 @@ export async function isBlockedEitherDirection(
   const rows = await db.query(sql<Record<string, unknown>>`
     SELECT blocker_id, blocked_id
     FROM user_blocks
-    WHERE (blocker_id = ${userA} AND blocked_id = ${userB})
-       OR (blocker_id = ${userB} AND blocked_id = ${userA})
+    WHERE _deleted_at IS NULL
+      AND (
+        (blocker_id = ${userA} AND blocked_id = ${userB})
+        OR (blocker_id = ${userB} AND blocked_id = ${userA})
+      )
     LIMIT 1
   `);
   const row = rows[0];
@@ -199,27 +204,37 @@ export async function insertFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
   await db.run(sql<void>`
-    INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id)
+    INSERT INTO friendships (
+      id, user_low, user_high, created_at, source_request_id, _deleted_at
+    )
     VALUES (
       ${pairId(userLow, userHigh)},
       ${userLow},
       ${userHigh},
       ${args.now},
-      ${args.sourceRequestId}
+      ${args.sourceRequestId},
+      ${null}
     )
-    ON CONFLICT (user_low, user_high) DO NOTHING
+    ON CONFLICT (user_low, user_high) DO UPDATE SET
+      _deleted_at = NULL,
+      created_at = excluded.created_at,
+      source_request_id = excluded.source_request_id
   `);
 }
 
 export async function deleteFriendship(
   db: SqlClient,
   userA: string,
-  userB: string
+  userB: string,
+  now: string = new Date().toISOString()
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(sql<void>`
-    DELETE FROM friendships
-    WHERE user_low = ${userLow} AND user_high = ${userHigh}
+    UPDATE friendships
+    SET _deleted_at = ${now}
+    WHERE user_low = ${userLow}
+      AND user_high = ${userHigh}
+      AND _deleted_at IS NULL
   `);
 }
 
@@ -230,20 +245,26 @@ export async function insertBlock(
   now: string
 ): Promise<void> {
   await db.run(sql<void>`
-    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at)
-    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now})
-    ON CONFLICT (blocker_id, blocked_id) DO NOTHING
+    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
+    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now}, ${null})
+    ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
+      _deleted_at = NULL,
+      created_at = excluded.created_at
   `);
 }
 
 export async function deleteBlock(
   db: SqlClient,
   blockerId: string,
-  blockedId: string
+  blockedId: string,
+  now: string = new Date().toISOString()
 ): Promise<void> {
   await db.run(sql<void>`
-    DELETE FROM user_blocks
-    WHERE blocker_id = ${blockerId} AND blocked_id = ${blockedId}
+    UPDATE user_blocks
+    SET _deleted_at = ${now}
+    WHERE blocker_id = ${blockerId}
+      AND blocked_id = ${blockedId}
+      AND _deleted_at IS NULL
   `);
 }
 
@@ -256,12 +277,14 @@ export async function listMutualFriendIds(
     WITH my_friends AS (
       SELECT CASE WHEN user_low = ${viewerId} THEN user_high ELSE user_low END AS friend_id
       FROM friendships
-      WHERE user_low = ${viewerId} OR user_high = ${viewerId}
+      WHERE (user_low = ${viewerId} OR user_high = ${viewerId})
+        AND _deleted_at IS NULL
     ),
     their_friends AS (
       SELECT CASE WHEN user_low = ${targetUserId} THEN user_high ELSE user_low END AS friend_id
       FROM friendships
-      WHERE user_low = ${targetUserId} OR user_high = ${targetUserId}
+      WHERE (user_low = ${targetUserId} OR user_high = ${targetUserId})
+        AND _deleted_at IS NULL
     )
     SELECT mf.friend_id
     FROM my_friends AS mf

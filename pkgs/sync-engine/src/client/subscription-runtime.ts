@@ -1,11 +1,11 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import {
-  type MergeApplierDeps,
-  purgeScope,
-} from '@pkgs/sync-engine/queries/client/merge-applier';
-import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
-import { scopeHash } from '@pkgs/sync-engine/queries/shared/canonical';
 
+import {
+  detachScope,
+  type MergeApplierDeps,
+} from '../queries/client/merge-applier';
+import type { QueryResponse } from '../queries/core/types';
+import { scopeHash } from '../queries/shared/canonical';
 import {
   type AppLifecycle,
   type AppLifecycleEvent,
@@ -19,8 +19,6 @@ import {
   type QueryRequest,
   requestFromBasis,
 } from './subscription-fetch';
-
-export type { QueryRequest, SweepReason };
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
@@ -254,7 +252,7 @@ export class SubscriptionRuntime {
     entry.generation += 1;
     this.entries.delete(entry.scope);
     this.emitSubscriptionsChange();
-    void purgeScope(this.options.getMergeDeps(), entry.scope).catch(
+    void detachScope(this.options.getMergeDeps(), entry.scope).catch(
       this.options.onError
     );
   }

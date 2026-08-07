@@ -1,7 +1,7 @@
 import {
   SyncEngineProvider,
   useSyncEngineInstance,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+} from '@pkgs/sync-engine/client';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
