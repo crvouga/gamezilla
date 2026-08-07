@@ -1,7 +1,7 @@
-import { SpaceMemberTileRail } from './space-member-tile-rail';
-import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { SpaceMemberTileRail } from './space-member-tile-rail';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 

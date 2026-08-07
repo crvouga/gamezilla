@@ -1,7 +1,7 @@
 import { Assert } from '@pkgs/assert';
 import {
-  TtsProviderError,
   type TtsProvider,
+  TtsProviderError,
   type TtsSynthesizeInput,
   type TtsSynthesizeOutput,
 } from '../ports/tts-provider';

@@ -68,25 +68,25 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   assertDataMatchesFormula,
-  serializeFormula,
   type FormulaWire,
+  serializeFormula,
 } from './formula-wire';
 import {
   assertDistanceFormulasInput,
   assertWireFormulasInput,
+  type InsertJoinAttrs,
   resolveGroupSize,
   resolveJoinAttrs,
-  type InsertJoinAttrs,
 } from './join-helpers';
 import {
+  type ActivePartition,
   assertMatchmakerOptionInvariants,
   assertPartitionSignature,
-  rowToParticipant,
-  type ActivePartition,
   type RunMatchPassesAcrossPartitionsOptions,
   type RunMatchPassesAcrossPartitionsResult,
   type RunMatchPassesOptions,
   type RunMatchPassesResult,
+  rowToParticipant,
   type SweepExpiredAcrossPartitionsOptions,
   type SweepExpiredAcrossPartitionsResult,
   type SweepExpiredResult,
@@ -107,8 +107,8 @@ import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
 import {
-  DEFAULT_RADIUS_OPTIONS,
   type _MatchPassResult,
+  DEFAULT_RADIUS_OPTIONS,
   type DistanceFormula,
   type JoinInput,
   type JoinResult,

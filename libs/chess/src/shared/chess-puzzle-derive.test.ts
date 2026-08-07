@@ -1,7 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-
-import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
-import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
 import {
   deriveCurrentPlayCounts,
   deriveCurrentStreak,
@@ -9,6 +6,8 @@ import {
   deriveRecentlyAttemptedPuzzleIds,
   sliceCurrentPlay,
 } from './chess-puzzle-derive';
+import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
+import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
 
 function row(
   partial: Partial<ChessPuzzleInteractionRow> &

@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSharedValue, type SharedValue } from 'react-native-reanimated';
-import { HOVER_NONE, indexFromSquare } from './chess-board-geometry';
+import { type SharedValue, useSharedValue } from 'react-native-reanimated';
 import {
+  type ChessBoardDragMotion,
   clearDragMotion,
   DRAG_PIECE_NONE,
   emptyDragKeyTable,
   hashPieceId,
   useChessBoardDragMotion,
-  type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
 import type { DropOutcome } from './chess-board-drop-handler';
-import type { ChessPieceRow } from './chess-board-piece-identities';
+import { HOVER_NONE, indexFromSquare } from './chess-board-geometry';
+import { type PanEndDeps, runPanEnd } from './chess-board-pan-end';
 import { markChessPerf } from './chess-board-perf';
-import { runPanEnd, type PanEndDeps } from './chess-board-pan-end';
+import type { ChessPieceRow } from './chess-board-piece-identities';
 import type { BoardOrientation, Position, Square } from './chess-board-types';
 import type { TryMoveOk } from './use-chess-game';
 import { useStableHandler } from './use-stable-handler';

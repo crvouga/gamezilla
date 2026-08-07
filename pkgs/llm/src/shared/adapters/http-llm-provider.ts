@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 
-import { LlmProviderError, type LlmProvider } from '../llm-provider';
+import { type LlmProvider, LlmProviderError } from '../llm-provider';
 import type { LlmStructuredRequest, LlmStructuredResult } from '../llm-types';
 
 type FetchFn = (

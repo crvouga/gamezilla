@@ -1,6 +1,6 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
-import { LlmContextProvider } from '@pkgs/llm/client/llm-context';
 import { useKv } from '@pkgs/kv/kv-context';
+import { LlmContextProvider } from '@pkgs/llm/client/llm-context';
 import type { ReactNode } from 'react';
 
 export function AppLlm({ children }: { children: ReactNode }): ReactNode {

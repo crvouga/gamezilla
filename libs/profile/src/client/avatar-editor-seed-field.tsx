@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   CircleCheckIcon,
@@ -7,7 +8,6 @@ import {
   ShuffleIcon,
   TextInput,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useState } from 'react';
 
 export function AvatarEditorSeedField({

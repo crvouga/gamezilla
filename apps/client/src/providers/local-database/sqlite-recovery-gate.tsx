@@ -1,5 +1,5 @@
 import { subscribeExpoSqliteWebFatalError } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import { LocalDatabaseBootErrorScreen } from './boot-screens';
 

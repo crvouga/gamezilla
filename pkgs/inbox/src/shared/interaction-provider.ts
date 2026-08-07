@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-
-import type { InteractionCardActions } from './interaction-action';
 import type { Interaction } from './interaction';
+import type { InteractionCardActions } from './interaction-action';
 
 export interface InteractionProvider {
   readonly id: string;

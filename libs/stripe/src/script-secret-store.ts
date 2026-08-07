@@ -1,7 +1,7 @@
-import { createWritableScriptSecretStore } from '@pkgs/secret-provider';
-import { createCachingSecretStore } from '@pkgs/secret-store';
-import type { SecretStore } from '@pkgs/secret-store';
 import { join } from 'node:path';
+import { createWritableScriptSecretStore } from '@pkgs/secret-provider';
+import type { SecretStore } from '@pkgs/secret-store';
+import { createCachingSecretStore } from '@pkgs/secret-store';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

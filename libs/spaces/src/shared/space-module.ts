@@ -4,8 +4,8 @@ import {
   type Message,
 } from '@pkgs/message';
 import {
-  ROOM_ERROR_TYPE,
   type HandleResult,
+  ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomError,
   type RoomModule,
@@ -27,18 +27,18 @@ import {
   gamesEvtNs,
 } from './games';
 import {
+  spaceLogCmdNs,
+  spaceLogCommandRouter,
+  spaceLogEventReducer,
+  spaceLogEvtNs,
+} from './space-log/space-log-messages';
+import {
   SpaceMembersRoomAttr,
   spaceMembersCmdNs,
   spaceMembersCommandRouter,
   spaceMembersEventReducer,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
-import {
-  spaceLogCmdNs,
-  spaceLogCommandRouter,
-  spaceLogEventReducer,
-  spaceLogEvtNs,
-} from './space-log/space-log-messages';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };

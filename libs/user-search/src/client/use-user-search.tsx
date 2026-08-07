@@ -1,15 +1,14 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { Box, Button, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-
-import { searchUsers } from './search-users';
-import { useUserSearchClientDeps } from './use-user-search-deps';
+import { Box, Button, Text } from '@pkgs/ui';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   USER_SEARCH_MIN_LENGTH,
   type UserSearchResult,
 } from '../shared/user-search-types';
+import { searchUsers } from './search-users';
+import { useUserSearchClientDeps } from './use-user-search-deps';
 
 export function useDebouncedUserSearchEffect(
   query: string,

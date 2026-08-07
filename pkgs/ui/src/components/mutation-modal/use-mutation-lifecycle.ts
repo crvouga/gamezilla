@@ -8,8 +8,8 @@
  * and `error` (retryable failure). Cancellation maps back to `idle`.
  */
 
+import { type AsyncStatus, useAsync } from '@pkgs/async/use-async';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAsync, type AsyncStatus } from '@pkgs/async/use-async';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
 

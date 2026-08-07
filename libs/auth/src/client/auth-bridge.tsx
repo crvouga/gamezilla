@@ -7,7 +7,7 @@ import {
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
 import type { PropsWithChildren } from 'react';
-import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { useAuthClientPort } from './auth-client-provider';

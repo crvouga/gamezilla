@@ -1,5 +1,5 @@
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
 import {
   useFreshAuthToken,
   useGetFreshAuthToken,
@@ -18,8 +18,8 @@ import { useMemo } from 'react';
 import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
 import { useSpacePresence } from '../use-space-presence';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
-import { useSpaceRoomConnection } from './use-space-room-connection';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
+import { useSpaceRoomConnection } from './use-space-room-connection';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 

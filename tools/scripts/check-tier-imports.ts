@@ -26,14 +26,14 @@ import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import { Glob } from 'bun';
 import {
-  REPO_ROOT,
-  TIER_DIRS,
-  TIER_IMPORT_PATTERN,
   discoverPackagesWithTier,
-  stripComments,
-  stripTypeOnlyImports,
   type PackageInfo,
   type PackageName,
+  REPO_ROOT,
+  stripComments,
+  stripTypeOnlyImports,
+  TIER_DIRS,
+  TIER_IMPORT_PATTERN,
   type Tier,
 } from './workspace-package-import-graph';
 

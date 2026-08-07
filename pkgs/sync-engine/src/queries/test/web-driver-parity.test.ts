@@ -1,15 +1,14 @@
+import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { Database } from 'bun:sqlite';
 import { sql, unsafe } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
-import { applyFullMerge } from '../client/merge-applier';
 import { ensureFrameworkSchema } from '../client/local-schema';
+import { applyFullMerge } from '../client/merge-applier';
 import { scopeHash } from '../shared/canonical';
-import { DOMAIN_DDL, createScenarioClients } from './scenario-fixture';
+import { createScenarioClients, DOMAIN_DDL } from './scenario-fixture';
 
 /**
  * Web-driver parity smoke: same merge/mutate path against a file-backed

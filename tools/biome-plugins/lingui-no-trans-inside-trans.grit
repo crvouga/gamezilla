@@ -1,0 +1,6 @@
+language js
+
+`<Trans>$children</Trans>` as $outer where {
+  $children <: contains `<Trans>$inner</Trans>`,
+  register_diagnostic(span=$outer, message="Do not nest `<Trans>` inside `<Trans>`.", severity="error")
+}

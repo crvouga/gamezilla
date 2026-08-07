@@ -1,16 +1,16 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
-import {
-  createSyncHttpClient,
-  SyncApiAuthError,
-  type GetFreshAuthToken,
-  type SyncClientAuth,
-  type SyncHttpFetch,
-} from '@pkgs/sync-engine/client/sync-http-client';
 import type {
   MutationUploadResult,
   MutationUploadRow,
 } from '@pkgs/sync-engine/client/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine/client/subscription-runtime';
+import {
+  createSyncHttpClient,
+  type GetFreshAuthToken,
+  SyncApiAuthError,
+  type SyncClientAuth,
+  type SyncHttpFetch,
+} from '@pkgs/sync-engine/client/sync-http-client';
 import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
 
 export type { GetFreshAuthToken, SyncClientAuth };

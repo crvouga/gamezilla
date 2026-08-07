@@ -1,12 +1,12 @@
 import type { MiddlewareHandler } from 'hono';
-import { TRACEPARENT_HEADER } from '../shared/trace-context';
-import { Semconv } from '../shared/semconv';
-import { isObservabilityActive } from '../port/is-observability-active';
-import type { Observability } from '../port/observability';
 import {
   SENTRY_BAGGAGE_HEADER,
   SENTRY_TRACE_HEADER,
 } from '../impl-sentry/sentry-sdk';
+import { isObservabilityActive } from '../port/is-observability-active';
+import type { Observability } from '../port/observability';
+import { Semconv } from '../shared/semconv';
+import { TRACEPARENT_HEADER } from '../shared/trace-context';
 
 export type ObservabilityMiddlewareOptions = {
   readonly match?: (path: string) => boolean;

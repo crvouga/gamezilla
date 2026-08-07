@@ -1,6 +1,6 @@
 import { Box } from '../box';
-import { Text } from './text';
 import { ExampleRoot } from '../explorer/example-root';
+import { Text } from './text';
 
 const variants = [
   'body',

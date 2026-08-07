@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
+import { join } from 'node:path';
 /**
  * Ban non-deterministic APIs inside mutation `run` bodies and mutation modules.
  * IDs must come via args; time via env.now(); no network.
  */
 import { Glob } from 'bun';
-import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../..');
 const banned = [

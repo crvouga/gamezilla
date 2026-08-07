@@ -20,8 +20,8 @@ import {
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme, OnColorReset } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { OnColorReset, useTheme } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
 import { spacing } from '../../theme/scale';
 import { Box } from '../box';
@@ -30,10 +30,10 @@ import {
   ContentEdgePaddingProvider,
   SURFACE_BOTTOM_PADDING_STEP,
 } from '../content-edge-padding';
+import { FocusTrap } from '../focus-trap';
 import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
-import { FocusTrap } from '../focus-trap';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { bottomSheetModalContainer } from './bottom-sheet-modal-container';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';

@@ -19,7 +19,7 @@
 
 import type { ReactNode } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Spinner, type SpinnerProps } from '../spinner';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';

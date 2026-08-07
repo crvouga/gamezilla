@@ -1,10 +1,10 @@
+import { unsafe } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ensureFrameworkSchema,
   ensureOptimisticSchema,
   SCHEMA_EPOCH,
 } from '@pkgs/sync-engine/queries/client/local-schema';
-import { unsafe } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { TableDefinition } from '../shared/table-definition';
 import type { TableRegistry } from '../shared/table-registry';

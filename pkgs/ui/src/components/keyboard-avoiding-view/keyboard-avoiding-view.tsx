@@ -5,13 +5,13 @@
 
 import { forwardRef } from 'react';
 import {
-  KeyboardAvoidingView as RNKeyboardAvoidingView,
   Platform,
+  KeyboardAvoidingView as RNKeyboardAvoidingView,
   type KeyboardAvoidingViewProps as RNKeyboardAvoidingViewProps,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 
 export type KeyboardAvoidingViewProps = RNKeyboardAvoidingViewProps & {
   sx?: SxProps;

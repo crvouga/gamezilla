@@ -2,23 +2,23 @@
  * Maps {@link buildChessPuzzleActionBarPlan} slots to BottomActionBar items.
  */
 
+import { Trans } from '@lingui/react/macro';
 import {
+  type BottomActionBarItem,
   ChevronLeftIcon,
   ChevronRightIcon,
+  type IconComponent,
   LightbulbIcon,
   RotateCcwIcon,
-  type BottomActionBarItem,
-  type IconComponent,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import {
   buildChessPuzzleActionBarPlan,
   type ChessPuzzleActionBarSlot,
 } from './chess-puzzle-action-bar-plan';
-import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
+import type { HintStage } from './use-hint-stage';
 
 export type ChessPuzzleActionBarModel = {
   status: SolveStatus;

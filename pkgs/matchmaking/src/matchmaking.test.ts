@@ -1,9 +1,3 @@
-import { PGlite } from '@electric-sql/pglite';
-import type { AttributeState } from '@pkgs/attribute';
-import { sql, type Sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import {
   afterAll,
   afterEach,
@@ -13,15 +7,21 @@ import {
   expect,
   test,
 } from 'bun:test';
+import { PGlite } from '@electric-sql/pglite';
+import type { AttributeState } from '@pkgs/attribute';
+import { type Sql, sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import {
-  Matchmaking,
   MATCHMAKING_PAYLOAD_LIMITS,
+  Matchmaking,
   MatchmakingSchemaDriftError,
 } from './matchmaking';
 import {
   bootMatchmaking,
   expectMatched,
   KindAttr,
+  type MmHarness,
   NameAttr,
   pauseForJoinedAtOrdering,
   RatingAttr,
@@ -29,7 +29,6 @@ import {
   registerTestCrashHandler,
   SkillAttr,
   UUID_REGEX,
-  type MmHarness,
 } from './test-harness';
 import type { DistanceFormula } from './types';
 

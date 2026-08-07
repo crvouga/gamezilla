@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import type { GameClientDefinition, GameDefinition } from '../../shared/game';
 import { composeSpaceRoomModule } from '../../shared/load-game-plugins';

@@ -112,7 +112,6 @@ async function resolveBearerToken(
   const skipCache = options?.skipCache === true;
   // Prefer secure-storage token only while JWT exp is still valid. Expired
   // storage snapshots were causing 401→refresh on nearly every sync HTTP call
-  // (~3–4s) even though Clerk already had a newer in-memory token.
   if (!skipCache) {
     const cached = auth.getSessionToken();
     if (

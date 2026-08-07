@@ -1,15 +1,4 @@
-import { AvatarEditorSeedField } from '../avatar-editor-seed-field';
-import {
-  VariantSwatchStrip,
-  selectedVariantForField,
-} from '../avatar-editor-variant-swatch-strip';
-import { StylePickerStrip } from '../avatar-editor-style-picker-strip';
-import { ProfileDiceBearAvatar } from '../profile-dicebear-avatar';
-import type { SchemaField } from '../dicebear-schema';
-import { isStyleKey, type StyleKey } from '../dicebear-styles';
-import { humanizeOptionKey } from '../option-helpers';
-import { useAvatarEditor, type UseAvatarEditor } from './use-avatar-editor';
-import type { AvatarConfig } from '../../shared/avatar-config';
+import { Trans } from '@lingui/react/macro';
 import {
   AvatarHero,
   Box,
@@ -20,8 +9,19 @@ import {
   ScreenBase,
   Skeleton,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import type { AvatarConfig } from '../../shared/avatar-config';
+import { AvatarEditorSeedField } from '../avatar-editor-seed-field';
+import { StylePickerStrip } from '../avatar-editor-style-picker-strip';
+import {
+  selectedVariantForField,
+  VariantSwatchStrip,
+} from '../avatar-editor-variant-swatch-strip';
+import type { SchemaField } from '../dicebear-schema';
+import { isStyleKey, type StyleKey } from '../dicebear-styles';
+import { humanizeOptionKey } from '../option-helpers';
+import { ProfileDiceBearAvatar } from '../profile-dicebear-avatar';
+import { type UseAvatarEditor, useAvatarEditor } from './use-avatar-editor';
 
 type EnumField = Extract<SchemaField, { kind: 'enum' }>;
 type ColorField = Extract<SchemaField, { kind: 'color' }>;

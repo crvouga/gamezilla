@@ -1,8 +1,8 @@
-import { MutationModal, TextInput } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { MutationModal, TextInput } from '@pkgs/ui';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../use-space-column';
 import { useRenameSpace } from './use-rename-space';
 
 export type RenameSpaceModalProps = {

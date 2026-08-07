@@ -9,8 +9,8 @@
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { which } from '@pkgs/os/command';
+import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');

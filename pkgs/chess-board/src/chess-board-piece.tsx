@@ -1,21 +1,21 @@
 import {
+  FilterMode,
   Group,
   Image,
-  FilterMode,
   MipmapMode,
   type SkImage,
 } from '@shopify/react-native-skia';
-import { memo, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { memo, type ReactNode, useLayoutEffect, useRef } from 'react';
 import {
   Easing,
+  type SharedValue,
   useDerivedValue,
   useSharedValue,
   withTiming,
-  type SharedValue,
 } from 'react-native-reanimated';
 import {
-  clearDragMotion,
   type ChessBoardDragMotion,
+  clearDragMotion,
 } from './chess-board-drag-motion';
 import { registerPieceLayout } from './chess-board-piece-layout-registry';
 

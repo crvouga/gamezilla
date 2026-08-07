@@ -1,9 +1,8 @@
 import { useState } from 'react';
-
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { SocialSignInButton } from './social-sign-in-button';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function SocialSignInButtonExample() {
   const [loading, setLoading] = useState(false);

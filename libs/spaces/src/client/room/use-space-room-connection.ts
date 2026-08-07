@@ -8,18 +8,17 @@ import type {
 } from '@pkgs/room';
 import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import {
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type Dispatch,
-  type MutableRefObject,
-  type SetStateAction,
 } from 'react';
-
+import { useSpaceModule } from '../module/space-module-context';
 import { createSpaceRoom } from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
-import { useSpaceModule } from '../module/space-module-context';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 

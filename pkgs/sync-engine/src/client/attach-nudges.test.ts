@@ -1,14 +1,13 @@
+import { afterEach, describe, expect, mock, test } from 'bun:test';
 import {
   createInMemoryPubSub,
   type InMemoryPubSub,
 } from '@pkgs/pubsub/testing';
 import { sql } from '@pkgs/sql';
-import { afterEach, describe, expect, mock, test } from 'bun:test';
 import { z } from 'zod';
-
+import { createTableChangeBus } from '../queries/client/table-change-bus';
 import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
-import { createTableChangeBus } from '../queries/client/table-change-bus';
 import { scopeHash } from '../queries/shared/canonical';
 import { openScenarioDb } from '../queries/test/scenario-fixture';
 import type { QueryChannelsCtx } from '../shared/nudge-payload';

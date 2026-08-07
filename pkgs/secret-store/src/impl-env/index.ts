@@ -1,7 +1,7 @@
 import type { SecretStore } from '../interface';
 import {
-  RecordSecretStore,
   createRecordSecretStore,
+  RecordSecretStore,
 } from '../record-secret-store';
 
 export { RecordSecretStore };

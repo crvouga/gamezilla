@@ -1,5 +1,5 @@
-import { cors } from 'hono/cors';
 import type { MiddlewareHandler } from 'hono';
+import { cors } from 'hono/cors';
 
 /**
  * CORS for browser / Expo web clients calling the API.

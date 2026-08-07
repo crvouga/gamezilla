@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { hslToRgb, hslaToRgba, rgbToHsl, rgbaToHsla } from './convert';
+import { hslaToRgba, hslToRgb, rgbaToHsla, rgbToHsl } from './convert';
 import { contrastRatio, relativeLuminance } from './luminance';
 import { adjustLightness, mix, setAlpha } from './ops';
 import { hsl, hsla, rgb, rgba } from './types';

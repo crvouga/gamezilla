@@ -1,13 +1,12 @@
-import { Hono } from 'hono';
-
 import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/db/shared/auth-tables';
+import { Hono } from 'hono';
 import { ensureAnonUserForDevice } from './anon-user-ensure';
-import { resolveAccountIdFromBearer } from './bearer-resolve';
-import { ANON_ID_HEADER } from './session-middleware';
-import { refreshAuthSnapshot } from './refresh-auth-snapshot';
-import { UnauthorizedError } from './unauthorized-error';
 import type { ApiHonoEnv } from './api-hono-env';
+import { resolveAccountIdFromBearer } from './bearer-resolve';
+import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+import { ANON_ID_HEADER } from './session-middleware';
 import type { AuthContext } from './types';
+import { UnauthorizedError } from './unauthorized-error';
 
 type RefreshBody = {
   device: Record<string, string | null>;

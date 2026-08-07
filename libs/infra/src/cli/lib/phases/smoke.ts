@@ -1,6 +1,6 @@
-import type { InfraOutputs } from '../infra-outputs';
 import type { CiPlatform } from '../../platform/platform';
 import { runStep } from '../../platform/platform';
+import type { InfraOutputs } from '../infra-outputs';
 import { runHttpSmokeTests } from '../smoke-tests';
 
 /**

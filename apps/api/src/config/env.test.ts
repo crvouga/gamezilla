@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import {
+  type ApiWorkerEnv,
   assertSecretsEnvBinding,
   ConfigurationError,
-  type ApiWorkerEnv,
 } from './env';
 
 const mockEnv = (secretsEnv: string): ApiWorkerEnv => ({

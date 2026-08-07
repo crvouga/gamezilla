@@ -3,9 +3,9 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { MutationRegistry } from '../core/types';
 import {
-  replayMutation,
   type MutationRow,
   type ReplayAuth,
+  replayMutation,
 } from './replay-mutation';
 
 export type MutationVerdict =

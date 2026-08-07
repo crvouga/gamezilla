@@ -28,8 +28,9 @@ async function loadImplementations(): Promise<
     },
   ];
   try {
-    const { SqlClientImplExpoSqlite } =
-      await import('./sqlite/impl-expo-sqlite');
+    const { SqlClientImplExpoSqlite } = await import(
+      './sqlite/impl-expo-sqlite'
+    );
     impls.push({
       name: 'SqlClientImplExpoSqlite',
       createClient: () => SqlClientImplExpoSqlite.open(':memory:'),

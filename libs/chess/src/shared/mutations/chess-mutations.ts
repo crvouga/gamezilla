@@ -3,9 +3,9 @@ import {
   CHESS_PUZZLE_PROFILES_TABLE,
 } from '@libs/db/shared/chess-tables';
 import { userTopic } from '@libs/db/shared/sync-topics';
+import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import { MutationError } from '@pkgs/sync-engine/mutations/core/types';
-import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
 import { CHESS_PUZZLE_INTERACTION_KIND } from '../chess-puzzle-interaction-entities';

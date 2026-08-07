@@ -1,5 +1,5 @@
-import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import { useEffect, useMemo } from 'react';
+import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 
 export type PlayableAudioPlayer = {
   seekTo: (seconds: number) => Promise<void>;

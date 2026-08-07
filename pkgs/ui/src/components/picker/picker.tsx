@@ -3,15 +3,15 @@
  * scrollable option list (single select).
  */
 
-import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
+import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
-import { Box } from '../box';
 import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { FlatList } from '../flat-list';
 import { List, ListItem } from '../list';
 import { Pressable } from '../pressable';

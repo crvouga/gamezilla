@@ -1,10 +1,10 @@
 import {
   assertValidTopic,
   encodePayload,
+  type PubSub,
   PubSubClosedError,
   PubSubNotSupportedError,
   PubSubPublishError,
-  type PubSub,
   type PubSubStatus,
   type Topic,
 } from '@pkgs/pubsub/interface';

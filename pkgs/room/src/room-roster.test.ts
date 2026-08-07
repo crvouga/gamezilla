@@ -1,9 +1,9 @@
-import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
+import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND } from './protocol/wire';
-import { openLoopbackRoom } from './testkit/simulator';
 import { Increment, TestCounterModule } from './testkit/counter-module';
+import { openLoopbackRoom } from './testkit/simulator';
 
 describe('room roster + actor metadata', () => {
   it('grows and shrinks the roster on connect/disconnect', async () => {

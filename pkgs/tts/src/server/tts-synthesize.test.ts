@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { Voices } from '../shared/tts-voice';
 import { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
-import { TtsProviderError, type TtsProvider } from './ports/tts-provider';
+import { type TtsProvider, TtsProviderError } from './ports/tts-provider';
 import { synthesizeWithCache, ttsObjectKey } from './tts-synthesize';
 
 const SAMPLE_INPUT = {

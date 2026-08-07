@@ -1,10 +1,10 @@
-import { UserUsername } from '@libs/profile/client/user-username';
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { UserUsername } from '@libs/profile/client/user-username';
+import { Box, Text } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { MemberPresenceBadgesRow } from './member-presence-badges-row';
 import { MemberPresenceDot } from './member-presence-dot';
 import { MemberThisTabHighlight } from './member-this-tab-highlight';
-import { Box, Text } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type SpaceMemberTileRailProps = {
   spaceId: string;

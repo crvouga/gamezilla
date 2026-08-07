@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
-  Platform,
-  View,
   type LayoutChangeEvent,
   type LayoutRectangle,
+  Platform,
+  View,
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';

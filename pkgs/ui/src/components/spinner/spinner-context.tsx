@@ -14,11 +14,11 @@
 
 import {
   createContext,
+  type ReactNode,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  type ReactNode,
 } from 'react';
 import { Animated, Easing } from 'react-native';
 

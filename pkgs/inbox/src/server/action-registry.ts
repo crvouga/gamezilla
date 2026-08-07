@@ -1,7 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
-import type { Interaction } from '../shared/interaction';
 import { InboxError } from '../shared/inbox-errors';
+import type { Interaction } from '../shared/interaction';
 
 export type InteractionActionContext = {
   readonly sql: SqlClient;

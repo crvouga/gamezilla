@@ -1,4 +1,4 @@
-import { Sounds, type SoundId } from '@pkgs/sounds';
+import { type SoundId, Sounds } from '@pkgs/sounds';
 import { useOptionalSoundEngine } from '@pkgs/sounds/use-sound-engine';
 import { useCallback } from 'react';
 

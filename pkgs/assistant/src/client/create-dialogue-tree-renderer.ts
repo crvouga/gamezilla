@@ -1,4 +1,3 @@
-import type { Assistant } from '../shared/index';
 import type {
   AssistantAction,
   AssistantSpeakAction,
@@ -12,10 +11,11 @@ import type {
   DialogueTree,
 } from '../shared/dialogue-tree';
 import {
+  type DialogueRng,
   pickDialogueVariant,
   substituteDialogueText,
-  type DialogueRng,
 } from '../shared/dialogue-tree';
+import type { Assistant } from '../shared/index';
 import { emitAssistantSpeakingMessage } from './_internal/assistant-speaking-bridge';
 
 export type CreateAssistantDialogueTreeRendererDeps<TPayload> = {

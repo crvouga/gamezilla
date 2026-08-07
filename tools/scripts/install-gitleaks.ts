@@ -6,8 +6,7 @@
  * Pin >= 8.25: top-level [[allowlists]] work with [extend].useDefault (8.24.3 bug).
  */
 import { spawnSync } from 'node:child_process';
-import { constants } from 'node:fs';
-import { accessSync, mkdtempSync, rmSync } from 'node:fs';
+import { accessSync, constants, mkdtempSync, rmSync } from 'node:fs';
 import { arch, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 

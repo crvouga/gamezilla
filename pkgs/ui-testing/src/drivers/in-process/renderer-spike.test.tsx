@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { createElement, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
-import { createDomRenderAdapter } from './renderer-dom';
 import { by } from '../../selector/selector';
+import { createDomRenderAdapter } from './renderer-dom';
 
 /**
  * Spike: prove react-native-web renders under Bun + happy-dom with the

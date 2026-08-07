@@ -1,5 +1,5 @@
-import { Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { formatTimestamp } from '../device-parsers';
 import { useDeviceActiveSessionCount } from '../use-device-active-session-count';

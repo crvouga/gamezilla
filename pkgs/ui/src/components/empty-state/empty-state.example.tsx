@@ -3,8 +3,8 @@ import { Card } from '../card';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Text } from '../text';
 import { HouseIcon } from '../icons';
+import { Text } from '../text';
 import { EmptyState } from './empty-state';
 
 export default function EmptyStateExample() {

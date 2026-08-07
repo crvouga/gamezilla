@@ -23,7 +23,7 @@
  * `solid/volume-high.svg` (Font Awesome, vendored for the playing animation).
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { Animated, Easing, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';

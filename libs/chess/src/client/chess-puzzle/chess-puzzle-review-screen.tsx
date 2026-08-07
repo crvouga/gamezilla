@@ -3,14 +3,14 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
+import { Trans } from '@lingui/react/macro';
 import {
   Box,
+  componentDataSet,
   EmptyState,
   MainMenuScreenHeader,
-  componentDataSet,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 import {
   CHESS_SCREEN,
@@ -19,8 +19,8 @@ import {
   SetChessSelectedReviewPuzzle,
 } from '../../shared/chess-main-menu';
 import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
-import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { usePuzzleEntity } from './chess-puzzle-play-queries';
+import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
 function ReviewTitle({

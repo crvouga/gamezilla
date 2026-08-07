@@ -2,14 +2,14 @@ import { Assert } from '@pkgs/assert';
 import { isMessageEnvelope } from '@pkgs/message';
 
 import {
+  type ClientToServerWire,
   parseClientToServerWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
-  type ClientToServerWire,
 } from '../../protocol/wire';
 import {
-  ROOM_ERROR_TYPE,
   type LogEntry,
+  ROOM_ERROR_TYPE,
   type RoomActor,
   type RoomCommand,
   type RoomCommandPayload,

@@ -2,9 +2,8 @@
  * Small filled circle in a participant's color (e.g. log-bar leading mark).
  */
 
+import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
 import { View } from 'react-native';
-
-import { componentDataSet, type ComponentDataSet } from '@pkgs/ui';
 
 export type ParticipantDotProps = {
   color: string;

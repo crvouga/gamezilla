@@ -1,7 +1,7 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncStatus } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Box, ScreenBase, Text } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 function StatusRow({ label, value }: { label: string; value: ReactNode }) {

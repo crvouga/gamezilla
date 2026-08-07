@@ -1,8 +1,8 @@
+import { Trans } from '@lingui/react/macro';
+import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
-import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
 
 import { ActiveSpaceSheetRow } from './active-space-sheet-row';
 

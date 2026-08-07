@@ -3,7 +3,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 

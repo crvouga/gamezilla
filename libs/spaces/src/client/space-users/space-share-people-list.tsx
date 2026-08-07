@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   Button,
@@ -6,14 +7,13 @@ import {
   Text,
   useMutationButton,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
 import { SpaceShareUserRow } from './space-share-user-row';
 import {
-  useSpaceUserEntries,
   type SpaceUserEntry,
+  useSpaceUserEntries,
 } from './use-space-user-entries';
 import { useRemoveSpaceUser } from './use-space-users';
 

@@ -1,4 +1,4 @@
-import { LlmProviderError, type LlmProvider } from '../../shared/llm-provider';
+import { type LlmProvider, LlmProviderError } from '../../shared/llm-provider';
 import type {
   LlmStructuredRequest,
   LlmStructuredResult,

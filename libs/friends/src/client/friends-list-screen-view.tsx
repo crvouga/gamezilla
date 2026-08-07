@@ -1,14 +1,13 @@
-import { Box, Button, ScreenBase, ScreenBodyFlatList, Text } from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { FriendLiveSpaceBadge } from '@libs/spaces/client/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Button, ScreenBase, ScreenBodyFlatList, Text } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { useRouter } from 'expo-router';
-import { useCallback, type ReactNode } from 'react';
-
+import { type ReactNode, useCallback } from 'react';
+import type { Friend } from '../shared/friends-types';
 import { FriendUserRow } from './friend-user-row';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
 import { useFriends } from './use-friends';
-import type { Friend } from '../shared/friends-types';
 
 function FriendsListBody(): ReactNode {
   const router = useRouter();

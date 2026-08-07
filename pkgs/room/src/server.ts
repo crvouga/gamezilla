@@ -22,10 +22,10 @@ export type {
   RoomAuthResult,
   RoomAuthSuccess,
 } from './server/core/auth';
-export { RoomServer } from './server/core/room-server';
 export type {
   RoomConnection,
   RoomServerConfig,
 } from './server/core/room-server';
-export type { RoomStorage, CommandDedupOutcome } from './server/core/storage';
-export type { RoomActor, LogEntry } from './types';
+export { RoomServer } from './server/core/room-server';
+export type { CommandDedupOutcome, RoomStorage } from './server/core/storage';
+export type { LogEntry, RoomActor } from './types';

@@ -1,6 +1,6 @@
 import { useAuthClientPort } from './auth-client-provider';
-import { useMyDeviceId } from './use-current-user';
 import { isAuthSessionSignedIn } from './session-snapshot';
+import { useMyDeviceId } from './use-current-user';
 
 function readSessionExpiresAt(
   raw: Date | string | null | undefined

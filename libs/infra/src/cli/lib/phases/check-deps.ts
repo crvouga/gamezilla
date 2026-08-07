@@ -1,10 +1,10 @@
 import { ALL_DEPS } from '../../deps/registry';
 import type { Dep } from '../../deps/types';
 import { collectDepVersionIssues } from '../../deps/version-check';
-import { fail, ok, warn } from '../fmt';
 import type { CiPlatform } from '../../platform/platform';
 import { runStep } from '../../platform/platform';
 import { runCaptureAsync } from '../../subprocess';
+import { fail, ok, warn } from '../fmt';
 
 /**
  * Step 0: confirm every required CLI dependency is installed and

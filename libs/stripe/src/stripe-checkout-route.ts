@@ -1,3 +1,4 @@
+import { zValidator } from '@hono/zod-validator';
 import {
   readExternalAccountId,
   upsertExternalAccount,
@@ -5,7 +6,6 @@ import {
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { zValidator } from '@hono/zod-validator';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';

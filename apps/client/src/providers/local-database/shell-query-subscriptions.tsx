@@ -1,5 +1,5 @@
 import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 const SHELL_QUERY_NAMES = [
   'mySpaces',

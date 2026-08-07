@@ -1,11 +1,11 @@
 export {
-  createInMemoryBus,
-  createInMemoryPubSub,
-  InMemoryPubSub,
-  type InMemoryBus,
-} from './in-memory';
-export {
-  runPubSubContractTests,
   type PubSubContractEnv,
   type PubSubContractFactory,
+  runPubSubContractTests,
 } from './contract';
+export {
+  createInMemoryBus,
+  createInMemoryPubSub,
+  type InMemoryBus,
+  InMemoryPubSub,
+} from './in-memory';

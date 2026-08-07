@@ -1,25 +1,25 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
+import { createClerkAuthServerAdapter } from '@pkgs/auth-clerk/server';
 import { createLogger } from '@pkgs/logger';
-import { isSecretStoreError } from '@pkgs/secret-store';
+import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
+import { isSecretStoreError } from '@pkgs/secret-store';
+import * as Sentry from '@sentry/cloudflare';
 import { createApiApp } from './app/create-app';
 import type { ApiWorkerEnv } from './config/env';
 import {
-  ConfigurationError,
   assertSecretsEnvBinding,
+  ConfigurationError,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   workerEnvToSecretRecord,
 } from './config/env';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { createApiSecretStore } from './config/secret-store';
-import { ApiSecretName } from './config/secret-names';
 import { createApiObjectStore } from './config/object-store';
-import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
-import { createClerkAuthServerAdapter } from '@pkgs/auth-clerk/server';
-import * as Sentry from '@sentry/cloudflare';
+import { ApiSecretName } from './config/secret-names';
+import { createApiSecretStore } from './config/secret-store';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 

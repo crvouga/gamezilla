@@ -1,4 +1,4 @@
-import { empty, join, sql, type Sql, type SqlFragment } from '@pkgs/sql';
+import { empty, join, type Sql, type SqlFragment, sql } from '@pkgs/sql';
 
 import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
 

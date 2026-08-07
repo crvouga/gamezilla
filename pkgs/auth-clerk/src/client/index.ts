@@ -4,6 +4,6 @@ export {
   type ClerkAuthProviderProps,
 } from './clerk-auth-provider';
 export {
-  createClerkAuthClientAdapter,
   type ClerkAuthClientAdapterConfig,
+  createClerkAuthClientAdapter,
 } from './create-clerk-auth-client-adapter';

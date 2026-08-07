@@ -8,12 +8,11 @@
  *   - `trailing` -> responsive action bar (actions + account menu end slot).
  */
 
-import { useContext, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useContext, useMemo } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
-import { ActionBar, screenBaseActionToActionBarItem } from '../action-bar';
-import type { ActionBarItem, ActionBarTextAction } from '../action-bar';
 import { useActionBarChrome } from '../../theme';
+import type { ActionBarItem, ActionBarTextAction } from '../action-bar';
+import { ActionBar, screenBaseActionToActionBarItem } from '../action-bar';
 import { BackIconButton } from '../back-icon-button';
 import { Box } from '../box';
 import { useScreenTitleContext } from '../screen-title';

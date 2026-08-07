@@ -1,5 +1,5 @@
-import { parseAvatarConfig } from '@libs/profile/shared/avatar-config';
 import { DeviceAvatar } from '@libs/profile/client/device-avatar';
+import { parseAvatarConfig } from '@libs/profile/shared/avatar-config';
 import type { ReactNode } from 'react';
 
 import type { FriendProfile } from '../shared/friends-types';

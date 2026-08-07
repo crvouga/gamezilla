@@ -6,12 +6,12 @@ export {
 } from './action-bar';
 export { type ActionBarTextAction } from './action-bar-types';
 export {
-  actionBarBudgetWidth,
-  isActionBarAvatarItem,
-  partitionActionBarItems,
-  screenBaseActionToActionBarItem,
   type ActionBarAvatarItem,
   type ActionBarIconItem,
   type ActionBarItem,
+  actionBarBudgetWidth,
+  isActionBarAvatarItem,
   type PartitionActionBarLayout,
+  partitionActionBarItems,
+  screenBaseActionToActionBarItem,
 } from './partition-action-bar-items';

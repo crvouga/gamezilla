@@ -3,9 +3,9 @@ import { Hono } from 'hono';
 import { normalizeTextForTts } from '../shared/normalize-text-for-tts';
 import {
   TTS_AUDIO_FORMATS,
-  ttsContentTypeFor,
   type TtsAudioFormat,
   type TtsSynthesizeResponse,
+  ttsContentTypeFor,
 } from '../shared/tts-types';
 import {
   VOICE_NAMES,
@@ -15,9 +15,9 @@ import {
   type VoiceProvider,
 } from '../shared/tts-voice';
 import {
-  TtsProviderError,
   isTtsProviderError,
   type TtsProvider,
+  TtsProviderError,
 } from './ports/tts-provider';
 import { synthesizeWithCache, ttsObjectKey } from './tts-synthesize';
 

@@ -1,5 +1,6 @@
 import { DEPLOY_DEPS } from '../deps/registry';
 import { banner, ok } from '../lib/fmt';
+import { runWithGlobalLock } from '../lib/global-lock-session';
 import { infraOutputs } from '../lib/infra-outputs';
 import {
   runCheckDepsPhase,
@@ -7,10 +8,9 @@ import {
 } from '../lib/phases/check-deps';
 import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
 import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
-import { runWithGlobalLock } from '../lib/global-lock-session';
 import { runMigratePhase } from '../lib/phases/migrate';
-import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
+import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
 import { runSmokePhase } from '../lib/phases/smoke';
 import { runStripeSyncPhase } from '../lib/phases/stripe-sync';

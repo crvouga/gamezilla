@@ -1,7 +1,7 @@
-import { memo, useMemo, type ReactNode } from 'react';
-import { squarePieceCenter } from './chess-board-geometry';
+import { memo, type ReactNode, useMemo } from 'react';
 import type { ChessBoardDragMotion } from './chess-board-drag-motion';
 import { hashPieceId } from './chess-board-drag-motion';
+import { squarePieceCenter } from './chess-board-geometry';
 import { ChessBoardPieceSkia } from './chess-board-piece';
 import type { ChessPieceRow } from './chess-board-piece-identities';
 import type { BoardOrientation, PieceCode, Square } from './chess-board-types';

@@ -11,6 +11,8 @@ import {
   setSecretIn,
 } from './secrets-io';
 
+export type { Secret, SecretInput, SecretsEnv } from './secret';
+export { activeSecretsEnv, validateSecretOrError } from './secret';
 export {
   deleteSecret,
   deleteSecretIn,
@@ -25,8 +27,6 @@ export {
   setSecret,
   setSecretIn,
 };
-export type { Secret, SecretInput, SecretsEnv } from './secret';
-export { activeSecretsEnv, validateSecretOrError } from './secret';
 
 export async function loadSecretsIntoEnv(): Promise<
   Array<{

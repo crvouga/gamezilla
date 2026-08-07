@@ -1,4 +1,5 @@
 import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
 import {
   CHESS_SCREEN,
@@ -6,15 +7,14 @@ import {
 } from '../../shared/chess-main-menu';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
+  type ChessPuzzlePlayStatus,
   ClearChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
-  type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
-import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { HintStage } from './use-hint-stage';
 

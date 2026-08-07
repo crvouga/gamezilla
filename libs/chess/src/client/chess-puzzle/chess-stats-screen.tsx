@@ -1,16 +1,16 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { Trans } from '@lingui/react/macro';
 import {
   Box,
+  componentDataSet,
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreenHeader,
   ScrollView,
   Text,
-  componentDataSet,
   useTheme,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 import {
   CHESS_SCREEN,

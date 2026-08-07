@@ -7,20 +7,21 @@
  * For per-request TCP clients (one client per request, no module-scope pool),
  * prefer `SqlClientImplPgClient` from `./impl-pg-client`.
  */
-import type { Pool } from 'pg';
+
 import type { Sql, Value } from '@pkgs/sql';
-import {
-  createPgSessionClient,
-  pgQueryRows,
-  pgQueryWithOptionalSearchPathPin,
-  pgRunResultFromQuery,
-} from './impl-pg-shared';
+import type { Pool } from 'pg';
 import type {
   PostgresSqlClient,
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '../interface';
+import {
+  createPgSessionClient,
+  pgQueryRows,
+  pgQueryWithOptionalSearchPathPin,
+  pgRunResultFromQuery,
+} from './impl-pg-shared';
 import type { PostgresDbScope } from './schema';
 import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 

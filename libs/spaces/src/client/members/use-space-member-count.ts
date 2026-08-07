@@ -1,5 +1,5 @@
+import { SpaceField, useSpaceColumn } from '../use-space-column';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
-import { useSpaceColumn, SpaceField } from '../use-space-column';
 
 export function useSpaceMemberCount(spaceId: string): number {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);

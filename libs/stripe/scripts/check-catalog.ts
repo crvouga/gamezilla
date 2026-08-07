@@ -9,9 +9,10 @@
  * Catalog dump to entity_store is intentionally skipped here — the gate's job is
  * to verify the SPEC reconciles cleanly, not to mutate any local DB.
  */
-import { StripeSecretKeys } from '../src/secret-keys';
+
 import { createStripeClientFromSecret } from '../src/script-runtime';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
+import { StripeSecretKeys } from '../src/secret-keys';
 import { runStripeCatalogSync } from '../src/sync';
 
 const SCRIPT_TAG = 'stripe check';

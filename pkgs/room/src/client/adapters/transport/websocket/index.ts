@@ -3,5 +3,6 @@
  * backoff reconnect. Subpath import:
  * `@pkgs/room/client/adapters/transport/websocket`.
  */
-export { WebSocketRoomTransport } from './transport';
+
 export type { WebSocketRoomTransportOptions } from './transport';
+export { WebSocketRoomTransport } from './transport';

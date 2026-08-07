@@ -1,7 +1,7 @@
-import { borderRadius, Box, Text } from '@pkgs/ui';
-import { useSyncStatus } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useLingui } from '@lingui/react/macro';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useSyncStatus } from '@pkgs/sync-engine/client/sync-engine-context';
+import { Box, borderRadius, Text } from '@pkgs/ui';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Platform, Pressable } from 'react-native';
 
 /**

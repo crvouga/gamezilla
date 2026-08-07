@@ -12,7 +12,7 @@
  * for a `<Text>` without changing the surrounding height.
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';

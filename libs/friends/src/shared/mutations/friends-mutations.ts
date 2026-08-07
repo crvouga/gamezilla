@@ -4,13 +4,13 @@ import {
   USER_BLOCKS_TABLE,
 } from '@libs/db/shared/friends-tables';
 import { userTopic } from '@libs/db/shared/sync-topics';
+import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
-  MutationError,
   type MutationDb,
   type MutationEnv,
+  MutationError,
 } from '@pkgs/sync-engine/mutations/core/types';
-import { sql } from '@pkgs/sql';
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../canonical-pair';

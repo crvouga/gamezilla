@@ -1,5 +1,5 @@
 export {
   ChipGroup,
-  type ChipGroupProps,
   type ChipGroupOption,
+  type ChipGroupProps,
 } from './chip-group';

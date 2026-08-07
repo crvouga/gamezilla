@@ -1,7 +1,7 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { useDeviceColumn } from '../use-device-column';
 import { formatTimestamp } from '../device-parsers';
+import { useDeviceColumn } from '../use-device-column';
 
 export type AccountDeviceLastSeenTextProps = {
   deviceId: string;

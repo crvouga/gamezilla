@@ -6,12 +6,12 @@ import type { ParticipantColor } from '@pkgs/collab';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
+  type ComponentDataSet,
+  componentDataSet,
   List,
   ListItem,
-  StatusDot,
   Stack,
-  componentDataSet,
-  type ComponentDataSet,
+  StatusDot,
 } from '@pkgs/ui';
 import type { ReactElement, ReactNode } from 'react';
 

@@ -2,7 +2,7 @@
  * Legacy Clerk env names still read by Playwright / testing helpers.
  * Prefer AUTH_PUBLISHABLE_KEY / AUTH_SECRET_KEY; these seed from them.
  */
-import { Secret, requireNonEmpty } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 export const CLERK_PUBLISHABLE_KEY = new Secret({
   name: 'CLERK_PUBLISHABLE_KEY',

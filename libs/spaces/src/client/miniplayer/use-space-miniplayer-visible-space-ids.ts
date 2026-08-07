@@ -1,6 +1,6 @@
-import { isSpaceMiniplayerHidden } from './space-miniplayer-layout';
-import { useCurrentSpaceIds } from '../use-current-space-ids';
 import { usePathname } from 'expo-router';
+import { useCurrentSpaceIds } from '../use-current-space-ids';
+import { isSpaceMiniplayerHidden } from './space-miniplayer-layout';
 
 /**
  * Space ids the miniplayer should currently render. Returns an empty list

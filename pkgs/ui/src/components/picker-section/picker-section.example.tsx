@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChipGroup } from '../chip-group';
-import { PickerSection } from './picker-section';
 import { ExampleRoot } from '../explorer/example-root';
+import { PickerSection } from './picker-section';
 
 const OPTIONS = [
   { key: 'a' as const, label: 'Alpha' },

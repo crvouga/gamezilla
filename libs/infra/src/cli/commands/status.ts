@@ -4,7 +4,7 @@ import { collectDepVersionIssues } from '../deps/version-check';
 import { buildDistributedLock } from '../lib/build-distributed-lock';
 import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
-import { infraOutputs, type InfraOutputs } from '../lib/infra-outputs';
+import { type InfraOutputs, infraOutputs } from '../lib/infra-outputs';
 import type { CiPlatform } from '../platform/platform';
 import { pingDatabase } from '../resources/postgres';
 import { cfAccountId } from '../secrets/cloudflare';

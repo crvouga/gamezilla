@@ -2,19 +2,20 @@
  * Wipe hosted secrets-env `dev` Postgres (DROP SCHEMA public) then remigrate.
  * No confirm flags — every guard exists only to block production.
  */
+
+import { join } from 'node:path';
+import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
   normalizeDatabaseUrlForCompare,
 } from '@libs/infra/shared/database-url-policy';
-import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { join } from 'node:path';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
 
 const apiRoot = join(import.meta.dirname, '..');

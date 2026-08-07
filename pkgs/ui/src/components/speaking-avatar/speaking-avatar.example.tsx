@@ -3,9 +3,9 @@ import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
 import { TtsProvider } from '@pkgs/tts/client/tts-context';
 import { Voices } from '@pkgs/tts/shared/tts-voice';
 import { useEffect, useMemo, useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { SpeakingAvatar } from './speaking-avatar';
-import { ExampleRoot } from '../explorer/example-root';
 
 const ROTATING_LINES = [
   'Your move.',

@@ -1,6 +1,6 @@
-import type { AvatarConfig } from '../shared/avatar-config';
 import { Avatar, UserIcon } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import type { AvatarConfig } from '../shared/avatar-config';
 
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 

@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'bun:test';
-
+import type { AssistantSpeakingUpdate } from '../src/client/_internal/assistant-speaking-bridge';
 import { subscribeAssistantSpeaking } from '../src/client/_internal/assistant-speaking-bridge';
 import { createAssistantDialogueTreeRenderer } from '../src/client/create-dialogue-tree-renderer';
-import type { AssistantSpeakingUpdate } from '../src/client/_internal/assistant-speaking-bridge';
-import type { Assistant } from '../src/shared/index';
-import { defineDialogueTree } from '../src/shared/dialogue-tree';
-import { INTENT } from '../src/shared/_internal/intents';
 import type { AssistantClock } from '../src/shared/_internal/clock';
+import { INTENT } from '../src/shared/_internal/intents';
+import { defineDialogueTree } from '../src/shared/dialogue-tree';
+import type { Assistant } from '../src/shared/index';
 
 function createFakeClock(): AssistantClock & {
   readonly advance: (ms: number) => void;

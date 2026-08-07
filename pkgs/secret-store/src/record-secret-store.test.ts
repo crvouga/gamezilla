@@ -3,8 +3,8 @@ import { describe, expect, it } from 'bun:test';
 import { SecretMissingError, SecretStoreRequestError } from './errors';
 import { createEnvSecretStore } from './impl-env';
 import {
-  RecordSecretStore,
   createRecordSecretStore,
+  RecordSecretStore,
 } from './record-secret-store';
 
 describe('RecordSecretStore', () => {

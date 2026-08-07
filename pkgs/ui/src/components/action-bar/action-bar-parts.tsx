@@ -5,10 +5,10 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';
-import {
-  type FloatingMenuContent,
-  type FloatingMenuContentRow,
-  type FloatingMenuHeaderSpec,
+import type {
+  FloatingMenuContent,
+  FloatingMenuContentRow,
+  FloatingMenuHeaderSpec,
 } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, MenuIcon } from '../icons';
@@ -17,9 +17,9 @@ import { ActionBarIconButton } from './action-bar-icon-button';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import type { ActionBarTextAction } from './action-bar-types';
 import {
-  isActionBarAvatarItem,
   type ActionBarAvatarItem,
   type ActionBarItem,
+  isActionBarAvatarItem,
 } from './partition-action-bar-items';
 
 export function buildOverflowMenuContent(

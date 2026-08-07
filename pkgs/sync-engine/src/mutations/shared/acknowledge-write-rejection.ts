@@ -1,6 +1,6 @@
-import { defineMutation } from '../core/define-mutation';
 import { sql } from '@pkgs/sql';
 import { z } from 'zod';
+import { defineMutation } from '../core/define-mutation';
 
 /** Mark a synced-down write rejection as acknowledged (dismissed) by this install. */
 export const acknowledgeWriteRejectionMutation = defineMutation({

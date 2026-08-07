@@ -8,13 +8,13 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
-import { useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ScreenBodyScrollView } from '../screen-base/screen-body-scroll-view';
 import { ScrollView } from '../scroll-view';
-import { filterCatalogItems, type CatalogItem } from './catalog-item';
+import { type CatalogItem, filterCatalogItems } from './catalog-item';
 import { CatalogListRows } from './catalog-list-rows';
 import { CatalogListSearch } from './catalog-list-search';
 

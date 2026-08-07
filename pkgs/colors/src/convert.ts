@@ -4,15 +4,15 @@
 
 import {
   clamp01,
+  type Hsl,
+  type Hsla,
   hsl,
   hsla,
+  type Rgb,
+  type Rgba,
   rgb,
   rgba,
   wrapHue,
-  type Hsl,
-  type Hsla,
-  type Rgb,
-  type Rgba,
 } from './types';
 
 function hueToRgbComponent(p: number, q: number, t: number): number {

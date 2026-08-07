@@ -1,5 +1,5 @@
-import { PaintbrushIcon, RegisterCommand, useThemePreference } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { PaintbrushIcon, RegisterCommand, useThemePreference } from '@pkgs/ui';
 
 export function AppearanceCommands() {
   const { t } = useLingui();

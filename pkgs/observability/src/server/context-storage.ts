@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { SpanContext } from '../shared/types';
 import type { SpanContextStorage } from '../port/observability';
+import type { SpanContext } from '../shared/types';
 
 const als = new AsyncLocalStorage<SpanContext>();
 

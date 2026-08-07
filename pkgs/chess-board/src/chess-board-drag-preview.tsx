@@ -1,15 +1,15 @@
 import { useOverlayPortal, useOverlayPortalSlot } from '@pkgs/ui';
-import { memo, useId, type ReactNode } from 'react';
+import { memo, type ReactNode, useId } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
   type SharedValue,
+  useAnimatedStyle,
 } from 'react-native-reanimated';
 import { FullWindowOverlay } from 'react-native-screens';
 import { SvgXml } from 'react-native-svg';
 import {
-  DRAG_PIECE_NONE,
   type ChessBoardDragMotion,
+  DRAG_PIECE_NONE,
 } from './chess-board-drag-motion';
 import { DRAG_FEET_FROM_TOP } from './chess-board-piece';
 import type { PieceCode } from './chess-board-types';

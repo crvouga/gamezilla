@@ -1,3 +1,15 @@
+export {
+  type DialogueTreeBucketSpec,
+  type DialogueTreeSpec,
+  type DialogueTreeThemeSpec,
+  defineDialogueTree,
+} from './define-dialogue-tree';
+export {
+  type DialogueRng,
+  pickDialogueVariant,
+  pickDialogueVariantIndex,
+  substituteDialogueText,
+} from './pick-variant';
 export type {
   DialogueContext,
   DialogueLookupKey,
@@ -5,15 +17,3 @@ export type {
   DialogueStep,
   DialogueTree,
 } from './types';
-export {
-  defineDialogueTree,
-  type DialogueTreeBucketSpec,
-  type DialogueTreeSpec,
-  type DialogueTreeThemeSpec,
-} from './define-dialogue-tree';
-export {
-  pickDialogueVariant,
-  pickDialogueVariantIndex,
-  substituteDialogueText,
-  type DialogueRng,
-} from './pick-variant';

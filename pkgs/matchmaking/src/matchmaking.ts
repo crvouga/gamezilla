@@ -38,7 +38,7 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { createMatchmakingApp } from './app';
 import { MatchmakingSchemaDriftError } from './errors';
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
-import { migrate, type MatchmakingSchema } from './migrate';
+import { type MatchmakingSchema, migrate } from './migrate';
 import { MATCHMAKING_TICK_ADVISORY_LOCK_ID } from './migrate-sql';
 import type {
   DistanceFormula,

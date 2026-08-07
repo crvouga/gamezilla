@@ -1,7 +1,7 @@
-import { useMemberIsYou } from './use-member-is-you';
-import { Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberIsYou } from './use-member-is-you';
 
 export type MemberYouBadgeProps = {
   profileId: string;

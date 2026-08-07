@@ -1,11 +1,11 @@
 import {
+  type RefObject,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type RefObject,
 } from 'react';
-import { Platform, type LayoutRectangle, type View } from 'react-native';
+import { type LayoutRectangle, Platform, type View } from 'react-native';
 
 import {
   claimActiveTooltip,

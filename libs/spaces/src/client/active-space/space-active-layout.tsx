@@ -1,12 +1,11 @@
 import { Box, TopBar } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
-import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceEventLogChrome } from './space-event-log-chrome';
 import {
   SpaceChromeLeadingActionBar,
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
+import { SpaceEventLogChrome } from './space-event-log-chrome';
+import { useSpaceSessionUi } from './space-session-ui-context';
 
 export type SpaceActiveLayoutProps = {
   children: ReactNode;

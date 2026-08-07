@@ -5,12 +5,11 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-
-import type { S3ObjectStoreConfig } from './s3-config';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore, StoredObject } from './interface';
 import { assertRemoteObjectKey } from './namespace-guard';
 import { normalizeObjectStoreRootPrefix } from './prefixes';
+import type { S3ObjectStoreConfig } from './s3-config';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 

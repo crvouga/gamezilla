@@ -16,7 +16,7 @@ import {
 } from '../lib/railway-api';
 import type { CiPlatform } from '../platform/platform';
 import { cfHeaders } from '../secrets/cloudflare';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 async function railwayToken(): Promise<string> {
   const t = (process.env['RAILWAY_TOKEN'] ?? '').trim();

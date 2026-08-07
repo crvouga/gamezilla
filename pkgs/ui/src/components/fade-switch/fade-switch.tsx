@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useFadeMachine } from './use-fade-machine';
 
 const styles = StyleSheet.create({

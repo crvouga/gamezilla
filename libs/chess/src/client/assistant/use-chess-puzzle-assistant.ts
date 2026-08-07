@@ -3,9 +3,9 @@ import {
   createSystemClock,
 } from '@pkgs/assistant/client';
 import {
-  createAssistant,
   type Assistant,
   type AssistantSignal,
+  createAssistant,
 } from '@pkgs/assistant/shared';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
@@ -15,8 +15,8 @@ import {
   type ChessPuzzleDialogueBoardContext,
 } from './build-chess-puzzle-dialogue-context';
 import {
-  createChessPuzzleGameAdapter,
   type ChessPuzzleAssistantPayload,
+  createChessPuzzleGameAdapter,
 } from './chess-puzzle-assistant-adapter';
 import { buildChessPuzzleAssistantSignal } from './chess-puzzle-assistant-build-signal';
 import { CHESS_PUZZLE_DIALOGUE_TREE } from './chess-puzzle-dialogue-tree';

@@ -1,12 +1,12 @@
 import { Box, ScrollView } from '@pkgs/ui';
 import {
+  type ReactNode,
+  type Ref,
+  type RefObject,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
-  type Ref,
-  type RefObject,
 } from 'react';
 import type {
   LayoutChangeEvent,

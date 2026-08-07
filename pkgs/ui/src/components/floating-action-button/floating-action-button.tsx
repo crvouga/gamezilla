@@ -1,21 +1,21 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { Platform } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ButtonSurfaceFill } from '../button/button-surface-fill';
 import {
-  MUTATION_FEEDBACK_ICONS,
-  resolveMutationPressableRender,
   type ButtonFeedback,
   type ButtonIntent,
+  MUTATION_FEEDBACK_ICONS,
   type MutationPressableFace,
   type MutationPressableInput,
+  resolveMutationPressableRender,
 } from '../button/mutation-pressable-face';
+import { type IconComponent, PlusIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import { PlusIcon, type IconComponent } from '../icons';
 import { Text } from '../text';
 
 const FAB_SIZE = 56;

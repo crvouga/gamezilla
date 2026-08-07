@@ -1,0 +1,5 @@
+language js
+
+`<$name accessibilityElementsHidden=$value>$children</$name>` as $el where {
+  register_diagnostic(span=$el, message="Do not use accessibilityElementsHidden; prefer the inert attribute.", severity="error")
+}

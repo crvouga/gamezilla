@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 import type { Interaction } from '../shared/interaction';
 import type { InteractionCardActions } from '../shared/interaction-action';
-import { InteractionCardDefault } from './interaction-card-default';
 import { useInteractionRenderProvider } from './inbox-provider-registry';
+import { InteractionCardDefault } from './interaction-card-default';
 
 export type InteractionCardProps = {
   readonly interaction: Interaction;

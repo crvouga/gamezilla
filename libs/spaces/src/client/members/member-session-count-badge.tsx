@@ -1,6 +1,6 @@
-import { useMemberSessionCount } from './use-member-session-count';
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberSessionCount } from './use-member-session-count';
 
 export type MemberSessionCountBadgeProps = {
   spaceId: string;

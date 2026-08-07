@@ -1,9 +1,9 @@
 import { BunDep } from './bun';
-import { SecretBackendDep } from './secret-backend';
 import { EasDep } from './eas';
 import { PgDumpDep } from './pg-dump';
-import type { Dep } from './types';
+import { SecretBackendDep } from './secret-backend';
 import { TurboDep } from './turbo';
+import type { Dep } from './types';
 import { WranglerDep } from './wrangler';
 
 const wrangler = new WranglerDep();

@@ -1,8 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import type { Kv, KvRecord } from './interface';
 

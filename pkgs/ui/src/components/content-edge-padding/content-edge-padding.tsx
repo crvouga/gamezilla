@@ -7,7 +7,7 @@
  * flush with the shell edge (padding lives inside the scrollable area).
  */
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 import type { SxProps } from '../../theme';
 
 /**

@@ -1,6 +1,6 @@
-import type { Driver } from '../driver/driver';
-import type { WaitOptions } from '../core/wait';
 import { UiTestError } from '../core/errors';
+import type { WaitOptions } from '../core/wait';
+import type { Driver } from '../driver/driver';
 import { formatSelector } from '../selector/format';
 import type { Selector } from '../selector/selector';
 

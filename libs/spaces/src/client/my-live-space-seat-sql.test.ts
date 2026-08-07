@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { spaceUserEntityId } from '@libs/db/shared/space-tables';
-import { sql, type Sql } from '@pkgs/sql';
+import { type Sql, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';

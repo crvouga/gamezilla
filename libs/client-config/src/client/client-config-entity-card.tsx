@@ -1,10 +1,10 @@
+import { Trans, useLingui } from '@lingui/react/macro';
+import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { Box, Card, Text } from '@pkgs/ui';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   ClientConfigAttr,
 } from '../shared/client-config-entities';
-import { Box, Card, Text } from '@pkgs/ui';
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { Trans, useLingui } from '@lingui/react/macro';
 
 import { clientConfigRowQuery } from './client-config-queries';
 

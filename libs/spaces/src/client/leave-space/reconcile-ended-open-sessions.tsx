@@ -2,7 +2,7 @@ import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { sql } from '@pkgs/sql';
 import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
-import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 
 import { closeEndedOpenSessionsMutation } from '../../shared/mutations/space-mutations';
 

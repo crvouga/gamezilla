@@ -2,12 +2,12 @@
  * Native fade machine for {@link FadeSwitch}: sequential out → swap → in.
  */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Easing,
   runOnJS,
-  useSharedValue,
   type SharedValue,
+  useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 

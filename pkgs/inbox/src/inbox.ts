@@ -2,8 +2,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 
 import { createInboxApp } from './server/app';
-import { migrateInbox } from './server/migrate';
 import type { InboxRequestContext } from './server/inbox-context';
+import { migrateInbox } from './server/migrate';
 
 export type InboxStorage = {
   readonly sqlClient: SqlClient;
@@ -37,11 +37,11 @@ export class Inbox {
   }
 }
 
+export { registerActionHandler } from './server/action-registry';
 export { migrateInbox } from './server/migrate';
 export {
+  deactivateInteraction,
   publishInteraction,
   updateInteraction,
-  deactivateInteraction,
 } from './server/publish';
-export { registerActionHandler } from './server/action-registry';
 export { INBOX_SERVER_MANAGED } from './shared/writes/row-bindings';

@@ -1,5 +1,5 @@
-import { SpaceMemberTileRail } from './space-member-tile-rail';
 import type { ReactNode } from 'react';
+import { SpaceMemberTileRail } from './space-member-tile-rail';
 
 export type SpaceGuestMembershipTileRailProps = {
   spaceId: string;

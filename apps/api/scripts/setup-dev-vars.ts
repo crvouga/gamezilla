@@ -1,15 +1,15 @@
-import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
-import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
+import { renameSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
 import {
   getSecretMap,
   loadSecretsIntoEnv,
 } from '@libs/infra/cli/secrets/secrets';
+import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
+import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
-import { renameSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

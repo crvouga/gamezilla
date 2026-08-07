@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Select } from './select';
-import { ExampleRoot } from '../explorer/example-root';
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },

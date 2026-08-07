@@ -1,0 +1,5 @@
+language js
+
+`export * from $source` as $stmt where {
+  register_diagnostic(span=$stmt, message="Wildcard re-exports are forbidden in @pkgs/inbox. Use explicit named exports.", severity="error")
+}

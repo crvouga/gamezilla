@@ -7,8 +7,8 @@
  * key (e.g. live form input) updates instantly without re-triggering the fade.
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import { type ReactNode, useEffect, useRef } from 'react';
+import { type LayoutChangeEvent, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,

@@ -1,7 +1,7 @@
 import { createMessageRouter } from '@pkgs/message';
 import {
-  ROOM_ERROR_TYPE,
   type HandleResult,
+  ROOM_ERROR_TYPE,
   type RoomError,
   type RoomState,
 } from '@pkgs/room';
@@ -20,7 +20,10 @@ import {
   type ChessPuzzlePlayStatus,
 } from './chess-puzzle-play-attr';
 import {
-  chessPuzzlePlayCmdNs,
+  handleRequestHint,
+  handleRevealSolution,
+} from './chess-puzzle-play-hint-handlers';
+import {
   ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
   ChessPuzzlePlayMoveAccepted,
@@ -29,6 +32,7 @@ import {
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
   ClearChessPuzzlePlay,
+  chessPuzzlePlayCmdNs,
   ReclaimChessPuzzlePlay,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
@@ -39,10 +43,6 @@ import {
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play-messages';
-import {
-  handleRequestHint,
-  handleRevealSolution,
-} from './chess-puzzle-play-hint-handlers';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,

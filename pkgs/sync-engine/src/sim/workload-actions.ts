@@ -1,5 +1,5 @@
-import type { SeededRng } from './rng';
 import { simSetNote } from './profile';
+import type { SeededRng } from './rng';
 import type { SimWorld } from './world';
 
 export type WorkloadAction =

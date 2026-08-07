@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { setupPuzzleStart } from './chess-puzzle-fsm';
 import { buildPuzzleFenTrail } from './chess-puzzle-fen-trail';
+import { setupPuzzleStart } from './chess-puzzle-fsm';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e7';

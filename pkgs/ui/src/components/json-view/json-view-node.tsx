@@ -23,9 +23,9 @@ import {
   formatContainerSummary,
   formatLeafPreview,
   isContainer,
-  safeStringify,
   type JsonPath,
   type JsonValueKind,
+  safeStringify,
 } from './json-view-helpers';
 
 const INDENT_PX = 14;

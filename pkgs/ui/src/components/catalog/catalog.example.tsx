@@ -5,8 +5,8 @@ import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { CatalogDetail } from './catalog-detail';
-import { CatalogList } from './catalog-list';
 import type { CatalogItem } from './catalog-item';
+import { CatalogList } from './catalog-list';
 
 const DEMO_ITEMS: readonly CatalogItem[] = [
   { id: 'box', label: 'Box', category: 'Foundation' },

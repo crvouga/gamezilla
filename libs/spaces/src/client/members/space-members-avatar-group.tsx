@@ -1,8 +1,8 @@
+import { AvatarGroup } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { SpaceGuestMembershipAvatar } from './space-guest-membership-avatar';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
-import { AvatarGroup } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type SpaceMembersAvatarGroupProps = {
   spaceId: string;

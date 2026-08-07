@@ -1,9 +1,9 @@
+import { Trans } from '@lingui/react/macro';
+import { Box, Card, ScreenBase, Text } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { useLocalSearchParams } from 'expo-router';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { AccountDeviceDetailHeader } from './account-device-detail-header';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Box, Card, ScreenBase, Text } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import { useLocalSearchParams } from 'expo-router';
 
 function normalizeDeviceId(raw: string | string[] | undefined): string | null {
   if (raw === undefined) return null;

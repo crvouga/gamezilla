@@ -1,10 +1,9 @@
 import { assert } from '@pkgs/assert';
-
+import sql, { empty, join, type Sql } from '@pkgs/sql';
 import { compileExpr } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import type { OnConflict } from './sql-map-types';
-import sql, { empty, join, type Sql } from '@pkgs/sql';
 
 /**
  * Compiles optional INSERT `ON CONFLICT` clause.

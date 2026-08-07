@@ -1,7 +1,8 @@
 import { assert } from '@pkgs/assert';
-
+import sql, { empty, join, raw, type Sql } from '@pkgs/sql';
 import { compileExpr, isOpOrFnHead, isQuery } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
+import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
 import { compileOrderBy } from './sql-map-order';
 import { isSqlMapCastType } from './sql-map-registry';
 import type {
@@ -11,8 +12,6 @@ import type {
   SelectItem,
   TableRef,
 } from './sql-map-types';
-import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
-import sql, { empty, join, raw, type Sql } from '@pkgs/sql';
 
 export { compileOrderBy };
 

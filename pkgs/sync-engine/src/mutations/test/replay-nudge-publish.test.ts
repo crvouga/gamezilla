@@ -1,13 +1,12 @@
+import { Database } from 'bun:sqlite';
 import { describe, expect, mock, test } from 'bun:test';
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
-import { Database } from 'bun:sqlite';
 import { sql, unsafe } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { z } from 'zod';
-
-import { notifyChannels } from '../../server/notify-channels';
 import { createMutationsRoutes } from '../../server/create-mutations-routes';
+import { notifyChannels } from '../../server/notify-channels';
 import { defineMutation } from '../core/define-mutation';
 import { registry } from '../core/registry';
 import { MutationError } from '../core/types';

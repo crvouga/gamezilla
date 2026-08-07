@@ -1,7 +1,3 @@
-import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
-
 import {
   USER_SEARCH_MAX_RESULTS,
   USER_SEARCH_MIN_LENGTH,
@@ -9,6 +5,8 @@ import {
   USER_SEARCH_RATE_WINDOW_MS,
   type UserSearchResult,
 } from '@libs/user-search/shared/user-search-types';
+import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { FriendsError } from '../shared/friends-errors';
 
 type SearchHitRow = {

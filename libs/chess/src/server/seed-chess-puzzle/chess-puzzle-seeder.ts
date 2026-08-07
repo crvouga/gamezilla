@@ -50,6 +50,7 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
+import { join } from 'node:path';
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -61,10 +62,8 @@ import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
-import { join } from 'node:path';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import { dropPuzzleSnapshotIndexes } from './defer-indexes';
@@ -74,21 +73,21 @@ import {
   flushPuzzleBatchFast,
   runFinalMaintenance,
   runInterimMaintenance,
+  type SeedStats,
   sleep,
   writeLoadProgressFast,
-  type SeedStats,
 } from './fast-path';
 import {
   formatProfileLabel,
-  resolveSeedProfile,
   type ResolvedSeedProfile,
+  resolveSeedProfile,
 } from './profile';
 import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
 import { rowToPuzzleBatchEntry } from './row';
 import {
   ensureCachedArchive,
-  iteratePuzzleRows,
   type IteratePuzzleRowsOptions,
+  iteratePuzzleRows,
   type ResolvedSource,
 } from './streaming';
 

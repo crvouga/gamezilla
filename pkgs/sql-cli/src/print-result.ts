@@ -1,4 +1,3 @@
-/* eslint-disable no-console -- console REPL surface: table / log is the product */
 import type { SqlCliResult } from './types';
 
 /** Print a {@link SqlCliResult} the way a console REPL would. */

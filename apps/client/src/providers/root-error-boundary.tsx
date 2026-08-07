@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { Component, useState, type ReactNode } from 'react';
+import { Component, type ReactNode, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 type Props = { children: ReactNode };

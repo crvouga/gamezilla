@@ -1,14 +1,14 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import {
-  DEFAULT_COLLECTOR_URL,
-  resolveObservabilityBackend,
-} from '../shared/backend';
-import type { Observability } from '../port/observability';
-import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
 import { createClientSentryObservability } from '../impl-sentry/create-client-sentry-observability';
+import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
+import type { Observability } from '../port/observability';
+import {
+  DEFAULT_COLLECTOR_URL,
+  resolveObservabilityBackend,
+} from '../shared/backend';
 
 declare const __DEV__: boolean | undefined;
 

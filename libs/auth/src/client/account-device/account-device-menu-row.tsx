@@ -1,10 +1,10 @@
+import { Box, ChevronRightIcon, MenuRow } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui/theme';
+import type { ReactNode } from 'react';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import { AccountDeviceSessionCaptionText } from './account-device-session-caption-text';
-import { Box, ChevronRightIcon, MenuRow } from '@pkgs/ui';
-import { useTheme } from '@pkgs/ui/theme';
-import type { ReactNode } from 'react';
 
 export type AccountDeviceMenuRowProps = {
   deviceId: string;

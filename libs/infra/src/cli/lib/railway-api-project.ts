@@ -2,9 +2,9 @@ import { assert } from '@pkgs/assert';
 import { print } from 'graphql';
 import {
   pickProductionEnv,
-  railwayGql,
   type RailwayProject,
   type RailwayService,
+  railwayGql,
 } from './railway-api-core';
 import {
   ListProjectsQuery,

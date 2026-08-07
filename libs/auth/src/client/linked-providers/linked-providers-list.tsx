@@ -1,5 +1,5 @@
-import { Box, Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useLinkedProviderEntityIds } from '../use-linked-provider-entity-ids';
 import { LinkedProviderRow } from './linked-provider-row';

@@ -20,11 +20,11 @@
 
 import type { ReactNode } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Button } from '../button';
+import type { IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { type IconComponent } from '../icons';
 import { Text } from '../text';
 
 export type EmptyStateAction = {

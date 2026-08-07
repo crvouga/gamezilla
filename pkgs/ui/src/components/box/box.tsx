@@ -14,9 +14,9 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 
 export type BoxProps = ViewProps & {
   /** Utility-first style shorthand resolved against the current theme. */

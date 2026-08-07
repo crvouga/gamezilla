@@ -1,5 +1,5 @@
-import type { InteractionAction } from '../shared/interaction-action';
 import type { InteractionCategory } from '../shared/interaction';
+import type { InteractionAction } from '../shared/interaction-action';
 import type { InteractionSource } from '../shared/interaction-id';
 
 export type { StoredInteractionRow } from '../shared/stored-interaction-row';

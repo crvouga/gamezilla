@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
 import {
-  readLinkedProviderField,
   type LinkedProviderField,
+  readLinkedProviderField,
 } from '../shared/linked-account-providers';
 import { useLinkedProviderSources } from './use-linked-provider-sources';
 

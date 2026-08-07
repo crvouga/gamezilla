@@ -1,4 +1,4 @@
-import { HEX32_RE, cfHeaders } from './cloudflare';
+import { cfHeaders, HEX32_RE } from './cloudflare';
 import { Secret, type SecretInput } from './secret';
 
 async function validateCfAccountId(input: SecretInput): Promise<void> {

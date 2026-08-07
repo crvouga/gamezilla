@@ -3,16 +3,16 @@
  * searchable, filterable option list (single select).
  */
 
+import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { useLingui } from '@lingui/react/macro';
 
 import { componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ResponsiveSurface } from '../responsive-surface';
 import { ComboboxBody } from './combobox-body';
 import { ComboboxLabel, ComboboxTrigger } from './combobox-trigger';
-import { defaultFilterOption, type ComboboxProps } from './combobox-types';
+import { type ComboboxProps, defaultFilterOption } from './combobox-types';
 
 export type { ComboboxOption, ComboboxProps } from './combobox-types';
 

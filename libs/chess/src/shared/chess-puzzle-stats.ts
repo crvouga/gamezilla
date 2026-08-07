@@ -1,9 +1,9 @@
+import { deriveCurrentStreak } from './chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
 } from './chess-puzzle-interaction-entities';
-import { deriveCurrentStreak } from './chess-puzzle-derive';
 
 export type ChessPuzzleStats = {
   readonly currentElo: number;

@@ -1,5 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { sql, type Sql } from '@pkgs/sql';
+import { type Sql, sql } from '@pkgs/sql';
 
 import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';

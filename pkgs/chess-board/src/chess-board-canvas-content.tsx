@@ -1,5 +1,5 @@
 import { Canvas } from '@shopify/react-native-skia';
-import { memo, useMemo, type ReactNode } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import { ChessBoardArrows } from './chess-board-arrows';
 import type { ChessBoardDragMotion } from './chess-board-drag-motion';

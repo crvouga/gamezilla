@@ -1,9 +1,9 @@
-import { useChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
 import {
   hapticError,
   hapticSelection,
   hapticSuccess,
 } from '@pkgs/chess-board/chess-board-haptics';
+import { useChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
 import { useCallback, useMemo } from 'react';
 
 import { useChessPuzzleSounds } from './use-chess-puzzle-sounds';

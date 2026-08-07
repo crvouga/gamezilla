@@ -1,9 +1,9 @@
 import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { MutationRegistry } from '@pkgs/sync-engine/mutations/core/types';
 import type { TableChangeBus } from '@pkgs/sync-engine/queries/client/table-change-bus';
 import type { QueryRegistry } from '@pkgs/sync-engine/queries/core/types';
-import type { MutationRegistry } from '@pkgs/sync-engine/mutations/core/types';
 import { parseMutationFanout } from '@pkgs/sync-engine/shared/mutation-fanout-payload';
 import type {
   NudgePayload,

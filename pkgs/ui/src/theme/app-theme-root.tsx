@@ -3,7 +3,7 @@
  * design tokens → React Navigation theme → status bar.
  */
 
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { AppStatusBar } from './app-status-bar';
 import type { ColorScheme } from './colors';

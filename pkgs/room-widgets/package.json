@@ -10,7 +10,6 @@
     ]
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json"
   },
   "dependencies": {
@@ -31,7 +30,6 @@
   "devDependencies": {
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
-    "eslint-plugin-lingui": "catalog:",
     "typescript": "catalog:"
   }
 }

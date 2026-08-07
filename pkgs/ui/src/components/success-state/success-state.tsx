@@ -18,11 +18,11 @@
 
 import type { ReactNode } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
+import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { Button } from '../button';
-import { borderRadius } from '../../theme/scale';
 import { CircleCheckIcon, type IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
 import { Text } from '../text';

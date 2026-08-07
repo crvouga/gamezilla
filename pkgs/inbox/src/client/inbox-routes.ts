@@ -1,4 +1,4 @@
-import { router, type Href } from 'expo-router';
+import { type Href, router } from 'expo-router';
 
 export type InboxRouteFilter = 'all' | 'action_required' | 'archived';
 

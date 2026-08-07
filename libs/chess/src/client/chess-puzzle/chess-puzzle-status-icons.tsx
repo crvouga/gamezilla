@@ -1,5 +1,5 @@
-import { Spinner, useTheme, type Theme } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Spinner, type Theme, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';

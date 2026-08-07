@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
 import { Button } from '../button';
-import { Stack } from '../stack';
-import { Text } from '../text';
+import { ExampleRoot } from '../explorer/example-root';
 import {
   EllipsisIcon,
   HouseIcon,
@@ -10,13 +9,14 @@ import {
   PaintbrushIcon,
   WifiIcon,
 } from '../icons';
+import { Stack } from '../stack';
+import { Text } from '../text';
 import {
   CommandPalette,
   CommandRegistryProvider,
   RegisterCommand,
 } from './index';
 import { useCommandPalette } from './use-command-palette';
-import { ExampleRoot } from '../explorer/example-root';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

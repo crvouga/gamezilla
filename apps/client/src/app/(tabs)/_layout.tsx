@@ -1,7 +1,7 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
+import { useLingui } from '@lingui/react/macro';
 import { InboxTabIcon } from '@pkgs/inbox/client';
 import { Gamepad2Icon, SearchIcon, UserIcon, useTabsProps } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
 import { Tabs } from 'expo-router';
 
 /**

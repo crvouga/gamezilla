@@ -1,11 +1,11 @@
+import { PROJECT_CONFIG } from '../../project-config';
 import {
-  Secret,
   requireHttpsUrl,
   requireNonEmpty,
+  Secret,
   type SecretInput,
   type SecretSeedInput,
 } from './secret';
-import { PROJECT_CONFIG } from '../../project-config';
 
 function emqxHostname(): string {
   return PROJECT_CONFIG.emqx.hostname;

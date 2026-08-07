@@ -1,11 +1,11 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { Box, CatalogDetailNav, ScreenBase, type CatalogItem } from '@pkgs/ui';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, CatalogDetailNav, type CatalogItem, ScreenBase } from '@pkgs/ui';
 import {
+  type ComponentEntry,
   ExplorerDetail,
   useComponentRegistry,
-  type ComponentEntry,
 } from '@pkgs/ui/explorer';
-import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
 

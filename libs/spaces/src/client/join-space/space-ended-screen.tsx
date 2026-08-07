@@ -1,9 +1,9 @@
-import { SpaceJoinEndedState } from './space-join-ended-state';
-import { SpaceTitleText } from '../space-title-text';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Box, ScreenBase } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Box, ScreenBase } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
+import { SpaceTitleText } from '../space-title-text';
+import { SpaceJoinEndedState } from './space-join-ended-state';
 
 export type SpaceEndedScreenProps = {
   spaceId: string;

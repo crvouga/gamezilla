@@ -1,5 +1,5 @@
-import { borderRadius, Box, StatusDot, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 /** Static "Live" pill (no props — miniplayer entries are always live). */

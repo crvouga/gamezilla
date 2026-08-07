@@ -1,11 +1,11 @@
-import { ElementNotFoundError, NotImplementedError } from '../../core/errors';
-import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import { waitUntil, type WaitOptions } from '../../core/wait';
 import type { AppHarness } from '../../bootstrap/app-harness';
 import type {
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
+import { ElementNotFoundError, NotImplementedError } from '../../core/errors';
+import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
+import { type WaitOptions, waitUntil } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,

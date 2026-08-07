@@ -6,6 +6,7 @@ import {
   CircleCheckIcon,
   DoorOpenIcon,
   Gamepad2Icon,
+  type IconComponent,
   LightbulbIcon,
   ListChecksIcon,
   LogInIcon,
@@ -15,7 +16,6 @@ import {
   SquarePenIcon,
   UserIcon,
   XIcon,
-  type IconComponent,
 } from '@pkgs/ui';
 import type { ReactElement } from 'react';
 

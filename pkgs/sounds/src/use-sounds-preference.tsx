@@ -1,7 +1,7 @@
 import { asKeyword } from '@pkgs/keyword/keyword';
 import { booleanKvCodec, jsonKvCodec } from '@pkgs/kv/kv-state-codec';
 import { useKvState } from '@pkgs/kv/use-kv-state';
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 const SOUNDS_MUTED_ROW_KEY = asKeyword('ui.prefs/sounds-muted');
 const SOUNDS_MUTED_VALUE_ATTR = asKeyword('ui.prefs/value');

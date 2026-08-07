@@ -1,11 +1,11 @@
+import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
+import { createLoggerObservability } from '../impl-logger/impl-logger';
+import { createNoopObservability } from '../impl-noop/impl-noop';
+import { createClientSentryObservability } from '../impl-sentry/create-client-sentry-observability';
 import type { ObservabilityBackend } from '../shared/backend';
 import { DEFAULT_COLLECTOR_URL } from '../shared/backend';
 import type { HttpFetchFn } from '../shared/types';
 import type { Observability } from './observability';
-import { createNoopObservability } from '../impl-noop/impl-noop';
-import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
-import { createLoggerObservability } from '../impl-logger/impl-logger';
-import { createClientSentryObservability } from '../impl-sentry/create-client-sentry-observability';
 
 export type ObservabilityConfig = {
   readonly serviceName: string;

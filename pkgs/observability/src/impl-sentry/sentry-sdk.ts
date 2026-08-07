@@ -1,5 +1,7 @@
-import type { Span as SentrySpanType } from '@sentry/core';
-import type { StartSpanOptions as SentryStartSpanOptions } from '@sentry/core';
+import type {
+  Span as SentrySpanType,
+  StartSpanOptions as SentryStartSpanOptions,
+} from '@sentry/core';
 
 export type SentrySdk = {
   readonly startInactiveSpan: (

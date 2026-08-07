@@ -2,7 +2,7 @@ import { useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import { useIsSpaceOpenLocally } from '../open-space/use-open-space-session-ids';
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../use-space-column';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,

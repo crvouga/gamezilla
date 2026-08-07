@@ -26,7 +26,7 @@
  * bubble (e.g. the chess board on `chess-puzzle-play-screen`).
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';

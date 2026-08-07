@@ -18,13 +18,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { createSecretAdminStore } from '@pkgs/secret-provider';
+import { resolveSecretsScope } from '@pkgs/secrets-config';
 import {
   PG_DUMP_REQUIRED_MAJOR,
   PgDumpDep,
   resolvePgDumpPath,
 } from '../../libs/infra/src/cli/deps/pg-dump';
-import { createSecretAdminStore } from '@pkgs/secret-provider';
-import { resolveSecretsScope } from '@pkgs/secrets-config';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const SCHEMA_SQL_PATH = join(REPO_ROOT, 'libs/db/src/server/schema.sql');

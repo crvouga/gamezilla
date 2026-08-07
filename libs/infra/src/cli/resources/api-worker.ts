@@ -1,20 +1,20 @@
+import { rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import { writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
-import {
-  assertExpoTokenPresent,
-  publishClientEasUpdate,
-  resolveEasProfile,
-  resolveEasProfileWithNotice,
-} from '../lib/eas-mobile';
 import {
   deleteLegacyWorkerScripts,
   deleteProductionWorker,
   isDoMigrationStateError,
   readLatestWranglerLogTail,
 } from '../lib/cloudflare-worker-lifecycle';
+import {
+  assertExpoTokenPresent,
+  publishClientEasUpdate,
+  resolveEasProfile,
+  resolveEasProfileWithNotice,
+} from '../lib/eas-mobile';
 import { ok, warn } from '../lib/fmt';
 import { productionApiOrigin } from '../lib/infra-outputs';
 import { REPO_ROOT } from '../paths';
@@ -22,7 +22,7 @@ import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import { getApiWorkerSecrets } from '../secrets/secrets';
 import { runAsync } from '../subprocess';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 const WRANGLER_ENV = 'production';
 

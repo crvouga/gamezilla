@@ -10,10 +10,10 @@
  * <BrandIcon name="google" size={20} />
  * ```
  */
-import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { assert } from '@pkgs/assert';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type StyleProp, View, type ViewStyle } from 'react-native';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { BRAND_ICON_REGISTRY, type BrandIconName } from './brand-icon-registry';
 
 export type { BrandIconName };

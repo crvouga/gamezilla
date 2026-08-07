@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ExportedSpanRecord } from '../shared/types';
 import { DEFAULT_FILE_SINK_OPTIONS } from './file-sink';

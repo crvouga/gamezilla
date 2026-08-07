@@ -4,13 +4,13 @@
 
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { UserUsername } from '@libs/profile/client/user-username';
-import { projectEventLog, type LogLine } from '@pkgs/collab';
+import { useLingui } from '@lingui/react/macro';
+import { type LogLine, projectEventLog } from '@pkgs/collab';
 import { EventLogBar, EventLogSurface } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import { RoomMetaAttr, useNamedRoomLog } from '@pkgs/room';
-import { useLingui } from '@lingui/react/macro';
-import { useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
 import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';

@@ -1,3 +1,4 @@
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { DistributedLockImplKv } from '@pkgs/distributed-lock/impl-kv';
 import type { DistributedLock } from '@pkgs/distributed-lock/interface';
 import { asKeyword } from '@pkgs/keyword';
@@ -5,7 +6,6 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { resolveDatabaseUrl } from '../resources/postgres';
 
 export interface DistributedLockConnection {

@@ -1,7 +1,7 @@
 import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { Stack } from './stack';
-import { ExampleRoot } from '../explorer/example-root';
 
 function ColorBox({ label, color }: { label: string; color: string }) {
   return (

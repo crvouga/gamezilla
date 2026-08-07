@@ -1,7 +1,7 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { Box, Button, ScreenBase, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Button, ScreenBase, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export function FriendsSignedInGate({

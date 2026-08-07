@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { NumberStepper } from './number-stepper';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function NumberStepperExample() {
   const [n, setN] = useState(5);

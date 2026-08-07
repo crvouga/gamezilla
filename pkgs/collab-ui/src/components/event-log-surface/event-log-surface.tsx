@@ -6,12 +6,12 @@ import type { LogLine, ParticipantColor } from '@pkgs/collab';
 import { asLocalized, type LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
+  type ComponentDataSet,
+  componentDataSet,
   EmptyState,
   FlatList,
   ResponsiveSurface,
   Text,
-  componentDataSet,
-  type ComponentDataSet,
 } from '@pkgs/ui';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo } from 'react';

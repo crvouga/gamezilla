@@ -1,15 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
+import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 import {
   clearUserAnonFlag,
   ensureAnonUserForDevice,
   findUserIdByDeviceId,
 } from './anon-user-ensure';
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 
 const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';

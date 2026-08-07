@@ -1,4 +1,4 @@
-import { defineSignal, type AssistantSignal } from '@pkgs/assistant/shared';
+import { type AssistantSignal, defineSignal } from '@pkgs/assistant/shared';
 
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';
 import type { ChessPuzzleAssistantPayload } from './chess-puzzle-assistant-adapter';

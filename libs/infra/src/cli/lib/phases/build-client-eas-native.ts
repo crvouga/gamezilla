@@ -1,6 +1,6 @@
-import { buildAndSubmitClientNative, requireEasProfile } from '../eas-mobile';
 import type { CiPlatform } from '../../platform/platform';
 import { runStep } from '../../platform/platform';
+import { buildAndSubmitClientNative, requireEasProfile } from '../eas-mobile';
 
 /**
  * Manual native-build phase: produces native binaries (iOS + Android) and,

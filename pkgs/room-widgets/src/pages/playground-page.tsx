@@ -1,12 +1,14 @@
+import { useLingui } from '@lingui/react/macro';
 import {
   assignParticipantColors,
   groupRosterByParticipant,
-  projectEventLog,
   type LogLineContext,
   type LogLineDraft,
+  projectEventLog,
 } from '@pkgs/collab';
 import { EventLogBar, ParticipantDot, PresenceStrip } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
+import { createMessageNamespace, createMessageRouter } from '@pkgs/message';
 import {
   Avatar,
   Box,
@@ -19,15 +21,13 @@ import {
   Text,
   useTheme,
 } from '@pkgs/ui';
-import { createMessageNamespace, createMessageRouter } from '@pkgs/message';
-import { useLingui } from '@lingui/react/macro';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 
 import {
   Increment,
   readSimCount,
-  useRoomSim,
   type SimClient,
+  useRoomSim,
 } from './use-room-sim';
 
 const counterEvtNs = createMessageNamespace('space-counter-evt');

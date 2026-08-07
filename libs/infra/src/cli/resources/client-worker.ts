@@ -1,7 +1,8 @@
-import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { assert } from '@pkgs/assert';
+import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { PROJECT_CONFIG } from '../../project-config';
 import { resolveAuthPublishableKeyForClientBuild } from '../lib/client-build-env';
 import {
   deleteLegacyWorkerScripts,
@@ -9,12 +10,11 @@ import {
 } from '../lib/cloudflare-worker-lifecycle';
 import { ok } from '../lib/fmt';
 import { productionApiOrigin } from '../lib/infra-outputs';
-import { PROJECT_CONFIG } from '../../project-config';
 import { REPO_ROOT } from '../paths';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId } from '../secrets/cloudflare';
 import { runAsync, runCapture } from '../subprocess';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 const WRANGLER_ENV = 'production';
 

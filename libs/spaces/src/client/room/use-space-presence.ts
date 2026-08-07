@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
-
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { RoomMetaAttr, useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
+import { useMemo } from 'react';
 
 import { useSpaceRoomClientId } from './space-room-context';
 import {

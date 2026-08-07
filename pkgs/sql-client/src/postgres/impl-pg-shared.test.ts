@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  type PgExecutor,
   pgQueryWithOptionalSearchPathPin,
   pgRawQueryWithSearchPathPin,
   pgRunResultFromQuery,
   readLastInsertRowid,
-  type PgExecutor,
 } from './impl-pg-shared';
 import { createPostgresDbScope } from './schema';
 

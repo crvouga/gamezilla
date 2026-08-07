@@ -1,10 +1,10 @@
+import { REAL_TIMERS, type Timers } from './sim-ports';
 import {
   FALLBACK_POLL_MS,
   LIFECYCLE_SWEEP_JITTER_MS,
   RECONCILE_JITTER_RATIO,
   RECONCILE_MS,
 } from './subscription-constants';
-import { REAL_TIMERS, type Timers } from './sim-ports';
 
 export type SharedSchedulerHooks = {
   readonly isRunning: () => boolean;

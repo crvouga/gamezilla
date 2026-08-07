@@ -4,7 +4,8 @@
  * form; the underlying utilities are re-exported for backwards compatibility
  * with existing import sites inside the auth package.
  */
-export { UUID_REGEX, assertUuid, isUuid } from '@pkgs/uuid';
+export { assertUuid, isUuid, UUID_REGEX } from '@pkgs/uuid';
+
 import { assertUuid } from '@pkgs/uuid';
 
 /**

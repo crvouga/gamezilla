@@ -10,7 +10,7 @@ import { releaseWebFocus } from '../../web/release-web-focus';
 import { EmptyState } from '../empty-state';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
-import { groupCatalogItems, type CatalogItem } from './catalog-item';
+import { type CatalogItem, groupCatalogItems } from './catalog-item';
 
 export type CatalogListRowsProps = {
   items: readonly CatalogItem[];

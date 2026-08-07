@@ -68,7 +68,7 @@ apps/client/android/
 .cursor/debug*.log
 
 # Local preview-stack log from check:browser / check:api
-.check-preview-stack.log
+.check-*
 
 # Local observability span export (opt-in dev debugging)
 .observability/

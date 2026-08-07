@@ -1,9 +1,9 @@
 import type { useClerk } from '@clerk/expo';
 
 import {
-  runClerkSsoBrowserFlow,
   type ClerkSsoSignInHandle,
   type ClerkSsoSignUpHandle,
+  runClerkSsoBrowserFlow,
 } from './clerk-run-sso-browser-flow';
 import type { SsoFlowResult } from './clerk-sso-finalize';
 

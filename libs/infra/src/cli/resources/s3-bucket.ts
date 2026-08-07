@@ -1,7 +1,7 @@
 import { ok } from '../lib/fmt';
 import { ensureObjectStoreBuckets } from '../lib/s3-secret-seed';
 import type { CiPlatform } from '../platform/platform';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 /**
  * Ensures Backblaze B2 buckets exist. B2_APP_* / S3_* secret-store credentials

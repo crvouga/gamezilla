@@ -1,10 +1,10 @@
 import type { Move, Square } from '@pkgs/chess-board/chess-board-types';
-import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
 import { useCallback, useRef } from 'react';
-import { hintStageFromRoom, type HintStage } from './use-hint-stage';
+import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
+import { type HintStage, hintStageFromRoom } from './use-hint-stage';
+import { puzzleNavFromState } from './use-puzzle-nav';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
-import { puzzleNavFromState } from './use-puzzle-nav';
 
 function useTrackedOnMove(
   onMove: (m: Move) => void,

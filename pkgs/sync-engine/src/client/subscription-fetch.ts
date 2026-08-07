@@ -2,8 +2,8 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   applyFullMerge,
-  purgeScope,
   type MergeApplierDeps,
+  purgeScope,
 } from '@pkgs/sync-engine/queries/client/merge-applier';
 import { readWriteEpoch } from '@pkgs/sync-engine/queries/client/write-epoch';
 import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';

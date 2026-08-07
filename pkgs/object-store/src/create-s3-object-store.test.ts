@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { createS3ObjectStore } from './impl-s3';
 import { ObjectStoreImplInMemory } from './impl-in-memory';
+import { createS3ObjectStore } from './impl-s3';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore } from './interface';
 import { assertRemoteObjectKey } from './namespace-guard';

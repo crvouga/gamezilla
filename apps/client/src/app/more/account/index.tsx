@@ -8,11 +8,11 @@ import { useIsAnon } from '@libs/auth/client/use-current-user';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
+import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { MenuList, MenuRow } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 const IDENTITY_AVATAR_SIZE = 40;
 

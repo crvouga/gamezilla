@@ -6,8 +6,8 @@
  */
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
-import { runStripeCatalogSync, type CatalogSyncResult } from './catalog';
-import { runStripeEntitiesSync, type EntitiesSyncResult } from './entities';
+import { type CatalogSyncResult, runStripeCatalogSync } from './catalog';
+import { type EntitiesSyncResult, runStripeEntitiesSync } from './entities';
 
 export type StripeFullSyncResult = {
   readonly catalog: CatalogSyncResult;

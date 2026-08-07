@@ -7,11 +7,11 @@ import {
   LoadingState,
   PlusIcon,
   ScreenBase,
-  ScreenBodyScrollView,
   type ScreenBasePrimaryAction,
+  ScreenBodyScrollView,
 } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import { SpaceCard } from './card/space-card';
 import { useCreateSpace } from './create-space/use-create-space';

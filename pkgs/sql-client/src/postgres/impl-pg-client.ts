@@ -3,20 +3,21 @@
  * Cloudflare Workers (TCP via nodejs_compat): construct per request; do not share
  * across requests.
  */
-import type { Client } from 'pg';
+
 import type { Sql, Value } from '@pkgs/sql';
-import {
-  createPgSessionClient,
-  pgQueryRows,
-  pgQueryWithOptionalSearchPathPin,
-  pgRunResultFromQuery,
-} from './impl-pg-shared';
+import type { Client } from 'pg';
 import type {
   PostgresSqlClient,
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '../interface';
+import {
+  createPgSessionClient,
+  pgQueryRows,
+  pgQueryWithOptionalSearchPathPin,
+  pgRunResultFromQuery,
+} from './impl-pg-shared';
 import type { PostgresDbScope } from './schema';
 import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 

@@ -11,17 +11,17 @@ import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
 import { openMainSqlClient } from '../storage/open-main-sql-client';
 import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
+import { createAppSyncLifecycle } from './app-sync-lifecycle';
 import { tryCreateClientPubSub } from './create-client-pubsub';
 import {
+  type GetFreshAuthToken,
   postAppQuery,
   postAppQueryBatch,
   postMutationBatch,
   SyncApiAuthError,
-  type GetFreshAuthToken,
   type SyncApiFetch,
   type SyncClientAuth,
 } from './sync-api';
-import { createAppSyncLifecycle } from './app-sync-lifecycle';
 
 const BOOT_QUERIES = [
   'ownUser',

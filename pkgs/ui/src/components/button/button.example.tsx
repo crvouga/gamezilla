@@ -1,18 +1,18 @@
 import { useCallback, useState } from 'react';
+import { useTheme } from '../../theme';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
 import { ChevronRightIcon } from '../icons';
+import { Stack } from '../stack';
 import { Text } from '../text';
 import {
   Button,
-  buttonForegroundColor,
   type ButtonIntent,
   type ButtonVariant,
+  buttonForegroundColor,
 } from './button';
 import { useMutationButton } from './use-mutation-button';
-import { useTheme } from '../../theme';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

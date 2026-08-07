@@ -1,10 +1,10 @@
-export { IndexedNdjsonStreamError } from './stream-error';
+export { acceptsEventStream, eventStreamAcceptHeader } from './accept-header';
+export {
+  type CollectIndexedNdjsonOptions,
+  collectIndexedNdjsonStream,
+} from './consume-stream';
 export {
   IndexedNdjsonCollector,
   type OnNdjsonErrorFrame,
 } from './indexed-collector';
-export {
-  collectIndexedNdjsonStream,
-  type CollectIndexedNdjsonOptions,
-} from './consume-stream';
-export { acceptsEventStream, eventStreamAcceptHeader } from './accept-header';
+export { IndexedNdjsonStreamError } from './stream-error';

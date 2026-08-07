@@ -17,8 +17,8 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme, type ColorTokens } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { type ColorTokens, useTheme } from '../../theme';
 import { Text } from '../text';
 
 export type AppLogoProps = {

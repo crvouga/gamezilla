@@ -7,11 +7,11 @@
 
 import {
   clamp01,
+  type Hsla,
   hslaToRgba,
+  type Rgba,
   rgba,
   rgbaToHsla,
-  type Hsla,
-  type Rgba,
 } from '@pkgs/colors';
 
 function expandShortHex(hex: string): string {

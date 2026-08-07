@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { MultiSelectSwatchGrid } from './multi-select-swatch-grid';
-import { ExampleRoot } from '../explorer/example-root';
 
 const PALETTE = ['ff0000', '00ff00', '0000ff', 'ffff00', 'ff00ff'];
 

@@ -5,8 +5,8 @@ import {
 } from '@pkgs/message';
 import {
   assertRoomModuleName,
-  ROOM_ERROR_TYPE,
   type HandleResult,
+  ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomError,
   type RoomModule,

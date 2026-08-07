@@ -1,11 +1,11 @@
 import {
+  type Dispatch,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type Dispatch,
-  type SetStateAction,
 } from 'react';
 
 export type AsyncStatus =

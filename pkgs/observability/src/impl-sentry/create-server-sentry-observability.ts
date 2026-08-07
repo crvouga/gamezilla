@@ -1,11 +1,8 @@
 import * as Sentry from '@sentry/cloudflare';
 import { continueTrace, spanToTraceHeader } from '@sentry/core';
-
-import { formatTraceparent } from '../shared/trace-context';
-
+import type { Observability, SpanContextStorage } from '../port/observability';
 import { createAsyncLocalSpanContextStorage } from '../server/context-storage';
-import type { SpanContextStorage } from '../port/observability';
-import type { Observability } from '../port/observability';
+import { formatTraceparent } from '../shared/trace-context';
 import { createSentryObservability } from './sentry-observability';
 import type { SentrySdk } from './sentry-sdk';
 

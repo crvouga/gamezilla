@@ -1,7 +1,7 @@
 import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { Collapsible } from './collapsible';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function CollapsibleExample() {
   return (

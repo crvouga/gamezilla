@@ -1,4 +1,4 @@
-import { Secret, requireNonEmpty } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 const BACKEND_VALUES = new Set([
   'sentry',

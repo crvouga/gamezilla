@@ -1,12 +1,14 @@
-import { SQL } from 'bun';
 import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
+import { SQL } from 'bun';
 import type {
   PostgresSqlClient,
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '../interface';
+import { questionMarkParamsToDollarParams } from '../positional-params';
+import { sanitizePostgresUrlForBunSql } from './sanitize-url-for-bun-sql';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
 import {
@@ -14,8 +16,6 @@ import {
   sqlBundledWithSearchPath,
   withPostgresSearchPathOption,
 } from './session-schema';
-import { questionMarkParamsToDollarParams } from '../positional-params';
-import { sanitizePostgresUrlForBunSql } from './sanitize-url-for-bun-sql';
 
 type BunSql = InstanceType<typeof SQL>;
 

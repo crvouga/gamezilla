@@ -5,8 +5,8 @@
  * (`role="dialog"`, `aria-modal`).
  */
 
+import { forwardRef, type ReactNode, useEffect } from 'react';
 import FocusLock from 'react-focus-lock';
-import { forwardRef, useEffect, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 import { pushEscapeDismissHandler } from './escape-dismiss-stack';
 import type { FocusTrapProps } from './focus-trap-types';

@@ -1,22 +1,21 @@
-export {
-  InboxProviderRegistry,
-  InboxScreen,
-  InboxHeaderButton,
-  InboxTabBadge,
-  InboxTabIcon,
-  InteractionCardDefault,
-  useInbox,
-  useInboxUnreadCount,
-  useInboxActions,
-  inboxPath,
-  openInbox,
-} from './public-api';
-
 export type {
+  InboxClientDeps,
   Interaction,
   InteractionAction,
   InteractionCardActions,
-  InteractionProvider,
   InteractionFilter,
-  InboxClientDeps,
+  InteractionProvider,
+} from './public-api';
+export {
+  InboxHeaderButton,
+  InboxProviderRegistry,
+  InboxScreen,
+  InboxTabBadge,
+  InboxTabIcon,
+  InteractionCardDefault,
+  inboxPath,
+  openInbox,
+  useInbox,
+  useInboxActions,
+  useInboxUnreadCount,
 } from './public-api';

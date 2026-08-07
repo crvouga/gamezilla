@@ -6,7 +6,7 @@ import {
   createClerkAuthClientAdapter,
 } from '@pkgs/auth-clerk/client';
 import { ComposeProviders } from '@pkgs/ui';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import { AppApiClient } from './auth/api-client';
 

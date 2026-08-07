@@ -12,12 +12,12 @@ import type { SecretsEnv } from '../secrets/secret';
 import { setSecretIn } from '../secrets/secrets-io';
 import {
   authorizeB2FromEnv,
+  type B2Auth,
+  type B2S3Credentials,
   b2S3Region,
   clearB2AuthCache,
   ensureB2Bucket,
   mintB2S3Credentials,
-  type B2Auth,
-  type B2S3Credentials,
 } from './b2-api';
 
 export type SeededObjectStoreS3 = {
@@ -135,4 +135,4 @@ export function applySeededS3ToEnv(seeded: SeededObjectStoreS3): void {
   process.env['B2_APP_KEY'] = seeded.secretAccessKey;
 }
 
-export { PRODUCTION_SECRETS_ENV, DEVELOPMENT_SECRETS_ENV };
+export { DEVELOPMENT_SECRETS_ENV, PRODUCTION_SECRETS_ENV };

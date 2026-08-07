@@ -9,7 +9,7 @@
  */
 
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning';

@@ -1,3 +1,7 @@
+export {
+  type AttributionHit,
+  deriveAttribution,
+} from './shared/attribution/derive-attribution';
 export type {
   LogLine,
   LogLineContext,
@@ -6,14 +10,10 @@ export type {
 export type { EventLogRouter } from './shared/event-log/log-router';
 export { projectEventLog } from './shared/event-log/project-event-log';
 export {
-  deriveAttribution,
-  type AttributionHit,
-} from './shared/attribution/derive-attribution';
-export {
-  PARTICIPANT_COLOR_PALETTE,
   assignParticipantColors,
-  resolveParticipantColor,
+  PARTICIPANT_COLOR_PALETTE,
   type ParticipantColor,
+  resolveParticipantColor,
 } from './shared/participant-color/participant-color';
 export {
   groupRosterByParticipant,

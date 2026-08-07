@@ -22,14 +22,14 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
-import { forwardRef, useState, type ReactNode } from 'react';
+import { forwardRef, type ReactNode, useState } from 'react';
 import {
   Platform,
   TextInput as RNTextInput,
   type TextInputProps as RNTextInputProps,
   View,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps, Theme } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';

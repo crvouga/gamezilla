@@ -1,7 +1,7 @@
 import type { AssistantAction } from './action';
 import type { GameAdapter, PlayerView } from './adapter';
+import { type CandidateCore, readCandidate } from './candidates';
 import type { AssistantClock } from './clock';
-import { readCandidate, type CandidateCore } from './candidates';
 import {
   computeEffectiveWeights,
   filterAffordable,
@@ -10,22 +10,22 @@ import {
 } from './engine-filters';
 import { createPlayerModel } from './player-model';
 import { createPlayerView } from './player-view';
-import { createSplitMix32, hashSeedString } from './rng';
+import { pickWeightedIndex } from './ranker';
 import type { AssistantRenderer } from './renderer';
+import { createSplitMix32, hashSeedString } from './rng';
 import {
   createSessionState,
   pushRecentRef,
   regenerateBudget,
 } from './session-model';
-import { readAssistantSignal, type AssistantSignal } from './signals';
+import { type AssistantSignal, readAssistantSignal } from './signals';
 import {
+  type AssistantSnapshot,
   deserializeSnapshotV1,
   makeSnapshot,
   serializeSnapshotV1,
   snapshotData,
-  type AssistantSnapshot,
 } from './snapshot';
-import { pickWeightedIndex } from './ranker';
 
 const SILENCE_TTL_MS = 500;
 

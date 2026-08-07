@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  SECRETS_DEFAULTS,
   type ResolvedSecretsScope,
+  SECRETS_DEFAULTS,
   type SecretsConfigFile,
 } from './defaults';
 

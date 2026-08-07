@@ -1,8 +1,8 @@
-import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
-import { useDeviceColumn } from '../use-device-column';
 import { formatDeviceListTitle } from '../device-parsers';
+import { useDeviceColumn } from '../use-device-column';
 
 export type AccountDeviceListTitleTextProps = {
   deviceId: string;

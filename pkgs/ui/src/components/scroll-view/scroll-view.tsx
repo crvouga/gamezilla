@@ -20,14 +20,14 @@
 import { forwardRef } from 'react';
 import {
   ScrollView as RNScrollView,
-  StyleSheet,
-  type StyleProp,
-  type ViewStyle,
   type ScrollViewProps as RNScrollViewProps,
+  type StyleProp,
+  StyleSheet,
+  type ViewStyle,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 import { Box } from '../box';
 import {
   resolveFlushEdgeStyles,

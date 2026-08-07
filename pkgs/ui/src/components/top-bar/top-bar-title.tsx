@@ -9,9 +9,8 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-
-import { Text, type TextVariant } from '../text';
 import type { SxProps } from '../../theme';
+import { Text, type TextVariant } from '../text';
 
 export type TopBarTitleProps = {
   label: ReactNode;

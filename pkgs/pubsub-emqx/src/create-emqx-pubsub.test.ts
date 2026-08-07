@@ -1,7 +1,7 @@
-import { EventEmitter } from 'node:events';
 import { describe, expect, mock, test } from 'bun:test';
-import type { IClientOptions, MqttClient } from 'mqtt';
+import { EventEmitter } from 'node:events';
 import type { PubSub } from '@pkgs/pubsub/interface';
+import type { IClientOptions, MqttClient } from 'mqtt';
 import { createEmqxPubSub } from './create-emqx-pubsub';
 
 class FakeMqttClient extends EventEmitter {

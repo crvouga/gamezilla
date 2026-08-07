@@ -1,6 +1,5 @@
-import { hc, type ApplyGlobalResponse } from 'hono/client';
-
 import type { AppType } from '@apps/api/rpc';
+import { type ApplyGlobalResponse, hc } from 'hono/client';
 
 type WithGlobalApiErrors<TAppType> = ApplyGlobalResponse<
   TAppType,

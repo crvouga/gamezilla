@@ -11,9 +11,9 @@ import type {
   QueryResponse,
 } from '@pkgs/sync-engine/queries/core/types';
 import '@pkgs/sync-engine/queries/shared/tiger-invariants';
-import type { QueryChannelsCtx } from '@pkgs/sync-engine/shared/nudge-payload';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { QueryChannelsCtx } from '@pkgs/sync-engine/shared/nudge-payload';
 
 import type { TableRegistry } from '../shared/table-registry';
 import type { AppLifecycle } from './app-lifecycle';
@@ -31,12 +31,12 @@ import {
 import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
-import type { SyncEngine } from './sync-engine-port';
 import {
-  SubscriptionRuntime,
   type QueryRequest,
   type QuerySubscriptionSpec,
+  SubscriptionRuntime,
 } from './subscription-runtime';
+import type { SyncEngine } from './sync-engine-port';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
 export type SyncEngineNudgesOptions = {

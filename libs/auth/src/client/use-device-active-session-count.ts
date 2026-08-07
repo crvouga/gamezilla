@@ -1,6 +1,6 @@
 import { useAuthClientPort } from './auth-client-provider';
-import { useMyDeviceId } from './use-current-user';
 import { isAuthSessionSignedIn } from './session-snapshot';
+import { useMyDeviceId } from './use-current-user';
 
 /**
  * Count of currently-active sessions for the given device. Session state is

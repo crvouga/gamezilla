@@ -1,10 +1,10 @@
 import { ApiWorkerResource } from './api-worker';
-import { ClientWorkerResource } from './client-worker';
-import { S3BucketResource } from './s3-bucket';
 import { ClientRedirectRuleResource } from './client-redirect-rule';
+import { ClientWorkerResource } from './client-worker';
 import { DnsRecordsResource } from './dns-records';
 import { EmqxResource } from './emqx';
 import { PostgresResource } from './postgres';
+import { S3BucketResource } from './s3-bucket';
 import { SecretsResource } from './secrets';
 import type { Resource } from './types';
 import { ZoneResource } from './zone';

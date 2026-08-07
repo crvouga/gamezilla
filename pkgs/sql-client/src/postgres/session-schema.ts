@@ -16,7 +16,7 @@
  * the expected schema.
  */
 import { assert } from '@pkgs/assert';
-import { quotePgIdent, type PostgresDbScope } from './schema';
+import { type PostgresDbScope, quotePgIdent } from './schema';
 
 /** Anything that can run a text query and hand back rows (pg `Client` / `Pool` / `PoolClient`). */
 export interface PgQueryable {

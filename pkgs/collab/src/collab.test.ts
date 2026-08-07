@@ -1,11 +1,10 @@
-import { asLocalized } from '@pkgs/i18n';
-import { createMessageNamespace, createMessageRouter } from '@pkgs/message';
-import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
-
+import { asLocalized } from '@pkgs/i18n';
+import { asKeyword } from '@pkgs/keyword';
+import { createMessageNamespace, createMessageRouter } from '@pkgs/message';
+import { deriveAttribution } from './shared/attribution/derive-attribution';
 import type { LogLineContext, LogLineDraft } from './shared/event-log/log-line';
 import { projectEventLog } from './shared/event-log/project-event-log';
-import { deriveAttribution } from './shared/attribution/derive-attribution';
 import {
   assignParticipantColors,
   resolveParticipantColor,

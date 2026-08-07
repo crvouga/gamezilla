@@ -6,7 +6,7 @@
  * `connect EADDRNOTAVAIL 127.0.0.1:<inspector>`. Fail fast with a clear
  * message when TIME_WAIT is extreme; otherwise retry a couple of times.
  */
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const API_DIR = join(import.meta.dirname, '..');

@@ -1,7 +1,7 @@
 export {
+  type OverlayPortalApi,
   OverlayPortalProvider,
+  type OverlayPortalProviderProps,
   useOverlayPortal,
   useOverlayPortalSlot,
-  type OverlayPortalApi,
-  type OverlayPortalProviderProps,
 } from './overlay-portal';

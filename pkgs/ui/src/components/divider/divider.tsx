@@ -14,7 +14,7 @@
  */
 
 import { StyleSheet, View, type ViewProps } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 
 export type DividerProps = ViewProps & {

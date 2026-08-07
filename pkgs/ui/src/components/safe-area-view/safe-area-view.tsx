@@ -14,12 +14,12 @@
 import { forwardRef } from 'react';
 import {
   SafeAreaView as RNSafeAreaView,
-  type ViewProps,
   type View,
+  type ViewProps,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 
 export type SafeAreaViewProps = ViewProps & {
   /** Utility-first style shorthand. */

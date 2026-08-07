@@ -4,9 +4,7 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-
-import { borderRadius } from '../../theme';
-import { useTheme } from '../../theme';
+import { borderRadius, useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 import type { BottomActionBarActionItem } from './bottom-action-bar-types';

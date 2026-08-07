@@ -1,7 +1,7 @@
-import { useMemberIsThisTab } from './use-member-is-this-tab';
-import { Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberIsThisTab } from './use-member-is-this-tab';
 
 export type MemberThisTabBadgeProps = {
   spaceId: string;

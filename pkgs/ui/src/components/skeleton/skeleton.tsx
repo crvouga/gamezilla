@@ -13,9 +13,9 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, View, type LayoutChangeEvent } from 'react-native';
+import { Animated, type LayoutChangeEvent, Platform, View } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 

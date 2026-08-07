@@ -11,10 +11,10 @@ import {
 } from '@pkgs/colors';
 
 import {
+  type CssRgb8,
   parseCssColor,
   rgb8ToRgba,
   rgbaToRgb8,
-  type CssRgb8,
 } from './css-color';
 
 export type { CssRgb8 };

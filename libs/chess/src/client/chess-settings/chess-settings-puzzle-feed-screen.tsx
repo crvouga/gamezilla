@@ -1,6 +1,8 @@
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { t } from '@lingui/core/macro';
+import { Trans } from '@lingui/react/macro';
 import {
   Box,
   MainMenuScreenHeader,
@@ -9,21 +11,18 @@ import {
   SegmentedControl,
   Text,
 } from '@pkgs/ui';
-import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
-import { useCallback, useMemo, type ReactNode } from 'react';
-
-import {
-  clampPuzzleFeedRating,
-  PUZZLE_FEED_RATING_MAX,
-  PUZZLE_FEED_RATING_MIN,
-  type ChessPuzzleFeedConfig,
-  type ChessPuzzleFeedMode,
-} from '../../shared/chess-puzzle-feed-config';
+import { type ReactNode, useCallback, useMemo } from 'react';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '../../shared/chess-main-menu';
+import {
+  type ChessPuzzleFeedConfig,
+  type ChessPuzzleFeedMode,
+  clampPuzzleFeedRating,
+  PUZZLE_FEED_RATING_MAX,
+  PUZZLE_FEED_RATING_MIN,
+} from '../../shared/chess-puzzle-feed-config';
 import { useChessPuzzleFeedConfig } from '../chess-puzzle/use-chess-puzzle-feed-config';
 import { useChessPuzzleProfileRatings } from '../chess-puzzle/use-chess-puzzle-profile-ratings';
 

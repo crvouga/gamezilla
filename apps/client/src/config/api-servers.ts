@@ -1,7 +1,7 @@
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
-import { assert } from '@pkgs/assert';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
+import { assert } from '@pkgs/assert';
 
 export { DEFAULT_LOCAL_PREVIEW_API_ORIGIN };
 
@@ -89,7 +89,7 @@ function readExpoPublicApiUrlOrigin(): string {
   // this expression or Metro constant-folds past the env read when `__DEV__`
   // is false (check preview / `expo export -p web` then bakes api.gamezilla.app
   // even when `EXPO_PUBLIC_API_URL` is set for the Playwright webServer).
-  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+  // Expo inlines EXPO_PUBLIC_*; bracket access required by noPropertyAccessFromIndexSignature. `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_API_URL'];
   assert.nonEmptyString(
     raw,

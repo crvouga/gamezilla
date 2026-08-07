@@ -1,8 +1,8 @@
 import type { SharedValue } from 'react-native-reanimated';
 import type { DropOutcome } from './chess-board-drop-handler';
 import { squarePieceCenter } from './chess-board-geometry';
-import { snapPieceLayout } from './chess-board-piece-layout-registry';
 import { markChessPerf } from './chess-board-perf';
+import { snapPieceLayout } from './chess-board-piece-layout-registry';
 import type { BoardOrientation, Square } from './chess-board-types';
 import type { TryMoveOk } from './use-chess-game';
 

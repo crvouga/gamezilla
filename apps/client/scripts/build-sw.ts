@@ -49,8 +49,6 @@ const { count, size, warnings } = await generateSW({
 });
 
 if (warnings.length > 0) {
-  // eslint-disable-next-line no-console -- build diagnostics
   console.warn('workbox warnings:', warnings.join('\n'));
 }
-// eslint-disable-next-line no-console -- build output
 console.log(`workbox: precached ${count} entries, ${size} bytes`);

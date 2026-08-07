@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 
 import {
-  planOpponentStage,
+  type OpponentStagePlan,
   PUZZLE_OPPONENT_UNLOCK_BUFFER_MS,
   PUZZLE_PIECE_MOVE_MS,
-  type OpponentStagePlan,
+  planOpponentStage,
 } from '../../shared/chess-puzzle-opponent-stage';
 import type { SolveStatus } from './solve-status';
 

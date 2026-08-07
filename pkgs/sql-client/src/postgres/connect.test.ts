@@ -1,12 +1,12 @@
-import { raw } from '@pkgs/sql';
 import { describe, expect, test } from 'bun:test';
-import { SqlClientImplBunPostgres } from './impl-bun-postgres';
+import { raw } from '@pkgs/sql';
 import {
   createPgPool,
   ensurePostgresSchema,
   isLoopbackPostgresUrl,
   openPgClient,
 } from './connect';
+import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 import { createPostgresDbScope, quotePgIdent } from './schema';
 import {
   postgresRejectsStartupSearchPathOption,

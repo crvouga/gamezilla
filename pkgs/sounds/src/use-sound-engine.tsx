@@ -1,9 +1,9 @@
 import {
   createContext,
+  type ReactNode,
   useContext,
   useEffect,
   useMemo,
-  type ReactNode,
 } from 'react';
 
 import {
@@ -11,7 +11,7 @@ import {
   type PlaySoundOptions,
   type SoundEngine,
 } from './sound-engine';
-import { Sounds, type SoundId } from './sound-id';
+import { type SoundId, Sounds } from './sound-id';
 import { useSoundsPreference } from './use-sounds-preference';
 
 const SoundEngineContext = createContext<SoundEngine | null>(null);

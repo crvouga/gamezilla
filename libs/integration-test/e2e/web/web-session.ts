@@ -1,8 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-
-import { chromium, devices, type Browser, type Page } from '@playwright/test';
 import { createDriver } from '@pkgs/ui-testing';
+import { type Browser, chromium, devices, type Page } from '@playwright/test';
 
 import {
   browserArtifactDir,

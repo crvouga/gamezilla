@@ -1,5 +1,5 @@
-import { ObservabilityFileSink } from './file-sink';
 import type { ExportedSpanRecord } from '../shared/types';
+import { ObservabilityFileSink } from './file-sink';
 
 export type CollectorOptions = {
   readonly port?: number;

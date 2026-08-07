@@ -1,12 +1,12 @@
-import { SpaceGuestSection } from '../members/space-guest-section';
+import { Trans } from '@lingui/react/macro';
+import { Box, Text } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,
 } from '../card/space-card-gradient';
 import { SpaceSummaryHeader } from '../card/space-summary-header';
-import { Box, Text } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
+import { SpaceGuestSection } from '../members/space-guest-section';
 
 export type SpaceJoinLiveBodyProps = {
   spaceId: string;

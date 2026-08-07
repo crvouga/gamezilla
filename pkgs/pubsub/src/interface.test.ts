@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
-import { assertValidTopic } from './topic';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
   InMemoryPubSub,
   runPubSubContractTests,
 } from './testing';
+import { assertValidTopic } from './topic';
 
 runPubSubContractTests('in-memory', async () => {
   const bus = createInMemoryBus();

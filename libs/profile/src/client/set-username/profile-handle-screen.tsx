@@ -1,25 +1,24 @@
-import { useMyProfileId } from '../use-my-profile-id';
-import { useProfileRow, type ProfileRow } from '../use-profile-row';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
+  type BodyContentProps,
   Box,
   FormActionsFooter,
   ScreenBase,
   TextInput,
-  type BodyContentProps,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { useRouter } from 'expo-router';
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
-
 import { claimUsernameMutation } from '../../shared/mutations/profile-mutations';
+import { useMyProfileId } from '../use-my-profile-id';
+import { type ProfileRow, useProfileRow } from '../use-profile-row';
 
 function useSyncedUsername(row: ProfileRow | null) {
   const [value, setValue] = useState('');

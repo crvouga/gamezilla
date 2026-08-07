@@ -1,6 +1,6 @@
-import { Assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { createAttrNamespace, type AttributeState } from './attribute';
+import { Assert } from '@pkgs/assert';
+import { type AttributeState, createAttrNamespace } from './attribute';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {

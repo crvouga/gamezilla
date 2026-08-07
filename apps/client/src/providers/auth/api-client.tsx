@@ -1,7 +1,7 @@
+import { useConfigService } from '@libs/auth/client/config-service-context';
+import { type ReactNode, useMemo } from 'react';
 import { ApiClientProvider } from '../../api/api-context';
 import { createApiClient } from '../../api/hc';
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useMemo, type ReactNode } from 'react';
 
 export function AppApiClient({ children }: { children: ReactNode }): ReactNode {
   const config = useConfigService();

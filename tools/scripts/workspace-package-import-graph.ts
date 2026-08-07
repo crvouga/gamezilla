@@ -2,9 +2,10 @@
  * Package-level graph of @apps|@libs|@pkgs / * imports discovered from source.
  * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.
  */
-import { Glob } from 'bun';
+
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { Glob } from 'bun';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
 const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;

@@ -4,18 +4,18 @@
  * metrics on the theme so apps avoid importing RN dimension hooks.
  */
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { useColorScheme, useWindowDimensions } from 'react-native';
 import { assert } from '@pkgs/assert';
-import { getBreakpoint, type BreakpointName } from './breakpoints';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
+import { useColorScheme, useWindowDimensions } from 'react-native';
+import { type BreakpointName, getBreakpoint } from './breakpoints';
 import type { ColorScheme, ColorTokens } from './colors';
 import { COLOR_PALETTE } from './colors';
-import { fonts, type FontStacks } from './fonts';
-import { motion, type Motion } from './motion';
+import { type FontStacks, fonts } from './fonts';
+import { type Motion, motion } from './motion';
 import {
-  makeElevation,
   type ElevationLevel,
   type ElevationStyle,
+  makeElevation,
 } from './scale';
 import { createSx } from './sx';
 import { defaultTextCasing, type TextCasing } from './text-casing';

@@ -4,12 +4,12 @@
  */
 
 import {
+  type LayoutRectangle,
   Pressable as RNPressable,
   View,
-  type LayoutRectangle,
 } from 'react-native';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';

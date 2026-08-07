@@ -1,10 +1,10 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { formatTimestamp } from '../device-parsers';
 import {
   AccountProviderField,
   useAccountProviderColumn,
 } from '../use-account-provider-column';
-import { formatTimestamp } from '../device-parsers';
 
 export type LinkedProviderConnectedAtTextProps = {
   accountProviderEntityId: string;

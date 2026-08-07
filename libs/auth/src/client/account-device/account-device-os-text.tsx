@@ -1,7 +1,7 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { useDeviceColumn } from '../use-device-column';
 import { EM_DASH } from '../device-parsers';
+import { useDeviceColumn } from '../use-device-column';
 
 export type AccountDeviceOsTextProps = {
   deviceId: string;

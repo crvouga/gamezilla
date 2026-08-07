@@ -1,7 +1,11 @@
-import type { SpanKind, SpanStatus, SpanAttributes } from '../shared/types';
-import type { Span } from '../shared/types';
-import { applySlowSpanAttributes } from './slow-span';
+import type {
+  Span,
+  SpanAttributes,
+  SpanKind,
+  SpanStatus,
+} from '../shared/types';
 import type { SentrySdk } from './sentry-sdk';
+import { applySlowSpanAttributes } from './slow-span';
 
 type SentrySpanType = Parameters<SentrySdk['spanToTraceHeader']>[0];
 

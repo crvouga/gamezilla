@@ -13,14 +13,14 @@
 import { forwardRef } from 'react';
 import {
   FlatList as RNFlatList,
-  StyleSheet,
-  type StyleProp,
-  type ViewStyle,
   type FlatListProps as RNFlatListProps,
+  type StyleProp,
+  StyleSheet,
+  type ViewStyle,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
+import { useTheme } from '../../theme';
 import { Box } from '../box';
 import {
   resolveFlushEdgeStyles,
@@ -46,7 +46,7 @@ function styleRequestsFlexFill(
   return flat?.flex === 1 || flat?.flexGrow === 1;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- RN FlatList ref/component generics are invariant; item type flows via props
+// biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
 export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
   function FlatList(
     {

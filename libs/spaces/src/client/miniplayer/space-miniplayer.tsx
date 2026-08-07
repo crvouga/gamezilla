@@ -1,13 +1,13 @@
-import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
-import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { Box } from '@pkgs/ui';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
+import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 
 import { ActiveSpacesSheet } from './active-spaces-sheet';
 import { MiniplayerStackedBar } from './miniplayer-stacked-bar';
-import { resolveMiniplayerMode } from './space-miniplayer-layout';
 import { SpaceMiniplayerCard } from './space-miniplayer-card';
+import { resolveMiniplayerMode } from './space-miniplayer-layout';
 import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
 
 export function SpaceMiniplayer(): ReactNode {

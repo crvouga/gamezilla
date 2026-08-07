@@ -61,12 +61,6 @@
       "outputLogs": "new-only",
       "outputs": []
     },
-    "lint": {
-      "dependsOn": ["^tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "eslint.config.js"],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
     "test": {
       "dependsOn": ["^tc"],
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
@@ -111,8 +105,24 @@
       "cache": false,
       "outputs": ["../../check/browser-artifacts/**"]
     },
+    "//#ci:lint": {
+      "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:format": {
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-size-limit-overrides": {
+      "inputs": [
+        "biome.json",
+        "apps/**/*.{ts,tsx,js,jsx}",
+        "libs/**/*.{ts,tsx,js,jsx}",
+        "pkgs/**/*.{ts,tsx,js,jsx}",
+        "tools/scripts/check-no-size-limit-overrides.ts"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -296,6 +306,26 @@
     },
     "//#ci:audit": {
       "cache": false
+    },
+    "//#check:static": {
+      "cache": false,
+      "outputLogs": "new-only"
+    },
+    "//#check:secrets:validate": {
+      "env": ["CHECK_SECRETS_FINGERPRINT"],
+      "inputs": [
+        "libs/infra/src/bin/check-secrets.ts",
+        "libs/infra/src/cli/secrets/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#check:api": {
+      "cache": false
+    },
+    "//#check:browser": {
+      "cache": false,
+      "dependsOn": ["//#check:api"]
     }
   }
 }

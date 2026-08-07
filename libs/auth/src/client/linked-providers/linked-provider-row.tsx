@@ -1,9 +1,9 @@
+import { Box } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { LinkedProviderConnectedAtText } from './linked-provider-connected-at-text';
 import { LinkedProviderEmailText } from './linked-provider-email-text';
 import { LinkedProviderNameText } from './linked-provider-name-text';
 import { LinkedProviderUserIdText } from './linked-provider-user-id-text';
-import { Box } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type LinkedProviderRowProps = {
   accountProviderEntityId: string;

@@ -1,7 +1,7 @@
+import { Trans } from '@lingui/react/macro';
 import { Box, Text, useTheme } from '@pkgs/ui';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
-import { Trans } from '@lingui/react/macro';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 
 import { ChessPuzzleEloDelta } from './chess-puzzle-elo-delta';

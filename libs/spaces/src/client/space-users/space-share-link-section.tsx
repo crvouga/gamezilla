@@ -1,6 +1,6 @@
-import { Box, Button, Text, useMutationButton } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { Box, Button, Text, useMutationButton } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 import { Platform, Share } from 'react-native';
 
 function spaceShareUrl(spaceId: string): string {

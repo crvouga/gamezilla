@@ -1,6 +1,6 @@
 import { Circle, Group, Rect } from '@shopify/react-native-skia';
 import { memo, type ReactNode } from 'react';
-import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
+import { type SharedValue, useDerivedValue } from 'react-native-reanimated';
 import {
   HOVER_NONE,
   indexFromSquare,

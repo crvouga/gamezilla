@@ -13,8 +13,8 @@ import type Stripe from 'stripe';
 import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
 import {
   decidePriceReconcile,
-  priceMatchesSpec,
   type PriceSpecEntry,
+  priceMatchesSpec,
   specCurrencyOptionsToStripe,
   stripePriceProductId,
 } from '../catalog-sync-shared';

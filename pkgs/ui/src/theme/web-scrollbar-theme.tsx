@@ -7,7 +7,7 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
-import type { ColorTokens, ColorScheme } from './colors';
+import type { ColorScheme, ColorTokens } from './colors';
 import { useTheme } from './theme-context';
 
 const STYLE_ELEMENT_ID = 'app-theme-scrollbar';

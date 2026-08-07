@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { parsePgDumpVersion, PG_DUMP_REQUIRED_MAJOR } from './pg-dump';
+import { PG_DUMP_REQUIRED_MAJOR, parsePgDumpVersion } from './pg-dump';
 
 describe('parsePgDumpVersion', () => {
   test('parses Homebrew-style --version output', () => {

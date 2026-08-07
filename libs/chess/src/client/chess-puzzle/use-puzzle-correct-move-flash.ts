@@ -1,9 +1,9 @@
+import type { Square } from '@pkgs/chess-board/chess-board-types';
+import { type MutableRefObject, useEffect, useState } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
-import { useEffect, useState, type MutableRefObject } from 'react';
-import type { Square } from '@pkgs/chess-board/chess-board-types';
 
 const CORRECT_FLASH_MS = 1200;
 

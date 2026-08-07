@@ -8,9 +8,9 @@
  */
 
 import { useCallback, useRef, useState } from 'react';
-import { type LayoutRectangle } from 'react-native';
+import type { LayoutRectangle } from 'react-native';
 
-import { type Box } from '../box';
+import type { Box } from '../box';
 
 export type AnchoredMenuController = {
   open: boolean;

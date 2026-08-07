@@ -18,13 +18,13 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { releaseWebFocus } from '../../web/release-web-focus';
 import { Box } from '../box';
-import { Pressable } from '../pressable';
 import { ChevronRightIcon } from '../icons';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 export type MenuRowProps = {

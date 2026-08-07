@@ -13,7 +13,8 @@ export class LoopbackRoomTransport<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
-> implements ClientTransport {
+> implements ClientTransport
+{
   private readonly handlers = new Set<(raw: unknown) => void>();
   private readonly handlerSets: ClientTransportHandlers[] = [];
   opened = false;

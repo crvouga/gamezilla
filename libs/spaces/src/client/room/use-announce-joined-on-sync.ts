@@ -1,11 +1,11 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMyId } from '@libs/auth/client/use-current-user';
 import { RoomMetaAttr } from '@pkgs/room';
 import { useEffect, useRef } from 'react';
 
 import { markSpaceJoinAnnouncedMutation } from '../../shared/mutations/space-mutations';
-import { JoinSpaceSeat } from '../../shared/space-members/space-members-messages';
 import { AnnounceMemberJoined } from '../../shared/space-log/space-log-messages';
+import { JoinSpaceSeat } from '../../shared/space-members/space-members-messages';
 import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
 import {
   useSpaceRoomDispatch,

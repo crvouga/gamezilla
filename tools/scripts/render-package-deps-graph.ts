@@ -7,9 +7,9 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  REPO_ROOT,
   buildPackageImportGraph,
   discoverPackagesWithTier,
+  REPO_ROOT,
   type Tier,
 } from './workspace-package-import-graph';
 

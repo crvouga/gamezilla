@@ -20,12 +20,11 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
-import { useContext, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useContext, useMemo } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { releaseWebFocus } from '../../web/release-web-focus';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,

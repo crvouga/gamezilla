@@ -62,11 +62,9 @@ export interface ComposedMessageRouter<TState, TCtx, TOutput> {
   has(msg: Message): boolean;
 }
 
-class MessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
-  TState,
-  TCtx,
-  TOutput
-> {
+class MessageRouterImpl<TState, TCtx, TOutput>
+  implements MessageRouter<TState, TCtx, TOutput>
+{
   private readonly handlers = new Map<
     string,
     CompiledHandler<TState, TCtx, TOutput>

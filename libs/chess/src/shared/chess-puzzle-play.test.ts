@@ -10,10 +10,10 @@ import {
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
+  SeekChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
-  SeekChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play';
 

@@ -1,13 +1,12 @@
-import { sql } from '@pkgs/sql';
 import { describe, expect, test } from 'bun:test';
-
-import { applyFullMerge } from '../client/merge-applier';
-import { createTableChangeBus } from '../client/table-change-bus';
+import { sql } from '@pkgs/sql';
 import {
   acceptFanoutOnTopic,
   peerApplyMutation,
 } from '../../client/peer-apply-mutation';
 import { buildMutationFanoutPayload } from '../../shared/mutation-fanout-payload';
+import { applyFullMerge } from '../client/merge-applier';
+import { createTableChangeBus } from '../client/table-change-bus';
 import { scopeHash } from '../shared/canonical';
 import {
   createScenarioClients,

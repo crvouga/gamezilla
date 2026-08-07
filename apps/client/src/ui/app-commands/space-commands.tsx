@@ -3,11 +3,12 @@ import { useCreateSpace } from '@libs/spaces/client/create-space/use-create-spac
 import { useRequestEndSpace } from '@libs/spaces/client/end-space/end-space-modal-provider';
 import { useJoinSpace } from '@libs/spaces/client/join-space/use-join-space';
 import { useRequestLeaveSpace } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
+import { openSpaceDetail } from '@libs/spaces/client/space-routes';
 import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
 import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role';
 import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
-import { openSpaceDetail } from '@libs/spaces/client/space-routes';
 import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-label';
+import { useLingui } from '@lingui/react/macro';
 import {
   Gamepad2Icon,
   LogInIcon,
@@ -15,9 +16,8 @@ import {
   RegisterCommand,
   XIcon,
 } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
 import { usePathname, useRouter } from 'expo-router';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 const SPACE_ROUTE_RE = /^\/space\/([^/?#]+)/;
 

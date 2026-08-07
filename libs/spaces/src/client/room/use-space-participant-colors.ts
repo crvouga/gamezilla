@@ -1,11 +1,10 @@
-import { useCallback, useMemo } from 'react';
-
 import {
   assignParticipantColors,
-  resolveParticipantColor,
   type ParticipantColor,
+  resolveParticipantColor,
 } from '@pkgs/collab';
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
+import { useCallback, useMemo } from 'react';
 
 import { SPACE_ROOM_NAME } from './use-space-room-selector';
 

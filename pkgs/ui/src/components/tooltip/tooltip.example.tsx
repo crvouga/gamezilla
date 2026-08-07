@@ -1,8 +1,8 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { IconButton } from '../icon-button';
 import { SettingsIcon } from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function TooltipExample() {
   return (

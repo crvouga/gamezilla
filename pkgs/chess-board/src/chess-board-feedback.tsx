@@ -2,11 +2,11 @@ import {
   Circle,
   Group,
   Path,
+  type SkFont,
   Skia,
   Text as SkiaText,
-  type SkFont,
 } from '@shopify/react-native-skia';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { squareToXY } from './chess-board-geometry';
 import { createChessBoardSkiaFont } from './chess-board-skia-font';
 import type {

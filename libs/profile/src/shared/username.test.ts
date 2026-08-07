@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  USERNAME_CHANGE_COOLDOWN_MS,
   canChangeUsername,
+  USERNAME_CHANGE_COOLDOWN_MS,
   validateUsername,
 } from './username';
 

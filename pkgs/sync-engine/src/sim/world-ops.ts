@@ -10,7 +10,7 @@ import type { SimPubSubBroker } from './pubsub-bridge';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
-import { assertConvergedImpl, type AssertConvergedCtx } from './world-converge';
+import { type AssertConvergedCtx, assertConvergedImpl } from './world-converge';
 
 export type { AssertConvergedCtx };
 export { assertConvergedImpl };

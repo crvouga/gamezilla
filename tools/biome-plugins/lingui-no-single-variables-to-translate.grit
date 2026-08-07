@@ -1,0 +1,5 @@
+language js
+
+`<Trans>{$var}</Trans>` as $el where {
+  register_diagnostic(span=$el, message="Do not wrap a single variable in `<Trans>`; interpolate it in a larger message or render it directly.", severity="error")
+}

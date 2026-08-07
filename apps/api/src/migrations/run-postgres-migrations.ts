@@ -2,15 +2,14 @@
  * Canonical Postgres migration order: ensure schema → apply idempotent
  * `schema.sql` → kv migrate.
  */
+
+import { runSchemaSql } from '@libs/db/server/run-schema-sql';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
-
-import { runSchemaSql } from '@libs/db/server/run-schema-sql';
 
 /**
  * Session/transaction advisory lock for `api:migrate`. Serializes concurrent

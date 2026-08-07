@@ -1,12 +1,12 @@
-import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
 import {
-  useDebouncedUserSearchEffect,
   UserSearchQueryHint,
   UserSearchSignInPrompt,
+  useDebouncedUserSearchEffect,
 } from '@libs/user-search/client/use-user-search';
 import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/shared/user-search-types';
-import { useCallback, useState, type ReactNode } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
+import { type ReactNode, useCallback, useState } from 'react';
 
 import { SearchRecentQueries } from './search-recent-queries';
 import { SearchUserResultRow } from './search-user-result-row';

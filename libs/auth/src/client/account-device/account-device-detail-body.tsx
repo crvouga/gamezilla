@@ -1,9 +1,9 @@
+import { Box } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { AccountDeviceActiveSessionLine } from './account-device-active-session-line';
 import { AccountDeviceIdField } from './account-device-id-field';
 import { AccountDeviceMetaGrid } from './account-device-meta-grid';
 import { AccountDeviceUserAgentBlock } from './account-device-user-agent-block';
-import { Box } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type AccountDeviceDetailBodyProps = {
   deviceId: string;

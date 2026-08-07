@@ -1,6 +1,6 @@
 import {
-  ROOM_ERROR_TYPE,
   type HandleResult,
+  ROOM_ERROR_TYPE,
   type RoomEvent,
   type RoomState,
 } from '@pkgs/room';

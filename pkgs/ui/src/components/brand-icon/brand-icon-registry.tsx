@@ -9,9 +9,9 @@
 import type { ComponentType } from 'react';
 
 import {
+  type BrandIconSvgProps,
   DevIdpBrandLogo,
   GoogleBrandLogo,
-  type BrandIconSvgProps,
 } from './svg/brand-logos';
 
 export type BrandIconComponent = ComponentType<BrandIconSvgProps>;

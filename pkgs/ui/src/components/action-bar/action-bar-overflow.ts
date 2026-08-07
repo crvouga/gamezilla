@@ -1,11 +1,10 @@
 import type { LocalizedString } from '@pkgs/i18n';
-
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { EllipsisIcon } from '../icons';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
-import { releaseWebFocus } from '../../web/release-web-focus';
 import {
-  isActionBarAvatarItem,
   type ActionBarItem,
+  isActionBarAvatarItem,
 } from './partition-action-bar-items';
 
 export function actionBarItemToOverflowAction(

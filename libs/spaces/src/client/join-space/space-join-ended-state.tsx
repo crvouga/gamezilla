@@ -1,13 +1,13 @@
-import { useSpaceCommandLabel } from '../use-space-command-label';
-import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
 import {
-  useProfileColumn,
   ProfileField,
+  useProfileColumn,
 } from '@libs/profile/client/use-profile-column';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { EmptyState, Gamepad2Icon } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { EmptyState, Gamepad2Icon } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
+import { useSpaceHostMembershipDisplay } from '../members/use-space-host-membership-display';
+import { useSpaceCommandLabel } from '../use-space-command-label';
 
 export type SpaceJoinEndedStateProps = {
   spaceId: string;

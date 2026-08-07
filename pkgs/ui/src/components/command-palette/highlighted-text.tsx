@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { Text as RNText } from 'react-native';
-
-import { Text } from '../text';
 import type { TextVariant } from '../text';
+import { Text } from '../text';
 
 type Props = {
   text: string;

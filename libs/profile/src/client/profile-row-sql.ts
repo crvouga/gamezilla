@@ -1,4 +1,4 @@
-import { sql, type Sql } from '@pkgs/sql';
+import { type Sql, sql } from '@pkgs/sql';
 
 export type ProfileRow = {
   readonly id: string;

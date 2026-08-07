@@ -44,9 +44,9 @@
  * ```
  */
 
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Volume2Icon, VolumeXIcon } from '../icons';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';

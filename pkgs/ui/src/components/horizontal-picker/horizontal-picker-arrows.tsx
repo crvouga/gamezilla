@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { useLingui } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 import { IconButton } from '../icon-button';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
 

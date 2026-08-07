@@ -13,10 +13,10 @@ import { assert } from '@pkgs/assert';
 import {
   assertLocalName,
   assertNamespacedKeyword,
-  joinKeywordSegments,
-  namespacePrefixOf,
   type JoinDot,
+  joinKeywordSegments,
   type Keyword,
+  namespacePrefixOf,
 } from '@pkgs/keyword/keyword';
 
 export type { JoinDot, Keyword };

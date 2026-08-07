@@ -1,8 +1,8 @@
+import { useEffect, useRef } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
-import { useEffect, useRef } from 'react';
 
 type PuzzleFeedback = {
   onWrongMove: () => void;

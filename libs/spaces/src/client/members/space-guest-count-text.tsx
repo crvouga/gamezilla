@@ -1,8 +1,8 @@
-import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
-import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
+import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
 export type SpaceGuestCountTextProps = {
   spaceId: string;

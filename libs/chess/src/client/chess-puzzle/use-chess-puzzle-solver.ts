@@ -2,13 +2,13 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../../shared/chess-puzzle-play';
-import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { SolveStatus } from './solve-status';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';

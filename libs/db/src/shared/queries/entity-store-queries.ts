@@ -1,5 +1,5 @@
-import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
 import { sql } from '@pkgs/sql';
+import { defineQuery } from '@pkgs/sync-engine/queries/core/define-query';
 import { z } from 'zod';
 
 export const entityStoreCatalog = defineQuery({

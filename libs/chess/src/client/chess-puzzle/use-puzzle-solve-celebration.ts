@@ -1,9 +1,9 @@
+import type { Square } from '@pkgs/chess-board/chess-board-types';
+import { useEffect, useState } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
 } from '../../shared/chess-puzzle-play';
-import { useEffect, useState } from 'react';
-import type { Square } from '@pkgs/chess-board/chess-board-types';
 
 const SOLVED_CELEBRATION_MS = 1500;
 

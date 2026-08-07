@@ -1,21 +1,21 @@
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
 import {
   Animated,
   Platform,
+  type FlatList as RNFlatList,
   Pressable as RNPressable,
   View,
-  type FlatList as RNFlatList,
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration as motionDuration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';

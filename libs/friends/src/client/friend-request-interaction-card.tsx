@@ -1,8 +1,7 @@
+import type { Interaction, InteractionCardActions } from '@pkgs/inbox/client';
 import { InteractionCardDefault } from '@pkgs/inbox/client';
-import type { Interaction } from '@pkgs/inbox/client';
-import type { InteractionCardActions } from '@pkgs/inbox/client';
 import { useRouter } from 'expo-router';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 type FriendRequestInteractionCardProps = {
   readonly interaction: Interaction;

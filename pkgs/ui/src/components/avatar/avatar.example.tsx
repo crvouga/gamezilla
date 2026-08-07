@@ -1,8 +1,8 @@
+import { ExampleRoot } from '../explorer/example-root';
+import { UserIcon } from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
-import { UserIcon } from '../icons';
 import { Avatar } from './avatar';
-import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

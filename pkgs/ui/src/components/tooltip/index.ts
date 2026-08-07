@@ -1,6 +1,6 @@
 export {
   Tooltip,
-  useTooltipTrigger,
   type TooltipPlacement,
   type TooltipProps,
+  useTooltipTrigger,
 } from './tooltip';

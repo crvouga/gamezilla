@@ -1,76 +1,66 @@
-import { useSyncExternalStore, type ComponentType } from 'react';
-
+import { type ComponentType, useSyncExternalStore } from 'react';
+import { default as ActionBarExample } from '../action-bar/action-bar.example';
 import { default as AppLogoExample } from '../app-logo/app-logo.example';
+import { default as AvatarExample } from '../avatar/avatar.example';
+import { default as AvatarGroupExample } from '../avatar-group/avatar-group.example';
+import { default as AvatarHeroExample } from '../avatar-hero/avatar-hero.example';
+import { default as BadgeExample } from '../badge/badge.example';
+import { default as BottomActionBarExample } from '../bottom-action-bar/bottom-action-bar.example';
 import { default as BoxExample } from '../box/box.example';
-import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
-import { default as TextExample } from '../text/text.example';
-import { default as PressableExample } from '../pressable/pressable.example';
-import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
-
-import { default as StackExample } from '../stack/stack.example';
-import { default as CenterExample } from '../center/center.example';
-import { default as DividerExample } from '../divider/divider.example';
-import { default as SpacerExample } from '../spacer/spacer.example';
-import { default as ScrollViewExample } from '../scroll-view/scroll-view.example';
-import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view.example';
-
 import { default as BrandIconExample } from '../brand-icon/brand-icon.example';
 import { default as ButtonExample } from '../button/button.example';
-import { default as FloatingActionButtonExample } from '../floating-action-button/floating-action-button.example';
-import { default as IconButtonExample } from '../icon-button/icon-button.example';
-import { default as ActionBarExample } from '../action-bar/action-bar.example';
-import { default as BottomActionBarExample } from '../bottom-action-bar/bottom-action-bar.example';
-import { default as TooltipExample } from '../tooltip/tooltip.example';
-import { default as SocialSignInButtonExample } from '../social-sign-in-button/social-sign-in-button.example';
-import { default as TextInputExample } from '../text-input/text-input.example';
-import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
-import { default as SwitchExample } from '../switch/switch.example';
-import { default as CheckboxExample } from '../checkbox/checkbox.example';
-
 import { default as CardExample } from '../card/card.example';
-import { default as AvatarExample } from '../avatar/avatar.example';
-import { default as AvatarHeroExample } from '../avatar-hero/avatar-hero.example';
-import { default as AvatarGroupExample } from '../avatar-group/avatar-group.example';
-import { default as BadgeExample } from '../badge/badge.example';
+import { default as CatalogExample } from '../catalog/catalog.example';
+import { default as CenterExample } from '../center/center.example';
+import { default as CheckboxExample } from '../checkbox/checkbox.example';
 import { default as ChipExample } from '../chip/chip.example';
-import { default as ListExample } from '../list/list.example';
-
-import { default as SpinnerExample } from '../spinner/spinner.example';
-import { default as SkeletonExample } from '../skeleton/skeleton.example';
-import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
+import { default as ChipGroupExample } from '../chip-group/chip-group.example';
+import { default as CollapsibleExample } from '../collapsible/collapsible.example';
+import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
+import { default as CopyToClipboardFieldExample } from '../copy-to-clipboard-field/copy-to-clipboard-field.example';
 import { default as DismissibleBannerExample } from '../dismissible-top-banner/dismissible-top-banner.example';
-import { default as SoundIndicatorExample } from '../sound-indicator/sound-indicator.example';
-import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
-import { default as LoadingStateExample } from '../loading-state/loading-state.example';
+import { default as DividerExample } from '../divider/divider.example';
 import { default as EmptyStateExample } from '../empty-state/empty-state.example';
 import { default as ErrorStateExample } from '../error-state/error-state.example';
-import { default as SuccessStateExample } from '../success-state/success-state.example';
-
-import { default as CollapsibleExample } from '../collapsible/collapsible.example';
-import { default as JsonViewExample } from '../json-view/json-view.example';
-
-import { default as SelectExample } from '../select/select.example';
-import { default as SegmentedControlExample } from '../segmented-control/segmented-control.example';
-
-import { default as StatusDotExample } from '../status-dot/status-dot.example';
-
-import { default as ModalExample } from '../modal/modal.example';
-import { default as MutationModalExample } from '../mutation-modal/mutation-modal.example';
-import { default as CommandPaletteExample } from '../command-palette/command-palette.example';
-
-import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
-import { default as PickerExample } from '../picker/picker.example';
+import { default as FloatingActionButtonExample } from '../floating-action-button/floating-action-button.example';
+import { default as FormActionsFooterExample } from '../form-actions-footer/form-actions-footer.example';
+import { default as GradientBoxExample } from '../gradient-box/gradient-box.example';
 import { default as HorizontalPickerExample } from '../horizontal-picker/horizontal-picker.example';
-import { default as PickerSectionExample } from '../picker-section/picker-section.example';
-import { default as ChipGroupExample } from '../chip-group/chip-group.example';
-import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
+import { default as IconButtonExample } from '../icon-button/icon-button.example';
+import { default as JsonViewExample } from '../json-view/json-view.example';
+import { default as ListExample } from '../list/list.example';
+import { default as LoadingStateExample } from '../loading-state/loading-state.example';
+import { default as MenuRowExample } from '../menu-row/menu-row.example';
+import { default as ModalExample } from '../modal/modal.example';
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
-import { default as SectionCardExample } from '../section-card/section-card.example';
+import { default as MutationModalExample } from '../mutation-modal/mutation-modal.example';
+import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
+import { default as PickerExample } from '../picker/picker.example';
+import { default as PickerSectionExample } from '../picker-section/picker-section.example';
+import { default as PressableExample } from '../pressable/pressable.example';
+import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
+import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
+import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view.example';
 import { default as ScreenBaseExample } from '../screen-base/screen-base.example';
 import { default as ScreenTitleExample } from '../screen-title/screen-title.example';
-import { default as FormActionsFooterExample } from '../form-actions-footer/form-actions-footer.example';
-import { default as MenuRowExample } from '../menu-row/menu-row.example';
-import { default as CatalogExample } from '../catalog/catalog.example';
+import { default as ScrollViewExample } from '../scroll-view/scroll-view.example';
+import { default as SectionCardExample } from '../section-card/section-card.example';
+import { default as SegmentedControlExample } from '../segmented-control/segmented-control.example';
+import { default as SelectExample } from '../select/select.example';
+import { default as SkeletonExample } from '../skeleton/skeleton.example';
+import { default as SocialSignInButtonExample } from '../social-sign-in-button/social-sign-in-button.example';
+import { default as SoundIndicatorExample } from '../sound-indicator/sound-indicator.example';
+import { default as SpacerExample } from '../spacer/spacer.example';
+import { default as SpeakingAvatarExample } from '../speaking-avatar/speaking-avatar.example';
+import { default as SpinnerExample } from '../spinner/spinner.example';
+import { default as StackExample } from '../stack/stack.example';
+import { default as StatusDotExample } from '../status-dot/status-dot.example';
+import { default as SuccessStateExample } from '../success-state/success-state.example';
+import { default as SwitchExample } from '../switch/switch.example';
+import { default as TextExample } from '../text/text.example';
+import { default as TextInputExample } from '../text-input/text-input.example';
+import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
+import { default as TooltipExample } from '../tooltip/tooltip.example';
 
 export type ComponentEntry = {
   name: string;

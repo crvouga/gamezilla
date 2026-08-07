@@ -1,8 +1,8 @@
 import { useTheme } from '../../theme';
 import { Box } from '../box';
+import type { IconComponent } from '../icons';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
-import type { IconComponent } from '../icons';
 import { Text } from '../text';
 import { CommandPaletteKbd } from './command-palette-kbd';
 import { fuzzyMatch } from './fuzzy-match';

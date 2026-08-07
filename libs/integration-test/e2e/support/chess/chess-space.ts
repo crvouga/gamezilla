@@ -1,4 +1,4 @@
-import { by, expectVisible, type Driver } from '@pkgs/ui-testing';
+import { by, type Driver, expectVisible } from '@pkgs/ui-testing';
 
 import type { TestApp } from '../test-app';
 import {

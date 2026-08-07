@@ -3,7 +3,7 @@
  * wrangler under one Node process so turbo SIGINT/SIGTERM tear down the whole
  * tree instead of leaving a shell background job alive.
  */
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const API_DIR = join(import.meta.dirname, '..');

@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { generateRandomUsername } from './username-generator';
 import { validateUsername } from './username';
+import { generateRandomUsername } from './username-generator';
 
 describe('generateRandomUsername', () => {
   test('returns a non-empty valid username', () => {

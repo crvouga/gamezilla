@@ -1,12 +1,10 @@
+import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { Logger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-
-import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import {
   CLIENT_CONFIG_ENTITY_ID,
   ClientConfigAttr,

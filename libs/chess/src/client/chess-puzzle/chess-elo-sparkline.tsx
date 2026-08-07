@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@pkgs/ui';
 import Svg, { Polyline } from '@pkgs/ui/svg';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 const SPARKLINE_HEIGHT = 48;
 const SPARKLINE_WIDTH = 280;

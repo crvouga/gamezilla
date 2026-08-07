@@ -1,14 +1,15 @@
-export { type CatalogItem, type CatalogGroup } from './catalog-item';
-export {
-  filterCatalogItems,
-  groupCatalogItems,
-  flattenCatalogItems,
-  resolveCatalogNeighbor,
-  type CatalogNeighbor,
-} from './catalog-item';
-export { CatalogList, type CatalogListProps } from './catalog-list';
+export { CatalogDetail, type CatalogDetailProps } from './catalog-detail';
 export {
   CatalogDetailNav,
   type CatalogDetailNavProps,
 } from './catalog-detail-nav';
-export { CatalogDetail, type CatalogDetailProps } from './catalog-detail';
+export {
+  type CatalogGroup,
+  type CatalogItem,
+  type CatalogNeighbor,
+  filterCatalogItems,
+  flattenCatalogItems,
+  groupCatalogItems,
+  resolveCatalogNeighbor,
+} from './catalog-item';
+export { CatalogList, type CatalogListProps } from './catalog-list';

@@ -1,9 +1,9 @@
-import { MyUsername } from './my-username';
-import { MyProfileAvatar } from './my-profile-avatar';
-import { Box, Button, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Button, ScreenBase } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
+import { MyProfileAvatar } from './my-profile-avatar';
+import { MyUsername } from './my-username';
 
 export type ProfileScreenProps = {
   /** Always-visible account avatar menu in the header trailing slot. */

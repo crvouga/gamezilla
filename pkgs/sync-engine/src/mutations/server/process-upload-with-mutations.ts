@@ -4,9 +4,9 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MutationFailure, MutationRegistry } from '../core/types';
 import type { TablePolicyLookup } from '../shared/table-policy';
 import {
-  replayMutation,
   type MutationRow,
   type ReplayAuth,
+  replayMutation,
 } from './replay-mutation';
 
 export type UploadCrudEntry = {

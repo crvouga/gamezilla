@@ -1,5 +1,5 @@
-import { SpaceTitleText } from '../space-title-text';
 import type { ReactNode } from 'react';
+import { SpaceTitleText } from '../space-title-text';
 
 export type MiniplayerSpaceTitleProps = {
   spaceId: string;

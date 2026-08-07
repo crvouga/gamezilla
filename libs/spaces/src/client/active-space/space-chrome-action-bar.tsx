@@ -1,20 +1,19 @@
+import { useLingui } from '@lingui/react/macro';
 import {
   ActionBar,
+  type ActionBarItem,
   ChevronLeftIcon,
   DoorOpenIcon,
+  iconButtonAvatarContentSize,
   LogOutIcon,
   ShareIcon,
   SquarePenIcon,
-  XIcon,
-  iconButtonAvatarContentSize,
   useActionBarChrome,
-  type ActionBarItem,
+  XIcon,
 } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
-
-import { SpacePresenceStrip } from '../members/space-presence-strip';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
+import { SpacePresenceStrip } from '../members/space-presence-strip';
 import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { SpaceShareSheet } from '../space-users/space-share-sheet';
 import { useCurrentSpaceRole } from '../use-current-space-role';

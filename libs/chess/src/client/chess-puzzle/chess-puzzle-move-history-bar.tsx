@@ -2,14 +2,13 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import { useCallback, useMemo, type ReactNode } from 'react';
-
+import { type ReactNode, useCallback, useMemo } from 'react';
+import { buildPuzzleMoveHistory } from '../../shared/chess-puzzle-move-history';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SeekChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
-import { buildPuzzleMoveHistory } from '../../shared/chess-puzzle-move-history';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 
 /**

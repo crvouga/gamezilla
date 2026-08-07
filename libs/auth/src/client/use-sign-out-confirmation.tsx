@@ -1,7 +1,7 @@
-import { MutationModal } from '@pkgs/ui';
-import { useLogger } from '@pkgs/logger/react';
 import { Trans } from '@lingui/react/macro';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useLogger } from '@pkgs/logger/react';
+import { MutationModal } from '@pkgs/ui';
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 /**
  * Wraps the sign-out {@link MutationModal}: runs the (offline-safe) `signOut`,

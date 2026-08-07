@@ -10,8 +10,8 @@ import { useMemo } from 'react';
 
 import {
   buildLinkedProviders,
-  parseEntityStoreData,
   type LinkedProviderSources,
+  parseEntityStoreData,
 } from '../shared/linked-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
 

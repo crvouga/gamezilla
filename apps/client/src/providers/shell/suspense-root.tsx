@@ -1,5 +1,5 @@
 import { LoadingState } from '@pkgs/ui';
-import { Suspense, type ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 
 export function AppSuspenseRoot({
   children,

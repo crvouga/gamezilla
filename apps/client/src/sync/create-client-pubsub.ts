@@ -1,13 +1,12 @@
+import type { ConfigService } from '@libs/auth/client/config-service-types';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';
-
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+import { fetchPubSubToken } from './pubsub-token';
 import type {
   GetFreshAuthToken,
   SyncApiFetch,
   SyncClientAuth,
 } from './sync-api';
-import { fetchPubSubToken } from './pubsub-token';
 
 /**
  * Client composition root for EMQX MQTT. Returns null when

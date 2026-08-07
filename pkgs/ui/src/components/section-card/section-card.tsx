@@ -3,11 +3,11 @@
  */
 
 import type { ReactNode } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Collapsible } from '../collapsible';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
+import { Collapsible } from '../collapsible';
 
 export type SectionCardProps = {
   title: string;

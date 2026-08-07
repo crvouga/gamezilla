@@ -7,10 +7,10 @@ import { useMemo } from 'react';
 import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
 import {
   hashSeed,
-  pickPuzzleIdFromPool,
   PUZZLE_CANDIDATE_MAX_OFFSET,
   PUZZLE_NEXT_MAX_BAND,
   type PuzzleCandidateRow,
+  pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';

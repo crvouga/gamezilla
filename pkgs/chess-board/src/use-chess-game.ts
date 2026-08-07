@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable complexity */
 import {
   Chess,
   type Color as ChessColor,
@@ -9,8 +7,8 @@ import {
 } from 'chess.js';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  applyExternalFenToChess,
   type ApplyExternalFenResult,
+  applyExternalFenToChess,
 } from './chess-board-apply-external-fen';
 import { isSquare } from './chess-board-geometry';
 import { positionFromChess } from './chess-board-position-from-chess';
@@ -131,7 +129,6 @@ export function useChessGame(options: UseChessGameOptions = {}) {
   }, [chess]);
 
   // chess is stable (useRef), but exhaustive-deps can't see that.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const position = useMemo(() => positionFromChess(chess), [fen]);
   // Status flags are fen-derived; cache them with the position so every
   // hover/selection re-render does not re-enter chess.js move generation.
@@ -148,7 +145,6 @@ export function useChessGame(options: UseChessGameOptions = {}) {
       isStalemate: chess.isStalemate(),
       isGameOver: isCheckmate || isDraw,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen]);
   const { turn, inCheck, isGameOver, isCheckmate, isStalemate, isDraw } =
     status;

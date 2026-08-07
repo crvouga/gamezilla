@@ -1,8 +1,8 @@
-import { LinkedProvidersList } from './linked-providers-list';
-import { Card, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Card, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useIsSignedIn, useMyAccountId } from '../use-current-user';
+import { LinkedProvidersList } from './linked-providers-list';
 
 /**
  * Sign-in providers body. When signed-out or anon, shows a caption hint instead

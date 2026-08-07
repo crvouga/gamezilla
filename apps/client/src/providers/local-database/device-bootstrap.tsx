@@ -1,6 +1,6 @@
 import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 /**
  * Idempotently writes / refreshes the local `devices` row for this install.

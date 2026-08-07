@@ -8,7 +8,7 @@
 
 import type { ReactNode } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { Box } from '../box/box';
 

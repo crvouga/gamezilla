@@ -1,9 +1,8 @@
 import { KvProvider } from '@pkgs/kv/kv-provider';
 import { ComposeProviders, SpinnerProvider } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
-import { AppGestureHandler } from './shell/gesture-handler';
 import { AppFontsProvider } from './shell/fonts';
+import { AppGestureHandler } from './shell/gesture-handler';
 import { AppI18n } from './shell/i18n';
 import { AppSafeArea } from './shell/safe-area';
 import { AppSoundsProvider } from './shell/sounds';

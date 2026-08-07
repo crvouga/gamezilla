@@ -9,9 +9,9 @@
  */
 import {
   createElement,
-  useMemo,
   type ReactElement,
   type ReactNode,
+  useMemo,
 } from 'react';
 
 import type { Kv } from './interface';

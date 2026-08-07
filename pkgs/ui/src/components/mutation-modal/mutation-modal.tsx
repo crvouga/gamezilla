@@ -26,8 +26,8 @@
 
 import { useLingui } from '@lingui/react/macro';
 import type { SoundId } from '@pkgs/sounds';
-import { useEffect, type ReactNode } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ReactNode, useEffect } from 'react';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import { Box } from '../box';
 import { ErrorState } from '../error-state';
@@ -39,8 +39,8 @@ import { ResponsiveSurface } from '../responsive-surface';
 import { SuccessState } from '../success-state';
 import { MutationStateTransition } from './mutation-modal-transition';
 import {
-  useMutationLifecycle,
   type MutationPhase,
+  useMutationLifecycle,
 } from './use-mutation-lifecycle';
 
 export type MutationModalProps = {

@@ -1,5 +1,5 @@
-import { Pressable } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { Pressable } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import { openSpaceDetail } from '../space-routes';

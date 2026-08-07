@@ -1,11 +1,11 @@
 import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
-import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
-import {
-  MutationError,
-  type MutationDb,
-} from '@pkgs/sync-engine/mutations/core/types';
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
+import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
+import {
+  type MutationDb,
+  MutationError,
+} from '@pkgs/sync-engine/mutations/core/types';
 import { z } from 'zod';
 
 import {

@@ -4,7 +4,7 @@
  */
 
 import type { AttributionHit, ParticipantColor } from '@pkgs/collab';
-import { componentDataSet, type ComponentDataSet } from '@pkgs/ui';
+import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
 import type { ReactElement, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';

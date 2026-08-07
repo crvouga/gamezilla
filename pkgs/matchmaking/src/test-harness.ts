@@ -13,11 +13,11 @@
  * @internal
  */
 
+import { expect } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
-import { expect } from 'bun:test';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { Matchmaking, type MatchmakingOptions } from './matchmaking';
 import type { MatchedStatus, StatusResult } from './types';

@@ -1,5 +1,5 @@
-import { sql, unsafe } from '@pkgs/sql';
 import type { Topic } from '@pkgs/pubsub/interface';
+import { sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { z } from 'zod';
 

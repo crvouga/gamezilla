@@ -12,8 +12,8 @@
  * Skia + chess.js stay out of the bundle for users who never open it.
  */
 
-import { registerComponentExample, type ComponentEntry } from '@pkgs/ui';
 import ChessBoardExample from '@pkgs/chess-board/chess-board.example';
+import { type ComponentEntry, registerComponentExample } from '@pkgs/ui';
 
 export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [
   { name: 'ChessBoard', category: 'Games', Example: ChessBoardExample },

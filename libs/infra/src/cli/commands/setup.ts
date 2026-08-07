@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert';
 import { createInterface } from 'node:readline/promises';
+import { assert } from '@pkgs/assert';
 import { ALL_DEPS, DEPLOY_DEPS } from '../deps/registry';
 import { isAtLeastLatest } from '../deps/semver';
 import type { Dep } from '../deps/types';

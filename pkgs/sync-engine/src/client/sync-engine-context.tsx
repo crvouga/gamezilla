@@ -1,13 +1,12 @@
+import type { Sql } from '@pkgs/sql';
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useMemo,
   useSyncExternalStore,
-  type ReactNode,
 } from 'react';
-
-import type { Sql } from '@pkgs/sql';
 import type { SyncEngine } from './sync-engine-port';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
 
@@ -65,7 +64,6 @@ export function useQuery<T extends Record<string, unknown>>(
   const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
     () => engine.watch(query),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
     [engine, sqlText, paramsKey]
   );
   const rows = useQuerySubscription<readonly T[]>(subscription);
@@ -117,7 +115,6 @@ export function useQueryField<
   const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
     () => engine.watch(query),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey replaces values
     [engine, sqlText, paramsKey]
   );
   const getSnapshot = useCallback(

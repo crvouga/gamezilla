@@ -1,6 +1,6 @@
-import { useMemberIsThisTab } from './use-member-is-this-tab';
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberIsThisTab } from './use-member-is-this-tab';
 
 export type MemberThisTabHighlightProps = {
   spaceId: string;

@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-
+import sql, { type Sql } from '@pkgs/sql';
 import { ensureSqlMapBuiltins } from './sql-map-builtins';
 import { columnIdent } from './sql-map-ident';
 import {
@@ -9,7 +9,6 @@ import {
   type SqlMapCompileCtx,
 } from './sql-map-registry';
 import type { ColRef, OpCall, Query, Scalar } from './sql-map-types';
-import sql, { type Sql } from '@pkgs/sql';
 
 ensureSqlMapBuiltins();
 

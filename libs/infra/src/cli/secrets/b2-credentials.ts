@@ -1,5 +1,5 @@
 import { authorizeB2, B2_PROVISION_CAPABILITIES } from '../lib/b2-api';
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 async function validateB2MasterKeyId(input: SecretInput): Promise<void> {
   requireNonEmpty(input.secretValue, 'B2_MASTER_KEY_ID');

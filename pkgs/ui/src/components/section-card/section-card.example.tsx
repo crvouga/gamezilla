@@ -1,6 +1,6 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { SectionCard } from './section-card';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function SectionCardExample() {
   return (

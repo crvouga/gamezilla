@@ -1,6 +1,6 @@
+import { Trans } from '@lingui/react/macro';
 import { Box, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { useMyAccountId } from '../use-current-user';

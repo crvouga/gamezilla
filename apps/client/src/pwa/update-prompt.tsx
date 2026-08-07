@@ -1,10 +1,10 @@
-import { DismissibleBanner } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useEffect, useState, type ReactNode } from 'react';
+import { DismissibleBanner } from '@pkgs/ui';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import {
-  registerServiceWorker,
   type PwaUpdatePrompt,
+  registerServiceWorker,
 } from './register-service-worker';
 
 /**

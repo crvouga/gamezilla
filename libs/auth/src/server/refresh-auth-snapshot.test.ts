@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-
+import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 import {
   ENTITY_STORE_NAMESPACE_AUTH,
   ENTITY_STORE_TYPE_USER,
@@ -7,11 +7,8 @@ import {
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
 import { sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
-import { buildLinkedProviders } from '@libs/auth/shared/linked-account-providers';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
 

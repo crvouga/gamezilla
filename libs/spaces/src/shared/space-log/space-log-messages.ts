@@ -4,7 +4,7 @@ import {
   isPlainRecord,
   type MessageRouter,
 } from '@pkgs/message';
-import { ROOM_ERROR_TYPE, type HandleResult, type RoomState } from '@pkgs/room';
+import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
 
 import type { SpaceVisibility } from '../space-visibility';
 

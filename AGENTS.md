@@ -4,7 +4,7 @@
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree. CI enforces this via `bun run check:no-patches`.
 
-- **Never disable structural size limits for app code.** The Tiger-Style caps in `pkgs/eslint-rules/size-limits.cjs` (`max-lines`, `max-lines-per-function`, `max-statements`, `max-depth`, `max-params`, `max-nested-callbacks`, `complexity`, `max-classes-per-file`, `max-statements-per-line`) are load-bearing. Do **not** add per-file `'off'` overrides in any `{apps,libs,pkgs}/*/eslint.config.js`, and do **not** add `/* eslint-disable max-lines-per-function */` (or sibling) comments in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemption is `testOverrides()` (already wired in via the shared base config). Run `bun run tools/scripts/check-no-size-limit-overrides.ts` to scan for offenders.
+- **Never disable structural size limits for app code.** The Tiger-Style caps in root [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing. Do **not** add new size-rule `'off'` overrides in `biome.json`, and do **not** add `biome-ignore` comments for those rules in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemptions are the test / known-path `overrides` already wired in `biome.json`. Run `bun run ci:no-size-limit-overrides` to scan for offenders.
 
 - **Local SQLite + defineQuery/mutations is the default for client reads and writes.** Client UI reads local SQLite via `useQuery*` (table-change reactivity). Hydration polls `POST /api/query`; client mutations call `mutate()` and drain through `POST /api/mutations`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: cross-user search (`POST /friends/search`), system config refresh (`POST /client-config/refresh`), and Stripe/external APIs. Prefer shrinking that list, never growing it casually. Username claims go through the `claimUsername` mutation (not REST). Profile bootstrap uses the `ensureProfile` mutation (auto username on upload). Breaking mutation changes ship as a new `name` (`joinSpaceV2`); keep old handlers until client adoption allows removal.
 
@@ -42,7 +42,7 @@ pkgs/ui/src/
 1. Implement it under `pkgs/ui/src/components/<name>/<name>.tsx` (and an `index.ts` re-export inside the folder).
 2. Add the public export to `pkgs/ui/src/components/index.ts`.
 3. Wire DOM identifiers: accept optional `dataSet?: ComponentDataSet` and spread `{...componentDataSet('<PascalName>', dataSet)}` on the root host (see `pkgs/ui/src/component-id/`). `bun run ci:component-ids` enforces this for visual component folders.
-4. `bun run --filter @pkgs/ui tc lint` verifies it wires up.
+4. `bun run --filter @pkgs/ui tc` and root `bun run ci:lint` verify it wires up.
 
 **DOM identifiers (dev + E2E only):** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. Babel (`pkgs/babel-plugins/jsx-source-attr.cjs`) also injects `data-src="<repo-path>:<line>"` on allowlisted JSX. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`EXPO_PUBLIC_E2E` keeps them on for `check-browser`).
 
@@ -69,8 +69,8 @@ Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks fan out across parallel jobs** — `check-gates` (root `ci:*` + `check:secrets`), `check-verify` (`tc` / `lint` / `test`), `check-build` (`build` excluding `@apps/client`). Root `ci:*` scripts and per-package tasks live in `turbo.json`; local `bun run check` runs all six deploy gate lanes in parallel via `tools/scripts/check.ts` (static + three `check:ci:*` + `check:api` + `check:browser`); `bun run check:ci` is the three turbo lanes only. On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>]`. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `check:ci:verify` runs `@apps/client setup` first so `expo lint` has `.env.local`.
-2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `check-static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `check-api` / `check-browser` jobs run `check:api` / `check:browser` (Playwright browsers, preview stack, artifact uploads).
+1. **Turbo-cacheable tasks fan out across parallel jobs** — `check-gates` (root `ci:*` + `check:secrets:validate`), `check-verify` (`tc` / `test` + root `ci:lint` via Biome), `check-build` (`build` excluding `@apps/client`). Root `ci:*` / `check:*` scripts and per-package tasks live in `turbo.json`. Local `bun run check` is one Turbo graph via `tools/scripts/run-check-turbo.ts` (`tc` / `test` / `ci:lint` / gate `ci:*` / `check:static` / `check:secrets:validate` / `check:api` / `check:browser`, then filtered `build`); `bun run check:ci` is the same without static/api/browser. `check:secrets:validate` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`). GHA keeps parallel jobs as thin subsets (`check:ci:gates|verify|build`). On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>]`. Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`. `@apps/client` `tc` / `test` depend on `setup` via `apps/client/turbo.json`.
+2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `check-static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `check-api` / `check-browser` jobs run `check:api` / `check:browser` (Playwright browsers, preview stack, artifact uploads). Locally those scripts are also root Turbo tasks (`//#check:*`; browser `dependsOn` api).
 3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`: provision and `db:migrate` run before the Postgres-backed global lock is acquired (avoids holding a direct slot during migrate); the lock then covers deploy-resources → stripe-sync → smoke → refresh-config → ensure-destroyed. `db:migrate` retries on Postgres `53300` / “too many clients”. A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
 
 When adding a new check, default to a turbo task under `ci:*` (or extend an existing one). Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.
@@ -110,12 +110,13 @@ Inside each one, runtimes are isolated by three sibling folders. Under each runt
 <tier>/<name>/
   package.json          # name "@<tier>/<name>", subpath-pattern `exports`
   tsconfig.tc.json      # scoped `tc` only (extends ../../tsconfig.json); IDE uses root tsconfig.json
-  eslint.config.js      # createSharedBlocks + linguiRules
   src/
     client/<slice>/     # React Native / Expo — hooks + UI for that slice
     server/<slice>/     # Cloudflare Worker / Hono — only when the slice needs REST/inbox
     shared/<slice>/     # pure helpers / SQL helpers for that slice
 ```
+
+Lint/format is root-only Biome ([`biome.json`](biome.json) + [`tools/biome-plugins/`](tools/biome-plugins/)); packages do not ship per-package lint configs.
 
 Example (`join-space`): `client/join-space/use-join-space.ts` + `join-space-button.tsx`, `shared/join-space/` helpers + `@libs/spaces/shared/rules` rules, optional `server/join-space/` only for REST exceptions. Nested paths resolve via exports wildcards (`@libs/spaces/client/join-space/use-join-space`).
 Cross-package imports always use deep paths: `@<tier>/<name>/client/<file>`, `@<tier>/<name>/server/<file>`, `@<tier>/<name>/shared/<file>`. The `exports` field uses one Node subpath pattern per runtime folder (with `.ts` / `.tsx` array fallback) so adding/removing/renaming a file requires zero `package.json` change while bundlers still see one module per import site:
@@ -140,7 +141,7 @@ Flat (runtime-agnostic) packages — the per-utility micro-packages (`@pkgs/asse
 
 Within a feature package, prefer **relative** imports between sibling files (`./foo`, `../shared/bar`); use the `@<tier>/<name>/...` alias only for imports from a different feature package.
 
-Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Lint targets `eslint src` so script files use Tiger-style structure but keep the freedom to grow long top-level orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.tc.json` `include` and the root `tsconfig.json` `include` so type-checking covers them. Package `"tc"` scripts use `tsc --noEmit -p ./tsconfig.tc.json` so scoped CI checks stay fast while the IDE language service uses the root mega-project (Rename Symbol / Find All References across packages). Do not name the package config `tsconfig.json` — that steals file ownership from the root and breaks cross-package rename. Exception: `apps/client/tsconfig.json` (Expo). Typed ESLint (`createSharedBlocks`) points `parserOptions.project` at `./tsconfig.tc.json` when present (`projectService` only discovers `tsconfig.json`, and packages like `@libs/infra` are intentionally outside the root include). `.vscode` sets `eslint.workingDirectories` for `apps/*`, `libs/*`, and `pkgs/*`.
+Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Root Biome still formats/lints package sources; `**/scripts/**` overrides relax console + cognitive-complexity noise for long CLI orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.tc.json` `include` and the root `tsconfig.json` `include` so type-checking covers them. Package `"tc"` scripts use `tsc --noEmit -p ./tsconfig.tc.json` so scoped CI checks stay fast while the IDE language service uses the root mega-project (Rename Symbol / Find All References across packages). Do not name the package config `tsconfig.json` — that steals file ownership from the root and breaks cross-package rename. Exception: `apps/client/tsconfig.json` (Expo).
 
 `apps/client/src/app/**` (Expo Router) and `apps/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Room` Durable Object class binding stable.
 
@@ -162,7 +163,6 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 1. Scaffold `libs/<game>/`:
    - `package.json` with `"name": "@libs/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@pkgs/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@pkgs/sync-engine`, `@lingui/*`, `react`, `react-native`).
    - `tsconfig.tc.json` extending root; `"tc": "tsc --noEmit -p ./tsconfig.tc.json"`.
-   - `eslint.config.js` copied from `libs/chess/eslint.config.js`.
    - Empty `src/{client,server,shared}/`.
 2. Add path alias to root `tsconfig.json`: `"@libs/<game>/*": ["./libs/<game>/src/*"]` and the matching `include` entries.
 3. Add the package's `src` directory to `lingui.config.cjs` `catalogs.include` so translatable strings are extracted.

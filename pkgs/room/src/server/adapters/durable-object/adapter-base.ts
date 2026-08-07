@@ -17,9 +17,9 @@ import {
 } from './hibernation-restore';
 import { writeRoomSocketAttachment } from './socket-attachment';
 import {
-  newWebSocketPair,
   type DurableObjectInstance,
   type DurableObjectInstanceState,
+  newWebSocketPair,
   type WebSocketUpgradeResponseInit,
 } from './types';
 
@@ -77,7 +77,8 @@ export class RoomDurableObjectAdapterBase<
   E extends RoomEvent,
   Identity,
   Env,
-> implements DurableObjectInstance {
+> implements DurableObjectInstance
+{
   protected readonly ctx: DurableObjectInstanceState;
   readonly _env: Env;
   private readonly config: ResolvedAdapterConfig<S, C, E, Identity, Env>;

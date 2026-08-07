@@ -12,15 +12,15 @@
  *     + SqlClient; this is what `scripts/sync.ts` calls and what deploys invoke.
  */
 export {
-  runStripeCatalogSync,
   type CatalogPriceSyncEntry,
   type CatalogProductSyncEntry,
   type CatalogSyncResult,
+  runStripeCatalogSync,
 } from './catalog';
 export {
-  runStripeEntitiesSync,
-  runStripeEntityBackfill,
   type EntitiesSyncEntry,
   type EntitiesSyncResult,
+  runStripeEntitiesSync,
+  runStripeEntityBackfill,
 } from './entities';
 export { runStripeFullSync, type StripeFullSyncResult } from './full';

@@ -6,7 +6,6 @@ import {
   ChessPuzzlePlayAttr,
 } from './chess-puzzle-play-attr';
 import {
-  chessPuzzlePlayEvtNs,
   ChessPuzzleHintRevealed,
   ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
@@ -16,6 +15,7 @@ import {
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
   ChessPuzzleSolutionRevealed,
+  chessPuzzlePlayEvtNs,
 } from './chess-puzzle-play-messages';
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<

@@ -1,9 +1,9 @@
-import { SpaceLiveBadge } from './space-live-badge';
-import { useFriendLiveSpaceId } from './use-friend-live-space-id';
-import { openSpaceDetail } from './space-routes';
-import { Pressable, Box } from '@pkgs/ui';
+import { Box, Pressable } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
+import { SpaceLiveBadge } from './space-live-badge';
+import { openSpaceDetail } from './space-routes';
+import { useFriendLiveSpaceId } from './use-friend-live-space-id';
 
 export type FriendLiveSpaceBadgeProps = {
   readonly hostAccountId: string;

@@ -1,9 +1,9 @@
-import { STYLE_KEYS, styleLabel, type StyleKey } from './dicebear-styles';
-import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
-import { AvatarPickerThumb } from './avatar-picker-thumb';
-import type { AvatarConfig } from '../shared/avatar-config';
 import { HorizontalPicker } from '@pkgs/ui';
-import { memo, useCallback, type ReactNode } from 'react';
+import { memo, type ReactNode, useCallback } from 'react';
+import type { AvatarConfig } from '../shared/avatar-config';
+import { AvatarPickerThumb } from './avatar-picker-thumb';
+import { STYLE_KEYS, type StyleKey, styleLabel } from './dicebear-styles';
+import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 
 export type StylePickerStripProps = {
   selected: StyleKey;

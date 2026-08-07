@@ -4,11 +4,11 @@ import { Avatar } from '../avatar';
 import { Badge } from '../badge';
 import { Box } from '../box';
 import { Card } from '../card';
+import { ExampleRoot } from '../explorer/example-root';
 import { SettingsIcon, UserIcon } from '../icons';
 import { Text } from '../text';
 import { MenuList } from './menu-list';
 import { MenuRow } from './menu-row';
-import { ExampleRoot } from '../explorer/example-root';
 
 function CardGroup({ children }: { children: React.ReactNode }) {
   return (

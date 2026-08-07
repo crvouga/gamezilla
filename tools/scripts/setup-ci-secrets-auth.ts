@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { join } from 'node:path';
 /**
  * Idempotent setup for CI → secrets-backend OIDC auth.
  *
@@ -24,7 +25,6 @@
  *   --dry-run             Print planned changes without applying them.
  */
 import { reconcileCiSecretsAuth } from '@pkgs/secret-provider';
-import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 

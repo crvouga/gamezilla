@@ -1,2 +1,2 @@
-export { PresenceStrip } from './presence-strip';
 export type { PresenceStripProps } from './presence-strip';
+export { PresenceStrip } from './presence-strip';

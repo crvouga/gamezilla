@@ -66,11 +66,7 @@ export function SpaceMiniplayerCard({
               }}
             >
               <MiniplayerHostNameLine spaceId={spaceId} />
-              <Text
-                variant="caption"
-                // eslint-disable-next-line workspaceI18n/text-must-be-trans -- typographic separator
-                label="·"
-              />
+              <Text variant="caption" label="·" />
               <MiniplayerMemberCountText spaceId={spaceId} />
             </Box>
           </Box>

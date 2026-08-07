@@ -13,7 +13,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
@@ -23,8 +23,8 @@ import { EmptyState } from '../empty-state';
 import { ScreenBodyScrollView } from '../screen-base/screen-body-scroll-view';
 import { ScreenLargeTitle, type ScreenTitleScrollProps } from '../screen-title';
 import { ScrollView } from '../scroll-view';
-import { type CatalogItem } from './catalog-item';
 import { CatalogDetailNav } from './catalog-detail-nav';
+import type { CatalogItem } from './catalog-item';
 
 export type CatalogDetailProps = {
   items: readonly CatalogItem[];

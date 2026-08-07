@@ -1,6 +1,6 @@
 import {
-  resolveInfisicalAccessTokenForWrites,
   type ResolveInfisicalAccessTokenOptions,
+  resolveInfisicalAccessTokenForWrites,
 } from './impl-infisical/oidc-access-token';
 
 export type ResolveWriteAccessTokenOptions = ResolveInfisicalAccessTokenOptions;

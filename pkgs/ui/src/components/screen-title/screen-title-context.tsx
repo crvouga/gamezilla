@@ -2,7 +2,7 @@
  * Shared title label + TopBar visibility for {@link ScreenBase} `largeTitle`.
  */
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useState } from 'react';
 
 import { shouldShowTopBarTitle } from './screen-title-reveal';
 

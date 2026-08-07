@@ -1,6 +1,6 @@
 import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
 
-import { profileRowByIdSql, type ProfileRow } from './profile-row-sql';
+import { type ProfileRow, profileRowByIdSql } from './profile-row-sql';
 
 export type { ProfileRow };
 

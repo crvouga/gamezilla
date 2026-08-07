@@ -7,7 +7,7 @@
  */
 
 import type { PropsWithChildren } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Box } from '../box';
 
 export type ModalFooterProps = PropsWithChildren<{

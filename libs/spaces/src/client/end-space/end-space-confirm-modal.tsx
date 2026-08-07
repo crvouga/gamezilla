@@ -1,5 +1,5 @@
-import { MutationModal } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { MutationModal } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type EndSpaceConfirmModalProps = {

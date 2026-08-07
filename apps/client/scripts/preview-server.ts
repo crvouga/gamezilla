@@ -2,8 +2,9 @@
  * Serves the Expo web export on `PREVIEW_PORT` (default :5173).
  * API traffic uses `EXPO_PUBLIC_API_URL` (wrangler on :8788) with Bearer auth.
  */
-import { assert } from '@pkgs/assert';
+
 import { join } from 'node:path';
+import { assert } from '@pkgs/assert';
 import { file } from 'bun';
 
 import { applyExpoSqliteWebIsolationHeadersToFetch } from './expo-sqlite-web-headers.js';

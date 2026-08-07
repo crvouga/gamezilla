@@ -1,5 +1,5 @@
-import { Box, Button, Pressable, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Button, Pressable, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export function SearchRecentQueries({

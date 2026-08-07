@@ -1,11 +1,11 @@
+import type { Observability } from '../port/observability';
+import { createSpanId, createTraceId } from '../shared/ids';
 import {
   extractTraceContext,
   injectTraceContext,
   sampledSpanContext,
 } from '../shared/trace-context';
-import { createSpanId, createTraceId } from '../shared/ids';
 import type { Span, SpanContext, StartSpanOptions } from '../shared/types';
-import type { Observability } from '../port/observability';
 
 class NoopSpan implements Span {
   readonly spanContext: SpanContext;

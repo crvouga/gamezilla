@@ -1,8 +1,8 @@
 import { Box } from '../box';
-import { Text } from '../text';
-import { Stack } from '../stack';
-import { Divider } from './divider';
 import { ExampleRoot } from '../explorer/example-root';
+import { Stack } from '../stack';
+import { Text } from '../text';
+import { Divider } from './divider';
 
 export default function DividerExample() {
   return (

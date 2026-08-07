@@ -1,5 +1,5 @@
 import { preloadSkiaWeb } from '@pkgs/ui/components/skia-web-root';
-import { useSyncExternalStore, type ComponentType } from 'react';
+import { type ComponentType, useSyncExternalStore } from 'react';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 
 export type ChessBoardCanvasComponent = ComponentType<ChessBoardCanvasProps>;

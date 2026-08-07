@@ -1,9 +1,9 @@
 import {
   by,
+  type Driver,
   expectHidden,
   expectVisible,
   first,
-  type Driver,
 } from '@pkgs/ui-testing';
 
 import type { TestApp } from '../test-app';

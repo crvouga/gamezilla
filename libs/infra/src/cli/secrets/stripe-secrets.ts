@@ -1,4 +1,4 @@
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 async function validateStripeSecretKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();

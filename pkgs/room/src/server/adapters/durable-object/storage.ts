@@ -3,8 +3,8 @@ import type { CommandDedupOutcome, RoomStorage } from '../../core/storage';
 import {
   dedupKey,
   eventKey,
-  roomDoKeyNs,
   type RoomDoKeyNs,
+  roomDoKeyNs,
 } from './storage-keys';
 import {
   migrateLegacyBlobToV3,

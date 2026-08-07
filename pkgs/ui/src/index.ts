@@ -13,11 +13,11 @@ import './lingui-augmentation';
 export * from './component-id';
 export * from './components';
 export * from './explorer';
-export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
 export {
   isAutoplayBlockedError,
   isReleasedSharedObjectError,
   playAudioOrIgnoreAutoplayBlock,
 } from './expo/safe-audio-play';
-export { releaseWebFocus } from './web/release-web-focus';
+export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
 export * from './theme';
+export { releaseWebFocus } from './web/release-web-focus';

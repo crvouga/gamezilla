@@ -17,17 +17,17 @@
 import {
   createContext,
   Fragment,
+  type ReactNode,
   useContext,
   useLayoutEffect,
   useMemo,
   useSyncExternalStore,
-  type ReactNode,
 } from 'react';
 import {
   Platform,
+  type StyleProp,
   StyleSheet,
   View,
-  type StyleProp,
   type ViewStyle,
 } from 'react-native';
 

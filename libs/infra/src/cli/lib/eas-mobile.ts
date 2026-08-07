@@ -1,8 +1,8 @@
-import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
 import { join } from 'node:path';
-import type { CiPlatform } from '../platform/platform';
+import { assert } from '@pkgs/assert';
+import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { REPO_ROOT } from '../paths';
+import type { CiPlatform } from '../platform/platform';
 import { runAsync, runCapture } from '../subprocess';
 import { resolveAuthPublishableKeyForClientBuild } from './client-build-env';
 import { ok } from './fmt';

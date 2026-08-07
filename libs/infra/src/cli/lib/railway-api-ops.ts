@@ -1,4 +1,4 @@
-import { railwayGql, type RailwayCustomDomain } from './railway-api-core';
+import { type RailwayCustomDomain, railwayGql } from './railway-api-core';
 import {
   CustomDomainCreateMutation,
   DomainsQuery,

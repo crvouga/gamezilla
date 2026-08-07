@@ -1,4 +1,4 @@
-import { assert, type Assert } from '@pkgs/assert';
+import { type Assert, assert } from '@pkgs/assert';
 import type { JoinDot, Keyword } from '@pkgs/keyword/keyword';
 import {
   assertLocalName,

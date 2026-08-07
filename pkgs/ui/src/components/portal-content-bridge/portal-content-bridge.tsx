@@ -6,7 +6,7 @@
  * {@link ResponsiveSurface} applies it to `children` before they enter a portal.
  */
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 
 export type PortalContentWrap = (content: ReactNode) => ReactNode;
 

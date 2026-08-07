@@ -14,7 +14,7 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Pressable } from '../pressable';

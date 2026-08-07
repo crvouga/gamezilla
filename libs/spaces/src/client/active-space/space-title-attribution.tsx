@@ -2,10 +2,10 @@
  * Attribution ring around the space title when someone renames it.
  */
 
-import { AttributionHighlight } from '@pkgs/collab-ui';
 import { deriveAttribution, projectEventLog } from '@pkgs/collab';
+import { AttributionHighlight } from '@pkgs/collab-ui';
 import { useNamedRoomLog } from '@pkgs/room';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 import { SPACE_LOG_TARGET } from '../../shared/space-log/space-log-router';
 import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';

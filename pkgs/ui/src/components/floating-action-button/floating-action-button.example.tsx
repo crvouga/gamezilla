@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useMutationButton } from '../button/use-mutation-button';
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { FloatingActionButton } from './floating-action-button';
-import { ExampleRoot } from '../explorer/example-root';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

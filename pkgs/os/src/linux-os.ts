@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { Apt } from './apt';
 import { Dnf } from './dnf';
 import type { Os } from './os';
-import { Pacman } from './pacman';
 import type { PackageManager } from './package-manager';
+import { Pacman } from './pacman';
 import type { Arch, Platform } from './platform';
 
 /** Linux. Three first-party PMs in order of distro share: apt, dnf, pacman. */

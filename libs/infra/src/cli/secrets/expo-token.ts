@@ -1,4 +1,4 @@
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const EXPO_GRAPHQL_URL = 'https://api.expo.dev/graphql';
 const WHOAMI_QUERY = 'query { viewer { username } }';

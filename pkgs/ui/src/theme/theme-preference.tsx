@@ -4,12 +4,16 @@
  * the hook silently falls back to in-memory state.
  */
 
-import { useCallback, useMemo, type ReactNode } from 'react';
-import { createContext, useContext } from 'react';
-
 import { asKeyword } from '@pkgs/keyword/keyword';
 import { enumKvCodec } from '@pkgs/kv/kv-state-codec';
 import { useKvState } from '@pkgs/kv/use-kv-state';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 
 import type { ThemeProviderProps } from './theme-context';
 

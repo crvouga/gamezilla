@@ -4,7 +4,7 @@
  */
 
 import type { EventLogRouter } from '@pkgs/collab';
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 
 const SpaceEventLogRouterContext = createContext<EventLogRouter | null>(null);
 

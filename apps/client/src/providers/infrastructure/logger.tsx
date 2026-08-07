@@ -1,6 +1,6 @@
 import { createLogger } from '@pkgs/logger/logger';
 import { LoggerContextProvider } from '@pkgs/logger/react';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 export function AppLogger({ children }: { children: ReactNode }): ReactNode {
   const logger = useMemo(() => createLogger({ name: 'client' }), []);

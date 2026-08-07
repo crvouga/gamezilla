@@ -21,11 +21,11 @@ import {
   ResponsiveSurface,
   SuccessState,
 } from '@pkgs/ui';
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { SignInModalBody } from './sign-in-modal-body';
 import {
-  useSignInModalLifecycle,
   type SignInPhase,
+  useSignInModalLifecycle,
 } from './use-sign-in-modal-lifecycle';
 
 export type SignInModalProps = {

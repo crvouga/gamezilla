@@ -1,6 +1,6 @@
 import type { PlayerModelState } from './player-model';
-import type { SessionState } from './session-model';
 import type { SplitMix32State } from './rng';
+import type { SessionState } from './session-model';
 
 export type AssistantSnapshot = {
   readonly __brand: 'AssistantSnapshot';

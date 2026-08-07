@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 
 import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { JsonView } from './json-view';
-import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_PAYLOAD = {
   user: {

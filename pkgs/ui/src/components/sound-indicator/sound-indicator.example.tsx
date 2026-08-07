@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Pressable } from '../pressable';
 import { SegmentedControl } from '../segmented-control';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { SoundIndicator, type SoundIndicatorState } from './sound-indicator';
-import { ExampleRoot } from '../explorer/example-root';
 
 const STATE_SEGMENTS: { key: SoundIndicatorState; label: string }[] = [
   { key: 'idle', label: 'Idle' },

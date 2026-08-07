@@ -2,12 +2,13 @@
  * Prefer {@link decideJoin} from `participation/space-participation-policy`.
  * Thin adapter for call sites that only need visibility / ACL ABAC.
  */
-import type { SpaceVisibility } from '../space-visibility';
-import type { SpacesError } from '../spaces-errors';
+
 import {
   decideJoin,
   type SpaceAccessDecision,
 } from '../participation/space-participation-policy';
+import type { SpaceVisibility } from '../space-visibility';
+import type { SpacesError } from '../spaces-errors';
 
 export type { SpaceAccessDecision };
 

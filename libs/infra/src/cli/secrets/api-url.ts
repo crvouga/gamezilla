@@ -1,5 +1,5 @@
 import { PROJECT_CONFIG } from '../../project-config';
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 function productionApiPublicOrigin(): string {
   return `https://api.${PROJECT_CONFIG.domain}`;

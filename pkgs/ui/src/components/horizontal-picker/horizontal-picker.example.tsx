@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { HorizontalPicker } from './horizontal-picker';
-import { ExampleRoot } from '../explorer/example-root';
 
 type ColorCard = { id: string; label: string; color: string };
 

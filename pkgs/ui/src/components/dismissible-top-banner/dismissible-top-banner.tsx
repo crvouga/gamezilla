@@ -4,9 +4,14 @@
  * root, inside {@link AppThemeRoot}).
  */
 
+import { t } from '@lingui/core/macro';
+import { assert } from '@pkgs/assert';
 import {
   createContext,
+  type Dispatch,
   Fragment,
+  type ReactNode,
+  type SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -16,24 +21,18 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
 } from 'react';
 import {
   Animated,
   Platform,
+  type StyleProp,
   StyleSheet,
   View,
-  type StyleProp,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
-import { t } from '@lingui/core/macro';
-import { assert } from '@pkgs/assert';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Button } from '../button';

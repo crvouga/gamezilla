@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  type AssistantRenderer,
   createAssistant,
   defineCandidate,
   defineSignal,
-  INTENT,
-  type AssistantRenderer,
   type GameAdapter,
+  INTENT,
 } from '../src/shared';
 import { createTestClock } from './test-clock';
 

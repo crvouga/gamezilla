@@ -1,6 +1,6 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
-import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { type Href, useRouter } from 'expo-router';
 
 type MoreRow = {

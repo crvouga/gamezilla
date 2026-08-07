@@ -1,5 +1,5 @@
-import { DEVELOPMENT_SECRETS_ENV } from '@libs/infra/shared/database-url-policy';
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
+import { DEVELOPMENT_SECRETS_ENV } from '@libs/infra/shared/database-url-policy';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';

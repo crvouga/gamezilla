@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
+import { join } from 'node:path';
 /**
  * Flag bare INSERT INTO (no ON CONFLICT) and relative UPDATE assignments
  * inside mutation modules — rebase must not double-apply.
  */
 import { Glob } from 'bun';
-import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../..');
 const files = new Glob('{libs,pkgs}/**/mutations/**/*.{ts,tsx}').scan({

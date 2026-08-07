@@ -1,0 +1,292 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+  "root": true,
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!.github/workflows",
+      "!**/node_modules",
+      "!!**/dist",
+      "!!**/.expo",
+      "!!**/.wrangler",
+      "!!**/.turbo",
+      "!!**/.cache",
+      "!**/*.lock",
+      "!apps/client/src/i18n/locales/*/messages.ts",
+      "!apps/client/expo-env.d.ts",
+      "!libs/infra/src/cli/lib/railway-graphql/schema.graphql",
+      "!libs/infra/src/cli/lib/railway-graphql/graphql-env.d.ts",
+      "!qa",
+      "!!pkgs/postgres/.postgres",
+      "!!pkgs/postgres/.pglite"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto"
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "none",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 10
+          }
+        },
+        "noExcessiveLinesPerFunction": {
+          "level": "error",
+          "options": {
+            "maxLines": 70,
+            "skipBlankLines": true,
+            "skipIifes": false
+          }
+        },
+        "useMaxParams": {
+          "level": "error",
+          "options": {
+            "max": 4
+          }
+        }
+      },
+      "correctness": {
+        "noUnusedVariables": {
+          "level": "error",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
+        "useExhaustiveDependencies": "error",
+        "useHookAtTopLevel": "error"
+      },
+      "nursery": {
+        "noExcessiveNestedCallbacks": {
+          "level": "error",
+          "options": {
+            "max": 3
+          }
+        },
+        "noFloatingPromises": "off",
+        "noImpliedEval": "error",
+        "noMisusedPromises": "off",
+        "useExhaustiveSwitchCases": "off"
+      },
+      "security": {
+        "noGlobalEval": "error"
+      },
+      "style": {
+        "noExcessiveClassesPerFile": {
+          "level": "error",
+          "options": {
+            "maxClasses": 1
+          }
+        },
+        "noExcessiveLinesPerFile": {
+          "level": "error",
+          "options": {
+            "maxLines": 500,
+            "skipBlankLines": true
+          }
+        },
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "lucide-react-native": {
+                "message": "Import icons from @pkgs/ui (e.g. SearchIcon), not lucide-react-native directly."
+              }
+            }
+          }
+        },
+        "useConst": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"],
+            "requireAscii": true,
+            "strictCase": false
+          }
+        },
+        "useImportType": "error"
+      },
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error", "warn"]
+          }
+        },
+        "noDebugger": "error",
+        "noDoubleEquals": "error",
+        "noExplicitAny": "error",
+        "noFocusedTests": "error",
+        "noVar": "error"
+      }
+    },
+    "domains": {
+      "react": "none",
+      "test": "none",
+      "types": "none"
+    }
+  },
+  "plugins": [
+    "./tools/biome-plugins/lingui-no-single-variables-to-translate.grit"
+  ],
+  "overrides": [
+    {
+      "includes": [
+        "**/*.{test,spec}.{ts,tsx}",
+        "**/__tests__/**",
+        "**/__fixtures__/**",
+        "**/testing/**"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "nursery": {
+            "noExcessiveNestedCallbacks": "off"
+          },
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/client/src/providers/app-providers.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["libs/infra/src/cli/**/*.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "style": {
+            "noExcessiveClassesPerFile": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "libs/stripe/scripts/**/*.ts",
+        "libs/stripe/src/sync/**/*.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["pkgs/async/src/use-async.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/pkgs/ui/src/components/icons/**",
+        "**/src/components/icons/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/client/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "lucide-react-native": {
+                    "message": "Import icons from @pkgs/ui (e.g. SearchIcon), not lucide-react-native directly."
+                  },
+                  "expo-status-bar": {
+                    "message": "Use AppStatusBar from @pkgs/ui."
+                  },
+                  "expo-splash-screen": {
+                    "message": "Use preventSplashAutoHide or hideSplash from @pkgs/ui."
+                  },
+                  "expo-symbols": {
+                    "message": "Import icons from @pkgs/ui (e.g. HouseIcon), not expo-symbols."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 export {
-  TopBar,
   TOP_BAR_CONTENT_HEIGHT,
-  type TopBarProps,
+  TopBar,
   type TopBarCenterAlign,
+  type TopBarProps,
 } from './top-bar';
 export { TopBarTitle, type TopBarTitleProps } from './top-bar-title';

@@ -5,7 +5,7 @@
  *
  * Never seeds, writes, or deletes.
  */
-import { ok, fail as fmtFail, banner } from '../cli/lib/fmt';
+import { banner, fail as fmtFail, ok } from '../cli/lib/fmt';
 import { SECRETS } from '../cli/secrets/registry';
 import { SECRETS_ENVS, type SecretsEnv } from '../cli/secrets/secret';
 import {

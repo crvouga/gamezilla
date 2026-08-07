@@ -13,9 +13,9 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { Pool } from 'pg';
-import { DataType, newDb, type IMemoryDb } from 'pg-mem';
 import type { Sql, Value } from '@pkgs/sql';
+import type { Pool } from 'pg';
+import { DataType, type IMemoryDb, newDb } from 'pg-mem';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -24,14 +24,14 @@ import type {
 } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
 import {
+  type PgExecutor,
   pgQueryRows,
   pgRunResultFromQuery,
-  type PgExecutor,
 } from './impl-pg-shared';
 import {
   createPostgresDbScope,
-  quotePgIdent,
   type PostgresDbScope,
+  quotePgIdent,
 } from './schema';
 
 export type CreatePgMemSqlClientOptions = {

@@ -3,7 +3,7 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 /**
  * Re-supplies sync-engine context inside {@link ResponsiveSurface} portals

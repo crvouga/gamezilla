@@ -1,5 +1,5 @@
-import type { ObjectStore, StoredObject } from './interface';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
+import type { ObjectStore, StoredObject } from './interface';
 
 type Entry = {
   readonly bytes: Uint8Array;

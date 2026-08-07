@@ -1,6 +1,6 @@
 export {
-  FloatingMenu,
   FLOATING_MENU_DEFAULT_WIDTH,
+  FloatingMenu,
   type FloatingMenuProps,
 } from './floating-menu';
 export type {

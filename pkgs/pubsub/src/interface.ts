@@ -1,11 +1,11 @@
 import type { Topic } from './topic';
 
-export type { Topic } from './topic';
-export { assertValidTopic } from './topic';
-export { encodePayload, decodePayload, PAYLOAD_MAX_BYTES } from './payload';
+export { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
+export { PubSubClosedError } from './pubsub-closed-error';
 export { PubSubNotSupportedError } from './pubsub-not-supported-error';
 export { PubSubPublishError } from './pubsub-publish-error';
-export { PubSubClosedError } from './pubsub-closed-error';
+export type { Topic } from './topic';
+export { assertValidTopic } from './topic';
 
 export type PubSubStatus = 'connected' | 'connecting' | 'down';
 

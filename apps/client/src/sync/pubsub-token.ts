@@ -1,7 +1,7 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import {
-  SyncApiAuthError,
   type GetFreshAuthToken,
+  SyncApiAuthError,
   type SyncClientAuth,
   type SyncHttpFetch,
 } from '@pkgs/sync-engine/client/sync-http-client';

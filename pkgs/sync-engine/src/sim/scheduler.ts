@@ -1,10 +1,10 @@
 import type { SimClock } from './clock';
 import {
   pushQueued,
+  type Queued,
   runForDuration,
   runUntilIdleHeap,
   runUntilPred,
-  type Queued,
   type SimTask,
 } from './scheduler-core';
 

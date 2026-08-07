@@ -1,11 +1,11 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useRouter, type Href } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
 import {
-  friendsProfilePath,
   type FriendsProfileRouteValue,
+  friendsProfilePath,
 } from './friends-profile-routes';
 
 /** Navigate to a friends route, or open sign-in when the session is guest-only. */

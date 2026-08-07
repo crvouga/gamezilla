@@ -24,10 +24,10 @@
 
 import { asLocalized, type LocalizedString } from '@pkgs/i18n';
 import type { SoundId } from '@pkgs/sounds';
-import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
-import { useMutationLifecycle } from '../mutation-modal/use-mutation-lifecycle';
 import type { FloatingActionButtonProps } from '../floating-action-button/floating-action-button';
+import { useMutationLifecycle } from '../mutation-modal/use-mutation-lifecycle';
 import type { ButtonFeedback, ButtonProps } from './button';
 
 export type MutationButtonLabels = {

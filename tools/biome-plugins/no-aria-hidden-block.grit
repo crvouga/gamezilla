@@ -1,0 +1,5 @@
+language js
+
+`<$name aria-hidden=$value>$children</$name>` as $el where {
+  register_diagnostic(span=$el, message="Do not use aria-hidden directly. Use the inert attribute instead.", severity="error")
+}

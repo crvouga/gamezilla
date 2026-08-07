@@ -17,9 +17,9 @@ import { FlatList, type FlatListProps } from '../flat-list';
 export type ScreenBodyFlatListProps<ItemT> = FlatListProps<ItemT>;
 
 export const ScreenBodyFlatList = forwardRef<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RN FlatList ref/component generics are invariant; item type flows via props
+  // biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
   RNFlatList<any>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RN FlatList ref/component generics are invariant; item type flows via props
+  // biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
   ScreenBodyFlatListProps<any>
 >(function ScreenBodyFlatList({ style, ...rest }, ref) {
   return (

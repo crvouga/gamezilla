@@ -20,15 +20,15 @@
  * ```
  */
 
-import { forwardRef, useEffect, useState, type ReactNode } from 'react';
+import { forwardRef, type ReactNode, useEffect, useState } from 'react';
 import {
-  Pressable as RNPressable,
-  View,
-  type PressableProps as RNPressableProps,
   type PressableStateCallbackType,
+  Pressable as RNPressable,
+  type PressableProps as RNPressableProps,
   type View as RNView,
+  View,
 } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useHoverCapable, useTheme } from '../../theme';
 

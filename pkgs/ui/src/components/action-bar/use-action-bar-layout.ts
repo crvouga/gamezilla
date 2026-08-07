@@ -4,9 +4,9 @@ import type { LayoutChangeEvent } from 'react-native';
 import { actionBarItemsToOverflowActions } from './action-bar-overflow';
 import type { ActionBarTextAction } from './action-bar-types';
 import {
-  partitionActionBarItems,
   type ActionBarItem,
   type ActionBarPartition,
+  partitionActionBarItems,
 } from './partition-action-bar-items';
 
 function partitionTextActions(

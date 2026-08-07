@@ -1,6 +1,6 @@
 import { useWindowDimensions } from 'react-native';
 
-import { getBreakpoint, type BreakpointName } from './breakpoints';
+import { type BreakpointName, getBreakpoint } from './breakpoints';
 
 /**
  * Current layout bucket from window width. Prefer `useTheme().breakpoint` when inside `ThemeProvider`.

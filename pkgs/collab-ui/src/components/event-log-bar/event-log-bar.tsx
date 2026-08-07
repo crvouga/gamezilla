@@ -8,12 +8,12 @@ import type { LocalizedString } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import {
   Box,
+  type ComponentDataSet,
+  componentDataSet,
   FadeSwitch,
   Pressable,
   Stack,
   Text,
-  componentDataSet,
-  type ComponentDataSet,
   useTheme,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';

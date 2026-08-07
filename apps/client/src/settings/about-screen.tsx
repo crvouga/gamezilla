@@ -1,14 +1,14 @@
-import { i18n } from '@apps/client/i18n/i18n';
-import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import {
   formatCommitDate,
   getCommitDate,
   getCommitHash,
   getShortCommitHash,
 } from '@apps/client/config/app-metadata';
+import { i18n } from '@apps/client/i18n/i18n';
+import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
-import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { Box, Card, CopyToClipboardField, ScreenBase, Text } from '@pkgs/ui';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 

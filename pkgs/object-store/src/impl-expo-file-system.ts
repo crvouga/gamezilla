@@ -1,8 +1,7 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
-
-import type { ObjectStore, StoredObject } from './interface';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
+import type { ObjectStore, StoredObject } from './interface';
 
 /**
  * Local-first {@link ObjectStore} for the Expo client. On native (iOS / Android)

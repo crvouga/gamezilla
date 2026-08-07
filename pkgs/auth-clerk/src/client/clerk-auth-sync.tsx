@@ -1,13 +1,12 @@
 import { useAuth, useClerk, useSessionList, useSSO } from '@clerk/expo';
 import { useCallback, useEffect } from 'react';
-
-import { runCompleteHostedAuthRedirect } from './clerk-complete-hosted-auth-redirect';
-import { ensureClerkActiveSession } from './clerk-ensure-active-session';
-import type { ClerkSetActive } from './clerk-ensure-active-session';
 import {
-  setClerkAuthRuntime,
   type ClerkStartBrowserSsoFlow,
+  setClerkAuthRuntime,
 } from './clerk-auth-runtime';
+import { runCompleteHostedAuthRedirect } from './clerk-complete-hosted-auth-redirect';
+import type { ClerkSetActive } from './clerk-ensure-active-session';
+import { ensureClerkActiveSession } from './clerk-ensure-active-session';
 import { startClerkBrowserSsoFlow } from './clerk-start-browser-sso';
 
 function useClerkSetActive(): ClerkSetActive {

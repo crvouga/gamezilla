@@ -1,8 +1,8 @@
+import { afterEach, describe, expect, mock, test } from 'bun:test';
 import {
   createInMemoryPubSub,
   type InMemoryPubSub,
 } from '@pkgs/pubsub/testing';
-import { afterEach, describe, expect, mock, test } from 'bun:test';
 import { z } from 'zod';
 
 import { defineMutation } from '../mutations/core/define-mutation';

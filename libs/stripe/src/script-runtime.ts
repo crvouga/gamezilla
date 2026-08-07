@@ -7,16 +7,17 @@
  *
  * `DATABASE_URL` must be `postgres://` or `postgresql://` (TCP Postgres).
  */
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgPool } from '@pkgs/sql-client/postgres/connect';
+
+import { join } from 'node:path';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { join } from 'node:path';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import Stripe from 'stripe';
 import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';

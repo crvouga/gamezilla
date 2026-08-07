@@ -12,7 +12,6 @@
   "scripts": {
     "install:browsers": "bun --bun x playwright install --with-deps chromium",
     "kill-preview-ports": "bun run scripts/kill-preview-ports.ts",
-    "lint": "eslint src scripts e2e --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test:e2e": "bun test ./e2e/targets --timeout 240000",
     "test:e2e:headed": "HEADED=1 bun test ./e2e/targets --timeout 240000",

@@ -21,8 +21,8 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { useTheme, type SxProps } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { type SxProps, useTheme } from '../../theme';
 import { borderRadius, type ElevationLevel } from '../../theme/scale';
 
 export type CardProps = ViewProps & {

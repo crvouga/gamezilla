@@ -1,8 +1,8 @@
+import type { SsoFlowResult } from './clerk-sso-finalize';
 import type {
   ClerkSsoSignInHandle,
   ClerkSsoSignUpHandle,
 } from './clerk-sso-handles';
-import type { SsoFlowResult } from './clerk-sso-finalize';
 
 export type CompleteClerkSsoFromNonceParams = {
   readonly rotatingTokenNonce: string;

@@ -4,16 +4,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  assertTigerPolicyForResolvedApiOrigin,
   DEFAULT_LOCAL_PREVIEW_API_ORIGIN,
   PRODUCTION_API_HTTP_HOSTNAMES,
-  assertTigerPolicyForResolvedApiOrigin,
   productionApiUrlTigerExceptionEnabled,
 } from '@apps/client/config/api-servers';
-import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
-import { assert } from '@pkgs/assert';
-import { assertCommitDateIso } from '@pkgs/git';
-import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
+import { assert } from '@pkgs/assert';
+import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
 
 import { resolveExpoUseWatchmanForSetup } from './metro-watchman-env';
 

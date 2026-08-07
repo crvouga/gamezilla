@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
+import { useCallback } from 'react';
 
 import { setVisibilityMutation } from '../../shared/mutations/space-mutations';
 import { AnnounceVisibilityChanged } from '../../shared/space-log/space-log-messages';

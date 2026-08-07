@@ -1,10 +1,10 @@
-import { Box } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { Box } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 import type { FriendshipStatus } from '../../shared/friends-types';
-import type { FriendActionMutations } from './friend-action-types';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
+import type { FriendActionMutations } from './friend-action-types';
 
 export function FriendActionPillsForStatus({
   status,

@@ -5,7 +5,7 @@ import {
   isPlainRecord,
   type MessageRouter,
 } from '@pkgs/message';
-import { ROOM_ERROR_TYPE, type HandleResult, type RoomState } from '@pkgs/room';
+import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;

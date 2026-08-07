@@ -1,11 +1,10 @@
-import { PGlite } from '@electric-sql/pglite';
-import { sql, type Sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { PGlite } from '@electric-sql/pglite';
+import { type Sql, sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
-import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { registerTestCrashHandler } from './test-harness';
 
 let disposeTestCrashHandler: () => void;

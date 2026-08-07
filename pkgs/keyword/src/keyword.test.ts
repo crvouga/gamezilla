@@ -1,5 +1,5 @@
-import { Assert, assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { Assert, assert } from '@pkgs/assert';
 import {
   asKeyword,
   assertKeyword,
@@ -13,8 +13,8 @@ import {
   isLocalName,
   isNamespacedKeyword,
   isNamespacePrefix,
-  joinKeywordSegments,
   type JoinDot,
+  joinKeywordSegments,
   KEYWORD_MAX_LENGTH,
   KEYWORD_NAMESPACE_MAX_SEGMENTS,
   KEYWORD_SEGMENT_MAX_LENGTH,

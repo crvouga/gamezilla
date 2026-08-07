@@ -1,5 +1,5 @@
-import { sql } from '@pkgs/sql';
 import type { PubSub } from '@pkgs/pubsub/interface';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgMemSqlClient } from '@pkgs/sql-client/postgres/impl-pg-mem';
 

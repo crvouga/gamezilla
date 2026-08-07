@@ -38,7 +38,6 @@
   "scripts": {
     "collector": "bun run src/impl-local-file/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
-    "lint": "eslint src --max-warnings 0",
     "summarize": "bun run src/impl-local-file/summarize-cli.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"

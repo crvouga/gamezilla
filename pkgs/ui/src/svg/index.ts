@@ -3,5 +3,5 @@
  * depending on `react-native-svg` directly.
  */
 
-export { default } from 'react-native-svg';
 export * from 'react-native-svg';
+export { default } from 'react-native-svg';

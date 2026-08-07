@@ -1,4 +1,5 @@
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   ScreenBase,
@@ -6,7 +7,6 @@ import {
   Text,
   useThemePreference,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
 
 export function ThemeSettingsScreen() {
   const { t } = useLingui();

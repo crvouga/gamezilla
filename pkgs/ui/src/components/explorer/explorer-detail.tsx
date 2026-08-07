@@ -23,8 +23,8 @@ import { CatalogDetail, type CatalogItem } from '../catalog';
 import { EmptyState } from '../empty-state';
 import type { ScreenTitleScrollProps } from '../screen-title';
 import {
-  useComponentRegistry,
   type ComponentEntry,
+  useComponentRegistry,
 } from './component-registry';
 
 export type ExplorerDetailProps = {

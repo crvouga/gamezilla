@@ -1,11 +1,11 @@
-export { ExplorerList, type ExplorerListProps } from './explorer-list';
-export { ExplorerDetail, type ExplorerDetailProps } from './explorer-detail';
-export { ExampleRoot, type ExampleRootProps } from './example-root';
 export {
-  componentRegistry,
+  type ComponentEntry,
   categories,
+  componentRegistry,
   getCategories,
   registerComponentExample,
   useComponentRegistry,
-  type ComponentEntry,
 } from './component-registry';
+export { ExampleRoot, type ExampleRootProps } from './example-root';
+export { ExplorerDetail, type ExplorerDetailProps } from './explorer-detail';
+export { ExplorerList, type ExplorerListProps } from './explorer-list';

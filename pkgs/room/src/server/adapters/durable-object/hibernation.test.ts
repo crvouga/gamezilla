@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { WIRE_VERSION, ROOM_WIRE_KIND } from '../../../protocol/wire';
-import { TestCounterModule, Increment } from '../../../testkit/counter-module';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../protocol/wire';
+import { Increment, TestCounterModule } from '../../../testkit/counter-module';
 import { createDurableObjectAdapter } from './adapter';
 import type {
   DurableObjectInstanceState,

@@ -6,7 +6,7 @@ import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceStrip } from '@pkgs/collab-ui';
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import { useSpaceRoomClientId } from '../room/space-room-context';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';

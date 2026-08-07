@@ -7,13 +7,13 @@
 
 import { View } from 'react-native';
 
-import { useTheme, type ColorTokens } from '../../theme';
+import { type ColorTokens, useTheme } from '../../theme';
 import { duration, easing } from '../../theme/motion';
 import {
-  borderRadius,
-  spacing,
   type BorderRadiusKey,
+  borderRadius,
   type ElevationLevel,
+  spacing,
 } from '../../theme/scale';
 import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';

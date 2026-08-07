@@ -15,7 +15,7 @@ WebBrowser.maybeCompleteAuthSession();
 // checks, …) without a code change. Default is governed by `isDevBuild()`
 // in `@pkgs/assert/hot-asserts`; set EXPO_PUBLIC_FORCE_HOT_ASSERTS
 // to '1' / 'true' to force-on, or '0' / 'false' to force-off.
-// eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+// Expo inlines EXPO_PUBLIC_*; bracket access required by noPropertyAccessFromIndexSignature. `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
 const forceHotAsserts = process.env['EXPO_PUBLIC_FORCE_HOT_ASSERTS'];
 if (forceHotAsserts === '1' || forceHotAsserts === 'true') {
   setHotAssertsEnabled(true);

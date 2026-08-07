@@ -1,12 +1,12 @@
-import { buildThumbnailEnumOptions, isEnumRandom } from './option-helpers';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { HorizontalPicker, Text } from '@pkgs/ui';
+import { memo, type ReactNode, useCallback, useMemo } from 'react';
+import type { AvatarConfig } from '../shared/avatar-config';
+import { AvatarPickerThumb } from './avatar-picker-thumb';
 import type { SchemaField } from './dicebear-schema';
 import type { StyleKey } from './dicebear-styles';
+import { buildThumbnailEnumOptions, isEnumRandom } from './option-helpers';
 import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
-import { AvatarPickerThumb } from './avatar-picker-thumb';
-import type { AvatarConfig } from '../shared/avatar-config';
-import { HorizontalPicker, Text } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { memo, useCallback, useMemo, type ReactNode } from 'react';
 
 export type VariantSwatchStripProps = {
   field: Extract<SchemaField, { kind: 'enum' }>;

@@ -1,10 +1,10 @@
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { raw, unsafe } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { fetchSecret } from '../secrets/secrets';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 export class PostgresResource extends ResourceBase {
   readonly id = 'postgres';

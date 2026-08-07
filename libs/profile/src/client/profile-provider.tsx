@@ -1,6 +1,6 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useEffect, type ReactNode } from 'react';
+import { useMyId } from '@libs/auth/client/use-current-user';
+import { type ReactNode, useEffect } from 'react';
 
 import { ensureProfile } from './ensure-profile-local/ensure-profile';
 

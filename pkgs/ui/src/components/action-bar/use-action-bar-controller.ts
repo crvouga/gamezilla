@@ -1,16 +1,18 @@
 import { useMemo } from 'react';
 
-import {
-  type FloatingMenuContent,
-  type FloatingMenuHeaderSpec,
+import type {
+  FloatingMenuContent,
+  FloatingMenuHeaderSpec,
 } from '../floating-menu';
 import { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
-import { buildOverflowMenuContent } from './action-bar-parts';
 import { collectOverflowActions } from './action-bar-collect-overflow';
-import type { ActionBarOverflowMode } from './action-bar-types';
-import type { ActionBarTextAction } from './action-bar-types';
-import { useActionBarLayout } from './use-action-bar-layout';
+import { buildOverflowMenuContent } from './action-bar-parts';
+import type {
+  ActionBarOverflowMode,
+  ActionBarTextAction,
+} from './action-bar-types';
 import type { ActionBarItem } from './partition-action-bar-items';
+import { useActionBarLayout } from './use-action-bar-layout';
 
 export function useActionBarController(args: {
   items: readonly ActionBarItem[];

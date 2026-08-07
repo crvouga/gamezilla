@@ -1,7 +1,7 @@
 import { Text } from 'react-native';
 import { useTheme } from '../../theme';
-import { Box } from './box';
 import { ExampleRoot } from '../explorer/example-root';
+import { Box } from './box';
 
 export default function BoxExample() {
   const theme = useTheme();

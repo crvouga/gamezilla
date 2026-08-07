@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { raw } from '@pkgs/sql';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import { attachToGlobal } from './attach-to-global';
 import { createSqlCli } from './create-sql-cli';

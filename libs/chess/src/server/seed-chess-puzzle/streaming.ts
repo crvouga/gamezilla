@@ -9,12 +9,12 @@ import {
 } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { PassThrough, Readable, Transform } from 'node:stream';
-import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { pipeline } from 'node:stream/promises';
-import { parse } from 'csv-parse';
-import { Decompress as ZstdDecompress } from 'fzstd';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { assert } from '@pkgs/assert';
 import type { Logger } from '@pkgs/logger';
+import { parse } from 'csv-parse';
+import { Decompress as ZstdDecompress } from 'fzstd';
 
 const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';

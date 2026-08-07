@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-
+import sql, { bulk, empty, ident, join, type Sql } from '@pkgs/sql';
 import {
   compileFrom,
   compileGroupBy,
@@ -14,10 +14,9 @@ import {
 import { compileOnConflict } from './sql-map-conflict';
 import { compileExpr, wireCompileQuery } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
-import type { InsertValue, Query } from './sql-map-types';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
+import type { InsertValue, Query } from './sql-map-types';
 import { compileForUpdate, compileUnion, compileWith } from './sql-map-with';
-import sql, { bulk, empty, ident, join, type Sql } from '@pkgs/sql';
 
 /**
  * Compiles a sql-map {@link Query} to a nested {@link Sql} fragment.

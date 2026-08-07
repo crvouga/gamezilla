@@ -1,10 +1,10 @@
-import { SignJWT } from 'jose';
-import type { Topic } from '@pkgs/pubsub/interface';
 import {
   clientConfigTopic,
   roomTopic,
   userTopic,
 } from '@libs/db/shared/sync-topics';
+import type { Topic } from '@pkgs/pubsub/interface';
+import { SignJWT } from 'jose';
 
 const TOKEN_TTL_SEC = 15 * 60;
 

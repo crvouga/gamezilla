@@ -4,6 +4,7 @@
  */
 
 import {
+  Bell,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -15,7 +16,6 @@ import {
   Ellipsis,
   Gamepad2,
   Heart,
-  Bell,
   House,
   Lightbulb,
   ListChecks,

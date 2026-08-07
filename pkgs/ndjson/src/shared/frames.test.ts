@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { isNdjsonFrame, NdjsonStreamDecoder } from './decode';
 import { encodeNdjsonFrame } from './encode';
-import { NdjsonStreamDecoder, isNdjsonFrame } from './decode';
 import type { NdjsonFrame } from './frames';
 
 const enc = (s: string): Uint8Array => new TextEncoder().encode(s);

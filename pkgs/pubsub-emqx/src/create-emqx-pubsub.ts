@@ -1,13 +1,13 @@
-import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import {
   assertValidTopic,
   decodePayload,
   encodePayload,
-  PubSubClosedError,
   type PubSub,
+  PubSubClosedError,
   type PubSubStatus,
   type Topic,
 } from '@pkgs/pubsub/interface';
+import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import { rememberEmqxClientId } from './emqx-client-id';
 import { fullJitterDelayMs, randomClientIdSuffix } from './reconnect-backoff';
 

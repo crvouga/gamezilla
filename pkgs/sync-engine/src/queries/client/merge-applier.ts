@@ -7,7 +7,6 @@ import type {
 } from '@pkgs/sync-engine/mutations/core/types';
 
 import type { QueryRow } from '../core/types';
-import type { TableChangeBus } from './table-change-bus';
 import { confirmOptimistic, rebaseUnconfirmed } from './merge-rebase';
 import {
   deleteOrphanRow,
@@ -17,6 +16,7 @@ import {
   tagRow,
   upsertRowIntersect,
 } from './merge-upsert';
+import type { TableChangeBus } from './table-change-bus';
 
 export type MergeFullInput = {
   readonly scopeHash: string;

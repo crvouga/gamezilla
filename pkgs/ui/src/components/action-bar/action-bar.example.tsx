@@ -1,13 +1,12 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
-
-import { Box } from '../box';
-import { CodeIcon, SettingsIcon, UserIcon } from '../icons';
 import { useActionBarChrome } from '../../theme';
+import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
+import { CodeIcon, SettingsIcon, UserIcon } from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ActionBar, type ActionBarItem } from './action-bar';
-import { ExampleRoot } from '../explorer/example-root';
 
 const BASE_ITEMS: ActionBarItem[] = [
   {

@@ -1,4 +1,4 @@
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 

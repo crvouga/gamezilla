@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { useSpacePresence } from '@libs/spaces/client/room/use-space-presence';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import { useSpacePresence } from '@libs/spaces/client/room/use-space-presence';
 import { RoomMetaAttr } from '@pkgs/room';
+import { useEffect, useMemo, useRef } from 'react';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -13,16 +13,16 @@ import {
   ReclaimChessPuzzlePlay,
   StartChessPuzzlePlay,
 } from '../../shared/chess-puzzle-play';
-import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
 import {
-  usePuzzleEntityAndInteractions,
   useChessPuzzleAllInteractions,
+  usePuzzleEntityAndInteractions,
 } from './chess-puzzle-play-queries';
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
+import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
+import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 const DEFAULT_PLAYER_ELO = 1200;
 

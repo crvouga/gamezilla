@@ -1,6 +1,5 @@
-import { useCallback } from 'react';
-
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useCallback } from 'react';
 
 import { renameSpaceMutation } from '../../shared/mutations/space-mutations';
 import { AnnounceRenamed } from '../../shared/space-log/space-log-messages';

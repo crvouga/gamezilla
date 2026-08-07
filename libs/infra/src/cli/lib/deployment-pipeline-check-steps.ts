@@ -5,12 +5,13 @@
  * corresponding GitHub Actions job key so failure output (LLM fix
  * prompts, `write-pipeline-report.ts` tables) lines up with CI naming.
  *
- * Also the single source of truth for `bun run check`
- * (`tools/scripts/check.ts`; on failure writes `check/llm-fix-prompt.md`)
- * and `check:heal` steps.
+ * Also the step list for `check:heal` (runs these scripts sequentially).
+ * Local `bun run check` is a single Turbo graph via
+ * `tools/scripts/run-check-turbo.ts` (same tasks; not this parallel fan-out).
  *
  * Turbo-cacheable work is split across `check-gates` / `check-verify` /
- * `check-build` (plus non-cacheable `check:secrets` on gates).
+ * `check-build` (gates include `check:secrets:validate`, cached on a
+ * fingerprint of registry secret values in `dev` + `prd`).
  * `check-static` covers actionlint + gitleaks, and the two remaining
  * `check-*` job ids match the per-job Hono integration / Playwright runs
  * (`check:api` / `check:browser`).

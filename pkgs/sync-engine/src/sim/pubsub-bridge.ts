@@ -1,5 +1,5 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
-import { type Topic } from '@pkgs/pubsub/topic';
+import type { Topic } from '@pkgs/pubsub/topic';
 
 import type { SimEndpointId, SimNetwork } from './network';
 import { createPeerPubSub, type PubSubPeer } from './pubsub-peer';

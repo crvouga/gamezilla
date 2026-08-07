@@ -1,8 +1,7 @@
 import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
-
-import { inboxUnreadCountSql } from './inbox-queries';
 import { useInboxShell } from './inbox-provider-registry';
+import { inboxUnreadCountSql } from './inbox-queries';
 
 export function useInboxUnreadCount(): number {
   const { userId } = useInboxShell();

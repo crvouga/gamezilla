@@ -1,5 +1,5 @@
-import { Pressable, XIcon } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { Pressable, XIcon } from '@pkgs/ui';
 import {
   Canvas,
   FilterMode,
@@ -8,7 +8,7 @@ import {
   Rect,
   type SkImage,
 } from '@shopify/react-native-skia';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { View } from 'react-native';
 import { squareToXY } from './chess-board-geometry';
 import type {

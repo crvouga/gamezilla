@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'bun:test';
 import { projectEventLog } from '@pkgs/collab';
-
+import {
+  CHESS_LOG_TARGET,
+  chessPuzzlePlayDescribeRouter,
+} from './chess-puzzle-describe-events';
 import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import {
   ChessPuzzleHintRevealed,
@@ -10,10 +13,6 @@ import {
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
 } from './chess-puzzle-play-messages';
-import {
-  CHESS_LOG_TARGET,
-  chessPuzzlePlayDescribeRouter,
-} from './chess-puzzle-describe-events';
 
 const actor = { id: 'host-1', clientId: 'c1' };
 

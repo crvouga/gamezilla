@@ -21,50 +21,44 @@
  * `./client/adapters/{transport,storage}/` and re-exporting it via
  * `package.json` — the core engine stays untouched.
  */
-export { Room } from './client/core/room';
+
+export { createAttrNamespace } from '@pkgs/attribute';
+export { asKeyword, assertKeywordRecord } from '@pkgs/keyword';
 export type { RoomClientConfig } from './client/core/room';
-export { roomAttrNamespace, RoomMetaAttr } from './client/core/room-meta';
+export { Room } from './client/core/room';
+export { RoomMetaAttr, roomAttrNamespace } from './client/core/room-meta';
 export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';
 export type {
   ClientTransport,
   ClientTransportHandlers,
 } from './client/core/transport';
 export {
+  type AnyRoom,
   RoomClientsProvider,
   useRoomFromRegistry,
-  type AnyRoom,
 } from './client/react/room-clients-context';
 export {
-  useRoomDispatch,
-  useRoomSelector,
   useNamedRoomLog,
   useNamedRoomRoster,
+  useRoomDispatch,
+  useRoomSelector,
 } from './client/react/use-room-registry-hooks';
 export {
+  EMPTY_ROOM_STATE,
   useRoomLog,
   useRoomRoster,
   useRoomSnapshot,
   useRoomSnapshotSelector,
-  EMPTY_ROOM_STATE,
 } from './client/react/use-room-snapshot';
 export { newCommandId } from './protocol/ids';
-export { createAttrNamespace } from '@pkgs/attribute';
-export { asKeyword, assertKeywordRecord } from '@pkgs/keyword';
 export {
+  type ClientToServerWire,
   parseClientToServerWire,
   parseServerToClientWire,
   ROOM_WIRE_KIND,
-  WIRE_VERSION,
-  type ClientToServerWire,
   type ServerToClientWire,
+  WIRE_VERSION,
 } from './protocol/wire';
-export {
-  assertRoomModuleName,
-  parseRoomModuleName,
-  ROOM_ERROR_TYPE,
-  ROOM_ERROR_TYPES,
-  ROOM_MODULE_NAME_REGEX,
-} from './types';
 export type {
   HandleResult,
   Keyword,
@@ -77,4 +71,11 @@ export type {
   RoomModule,
   RoomModuleName,
   RoomState,
+} from './types';
+export {
+  assertRoomModuleName,
+  parseRoomModuleName,
+  ROOM_ERROR_TYPE,
+  ROOM_ERROR_TYPES,
+  ROOM_MODULE_NAME_REGEX,
 } from './types';

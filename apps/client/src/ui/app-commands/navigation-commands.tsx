@@ -1,12 +1,12 @@
-import { RegisterCommand } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useMemo } from 'react';
+import { RegisterCommand } from '@pkgs/ui';
 import {
-  useRouter,
-  useSitemap,
   type Href,
   type SitemapType,
+  useRouter,
+  useSitemap,
 } from 'expo-router';
+import { useMemo } from 'react';
 
 import {
   collectNavigableRoutes,

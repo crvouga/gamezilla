@@ -4,9 +4,9 @@ import {
   Nunito_700Bold,
   useFonts,
 } from '@expo-google-fonts/nunito';
-import { hideSplash } from '@pkgs/ui';
 import type { FontStacks } from '@pkgs/ui';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { hideSplash } from '@pkgs/ui';
+import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { AppFontsContext } from './fonts-context';
 

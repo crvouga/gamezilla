@@ -3,7 +3,7 @@
  * Shared by {@link @pkgs/attribute} and {@link @pkgs/message} so wire
  * rules cannot drift.
  */
-import { assert, type Assert } from '@pkgs/assert';
+import { type Assert, assert } from '@pkgs/assert';
 
 declare const KeywordBrand: unique symbol;
 

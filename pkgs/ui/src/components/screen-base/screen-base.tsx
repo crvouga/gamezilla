@@ -14,12 +14,11 @@
  * Pass `largeTitle` for a body heading that reveals in the TopBar after scroll.
  */
 
-import { useContext, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useContext, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
-import { Box } from '../box';
 import { componentDataSet } from '../../component-id';
+import { Box } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
@@ -27,17 +26,17 @@ import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
 import {
   ScreenLargeTitle,
   ScreenTitleProvider,
-  useScreenTitleScroll,
   type ScreenTitleScrollProps,
+  useScreenTitleScroll,
 } from '../screen-title';
 import { ScrollView } from '../scroll-view';
+import { ScreenBaseHeader } from './screen-base-header';
 import {
   ScreenBasePrimaryActionMutation,
   type ScreenBasePrimaryActionRenderProps,
 } from './screen-base-primary-action';
-import { SCREEN_BODY_PADDING_STEP } from './screen-body-padding';
 import type { BodyContentProps, ScreenBaseProps } from './screen-base-types';
-import { ScreenBaseHeader } from './screen-base-header';
+import { SCREEN_BODY_PADDING_STEP } from './screen-body-padding';
 
 /** Spacing-scale steps (1 = 4px): body gap 12px. */
 const BODY_GAP_STEP = 3;

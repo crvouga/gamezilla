@@ -1,7 +1,7 @@
-import { Text } from '../text';
-import { Stack } from '../stack';
-import { StatusDot } from './status-dot';
 import { ExampleRoot } from '../explorer/example-root';
+import { Stack } from '../stack';
+import { Text } from '../text';
+import { StatusDot } from './status-dot';
 
 export default function StatusDotExample() {
   return (

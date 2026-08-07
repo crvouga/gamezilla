@@ -1,8 +1,8 @@
-import { UserUsername } from '@libs/profile/client/user-username';
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { UserUsername } from '@libs/profile/client/user-username';
 import { Trans } from '@lingui/react/macro';
+import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { useSpaceGuestMembershipIds } from '../members/use-space-guest-membership-ids';

@@ -1,6 +1,6 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
-import { parseAvatarConfig, type AvatarConfig } from './avatar-config';
+import { type AvatarConfig, parseAvatarConfig } from './avatar-config';
 
 function readString(v: unknown): string {
   return typeof v === 'string' ? v : '';

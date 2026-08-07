@@ -1,9 +1,9 @@
 import { Avatar } from '../avatar';
 import { Badge } from '../badge';
 import { Card } from '../card';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { List, ListItem } from './list';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function ListExample() {
   return (

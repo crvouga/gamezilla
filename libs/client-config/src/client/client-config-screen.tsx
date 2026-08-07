@@ -1,6 +1,6 @@
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Box, ScreenBase } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Box, ScreenBase } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';
 import { ClientConfigServerRefreshCard } from './client-config-server-refresh';

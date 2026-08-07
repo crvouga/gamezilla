@@ -1,13 +1,13 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
-import { useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
 import { useMemo } from 'react';
 import {
-  deriveChessPuzzleGameLog,
-  deriveChessPuzzleStats,
   type ChessPuzzleGameLogEntry,
   type ChessPuzzleStats,
+  deriveChessPuzzleGameLog,
+  deriveChessPuzzleStats,
 } from '../../shared/chess-puzzle-stats';
+import { useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
+import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 export function useChessPuzzleHistory(): {
   stats: ChessPuzzleStats;

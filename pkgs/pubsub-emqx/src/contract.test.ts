@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  runPubSubContractTests,
   type PubSubContractEnv,
+  runPubSubContractTests,
 } from '@pkgs/pubsub/testing';
 import { createEmqxHttpPubSub } from './create-emqx-http-pubsub';
 import { createEmqxPubSub } from './create-emqx-pubsub';

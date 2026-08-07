@@ -1,6 +1,6 @@
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { useRouter } from 'expo-router';
 
 export function ProfileEditScreen() {

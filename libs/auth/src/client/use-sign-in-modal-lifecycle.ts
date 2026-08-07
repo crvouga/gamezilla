@@ -14,9 +14,9 @@
  * found on mount).
  */
 
+import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
-import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { usePathname } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 

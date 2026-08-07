@@ -1,6 +1,6 @@
-import { useSyncEngineBootState as usePackageSyncEngineBootState } from '@pkgs/sync-engine/client/use-sync-engine-boot-state';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 import type { SyncEngineBootState } from '@pkgs/sync-engine/client/use-sync-engine-boot-state';
+import { useSyncEngineBootState as usePackageSyncEngineBootState } from '@pkgs/sync-engine/client/use-sync-engine-boot-state';
 
 import { attachSqlCli } from '../../dev/attach-sql-cli';
 

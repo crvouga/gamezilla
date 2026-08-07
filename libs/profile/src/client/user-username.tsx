@@ -1,5 +1,5 @@
+import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
-import { Text, type SxProps, type TextVariant } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { useProfileColumn } from './use-profile-column';

@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 /**
  * Enforce Bun workspace dependency policy: every third-party version in
  * package.json must come from the root catalog (`catalog:` / `catalog:name`)
@@ -10,8 +12,6 @@
  * root `overrides` (Bun/npm resolution pins, not catalog entries).
  */
 import { Glob } from 'bun';
-import { readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 

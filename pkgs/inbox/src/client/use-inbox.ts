@@ -1,11 +1,10 @@
 import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useEffect, useMemo, useState } from 'react';
-
-import { clientRowToInteraction } from '../shared/row-mapper';
 import type { Interaction, InteractionFilter } from '../shared/interaction';
-import { buildInteractionSections } from './inbox-sections';
-import { inboxListSql } from './inbox-queries';
+import { clientRowToInteraction } from '../shared/row-mapper';
 import { useInboxShell } from './inbox-provider-registry';
+import { inboxListSql } from './inbox-queries';
+import { buildInteractionSections } from './inbox-sections';
 
 export function useInbox(options?: { readonly filter?: InteractionFilter }): {
   readonly interactions: readonly Interaction[];

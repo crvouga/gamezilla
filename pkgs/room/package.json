@@ -14,7 +14,6 @@
     "./testkit": "./src/testkit.ts"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },

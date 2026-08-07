@@ -1,10 +1,10 @@
 import type { LockHandle } from '@pkgs/distributed-lock/interface';
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
+import type { CiPlatform } from '../platform/platform';
 import { buildDistributedLock } from './build-distributed-lock';
 import { fail, fmtMs, info, kv, ok, warn } from './fmt';
 import { encodeGithubJobOutputValue } from './github-job-output-codec';
 import { registerLockDbSessionHooks } from './lock-db-session';
-import type { CiPlatform } from '../platform/platform';
 
 const RELEASE_TIMEOUT_MS = 5_000;
 

@@ -1,9 +1,9 @@
+import { Box } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { MemberHostBadge } from './member-host-badge';
 import { MemberSessionCountBadge } from './member-session-count-badge';
 import { MemberThisTabBadge } from './member-this-tab-badge';
 import { MemberYouBadge } from './member-you-badge';
-import { Box } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type MemberPresenceBadgesRowProps = {
   spaceId: string;

@@ -1,10 +1,10 @@
 import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { providerLabel } from '../provider-parsers';
 import {
   AccountProviderField,
   useAccountProviderColumn,
 } from '../use-account-provider-column';
-import { providerLabel } from '../provider-parsers';
 
 export type LinkedProviderNameTextProps = {
   accountProviderEntityId: string;

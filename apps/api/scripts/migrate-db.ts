@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
@@ -8,10 +10,8 @@ import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
-import { join } from 'node:path';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { readDevVarsDatabaseUrl } from './dev-vars';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
+import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');

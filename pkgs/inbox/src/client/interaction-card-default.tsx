@@ -1,11 +1,13 @@
-import { Box, Button, Pressable, Text, useMutationButton } from '@pkgs/ui';
-import { isSoundId } from '@pkgs/sounds';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { isSoundId } from '@pkgs/sounds';
+import { Box, Button, Pressable, Text, useMutationButton } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 import type { Interaction } from '../shared/interaction';
-import type { InteractionAction } from '../shared/interaction-action';
-import type { InteractionCardActions } from '../shared/interaction-action';
+import type {
+  InteractionAction,
+  InteractionCardActions,
+} from '../shared/interaction-action';
 
 type InteractionActionButtonProps = {
   readonly interaction: Interaction;

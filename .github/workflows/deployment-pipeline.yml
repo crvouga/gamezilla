@@ -4,17 +4,17 @@
 # CI/CD design guidelines (Turbo-first + atomic deploy):
 #
 # 1. Turbo-cacheable tasks fan out across parallel jobs — `check-gates`
-#    (root `ci:*` + `check:secrets`), `check-verify` (`tc`/`lint`/`test`),
-#    `check-build` (`build` excluding `@apps/client`). Each job uses
+#    (root `ci:*` + `check:secrets`), `check-verify` (`tc`/`test` + root
+#    Biome `ci:lint`), `check-build` (`build` excluding `@apps/client`). Each job uses
 #    per-job `actions/cache` on `.turbo` (`.github/actions/turbo-cache`)
 #    and `tools/scripts/turbo-ci-run.ts` with `--cache=local:rw,remote:rw`
 #    when Vercel Remote Cache creds are present.
 #
-# 2. Non-Turbo tasks live in their own jobs only when they need a runner
-#    shape Turbo can't share: `check-static` (actionlint + gitleaks both want
-#    a fresh binary download, gitleaks needs `fetch-depth: 0`), `check-api`,
-#    `check-browser` (Chromium browser cache, failure screenshots as
-#    artifacts).
+# 2. Jobs that need a distinct runner shape stay separate even though the
+#    same scripts are root Turbo tasks locally (`//#check:*` in turbo.json):
+#    `check-static` (actionlint + gitleaks; gitleaks needs `fetch-depth: 0`),
+#    `check-api`, `check-browser` (Chromium cache, failure screenshots).
+#    Local `bun check` runs one Turbo graph via `run-check-turbo.ts`.
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe, and the
@@ -83,8 +83,9 @@ jobs:
           job: check-gates
           mode: save
 
-  # Per-package tc / lint / test. On pull_request, only packages affected
-  # since the PR base SHA (plus dependents) via TURBO_AFFECTED_BASE.
+  # Per-package tc / test, then root Biome lint. On pull_request, turbo tasks
+  # only cover packages affected since the PR base SHA (plus dependents) via
+  # TURBO_AFFECTED_BASE; Biome always scans the repo.
   check-verify:
     runs-on: ubuntu-latest
     env:
@@ -109,7 +110,7 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - name: Turbo tc / lint / test
+      - name: Turbo tc / test + Biome lint
         run: bun run check:ci:verify
       - uses: ./.github/actions/turbo-cache
         if: always() && !cancelled()

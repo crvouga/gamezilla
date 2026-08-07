@@ -5,7 +5,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Center } from '../center';
 import { IconButton } from '../icon-button';

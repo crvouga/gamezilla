@@ -12,12 +12,12 @@
  */
 
 import type { PropsWithChildren } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import {
   MODAL_CONTENT_MARGIN_STEP,
-  resolveModalLayoutWidth,
   type ModalSize,
+  resolveModalLayoutWidth,
 } from '../../theme/modal-size';
 import { borderRadius, spacing } from '../../theme/scale';
 import { Box } from '../box';

@@ -1,13 +1,13 @@
 import { useTheme } from '@pkgs/ui';
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
-import type { PuzzleCompletion } from './use-chess-puzzle-completion';
+import { shouldPlayEloTick } from './throttle-elo-tick';
 import { useCelebrationOverlayAnimation } from './use-celebration-overlay-animation';
+import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleEloAnimation } from './use-chess-puzzle-elo-animation';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
-import { shouldPlayEloTick } from './throttle-elo-tick';
 
 function CelebrationScrim(p: {
   scrimOpacity: Animated.Value;

@@ -1,6 +1,6 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { SafeAreaView } from './safe-area-view';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function SafeAreaViewExample() {
   return (

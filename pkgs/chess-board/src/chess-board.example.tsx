@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   Button,
@@ -9,8 +10,7 @@ import {
   Switch,
   Text,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { ChessBoard } from './chess-board';
 import type {
   BoardArrow,

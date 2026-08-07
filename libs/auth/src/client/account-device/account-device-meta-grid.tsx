@@ -1,3 +1,6 @@
+import { Trans } from '@lingui/react/macro';
+import { Box } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { AccountDeviceAppText } from './account-device-app-text';
 import { AccountDeviceCreatedText } from './account-device-created-text';
 import { AccountDeviceFirstSeenText } from './account-device-first-seen-text';
@@ -7,9 +10,6 @@ import { AccountDeviceModelText } from './account-device-model-text';
 import { AccountDeviceNameText } from './account-device-name-text';
 import { AccountDeviceOsText } from './account-device-os-text';
 import { AccountDevicePlatformText } from './account-device-platform-text';
-import { Box } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
 
 export type AccountDeviceMetaGridProps = {
   deviceId: string;

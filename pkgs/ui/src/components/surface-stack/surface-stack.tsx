@@ -8,19 +8,18 @@
 
 import {
   createContext,
+  type ReactNode,
   useContext,
   useLayoutEffect,
   useMemo,
   useSyncExternalStore,
-  type ReactNode,
 } from 'react';
 import { StyleSheet, View } from 'react-native';
-
+import { SURFACE_STACK_BASE } from './constants';
 import {
   createSurfaceStackStore,
   type SurfaceStackStore,
 } from './surface-stack-store';
-import { SURFACE_STACK_BASE } from './constants';
 
 export type SurfaceStackApi = {
   register: (id: string, node: ReactNode) => void;

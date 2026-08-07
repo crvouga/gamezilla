@@ -1,5 +1,5 @@
-import { Badge } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Badge } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useDeviceIsCurrent } from '../use-device-is-current';
 

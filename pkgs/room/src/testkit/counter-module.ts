@@ -8,8 +8,8 @@ import {
 
 import {
   assertRoomModuleName,
-  ROOM_ERROR_TYPE,
   type HandleResult,
+  ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomModule,
   type RoomState,

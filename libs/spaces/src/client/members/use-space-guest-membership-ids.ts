@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { SpaceMembersRoomAttr } from '../../shared/space-members/space-members-messages';
 import { useSpaceRoomSelector } from '../room/use-space-room-selector';
-import { useSpaceColumn, SpaceField } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../use-space-column';
 
 /**
  * Guest member ids currently seated in the room (excludes the host).

@@ -2,10 +2,10 @@ import { describe, expect, mock, test } from 'bun:test';
 
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import {
+  createScenarioClients,
   openScenarioDb,
   scenarioRegistry,
   setNote,
-  createScenarioClients,
 } from '../queries/test/scenario-fixture';
 import { createSimTestDriver } from '../sim/test-driver';
 import { MutationUploadQueue } from './mutation-upload-queue';

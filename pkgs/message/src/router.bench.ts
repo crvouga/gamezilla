@@ -24,9 +24,9 @@ import {
   type MessageTag,
 } from './message';
 import {
+  type ComposedMessageRouter,
   createComposedMessageRouter,
   createMessageRouter,
-  type ComposedMessageRouter,
   type MessageRouter,
 } from './router';
 
@@ -51,11 +51,9 @@ type LegacyRegistered<TState, TCtx, TOutput> = {
   handler: LegacyHandler<TState, TCtx, TOutput, unknown>;
 };
 
-class LegacyMessageRouterImpl<TState, TCtx, TOutput> implements MessageRouter<
-  TState,
-  TCtx,
-  TOutput
-> {
+class LegacyMessageRouterImpl<TState, TCtx, TOutput>
+  implements MessageRouter<TState, TCtx, TOutput>
+{
   private readonly handlers = new Map<
     string,
     LegacyRegistered<TState, TCtx, TOutput>

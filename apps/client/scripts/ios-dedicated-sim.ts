@@ -2,11 +2,12 @@
  * Shared helpers for pinning Expo iOS dev to a project-dedicated simulator
  * and opening the installed `expo-dev-client` against a running Metro server.
  */
-import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+
 import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { ensurePodsMatchNodeModules } from './ios-pods';
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */

@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  type ActionBarIconItem,
+  type ActionBarItem,
   actionBarBudgetWidth,
   maxIconSlots,
   partitionActionBarItems,
-  type ActionBarIconItem,
-  type ActionBarItem,
 } from './partition-action-bar-items';
 
 const UserIcon = (() => null) as ActionBarIconItem['icon'];

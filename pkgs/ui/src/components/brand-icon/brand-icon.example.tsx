@@ -1,6 +1,6 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { BrandIcon } from './brand-icon';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function BrandIconExample() {
   return (

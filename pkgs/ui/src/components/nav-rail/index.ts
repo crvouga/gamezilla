@@ -1,1 +1,1 @@
-export { NavRail, NAV_RAIL_DEFAULT_WIDTH, type NavRailProps } from './nav-rail';
+export { NAV_RAIL_DEFAULT_WIDTH, NavRail, type NavRailProps } from './nav-rail';

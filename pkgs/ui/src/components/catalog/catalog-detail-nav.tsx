@@ -8,13 +8,13 @@
 
 import type { ReactNode } from 'react';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { releaseWebFocus } from '../../web/release-web-focus';
 import { Box } from '../box';
 import { IconButton } from '../icon-button';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import { Text } from '../text';
-import { resolveCatalogNeighbor, type CatalogItem } from './catalog-item';
+import { type CatalogItem, resolveCatalogNeighbor } from './catalog-item';
 
 export type CatalogDetailNavProps = {
   items: readonly CatalogItem[];

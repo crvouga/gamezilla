@@ -1,7 +1,7 @@
+import { Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { memo } from 'react';
 import { View } from 'react-native';
-import { Text, useTheme } from '@pkgs/ui';
 
 export type AvatarPickerThumbProps = {
   itemWidth: number;

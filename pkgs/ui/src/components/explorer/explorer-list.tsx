@@ -16,10 +16,10 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import { useMemo } from 'react';
-import { CatalogList, type CatalogItem } from '../catalog';
+import { type CatalogItem, CatalogList } from '../catalog';
 import {
-  useComponentRegistry,
   type ComponentEntry,
+  useComponentRegistry,
 } from './component-registry';
 
 export type ExplorerListProps = {

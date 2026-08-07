@@ -7,8 +7,8 @@ import { newCommandId } from '../../protocol/ids';
 import {
   parseServerToClientWire,
   ROOM_WIRE_KIND,
-  WIRE_VERSION,
   type ServerToClientWire,
+  WIRE_VERSION,
 } from '../../protocol/wire';
 import type {
   LogEntry,
@@ -20,7 +20,7 @@ import type {
   RoomModule,
   RoomState,
 } from '../../types';
-import { roomAttrNamespace, RoomMetaAttr } from './room-meta';
+import { RoomMetaAttr, roomAttrNamespace } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
 

@@ -4,8 +4,8 @@ import {
   expectText,
   expectVisible,
 } from '../../assertions/assertions';
-import { createDriver } from '../../driver/create-driver';
 import { NotImplementedError } from '../../core/errors';
+import { createDriver } from '../../driver/create-driver';
 import { by } from '../../selector/selector';
 import { demoHarness } from './demo-app';
 import { InProcessDriver } from './in-process-driver';

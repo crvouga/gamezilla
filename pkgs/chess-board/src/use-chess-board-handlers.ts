@@ -1,16 +1,16 @@
 import {
   applyDropRules,
   commitDropUi,
-  handlePromotionPick,
   type DropAttemptArgs,
   type DropOutcome,
+  handlePromotionPick,
 } from './chess-board-drop-handler';
 import { hapticSelection } from './chess-board-haptics';
 import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move, Square } from './chess-board-types';
 import type { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
 import type { ChessBoardInteractionState } from './use-chess-board-interaction-state';
-import type { useChessGame, TryMoveOk } from './use-chess-game';
+import type { TryMoveOk, useChessGame } from './use-chess-game';
 import { useStableHandler } from './use-stable-handler';
 
 export type ChessBoardHandlersArgs = {

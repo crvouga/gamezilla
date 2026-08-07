@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import { describe, expect, it } from 'bun:test';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createStripeCheckoutRoutes } from './stripe-checkout-route';
 
 describe('createStripeCheckoutRoutes', () => {

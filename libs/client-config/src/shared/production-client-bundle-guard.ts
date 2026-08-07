@@ -1,8 +1,8 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
 import { assert } from '@pkgs/assert';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 
 /** Production API origin — must match `productionApiOrigin()` in `@libs/infra`. */
 export function productionClientApiOrigin(): string {

@@ -1,7 +1,7 @@
-import { useMemberRole } from './use-member-role';
-import { Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberRole } from './use-member-role';
 
 export type MemberHostBadgeProps = {
   spaceId: string;

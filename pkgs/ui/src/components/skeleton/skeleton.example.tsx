@@ -1,8 +1,8 @@
-import { Text } from '../text';
-import { Stack } from '../stack';
 import { Card } from '../card';
-import { Skeleton } from './skeleton';
 import { ExampleRoot } from '../explorer/example-root';
+import { Stack } from '../stack';
+import { Text } from '../text';
+import { Skeleton } from './skeleton';
 
 export default function SkeletonExample() {
   return (

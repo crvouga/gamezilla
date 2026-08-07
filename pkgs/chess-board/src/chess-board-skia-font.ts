@@ -1,4 +1,4 @@
-import { matchFont, Skia, type SkFont } from '@shopify/react-native-skia';
+import { matchFont, type SkFont, Skia } from '@shopify/react-native-skia';
 import { Platform } from 'react-native';
 
 /**

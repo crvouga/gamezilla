@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { encodeNdjsonFrame } from '../shared/encode';
 import type { NdjsonFrame } from '../shared/frames';
-import { IndexedNdjsonStreamError, collectIndexedNdjsonStream } from './index';
+import { collectIndexedNdjsonStream, IndexedNdjsonStreamError } from './index';
 
 function streamFrames<T>(frames: NdjsonFrame<T>[]): ReadableStream<Uint8Array> {
   const enc = new TextEncoder();

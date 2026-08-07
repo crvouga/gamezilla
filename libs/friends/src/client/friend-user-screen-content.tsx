@@ -1,10 +1,9 @@
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
+import type { FriendProfile, FriendshipStatus } from '../shared/friends-types';
 import { FriendActionPills } from './friend-action-pills/friend-action-pills';
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendUserDangerModals } from './friend-user-danger-modals';
-import type { FriendProfile, FriendshipStatus } from '../shared/friends-types';
 
 export function FriendUserScreenContent({
   sx,

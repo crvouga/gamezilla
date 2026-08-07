@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-
+import type { QuerySubscription } from './subscription-runtime';
 import { useSyncEngine } from './sync-engine-context';
 import type { SyncEngine } from './sync-engine-port';
-import type { QuerySubscription } from './subscription-runtime';
 
 export type SyncEngineQuerySubscriptionSpec = {
   readonly name: string;
@@ -120,7 +119,6 @@ export function useSyncEngineSubscriptions(
       for (const unsub of liveUnsubs) unsub();
     };
     // key encodes specs by value; engine identity drives reconnect
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- key replaces specs
   }, [engine, key]);
 
   return { ready };

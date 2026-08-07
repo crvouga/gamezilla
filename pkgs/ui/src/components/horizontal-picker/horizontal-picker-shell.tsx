@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { spacing } from '../../theme/scale';
 import { HorizontalPickerArrow } from './horizontal-picker-arrows';
 

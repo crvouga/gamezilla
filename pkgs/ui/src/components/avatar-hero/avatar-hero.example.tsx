@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { asLocalized } from '@pkgs/i18n';
+import { useState } from 'react';
 import { Avatar } from '../avatar';
+import { ExampleRoot } from '../explorer/example-root';
 import { ShuffleIcon } from '../icons';
 import { Text } from '../text';
 import { AvatarHero } from './avatar-hero';
-import { ExampleRoot } from '../explorer/example-root';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

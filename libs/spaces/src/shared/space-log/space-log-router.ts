@@ -1,14 +1,14 @@
+import type {
+  EventLogRouter,
+  LogLineContext,
+  LogLineDraft,
+} from '@pkgs/collab';
 import { asLocalized } from '@pkgs/i18n';
 import {
   createComposedMessageRouter,
   createMessageRouter,
   type MessageRouter,
 } from '@pkgs/message';
-import type {
-  EventLogRouter,
-  LogLineContext,
-  LogLineDraft,
-} from '@pkgs/collab';
 
 import {
   CounterDecremented,

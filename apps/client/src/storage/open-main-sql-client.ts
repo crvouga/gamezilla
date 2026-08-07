@@ -1,7 +1,7 @@
+import { assertDatabaseName } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { assertDatabaseName } from '@pkgs/sql';
 import { Platform } from 'react-native';
 
 import { resolveSqliteDbName } from './resolve-sqlite-db-name';

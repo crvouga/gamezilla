@@ -1,6 +1,6 @@
 import { clerk } from '@clerk/testing/playwright';
+import { by, type Driver, expectHidden, expectVisible } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
-import { by, expectHidden, expectVisible, type Driver } from '@pkgs/ui-testing';
 
 import type { AuthPort } from '../support/auth-port';
 import { openUserMenu } from '../support/chrome-menu';

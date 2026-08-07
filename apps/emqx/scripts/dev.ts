@@ -2,7 +2,7 @@
  * Foreground entry for `@apps/emqx dev`. Spawns `emqx foreground` under one
  * Node process so turbo SIGINT/SIGTERM tear down the broker (no shell &).
  */
-import { spawn, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { ensureEmqxBin } from './ensure-emqx';
 import {

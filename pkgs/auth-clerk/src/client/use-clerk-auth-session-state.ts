@@ -1,6 +1,6 @@
+import { useAuth, useUser } from '@clerk/expo';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-import { useAuth, useUser } from '@clerk/expo';
 
 function mapClerkUserToSession(
   userId: string,

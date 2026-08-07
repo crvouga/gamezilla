@@ -1,5 +1,5 @@
 import { validateRailwayToken } from '../lib/railway-api-core';
-import { Secret, requireNonEmpty, type SecretInput } from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 /**
  * Optional until EMQX is provisioned. When set, live-probe Railway so

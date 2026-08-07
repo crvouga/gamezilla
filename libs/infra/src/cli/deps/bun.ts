@@ -1,6 +1,6 @@
 import {
-  captureVersion,
   CurlScriptInstaller,
+  captureVersion,
   run,
   verifyRun,
   which,

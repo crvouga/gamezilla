@@ -1,8 +1,8 @@
-import { withLockDbSuspended } from '../lock-db-session';
 import { REPO_ROOT } from '../../paths';
 import type { CiPlatform } from '../../platform/platform';
 import { runStep } from '../../platform/platform';
 import { runAsync } from '../../subprocess';
+import { withLockDbSuspended } from '../lock-db-session';
 
 /**
  * Runs the `@libs/stripe sync` script: catalog + entity_store backfill.

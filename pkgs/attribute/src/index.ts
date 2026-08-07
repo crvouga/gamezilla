@@ -1,4 +1,3 @@
-export { createAttrNamespace } from './attribute';
 export type {
   AnyAttributeTag,
   AttributeIndexSpec,
@@ -12,3 +11,4 @@ export type {
   Keyword,
   NamespacedKey,
 } from './attribute';
+export { createAttrNamespace } from './attribute';

@@ -4,20 +4,20 @@
  * helper line shows “Copied” feedback then resets.
  */
 
-import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
+import type { LocalizedString } from '@pkgs/i18n';
 import * as Clipboard from 'expo-clipboard';
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
 import { Animated, Pressable, View, type ViewStyle } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';

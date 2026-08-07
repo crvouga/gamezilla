@@ -1,7 +1,7 @@
 import { Box } from '../box';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { ScrollView } from './scroll-view';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function ScrollViewExample() {
   return (

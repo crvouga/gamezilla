@@ -1,7 +1,7 @@
 import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { ScreenBase } from '../screen-base';
+import { Text } from '../text';
 
 export default function ScreenTitleExample() {
   return (

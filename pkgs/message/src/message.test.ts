@@ -1,5 +1,5 @@
-import { Assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { Assert } from '@pkgs/assert';
 import { asKeyword, isNamespacedKeyword } from '@pkgs/keyword/keyword';
 import {
   acceptUnknownPayload,

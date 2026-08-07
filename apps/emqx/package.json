@@ -6,7 +6,6 @@
     "dev": "bun run scripts/dev.ts",
     "install:deps": "bun -e \"process.exit(0)\"",
     "kill": "bun run scripts/kill-dev.ts",
-    "lint": "eslint . --max-warnings 0",
     "setup": "bun run scripts/setup.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json"
   },

@@ -6,11 +6,11 @@ import type {
 } from '../../../core/transport';
 import {
   clearHeartbeatTimers,
+  type HeartbeatTimers,
   isPongWire,
   raceWithTimeout,
   sendPing,
   startHeartbeat,
-  type HeartbeatTimers,
 } from './heartbeat';
 
 const crash: Assert = Assert.crash();

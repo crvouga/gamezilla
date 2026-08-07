@@ -2,11 +2,11 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 import { Button } from '../button';
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { TextInput } from '../text-input';
 import { MutationModal } from './mutation-modal';
-import { ExampleRoot } from '../explorer/example-root';
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

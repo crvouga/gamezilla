@@ -1,11 +1,11 @@
 import type { FloatingMenuHeaderSpec } from '../floating-menu';
 import type { ActionBarOverflowTriggerSpec } from './action-bar-parts';
-import type { ActionBarItem } from './partition-action-bar-items';
 import type {
   ActionBarAlign,
   ActionBarOverflowMode,
   ActionBarTextAction,
 } from './action-bar-types';
+import type { ActionBarItem } from './partition-action-bar-items';
 
 const DEFAULT_BUTTON_SIZE = 36;
 const DEFAULT_GAP = 8;

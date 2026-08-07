@@ -1,7 +1,7 @@
-import {
-  type TtsProvider,
-  type TtsSynthesizeInput,
-  type TtsSynthesizeOutput,
+import type {
+  TtsProvider,
+  TtsSynthesizeInput,
+  TtsSynthesizeOutput,
 } from '../ports/tts-provider';
 
 /**

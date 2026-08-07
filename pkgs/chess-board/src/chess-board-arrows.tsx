@@ -5,14 +5,14 @@ import {
   Skia,
   type SkPath,
 } from '@shopify/react-native-skia';
-import { memo, useMemo, type ReactNode } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
+import { squareToXY } from './chess-board-geometry';
 import type {
   BoardArrow,
   BoardOrientation,
   BoardTheme,
   Square,
 } from './chess-board-types';
-import { squareToXY } from './chess-board-geometry';
 
 function squareCenter(
   square: Square,

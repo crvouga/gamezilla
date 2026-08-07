@@ -8,8 +8,8 @@ import { createMessageRouter, type MessageRouter } from '@pkgs/message';
 
 import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import {
-  ChessPuzzleHostReclaimed,
   ChessPuzzleHintRevealed,
+  ChessPuzzleHostReclaimed,
   ChessPuzzlePlayCleared,
   ChessPuzzlePlayMoveAccepted,
   ChessPuzzlePlayMoveRejected,

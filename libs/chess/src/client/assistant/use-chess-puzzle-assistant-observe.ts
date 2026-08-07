@@ -1,9 +1,8 @@
 import { emitAssistantSpeakingMessage } from '@pkgs/assistant/client';
 import type { Assistant, AssistantSignal } from '@pkgs/assistant/shared';
 import { useEffect, useRef } from 'react';
-
-import type { ChessPuzzleAssistantPayload } from './chess-puzzle-assistant-adapter';
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';
+import type { ChessPuzzleAssistantPayload } from './chess-puzzle-assistant-adapter';
 
 export function useChessPuzzleAssistantObserve(args: {
   readonly assistant: Assistant<ChessPuzzleAssistantPayload>;

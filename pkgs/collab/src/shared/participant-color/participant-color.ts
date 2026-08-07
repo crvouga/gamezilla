@@ -1,4 +1,4 @@
-import { hsla, hslToRgb, type Hsla, type Rgb } from '@pkgs/colors';
+import { type Hsla, hsla, hslToRgb, type Rgb } from '@pkgs/colors';
 
 /**
  * Fixed, colorblind-considerate hue palette for collaborative participants.

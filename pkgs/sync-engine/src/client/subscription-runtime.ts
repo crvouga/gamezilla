@@ -1,23 +1,16 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
-  purgeScope,
   type MergeApplierDeps,
+  purgeScope,
 } from '@pkgs/sync-engine/queries/client/merge-applier';
 import type { QueryResponse } from '@pkgs/sync-engine/queries/core/types';
 import { scopeHash } from '@pkgs/sync-engine/queries/shared/canonical';
 
 import {
-  alwaysOnLifecycle,
   type AppLifecycle,
   type AppLifecycleEvent,
+  alwaysOnLifecycle,
 } from './app-lifecycle';
-import { LIFECYCLE_SWEEP_JITTER_MS } from './subscription-constants';
-import {
-  applyQueryResponse,
-  loadBasis,
-  requestFromBasis,
-  type QueryRequest,
-} from './subscription-fetch';
 import {
   resolveFallbackPollMs,
   resolveReconcileMs,
@@ -30,6 +23,13 @@ import {
   resolveRandom,
   type Timers,
 } from './sim-ports';
+import { LIFECYCLE_SWEEP_JITTER_MS } from './subscription-constants';
+import {
+  applyQueryResponse,
+  loadBasis,
+  type QueryRequest,
+  requestFromBasis,
+} from './subscription-fetch';
 
 export type { QueryRequest };
 

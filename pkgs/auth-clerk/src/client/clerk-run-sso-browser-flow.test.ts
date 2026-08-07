@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 
 import {
-  runClerkSsoBrowserFlow,
   type ClerkSsoSignInHandle,
   type ClerkSsoSignUpHandle,
+  runClerkSsoBrowserFlow,
 } from './clerk-run-sso-browser-flow';
 
 function createSignIn(externalUrl: string): ClerkSsoSignInHandle {

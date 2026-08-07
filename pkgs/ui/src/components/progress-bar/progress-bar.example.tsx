@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Text } from '../text';
-import { Stack } from '../stack';
-import { ProgressBar } from './progress-bar';
+import { useEffect, useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
+import { Stack } from '../stack';
+import { Text } from '../text';
+import { ProgressBar } from './progress-bar';
 
 export default function ProgressBarExample() {
   const [progress, setProgress] = useState(0);

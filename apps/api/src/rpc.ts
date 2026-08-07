@@ -1,4 +1,4 @@
-import { hc, type ApplyGlobalResponse } from 'hono/client';
+import { type ApplyGlobalResponse, hc } from 'hono/client';
 
 import type { createApiApp } from './app/create-app';
 

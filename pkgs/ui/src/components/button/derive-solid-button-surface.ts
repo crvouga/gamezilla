@@ -5,7 +5,7 @@
  * (CSS / paint concern).
  */
 
-import { adjustLightness, setAlpha, type Rgba } from '@pkgs/colors';
+import { adjustLightness, type Rgba, setAlpha } from '@pkgs/colors';
 
 import { formatCssHsla, parseCssColor } from '../../theme/colors/css-color';
 

@@ -1,8 +1,8 @@
+import { isObservabilityActive } from '../port/is-observability-active';
+import type { Observability } from '../port/observability';
+import { Semconv } from '../shared/semconv';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { HttpFetchFn } from '../shared/types';
-import { Semconv } from '../shared/semconv';
-import type { Observability } from '../port/observability';
-import { isObservabilityActive } from '../port/is-observability-active';
 
 /** Window/Worker `fetch` must stay bound — bare `fetch` throws Illegal invocation. */
 function defaultFetch(): HttpFetchFn {

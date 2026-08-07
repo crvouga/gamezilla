@@ -11,12 +11,11 @@
  * ```
  */
 
+import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
-import { useLingui } from '@lingui/react/macro';
 import { IconButton } from '../icon-button';
 import { XIcon } from '../icons';
 

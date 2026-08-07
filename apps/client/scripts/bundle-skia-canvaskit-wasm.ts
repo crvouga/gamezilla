@@ -16,8 +16,8 @@ import {
   copyFileSync,
   existsSync,
   mkdirSync,
-  statSync,
   type Stats,
+  statSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';

@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert';
 import { randomBytes } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
+import { assert } from '@pkgs/assert';
 import type { CiPlatform } from './platform';
 
 export class GitHubActionsPlatform implements CiPlatform {

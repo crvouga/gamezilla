@@ -10,8 +10,8 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import * as WebBrowser from 'expo-web-browser';
 import { type Href, useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 
 /**

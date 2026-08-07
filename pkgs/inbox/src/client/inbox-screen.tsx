@@ -1,6 +1,6 @@
-import { Box, Button, ScreenBase, Text, useMutationButton } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { Box, Button, ScreenBase, Text, useMutationButton } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 import type { InteractionFilter } from '../shared/interaction';
 import { InboxFilterBar } from './inbox-filter-bar';

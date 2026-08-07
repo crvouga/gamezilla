@@ -1,6 +1,6 @@
-import { Box, Button } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { Box, Button } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 import { useSignInModal, useSignOutModal } from './auth-modals-provider';
 import { useIsSignedIn } from './use-current-user';

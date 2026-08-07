@@ -1,8 +1,7 @@
-import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
-
-import { openLoopbackRoom } from './testkit/simulator';
+import { asKeyword } from '@pkgs/keyword';
 import { Increment, TestCounterModule } from './testkit/counter-module';
+import { openLoopbackRoom } from './testkit/simulator';
 import { ROOM_ERROR_TYPE } from './types';
 
 describe('server-authoritative room (loopback)', () => {

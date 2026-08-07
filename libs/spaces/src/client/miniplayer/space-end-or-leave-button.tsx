@@ -1,9 +1,9 @@
+import { Trans, useLingui } from '@lingui/react/macro';
+import { borderRadius, Pressable, Text } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { borderRadius, Pressable, Text } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
 
 export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;

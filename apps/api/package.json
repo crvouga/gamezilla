@@ -15,7 +15,6 @@
     "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
-    "lint": "eslint src --max-warnings 0",
     "migrate": "bun run scripts/migrate-db.ts",
     "preview": "bun run scripts/migrate-db.ts --wait && bun run preview:serve",
     "preview:serve": "bun run scripts/preview-serve.ts",

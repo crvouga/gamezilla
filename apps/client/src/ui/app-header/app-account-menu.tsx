@@ -3,9 +3,9 @@
  * user → Account screen, Settings, Sign in/out) anchored on the profile avatar.
  */
 
-import { ActionBar } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useMemo, type ReactNode } from 'react';
+import { ActionBar } from '@pkgs/ui';
+import { type ReactNode, useMemo } from 'react';
 
 import {
   ACCOUNT_MENU_TRIGGER_SIZE,

@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { use, type ReactNode } from 'react';
+import { type ReactNode, use } from 'react';
 
 const canvaskitLocateFile = (file: string): string =>
   file.endsWith('.wasm') ? '/generated/skia/canvaskit.wasm' : `/${file}`;
@@ -15,8 +15,9 @@ const canvaskitLocateFile = (file: string): string =>
  */
 export async function loadSkiaWebOnce(): Promise<void> {
   if (typeof globalThis.CanvasKit !== 'undefined') return;
-  const { LoadSkiaWeb } =
-    await import('@shopify/react-native-skia/lib/module/web/LoadSkiaWeb');
+  const { LoadSkiaWeb } = await import(
+    '@shopify/react-native-skia/lib/module/web/LoadSkiaWeb'
+  );
   await LoadSkiaWeb({ locateFile: canvaskitLocateFile });
 }
 

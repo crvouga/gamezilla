@@ -1,9 +1,9 @@
+import { Box } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 import { SpaceGuestAvatarGroup } from './space-guest-avatar-group';
 import { SpaceGuestCountText } from './space-guest-count-text';
 import { SpaceGuestNamesLine } from './space-guest-names-line';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
-import { Box } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type SpaceGuestSectionProps = {
   spaceId: string;

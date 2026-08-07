@@ -1,8 +1,8 @@
 import {
   SPACE_OPEN_SESSIONS_TABLE,
   SPACE_USERS_TABLE,
-  spaceOpenSessionEntityId,
   SPACES_TABLE,
+  spaceOpenSessionEntityId,
   spaceUserEntityId,
 } from '@libs/db/shared/space-tables';
 import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
@@ -12,9 +12,9 @@ import { SPACE_VISIBILITIES } from '@libs/spaces/shared/space-visibility';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
 import {
-  MutationError,
   type MutationDb,
   type MutationEnv,
+  MutationError,
 } from '@pkgs/sync-engine/mutations/core/types';
 import { z } from 'zod';
 

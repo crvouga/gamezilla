@@ -1,14 +1,14 @@
-import type { SecretString } from '@pkgs/secret-string/secret-string';
 import {
   SecretBlankError,
   SecretMissingError,
-  SecretStoreParseError,
-  SecretStoreRequestError,
   type SecretStore,
   type SecretStoreGetInit,
+  SecretStoreParseError,
+  SecretStoreRequestError,
   type SecretStoreSetInit,
 } from '@pkgs/secret-store';
 import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store/wrap-secret';
+import type { SecretString } from '@pkgs/secret-string/secret-string';
 
 export type InfisicalSecretStoreOptions = {
   readonly domain: string;

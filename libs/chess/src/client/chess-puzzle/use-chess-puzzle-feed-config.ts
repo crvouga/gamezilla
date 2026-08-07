@@ -4,9 +4,9 @@ import { useKvState } from '@pkgs/kv/use-kv-state';
 import type { Dispatch, SetStateAction } from 'react';
 
 import {
+  type ChessPuzzleFeedConfig,
   DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
   isChessPuzzleFeedConfig,
-  type ChessPuzzleFeedConfig,
 } from '../../shared/chess-puzzle-feed-config';
 
 const PUZZLE_FEED_ROW_KEY = asKeyword('chess.prefs/puzzle-feed');

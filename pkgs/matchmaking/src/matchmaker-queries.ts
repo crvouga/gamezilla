@@ -8,7 +8,7 @@
  *
  * @internal
  */
-import { sql, type Sql, type SqlFragment } from '@pkgs/sql';
+import { type Sql, type SqlFragment, sql } from '@pkgs/sql';
 
 import type {
   MatchPassRow,

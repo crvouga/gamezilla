@@ -1,7 +1,7 @@
-import { useSpaceMemberCount } from '../members/use-space-member-count';
-import { Text } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
+import { Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useSpaceMemberCount } from '../members/use-space-member-count';
 
 export type MiniplayerMemberCountTextProps = {
   spaceId: string;

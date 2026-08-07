@@ -1,5 +1,5 @@
 import type { Hono } from 'hono';
-
+import type { InboxRequestContext } from './inbox-context';
 import {
   archiveInteraction,
   dismissInteraction,
@@ -8,7 +8,6 @@ import {
   markInteractionRead,
   performInteractionAction,
 } from './service';
-import type { InboxRequestContext } from './inbox-context';
 
 export function registerInboxRoutes(
   app: Hono,

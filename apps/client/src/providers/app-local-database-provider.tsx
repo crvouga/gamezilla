@@ -2,13 +2,12 @@ import { AuthSyncBridge } from '@libs/auth/client/auth-sync-bridge';
 import { ProfileProvider } from '@libs/profile/client/profile-provider';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
-import { MutationClientProvider } from './mutation-client-provider';
 import { DeviceEntityBootstrap } from './local-database/device-bootstrap';
 import { SyncLocalDataActions } from './local-database/local-data-actions';
 import { ShellQuerySubscriptions } from './local-database/shell-query-subscriptions';
-import { SyncEngineBoot } from './local-database/sync-engine-boot';
 import { SqliteRecoveryGate } from './local-database/sqlite-recovery-gate';
+import { SyncEngineBoot } from './local-database/sync-engine-boot';
+import { MutationClientProvider } from './mutation-client-provider';
 
 const localDatabaseProviders = [
   SqliteRecoveryGate,

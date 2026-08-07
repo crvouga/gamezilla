@@ -2,14 +2,13 @@ import { assert } from '@pkgs/assert';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ZodError } from 'zod';
-
-import { hashQueryTables } from '../shared/canonical';
 import type {
   QueryDef,
   QueryRegistry,
   QueryResponse,
   QueryRow,
 } from '../core/types';
+import { hashQueryTables } from '../shared/canonical';
 
 export type RunQueryInput = {
   readonly name: string;

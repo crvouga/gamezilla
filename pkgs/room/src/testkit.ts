@@ -1,8 +1,8 @@
-export { openLoopbackRoom } from './testkit/simulator';
-export type { LoopbackRoomSystem } from './testkit/simulator';
-export { LoopbackRoomTransport } from './testkit/loopback-transport';
 export {
-  Increment,
   Decrement,
+  Increment,
   TestCounterModule,
 } from './testkit/counter-module';
+export { LoopbackRoomTransport } from './testkit/loopback-transport';
+export type { LoopbackRoomSystem } from './testkit/simulator';
+export { openLoopbackRoom } from './testkit/simulator';

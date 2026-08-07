@@ -1,6 +1,6 @@
-import { MutationModal } from '@pkgs/ui';
-import { Sounds } from '@pkgs/sounds';
 import { Trans } from '@lingui/react/macro';
+import { Sounds } from '@pkgs/sounds';
+import { MutationModal } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type LeaveSpaceConfirmModalProps = {

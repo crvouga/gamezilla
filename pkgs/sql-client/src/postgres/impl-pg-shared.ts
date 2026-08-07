@@ -2,12 +2,13 @@
  * Shared helpers for `node-postgres` ({@link Pool} / {@link Client}) backed
  * {@link SqlClient} implementations.
  */
-import type { Pool, PoolClient, QueryResult } from 'pg';
+
 import type { Sql, Value } from '@pkgs/sql';
+import type { Pool, PoolClient, QueryResult } from 'pg';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
+import { questionMarkParamsToDollarParams } from '../positional-params';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
-import { questionMarkParamsToDollarParams } from '../positional-params';
 
 export function readLastInsertRowid(
   rows: readonly Record<string, unknown>[] | undefined | null

@@ -1,8 +1,8 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { UserIcon } from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { IconButton, iconButtonAvatarContentSize } from './icon-button';
-import { ExampleRoot } from '../explorer/example-root';
 
 const AVATAR_BUTTON_SIZE = 40;
 

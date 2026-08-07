@@ -2,9 +2,8 @@ import { createClerkClient, verifyToken } from '@clerk/backend';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { AuthUserProfile } from '@pkgs/auth/shared/user-profile';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-
-import { mapClerkJwtToVerifiedSession } from './map-verified-session';
 import { mapClerkUserToProfile } from './map-user-profile';
+import { mapClerkJwtToVerifiedSession } from './map-verified-session';
 
 export type ClerkAuthServerAdapterConfig = {
   readonly publishableKey: string;

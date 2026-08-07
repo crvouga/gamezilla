@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
 import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
+import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
 import {
   deriveChessPuzzleGameLog,
   deriveChessPuzzleStats,

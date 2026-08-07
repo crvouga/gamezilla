@@ -1,7 +1,9 @@
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
-import type { ActionBarOverflowMode } from './action-bar-types';
 import { textActionsToOverflow } from './action-bar-parts';
-import type { ActionBarTextAction } from './action-bar-types';
+import type {
+  ActionBarOverflowMode,
+  ActionBarTextAction,
+} from './action-bar-types';
 
 export function collectOverflowActions(args: {
   overflow: ActionBarOverflowMode;

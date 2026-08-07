@@ -1,13 +1,13 @@
 import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
 import {
-  useDebouncedUserSearchEffect,
   UserSearchQueryHint,
   UserSearchSignInPrompt,
+  useDebouncedUserSearchEffect,
 } from '@libs/user-search/client/use-user-search';
 import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/shared/user-search-types';
-import { Box, Combobox, Text, type ComboboxOption } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { Box, Combobox, type ComboboxOption, Text } from '@pkgs/ui';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useAddSpaceUser } from './use-space-users';
 

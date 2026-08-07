@@ -7,12 +7,11 @@ import type {
   RoomState,
 } from '../../../types';
 import type { RoomServer } from '../../core/room-server';
-
-import {
-  readRoomSocketAttachment,
-  type RoomSocketAttachment,
-} from './socket-attachment';
 import type { ResolvedAdapterConfig } from './adapter-base-types';
+import {
+  type RoomSocketAttachment,
+  readRoomSocketAttachment,
+} from './socket-attachment';
 import type { DurableObjectInstanceState } from './types';
 
 const crash: Assert = Assert.crash();

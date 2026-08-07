@@ -1,6 +1,6 @@
 import {
-  clientAuthHeaders,
   type ClientRequestAuth,
+  clientAuthHeaders,
 } from '@libs/auth/client/client-request-auth';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 

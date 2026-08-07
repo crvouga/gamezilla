@@ -1,4 +1,4 @@
-import { sql, type Sql } from '@pkgs/sql';
+import { type Sql, sql } from '@pkgs/sql';
 
 import type { InteractionFilter } from '../shared/interaction';
 import type { StoredInteractionRow } from '../shared/stored-interaction-row';

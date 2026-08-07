@@ -3,9 +3,9 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
+import { type ReactNode, useCallback, useEffect } from 'react';
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,

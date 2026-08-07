@@ -16,16 +16,16 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { preserveEmptyTextLayout } from './preserve-empty-text-layout';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import {
-  textCasingToStyle,
-  useOnColor,
-  useTheme,
   type OnColorSet,
   type SxProps,
   type Theme,
+  textCasingToStyle,
+  useOnColor,
+  useTheme,
 } from '../../theme';
+import { preserveEmptyTextLayout } from './preserve-empty-text-layout';
 
 export type TextVariant =
   | 'body'

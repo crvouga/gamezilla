@@ -1,23 +1,23 @@
 import type { ReactNode } from 'react';
 import { useCallback, useRef, useState } from 'react';
-import type { ComponentDataSet } from '../../component-id';
 import type { LayoutChangeEvent, ListRenderItem } from 'react-native';
 import type Animated from 'react-native-reanimated';
 import {
   runOnJS,
+  type SharedValue,
   useAnimatedScrollHandler,
   useSharedValue,
-  type SharedValue,
 } from 'react-native-reanimated';
+import type { ComponentDataSet } from '../../component-id';
 import { HorizontalPickerCell } from './horizontal-picker-cell';
+import { HorizontalPickerList } from './horizontal-picker-list';
+import { HorizontalPickerShell } from './horizontal-picker-shell';
 import {
   clampIndex,
   indexFromOffset,
   offsetForIndex,
   useHorizontalPickerSelection,
 } from './use-horizontal-picker-selection';
-import { HorizontalPickerList } from './horizontal-picker-list';
-import { HorizontalPickerShell } from './horizontal-picker-shell';
 
 const DEFAULT_ITEM_WIDTH = 120;
 

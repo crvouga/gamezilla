@@ -1,5 +1,4 @@
-import type { SpanContextStorage } from '../port/observability';
-import type { Observability } from '../port/observability';
+import type { Observability, SpanContextStorage } from '../port/observability';
 import type { Span, SpanContext, StartSpanOptions } from '../shared/types';
 import {
   extractPropagationContext,

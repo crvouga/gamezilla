@@ -1,14 +1,14 @@
+import type { useLingui } from '@lingui/react/macro';
 import { Trans } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
-import type { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import type { FriendshipStatus } from '../../shared/friends-types';
-import type { FriendActionMutations } from './friend-action-types';
 import {
   ConfirmDeletePills,
   SingleActionPill,
 } from './friend-action-pill-buttons';
+import type { FriendActionMutations } from './friend-action-types';
 
 type LinguiT = ReturnType<typeof useLingui>['t'];
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;

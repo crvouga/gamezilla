@@ -1,6 +1,6 @@
+import { Trans } from '@lingui/react/macro';
 import { Box, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans } from '@lingui/react/macro';
 import { LinkedProvidersCard } from './linked-providers-card';
 
 export function AccountProvidersScreen() {

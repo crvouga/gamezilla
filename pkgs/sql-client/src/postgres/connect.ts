@@ -7,19 +7,20 @@
  * (`tools/scripts/check-no-direct-pg-imports.ts`), which makes pointing at a
  * different schema impossible without going through here.
  */
-import { Client, Pool, type PoolClient } from 'pg';
+
 import { raw } from '@pkgs/sql';
-import { pgRawQueryWithSearchPathPin, type PgExecutor } from './impl-pg-shared';
-import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
+import { Client, Pool, type PoolClient } from 'pg';
 import type { PostgresSqlClient, SqlClient } from '../interface';
-import { quotePgIdent, type PostgresDbScope } from './schema';
+import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
+import { type PgExecutor, pgRawQueryWithSearchPathPin } from './impl-pg-shared';
+import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
+import { type PostgresDbScope, quotePgIdent } from './schema';
 import {
   assertPgSessionSchema,
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
   withPostgresSearchPathOption,
 } from './session-schema';
-import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 
 export { pingPostgres } from './ping';
 

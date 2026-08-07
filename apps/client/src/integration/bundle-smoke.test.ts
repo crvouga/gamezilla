@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
-import { assert } from '@pkgs/assert';
 import { runPackageScriptOnce } from '@libs/integration-test/harness';
+import { assert } from '@pkgs/assert';
 
 /**
  * Native bundle-export smoke. Runs the SAME Metro bundling step `eas update`

@@ -3,10 +3,10 @@
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,
  * then runs `@apps/api` `test:integration`.
  *
- * When `/api/health` is already OK (`bun dev`, `bun preview`, CI's prior
- * "Start API preview" step, or the shared stack from `bun check`), runs tests
- * immediately. Otherwise starts `preview:serve` locally, waits, runs tests,
- * then frees the API port.
+ * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
+ * "Start API preview" step), runs tests immediately. Otherwise starts
+ * `preview:serve` locally, waits, runs tests, then frees the API port.
+ * Also a root Turbo task (`//#check:api`) used by `bun check`.
  *
  * Invoked via `bun run check:api` (wraps `secrets-run` for dev secrets).
  */
@@ -44,8 +44,8 @@ function probeApiHealth(): boolean {
 
 function runIntegrationTests(): number {
   const result = spawnSync(
-    'turbo',
-    ['run', 'test:integration', '--filter=@apps/api'],
+    'bun',
+    ['run', '--filter', '@apps/api', 'test:integration'],
     { cwd: REPO_ROOT, stdio: 'inherit', env: process.env }
   );
   return result.status ?? 1;

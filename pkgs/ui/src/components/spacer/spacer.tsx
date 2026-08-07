@@ -14,7 +14,7 @@
  */
 
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 
 export type SpacerProps = {
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */

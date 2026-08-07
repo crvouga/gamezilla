@@ -1,12 +1,12 @@
-import type { SimClock } from './clock';
 import type { SimClientHandle } from './client-factory';
+import type { SimClock } from './clock';
 import type { SimFaultOptions } from './faults';
 import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
 import type { SimNetwork } from './network';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
-import { bootSimKernel, BROKER, SERVER_HTTP } from './world-boot';
+import { BROKER, bootSimKernel, SERVER_HTTP } from './world-boot';
 import { addClientImpl, assertConvergedImpl } from './world-ops';
 
 export type SimWorld = {

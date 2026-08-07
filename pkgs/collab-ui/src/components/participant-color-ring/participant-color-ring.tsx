@@ -2,10 +2,9 @@
  * Colored ring around a child (typically an avatar) identifying a participant.
  */
 
+import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-
-import { componentDataSet, type ComponentDataSet } from '@pkgs/ui';
 
 export type ParticipantColorRingProps = {
   color: string;

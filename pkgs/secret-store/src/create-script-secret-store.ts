@@ -1,5 +1,5 @@
-import type { SecretStore } from '@pkgs/secret-store/interface';
 import { createEnvSecretStore } from '@pkgs/secret-store/impl-env';
+import type { SecretStore } from '@pkgs/secret-store/interface';
 
 /**
  * Script-side store: reads secrets already injected into `process.env`

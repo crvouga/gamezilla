@@ -7,11 +7,11 @@ import {
 } from '@libs/auth/client/use-fresh-auth-token';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
+import { SqlClientProvider } from '@pkgs/sql-client/react-context';
 import { SyncEngineProvider } from '@pkgs/sync-engine/client/sync-engine-context';
 import { SyncEnginePaintGateContext } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
-import { SqlClientProvider } from '@pkgs/sql-client/react-context';
-import { useMemo, useRef, type ReactNode } from 'react';
+import { type ReactNode, useMemo, useRef } from 'react';
 
 import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
 import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';

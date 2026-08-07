@@ -1,0 +1,5 @@
+language js
+
+`<$name importantForAccessibility=$value>$children</$name>` as $el where {
+  register_diagnostic(span=$el, message="Do not use importantForAccessibility; prefer the inert attribute.", severity="error")
+}

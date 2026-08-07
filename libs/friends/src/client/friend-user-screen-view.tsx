@@ -1,8 +1,8 @@
+import { Trans } from '@lingui/react/macro';
 import { ScreenBase, type ScreenBaseAction } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans } from '@lingui/react/macro';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useBlockUser } from './block-user/use-block-user';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
@@ -10,13 +10,13 @@ import { FriendUserScreenContent } from './friend-user-screen-content';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
 import { useRemoveFriend } from './remove-friend/use-remove-friend';
 import { useFriendRequestIdsForUser } from './use-friend-request-ids';
-import { useFriendshipStatus } from './use-friendship-status';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
 import {
   friendUserBreadcrumbName,
   readRouteParam,
   useFriendUserProfile,
 } from './use-friend-user-profile';
+import { useFriendshipStatus } from './use-friendship-status';
 
 function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
   const router = useRouter();

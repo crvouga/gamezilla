@@ -1,9 +1,4 @@
-import { SpaceJoinButton } from './space-join-button';
-import { SpaceEndedScreen } from './space-ended-screen';
-import { SpaceJoinLiveBody } from './space-join-live-body';
-import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
-import { SpaceTitleText } from '../space-title-text';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
   Box,
   EmptyState,
@@ -11,8 +6,13 @@ import {
   LoadingState,
   ScreenBase,
 } from '@pkgs/ui';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
+import { SpaceTitleText } from '../space-title-text';
+import { SpaceEndedScreen } from './space-ended-screen';
+import { SpaceJoinButton } from './space-join-button';
+import { SpaceJoinLiveBody } from './space-join-live-body';
+import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 
 export type SpaceJoinPromptProps = {
   spaceId: string;

@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  type ResolvedSecretsScope,
   readSecretsConfig,
   SECRETS_DEFAULTS,
-  type ResolvedSecretsScope,
 } from '@pkgs/secrets-config';
 import { INFISICAL_CLI_CONFIG_FILENAME } from './defaults';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';

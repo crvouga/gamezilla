@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { Voices, type Voice } from '../../shared/tts-voice';
+import { type Voice, Voices } from '../../shared/tts-voice';
 import { TtsProviderError } from '../ports/tts-provider';
 import { ElevenLabsTtsProvider } from './elevenlabs-tts-provider';
 

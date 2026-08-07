@@ -1,6 +1,6 @@
 export {
   PortalContentBridgeProvider,
-  usePortalContentWrap,
   type PortalContentBridgeProviderProps,
   type PortalContentWrap,
+  usePortalContentWrap,
 } from './portal-content-bridge';

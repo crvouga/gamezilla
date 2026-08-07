@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { CopyToClipboardField } from './copy-to-clipboard-field';
 import { ExampleRoot } from '../explorer/example-root';
+import { CopyToClipboardField } from './copy-to-clipboard-field';
 
 export default function CopyToClipboardFieldExample() {
   return (

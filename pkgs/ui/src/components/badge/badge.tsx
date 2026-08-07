@@ -22,8 +22,8 @@
 
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
-import { bestOnColor, useTheme, type ColorTokens } from '../../theme';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { bestOnColor, type ColorTokens, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Text } from '../text';
 

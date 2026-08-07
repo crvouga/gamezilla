@@ -1,9 +1,9 @@
+import { describe, expect, test } from 'bun:test';
 import {
   createInMemoryPubSub,
   type InMemoryPubSub,
 } from '@pkgs/pubsub/testing';
 import { sql } from '@pkgs/sql';
-import { describe, expect, test } from 'bun:test';
 import { z } from 'zod';
 
 import { defineMutation } from '../mutations/core/define-mutation';

@@ -1,0 +1,5 @@
+language js
+
+`<Text label="$lit" />` as $el where {
+  register_diagnostic(span=$el, message="Use Trans or the t macro for Text label instead of a string literal.", severity="error")
+}

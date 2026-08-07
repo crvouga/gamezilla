@@ -1,6 +1,6 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Spinner } from './spinner';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function SpinnerExample() {
   return (

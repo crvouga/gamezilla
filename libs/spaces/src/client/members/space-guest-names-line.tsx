@@ -1,9 +1,9 @@
+import type { SxProps, TextVariant } from '@pkgs/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
+import type { ReactNode } from 'react';
 import { NoGuestsText } from './no-guests-text';
 import { SpaceGuestMembershipUsernamesJoined } from './space-guest-membership-usernames-joined';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
-import type { SxProps, TextVariant } from '@pkgs/ui';
-import type { ReactNode } from 'react';
 
 export type SpaceGuestNamesLineProps = {
   spaceId: string;

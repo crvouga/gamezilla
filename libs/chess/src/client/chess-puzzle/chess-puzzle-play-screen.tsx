@@ -1,13 +1,13 @@
 import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { Box, SpeakingAvatar, componentDataSet } from '@pkgs/ui';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { Box, componentDataSet, SpeakingAvatar } from '@pkgs/ui';
 import { memo, type ReactNode } from 'react';
+import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import {
   BOARD_ELO_BAR_HEIGHT,
   ChessPuzzleBoardEloBar,
 } from './chess-puzzle-board-elo-bar';
-import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
@@ -15,13 +15,13 @@ import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
-import type { HintStage } from './use-hint-stage';
 import type { SolveStatus } from './use-chess-puzzle-solver';
-import {
-  usePuzzlePlayerState,
-  type PuzzlePlayerChromeModel,
-} from './use-puzzle-player-state';
+import type { HintStage } from './use-hint-stage';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
+import {
+  type PuzzlePlayerChromeModel,
+  usePuzzlePlayerState,
+} from './use-puzzle-player-state';
 
 const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;

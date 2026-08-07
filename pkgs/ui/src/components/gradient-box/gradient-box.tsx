@@ -15,16 +15,16 @@
  */
 
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ColorValue, ViewProps } from 'react-native';
 import { useMemo } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import type { ColorValue, ViewProps } from 'react-native';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import {
   bestOnColor,
   ON_DARK,
   OnColorProvider,
-  useTheme,
   type OnColorSet,
   type SxProps,
+  useTheme,
 } from '../../theme';
 
 export type GradientBoxProps = ViewProps & {

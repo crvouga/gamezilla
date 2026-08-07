@@ -1,6 +1,6 @@
-import { PubSubClosedError } from '../pubsub-closed-error';
 import type { PubSub, PubSubStatus } from '../interface';
 import { decodePayload, encodePayload } from '../payload';
+import { PubSubClosedError } from '../pubsub-closed-error';
 import { assertValidTopic, type Topic } from '../topic';
 
 type Handler = (data: unknown) => void;

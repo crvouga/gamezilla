@@ -3,7 +3,7 @@ import {
   extractTraceContext,
   injectTraceContext,
 } from '../shared/trace-context';
-import type { StartSpanOptions, SpanContext } from '../shared/types';
+import type { SpanContext, StartSpanOptions } from '../shared/types';
 import { BaseSpan } from './base-span';
 import type {
   Observability,

@@ -3,7 +3,7 @@
  */
 
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { reactNavigationThemeFromTokens } from './navigation-theme';
 import { useTheme } from './theme-context';

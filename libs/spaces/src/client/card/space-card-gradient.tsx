@@ -1,4 +1,4 @@
-import { GradientBox, useTheme, type SxProps } from '@pkgs/ui';
+import { GradientBox, type SxProps, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 

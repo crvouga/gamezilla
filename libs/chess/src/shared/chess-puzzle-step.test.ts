@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
+import { setupPuzzleStart } from './chess-puzzle-fsm';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
@@ -7,8 +8,6 @@ import {
   resolveSeekSolveIdx,
   statusAtSolveIdx,
 } from './chess-puzzle-step';
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
-import { setupPuzzleStart } from './chess-puzzle-fsm';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';

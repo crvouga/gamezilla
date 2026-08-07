@@ -1,8 +1,8 @@
 import { createToolingSecretStore } from '@pkgs/secret-provider';
 import { REPO_ROOT } from '../cli/paths';
 import {
-  PRODUCTION_SECRETS_ENV,
   assertNonProdDatabaseUrl,
+  PRODUCTION_SECRETS_ENV,
 } from './database-url-policy';
 
 /** Tooling-only: fetch secrets env `prd` `DATABASE_URL` for Tiger dual-compare guards. */

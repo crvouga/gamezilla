@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { type StyleProp, View, type ViewStyle } from 'react-native';
 
 import { useOnColor } from '../../theme';
 

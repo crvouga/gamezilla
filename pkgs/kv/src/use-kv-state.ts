@@ -11,17 +11,17 @@
  * current ref is dropped — it cannot clobber a local write that landed
  * after the hydrate started.
  */
+
+import type { Keyword } from '@pkgs/keyword/keyword';
+import { createLogger } from '@pkgs/logger/logger';
 import {
+  type Dispatch,
+  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type Dispatch,
-  type SetStateAction,
 } from 'react';
-
-import type { Keyword } from '@pkgs/keyword/keyword';
-import { createLogger } from '@pkgs/logger/logger';
 
 import type { Kv, KvRecord } from './interface';
 import { useKvOptional } from './kv-context';

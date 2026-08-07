@@ -1,7 +1,7 @@
-import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
-import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
+import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
@@ -69,11 +69,7 @@ export function ActiveSpaceSheetRow({
               }}
             >
               <MiniplayerHostNameLine spaceId={spaceId} />
-              <Text
-                variant="caption"
-                // eslint-disable-next-line workspaceI18n/text-must-be-trans -- typographic separator
-                label="·"
-              />
+              <Text variant="caption" label="·" />
               <MiniplayerMemberCountText spaceId={spaceId} />
             </Box>
           </Box>

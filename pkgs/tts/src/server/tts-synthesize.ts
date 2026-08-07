@@ -1,6 +1,6 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ttsCacheKey } from '../shared/tts-cache-key';
-import { ttsContentTypeFor, type TtsAudioFormat } from '../shared/tts-types';
+import { type TtsAudioFormat, ttsContentTypeFor } from '../shared/tts-types';
 import type { TtsProvider, TtsSynthesizeInput } from './ports/tts-provider';
 
 /**

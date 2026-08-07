@@ -10,14 +10,11 @@ import { assertRoomModuleName } from '../../../types';
 import type { RoomStorage } from '../../core/storage';
 
 import {
-  RoomDurableObjectAdapterBase,
   type ResolvedAdapterConfig,
+  RoomDurableObjectAdapterBase,
 } from './adapter-base';
 import { DurableObjectRoomStorage } from './storage';
-import {
-  type DurableObjectClass,
-  type DurableObjectInstanceState,
-} from './types';
+import type { DurableObjectClass, DurableObjectInstanceState } from './types';
 
 const DEFAULT_IDENTITY_HEADER = 'x-actor-id' as const;
 const DEFAULT_CLIENT_ID_HEADER = 'x-actor-client-id' as const;

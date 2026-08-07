@@ -4,8 +4,8 @@
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MutationAppliedEvent } from '../mutations/client/create-mutation-client';
-import type { SyncStatusSubscription } from './sync-status';
 import type { QuerySubscription } from './subscription-runtime';
+import type { SyncStatusSubscription } from './sync-status';
 
 /**
  * A subscription handle for observing changes in a watched query.

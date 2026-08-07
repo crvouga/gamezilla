@@ -1,15 +1,15 @@
-import { memo, useMemo, type ReactNode } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   runOnJS,
-  useSharedValue,
   type SharedValue,
+  useSharedValue,
 } from 'react-native-reanimated';
 import {
+  type ChessBoardDragMotion,
   clearDragMotion,
   DRAG_PIECE_NONE,
-  type ChessBoardDragMotion,
 } from './chess-board-drag-motion';
 import {
   HOVER_NONE,

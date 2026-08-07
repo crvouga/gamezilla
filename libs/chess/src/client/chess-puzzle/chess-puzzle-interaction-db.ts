@@ -1,18 +1,18 @@
-import {
-  appendPuzzleInteractionMutation,
-  upsertPuzzleProfileMutation,
-} from '../../shared/mutations/chess-mutations';
 import type { MutationClient } from '@pkgs/sync-engine/mutations/client/create-mutation-client';
-
-import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import {
   deriveOutcomeScore,
   isPlayClosed,
   sliceCurrentPlay,
 } from '../../shared/chess-puzzle-derive';
+
+import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
 import { updatePuzzleRating } from '../../shared/chess-puzzle-rating';
-import { type AppendPuzzleInteractionInput } from '../../shared/writes/append-puzzle-interaction-write';
-import { type UpsertPuzzleProfileInput } from '../../shared/writes/upsert-puzzle-profile-write';
+import {
+  appendPuzzleInteractionMutation,
+  upsertPuzzleProfileMutation,
+} from '../../shared/mutations/chess-mutations';
+import type { AppendPuzzleInteractionInput } from '../../shared/writes/append-puzzle-interaction-write';
+import type { UpsertPuzzleProfileInput } from '../../shared/writes/upsert-puzzle-profile-write';
 
 function nowIso(): string {
   return new Date().toISOString();

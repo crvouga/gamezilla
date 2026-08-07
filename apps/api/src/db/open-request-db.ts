@@ -1,8 +1,8 @@
+import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import {
   adaptPgClientAsPool,
   openPgClient,
 } from '@pkgs/sql-client/postgres/connect';
-import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 

@@ -1,5 +1,5 @@
-import { Box, Text } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export function InboxEmptyState(): ReactNode {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { Picker, type PickerOption } from './picker';
-import { ExampleRoot } from '../explorer/example-root';
 
 const OPTIONS: PickerOption<string>[] = [
   {

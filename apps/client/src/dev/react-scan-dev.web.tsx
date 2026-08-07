@@ -6,7 +6,7 @@ function isReactScanEnabled(): boolean {
   if (!__DEV__) {
     return false;
   }
-  // eslint-disable-next-line expo/no-dynamic-env-var -- opt-out knob for local perf work; Expo inlines `EXPO_PUBLIC_*`.
+  // Expo inlines EXPO_PUBLIC_*; bracket access required by noPropertyAccessFromIndexSignature. opt-out knob for local perf work; Expo inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_REACT_SCAN'];
   if (raw === '0' || raw === 'false') {
     return false;

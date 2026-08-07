@@ -2,10 +2,10 @@
  * `ActionBar` -- responsive row of icon actions with overflow menu.
  */
 
-import { useContext, type ReactNode } from 'react';
+import { type ReactNode, useContext } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,
@@ -13,8 +13,8 @@ import {
   type FloatingMenuContent,
   type FloatingMenuHeaderSpec,
 } from '../floating-menu';
-import type { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
 import type { OverflowMenuAction } from '../overflow-menu-button/overflow-menu-button';
+import type { useAnchoredMenu } from '../overflow-menu-button/use-anchored-menu';
 import {
   ActionBarIconItems,
   ActionBarOverflowTrigger,
@@ -22,18 +22,19 @@ import {
   ActionBarTextItems,
   actionBarHasContent,
 } from './action-bar-parts';
-import type { ActionBarItem } from './partition-action-bar-items';
 import type {
   ActionBarAlign,
   ActionBarOverflowMode,
   ActionBarTextAction,
 } from './action-bar-types';
+import type { ActionBarItem } from './partition-action-bar-items';
+import { resolveActionBarProps } from './resolve-action-bar-props';
 import { useActionBarController } from './use-action-bar-controller';
 import type { ActionBarLayoutState } from './use-action-bar-layout';
-import { resolveActionBarProps } from './resolve-action-bar-props';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 
+export type { ActionBarAlign, ActionBarOverflowMode } from './action-bar-types';
 export type { ActionBarItem } from './partition-action-bar-items';
 export {
   actionBarBudgetWidth,
@@ -41,7 +42,6 @@ export {
   partitionActionBarItems,
   screenBaseActionToActionBarItem,
 } from './partition-action-bar-items';
-export type { ActionBarAlign, ActionBarOverflowMode } from './action-bar-types';
 
 export type ActionBarProps = {
   items: readonly ActionBarItem[];

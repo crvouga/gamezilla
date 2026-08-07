@@ -1,7 +1,7 @@
-import { Badge, BellIcon, Box, IconButton } from '@pkgs/ui';
-import type { IconProps } from '@pkgs/ui';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import type { IconProps } from '@pkgs/ui';
+import { Badge, BellIcon, Box, IconButton } from '@pkgs/ui';
+import { type ReactNode, useCallback } from 'react';
 
 import { openInbox } from './inbox-routes';
 import { useInboxUnreadCount } from './use-inbox-unread-count';

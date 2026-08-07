@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { ModalSize } from '../../theme/modal-size';
 import { Button } from '../button';
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ResponsiveSurface } from './responsive-surface';
-import { ExampleRoot } from '../explorer/example-root';
 
 const SIZES: ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
 

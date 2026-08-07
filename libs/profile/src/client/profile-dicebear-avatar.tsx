@@ -1,7 +1,7 @@
+import { Avatar } from '@pkgs/ui';
+import { memo, type ReactNode, useMemo } from 'react';
 import type { AvatarConfig } from '../shared/avatar-config';
 import { resolveAvatarSeed } from '../shared/avatar-config';
-import { Avatar } from '@pkgs/ui';
-import { memo, useMemo, type ReactNode } from 'react';
 
 import { profileAvatarSvg } from './profile-dicebear';
 

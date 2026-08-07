@@ -1,5 +1,6 @@
-import { createSimClock, type SimClock } from './clock';
+import type { Timers } from '../client/sim-ports';
 import type { SimClientHandle } from './client-factory';
+import { createSimClock, type SimClock } from './clock';
 import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { bindSimHttpServer } from './http-bridge';
 import { createSimNetwork, type SimNetwork } from './network';
@@ -8,8 +9,7 @@ import { createSeededRng, type SeededRng } from './rng';
 import { createSimScheduler, type SimScheduler } from './scheduler';
 import { openSimServer, type SimServer } from './server';
 import { createSimTimers } from './timers';
-import type { Timers } from '../client/sim-ports';
-import { type ClientMeta, type WorldClientOpts } from './world-ops';
+import type { ClientMeta, WorldClientOpts } from './world-ops';
 
 const SERVER_HTTP = 'http:server';
 const BROKER = 'pubsub:broker';

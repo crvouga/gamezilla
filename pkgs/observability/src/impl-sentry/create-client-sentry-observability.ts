@@ -1,11 +1,8 @@
-import * as Sentry from '@sentry/react-native';
 import { continueTrace, spanToTraceHeader } from '@sentry/core';
-
-import { formatTraceparent } from '../shared/trace-context';
-
+import * as Sentry from '@sentry/react-native';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
-import type { SpanContextStorage } from '../port/observability';
-import type { Observability } from '../port/observability';
+import type { Observability, SpanContextStorage } from '../port/observability';
+import { formatTraceparent } from '../shared/trace-context';
 import { createSentryObservability } from './sentry-observability';
 import type { SentrySdk } from './sentry-sdk';
 

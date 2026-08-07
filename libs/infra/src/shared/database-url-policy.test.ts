@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { assert } from '@pkgs/assert';
 
 import {
   assertDevSecretsEnv,

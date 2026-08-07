@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { Box, useTheme } from '@pkgs/ui';
 import { assertSkiaWebLoaded } from '@pkgs/ui/components/skia-web-root';
-import { memo, useCallback, useMemo, useState, type ReactNode } from 'react';
+import { memo, type ReactNode, useCallback, useMemo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 import type { ChessBoardCanvasProps } from './chess-board-canvas';
 import { useChessBoardCanvas } from './chess-board-canvas-runtime';
@@ -266,7 +266,7 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
       style={size !== undefined ? explicitSizeStyle(size) : MEASURED_STYLE}
     >
       {canvasReady ? (
-        // eslint-disable-next-line react-hooks/static-components -- see hook call above
+        // see hook call above
         <ChessBoardCanvas {...canvasProps} />
       ) : null}
     </Box>

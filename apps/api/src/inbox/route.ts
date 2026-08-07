@@ -1,13 +1,13 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
 import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
 import { assert } from '@pkgs/assert';
-import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import { Inbox } from '@pkgs/inbox';
+import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
-import { AsyncLocalStorage } from 'node:async_hooks';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { notifyUserChannels } from '../sync/notify-user-channels';

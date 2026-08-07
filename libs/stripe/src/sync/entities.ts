@@ -8,8 +8,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type Stripe from 'stripe';
 import {
   ALL_BACKFILL_ENTITY_TYPES,
-  ENTITY_BACKFILL_RUNNERS,
   backfillStripeListIntoEntityStore,
+  ENTITY_BACKFILL_RUNNERS,
   type StripeEntityObjectType,
 } from '../backfill-entities';
 

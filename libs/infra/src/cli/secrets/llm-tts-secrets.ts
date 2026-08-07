@@ -1,7 +1,7 @@
 import {
-  Secret,
   requireHttpsUrl,
   requireNonEmpty,
+  Secret,
   type SecretInput,
 } from './secret';
 

@@ -1,10 +1,10 @@
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useJoinSpace } from './use-join-space';
-import { optionalProps } from '@pkgs/ui/components/optional-props';
-import { Button, useMutationButton } from '@pkgs/ui';
-import { Sounds } from '@pkgs/sounds';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback, type ReactNode } from 'react';
+import { Sounds } from '@pkgs/sounds';
+import { Button, useMutationButton } from '@pkgs/ui';
+import { optionalProps } from '@pkgs/ui/components/optional-props';
+import { type ReactNode, useCallback } from 'react';
+import { useJoinSpace } from './use-join-space';
 
 export type SpaceJoinButtonProps = {
   spaceId: string;

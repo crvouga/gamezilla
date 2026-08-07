@@ -1,20 +1,20 @@
+import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useIsSignedIn, useMyId } from '@libs/auth/client/use-current-user';
-import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
 import {
+  type GetFreshAuthTokenFn,
   useFreshAuthToken,
   useGetFreshAuthToken,
-  type GetFreshAuthTokenFn,
 } from '@libs/auth/client/use-fresh-auth-token';
-import {
-  InboxProviderRegistry,
-  type InboxClientDeps,
-  type InteractionProvider,
-} from '@pkgs/inbox/client';
 import { createFriendsInteractionProvider } from '@libs/friends/client/friends-interaction-provider';
 import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
-import { useMemo, useRef, type ReactNode } from 'react';
+import {
+  type InboxClientDeps,
+  InboxProviderRegistry,
+  type InteractionProvider,
+} from '@pkgs/inbox/client';
+import { type ReactNode, useMemo, useRef } from 'react';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';

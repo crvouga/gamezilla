@@ -1,6 +1,5 @@
-import { sql } from '@pkgs/sql';
-
 import { describe, expect, test } from 'bun:test';
+import { sql } from '@pkgs/sql';
 
 import {
   createSharedWatchRegistry,

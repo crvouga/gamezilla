@@ -1,5 +1,5 @@
 import { Group, Rect, Text as SkiaText } from '@shopify/react-native-skia';
-import { memo, useMemo, type ReactNode } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 import { squareFromIndex, squareToXY } from './chess-board-geometry';
 import { createChessBoardSkiaFont } from './chess-board-skia-font';
 import type { BoardOrientation, BoardTheme, Square } from './chess-board-types';

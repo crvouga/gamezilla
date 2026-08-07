@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useMemo } from 'react';
 
 import {
   buildPuzzleCandidatesSql,

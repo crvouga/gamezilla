@@ -1,4 +1,4 @@
-import { sql, type Sql } from '@pkgs/sql';
+import { type Sql, sql } from '@pkgs/sql';
 
 export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v1:initial';
 

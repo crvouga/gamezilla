@@ -78,12 +78,10 @@ if (!hasAllExpectedAssets()) {
     log: true,
   });
 
-  // eslint-disable-next-line no-console -- script output
   console.log(
     `PWA assets: ${result.savedImages?.length ?? 0} images, manifest updated`
   );
 } else {
-  // eslint-disable-next-line no-console -- script output
   console.log(`Up-to-date: ${pwaDir}`);
 }
 

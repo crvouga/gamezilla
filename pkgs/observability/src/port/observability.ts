@@ -1,17 +1,17 @@
 import type { ObservabilityBackend } from '../shared/backend';
 import type {
+  ExportedSpanRecord,
   Span,
   SpanContext,
   StartSpanOptions,
-  ExportedSpanRecord,
 } from '../shared/types';
 
 export type {
+  Span,
   SpanContext,
-  StartSpanOptions,
   SpanKind,
   SpanStatus,
-  Span,
+  StartSpanOptions,
 } from '../shared/types';
 
 /**

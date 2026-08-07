@@ -4,17 +4,17 @@ import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { assert } from '@pkgs/assert';
+import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
-import type { Observability } from '@pkgs/observability/port/observability';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
-import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
+import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
 import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';
+import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
 

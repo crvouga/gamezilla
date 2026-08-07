@@ -1,5 +1,5 @@
 import { ObservabilityProvider as BaseObservabilityProvider } from '@pkgs/observability/client/observability-provider';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export function AppObservability({
   children,

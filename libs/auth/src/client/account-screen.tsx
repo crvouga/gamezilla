@@ -1,6 +1,6 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Box, MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { Trans, useLingui } from '@lingui/react/macro';
 import { type Href, useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 

@@ -1,5 +1,5 @@
-import { ValidationError } from '@pkgs/assert';
 import { describe, expect, it } from 'bun:test';
+import { ValidationError } from '@pkgs/assert';
 import { asKeyword } from '@pkgs/keyword/keyword';
 import {
   acceptUnknownPayload,

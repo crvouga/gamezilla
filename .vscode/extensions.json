@@ -1,3 +1,7 @@
 {
-  "recommendations": ["expo.vscode-expo-tools", "thebearingedge.vscode-sql-lit"]
+  "recommendations": [
+    "biomejs.biome",
+    "expo.vscode-expo-tools",
+    "thebearingedge.vscode-sql-lit"
+  ]
 }

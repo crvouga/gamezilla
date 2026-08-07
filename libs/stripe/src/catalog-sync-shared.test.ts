@@ -2,8 +2,8 @@ import { describe, expect, it } from 'bun:test';
 import {
   decidePriceReconcile,
   normalizeCurrencyOptions,
-  priceMatchesSpec,
   type PriceSpecEntry,
+  priceMatchesSpec,
 } from './catalog-sync-shared';
 
 const monthlySpec: PriceSpecEntry = {

@@ -1,4 +1,4 @@
-import { createElement, useState, type ReactElement } from 'react';
+import { createElement, type ReactElement, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import type { AppHarness } from '../../bootstrap/app-harness';
 

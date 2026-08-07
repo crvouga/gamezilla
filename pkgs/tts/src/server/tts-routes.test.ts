@@ -3,7 +3,7 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import type { TtsSynthesizeResponse } from '../shared/tts-types';
 import { Voices } from '../shared/tts-voice';
 import { InMemoryTtsProvider } from './adapters/in-memory-tts-provider';
-import { TtsProviderError, type TtsProvider } from './ports/tts-provider';
+import { type TtsProvider, TtsProviderError } from './ports/tts-provider';
 import { createTtsApp } from './tts-routes';
 
 function jsonRequest(path: string, body: unknown): Request {

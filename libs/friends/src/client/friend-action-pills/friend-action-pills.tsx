@@ -1,15 +1,15 @@
-import { useCallback, type ReactNode } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 import { useAcceptFriendRequest } from '../accept-friend-request/use-accept-friend-request';
 import { useCancelFriendRequest } from '../cancel-friend-request/use-cancel-friend-request';
 import { useDeclineFriendRequest } from '../decline-friend-request/use-decline-friend-request';
 import { useSendFriendRequest } from '../send-friend-request/use-send-friend-request';
 import { useUnblockUser } from '../unblock-user/use-unblock-user';
+import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import type {
   FriendActionMutations,
   FriendActionPillsProps,
 } from './friend-action-types';
-import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 
 export type {
   FriendActionMutations,

@@ -1,6 +1,5 @@
-import { createContext, useContext, type ReactNode } from 'react';
-
 import type { GameClientDefinition } from '@libs/spaces/shared/game';
+import { createContext, type ReactNode, useContext } from 'react';
 
 const GamesRegistryContext = createContext<
   readonly GameClientDefinition[] | null

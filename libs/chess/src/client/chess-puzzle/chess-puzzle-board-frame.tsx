@@ -1,5 +1,5 @@
 import { Box } from '@pkgs/ui';
-import { useCallback, useState, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 
 function squareFitSize(

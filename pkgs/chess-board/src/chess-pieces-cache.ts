@@ -1,4 +1,4 @@
-import { Skia, type SkImage, type SkSVG } from '@shopify/react-native-skia';
+import { type SkImage, Skia, type SkSVG } from '@shopify/react-native-skia';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { PieceCode } from './chess-board-types';
 import { PIECE_SVGS, PIECE_SVGS_CBURNETT } from './chess-pieces-svg';

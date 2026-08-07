@@ -7,9 +7,9 @@ import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,
   type LockHandle,
+  LockHeldError,
   type LockIdentityProvider,
   type LockInfo,
-  LockHeldError,
 } from './interface';
 
 const Lock = createAttrNamespace('lock', 'info');

@@ -2,8 +2,8 @@ import { createSyncEnginePool } from '@pkgs/sync-engine/client/sync-engine-pool'
 import type { SyncEngine } from '@pkgs/sync-engine/client/sync-engine-port';
 
 import {
-  createAppLocalSyncEngine,
   type CreateAppLocalSyncEngineArgs,
+  createAppLocalSyncEngine,
 } from './create-local-sync-engine';
 
 const pool = createSyncEnginePool({

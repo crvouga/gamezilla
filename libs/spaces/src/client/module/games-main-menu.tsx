@@ -1,26 +1,25 @@
+import type { GameClientDefinition } from '@libs/spaces/shared/game';
 import {
-  MainMenuScreen,
-  type MainMenuItem,
-} from '@pkgs/ui/components/main-menu-screen';
-import { FadeSwitch } from '@pkgs/ui';
+  GamesRoomAttr,
+  type SelectedGameId,
+  SelectGame,
+} from '@libs/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
+import { FadeSwitch } from '@pkgs/ui';
+import {
+  type MainMenuItem,
+  MainMenuScreen,
+} from '@pkgs/ui/components/main-menu-screen';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo } from 'react';
-
-import { useGamesRegistry } from './games-registry-context';
-import { GamesMenuAttribution } from './games-menu-attribution';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '../room/use-space-room-selector';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import {
-  GamesRoomAttr,
-  SelectGame,
-  type SelectedGameId,
-} from '@libs/spaces/shared/games';
-import type { GameClientDefinition } from '@libs/spaces/shared/game';
+import { GamesMenuAttribution } from './games-menu-attribution';
+import { useGamesRegistry } from './games-registry-context';
 
 function buildSpaceGameMenuItems(
   games: readonly GameClientDefinition[],

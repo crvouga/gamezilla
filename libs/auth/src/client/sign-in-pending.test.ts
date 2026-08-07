@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   parseSignInPending,
+  SIGN_IN_RETURN_FALLBACK_HREF,
   sanitizeSignInReturnHref,
   signInReturnHrefFromPending,
-  SIGN_IN_RETURN_FALLBACK_HREF,
 } from './sign-in-pending';
 
 describe('parseSignInPending', () => {

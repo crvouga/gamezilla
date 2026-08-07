@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import {
   MODAL_WIDTH_PX,
-  resolveModalLayoutWidth,
   type ModalSize,
+  resolveModalLayoutWidth,
 } from './modal-size';
 
 const MARGIN = 16;

@@ -13,13 +13,13 @@
  * hardware back dismisses the topmost surface via {@link useModalBackDismiss}.
  */
 
-import { useId, useMemo, type PropsWithChildren, type ReactNode } from 'react';
+import { type PropsWithChildren, type ReactNode, useId, useMemo } from 'react';
 import { Animated, StyleSheet } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { OnColorReset } from '../../theme';
 import { FocusTrap } from '../focus-trap';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { useIsTopSurface, useSurfaceStackSlot } from '../surface-stack';
-import { OnColorReset } from '../../theme';
 import { useModalBackDismiss } from './use-modal-back-dismiss';
 import { useModalPresence } from './use-modal-presence';
 

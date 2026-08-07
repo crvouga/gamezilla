@@ -13,24 +13,24 @@
  */
 
 import * as Clipboard from 'expo-clipboard';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
-import { ScrollView } from '../scroll-view';
 import { ChevronRightIcon, CopyIcon, type IconComponent } from '../icons';
+import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
 import {
   classifyValue,
   collectAllContainerPaths,
   encodePath,
   isContainer,
-  safeStringify,
   type JsonPath,
   type JsonValueKind,
+  safeStringify,
 } from './json-view-helpers';
 import { JsonViewNode } from './json-view-node';
 

@@ -1,6 +1,6 @@
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { Center } from './center';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function CenterExample() {
   return (

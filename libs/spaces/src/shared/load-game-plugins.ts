@@ -1,13 +1,13 @@
+import type { Message } from '@pkgs/message';
 import {
   assertRoomModuleName,
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
-import type { Message } from '@pkgs/message';
 
 import type { GameDefinition } from './game';
-import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 import { createSpaceModule } from './space-module';
+import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 
 /** Fail fast when the composition-root registry has duplicate game ids. */
 export function assertGameRegistry(

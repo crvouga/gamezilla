@@ -3,12 +3,12 @@
  * expo-router `Tabs` navigator.
  */
 
+import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
 import type {
   BottomTabBarProps,
   BottomTabNavigationOptions,
 } from '@react-navigation/bottom-tabs';
-import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
-import { useMemo, type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import { APP_TAB_ICON_SIZE, AppTabButton } from './app-tab-button';
 

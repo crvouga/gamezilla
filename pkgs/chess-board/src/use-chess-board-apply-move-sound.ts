@@ -3,8 +3,8 @@ import { CHESS_PIECE_MOVE_MS } from './chess-board-piece';
 import {
   CHECK_AFTER_PRIMARY_MS,
   GAME_END_AFTER_CHECK_MS,
-  schedulePrimaryMoveSound,
   type PostMoveAudio,
+  schedulePrimaryMoveSound,
 } from './chess-board-schedule-move-sound';
 import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move } from './chess-board-types';

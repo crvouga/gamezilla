@@ -56,10 +56,9 @@
  */
 
 import { assert } from '@pkgs/assert';
-
+import type { Sql } from '@pkgs/sql';
 import { compileQuery } from './sql-map-statements';
 import type { ColRef, Query } from './sql-map-types';
-import type { Sql } from '@pkgs/sql';
 
 export type {
   ColRef,
@@ -86,6 +85,7 @@ type _SqlMapValuesNotSqlValues = [NonNullable<Query['values']>] extends [
   : true;
 true satisfies _SqlMapValuesNotSqlValues;
 
+export type { SqlMapCompileCtx, SqlMapOpCompiler } from './sql-map-registry';
 export {
   registerSqlMapCast,
   registerSqlMapCollation,
@@ -93,7 +93,6 @@ export {
   registerSqlMapOp,
   resetSqlMapRegistry,
 } from './sql-map-registry';
-export type { SqlMapCompileCtx, SqlMapOpCompiler } from './sql-map-registry';
 
 /**
  * Compile a sql-map query to a nested {@link Sql} fragment.

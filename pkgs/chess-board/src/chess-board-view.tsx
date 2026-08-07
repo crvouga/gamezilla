@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { View, type LayoutChangeEvent } from 'react-native';
+import { memo, type ReactNode, useCallback, useEffect, useRef } from 'react';
+import { type LayoutChangeEvent, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
@@ -7,8 +7,8 @@ import {
   ChessBoardDragPreview,
   useChessBoardPortalDragAvailable,
 } from './chess-board-drag-preview';
-import { ChessBoardInteractionLayer } from './chess-board-interaction-layer';
 import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
+import { ChessBoardInteractionLayer } from './chess-board-interaction-layer';
 import { ChessBoardPromotionInline } from './chess-board-promotion';
 import type {
   BoardOrientation,

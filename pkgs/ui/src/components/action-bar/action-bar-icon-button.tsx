@@ -1,9 +1,9 @@
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
 import { Animated } from 'react-native';
 

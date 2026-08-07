@@ -1,5 +1,5 @@
-import { SpaceHostNameText } from '../members/space-host-name-text';
 import type { ReactNode } from 'react';
+import { SpaceHostNameText } from '../members/space-host-name-text';
 
 export type MiniplayerHostNameLineProps = {
   spaceId: string;

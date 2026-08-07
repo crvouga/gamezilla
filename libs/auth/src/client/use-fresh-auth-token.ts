@@ -1,9 +1,8 @@
 import type { GetFreshTokenOptions } from '@pkgs/auth/client/auth-client-port';
 import { useSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 import { useCallback } from 'react';
-
-import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 import { useAuthClientPort } from './auth-client-provider';
+import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 
 /**
  * Reactive bearer token for the current session. Reads secure storage populated

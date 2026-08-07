@@ -2,30 +2,26 @@
  * @pkgs/assistant — public facade. Import only `@pkgs/assistant/shared`
  * or `@pkgs/assistant/client`. Implementation lives under `_internal/`.
  */
-export { createAssistant } from './_internal/engine';
-export type { Assistant, AssistantConfig } from './_internal/engine';
-
-export type { AssistantSignal } from './_internal/signals';
-export { defineSignal } from './_internal/signals';
 
 export type { AssistantAction, AssistantSpeakAction } from './_internal/action';
-
-export type { Intent } from './_internal/intents';
-export { INTENT } from './_internal/intents';
-
 export type { GameAdapter, PlayerView } from './_internal/adapter';
 export type { AssistantCandidate } from './_internal/candidates';
 export { defineCandidate } from './_internal/candidates';
-
-export type { AssistantRenderer } from './_internal/renderer';
 export type { AssistantClock } from './_internal/clock';
+export type { Assistant, AssistantConfig } from './_internal/engine';
+export { createAssistant } from './_internal/engine';
+export type { Intent } from './_internal/intents';
+export { INTENT } from './_internal/intents';
+export type { AssistantRenderer } from './_internal/renderer';
+export type { AssistantSignal } from './_internal/signals';
+export { defineSignal } from './_internal/signals';
 
 export type { AssistantSnapshot } from './_internal/snapshot';
-
 export type {
   DialogueContext,
   DialogueLookupKey,
   DialogueNode,
+  DialogueRng,
   DialogueStep,
   DialogueTree,
   DialogueTreeBucketSpec,
@@ -38,4 +34,3 @@ export {
   pickDialogueVariantIndex,
   substituteDialogueText,
 } from './dialogue-tree';
-export type { DialogueRng } from './dialogue-tree';

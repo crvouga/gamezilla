@@ -1,5 +1,5 @@
-import { CopyToClipboardField } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { CopyToClipboardField } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export type AccountDeviceIdFieldProps = {

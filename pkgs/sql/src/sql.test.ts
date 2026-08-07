@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { inspect } from 'node:util';
+import { assert } from '@pkgs/assert';
 import sql, { bulk, empty, ident, join, raw, Sql, unsafe } from './sql';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */

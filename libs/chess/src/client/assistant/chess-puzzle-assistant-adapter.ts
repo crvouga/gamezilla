@@ -1,10 +1,10 @@
 import {
-  defineCandidate,
-  INTENT,
   type AssistantCandidate,
   type AssistantSignal,
   type DialogueLookupKey,
+  defineCandidate,
   type GameAdapter,
+  INTENT,
   type Intent,
   type PlayerView,
 } from '@pkgs/assistant/shared';

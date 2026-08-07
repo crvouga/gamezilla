@@ -1,5 +1,5 @@
-import { main } from '../cli/main';
 import { fail } from '../cli/lib/fmt';
+import { main } from '../cli/main';
 import { GitHubActionsPlatform } from '../cli/platform/github-actions';
 import { LocalPlatform } from '../cli/platform/local';
 

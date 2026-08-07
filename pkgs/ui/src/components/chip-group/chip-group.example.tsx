@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { ChipGroup } from './chip-group';
-import { ExampleRoot } from '../explorer/example-root';
 
 const OPTIONS = [
   { key: 'off' as const, label: 'Off' },

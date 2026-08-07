@@ -1,9 +1,9 @@
-import { isMessageEnvelope } from '@pkgs/message';
 import { isNamespacedKeyword } from '@pkgs/keyword';
+import { isMessageEnvelope } from '@pkgs/message';
 import {
+  type LogEntry,
   ROOM_ERROR_TYPE,
   ROOM_ERROR_TYPES,
-  type LogEntry,
   type RoomActor,
   type RoomCommandPayload,
   type RoomError,

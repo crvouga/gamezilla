@@ -1,5 +1,5 @@
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
 import type {
   TtsSynthesizeRequest,

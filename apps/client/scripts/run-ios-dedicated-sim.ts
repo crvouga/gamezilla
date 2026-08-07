@@ -13,7 +13,7 @@
  *   EXPO_METRO_PORT           default 5173
  *   EXPO_DEV_AUTO_IOS         set `0` to skip auto-opening the sim
  */
-import { spawn, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {

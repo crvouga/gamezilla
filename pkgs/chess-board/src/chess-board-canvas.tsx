@@ -1,11 +1,11 @@
-import { memo, useMemo, type ReactNode } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
-import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
 import { squareFromIndex } from './chess-board-geometry';
+import type { ChessBoardInteractionLayerProps } from './chess-board-interaction-layer';
 import { PIECE_DRAW_SCALE } from './chess-board-piece';
 import {
-  useChessPieceRows,
   type ChessPieceRow,
+  useChessPieceRows,
 } from './chess-board-piece-identities';
 import { useChessBoardSounds } from './chess-board-sounds';
 import type {
@@ -16,14 +16,14 @@ import type {
   Square,
 } from './chess-board-types';
 import { ChessBoardView } from './chess-board-view';
-import { usePieceCaches, type PieceImageCache } from './chess-pieces-cache';
+import { type PieceImageCache, usePieceCaches } from './chess-pieces-cache';
 import { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
 import { useExternalFenSync } from './use-chess-board-external-fen-sync';
 import { useChessBoardHandlers } from './use-chess-board-handlers';
 import { useChessBoardInteraction } from './use-chess-board-interaction';
 import {
-  useChessBoardInteractionState,
   type ChessBoardInteractionState,
+  useChessBoardInteractionState,
 } from './use-chess-board-interaction-state';
 import { useUserArrows } from './use-chess-board-user-arrows';
 import { useChessGame } from './use-chess-game';

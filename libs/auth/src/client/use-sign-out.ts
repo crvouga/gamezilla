@@ -4,9 +4,8 @@ import {
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
 import { useCallback } from 'react';
-
-import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 import { useAuthClientPort } from './auth-client-provider';
+import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 
 /**
  * Signs out via {@link AuthClientPort.signOut} and clears the session token.

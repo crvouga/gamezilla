@@ -1,11 +1,11 @@
 import {
-  mkdirSync,
   appendFileSync,
+  mkdirSync,
   readdirSync,
   statSync,
   unlinkSync,
 } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { ExportedSpanRecord } from '../shared/types';
 
 export type FileSinkOptions = {

@@ -29,7 +29,7 @@ import {
   setSecretIn,
   validateSecretOrError,
 } from '../secrets/secrets';
-import { ResourceBase, type InfraContext } from './types';
+import { type InfraContext, ResourceBase } from './types';
 
 assert.notThrows(
   () => crypto.randomUUID(),

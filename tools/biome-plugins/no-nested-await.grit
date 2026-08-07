@@ -1,0 +1,6 @@
+language js
+
+`$fn($arg)` as $call where {
+  $arg <: `await $expr`,
+  register_diagnostic(span=$call, message="Avoid nesting await inside function calls. Extract to a variable first.", severity="error")
+}

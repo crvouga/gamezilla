@@ -5,9 +5,9 @@ import {
 } from '@aws-sdk/client-s3';
 import { seedObjectStoreS3ForEnv } from '../lib/s3-secret-seed';
 import {
-  Secret,
   requireHttpsUrl,
   requireNonEmpty,
+  Secret,
   type SecretInput,
   type SecretSeedInput,
 } from './secret';

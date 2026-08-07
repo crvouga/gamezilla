@@ -2,10 +2,10 @@
  * Attribution ring around the games picker when the selected game changes.
  */
 
-import { AttributionHighlight } from '@pkgs/collab-ui';
 import { deriveAttribution, projectEventLog } from '@pkgs/collab';
+import { AttributionHighlight } from '@pkgs/collab-ui';
 import { useNamedRoomLog } from '@pkgs/room';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 import { SPACE_LOG_TARGET } from '../../shared/space-log/space-log-router';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';

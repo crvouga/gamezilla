@@ -1,1 +1,1 @@
-export { UUID_REGEX, assertUuid, isUuid } from './uuid';
+export { assertUuid, isUuid, UUID_REGEX } from './uuid';

@@ -6,8 +6,8 @@ import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 import {
-  usePuzzleReviewBoard,
   type PuzzleReviewBoardModel,
+  usePuzzleReviewBoard,
 } from './use-puzzle-review-board';
 
 function ReviewBoardSlot({

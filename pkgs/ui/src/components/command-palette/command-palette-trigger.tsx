@@ -1,10 +1,10 @@
-import type { LocalizedString } from '@pkgs/i18n';
 import { useLingui } from '@lingui/react/macro';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import type { LocalizedString } from '@pkgs/i18n';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
+import { type IconComponent, ListChecksIcon } from '../icons';
 import { Pressable } from '../pressable';
-import { ListChecksIcon, type IconComponent } from '../icons';
 import { useCommandPalette } from './use-command-palette';
 
 export type CommandPaletteTriggerProps = {

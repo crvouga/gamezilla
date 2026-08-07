@@ -1,3 +1,4 @@
+import { readGithubVariable } from './ci-reconcile-github';
 import { infisicalRequest } from './ci-reconcile-http';
 import type {
   InfisicalCtx,
@@ -5,7 +6,6 @@ import type {
   ReconcileFail,
   ReconcileLog,
 } from './ci-reconcile-types';
-import { readGithubVariable } from './ci-reconcile-github';
 
 const GITHUB_OIDC_ISSUER = 'https://token.actions.githubusercontent.com';
 

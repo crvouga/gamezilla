@@ -1,13 +1,12 @@
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MutationEnv } from '@pkgs/sync-engine/mutations/core/types';
-import { sql } from '@pkgs/sql';
-
+import type { FriendRequest } from '../shared/friends-types';
 import {
   acceptFriendRequestMutation,
   cancelFriendRequestMutation,
   declineFriendRequestMutation,
 } from '../shared/mutations/friends-mutations';
-import type { FriendRequest } from '../shared/friends-types';
 import {
   deactivateFriendRequestInteraction,
   publishFriendRequestAcceptedInteraction,

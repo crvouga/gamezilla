@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import {
   Box,
   ChevronRightIcon,
@@ -7,7 +8,6 @@ import {
   useTheme,
   XIcon,
 } from '@pkgs/ui';
-import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';

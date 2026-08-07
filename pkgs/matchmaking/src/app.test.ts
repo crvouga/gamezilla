@@ -1,4 +1,3 @@
-import { PGlite } from '@electric-sql/pglite';
 import {
   afterAll,
   afterEach,
@@ -8,10 +7,11 @@ import {
   expect,
   test,
 } from 'bun:test';
+import { PGlite } from '@electric-sql/pglite';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Matchmaking } from './matchmaking';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
+import { Matchmaking } from './matchmaking';
 import {
   type AppHarness,
   bootMatchmakingApp,

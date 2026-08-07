@@ -7,7 +7,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Text } from '../text';

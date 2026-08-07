@@ -1,12 +1,12 @@
-import { sampledSpanContext } from '../shared/trace-context';
 import { createSpanId, createTraceId } from '../shared/ids';
+import { sampledSpanContext } from '../shared/trace-context';
 import type {
   ExportedSpanRecord,
+  Span,
   SpanAttributes,
   SpanContext,
   SpanKind,
   SpanStatus,
-  Span,
 } from '../shared/types';
 import type { SpanExporter } from './observability';
 

@@ -1,15 +1,9 @@
 export {
-  validateRailwayToken,
   type RailwayCustomDomain,
   type RailwayProject,
   type RailwayService,
+  validateRailwayToken,
 } from './railway-api-core';
-export {
-  ensureProject,
-  ensureService,
-  listProjects,
-  upsertVariables,
-} from './railway-api-project';
 export {
   deleteService,
   ensureCustomDomain,
@@ -17,3 +11,9 @@ export {
   ensureVolume,
   redeployService,
 } from './railway-api-ops';
+export {
+  ensureProject,
+  ensureService,
+  listProjects,
+  upsertVariables,
+} from './railway-api-project';

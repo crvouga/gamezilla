@@ -1,11 +1,6 @@
-export {
-  SecretBlankError,
-  SecretMissingError,
-  SecretStoreError,
-  SecretStoreParseError,
-  SecretStoreRequestError,
-  isSecretStoreError,
-} from './errors';
+export { SecretString } from '@pkgs/secret-string/secret-string';
+export type { SecretAdminStore } from './admin-interface';
+export type { CachingSecretStoreOptions } from './caching-secret-store';
 export {
   CachingSecretStore,
   createCachingSecretStore,
@@ -14,17 +9,22 @@ export {
   CombinedSecretStore,
   createCombinedSecretStore,
 } from './combined-secret-store';
-export {
-  RecordSecretStore,
-  createRecordSecretStore,
-} from './record-secret-store';
-export { createEnvSecretStore } from './impl-env';
 export { createScriptSecretStore } from './create-script-secret-store';
-export type { CachingSecretStoreOptions } from './caching-secret-store';
+export {
+  isSecretStoreError,
+  SecretBlankError,
+  SecretMissingError,
+  SecretStoreError,
+  SecretStoreParseError,
+  SecretStoreRequestError,
+} from './errors';
+export { createEnvSecretStore } from './impl-env';
 export type {
   SecretStore,
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
-export type { SecretAdminStore } from './admin-interface';
-export { SecretString } from '@pkgs/secret-string/secret-string';
+export {
+  createRecordSecretStore,
+  RecordSecretStore,
+} from './record-secret-store';

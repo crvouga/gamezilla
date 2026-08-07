@@ -1,8 +1,8 @@
 import { Box } from '../box';
-import { Text } from '../text';
-import { Stack } from '../stack';
-import { Spacer } from './spacer';
 import { ExampleRoot } from '../explorer/example-root';
+import { Stack } from '../stack';
+import { Text } from '../text';
+import { Spacer } from './spacer';
 
 export default function SpacerExample() {
   return (

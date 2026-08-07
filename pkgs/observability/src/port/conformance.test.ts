@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import type { Span as SentrySpanType } from '@sentry/core';
-import { createNoopObservability } from '../impl-noop/impl-noop';
 import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
 import { createLoggerObservabilityWithExporter } from '../impl-logger/impl-logger';
+import { createNoopObservability } from '../impl-noop/impl-noop';
 import { createSentryObservability } from '../impl-sentry/sentry-observability';
 import type { SentrySdk } from '../impl-sentry/sentry-sdk';
-import { InMemorySpanContextStorage } from './in-memory-context-storage';
-import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import { isSlowSpan, slowThresholdMsForSpan } from '../shared/slow-thresholds';
+import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
+import { InMemorySpanContextStorage } from './in-memory-context-storage';
 import type { Observability } from './observability';
 
 type Factory = { readonly name: string; create: () => Observability };

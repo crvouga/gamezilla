@@ -1,10 +1,10 @@
-import { createTypedApiRpcClient } from '../typed-api-rpc-client';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import type { ConfigService } from '@libs/auth/client/config-service-types';
-import { useAsync, type AsyncRunContext } from '@pkgs/async/use-async';
-import { Button, Card, ErrorState, SuccessState, Text } from '@pkgs/ui';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { type AsyncRunContext, useAsync } from '@pkgs/async/use-async';
+import { Button, Card, ErrorState, SuccessState, Text } from '@pkgs/ui';
 import { useCallback } from 'react';
+import { createTypedApiRpcClient } from '../typed-api-rpc-client';
 
 async function postClientConfigRefresh(
   configService: ConfigService,

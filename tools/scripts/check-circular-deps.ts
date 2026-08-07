@@ -22,10 +22,10 @@
  * 4. Run Tarjan's SCC; any component of size > 1 is a cycle.
  */
 import {
-  type PackageImportGraph,
-  type PackageName,
   buildPackageImportGraph,
   discoverPackages,
+  type PackageImportGraph,
+  type PackageName,
 } from './workspace-package-import-graph';
 
 type Scc = PackageName[];

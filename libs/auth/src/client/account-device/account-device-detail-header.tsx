@@ -1,7 +1,7 @@
-import { AccountDeviceCurrentBadge } from './account-device-current-badge';
-import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { AccountDeviceCurrentBadge } from './account-device-current-badge';
+import { AccountDeviceListTitleText } from './account-device-list-title-text';
 
 export type AccountDeviceDetailHeaderProps = {
   deviceId: string;

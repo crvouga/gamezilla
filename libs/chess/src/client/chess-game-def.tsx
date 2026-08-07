@@ -1,6 +1,6 @@
 import type { GameClientDefinition } from '@libs/spaces/shared/game';
-import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
 import { Trans } from '@lingui/react/macro';
+import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
 
 import { CHESS_GAME_ID } from '../shared/chess-game';
 import { ChessMainMenu } from './chess-main-menu';

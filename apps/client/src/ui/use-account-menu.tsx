@@ -2,11 +2,11 @@
  * Compact account menu items for tab-root headers.
  */
 
+import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
 import {
   useSignInModal,
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
-import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
 import {
   useHasAuthSession,
   useIsAnon,
@@ -14,19 +14,19 @@ import {
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
+import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import {
+  type ActionBarItem,
+  iconButtonAvatarContentSize,
   LogInIcon,
   LogOutIcon,
-  SettingsIcon,
-  iconButtonAvatarContentSize,
   releaseWebFocus,
-  type ActionBarItem,
+  SettingsIcon,
 } from '@pkgs/ui';
-import { useLingui } from '@lingui/react/macro';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 const TRIGGER_SIZE = 36;
 const MENU_AVATAR_SIZE = 28;

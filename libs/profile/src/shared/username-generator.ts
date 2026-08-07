@@ -1,7 +1,7 @@
 import {
-  NumberDictionary,
   adjectives,
   animals,
+  NumberDictionary,
   uniqueNamesGenerator,
 } from 'unique-names-generator';
 

@@ -1,10 +1,9 @@
 import { Database } from 'bun:sqlite';
 
-import { raw, sql, type Sql } from '@pkgs/sql';
-
+import { raw, type Sql, sql } from '@pkgs/sql';
+import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 
 import {
   createSharedWatchRegistry,

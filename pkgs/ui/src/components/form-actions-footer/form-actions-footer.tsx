@@ -25,7 +25,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { componentDataSet, type ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Button, type ButtonIntent } from '../button';
 import { useMutationButton } from '../button/use-mutation-button';

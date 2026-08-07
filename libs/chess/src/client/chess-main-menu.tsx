@@ -3,29 +3,29 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/client/room/use-space-room-selector';
-import {
-  MainMenuScreen,
-  type MainMenuItem,
-} from '@pkgs/ui/components/main-menu-screen';
-import { Box, FadeSwitch } from '@pkgs/ui';
 import { Trans } from '@lingui/react/macro';
-import { useMemo, type ReactNode } from 'react';
+import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
+import { Box, FadeSwitch } from '@pkgs/ui';
+import {
+  type MainMenuItem,
+  MainMenuScreen,
+} from '@pkgs/ui/components/main-menu-screen';
+import { type ReactNode, useMemo } from 'react';
 import {
   CHESS_SCREEN,
+  type ChessMainMenuScreen,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
-  type ChessMainMenuScreen,
 } from '../shared/chess-main-menu';
-import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
+import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
+import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
+import { useChessPuzzleFeedSubscription } from './chess-puzzle/use-chess-puzzle-feed-subscription';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
 import { ChessSettingsPuzzleFeedScreen } from './chess-settings/chess-settings-puzzle-feed-screen';
 import { ChessSettingsScreen } from './chess-settings/chess-settings-screen';
-import { useChessPuzzleFeedSubscription } from './chess-puzzle/use-chess-puzzle-feed-subscription';
-import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
-import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
 
 export type ChessMainMenuProps = {
   /** Called by chess's root menu to return to the games picker. */

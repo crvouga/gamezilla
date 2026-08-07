@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../button';
+import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { ConfirmationModal } from './confirmation-modal';
-import { ExampleRoot } from '../explorer/example-root';
 
 export default function ModalExample() {
   const [defaultOpen, setDefaultOpen] = useState(false);

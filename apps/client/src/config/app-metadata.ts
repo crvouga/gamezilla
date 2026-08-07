@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { COMMIT_HASH_HEX_REGEX, assertCommitDateIso } from '@pkgs/git';
+import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 
 export { COMMIT_HASH_HEX_REGEX };
 
@@ -8,7 +8,7 @@ export { COMMIT_HASH_HEX_REGEX };
  * misconfiguration fails loudly (Tiger Style).
  */
 export function getCommitHash(): string {
-  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+  // Expo inlines EXPO_PUBLIC_*; bracket access required by noPropertyAccessFromIndexSignature. `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_COMMIT_HASH'];
   assert.string(
     raw,
@@ -35,7 +35,7 @@ export function getShortCommitHash(): string {
  * Committer date baked into the bundle at build time (git `log --format=%cI`).
  */
 export function getCommitDate(): string {
-  // eslint-disable-next-line expo/no-dynamic-env-var -- `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
+  // Expo inlines EXPO_PUBLIC_*; bracket access required by noPropertyAccessFromIndexSignature. `noPropertyAccessFromIndexSignature` requires bracket `process.env` access; Expo still inlines `EXPO_PUBLIC_*`.
   const raw = process.env['EXPO_PUBLIC_COMMIT_DATE'];
   assert.string(
     raw,

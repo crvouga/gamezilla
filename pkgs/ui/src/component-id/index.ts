@@ -1,5 +1,5 @@
 export {
   COMPONENT_IDS_ENABLED,
-  componentDataSet,
   type ComponentDataSet,
+  componentDataSet,
 } from './component-id';

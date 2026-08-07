@@ -7,8 +7,9 @@
  * Local: delegates to the configured secrets CLI (user login).
  * CI: the secrets-auth action injects env vars before invoking this script.
  */
-import { runWithSecrets } from '@pkgs/secret-provider';
+
 import { join } from 'node:path';
+import { runWithSecrets } from '@pkgs/secret-provider';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const childArgs = process.argv.slice(2);

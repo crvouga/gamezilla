@@ -1,7 +1,7 @@
+import type { LogLineContext, LogLineDraft } from '@pkgs/collab';
 import type { MessageNamespace, MessageRouter } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
 import type { ComponentType, ReactNode } from 'react';
-import type { LogLineContext, LogLineDraft } from '@pkgs/collab';
 
 /**
  * One sub-router contributed by a game to the composed space command/event

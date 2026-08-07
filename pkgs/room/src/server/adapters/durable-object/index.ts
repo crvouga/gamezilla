@@ -7,8 +7,9 @@
  * `class_name` in `wrangler.toml` and re-export it from the Worker entry
  * module so the runtime can instantiate it.
  */
-export { createDurableObjectAdapter } from './adapter';
+
 export type { CreateDurableObjectAdapterOptions } from './adapter';
+export { createDurableObjectAdapter } from './adapter';
 export { DurableObjectRoomStorage } from './storage';
 export type {
   DurableObjectClass,

@@ -1,10 +1,9 @@
-import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
-import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
+import { type AudioPlayer, createAudioPlayer } from 'expo-audio';
 import { Platform } from 'react-native';
-
 import { getManifestVolume } from './manifest';
-import { soundAssetSources, type SoundAssetSourceId } from './sound-sources';
+import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import type { SoundId } from './sound-id';
+import { type SoundAssetSourceId, soundAssetSources } from './sound-sources';
 
 export type SoundEngineOptions = {
   readonly muted?: boolean;

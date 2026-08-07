@@ -1,11 +1,11 @@
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import {
   useSignInModal,
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
-import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';
-import { useAsync } from '@pkgs/async/use-async';
+import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { useLingui } from '@lingui/react/macro';
+import { useAsync } from '@pkgs/async/use-async';
+import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';
 
 export function AccountCommand() {
   const { t } = useLingui();

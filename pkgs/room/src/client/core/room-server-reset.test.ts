@@ -1,16 +1,15 @@
-import { asKeyword } from '@pkgs/keyword';
 import { describe, expect, it } from 'bun:test';
-
-import { InMemoryClientStorage } from '../adapters/storage/memory';
-import { Room } from './room';
-import type { ClientTransport, ClientTransportHandlers } from './transport';
+import { asKeyword } from '@pkgs/keyword';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { openLoopbackRoom } from '../../testkit/simulator';
 import {
   CounterIncremented,
   Increment,
   TestCounterModule,
 } from '../../testkit/counter-module';
+import { openLoopbackRoom } from '../../testkit/simulator';
+import { InMemoryClientStorage } from '../adapters/storage/memory';
+import { Room } from './room';
+import type { ClientTransport, ClientTransportHandlers } from './transport';
 
 /**
  * Records outbound frames; delivers only what the test injects (no auto welcome).

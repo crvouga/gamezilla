@@ -7,8 +7,8 @@ import {
 import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move, PieceColor, Position, Square } from './chess-board-types';
 import type { useChessBoardApplyMoveSound } from './use-chess-board-apply-move-sound';
-import type { useChessGame, TryMoveOk, TryMoveResult } from './use-chess-game';
 import type { PendingPromotion } from './use-chess-board-interaction-state';
+import type { TryMoveOk, TryMoveResult, useChessGame } from './use-chess-game';
 
 type GameLike = ReturnType<typeof useChessGame>;
 type ApplyMoveSoundLike = ReturnType<typeof useChessBoardApplyMoveSound>;

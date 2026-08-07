@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  type CatalogItem,
   filterCatalogItems,
   flattenCatalogItems,
   groupCatalogItems,
   resolveCatalogNeighbor,
-  type CatalogItem,
 } from './catalog-item';
 
 const ITEMS: readonly CatalogItem[] = [

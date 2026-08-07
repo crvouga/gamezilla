@@ -1,6 +1,6 @@
-import { useMemberIsOnline } from './use-member-is-online';
 import { StatusDot } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useMemberIsOnline } from './use-member-is-online';
 
 export type MemberPresenceDotProps = {
   spaceId: string;

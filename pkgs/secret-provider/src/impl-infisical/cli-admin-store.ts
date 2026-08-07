@@ -3,8 +3,8 @@ import type { SecretAdminStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { INFISICAL_CLI_BIN } from './defaults';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
-import { resolveInfisicalEndpoint } from './resolve-endpoint';
 import { resolveInfisicalAccessTokenForWrites } from './oidc-access-token';
+import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
 type SecretsCoords = {
   readonly workspaceId: string;

@@ -43,15 +43,23 @@
  * `status`, `app`, `tick`. Everything else is internal.
  */
 
-export { MatchmakingClient } from './client';
+/**
+ * Re-exported from `@pkgs/attribute` for the common case of
+ * building an attribute namespace alongside a `Matchmaking` boot.
+ * Consumers who need more attribute helpers should depend on
+ * `@pkgs/attribute` directly — this single function is the only
+ * one intentionally surfaced through the matchmaking barrel.
+ */
+export { createAttrNamespace } from '@pkgs/attribute';
 export type { MatchmakingClientOptions, WaitForMatchOptions } from './client';
+export { MatchmakingClient } from './client';
 export { MatchmakingHttpError } from './client-error';
 export {
   MATCHMAKING_PAYLOAD_LIMITS,
-  MatchmakingSchemaDriftError,
   Matchmaking,
   type MatchmakingAppOptions,
   type MatchmakingOptions,
+  MatchmakingSchemaDriftError,
   type MatchmakingStorage,
   type MatchmakingTuning,
   type TickOptions,
@@ -75,12 +83,3 @@ export {
   type UpdateFormulasResult,
   type WaitingStatus,
 } from './types';
-
-/**
- * Re-exported from `@pkgs/attribute` for the common case of
- * building an attribute namespace alongside a `Matchmaking` boot.
- * Consumers who need more attribute helpers should depend on
- * `@pkgs/attribute` directly — this single function is the only
- * one intentionally surfaced through the matchmaking barrel.
- */
-export { createAttrNamespace } from '@pkgs/attribute';

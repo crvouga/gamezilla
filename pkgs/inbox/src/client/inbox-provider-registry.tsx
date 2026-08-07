@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 import type { InteractionProvider } from '../shared/interaction-provider';
 import type { InboxClientDeps } from './inbox-actions';

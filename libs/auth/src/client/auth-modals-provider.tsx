@@ -1,21 +1,20 @@
 import { useLogger } from '@pkgs/logger/react';
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useLayoutEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from 'react';
-
-import { useSignOut } from './use-sign-out';
-import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
-import { SignInModal, type SignInModalProps } from './sign-in-modal';
-import { useSignIn } from './use-sign-in';
-import { useSignInPending } from './sign-in-pending';
 import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
 import { useConfigService } from './config-service-context';
+import { SignInModal, type SignInModalProps } from './sign-in-modal';
+import { useSignInPending } from './sign-in-pending';
+import { useSignIn } from './use-sign-in';
+import { useSignOut } from './use-sign-out';
+import { useSignOutConfirmationModal } from './use-sign-out-confirmation';
 
 export type AuthModals = {
   signInModalOpen: boolean;

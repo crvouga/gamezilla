@@ -1,6 +1,6 @@
-import type { Kv } from '@pkgs/kv/interface';
 import { assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
+import type { Kv } from '@pkgs/kv/interface';
 
 import { llmCacheKeyFromRequest } from './llm-cache-key';
 import { llmKvKey } from './llm-kv-key';

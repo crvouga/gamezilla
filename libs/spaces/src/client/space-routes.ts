@@ -1,6 +1,6 @@
 import type { Href, Router } from 'expo-router';
-import { useEffect, useRef } from 'react';
 import { useLocalSearchParams, usePathname } from 'expo-router';
+import { useEffect, useRef } from 'react';
 
 /** Expo Router href for `/space/:id` — use instead of `{ pathname, params }`. */
 export function spaceDetailHref(spaceId: string): Href {

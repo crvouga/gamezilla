@@ -29,7 +29,7 @@ describe('SecretString', () => {
 
   test('template literal does not leak the value', () => {
     const s = new SecretString(NAME, RAW);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- exercise implicit coercion path
+    // exercise implicit coercion path
     const rendered = `value=${s}`;
     expect(rendered).toBe(`value=SecretString(${NAME})`);
     expect(rendered.includes(RAW)).toBe(false);

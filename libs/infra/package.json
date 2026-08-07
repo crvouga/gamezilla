@@ -10,7 +10,6 @@
   },
   "scripts": {
     "infra": "SECRETS_ENV=prd bun run ../../tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
-    "lint": "eslint src --max-warnings 0",
     "pipeline-report": "bun run ./src/bin/pipeline-report.ts",
     "railway:gql:check": "gql.tada check --tsconfig ./tsconfig.tc.json",
     "railway:gql:generate": "gql.tada generate-output --tsconfig ./tsconfig.tc.json",
