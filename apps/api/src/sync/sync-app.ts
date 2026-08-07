@@ -35,7 +35,7 @@ function createRequestScopedPubSub(): PubSub {
   };
 }
 
-/** Product mount: `POST /api/query`, `/api/query/batch`, `/api/mutations`. */
+/** Product mount: `POST /api/query` (batch body), `/api/mutations`. */
 export function createSyncApp() {
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,

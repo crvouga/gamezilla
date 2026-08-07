@@ -50,19 +50,9 @@ async function dispatchHttpRequest(args: {
   const replyTo = payload.replyTo;
   try {
     if (payload.kind === 'query') {
-      const body = await handlers.handleQuery(payload.request);
+      const body = await handlers.handleQuery(payload.requests);
       network.send(serverId, replyTo, {
         kind: 'query',
-        correlationId: payload.correlationId,
-        ok: true,
-        body,
-      } satisfies SimHttpResponse);
-      return;
-    }
-    if (payload.kind === 'queryBatch') {
-      const body = await handlers.handleQueryBatch(payload.requests);
-      network.send(serverId, replyTo, {
-        kind: 'queryBatch',
         correlationId: payload.correlationId,
         ok: true,
         body,
@@ -106,8 +96,7 @@ export function bindSimHttpServer(args: {
 }
 
 export type SimHttpClient = {
-  readonly postQuery: (request: QueryRequest) => Promise<QueryResponse>;
-  readonly postQueryBatch: (
+  readonly postQueries: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly postMutations: (
@@ -120,7 +109,7 @@ const DEFAULT_RPC_TIMEOUT_MS = 5_000;
 
 function unwrapOk(
   res: SimHttpResponse,
-  kind: 'query' | 'queryBatch' | 'mutations'
+  kind: 'query' | 'mutations'
 ): unknown {
   if (!res.ok) throw new Error(res.message);
   if (res.kind !== kind) throw new Error('sim http: unexpected response');
@@ -157,21 +146,13 @@ export function createSimHttpClient(args: {
   });
 
   return {
-    async postQuery(request) {
+    async postQueries(requests) {
       const res = await rpc({
         kind: 'query',
         correlationId: args.createId(),
-        request,
-      });
-      return unwrapOk(res, 'query') as QueryResponse;
-    },
-    async postQueryBatch(requests) {
-      const res = await rpc({
-        kind: 'queryBatch',
-        correlationId: args.createId(),
         requests,
       });
-      return unwrapOk(res, 'queryBatch') as readonly QueryResponse[];
+      return unwrapOk(res, 'query') as readonly QueryResponse[];
     },
     async postMutations(mutations) {
       const res = await rpc({

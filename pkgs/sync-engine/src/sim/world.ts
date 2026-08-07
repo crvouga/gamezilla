@@ -40,8 +40,6 @@ export type OpenSimWorldArgs = {
   readonly faults?: SimFaultOptions;
   /** Sample faults from seed when true (overrides faults). */
   readonly sampleFaults?: boolean;
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
 };
 
 async function checkClientSeqs(

@@ -11,11 +11,6 @@ export type SimHttpRequestBody =
   | {
       readonly kind: 'query';
       readonly correlationId: string;
-      readonly request: QueryRequest;
-    }
-  | {
-      readonly kind: 'queryBatch';
-      readonly correlationId: string;
       readonly requests: readonly QueryRequest[];
     }
   | {
@@ -31,12 +26,6 @@ export type SimHttpRequest = SimHttpRequestBody & {
 export type SimHttpResponse =
   | {
       readonly kind: 'query';
-      readonly correlationId: string;
-      readonly ok: true;
-      readonly body: QueryResponse;
-    }
-  | {
-      readonly kind: 'queryBatch';
       readonly correlationId: string;
       readonly ok: true;
       readonly body: readonly QueryResponse[];
@@ -55,8 +44,7 @@ export type SimHttpResponse =
     };
 
 export type SimHttpServerHandlers = {
-  readonly handleQuery: (request: QueryRequest) => Promise<QueryResponse>;
-  readonly handleQueryBatch: (
+  readonly handleQuery: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly handleMutations: (

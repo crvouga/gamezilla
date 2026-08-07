@@ -9,7 +9,7 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/client/sync-engine-context';
 import { type ReactNode, useMemo } from 'react';
 import { Platform } from 'react-native';
 
@@ -42,7 +42,7 @@ export function SyncLocalDataActions({
   children: ReactNode;
 }): ReactNode {
   const store = useSecureStorageStore();
-  const engine = useSyncEngine();
+  const engine = useSyncEngineInstance();
 
   const deps: SyncLocalDataDeps = useMemo(
     () => ({

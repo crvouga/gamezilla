@@ -1,4 +1,4 @@
-import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/client/sync-engine-context';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
 const SHELL_QUERY_NAMES = [
@@ -20,7 +20,8 @@ export function ShellQuerySubscriptions({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const sync = useSyncEngine();
+  // Stable engine — reactive useSyncEngine() would resubscribe on every status patch.
+  const sync = useSyncEngineInstance();
   const specs = useMemo(
     () =>
       SHELL_QUERY_NAMES.map((name) => ({

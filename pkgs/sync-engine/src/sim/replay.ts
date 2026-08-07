@@ -28,9 +28,6 @@ export async function runSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
     seed: opts.seed,
     // Boot on a reliable mesh; enable sampled faults after clients are up.
     sampleFaults: false,
-    // Keep cadence slow so settle loops are not dominated by reconcile storms.
-    fallbackPollMs: 5_000,
-    reconcileMs: 30_000,
   });
   let done = 0;
   try {

@@ -390,32 +390,22 @@ function onStatus(bag: NudgeBag, next: PubSubStatus): void {
   const prev = bag.lastStatus;
   bag.lastStatus = next;
   if (next === 'connected') {
-    bag.options.runtime.setConnectedMode(true);
     // Catch-up after reconnect (down→connecting→connected; prev is rarely `down`).
     if (prev !== 'connected') {
-      bag.options.runtime.wakeAllWithJitter(STATUS_POLL_JITTER_MS);
+      bag.options.runtime.wakeAllWithJitter(STATUS_POLL_JITTER_MS, 'reconnect');
     }
-    return;
   }
-  if (next === 'down') {
-    // Arm FALLBACK only — do not wakeAll here. Auth reconnect flaps were
-    // storming /api/query via wakeAllWithJitter on every failed attempt.
-    bag.options.runtime.setConnectedMode(false);
-  }
+  // Do not wakeAll on `down` — auth reconnect flaps were storming /api/query.
 }
 
 function bindStatus(bag: NudgeBag, instance: PubSub): void {
   bag.lastStatus = instance.status();
-  if (bag.lastStatus === 'connected') {
-    bag.options.runtime.setConnectedMode(true);
-  }
   bag.unbindStatus = instance.onStatus((next) => onStatus(bag, next));
 }
 
 function disposeBag(bag: NudgeBag): void {
   if (bag.disposed) return;
   bag.disposed = true;
-  bag.options.runtime.setConnectedMode(false);
   clearTopicState(bag);
   if (bag.coalesceTrailing !== null) {
     bag.timers.clearTimeout(bag.coalesceTrailing);
@@ -431,8 +421,8 @@ function disposeBag(bag: NudgeBag): void {
 
 /**
  * Subscribes to query-derived pubsub topics and schedules refetches via
- * SubscriptionRuntime wakeScope. Removing this wiring leaves the shared
- * FALLBACK_POLL_MS / RECONCILE_MS cadence as the only freshness path.
+ * SubscriptionRuntime wakeScope. Without this wiring the client hydrates
+ * once at connect and relies on optimistic local writes only.
  */
 export function attachNudges(options: AttachNudgesOptions): () => void {
   const bag = createBag(options);

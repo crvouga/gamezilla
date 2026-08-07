@@ -18,8 +18,7 @@ import { createAppSyncLifecycle } from './app-sync-lifecycle';
 import { tryCreateClientPubSub } from './create-client-pubsub';
 import {
   type GetFreshAuthToken,
-  postAppQuery,
-  postAppQueryBatch,
+  postAppQueries,
   postMutationBatch,
   SyncApiAuthError,
   type SyncApiFetch,
@@ -139,7 +138,7 @@ function nudgeOptions(
   };
 }
 
-/** Opens the identity DB and builds the API-polled local sync engine. */
+/** Opens the identity DB and builds the nudge-driven local sync engine. */
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
@@ -163,8 +162,7 @@ export async function createAppLocalSyncEngine(
     getMutationEnv: () => mutationEnv(args),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
     bootQueries: bootQuerySpecs(),
-    postQuery: (request) => postAppQuery({ ...args, request }),
-    postQueryBatch: (requests) => postAppQueryBatch({ ...args, requests }),
+    postQueries: (requests) => postAppQueries({ ...args, requests }),
     postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
     isAuthRevoked: (error) =>
       error instanceof SyncApiAuthError && error.reason === 'revoked',

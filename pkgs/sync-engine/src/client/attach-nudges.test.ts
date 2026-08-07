@@ -35,7 +35,9 @@ describe('attachNudges', () => {
   }) {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
-    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
     const userScoped = defineQuery({
       name: 'ownStuff',
       params: z.object({}),
@@ -72,7 +74,7 @@ describe('attachNudges', () => {
     const runtime = new SubscriptionRuntime({
       db,
       boot: [{ name: 'ownStuff', params: {} }],
-      postQuery,
+      postQueries,
       getMergeDeps: () => ({
         db,
         registry: {},
@@ -88,13 +90,12 @@ describe('attachNudges', () => {
       }),
       onError: () => undefined,
       onSynced: () => undefined,
-      now: sim.now,
       random: sim.random,
       timers: sim.timers,
     });
     runtime.start();
     await runtime.waitForBoot();
-    postQuery.mockClear();
+    postQueries.mockClear();
 
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
     let remakeCount = 0;
@@ -129,13 +130,13 @@ describe('attachNudges', () => {
     disposers.push(() => runtime.stop());
     // Let attachNudges subscription sync settle before counting polls.
     await sim.runFor(5);
-    postQuery.mockClear();
+    postQueries.mockClear();
 
     return {
       sim,
       db,
       runtime,
-      postQuery,
+      postQueries,
       pubsub: () => current,
       remakeCount: () => remakeCount,
       wakeAllHook: () => wakeAllHook,
@@ -144,26 +145,25 @@ describe('attachNudges', () => {
   }
 
   test('nudge-triggers-single-debounced-refetch', async () => {
-    const { sim, postQuery, pubsub, scope } = await setup();
+    const { sim, postQueries, pubsub, scope } = await setup();
     await pubsub().publish('user:actor1', {});
     await sim.runFor(10);
-    expect(postQuery.mock.calls.length).toBe(1);
+    expect(postQueries.mock.calls.length).toBe(1);
 
-    postQuery.mockClear();
+    postQueries.mockClear();
     await pubsub().publish('user:actor1', {});
     await pubsub().publish('user:actor1', {});
     await pubsub().publish('user:actor1', {});
     await sim.runFor(80);
-    expect(postQuery.mock.calls.length).toBeLessThanOrEqual(2);
-    expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(postQueries.mock.calls.length).toBeLessThanOrEqual(2);
+    expect(postQueries.mock.calls.length).toBeGreaterThanOrEqual(1);
     void scope;
   });
 
   test('shared-topic-nudge-batches-scopes', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
-    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
-    const postQueryBatch = mock(async (requests: readonly unknown[]) =>
+    const postQueries = mock(async (requests: readonly unknown[]) =>
       requests.map(() => ({ status: 'not_modified' as const }))
     );
     const q1 = defineQuery({
@@ -204,8 +204,7 @@ describe('attachNudges', () => {
         { name: 'ownStuff2', params: {} },
         { name: 'ownStuff3', params: {} },
       ],
-      postQuery,
-      postQueryBatch,
+      postQueries,
       getMergeDeps: () => ({
         db,
         registry: {},
@@ -221,14 +220,12 @@ describe('attachNudges', () => {
       }),
       onError: () => undefined,
       onSynced: () => undefined,
-      now: sim.now,
       random: sim.random,
       timers: sim.timers,
     });
     runtime.start();
     await runtime.waitForBoot();
-    postQuery.mockClear();
-    postQueryBatch.mockClear();
+    postQueries.mockClear();
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
     disposers.push(
       attachNudges({
@@ -246,16 +243,17 @@ describe('attachNudges', () => {
     );
     disposers.push(() => runtime.stop());
     await sim.runFor(5);
-    postQuery.mockClear();
-    postQueryBatch.mockClear();
+    postQueries.mockClear();
     await pubsub.publish('user:actor1', {});
     await sim.runFor(20);
-    expect(postQueryBatch.mock.calls.length).toBe(1);
-    expect(postQuery.mock.calls.length).toBe(0);
+    expect(postQueries.mock.calls.length).toBe(1);
+    expect(
+      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
+    ).toBe(3);
   });
 
   test('nudge-checkpoint-skip', async () => {
-    const { sim, db, postQuery, pubsub, scope } = await setup();
+    const { sim, db, postQueries, pubsub, scope } = await setup();
     await db.run(sql`
       INSERT INTO _scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
       VALUES (${scope}, ${'now'}, ${'1000000000000000000'}, ${'h'})
@@ -264,23 +262,23 @@ describe('attachNudges', () => {
       checkpoint: '0999999999999000000',
     });
     await sim.runFor(40);
-    expect(postQuery.mock.calls.length).toBe(0);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
   test('self-echo-deduped', async () => {
-    const { sim, postQuery, pubsub, wakeAllHook } = await setup({
+    const { sim, postQueries, pubsub, wakeAllHook } = await setup({
       debounceMs: 80,
     });
     await pubsub().publish('user:actor1', {});
     wakeAllHook()?.();
     await sim.runFor(120);
     // Leading + at most one trailing for events inside the window.
-    expect(postQuery.mock.calls.length).toBeLessThanOrEqual(2);
-    expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(postQueries.mock.calls.length).toBeLessThanOrEqual(2);
+    expect(postQueries.mock.calls.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('socket-down-degrades-to-fallback', async () => {
-    const { sim, runtime, postQuery, pubsub } = await setup();
+  test('socket-down-stays-quiet-reconnect-catchup', async () => {
+    const { sim, runtime, postQueries, pubsub } = await setup();
     const wakeJitter = mock((_maxMs: number) => undefined);
     const original = runtime.wakeAllWithJitter.bind(runtime);
     runtime.wakeAllWithJitter = (maxMs: number) => {
@@ -290,10 +288,12 @@ describe('attachNudges', () => {
 
     pubsub().setStatusForTest('down');
     await sim.runFor(20);
-    // Down only arms FALLBACK — no immediate sweep (avoids reconnect storms).
+    // Down does not wake — avoids reconnect storms.
     expect(wakeJitter).not.toHaveBeenCalled();
+    postQueries.mockClear();
+    await sim.runFor(90);
+    expect(postQueries.mock.calls.length).toBe(0);
 
-    postQuery.mockClear();
     wakeJitter.mockClear();
     pubsub().setStatusForTest('connected');
     await sim.runFor(20);
@@ -323,10 +323,10 @@ describe('attachNudges', () => {
   });
 
   test('unrelated-topic-ignored', async () => {
-    const { sim, postQuery, pubsub } = await setup();
+    const { sim, postQueries, pubsub } = await setup();
     await pubsub().publish('user:other', {});
     await sim.runFor(40);
-    expect(postQuery.mock.calls.length).toBe(0);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
   test('late-topic-triggers-remake', async () => {
@@ -334,18 +334,15 @@ describe('attachNudges', () => {
       membershipSpaceIds: [],
       lateTopicRemakeMs: 40,
     });
-    // Activate room query with empty memberships first (no room topics).
     runtime.subscribe({ name: 'roomStuff', params: {} });
     await sim.runFor(5);
     expect(remakeCount()).toBe(0);
 
-    // Simulate membership appearing by re-attaching is hard; instead subscribe
-    // a query that already had memberships via a fresh setup path:
-    // Force desired room topic by updating getChannelsCtx is fixed at setup.
-    // Remake: add membership via second harness.
     const sim2 = createSimTestDriver();
     const db = await openScenarioDb();
-    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
     let memberships: string[] = [];
     const q = defineQuery({
       name: 'dynamicRooms',
@@ -364,7 +361,7 @@ describe('attachNudges', () => {
     const runtime2 = new SubscriptionRuntime({
       db,
       boot: [{ name: 'dynamicRooms', params: {} }],
-      postQuery,
+      postQueries,
       getMergeDeps: () => ({
         db,
         registry: {},
@@ -380,7 +377,6 @@ describe('attachNudges', () => {
       }),
       onError: () => undefined,
       onSynced: () => undefined,
-      now: sim2.now,
       random: sim2.random,
       timers: sim2.timers,
     });
@@ -412,22 +408,25 @@ describe('attachNudges', () => {
     disposers.push(dispose, () => runtime2.stop());
 
     memberships = ['space_new'];
-    // Trigger subscription change so syncTopics sees new topics.
     runtime2.subscribe({ name: 'dynamicRooms', params: {} });
     await sim2.runFor(80);
     expect(remakes).toBe(1);
     expect(current.subscribedTopicsForTest()).toContain('room:space_new');
     void pubsub;
+    void sim;
+    void runtime;
   });
 
-  test('no-pubsub-injected-uses-shared-fallback', async () => {
+  test('no-pubsub-stays-quiet-after-hydrate', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
-    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
     const runtime = new SubscriptionRuntime({
       db,
       boot: [{ name: 'pollOnlyBoot', params: {} }],
-      postQuery,
+      postQueries,
       getMergeDeps: () => ({
         db,
         registry: {},
@@ -443,18 +442,14 @@ describe('attachNudges', () => {
       }),
       onError: () => undefined,
       onSynced: () => undefined,
-      fallbackPollMs: 40,
-      reconcileMs: 600_000,
       random: sim.random,
-      now: sim.now,
       timers: sim.timers,
     });
-    // No setConnectedMode(true) — default down-state shared fallback.
     runtime.start();
     await runtime.waitForBoot();
-    postQuery.mockClear();
+    postQueries.mockClear();
     await sim.runFor(90);
-    expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(postQueries.mock.calls.length).toBe(0);
     runtime.stop();
   });
 });

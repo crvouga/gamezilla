@@ -31,24 +31,14 @@ function httpClient(args: {
   });
 }
 
-export async function postAppQuery(args: {
-  readonly config: ConfigService;
-  readonly fetchFn: SyncApiFetch;
-  readonly auth: SyncClientAuth;
-  readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
-  readonly request: QueryRequest;
-}): Promise<QueryResponse> {
-  return httpClient(args).postQuery(args.request);
-}
-
-export async function postAppQueryBatch(args: {
+export async function postAppQueries(args: {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
   readonly requests: readonly QueryRequest[];
 }): Promise<readonly QueryResponse[]> {
-  return httpClient(args).postQueryBatch(args.requests);
+  return httpClient(args).postQueries(args.requests);
 }
 
 export async function postMutationBatch(args: {

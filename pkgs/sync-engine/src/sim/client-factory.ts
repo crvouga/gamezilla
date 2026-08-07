@@ -58,8 +58,6 @@ export type BuildSimClientArgs = {
   readonly tableRegistry?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
 };
 
 async function openMemoryDb(): Promise<SqlClient> {
@@ -75,13 +73,9 @@ function wireHttp(
   auth: SimServerAuth
 ): SimHttpClient {
   return {
-    postQuery: async (req) => {
+    postQueries: async (reqs) => {
       server.setAuth(auth);
-      return http.postQuery(req);
-    },
-    postQueryBatch: async (reqs) => {
-      server.setAuth(auth);
-      return http.postQueryBatch(reqs);
+      return http.postQueries(reqs);
     },
     postMutations: (mutations) => http.postMutations(mutations),
     dispose: () => http.dispose(),
@@ -129,12 +123,6 @@ export async function buildSimClient(
     timers: args.timers,
     createId: args.createId,
     createPubSub: args.createPubSub,
-    ...(args.fallbackPollMs !== undefined
-      ? { fallbackPollMs: args.fallbackPollMs }
-      : {}),
-    ...(args.reconcileMs !== undefined
-      ? { reconcileMs: args.reconcileMs }
-      : {}),
   });
 
   const mutationClient = createMutationSide({

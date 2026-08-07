@@ -35,8 +35,6 @@ export type CreateEngineOptionsArgs = {
   readonly timers: Timers;
   readonly createId: () => string;
   readonly createPubSub: () => PubSub;
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
 };
 
 /** Options bag for {@link createLocalSyncEngine} from sim client args. */
@@ -50,8 +48,7 @@ export async function createEngineFromParts(
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,
     bootQueries: [{ name: 'simNotes', params: {} }],
-    postQuery: (r) => args.http.postQuery(r),
-    postQueryBatch: (rs) => args.http.postQueryBatch(rs),
+    postQueries: (rs) => args.http.postQueries(rs),
     postMutations: (ms) => args.http.postMutations(ms),
     isAuthRevoked: () => false,
     deleteDatabase: async () => undefined,
@@ -60,12 +57,6 @@ export async function createEngineFromParts(
     random: args.random,
     timers: args.timers,
     createId: args.createId,
-    ...(args.fallbackPollMs !== undefined
-      ? { fallbackPollMs: args.fallbackPollMs }
-      : {}),
-    ...(args.reconcileMs !== undefined
-      ? { reconcileMs: args.reconcileMs }
-      : {}),
     nudges: {
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,

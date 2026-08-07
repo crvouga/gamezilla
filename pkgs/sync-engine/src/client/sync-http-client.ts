@@ -36,7 +36,6 @@ export class SyncApiAuthError extends Error {
 
 export type SyncHttpClientPaths = {
   readonly query: string;
-  readonly queryBatch: string;
   readonly mutations: string;
 };
 
@@ -58,7 +57,6 @@ const FRESH_TOKEN_TIMEOUT_MS = 4_000;
 const TOKEN_EXPIRY_SKEW_MS = 30_000;
 const DEFAULT_PATHS: SyncHttpClientPaths = {
   query: '/api/query',
-  queryBatch: '/api/query/batch',
   mutations: '/api/mutations',
 };
 
@@ -153,8 +151,7 @@ function authHeadersFromBearer(
 }
 
 export type SyncHttpClient = {
-  readonly postQuery: (request: QueryRequest) => Promise<QueryResponse>;
-  readonly postQueryBatch: (
+  readonly postQueries: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly postMutations: (
@@ -249,10 +246,7 @@ export function createSyncHttpClient(
     postAuthedJson(options, anonIdHeader, path, body);
 
   return {
-    postQuery: async (request) =>
-      (await authed(paths.query, JSON.stringify(request))) as QueryResponse,
-    postQueryBatch: (requests) =>
-      postQueryBatchVia(authed, paths.queryBatch, requests),
+    postQueries: (requests) => postQueriesVia(authed, paths.query, requests),
     postMutations: async (mutations) =>
       (await authed(
         paths.mutations,
@@ -261,7 +255,7 @@ export function createSyncHttpClient(
   };
 }
 
-async function postQueryBatchVia(
+async function postQueriesVia(
   postAuthedJson: (path: string, body: string) => Promise<unknown>,
   path: string,
   requests: readonly QueryRequest[]

@@ -31,7 +31,7 @@ function defaultNextCheckpoint(): string {
 }
 
 /**
- * Single Hono app for sync: `POST /query`, `POST /query/batch`, `POST /mutations`.
+ * Single Hono app for sync: `POST /query` (batch body), `POST /mutations`.
  * Always merges framework mutations into the product registry.
  */
 export function createSyncApp(deps: CreateSyncAppDeps) {

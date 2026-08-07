@@ -49,62 +49,48 @@ function makeQueries(count: number) {
   );
 }
 
-function resolveHarnessOpts(opts?: {
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
-  readonly foreground?: boolean;
-  readonly connectedMode?: boolean;
-  readonly subscriptionCount?: number;
-}) {
-  return {
-    fallbackPollMs: opts?.fallbackPollMs ?? 60_000,
-    reconcileMs: opts?.reconcileMs ?? 600_000,
-    foreground: opts?.foreground ?? true,
-    connectedMode: opts?.connectedMode !== false,
-    subscriptionCount: opts?.subscriptionCount ?? 5,
-  };
-}
-
 describe('event-driven-sync', () => {
   const disposers: Array<() => void> = [];
   afterEach(() => {
     for (const d of disposers.splice(0)) d();
   });
 
-  async function harness(opts?: Parameters<typeof resolveHarnessOpts>[0]) {
-    const cfg = resolveHarnessOpts(opts);
+  async function harness(opts?: {
+    readonly foreground?: boolean;
+    readonly subscriptionCount?: number;
+  }) {
+    const subscriptionCount = opts?.subscriptionCount ?? 5;
+    const foreground = opts?.foreground ?? true;
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
-    const postQuery = mock(async () => ({ status: 'not_modified' as const }));
-    const queries = makeQueries(cfg.subscriptionCount);
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
+    const queries = makeQueries(subscriptionCount);
     const registry = queryRegistry(queries);
     const { lifecycle, setForeground, setOnline } = createControllableLifecycle(
       {
-        foreground: cfg.foreground,
+        foreground,
       }
     );
     const runtime = new SubscriptionRuntime({
       db,
       boot: queries.map((q) => ({ name: q.name, params: {} })),
-      postQuery,
+      postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
       lifecycle,
-      fallbackPollMs: cfg.fallbackPollMs,
-      reconcileMs: cfg.reconcileMs,
       random: sim.random,
-      now: sim.now,
       timers: sim.timers,
     });
     runtime.start();
-    if (cfg.connectedMode) runtime.setConnectedMode(true);
     await runtime.waitForBoot();
-    postQuery.mockClear();
+    postQueries.mockClear();
     disposers.push(() => runtime.stop());
     return {
       runtime,
-      postQuery,
+      postQueries,
       setForeground,
       setOnline,
       registry,
@@ -113,14 +99,68 @@ describe('event-driven-sync', () => {
     };
   }
 
-  test('no-timer-queries-when-connected', async () => {
-    const { postQuery, sim } = await harness({ subscriptionCount: 5 });
+  test('boot-coalesces-into-one-batch', async () => {
+    const sim = createSimTestDriver();
+    const db = await openScenarioDb();
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
+    const queries = makeQueries(5);
+    const runtime = new SubscriptionRuntime({
+      db,
+      boot: queries.map((q) => ({ name: q.name, params: {} })),
+      postQueries,
+      getMergeDeps: () => stubMergeDeps(db),
+      onError: () => undefined,
+      onSynced: () => undefined,
+      random: sim.random,
+      timers: sim.timers,
+    });
+    runtime.start();
+    await runtime.waitForBoot();
+    expect(postQueries.mock.calls.length).toBe(1);
+    expect(
+      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
+    ).toBe(5);
+    runtime.stop();
+  });
+
+  test('subscribe-coalesces-with-pending-boot', async () => {
+    const sim = createSimTestDriver();
+    const db = await openScenarioDb();
+    const postQueries = mock(async (requests: readonly unknown[]) =>
+      requests.map(() => ({ status: 'not_modified' as const }))
+    );
+    const queries = makeQueries(2);
+    const runtime = new SubscriptionRuntime({
+      db,
+      boot: [{ name: queries[0]!.name, params: {} }],
+      postQueries,
+      getMergeDeps: () => stubMergeDeps(db),
+      onError: () => undefined,
+      onSynced: () => undefined,
+      random: sim.random,
+      timers: sim.timers,
+    });
+    runtime.start();
+    runtime.subscribe({ name: queries[1]!.name, params: {} });
+    await runtime.waitForBoot();
+    await Promise.resolve();
+    expect(postQueries.mock.calls.length).toBe(1);
+    expect(
+      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
+    ).toBe(2);
+    runtime.stop();
+  });
+
+  test('no-timer-queries-when-idle', async () => {
+    const { postQueries, sim } = await harness({ subscriptionCount: 5 });
     await sim.runFor(80);
-    expect(postQuery.mock.calls.length).toBe(0);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
   test('nudge-is-sole-fast-path', async () => {
-    const { runtime, postQuery, registry, db, sim } = await harness({
+    const { runtime, postQueries, registry, db, sim } = await harness({
       subscriptionCount: 1,
     });
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
@@ -139,50 +179,42 @@ describe('event-driven-sync', () => {
       })
     );
     await sim.runFor(5);
-    postQuery.mockClear();
+    postQueries.mockClear();
     await pubsub.publish('user:actor1', {});
     await sim.runFor(40);
-    expect(postQuery.mock.calls.length).toBe(1);
+    expect(postQueries.mock.calls.length).toBe(1);
     await sim.runFor(60);
-    expect(postQuery.mock.calls.length).toBe(1);
+    expect(postQueries.mock.calls.length).toBe(1);
   });
 
-  test('foreground-triggers-jittered-sweep', async () => {
-    const { postQuery, setForeground, sim } = await harness({
+  test('foreground-does-not-sweep', async () => {
+    const { postQueries, setForeground, sim } = await harness({
       subscriptionCount: 3,
     });
     setForeground(false);
-    postQuery.mockClear();
+    postQueries.mockClear();
     setForeground(true);
     await sim.runFor(20);
-    expect(postQuery.mock.calls.length).toBe(3);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
-  test('down-state-shared-slow-fallback', async () => {
-    const { postQuery, runtime, sim } = await harness({
-      connectedMode: false,
-      fallbackPollMs: 50,
+  test('idle-without-pubsub-stays-quiet', async () => {
+    const { postQueries, sim } = await harness({
       subscriptionCount: 3,
-      reconcileMs: 600_000,
     });
-    runtime.setConnectedMode(false);
     await sim.runFor(10);
-    postQuery.mockClear();
-    await sim.runFor(60);
-    expect(postQuery.mock.calls.length).toBe(3);
-    await sim.runFor(60);
-    expect(postQuery.mock.calls.length).toBe(6);
+    postQueries.mockClear();
+    await sim.runFor(120);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
   test('background-silence', async () => {
-    const { postQuery, setForeground, runtime, registry, db, sim } =
+    const { postQueries, setForeground, runtime, registry, db, sim } =
       await harness({
         subscriptionCount: 2,
-        connectedMode: false,
-        fallbackPollMs: 30,
       });
     setForeground(false);
-    postQuery.mockClear();
+    postQueries.mockClear();
     disposers.push(
       attachNudges({
         pubsub: createInMemoryPubSub() as InMemoryPubSub,
@@ -198,63 +230,67 @@ describe('event-driven-sync', () => {
       })
     );
     await sim.runFor(80);
-    expect(postQuery.mock.calls.length).toBe(0);
+    expect(postQueries.mock.calls.length).toBe(0);
   });
 
-  test('reconciliation-tick-runs-and-detects', async () => {
+  test('re-subscribe-skips-network-when-firstDone', async () => {
+    const { runtime, postQueries, sim } = await harness({
+      subscriptionCount: 1,
+    });
+    const name = 'q0';
+    const first = runtime.subscribe({ name, params: {} });
+    await first.waitForFirstSync();
+    postQueries.mockClear();
+    const second = runtime.subscribe({ name, params: {} });
+    await second.waitForFirstSync();
+    await sim.runFor(5);
+    expect(postQueries.mock.calls.length).toBe(0);
+    first.unsubscribe();
+    second.unsubscribe();
+  });
+
+  test('single-flight-queues-second-batch', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
-    let call = 0;
-    const postQuery = mock(async () => {
-      call += 1;
-      if (call === 1) {
-        return {
-          status: 'ok' as const,
-          mode: 'full' as const,
-          checkpoint: '1',
-          hash: 'h1',
-          tables: { notes: [] },
-        };
-      }
-      return {
-        status: 'ok' as const,
-        mode: 'full' as const,
-        checkpoint: '2',
-        hash: 'h2',
-        tables: { notes: [{ id: 'n1' }] },
-      };
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
     });
-    const missed: Array<{ scope: string; name: string }> = [];
-    const { lifecycle } = createControllableLifecycle();
+    let enteredFirst = false;
+    const postQueries = mock(async (requests: readonly unknown[]) => {
+      if (!enteredFirst) {
+        enteredFirst = true;
+        await gate;
+      }
+      return requests.map(() => ({ status: 'not_modified' as const }));
+    });
+    const queries = makeQueries(2);
     const runtime = new SubscriptionRuntime({
       db,
-      boot: [{ name: 'detectMe', params: {} }],
-      postQuery,
+      boot: [{ name: queries[0]!.name, params: {} }],
+      postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
-      lifecycle,
-      reconcileMs: 40,
-      fallbackPollMs: 600_000,
       random: sim.random,
-      now: sim.now,
       timers: sim.timers,
-      onMissedEvent: (info) => missed.push(info),
     });
     runtime.start();
-    runtime.setConnectedMode(true);
+    for (let i = 0; i < 20 && postQueries.mock.calls.length < 1; i += 1) {
+      await Promise.resolve();
+    }
+    expect(postQueries.mock.calls.length).toBe(1);
+    runtime.wakeAll('manual');
+    await Promise.resolve();
+    expect(postQueries.mock.calls.length).toBe(1);
+    release();
     await runtime.waitForBoot();
-    postQuery.mockClear();
-    missed.length = 0;
-    runtime.setConnectedMode(true);
-    await sim.runUntil(
-      () => postQuery.mock.calls.length >= 1 && missed.length >= 1,
-      { maxVirtualMs: 2_000 }
-    );
-    expect(postQuery.mock.calls.length).toBeGreaterThanOrEqual(1);
-    expect(missed.length).toBeGreaterThanOrEqual(1);
-    expect(missed[0]?.name).toBe('detectMe');
+    for (let i = 0; i < 20 && postQueries.mock.calls.length < 2; i += 1) {
+      await Promise.resolve();
+    }
+    expect(postQueries.mock.calls.length).toBe(2);
     runtime.stop();
+    void sim;
   });
 });
 

@@ -8,7 +8,7 @@ import {
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 
-import { useSyncEngine } from './sync-engine-context';
+import { useSyncEngineInstance } from './sync-engine-context';
 
 const MutationClientContext = createContext<MutationClient | null>(null);
 
@@ -31,7 +31,9 @@ export function MutationClientProvider({
   ids,
   connectivity,
 }: MutationClientProviderProps): ReactNode {
-  const engine = useSyncEngine();
+  // Stable engine — not the reactive useSyncEngine() facade (status/paintReady
+  // churn must not recreate MutationClient or bootstrap ensure* effects re-fire).
+  const engine = useSyncEngineInstance();
   const mergedRegistry = useMemo(
     () => withFrameworkMutations(registry),
     [registry]
@@ -44,7 +46,7 @@ export function MutationClientProvider({
         env,
         ids,
         connectivity: connectivity ?? {
-          isOnline: () => engine.getStatus().online,
+          isOnline: () => engine.status.getSnapshot().online,
         },
         onQueued: () => engine.wakeUploads(),
         onApplied: (event) => engine.fanoutMutation(event),

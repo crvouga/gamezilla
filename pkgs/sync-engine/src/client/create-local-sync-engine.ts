@@ -58,8 +58,7 @@ export type CreateLocalSyncEngineOptions = {
   readonly getMutationEnv: () => MutationEnv;
   readonly getClientId: () => string;
   readonly bootQueries: readonly QuerySubscriptionSpec[];
-  readonly postQuery: (request: QueryRequest) => Promise<QueryResponse>;
-  readonly postQueryBatch?: (
+  readonly postQueries: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly postMutations: (
@@ -68,9 +67,8 @@ export type CreateLocalSyncEngineOptions = {
   readonly isAuthRevoked: (error: unknown) => boolean;
   readonly deleteDatabase: () => Promise<void>;
   /**
-   * Optional pubsub nudges. When omitted the engine runs the shared down-state
-   * fallback cadence (FALLBACK_POLL_MS sweeps) — there are no per-subscription
-   * interval timers.
+   * Optional pubsub nudges. When omitted the engine hydrates once at connect
+   * and stays on that snapshot until reconnect — no periodic poll.
    */
   readonly nudges?: SyncEngineNudgesOptions;
   readonly lifecycle?: AppLifecycle;
@@ -79,9 +77,6 @@ export type CreateLocalSyncEngineOptions = {
   readonly random?: () => number;
   readonly timers?: Timers;
   readonly createId?: CreateId;
-  /** Test overrides for poll cadence (forwarded to SubscriptionRuntime). */
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
 };
 
 type LocalEngineState = {
@@ -95,7 +90,6 @@ type LocalEngineState = {
   connected: boolean;
   revokePromise: Promise<void> | null;
   disposeNudges: (() => void) | null;
-  debouncedWakeAll: (() => void) | null;
   fanoutPubSub: PubSub | null;
 };
 
@@ -140,22 +134,12 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const runtime = new SubscriptionRuntime({
     db: options.db,
     boot: options.bootQueries,
-    postQuery: options.postQuery,
-    ...(options.postQueryBatch !== undefined
-      ? { postQueryBatch: options.postQueryBatch }
-      : {}),
+    postQueries: options.postQueries,
     ...(options.lifecycle !== undefined
       ? { lifecycle: options.lifecycle }
       : {}),
-    ...(options.now !== undefined ? { now: options.now } : {}),
     ...(options.random !== undefined ? { random: options.random } : {}),
     ...(options.timers !== undefined ? { timers: options.timers } : {}),
-    ...(options.fallbackPollMs !== undefined
-      ? { fallbackPollMs: options.fallbackPollMs }
-      : {}),
-    ...(options.reconcileMs !== undefined
-      ? { reconcileMs: options.reconcileMs }
-      : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
     onSynced: () =>
@@ -171,14 +155,8 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     bus,
     clientId: options.getClientId,
     postBatch: options.postMutations,
-    onUploaded: () => {
-      const current = readState(stateRef);
-      // Pubsub path: mutation invalidates already nudge overlapping scopes;
-      // local rows are already applied. Upload-ack wakeAll was storming every
-      // active scope after each batch (16+) and fighting the table filter.
-      if (current.debouncedWakeAll !== null) return;
-      runtime.wakeAll();
-    },
+    // Local rows already applied; overlapping scopes are nudged via pubsub.
+    onUploaded: () => undefined,
     onError: (error) => handleError(readState(stateRef), error),
     ...(options.timers !== undefined ? { timers: options.timers } : {}),
     ...(options.now !== undefined ? { now: options.now } : {}),
@@ -200,7 +178,6 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     connected: false,
     revokePromise: null,
     disposeNudges: null,
-    debouncedWakeAll: null,
     fanoutPubSub: null,
   };
   stateRef.current = state;
@@ -246,9 +223,6 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
         pubsub = nudges.createPubSub();
         return pubsub;
       },
-      onScheduleWakeAll: (wakeAll) => {
-        state.debouncedWakeAll = wakeAll;
-      },
       onPubSubInstance: (instance) => {
         state.fanoutPubSub = instance;
       },
@@ -262,7 +236,7 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
     });
   } catch (error) {
     console.warn(
-      '[sync] attachNudges failed; continuing fallback cadence',
+      '[sync] attachNudges failed; continuing without live nudges',
       error
     );
   }
@@ -271,7 +245,6 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
 function detachNudges(state: LocalEngineState): void {
   state.disposeNudges?.();
   state.disposeNudges = null;
-  state.debouncedWakeAll = null;
   state.fanoutPubSub = null;
 }
 

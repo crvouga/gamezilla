@@ -14,7 +14,7 @@ const queryItemSchema = z.object({
   checkpoint: z.string().optional(),
 });
 
-const batchBodySchema = z.object({
+const queryBodySchema = z.object({
   queries: z.array(queryItemSchema).min(1).max(64),
 });
 
@@ -52,28 +52,7 @@ export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const parsed = queryItemSchema.safeParse(await c.req.json());
-    if (!parsed.success) {
-      return c.json({ status: 'gone' as const }, 400);
-    }
-    const response = await runOne(
-      {
-        db: deps.getSql(),
-        registry: deps.queries,
-        auth: { ...auth, now: () => new Date() },
-        nextCheckpoint: deps.nextCheckpoint,
-      },
-      parsed.data
-    );
-    return c.json(response, 200);
-  });
-
-  app.post('/query/batch', async (c) => {
-    const auth = await deps.resolveAuth(c.req.raw);
-    if (isAuthErrorBody(auth)) {
-      return c.json(auth, 401);
-    }
-    const parsed = batchBodySchema.safeParse(await c.req.json());
+    const parsed = queryBodySchema.safeParse(await c.req.json());
     if (!parsed.success) {
       return c.json({ status: 'gone' as const }, 400);
     }

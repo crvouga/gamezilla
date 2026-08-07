@@ -95,7 +95,7 @@ export async function openSimServer(
     },
   });
 
-  const handleQuery = createHandleQuery(ctx);
+  const handleOneQuery = createHandleQuery(ctx);
   const handleMutations = createHandleMutations(ctx);
 
   return {
@@ -104,8 +104,7 @@ export async function openSimServer(
       stickyAuth = auth;
     },
     handlers: {
-      handleQuery,
-      handleQueryBatch: (reqs) => Promise.all(reqs.map((r) => handleQuery(r))),
+      handleQuery: (reqs) => Promise.all(reqs.map((r) => handleOneQuery(r))),
       handleMutations,
     },
     dispose: async () => {

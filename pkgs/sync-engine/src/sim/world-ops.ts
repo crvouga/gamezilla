@@ -22,8 +22,6 @@ export type ClientMeta = {
 };
 
 export type WorldClientOpts = {
-  readonly fallbackPollMs?: number;
-  readonly reconcileMs?: number;
   readonly faults?: SimFaultOptions;
   readonly sampleFaults?: boolean;
 };
@@ -50,7 +48,7 @@ async function waitForBoot(
   handle: SimClientHandle,
   clientId: string
 ): Promise<void> {
-  // Flush microtasks so fetchOnce reaches postQuery and schedules HTTP.
+  // Flush coalesce timer (QUERY_COALESCE_MS=0) so boot batch reaches HTTP.
   await Promise.resolve();
   await Promise.resolve();
   let booted = false;
@@ -114,12 +112,6 @@ export async function addClientImpl(
       pubsubInstance = ctx.broker.createPubSub(pubEndpoint);
       return pubsubInstance;
     },
-    ...(ctx.worldArgs.fallbackPollMs !== undefined
-      ? { fallbackPollMs: ctx.worldArgs.fallbackPollMs }
-      : {}),
-    ...(ctx.worldArgs.reconcileMs !== undefined
-      ? { reconcileMs: ctx.worldArgs.reconcileMs }
-      : {}),
   });
   ctx.clients.set(clientArgs.id, handle);
   await waitForBoot(ctx.scheduler, handle, clientArgs.id);

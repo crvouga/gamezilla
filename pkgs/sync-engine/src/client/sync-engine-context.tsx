@@ -83,7 +83,8 @@ export function useSyncEngine(): SyncEngineApi {
 export function useQuery<T extends Record<string, unknown>>(
   query: Sql<T>
 ): { readonly rows: readonly T[]; readonly isLoading: boolean } {
-  const engine = useSyncEngine();
+  // Stable engine so status/paintReady updates do not recreate watches.
+  const engine = useSyncEngineInstance();
   const sqlText = query.sql;
   const paramsKey = useMemo(() => JSON.stringify(query.values), [query.values]);
   const subscription = useMemo(
@@ -103,7 +104,7 @@ export function useQuery<T extends Record<string, unknown>>(
   const isLoading = computeWatchQueryIsLoading({
     hydrated,
     rows,
-    status: engine.status,
+    status: engine.status.getSnapshot(),
   });
   return { rows, isLoading };
 }
