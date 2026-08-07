@@ -1,5 +1,3 @@
-import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
-
 /** Composite id for rows in the generic third-party mirror table. */
 export function entityStoreId(
   namespace: string,
@@ -27,16 +25,15 @@ export const ENTITY_STORE_NAMESPACE_AUTH = 'auth' as const;
 export const ENTITY_STORE_TYPE_USER = 'user' as const;
 
 /** Generic JSONB mirror table for third-party and extension entity types. */
-export const ENTITY_STORE_TABLE_DEF = defineTable({
-  tableName: ENTITY_STORE_TABLE,
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'namespace', type: 'text' },
-    { name: 'type', type: 'text' },
-    { name: 'external_id', type: 'text' },
-    { name: 'owner_id', type: 'text' },
-    { name: 'data', type: 'text' },
-    { name: 'created_at', type: 'text' },
-    { name: 'updated_at', type: 'text' },
-  ],
-});
+export const ENTITY_STORE_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "entity_store" (
+  "id" TEXT PRIMARY KEY,
+  "namespace" TEXT,
+  "type" TEXT,
+  "external_id" TEXT,
+  "owner_id" TEXT,
+  "data" TEXT,
+  "created_at" TEXT,
+  "updated_at" TEXT
+)
+`;

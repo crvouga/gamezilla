@@ -54,6 +54,20 @@ CREATE TABLE IF NOT EXISTS _peer_mutations (
   epoch INTEGER NOT NULL,
   applied_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS write_rejections (
+  id TEXT PRIMARY KEY,
+  mutation_id TEXT NOT NULL,
+  client_id TEXT NOT NULL,
+  code TEXT NOT NULL,
+  message TEXT NOT NULL,
+  meta TEXT,
+  created_at TEXT NOT NULL,
+  acknowledged INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx
+  ON write_rejections (client_id);
+CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
+  ON write_rejections (mutation_id);
 `;
 
 export const SCHEMA_EPOCH = 1;

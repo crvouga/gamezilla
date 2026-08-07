@@ -2,9 +2,17 @@ import { describe, expect, test } from 'bun:test';
 
 import { sql } from '@pkgs/sql';
 
-import { defineTable } from '../shared/table-definition';
-import { createTableRegistry } from '../shared/table-registry';
 import { createInMemorySyncEngine } from './in-memory-sync-engine';
+
+const PROFILES_SCHEMA = {
+  domainDdl: [
+    `CREATE TABLE IF NOT EXISTS "profiles" (
+      "id" TEXT PRIMARY KEY,
+      "display_name" TEXT
+    )`,
+  ],
+  cacheTableNames: ['profiles'],
+} as const;
 
 function waitForHydrated(sub: {
   getHydrated: () => boolean;
@@ -25,16 +33,7 @@ function waitForHydrated(sub: {
 
 describe('createInMemorySyncEngine', () => {
   test('watch query is not hydrated until first refresh completes', () => {
-    const registry = createTableRegistry([
-      defineTable({
-        tableName: 'profiles',
-        columns: [
-          { name: 'id', type: 'text', primaryKey: true },
-          { name: 'display_name', type: 'text' },
-        ],
-      }),
-    ]);
-    const engine = createInMemorySyncEngine({ registry });
+    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     const sub = engine.watch(
       sql<{ id: string }>`SELECT id FROM profiles WHERE false`
     );
@@ -43,16 +42,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('watch query returns rows after connect without polling', async () => {
-    const registry = createTableRegistry([
-      defineTable({
-        tableName: 'profiles',
-        columns: [
-          { name: 'id', type: 'text', primaryKey: true },
-          { name: 'display_name', type: 'text' },
-        ],
-      }),
-    ]);
-    const engine = createInMemorySyncEngine({ registry });
+    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     await engine.db.run(
       sql<void>`
@@ -71,16 +61,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('watch refreshes on write without timers', async () => {
-    const registry = createTableRegistry([
-      defineTable({
-        tableName: 'profiles',
-        columns: [
-          { name: 'id', type: 'text', primaryKey: true },
-          { name: 'display_name', type: 'text' },
-        ],
-      }),
-    ]);
-    const engine = createInMemorySyncEngine({ registry });
+    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     await engine.db.run(
       sql<void>`
@@ -114,13 +95,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('hasEverSynced latches true and persists through reconnect', async () => {
-    const registry = createTableRegistry([
-      defineTable({
-        tableName: 'profiles',
-        columns: [{ name: 'id', type: 'text', primaryKey: true }],
-      }),
-    ]);
-    const engine = createInMemorySyncEngine({ registry });
+    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
 
     expect(engine.status.getSnapshot().hasEverSynced).toBe(false);
 
@@ -134,13 +109,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('clearLocalData resets hasEverSynced', async () => {
-    const registry = createTableRegistry([
-      defineTable({
-        tableName: 'profiles',
-        columns: [{ name: 'id', type: 'text', primaryKey: true }],
-      }),
-    ]);
-    const engine = createInMemorySyncEngine({ registry });
+    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     expect(engine.status.getSnapshot().hasEverSynced).toBe(true);
 

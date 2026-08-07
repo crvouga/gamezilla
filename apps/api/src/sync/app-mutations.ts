@@ -4,10 +4,9 @@ import { FRIENDS_MUTATIONS } from '@libs/friends/shared/mutations/friends-mutati
 import { PROFILE_MUTATIONS } from '@libs/profile/shared/mutations/profile-mutations';
 import { SPACE_MUTATIONS } from '@libs/spaces/shared/mutations/space-mutations';
 import { registry } from '@pkgs/sync-engine/mutations/core/registry';
-import { FRAMEWORK_MUTATIONS } from '@pkgs/sync-engine/mutations/shared/acknowledge-write-rejection';
 
+/** Product mutations only — framework mutations are merged by createSyncApp / createLocalSyncEngine. */
 export const APP_MUTATIONS = registry([
-  ...FRAMEWORK_MUTATIONS,
   ...AUTH_MUTATIONS,
   ...CHESS_MUTATIONS,
   ...FRIENDS_MUTATIONS,

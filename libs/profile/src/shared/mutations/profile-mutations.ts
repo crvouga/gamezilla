@@ -94,7 +94,7 @@ export const ensureProfileMutation = defineMutation({
   args: z.object({
     avatarConfig: avatarConfigArgs.optional(),
   }),
-  writes: [PROFILES_TABLE.tableName],
+  writes: [PROFILES_TABLE],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   constraintErrors: {
     profiles_username_norm_uidx: {
@@ -118,7 +118,7 @@ export const ensureProfileMutation = defineMutation({
 export const applyEnsuredUsernameMutation = defineMutation({
   name: 'applyEnsuredUsername',
   args: z.object({ username: z.string().min(1) }),
-  writes: [PROFILES_TABLE.tableName],
+  writes: [PROFILES_TABLE],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { username }) {
     const next = normalizeUsername(username);
@@ -144,7 +144,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
 export const claimUsernameMutation = defineMutation({
   name: 'claimUsername',
   args: z.object({ username: z.string() }),
-  writes: [PROFILES_TABLE.tableName],
+  writes: [PROFILES_TABLE],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   pendingUx: 'pending',
   requiresOnline: true,
@@ -177,7 +177,7 @@ export const claimUsernameMutation = defineMutation({
 export const patchAvatarMutation = defineMutation({
   name: 'patchAvatar',
   args: z.object({ avatarConfig: avatarConfigArgs }),
-  writes: [PROFILES_TABLE.tableName],
+  writes: [PROFILES_TABLE],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { avatarConfig }) {
     await tx.run(sql`

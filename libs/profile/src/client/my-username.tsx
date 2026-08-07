@@ -1,4 +1,4 @@
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import type { ReactNode } from 'react';
 
 import { useMyProfileId } from './use-my-profile-id';
@@ -17,7 +17,7 @@ export function MyUsername({
   numberOfLines,
   withAt,
 }: MyUsernameProps): ReactNode {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const profileId = useMyProfileId();
   if (!paintReady) return null;
   return (

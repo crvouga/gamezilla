@@ -1,6 +1,6 @@
 import {
   SyncEngineProvider,
-  useSyncEngine,
+  useSyncEngineInstance,
 } from '@pkgs/sync-engine/client/sync-engine-context';
 import { PortalContentBridgeProvider } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
@@ -14,7 +14,7 @@ export function AppPortalContentBridge({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const engine = useSyncEngine();
+  const engine = useSyncEngineInstance();
   const wrap = useCallback(
     (content: ReactNode) => (
       <SyncEngineProvider value={engine}>{content}</SyncEngineProvider>

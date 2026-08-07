@@ -6,6 +6,7 @@ import {
   type MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
+import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 
 import { useSyncEngine } from './sync-engine-context';
 
@@ -31,20 +32,24 @@ export function MutationClientProvider({
   connectivity,
 }: MutationClientProviderProps): ReactNode {
   const engine = useSyncEngine();
+  const mergedRegistry = useMemo(
+    () => withFrameworkMutations(registry),
+    [registry]
+  );
   const client = useMemo(
     () =>
       createMutationClient({
         db: engine.db,
-        registry,
+        registry: mergedRegistry,
         env,
         ids,
         connectivity: connectivity ?? {
-          isOnline: () => engine.status.getSnapshot().online,
+          isOnline: () => engine.getStatus().online,
         },
         onQueued: () => engine.wakeUploads(),
         onApplied: (event) => engine.fanoutMutation(event),
       }),
-    [connectivity, engine, env, ids, registry]
+    [connectivity, engine, env, ids, mergedRegistry]
   );
   return (
     <MutationClientContext.Provider value={client}>

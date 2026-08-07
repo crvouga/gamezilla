@@ -10,14 +10,14 @@ import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
 import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { MenuList, MenuRow } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
 
 const IDENTITY_AVATAR_SIZE = 40;
 
 function useReadyProfileUsername(): string | null {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const profileId = useMyProfileId();
   const watchId = paintReady && profileId !== null ? profileId : '';
   return useProfileColumn(watchId, 'username');

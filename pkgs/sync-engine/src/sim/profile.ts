@@ -7,19 +7,20 @@ import { defineMutation } from '../mutations/core/define-mutation';
 import { registry } from '../mutations/core/registry';
 import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
-import { defineTable } from '../shared/table-definition';
-import { createTableRegistry } from '../shared/table-registry';
+export const SIM_NOTES_TABLE = 'notes' as const;
 
-export const SIM_NOTES_TABLE = defineTable({
-  tableName: 'notes',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'body', type: 'text' },
-    { name: 'owner_id', type: 'text' },
-  ],
-});
+export const SIM_NOTES_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "notes" (
+  "id" TEXT PRIMARY KEY,
+  "body" TEXT,
+  "owner_id" TEXT
+)
+`;
 
-export const simTableRegistry = createTableRegistry([SIM_NOTES_TABLE]);
+export const simLocalSchema = {
+  domainDdl: [SIM_NOTES_LOCAL_DDL],
+  cacheTableNames: [SIM_NOTES_TABLE],
+} as const;
 
 /** Shared topic so all sim clients receive the same nudge stream. */
 export const SIM_WORLD_TOPIC = 'user:sim-world' as Topic;

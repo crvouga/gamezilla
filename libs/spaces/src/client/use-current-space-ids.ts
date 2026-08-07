@@ -1,8 +1,10 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import { isViewerSpaceHost } from '../shared/resolve-space-presence';
@@ -76,7 +78,7 @@ export function useCurrentSpaceIds(): {
   isLoading: boolean;
 } {
   const myId = useMyId();
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const enabled = paintReady && myId.length > 0;
   const query = useMemo(() => currentSpacesSql(enabled), [enabled]);
   const { rows, isLoading } = useQuery(query);

@@ -1,30 +1,29 @@
 import { ALL_INBOX_SYNC_TABLES } from '@pkgs/inbox/sync/table-defs';
 import type { TablePolicy } from '@pkgs/sync-engine/mutations/shared/table-policy';
 
-import { AUTH_TABLE_DEFINITIONS } from './auth-tables';
+import { AUTH_TABLE_NAMES } from './auth-tables';
 import { ALL_CHESS_SYNC_TABLES } from './chess-tables';
 import { ALL_CLIENT_CONFIG_SYNC_TABLES } from './client-config-tables';
-import { ENTITY_STORE_TABLE_DEF } from './entity-store-table';
+import { ENTITY_STORE_TABLE } from './entity-store-table';
 import { ALL_FRIENDS_SYNC_TABLES } from './friends-tables';
-import { ALL_MUTATION_SYNC_TABLES } from './mutation-tables';
 import { ALL_PROFILE_SYNC_TABLES } from './profile-tables';
 import { ALL_SPACE_SYNC_TABLES } from './space-tables';
 
 const DOMAIN_TABLES = [
-  ...ALL_SPACE_SYNC_TABLES.map((t) => t.tableName),
-  ...ALL_FRIENDS_SYNC_TABLES.map((t) => t.tableName),
-  ...ALL_PROFILE_SYNC_TABLES.map((t) => t.tableName),
+  ...ALL_SPACE_SYNC_TABLES,
+  ...ALL_FRIENDS_SYNC_TABLES,
+  ...ALL_PROFILE_SYNC_TABLES,
   'devices',
   'chess_puzzle_profiles',
   'chess_puzzle_interactions',
-  ENTITY_STORE_TABLE_DEF.tableName,
+  ENTITY_STORE_TABLE,
 ] as const;
 
 const SERVER_ONLY_TABLES = [
   'users',
   'external_accounts',
-  ...ALL_CLIENT_CONFIG_SYNC_TABLES.map((t) => t.tableName),
-  ...ALL_INBOX_SYNC_TABLES.map((t) => t.tableName),
+  ...ALL_CLIENT_CONFIG_SYNC_TABLES,
+  ...ALL_INBOX_SYNC_TABLES,
   'chess_puzzles',
   'chess_puzzle_load',
   '_mutations_applied',
@@ -40,19 +39,14 @@ function buildPolicyMap(): Readonly<Record<string, TablePolicy>> {
   for (const name of SERVER_ONLY_TABLES) map[name] = 'SERVER_ONLY';
   for (const name of FRAMEWORK_TABLES) map[name] = 'FRAMEWORK';
 
-  for (const t of AUTH_TABLE_DEFINITIONS) {
-    if (map[t.tableName] === undefined) {
-      throw new Error(`TABLE_POLICY missing auth table: ${t.tableName}`);
+  for (const name of AUTH_TABLE_NAMES) {
+    if (map[name] === undefined) {
+      throw new Error(`TABLE_POLICY missing auth table: ${name}`);
     }
   }
-  for (const t of ALL_CHESS_SYNC_TABLES) {
-    if (map[t.tableName] === undefined) {
-      throw new Error(`TABLE_POLICY missing chess table: ${t.tableName}`);
-    }
-  }
-  for (const t of ALL_MUTATION_SYNC_TABLES) {
-    if (map[t.tableName] === undefined) {
-      throw new Error(`TABLE_POLICY missing mutation table: ${t.tableName}`);
+  for (const name of ALL_CHESS_SYNC_TABLES) {
+    if (map[name] === undefined) {
+      throw new Error(`TABLE_POLICY missing chess table: ${name}`);
     }
   }
   return map;

@@ -1,10 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import {
-  useQuery,
-  useQueryOne,
-} from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
@@ -74,11 +71,12 @@ export function usePuzzleEntity(puzzleId: string): {
   rating: number;
   themes: readonly string[];
 } {
-  const { row } = useQueryOne(sql<PuzzleEntityRow>`
+  const { rows } = useQuery(sql<PuzzleEntityRow>`
     SELECT fen, moves, rating, themes
     FROM chess_puzzles
     WHERE id = ${puzzleId}
   `);
+  const row = rows[0] ?? null;
 
   return {
     fen: row?.fen ?? '',

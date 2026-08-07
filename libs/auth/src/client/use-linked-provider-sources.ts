@@ -4,8 +4,10 @@ import {
 } from '@libs/db/shared/entity-store-table';
 import { sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
@@ -64,19 +66,21 @@ function buildSourcesFromRows(args: {
 export function useLinkedProviderSources(
   accountId: string | null
 ): LinkedProviderSources | null {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const { providerLabel: primaryAuthProvider } = useAuthClientPort();
   const scopedAccountId = paintReady ? accountId : null;
-  const { row: authExternalAccountRow } =
-    useQueryOne(sql<PrimaryAuthExternalAccountRow>`
+  const { rows: authExternalAccountRows } = useQuery(
+    sql<PrimaryAuthExternalAccountRow>`
       SELECT external_id, metadata, created_at
       FROM external_accounts
       WHERE user_id = ${scopedAccountId}
         AND provider = ${primaryAuthProvider}
       LIMIT 1
-    `);
+    `
+  );
+  const authExternalAccountRow = authExternalAccountRows[0] ?? null;
 
-  const { row: entityRow } = useQueryOne(sql<AuthEntityStoreRow>`
+  const { rows: entityRows } = useQuery(sql<AuthEntityStoreRow>`
     SELECT data, created_at
     FROM entity_store
     WHERE namespace = ${ENTITY_STORE_NAMESPACE_AUTH}
@@ -84,6 +88,7 @@ export function useLinkedProviderSources(
       AND owner_id = ${scopedAccountId}
     LIMIT 1
   `);
+  const entityRow = entityRows[0] ?? null;
 
   return useMemo((): LinkedProviderSources | null => {
     if (!paintReady || accountId === null) return null;

@@ -1,67 +1,74 @@
-import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
-
 /**
  * Full catalog on Postgres; sync clients only receive rows with
  * `sync_pool = true` (~4k). Must match the sync-stream source table name
  * exactly — `AS` aliases do not remap apply targets here.
  */
-export const CHESS_PUZZLES_TABLE = defineTable({
-  tableName: 'chess_puzzles',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'fen', type: 'text' },
-    { name: 'moves', type: 'text' },
-    { name: 'rating', type: 'integer' },
-    { name: 'rating_deviation', type: 'integer' },
-    { name: 'popularity', type: 'integer' },
-    { name: 'nb_plays', type: 'integer' },
-    { name: 'themes', type: 'text' },
-    { name: 'game_url', type: 'text' },
-    { name: 'opening_tags', type: 'text' },
-  ],
-});
+export const CHESS_PUZZLES_TABLE = 'chess_puzzles' as const;
+export const CHESS_PUZZLE_LOAD_TABLE = 'chess_puzzle_load' as const;
+export const CHESS_PUZZLE_PROFILES_TABLE = 'chess_puzzle_profiles' as const;
+export const CHESS_PUZZLE_INTERACTIONS_TABLE =
+  'chess_puzzle_interactions' as const;
 
-export const CHESS_PUZZLE_LOAD_TABLE = defineTable({
-  tableName: 'chess_puzzle_load',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'source_etag', type: 'text' },
-    { name: 'cursor', type: 'text' },
-    { name: 'finished_at', type: 'text' },
-  ],
-});
+export const CHESS_PUZZLES_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "chess_puzzles" (
+  "id" TEXT PRIMARY KEY,
+  "fen" TEXT,
+  "moves" TEXT,
+  "rating" INTEGER,
+  "rating_deviation" INTEGER,
+  "popularity" INTEGER,
+  "nb_plays" INTEGER,
+  "themes" TEXT,
+  "game_url" TEXT,
+  "opening_tags" TEXT
+)
+`;
 
-export const CHESS_PUZZLE_PROFILES_TABLE = defineTable({
-  tableName: 'chess_puzzle_profiles',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'owner_id', type: 'text' },
-    { name: 'rating', type: 'integer' },
-    { name: 'rating_deviation', type: 'integer' },
-    { name: 'last_interaction_at', type: 'text' },
-  ],
-});
+export const CHESS_PUZZLE_LOAD_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "chess_puzzle_load" (
+  "id" TEXT PRIMARY KEY,
+  "source_etag" TEXT,
+  "cursor" TEXT,
+  "finished_at" TEXT
+)
+`;
 
-export const CHESS_PUZZLE_INTERACTIONS_TABLE = defineTable({
-  tableName: 'chess_puzzle_interactions',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'owner_id', type: 'text' },
-    { name: 'puzzle_id', type: 'text' },
-    { name: 'puzzle_rating', type: 'integer' },
-    { name: 'kind', type: 'text' },
-    { name: 'solve_idx', type: 'integer' },
-    { name: 'uci', type: 'text' },
-    { name: 'correct', type: 'integer' },
-    { name: 'rating_before', type: 'integer' },
-    { name: 'rating_after', type: 'integer' },
-    { name: 'at', type: 'text' },
-  ],
-});
+export const CHESS_PUZZLE_PROFILES_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "chess_puzzle_profiles" (
+  "id" TEXT PRIMARY KEY,
+  "owner_id" TEXT,
+  "rating" INTEGER,
+  "rating_deviation" INTEGER,
+  "last_interaction_at" TEXT
+)
+`;
+
+export const CHESS_PUZZLE_INTERACTIONS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "chess_puzzle_interactions" (
+  "id" TEXT PRIMARY KEY,
+  "owner_id" TEXT,
+  "puzzle_id" TEXT,
+  "puzzle_rating" INTEGER,
+  "kind" TEXT,
+  "solve_idx" INTEGER,
+  "uci" TEXT,
+  "correct" INTEGER,
+  "rating_before" INTEGER,
+  "rating_after" INTEGER,
+  "at" TEXT
+)
+`;
 
 export const ALL_CHESS_SYNC_TABLES = [
   CHESS_PUZZLES_TABLE,
   CHESS_PUZZLE_LOAD_TABLE,
   CHESS_PUZZLE_PROFILES_TABLE,
   CHESS_PUZZLE_INTERACTIONS_TABLE,
+] as const;
+
+export const ALL_CHESS_LOCAL_DDL = [
+  CHESS_PUZZLES_LOCAL_DDL,
+  CHESS_PUZZLE_LOAD_LOCAL_DDL,
+  CHESS_PUZZLE_PROFILES_LOCAL_DDL,
+  CHESS_PUZZLE_INTERACTIONS_LOCAL_DDL,
 ] as const;

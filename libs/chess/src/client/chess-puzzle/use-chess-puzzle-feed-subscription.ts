@@ -1,10 +1,11 @@
-import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
-import { useMemo } from 'react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Poll the bounded puzzle-pool query while the feed is mounted.
  */
 export function useChessPuzzleFeedSubscription(): void {
+  const sync = useSyncEngine();
   const specs = useMemo(
     () =>
       [
@@ -15,5 +16,8 @@ export function useChessPuzzleFeedSubscription(): void {
       ] as const,
     []
   );
-  useSyncEngineSubscriptions(specs);
+  useEffect(() => {
+    const handle = sync.subscribeQueries(specs);
+    return () => handle.unsubscribe();
+  }, [sync, specs]);
 }

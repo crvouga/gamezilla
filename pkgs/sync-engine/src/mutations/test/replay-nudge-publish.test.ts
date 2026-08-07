@@ -5,7 +5,7 @@ import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { sql, unsafe } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { z } from 'zod';
-import { createMutationsRoutes } from '../../server/create-mutations-routes';
+import { createSyncApp } from '../../server/create-sync-app';
 import { notifyChannels } from '../../server/notify-channels';
 import { defineMutation } from '../core/define-mutation';
 import { registry } from '../core/registry';
@@ -80,7 +80,7 @@ describe('replay nudge publish', () => {
         published.push({ topic, data });
       },
     };
-    const app = createMutationsRoutes({
+    const app = createSyncApp({
       resolveAuth: async () => ({
         actorId: 'actor1',
         deviceId: 'd1',
@@ -88,7 +88,8 @@ describe('replay nudge publish', () => {
         isAnon: true,
       }),
       getSql: () => db,
-      registry: registry([setNote, failNote]),
+      queries: {},
+      mutations: registry([setNote, failNote]),
       pubsub,
     });
 
@@ -127,7 +128,7 @@ describe('replay nudge publish', () => {
         published.push({ topic, data });
       },
     };
-    const app = createMutationsRoutes({
+    const app = createSyncApp({
       resolveAuth: async () => ({
         actorId: 'actor1',
         deviceId: 'd1',
@@ -135,7 +136,8 @@ describe('replay nudge publish', () => {
         isAnon: true,
       }),
       getSql: () => db,
-      registry: registry([setNote, failNote]),
+      queries: {},
+      mutations: registry([setNote, failNote]),
       pubsub,
     });
 
@@ -177,7 +179,7 @@ describe('replay nudge publish', () => {
           throw new Error('broker down');
         },
       };
-      const app = createMutationsRoutes({
+      const app = createSyncApp({
         resolveAuth: async () => ({
           actorId: 'actor1',
           deviceId: 'd1',
@@ -185,7 +187,8 @@ describe('replay nudge publish', () => {
           isAnon: true,
         }),
         getSql: () => db,
-        registry: registry([setNote]),
+        queries: {},
+        mutations: registry([setNote]),
         pubsub,
       });
 

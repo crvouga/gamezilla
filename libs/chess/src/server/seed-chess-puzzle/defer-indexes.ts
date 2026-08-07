@@ -13,7 +13,7 @@ export async function dropPuzzleSnapshotIndexes(args: {
   log: Logger;
 }): Promise<void> {
   const { db, log } = args;
-  const table = CHESS_PUZZLES_TABLE.tableName;
+  const table = CHESS_PUZZLES_TABLE;
   const rows = await db.query(sql<{ indexname: string }>`
     SELECT indexname
     FROM pg_indexes

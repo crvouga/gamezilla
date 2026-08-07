@@ -4,7 +4,7 @@ import {
 } from '@libs/auth/client/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
@@ -23,11 +23,12 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
   const enabled = spaceId.length > 0;
   const viewerAccountId = useMyAccountId();
   const viewerDeviceId = useMyDeviceId();
-  const { row, isLoading } = useQueryOne(sql<SpaceJoinLocalRow>`
+  const { rows, isLoading } = useQuery(sql<SpaceJoinLocalRow>`
     SELECT host_id, host_member_id, host_account_id, ended_at, visibility
     FROM spaces
     WHERE id = ${spaceId}
   `);
+  const row = rows[0] ?? null;
   const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
 
   return useMemo(

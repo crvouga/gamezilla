@@ -446,6 +446,35 @@ function isKvOwnedStatement(statement: string): boolean {
   return false;
 }
 
+/** Sync-engine framework tables — owned by FRAMEWORK_SERVER_DDL. */
+const FRAMEWORK_TABLE_RE =
+  /(?:public\.)?(?:_mutations|_mutations_applied|write_rejections)\b/i;
+
+function isFrameworkOwnedStatement(statement: string): boolean {
+  const s = statement.replace(/\s+/gu, ' ').trim();
+  if (
+    /^CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+/i.test(s) &&
+    FRAMEWORK_TABLE_RE.test(s)
+  ) {
+    return true;
+  }
+  if (/^ALTER\s+TABLE(?:\s+ONLY)?\s+/i.test(s) && FRAMEWORK_TABLE_RE.test(s)) {
+    return true;
+  }
+  if (
+    /^CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+/i.test(
+      s
+    ) &&
+    FRAMEWORK_TABLE_RE.test(s)
+  ) {
+    return true;
+  }
+  if (/^DO\s+\$\$/i.test(s) && FRAMEWORK_TABLE_RE.test(s)) {
+    return true;
+  }
+  return false;
+}
+
 function makeIdempotentStatement(statement: string): string | null {
   let s = statement.trim();
   if (s.length === 0) {
@@ -462,6 +491,9 @@ function makeIdempotentStatement(statement: string): string | null {
     return null;
   }
   if (isKvOwnedStatement(s)) {
+    return null;
+  }
+  if (isFrameworkOwnedStatement(s)) {
     return null;
   }
 

@@ -1,6 +1,9 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
-import { SYNC_TABLE_REGISTRY } from '@libs/db/shared/table-registry';
+import {
+  LOCAL_DOMAIN_DDL,
+  LOCAL_DOMAIN_TABLE_NAMES,
+} from '@libs/db/shared/table-registry';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createLocalSyncEngine } from '@pkgs/sync-engine/client/create-local-sync-engine';
@@ -152,7 +155,10 @@ export async function createAppLocalSyncEngine(
 
   return createLocalSyncEngine({
     db,
-    tableRegistry: SYNC_TABLE_REGISTRY,
+    localSchema: {
+      domainDdl: LOCAL_DOMAIN_DDL,
+      cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
+    },
     mutationRegistry: APP_MUTATIONS,
     getMutationEnv: () => mutationEnv(args),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,

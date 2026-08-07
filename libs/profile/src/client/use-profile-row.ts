@@ -1,4 +1,4 @@
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { type ProfileRow, profileRowByIdSql } from './profile-row-sql';
 
@@ -15,11 +15,12 @@ export type ProfileRowState = {
  */
 export function useProfileRow(profileId: string | null): ProfileRowState {
   const enabled = profileId !== null && profileId.length > 0;
-  const { row, isLoading } = useQueryOne(
+  const { rows, isLoading } = useQuery(
     profileRowByIdSql(enabled ? profileId : '')
   );
+  const row = rows[0] ?? null;
   return {
-    row: enabled ? (row ?? null) : null,
+    row: enabled ? row : null,
     isLoading: enabled && isLoading,
   };
 }

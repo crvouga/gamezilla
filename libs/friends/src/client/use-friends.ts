@@ -2,8 +2,10 @@ import { useMyId } from '@libs/auth/client/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import { otherUserInPair } from '../shared/canonical-pair';
@@ -54,7 +56,7 @@ export function useFriends(): {
   friends: readonly Friend[];
   isLoading: boolean;
 } {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const myId = useMyId();
   const enabled = paintReady && myId.length > 0;
   const query = useMemo(() => friendsSql(myId, enabled), [myId, enabled]);

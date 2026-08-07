@@ -2,16 +2,17 @@ import { assert } from '@pkgs/assert';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createMutationsRoutes as createSyncMutationsRoutes } from '@pkgs/sync-engine/server/create-mutations-routes';
+import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server/create-sync-app';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
 import { APP_MUTATIONS } from './app-mutations';
+import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
-  assert.defined(requestStore, 'mutations sql: request store missing');
+  assert.defined(requestStore, 'sync sql: request store missing');
   return requestStore.sqlClient;
 }
 
@@ -34,12 +35,13 @@ function createRequestScopedPubSub(): PubSub {
   };
 }
 
-/** `POST /api/mutations` — product mount over the sync-engine Hono factory. */
-export function createMutationsRoutes() {
-  return createSyncMutationsRoutes({
+/** Product mount: `POST /api/query`, `/api/query/batch`, `/api/mutations`. */
+export function createSyncApp() {
+  return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
     getSql: openRequestSqlClient,
-    registry: APP_MUTATIONS,
+    queries: APP_QUERIES,
+    mutations: APP_MUTATIONS,
     pubsub: createRequestScopedPubSub(),
   });
 }

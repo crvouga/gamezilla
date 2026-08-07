@@ -15,10 +15,14 @@ import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine/shared/nudge-payload';
 
-import type { TableRegistry } from '../shared/table-registry';
+import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { AppLifecycle } from './app-lifecycle';
 import { attachNudges } from './attach-nudges';
-import { clearLocalCache, migrateLocalSchema } from './local-schema-migrate';
+import {
+  clearLocalCache,
+  type LocalDomainSchema,
+  migrateLocalSchema,
+} from './local-schema-migrate';
 import {
   createLocalSyncStatusStore,
   type LocalSyncStatusStore,
@@ -31,6 +35,7 @@ import {
 import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
+import { createSubscribeQueries } from './subscribe-queries';
 import {
   type QueryRequest,
   type QuerySubscriptionSpec,
@@ -48,7 +53,7 @@ export type SyncEngineNudgesOptions = {
 
 export type CreateLocalSyncEngineOptions = {
   readonly db: SqlClient;
-  readonly tableRegistry: TableRegistry;
+  readonly localSchema: LocalDomainSchema;
   readonly mutationRegistry: MutationRegistry;
   readonly getMutationEnv: () => MutationEnv;
   readonly getClientId: () => string;
@@ -316,17 +321,23 @@ async function clearState(
   }
   const reconnect = state.connected;
   await disconnectState(state);
-  await clearLocalCache(state.options.db, state.options.tableRegistry);
+  await clearLocalCache(state.options.db, state.options.localSchema);
   state.runtime.reset();
   state.bus.emit([
-    ...state.options.tableRegistry.tableNames(),
+    ...state.options.localSchema.cacheTableNames,
     '_row_scopes',
     '_scope_meta',
+    'write_rejections',
   ]);
   if (reconnect) await connectState(state);
 }
 
 function toEngine(state: LocalEngineState): SyncEngine {
+  const subscribeQuery: SyncEngine['subscribeQuery'] = (name, params) =>
+    state.runtime.subscribe({
+      name,
+      params,
+    });
   return {
     db: state.appDb,
     watch: <T extends Record<string, unknown>>(query: Sql<T>) =>
@@ -335,11 +346,8 @@ function toEngine(state: LocalEngineState): SyncEngine {
     disconnect: () => disconnectState(state),
     clearLocalData: (args) => clearState(state, args?.reason ?? 'cache'),
     waitForFirstSync: () => state.runtime.waitForBoot(),
-    subscribeQuery: (name, params) =>
-      state.runtime.subscribe({
-        name,
-        params,
-      }),
+    subscribeQuery,
+    subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,
     wakeUploads: () => state.uploadQueue.wake(),
     fanoutMutation: (event) => fanoutFromState(state, event),
@@ -350,6 +358,10 @@ function toEngine(state: LocalEngineState): SyncEngine {
 export async function createLocalSyncEngine(
   options: CreateLocalSyncEngineOptions
 ): Promise<SyncEngine> {
-  await migrateLocalSchema(options.db, options.tableRegistry);
-  return toEngine(createState(options));
+  const merged: CreateLocalSyncEngineOptions = {
+    ...options,
+    mutationRegistry: withFrameworkMutations(options.mutationRegistry),
+  };
+  await migrateLocalSchema(merged.db, merged.localSchema);
+  return toEngine(createState(merged));
 }

@@ -1,8 +1,10 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
 import { type Sql, sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 import {
@@ -48,13 +50,14 @@ function presenceSql(spaceId: string, enabled: boolean): Sql<PresenceRow> {
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const accountId = useMyAccountId();
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const spaceEnabled = paintReady && spaceId.length > 0;
   const query = useMemo(
     () => presenceSql(spaceId, spaceEnabled),
     [spaceId, spaceEnabled]
   );
-  const { row, isLoading } = useQueryOne(query);
+  const { rows, isLoading } = useQuery(query);
+  const row = rows[0] ?? null;
   if (!paintReady) {
     return { status: 'loading' };
   }

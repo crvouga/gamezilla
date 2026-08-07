@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { AppLifecycle } from '../client/app-lifecycle';
 import { createLocalSyncEngine } from '../client/create-local-sync-engine';
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { SyncEngine } from '../client/sync-engine-port';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
-import type { TableRegistry } from '../shared/table-registry';
 import type { SimHttpClient } from './http-bridge';
 
 type SimClientLifecycle = {
@@ -22,7 +22,7 @@ type SimClientLifecycle = {
 
 export type CreateEngineOptionsArgs = {
   readonly db: SqlClient;
-  readonly tables: TableRegistry;
+  readonly tables: LocalDomainSchema;
   readonly mutations: MutationRegistry;
   readonly queries: QueryRegistry;
   readonly getEnv: () => MutationEnv;
@@ -45,7 +45,7 @@ export async function createEngineFromParts(
 ): Promise<SyncEngine> {
   return createLocalSyncEngine({
     db: args.db,
-    tableRegistry: args.tables,
+    localSchema: args.tables,
     mutationRegistry: args.mutations,
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,

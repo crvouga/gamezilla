@@ -19,7 +19,7 @@ const deviceSnapshot = z.object({
 export const ensureDeviceMutation = defineMutation({
   name: 'ensureDevice',
   args: deviceSnapshot,
-  writes: [DEVICES_TABLE.tableName],
+  writes: [DEVICES_TABLE],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, snapshot) {
     const now = env.now().toISOString();

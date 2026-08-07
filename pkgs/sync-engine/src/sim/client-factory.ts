@@ -4,6 +4,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import { createControllableLifecycle } from '../client/app-lifecycle';
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { SyncEngine } from '../client/sync-engine-port';
 import type { MutationClient } from '../mutations/client/create-mutation-client';
@@ -14,16 +15,15 @@ import type {
   MutationRegistry,
 } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
-import type { TableRegistry } from '../shared/table-registry';
 import {
   createEngineFromParts,
   createMutationSide,
 } from './client-factory-parts';
 import type { SimHttpClient } from './http-bridge';
 import {
+  simLocalSchema,
   simMutationRegistry,
   simQueryRegistry,
-  simTableRegistry,
 } from './profile';
 import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
@@ -55,7 +55,7 @@ export type BuildSimClientArgs = {
   readonly server: SimServer;
   readonly auth: SimServerAuth;
   readonly createPubSub: () => PubSub;
-  readonly tableRegistry?: TableRegistry;
+  readonly tableRegistry?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
   readonly fallbackPollMs?: number;
@@ -108,7 +108,7 @@ export async function buildSimClient(
     foreground: true,
     online: true,
   });
-  const tables = args.tableRegistry ?? simTableRegistry;
+  const tables = args.tableRegistry ?? simLocalSchema;
   const mutations = args.mutationRegistry ?? simMutationRegistry;
   const queries = args.queryRegistry ?? simQueryRegistry;
   const http = wireHttp(args.http, args.server, args.auth);

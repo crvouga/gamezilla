@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Logger } from '@pkgs/logger';
 import { unsafe as unsafeSql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { FRAMEWORK_SERVER_DDL } from '@pkgs/sync-engine/shared/framework-server-ddl';
 
 const schemaPath = join(dirname(fileURLToPath(import.meta.url)), 'schema.sql');
 
@@ -125,9 +126,15 @@ export async function runSchemaSql(args: {
   const { sqlClient, logger } = args;
 
   const raw = readFileSync(schemaPath, 'utf8');
-  const statements = splitSqlStatements(raw);
+  const statements = [
+    ...splitSqlStatements(FRAMEWORK_SERVER_DDL),
+    ...splitSqlStatements(raw),
+  ];
   for (const statement of statements) {
     await sqlClient.run(unsafeSql(statement));
   }
-  logger.info('schema.sql applied', { statements: statements.length });
+  logger.info('schema.sql applied', {
+    statements: statements.length,
+    framework: true,
+  });
 }

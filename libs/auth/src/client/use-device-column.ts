@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useQueryField } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 export const DeviceField = {
   id: 'id',
@@ -63,6 +63,8 @@ export function useDeviceColumn(
   field: DeviceFieldKey
 ): string | null {
   const column = DeviceField[field];
-  const { value } = useQueryField(deviceRowByIdSql(deviceId), column);
-  return value;
+  const { rows } = useQuery(deviceRowByIdSql(deviceId));
+  const row = rows[0] ?? null;
+  const value = row?.[column];
+  return typeof value === 'string' ? value : null;
 }

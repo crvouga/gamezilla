@@ -1,7 +1,7 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Hono } from 'hono';
+import type { Hono } from 'hono';
 import { z } from 'zod';
 
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
@@ -11,6 +11,7 @@ import type { AuthErrorBody } from '../queries/core/types';
 import { MAX_MUTATIONS_BATCH } from '../queries/server/bounds';
 import { isAuthErrorBody } from './auth-error';
 import { notifyChannels } from './notify-channels';
+import type { SyncAppAuth } from './sync-app-auth';
 
 const mutationRowSchema = z.object({
   id: z.string().min(1),
@@ -21,26 +22,9 @@ const mutationRowSchema = z.object({
   createdAt: z.string().min(1),
 });
 
-const bodySchema = z.object({
+const mutationsBodySchema = z.object({
   mutations: z.array(mutationRowSchema).max(MAX_MUTATIONS_BATCH),
 });
-
-export type MutationsRouteAuth = {
-  readonly actorId: string;
-  readonly deviceId: string;
-  readonly accountId: string | null;
-  readonly isAnon: boolean;
-};
-
-export type CreateMutationsRoutesDeps = {
-  readonly resolveAuth: (
-    request: Request
-  ) => Promise<MutationsRouteAuth | AuthErrorBody>;
-  readonly getSql: () => SqlClient;
-  readonly registry: MutationRegistry;
-  /** Optional nudge transport; omit to keep upload correct without pubsub. */
-  readonly pubsub?: PubSub;
-};
 
 function asNestedTxClient(tx: SqlClient): SqlClient {
   return {
@@ -75,12 +59,12 @@ function commitCheckpoint(seq: number): string {
 }
 
 function collectAppliedWrites(
-  registry: MutationRegistry,
+  mutationRegistry: MutationRegistry,
   applied: readonly { name: string }[]
 ): string[] {
   const tables = new Set<string>();
   for (const row of applied) {
-    const mutation = registry[row.name];
+    const mutation = mutationRegistry[row.name];
     if (mutation === undefined) continue;
     for (const table of mutation.writes) tables.add(table);
   }
@@ -88,8 +72,8 @@ function collectAppliedWrites(
 }
 
 async function collectInvalidates(
-  registry: MutationRegistry,
-  auth: MutationsRouteAuth,
+  mutationRegistry: MutationRegistry,
+  auth: SyncAppAuth,
   applied: readonly { name: string; argsJson: string }[],
   db: SqlClient
 ): Promise<Topic[]> {
@@ -102,7 +86,7 @@ async function collectInvalidates(
   };
   const topics: Topic[] = [];
   for (const row of applied) {
-    const mutation = registry[row.name];
+    const mutation = mutationRegistry[row.name];
     if (mutation?.invalidates === undefined) continue;
     let args: unknown;
     try {
@@ -116,21 +100,32 @@ async function collectInvalidates(
   return topics;
 }
 
-/** `POST /mutations` — ordered mutation log replay with verdicts. */
-export function createMutationsRoutes(deps: CreateMutationsRoutesDeps) {
-  return new Hono().post('/mutations', async (c) => {
+export type MountMutationsRouteDeps = {
+  readonly resolveAuth: (
+    request: Request
+  ) => Promise<SyncAppAuth | AuthErrorBody>;
+  readonly getSql: () => SqlClient;
+  readonly mutations: MutationRegistry;
+  readonly pubsub?: PubSub;
+};
+
+export function mountMutationsRoute(
+  app: Hono,
+  deps: MountMutationsRouteDeps
+): void {
+  app.post('/mutations', async (c) => {
     const auth = await deps.resolveAuth(c.req.raw);
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const parsed = bodySchema.safeParse(await c.req.json());
+    const parsed = mutationsBodySchema.safeParse(await c.req.json());
     if (!parsed.success) {
       return c.json({ error: 'invalid_batch' }, 400);
     }
     if (parsed.data.mutations.length > MAX_MUTATIONS_BATCH) {
       return c.json({ error: 'batch_too_large' }, 413);
     }
-    const mutations: MutationRow[] = parsed.data.mutations.map((m) => ({
+    const mutationRows: MutationRow[] = parsed.data.mutations.map((m) => ({
       id: m.id,
       name: m.name,
       args: m.args,
@@ -143,21 +138,21 @@ export function createMutationsRoutes(deps: CreateMutationsRoutesDeps) {
       await acquireLock(tx, auth.actorId);
       return processMutationsBatch({
         serverDb: asNestedTxClient(tx),
-        registry: deps.registry,
+        registry: deps.mutations,
         auth,
-        mutations,
+        mutations: mutationRows,
       });
     });
 
     const pubsub = deps.pubsub;
     if (pubsub !== undefined && result.applied.length > 0) {
       const topics = await collectInvalidates(
-        deps.registry,
+        deps.mutations,
         auth,
         result.applied,
         db
       );
-      const tables = collectAppliedWrites(deps.registry, result.applied);
+      const tables = collectAppliedWrites(deps.mutations, result.applied);
       notifyChannels({
         pubsub,
         topics,

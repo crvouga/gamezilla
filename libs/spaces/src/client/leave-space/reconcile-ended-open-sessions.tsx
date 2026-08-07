@@ -1,7 +1,9 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { sql } from '@pkgs/sql';
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 
 import { closeEndedOpenSessionsMutation } from '../../shared/mutations/space-mutations';
@@ -15,7 +17,7 @@ type EndedSessionRow = {
  * session row so rooms/miniplayer drop.
  */
 export function ReconcileEndedOpenSessions(): ReactNode {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const mutationClient = useMutationClient();
   const runningRef = useRef(false);
   const query = useMemo(

@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
@@ -41,23 +41,22 @@ function readIsAnonFlag(value: unknown): boolean {
 export function useCurrentUser(): CurrentUser {
   const userId = useMyId();
   const hasSession = useHasAuthSession();
-  const { row: userRow } = useQueryOne(sql<UserRow>`
+  const { rows: userRows } = useQuery(sql<UserRow>`
     SELECT created_at, is_anon
     FROM users
     WHERE id = ${userId}
   `);
-  const { row: stripeRow } = useQueryOne(sql<StripeLinkRow>`
+  const userRow = userRows[0] ?? null;
+  const { rows: stripeRows } = useQuery(sql<StripeLinkRow>`
     SELECT external_id
     FROM external_accounts
     WHERE user_id = ${userId}
       AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
   `);
+  const stripeRow = stripeRows[0] ?? null;
 
   const isAnon =
-    !hasSession &&
-    (userRow === null || userRow === undefined
-      ? true
-      : readIsAnonFlag(userRow.is_anon));
+    !hasSession && (userRow === null ? true : readIsAnonFlag(userRow.is_anon));
 
   return {
     id: userId,
@@ -105,14 +104,15 @@ export function useIsAnon(): boolean {
   const hasSession = useHasAuthSession();
   const myId = useMyId();
   const watchId = myId.length > 0 ? myId : '';
-  const { row } = useQueryOne(sql<{ is_anon: number | boolean | null }>`
+  const { rows } = useQuery(sql<{ is_anon: number | boolean | null }>`
     SELECT is_anon
     FROM users
     WHERE id = ${watchId}
   `);
+  const row = rows[0] ?? null;
   if (hasSession) return false;
   if (myId.length === 0) return true;
-  if (row === null || row === undefined) return true;
+  if (row === null) return true;
   return readIsAnonFlag(row.is_anon);
 }
 

@@ -1,7 +1,9 @@
 import { sql } from '@pkgs/sql';
 
-import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 import { useMyDeviceId } from './use-current-user';
 
@@ -54,7 +56,7 @@ function sortDeviceIds(
  * descending (falling back to `created_at`).
  */
 export function useAccountDeviceIds(accountId: string | null): string[] {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const currentDeviceId = useMyDeviceId();
   const scopedAccountId = paintReady ? accountId : null;
   const scopedDeviceId = paintReady ? currentDeviceId : '';

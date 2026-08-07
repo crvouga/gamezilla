@@ -1,5 +1,5 @@
-import { useSyncEngineSubscriptions } from '@pkgs/sync-engine/client/use-sync-engine-subscriptions';
-import { type ReactNode, useMemo } from 'react';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
+import { type ReactNode, useEffect, useMemo } from 'react';
 
 const SHELL_QUERY_NAMES = [
   'mySpaces',
@@ -22,6 +22,7 @@ export function ShellQuerySubscriptions({
 }: {
   children: ReactNode;
 }): ReactNode {
+  const sync = useSyncEngine();
   const specs = useMemo(
     () =>
       SHELL_QUERY_NAMES.map((name) => ({
@@ -30,6 +31,9 @@ export function ShellQuerySubscriptions({
       })),
     []
   );
-  useSyncEngineSubscriptions(specs);
+  useEffect(() => {
+    const handle = sync.subscribeQueries(specs);
+    return () => handle.unsubscribe();
+  }, [sync, specs]);
   return children;
 }

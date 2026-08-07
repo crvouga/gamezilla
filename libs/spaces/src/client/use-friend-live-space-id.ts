@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 
 /**
  * Returns the live space id hosted by `hostAccountId` when that space is
@@ -8,7 +8,7 @@ import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
  * the viewer is allowlisted or a member.
  */
 export function useFriendLiveSpaceId(hostAccountId: string): string | null {
-  const { row } = useQueryOne(sql<{ readonly id: string }>`
+  const { rows } = useQuery(sql<{ readonly id: string }>`
     SELECT id
     FROM spaces
     WHERE ended_at IS NULL
@@ -17,5 +17,6 @@ export function useFriendLiveSpaceId(hostAccountId: string): string | null {
     ORDER BY created_at DESC
     LIMIT 1
   `);
+  const row = rows[0] ?? null;
   return row?.id ?? null;
 }

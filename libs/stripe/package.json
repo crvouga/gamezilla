@@ -27,7 +27,6 @@
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*",
     "hono": "catalog:",
     "pg": "catalog:",
     "stripe": "catalog:",

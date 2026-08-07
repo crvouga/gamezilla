@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { useSyncStatus } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Box, borderRadius, Text } from '@pkgs/ui';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Platform, Pressable } from 'react-native';
@@ -9,7 +9,7 @@ import { Platform, Pressable } from 'react-native';
  */
 export function OfflineIndicator(): ReactNode {
   const { t } = useLingui();
-  const syncStatus = useSyncStatus();
+  const syncStatus = useSyncEngine().status;
   const [offline, setOffline] = useState(
     () => typeof navigator !== 'undefined' && navigator.onLine === false
   );

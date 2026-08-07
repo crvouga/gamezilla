@@ -1,9 +1,8 @@
 import { type Sql, sql } from '@pkgs/sql';
 import {
   useQuery,
-  useQueryOne,
+  useSyncEngine,
 } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
 import { useMemo } from 'react';
 
 type SessionIdRow = {
@@ -26,7 +25,7 @@ export function useOpenSpaceSessionIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;
 } {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const query = useMemo(
     () =>
       paintReady
@@ -51,7 +50,7 @@ export function useOpenSpaceSessionIds(): {
 
 /** Whether this install currently has `spaceId` open. */
 export function useIsSpaceOpenLocally(spaceId: string): boolean {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const enabled = paintReady && spaceId.length > 0;
   const query = useMemo(
     () =>
@@ -65,7 +64,8 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
           `,
     [enabled, spaceId]
   );
-  const { row } = useQueryOne(query);
+  const { rows } = useQuery(query);
+  const row = rows[0] ?? null;
   return row !== null;
 }
 
@@ -76,7 +76,7 @@ export function useSpaceOpenSession(spaceId: string): {
   readonly isOpen: boolean;
   readonly isLoading: boolean;
 } {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const enabled = paintReady && spaceId.length > 0;
   const query = useMemo(
     (): Sql<SessionRow> =>
@@ -92,7 +92,8 @@ export function useSpaceOpenSession(spaceId: string): {
           `,
     [enabled, spaceId]
   );
-  const { row, isLoading } = useQueryOne(query);
+  const { rows, isLoading } = useQuery(query);
+  const row = rows[0] ?? null;
   if (!paintReady) {
     return {
       clientId: null,

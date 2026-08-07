@@ -19,11 +19,10 @@ import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
-import { createMutationsRoutes } from '../sync/mutations-routes';
 import { notifyClientConfigChannels } from '../sync/notify-client-config-channels';
 import { notifyUserChannels } from '../sync/notify-user-channels';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
-import { createQueryRoutes } from '../sync/query-routes';
+import { createSyncApp } from '../sync/sync-app';
 import type { ApiHonoEnv } from './api-hono-types';
 import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
@@ -192,8 +191,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
           notifyUserChannels([userId], 'auth-domain-write'),
       })
     )
-    .route('/', createQueryRoutes())
-    .route('/', createMutationsRoutes())
+    .route('/', createSyncApp())
     .route('/', createPubSubTokenRoutes())
     .route('/', ttsApp)
     .route('/', llmApp)

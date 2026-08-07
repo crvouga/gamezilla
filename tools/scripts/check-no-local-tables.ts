@@ -1,35 +1,26 @@
 #!/usr/bin/env bun
 /**
- * Forbid sync `localOnly` / `local_*` app tables.
+ * Forbid sync `local_*` app tables.
  * Client schema must be a pure subset of the remote Postgres schema.
  */
-import { SYNC_TABLE_REGISTRY } from '../../libs/db/src/shared/table-registry';
-import { LOCAL_ONLY_TABLE_NAME_RE } from '../../pkgs/sync-engine/src/shared/table-definition';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/table-registry';
 
 type Violation = { where: string; detail: string };
 
 const violations: Violation[] = [];
 
-for (const name of SYNC_TABLE_REGISTRY.tableNames()) {
-  const def = SYNC_TABLE_REGISTRY.get(name);
-  if (def === undefined) continue;
-  if (def.localOnly === true) {
+for (const name of LOCAL_DOMAIN_TABLE_NAMES) {
+  if (name.startsWith('local_')) {
     violations.push({
-      where: `SYNC_TABLE_REGISTRY:${def.tableName}`,
-      detail: 'localOnly tables are forbidden; client DB must subset Postgres',
-    });
-  }
-  if (LOCAL_ONLY_TABLE_NAME_RE.test(def.tableName)) {
-    violations.push({
-      where: `SYNC_TABLE_REGISTRY:${def.tableName}`,
-      detail: `local_ table prefix is reserved for removed localOnly tables`,
+      where: `LOCAL_DOMAIN_TABLE_NAMES:${name}`,
+      detail: `local_ table prefix is reserved; client DB must subset Postgres`,
     });
   }
 }
 
 if (violations.length === 0) {
   console.log(
-    `check:no-local-tables OK — ${String(SYNC_TABLE_REGISTRY.tableNames().length)} sync table(s), 0 localOnly.`
+    `check:no-local-tables OK — ${String(LOCAL_DOMAIN_TABLE_NAMES.length)} sync table(s), 0 local_.`
   );
   process.exit(0);
 }

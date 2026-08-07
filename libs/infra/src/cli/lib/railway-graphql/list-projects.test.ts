@@ -20,9 +20,9 @@ describe('ListProjectsQuery', () => {
 
 describe('pickRailwayWorkspaceId', () => {
   test('uses sole workspace when no preferred name', () => {
-    expect(
-      pickRailwayWorkspaceId([{ id: 'ws-1', name: 'Hobby' }])
-    ).toBe('ws-1');
+    expect(pickRailwayWorkspaceId([{ id: 'ws-1', name: 'Hobby' }])).toBe(
+      'ws-1'
+    );
   });
 
   test('matches preferred workspace name', () => {

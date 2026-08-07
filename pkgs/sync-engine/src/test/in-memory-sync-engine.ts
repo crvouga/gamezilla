@@ -5,17 +5,18 @@ import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import {
   createSharedWatchRegistry,
   type WatchSqlHandle,
 } from '../client/shared-watch-registry';
+import { createSubscribeQueries } from '../client/subscribe-queries';
 import type { SyncEngine } from '../client/sync-engine-port';
 import {
   INITIAL_SYNC_STATUS,
   type SyncEngineStatus,
   type SyncStatusSubscription,
 } from '../client/sync-status';
-import type { TableRegistry } from '../shared/table-registry';
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;
@@ -51,17 +52,14 @@ function createStatusStore(): {
   };
 }
 
-function migrateTables(db: Database, registry: TableRegistry): void {
-  for (const name of registry.tableNames()) {
-    const def = registry.get(name);
-    if (def === undefined) continue;
-    const cols = def.columns
-      .map((c) => {
-        const pk = c.primaryKey === true ? ' PRIMARY KEY' : '';
-        return `${c.name} ${c.type.toUpperCase()}${pk}`;
-      })
-      .join(', ');
-    db.run(`CREATE TABLE IF NOT EXISTS ${def.tableName} (${cols})`);
+function migrateTables(db: Database, schema: LocalDomainSchema): void {
+  for (const ddl of schema.domainDdl) {
+    for (const stmt of ddl
+      .split(';')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)) {
+      db.run(stmt);
+    }
   }
 }
 
@@ -133,7 +131,7 @@ function wrapSqlClientWithWriteNotify(
 }
 
 export type InMemorySyncEngineOptions = {
-  readonly registry: TableRegistry;
+  readonly schema: LocalDomainSchema;
 };
 
 function createImmediateQuerySubscription(): SyncEngine['subscribeQuery'] {
@@ -147,7 +145,7 @@ export function createInMemorySyncEngine(
   options: InMemorySyncEngineOptions
 ): SyncEngine {
   const sqlite = new Database(':memory:');
-  migrateTables(sqlite, options.registry);
+  migrateTables(sqlite, options.schema);
   const rawDb = new SqlClientImplBunSqlite(sqlite);
   const { status, setStatus, resetEverSynced } = createStatusStore();
 
@@ -189,7 +187,7 @@ export function createInMemorySyncEngine(
       });
     },
     clearLocalData: async () => {
-      for (const name of options.registry.tableNames()) {
+      for (const name of options.schema.cacheTableNames) {
         assertSqlIdentifier(name, 'Invalid sync table name', { name });
         await db.run(sql<void>`DELETE FROM ${raw(name)}`);
       }
@@ -210,6 +208,9 @@ export function createInMemorySyncEngine(
       });
     },
     subscribeQuery: createImmediateQuerySubscription(),
+    subscribeQueries: createSubscribeQueries(
+      createImmediateQuerySubscription()
+    ),
     status,
     wakeUploads: () => undefined,
     fanoutMutation: () => undefined,

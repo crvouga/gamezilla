@@ -5,9 +5,10 @@
  */
 import { APP_MUTATIONS } from '../../apps/api/src/sync/app-mutations';
 import { APP_QUERIES } from '../../apps/api/src/sync/app-queries';
+import { withFrameworkMutations } from '../../pkgs/sync-engine/src/mutations/shared/with-framework-mutations';
 import { assertChannelExhaustiveness } from '../../pkgs/sync-engine/src/shared/channel-exhaustiveness';
 
-const mutations = Object.values(APP_MUTATIONS);
+const mutations = Object.values(withFrameworkMutations(APP_MUTATIONS));
 const queries = Object.values(APP_QUERIES);
 
 try {

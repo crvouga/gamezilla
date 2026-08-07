@@ -1,60 +1,59 @@
-import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
-import { createTableRegistry } from '@pkgs/sync-engine/shared/table-registry';
-
 import {
   EXTERNAL_ACCOUNTS_TABLE,
   USERS_TABLE,
 } from './external-accounts-tables';
 
-export const DEVICES_TABLE = defineTable({
-  tableName: 'devices',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'user_id', type: 'text' },
-    { name: 'created_at', type: 'text' },
-    { name: 'platform', type: 'text' },
-    { name: 'os_name', type: 'text' },
-    { name: 'os_version', type: 'text' },
-    { name: 'device_model_name', type: 'text' },
-    { name: 'device_brand', type: 'text' },
-    { name: 'device_name', type: 'text' },
-    { name: 'app_version', type: 'text' },
-    { name: 'app_build_number', type: 'text' },
-    { name: 'user_agent', type: 'text' },
-    { name: 'first_seen_at', type: 'text' },
-    { name: 'last_seen_at', type: 'text' },
-  ],
-});
+export const DEVICES_TABLE = 'devices' as const;
 
-export const USERS_TABLE_DEF = defineTable({
-  tableName: USERS_TABLE,
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'created_at', type: 'text' },
-    // Postgres boolean → SQLite integer (0/1) via sync.
-    { name: 'is_anon', type: 'integer' },
-  ],
-});
+export const DEVICES_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "devices" (
+  "id" TEXT PRIMARY KEY,
+  "user_id" TEXT,
+  "created_at" TEXT,
+  "platform" TEXT,
+  "os_name" TEXT,
+  "os_version" TEXT,
+  "device_model_name" TEXT,
+  "device_brand" TEXT,
+  "device_name" TEXT,
+  "app_version" TEXT,
+  "app_build_number" TEXT,
+  "user_agent" TEXT,
+  "first_seen_at" TEXT,
+  "last_seen_at" TEXT
+)
+`;
 
-export const EXTERNAL_ACCOUNTS_TABLE_DEF = defineTable({
-  tableName: EXTERNAL_ACCOUNTS_TABLE,
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'user_id', type: 'text' },
-    { name: 'provider', type: 'text' },
-    { name: 'external_id', type: 'text' },
-    { name: 'metadata', type: 'text' },
-    { name: 'created_at', type: 'text' },
-  ],
-});
+export const USERS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "users" (
+  "id" TEXT PRIMARY KEY,
+  "created_at" TEXT,
+  "is_anon" INTEGER
+)
+`;
 
-export const AUTH_TABLE_DEFINITIONS = [
+export const EXTERNAL_ACCOUNTS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "external_accounts" (
+  "id" TEXT PRIMARY KEY,
+  "user_id" TEXT,
+  "provider" TEXT,
+  "external_id" TEXT,
+  "metadata" TEXT,
+  "created_at" TEXT
+)
+`;
+
+export const AUTH_TABLE_NAMES = [
   DEVICES_TABLE,
-  USERS_TABLE_DEF,
-  EXTERNAL_ACCOUNTS_TABLE_DEF,
+  USERS_TABLE,
+  EXTERNAL_ACCOUNTS_TABLE,
 ] as const;
 
-export const AUTH_TABLE_REGISTRY = createTableRegistry(AUTH_TABLE_DEFINITIONS);
+export const AUTH_LOCAL_DDL = [
+  DEVICES_LOCAL_DDL,
+  USERS_LOCAL_DDL,
+  EXTERNAL_ACCOUNTS_LOCAL_DDL,
+] as const;
 
 /** Writable device metadata columns accepted by `POST /auth/refresh`. */
 export const DEVICE_SNAPSHOT_COLUMNS = new Set([

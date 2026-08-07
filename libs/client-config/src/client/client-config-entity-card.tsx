@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
+import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Box, Card, Text } from '@pkgs/ui';
 import {
   CLIENT_CONFIG_ENTITY_ID,
@@ -10,7 +10,8 @@ import { clientConfigRowQuery } from './client-config-queries';
 
 export function ClientConfigEntityCard() {
   const { t } = useLingui();
-  const { row } = useQueryOne(clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID));
+  const { rows } = useQuery(clientConfigRowQuery(CLIENT_CONFIG_ENTITY_ID));
+  const row = rows[0] ?? null;
 
   const googleRaw = row?.google_web_client_id;
   const googleLine =

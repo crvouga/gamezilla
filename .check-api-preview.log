@@ -1,6 +1,6 @@
 @apps/api preview:serve: 
-@apps/api preview:serve:  ⛅️ wrangler 4.87.0 (update available 4.119.0)
-@apps/api preview:serve: ──────────────────────────────────────────────
+@apps/api preview:serve:  ⛅️ wrangler 4.87.0
+@apps/api preview:serve: ───────────────────
 @apps/api preview:serve: Using secrets defined in .dev.vars
 @apps/api preview:serve: Your Worker has access to the following bindings:
 @apps/api preview:serve: Binding                                                 Resource                  Mode
@@ -46,19 +46,12 @@
 @apps/api preview:serve: 
 @apps/api preview:serve: ⎔ Starting local server...
 @apps/api preview:serve: [wrangler:info] Ready on http://localhost:8788
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2585ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (47ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (19ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2ms)
-@apps/api preview:serve: {"level":"debug","time":"2026-08-07T00:00:57.748Z","name":"api-object-store","msg":"dev secrets env — using in-memory object store"}
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1196ms)
+@apps/api preview:serve: [wrangler:info] OPTIONS /api/mutations 204 No Content (1067ms)
+@apps/api preview:serve: {"level":"debug","time":"2026-08-07T02:19:31.384Z","name":"api-object-store","msg":"dev secrets env — using in-memory object store"}
 @apps/api preview:serve: Attention: Clerk collects telemetry data from its SDKs when connected to development instances.
 @apps/api preview:serve: The data collected is used to inform Clerk's product roadmap.
-@apps/api preview:serve: To learn more, including how to opt-out from the telemetry pro@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:@apps/api preview:serve: ⎔ Reloading loc@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-al server...
-@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: To learn more, including how to opt-out from the telemetry program, visit: https://clerk.com/docs/telemetry.
+@apps/api preview:serve: 
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1ms)

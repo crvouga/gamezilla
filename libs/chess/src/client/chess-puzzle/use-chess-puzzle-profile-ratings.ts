@@ -1,7 +1,9 @@
 import { sql } from '@pkgs/sql';
 
-import { useQueryOne } from '@pkgs/sync-engine/client/sync-engine-context';
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import {
+  useQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine/client/sync-engine-context';
 import { useMemo } from 'react';
 
 type PuzzleProfileRatingsRow = {
@@ -13,7 +15,7 @@ export function useChessPuzzleProfileRatings(myId: string): {
   profileRating: number;
   profileRd: number;
 } {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const enabled = paintReady && myId.length > 0;
   const query = useMemo(
     () =>
@@ -31,7 +33,8 @@ export function useChessPuzzleProfileRatings(myId: string): {
           `,
     [enabled, myId]
   );
-  const { row } = useQueryOne(query);
+  const { rows } = useQuery(query);
+  const row = rows[0] ?? null;
   if (!paintReady) {
     return { profileRating: 0, profileRd: 0 };
   }

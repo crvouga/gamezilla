@@ -1,4 +1,4 @@
-import { useSyncEnginePaintReady } from '@pkgs/sync-engine/client/sync-engine-paint-gate';
+import { useSyncEngine } from '@pkgs/sync-engine/client/sync-engine-context';
 import { Box } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
@@ -11,7 +11,7 @@ import { resolveMiniplayerMode } from './space-miniplayer-layout';
 import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
 
 export function SpaceMiniplayer(): ReactNode {
-  const paintReady = useSyncEnginePaintReady();
+  const { paintReady } = useSyncEngine();
   const spaceIds = useSpaceMiniplayerVisibleSpaceIds();
   const [sheetOpen, setSheetOpen] = useState(false);
   const openSheet = useCallback(() => setSheetOpen(true), []);

@@ -1,42 +1,47 @@
-import { defineTable } from '@pkgs/sync-engine/shared/table-definition';
+export const FRIEND_REQUESTS_TABLE = 'friend_requests' as const;
+export const FRIENDSHIPS_TABLE = 'friendships' as const;
+export const USER_BLOCKS_TABLE = 'user_blocks' as const;
 
-export const FRIEND_REQUESTS_TABLE = defineTable({
-  tableName: 'friend_requests',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'from_user_id', type: 'text' },
-    { name: 'to_user_id', type: 'text' },
-    { name: 'status', type: 'text' },
-    { name: 'message', type: 'text' },
-    { name: 'created_at', type: 'text' },
-    { name: 'updated_at', type: 'text' },
-    { name: 'responded_at', type: 'text' },
-  ],
-});
+export const FRIEND_REQUESTS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "friend_requests" (
+  "id" TEXT PRIMARY KEY,
+  "from_user_id" TEXT,
+  "to_user_id" TEXT,
+  "status" TEXT,
+  "message" TEXT,
+  "created_at" TEXT,
+  "updated_at" TEXT,
+  "responded_at" TEXT
+)
+`;
 
-export const FRIENDSHIPS_TABLE = defineTable({
-  tableName: 'friendships',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'user_low', type: 'text' },
-    { name: 'user_high', type: 'text' },
-    { name: 'created_at', type: 'text' },
-    { name: 'source_request_id', type: 'text' },
-  ],
-});
+export const FRIENDSHIPS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "friendships" (
+  "id" TEXT PRIMARY KEY,
+  "user_low" TEXT,
+  "user_high" TEXT,
+  "created_at" TEXT,
+  "source_request_id" TEXT
+)
+`;
 
-export const USER_BLOCKS_TABLE = defineTable({
-  tableName: 'user_blocks',
-  columns: [
-    { name: 'id', type: 'text', primaryKey: true },
-    { name: 'blocker_id', type: 'text' },
-    { name: 'blocked_id', type: 'text' },
-    { name: 'created_at', type: 'text' },
-  ],
-});
+export const USER_BLOCKS_LOCAL_DDL = `
+CREATE TABLE IF NOT EXISTS "user_blocks" (
+  "id" TEXT PRIMARY KEY,
+  "blocker_id" TEXT,
+  "blocked_id" TEXT,
+  "created_at" TEXT
+)
+`;
 
 export const ALL_FRIENDS_SYNC_TABLES = [
   FRIEND_REQUESTS_TABLE,
   FRIENDSHIPS_TABLE,
   USER_BLOCKS_TABLE,
+] as const;
+
+export const ALL_FRIENDS_LOCAL_DDL = [
+  FRIEND_REQUESTS_LOCAL_DDL,
+  FRIENDSHIPS_LOCAL_DDL,
+  USER_BLOCKS_LOCAL_DDL,
 ] as const;
