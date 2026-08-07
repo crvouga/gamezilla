@@ -244,8 +244,10 @@ server writes is a separate runtime footgun — prefer mutations.
 idempotency is by **mutation id**, so seq restarts are harmless.
 
 **Deleted on purpose (do not resurrect without a design review):**
-`_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`, write-epoch
-/ soft-ack / `status` / `acked_epoch` columns, MQTT mutation fanout payloads.
+`_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`, full
+write-epoch / `status` / `acked_epoch` barriers, MQTT mutation fanout payloads.
+Ack-then-stale-merge flicker is addressed by sync `bumpGenerations` on upload
+ack (not a write-epoch).
 
 `SCHEMA_EPOCH` bumps wipe **cache** tables and drop retired tables; durable
 `_mutations` survive epoch wipe semantics carefully (see migrate code —
@@ -391,17 +393,19 @@ don’t invent a second delete model without review.
 | Event | Behavior |
 |-------|----------|
 | Offline mutate | Applies locally, queues `_mutations`, UI updates via watch |
-| Upload success | Delete queue row; peers learn via push → query |
+| Upload success | Delete queue row; sync gen bump drops in-flight pre-replay sweeps; peers learn via push → query |
 | Upload reject | Delete queue row + `write_rejections`; UI should surface rejection |
 | Merge while pending | Server snapshot applied, then pending mutations re-run |
-| Stale snapshot | Checkpoint compare drops it |
+| Stale snapshot | Checkpoint compare drops it; post-ack gen bump drops in-flight pre-replay sweeps |
 | Denied query | Detach scope meta; domain rows remain |
 | Auth revoked | Wipe identity DB |
 | Push lost | Next reconnect / foreground / membership wakeAll eventually refetches |
 | Partial multi-query batch | Per-response apply; generation guards drop superseded scopes |
 
-**Not provided:** causal multi-device domain locks, exactly-once UI effects,
-guaranteed absence of flicker after ack (see tradeoffs).
+**Not provided:** causal multi-device domain locks, exactly-once UI effects.
+Optimistic body must not briefly revert to server-old after own ack (lite
+soft-ack + generation fence); see `own-echo-no-flicker` /
+`ack-stale-merge-no-flicker`.
 
 ---
 
@@ -413,7 +417,8 @@ guaranteed absence of flicker after ack (see tradeoffs).
 - Snapshot merge (not delta protocol) as the default truth path
 - Locked: no peer **mutation** fanout / no `_peer_mutations` (row-image fanout is the latency path)
 - No `_row_scopes` / absence-as-delete
-- No write-epoch soft-ack barrier (ack deletes queue row)
+- No full write-epoch / `acked_epoch` barrier (flicker fix: sync
+  `bumpGenerations` on upload ack; ack still deletes the queue row)
 - Four public package entrypoints
 - Mutations-only domain writes; tiny REST exception list
 - Hard query `limit` required
@@ -426,7 +431,6 @@ guaranteed absence of flicker after ack (see tradeoffs).
 - Narrower sessionQueries / staged paint gate if first paint is too slow
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
-- Upload wake after ack to coalesce query refresh (today relies on push)
 - Sim coverage expansion / fixing stale `TIGER_INVARIANTS` name list
 - Clearing stale locals that left a scope without soft-delete (product policy)
 - `process-upload-with-mutations` legacy CRUD path — simplify or delete if unused
@@ -451,9 +455,11 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 2. **Stale live rows outside soft-delete** — if a row leaves a query result
    without `_deleted_at` set, it stays live locally. Mitigate with better
    query design (always tombstone membership edges) or accept + filter in UI.
-3. **Ack-then-stale-merge flicker** — merge from a pre-replay snapshot can
-   briefly undo optimistic UI until push refetch. Rare; fix only with
-   measured pain (don’t restore full write-epoch machinery lightly).
+3. **~~Ack-then-stale-merge flicker~~ (fixed)** — on applied ack, synchronously
+   `bumpGenerations` so in-flight pre-replay query sweeps are dropped before
+   they can apply without a pending rebase shield. Queue row is still deleted
+   on ack (no write-epoch). Post-ack `wakeAll` is intentionally not wired
+   (disturbs concurrent multi-writer settle in sim).
 4. **Full snapshot cost** — large `chessPuzzlePool` / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
@@ -878,6 +884,7 @@ Channels follow `user:` + `room:` from live membership. Observability:
 | `clock-skew-consistency.test.ts` | Convergence under Alice/Bob/server clock-order permutations |
 | `background-foreground.test.ts` | Background pauses remote sweeps; local optimistic still applies; foreground catches up |
 | `own-echo-no-flicker.test.ts` | Online mutate never reverts optimistic body before quiescence |
+| `ack-stale-merge-no-flicker.test.ts` | Delayed/reordered sync after ack never reverts optimistic body |
 | `created-at-pinning.test.ts` | Replay pins `env.now` to mutation `createdAt` under client clock skew |
 
 #### Fuzz
@@ -904,7 +911,8 @@ Channels follow `user:` + `room:` from live membership. Observability:
 4. Fanout row images are produced from post-replay reads only, never from
    mutation args or peer-executed logic.
 5. No `_row_scopes` / multi-scope absence GC.
-6. No write-epoch / soft-ack barrier — ack deletes queue row.
+6. No full write-epoch / `acked_epoch` barrier — ack deletes queue row;
+   flicker is prevented by sync generation fence on ack.
 7. No delta / resync / gone **query** wire shapes (`POST /query` stays
    `ok` / `not_modified` / `denied`).
 8. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).

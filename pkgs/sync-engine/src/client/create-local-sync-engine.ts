@@ -169,7 +169,9 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     bus,
     clientId: options.getClientId,
     postBatch: options.postMutations,
-    onUploaded: () => undefined,
+    onAckFence: () => {
+      readState(stateRef).runtime.bumpGenerations();
+    },
     onError: (error) => handleError(readState(stateRef), error),
     ...(options.timers !== undefined ? { timers: options.timers } : {}),
     ...(options.now !== undefined ? { now: options.now } : {}),

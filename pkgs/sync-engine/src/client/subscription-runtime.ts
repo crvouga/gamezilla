@@ -176,6 +176,15 @@ export class SubscriptionRuntime {
   }
 
   /**
+   * Invalidate in-flight query sweeps so their responses are dropped.
+   * Used after mutation upload ack so a pre-replay snapshot cannot apply
+   * without a subsequent generation-bumped refetch.
+   */
+  bumpGenerations(): void {
+    for (const entry of this.entries.values()) entry.generation += 1;
+  }
+
+  /**
    * Wake every active scope and resolve after the resulting sweep drains.
    * Does not reset first-sync gates (no loading flicker for pull-to-refresh).
    */

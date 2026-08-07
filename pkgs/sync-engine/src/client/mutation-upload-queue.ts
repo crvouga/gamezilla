@@ -55,7 +55,11 @@ export type MutationUploadQueueOptions = {
     mutations: readonly MutationUploadRow[]
   ) => Promise<MutationUploadResult>;
   readonly onError: (error: unknown) => void;
-  readonly onUploaded?: (() => void) | undefined;
+  /**
+   * Sync fence right after applied acks delete queue rows (before further
+   * awaits). Bump query generations so in-flight pre-replay sweeps drop.
+   */
+  readonly onAckFence?: (() => void) | undefined;
   readonly timers?: Timers;
   readonly now?: () => number;
 };
@@ -110,6 +114,10 @@ async function storeRejection(
   `);
 }
 
+/**
+ * Ack = delete queue row. Applied ids trigger `onAckFence` before any further
+ * await so in-flight pre-replay query sweeps cannot apply without rebase.
+ */
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
   result: MutationUploadResult,
@@ -117,16 +125,22 @@ async function applyUploadResult(
 ): Promise<void> {
   const clientId = options.clientId();
   const createdAt = new Date(now()).toISOString();
+  let appliedAny = false;
   await options.db.transaction(async (tx) => {
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
         await storeRejection(tx, clientId, verdict, createdAt);
+      } else {
+        appliedAny = true;
       }
       await tx.run(sql`
         DELETE FROM _mutations WHERE id = ${verdict.mutationId}
       `);
     }
   });
+  if (appliedAny) {
+    options.onAckFence?.();
+  }
   // Floor topic pushSeqs from the ack so own echoed fanout is a no-op.
   if (result.topicPushSeqs !== undefined) {
     for (const [topic, pushSeq] of Object.entries(result.topicPushSeqs)) {
@@ -202,7 +216,6 @@ export class MutationUploadQueue {
     if (pending.length === 0) return false;
     const result = await this.options.postBatch(pending.map(toWireRow));
     await applyUploadResult(this.options, result, this.now);
-    this.options.onUploaded?.();
     return true;
   }
 
