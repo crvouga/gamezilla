@@ -233,13 +233,7 @@ export const appSchema = defineSchema({
     ['chess_puzzles', 'rating', 'popularity'],
     ['inbox_interactions', 'user_id'],
   ],
-  deprecations: [
-    [
-      'chess_puzzles',
-      'sync_pool',
-      'clients hydrate any puzzle in rating range; flag unused',
-    ],
-  ],
+  deprecations: [['chess_puzzles', 'sync_pool', 'not needed anymore']],
 });
 
 /** Domain table names present on the local SQLite client (CACHE). */
