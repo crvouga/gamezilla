@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { createSimClock } from './clock';
-import { createSeededRng } from './rng';
-import { createSimScheduler } from './scheduler';
-import { createSimTimers } from './timers';
+import { createSimClock } from '../../sim/clock';
+import { createSeededRng } from '../../sim/rng';
+import { createSimScheduler } from '../../sim/scheduler';
+import { createSimTimers } from '../../sim/timers';
 
 describe('sim kernel', () => {
   test('rng same seed identical stream', () => {

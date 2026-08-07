@@ -321,6 +321,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:sync-engine-blackbox-tests": {
+      "inputs": [
+        "pkgs/sync-engine/**/*.test.ts",
+        "pkgs/sync-engine/src/tests/**",
+        "tools/scripts/check-sync-engine-blackbox-tests.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-provider-leaks": {
       "inputs": [
         "tools/scripts/check-no-provider-leaks.ts",

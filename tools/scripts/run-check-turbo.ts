@@ -27,6 +27,7 @@ const CI_GATE_TASKS = [
   'ci:mutation-determinism',
   'ci:channel-exhaustiveness',
   'ci:sync-engine-terminology',
+  'ci:sync-engine-blackbox-tests',
   'ci:no-provider-leaks',
   'ci:pubsub-emqx-imports',
   'ci:depcruise',

@@ -1,4 +1,4 @@
-import { simSetNote } from './profile';
+import { setFolder, setNote } from './notes-app';
 import type { SeededRng } from './rng';
 import type { SimWorld } from './world';
 
@@ -8,6 +8,12 @@ export type WorkloadAction =
       readonly clientId: string;
       readonly noteId: string;
       readonly body: string;
+    }
+  | {
+      readonly kind: 'mutateFolder';
+      readonly clientId: string;
+      readonly folderId: string;
+      readonly title: string;
     }
   | { readonly kind: 'offline'; readonly clientId: string }
   | { readonly kind: 'online'; readonly clientId: string }
@@ -24,12 +30,20 @@ export function pickWorkloadAction(
 ): WorkloadAction {
   const roll = rng.int(100);
   const clientId = rng.pick(clientIds);
-  if (roll < 55) {
+  if (roll < 45) {
     return {
       kind: 'mutate',
       clientId,
       noteId: `n${rng.int(4)}`,
       body: `b${rng.int(1000)}`,
+    };
+  }
+  if (roll < 55) {
+    return {
+      kind: 'mutateFolder',
+      clientId,
+      folderId: `f${rng.int(3)}`,
+      title: `t${rng.int(100)}`,
     };
   }
   if (roll < 65) return { kind: 'idle', ms: 1 + rng.int(50) };
@@ -56,9 +70,22 @@ async function handleMutate(
 ): Promise<void> {
   const client = world.clients.get(action.clientId);
   if (client === undefined) return;
-  await client.mutate(simSetNote, {
+  await client.mutate(setNote, {
     id: action.noteId,
     body: action.body,
+    title: '',
+  });
+}
+
+async function handleMutateFolder(
+  world: SimWorld,
+  action: Extract<WorkloadAction, { kind: 'mutateFolder' }>
+): Promise<void> {
+  const client = world.clients.get(action.clientId);
+  if (client === undefined) return;
+  await client.mutate(setFolder, {
+    id: action.folderId,
+    title: action.title,
   });
 }
 
@@ -66,6 +93,7 @@ const ACTION_HANDLERS: {
   readonly [K in WorkloadAction['kind']]: ActionHandler<K>;
 } = {
   mutate: handleMutate,
+  mutateFolder: handleMutateFolder,
   offline: async (world, action) => {
     world.clients.get(action.clientId)?.lifecycle.setOnline(false);
   },
@@ -97,6 +125,8 @@ export async function dispatchWorkloadAction(
   switch (action.kind) {
     case 'mutate':
       return ACTION_HANDLERS.mutate(world, action);
+    case 'mutateFolder':
+      return ACTION_HANDLERS.mutateFolder(world, action);
     case 'offline':
       return ACTION_HANDLERS.offline(world, action);
     case 'online':

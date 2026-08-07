@@ -47,7 +47,7 @@ export async function createEngineFromParts(
     mutationRegistry: args.mutations,
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,
-    sessionQueries: [{ name: 'simNotes', params: {} }],
+    sessionQueries: [{ name: 'notesWorld', params: {} }],
     postQueries: (rs) => args.http.postQueries(rs),
     postMutations: (ms) => args.http.postMutations(ms),
     isAuthRevoked: () => false,

@@ -1,16 +1,20 @@
+import { postgres } from '@pkgs/db-schema/postgres';
+import { createLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
-import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgMemSqlClient } from '@pkgs/sql-client/postgres/impl-pg-mem';
+import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared';
 
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimHttpServerHandlers } from './http-bridge';
 import {
-  applyServerDdlSqlClient,
-  simMutationRegistry,
-  simQueryRegistry,
-} from './profile';
+  notesAppSchema,
+  notesMutationRegistry,
+  notesQueryRegistry,
+  readLiveFolders,
+  readLiveNotes,
+} from './notes-app';
+import { openSimPostgres } from './open-sim-postgres';
 import {
   commitCheckpoint,
   createHandleMutations,
@@ -61,16 +65,20 @@ function buildHandlerCtx(args: {
   };
 }
 
-/** In-process pg-mem server for sim HTTP bridge. */
+/** In-process PGlite server for sim HTTP bridge. */
 export async function openSimServer(
   args: OpenSimServerArgs
 ): Promise<SimServer> {
-  const { sqlClient: db } = createPgMemSqlClient();
+  const pg = await openSimPostgres();
+  const db = pg.sqlClient;
   await db.connect();
-  await applyServerDdlSqlClient(db);
 
-  const mutations = args.mutationRegistry ?? simMutationRegistry;
-  const queries = args.queryRegistry ?? simQueryRegistry;
+  const logger = createLogger({ name: 'sim-server', level: 'silent' });
+  await applyFrameworkServerDdl({ sqlClient: db, logger });
+  await postgres(notesAppSchema, db, { skipAdvisoryLock: true }).reconcile();
+
+  const mutations = args.mutationRegistry ?? notesMutationRegistry;
+  const queries = args.queryRegistry ?? notesQueryRegistry;
   let checkpointSeq = 0;
   let stickyAuth: SimServerAuth = {
     actorId: 'server',
@@ -110,17 +118,15 @@ export async function openSimServer(
     },
     dispose: async () => {
       await db.disconnect();
+      await pg.close();
     },
   };
 }
 
-export async function readServerNotes(
-  db: SqlClient
-): Promise<readonly { id: string; body: string; owner_id: string }[]> {
-  return db.query(sql<{ id: string; body: string; owner_id: string }>`
-    SELECT id, body, owner_id
-    FROM notes
-    WHERE _deleted_at IS NULL
-    ORDER BY id ASC
-  `);
+export async function readServerNotes(db: SqlClient) {
+  return readLiveNotes(db);
+}
+
+export async function readServerFolders(db: SqlClient) {
+  return readLiveFolders(db);
 }

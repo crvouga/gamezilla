@@ -1,8 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { setNote } from '../../sim/notes-app';
+import { runSeed, seedsFromEnv } from '../../sim/replay';
+import { openSimWorld } from '../../sim/world';
 
-import { runSeed, seedsFromEnv } from './replay';
+describe('fuzz', () => {
+  test('same seed runSeed is deterministic', async () => {
+    const first = await runSeed({ seed: 123, steps: 12, clientCount: 2 });
+    const second = await runSeed({ seed: 123, steps: 12, clientCount: 2 });
+    expect(first.ok).toBe(true);
+    expect(second.ok).toBe(true);
+    expect(first).toEqual(second);
+  });
 
-describe('sim world fuzz', () => {
   test(
     'seed corpus + env seeds converge',
     async () => {
@@ -38,7 +47,6 @@ describe('sim world fuzz', () => {
         clientCount: 2,
         sampleFaults: true,
       });
-      // Lossy mesh may fail settle; must not corrupt seq monotonicity.
       if (!result.ok) {
         expect(result.error.includes('seq-monotonicity')).toBe(false);
         return;
@@ -47,4 +55,15 @@ describe('sim world fuzz', () => {
     },
     { timeout: 60_000 }
   );
+
+  test('single mutate then fuzz-style settle', async () => {
+    const world = await openSimWorld({ seed: 88 });
+    try {
+      const a = await world.addClient({ id: 'alice' });
+      await a.mutate(setNote, { id: 'n1', body: 'ok' });
+      await world.assertConverged();
+    } finally {
+      await world.dispose();
+    }
+  });
 });

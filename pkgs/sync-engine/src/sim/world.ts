@@ -54,7 +54,7 @@ async function checkClientSeqs(
 
 /**
  * Multi-client deterministic sync world: virtual clock, lossy network,
- * pg-mem server, Bun SQLite clients running real createLocalSyncEngine.
+ * PGlite server, Bun SQLite clients running real createLocalSyncEngine.
  */
 export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
   const k = await bootSimKernel({ seed: args.seed, worldArgs: args });

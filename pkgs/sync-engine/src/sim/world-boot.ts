@@ -51,7 +51,7 @@ function resolveAuthForDevice(
   };
 }
 
-/** Clock, network, broker, and pg-mem server for a sim world. */
+/** Clock, network, broker, and PGlite server for a sim world. */
 export async function bootSimKernel(args: {
   readonly seed: number | bigint | string;
   readonly worldArgs: WorldClientOpts;

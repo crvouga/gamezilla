@@ -21,10 +21,10 @@ import {
 } from './client-factory-parts';
 import type { SimHttpClient } from './http-bridge';
 import {
-  simLocalSchema,
-  simMutationRegistry,
-  simQueryRegistry,
-} from './profile';
+  notesLocalSchema,
+  notesMutationRegistry,
+  notesQueryRegistry,
+} from './notes-app';
 import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
 
@@ -102,9 +102,9 @@ export async function buildSimClient(
     foreground: true,
     online: true,
   });
-  const tables = args.tableRegistry ?? simLocalSchema;
-  const mutations = args.mutationRegistry ?? simMutationRegistry;
-  const queries = args.queryRegistry ?? simQueryRegistry;
+  const tables = args.tableRegistry ?? notesLocalSchema;
+  const mutations = args.mutationRegistry ?? notesMutationRegistry;
+  const queries = args.queryRegistry ?? notesQueryRegistry;
   const http = wireHttp(args.http, args.server, args.auth);
   const getEnv = mutationEnvFromArgs(args);
 

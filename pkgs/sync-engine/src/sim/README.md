@@ -2,6 +2,12 @@
 
 TigerBeetle-style DST for `@pkgs/sync-engine`. One seed → identical timeline.
 
+Black-box correctness scenarios live under
+[`src/tests/`](../tests/). The tiny notes domain used by the sim and by those
+scenarios lives in [`notes-app/`](./notes-app/) (not under `tests/`, so
+production sim code does not import from test paths). Assert domain rows only;
+never framework tables or private modules.
+
 ## What is simulated
 
 | Boundary | Implementation                                                |
@@ -12,7 +18,7 @@ TigerBeetle-style DST for `@pkgs/sync-engine`. One seed → identical timeline.
 | Network  | `SimNetwork` — delay, loss, reorder, replay, partition        |
 | HTTP     | `createSimHttpClient` / `bindSimHttpServer` over the mesh     |
 | PubSub   | `createSimPubSubBroker` (delayed fanout over the same mesh)   |
-| Server   | in-process pg-mem + real `processMutationsBatch` / `runQuery` |
+| Server   | in-process PGlite + `applyFrameworkServerDdl` + schema reconcile |
 | Clients  | Bun `:memory:` SQLite + real `createLocalSyncEngine`          |
 
 Not simulated: disk bitflips, real EMQX, Cloudflare Worker runtime.
@@ -37,32 +43,34 @@ should `setFaults` after clients connect, then restore `RELIABLE_FAULTS` before
 
 ```ts
 import { openSimWorld } from './world';
-import { simSetNote } from './profile';
+import { setNote } from './notes-app';
 
 const world = await openSimWorld({ seed: 42 });
 const a = await world.addClient({ id: 'alice' });
-await a.mutate(simSetNote, { id: 'n1', body: 'hi' });
+await a.mutate(setNote, { id: 'n1', body: 'hi' });
 await world.assertConverged();
 await world.dispose();
 ```
 
-## Fanout scenarios
+## Fanout / correctness scenarios
 
-Named coverage lives in `fanout.scenario.test.ts` (row-image fanout enabled in
+Named coverage lives in `src/tests/scenarios/` (row-image fanout enabled in
 sim clients + server):
 
-- Happy path contiguous apply, dropped/reordered/duped fanout, tombstones
-- Pending-mutation race, epoch wipe, seed sweep, &lt;200ms latency budget
+- Happy path peer visibility, dropped/reordered/duped fanout, tombstones
+- Offline conflict, pending-mutation race, crash/restart rehydrate
+- Folders multi-table, authz deny, hard-delete reject, latency budget
+- Seed corpus fuzz (`fuzz.test.ts`)
 
-Convergence check: after quiescence, every client’s live-row view matches the
-server and pending `_mutations` queues are empty.
+Convergence check: after quiescence, every client’s live domain view
+(notes + folders) matches the server.
 
 ## Replay a failing seed
 
 Fuzz failures print `seed=<hex>`. Replay:
 
 ```bash
-SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/sim/world.fuzz.test.ts
+SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/fuzz.test.ts
 ```
 
 Or:
@@ -83,18 +91,24 @@ Env knobs:
 import { createSimTestDriver } from './test-driver';
 
 const sim = createSimTestDriver();
-// pass sim.timers / sim.now / sim.random into SubscriptionRuntime, attachPush, etc.
 await sim.runFor(150); // advance virtual time
 ```
+
+Harness self-checks (RNG / scheduler / timers) live in
+`src/tests/harness/kernel.test.ts`.
 
 ## Layout
 
 ```
-sim/
-  rng.ts clock.ts scheduler.ts timers.ts   # kernel
+sim/                                 # DST implementation (not a public export)
+  rng.ts clock.ts scheduler.ts timers.ts
   network.ts http-bridge.ts pubsub-bridge.ts
-  world.ts client-factory.ts server.ts profile.ts
+  world.ts client-factory.ts server.ts
+  notes-app/                         # tiny defineSchema + mutations/queries
   faults.ts workload.ts invariants.ts replay.ts
-  fanout.scenario.test.ts                  # row-image fanout acceptance
-  test-driver.ts                           # lightweight unit-test helper
+  test-driver.ts
+
+tests/
+  scenarios/                         # black-box correctness suite
+  harness/                           # sim kernel self-tests
 ```

@@ -46,6 +46,7 @@
     "ci:no-size-limit-overrides": "bun run tools/scripts/check-no-size-limit-overrides.ts",
     "ci:pubsub-emqx-imports": "bun run tools/scripts/check-pubsub-emqx-imports.ts",
     "ci:setup-secrets-auth": "bun run tools/scripts/setup-ci-secrets-auth.ts",
+    "ci:sync-engine-blackbox-tests": "bun run tools/scripts/check-sync-engine-blackbox-tests.ts",
     "ci:sync-engine-terminology": "bun run tools/scripts/check-sync-engine-terminology.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev && bun run tools/scripts/check-catalog-deps.ts && bun run tools/scripts/check-no-patches.ts",
     "ci:tier-imports": "bun run tools/scripts/check-tier-imports.ts",

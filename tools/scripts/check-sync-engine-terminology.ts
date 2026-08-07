@@ -28,30 +28,16 @@ const RULES: readonly Rule[] = [
   {
     name: 'reapply / re-apply (sync merge step)',
     re: /\bre-?appl(?:y|ies|ied|ying)\b/i,
-    allow: (rel, line) => {
-      // Server Replay prose is a different concept.
-      if (
-        rel.includes('dual-platform-harness') &&
-        /Replay re-appl/i.test(line)
-      ) {
-        return true;
-      }
-      return false;
-    },
   },
   {
     name: '_topic_applied',
     re: /_topic_applied/,
-    allow: (rel) =>
-      rel.endsWith('local-schema-migrate.test.ts') ||
-      rel.endsWith('local-schema.ts'),
+    allow: (rel) => rel.endsWith('local-schema.ts'),
   },
   {
     name: '_sync_topic_checkpoint',
     re: /_sync_topic_checkpoint/,
-    allow: (rel) =>
-      rel.endsWith('framework-server-ddl.ts') ||
-      rel.endsWith('allocate-topic-push-seq.test.ts'),
+    allow: (rel) => rel.endsWith('framework-server-ddl.ts'),
   },
   {
     name: 'topicCheckpoints',
