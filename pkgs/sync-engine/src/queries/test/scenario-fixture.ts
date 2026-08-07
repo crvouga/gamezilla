@@ -42,7 +42,7 @@ export async function openScenarioDb(): Promise<SqlClient> {
 export const setNote = defineMutation({
   name: 'setNote',
   args: z.object({ id: z.string(), body: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, body, owner_id)
@@ -57,7 +57,7 @@ export const setNote = defineMutation({
 export const bumpNoteForbidden = defineMutation({
   name: 'bumpNoteForbidden',
   args: z.object({ id: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   async run() {
     throw new MutationError('FORBIDDEN', 'nope');
   },
@@ -66,7 +66,7 @@ export const bumpNoteForbidden = defineMutation({
 export const failOnRebase = defineMutation({
   name: 'failOnRebase',
   args: z.object({ id: z.string(), body: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   async run({ tx }, { id, body }) {
     const rows = await tx.query(sql<{ body: string }>`
       SELECT body FROM notes WHERE id = ${id}

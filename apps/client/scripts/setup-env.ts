@@ -375,7 +375,7 @@ async function main(): Promise<void> {
   }
   if (emqxWssUrl === null) {
     process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; sync nudges disabled (poll-only).\n'
+      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; sync pushes disabled (poll-only).\n'
     );
   }
 

@@ -3,27 +3,27 @@ import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
- * Allocate the next strictly monotonic checkpoint for a pubsub topic.
+ * Allocate the next strictly monotonic pushSeq for a pubsub topic.
  *
- * Source of truth is Postgres `_sync_topic_checkpoint`, advanced with an
- * atomic upsert so concurrent replays on the same topic serialize correctly.
- * The wire value is the decimal string of `n` (not Date.now()+ackSeq) so
- * peers can detect gaps with exact-next contiguous checks.
+ * Source of truth is Postgres `_sync_topic_seq`, advanced with an atomic upsert
+ * so concurrent replays on the same topic serialize correctly. The wire value
+ * is the decimal string of `n` (not Date.now()+ackSeq) so peers can detect gaps
+ * with exact-next contiguous checks.
  */
-export async function allocateTopicCheckpoint(
+export async function allocateTopicPushSeq(
   db: SqlClient,
   topic: Topic
 ): Promise<string> {
   const rows = await db.query(sql<{ n: number | string | bigint }>`
-    INSERT INTO _sync_topic_checkpoint (topic, n)
+    INSERT INTO _sync_topic_seq (topic, n)
     VALUES (${topic}, 1)
     ON CONFLICT (topic) DO UPDATE
-      SET n = _sync_topic_checkpoint.n + 1
+      SET n = _sync_topic_seq.n + 1
     RETURNING n
   `);
   const n = rows[0]?.n;
   if (n === undefined) {
-    throw new Error(`allocateTopicCheckpoint: no row for topic=${topic}`);
+    throw new Error(`allocateTopicPushSeq: no row for topic=${topic}`);
   }
   return String(n);
 }
@@ -40,10 +40,10 @@ function dedupeTopics(topics: readonly Topic[]): Topic[] {
 }
 
 /**
- * Allocate one checkpoint per unique topic (deduped, stable order).
+ * Allocate one pushSeq per unique topic (deduped, stable order).
  * Uses a single multi-row upsert when there are 2+ topics (one DB RTT).
  */
-export async function allocateTopicCheckpoints(
+export async function allocateTopicPushSeqs(
   db: SqlClient,
   topics: readonly Topic[]
 ): Promise<ReadonlyMap<Topic, string>> {
@@ -52,7 +52,7 @@ export async function allocateTopicCheckpoints(
   if (unique.length === 0) return out;
   if (unique.length === 1) {
     const topic = unique[0]!;
-    out.set(topic, await allocateTopicCheckpoint(db, topic));
+    out.set(topic, await allocateTopicPushSeq(db, topic));
     return out;
   }
 
@@ -61,10 +61,10 @@ export async function allocateTopicCheckpoints(
     topic: string;
     n: number | string | bigint;
   }>`
-    INSERT INTO _sync_topic_checkpoint (topic, n)
+    INSERT INTO _sync_topic_seq (topic, n)
     VALUES ${join(valueFrags)}
     ON CONFLICT (topic) DO UPDATE
-      SET n = _sync_topic_checkpoint.n + 1
+      SET n = _sync_topic_seq.n + 1
     RETURNING topic, n
   `);
   for (const row of rows) {
@@ -73,7 +73,7 @@ export async function allocateTopicCheckpoints(
   // Preserve input order for any topic missing from RETURNING (should not happen).
   for (const topic of unique) {
     if (out.has(topic)) continue;
-    out.set(topic, await allocateTopicCheckpoint(db, topic));
+    out.set(topic, await allocateTopicPushSeq(db, topic));
   }
   return out;
 }

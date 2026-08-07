@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 
-import { recordTopicApplied } from '../client/topic-applied';
+import { recordPushApplied } from '../client/push-applied';
 import { RELIABLE_FAULTS } from './faults';
 import { SIM_WORLD_TOPIC, simDeleteNote, simSetNote } from './profile';
 import { openSimWorld } from './world';
@@ -36,11 +36,11 @@ describe('fanout scenarios', () => {
     `);
     expect(after).toEqual([{ id: 'n1', body: 'hello' }]);
 
-    const applied = await b.db.query(sql<{ last_applied: string }>`
-      SELECT last_applied FROM _topic_applied
+    const applied = await b.db.query(sql<{ last_push_seq: string }>`
+      SELECT last_push_seq FROM _push_applied
       WHERE topic = ${SIM_WORLD_TOPIC}
     `);
-    expect(Number(applied[0]?.last_applied)).toBeGreaterThanOrEqual(2);
+    expect(Number(applied[0]?.last_push_seq)).toBeGreaterThanOrEqual(2);
 
     await world.assertConverged();
     await world.dispose();
@@ -143,7 +143,7 @@ describe('fanout scenarios', () => {
     await a.mutate(simSetNote, { id: 'n1', body: 'x' });
     await world.assertConverged();
 
-    await b.db.run(sql`DELETE FROM _topic_applied`);
+    await b.db.run(sql`DELETE FROM _push_applied`);
     await a.mutate(simSetNote, { id: 'n2', body: 'y' });
     await world.assertConverged();
     await world.dispose();
@@ -167,14 +167,14 @@ describe('fanout scenarios', () => {
     await world.dispose();
   });
 
-  test('recordTopicApplied floor used by warm path', async () => {
+  test('recordPushApplied floor used by warm path', async () => {
     const world = await openSimWorld({ seed: 31, faults: RELIABLE_FAULTS });
     const b = await world.addClient({ id: 'bob' });
-    await recordTopicApplied(b.db, SIM_WORLD_TOPIC, '5');
-    const rows = await b.db.query(sql<{ last_applied: string }>`
-      SELECT last_applied FROM _topic_applied WHERE topic = ${SIM_WORLD_TOPIC}
+    await recordPushApplied(b.db, SIM_WORLD_TOPIC, '5');
+    const rows = await b.db.query(sql<{ last_push_seq: string }>`
+      SELECT last_push_seq FROM _push_applied WHERE topic = ${SIM_WORLD_TOPIC}
     `);
-    expect(rows[0]?.last_applied).toBe('5');
+    expect(rows[0]?.last_push_seq).toBe('5');
     await world.dispose();
   });
 });

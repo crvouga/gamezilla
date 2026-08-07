@@ -15,8 +15,8 @@ const ALLOWED_TABLES = new Set([
   '_mutations',
   '_mutations_applied',
   '_scope_meta',
-  '_topic_applied',
-  '_sync_topic_checkpoint',
+  '_push_applied',
+  '_sync_topic_seq',
   'write_rejections',
 ]);
 

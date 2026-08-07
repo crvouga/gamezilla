@@ -10,7 +10,7 @@ Application-agnostic **topic pub/sub port**. One interface (`PubSub`) for every 
 
 ### Product topic helpers (Gamezilla)
 
-Entity-scoped, coarse names for the sync nudge layer live in
+Entity-scoped, coarse names for the sync push layer live in
 `@libs/db/shared/sync-topics` (`userTopic`, `roomTopic`, `userChannels`,
 `spaceListChannels`) — not in `@pkgs/sync-engine` or this package:
 

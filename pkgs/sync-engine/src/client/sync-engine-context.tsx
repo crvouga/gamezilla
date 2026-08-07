@@ -64,6 +64,7 @@ export function useSyncEngine(): SyncEngineApi {
       disconnect: () => engine.disconnect(),
       clearLocalData: (options) => engine.clearLocalData(options),
       waitForFirstSync: () => engine.waitForFirstSync(),
+      refreshQueries: () => engine.refreshQueries(),
       subscribeQuery: engine.subscribeQuery,
       subscribeQueries: engine.subscribeQueries,
       wakeUploads: engine.wakeUploads,

@@ -8,16 +8,16 @@ import { z } from 'zod';
 import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
 import { openScenarioDb } from '../queries/test/scenario-fixture';
-import type { QueryChannelsCtx } from '../shared/nudge-payload';
+import type { QueryChannelsCtx } from '../shared/push-payload';
 import { createSimTestDriver } from '../sim/test-driver';
-import { attachNudges } from './attach-nudges';
+import { attachPush } from './attach-push';
 import { SubscriptionRuntime } from './subscription-runtime';
 
 type WideChannelsCtx = QueryChannelsCtx & {
   readonly membershipSpaceIds: readonly string[];
 };
 
-describe('attachNudges', () => {
+describe('attachPush', () => {
   const disposers: Array<() => void> = [];
 
   afterEach(() => {
@@ -83,7 +83,7 @@ describe('attachNudges', () => {
     let current = createInMemoryPubSub() as InMemoryPubSub;
     let remakes = 0;
     let refreshTopics = (): void => undefined;
-    const dispose = attachNudges({
+    const dispose = attachPush({
       pubsub: current,
       runtime,
       queryRegistry: registry,
@@ -118,17 +118,17 @@ describe('attachNudges', () => {
     };
   }
 
-  test('nudge refetches the subscribed scope', async () => {
+  test('push refetches the subscribed scope', async () => {
     const { sim, postQueries, pubsub } = await setup();
 
-    await pubsub().publish('user:actor1', { checkpoint: '1' });
+    await pubsub().publish('user:actor1', { pushSeq: '1' });
     await sim.runFor(40);
 
     expect(postQueries.mock.calls).toHaveLength(1);
     expect(postQueries.mock.calls[0]?.[0]).toHaveLength(1);
   });
 
-  test('nudge tables filter unrelated scopes', async () => {
+  test('push tables filter unrelated scopes', async () => {
     const { sim, runtime, postQueries, pubsub, setMemberships, refreshTopics } =
       await setup();
     setMemberships(['space-a']);
@@ -138,14 +138,14 @@ describe('attachNudges', () => {
     postQueries.mockClear();
 
     await pubsub().publish('user:actor1', {
-      checkpoint: '1',
+      pushSeq: '1',
       tables: ['rooms'],
     });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(0);
 
     await pubsub().publish('room:space-a', {
-      checkpoint: '1',
+      pushSeq: '1',
       tables: ['rooms'],
     });
     await sim.runFor(40);
@@ -199,31 +199,31 @@ describe('attachNudges', () => {
     expect(remakes()).toBe(before);
   });
 
-  test('duplicate and out-of-order nudges are dropped after applied', async () => {
+  test('duplicate and out-of-order pushes are dropped after applied', async () => {
     const { sim, postQueries, pubsub } = await setup();
 
-    await pubsub().publish('user:actor1', { checkpoint: '2' });
+    await pubsub().publish('user:actor1', { pushSeq: '2' });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(1);
     postQueries.mockClear();
 
     // Duplicate — stale.
-    await pubsub().publish('user:actor1', { checkpoint: '2' });
+    await pubsub().publish('user:actor1', { pushSeq: '2' });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(0);
 
     // Older — stale.
-    await pubsub().publish('user:actor1', { checkpoint: '1' });
+    await pubsub().publish('user:actor1', { pushSeq: '1' });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(0);
 
     // Newer — wake.
-    await pubsub().publish('user:actor1', { checkpoint: '3' });
+    await pubsub().publish('user:actor1', { pushSeq: '3' });
     await sim.runFor(40);
     expect(postQueries.mock.calls).toHaveLength(1);
   });
 
-  test('nudge without checkpoint is ignored', async () => {
+  test('push without pushSeq is ignored', async () => {
     const { sim, postQueries, pubsub } = await setup();
     await pubsub().publish('user:actor1', { tables: ['notes'] });
     await sim.runFor(40);

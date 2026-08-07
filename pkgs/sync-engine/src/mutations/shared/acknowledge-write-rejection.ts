@@ -6,7 +6,7 @@ import { defineMutation } from '../core/define-mutation';
 export const acknowledgeWriteRejectionMutation = defineMutation({
   name: 'acknowledgeWriteRejection',
   args: z.object({ rejectionId: z.string().min(1) }),
-  writes: ['write_rejections'],
+  declaredWrites: ['write_rejections'],
   async run({ tx, env }, { rejectionId }) {
     await tx.run(sql`
       UPDATE write_rejections

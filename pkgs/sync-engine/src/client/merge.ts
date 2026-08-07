@@ -9,7 +9,7 @@ import type {
 } from '../mutations/core/types';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
-import { compareCheckpoint } from './topic-applied';
+import { compareCheckpoint } from './push-applied';
 
 export type MergeFullInput = {
   readonly scopeHash: string;
@@ -166,8 +166,8 @@ type PendingMutation = {
   readonly created_at: string;
 };
 
-/** Re-apply every pending local mutation after a server merge. */
-async function reapplyPending(
+/** Rebase every pending local mutation after a server merge. */
+async function rebasePending(
   tx: SqlClient,
   deps: Pick<MergeApplierDeps, 'registry' | 'env' | 'clientId'>,
   changed: Set<string>
@@ -195,7 +195,7 @@ async function reapplyPending(
         },
         parsed
       );
-      for (const t of m.writes) changed.add(t);
+      for (const t of m.declaredWrites) changed.add(t);
     } catch {
       // Keep queued; hide optimistic effect until upload/reject.
     }
@@ -215,7 +215,7 @@ async function runMerge(
       if (ok) changed.add(table);
     }
     await touchScopeMeta(tx, input);
-    await reapplyPending(tx, deps, changed);
+    await rebasePending(tx, deps, changed);
     applied = true;
   });
   if (!applied) return 'stale';
@@ -231,8 +231,8 @@ export async function applyFullMerge(
 }
 
 /**
- * Apply post-replay row images from a nudge through the same upsert +
- * re-apply path as a full snapshot merge.
+ * Apply post-replay row images from a push through the same upsert +
+ * rebase path as a full snapshot merge.
  *
  * Intentionally does **not** update `_scope_meta.last_hash`: the hash echoes
  * the server's last full-snapshot content so `not_modified` stays sound. A
@@ -253,7 +253,7 @@ export async function applyRowImages(
           // Table absent from local schema — skip (mirrors snapshot tolerance).
         }
       }
-      await reapplyPending(tx, deps, changed);
+      await rebasePending(tx, deps, changed);
     });
     if (changed.size > 0) deps.bus.emit([...changed]);
   });

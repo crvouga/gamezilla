@@ -93,7 +93,7 @@ export const ensureProfileMutation = defineMutation({
   args: z.object({
     avatarConfig: avatarConfigArgs.optional(),
   }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { avatarConfig }) {
@@ -112,7 +112,7 @@ export const ensureProfileMutation = defineMutation({
 export const applyEnsuredUsernameMutation = defineMutation({
   name: 'applyEnsuredUsername',
   args: z.object({ username: z.string().min(1) }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { username }) {
@@ -139,7 +139,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
 export const claimUsernameMutation = defineMutation({
   name: 'claimUsername',
   args: z.object({ username: z.string() }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   pendingUx: 'pending',
@@ -180,7 +180,7 @@ export const claimUsernameMutation = defineMutation({
 export const patchAvatarMutation = defineMutation({
   name: 'patchAvatar',
   args: z.object({ avatarConfig: avatarConfigArgs }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: (_args, env) => ({ profiles: [env.actorId] }),
   async run({ tx, env }, { avatarConfig }) {

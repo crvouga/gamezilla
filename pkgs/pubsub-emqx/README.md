@@ -26,7 +26,7 @@ Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/db/shared/sync-topics`:
 
 JWT ACL grants subscribe **and** publish on the actor's topic set (`user:{self}`,
 membership `room:*`, `system:client_config`). Clients publish mutation fanout on
-those topics; server nudges still use the HTTP publish API.
+those topics; server pushes still use the HTTP publish API.
 
 Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
 
@@ -65,7 +65,7 @@ const bus = createEmqxHttpPubSub({
   // fetchImpl: fetch, // optional inject for Workers / tests
 });
 
-await bus.publish('space:abc', { type: 'nudge' });
+await bus.publish('space:abc', { type: 'push' });
 // bus.subscribe(...) throws PubSubNotSupportedError
 bus.close();
 ```
@@ -97,6 +97,6 @@ App clients authenticate with MQTT username `jwt` and password = short-lived HS2
 1. JWT authenticator (`mechanism = jwt`, `from = password`, HMAC secret = secrets `EMQX_JWT_SECRET`)
 2. `acl_claim_name = acl` — subscribe-only rules embedded in the token
 3. Prefer `authorization.no_match = deny` in production so clients cannot subscribe outside their ACL
-4. Keep HTTP API keys (`EMQX_API_KEY` / `EMQX_API_SECRET`) for Worker publish-only nudges
+4. Keep HTTP API keys (`EMQX_API_KEY` / `EMQX_API_SECRET`) for Worker publish-only pushes
 
 Local `@apps/emqx` ships a matching JWT authenticator secret (`local-emqx-jwt-secret-change-me`) aligned with the `EMQX_JWT_SECRET` seed.

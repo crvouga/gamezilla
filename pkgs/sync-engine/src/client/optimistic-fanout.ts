@@ -5,7 +5,7 @@ import type { Mutation, MutationEnv } from '../mutations/core/types';
 import {
   fanoutRowsWithinCap,
   selectFanoutRows,
-} from '../server/select-fanout-rows';
+} from '../shared/select-fanout-rows';
 
 export type PublishOptimisticFanoutArgs = {
   readonly pubsub: PubSub;
@@ -44,9 +44,9 @@ export async function publishOptimisticFanout(
   const topics = await resolveOptimisticTopics(mutation, parsed, env, db);
   if (topics.length === 0) return;
 
-  const tables = [...mutation.writes];
+  const tables = [...mutation.declaredWrites];
   const payload = {
-    checkpoint: '0',
+    pushSeq: '0',
     optimistic: true as const,
     ...(tables.length > 0 ? { tables } : {}),
     rows,
@@ -55,7 +55,7 @@ export async function publishOptimisticFanout(
   await Promise.all(
     topics.map((topic) =>
       pubsub.publish(topic, payload).catch((error: unknown) => {
-        console.warn('[nudges] optimistic publish failed', topic, error);
+        console.warn('[push] optimistic publish failed', topic, error);
       })
     )
   );
@@ -79,7 +79,7 @@ async function resolveOptimisticTopics(
     }
     return out;
   } catch (error) {
-    console.warn('[nudges] optimistic invalidates failed', error);
+    console.warn('[push] optimistic invalidates failed', error);
     return [];
   }
 }

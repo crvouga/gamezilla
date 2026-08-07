@@ -9,14 +9,14 @@ import { processMutationsBatch } from '../mutations/server/process-mutations-bat
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody, QueryRow } from '../queries/core/types';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
-import { allocateTopicCheckpoints } from './allocate-topic-checkpoint';
-import { isAuthErrorBody } from './auth-error';
-import { notifyChannels } from './notify-channels';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
   selectFanoutRows,
-} from './select-fanout-rows';
+} from '../shared/select-fanout-rows';
+import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
+import { isAuthErrorBody } from './auth-error';
+import { notifyChannels } from './notify-channels';
 import type { SyncAppAuth } from './sync-app-auth';
 
 const mutationRowSchema = z.object({
@@ -68,7 +68,7 @@ function collectAppliedWrites(
   for (const row of applied) {
     const mutation = mutationRegistry[row.name];
     if (mutation === undefined) continue;
-    for (const table of mutation.writes) tables.add(table);
+    for (const table of mutation.declaredWrites) tables.add(table);
   }
   return [...tables];
 }
@@ -201,22 +201,22 @@ async function prepareMutationNotify(
       applied: result.applied,
       rowImageFanout: deps.rowImageFanout === true,
     });
-    const checkpoints = await allocateTopicCheckpoints(nested, topics);
+    const checkpoints = await allocateTopicPushSeqs(nested, topics);
     return { result, tables, rows, checkpoints };
   });
 }
 
-function publishMutationNudges(
+function publishMutationPushes(
   deps: MountMutationsRouteDeps,
   prepared: PreparedMutationNotify
 ): void {
   if (deps.pubsub === undefined || prepared.result.applied.length === 0) return;
   const label = prepared.result.applied.map((a) => a.name).join(',');
-  for (const [topic, checkpoint] of prepared.checkpoints) {
+  for (const [topic, pushSeq] of prepared.checkpoints) {
     notifyChannels({
       pubsub: deps.pubsub,
       topics: [topic],
-      checkpoint,
+      pushSeq,
       tables: prepared.tables,
       ...(prepared.rows !== undefined ? { rows: prepared.rows } : {}),
       label,
@@ -231,7 +231,7 @@ export type MountMutationsRouteDeps = {
   readonly getSql: () => SqlClient;
   readonly mutations: MutationRegistry;
   readonly pubsub?: PubSub;
-  /** When true, publish post-replay row images on nudges (default false). */
+  /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;
 };
 
@@ -262,13 +262,13 @@ export function mountMutationsRoute(
     const prepared = await prepareMutationNotify(deps, auth, mutationRows);
     const { result, checkpoints } = prepared;
     if (deps.pubsub !== undefined && result.applied.length > 0) {
-      publishMutationNudges(deps, prepared);
+      publishMutationPushes(deps, prepared);
       return c.json(
         {
           ok: result.ok,
           verdicts: result.verdicts,
           ackSeq: result.ackSeq,
-          topicCheckpoints: Object.fromEntries(checkpoints),
+          topicPushSeqs: Object.fromEntries(checkpoints),
         },
         200
       );

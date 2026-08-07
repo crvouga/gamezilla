@@ -14,7 +14,8 @@
  * Pass `largeTitle` for a body heading that reveals in the TopBar after scroll.
  */
 
-import { type ReactNode, useContext, useMemo } from 'react';
+import { type ReactElement, type ReactNode, useContext, useMemo } from 'react';
+import type { RefreshControlProps } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { componentDataSet } from '../../component-id';
@@ -23,6 +24,7 @@ import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { FloatingActionButton } from '../floating-action-button/floating-action-button';
 import { PlusIcon } from '../icons';
 import { KeyboardAvoidingView } from '../keyboard-avoiding-view';
+import { useResolvedRefreshControl } from '../pull-to-refresh';
 import {
   ScreenLargeTitle,
   ScreenTitleProvider,
@@ -196,6 +198,8 @@ export function ScreenBase({
   primaryAction,
   primaryActionBottomInset = 0,
   accountMenu,
+  onRefresh,
+  refreshing,
   dataSet,
 }: ScreenBaseProps) {
   const inner = (
@@ -222,6 +226,8 @@ export function ScreenBase({
               footer,
               primaryActionProps,
               primaryActionBottomInset,
+              onRefresh,
+              refreshing,
             })
           }
         </ScreenBasePrimaryActionMutation>
@@ -234,6 +240,8 @@ export function ScreenBase({
           footer,
           primaryActionProps: undefined,
           primaryActionBottomInset,
+          onRefresh,
+          refreshing,
         })
       )}
     </Box>
@@ -258,6 +266,8 @@ function renderScreenBody(args: {
   footer: ScreenBaseProps['footer'];
   primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
   primaryActionBottomInset: number;
+  onRefresh: ScreenBaseProps['onRefresh'];
+  refreshing: ScreenBaseProps['refreshing'];
 }): ReactNode {
   if (args.largeTitle) {
     return (
@@ -268,6 +278,8 @@ function renderScreenBody(args: {
         footer={args.footer}
         primaryActionProps={args.primaryActionProps}
         primaryActionBottomInset={args.primaryActionBottomInset}
+        onRefresh={args.onRefresh}
+        refreshing={args.refreshing}
       />
     );
   }
@@ -281,6 +293,8 @@ function renderScreenBody(args: {
       primaryActionBottomInset={args.primaryActionBottomInset}
       titleScroll={undefined}
       largeTitle={false}
+      onRefresh={args.onRefresh}
+      refreshing={args.refreshing}
     />
   );
 }
@@ -292,6 +306,8 @@ function LargeTitleScreenBody({
   footer,
   primaryActionProps,
   primaryActionBottomInset,
+  onRefresh,
+  refreshing,
 }: {
   scroll: boolean;
   keyboardAvoiding: boolean;
@@ -299,6 +315,8 @@ function LargeTitleScreenBody({
   footer: ScreenBaseProps['footer'];
   primaryActionProps: ScreenBasePrimaryActionRenderProps | undefined;
   primaryActionBottomInset: number;
+  onRefresh: ScreenBaseProps['onRefresh'];
+  refreshing: ScreenBaseProps['refreshing'];
 }): ReactNode {
   const titleScroll = useScreenTitleScroll();
   return (
@@ -311,31 +329,35 @@ function LargeTitleScreenBody({
       primaryActionBottomInset={primaryActionBottomInset}
       titleScroll={titleScroll}
       largeTitle
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     />
   );
 }
 
-function renderScrollableBody(
-  scroll: boolean,
-  inner: ReactNode,
-  paddingBottom: number,
-  titleScroll: ScreenTitleScrollProps | undefined
-): ReactNode {
-  if (scroll) {
+function renderScrollableBody(args: {
+  scroll: boolean;
+  inner: ReactNode;
+  paddingBottom: number;
+  titleScroll: ScreenTitleScrollProps | undefined;
+  refreshControl: ReactElement<RefreshControlProps> | undefined;
+}): ReactNode {
+  if (args.scroll) {
     return (
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom,
+          paddingBottom: args.paddingBottom,
         }}
-        {...(titleScroll ?? {})}
+        refreshControl={args.refreshControl}
+        {...(args.titleScroll ?? {})}
       >
-        {inner}
+        {args.inner}
       </ScrollView>
     );
   }
-  return <Box sx={{ flex: 1, minHeight: 0 }}>{inner}</Box>;
+  return <Box sx={{ flex: 1, minHeight: 0 }}>{args.inner}</Box>;
 }
 
 function ScreenBody({
@@ -347,6 +369,8 @@ function ScreenBody({
   primaryActionBottomInset,
   titleScroll,
   largeTitle,
+  onRefresh,
+  refreshing,
 }: {
   scroll: boolean;
   keyboardAvoiding: boolean;
@@ -356,6 +380,8 @@ function ScreenBody({
   primaryActionBottomInset: number;
   titleScroll: ScreenTitleScrollProps | undefined;
   largeTitle: boolean;
+  onRefresh: ScreenBaseProps['onRefresh'];
+  refreshing: ScreenBaseProps['refreshing'];
 }): ReactNode {
   const bottomInset = useSafeAreaBottom();
   const hasFooter = footer !== undefined;
@@ -363,17 +389,22 @@ function ScreenBody({
     () => scrollContentPaddingBottom(bottomInset, hasFooter),
     [bottomInset, hasFooter]
   );
+  const refreshControl = useResolvedRefreshControl({
+    onRefresh: scroll ? onRefresh : undefined,
+    refreshing,
+  });
   const inner = (
     <BodyInner scroll={scroll} largeTitle={largeTitle}>
       {renderBodyChildren(content, scroll, largeTitle, titleScroll)}
     </BodyInner>
   );
-  const body = renderScrollableBody(
+  const body = renderScrollableBody({
     scroll,
     inner,
-    scrollPaddingBottom,
-    scroll ? titleScroll : undefined
-  );
+    paddingBottom: scrollPaddingBottom,
+    titleScroll: scroll ? titleScroll : undefined,
+    refreshControl,
+  });
 
   const bodyWithFooter = (
     <Box

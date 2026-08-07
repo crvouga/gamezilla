@@ -2,12 +2,12 @@ import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRegistry, QueryRow } from '../queries/core/types';
-import type { NudgePayload, QueryChannelsCtx } from '../shared/nudge-payload';
+import type { PushMessage, QueryChannelsCtx } from '../shared/push-payload';
 import type { MergeApplierDeps } from './merge';
 import { REAL_TIMERS, type Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
 
-export type AttachNudgesOptions = {
+export type AttachPushOptions = {
   readonly pubsub: PubSub;
   readonly runtime: SubscriptionRuntime;
   readonly queryRegistry: QueryRegistry;
@@ -24,8 +24,8 @@ export type AttachNudgesOptions = {
   readonly onPubSubChanged?: (pubsub: PubSub) => void;
 };
 
-export type NudgeBag = {
-  readonly options: AttachNudgesOptions;
+export type PushBag = {
+  readonly options: AttachPushOptions;
   readonly timers: Timers;
   pubsub: PubSub;
   disposed: boolean;
@@ -33,14 +33,14 @@ export type NudgeBag = {
   unbindStatus: (() => void) | null;
   readonly topicUnsubs: Map<Topic, () => void>;
   readonly topicToScopes: Map<Topic, Set<string>>;
-  readonly pendingTopicCheckpoints: Map<Topic, string>;
+  readonly pendingTopicPushSeqs: Map<Topic, string>;
   readonly disposers: Array<() => void>;
   lastTopicKey: string;
   membershipRemakePending: boolean;
   remakeFlushInFlight: boolean;
 };
 
-export function createNudgeBag(options: AttachNudgesOptions): NudgeBag {
+export function createPushBag(options: AttachPushOptions): PushBag {
   return {
     options,
     timers: options.timers ?? REAL_TIMERS,
@@ -50,7 +50,7 @@ export function createNudgeBag(options: AttachNudgesOptions): NudgeBag {
     unbindStatus: null,
     topicUnsubs: new Map(),
     topicToScopes: new Map(),
-    pendingTopicCheckpoints: new Map(),
+    pendingTopicPushSeqs: new Map(),
     disposers: [],
     lastTopicKey: '',
     membershipRemakePending: false,
@@ -58,7 +58,7 @@ export function createNudgeBag(options: AttachNudgesOptions): NudgeBag {
   };
 }
 
-function parseNudgeTables(value: unknown): readonly string[] | undefined {
+function parsePushTables(value: unknown): readonly string[] | undefined {
   if (value === undefined || !Array.isArray(value)) return undefined;
   const tables: string[] = [];
   for (const item of value) {
@@ -67,7 +67,7 @@ function parseNudgeTables(value: unknown): readonly string[] | undefined {
   return tables.length > 0 ? tables : undefined;
 }
 
-function parseNudgeRows(
+function parsePushRows(
   value: unknown
 ): Readonly<Record<string, readonly QueryRow[]>> | undefined {
   if (value === undefined || value === null || typeof value !== 'object') {
@@ -90,17 +90,17 @@ function parseNudgeRows(
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
-export function parseNudge(data: unknown): NudgePayload | null {
+export function parsePush(data: unknown): PushMessage | null {
   if (data === null || typeof data !== 'object') return null;
   const record = data as Record<string, unknown>;
-  const checkpoint = record['checkpoint'];
-  if (typeof checkpoint !== 'string' || checkpoint.length === 0) return null;
-  const tables = parseNudgeTables(record['tables']);
-  const rows = parseNudgeRows(record['rows']);
+  const pushSeq = record['pushSeq'];
+  if (typeof pushSeq !== 'string' || pushSeq.length === 0) return null;
+  const tables = parsePushTables(record['tables']);
+  const rows = parsePushRows(record['rows']);
   const optimistic =
     record['optimistic'] === true ? (true as const) : undefined;
   return {
-    checkpoint,
+    pushSeq,
     ...(optimistic !== undefined ? { optimistic } : {}),
     ...(tables !== undefined ? { tables } : {}),
     ...(rows !== undefined ? { rows } : {}),
@@ -108,7 +108,7 @@ export function parseNudge(data: unknown): NudgePayload | null {
 }
 
 export function filterScopesByTables(
-  bag: NudgeBag,
+  bag: PushBag,
   scopes: ReadonlySet<string>,
   tables: readonly string[] | undefined
 ): Set<string> {

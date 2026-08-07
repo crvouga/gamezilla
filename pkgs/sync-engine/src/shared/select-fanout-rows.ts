@@ -10,7 +10,7 @@ function assertTableName(table: string): void {
 }
 
 /**
- * Post-replay SELECT of affected domain rows for nudge fanout.
+ * Post-replay SELECT of affected domain rows for push fanout.
  *
  * This is the **only** legal source of fanout `rows` payloads — never derive
  * row images from mutation args. Includes `_deleted_at` (no live filter).

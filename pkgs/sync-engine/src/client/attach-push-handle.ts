@@ -1,24 +1,24 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 
 import type { QueryRow } from '../queries/core/types';
-import type { NudgePayload } from '../shared/nudge-payload';
+import type { PushMessage } from '../shared/push-payload';
 import {
   filterScopesByTables,
-  type NudgeBag,
-  parseNudge,
-} from './attach-nudges-bag';
+  type PushBag,
+  parsePush,
+} from './attach-push-bag';
 import { applyRowImages } from './merge';
 import {
   compareCheckpoint,
   isContiguousNext,
-  readTopicLastApplied,
-  recordTopicApplied,
-} from './topic-applied';
+  readLastPushSeq,
+  recordPushApplied,
+} from './push-applied';
 
 async function tryApplyOptimisticRows(
-  bag: NudgeBag,
+  bag: PushBag,
   topic: Topic,
-  payload: NudgePayload
+  payload: PushMessage
 ): Promise<boolean> {
   if (payload.optimistic !== true) return false;
   if (bag.options.rowImageFanout !== true || payload.rows === undefined) {
@@ -32,49 +32,45 @@ async function tryApplyOptimisticRows(
       payload.rows as Record<string, readonly QueryRow[]>
     );
   } catch (error) {
-    console.warn('[nudges] optimistic fanout apply failed', topic, error);
+    console.warn('[push] optimistic fanout apply failed', topic, error);
   }
   return true;
 }
 
 async function tryApplyFanoutRows(
-  bag: NudgeBag,
+  bag: PushBag,
   topic: Topic,
-  payload: NudgePayload
+  payload: PushMessage
 ): Promise<boolean> {
   if (bag.options.rowImageFanout !== true) return false;
   if (payload.rows === undefined) return false;
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return false;
 
-  const last = await readTopicLastApplied(bag.options.db, topic);
-  if (!isContiguousNext(last, payload.checkpoint)) return false;
+  const last = await readLastPushSeq(bag.options.db, topic);
+  if (!isContiguousNext(last, payload.pushSeq)) return false;
 
   try {
     await applyRowImages(
       getMergeDeps(),
       payload.rows as Record<string, readonly QueryRow[]>
     );
-    await recordTopicApplied(bag.options.db, topic, payload.checkpoint);
+    await recordPushApplied(bag.options.db, topic, payload.pushSeq);
     return true;
   } catch (error) {
-    console.warn(
-      '[nudges] row fanout apply failed; falling back',
-      topic,
-      error
-    );
+    console.warn('[push] row fanout apply failed; falling back', topic, error);
     return false;
   }
 }
 
 async function tryApplyExactEcho(
-  bag: NudgeBag,
+  bag: PushBag,
   topic: Topic,
-  payload: NudgePayload,
-  lastApplied: string
+  payload: PushMessage,
+  lastPushSeq: string
 ): Promise<boolean> {
   if (
-    compareCheckpoint(payload.checkpoint, lastApplied) !== 0 ||
+    compareCheckpoint(payload.pushSeq, lastPushSeq) !== 0 ||
     payload.rows === undefined ||
     bag.options.rowImageFanout !== true ||
     bag.options.getMergeDeps === undefined
@@ -88,22 +84,18 @@ async function tryApplyExactEcho(
     );
     return true;
   } catch (error) {
-    console.warn(
-      '[nudges] echo fanout apply failed; falling back',
-      topic,
-      error
-    );
+    console.warn('[push] echo fanout apply failed; falling back', topic, error);
     return false;
   }
 }
 
 function wakeRefetch(
-  bag: NudgeBag,
+  bag: PushBag,
   topic: Topic,
-  payload: NudgePayload,
+  payload: PushMessage,
   scopes: Set<string>
 ): void {
-  bag.pendingTopicCheckpoints.set(topic, payload.checkpoint);
+  bag.pendingTopicPushSeqs.set(topic, payload.pushSeq);
   if (scopes.size === 1) {
     bag.options.runtime.wakeScope([...scopes][0]!);
     return;
@@ -111,35 +103,35 @@ function wakeRefetch(
   bag.options.runtime.wakeScopes([...scopes]);
 }
 
-export async function handleNudge(
-  bag: NudgeBag,
+export async function handlePush(
+  bag: PushBag,
   topic: Topic,
   data: unknown
 ): Promise<void> {
   if (bag.disposed) return;
-  const payload = parseNudge(data);
+  const payload = parsePush(data);
   if (payload === null) return;
   const topicScopes = bag.topicToScopes.get(topic);
   if (topicScopes === undefined) return;
   if (await tryApplyOptimisticRows(bag, topic, payload)) return;
 
-  let lastApplied: string | null;
+  let lastPushSeq: string | null;
   try {
-    lastApplied = await readTopicLastApplied(bag.options.db, topic);
+    lastPushSeq = await readLastPushSeq(bag.options.db, topic);
   } catch (error) {
-    console.warn('[nudges] checkpoint check failed', topic, error);
+    console.warn('[push] pushSeq check failed', topic, error);
     return;
   }
 
   if (
-    lastApplied !== null &&
-    (await tryApplyExactEcho(bag, topic, payload, lastApplied))
+    lastPushSeq !== null &&
+    (await tryApplyExactEcho(bag, topic, payload, lastPushSeq))
   ) {
     return;
   }
   if (
-    lastApplied !== null &&
-    compareCheckpoint(payload.checkpoint, lastApplied) <= 0
+    lastPushSeq !== null &&
+    compareCheckpoint(payload.pushSeq, lastPushSeq) <= 0
   ) {
     return;
   }
@@ -150,16 +142,16 @@ export async function handleNudge(
   wakeRefetch(bag, topic, payload, scopes);
 }
 
-export async function commitPendingCheckpoints(
-  bag: NudgeBag,
+export async function commitPendingPushSeqs(
+  bag: PushBag,
   sweptScopes: readonly string[]
 ): Promise<void> {
-  if (bag.pendingTopicCheckpoints.size === 0) return;
+  if (bag.pendingTopicPushSeqs.size === 0) return;
   const swept = new Set(sweptScopes);
-  for (const [topic, checkpoint] of [...bag.pendingTopicCheckpoints]) {
+  for (const [topic, pushSeq] of [...bag.pendingTopicPushSeqs]) {
     const topicScopes = bag.topicToScopes.get(topic);
     if (topicScopes === undefined) {
-      bag.pendingTopicCheckpoints.delete(topic);
+      bag.pendingTopicPushSeqs.delete(topic);
       continue;
     }
     let overlap = false;
@@ -171,10 +163,10 @@ export async function commitPendingCheckpoints(
     }
     if (!overlap) continue;
     try {
-      await recordTopicApplied(bag.options.db, topic, checkpoint);
+      await recordPushApplied(bag.options.db, topic, pushSeq);
     } catch (error) {
-      console.warn('[nudges] recordTopicApplied failed', topic, error);
+      console.warn('[push] recordPushApplied failed', topic, error);
     }
-    bag.pendingTopicCheckpoints.delete(topic);
+    bag.pendingTopicPushSeqs.delete(topic);
   }
 }

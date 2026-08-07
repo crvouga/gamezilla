@@ -69,8 +69,8 @@ export type Mutation<A> = {
   /** Stable wire contract; version by suffix (joinSpaceV2). */
   readonly name: string;
   readonly args: z.ZodType<A>;
-  /** Documentation + lint/review target. NOT runtime-enforced. */
-  readonly writes: readonly string[];
+  /** Documentation + push table filter. NOT runtime-enforced. */
+  readonly declaredWrites: readonly string[];
   /** Map DB constraint violations to business rejections during replay. */
   readonly constraintErrors?: Readonly<
     Record<string, { readonly code: string; readonly message: string }>
@@ -79,12 +79,12 @@ export type Mutation<A> = {
   readonly pendingUx?: 'instant' | 'pending';
   /** If true, client runner refuses to initiate while offline. */
   readonly requiresOnline?: boolean;
-  /** Topics to nudge after successful server replay (optional). */
+  /** Topics to push after successful server replay (optional). */
   readonly invalidates?: MutationInvalidates<A>;
   /**
    * Entity ids touched by this mutation. Framework SELECTs post-replay row
    * images for fanout when `rowImageFanout` is enabled. Undeclared →
-   * checkpoint-only nudge (today's behavior).
+   * pushSeq-only push (today's behavior).
    */
   readonly affectedRows?: MutationAffectedRows<A>;
   readonly run: MutationRun<A>;

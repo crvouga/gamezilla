@@ -1,5 +1,6 @@
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
   Box,
   EmptyState,
@@ -56,6 +57,7 @@ function SpacesListBody() {
 }
 
 function SpacesList() {
+  const { refreshQueries } = useSyncEngine();
   return (
     <Box sx={{ flex: 1, gap: 2 }}>
       <ScreenBodyScrollView
@@ -63,6 +65,7 @@ function SpacesList() {
           paddingBottom: 24,
           gap: 8,
         }}
+        onRefresh={() => refreshQueries()}
       >
         <SpacesListBody />
       </ScreenBodyScrollView>

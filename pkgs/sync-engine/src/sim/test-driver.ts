@@ -16,7 +16,7 @@ export type SimTestDriver = {
   ) => Promise<boolean>;
 };
 
-/** Lightweight driver for unit tests that inject timers into runtime/nudges. */
+/** Lightweight driver for unit tests that inject timers into runtime/push. */
 export function createSimTestDriver(): SimTestDriver {
   const clock = createSimClock(0);
   const scheduler = createSimScheduler(clock);

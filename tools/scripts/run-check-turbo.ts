@@ -26,6 +26,7 @@ const CI_GATE_TASKS = [
   'ci:fanout-rows-from-reads',
   'ci:mutation-determinism',
   'ci:channel-exhaustiveness',
+  'ci:sync-engine-terminology',
   'ci:no-provider-leaks',
   'ci:pubsub-emqx-imports',
   'ci:depcruise',

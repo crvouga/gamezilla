@@ -2,7 +2,7 @@ import type { Topic } from '@pkgs/pubsub/interface';
 
 import type { Mutation, MutationEnv } from '../mutations/core/types';
 import type { QueryDef } from '../queries/core/types';
-import type { QueryChannelsCtx } from './nudge-payload';
+import type { QueryChannelsCtx } from './push-payload';
 
 const SENTINEL_CHANNELS_CTX = {
   actorId: 'actor_x',
@@ -46,11 +46,11 @@ export type ChannelGap = {
 };
 
 function tablesOverlap(
-  writes: readonly string[],
+  declaredWrites: readonly string[],
   hydrates: readonly string[]
 ): string[] {
   const hydrateSet = new Set(hydrates);
-  return writes.filter((t) => hydrateSet.has(t));
+  return declaredWrites.filter((t) => hydrateSet.has(t));
 }
 
 function topicsOverlap(
@@ -79,7 +79,7 @@ function queryTopics(q: QueryDef<unknown>): Topic[] {
 }
 
 /**
- * For every (mutation, query) with writes ∩ hydrates ≠ ∅, require
+ * For every (mutation, query) with declaredWrites ∩ hydrates ≠ ∅, require
  * invalidates topics ∩ channels topics ≠ ∅. Returns named gaps.
  */
 export function findChannelExhaustivenessGaps(
@@ -89,7 +89,7 @@ export function findChannelExhaustivenessGaps(
   const gaps: ChannelGap[] = [];
   for (const mutation of mutations) {
     for (const query of queries) {
-      const tables = tablesOverlap(mutation.writes, query.hydrates);
+      const tables = tablesOverlap(mutation.declaredWrites, query.hydrates);
       if (tables.length === 0) continue;
       const inv = mutationTopics(mutation);
       const ch = queryTopics(query);
@@ -115,6 +115,6 @@ export function assertChannelExhaustiveness(
     (g) => `  ${g.mutation} → ${g.query} (tables: ${g.tables.join(', ')})`
   );
   throw new Error(
-    `Channel exhaustiveness failed — writes∩hydrates without overlapping topics:\n${lines.join('\n')}`
+    `Channel exhaustiveness failed — declaredWrites∩hydrates without overlapping topics:\n${lines.join('\n')}`
   );
 }

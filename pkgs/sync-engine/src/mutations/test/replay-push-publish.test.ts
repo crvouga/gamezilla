@@ -33,7 +33,7 @@ CREATE TABLE write_rejections (
   created_at TEXT NOT NULL,
   acknowledged INTEGER NOT NULL DEFAULT 0
 );
-CREATE TABLE _sync_topic_checkpoint (
+CREATE TABLE _sync_topic_seq (
   topic TEXT PRIMARY KEY,
   n INTEGER NOT NULL
 );
@@ -52,9 +52,9 @@ async function openDb() {
 }
 
 const setNote = defineMutation({
-  name: 'setNoteNudge',
+  name: 'setNotePush',
   args: z.object({ id: z.string(), body: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   invalidates: (_args, env) => [`user:${env.actorId}`],
   async run({ tx }, { id, body }) {
     await tx.run(sql`
@@ -65,16 +65,16 @@ const setNote = defineMutation({
 });
 
 const failNote = defineMutation({
-  name: 'failNoteNudge',
+  name: 'failNotePush',
   args: z.object({ id: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   invalidates: (_args, env) => [`user:${env.actorId}`],
   async run() {
     throw new MutationError('NOPE', 'rejected');
   },
 });
 
-describe('replay nudge publish', () => {
+describe('replay push publish', () => {
   test('replay-publishes-invalidates', async () => {
     const db = await openDb();
     const published: Array<{ topic: Topic; data: unknown }> = [];
@@ -104,7 +104,7 @@ describe('replay nudge publish', () => {
         mutations: [
           {
             id: 'm1',
-            name: 'setNoteNudge',
+            name: 'setNotePush',
             args: JSON.stringify({ id: 'n1', body: 'hi' }),
             clientId: 'c1',
             seq: 1,
@@ -118,9 +118,7 @@ describe('replay nudge publish', () => {
     await Promise.resolve();
     expect(published.length).toBe(1);
     expect(published[0]?.topic).toBe('user:actor1');
-    expect(
-      (published[0]?.data as { checkpoint?: string }).checkpoint
-    ).toBeDefined();
+    expect((published[0]?.data as { pushSeq?: string }).pushSeq).toBeDefined();
   });
 
   test('rejected-replay-publishes-nothing', async () => {
@@ -152,7 +150,7 @@ describe('replay nudge publish', () => {
         mutations: [
           {
             id: 'm2',
-            name: 'failNoteNudge',
+            name: 'failNotePush',
             args: JSON.stringify({ id: 'n1' }),
             clientId: 'c1',
             seq: 1,
@@ -203,7 +201,7 @@ describe('replay nudge publish', () => {
           mutations: [
             {
               id: 'm3',
-              name: 'setNoteNudge',
+              name: 'setNotePush',
               args: JSON.stringify({ id: 'n1', body: 'x' }),
               clientId: 'c1',
               seq: 1,
@@ -234,7 +232,7 @@ describe('replay nudge publish', () => {
     notifyChannels({
       pubsub,
       topics: ['user:a', 'user:a', 'room:b'],
-      checkpoint: '1',
+      pushSeq: '1',
     });
     await Promise.resolve();
     await Promise.resolve();

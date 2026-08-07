@@ -121,7 +121,7 @@ function createMembershipChannels(args: {
   };
 }
 
-function nudgeOptions(
+function pushOptions(
   args: CreateAppLocalSyncEngineArgs,
   channels: ReturnType<typeof createMembershipChannels>
 ) {
@@ -129,7 +129,7 @@ function nudgeOptions(
   const enabled = raw.length > 0;
   if (!enabled) return {};
   return {
-    nudges: {
+    push: {
       queryRegistry: APP_QUERIES,
       createPubSub: () => {
         const next = tryCreateClientPubSub({
@@ -150,7 +150,7 @@ function nudgeOptions(
   };
 }
 
-/** Opens the identity DB and builds the nudge-driven local sync engine. */
+/** Opens the identity DB and builds the push-driven local sync engine. */
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
@@ -180,6 +180,6 @@ export async function createAppLocalSyncEngine(
       error instanceof SyncApiAuthError && error.reason === 'revoked',
     deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
     lifecycle: createAppSyncLifecycle(),
-    ...nudgeOptions(args, channels),
+    ...pushOptions(args, channels),
   });
 }

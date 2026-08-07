@@ -137,6 +137,7 @@ export class SubscriptionRuntime {
   private pending: PendingSweep | null = null;
   private coalesceTimer: unknown = null;
   private inFlight = false;
+  private flushWaiters: Array<() => void> = [];
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
@@ -162,6 +163,7 @@ export class SubscriptionRuntime {
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
     for (const entry of this.entries.values()) entry.generation += 1;
+    this.resolveFlushWaiters();
   }
 
   reset(): void {
@@ -173,7 +175,20 @@ export class SubscriptionRuntime {
     this.enqueue('all');
   }
 
-  /** Batch-refetch a subset of active scopes (shared-topic nudge fanout). */
+  /**
+   * Wake every active scope and resolve after the resulting sweep drains.
+   * Does not reset first-sync gates (no loading flicker for pull-to-refresh).
+   */
+  wakeAllAndDrain(): Promise<void> {
+    if (!this.running || !this.foregrounded) return Promise.resolve();
+    this.enqueue('all');
+    if (this.pending === null && !this.inFlight) return Promise.resolve();
+    return new Promise((resolve) => {
+      this.flushWaiters.push(resolve);
+    });
+  }
+
+  /** Batch-refetch a subset of active scopes (shared-topic push fanout). */
   wakeScopes(scopes: readonly string[]): void {
     if (!this.running || !this.foregrounded || scopes.length === 0) return;
     this.enqueue(scopes);
@@ -201,7 +216,7 @@ export class SubscriptionRuntime {
 
   /**
    * Called after a successful sweep applies responses (ok / not_modified /
-   * denied). Used by attachNudges to advance `_topic_applied` after refetch.
+   * denied). Used by attachPush to advance `_push_applied` after refetch.
    */
   setAfterSweep(cb: ((scopes: readonly string[]) => void) | null): void {
     this.afterSweep = cb;
@@ -286,22 +301,32 @@ export class SubscriptionRuntime {
   }
 
   private async flushPending(): Promise<void> {
-    if (!this.running || !this.foregrounded) return;
+    if (!this.running || !this.foregrounded) {
+      this.resolveFlushWaiters();
+      return;
+    }
     if (this.inFlight) return;
     const pending = this.pending;
-    if (pending === null) return;
+    if (pending === null) {
+      this.resolveFlushWaiters();
+      return;
+    }
     this.pending = null;
     const active =
       pending === 'all'
         ? this.listSweepEntries()
         : this.listSweepEntries().filter((e) => pending.has(e.scope));
-    if (active.length === 0) return;
+    if (active.length === 0) {
+      this.resolveFlushWaiters();
+      return;
+    }
     this.inFlight = true;
     try {
       await this.sweepEntries(active);
     } finally {
       this.inFlight = false;
       if (this.pending !== null) this.scheduleFlush();
+      else this.resolveFlushWaiters();
     }
   }
 
@@ -389,6 +414,12 @@ export class SubscriptionRuntime {
         this.options.onError(error);
       }
     }
+  }
+
+  private resolveFlushWaiters(): void {
+    if (this.flushWaiters.length === 0) return;
+    const waiters = this.flushWaiters.splice(0);
+    for (const resolve of waiters) resolve();
   }
 
   private clearCoalesceTimer(): void {

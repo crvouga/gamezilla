@@ -83,7 +83,7 @@ Env knobs:
 import { createSimTestDriver } from './test-driver';
 
 const sim = createSimTestDriver();
-// pass sim.timers / sim.now / sim.random into SubscriptionRuntime, attachNudges, etc.
+// pass sim.timers / sim.now / sim.random into SubscriptionRuntime, attachPush, etc.
 await sim.runFor(150); // advance virtual time
 ```
 

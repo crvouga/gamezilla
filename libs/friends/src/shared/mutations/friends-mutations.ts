@@ -246,7 +246,7 @@ export const sendFriendRequestMutation = defineMutation({
     toUserId: z.string().min(1),
     message: z.string().nullable().optional(),
   }),
-  writes: ['friend_requests'],
+  declaredWrites: ['friend_requests'],
   invalidates: ({ toUserId }, env) => friendsPartyInvalidates(env, toUserId),
   affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId, toUserId, message }) {
@@ -270,7 +270,7 @@ export const sendFriendRequestMutation = defineMutation({
 export const acceptFriendRequestMutation = defineMutation({
   name: 'acceptFriendRequest',
   args: requestIdArgs,
-  writes: ['friend_requests', 'friendships'],
+  declaredWrites: ['friend_requests', 'friendships'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { requestId }) {
     const actor = actorId(env);
@@ -318,7 +318,7 @@ export const acceptFriendRequestMutation = defineMutation({
 export const declineFriendRequestMutation = defineMutation({
   name: 'declineFriendRequest',
   args: requestIdArgs,
-  writes: ['friend_requests'],
+  declaredWrites: ['friend_requests'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
@@ -342,7 +342,7 @@ export const declineFriendRequestMutation = defineMutation({
 export const cancelFriendRequestMutation = defineMutation({
   name: 'cancelFriendRequest',
   args: requestIdArgs,
-  writes: ['friend_requests'],
+  declaredWrites: ['friend_requests'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
@@ -366,7 +366,7 @@ export const cancelFriendRequestMutation = defineMutation({
 export const removeFriendMutation = defineMutation({
   name: 'removeFriend',
   args: userIdArgs,
-  writes: ['friendships'],
+  declaredWrites: ['friendships'],
   invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'remove');
@@ -380,7 +380,7 @@ export const removeFriendMutation = defineMutation({
 export const blockUserMutation = defineMutation({
   name: 'blockUser',
   args: userIdArgs.extend({ blockId: z.string().min(1) }),
-  writes: ['friend_requests', 'friendships', 'user_blocks'],
+  declaredWrites: ['friend_requests', 'friendships', 'user_blocks'],
   invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId, blockId }) {
     const actor = otherUserId(env, userId, 'block');
@@ -400,7 +400,7 @@ export const blockUserMutation = defineMutation({
 export const unblockUserMutation = defineMutation({
   name: 'unblockUser',
   args: userIdArgs,
-  writes: ['user_blocks'],
+  declaredWrites: ['user_blocks'],
   invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'unblock');

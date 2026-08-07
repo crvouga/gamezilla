@@ -39,6 +39,7 @@ import { default as PickerExample } from '../picker/picker.example';
 import { default as PickerSectionExample } from '../picker-section/picker-section.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
+import { default as PullToRefreshExample } from '../pull-to-refresh/pull-to-refresh.example';
 import { default as ResponsiveSurfaceExample } from '../responsive-surface/responsive-surface.example';
 import { default as SafeAreaViewExample } from '../safe-area-view/safe-area-view.example';
 import { default as ScreenBaseExample } from '../screen-base/screen-base.example';
@@ -154,6 +155,11 @@ const builtInEntries: ComponentEntry[] = [
   { name: 'Spinner', category: 'Feedback', Example: SpinnerExample },
   { name: 'Skeleton', category: 'Feedback', Example: SkeletonExample },
   { name: 'ProgressBar', category: 'Feedback', Example: ProgressBarExample },
+  {
+    name: 'PullToRefresh',
+    category: 'Feedback',
+    Example: PullToRefreshExample,
+  },
   {
     name: 'DismissibleBanner',
     category: 'Feedback',

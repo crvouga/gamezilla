@@ -1,9 +1,8 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
-
+import { recordPushApplied } from './push-applied';
 import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
-import { recordTopicApplied } from './topic-applied';
 
 const BATCH_LIMIT = 64;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
@@ -33,10 +32,10 @@ export type MutationUploadResult = {
   readonly verdicts: readonly MutationUploadVerdict[];
   readonly ackSeq: number;
   /**
-   * Per-topic checkpoints assigned for this batch's nudges. The mutating
-   * client floors `_topic_applied` so its own echoed fanout is ignored.
+   * Per-topic pushSeqs assigned for this batch's pushes. The mutating
+   * client floors `_push_applied` so its own echoed fanout is ignored.
    */
-  readonly topicCheckpoints?: Readonly<Record<string, string>>;
+  readonly topicPushSeqs?: Readonly<Record<string, string>>;
 };
 
 type StoredMutation = {
@@ -128,10 +127,10 @@ async function applyUploadResult(
       `);
     }
   });
-  // Floor topic checkpoints from the ack so own echoed fanout is a no-op.
-  if (result.topicCheckpoints !== undefined) {
-    for (const [topic, checkpoint] of Object.entries(result.topicCheckpoints)) {
-      await recordTopicApplied(options.db, topic, checkpoint);
+  // Floor topic pushSeqs from the ack so own echoed fanout is a no-op.
+  if (result.topicPushSeqs !== undefined) {
+    for (const [topic, pushSeq] of Object.entries(result.topicPushSeqs)) {
+      await recordPushApplied(options.db, topic, pushSeq);
     }
   }
   options.bus.emit(['_mutations', 'write_rejections']);

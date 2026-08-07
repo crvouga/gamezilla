@@ -18,7 +18,7 @@ function openRequestSqlClient(): SqlClient {
 /**
  * `POST /api/pubsub/token` — session-authed short-lived MQTT JWT
  * (username `jwt`, password = token). ACL allows subscribe + publish on the
- * actor's user/room/system topics (mutation fanout + nudge subscribe).
+ * actor's user/room/system topics (mutation fanout + push subscribe).
  */
 export function createPubSubTokenRoutes() {
   return new Hono().post('/pubsub/token', async (c) => {

@@ -331,6 +331,15 @@ export {
 export { Pressable, type PressableProps } from './pressable';
 export { ProgressBar, type ProgressBarProps } from './progress-bar';
 export {
+  PullToRefreshControl,
+  type PullToRefreshControlProps,
+  type RefreshControlElement,
+  type RefreshControlHostProps,
+  type UsePullToRefreshResult,
+  usePullToRefresh,
+  useResolvedRefreshControl,
+} from './pull-to-refresh';
+export {
   ResponsiveSurface,
   ResponsiveSurfaceHeader,
   type ResponsiveSurfaceHeaderProps,

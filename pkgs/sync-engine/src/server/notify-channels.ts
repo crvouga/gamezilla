@@ -1,13 +1,13 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { QueryRow } from '../queries/core/types';
-import type { NudgePayload } from '../shared/nudge-payload';
+import type { PushMessage } from '../shared/push-payload';
 
 export type NotifyChannelsOptions = {
   readonly pubsub: PubSub;
   readonly topics: readonly Topic[];
-  /** Required: strictly monotonic per-topic checkpoint (decimal string). */
-  readonly checkpoint: string;
-  /** Mutation `writes` — client filters scopes by query `hydrates` overlap. */
+  /** Required: strictly monotonic per-topic pushSeq (decimal string). */
+  readonly pushSeq: string;
+  /** Mutation `declaredWrites` — client filters scopes by query `hydrates` overlap. */
   readonly tables?: readonly string[];
   /** Post-replay row images (lossy fanout optimization). */
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
@@ -19,13 +19,13 @@ export type NotifyChannelsOptions = {
  * Fire-and-forget invalidation publishes. Failures are logged, never retried,
  * and never thrown — callers must not await for correctness.
  *
- * `checkpoint` is required on the wire (Phase 2). Callers that touch multiple
- * topics should allocate one checkpoint per topic and call this once per topic.
+ * `pushSeq` is required on the wire. Callers that touch multiple topics should
+ * allocate one pushSeq per topic and call this once per topic.
  */
 export function notifyChannels(options: NotifyChannelsOptions): void {
   const seen = new Set<Topic>();
-  const payload: NudgePayload = {
-    checkpoint: options.checkpoint,
+  const payload: PushMessage = {
+    pushSeq: options.pushSeq,
     ...(options.tables !== undefined && options.tables.length > 0
       ? { tables: options.tables }
       : {}),

@@ -4,7 +4,7 @@ import {
   compareCheckpoint,
   isContiguousNext,
   isLegacyWallClockCheckpoint,
-} from './topic-applied';
+} from './push-applied';
 
 describe('isLegacyWallClockCheckpoint', () => {
   test('detects Date.now*1e6 style values', () => {

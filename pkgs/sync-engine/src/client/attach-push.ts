@@ -3,14 +3,14 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
-  type AttachNudgesOptions,
-  createNudgeBag,
-  type NudgeBag,
-} from './attach-nudges-bag';
-import { commitPendingCheckpoints, handleNudge } from './attach-nudges-handle';
-import { clearRemovedTopicApplied } from './topic-applied';
+  type AttachPushOptions,
+  createPushBag,
+  type PushBag,
+} from './attach-push-bag';
+import { commitPendingPushSeqs, handlePush } from './attach-push-handle';
+import { clearRemovedPushApplied } from './push-applied';
 
-export type { AttachNudgesOptions } from './attach-nudges-bag';
+export type { AttachPushOptions } from './attach-push-bag';
 
 async function countPendingMutations(db: SqlClient): Promise<number> {
   const rows = await db.query(sql<{ c: number | string }>`
@@ -19,12 +19,12 @@ async function countPendingMutations(db: SqlClient): Promise<number> {
   return Number(rows[0]?.c ?? 0);
 }
 
-function scheduleMembershipRemake(bag: NudgeBag): void {
+function scheduleMembershipRemake(bag: PushBag): void {
   bag.membershipRemakePending = true;
   void flushMembershipRemake(bag);
 }
 
-async function flushMembershipRemake(bag: NudgeBag): Promise<void> {
+async function flushMembershipRemake(bag: PushBag): Promise<void> {
   if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
@@ -43,7 +43,7 @@ async function flushMembershipRemake(bag: NudgeBag): Promise<void> {
   }
 }
 
-function collectDesiredTopics(bag: NudgeBag): Map<Topic, Set<string>> {
+function collectDesiredTopics(bag: PushBag): Map<Topic, Set<string>> {
   const ctx = bag.options.getChannelsCtx();
   const desired = new Map<Topic, Set<string>>();
   for (const sub of bag.options.runtime.listActive()) {
@@ -66,13 +66,13 @@ function topicKey(desired: Map<Topic, Set<string>>): string {
   return [...desired.keys()].sort().join('\0');
 }
 
-function clearTopicState(bag: NudgeBag): void {
+function clearTopicState(bag: PushBag): void {
   for (const unsub of bag.topicUnsubs.values()) unsub();
   bag.topicUnsubs.clear();
   bag.topicToScopes.clear();
 }
 
-function remake(bag: NudgeBag, desired: Map<Topic, Set<string>>): void {
+function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
   if (bag.disposed) return;
   clearTopicState(bag);
   bag.unbindStatus?.();
@@ -90,21 +90,21 @@ function remake(bag: NudgeBag, desired: Map<Topic, Set<string>>): void {
     bag.topicToScopes.set(topic, scopes);
     try {
       const unsub = bag.pubsub.subscribe(topic, (data) => {
-        void handleNudge(bag, topic, data);
+        void handlePush(bag, topic, data);
       });
       bag.topicUnsubs.set(topic, unsub);
     } catch (error) {
-      console.warn('[nudges] subscribe failed', topic, error);
+      console.warn('[push] subscribe failed', topic, error);
     }
   }
-  void clearRemovedTopicApplied(bag.options.db, new Set(desired.keys())).catch(
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
-      console.warn('[nudges] clearRemovedTopicApplied failed', error);
+      console.warn('[push] clearRemovedPushApplied failed', error);
     }
   );
 }
 
-function syncTopics(bag: NudgeBag): void {
+function syncTopics(bag: PushBag): void {
   if (bag.disposed) return;
   const desired = collectDesiredTopics(bag);
   const nextKey = topicKey(desired);
@@ -117,7 +117,7 @@ function syncTopics(bag: NudgeBag): void {
   remake(bag, desired);
 }
 
-function onStatus(bag: NudgeBag, next: PubSubStatus): void {
+function onStatus(bag: PushBag, next: PubSubStatus): void {
   if (bag.disposed) return;
   const prev = bag.lastStatus;
   bag.lastStatus = next;
@@ -126,12 +126,12 @@ function onStatus(bag: NudgeBag, next: PubSubStatus): void {
   }
 }
 
-function bindStatus(bag: NudgeBag, instance: PubSub): void {
+function bindStatus(bag: PushBag, instance: PubSub): void {
   bag.lastStatus = instance.status();
   bag.unbindStatus = instance.onStatus((next) => onStatus(bag, next));
 }
 
-function disposeBag(bag: NudgeBag): void {
+function disposeBag(bag: PushBag): void {
   if (bag.disposed) return;
   bag.disposed = true;
   clearTopicState(bag);
@@ -147,10 +147,10 @@ function disposeBag(bag: NudgeBag): void {
  * topic is subscribed at birth (no late-topic timers). Membership remakes
  * wait until `_mutations` is idle so upload fanout is not lost mid-reconnect.
  */
-export function attachNudges(options: AttachNudgesOptions): () => void {
-  const bag = createNudgeBag(options);
+export function attachPush(options: AttachPushOptions): () => void {
+  const bag = createPushBag(options);
   options.runtime.setAfterSweep((scopes) => {
-    void commitPendingCheckpoints(bag, scopes);
+    void commitPendingPushSeqs(bag, scopes);
   });
   options.onBindTopicRefresh?.(() => {
     if (!bag.disposed) scheduleMembershipRemake(bag);

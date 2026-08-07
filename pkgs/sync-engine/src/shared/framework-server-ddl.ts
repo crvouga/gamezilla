@@ -56,16 +56,31 @@ CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx ON public.write_reject
 
 CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx ON public.write_rejections USING btree (mutation_id);
 
--- Per-topic monotonic nudge checkpoints (replay serialization order).
+-- Per-topic monotonic push sequences (replay serialization order).
 -- Advanced with INSERT … ON CONFLICT DO UPDATE … RETURNING; wire as decimal string.
-CREATE TABLE IF NOT EXISTS public._sync_topic_checkpoint (
+-- Idempotent rename preserves counter values on existing installs.
+DO $$ BEGIN
+  ALTER TABLE public._sync_topic_seq RENAME TO _sync_topic_seq;
+EXCEPTION
+  WHEN undefined_table THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE public._sync_topic_seq
+    RENAME CONSTRAINT _sync_topic_seq_pkey TO _sync_topic_seq_pkey;
+EXCEPTION
+  WHEN undefined_table THEN NULL;
+  WHEN undefined_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public._sync_topic_seq (
     topic text NOT NULL,
     n bigint NOT NULL
 );
 
 DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public._sync_topic_checkpoint
-    ADD CONSTRAINT _sync_topic_checkpoint_pkey PRIMARY KEY (topic)';
+  EXECUTE 'ALTER TABLE ONLY public._sync_topic_seq
+    ADD CONSTRAINT _sync_topic_seq_pkey PRIMARY KEY (topic)';
 EXCEPTION
   WHEN duplicate_object THEN NULL;
   WHEN duplicate_table THEN NULL;
@@ -79,8 +94,8 @@ export const FRAMEWORK_TABLE_NAMES = [
   '_mutations_applied',
   'write_rejections',
   '_scope_meta',
-  '_topic_applied',
-  '_sync_topic_checkpoint',
+  '_push_applied',
+  '_sync_topic_seq',
 ] as const;
 
 /** Local SQLite durable tables (survive CACHE clear). */
@@ -90,5 +105,5 @@ export const FRAMEWORK_DURABLE_TABLE_NAMES = ['_mutations'] as const;
 export const FRAMEWORK_CACHE_TABLE_NAMES = [
   '_scope_meta',
   'write_rejections',
-  '_topic_applied',
+  '_push_applied',
 ] as const;

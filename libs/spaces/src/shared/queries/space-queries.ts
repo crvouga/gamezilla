@@ -75,7 +75,7 @@ export const openSpaceSessions = defineQuery({
   params: z.object({}),
   hydrates: ['space_open_sessions'],
   limit: 20,
-  // Own user topic + membership rooms so peer end/leave nudges refresh sessions.
+  // Own user topic + membership rooms so peer end/leave pushes refresh sessions.
   channels: (_params, ctx) => spaceListChannels(ctx),
   async authorize(ctx) {
     return ctx.env.actorId.length > 0 && ctx.env.deviceId.length > 0;

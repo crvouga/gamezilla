@@ -111,7 +111,7 @@ describe('merge scenarios', () => {
     expect(meta).toEqual([]);
   });
 
-  test('pending mutation survives merge and is re-applied', async () => {
+  test('pending mutation survives merge and is rebased', async () => {
     const db = await openScenarioDb();
     const { mutateClient, mergeDeps } = createScenarioClients(db);
     const result = await mutateClient.mutate(setNote, {

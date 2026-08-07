@@ -207,7 +207,7 @@ async function endSpace(
 export const createSpaceMutation = defineMutation({
   name: 'createSpace',
   args: z.object({ spaceId: z.string().min(1), visibility: visibilityArgs }),
-  writes: ['spaces', 'space_users', 'space_open_sessions'],
+  declaredWrites: ['spaces', 'space_users', 'space_open_sessions'],
   // Host-only at create — skip party DB lookup (was ~700ms on remote Postgres).
   invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
   affectedRows: ({ spaceId }, env) => ({
@@ -248,7 +248,7 @@ export const createSpaceMutation = defineMutation({
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
-  writes: ['space_users', 'space_open_sessions'],
+  declaredWrites: ['space_users', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   affectedRows: ({ spaceId }, env) => ({
@@ -308,7 +308,7 @@ export const joinSpaceMutation = defineMutation({
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
-  writes: ['spaces', 'space_open_sessions'],
+  declaredWrites: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   affectedRows: ({ spaceId }, env) => ({
@@ -334,7 +334,7 @@ export const leaveSpaceMutation = defineMutation({
 export const endSpaceMutation = defineMutation({
   name: 'endSpace',
   args: spaceIdArgs,
-  writes: ['spaces', 'space_open_sessions'],
+  declaredWrites: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   // Session tombstones are multi-row; space `ended_at` is the peer-visible signal.
@@ -348,7 +348,7 @@ export const endSpaceMutation = defineMutation({
 export const renameSpaceMutation = defineMutation({
   name: 'renameSpace',
   args: spaceIdArgs.extend({ title: z.string() }),
-  writes: ['spaces'],
+  declaredWrites: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   affectedRows: ({ spaceId }) => ({ spaces: [spaceId] }),
@@ -367,7 +367,7 @@ export const renameSpaceMutation = defineMutation({
 export const setVisibilityMutation = defineMutation({
   name: 'setVisibility',
   args: spaceIdArgs.extend({ visibility: visibilityArgs }),
-  writes: ['spaces'],
+  declaredWrites: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   affectedRows: ({ spaceId }) => ({ spaces: [spaceId] }),
@@ -392,7 +392,7 @@ export const setVisibilityMutation = defineMutation({
 export const addSpaceUserMutation = defineMutation({
   name: 'addSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),
-  writes: ['space_users'],
+  declaredWrites: ['space_users'],
   invalidates: ({ spaceId, userId }, env) => [
     ...spaceActorInvalidates(spaceId, env),
     userTopic(userId),
@@ -428,7 +428,7 @@ export const addSpaceUserMutation = defineMutation({
 export const removeSpaceUserMutation = defineMutation({
   name: 'removeSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),
-  writes: ['space_users'],
+  declaredWrites: ['space_users'],
   invalidates: ({ spaceId, userId }, env) => [
     ...spaceActorInvalidates(spaceId, env),
     userTopic(userId),
@@ -453,7 +453,7 @@ export const removeSpaceUserMutation = defineMutation({
 export const markSpaceJoinAnnouncedMutation = defineMutation({
   name: 'markSpaceJoinAnnounced',
   args: spaceIdArgs,
-  writes: ['space_open_sessions'],
+  declaredWrites: ['space_open_sessions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { spaceId }) {
     await tx.run(sql`
@@ -470,7 +470,7 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
 export const closeEndedOpenSessionsMutation = defineMutation({
   name: 'closeEndedOpenSessions',
   args: z.object({}),
-  writes: ['space_open_sessions'],
+  declaredWrites: ['space_open_sessions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }) {
     await tx.run(sql`

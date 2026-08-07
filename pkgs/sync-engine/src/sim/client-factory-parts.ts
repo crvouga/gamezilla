@@ -57,7 +57,7 @@ export async function createEngineFromParts(
     random: args.random,
     timers: args.timers,
     createId: args.createId,
-    nudges: {
+    push: {
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,
       getChannelsCtx: () => ({ actorId: args.actorId }),

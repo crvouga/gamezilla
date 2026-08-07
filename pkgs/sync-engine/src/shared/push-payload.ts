@@ -1,14 +1,15 @@
 /**
- * Nudge payload — smarter poll trigger. `tables` (mutation `writes`) lets the
- * client wake only scopes whose query `hydrates` overlap. Optional `rows` are
- * a lossy optimization (post-replay images); snapshots alone define correctness.
+ * Push message — smarter poll trigger. `tables` (mutation `declaredWrites`) lets
+ * the client wake only scopes whose query `hydrates` overlap. Optional `rows`
+ * are a lossy optimization (post-replay images); snapshots alone define
+ * correctness.
  */
-export type NudgePayload = {
-  /** Required: strictly monotonic per-topic checkpoint (decimal string). */
-  readonly checkpoint: string;
+export type PushMessage = {
+  /** Required: strictly monotonic per-topic pushSeq (decimal string). */
+  readonly pushSeq: string;
   /**
    * Client-local MQTT hint before server replay. Apply rows without advancing
-   * `_topic_applied`; server fanout remains authoritative.
+   * `_push_applied`; server fanout remains authoritative.
    */
   readonly optimistic?: true;
   /** Domain tables touched by the applied mutation batch (optional). */

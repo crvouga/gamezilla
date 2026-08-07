@@ -206,6 +206,7 @@ export async function createInMemorySyncEngine(
         lastError: null,
       });
     },
+    refreshQueries: async () => undefined,
     subscribeQuery: createImmediateQuerySubscription(),
     subscribeQueries: createSubscribeQueries(
       createImmediateQuerySubscription()

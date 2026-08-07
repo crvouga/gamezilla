@@ -4,9 +4,9 @@
  */
 
 export {
-  allocateTopicCheckpoint,
-  allocateTopicCheckpoints,
-} from './allocate-topic-checkpoint';
+  allocateTopicPushSeq,
+  allocateTopicPushSeqs,
+} from './allocate-topic-push-seq';
 export { isAuthErrorBody } from './auth-error';
 export {
   type CreateSyncAppDeps,

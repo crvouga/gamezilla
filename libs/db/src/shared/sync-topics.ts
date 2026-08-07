@@ -1,6 +1,6 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 
-/** Product channels context for Gamezilla sync nudges. */
+/** Product channels context for Gamezilla sync pushes. */
 export type AppChannelsCtx = {
   readonly actorId: string;
   readonly membershipSpaceIds: readonly string[];

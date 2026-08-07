@@ -15,7 +15,7 @@ import {
 } from '../shared/channel-exhaustiveness';
 import { createSimTestDriver } from '../sim/test-driver';
 import { createControllableLifecycle } from './app-lifecycle';
-import { attachNudges } from './attach-nudges';
+import { attachPush } from './attach-push';
 import { SubscriptionRuntime } from './subscription-runtime';
 
 function stubMergeDeps(db: Awaited<ReturnType<typeof openScenarioDb>>) {
@@ -160,14 +160,25 @@ describe('event-driven-sync', () => {
     expect(postQueries.mock.calls.length).toBe(0);
   });
 
-  test('nudge-is-sole-fast-path', async () => {
+  test('wakeAllAndDrain posts another batch then resolves', async () => {
+    const { runtime, postQueries } = await harness({ subscriptionCount: 3 });
+    expect(postQueries.mock.calls.length).toBe(0);
+    const drained = runtime.wakeAllAndDrain();
+    await drained;
+    expect(postQueries.mock.calls.length).toBe(1);
+    expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
+      3
+    );
+  });
+
+  test('push-is-sole-fast-path', async () => {
     const { runtime, postQueries, registry, sim, db } = await harness({
       subscriptionCount: 1,
     });
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
     let activePubSub = pubsub;
     disposers.push(
-      attachNudges({
+      attachPush({
         pubsub,
         runtime,
         queryRegistry: registry,
@@ -182,7 +193,7 @@ describe('event-driven-sync', () => {
     );
     await sim.runFor(5);
     postQueries.mockClear();
-    await activePubSub.publish('user:actor1', { checkpoint: '1' });
+    await activePubSub.publish('user:actor1', { pushSeq: '1' });
     await sim.runFor(40);
     expect(postQueries.mock.calls.length).toBe(1);
     await sim.runFor(60);
@@ -218,7 +229,7 @@ describe('event-driven-sync', () => {
     setForeground(false);
     postQueries.mockClear();
     disposers.push(
-      attachNudges({
+      attachPush({
         pubsub: createInMemoryPubSub() as InMemoryPubSub,
         runtime,
         queryRegistry: registry,
@@ -297,7 +308,7 @@ describe('channel-exhaustiveness', () => {
     const mutation = defineMutation({
       name: 'writeNotes',
       args: z.object({}),
-      writes: ['notes'],
+      declaredWrites: ['notes'],
       async run() {
         return;
       },
@@ -325,7 +336,7 @@ describe('channel-exhaustiveness', () => {
     const mutation = defineMutation({
       name: 'writeNotes',
       args: z.object({}),
-      writes: ['notes'],
+      declaredWrites: ['notes'],
       invalidates: (_a, env) => [`user:${env.actorId}`],
       async run() {
         return;

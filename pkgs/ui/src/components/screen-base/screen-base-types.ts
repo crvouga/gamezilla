@@ -73,6 +73,14 @@ export type ScreenBaseProps = {
    */
   scroll?: boolean;
   /**
+   * When `scroll` is true, attaches themed pull-to-refresh on the body
+   * scroller. Omit `refreshing` to manage spinner state for the duration of
+   * the async action.
+   */
+  onRefresh?: (() => void | Promise<void>) | undefined;
+  /** Controlled refreshing flag for whole-body `scroll` pull-to-refresh. */
+  refreshing?: boolean | undefined;
+  /**
    * Large body title that syncs into the TopBar after scroll. Last breadcrumb
    * `name` is the shared title; TopBar title stays hidden until scroll past
    * the reveal offset. With `scroll`, the large title is injected automatically;

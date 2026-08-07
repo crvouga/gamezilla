@@ -36,7 +36,7 @@ async function loadEmqxHttpCreds(
 
 /**
  * Lazy Worker-scoped EMQX HTTP publish-only client. Returns undefined when
- * EMQX secrets are unset (nudges disabled; uploads still correct).
+ * EMQX secrets are unset (pushes disabled; uploads still correct).
  */
 export async function getApiPubSub(
   secretStore: SecretStore

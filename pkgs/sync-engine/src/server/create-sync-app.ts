@@ -16,10 +16,10 @@ export type CreateSyncAppDeps = {
   readonly getSql: () => SqlClient;
   readonly queries: QueryRegistry;
   readonly mutations: MutationRegistry;
-  /** Optional nudge transport; omit to keep upload correct without pubsub. */
+  /** Optional push transport; omit to keep upload correct without pubsub. */
   readonly pubsub?: PubSub;
   readonly nextCheckpoint?: () => string;
-  /** When true, publish post-replay row images on nudges (default false). */
+  /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;
 };
 

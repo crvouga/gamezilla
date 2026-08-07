@@ -2,7 +2,7 @@ import { assertValidTopic, type Topic } from '@pkgs/pubsub/interface';
 
 import type { Mutation, MutationEnv } from '../mutations/core/types';
 import type { QueryDef } from '../queries/core/types';
-import type { QueryChannelsCtx } from './nudge-payload';
+import type { QueryChannelsCtx } from './push-payload';
 
 const SENTINEL_CHANNELS_CTX: QueryChannelsCtx = {
   actorId: 'actor_x',

@@ -12,9 +12,9 @@ import { createSqlWatch } from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
-import type { QueryChannelsCtx } from '../shared/nudge-payload';
+import type { QueryChannelsCtx } from '../shared/push-payload';
 import type { AppLifecycle } from './app-lifecycle';
-import { attachNudges } from './attach-nudges';
+import { attachPush } from './attach-push';
 import {
   clearLocalCache,
   type LocalDomainSchema,
@@ -42,12 +42,12 @@ import {
 import type { SyncEngine } from './sync-engine-port';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
-export type SyncEngineNudgesOptions = {
+export type SyncEnginePushOptions = {
   readonly queryRegistry: QueryRegistry;
   readonly createPubSub: () => PubSub;
   readonly getChannelsCtx: () => QueryChannelsCtx;
   readonly onBindTopicRefresh?: (refresh: () => void) => void;
-  /** When true, apply contiguous nudge row images (default false). */
+  /** When true, apply contiguous push row images (default false). */
   readonly rowImageFanout?: boolean;
 };
 
@@ -68,10 +68,10 @@ export type CreateLocalSyncEngineOptions = {
   readonly isAuthRevoked: (error: unknown) => boolean;
   readonly deleteDatabase: () => Promise<void>;
   /**
-   * Optional pubsub nudges. When omitted the engine hydrates once at connect
+   * Optional pubsub push. When omitted the engine hydrates once at connect
    * and stays on that snapshot until reconnect — no periodic poll.
    */
-  readonly nudges?: SyncEngineNudgesOptions;
+  readonly push?: SyncEnginePushOptions;
   readonly lifecycle?: AppLifecycle;
   /** Virtual clock / timers / RNG for deterministic simulation. */
   readonly now?: () => number;
@@ -91,8 +91,8 @@ type LocalEngineState = {
   readonly sessionHandles: readonly QuerySubscription[];
   connected: boolean;
   revokePromise: Promise<void> | null;
-  disposeNudges: (() => void) | null;
-  nudgePubSub: PubSub | null;
+  disposePush: (() => void) | null;
+  pushPubSub: PubSub | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -179,37 +179,37 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     sessionHandles,
     connected: false,
     revokePromise: null,
-    disposeNudges: null,
-    nudgePubSub: null,
+    disposePush: null,
+    pushPubSub: null,
   };
   stateRef.current = state;
   return state;
 }
 
-function attachNudgesIfConfigured(state: LocalEngineState): void {
-  const nudges = state.options.nudges;
-  if (nudges === undefined || state.disposeNudges !== null) {
+function attachPushIfConfigured(state: LocalEngineState): void {
+  const push = state.options.push;
+  if (push === undefined || state.disposePush !== null) {
     return;
   }
   try {
-    let pubsub = nudges.createPubSub();
-    state.disposeNudges = attachNudges({
+    let pubsub = push.createPubSub();
+    state.disposePush = attachPush({
       pubsub,
       runtime: state.runtime,
-      queryRegistry: nudges.queryRegistry,
-      getChannelsCtx: nudges.getChannelsCtx,
+      queryRegistry: push.queryRegistry,
+      getChannelsCtx: push.getChannelsCtx,
       db: state.options.db,
       getMergeDeps: () => mergeDeps(state),
-      ...(nudges.rowImageFanout === true ? { rowImageFanout: true } : {}),
+      ...(push.rowImageFanout === true ? { rowImageFanout: true } : {}),
       remakePubSub: () => {
-        pubsub = nudges.createPubSub();
+        pubsub = push.createPubSub();
         return pubsub;
       },
       onPubSubChanged: (next) => {
-        state.nudgePubSub = next;
+        state.pushPubSub = next;
       },
-      ...(nudges.onBindTopicRefresh !== undefined
-        ? { onBindTopicRefresh: nudges.onBindTopicRefresh }
+      ...(push.onBindTopicRefresh !== undefined
+        ? { onBindTopicRefresh: push.onBindTopicRefresh }
         : {}),
       ...(state.options.timers !== undefined
         ? { timers: state.options.timers }
@@ -218,16 +218,16 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
     });
   } catch (error) {
     console.warn(
-      '[sync] attachNudges failed; continuing without live nudges',
+      '[sync] attachPush failed; continuing without live push',
       error
     );
   }
 }
 
-function detachNudges(state: LocalEngineState): void {
-  state.disposeNudges?.();
-  state.disposeNudges = null;
-  state.nudgePubSub = null;
+function detachPush(state: LocalEngineState): void {
+  state.disposePush?.();
+  state.disposePush = null;
+  state.pushPubSub = null;
 }
 
 function notifyLocalMutation(
@@ -235,10 +235,10 @@ function notifyLocalMutation(
   mutation: Mutation<unknown>,
   args: unknown
 ): void {
-  const pubsub = state.nudgePubSub;
-  const nudges = state.options.nudges;
-  if (pubsub === null || nudges === undefined) return;
-  if (nudges.rowImageFanout !== true) return;
+  const pubsub = state.pushPubSub;
+  const push = state.options.push;
+  if (pubsub === null || push === undefined) return;
+  if (push.rowImageFanout !== true) return;
   void publishOptimisticFanout({
     pubsub,
     db: state.options.db,
@@ -262,13 +262,13 @@ async function connectState(state: LocalEngineState): Promise<void> {
   });
   state.uploadQueue.start();
   state.runtime.start();
-  attachNudgesIfConfigured(state);
+  attachPushIfConfigured(state);
   state.status.patch({ connection: 'syncing' });
 }
 
 async function disconnectState(state: LocalEngineState): Promise<void> {
   state.connected = false;
-  detachNudges(state);
+  detachPush(state);
   state.runtime.stop();
   await state.uploadQueue.stop();
   state.status.patch({ connection: 'disconnected', hasSynced: false });
@@ -276,7 +276,7 @@ async function disconnectState(state: LocalEngineState): Promise<void> {
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
   state.connected = false;
-  detachNudges(state);
+  detachPush(state);
   state.runtime.stop();
   await state.uploadQueue.stop();
   await state.options.db.disconnect();
@@ -321,6 +321,7 @@ function toEngine(state: LocalEngineState): SyncEngine {
       Promise.all(state.sessionHandles.map((h) => h.waitForFirstSync())).then(
         () => undefined
       ),
+    refreshQueries: () => state.runtime.wakeAllAndDrain(),
     subscribeQuery,
     subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,

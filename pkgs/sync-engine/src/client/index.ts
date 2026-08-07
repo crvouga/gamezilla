@@ -17,7 +17,7 @@ export {
 export {
   type CreateLocalSyncEngineOptions,
   createLocalSyncEngine,
-  type SyncEngineNudgesOptions,
+  type SyncEnginePushOptions,
 } from './create-local-sync-engine';
 export {
   MutationClientProvider,

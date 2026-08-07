@@ -15,9 +15,9 @@ Related: root [`AGENTS.md`](../../AGENTS.md), [`src/sim/README.md`](src/sim/READ
 
 The client is a **replicator**: the server sends **full query snapshots that
 include soft-deleted rows**; the client **upserts every row verbatim**, then
-**re-applies its pending local mutations on top**. Deletion is data
+**rebases its pending local mutations on top**. Deletion is data
 (`_deleted_at`), never inferred from absence. Peers learn about each other’s
-changes via **pubsub nudge → (optional row-image apply) or query refetch**.
+changes via **pubsub push → (optional row-image apply) or query refetch**.
 Snapshots alone define correctness; row-image fanout is a **lossy
 optimization**. There is **no peer mutation fanout**.
 
@@ -25,9 +25,9 @@ optimization**. There is **no peer mutation fanout**.
 mutate() ──► local SQL + _mutations row ──► POST /mutations ──► Postgres replay
                                                               │
                                                               ▼
-                                              post-replay SELECT → nudge
+                                              post-replay SELECT → push
                                                               │
-UI ◄── useQuery(watch) ◄── SQLite ◄── merge(upsert + re-apply) ◄─┤
+UI ◄── useQuery(watch) ◄── SQLite ◄── merge(upsert + rebase) ◄─┤
                                          ▲                        │
                                          ├── row images (lossy)   │
                                          └── POST /query refetch ─┘
@@ -55,7 +55,7 @@ When recommending changes, optimize in this order unless the user overrides:
 3. **Local-first UX** — optimistic apply is instant; UI reads SQLite only.
 4. **Operability** — CI gates catch policy drift; deterministic sim catches
    races; four public entrypoints only.
-5. **Efficiency** — hash/`not_modified`, nudge table filtering, coalesce,
+5. **Efficiency** — hash/`not_modified`, push table filtering, coalesce,
    single-flight merge, row-image fanout. Secondary to 1–4.
 
 **Anti-goals:** sub-50ms multi-device domain edits via MQTT (use Room DO);
@@ -87,11 +87,11 @@ registries + SQL clients + pubsub ports.
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ apps/client                                                  │
-│  createLocalSyncEngine + sessionQueries + MQTT nudges        │
+│  createLocalSyncEngine + sessionQueries + MQTT pushes        │
 │  useQuery / useMutationClient                                │
 └───────────────────────────┬─────────────────────────────────┘
                             │ POST /query, POST /mutations
-                            │ MQTT nudges (EMQX)
+                            │ MQTT pushes (EMQX)
 ┌───────────────────────────▼─────────────────────────────────┐
 │ apps/api  createSyncApp                                      │
 │  runQuery / processMutationsBatch / notifyChannels           │
@@ -165,7 +165,7 @@ A mutation is the **only** legal domain write path (client + server).
 defineMutation({
   name: 'removeFriend',
   args: z.object({ ... }),
-  writes: ['friendships'],       // docs + nudge table filter (not runtime-enforced)
+  declaredWrites: ['friendships'], // docs + push table filter (not runtime-enforced)
   invalidates: (args, env, db) => topics, // post-replay pubsub topics
   affectedRows: (args) => ({ friendships: [id] }), // optional fanout ids
   requiresOnline: false,
@@ -180,7 +180,7 @@ Rules:
   `NO_HARD_DELETE` on domain hard deletes at apply **and** replay.
 - Use `softDeleteById` / `LIVE_ROW_SQL` from `@pkgs/sync-engine/shared`.
 - Optional `affectedRows` declares entity ids for post-replay fanout SELECTs.
-  Undeclared → checkpoint-only nudge. Framework owns the SELECT — never derive
+  Undeclared → pushSeq-only push. Framework owns the SELECT — never derive
   row images from mutation args.
 - Breaking wire changes → new `name` (`joinSpaceV2`); keep old handlers until
   clients adopt.
@@ -194,7 +194,7 @@ Rules:
 1. Local schema migrate (framework + domain via `@pkgs/db-schema/sqlite`)
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `_mutations` → `POST /mutations`
-4. Optional `attachNudges` — MQTT topics derived from active query `channels`
+4. Optional `attachPush` — MQTT topics derived from active query `channels`
 5. Table-change bus + `watch` / React `useQuery`
 
 Paint gate: `waitForFirstSync()` awaits **sessionQueries** (held for the engine
@@ -215,12 +215,12 @@ Defined in `@libs/db/shared/sync-topics` (not in this package):
 | `spaceListChannels` | user topic + `room:{spaceId}` for memberships |
 | `clientConfigChannels` | singleton client-config topic |
 
-Nudges carry optional `tables` (= mutation `writes`) so the client wakes only
+Pushes carry optional `tables` (= mutation `declaredWrites`) so the client wakes only
 scopes whose `hydrates` overlap.
 
 ### Channel exhaustiveness
 
-CI `ci:channel-exhaustiveness` statically checks: if a mutation `writes`
+CI `ci:channel-exhaustiveness` statically checks: if a mutation `declaredWrites`
 tables that a query `hydrates`, their topic sets should overlap (sentinel args).
 Async `invalidates` is approximated. Missed `notifyChannels` on non-mutation
 server writes is a separate runtime footgun — prefer mutations.
@@ -235,7 +235,7 @@ server writes is a separate runtime footgun — prefer mutations.
 |-------|----------|---------|
 | `_mutations` | yes | Pending upload queue only: `id, name, args, client_id, seq, created_at` |
 | `_scope_meta` | cache | Per-scope `last_checkpoint`, `last_hash`, `last_active_at` |
-| `_topic_applied` | cache | Per-topic `last_applied` nudge checkpoint (fanout gap detection) |
+| `_push_applied` | cache | Per-topic `last_push_seq` push sequence (fanout gap detection) |
 | `write_rejections` | cache | Permanent failures (local or synced) |
 
 `seq` = `COALESCE(MAX(seq),0)+1` inside the mutate transaction. Server
@@ -261,7 +261,7 @@ Applied by `applyFrameworkServerDdl` at migrate time (not domain
 |-------|---------|
 | `_mutations_applied` | Idempotency + audit (`applied` / `rejected`) |
 | `write_rejections` | Permanent failures keyed by `client_id` (= device id) |
-| `_sync_topic_checkpoint` | Per-topic monotonic nudge checkpoints (`n` bigint) |
+| `_sync_topic_seq` | Per-topic monotonic push sequences (`n` bigint) |
 
 `public._mutations` is **dropped**. Uploads are JSON to `POST /mutations`, not
 row sync of a `_mutations` table.
@@ -299,29 +299,29 @@ row sync of a `_mutations` table.
 
 ```ts
 { mutations: Array<{ id, name, args /* JSON string */, clientId, seq, createdAt }> }
-→ { ok: true, verdicts: Array<applied | rejected>, ackSeq, topicCheckpoints? }
+→ { ok: true, verdicts: Array<applied | rejected>, ackSeq, topicPushSeqs? }
 ```
 
 Bounds: `MAX_MUTATIONS_BATCH = 64`. Client ack = **delete** local `_mutations`
 row (applied or rejected). Rejected also writes local `write_rejections`.
-Optional `topicCheckpoints` floors the mutating client’s `_topic_applied` so
+Optional `topicPushSeqs` floors the mutating client’s `_push_applied` so
 own echoed fanout is skipped.
 
 After successful replay, server `notifyChannels` per invalidated topic with a
-**strictly monotonic per-topic checkpoint** (from `_sync_topic_checkpoint`).
+**strictly monotonic per-topic `pushSeq`** (from `_sync_topic_seq`).
 When `rowImageFanout` is enabled and the mutation declares `affectedRows`, the
-nudge may also carry post-replay **row images** (size-capped).
+push may also carry post-replay **row images** (size-capped).
 
-### Pubsub nudge
+### Pubsub push
 
 ```ts
-{ checkpoint: string; tables?: string[]; rows?: Record<string, QueryRow[]> }
+{ pushSeq: string; tables?: string[]; rows?: Record<string, QueryRow[]> }
 ```
 
-`checkpoint` is required and monotonic per topic. Optional `rows` are
+`pushSeq` is required and monotonic per topic. Optional `rows` are
 server-authored post-replay images (incl. `_deleted_at`) — a **lossy
 optimization**. Any dropped, reordered, duplicated, or ignored fanout must
-degrade to nudge → refetch. Snapshots alone define correctness.
+degrade to push → refetch. Snapshots alone define correctness.
 
 **Removed forever (unless redesign):** peer **mutation** fanout / MQTT as a
 mutation log. Peer-executed mutations diverge under state skew, and
@@ -338,7 +338,7 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 2. Per table: upsert column intersection **verbatim** (incl. `_deleted_at`).
    No tagging, no absence tombstones, no orphan GC.
 3. Touch `_scope_meta`.
-4. Re-apply every pending `_mutations` for this `clientId` in `seq` order.
+4. Rebase every pending `_mutations` for this `clientId` in `seq` order.
    Throws swallowed → optimistic effect hidden until upload/reject.
 5. Emit table-change bus for watches.
 
@@ -346,7 +346,7 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 
 ---
 
-## Subscriptions & nudges
+## Subscriptions & push
 
 ### `SubscriptionRuntime`
 
@@ -355,7 +355,7 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 - Background (`AppLifecycle`) pauses sweeps
 - Session queries held for engine life; paint waits on them
 
-### `attachNudges`
+### `attachPush`
 
 - Topics from active query `channels(ctx)`
 - **Remake-on-topic-change** (close + new pubsub; all topics subscribed at birth)
@@ -385,13 +385,13 @@ don’t invent a second delete model without review.
 | Event | Behavior |
 |-------|----------|
 | Offline mutate | Applies locally, queues `_mutations`, UI updates via watch |
-| Upload success | Delete queue row; peers learn via nudge → query |
+| Upload success | Delete queue row; peers learn via push → query |
 | Upload reject | Delete queue row + `write_rejections`; UI should surface rejection |
 | Merge while pending | Server snapshot applied, then pending mutations re-run |
 | Stale snapshot | Checkpoint compare drops it |
 | Denied query | Detach scope meta; domain rows remain |
 | Auth revoked | Wipe identity DB |
-| Nudge lost | Next reconnect / foreground / remake eventually refetches |
+| Push lost | Next reconnect / foreground / remake eventually refetches |
 | Partial multi-query batch | Per-response apply; generation guards drop superseded scopes |
 
 **Not provided:** causal multi-device domain locks, exactly-once UI effects,
@@ -420,7 +420,7 @@ guaranteed absence of flicker after ack (see tradeoffs).
 - Narrower sessionQueries / staged paint gate if first paint is too slow
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
-- Upload wake after ack to coalesce query refresh (today relies on nudge)
+- Upload wake after ack to coalesce query refresh (today relies on push)
 - Sim coverage expansion / fixing stale `TIGER_INVARIANTS` name list
 - Clearing stale locals that left a scope without soft-delete (product policy)
 - `process-upload-with-mutations` legacy CRUD path — simplify or delete if unused
@@ -446,7 +446,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    without `_deleted_at` set, it stays live locally. Mitigate with better
    query design (always tombstone membership edges) or accept + filter in UI.
 3. **Ack-then-stale-merge flicker** — merge from a pre-replay snapshot can
-   briefly undo optimistic UI until nudge refetch. Rare; fix only with
+   briefly undo optimistic UI until push refetch. Rare; fix only with
    measured pain (don’t restore full write-epoch machinery lightly).
 4. **Full snapshot cost** — large `chessPuzzlePool` / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
@@ -455,10 +455,10 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    late-topic timers, but reconnect storms possible if membership thrash.
 6. **Paint waits on all session queries** — correct single lifetime model;
    may delay first paint vs old boot/shell split.
-7. **Re-apply swallows errors** — pending mutation that fails against new
+7. **Rebase swallows errors** — pending mutation that fails against new
    server state stays queued until upload reject; UI may look “stuck”
    optimistic. Product should watch `write_rejections`.
-8. **`writes` not runtime-enforced** — documentation + nudge filter only;
+8. **`declaredWrites` not runtime-enforced** — documentation + push filter only;
    a mutation can touch undeclared tables.
 9. **Channel exhaustiveness is sentinel-based** — async party expansion and
    weird args can false-pass/fail.
@@ -471,9 +471,9 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 
 | Area | Why it’s sharp |
 |------|----------------|
-| `client/merge.ts` | Single-flight + checkpoint + upsert + re-apply; correctness core |
+| `client/merge.ts` | Single-flight + checkpoint + upsert + rebase; correctness core |
 | `client/subscription-runtime.ts` | Coalesce, generation guards, lifecycle, session refs |
-| `client/attach-nudges.ts` | Topic remake vs membership ctx races |
+| `client/attach-push.ts` | Topic remake vs membership ctx races |
 | `mutations/server/replay-mutation.ts` | Idempotency + rejection recording + constraint mapping |
 | `client/local-schema-migrate.ts` | Epoch wipe vs durable queue |
 | Product `invalidates` / `channels` | Wrong topics ⇒ silent staleness |
@@ -491,7 +491,7 @@ status, it needs a stronger justification than “might be useful.”
 - Cache hit: content hash → `not_modified` (empty body)
 - Merge: column-intersect upsert per row (not bulk COPY)
 - Watches: table-change bus; SQL re-run on overlapping table names
-- Nudges: required per-topic monotonic checkpoint; optional row images
+- Pushes: required per-topic monotonic pushSeq; optional row images
   (`MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES`); table-filtered scope wake; reconnect full wakeAll
 - Peer-visible latency budget (happy path): immediate drain + replay/publish +
   pubsub hop &lt; 200ms p95 simulated
@@ -521,7 +521,7 @@ single-flight (it does) — mainly HTTP/server load then.
 **Client**
 
 1. Open identity SQLite → `createLocalSyncEngine({ sessionQueries, postQueries,
-   postMutations, nudges, lifecycle, … })`
+   postMutations, push, lifecycle, … })`
 2. `SyncEngineProvider` + `SqlClientProvider` + paint gate
 3. `MutationClientProvider` with `MutationEnv` + `{ clientId: deviceId }`
 4. Feature: `useQuery(sql\`… AND _deleted_at IS NULL\`)` +
@@ -541,7 +541,7 @@ Registries: `apps/client|api/src/sync/app-queries.ts` + `app-mutations.ts`.
 
 ```text
 pkgs/sync-engine/src/
-  client/           # engine, merge, subscriptions, nudges, React, HTTP
+  client/           # engine, merge, subscriptions, push, React, HTTP
   mutations/
     core/           # defineMutation, types, registry
     client/         # createMutationClient, mutation-status
@@ -553,7 +553,7 @@ pkgs/sync-engine/src/
     client/         # local-schema, sql-watch, table-change-bus
     shared/         # hash/canonical, bounds, tiger invariant names
   server/           # createSyncApp, routes, notifyChannels
-  shared/           # framework DDL, channel exhaustiveness, nudge types
+  shared/           # framework DDL, channel exhaustiveness, push types
   sim/              # deterministic multi-client simulation
   test/             # in-memory engine
 ```
@@ -592,7 +592,7 @@ bun run ci:lint
 - `@pkgs/sync-engine/test`: `createInMemorySyncEngine`
 
 `queries/shared/tiger-invariants.ts` lists named invariants aligned with current
-behavior (re-apply, nudge checkpoint monotonicity, lossy fanout).
+behavior (rebase, pushSeq monotonicity, lossy fanout).
 
 ---
 
@@ -651,7 +651,7 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 - Expecting unsubscribe to wipe domain rows → only `_scope_meta` clears.
 - Expecting multi-device domain edits &lt;100ms → use Room DO.
 - Importing `@pkgs/sync-engine/src/...` → not public.
-- Treating `writes` as enforced permissions — they’re not.
+- Treating `declaredWrites` as enforced permissions — they’re not.
 - Reintroducing boot vs shell subscription special cases without measuring
   paint cost.
 
@@ -664,11 +664,21 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 | Scope | One subscribed `(queryName, params)` identity (`scope_hash`) |
 | Session queries | Scopes held for engine lifetime; paint gate waits on them |
 | Tombstone | Domain row with `_deleted_at` set; still synced |
-| Nudge | Pubsub message that wakes overlapping query scopes |
+| Push | Pubsub message that wakes overlapping query scopes (formerly 'nudge') |
 | Replay | Server re-executes mutation SQL idempotently |
-| Re-apply | Client re-runs pending mutation SQL after a merge |
+| Rebase | Client re-runs pending mutation SQL after a merge |
 | Paint gate | UI blocked until session queries first-sync |
 | Durable / cache | Local tables that survive vs wipe on epoch/cache clear |
+
+### Sequences
+
+Three distinct monotonic sequences — do not conflate them:
+
+| Name | Scope | Where |
+|------|-------|-------|
+| `checkpoint` | Per **scope** (query snapshot version) | `_scope_meta.last_checkpoint`, `POST /query` request/response |
+| `pushSeq` | Per **topic** (push counter) | `_sync_topic_seq.n`, `PushMessage.pushSeq`, `_push_applied.last_push_seq`, `topicPushSeqs` |
+| `seq` | Per **client** (mutation upload order) | `_mutations.seq`, upload wire `seq` / `ackSeq` |
 
 ---
 

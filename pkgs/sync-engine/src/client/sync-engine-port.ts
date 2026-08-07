@@ -70,6 +70,11 @@ export type SyncEngine = {
    * @returns A promise resolved after the first sync.
    */
   waitForFirstSync(): Promise<void>;
+  /**
+   * Re-fetch all active query subscriptions; resolves when the sweep finishes.
+   * Does not clear local data or reset first-sync gates.
+   */
+  refreshQueries(): Promise<void>;
   /** Starts a parameterized API query subscription. */
   readonly subscribeQuery: (
     queryName: string,

@@ -307,6 +307,20 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:sync-engine-terminology": {
+      "inputs": [
+        "pkgs/sync-engine/**",
+        "apps/client/src/sync/**",
+        "apps/api/src/sync/**",
+        "libs/**/shared/mutations/**",
+        "libs/db/src/shared/sync-topics.ts",
+        "AGENTS.md",
+        "tools/scripts/check-sync-engine-terminology.ts",
+        "tools/scripts/check-no-domain-hard-delete.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-provider-leaks": {
       "inputs": [
         "tools/scripts/check-no-provider-leaks.ts",

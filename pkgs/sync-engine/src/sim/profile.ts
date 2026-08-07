@@ -26,14 +26,14 @@ export const simLocalSchema = {
   cacheTableNames: [SIM_NOTES_TABLE],
 } as const;
 
-/** Shared topic so all sim clients receive the same nudge stream. */
+/** Shared topic so all sim clients receive the same push stream. */
 export const SIM_WORLD_TOPIC = 'user:sim-world' as Topic;
 
 /** Shared note mutation used by sim clients + server replay. */
 export const simSetNote = defineMutation({
   name: 'simSetNote',
   args: z.object({ id: z.string(), body: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   invalidates: (): Topic[] => [SIM_WORLD_TOPIC],
   affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
@@ -52,7 +52,7 @@ export const simSetNote = defineMutation({
 export const simDeleteNote = defineMutation({
   name: 'simDeleteNote',
   args: z.object({ id: z.string() }),
-  writes: ['notes'],
+  declaredWrites: ['notes'],
   invalidates: (): Topic[] => [SIM_WORLD_TOPIC],
   affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id }) {
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS write_rejections (
   created_at timestamptz NOT NULL DEFAULT now(),
   acknowledged boolean NOT NULL DEFAULT false
 );
-CREATE TABLE IF NOT EXISTS _sync_topic_checkpoint (
+CREATE TABLE IF NOT EXISTS _sync_topic_seq (
   topic text PRIMARY KEY,
   n bigint NOT NULL
 );

@@ -1,5 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, Button, ScreenBase } from '@pkgs/ui';
+import { useSyncEngine } from '@pkgs/sync-engine/client';
+import { Box, Button, ScreenBase, ScreenBodyScrollView } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import { MyProfileAvatar } from './my-profile-avatar';
@@ -25,6 +26,7 @@ export function ProfileScreen({
   friendsActions,
   bottomInset = 0,
 }: ProfileScreenProps) {
+  const { refreshQueries } = useSyncEngine();
   return (
     <ScreenBase
       screenId="profile"
@@ -32,25 +34,28 @@ export function ProfileScreen({
       accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
-        <ProfileScreenContent
-          sx={sx}
-          bottomInset={bottomInset}
-          friendsStats={friendsStats}
-          friendsActions={friendsActions}
-        />
+        <ScreenBodyScrollView
+          style={sx}
+          contentContainerStyle={{
+            flexGrow: 1,
+            ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
+          }}
+          onRefresh={() => refreshQueries()}
+        >
+          <ProfileScreenContent
+            friendsStats={friendsStats}
+            friendsActions={friendsActions}
+          />
+        </ScreenBodyScrollView>
       )}
     />
   );
 }
 
 function ProfileScreenContent({
-  sx,
-  bottomInset,
   friendsStats,
   friendsActions,
 }: {
-  sx: Record<string, unknown>;
-  bottomInset: number;
   friendsStats?: ReactNode;
   friendsActions?: ReactNode;
 }): ReactNode {
@@ -59,12 +64,10 @@ function ProfileScreenContent({
 
   return (
     <Box
-      style={{
-        ...sx,
-        ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
+      sx={{
         alignItems: 'center',
-        gap: 12,
-        paddingTop: 8,
+        gap: 3,
+        pt: 2,
       }}
     >
       <MyProfileAvatar size={96} />

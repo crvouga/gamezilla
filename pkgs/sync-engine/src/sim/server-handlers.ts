@@ -12,13 +12,13 @@ import type {
   QueryRow,
 } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
-import { allocateTopicCheckpoints } from '../server/allocate-topic-checkpoint';
+import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
 import { notifyChannels } from '../server/notify-channels';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
   selectFanoutRows,
-} from '../server/select-fanout-rows';
+} from '../shared/select-fanout-rows';
 
 export type SimServerAuth = {
   readonly actorId: string;
@@ -38,7 +38,7 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
   };
 }
 
-/** Query-response checkpoint (scope merge). Distinct from per-topic nudge seq. */
+/** Query-response checkpoint (scope merge). Distinct from per-topic pushSeq. */
 function commitCheckpoint(nowMs: number, seq: number): string {
   return `${nowMs}${String(seq).padStart(6, '0')}`;
 }
@@ -73,7 +73,7 @@ function collectWrites(
   for (const row of applied) {
     const mutation = registry[row.name];
     if (mutation === undefined) continue;
-    for (const table of mutation.writes) tables.add(table);
+    for (const table of mutation.declaredWrites) tables.add(table);
   }
   return [...tables];
 }
@@ -148,13 +148,13 @@ async function notifyApplied(args: {
   );
   const tables = collectWrites(args.ctx.mutations, args.applied);
   const rows = await buildFanoutRows(args.ctx, args.auth, args.applied);
-  const checkpoints = await allocateTopicCheckpoints(args.ctx.db, topics);
+  const checkpoints = await allocateTopicPushSeqs(args.ctx.db, topics);
   const label = args.applied.map((a) => a.name).join(',');
-  for (const [topic, checkpoint] of checkpoints) {
+  for (const [topic, pushSeq] of checkpoints) {
     notifyChannels({
       pubsub: args.ctx.pubsub,
       topics: [topic],
-      checkpoint,
+      pushSeq,
       tables,
       ...(rows !== undefined ? { rows } : {}),
       label,
@@ -199,7 +199,7 @@ export function createHandleMutations(
       verdicts: result.verdicts,
       ackSeq: result.ackSeq,
       ...(checkpoints.size > 0
-        ? { topicCheckpoints: Object.fromEntries(checkpoints) }
+        ? { topicPushSeqs: Object.fromEntries(checkpoints) }
         : {}),
     };
   };

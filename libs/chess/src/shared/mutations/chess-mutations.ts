@@ -30,7 +30,7 @@ function requireOwner(ownerId: string, actorId: string): void {
 export const appendPuzzleInteractionMutation = defineMutation({
   name: 'appendPuzzleInteraction',
   args: interactionArgs,
-  writes: ['chess_puzzle_interactions'],
+  declaredWrites: ['chess_puzzle_interactions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);
@@ -66,7 +66,7 @@ export const upsertPuzzleProfileMutation = defineMutation({
     ratingDeviation: z.number().int().nonnegative(),
     lastInteractionAt: z.string().min(1).optional(),
   }),
-  writes: ['chess_puzzle_profiles'],
+  declaredWrites: ['chess_puzzle_profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);

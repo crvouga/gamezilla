@@ -22,9 +22,9 @@ CREATE TABLE IF NOT EXISTS _scope_meta (
   last_checkpoint TEXT,
   last_hash TEXT
 );
-CREATE TABLE IF NOT EXISTS _topic_applied (
+CREATE TABLE IF NOT EXISTS _push_applied (
   topic TEXT PRIMARY KEY,
-  last_applied TEXT NOT NULL
+  last_push_seq TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS write_rejections (
   id TEXT PRIMARY KEY,
@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 6;
+export const SCHEMA_EPOCH = 7;
 
 /** Retired local tables dropped on epoch migrate. */
 export const RETIRED_LOCAL_TABLES = [
@@ -51,6 +51,7 @@ export const RETIRED_LOCAL_TABLES = [
   '_upload_state',
   '_peer_applied',
   '_peer_mutations',
+  '_topic_applied',
 ] as const;
 
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {

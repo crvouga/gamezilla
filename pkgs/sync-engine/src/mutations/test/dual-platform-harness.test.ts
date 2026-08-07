@@ -89,7 +89,7 @@ export const testSetNote = defineMutation({
     profileId: z.string(),
     note: z.string(),
   }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   async run({ tx, env }, { profileId, note }) {
     if (profileId !== env.actorId) {
       throw new MutationError('FORBIDDEN', 'Not your profile.');
@@ -105,7 +105,7 @@ export const testSetNote = defineMutation({
 export const testClaimUsername = defineMutation({
   name: 'testClaimUsername',
   args: z.object({ username: z.string().min(1) }),
-  writes: ['profiles'],
+  declaredWrites: ['profiles'],
   constraintErrors: {
     profiles_username_unique: {
       code: 'USERNAME_TAKEN',
