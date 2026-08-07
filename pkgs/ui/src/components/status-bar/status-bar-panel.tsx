@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 
 import { Box } from '../box';
 import { Divider } from '../divider';
-import { ScrollView } from '../scroll-view';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import type { RegisteredStatusBarItem } from './types';
@@ -21,12 +20,12 @@ function StatusBarSection({
   return (
     <Box>
       {showDivider ? (
-        <Box sx={{ my: 3 }}>
+        <Box sx={{ my: 4 }}>
           <Divider />
         </Box>
       ) : null}
-      <Stack spacing={2}>
-        <Stack direction="horizontal" spacing={2} align="center">
+      <Stack spacing={3}>
+        <Stack direction="horizontal" spacing={3} align="center">
           {item.leading !== undefined ? item.leading : null}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Text variant="bodyBold" label={item.title} />
@@ -46,7 +45,8 @@ function StatusBarSection({
 }
 
 /**
- * Expanded control-center body: one section per registered status-bar item.
+ * Control-center body sections (non-scrolling). The overlay owns the scroller
+ * so dismiss gestures can coordinate with scroll position.
  */
 export function StatusBarPanel({ items }: StatusBarPanelProps): ReactNode {
   if (items.length === 0) {
@@ -60,12 +60,10 @@ export function StatusBarPanel({ items }: StatusBarPanelProps): ReactNode {
   }
 
   return (
-    <ScrollView>
-      <Stack spacing={0}>
-        {items.map((item, index) => (
-          <StatusBarSection key={item.id} item={item} showDivider={index > 0} />
-        ))}
-      </Stack>
-    </ScrollView>
+    <Stack spacing={0} sx={{ pb: 4 }}>
+      {items.map((item, index) => (
+        <StatusBarSection key={item.id} item={item} showDivider={index > 0} />
+      ))}
+    </Stack>
   );
 }

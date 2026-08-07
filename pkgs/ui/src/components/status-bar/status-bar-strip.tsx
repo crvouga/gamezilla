@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react';
-import { useContext, useMemo } from 'react';
-import { View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { useContext, useEffect, useState } from 'react';
+import { Pressable as RNPressable, StyleSheet, View } from 'react-native';
+import {
+  GestureDetector,
+  type GestureType,
+} from 'react-native-gesture-handler';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { useHoverCapable, useTheme } from '../../theme';
 import { Box } from '../box';
+import { statusBarGrabCursor } from './status-bar-cursor';
 import type { RegisteredStatusBarItem } from './types';
 
 /** Body height of the thin strip (excluding safe-area inset). */
@@ -16,17 +19,15 @@ export const STATUS_BAR_BODY_HEIGHT = 22;
 /** z-index below surfaces/banners so modals still cover the strip. */
 const STATUS_BAR_Z_INDEX = 1000;
 
-/** Downward travel (px) required to open after the pan ends. */
-const OPEN_TRANSLATION_Y = 24;
-
-/** Downward velocity (px/s) that opens even with less travel. */
-const OPEN_VELOCITY_Y = 500;
-
 const ZERO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
 
 export type StatusBarStripProps = {
   items: readonly RegisteredStatusBarItem[];
-  /** Called when the user swipes down (or activates via accessibility). */
+  /** Pan that interactively reveals the Control Center overlay. */
+  openPan: GestureType;
+  /** True while the open pan is held (web `grabbing` cursor). */
+  isGrabbing: boolean;
+  /** Accessibility / programmatic open (no gesture). */
   onOpen: () => void;
   accessibilityLabel: string;
   dataSet?: ComponentDataSet;
@@ -34,42 +35,37 @@ export type StatusBarStripProps = {
 
 /**
  * Thin smartphone-style strip. Extends a themed fill through the system
- * safe-area (so the notch / status-bar zone matches dark/light), then lays
- * indicator icons in a {@link STATUS_BAR_BODY_HEIGHT} row below that inset.
- * Swipe down opens the panel (tap does not). The chrome wrapper must push
- * content by {@link useStatusBarPushHeight} so TopBar is not covered by the
- * body row (TopBar / ScreenBase still own the safe-area inset themselves).
+ * safe-area, then lays indicator icons in a {@link STATUS_BAR_BODY_HEIGHT}
+ * row. Swipe down drives reveal progress (tap does not open).
+ * Hover / grab use the same interactive tint as {@link Pressable}.
  */
 export function StatusBarStrip({
   items,
+  openPan,
+  isGrabbing,
   onOpen,
   accessibilityLabel,
   dataSet,
 }: StatusBarStripProps): ReactNode {
   const theme = useTheme();
+  const hoverCapable = useHoverCapable();
+  const [hovered, setHovered] = useState(false);
   const insets = useContext(SafeAreaInsetsContext) ?? ZERO_INSETS;
   const topInset = insets.top;
   const totalHeight = topInset + STATUS_BAR_BODY_HEIGHT;
 
-  const pan = useMemo(
-    () =>
-      Gesture.Pan()
-        .activeOffsetY(10)
-        .failOffsetX([-20, 20])
-        .onEnd((e) => {
-          if (
-            e.translationY >= OPEN_TRANSLATION_Y ||
-            e.velocityY >= OPEN_VELOCITY_Y
-          ) {
-            runOnJS(onOpen)();
-          }
-        }),
-    [onOpen]
-  );
+  useEffect(() => {
+    if (!hoverCapable) setHovered(false);
+  }, [hoverCapable]);
+
+  const tintColor =
+    hoverCapable && hovered && !isGrabbing
+      ? theme.colors.interactiveHover
+      : null;
 
   return (
-    <GestureDetector gesture={pan}>
-      <View
+    <GestureDetector gesture={openPan}>
+      <RNPressable
         {...componentDataSet('StatusBar', dataSet)}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
@@ -80,16 +76,23 @@ export function StatusBarStrip({
             onOpen();
           }
         }}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: STATUS_BAR_Z_INDEX,
-          height: totalHeight,
-          paddingTop: topInset,
-          backgroundColor: theme.colors.surface,
+        onHoverIn={() => {
+          if (hoverCapable) setHovered(true);
         }}
+        onHoverOut={() => setHovered(false)}
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: STATUS_BAR_Z_INDEX,
+            height: totalHeight,
+            paddingTop: topInset,
+            backgroundColor: theme.colors.surface,
+          },
+          statusBarGrabCursor(isGrabbing),
+        ]}
       >
         <View
           style={{
@@ -99,7 +102,6 @@ export function StatusBarStrip({
             justifyContent: 'flex-end',
             paddingHorizontal: 10,
             gap: 8,
-            backgroundColor: theme.colors.surface,
           }}
         >
           {items.map((item) => (
@@ -116,7 +118,13 @@ export function StatusBarStrip({
             </Box>
           ))}
         </View>
-      </View>
+        {tintColor ? (
+          <View
+            pointerEvents="none"
+            style={[styles.tint, { backgroundColor: tintColor }]}
+          />
+        ) : null}
+      </RNPressable>
     </GestureDetector>
   );
 }
@@ -129,3 +137,9 @@ export function StatusBarStrip({
 export function useStatusBarPushHeight(): number {
   return STATUS_BAR_BODY_HEIGHT;
 }
+
+const styles = StyleSheet.create({
+  tint: {
+    ...StyleSheet.absoluteFillObject,
+  },
+});
