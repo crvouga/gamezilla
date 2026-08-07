@@ -1,3 +1,5 @@
+/** Framework mutation — available via notes registry (`withFrameworkMutations`). */
+export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknowledge-write-rejection';
 export {
   expectFoldersMatchServer,
   expectLiveNote,
@@ -15,10 +17,12 @@ export {
   deleteNote,
   illegalHardDeleteNote,
   moveNote,
+  requiresOnlineNote,
+  serverRejectNote,
   setFolder,
   setNote,
 } from './shared/mutations';
-export { notesWorldQuery } from './shared/queries';
+export { notesDeniedQuery, notesWorldQuery } from './shared/queries';
 export {
   notesMutationRegistry,
   notesQueryRegistry,

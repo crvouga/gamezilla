@@ -1,22 +1,35 @@
-import { mutationRegistry, queryRegistry } from '@pkgs/sync-engine/shared';
+import {
+  mutationRegistry,
+  queryRegistry,
+  withFrameworkMutations,
+} from '@pkgs/sync-engine/shared';
 
 import {
   deleteFolder,
   deleteNote,
   illegalHardDeleteNote,
   moveNote,
+  requiresOnlineNote,
+  serverRejectNote,
   setFolder,
   setNote,
 } from './mutations';
-import { notesWorldQuery } from './queries';
+import { notesDeniedQuery, notesWorldQuery } from './queries';
 
-export const notesMutationRegistry = mutationRegistry([
-  setFolder,
-  deleteFolder,
-  setNote,
-  deleteNote,
-  moveNote,
-  illegalHardDeleteNote,
+export const notesMutationRegistry = withFrameworkMutations(
+  mutationRegistry([
+    setFolder,
+    deleteFolder,
+    setNote,
+    deleteNote,
+    moveNote,
+    illegalHardDeleteNote,
+    serverRejectNote,
+    requiresOnlineNote,
+  ])
+);
+
+export const notesQueryRegistry = queryRegistry([
+  notesWorldQuery,
+  notesDeniedQuery,
 ]);
-
-export const notesQueryRegistry = queryRegistry([notesWorldQuery]);

@@ -27,6 +27,11 @@ export type WorldClientOpts = {
   readonly sampleFaults?: boolean;
   /** When false, pushes wake query refetch instead of row-image apply. */
   readonly rowImageFanout?: boolean;
+  /**
+   * When true, sim pubsub buffers publishes for a peer's last topics while
+   * closed and flushes on re-subscribe. Default false = QoS-0 drop.
+   */
+  readonly liveResendOnReconnect?: boolean;
 };
 
 export type AddClientCtx = {

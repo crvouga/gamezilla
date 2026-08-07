@@ -9,6 +9,8 @@ export type PeerHandler = (data: unknown) => void;
 export type PubSubPeer = {
   readonly endpointId: SimEndpointId;
   readonly handlers: Map<Topic, Set<PeerHandler>>;
+  /** Topics this instance subscribed to (kept after unsubscribe-before-close). */
+  readonly interestedTopics: Set<Topic>;
   status: PubSubStatus;
   readonly statusListeners: Set<(s: PubSubStatus) => void>;
   closed: boolean;
@@ -38,13 +40,19 @@ export type CreatePeerPubSubArgs = {
   readonly brokerId: SimEndpointId;
   readonly clientEndpointId: SimEndpointId;
   readonly peers: Map<SimEndpointId, PubSubPeer>;
+  /** Snapshot subscribed topics before close (for optional offline buffer). */
+  readonly onClose?: (topics: readonly Topic[]) => void;
+  /** After a handler is registered — flush buffered delivers for this topic. */
+  readonly onSubscribe?: (topic: Topic) => void;
 };
 
 /** One peer PubSub instance registered on the sim network. */
 export function createPeerPubSub(args: CreatePeerPubSubArgs): PubSub {
+  const interestedTopics = new Set<Topic>();
   const peer: PubSubPeer = {
     endpointId: args.clientEndpointId,
     handlers: new Map(),
+    interestedTopics,
     status: 'connected',
     statusListeners: new Set(),
     closed: false,
@@ -76,12 +84,14 @@ export function createPeerPubSub(args: CreatePeerPubSubArgs): PubSub {
     subscribe(topic, handler) {
       assertOpen();
       assertValidTopic(topic);
+      interestedTopics.add(topic);
       let set = peer.handlers.get(topic);
       if (set === undefined) {
         set = new Set();
         peer.handlers.set(topic, set);
       }
       set.add(handler);
+      args.onSubscribe?.(topic);
       return () => {
         set!.delete(handler);
         if (set!.size === 0) peer.handlers.delete(topic);
@@ -96,6 +106,8 @@ export function createPeerPubSub(args: CreatePeerPubSubArgs): PubSub {
     },
     close() {
       if (peer.closed) return;
+      const topics = [...interestedTopics];
+      interestedTopics.clear();
       peer.closed = true;
       peer.handlers.clear();
       args.peers.delete(args.clientEndpointId);
@@ -103,6 +115,7 @@ export function createPeerPubSub(args: CreatePeerPubSubArgs): PubSub {
       peer.status = 'down';
       for (const l of [...peer.statusListeners]) l('down');
       peer.statusListeners.clear();
+      args.onClose?.(topics);
     },
   };
 }

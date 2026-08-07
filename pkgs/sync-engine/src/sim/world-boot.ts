@@ -78,7 +78,11 @@ export async function bootSimKernel(args: {
   });
 
   const authByDevice = new Map<string, ClientMeta>();
-  const broker = createSimPubSubBroker({ network, brokerId: BROKER });
+  const broker = createSimPubSubBroker({
+    network,
+    brokerId: BROKER,
+    liveResendOnReconnect: args.worldArgs.liveResendOnReconnect === true,
+  });
   const server = await openSimServer({
     now: () => nowFor(SIM_SERVER_NODE_ID),
     pubsub: broker.createPubSub(SERVER_PUB),

@@ -40,3 +40,41 @@ export const notesWorldQuery = defineQuery({
     return { folders, notes };
   },
 });
+
+/**
+ * Always denied — used to exercise detachScope on query deny without wiping
+ * domain rows hydrated by notesWorld.
+ */
+export const notesDeniedQuery = defineQuery({
+  name: 'notesDenied',
+  params: z.object({}),
+  hydrates: ['folders', 'notes'],
+  limit: 500,
+  channels: () => [NOTES_WORLD_TOPIC],
+  authorize: async () => false,
+  async run({ db }) {
+    const folders = await db.query(sql<{
+      id: string;
+      title: string;
+      owner_id: string;
+      _deleted_at: string | null;
+    }>`
+      SELECT id, title, owner_id, _deleted_at FROM folders
+      ORDER BY id ASC
+      LIMIT ${500}
+    `);
+    const notes = await db.query(sql<{
+      id: string;
+      folder_id: string | null;
+      title: string;
+      body: string;
+      owner_id: string;
+      _deleted_at: string | null;
+    }>`
+      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      ORDER BY id ASC
+      LIMIT ${500}
+    `);
+    return { folders, notes };
+  },
+});

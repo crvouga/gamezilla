@@ -137,3 +137,54 @@ export const illegalHardDeleteNote = defineMutation({
     await tx.run(sql`DELETE FROM notes WHERE id = ${id}`);
   },
 });
+
+/**
+ * Local apply succeeds; server replay always rejects (env.serverNow is set
+ * only on server). Used to exercise upload write_rejection drain.
+ * Prefer mutating an existing server row so snapshot merge can restore it.
+ */
+export const serverRejectNote = defineMutation({
+  name: 'serverRejectNote',
+  args: z.object({ id: z.string(), body: z.string() }),
+  declaredWrites: ['notes'],
+  invalidates: worldTopics,
+  affectedRows: ({ id }) => ({ notes: [id] }),
+  async run({ tx, env }, { id, body }) {
+    if (env.serverNow !== undefined) {
+      throw new MutationError('FORBIDDEN', 'Server rejects this mutation');
+    }
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${null}, ${''}, ${body}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        body = excluded.body,
+        owner_id = excluded.owner_id,
+        _deleted_at = NULL
+    `);
+  },
+});
+
+/**
+ * Like setNote but requires connectivity — used by requires-online scenarios.
+ */
+export const requiresOnlineNote = defineMutation({
+  name: 'requiresOnlineNote',
+  args: z.object({
+    id: z.string(),
+    body: z.string(),
+  }),
+  declaredWrites: ['notes'],
+  requiresOnline: true,
+  invalidates: worldTopics,
+  affectedRows: ({ id }) => ({ notes: [id] }),
+  async run({ tx, env }, { id, body }) {
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${null}, ${''}, ${body}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        body = excluded.body,
+        owner_id = excluded.owner_id,
+        _deleted_at = NULL
+    `);
+  },
+});

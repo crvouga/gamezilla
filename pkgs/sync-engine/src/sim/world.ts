@@ -68,6 +68,12 @@ export type OpenSimWorldArgs = {
   readonly sampleFaults?: boolean;
   /** When false, pushes wake query refetch instead of row-image apply. */
   readonly rowImageFanout?: boolean;
+  /**
+   * When true, sim pubsub buffers live publishes while a peer is closed and
+   * flushes them on re-subscribe. Default false = messages lost on reconnect
+   * (QoS-0; repair via sync pull).
+   */
+  readonly liveResendOnReconnect?: boolean;
 };
 
 async function checkClientSeqs(

@@ -52,6 +52,10 @@ settle, not push ordering. `sync` stays near-reliable by default; use
 `OpenSimWorldArgs.rowImageFanout` (default `true`) — set `false` when a race
 needs live → refetch instead of row-image apply.
 
+`OpenSimWorldArgs.liveResendOnReconnect` (default `false`) — QoS-0 drop of
+live publishes while a peer is closed. Set `true` to buffer that peer's last
+topics and flush on re-subscribe (sim-only; production pubsub stays best-effort).
+
 ## Network fault model
 
 `SimFaultOptions` (`faults.ts`):
@@ -103,7 +107,10 @@ sim clients + server unless overridden):
 - Folders multi-table, authz deny, hard-delete reject, latency budget
 - Clock-skew orderings + node down/up matrix
 - Push↔query races (`hold`/`release`) + live delivery chaos (per-node faults)
-- Seed corpus fuzz with skew / crash / hold / setFaults workload actions
+- Sync-path faults / sync-only partition, write-rejection drain, transient upload retry
+- Background/foreground pause, multi-device same actor, requiresOnline, cold tombstone
+- Query denied detach (domain rows kept), live reconnect resend knob (default drop)
+- Seed corpus fuzz with skew / crash / hold / setFaults
 
 Convergence check: after quiescence, every client’s live domain view
 (notes + folders) matches the server.
