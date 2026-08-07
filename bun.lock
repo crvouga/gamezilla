@@ -1220,11 +1220,13 @@
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "react": "catalog:",
+        "react-dom": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },

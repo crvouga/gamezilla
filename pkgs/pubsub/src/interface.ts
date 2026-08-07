@@ -13,17 +13,19 @@ export type PubSubStatus = 'connected' | 'connecting' | 'down';
  * Topic pub/sub port — ONE interface for every adapter (full-duplex MQTT,
  * publish-only HTTP, future Durable Objects, in-memory tests).
  *
- * Semantics (QoS 0 / best-effort):
- * - At-most-once delivery to currently-connected subscribers.
- * - No persistence, retained messages, replay, offline queues, receipts,
- *   or cross-topic ordering.
+ * Semantics (best-effort live push):
+ * - Delivery to currently-connected subscribers; adapters may also drain a
+ *   short broker offline session queue on reconnect (QoS ≥ 1 + persistent
+ *   session). Not a full event stream / offset replay.
+ * - No retained messages, no cross-topic ordering, no delivery receipts.
  * - Payloads: opaque JSON-serializable values, ≤32KB serialized, via shared
  *   `encodePayload` / `decodePayload`. Malformed inbound frames are dropped
  *   with a warn, never thrown.
  * - Topics: `/^[a-z0-9_-]+(:[A-Za-z0-9_-]+)*$/`, ≤128 chars. No wildcards
  *   (`+`, `#`, `*`) and no `/` in the port API.
  * - Consumers own repair. `onStatus` signals transport health; the port does
- *   not poll, buffer, or retry-deliver.
+ *   not poll or guarantee catch-up when the session expired or the queue
+ *   overflowed — domain sync remains the source of truth.
  *
  * `publish` is fire-and-forget safe: resolving means ACCEPTED by the
  * transport, never DELIVERED.

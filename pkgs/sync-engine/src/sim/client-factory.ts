@@ -18,6 +18,7 @@ import type { QueryRegistry } from '../queries/core/types';
 import {
   createEngineFromParts,
   createMutationSide,
+  type SimAuthControl,
 } from './client-factory-parts';
 import type { SimHttpClient } from './http-bridge';
 import {
@@ -29,6 +30,7 @@ import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
 
 export type SimClientLifecycle = ReturnType<typeof createControllableLifecycle>;
+export type { SimAuthControl, SimAuthStatus } from './client-factory-parts';
 
 export type SimClientHandle = {
   readonly id: string;
@@ -59,6 +61,12 @@ export type BuildSimClientArgs = {
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
   readonly rowImageFanout?: boolean;
+  readonly bufferOutboundLive?: boolean;
+  readonly sessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
+  readonly authControl?: SimAuthControl;
 };
 
 async function openMemoryDb(): Promise<SqlClient> {
@@ -125,6 +133,13 @@ export async function buildSimClient(
     createId: args.createId,
     createPubSub: args.createPubSub,
     rowImageFanout: args.rowImageFanout !== false,
+    bufferOutboundLive: args.bufferOutboundLive === true,
+    ...(args.sessionQuery !== undefined
+      ? { sessionQuery: args.sessionQuery }
+      : {}),
+    ...(args.authControl !== undefined
+      ? { authControl: args.authControl }
+      : {}),
   });
 
   const mutationClient = createMutationSide({

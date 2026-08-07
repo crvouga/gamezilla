@@ -7,7 +7,9 @@ should be able to (1) explain the system correctly, (2) review PRs against
 invariants, and (3) discuss design / recommend improvements without inventing
 history. Prefer this doc over training data or old chat transcripts.
 
-Related: root [`AGENTS.md`](../../AGENTS.md), [`src/sim/README.md`](src/sim/README.md).
+Related: root [`AGENTS.md`](../../../../AGENTS.md). This file is the single
+design doc for `@pkgs/sync-engine` (system + deterministic sim + scenario
+catalog) — load it alone for design discussion.
 
 ---
 
@@ -586,13 +588,286 @@ bun run ci:channel-exhaustiveness
 bun run ci:lint
 ```
 
-- Unit/scenario: `src/**/*.test.ts` (Bun)
-- Sim: `src/sim/` — seed-reproducible multi-client world ([sim README](src/sim/README.md))
-- Dual-platform harness: mutation parity SQLite ↔ Postgres
-- `@pkgs/sync-engine/test`: `createInMemorySyncEngine`
+| Suite | Path | Role |
+|-------|------|------|
+| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openSimWorld` |
+| Kernel harness | `src/tests/harness/kernel.test.ts` | RNG / scheduler / timers only |
+| Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
 `queries/shared/tiger-invariants.ts` lists named invariants aligned with current
 behavior (rebase, pushSeq monotonicity, lossy fanout).
+
+### Deterministic simulator
+
+TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
+identical timeline.** Scenarios call `openSimWorld`; fuzz calls `runSeed`.
+Domain under test: tiny notes+folders app in `src/sim/notes-app/` (kept out of
+`tests/` so sim code never imports test paths). Assert **live domain rows
+only** — never framework tables or private modules. The interactive **Sim Lab**
+GUI (`src/sim-lab/`) boots a shapes domain (`domain: 'shapes'`) instead — run
+`bun run sim:lab` from the repo root (installs deps, then serves
+http://localhost:7788).
+
+```text
+seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
+  │                         │
+  └──► SimClock ──► SimScheduler ──► timers + delayed deliveries
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+              HTTP bridge     PubSub broker    Sim server
+                    │               │         (:memory: SQLite)
+                    └───────┬───────┘
+                            ▼
+              Real createLocalSyncEngine + :memory: SQLite clients
+```
+
+| Boundary | Implementation |
+|----------|----------------|
+| Time | `SimClock` + `SimScheduler` (discrete events; same-time ordered by insertion seq) |
+| Wall clocks | Per-node skew via `setClockSkew` / `nowFor` (scheduler stays on base clock) |
+| Timers | `createSimTimers` implements the production `Timers` port |
+| RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
+| Network | `SimNetwork` — delay, loss, reorder, replay, partition, hold |
+| HTTP | `createSimHttpClient` / `bindSimHttpServer` over the mesh (`sync` traffic) |
+| PubSub | `createSimPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
+| Server | Bun `:memory:` SQLite + framework DDL + schema reconcile |
+| Clients | Bun `:memory:` SQLite + real `createLocalSyncEngine` |
+
+**Not simulated:** disk bitflips, real EMQX, Cloudflare Worker runtime. Sim
+server uses SQLite dialect; production server is Postgres.
+
+Injected ports (`now`, `random`, `createId`, `timers`) keep the production
+engine on the virtual clock. Convergence: after quiescence, every client’s live
+domain view (notes + folders) matches the server (`assertConverged`).
+`assertConverged` / settle clear holds, partitions, and node fault overrides.
+
+#### Quick start
+
+```ts
+import { openSimWorld } from './world';
+import { setNote } from './notes-app';
+
+const world = await openSimWorld({ seed: 42 });
+const a = await world.addClient({ id: 'alice' });
+await a.mutate(setNote, { id: 'n1', body: 'hi' });
+await world.assertConverged();
+await world.dispose();
+```
+
+Lightweight clock/timers without a full world:
+
+```ts
+import { createSimTestDriver } from './test-driver';
+const sim = createSimTestDriver();
+await sim.runFor(150);
+```
+
+#### Traffic classes
+
+Public API uses semantic traffic (not transport names):
+
+| Traffic | Intent |
+|---------|--------|
+| `live` | Realtime peer updates (pushes / fanout) |
+| `sync` | Pull / request-response hydration |
+| `all` | Both |
+
+```ts
+world.hold('bob', 'sync');      // pause bob's pull deliveries (queued)
+world.release('bob', 'sync');   // drain without re-sampling faults
+world.partition('bob', 'live'); // drop bob's realtime; sync still works
+world.heal('bob');
+world.setFaults('bob', 'live', { packetLossProbability: 1 });
+world.clearFaults('bob');
+```
+
+**Live is unreliable by design.** Never assume live messages arrive exactly once,
+in order, or at all. Control loss / dup / reorder / delay **per node** via
+`setFaults(nodeId, 'live', …)`. Named tests assert domain convergence after
+settle, not push ordering. `sync` stays near-reliable by default; use
+`hold`/`release` to script push↔query races.
+
+#### Clock skew
+
+Scheduler / network delivery use the shared base `SimClock`. Logical wall
+clocks for mutation `created_at` / soft-delete timestamps are per-node:
+
+```ts
+world.setClockSkew('alice', -60_000);
+world.setClockSkew('bob', 0);
+world.setClockSkew('server', 60_000);
+world.nowFor('alice'); // base.now() + skew
+```
+
+#### Knobs
+
+**World open** (`OpenSimWorldArgs` on `openSimWorld`):
+
+| Knob | Default | Meaning |
+|------|---------|---------|
+| `seed` | required | Root RNG seed (`number \| bigint \| string`) |
+| `faults` | `RELIABLE_FAULTS` | Default mesh fault profile (all zeros) |
+| `sampleFaults` | `false` | Ignore `faults`; sample lossy profile from `rng.fork('faults')` |
+| `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
+| `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe (sim stand-in for short offline session drain; production MQTT uses QoS 1 + persistent sessions separately) |
+| `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect (peers can paint via live before upload/sync) |
+
+**Network faults** (`SimFaultOptions` in `faults.ts`):
+
+| Knob | Effect |
+|------|--------|
+| `oneWayDelayMeanMs` / `oneWayDelayJitterMs` | Delivery delay |
+| `packetLossProbability` | Drop before schedule |
+| `packetReplayProbability` | Duplicate delivery |
+| `reorderWindow` | Extra delay for reordering |
+| `partitionProbability` / `unpartitionProbability` | Fuzz partition profile (not auto-applied on every send) |
+
+World-open `faults` / `sampleFaults` set the **default** profile. Per-node
+overrides win for that node's `live` / `sync` / `all`. `RELIABLE_FAULTS` zeros
+all knobs.
+
+**Runtime traffic** (`SimTraffic`: `live` \| `sync` \| `all`):
+
+| API | Meaning |
+|-----|---------|
+| `partition(nodeId, traffic?)` / `heal` / `healAll` | Cut / restore edges (default traffic `all`) |
+| `hold(nodeId, traffic)` / `release` / `releaseAll` | Queue then drain deliveries (no re-sample of faults on release) |
+| `setFaults(nodeId, traffic, partial)` / `clearFaults` | Per-node override = `RELIABLE_FAULTS` ∪ partial |
+| `setClockSkew(nodeId, skewMs)` / `nowFor(nodeId)` | Offset logical wall clock for mutation timestamps |
+
+**Lifecycle:** `addClient({ id, actorId?, sessionQuery? })`, `crashClient` /
+`restartClient` (fresh `:memory:` DB), `setAuthStatus(clientId, 'valid' |
+'expired' | 'revoked')`, `lifecycle.setOnline` / `setForeground`, engine
+`connect` / `disconnect` / `refreshQueries` / `wakeUploads`.
+
+**Fuzz / replay** (`runSeed`):
+
+| Knob | Default | Meaning |
+|------|---------|---------|
+| `seed` | required | Universe seed |
+| `clientCount` | `2` | Clients `c0..cN-1` |
+| `steps` | `40` | Workload actions |
+| `sampleFaults` | `false` | Apply sampled default faults after clients up |
+| `SYNC_SIM_SEED` | — | Env: single decimal seed replay |
+| `SYNC_SIM_SEEDS` | — | Env: comma-separated decimal seeds |
+
+Fuzz failures print `seed=<hex>`. Replay:
+
+```bash
+SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/fuzz.test.ts
+```
+
+```ts
+import { runSeed } from './replay';
+await runSeed({ seed: 0x2a, steps: 16 });
+```
+
+#### Sim layout
+
+```text
+src/sim/                             # DST implementation (not a public export)
+  rng.ts clock.ts scheduler.ts timers.ts
+  network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
+  world.ts client-factory.ts server.ts open-sim-sqlite.ts
+  notes-app/                         # tiny defineSchema + mutations/queries
+  faults.ts workload.ts invariants.ts replay.ts
+  test-driver.ts
+
+src/tests/
+  scenarios/                         # black-box correctness suite
+  harness/                           # sim kernel self-tests
+```
+
+### Scenario catalog
+
+Black-box correctness under `src/tests/scenarios/` (44 files). Most use
+`openSimWorld` + notes-app asserts. Row-image fanout is on unless a test sets
+`rowImageFanout: false`.
+
+#### Happy path / multi-client
+
+| File | Proves |
+|------|--------|
+| `mutate-upload.test.ts` | Single-client mutate uploads and persists title/body |
+| `multi-client-converge.test.ts` | Two-client converge + seed sweep of mutual writes |
+| `fanout-delivery.test.ts` | Happy-path live visibility within sim-time budget; restart rehydrates |
+| `folders-multi-table.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
+| `multi-device-same-actor.test.ts` | Two devices, same `actorId`, concurrent writes converge |
+| `latency-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
+| `mutation-version-coexist.test.ts` | `setNote` + `setNoteV2` interleaved writes converge |
+| `upload-batch-bounds.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
+| `query-limit-truncation.test.ts` | Hard query `limit` truncates hydrate; engine stays healthy |
+
+#### Tombstones / soft-delete
+
+| File | Proves |
+|------|--------|
+| `tombstones.test.ts` | Soft-delete propagates as tombstone; set after delete revives |
+| `cold-peer-tombstone.test.ts` | Late-joining peer hydrates soft-deleted rows from snapshot |
+| `hard-delete-rejected.test.ts` | Domain hard delete rejected (`NO_HARD_DELETE`); row stays live |
+
+#### Authz / rejection
+
+| File | Proves |
+|------|--------|
+| `authz-deny.test.ts` | Non-owner delete forbidden; owner soft-delete peers converge |
+| `write-rejection-drain.test.ts` | Permanent reject stored; peer never applies bad body; ack clears |
+| `requires-online.test.ts` | Requires-online mutations fail offline without queueing |
+| `query-denied-detach.test.ts` | Denied query detaches scope without wiping domain rows |
+| `auth-revoke-vs-expired.test.ts` | Expired refreshes and drains queue; revoked wipe drops unuploaded edit |
+| `mid-session-deny.test.ts` | Mid-session authorize flip denies scope; domain rows remain |
+| `rebase-reject-surface.test.ts` | Pending rejectable mutate surfaces `write_rejections`; domain rolls back |
+
+#### Offline / crash / partition
+
+| File | Proves |
+|------|--------|
+| `offline-conflict.test.ts` | Two-offline conflict on same id → single winner everywhere |
+| `pending-race.test.ts` | Remote fanout races a locally pending mutation; no stuck divergence |
+| `crash-restart.test.ts` | Offline queue drains on reconnect; crash+restart rehydrates from server |
+| `partition-heal.test.ts` | Full partition during write; heal converges |
+| `node-lifecycle-consistency.test.ts` | Offline, crash, partition, flip-flop contest matrix |
+| `idempotent-replay.test.ts` | Re-upload / repeated sets do not duplicate domain rows |
+| `cache-clear-durable-queue.test.ts` | Cache clear wipes domain; durable `_mutations` still upload and converge |
+| `not-modified-optimistic.test.ts` | `not_modified` refetch does not clobber pending optimistic; later rebase |
+
+#### Network / delivery faults
+
+| File | Proves |
+|------|--------|
+| `network-faults.test.ts` | Dropped live repaired by refetch; reorder; duplicate delivery |
+| `live-delivery-chaos.test.ts` | Live loss/dup/reorder/asymmetric faults; live-loss + sync-hold converge after repair |
+| `sync-path-faults.test.ts` | Sync hold, reorder, and duplicate delivery still converge |
+| `sync-only-partition.test.ts` | Sync partitioned while live can deliver (refetch fanout mode) |
+| `transient-upload-retry.test.ts` | Held sync keeps upload pending; release + wake confirms |
+| `live-reconnect-resend.test.ts` | Default live drop vs `liveResendOnReconnect` while sync held |
+| `outbound-live-buffer.test.ts` | Default skip vs `bufferOutboundLive` flush on reconnect; live-before-sync + latency budget |
+| `fanout-degrade-size-cap.test.ts` | Oversized fanout images fall back to pushSeq-only; peers converge |
+| `fanout-undeclared-affected-rows.test.ts` | No `affectedRows` → pushSeq-only wake+refetch still converges |
+| `push-table-filter-wake.test.ts` | Push `tables` filter skips non-overlapping scopes; overlapping wakes |
+
+#### Races / skew / lifecycle
+
+| File | Proves |
+|------|--------|
+| `push-query-races.test.ts` | Hold live vs sync ordering races; live-only partition repaired via sync pull |
+| `clock-skew-consistency.test.ts` | Convergence under Alice/Bob/server clock-order permutations |
+| `background-foreground.test.ts` | Background pauses remote sweeps; local optimistic still applies; foreground catches up |
+| `own-echo-no-flicker.test.ts` | Online mutate never reverts optimistic body before quiescence |
+| `created-at-pinning.test.ts` | Replay pins `env.now` to mutation `createdAt` under client clock skew |
+
+#### Fuzz
+
+| File | Proves |
+|------|--------|
+| `fuzz.test.ts` | Seeded workload determinism; corpus/env seeds; multi-client skew/crash; optional lossy faults |
+
+#### Unit (non-world)
+
+| File | Proves |
+|------|--------|
+| `watch-reactivity.test.ts` | In-memory engine `watch` reacts to local domain INSERT (`createInMemorySyncEngine`) |
 
 ---
 
@@ -684,8 +959,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Related docs
 
-- Root [`AGENTS.md`](../../AGENTS.md) — monorepo hard rules
-- [`src/sim/README.md`](src/sim/README.md) — deterministic simulation
+- Root [`AGENTS.md`](../../../../AGENTS.md) — monorepo hard rules
 - Product defs: `libs/<feature>/src/shared/{queries,mutations}/`
 - Topics: `libs/db/src/shared/sync-topics.ts`
 - Schema: `libs/db/src/shared/app-schema.ts`

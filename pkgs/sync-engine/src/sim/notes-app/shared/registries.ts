@@ -13,14 +13,25 @@ import {
   serverRejectNote,
   setFolder,
   setNote,
+  setNoteNoFanout,
+  setNoteV2,
 } from './mutations';
-import { notesDeniedQuery, notesWorldQuery } from './queries';
+import {
+  foldersOnlyQuery,
+  notesDeniedQuery,
+  notesLimitedQuery,
+  notesOnlyQuery,
+  notesOwnedQuery,
+  notesWorldQuery,
+} from './queries';
 
 export const notesMutationRegistry = withFrameworkMutations(
   mutationRegistry([
     setFolder,
     deleteFolder,
     setNote,
+    setNoteV2,
+    setNoteNoFanout,
     deleteNote,
     moveNote,
     illegalHardDeleteNote,
@@ -32,4 +43,8 @@ export const notesMutationRegistry = withFrameworkMutations(
 export const notesQueryRegistry = queryRegistry([
   notesWorldQuery,
   notesDeniedQuery,
+  notesLimitedQuery,
+  notesOwnedQuery,
+  notesOnlyQuery,
+  foldersOnlyQuery,
 ]);

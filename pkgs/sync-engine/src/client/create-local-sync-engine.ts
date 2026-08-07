@@ -29,7 +29,12 @@ import {
   type MutationUploadResult,
   type MutationUploadRow,
 } from './mutation-upload-queue';
-import { publishOptimisticFanout } from './optimistic-fanout';
+import {
+  buildOptimisticFanout,
+  createOutboundLiveBuffer,
+  type OutboundLiveBuffer,
+  publishOptimisticFanout,
+} from './optimistic-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
 import { createSubscribeQueries } from './subscribe-queries';
@@ -49,6 +54,11 @@ export type SyncEnginePushOptions = {
   readonly onBindTopicRefresh?: (refresh: () => void) => void;
   /** When true, apply contiguous push row images (default false). */
   readonly rowImageFanout?: boolean;
+  /**
+   * When true, queue optimistic fanout while pubsub is detached / down and
+   * flush on attach. Default false = skip (peers wait for upload/sync).
+   */
+  readonly bufferOutboundLive?: boolean;
 };
 
 export type CreateLocalSyncEngineOptions = {
@@ -89,6 +99,7 @@ type LocalEngineState = {
   readonly uploadQueue: MutationUploadQueue;
   readonly watches: ReturnType<typeof createSharedWatchRegistry>;
   readonly sessionHandles: readonly QuerySubscription[];
+  readonly outboundLive: OutboundLiveBuffer | null;
   connected: boolean;
   revokePromise: Promise<void> | null;
   disposePush: (() => void) | null;
@@ -166,6 +177,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   bus.subscribe((tables) => {
     if (tables.has('_mutations')) uploadQueue.wake();
   });
+  const bufferOutbound = options.push?.bufferOutboundLive === true;
   const state: LocalEngineState = {
     options,
     bus,
@@ -177,6 +189,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       createSqlWatch({ db: appDb, bus, query })
     ),
     sessionHandles,
+    outboundLive: bufferOutbound ? createOutboundLiveBuffer() : null,
     connected: false,
     revokePromise: null,
     disposePush: null,
@@ -186,6 +199,13 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   return state;
 }
 
+function flushOutboundLive(state: LocalEngineState): void {
+  const pubsub = state.pushPubSub;
+  const buf = state.outboundLive;
+  if (pubsub === null || buf === null) return;
+  void buf.flush(pubsub);
+}
+
 function attachPushIfConfigured(state: LocalEngineState): void {
   const push = state.options.push;
   if (push === undefined || state.disposePush !== null) {
@@ -193,6 +213,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
   }
   try {
     let pubsub = push.createPubSub();
+    state.pushPubSub = pubsub;
     state.disposePush = attachPush({
       pubsub,
       runtime: state.runtime,
@@ -207,6 +228,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
       },
       onPubSubChanged: (next) => {
         state.pushPubSub = next;
+        flushOutboundLive(state);
       },
       ...(push.onBindTopicRefresh !== undefined
         ? { onBindTopicRefresh: push.onBindTopicRefresh }
@@ -216,6 +238,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
         : {}),
       onTablesChanged: (listener) => state.bus.subscribe(listener),
     });
+    flushOutboundLive(state);
   } catch (error) {
     console.warn(
       '[sync] attachPush failed; continuing without live push',
@@ -235,16 +258,29 @@ function notifyLocalMutation(
   mutation: Mutation<unknown>,
   args: unknown
 ): void {
-  const pubsub = state.pushPubSub;
   const push = state.options.push;
-  if (pubsub === null || push === undefined) return;
-  if (push.rowImageFanout !== true) return;
-  void publishOptimisticFanout({
-    pubsub,
+  if (push === undefined || push.rowImageFanout !== true) return;
+  const pubsub = state.pushPubSub;
+  if (pubsub !== null && pubsub.status() === 'connected') {
+    void publishOptimisticFanout({
+      pubsub,
+      db: state.options.db,
+      env: state.options.getMutationEnv(),
+      mutation,
+      args,
+    });
+    return;
+  }
+  if (state.outboundLive === null) return;
+  void buildOptimisticFanout({
     db: state.options.db,
     env: state.options.getMutationEnv(),
     mutation,
     args,
+  }).then((items) => {
+    if (items.length === 0) return;
+    state.outboundLive?.enqueue(items);
+    flushOutboundLive(state);
   });
 }
 

@@ -6,7 +6,7 @@ import {
 import { createEmqxHttpPubSub } from './create-emqx-http-pubsub';
 
 describe('createEmqxHttpPubSub', () => {
-  test('publish posts qos0 retain false with basic auth', async () => {
+  test('publish posts qos1 retain false with basic auth', async () => {
     const fetchImpl = mock(
       async (input: RequestInfo | URL, init?: RequestInit) => {
         expect(String(input)).toBe('http://emqx:18083/api/v5/publish');
@@ -18,7 +18,7 @@ describe('createEmqxHttpPubSub', () => {
         expect(JSON.parse(String(init?.body))).toEqual({
           topic: 'user:1',
           payload: JSON.stringify({ a: 1 }),
-          qos: 0,
+          qos: 1,
           retain: false,
         });
         return new Response(null, { status: 200 });

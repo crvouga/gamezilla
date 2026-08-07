@@ -1,4 +1,5 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
+import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { AppLifecycle } from '../client/app-lifecycle';
@@ -6,6 +7,7 @@ import { createLocalSyncEngine } from '../client/create-local-sync-engine';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { SyncEngine } from '../client/sync-engine-port';
+import { SyncApiAuthError } from '../client/sync-http-client';
 import {
   createMutationClient,
   type MutationClient,
@@ -13,6 +15,14 @@ import {
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimHttpClient } from './http-bridge';
+
+export type SimAuthStatus = 'valid' | 'expired' | 'revoked';
+
+export type SimAuthControl = {
+  readonly getStatus: () => SimAuthStatus;
+  /** Upgrade expired → valid (product getFreshAuthToken stand-in). */
+  readonly refreshExpired: () => void;
+};
 
 type SimClientLifecycle = {
   readonly lifecycle: AppLifecycle;
@@ -36,23 +46,72 @@ export type CreateEngineOptionsArgs = {
   readonly createId: () => string;
   readonly createPubSub: () => PubSub;
   readonly rowImageFanout?: boolean;
+  readonly bufferOutboundLive?: boolean;
+  readonly sessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
+  readonly authControl?: SimAuthControl;
 };
+
+async function wipeIdentityDb(db: SqlClient): Promise<void> {
+  const rows = await db.query(
+    unsafe<{ name: string }>(
+      `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`
+    )
+  );
+  for (const row of rows) {
+    await db.run(unsafe(`DROP TABLE IF EXISTS "${row.name}"`));
+  }
+}
+
+/**
+ * Wrap postQueries/postMutations: revoked → SyncApiAuthError; expired →
+ * refresh once then retry (queue survives).
+ */
+export function withSimAuthRetry<T>(
+  auth: SimAuthControl | undefined,
+  fn: () => Promise<T>
+): Promise<T> {
+  if (auth === undefined) return fn();
+  const status = auth.getStatus();
+  if (status === 'revoked') {
+    return Promise.reject(new SyncApiAuthError('revoked'));
+  }
+  if (status === 'expired') {
+    auth.refreshExpired();
+    return fn();
+  }
+  return fn();
+}
 
 /** Options bag for {@link createLocalSyncEngine} from sim client args. */
 export async function createEngineFromParts(
   args: CreateEngineOptionsArgs
 ): Promise<SyncEngine> {
+  const auth = args.authControl;
   return createLocalSyncEngine({
     db: args.db,
     localSchema: args.tables,
     mutationRegistry: args.mutations,
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,
-    sessionQueries: [{ name: 'notesWorld', params: {} }],
-    postQueries: (rs) => args.http.postQueries(rs),
-    postMutations: (ms) => args.http.postMutations(ms),
-    isAuthRevoked: () => false,
-    deleteDatabase: async () => undefined,
+    sessionQueries: [args.sessionQuery ?? { name: 'notesWorld', params: {} }],
+    postQueries: (rs) =>
+      withSimAuthRetry(auth, () => args.http.postQueries(rs)),
+    postMutations: (ms) =>
+      withSimAuthRetry(auth, () => args.http.postMutations(ms)),
+    isAuthRevoked: (error) =>
+      error instanceof SyncApiAuthError && error.reason === 'revoked',
+    deleteDatabase: async () => {
+      // Engine disconnects first; wipe while handle may still accept SQL.
+      // In-memory close already drops data — best-effort table drop.
+      try {
+        await wipeIdentityDb(args.db);
+      } catch {
+        // disconnected / closed — ok for :memory:
+      }
+    },
     lifecycle: args.lifecycle.lifecycle,
     now: args.now,
     random: args.random,
@@ -63,6 +122,7 @@ export async function createEngineFromParts(
       createPubSub: args.createPubSub,
       getChannelsCtx: () => ({ actorId: args.actorId }),
       rowImageFanout: args.rowImageFanout !== false,
+      ...(args.bufferOutboundLive === true ? { bufferOutboundLive: true } : {}),
     },
   });
 }

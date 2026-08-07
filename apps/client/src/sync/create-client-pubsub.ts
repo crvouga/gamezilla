@@ -11,6 +11,8 @@ import type {
 /**
  * Client composition root for EMQX MQTT. Returns null when
  * EXPO_PUBLIC_EMQX_WSS_URL is unset (poll-only).
+ * `clientIdPrefix` is the stable MQTT client id (device id) so short offline
+ * sessions can drain on reconnect.
  */
 export function tryCreateClientPubSub(args: {
   readonly config: ConfigService;

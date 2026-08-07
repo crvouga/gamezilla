@@ -9,6 +9,7 @@
     "./test": "./src/test/index.ts"
   },
   "scripts": {
+    "sim:lab": "bun ./src/sim-lab/server.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
@@ -22,11 +23,13 @@
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
+    "react-dom": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

@@ -4,8 +4,9 @@ import {
   runPubSubContractTests,
 } from '@pkgs/pubsub/testing';
 import { createEmqxHttpPubSub } from './create-emqx-http-pubsub';
-import { createEmqxPubSub } from './create-emqx-pubsub';
+import { createEmqxPubSub, EMQX_PUBSUB_QOS } from './create-emqx-pubsub';
 import { getEmqxClientId } from './emqx-client-id';
+import { randomClientIdSuffix } from './reconnect-backoff';
 
 const WSS_URL = process.env['EMQX_TEST_URL'];
 const API_URL = process.env['EMQX_TEST_API_URL'];
@@ -30,6 +31,49 @@ async function probeBroker(): Promise<boolean> {
   }
 }
 
+async function httpPublish(
+  apiBaseUrl: string,
+  topic: string,
+  payload: string
+): Promise<void> {
+  const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/v5/publish`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      topic,
+      payload,
+      qos: EMQX_PUBSUB_QOS,
+      retain: false,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`EMQX publish failed: ${String(res.status)}`);
+  }
+}
+
+async function forceDisconnectClient(
+  apiBaseUrl: string,
+  clientId: string
+): Promise<void> {
+  const res = await fetch(
+    `${apiBaseUrl.replace(/\/$/, '')}/api/v5/clients/${encodeURIComponent(clientId)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
+        Accept: 'application/json',
+      },
+    }
+  );
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`force-disconnect failed: ${String(res.status)}`);
+  }
+}
+
 const brokerReady = await probeBroker();
 
 if (!brokerReady) {
@@ -49,9 +93,10 @@ if (!brokerReady) {
 
     return {
       make: async () => {
+        // Unique stable id per instance so concurrent contract peers do not kick each other.
         const ps = createEmqxPubSub({
           url: WSS_URL!,
-          clientIdPrefix: 'contract',
+          clientIdPrefix: `contract_${randomClientIdSuffix()}`,
           auth: async () => ({
             username: MQTT_USER,
             password: MQTT_PASS,
@@ -77,45 +122,70 @@ if (!brokerReady) {
       disruptTransport: async (p) => {
         const clientId = getEmqxClientId(p);
         if (!clientId) throw new Error('missing EMQX client id');
-        const res = await fetch(
-          `${apiBaseUrl.replace(/\/$/, '')}/api/v5/clients/${encodeURIComponent(clientId)}`,
-          {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
-              Accept: 'application/json',
-            },
-          }
-        );
-        if (!res.ok && res.status !== 404) {
-          throw new Error(`force-disconnect failed: ${String(res.status)}`);
-        }
+        await forceDisconnectClient(apiBaseUrl, clientId);
       },
       injectMalformedInbound: async (_subscriber, topic) => {
-        const res = await fetch(
-          `${apiBaseUrl.replace(/\/$/, '')}/api/v5/publish`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-            body: JSON.stringify({
-              topic,
-              payload: 'not-json{{{',
-              qos: 0,
-              retain: false,
-            }),
-          }
-        );
-        if (!res.ok) {
-          throw new Error(`malformed inject failed: ${String(res.status)}`);
-        }
+        await httpPublish(apiBaseUrl, topic, 'not-json{{{');
       },
       teardown: async () => {
         for (const ps of instances) ps.close();
       },
     };
+  });
+
+  describe('EMQX offline session buffer', () => {
+    test('reconnect with same clientId receives queued qos1 publish', async () => {
+      const apiBaseUrl = API_URL!;
+      const clientId = `offline_${randomClientIdSuffix()}`;
+      const topic = `offline_${randomClientIdSuffix()}`;
+      const received: unknown[] = [];
+
+      // Slow reconnect so we can publish while the session is offline.
+      const first = createEmqxPubSub({
+        url: WSS_URL!,
+        clientIdPrefix: clientId,
+        auth: async () => ({
+          username: MQTT_USER,
+          password: MQTT_PASS,
+        }),
+        reconnect: { baseMs: 1500, maxMs: 3000 },
+      });
+      const deadline = Date.now() + 10_000;
+      while (Date.now() < deadline && first.status() !== 'connected') {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(first.status()).toBe('connected');
+      first.subscribe(topic, (data) => {
+        received.push(data);
+      });
+      // Allow SUBSCRIBE to settle on the broker before forcing disconnect.
+      await new Promise((r) => setTimeout(r, 400));
+
+      await forceDisconnectClient(apiBaseUrl, clientId);
+      const downDeadline = Date.now() + 5000;
+      while (Date.now() < downDeadline && first.status() === 'connected') {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(first.status()).not.toBe('connected');
+
+      await httpPublish(
+        apiBaseUrl,
+        topic,
+        JSON.stringify({ while: 'offline' })
+      );
+
+      const upDeadline = Date.now() + 20_000;
+      while (Date.now() < upDeadline && first.status() !== 'connected') {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(first.status()).toBe('connected');
+
+      const recvDeadline = Date.now() + 10_000;
+      while (Date.now() < recvDeadline && received.length === 0) {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(received).toEqual([{ while: 'offline' }]);
+      first.close();
+    });
   });
 }

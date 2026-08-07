@@ -1,6 +1,6 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimHttpServerHandlers } from './http-bridge';
@@ -35,6 +35,7 @@ export type OpenSimServerArgs = {
   readonly resolveAuth: (clientId: string) => SimServerAuth;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
+  readonly localSchema?: LocalDomainSchema;
   readonly rowImageFanout?: boolean;
 };
 
@@ -68,7 +69,9 @@ function buildHandlerCtx(args: {
 export async function openSimServer(
   args: OpenSimServerArgs
 ): Promise<SimServer> {
-  const bundle = await openSimSqliteServer(notesLocalSchema);
+  const bundle = await openSimSqliteServer(
+    args.localSchema ?? notesLocalSchema
+  );
   const db = bundle.sqlClient;
 
   const mutations = args.mutationRegistry ?? notesMutationRegistry;

@@ -1,11 +1,9 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { SimClientHandle } from './client-factory';
+import type { SimDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS } from './faults';
-import {
-  checkAllClientsConverged,
-  type InvariantViolation,
-} from './invariants';
+import type { InvariantViolation } from './invariants';
 import type { SimNetwork } from './network';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
@@ -16,6 +14,7 @@ export type AssertConvergedCtx = {
   readonly clients: ReadonlyMap<string, SimClientHandle>;
   readonly server: SimServer;
   readonly seed: bigint;
+  readonly domain: SimDomainPack;
 };
 
 function clientSnapshots(
@@ -31,13 +30,13 @@ async function settleOnce(
   ctx: AssertConvergedCtx
 ): Promise<InvariantViolation | null> {
   await ctx.scheduler.runFor(250);
-  return checkAllClientsConverged({
+  return ctx.domain.checkAllConverged({
     clients: clientSnapshots(ctx.clients),
     serverDb: ctx.server.db,
   });
 }
 
-/** Heal and settle until all clients match server notes (or throw). */
+/** Heal and settle until all clients match server domain (or throw). */
 export async function assertConvergedImpl(
   ctx: AssertConvergedCtx
 ): Promise<void> {

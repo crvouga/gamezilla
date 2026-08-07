@@ -16,6 +16,8 @@ Turbo starts this package alongside `@apps/api` and `@apps/client`.
 
 - MQTT user / password: `pubsub` / `pubsub`
 - API key / secret: `pubsub-test` / `pubsub-test-secret`
+- Session: MQTT 5 clients send `sessionExpiryInterval` 600s; broker
+  `mqtt.session_expiry_interval = 10m`, `mqtt.max_mqueue_len = 1000`
 
 ```bash
 export EMQX_TEST_URL=ws://127.0.0.1:8083/mqtt

@@ -1,11 +1,12 @@
 import type { Timers } from '../client/sim-ports';
-import type { SimClientHandle } from './client-factory';
+import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import { createSimClock, type SimClock } from './clock';
 import {
   type ClockSkewTable,
   createClockSkewTable,
   SIM_SERVER_NODE_ID,
 } from './clock-skew';
+import { resolveDomainPack, type SimDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { bindSimHttpServer } from './http-bridge';
 import { createSimNetwork, type SimNetwork } from './network';
@@ -29,8 +30,11 @@ export type BootedSimKernel = {
   readonly clients: Map<string, SimClientHandle>;
   readonly metas: Map<string, ClientMeta>;
   readonly authByDevice: Map<string, ClientMeta>;
+  /** Per-device auth token status for expired/revoked scenarios. */
+  readonly authStatusByDevice: Map<string, SimAuthStatus>;
   readonly nextId: () => string;
   readonly worldArgs: WorldClientOpts;
+  readonly domain: SimDomainPack;
   readonly nowFor: (nodeId: string) => number;
 };
 
@@ -77,7 +81,9 @@ export async function bootSimKernel(args: {
     faults,
   });
 
+  const domain = resolveDomainPack(args.worldArgs.domain);
   const authByDevice = new Map<string, ClientMeta>();
+  const authStatusByDevice = new Map<string, SimAuthStatus>();
   const broker = createSimPubSubBroker({
     network,
     brokerId: BROKER,
@@ -88,6 +94,9 @@ export async function bootSimKernel(args: {
     pubsub: broker.createPubSub(SERVER_PUB),
     resolveAuth: (clientId) => resolveAuthForDevice(authByDevice, clientId),
     rowImageFanout: args.worldArgs.rowImageFanout !== false,
+    localSchema: domain.localSchema,
+    mutationRegistry: domain.mutationRegistry,
+    queryRegistry: domain.queryRegistry,
   });
 
   bindSimHttpServer({
@@ -110,7 +119,9 @@ export async function bootSimKernel(args: {
     clients: new Map(),
     metas: new Map(),
     authByDevice,
+    authStatusByDevice,
     worldArgs: args.worldArgs,
+    domain,
     nowFor,
     nextId: () => {
       idCounter += 1;

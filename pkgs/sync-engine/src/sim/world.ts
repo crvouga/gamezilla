@@ -1,4 +1,4 @@
-import type { SimClientHandle } from './client-factory';
+import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import type { SimClock } from './clock';
 import type { SimFaultOptions } from './faults';
 import { RELIABLE_FAULTS } from './faults';
@@ -15,8 +15,13 @@ import {
   syncEndpoint,
 } from './traffic';
 import { bootSimKernel } from './world-boot';
-import { addClientImpl, assertConvergedImpl } from './world-ops';
+import {
+  type AddClientArgs,
+  addClientImpl,
+  assertConvergedImpl,
+} from './world-ops';
 
+export type { SimAuthStatus } from './client-factory';
 export { SIM_SERVER_NODE_ID } from './clock-skew';
 export type { SimTraffic } from './traffic';
 
@@ -28,12 +33,12 @@ export type SimWorld = {
   readonly network: SimNetwork;
   readonly server: SimServer;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
-  readonly addClient: (args: {
-    readonly id: string;
-    readonly actorId?: string;
-  }) => Promise<SimClientHandle>;
+  readonly nextId: () => string;
+  readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly crashClient: (id: string) => Promise<void>;
   readonly restartClient: (id: string) => Promise<SimClientHandle>;
+  /** Simulate token expired / revoked / valid for a client id. */
+  readonly setAuthStatus: (clientId: string, status: SimAuthStatus) => void;
   /** Drop traffic between this node and the server (default all). */
   readonly partition: (nodeId: string, traffic?: SimTraffic) => void;
   /** Clear partitions for one node. */
@@ -74,6 +79,13 @@ export type OpenSimWorldArgs = {
    * (QoS-0; repair via sync pull).
    */
   readonly liveResendOnReconnect?: boolean;
+  /**
+   * When true, queue optimistic fanout while push is detached and flush on
+   * reconnect. Default false = peers wait for upload/sync.
+   */
+  readonly bufferOutboundLive?: boolean;
+  /** Domain pack. Default `notes`. Lab uses `shapes`. */
+  readonly domain?: 'notes' | 'shapes';
 };
 
 async function checkClientSeqs(
@@ -110,13 +122,10 @@ function healNode(network: SimNetwork, nodeId: string): void {
  */
 export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
   const k = await bootSimKernel({ seed: args.seed, worldArgs: args });
-  const { clients, metas, scheduler, network, server, broker, rng, clockSkew } =
-    k;
+  const { clients, metas, scheduler, network, server, broker, rng, domain } = k;
 
-  const addClient = (clientArgs: {
-    readonly id: string;
-    readonly actorId?: string;
-  }): Promise<SimClientHandle> => addClientImpl(k, clientArgs);
+  const addClient = (clientArgs: AddClientArgs): Promise<SimClientHandle> =>
+    addClientImpl(k, clientArgs);
 
   const crashClient = async (id: string): Promise<void> => {
     const handle = clients.get(id);
@@ -129,9 +138,15 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
     const meta = metas.get(id);
     if (meta === undefined) throw new Error(`unknown client meta ${id}`);
     if (clients.has(id)) await crashClient(id);
-    // Note: in-memory DB is gone — restart is a fresh client (durable crash
-    // would need persisting the sqlite file; deferred).
+    // Re-auth after revoke: clear revoked status so the new engine can sync.
+    k.authStatusByDevice.set(meta.deviceId, 'valid');
     return addClient({ id: meta.id, actorId: meta.actorId });
+  };
+
+  const setAuthStatus = (clientId: string, status: SimAuthStatus): void => {
+    const meta = metas.get(clientId);
+    if (meta === undefined) throw new Error(`unknown client ${clientId}`);
+    k.authStatusByDevice.set(meta.deviceId, status);
   };
 
   return {
@@ -142,37 +157,23 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
     network,
     server,
     clients,
+    nextId: k.nextId,
     addClient,
     crashClient,
     restartClient,
-    partition: (nodeId, traffic = 'all') => {
-      partitionNode(network, nodeId, traffic);
-    },
-    heal: (nodeId) => {
-      healNode(network, nodeId);
-    },
+    setAuthStatus,
+    partition: (nodeId, traffic = 'all') =>
+      partitionNode(network, nodeId, traffic),
+    heal: (nodeId) => healNode(network, nodeId),
     healAll: () => network.healAll(),
-    hold: (nodeId, traffic) => {
-      network.hold(nodeId, traffic);
-    },
-    release: (nodeId, traffic) => {
-      network.release(nodeId, traffic);
-    },
-    releaseAll: () => {
-      network.releaseAll();
-    },
+    hold: (nodeId, traffic) => network.hold(nodeId, traffic),
+    release: (nodeId, traffic) => network.release(nodeId, traffic),
+    releaseAll: () => network.releaseAll(),
     setFaults: (nodeId, traffic, faults) => {
-      network.setNodeFaults(nodeId, traffic, {
-        ...RELIABLE_FAULTS,
-        ...faults,
-      });
+      network.setNodeFaults(nodeId, traffic, { ...RELIABLE_FAULTS, ...faults });
     },
-    clearFaults: (nodeId) => {
-      network.clearNodeFaults(nodeId);
-    },
-    setClockSkew: (nodeId, skewMs) => {
-      clockSkew.set(nodeId, skewMs);
-    },
+    clearFaults: (nodeId) => network.clearNodeFaults(nodeId),
+    setClockSkew: (nodeId, skewMs) => k.clockSkew.set(nodeId, skewMs),
     nowFor: (nodeId) => k.nowFor(nodeId),
     runFor: (ms) => scheduler.runFor(ms),
     runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
@@ -184,6 +185,7 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
         clients,
         server,
         seed: rng.seed,
+        domain,
       }),
     dispose: async () => {
       for (const c of [...clients.values()]) await c.dispose();

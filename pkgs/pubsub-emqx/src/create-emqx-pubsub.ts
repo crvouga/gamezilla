@@ -9,15 +9,26 @@ import {
 } from '@pkgs/pubsub/interface';
 import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import { rememberEmqxClientId } from './emqx-client-id';
-import { fullJitterDelayMs, randomClientIdSuffix } from './reconnect-backoff';
+import { fullJitterDelayMs } from './reconnect-backoff';
 
 type Handler = (data: unknown) => void;
 type AuthFn = () => Promise<{ username: string; password: string }>;
 type ConnectFn = (url: string, opts: IClientOptions) => MqttClient;
 
+/** MQTT QoS for publish + subscribe (offline session queue requires ≥1). */
+export const EMQX_PUBSUB_QOS = 1 as const;
+
+/** Broker keeps the session (subscriptions + mqueue) this long after disconnect. */
+export const EMQX_SESSION_EXPIRY_SEC = 600;
+
 export type EmqxPubSubOptions = {
   url: string;
   auth: AuthFn;
+  /**
+   * Stable MQTT client id for this device / instance. Reused across reconnects
+   * so the broker can drain the offline session queue. One live connection per
+   * id — a second connect with the same id kicks the older session.
+   */
   clientIdPrefix: string;
   reconnect?: { baseMs?: number; maxMs?: number };
   keepaliveSec?: number;
@@ -32,7 +43,7 @@ export function createEmqxPubSub(options: EmqxPubSubOptions): PubSub {
 class EmqxMqttPubSub implements PubSub {
   private readonly url: string;
   private readonly auth: AuthFn;
-  private readonly clientIdPrefix: string;
+  private readonly clientId: string;
   private readonly baseMs: number;
   private readonly maxMs: number;
   private readonly keepaliveSec: number;
@@ -43,7 +54,6 @@ class EmqxMqttPubSub implements PubSub {
   private closed = false;
   private reconnectAttempt = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-  private clientId = '';
   private readonly topics = new Map<Topic, Set<Handler>>();
   private readonly statusListeners = new Set<(s: PubSubStatus) => void>();
   private connectWaiters = new Set<() => void>();
@@ -51,11 +61,12 @@ class EmqxMqttPubSub implements PubSub {
   constructor(options: EmqxPubSubOptions) {
     this.url = options.url;
     this.auth = options.auth;
-    this.clientIdPrefix = options.clientIdPrefix;
+    this.clientId = options.clientIdPrefix;
     this.baseMs = options.reconnect?.baseMs ?? 500;
     this.maxMs = options.reconnect?.maxMs ?? 30_000;
     this.keepaliveSec = options.keepaliveSec ?? 30;
     this.connectFn = options.connectFn ?? mqtt.connect;
+    rememberEmqxClientId(this, this.clientId);
     void this.openConnection();
   }
 
@@ -65,7 +76,7 @@ class EmqxMqttPubSub implements PubSub {
     const payload = encodePayload(data);
     await this.waitUntilConnected();
     const client = this.requireClient();
-    await publishQos0(client, topic, payload);
+    await publishQos1(client, topic, payload);
   }
 
   subscribe(topic: Topic, handler: Handler): () => void {
@@ -79,7 +90,7 @@ class EmqxMqttPubSub implements PubSub {
     }
     set.add(handler);
     if (isFirst && this.client?.connected) {
-      this.client.subscribe(topic, { qos: 0 });
+      this.client.subscribe(topic, { qos: EMQX_PUBSUB_QOS });
     }
     return () => this.unsubscribeHandler(topic, handler);
   }
@@ -105,7 +116,11 @@ class EmqxMqttPubSub implements PubSub {
     this.setStatus('down');
     const client = this.client;
     this.client = null;
-    client?.end(true);
+    // Discard the broker session so we do not leave an orphan mqueue.
+    client?.end(false, {
+      reasonCode: 0,
+      properties: { sessionExpiryInterval: 0 },
+    });
     this.flushConnectWaiters();
   }
 
@@ -126,17 +141,18 @@ class EmqxMqttPubSub implements PubSub {
     try {
       const creds = await this.auth();
       if (this.closed) return;
-      this.clientId = `${this.clientIdPrefix}_${randomClientIdSuffix()}`;
-      rememberEmqxClientId(this, this.clientId);
       const client = this.connectFn(this.url, {
         clientId: this.clientId,
         username: creds.username,
         password: creds.password,
-        clean: true,
+        // MQTT 5 cleanStart=false — resume session + drain offline mqueue.
+        clean: false,
         reconnectPeriod: 0,
         keepalive: this.keepaliveSec,
-        queueQoSZero: false,
-        protocolVersion: 4,
+        protocolVersion: 5,
+        properties: {
+          sessionExpiryInterval: EMQX_SESSION_EXPIRY_SEC,
+        },
       });
       this.client = client;
       this.wireClient(client);
@@ -152,6 +168,7 @@ class EmqxMqttPubSub implements PubSub {
       if (this.closed || this.client !== client) return;
       this.reconnectAttempt = 0;
       this.setStatus('connected');
+      // Broker may already hold subscriptions; re-SUBSCRIBE keeps app + broker aligned.
       this.resubscribeAll(client);
       this.flushConnectWaiters();
     });
@@ -174,7 +191,7 @@ class EmqxMqttPubSub implements PubSub {
 
   private resubscribeAll(client: MqttClient): void {
     for (const topic of this.topics.keys()) {
-      client.subscribe(topic, { qos: 0 });
+      client.subscribe(topic, { qos: EMQX_PUBSUB_QOS });
     }
   }
 
@@ -205,6 +222,7 @@ class EmqxMqttPubSub implements PubSub {
       this.reconnectTimer = null;
       const old = this.client;
       this.client = null;
+      // Force-drop the socket without clearing sessionExpiry (no DISCONNECT expiry 0).
       old?.end(true);
       void this.openConnection();
     }, delay);
@@ -258,15 +276,20 @@ class EmqxMqttPubSub implements PubSub {
   }
 }
 
-function publishQos0(
+function publishQos1(
   client: MqttClient,
   topic: string,
   payload: string
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    client.publish(topic, payload, { qos: 0, retain: false }, (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
+    client.publish(
+      topic,
+      payload,
+      { qos: EMQX_PUBSUB_QOS, retain: false },
+      (err) => {
+        if (err) reject(err);
+        else resolve();
+      }
+    );
   });
 }

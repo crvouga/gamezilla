@@ -21,8 +21,18 @@ export {
   serverRejectNote,
   setFolder,
   setNote,
+  setNoteNoFanout,
+  setNoteV2,
 } from './shared/mutations';
-export { notesDeniedQuery, notesWorldQuery } from './shared/queries';
+export {
+  foldersOnlyQuery,
+  NOTES_AUTH_GATE_FOLDER_ID,
+  notesDeniedQuery,
+  notesLimitedQuery,
+  notesOnlyQuery,
+  notesOwnedQuery,
+  notesWorldQuery,
+} from './shared/queries';
 export {
   notesMutationRegistry,
   notesQueryRegistry,

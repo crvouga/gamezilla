@@ -188,3 +188,63 @@ export const requiresOnlineNote = defineMutation({
     `);
   },
 });
+
+/**
+ * V2 wire name for setNote — coexistence / versioning scenarios.
+ * Same SQL semantics; keep setNote until clients migrate.
+ */
+export const setNoteV2 = defineMutation({
+  name: 'setNoteV2',
+  args: z.object({
+    id: z.string(),
+    title: z.string().optional(),
+    body: z.string(),
+    folderId: z.string().nullable().optional(),
+  }),
+  declaredWrites: ['notes'],
+  invalidates: worldTopics,
+  affectedRows: ({ id }) => ({ notes: [id] }),
+  async run({ tx, env }, { id, title, body, folderId }) {
+    const folder = folderId ?? null;
+    const noteTitle = title ?? '';
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${folder}, ${noteTitle}, ${body}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        folder_id = excluded.folder_id,
+        title = excluded.title,
+        body = excluded.body,
+        owner_id = excluded.owner_id,
+        _deleted_at = NULL
+    `);
+  },
+});
+
+/**
+ * Like setNote but omits affectedRows — pushSeq-only wake (no row images).
+ */
+export const setNoteNoFanout = defineMutation({
+  name: 'setNoteNoFanout',
+  args: z.object({
+    id: z.string(),
+    title: z.string().optional(),
+    body: z.string(),
+    folderId: z.string().nullable().optional(),
+  }),
+  declaredWrites: ['notes'],
+  invalidates: worldTopics,
+  async run({ tx, env }, { id, title, body, folderId }) {
+    const folder = folderId ?? null;
+    const noteTitle = title ?? '';
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${folder}, ${noteTitle}, ${body}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        folder_id = excluded.folder_id,
+        title = excluded.title,
+        body = excluded.body,
+        owner_id = excluded.owner_id,
+        _deleted_at = NULL
+    `);
+  },
+});

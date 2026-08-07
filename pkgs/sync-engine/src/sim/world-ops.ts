@@ -3,6 +3,7 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Timers } from '../client/sim-ports';
 import { buildSimClient, type SimClientHandle } from './client-factory';
 import type { SimClock } from './clock';
+import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
 import { createSimHttpClient } from './http-bridge';
 import type { SimNetwork } from './network';
@@ -32,10 +33,18 @@ export type WorldClientOpts = {
    * closed and flushes on re-subscribe. Default false = QoS-0 drop.
    */
   readonly liveResendOnReconnect?: boolean;
+  /**
+   * When true, queue optimistic fanout while push is detached and flush on
+   * reconnect. Default false = skip outbound live while disconnected.
+   */
+  readonly bufferOutboundLive?: boolean;
+  /** Domain pack id. Default `notes`. Lab uses `shapes`. */
+  readonly domain?: 'notes' | 'shapes';
 };
 
 export type AddClientCtx = {
   readonly worldArgs: WorldClientOpts;
+  readonly domain: SimDomainPack;
   readonly rng: SeededRng;
   readonly clock: SimClock;
   readonly nowFor: (nodeId: string) => number;
@@ -47,7 +56,20 @@ export type AddClientCtx = {
   readonly clients: Map<string, SimClientHandle>;
   readonly metas: Map<string, ClientMeta>;
   readonly authByDevice: Map<string, ClientMeta>;
+  readonly authStatusByDevice: Map<
+    string,
+    import('./client-factory').SimAuthStatus
+  >;
   readonly nextId: () => string;
+};
+
+export type AddClientArgs = {
+  readonly id: string;
+  readonly actorId?: string;
+  readonly sessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
 };
 
 async function waitForSessionSync(
@@ -75,7 +97,7 @@ async function waitForSessionSync(
 /** Add a client engine to the world and wait for first sync. */
 export async function addClientImpl(
   ctx: AddClientCtx,
-  clientArgs: { readonly id: string; readonly actorId?: string }
+  clientArgs: AddClientArgs
 ): Promise<SimClientHandle> {
   if (ctx.clients.has(clientArgs.id)) {
     throw new Error(`SimWorld: client ${clientArgs.id} already exists`);
@@ -85,6 +107,9 @@ export async function addClientImpl(
   const meta: ClientMeta = { id: clientArgs.id, actorId, deviceId };
   ctx.metas.set(clientArgs.id, meta);
   ctx.authByDevice.set(deviceId, meta);
+  if (!ctx.authStatusByDevice.has(deviceId)) {
+    ctx.authStatusByDevice.set(deviceId, 'valid');
+  }
 
   const httpEndpoint = `http:${clientArgs.id}`;
   const pubEndpoint = `pubsub:${clientArgs.id}`;
@@ -120,6 +145,19 @@ export async function addClientImpl(
       return pubsubInstance;
     },
     rowImageFanout: ctx.worldArgs.rowImageFanout !== false,
+    bufferOutboundLive: ctx.worldArgs.bufferOutboundLive === true,
+    tableRegistry: ctx.domain.localSchema,
+    mutationRegistry: ctx.domain.mutationRegistry,
+    queryRegistry: ctx.domain.queryRegistry,
+    sessionQuery: clientArgs.sessionQuery ?? ctx.domain.sessionQuery,
+    authControl: {
+      getStatus: () => ctx.authStatusByDevice.get(deviceId) ?? 'valid',
+      refreshExpired: () => {
+        if (ctx.authStatusByDevice.get(deviceId) === 'expired') {
+          ctx.authStatusByDevice.set(deviceId, 'valid');
+        }
+      },
+    },
   });
   ctx.clients.set(clientArgs.id, handle);
   await waitForSessionSync(ctx.scheduler, handle, clientArgs.id);

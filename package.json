@@ -64,6 +64,7 @@
     "kill": "bun run tools/scripts/kill-dev-stack.ts",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
     "preview": "bun run tools/scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client",
+    "sim:lab": "bun install && bun run --filter @pkgs/sync-engine sim:lab",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
     "wipe": "git clean -xfd"

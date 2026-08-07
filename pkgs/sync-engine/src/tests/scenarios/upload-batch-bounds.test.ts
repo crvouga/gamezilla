@@ -1,0 +1,39 @@
+import { describe, expect, test } from 'bun:test';
+
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import { expectLiveNote, readLiveNotes, setNote } from '../../sim/notes-app';
+import { openSimWorld } from '../../sim/world';
+
+const QUEUE_SIZE = 100;
+
+describe('upload batch bounds', () => {
+  test('queue larger than MAX_MUTATIONS_BATCH drains across batches without dupes', async () => {
+    const world = await openSimWorld({ seed: 650, faults: RELIABLE_FAULTS });
+    try {
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
+
+      await a.engine.disconnect();
+      for (let i = 0; i < QUEUE_SIZE; i += 1) {
+        await a.mutate(setNote, {
+          id: `batch-${String(i).padStart(3, '0')}`,
+          body: `b${i}`,
+        });
+      }
+      await world.runFor(50);
+
+      await a.engine.connect();
+      a.engine.wakeUploads();
+      await world.assertConverged();
+
+      const server = await readLiveNotes(world.server.db);
+      expect(server.length).toBe(QUEUE_SIZE);
+      const ids = new Set(server.map((r) => r.id));
+      expect(ids.size).toBe(QUEUE_SIZE);
+      await expectLiveNote(b.db, 'batch-000', { body: 'b0' });
+      await expectLiveNote(b.db, 'batch-099', { body: 'b99' });
+    } finally {
+      await world.dispose();
+    }
+  });
+});

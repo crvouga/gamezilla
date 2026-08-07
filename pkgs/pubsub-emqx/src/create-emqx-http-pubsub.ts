@@ -49,7 +49,7 @@ export function createEmqxHttpPubSub(options: EmqxHttpPubSubOptions): PubSub {
         body: JSON.stringify({
           topic,
           payload,
-          qos: 0,
+          qos: 1,
           retain: false,
         }),
       });
