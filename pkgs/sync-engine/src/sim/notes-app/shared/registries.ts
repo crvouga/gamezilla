@@ -5,6 +5,14 @@ import {
 } from '@pkgs/sync-engine/shared';
 
 import {
+  createSpace,
+  endSpace,
+  joinSpace,
+  leaveSpace,
+  setSpaceNote,
+} from './membership-mutations';
+import { spaceMembershipQuery } from './membership-query';
+import {
   deleteFolder,
   deleteNote,
   illegalHardDeleteNote,
@@ -37,6 +45,11 @@ export const notesMutationRegistry = withFrameworkMutations(
     illegalHardDeleteNote,
     serverRejectNote,
     requiresOnlineNote,
+    createSpace,
+    joinSpace,
+    leaveSpace,
+    endSpace,
+    setSpaceNote,
   ])
 );
 
@@ -47,4 +60,5 @@ export const notesQueryRegistry = queryRegistry([
   notesOwnedQuery,
   notesOnlyQuery,
   foldersOnlyQuery,
+  spaceMembershipQuery,
 ]);

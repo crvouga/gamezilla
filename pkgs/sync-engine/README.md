@@ -360,7 +360,11 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 ### `attachPush`
 
 - Topics from active query `channels(ctx)`
-- **Remake-on-topic-change** (close + new pubsub; all topics subscribed at birth)
+- **Initial attach** remakes pubsub once (topics subscribed at birth)
+- **Membership / topic churn** syncs incrementally (subscribe add / unsubscribe
+  remove) — does **not** `close()` the MQTT session (avoids sessionExpiry-0
+  queue wipe during create-after-end peer fanout)
+- After incremental topic add/remove → `wakeAll()` once (heal subscribe races)
 - Reconnect → `wakeAll()`
 - Local `spaces` / `space_users` changes refresh membership topics
 
@@ -393,7 +397,7 @@ don’t invent a second delete model without review.
 | Stale snapshot | Checkpoint compare drops it |
 | Denied query | Detach scope meta; domain rows remain |
 | Auth revoked | Wipe identity DB |
-| Push lost | Next reconnect / foreground / remake eventually refetches |
+| Push lost | Next reconnect / foreground / membership wakeAll eventually refetches |
 | Partial multi-query batch | Per-response apply; generation guards drop superseded scopes |
 
 **Not provided:** causal multi-device domain locks, exactly-once UI effects,
@@ -453,8 +457,9 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 4. **Full snapshot cost** — large `chessPuzzlePool` / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
-5. **Remake-on-topic-change** — membership churn remakes MQTT; simpler than
-   late-topic timers, but reconnect storms possible if membership thrash.
+5. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
+   remake). Tiny subscribe-race window healed by `wakeAll`; true dispose still
+   closes with sessionExpiry 0.
 6. **Paint waits on all session queries** — correct single lifetime model;
    may delay first paint vs old boot/shell split.
 7. **Rebase swallows errors** — pending mutation that fails against new
@@ -475,7 +480,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 |------|----------------|
 | `client/merge.ts` | Single-flight + checkpoint + upsert + rebase; correctness core |
 | `client/subscription-runtime.ts` | Coalesce, generation guards, lifecycle, session refs |
-| `client/attach-push.ts` | Topic remake vs membership ctx races |
+| `client/attach-push.ts` | Incremental topic sync vs membership ctx races |
 | `mutations/server/replay-mutation.ts` | Idempotency + rejection recording + constraint mapping |
 | `client/local-schema-migrate.ts` | Epoch wipe vs durable queue |
 | Product `invalidates` / `channels` | Wrong topics ⇒ silent staleness |
@@ -591,7 +596,7 @@ bun run ci:lint
 | Suite | Path | Role |
 |-------|------|------|
 | Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openSimWorld` |
-| Kernel harness | `src/tests/harness/kernel.test.ts` | RNG / scheduler / timers only |
+| Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
 `queries/shared/tiger-invariants.ts` lists named invariants aligned with current
@@ -740,6 +745,9 @@ all knobs.
 `restartClient` (fresh `:memory:` DB), `setAuthStatus(clientId, 'valid' |
 'expired' | 'revoked')`, `lifecycle.setOnline` / `setForeground`, engine
 `connect` / `disconnect` / `refreshQueries` / `wakeUploads`.
+Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
+(`notesWorld` remains the default). Client handles expose
+`pubsubRemakeCount()` / `subscribedTopics()` for black-box membership asserts.
 
 **Fuzz / replay** (`runSeed`):
 
@@ -846,6 +854,21 @@ Black-box correctness under `src/tests/scenarios/` (44 files). Most use
 | `fanout-degrade-size-cap.test.ts` | Oversized fanout images fall back to pushSeq-only; peers converge |
 | `fanout-undeclared-affected-rows.test.ts` | No `affectedRows` → pushSeq-only wake+refetch still converges |
 | `push-table-filter-wake.test.ts` | Push `tables` filter skips non-overlapping scopes; overlapping wakes |
+
+#### Membership topics / room live
+
+Notes-app `spaceMembership` session (`spaces` / `space_users` + room-scoped notes).
+Channels follow `user:` + `room:` from live membership. Observability:
+`client.pubsubRemakeCount()` / `client.subscribedTopics()`.
+
+| File | Proves |
+|------|--------|
+| `membership-topic-churn.test.ts` | Leave/join rooms sync topics incrementally — no pubsub remake |
+| `membership-create-during-leave.test.ts` | Peer create during leave does not wipe MQTT; rejoin hydrates |
+| `membership-pending-gate.test.ts` | Topic sync waits until pending `_mutations` drain |
+| `membership-room-isolation.test.ts` | Room-B live does not reach room-A member until join |
+| `membership-join-live.test.ts` | After join, peer space note paints via live while sync held |
+| `membership-end-unsub.test.ts` | Leave/end drops room topic; further live missed until rejoin |
 
 #### Races / skew / lifecycle
 

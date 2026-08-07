@@ -19,12 +19,12 @@ async function countPendingMutations(db: SqlClient): Promise<number> {
   return Number(rows[0]?.c ?? 0);
 }
 
-function scheduleMembershipRemake(bag: PushBag): void {
+function scheduleMembershipSync(bag: PushBag): void {
   bag.membershipRemakePending = true;
-  void flushMembershipRemake(bag);
+  void flushMembershipSync(bag);
 }
 
-async function flushMembershipRemake(bag: PushBag): Promise<void> {
+async function flushMembershipSync(bag: PushBag): Promise<void> {
   if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
@@ -72,6 +72,22 @@ function clearTopicState(bag: PushBag): void {
   bag.topicToScopes.clear();
 }
 
+function subscribeTopic(bag: PushBag, topic: Topic): void {
+  try {
+    const unsub = bag.pubsub.subscribe(topic, (data) => {
+      void handlePush(bag, topic, data);
+    });
+    bag.topicUnsubs.set(topic, unsub);
+  } catch (error) {
+    console.warn('[push] subscribe failed', topic, error);
+  }
+}
+
+/**
+ * Full pubsub remake — only for initial attach. Membership churn must NOT
+ * call this: close() wipes the MQTT session (sessionExpiry 0) and drops
+ * in-flight peer creates during reconnect.
+ */
 function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
   if (bag.disposed) return;
   clearTopicState(bag);
@@ -88,20 +104,49 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
   bindStatus(bag, bag.pubsub);
   for (const [topic, scopes] of desired) {
     bag.topicToScopes.set(topic, scopes);
-    try {
-      const unsub = bag.pubsub.subscribe(topic, (data) => {
-        void handlePush(bag, topic, data);
-      });
-      bag.topicUnsubs.set(topic, unsub);
-    } catch (error) {
-      console.warn('[push] subscribe failed', topic, error);
-    }
+    subscribeTopic(bag, topic);
   }
   void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
       console.warn('[push] clearRemovedPushApplied failed', error);
     }
   );
+}
+
+/**
+ * Incremental topic sync — keep the MQTT connection alive. Add/remove
+ * subscriptions in place so peer pushes during membership churn are not lost.
+ */
+function syncTopicsIncremental(
+  bag: PushBag,
+  desired: Map<Topic, Set<string>>
+): void {
+  let changed = false;
+
+  for (const topic of [...bag.topicUnsubs.keys()]) {
+    if (desired.has(topic)) continue;
+    bag.topicUnsubs.get(topic)?.();
+    bag.topicUnsubs.delete(topic);
+    bag.topicToScopes.delete(topic);
+    changed = true;
+  }
+
+  for (const [topic, scopes] of desired) {
+    bag.topicToScopes.set(topic, scopes);
+    if (bag.topicUnsubs.has(topic)) continue;
+    subscribeTopic(bag, topic);
+    changed = true;
+  }
+
+  bag.lastTopicKey = topicKey(desired);
+  void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
+    (error) => {
+      console.warn('[push] clearRemovedPushApplied failed', error);
+    }
+  );
+
+  // Heal any push lost in the tiny subscribe race without tearing down MQTT.
+  if (changed) bag.options.runtime.wakeAll();
 }
 
 function syncTopics(bag: PushBag): void {
@@ -114,7 +159,7 @@ function syncTopics(bag: PushBag): void {
     }
     return;
   }
-  remake(bag, desired);
+  syncTopicsIncremental(bag, desired);
 }
 
 function onStatus(bag: PushBag, next: PubSubStatus): void {
@@ -143,9 +188,9 @@ function disposeBag(bag: PushBag): void {
 
 /**
  * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
- * When the desired topic set changes, remakes the pubsub instance so every
- * topic is subscribed at birth (no late-topic timers). Membership remakes
- * wait until `_mutations` is idle so upload fanout is not lost mid-reconnect.
+ * Initial bind remakes pubsub once. Later membership / subscription changes
+ * sync topics incrementally (no session wipe). Membership sync waits until
+ * `_mutations` is idle so upload fanout is not racing topic updates.
  */
 export function attachPush(options: AttachPushOptions): () => void {
   const bag = createPushBag(options);
@@ -153,17 +198,17 @@ export function attachPush(options: AttachPushOptions): () => void {
     void commitPendingPushSeqs(bag, scopes);
   });
   options.onBindTopicRefresh?.(() => {
-    if (!bag.disposed) scheduleMembershipRemake(bag);
+    if (!bag.disposed) scheduleMembershipSync(bag);
   });
   if (options.onTablesChanged !== undefined) {
     bag.disposers.push(
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
         if (tables.has('spaces') || tables.has('space_users')) {
-          scheduleMembershipRemake(bag);
+          scheduleMembershipSync(bag);
         }
         if (tables.has('_mutations')) {
-          void flushMembershipRemake(bag);
+          void flushMembershipSync(bag);
         }
       })
     );

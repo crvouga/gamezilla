@@ -15,6 +15,7 @@ import {
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimHttpClient } from './http-bridge';
+import { createSimMembershipChannels } from './membership-channels';
 
 export type SimAuthStatus = 'valid' | 'expired' | 'revoked';
 
@@ -120,7 +121,10 @@ export async function createEngineFromParts(
     push: {
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,
-      getChannelsCtx: () => ({ actorId: args.actorId }),
+      ...createSimMembershipChannels({
+        db: args.db,
+        actorId: args.actorId,
+      }),
       rowImageFanout: args.rowImageFanout !== false,
       ...(args.bufferOutboundLive === true ? { bufferOutboundLive: true } : {}),
     },

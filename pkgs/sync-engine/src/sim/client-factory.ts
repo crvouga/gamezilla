@@ -42,6 +42,10 @@ export type SimClientHandle = {
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
   readonly mutationClient: MutationClient;
   readonly http: SimHttpClient;
+  /** createPubSub invocations (bootstrap + each remake). */
+  readonly pubsubRemakeCount: () => number;
+  /** Live pubsub handler topics for this client. */
+  readonly subscribedTopics: () => readonly string[];
   readonly dispose: () => Promise<void>;
 };
 
@@ -57,6 +61,8 @@ export type BuildSimClientArgs = {
   readonly server: SimServer;
   readonly auth: SimServerAuth;
   readonly createPubSub: () => PubSub;
+  readonly pubsubRemakeCount: () => number;
+  readonly subscribedTopics: () => readonly string[];
   readonly tableRegistry?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
@@ -164,6 +170,8 @@ export async function buildSimClient(
     mutationClient,
     mutate: (m, a) => mutationClient.mutate(m, a),
     http,
+    pubsubRemakeCount: args.pubsubRemakeCount,
+    subscribedTopics: args.subscribedTopics,
     dispose: async () => {
       // Reject in-flight sim HTTP first so upload-queue stop() can unwind.
       http.dispose();

@@ -33,6 +33,10 @@ function isPubWire(value: unknown): value is PubWire {
  */
 export type SimPubSubBroker = {
   readonly createPubSub: (clientEndpointId: SimEndpointId) => PubSub;
+  /** Topics with active handlers for a peer (empty if closed / unknown). */
+  readonly subscribedTopics: (
+    clientEndpointId: SimEndpointId
+  ) => readonly Topic[];
   readonly dispose: () => void;
 };
 
@@ -142,6 +146,11 @@ export function createSimPubSubBroker(
         peers,
         buffers,
       }),
+    subscribedTopics: (clientEndpointId) => {
+      const peer = peers.get(clientEndpointId);
+      if (peer === undefined || peer.closed) return [];
+      return [...peer.handlers.keys()].sort();
+    },
     dispose() {
       for (const peer of [...peers.values()]) {
         peer.closed = true;

@@ -3,9 +3,13 @@ import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
-import { NOTES_WORLD_TOPIC } from './topics';
+import { NOTES_WORLD_TOPIC, userTopic } from './topics';
 
-const worldTopics = (): Topic[] => [NOTES_WORLD_TOPIC];
+/** World + actor user topic so membership queries share exhaustiveness. */
+const worldTopics = (
+  _args: unknown,
+  env: { readonly actorId: string }
+): Topic[] => [NOTES_WORLD_TOPIC, userTopic(env.actorId)];
 
 /** Upsert a folder (revive clears tombstone). */
 export const setFolder = defineMutation({

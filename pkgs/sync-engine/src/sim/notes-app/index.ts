@@ -13,6 +13,17 @@ export {
 } from './assert';
 export { notesLocalSchema } from './client/local-schema';
 export {
+  createSpace,
+  endSpace,
+  joinSpace,
+  leaveSpace,
+  setSpaceNote,
+} from './shared/membership-mutations';
+export {
+  SPACE_MEMBERSHIP_SESSION,
+  spaceMembershipQuery,
+} from './shared/membership-query';
+export {
   deleteFolder,
   deleteNote,
   illegalHardDeleteNote,
@@ -38,4 +49,9 @@ export {
   notesQueryRegistry,
 } from './shared/registries';
 export { NOTES_APP_TABLES, notesAppSchema } from './shared/schema';
-export { NOTES_WORLD_TOPIC } from './shared/topics';
+export {
+  NOTES_WORLD_TOPIC,
+  roomTopic,
+  spaceMembershipChannels,
+  userTopic,
+} from './shared/topics';

@@ -176,6 +176,11 @@ async function closeSession(
   `);
 }
 
+/**
+ * Ending a live space drops it from membershipSpaceIds → client topic sync.
+ * attachPush syncs room topics incrementally (no MQTT remake) so same-account
+ * peers still receive createSpace on user:{account} during that window.
+ */
 async function endSpace(
   tx: MutationDb,
   env: MutationEnv,

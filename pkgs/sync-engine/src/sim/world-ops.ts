@@ -123,6 +123,7 @@ export async function addClientImpl(
   });
 
   let pubsubInstance: PubSub | null = null;
+  let remakeCount = 0;
   const handle = await buildSimClient({
     id: clientArgs.id,
     actorId,
@@ -140,10 +141,13 @@ export async function addClientImpl(
       isAnon: false,
     },
     createPubSub: () => {
+      remakeCount += 1;
       pubsubInstance?.close();
       pubsubInstance = ctx.broker.createPubSub(pubEndpoint);
       return pubsubInstance;
     },
+    pubsubRemakeCount: () => remakeCount,
+    subscribedTopics: () => ctx.broker.subscribedTopics(pubEndpoint),
     rowImageFanout: ctx.worldArgs.rowImageFanout !== false,
     bufferOutboundLive: ctx.worldArgs.bufferOutboundLive === true,
     tableRegistry: ctx.domain.localSchema,
