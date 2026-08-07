@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { print } from 'graphql';
+import { PROJECT_CONFIG } from '../../project-config';
 import {
   pickProductionEnv,
   type RailwayProject,
@@ -16,6 +17,35 @@ import {
 
 export function listProjectsQuerySource(): string {
   return print(ListProjectsQuery);
+}
+
+/**
+ * Railway now requires `workspaceId` on `projectCreate`. Prefer an explicit
+ * workspace name from PROJECT_CONFIG; otherwise require a single workspace.
+ */
+export function pickRailwayWorkspaceId(
+  workspaces: ReadonlyArray<{ readonly id: string; readonly name: string }>,
+  preferredName?: string
+): string {
+  assert.ok(workspaces.length > 0, 'Railway account has no workspaces');
+  if (preferredName !== undefined && preferredName.length > 0) {
+    const match = workspaces.find((w) => w.name === preferredName);
+    assert.ok(
+      match !== undefined,
+      `Railway workspace "${preferredName}" not found. Available: ${workspaces
+        .map((w) => w.name)
+        .join(', ')}`
+    );
+    return match.id;
+  }
+  if (workspaces.length === 1) {
+    return workspaces[0]!.id;
+  }
+  throw new Error(
+    `Railway account has ${String(workspaces.length)} workspaces; set PROJECT_CONFIG.emqx.railwayWorkspaceName. Available: ${workspaces
+      .map((w) => w.name)
+      .join(', ')}`
+  );
 }
 
 export async function listProjects(token: string): Promise<
@@ -51,13 +81,25 @@ export async function ensureProject(
   token: string,
   name: string
 ): Promise<RailwayProject> {
-  const existing = (await listProjects(token)).find(
-    (p) => p.project.name === name
-  );
-  if (existing) return existing.project;
+  const data = await railwayGql(token, ListProjectsQuery);
+  for (const ws of data.me.workspaces) {
+    for (const edge of ws.projects.edges) {
+      const node = edge.node;
+      if (node.name !== name) continue;
+      const envs = node.environments.edges.map((e) => e.node);
+      const environmentId = pickProductionEnv(envs);
+      if (environmentId === '') continue;
+      return { id: node.id, name: node.name, environmentId };
+    }
+  }
 
+  const preferredWorkspace = PROJECT_CONFIG.emqx.railwayWorkspaceName;
+  const workspaceId = pickRailwayWorkspaceId(
+    data.me.workspaces.map((w) => ({ id: w.id, name: w.name })),
+    preferredWorkspace.length > 0 ? preferredWorkspace : undefined
+  );
   const created = await railwayGql(token, ProjectCreateMutation, {
-    input: { name },
+    input: { name, workspaceId },
   });
   const envs = created.projectCreate.environments.edges.map((e) => e.node);
   const environmentId = pickProductionEnv(envs);

@@ -12,6 +12,8 @@ export const ListProjectsQuery = graphql(`
   query ListProjects {
     me {
       workspaces {
+        id
+        name
         projects(first: 100) {
           edges {
             node {

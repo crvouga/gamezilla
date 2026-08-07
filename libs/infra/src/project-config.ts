@@ -43,6 +43,11 @@ export const PROJECT_CONFIG = {
   emqx: {
     hostname: 'emqx.gamezilla.app',
     railwayProjectName: 'gamezilla',
+    /**
+     * Required when the Railway account has multiple workspaces (projectCreate
+     * needs an explicit workspaceId). Leave empty for a single-workspace account.
+     */
+    railwayWorkspaceName: "Chris Vouga's Projects",
     railwayServiceName: 'emqx',
     githubRootDirectory: 'apps/emqx',
     /** Container public listen port (Caddy → Railway `$PORT`). */
