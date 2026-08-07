@@ -71,6 +71,9 @@ export async function settleWorld(args: {
 }): Promise<void> {
   args.world.healAll();
   for (const id of args.ids) {
+    if (!args.world.clients.has(id)) {
+      await args.world.restartClient(id);
+    }
     args.world.clients.get(id)?.lifecycle.setOnline(true);
     args.world.clients.get(id)?.lifecycle.setForeground(true);
   }

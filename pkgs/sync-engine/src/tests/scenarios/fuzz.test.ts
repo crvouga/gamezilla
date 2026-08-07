@@ -15,7 +15,7 @@ describe('fuzz', () => {
   test(
     'seed corpus + env seeds converge',
     async () => {
-      const corpus = [1, 2, 3, 42, 99];
+      const corpus = [1, 2, 3, 7, 11, 13, 17, 31, 42, 99];
       const fromEnv = seedsFromEnv(
         process.env as { SYNC_SIM_SEED?: string; SYNC_SIM_SEEDS?: string }
       );
@@ -35,7 +35,26 @@ describe('fuzz', () => {
         expect(result.ok).toBe(true);
       }
     },
-    { timeout: 60_000 }
+    { timeout: 180_000 }
+  );
+
+  test(
+    'three clients with longer skew/crash workload converge',
+    async () => {
+      const result = await runSeed({
+        seed: 404,
+        steps: 32,
+        clientCount: 3,
+        sampleFaults: false,
+      });
+      if (!result.ok) {
+        throw new Error(
+          `fuzz failed seed=${result.seed.toString(16)} steps=${result.steps}: ${result.error}`
+        );
+      }
+      expect(result.ok).toBe(true);
+    },
+    { timeout: 120_000 }
   );
 
   test(

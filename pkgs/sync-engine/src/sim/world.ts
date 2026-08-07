@@ -9,6 +9,8 @@ import type { SimServer } from './server';
 import { BROKER, bootSimKernel, SERVER_HTTP } from './world-boot';
 import { addClientImpl, assertConvergedImpl } from './world-ops';
 
+export { SIM_SERVER_NODE_ID } from './clock-skew';
+
 export type SimWorld = {
   readonly seed: bigint;
   readonly clock: SimClock;
@@ -25,6 +27,9 @@ export type SimWorld = {
   readonly restartClient: (id: string) => Promise<SimClientHandle>;
   readonly partition: (a: string, b: string) => void;
   readonly healAll: () => void;
+  /** Logical wall-clock offset for a client id or {@link SIM_SERVER_NODE_ID}. */
+  readonly setClockSkew: (nodeId: string, skewMs: number) => void;
+  readonly nowFor: (nodeId: string) => number;
   readonly runFor: (ms: number) => Promise<void>;
   readonly runUntilIdle: (opts?: {
     readonly maxSteps?: number;
@@ -58,7 +63,8 @@ async function checkClientSeqs(
  */
 export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
   const k = await bootSimKernel({ seed: args.seed, worldArgs: args });
-  const { clients, metas, scheduler, network, server, broker, rng } = k;
+  const { clients, metas, scheduler, network, server, broker, rng, clockSkew } =
+    k;
 
   const addClient = (clientArgs: {
     readonly id: string;
@@ -100,6 +106,10 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
       }
     },
     healAll: () => network.healAll(),
+    setClockSkew: (nodeId, skewMs) => {
+      clockSkew.set(nodeId, skewMs);
+    },
+    nowFor: (nodeId) => k.nowFor(nodeId),
     runFor: (ms) => scheduler.runFor(ms),
     runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
     checkInvariants: () => checkClientSeqs(clients),

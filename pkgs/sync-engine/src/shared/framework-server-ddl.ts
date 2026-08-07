@@ -59,15 +59,31 @@ CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx ON public.write_reje
 -- Per-topic monotonic push sequences (replay serialization order).
 -- Advanced with INSERT … ON CONFLICT DO UPDATE … RETURNING; wire as decimal string.
 -- Idempotent rename preserves counter values on existing installs.
+-- Dual-table path repairs a prior broken migrate that created empty
+-- _sync_topic_seq without renaming _sync_topic_checkpoint.
 DO $$ BEGIN
-  ALTER TABLE public._sync_topic_seq RENAME TO _sync_topic_seq;
-EXCEPTION
-  WHEN undefined_table THEN NULL;
+  IF to_regclass('public._sync_topic_checkpoint') IS NOT NULL
+     AND to_regclass('public._sync_topic_seq') IS NOT NULL THEN
+    BEGIN
+      EXECUTE 'ALTER TABLE ONLY public._sync_topic_seq
+        ADD CONSTRAINT _sync_topic_seq_pkey PRIMARY KEY (topic)';
+    EXCEPTION
+      WHEN duplicate_object THEN NULL;
+      WHEN invalid_table_definition THEN NULL;
+    END;
+    INSERT INTO public._sync_topic_seq (topic, n)
+    SELECT topic, n FROM public._sync_topic_checkpoint
+    ON CONFLICT (topic) DO UPDATE
+      SET n = GREATEST(public._sync_topic_seq.n, EXCLUDED.n);
+    DROP TABLE public._sync_topic_checkpoint;
+  ELSIF to_regclass('public._sync_topic_checkpoint') IS NOT NULL THEN
+    ALTER TABLE public._sync_topic_checkpoint RENAME TO _sync_topic_seq;
+  END IF;
 END $$;
 
 DO $$ BEGIN
   ALTER TABLE public._sync_topic_seq
-    RENAME CONSTRAINT _sync_topic_seq_pkey TO _sync_topic_seq_pkey;
+    RENAME CONSTRAINT _sync_topic_checkpoint_pkey TO _sync_topic_seq_pkey;
 EXCEPTION
   WHEN undefined_table THEN NULL;
   WHEN undefined_object THEN NULL;

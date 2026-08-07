@@ -13,6 +13,7 @@ never framework tables or private modules.
 | Boundary | Implementation                                                |
 | -------- | ------------------------------------------------------------- |
 | Time     | `SimClock` + `SimScheduler` (discrete events)                 |
+| Wall clocks | Per-node skew via `setClockSkew` / `nowFor` (scheduler stays on base clock) |
 | Timers   | `createSimTimers` implements the production `Timers` port     |
 | RNG      | `createSeededRng` (splitmix64)                                |
 | Network  | `SimNetwork` — delay, loss, reorder, replay, partition        |
@@ -52,6 +53,18 @@ await world.assertConverged();
 await world.dispose();
 ```
 
+## Clock skew
+
+Scheduler / network delivery use the shared base `SimClock`. Logical wall
+clocks for mutation `created_at` / soft-delete timestamps are per-node:
+
+```ts
+world.setClockSkew('alice', -60_000);
+world.setClockSkew('bob', 0);
+world.setClockSkew('server', 60_000);
+world.nowFor('alice'); // base.now() + skew
+```
+
 ## Fanout / correctness scenarios
 
 Named coverage lives in `src/tests/scenarios/` (row-image fanout enabled in
@@ -60,7 +73,8 @@ sim clients + server):
 - Happy path peer visibility, dropped/reordered/duped fanout, tombstones
 - Offline conflict, pending-mutation race, crash/restart rehydrate
 - Folders multi-table, authz deny, hard-delete reject, latency budget
-- Seed corpus fuzz (`fuzz.test.ts`)
+- Clock-skew orderings (all A/B/S permutations) + node down/up matrix
+- Seed corpus fuzz with skew / crash / restart workload actions (`fuzz.test.ts`)
 
 Convergence check: after quiescence, every client’s live domain view
 (notes + folders) matches the server.

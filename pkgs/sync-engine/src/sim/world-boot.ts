@@ -1,6 +1,11 @@
 import type { Timers } from '../client/sim-ports';
 import type { SimClientHandle } from './client-factory';
 import { createSimClock, type SimClock } from './clock';
+import {
+  type ClockSkewTable,
+  createClockSkewTable,
+  SIM_SERVER_NODE_ID,
+} from './clock-skew';
 import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { bindSimHttpServer } from './http-bridge';
 import { createSimNetwork, type SimNetwork } from './network';
@@ -18,6 +23,7 @@ const SERVER_PUB = 'pubsub:server';
 export type BootedSimKernel = {
   readonly rng: SeededRng;
   readonly clock: SimClock;
+  readonly clockSkew: ClockSkewTable;
   readonly scheduler: SimScheduler;
   readonly timers: Timers;
   readonly network: SimNetwork;
@@ -28,6 +34,7 @@ export type BootedSimKernel = {
   readonly authByDevice: Map<string, ClientMeta>;
   readonly nextId: () => string;
   readonly worldArgs: WorldClientOpts;
+  readonly nowFor: (nodeId: string) => number;
 };
 
 function resolveAuthForDevice(
@@ -58,6 +65,9 @@ export async function bootSimKernel(args: {
 }): Promise<BootedSimKernel> {
   const rng = createSeededRng(args.seed);
   const clock = createSimClock(1_700_000_000_000);
+  const clockSkew = createClockSkewTable();
+  const nowFor = (nodeId: string): number =>
+    clockSkew.nowFor(nodeId, clock.now());
   const scheduler = createSimScheduler(clock);
   const timers = createSimTimers(scheduler);
   const faults =
@@ -73,7 +83,7 @@ export async function bootSimKernel(args: {
   const authByDevice = new Map<string, ClientMeta>();
   const broker = createSimPubSubBroker({ network, brokerId: BROKER });
   const server = await openSimServer({
-    now: () => clock.now(),
+    now: () => nowFor(SIM_SERVER_NODE_ID),
     pubsub: broker.createPubSub(SERVER_PUB),
     resolveAuth: (clientId) => resolveAuthForDevice(authByDevice, clientId),
   });
@@ -89,6 +99,7 @@ export async function bootSimKernel(args: {
   return {
     rng,
     clock,
+    clockSkew,
     scheduler,
     timers,
     network,
@@ -98,6 +109,7 @@ export async function bootSimKernel(args: {
     metas: new Map(),
     authByDevice,
     worldArgs: args.worldArgs,
+    nowFor,
     nextId: () => {
       idCounter += 1;
       const n = idRng.int(0x7fffffff);

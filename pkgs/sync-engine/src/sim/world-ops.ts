@@ -32,6 +32,7 @@ export type AddClientCtx = {
   readonly worldArgs: WorldClientOpts;
   readonly rng: SeededRng;
   readonly clock: SimClock;
+  readonly nowFor: (nodeId: string) => number;
   readonly scheduler: SimScheduler;
   readonly timers: Timers;
   readonly network: SimNetwork;
@@ -95,7 +96,7 @@ export async function addClientImpl(
     id: clientArgs.id,
     actorId,
     deviceId,
-    now: () => ctx.clock.now(),
+    now: () => ctx.nowFor(clientArgs.id),
     random: () => clientRng.random(),
     timers: ctx.timers,
     createId: ctx.nextId,
