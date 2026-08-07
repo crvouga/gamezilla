@@ -87,7 +87,12 @@ function parseDeprecation(entry: unknown, path: string): DeprecationDef {
 }
 
 function assertKnownTopLevelKeys(literal: Record<string, unknown>): void {
-  const allowed = new Set(['tables', 'indexes', 'deprecations']);
+  const allowed = new Set([
+    'tables',
+    'indexes',
+    'uniqueIndexes',
+    'deprecations',
+  ]);
   for (const key of Object.keys(literal)) {
     if (!allowed.has(key)) {
       throw new Error(`unknown top-level key '${key}'`);
@@ -252,21 +257,35 @@ function parseIndexEntry(
   return def;
 }
 
-function parseIndexes(value: unknown, ctx: IndexParseCtx): IndexDef[] {
+function parseIndexes(args: {
+  value: unknown;
+  ctx: IndexParseCtx;
+  field: 'indexes' | 'uniqueIndexes';
+  unique: boolean;
+  crossSeen: Set<string>;
+}): IndexDef[] {
+  const { value, ctx, field, unique, crossSeen } = args;
   if (value === undefined) return [];
   if (!Array.isArray(value)) {
-    throw new Error('indexes: must be an array');
+    throw new Error(`${field}: must be an array`);
   }
   const indexes: IndexDef[] = [];
   const indexSeen = new Set<string>();
   for (let i = 0; i < value.length; i++) {
-    const path = `indexes[${i}]`;
+    const path = `${field}[${i}]`;
     const def = parseIndexEntry(value[i], path, ctx);
-    const key = indexKey(def);
+    const key = indexKey(def, unique);
     if (indexSeen.has(key)) {
       throw new Error(`${path}: duplicate index definition`);
     }
     indexSeen.add(key);
+    const columnKey = indexKey(def, false);
+    if (crossSeen.has(columnKey)) {
+      throw new Error(
+        `${path}: columns already indexed (indexes and uniqueIndexes must not overlap)`
+      );
+    }
+    crossSeen.add(columnKey);
     indexes.push(def);
   }
   return indexes;
@@ -280,14 +299,30 @@ function validateRuntime(literal: unknown): ReadonlyDeclaredSchema {
   const tables = parseTables(literal['tables']);
   const { deprecations, deprecatedTables, deprecatedColumns } =
     parseDeprecations(literal['deprecations'], tables);
-  const indexes = parseIndexes(literal['indexes'], {
+  const indexCtx: IndexParseCtx = {
     tables,
     deprecatedTables,
     deprecatedColumns,
+  };
+  const crossSeen = new Set<string>();
+  const indexes = parseIndexes({
+    value: literal['indexes'],
+    ctx: indexCtx,
+    field: 'indexes',
+    unique: false,
+    crossSeen,
+  });
+  const uniqueIndexes = parseIndexes({
+    value: literal['uniqueIndexes'],
+    ctx: indexCtx,
+    field: 'uniqueIndexes',
+    unique: true,
+    crossSeen,
   });
   return {
     tables,
     indexes,
+    uniqueIndexes,
     deprecations,
     deprecatedTables,
     deprecatedColumns,

@@ -1,16 +1,22 @@
 import { describe, expect, test } from 'bun:test';
 
+import { defineSchema } from '@pkgs/db-schema';
 import { sql } from '@pkgs/sql';
 
 import { createInMemorySyncEngine } from './in-memory-sync-engine';
 
+const profilesSchema = defineSchema({
+  tables: {
+    profiles: {
+      id: 'text',
+      display_name: 'text',
+    },
+  },
+  uniqueIndexes: [['profiles', 'id']],
+});
+
 const PROFILES_SCHEMA = {
-  domainDdl: [
-    `CREATE TABLE IF NOT EXISTS "profiles" (
-      "id" TEXT PRIMARY KEY,
-      "display_name" TEXT
-    )`,
-  ],
+  domainSchema: profilesSchema,
   cacheTableNames: ['profiles'],
 } as const;
 
@@ -32,8 +38,8 @@ function waitForHydrated(sub: {
 }
 
 describe('createInMemorySyncEngine', () => {
-  test('watch query is not hydrated until first refresh completes', () => {
-    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
+  test('watch query is not hydrated until first refresh completes', async () => {
+    const engine = await createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     const sub = engine.watch(
       sql<{ id: string }>`SELECT id FROM profiles WHERE false`
     );
@@ -42,7 +48,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('watch query returns rows after connect without polling', async () => {
-    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
+    const engine = await createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     await engine.db.run(
       sql<void>`
@@ -61,7 +67,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('watch refreshes on write without timers', async () => {
-    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
+    const engine = await createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     await engine.db.run(
       sql<void>`
@@ -95,7 +101,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('hasEverSynced latches true and persists through reconnect', async () => {
-    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
+    const engine = await createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
 
     expect(engine.status.getSnapshot().hasEverSynced).toBe(false);
 
@@ -109,7 +115,7 @@ describe('createInMemorySyncEngine', () => {
   });
 
   test('clearLocalData resets hasEverSynced', async () => {
-    const engine = createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
+    const engine = await createInMemorySyncEngine({ schema: PROFILES_SCHEMA });
     await engine.connect();
     expect(engine.status.getSnapshot().hasEverSynced).toBe(true);
 

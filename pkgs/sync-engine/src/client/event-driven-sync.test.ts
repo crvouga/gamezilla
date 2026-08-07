@@ -119,9 +119,9 @@ describe('event-driven-sync', () => {
     runtime.start();
     await runtime.waitForBoot();
     expect(postQueries.mock.calls.length).toBe(1);
-    expect(
-      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
-    ).toBe(5);
+    expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
+      5
+    );
     runtime.stop();
   });
 
@@ -147,9 +147,9 @@ describe('event-driven-sync', () => {
     await runtime.waitForBoot();
     await Promise.resolve();
     expect(postQueries.mock.calls.length).toBe(1);
-    expect(
-      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
-    ).toBe(2);
+    expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
+      2
+    );
     runtime.stop();
   });
 

@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./server/*": [
-      "./src/server/*.ts",
-      "./src/server/*.tsx"
-    ],
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
@@ -17,13 +13,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/inbox": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/pubsub": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*",
-    "zod": "catalog:"
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/pubsub": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

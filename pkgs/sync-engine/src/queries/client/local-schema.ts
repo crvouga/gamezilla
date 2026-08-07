@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
   ON write_rejections (mutation_id);
 `;
 
-export const SCHEMA_EPOCH = 1;
+export const SCHEMA_EPOCH = 3;
 
 type ColumnRow = { readonly name: string };
 

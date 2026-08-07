@@ -1,7 +1,3 @@
-import {
-  CHESS_PUZZLE_INTERACTIONS_TABLE,
-  CHESS_PUZZLE_PROFILES_TABLE,
-} from '@libs/db/shared/chess-tables';
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
@@ -35,7 +31,7 @@ function requireOwner(ownerId: string, actorId: string): void {
 export const appendPuzzleInteractionMutation = defineMutation({
   name: 'appendPuzzleInteraction',
   args: interactionArgs,
-  writes: [CHESS_PUZZLE_INTERACTIONS_TABLE],
+  writes: ['chess_puzzle_interactions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);
@@ -71,7 +67,7 @@ export const upsertPuzzleProfileMutation = defineMutation({
     ratingDeviation: z.number().int().nonnegative(),
     lastInteractionAt: z.string().min(1).optional(),
   }),
-  writes: [CHESS_PUZZLE_PROFILES_TABLE],
+  writes: ['chess_puzzle_profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);

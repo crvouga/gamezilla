@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { defineSchema } from '../core/define-schema';
 import { fingerprintForIndexDef } from '../core/index-fingerprint';
 import { planServer } from '../core/plan';
 import type { IntrospectedCatalog } from '../core/types';
@@ -46,5 +47,19 @@ describe('postgres emitter safety', () => {
     expect(ix).toBeTruthy();
     if (!ix || ix.kind !== 'create_index') return;
     expect(emitServerOperation(ix).sql).toContain('CONCURRENTLY');
+  });
+
+  test('unique create_index emits CREATE UNIQUE INDEX', () => {
+    const schema = defineSchema({
+      tables: { notes: { id: 'text' } },
+      uniqueIndexes: [['notes', 'id']],
+    });
+    const plan = planServer(schema._declared, emptyCatalog());
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    const ix = plan.operations.find((o) => o.kind === 'create_index');
+    expect(ix?.kind).toBe('create_index');
+    if (!ix || ix.kind !== 'create_index') return;
+    expect(emitServerOperation(ix).sql).toMatch(/CREATE UNIQUE INDEX/i);
   });
 });

@@ -1,4 +1,3 @@
-import { PROFILES_TABLE } from '@libs/db/shared/profile-tables';
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
@@ -83,8 +82,8 @@ async function seedProfile(
   avatarConfig: string
 ): Promise<void> {
   await tx.run(sql`
-    INSERT INTO profiles (id, created_at, username, avatar_config)
-    VALUES (${profileId}, ${now}, ${''}, ${avatarConfig})
+    INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+    VALUES (${profileId}, ${now}, ${''}, ${''}, ${avatarConfig})
     ON CONFLICT (id) DO NOTHING
   `);
 }
@@ -94,14 +93,8 @@ export const ensureProfileMutation = defineMutation({
   args: z.object({
     avatarConfig: avatarConfigArgs.optional(),
   }),
-  writes: [PROFILES_TABLE],
+  writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
-  constraintErrors: {
-    profiles_username_norm_uidx: {
-      code: 'USERNAME_TAKEN',
-      message: 'Username is taken.',
-    },
-  },
   async run({ tx, env }, { avatarConfig }) {
     await seedProfile(
       tx,
@@ -118,7 +111,7 @@ export const ensureProfileMutation = defineMutation({
 export const applyEnsuredUsernameMutation = defineMutation({
   name: 'applyEnsuredUsername',
   args: z.object({ username: z.string().min(1) }),
-  writes: [PROFILES_TABLE],
+  writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { username }) {
     const next = normalizeUsername(username);
@@ -127,7 +120,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
     // timestamptz to '' — Postgres rejects that cast.
     await tx.run(sql`
       UPDATE profiles
-      SET username = ${next}
+      SET username = ${next}, username_norm = ${next.toLowerCase()}
       WHERE id = ${env.actorId}
         AND (
           username = ''
@@ -144,16 +137,10 @@ export const applyEnsuredUsernameMutation = defineMutation({
 export const claimUsernameMutation = defineMutation({
   name: 'claimUsername',
   args: z.object({ username: z.string() }),
-  writes: [PROFILES_TABLE],
+  writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   pendingUx: 'pending',
   requiresOnline: true,
-  constraintErrors: {
-    profiles_username_norm_uidx: {
-      code: 'USERNAME_TAKEN',
-      message: 'Username is taken.',
-    },
-  },
   async run({ tx, env }, { username: rawUsername }) {
     const username = normalizeUsername(rawUsername).toLowerCase();
     const validationError = validateUsername(username);
@@ -166,9 +153,22 @@ export const claimUsernameMutation = defineMutation({
         'Username was changed recently.'
       );
     }
+    const taken = await tx.query(sql<{ one: number }>`
+      SELECT 1 AS one
+      FROM profiles
+      WHERE username_norm = ${username}
+        AND id <> ${env.actorId}
+        AND username <> ''
+      LIMIT 1
+    `);
+    if (taken.length > 0) {
+      throw new MutationError('USERNAME_TAKEN', 'Username is taken.');
+    }
     await tx.run(sql`
       UPDATE profiles
-      SET username = ${username}, username_changed_at = ${env.now().toISOString()}
+      SET username = ${username},
+          username_norm = ${username},
+          username_changed_at = ${env.now().toISOString()}
       WHERE id = ${env.actorId}
     `);
   },
@@ -177,7 +177,7 @@ export const claimUsernameMutation = defineMutation({
 export const patchAvatarMutation = defineMutation({
   name: 'patchAvatar',
   args: z.object({ avatarConfig: avatarConfigArgs }),
-  writes: [PROFILES_TABLE],
+  writes: ['profiles'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { avatarConfig }) {
     await tx.run(sql`

@@ -1,6 +1,7 @@
 /**
  * Postgres DDL for sync-engine framework tables.
- * Applied by `@libs/db` migrate (`runSchemaSql`) — not owned by product schema.sql.
+ * Applied via {@link applyFrameworkServerDdl} at migrate time — not owned by
+ * domain `defineSchema` / `@pkgs/db-schema`.
  */
 export const FRAMEWORK_SERVER_DDL = `
 -- Mutators framework: client-insert log (uploads; not synced down).

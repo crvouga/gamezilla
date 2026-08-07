@@ -122,6 +122,18 @@ type ValidateIndexesArr<T> = T extends {
     }[number]
   : unknown;
 
+type ValidateUniqueIndexesArr<T> = T extends {
+  readonly uniqueIndexes: infer Indexes extends readonly unknown[];
+}
+  ? {
+      [I in keyof Indexes]: ValidateIndexEntry<
+        T,
+        Indexes[I],
+        `uniqueIndexes[${I & string}]`
+      >;
+    }[number]
+  : unknown;
+
 type ValidateDepEntry<T, Dep, Path extends string> = Dep extends readonly [
   infer Table extends string,
   infer Col extends string,
@@ -155,7 +167,7 @@ type ValidateDepsArr<T> = T extends {
 
 type UnknownKeys<T> = Exclude<
   keyof T & string,
-  'tables' | 'indexes' | 'deprecations'
+  'tables' | 'indexes' | 'uniqueIndexes' | 'deprecations'
 >;
 
 /**
@@ -171,10 +183,14 @@ export type ValidateSchema<T> = [UnknownKeys<T>] extends [never]
       : ValidateIndexesArr<T> extends infer Ix
         ? Ix extends { readonly __error: string }
           ? Ix
-          : ValidateDepsArr<T> extends infer Dep
-            ? Dep extends { readonly __error: string }
-              ? Dep
-              : T
+          : ValidateUniqueIndexesArr<T> extends infer Ux
+            ? Ux extends { readonly __error: string }
+              ? Ux
+              : ValidateDepsArr<T> extends infer Dep
+                ? Dep extends { readonly __error: string }
+                  ? Dep
+                  : T
+                : T
             : T
         : T
     : ErrorBrand<'schema must include a tables object'>
@@ -191,6 +207,7 @@ export type SchemaInput<T> = [ValidateSchema<T>] extends [T]
 export type SchemaLiteral = {
   readonly tables: Record<string, Record<string, string>>;
   readonly indexes?: readonly (readonly [string, ...string[]])[];
+  readonly uniqueIndexes?: readonly (readonly [string, ...string[]])[];
   readonly deprecations?: readonly (
     | readonly [string, string]
     | readonly [string, string, string]

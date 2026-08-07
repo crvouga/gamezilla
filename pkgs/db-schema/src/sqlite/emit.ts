@@ -17,7 +17,11 @@ function columnDdl(
 ): Sql<void> {
   const typeSql = raw(SQLITE_TYPE_SQL[type]);
   if (isPrimaryKey) {
-    return sql`${ident(name)} ${typeSql} PRIMARY KEY`;
+    // Pseudo-uuid so INSERTs that omit `_id` still succeed (STRICT + NOT NULL).
+    return sql`${ident(name)} ${typeSql} PRIMARY KEY DEFAULT (lower(hex(randomblob(16))))`;
+  }
+  if (name === '_created_at' || name === '_updated_at') {
+    return sql`${ident(name)} ${typeSql} DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`;
   }
   return sql`${ident(name)} ${typeSql}`;
 }
@@ -55,8 +59,9 @@ export function emitClientOperation(
     }
     case 'create_index': {
       const cols = op.columns.map((c) => ident(c));
+      const uniqueKw = op.unique ? raw('UNIQUE ') : raw('');
       return [
-        sql`CREATE INDEX IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`,
+        sql`CREATE ${uniqueKw}INDEX IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`,
       ];
     }
     case 'drop_index': {

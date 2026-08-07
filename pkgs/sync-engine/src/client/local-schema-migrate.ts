@@ -1,3 +1,5 @@
+import type { Schema } from '@pkgs/db-schema';
+import { sqlite } from '@pkgs/db-schema/sqlite';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -14,8 +16,8 @@ const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 export type LocalDomainSchema = {
-  /** Raw SQLite CREATE TABLE statements for product domain tables. */
-  readonly domainDdl: readonly string[];
+  /** Declarative domain schema reconciled via `@pkgs/db-schema/sqlite`. */
+  readonly domainSchema: Schema;
   /** Domain table names wiped on CACHE clear / epoch bump. */
   readonly cacheTableNames: readonly string[];
 };
@@ -71,14 +73,13 @@ async function ensureDomainTables(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  for (const ddl of schema.domainDdl) {
-    const statements = ddl
-      .split(';')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    for (const stmt of statements) {
-      await db.run(unsafe(stmt));
-    }
+  try {
+    await sqlite(schema.domainSchema, db, {
+      ownership: 'declared-only',
+    }).reconcile();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`ensureDomainTables/reconcile: ${detail}`, { cause: error });
   }
 }
 
@@ -86,8 +87,13 @@ async function dropCacheTables(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  for (const name of allCacheTableNames(schema)) {
-    await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
+  try {
+    for (const name of allCacheTableNames(schema)) {
+      await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
+    }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`dropCacheTables: ${detail}`, { cause: error });
   }
 }
 
@@ -95,7 +101,12 @@ async function createCurrentSchema(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  await ensureFrameworkSchema(db);
+  try {
+    await ensureFrameworkSchema(db);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`ensureFrameworkSchema: ${detail}`, { cause: error });
+  }
   await ensureDomainTables(db, schema);
 }
 
@@ -118,24 +129,31 @@ export async function migrateLocalSchema(
 ): Promise<void> {
   const previous = await readUserVersion(db);
   const previousEpoch = Math.floor(previous / VERSION_STRIDE);
-  await db.transaction(async (tx) => {
-    if (previous > 0 && previousEpoch !== SCHEMA_EPOCH) {
-      await dropCacheTables(tx, schema);
+
+  try {
+    if (previousEpoch < SCHEMA_EPOCH) {
+      await dropCacheTables(db, schema);
+      await createCurrentSchema(db, schema);
+    } else if (previous < CURRENT_USER_VERSION) {
+      await runPendingMigrations(db, schema, previous);
+    } else {
+      await ensureDomainTables(db, schema);
     }
-    const migrationBase = previousEpoch === SCHEMA_EPOCH ? previous : 0;
-    await runPendingMigrations(tx, schema, migrationBase);
-    await createCurrentSchema(tx, schema);
-    await tx.run(unsafe(`PRAGMA user_version = ${CURRENT_USER_VERSION}`));
-  });
+
+    await db.run(unsafe(`PRAGMA user_version = ${CURRENT_USER_VERSION}`));
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `migrateLocalSchema failed (previous=${previous}, epoch=${previousEpoch}): ${detail}`,
+      { cause: error }
+    );
+  }
 }
 
-/** Clears re-hydratable CACHE tables while preserving mutation durability. */
 export async function clearLocalCache(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  await db.transaction(async (tx) => {
-    await dropCacheTables(tx, schema);
-    await createCurrentSchema(tx, schema);
-  });
+  await dropCacheTables(db, schema);
+  await createCurrentSchema(db, schema);
 }

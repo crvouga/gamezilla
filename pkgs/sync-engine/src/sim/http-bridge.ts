@@ -107,10 +107,7 @@ export type SimHttpClient = {
 
 const DEFAULT_RPC_TIMEOUT_MS = 5_000;
 
-function unwrapOk(
-  res: SimHttpResponse,
-  kind: 'query' | 'mutations'
-): unknown {
+function unwrapOk(res: SimHttpResponse, kind: 'query' | 'mutations'): unknown {
   if (!res.ok) throw new Error(res.message);
   if (res.kind !== kind) throw new Error('sim http: unexpected response');
   return res.body;

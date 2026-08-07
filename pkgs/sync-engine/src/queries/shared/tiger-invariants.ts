@@ -10,7 +10,10 @@ import {
 } from '@pkgs/sync-engine/queries/server/bounds';
 
 assert.ok(MAX_MUTATIONS_BATCH <= 128, 'Tiger: mutation batch upper bound');
-assert.ok(MAX_IN_FLIGHT_POLLS <= 4, 'Tiger: query batch concurrency upper bound');
+assert.ok(
+  MAX_IN_FLIGHT_POLLS <= 4,
+  'Tiger: query batch concurrency upper bound'
+);
 
 export const TIGER_INVARIANTS = [
   'actor-from-session-auth-only',

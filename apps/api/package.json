@@ -41,6 +41,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-clerk": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/inbox": "workspace:*",
     "@pkgs/keyword": "workspace:*",

@@ -1,12 +1,9 @@
+import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
 import {
-  SPACE_OPEN_SESSIONS_TABLE,
-  SPACE_USERS_TABLE,
-  SPACES_TABLE,
+  resolveSpaceMemberId,
   spaceOpenSessionEntityId,
   spaceUserEntityId,
-} from '@libs/db/shared/space-tables';
-import { roomTopic, userTopic } from '@libs/db/shared/sync-topics';
-import { resolveSpaceMemberId } from '@libs/spaces/shared/participation/participation-ids';
+} from '@libs/spaces/shared/participation/participation-ids';
 import { isSpaceHostActor } from '@libs/spaces/shared/participation/space-participation-policy';
 import { SPACE_VISIBILITIES } from '@libs/spaces/shared/space-visibility';
 import { sql } from '@pkgs/sql';
@@ -195,7 +192,7 @@ async function endSpace(
 export const createSpaceMutation = defineMutation({
   name: 'createSpace',
   args: z.object({ spaceId: z.string().min(1), visibility: visibilityArgs }),
-  writes: [SPACES_TABLE, SPACE_USERS_TABLE, SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['spaces', 'space_users', 'space_open_sessions'],
   // Host-only at create — skip party DB lookup (was ~700ms on remote Postgres).
   invalidates: ({ spaceId }, env) => spaceActorInvalidates(spaceId, env),
   async run({ tx, env }, { spaceId, visibility }) {
@@ -223,7 +220,7 @@ export const createSpaceMutation = defineMutation({
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
-  writes: [SPACE_USERS_TABLE, SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['space_users', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId }) {
@@ -268,7 +265,7 @@ export const joinSpaceMutation = defineMutation({
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
-  writes: [SPACES_TABLE, SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, endIfLastSeat }) {
@@ -290,7 +287,7 @@ export const leaveSpaceMutation = defineMutation({
 export const endSpaceMutation = defineMutation({
   name: 'endSpace',
   args: spaceIdArgs,
-  writes: [SPACES_TABLE, SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['spaces', 'space_open_sessions'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId }) {
@@ -302,7 +299,7 @@ export const endSpaceMutation = defineMutation({
 export const renameSpaceMutation = defineMutation({
   name: 'renameSpace',
   args: spaceIdArgs.extend({ title: z.string() }),
-  writes: [SPACES_TABLE],
+  writes: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, title }) {
@@ -320,7 +317,7 @@ export const renameSpaceMutation = defineMutation({
 export const setVisibilityMutation = defineMutation({
   name: 'setVisibility',
   args: spaceIdArgs.extend({ visibility: visibilityArgs }),
-  writes: [SPACES_TABLE],
+  writes: ['spaces'],
   invalidates: ({ spaceId }, env, db) =>
     spacePartyInvalidates(spaceId, env, db),
   async run({ tx, env }, { spaceId, visibility }) {
@@ -344,7 +341,7 @@ export const setVisibilityMutation = defineMutation({
 export const addSpaceUserMutation = defineMutation({
   name: 'addSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),
-  writes: [SPACE_USERS_TABLE],
+  writes: ['space_users'],
   invalidates: ({ spaceId, userId }, env) => [
     ...spaceActorInvalidates(spaceId, env),
     userTopic(userId),
@@ -374,7 +371,7 @@ export const addSpaceUserMutation = defineMutation({
 export const removeSpaceUserMutation = defineMutation({
   name: 'removeSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),
-  writes: [SPACE_USERS_TABLE],
+  writes: ['space_users'],
   invalidates: ({ spaceId, userId }, env) => [
     ...spaceActorInvalidates(spaceId, env),
     userTopic(userId),
@@ -396,7 +393,7 @@ export const removeSpaceUserMutation = defineMutation({
 export const markSpaceJoinAnnouncedMutation = defineMutation({
   name: 'markSpaceJoinAnnounced',
   args: spaceIdArgs,
-  writes: [SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['space_open_sessions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { spaceId }) {
     await tx.run(sql`
@@ -412,7 +409,7 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
 export const closeEndedOpenSessionsMutation = defineMutation({
   name: 'closeEndedOpenSessions',
   args: z.object({}),
-  writes: [SPACE_OPEN_SESSIONS_TABLE],
+  writes: ['space_open_sessions'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx }) {
     await tx.run(sql`

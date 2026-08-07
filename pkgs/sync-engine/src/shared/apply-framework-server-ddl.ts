@@ -1,13 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import type { Logger } from '@pkgs/logger';
 import { unsafe as unsafeSql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { FRAMEWORK_SERVER_DDL } from '@pkgs/sync-engine/shared/framework-server-ddl';
 
-const schemaPath = join(dirname(fileURLToPath(import.meta.url)), 'schema.sql');
+import { FRAMEWORK_SERVER_DDL } from './framework-server-ddl';
 
 function appendStatement(statements: string[], chunk: string): void {
   const trimmed = chunk.trim();
@@ -87,7 +82,7 @@ function appendSqlChar(
   return index;
 }
 
-/** Splits idempotent schema.sql on `;` outside comments and dollar-quoted blocks. */
+/** Splits DDL on `;` outside comments and dollar-quoted blocks. */
 export function splitSqlStatements(sql: string): string[] {
   const statements: string[] = [];
   const state: ScanState = { current: '', inDollar: false, comment: 'none' };
@@ -119,22 +114,17 @@ export function splitSqlStatements(sql: string): string[] {
   return statements;
 }
 
-export async function runSchemaSql(args: {
+/** Apply sync-engine framework tables (`_mutations`, …). */
+export async function applyFrameworkServerDdl(args: {
   sqlClient: SqlClient;
   logger: Logger;
 }): Promise<void> {
   const { sqlClient, logger } = args;
-
-  const raw = readFileSync(schemaPath, 'utf8');
-  const statements = [
-    ...splitSqlStatements(FRAMEWORK_SERVER_DDL),
-    ...splitSqlStatements(raw),
-  ];
+  const statements = splitSqlStatements(FRAMEWORK_SERVER_DDL);
   for (const statement of statements) {
     await sqlClient.run(unsafeSql(statement));
   }
-  logger.info('schema.sql applied', {
+  logger.info('framework server DDL applied', {
     statements: statements.length,
-    framework: true,
   });
 }

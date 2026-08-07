@@ -247,9 +247,9 @@ describe('attachNudges', () => {
     await pubsub.publish('user:actor1', {});
     await sim.runFor(20);
     expect(postQueries.mock.calls.length).toBe(1);
-    expect(
-      (postQueries.mock.calls[0]?.[0] as readonly unknown[]).length
-    ).toBe(3);
+    expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
+      3
+    );
   });
 
   test('nudge-checkpoint-skip', async () => {

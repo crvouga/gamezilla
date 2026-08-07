@@ -27,6 +27,7 @@ export type ServerOperation =
       readonly name: PackagePrefixedIndexName;
       readonly table: ValidatedIdent;
       readonly columns: readonly ValidatedIdent[];
+      readonly unique: boolean;
     }
   | {
       readonly kind: 'drop_index';

@@ -47,6 +47,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-clerk": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/inbox": "workspace:*",
         "@pkgs/keyword": "workspace:*",
@@ -314,13 +315,8 @@
       "name": "@libs/db",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/inbox": "workspace:*",
-        "@pkgs/logger": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-        "zod": "catalog:",
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
@@ -519,7 +515,6 @@
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
-        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
         "pg": "catalog:",
@@ -728,6 +723,7 @@
       "name": "@pkgs/db-schema",
       "version": "0.0.0",
       "dependencies": {
+        "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -1216,6 +1212,8 @@
       "dependencies": {
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",

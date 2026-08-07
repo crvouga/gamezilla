@@ -130,4 +130,29 @@ describe('sqlite reconcile integration', () => {
     await sqlite(schema, recording).reconcile();
     expect(recording.runCalls.length).toBe(0);
   });
+
+  test('uniqueIndexes emit UNIQUE INDEX', async () => {
+    const { client } = openMemoryClient();
+    const schema = defineSchema({
+      tables: { notes: { id: 'text', body: 'text' } },
+      uniqueIndexes: [['notes', 'id']],
+    });
+    await sqlite(schema, client).reconcile();
+    const catalog = await readSqliteCatalog(client, schema._declared);
+    expect(catalog.indexes.some((ix) => ix.name.startsWith('ux_'))).toBe(true);
+  });
+
+  test('declared-only leaves undeclared tables alone', async () => {
+    const { client } = openMemoryClient();
+    await client.run(
+      raw(`CREATE TABLE _mutations (id TEXT PRIMARY KEY) STRICT`)
+    );
+    const schema = defineSchema({
+      tables: { notes: { body: 'text' } },
+    });
+    await sqlite(schema, client, { ownership: 'declared-only' }).reconcile();
+    const catalog = await readSqliteCatalog(client, schema._declared);
+    expect(catalog.allTableNames.has('_mutations')).toBe(true);
+    expect(catalog.allTableNames.has('notes')).toBe(true);
+  });
 });

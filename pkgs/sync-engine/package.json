@@ -16,6 +16,8 @@
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

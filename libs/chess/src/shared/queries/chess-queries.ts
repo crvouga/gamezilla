@@ -84,9 +84,9 @@ export const chessPuzzlePool = defineQuery({
         game_url, 
         opening_tags
       FROM chess_puzzles
-      WHERE sync_pool = true
-        AND rating >= ${ratingMin}
+      WHERE rating >= ${ratingMin}
         AND rating <= ${ratingMax}
+      ORDER BY popularity DESC
       LIMIT 5000
     `);
     return { chess_puzzles: rows };

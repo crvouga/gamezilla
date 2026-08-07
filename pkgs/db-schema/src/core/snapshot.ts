@@ -26,12 +26,16 @@ export function buildSnapshot(declared: ReadonlyDeclaredSchema): Snapshot {
   const indexes = [...declared.indexes].sort((a, b) =>
     tupleJson(a).localeCompare(tupleJson(b))
   );
+  const uniqueIndexes = [...declared.uniqueIndexes].sort((a, b) =>
+    tupleJson(a).localeCompare(tupleJson(b))
+  );
   const deprecations = [...declared.deprecations].sort((a, b) =>
     tupleJson(a).localeCompare(tupleJson(b))
   );
   return {
     tables: sortNestedTables(declared.tables),
     indexes,
+    uniqueIndexes,
     deprecations,
   };
 }

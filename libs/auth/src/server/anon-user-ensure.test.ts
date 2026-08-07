@@ -32,6 +32,7 @@ async function migrate(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
+      id TEXT NOT NULL UNIQUE,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
@@ -163,8 +164,8 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
     await clearUserAnonFlag(db, other.userId);
     const now = new Date().toISOString();
     await db.run(sql<void>`
-      INSERT INTO external_accounts (user_id, provider, external_id, metadata, created_at)
-      VALUES (${other.userId}, 'clerk', 'ext_existing', '{}', ${now})
+      INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)
+      VALUES (${'clerk:ext_existing'}, ${other.userId}, 'clerk', 'ext_existing', '{}', ${now})
     `);
 
     const authServer: AuthServerPort = {

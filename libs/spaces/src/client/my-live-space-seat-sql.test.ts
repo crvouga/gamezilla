@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { spaceUserEntityId } from '@libs/db/shared/space-tables';
+import { spaceUserEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { type Sql, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';

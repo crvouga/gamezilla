@@ -1,9 +1,9 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
-import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import {
-  LOCAL_DOMAIN_DDL,
+  appSchema,
   LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/db/shared/table-registry';
+} from '@libs/db/shared/app-schema';
+import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createLocalSyncEngine } from '@pkgs/sync-engine/client/create-local-sync-engine';
@@ -155,7 +155,7 @@ export async function createAppLocalSyncEngine(
   return createLocalSyncEngine({
     db,
     localSchema: {
-      domainDdl: LOCAL_DOMAIN_DDL,
+      domainSchema: appSchema,
       cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
     },
     mutationRegistry: APP_MUTATIONS,

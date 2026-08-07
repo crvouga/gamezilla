@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { splitSqlStatements } from './run-schema-sql';
+import { splitSqlStatements } from './apply-framework-server-ddl';
 
 describe('splitSqlStatements', () => {
   test('does not split on semicolons inside line comments', () => {

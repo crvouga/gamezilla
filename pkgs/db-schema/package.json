@@ -12,6 +12,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*"

@@ -54,7 +54,6 @@
       "@pkgs/inbox/server/action-registry": [
         "./pkgs/inbox/src/server/action-registry.ts"
       ],
-      "@pkgs/inbox/sync/table-defs": ["./pkgs/inbox/sync/table-defs.ts"],
       "@libs/games/*": ["./libs/games/src/*"],
       "@libs/infra/namespace-bindings": [
         "./libs/infra/src/namespace-bindings.ts"

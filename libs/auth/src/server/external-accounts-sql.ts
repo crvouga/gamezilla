@@ -1,12 +1,6 @@
-import {
-  EXTERNAL_ACCOUNTS_TABLE,
-  USERS_TABLE,
-} from '@libs/db/shared/external-accounts-tables';
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
-export { EXTERNAL_ACCOUNTS_TABLE, USERS_TABLE };
 
 type UserIdRow = { readonly user_id: string };
 
@@ -93,8 +87,10 @@ export async function upsertExternalAccount(
 ): Promise<void> {
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
+  const id = `${args.provider}:${args.externalId}`;
   await db.run(sql<void>`
     INSERT INTO external_accounts (
+      id,
       user_id,
       provider,
       external_id,
@@ -102,6 +98,7 @@ export async function upsertExternalAccount(
       created_at
     )
     VALUES (
+      ${id},
       ${args.userId},
       ${args.provider},
       ${args.externalId},
@@ -128,8 +125,10 @@ export async function insertExternalAccountOrGet(
 ): Promise<string> {
   const now = new Date().toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
+  const id = `${args.provider}:${args.externalId}`;
   await db.run(sql<void>`
     INSERT INTO external_accounts (
+      id,
       user_id,
       provider,
       external_id,
@@ -137,6 +136,7 @@ export async function insertExternalAccountOrGet(
       created_at
     )
     VALUES (
+      ${id},
       ${args.userId},
       ${args.provider},
       ${args.externalId},

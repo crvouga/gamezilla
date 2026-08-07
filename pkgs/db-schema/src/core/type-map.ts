@@ -14,7 +14,9 @@ export const SQLITE_TYPE_SQL: Record<ColumnType, SqlitePhysicalType> = {
   text: 'TEXT',
   integer: 'INTEGER',
   boolean: 'INTEGER',
-  timestamp: 'INTEGER',
+  // ISO-8601 strings on the wire (Postgres timestamptz → JSON). STRICT rejects
+  // TEXT into INTEGER, so local physical type must be TEXT.
+  timestamp: 'TEXT',
   json: 'TEXT',
 };
 

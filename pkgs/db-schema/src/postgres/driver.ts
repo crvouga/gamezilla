@@ -10,6 +10,20 @@ import {
 } from './catalog';
 import { emitServerOperation, isConcurrentlyUnsupportedError } from './emit';
 
+export type PostgresDriverOptions = {
+  /**
+   * Skip the package session advisory lock when the caller already holds a
+   * migrate mutex (e.g. `pg_advisory_xact_lock` in api migrate).
+   */
+  readonly skipAdvisoryLock?: boolean;
+  /**
+   * When true, run table DDL on the injected client without opening a nested
+   * transaction (caller already provides a transaction). Index ops still use
+   * non-CONCURRENTLY emit when `indexesInTransaction` is also true.
+   */
+  readonly alreadyInTransaction?: boolean;
+};
+
 export type PostgresDriver = {
   reconcile(): Promise<void>;
 };
@@ -21,8 +35,13 @@ type IndexOp = Extract<
 
 async function runIndexOp(
   client: PostgresSqlClient,
-  op: IndexOp
+  op: IndexOp,
+  concurrently: boolean
 ): Promise<void> {
+  if (!concurrently) {
+    await client.run(emitServerOperation(op, { concurrently: false }));
+    return;
+  }
   try {
     await client.run(emitServerOperation(op));
   } catch (err) {
@@ -40,14 +59,20 @@ async function runIndexOp(
  */
 export function postgres(
   schema: Schema,
-  client: PostgresSqlClient
+  client: PostgresSqlClient,
+  options?: PostgresDriverOptions
 ): PostgresDriver {
+  const skipAdvisoryLock = options?.skipAdvisoryLock ?? false;
+  const alreadyInTransaction = options?.alreadyInTransaction ?? false;
+
   return {
     async reconcile(): Promise<void> {
       const schemaName = client.dbScope.schema;
       const declared = schema._declared;
 
-      await client.query(advisoryLockSql());
+      if (!skipAdvisoryLock) {
+        await client.query(advisoryLockSql());
+      }
       try {
         await client.run(createSchemaSql(schemaName));
 
@@ -68,19 +93,29 @@ export function postgres(
         );
 
         if (tableOps.length > 0) {
-          await client.transaction(async (tx) => {
+          const runTableOps = async (tx: PostgresSqlClient): Promise<void> => {
             for (const op of tableOps) {
               await tx.run(emitServerOperation(op));
             }
-          });
+          };
+          if (alreadyInTransaction) {
+            await runTableOps(client);
+          } else {
+            await client.transaction(async (tx) => {
+              await runTableOps(Object.assign(tx, { dbScope: client.dbScope }));
+            });
+          }
         }
 
         // CREATE INDEX CONCURRENTLY cannot run inside a transaction.
+        const concurrently = !alreadyInTransaction;
         for (const op of indexOps) {
-          await runIndexOp(client, op);
+          await runIndexOp(client, op, concurrently);
         }
       } finally {
-        await client.query(advisoryUnlockSql());
+        if (!skipAdvisoryLock) {
+          await client.query(advisoryUnlockSql());
+        }
       }
     },
   };

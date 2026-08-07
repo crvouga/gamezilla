@@ -17,7 +17,6 @@
     ]
   },
   "scripts": {
-    "refresh:puzzle-sync-pool": "bun run scripts/refresh-chess-puzzle-sync-pool.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"

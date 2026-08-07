@@ -10,7 +10,10 @@ function columnDdl(
 ): Sql<void> {
   const typeSql = raw(PG_TYPE_SQL[type]);
   if (isPrimaryKey) {
-    return sql`${ident(name)} ${typeSql} primary key`;
+    return sql`${ident(name)} ${typeSql} primary key DEFAULT gen_random_uuid()`;
+  }
+  if (name === '_created_at' || name === '_updated_at') {
+    return sql`${ident(name)} ${typeSql} DEFAULT now()`;
   }
   return sql`${ident(name)} ${typeSql}`;
 }
@@ -37,10 +40,11 @@ export function emitServerOperation(
     }
     case 'create_index': {
       const cols = op.columns.map((c) => ident(c));
+      const uniqueKw = op.unique ? raw('UNIQUE ') : raw('');
       if (concurrently) {
-        return sql`CREATE INDEX CONCURRENTLY IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`;
+        return sql`CREATE ${uniqueKw}INDEX CONCURRENTLY IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`;
       }
-      return sql`CREATE INDEX IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`;
+      return sql`CREATE ${uniqueKw}INDEX IF NOT EXISTS ${ident(op.name)} ON ${ident(op.table)} (${join(cols, ', ')})`;
     }
     case 'drop_index': {
       if (concurrently) {

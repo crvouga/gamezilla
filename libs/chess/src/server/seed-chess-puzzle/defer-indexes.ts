@@ -1,8 +1,11 @@
 /**
- * Drop chess_puzzles secondary indexes before a bulk seed so inserts do not
- * maintain btrees on managed Postgres tiers with tight storage caps.
+ * Drop chess_puzzles non-unique secondary indexes before a bulk seed so
+ * inserts do not maintain btrees on managed Postgres tiers with tight
+ * storage caps.
+ *
+ * Unique indexes (especially business `id`) must stay — seed uses
+ * `ON CONFLICT (id)` and the table PK is managed `_id`, not `id`.
  */
-import { CHESS_PUZZLES_TABLE } from '@libs/db/shared/chess-tables';
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
 
@@ -13,14 +16,20 @@ export async function dropPuzzleSnapshotIndexes(args: {
   log: Logger;
 }): Promise<void> {
   const { db, log } = args;
-  const table = CHESS_PUZZLES_TABLE;
+  const table = 'chess_puzzles';
+  // Only non-unique secondary indexes. Unique indexes (ux_*) and the PK
+  // remain so ON CONFLICT (id) keeps working after the _id PK migration.
   const rows = await db.query(sql<{ indexname: string }>`
-    SELECT indexname
-    FROM pg_indexes
-    WHERE schemaname = current_schema()
-      AND tablename = ${table}
-      AND indexname NOT LIKE '%\_pkey' ESCAPE '\'
-    ORDER BY indexname
+    SELECT i.relname AS indexname
+    FROM pg_index x
+    JOIN pg_class t ON t.oid = x.indrelid
+    JOIN pg_class i ON i.oid = x.indexrelid
+    JOIN pg_namespace n ON n.oid = t.relnamespace
+    WHERE n.nspname = current_schema()
+      AND t.relname = ${table}
+      AND x.indisprimary = false
+      AND x.indisunique = false
+    ORDER BY i.relname
   `);
   if (rows.length === 0) {
     log.info('seed:puzzles: defer-indexes — no secondary indexes to drop');

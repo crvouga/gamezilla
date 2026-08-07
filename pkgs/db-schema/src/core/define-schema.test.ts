@@ -104,6 +104,30 @@ describe('defineSchema runtime validation', () => {
     ).toThrow(/indexes\[1\]: duplicate index/);
   });
 
+  test('accepts uniqueIndexes', () => {
+    const schema = defineSchema({
+      tables: { users: { email: 'text', id: 'text' } },
+      uniqueIndexes: [
+        ['users', 'id'],
+        ['users', 'email'],
+      ],
+    });
+    expect(schema.snapshot().uniqueIndexes).toEqual([
+      ['users', 'email'],
+      ['users', 'id'],
+    ]);
+  });
+
+  test('rejects overlapping indexes and uniqueIndexes', () => {
+    expect(() =>
+      defineSchema({
+        tables: { users: { email: 'text' } },
+        indexes: [['users', 'email']],
+        uniqueIndexes: [['users', 'email']],
+      })
+    ).toThrow(/uniqueIndexes\[0\]: columns already indexed/);
+  });
+
   test('rejects deprecation missing note (arity)', () => {
     expect(() =>
       defineSchema({

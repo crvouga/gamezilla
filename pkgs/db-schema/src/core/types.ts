@@ -69,6 +69,7 @@ export type Snapshot = {
     readonly [table: string]: { readonly [column: string]: ColumnType };
   };
   readonly indexes: readonly IndexDef[];
+  readonly uniqueIndexes: readonly IndexDef[];
   readonly deprecations: readonly DeprecationDef[];
 };
 
@@ -79,6 +80,7 @@ export type Snapshot = {
 export type ReadonlyDeclaredSchema = {
   readonly tables: DeclaredTables;
   readonly indexes: readonly IndexDef[];
+  readonly uniqueIndexes: readonly IndexDef[];
   readonly deprecations: readonly DeprecationDef[];
   /** Tables that appear in a 2-tuple deprecation. */
   readonly deprecatedTables: ReadonlySet<string>;

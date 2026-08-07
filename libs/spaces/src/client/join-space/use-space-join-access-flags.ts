@@ -1,4 +1,4 @@
-import { spaceUserEntityId } from '@libs/db/shared/space-tables';
+import { spaceUserEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client/sync-engine-context';

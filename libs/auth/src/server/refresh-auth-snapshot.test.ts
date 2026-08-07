@@ -58,6 +58,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
+      id TEXT NOT NULL UNIQUE,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
@@ -222,13 +223,14 @@ describe('refreshAuthSnapshot', () => {
     const now = new Date().toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
+        id,
         user_id,
         provider,
         external_id,
         metadata,
         created_at
       )
-      VALUES (${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
+      VALUES (${'stripe:cus_1'}, ${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
     `);
 
     await refreshAuthSnapshot({

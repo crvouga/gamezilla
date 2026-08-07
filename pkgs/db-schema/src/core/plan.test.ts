@@ -333,4 +333,59 @@ describe('planClient', () => {
       ops.some((o) => o.kind === 'add_column' && o.column === 'title')
     ).toBe(true);
   });
+
+  test('declared-only ownership does not drop undeclared tables', () => {
+    const catalog: IntrospectedCatalog = {
+      tables: new Map([
+        [
+          'todos',
+          tableWithColumns('todos', [
+            { name: '_id', type: 'TEXT', nullable: false, isPrimaryKey: true },
+            { name: '_created_at', type: 'INTEGER' },
+            { name: '_updated_at', type: 'INTEGER' },
+            { name: '_deleted_at', type: 'INTEGER' },
+            { name: 'user_id', type: 'TEXT' },
+            { name: 'title', type: 'TEXT' },
+            { name: 'done', type: 'INTEGER' },
+            { name: 'status', type: 'TEXT' },
+            { name: 'created_at', type: 'INTEGER' },
+            { name: 'due_at', type: 'INTEGER' },
+          ]),
+        ],
+      ]),
+      indexes: [],
+      allTableNames: new Set(['todos', '_mutations', 'ghost']),
+    };
+    const ops = planClient(sampleSchema._declared, catalog, {
+      ownership: 'declared-only',
+    });
+    expect(ops.some((o) => o.kind === 'drop_table')).toBe(false);
+  });
+});
+
+describe('planServer unique indexes', () => {
+  test('plans unique create_index with unique flag', () => {
+    const schema = defineSchema({
+      tables: { notes: { id: 'text', body: 'text' } },
+      uniqueIndexes: [['notes', 'id']],
+      indexes: [['notes', 'body']],
+    });
+    const plan = planServer(schema._declared, emptyCatalog());
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    const uniqueIx = plan.operations.find(
+      (o) => o.kind === 'create_index' && o.unique
+    );
+    const plainIx = plan.operations.find(
+      (o) => o.kind === 'create_index' && !o.unique
+    );
+    expect(uniqueIx?.kind).toBe('create_index');
+    expect(plainIx?.kind).toBe('create_index');
+    if (uniqueIx?.kind === 'create_index') {
+      expect(uniqueIx.name.startsWith('ux_')).toBe(true);
+    }
+    if (plainIx?.kind === 'create_index') {
+      expect(plainIx.name.startsWith('ix_')).toBe(true);
+    }
+  });
 });

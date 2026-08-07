@@ -12,10 +12,7 @@ import {
   alwaysOnLifecycle,
 } from './app-lifecycle';
 import { REAL_TIMERS, resolveRandom, type Timers } from './sim-ports';
-import {
-  QUERY_COALESCE_MS,
-  type SweepReason,
-} from './subscription-constants';
+import { QUERY_COALESCE_MS, type SweepReason } from './subscription-constants';
 import {
   applyQueryResponse,
   loadBasis,

@@ -3,7 +3,7 @@
  * Enforce CACHE vs DURABLE table categories for local.db.
  * DURABLE tables must never appear as wipeable cache-only names without listing.
  */
-import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/table-registry';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/app-schema';
 import {
   FRAMEWORK_CACHE_TABLE_NAMES,
   FRAMEWORK_DURABLE_TABLE_NAMES,

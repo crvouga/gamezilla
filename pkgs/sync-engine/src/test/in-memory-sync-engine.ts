@@ -1,5 +1,6 @@
 import { Database } from 'bun:sqlite';
 
+import { sqlite as reconcileSqlite } from '@pkgs/db-schema/sqlite';
 import { raw, type Sql, sql } from '@pkgs/sql';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -52,15 +53,13 @@ function createStatusStore(): {
   };
 }
 
-function migrateTables(db: Database, schema: LocalDomainSchema): void {
-  for (const ddl of schema.domainDdl) {
-    for (const stmt of ddl
-      .split(';')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)) {
-      db.run(stmt);
-    }
-  }
+async function migrateTables(
+  db: SqlClient,
+  schema: LocalDomainSchema
+): Promise<void> {
+  await reconcileSqlite(schema.domainSchema, db, {
+    ownership: 'declared-only',
+  }).reconcile();
 }
 
 /**
@@ -141,12 +140,12 @@ function createImmediateQuerySubscription(): SyncEngine['subscribeQuery'] {
   });
 }
 
-export function createInMemorySyncEngine(
+export async function createInMemorySyncEngine(
   options: InMemorySyncEngineOptions
-): SyncEngine {
-  const sqlite = new Database(':memory:');
-  migrateTables(sqlite, options.schema);
-  const rawDb = new SqlClientImplBunSqlite(sqlite);
+): Promise<SyncEngine> {
+  const sqliteDb = new Database(':memory:');
+  const rawDb = new SqlClientImplBunSqlite(sqliteDb);
+  await migrateTables(rawDb, options.schema);
   const { status, setStatus, resetEverSynced } = createStatusStore();
 
   const writeListeners = new Set<() => void>();

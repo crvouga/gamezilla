@@ -40,7 +40,7 @@ export async function assignUniqueUsernameIfEmpty(
 
     await tx.run(sql`
       UPDATE profiles
-      SET username = ${username}
+      SET username = ${username}, username_norm = ${username.toLowerCase()}
       WHERE id = ${profileId}
         AND (username = '' OR username IS NULL)
     `);

@@ -24,6 +24,7 @@ async function migrateTables(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
+      id TEXT NOT NULL UNIQUE,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
@@ -91,6 +92,7 @@ describe('external-accounts-sql', () => {
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
+        id,
         user_id,
         provider,
         external_id,
@@ -98,6 +100,7 @@ describe('external-accounts-sql', () => {
         created_at
       )
       VALUES (
+        ${`${primaryAuthProvider}:${clerkUserId}`},
         ${userId},
         ${primaryAuthProvider},
         ${clerkUserId},

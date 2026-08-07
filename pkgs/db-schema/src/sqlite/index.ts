@@ -1,2 +1,6 @@
-export type { SqliteDriver } from './driver';
+export type {
+  SqliteDriver,
+  SqliteDriverOptions,
+  SqliteOwnership,
+} from './driver';
 export { sqlite } from './driver';

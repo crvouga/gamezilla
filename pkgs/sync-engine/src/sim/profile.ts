@@ -1,3 +1,4 @@
+import { defineSchema } from '@pkgs/db-schema';
 import type { Topic } from '@pkgs/pubsub/interface';
 import { sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -9,16 +10,19 @@ import { defineQuery } from '../queries/core/define-query';
 import { queryRegistry } from '../queries/core/registry';
 export const SIM_NOTES_TABLE = 'notes' as const;
 
-export const SIM_NOTES_LOCAL_DDL = `
-CREATE TABLE IF NOT EXISTS "notes" (
-  "id" TEXT PRIMARY KEY,
-  "body" TEXT,
-  "owner_id" TEXT
-)
-`;
+export const simNotesSchema = defineSchema({
+  tables: {
+    notes: {
+      id: 'text',
+      body: 'text',
+      owner_id: 'text',
+    },
+  },
+  uniqueIndexes: [['notes', 'id']],
+});
 
 export const simLocalSchema = {
-  domainDdl: [SIM_NOTES_LOCAL_DDL],
+  domainSchema: simNotesSchema,
   cacheTableNames: [SIM_NOTES_TABLE],
 } as const;
 

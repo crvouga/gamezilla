@@ -13,6 +13,7 @@ import { sqlitePhysicalOf } from './type-map';
 import type {
   ColumnType,
   DriftError,
+  IndexDef,
   IntrospectedCatalog,
   IntrospectedColumn,
   IntrospectedTable,
@@ -185,18 +186,28 @@ function planIndexOps(
 ): ServerOperation[] {
   const ops: ServerOperation[] = [];
   const desiredIndexNames = new Set<string>();
-  for (const def of declared.indexes) {
-    const name = fingerprintForIndexDef(def);
+
+  const pushCreate = (def: IndexDef, unique: boolean): void => {
+    const name = fingerprintForIndexDef(def, unique);
     desiredIndexNames.add(name);
-    if (catalog.indexes.some((ix) => ix.name === name)) continue;
+    if (catalog.indexes.some((ix) => ix.name === name)) return;
     const [table, ...columns] = def;
     ops.push({
       kind: 'create_index',
       name,
       table: asValidatedIdent(table),
       columns: columns.map(asValidatedIdent),
+      unique,
     });
+  };
+
+  for (const def of declared.indexes) {
+    pushCreate(def, false);
   }
+  for (const def of declared.uniqueIndexes) {
+    pushCreate(def, true);
+  }
+
   for (const ix of catalog.indexes) {
     const branded = asPackageIndexName(ix.name);
     if (!branded || desiredIndexNames.has(branded)) continue;
@@ -280,8 +291,10 @@ function underscoreExtras(existing: IntrospectedTable): {
 
 function planClientDropUnknownTables(
   declaredNames: Set<string>,
-  catalog: IntrospectedCatalog
+  catalog: IntrospectedCatalog,
+  ownership: 'whole-db' | 'declared-only'
 ): ClientOperation[] {
+  if (ownership === 'declared-only') return [];
   const ops: ClientOperation[] = [];
   for (const name of catalog.allTableNames) {
     if (declaredNames.has(name) || name.startsWith('sqlite_')) continue;
@@ -344,24 +357,34 @@ function planClientIndexOps(
 ): ClientOperation[] {
   const ops: ClientOperation[] = [];
   const desiredIndexNames = new Set<string>();
-  for (const def of declared.indexes) {
-    const name = fingerprintForIndexDef(def);
+
+  const pushCreate = (def: IndexDef, unique: boolean): void => {
+    const name = fingerprintForIndexDef(def, unique);
     desiredIndexNames.add(name);
-    if (catalog.indexes.some((ix) => ix.name === name)) continue;
+    if (catalog.indexes.some((ix) => ix.name === name)) return;
     const [table, ...columns] = def;
     if (
       !declaredNames.has(table) ||
       priorOps.some((o) => o.kind === 'drop_table' && o.table === table)
     ) {
-      continue;
+      return;
     }
     ops.push({
       kind: 'create_index',
       name,
       table: asValidatedIdent(table),
       columns: columns.map(asValidatedIdent),
+      unique,
     });
+  };
+
+  for (const def of declared.indexes) {
+    pushCreate(def, false);
   }
+  for (const def of declared.uniqueIndexes) {
+    pushCreate(def, true);
+  }
+
   for (const ix of catalog.indexes) {
     const branded = asPackageIndexName(ix.name);
     if (!branded || desiredIndexNames.has(branded)) continue;
@@ -380,13 +403,19 @@ const CLIENT_OP_ORDER: Record<ClientOperation['kind'], number> = {
   create_index: 6,
 };
 
+export type PlanClientOptions = {
+  readonly ownership?: 'whole-db' | 'declared-only';
+};
+
 export function planClient(
   declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
+  catalog: IntrospectedCatalog,
+  options?: PlanClientOptions
 ): ClientOperation[] {
+  const ownership = options?.ownership ?? 'whole-db';
   const declaredNames = new Set(Object.keys(declared.tables));
   const ops: ClientOperation[] = [
-    ...planClientDropUnknownTables(declaredNames, catalog),
+    ...planClientDropUnknownTables(declaredNames, catalog, ownership),
     ...planClientTableOps(declared, catalog),
   ];
   ops.push(...planClientIndexOps(declared, catalog, declaredNames, ops));

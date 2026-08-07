@@ -33,6 +33,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
+      id TEXT NOT NULL UNIQUE,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
@@ -69,6 +70,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     `);
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
+        id,
         user_id,
         provider,
         external_id,
@@ -76,6 +78,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
         created_at
       )
       VALUES (
+        ${`${PRIMARY_AUTH_PROVIDER}:${EXTERNAL_USER_ID}`},
         ${userId},
         ${PRIMARY_AUTH_PROVIDER},
         ${EXTERNAL_USER_ID},
@@ -160,6 +163,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     `);
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
+        id,
         user_id,
         provider,
         external_id,
@@ -167,6 +171,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
         created_at
       )
       VALUES (
+        ${`${PRIMARY_AUTH_PROVIDER}:${EXTERNAL_USER_ID}`},
         ${winnerId},
         ${PRIMARY_AUTH_PROVIDER},
         ${EXTERNAL_USER_ID},

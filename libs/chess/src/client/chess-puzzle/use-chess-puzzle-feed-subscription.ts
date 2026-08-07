@@ -2,7 +2,7 @@ import { useSyncEngineInstance } from '@pkgs/sync-engine/client/sync-engine-cont
 import { useEffect, useMemo } from 'react';
 
 /**
- * Poll the bounded puzzle-pool query while the feed is mounted.
+ * Hydrate the puzzle-pool query while the feed is mounted.
  */
 export function useChessPuzzleFeedSubscription(): void {
   // Stable engine — reactive useSyncEngine() would resubscribe on every status patch.

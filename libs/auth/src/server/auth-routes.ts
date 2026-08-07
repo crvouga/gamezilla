@@ -1,4 +1,3 @@
-import { DEVICE_SNAPSHOT_COLUMNS } from '@libs/db/shared/auth-tables';
 import { Hono } from 'hono';
 import { ensureAnonUserForDevice } from './anon-user-ensure';
 import type { ApiHonoEnv } from './api-hono-env';
@@ -15,6 +14,19 @@ type RefreshBody = {
 type AnonEnsureBody = {
   forceNew: boolean;
 };
+
+/** Writable device metadata columns accepted by `POST /auth/refresh`. */
+const DEVICE_SNAPSHOT_COLUMNS = new Set([
+  'platform',
+  'os_name',
+  'os_version',
+  'device_model_name',
+  'device_brand',
+  'device_name',
+  'app_version',
+  'app_build_number',
+  'user_agent',
+]);
 
 /**
  * Keeps only known device column keys with non-empty string values. We

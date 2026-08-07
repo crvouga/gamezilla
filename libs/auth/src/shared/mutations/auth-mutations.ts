@@ -1,4 +1,3 @@
-import { DEVICES_TABLE } from '@libs/db/shared/auth-tables';
 import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/mutations/core/define-mutation';
@@ -19,7 +18,7 @@ const deviceSnapshot = z.object({
 export const ensureDeviceMutation = defineMutation({
   name: 'ensureDevice',
   args: deviceSnapshot,
-  writes: [DEVICES_TABLE],
+  writes: ['devices'],
   invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, snapshot) {
     const now = env.now().toISOString();

@@ -147,7 +147,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/db` — domain Postgres / local SQLite schemas as raw SQL DDL + table-name constants (`schema.sql`, per-feature `*-tables.ts`, composed local DDL registry). Framework tables (`_mutations`, `write_rejections`, …) are owned by `@pkgs/sync-engine` (`FRAMEWORK_SERVER_DDL`) and applied at migrate time. Feature packages import table names/columns from here; domain mutations validate and apply their own authorized SQL.
+- `@libs/db` — domain schema via `defineSchema` (`app-schema.ts`) reconciled by `@pkgs/db-schema` on Postgres migrate and local SQLite open; sync topics. Framework tables (`_mutations`, `write_rejections`, …) are owned by `@pkgs/sync-engine` (`FRAMEWORK_SERVER_DDL` / `applyFrameworkServerDdl`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.
@@ -170,7 +170,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
    - `shared/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
    - `shared/<game>-play.ts` — game-play reducer (moves, win/loss state).
    - `shared/<game>-entities.ts` — attribute/entity type defs for domain constants.
-   - Add any new sync tables to `@libs/db` (`libs/db/src/shared/<game>-tables.ts`) and register them in `libs/db/src/shared/table-registry.ts`.
+   - Add any new sync tables to `@libs/db` `app-schema.ts` (`defineSchema`).
    - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
 5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
 6. Add client hooks under `libs/<game>/src/client/<slice>/` that call domain mutation definitions under `libs/<game>/src/shared/mutations/`. Prefer domain mutation writes over new REST.

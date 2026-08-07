@@ -6,19 +6,64 @@ import {
   readSignInPendingSync,
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
+import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
+import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
 import { type Href, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+
+function writePendingMarker(store: SecureStorageStore): void {
+  const syncPending = readSignInPendingSync();
+  const wire =
+    syncPending === null
+      ? JSON.stringify({ startedAt: new Date().toISOString() })
+      : JSON.stringify({
+          startedAt: syncPending.startedAt.toISOString(),
+          ...(syncPending.returnHref !== undefined
+            ? { returnHref: syncPending.returnHref }
+            : {}),
+        });
+  store.setValue(SIGN_IN_PENDING_KEY, wire);
+  if (syncPending === null) {
+    void markSignInPending(store);
+  } else {
+    void writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, wire);
+  }
+}
+
+async function finishHostedAuthRedirect(port: AuthClientPort): Promise<void> {
+  if (port.completeHostedAuthRedirect !== undefined) {
+    await port.completeHostedAuthRedirect();
+    return;
+  }
+  await port.ensureSessionReady?.();
+}
+
+async function completeSsoCallbackAndNavigate(args: {
+  readonly store: SecureStorageStore;
+  readonly port: AuthClientPort;
+  readonly openSignInModal: () => void;
+  readonly replace: (href: Href) => void;
+}): Promise<void> {
+  writePendingMarker(args.store);
+  args.openSignInModal();
+  try {
+    await finishHostedAuthRedirect(args.port);
+  } catch {
+    // Modal resume path surfaces cancel/error once auth settles signed-out.
+  }
+  const target = signInReturnHrefFromPending(readSignInPendingSync());
+  args.replace(target as Href);
+}
 
 /**
- * OAuth callback route (handoff only). Completes same-tab web return via
- * `completeHostedAuthRedirect`, opens SignInModal, then immediately replaces
- * back to the pre-OAuth screen. Navigation must not wait on async secure-storage
- * hydration — that can stall and leave this blank route mounted forever.
+ * OAuth callback route (handoff only). Must finish `completeHostedAuthRedirect`
+ * **before** `router.replace` — navigating first strips `rotating_token_nonce`
+ * from the URL and leaves SignInModal stuck on "Signing in…".
  */
 export default function SsoCallbackScreen() {
   const router = useRouter();
@@ -26,50 +71,25 @@ export default function SsoCallbackScreen() {
   const port = useAuthClientPort();
   const authState = port.useAuthSession();
   const { openSignInModal } = useAuthModals();
-  const didNavigateRef = useRef(false);
+  const didFinishRef = useRef(false);
 
   useEffect(() => {
     WebBrowser.maybeCompleteAuthSession();
+  }, []);
+
+  useEffect(() => {
+    if (didFinishRef.current) return;
     if (!authState.isHydrated) return;
-    void (async () => {
-      if (port.completeHostedAuthRedirect !== undefined) {
-        await port.completeHostedAuthRedirect();
-        return;
-      }
-      await port.ensureSessionReady?.();
-    })();
-  }, [port, authState.isHydrated]);
-
-  useLayoutEffect(() => {
-    if (didNavigateRef.current) return;
-    didNavigateRef.current = true;
-
-    const syncPending = readSignInPendingSync();
-    const target = signInReturnHrefFromPending(syncPending);
-
-    // Keep the reactive pending hook / modal resume path warm even if async
-    // hydrate is stalled.
-    const wire =
-      syncPending === null
-        ? JSON.stringify({
-            startedAt: new Date().toISOString(),
-          })
-        : JSON.stringify({
-            startedAt: syncPending.startedAt.toISOString(),
-            ...(syncPending.returnHref !== undefined
-              ? { returnHref: syncPending.returnHref }
-              : {}),
-          });
-    store.setValue(SIGN_IN_PENDING_KEY, wire);
-    if (syncPending === null) {
-      void markSignInPending(store);
-    } else {
-      void writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, wire);
-    }
-
-    openSignInModal();
-    router.replace(target as Href);
-  }, [router, openSignInModal, store]);
+    didFinishRef.current = true;
+    void completeSsoCallbackAndNavigate({
+      store,
+      port,
+      openSignInModal,
+      replace: (href) => {
+        router.replace(href);
+      },
+    });
+  }, [authState.isHydrated, openSignInModal, port, router, store]);
 
   return null;
 }

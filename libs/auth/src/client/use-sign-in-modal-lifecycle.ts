@@ -78,11 +78,20 @@ function resolveSignInOutcome(args: {
     return;
   }
   const err = authSessionError(authState);
-  if (err === null) return;
+  if (err !== null) {
+    setAwaitingCallback(false);
+    void clearSignInPending(store);
+    onError?.(err);
+    setError(err);
+    setPhase('error');
+    return;
+  }
+  // Resume path only (awaitingCallback): hydrated signed-out with no error means
+  // OAuth did not establish a session (cancel / handoff race). Do not hang.
+  if (!authState.isHydrated) return;
   setAwaitingCallback(false);
   void clearSignInPending(store);
-  onError?.(err);
-  setError(err);
+  setError(null);
   setPhase('error');
 }
 
