@@ -54,7 +54,7 @@ export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
     }
     const parsed = queryBodySchema.safeParse(await c.req.json());
     if (!parsed.success) {
-      return c.json({ status: 'gone' as const }, 400);
+      return c.json({ status: 'denied' as const }, 400);
     }
     const runDeps: RunQueryDeps = {
       db: deps.getSql(),

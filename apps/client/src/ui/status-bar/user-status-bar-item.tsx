@@ -54,6 +54,7 @@ export function UserStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="current-user"
       order={30}
+      contentKey={caption}
       title={t`Account`}
       caption={caption}
       accessibilityLabel={t`Current user`}

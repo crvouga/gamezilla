@@ -56,7 +56,7 @@ export default function StatusBarExample() {
           <StatusBar panelTitle="Status" />
           <Text
             variant="body"
-            label="Thin strip at the top (press it). Items register via RegisterStatusBarItem."
+            label="Thin strip at the top (swipe down to open). Items register via RegisterStatusBarItem."
           />
           <OpenStatusBarButton />
         </Stack>

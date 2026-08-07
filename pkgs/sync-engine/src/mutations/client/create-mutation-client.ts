@@ -2,7 +2,6 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ZodError } from 'zod';
 
-import { bumpWriteEpoch } from '../../queries/client/write-epoch';
 import {
   isMutationError,
   mutationErrorToFailure,
@@ -18,7 +17,6 @@ import { wrapMutationDb } from '../shared/wrap-mutation-db';
 
 export type MutationClientIds = {
   readonly clientId: string;
-  readonly nextSeq: () => number;
 };
 
 export type MutationConnectivity = {
@@ -30,14 +28,6 @@ export type MutationClient = {
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
 };
 
-export type MutationAppliedEvent = {
-  readonly mutationId: string;
-  readonly mutation: Mutation<unknown>;
-  readonly args: unknown;
-  readonly seq: number;
-  readonly createdAt: string;
-};
-
 export type CreateMutationClientOptions = {
   readonly db: SqlClient;
   readonly registry: MutationRegistry;
@@ -46,39 +36,15 @@ export type CreateMutationClientOptions = {
   readonly connectivity: MutationConnectivity;
   /** Fired after a mutation is durably queued for upload. */
   readonly onQueued?: () => void;
-  /** Fired after local apply + queue — MQTT fanout hook. */
-  readonly onApplied?: (event: MutationAppliedEvent) => void;
   /** Deterministic id mint for sim; defaults to crypto.randomUUID. */
   readonly createId?: () => string;
 };
 
-function isMissingUploadState(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return (
-    message.includes('no such table') ||
-    message.includes('no such column') ||
-    message.includes('does not exist')
-  );
-}
-
-async function reserveMutationSeq(
-  tx: SqlClient,
-  ids: MutationClientIds
-): Promise<number> {
-  try {
-    const rows = await tx.query(sql<{ next_seq: number }>`
-      SELECT next_seq FROM _upload_state WHERE id = ${'singleton'} LIMIT 1
-    `);
-    const next = Number(rows[0]?.next_seq ?? 1);
-    await tx.run(sql`
-      UPDATE _upload_state SET next_seq = ${next + 1}
-      WHERE id = ${'singleton'}
-    `);
-    return next;
-  } catch (error) {
-    if (isMissingUploadState(error)) return ids.nextSeq();
-    throw error;
-  }
+async function nextMutationSeq(tx: SqlClient): Promise<number> {
+  const rows = await tx.query(sql<{ next: number | null }>`
+    SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM _mutations
+  `);
+  return Number(rows[0]?.next ?? 1);
 }
 
 /**
@@ -109,17 +75,13 @@ export function createMutationClient(
       const mutationId = (options.createId ?? (() => crypto.randomUUID()))();
       try {
         const parsed = m.args.parse(args);
-        let appliedSeq = 0;
-        let createdAt = '';
         await db.transaction(async (txc) => {
-          const seq = await reserveMutationSeq(txc, ids);
-          const epoch = await bumpWriteEpoch(txc);
-          appliedSeq = seq;
-          createdAt = env.now().toISOString();
+          const seq = await nextMutationSeq(txc);
+          const createdAt = env.now().toISOString();
           await m.run({ tx: wrapMutationDb(txc), env }, parsed);
           await txc.run(sql`
             INSERT INTO _mutations (
-              id, name, args, client_id, seq, created_at, epoch, status
+              id, name, args, client_id, seq, created_at
             )
             VALUES (
               ${mutationId},
@@ -127,18 +89,9 @@ export function createMutationClient(
               ${JSON.stringify(parsed)},
               ${ids.clientId},
               ${seq},
-              ${createdAt},
-              ${epoch},
-              ${'pending'}
+              ${createdAt}
             )
           `);
-        });
-        options.onApplied?.({
-          mutationId,
-          mutation: m as Mutation<unknown>,
-          args: parsed,
-          seq: appliedSeq,
-          createdAt,
         });
         options.onQueued?.();
         return { ok: true, mutationId };

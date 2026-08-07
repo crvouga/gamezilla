@@ -3,7 +3,6 @@
  */
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { MutationAppliedEvent } from '../mutations/client/create-mutation-client';
 import type {
   SubscribeQueriesHandle,
   SyncEngineQuerySubscriptionSpec,
@@ -88,9 +87,4 @@ export type SyncEngine = {
   readonly status: SyncStatusSubscription;
   /** Wake the mutation upload loop (e.g. after a local `mutate` commit). */
   readonly wakeUploads: () => void;
-  /**
-   * Best-effort MQTT mutation fanout after local apply. No-op when pubsub is
-   * unavailable or disconnected.
-   */
-  readonly fanoutMutation: (event: MutationAppliedEvent) => void;
 };

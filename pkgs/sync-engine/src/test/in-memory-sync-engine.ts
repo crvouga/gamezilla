@@ -212,6 +212,5 @@ export async function createInMemorySyncEngine(
     ),
     status,
     wakeUploads: () => undefined,
-    fanoutMutation: () => undefined,
   };
 }

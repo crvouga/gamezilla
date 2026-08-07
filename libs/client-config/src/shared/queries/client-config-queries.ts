@@ -14,7 +14,7 @@ export const clientConfig = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, google_web_client_id FROM client_config LIMIT 1
+      SELECT id, google_web_client_id, _deleted_at FROM client_config LIMIT 1
     `);
     return { client_config: rows };
   },

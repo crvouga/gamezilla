@@ -17,13 +17,13 @@ export const mySpaces = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT
         id, title, host_id, created_at, ended_at, visibility,
-        host_account_id, host_member_id
+        host_account_id, host_member_id, _deleted_at
       FROM spaces
       WHERE host_member_id = ${actor}
          OR host_account_id = ${actor}
          OR id IN (
            SELECT space_id FROM space_users
-           WHERE user_id = ${actor} AND _deleted_at IS NULL
+           WHERE user_id = ${actor}
          )
       LIMIT 200
     `);
@@ -51,7 +51,7 @@ export const mySpaceUsers = defineQuery({
            OR id IN (
              SELECT space_id
              FROM space_users
-             WHERE user_id = ${actor} AND _deleted_at IS NULL
+             WHERE user_id = ${actor}
            )
       )
       SELECT
@@ -59,13 +59,11 @@ export const mySpaceUsers = defineQuery({
         space_id,
         user_id,
         created_at,
-        created_by_account_id
+        created_by_account_id,
+        _deleted_at
       FROM space_users
-      WHERE _deleted_at IS NULL
-        AND (
-          user_id = ${actor}
-          OR space_id IN (SELECT id FROM related_spaces)
-        )
+      WHERE user_id = ${actor}
+         OR space_id IN (SELECT id FROM related_spaces)
       LIMIT 2000
     `);
     return { space_users: rows };
@@ -84,10 +82,9 @@ export const openSpaceSessions = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, space_id, device_id, opened_at, join_announced
+      SELECT id, space_id, device_id, opened_at, join_announced, _deleted_at
       FROM space_open_sessions
       WHERE device_id = ${ctx.env.deviceId}
-        AND _deleted_at IS NULL
       LIMIT 20
     `);
     return { space_open_sessions: rows };

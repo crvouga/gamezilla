@@ -2,7 +2,6 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { MutationAppliedEvent } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import { createSqlWatch } from '../queries/client/sql-watch';
@@ -26,12 +25,12 @@ import {
   type MutationUploadResult,
   type MutationUploadRow,
 } from './mutation-upload-queue';
-import { publishMutationFanout } from './publish-mutation-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import type { CreateId, Timers } from './sim-ports';
 import { createSubscribeQueries } from './subscribe-queries';
-import type { QueryRequest } from './subscription-fetch';
 import {
+  type QueryRequest,
+  type QuerySubscription,
   type QuerySubscriptionSpec,
   SubscriptionRuntime,
 } from './subscription-runtime';
@@ -51,7 +50,8 @@ export type CreateLocalSyncEngineOptions = {
   readonly mutationRegistry: MutationRegistry;
   readonly getMutationEnv: () => MutationEnv;
   readonly getClientId: () => string;
-  readonly bootQueries: readonly QuerySubscriptionSpec[];
+  /** Session-scoped queries held for the engine lifetime (paint gate waits). */
+  readonly sessionQueries: readonly QuerySubscriptionSpec[];
   readonly postQueries: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
@@ -81,10 +81,10 @@ type LocalEngineState = {
   readonly runtime: SubscriptionRuntime;
   readonly uploadQueue: MutationUploadQueue;
   readonly watches: ReturnType<typeof createSharedWatchRegistry>;
+  readonly sessionHandles: readonly QuerySubscription[];
   connected: boolean;
   revokePromise: Promise<void> | null;
   disposeNudges: (() => void) | null;
-  fanoutPubSub: PubSub | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -127,12 +127,10 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const stateRef: LocalEngineStateRef = { current: null };
   const runtime = new SubscriptionRuntime({
     db: options.db,
-    boot: options.bootQueries,
     postQueries: options.postQueries,
     ...(options.lifecycle !== undefined
       ? { lifecycle: options.lifecycle }
       : {}),
-    ...(options.random !== undefined ? { random: options.random } : {}),
     ...(options.timers !== undefined ? { timers: options.timers } : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
@@ -144,18 +142,19 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
         lastError: null,
       }),
   });
+  const sessionHandles = options.sessionQueries.map((spec) =>
+    runtime.subscribe(spec)
+  );
   const uploadQueue = new MutationUploadQueue({
     db: options.db,
     bus,
     clientId: options.getClientId,
     postBatch: options.postMutations,
-    // Local rows already applied; overlapping scopes are nudged via pubsub.
     onUploaded: () => undefined,
     onError: (error) => handleError(readState(stateRef), error),
     ...(options.timers !== undefined ? { timers: options.timers } : {}),
     ...(options.now !== undefined ? { now: options.now } : {}),
   });
-  // Don't wait for IDLE_DELAY_MS — local mutate commits emit `_mutations`.
   bus.subscribe((tables) => {
     if (tables.has('_mutations')) uploadQueue.wake();
   });
@@ -169,33 +168,13 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     watches: createSharedWatchRegistry((query) =>
       createSqlWatch({ db: appDb, bus, query })
     ),
+    sessionHandles,
     connected: false,
     revokePromise: null,
     disposeNudges: null,
-    fanoutPubSub: null,
   };
   stateRef.current = state;
   return state;
-}
-
-function fanoutFromState(
-  state: LocalEngineState,
-  event: MutationAppliedEvent
-): void {
-  const pubsub = state.fanoutPubSub;
-  if (pubsub === null) return;
-  publishMutationFanout({
-    pubsub,
-    event: {
-      mutationId: event.mutationId,
-      mutation: event.mutation,
-      args: event.args,
-      seq: event.seq,
-      createdAt: event.createdAt,
-      env: state.options.getMutationEnv(),
-      clientId: state.options.getClientId(),
-    },
-  });
 }
 
 function attachNudgesIfConfigured(state: LocalEngineState): void {
@@ -209,16 +188,10 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
       pubsub,
       runtime: state.runtime,
       queryRegistry: nudges.queryRegistry,
-      mutationRegistry: state.options.mutationRegistry,
-      bus: state.bus,
-      db: state.options.db,
       getChannelsCtx: nudges.getChannelsCtx,
       remakePubSub: () => {
         pubsub = nudges.createPubSub();
         return pubsub;
-      },
-      onPubSubInstance: (instance) => {
-        state.fanoutPubSub = instance;
       },
       ...(nudges.onBindTopicRefresh !== undefined
         ? { onBindTopicRefresh: nudges.onBindTopicRefresh }
@@ -239,7 +212,6 @@ function attachNudgesIfConfigured(state: LocalEngineState): void {
 function detachNudges(state: LocalEngineState): void {
   state.disposeNudges?.();
   state.disposeNudges = null;
-  state.fanoutPubSub = null;
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
@@ -292,7 +264,6 @@ async function clearState(
   state.runtime.reset();
   state.bus.emit([
     ...state.options.localSchema.cacheTableNames,
-    '_row_scopes',
     '_scope_meta',
     'write_rejections',
   ]);
@@ -312,12 +283,14 @@ function toEngine(state: LocalEngineState): SyncEngine {
     connect: () => connectState(state),
     disconnect: () => disconnectState(state),
     clearLocalData: (args) => clearState(state, args?.reason ?? 'cache'),
-    waitForFirstSync: () => state.runtime.waitForBoot(),
+    waitForFirstSync: () =>
+      Promise.all(state.sessionHandles.map((h) => h.waitForFirstSync())).then(
+        () => undefined
+      ),
     subscribeQuery,
     subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,
     wakeUploads: () => state.uploadQueue.wake(),
-    fanoutMutation: (event) => fanoutFromState(state, event),
   };
 }
 

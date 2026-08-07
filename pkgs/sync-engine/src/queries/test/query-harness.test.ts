@@ -87,7 +87,7 @@ describe('query harness stubs', () => {
       { name: 'notesLim', params: {} }
     );
     expect(res.status).toBe('ok');
-    if (res.status === 'ok' && res.mode === 'full') {
+    if (res.status === 'ok') {
       expect(res.tables['notes']?.length).toBe(2);
     }
   });

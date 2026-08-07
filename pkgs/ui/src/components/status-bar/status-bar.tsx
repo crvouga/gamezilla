@@ -1,21 +1,21 @@
-import { type ReactNode, useMemo, useSyncExternalStore } from 'react';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import type { ComponentDataSet } from '../../component-id';
+import { useTheme } from '../../theme';
 import { ResponsiveSurface } from '../responsive-surface';
 import { StatusBarPanel } from './status-bar-panel';
 import { useStatusBarRegistry } from './status-bar-registry-context';
-import type { StatusBarRegistryStore } from './status-bar-registry-store';
 import { StatusBarStrip, useStatusBarPushHeight } from './status-bar-strip';
 
 export type StatusBarProps = {
   /**
-   * When true (default), reserves vertical space on zero-inset platforms so
-   * the absolute strip does not cover TopBar. On notched devices the strip
-   * lives inside the safe-area padding already consumed by TopBar.
+   * When true (default), reserves the strip body height so the absolute
+   * overlay does not cover TopBar. Safe-area top inset stays on ScreenBase /
+   * TopBar; the strip paints that zone and places icons below it.
    */
   reserveSpace?: boolean;
-  /** Accessibility label for the thin strip press target. */
+  /** Accessibility label for the thin strip (swipe down to open). */
   accessibilityLabel?: string;
   /** Title for the expanded surface. */
   panelTitle?: ReactNode;
@@ -23,24 +23,9 @@ export type StatusBarProps = {
   dataSet?: ComponentDataSet;
 };
 
-function useVisibleItems(store: StatusBarRegistryStore) {
-  // Version is a stable primitive snapshot — `getVisibleSorted()` returns a
-  // new array each call and would infinite-loop useSyncExternalStore.
-  const version = useSyncExternalStore(
-    (onStoreChange) => store.subscribe(onStoreChange),
-    () => store.getVersion(),
-    () => store.getVersion()
-  );
-  return useMemo(() => store.getVisibleSorted(), [store, version]);
-}
-
 /**
- * Global smartphone-style status bar host. Renders the thin indicator strip
- * and the expanded {@link ResponsiveSurface} control panel. Items are supplied
- * by features via {@link RegisterStatusBarItem}.
- *
- * Mount as the first child of a `flex: 1` column (before route content) so the
- * optional spacer can push layout on zero-inset platforms.
+ * Global smartphone-style status bar host. Items come from
+ * {@link StatusBarRegistryProvider} React state.
  */
 export function StatusBar({
   reserveSpace = true,
@@ -48,18 +33,24 @@ export function StatusBar({
   panelTitle = 'Status',
   dataSet,
 }: StatusBarProps): ReactNode {
-  const { store, isOpen, open, close } = useStatusBarRegistry();
-  const items = useVisibleItems(store);
+  const theme = useTheme();
+  const { items, isOpen, open, close } = useStatusBarRegistry();
   const pushHeight = useStatusBarPushHeight();
 
   return (
     <>
       {reserveSpace && pushHeight > 0 ? (
-        <View pointerEvents="none" style={{ height: pushHeight }} />
+        <View
+          pointerEvents="none"
+          style={{
+            height: pushHeight,
+            backgroundColor: theme.colors.surface,
+          }}
+        />
       ) : null}
       <StatusBarStrip
         items={items}
-        onPress={open}
+        onOpen={open}
         accessibilityLabel={accessibilityLabel}
         {...(dataSet !== undefined ? { dataSet } : {})}
       />

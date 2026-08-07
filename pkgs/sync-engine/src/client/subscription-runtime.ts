@@ -1,9 +1,5 @@
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
-import {
-  detachScope,
-  type MergeApplierDeps,
-} from '../queries/client/merge-applier';
 import type { QueryResponse } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {
@@ -11,14 +7,16 @@ import {
   type AppLifecycleEvent,
   alwaysOnLifecycle,
 } from './app-lifecycle';
-import { REAL_TIMERS, resolveRandom, type Timers } from './sim-ports';
-import { QUERY_COALESCE_MS, type SweepReason } from './subscription-constants';
-import {
-  applyQueryResponse,
-  loadBasis,
-  type QueryRequest,
-  requestFromBasis,
-} from './subscription-fetch';
+import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
+import { REAL_TIMERS, type Timers } from './sim-ports';
+import { QUERY_COALESCE_MS } from './subscription-constants';
+
+export type QueryRequest = {
+  readonly name: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  readonly lastHash?: string | undefined;
+  readonly checkpoint?: string | undefined;
+};
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
@@ -42,7 +40,6 @@ type Entry = {
   firstSync: Promise<void>;
   resolveFirst: () => void;
   firstDone: boolean;
-  boot: boolean;
   refs: number;
   generation: number;
   stopped: boolean;
@@ -53,7 +50,6 @@ type PendingSweep = 'all' | Set<string>;
 
 export type SubscriptionRuntimeOptions = {
   readonly db: SqlClient;
-  readonly boot: readonly QuerySubscriptionSpec[];
   readonly postQueries: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
@@ -61,13 +57,12 @@ export type SubscriptionRuntimeOptions = {
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
   readonly lifecycle?: AppLifecycle;
-  readonly random?: () => number;
   readonly timers?: Timers;
   /** Coalesce window override (default QUERY_COALESCE_MS). */
   readonly coalesceMs?: number;
 };
 
-function createEntry(spec: QuerySubscriptionSpec, boot: boolean): Entry {
+function createEntry(spec: QuerySubscriptionSpec): Entry {
   let resolveFirst = (): void => undefined;
   const firstSync = new Promise<void>((resolve) => {
     resolveFirst = resolve;
@@ -78,7 +73,6 @@ function createEntry(spec: QuerySubscriptionSpec, boot: boolean): Entry {
     firstSync,
     resolveFirst,
     firstDone: false,
-    boot,
     refs: 0,
     generation: 0,
     stopped: false,
@@ -109,13 +103,31 @@ function mergePending(
   return set;
 }
 
+async function loadBasis(
+  db: SqlClient,
+  scope: string
+): Promise<{ last_checkpoint: string | null; last_hash: string | null }> {
+  const rows = await db.query(sql<{
+    last_checkpoint: string | null;
+    last_hash: string | null;
+  }>`
+    SELECT last_checkpoint, last_hash
+    FROM _scope_meta
+    WHERE scope_hash = ${scope}
+    LIMIT 1
+  `);
+  const meta = rows[0];
+  return {
+    last_checkpoint: meta?.last_checkpoint ?? null,
+    last_hash: meta?.last_hash ?? null,
+  };
+}
+
 /** Owns event-driven query scopes; applies responses to local SQLite. */
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
   private readonly changeListeners = new Set<() => void>();
-  private readonly jitterTimers = new Set<unknown>();
   private readonly lifecycle: AppLifecycle;
-  private readonly random: () => number;
   private readonly timers: Timers;
   private readonly coalesceMs: number;
   private running = false;
@@ -127,11 +139,9 @@ export class SubscriptionRuntime {
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
-    this.random = resolveRandom(options.random);
     this.timers = options.timers ?? REAL_TIMERS;
     this.coalesceMs = options.coalesceMs ?? QUERY_COALESCE_MS;
     this.foregrounded = this.lifecycle.isForeground();
-    for (const spec of options.boot) this.ensureEntry(spec, true);
   }
 
   start(): void {
@@ -146,7 +156,6 @@ export class SubscriptionRuntime {
 
   stop(): void {
     this.running = false;
-    this.clearJitterTimers();
     this.clearCoalesceTimer();
     this.pending = null;
     this.disposeLifecycle?.();
@@ -158,13 +167,13 @@ export class SubscriptionRuntime {
     for (const entry of this.entries.values()) resetFirst(entry);
   }
 
-  wakeAll(_reason: SweepReason = 'manual'): void {
+  wakeAll(): void {
     if (!this.running || !this.foregrounded) return;
     this.enqueue('all');
   }
 
   /** Batch-refetch a subset of active scopes (shared-topic nudge fanout). */
-  wakeScopes(scopes: readonly string[], _reason: SweepReason = 'nudge'): void {
+  wakeScopes(scopes: readonly string[]): void {
     if (!this.running || !this.foregrounded || scopes.length === 0) return;
     this.enqueue(scopes);
   }
@@ -172,17 +181,6 @@ export class SubscriptionRuntime {
   wakeScope(scope: string): void {
     if (!this.running || !this.foregrounded) return;
     this.enqueue([scope]);
-  }
-
-  wakeAllWithJitter(maxMs: number, reason: SweepReason = 'manual'): void {
-    if (!this.running || !this.foregrounded) return;
-    this.clearJitterTimers();
-    const delayMs = Math.floor(this.random() * Math.max(0, maxMs));
-    const timer = this.timers.setTimeout(() => {
-      this.jitterTimers.delete(timer);
-      this.wakeAll(reason);
-    }, delayMs);
-    this.jitterTimers.add(timer);
   }
 
   listActive(): readonly ActiveSubscription[] {
@@ -200,15 +198,17 @@ export class SubscriptionRuntime {
     };
   }
 
-  waitForBoot(): Promise<void> {
+  /** Await first sync of the given scopes (or all active if omitted). */
+  waitForScopes(scopes?: readonly string[]): Promise<void> {
+    const wanted = scopes === undefined ? null : new Set(scopes);
     const waits = [...this.entries.values()]
-      .filter((entry) => entry.boot)
+      .filter((entry) => wanted === null || wanted.has(entry.scope))
       .map((entry) => entry.firstSync);
     return Promise.all(waits).then(() => undefined);
   }
 
   subscribe(spec: QuerySubscriptionSpec): QuerySubscription {
-    const entry = this.ensureEntry(spec, false);
+    const entry = this.ensureEntry(spec);
     entry.refs += 1;
     entry.stopped = false;
     if (this.running && !entry.firstDone) {
@@ -228,19 +228,15 @@ export class SubscriptionRuntime {
     }
     if (event === 'background') {
       this.foregrounded = false;
-      this.clearJitterTimers();
       this.clearCoalesceTimer();
     }
   }
 
-  private ensureEntry(spec: QuerySubscriptionSpec, boot: boolean): Entry {
+  private ensureEntry(spec: QuerySubscriptionSpec): Entry {
     const key = scopeHash(spec.name, spec.params);
     const existing = this.entries.get(key);
-    if (existing !== undefined) {
-      existing.boot ||= boot;
-      return existing;
-    }
-    const entry = createEntry(spec, boot);
+    if (existing !== undefined) return existing;
+    const entry = createEntry(spec);
     this.entries.set(key, entry);
     this.emitSubscriptionsChange();
     return entry;
@@ -248,7 +244,7 @@ export class SubscriptionRuntime {
 
   private unsubscribe(entry: Entry): void {
     entry.refs = Math.max(0, entry.refs - 1);
-    if (entry.boot || entry.refs > 0) return;
+    if (entry.refs > 0) return;
     entry.generation += 1;
     this.entries.delete(entry.scope);
     this.emitSubscriptionsChange();
@@ -266,7 +262,6 @@ export class SubscriptionRuntime {
   private scheduleFlush(): void {
     if (this.coalesceTimer !== null || this.inFlight) return;
     if (this.coalesceMs <= 0) {
-      // Microtask coalesce merges sync enqueues without a clock tick (sim-friendly).
       this.coalesceTimer = 'microtask';
       void Promise.resolve().then(() => {
         if (this.coalesceTimer !== 'microtask') return;
@@ -302,9 +297,7 @@ export class SubscriptionRuntime {
   }
 
   private listSweepEntries(): Entry[] {
-    return [...this.entries.values()].filter(
-      (e) => !e.stopped && (e.boot || e.refs > 0)
-    );
+    return [...this.entries.values()].filter((e) => !e.stopped && e.refs > 0);
   }
 
   private async sweepEntries(active: readonly Entry[]): Promise<void> {
@@ -312,47 +305,36 @@ export class SubscriptionRuntime {
     for (const entry of active) entry.generation += 1;
     const gens = new Map(active.map((e) => [e.scope, e.generation]));
     try {
-      const built = await this.buildRequests(active);
-      const responses = await this.options.postQueries(built.requests);
-      await this.applySweepResponses({
-        active,
-        gens,
-        responses,
-        basisEpochs: built.basisEpochs,
-      });
+      const requests = await this.buildRequests(active);
+      const responses = await this.options.postQueries(requests);
+      await this.applySweepResponses({ active, gens, responses });
     } catch (error) {
       this.options.onError(error);
     }
   }
 
-  private async buildRequests(active: readonly Entry[]): Promise<{
-    readonly requests: QueryRequest[];
-    readonly basisEpochs: number[];
-  }> {
+  private async buildRequests(
+    active: readonly Entry[]
+  ): Promise<QueryRequest[]> {
     const requests: QueryRequest[] = [];
-    const basisEpochs: number[] = [];
     for (const entry of active) {
       const basis = await loadBasis(this.options.db, entry.scope);
-      basisEpochs.push(basis.write_epoch);
-      requests.push(
-        requestFromBasis(
-          {
-            scope: entry.scope,
-            name: entry.spec.name,
-            params: entry.spec.params,
-          },
-          basis
-        )
-      );
+      requests.push({
+        name: entry.spec.name,
+        params: entry.spec.params,
+        ...(basis.last_hash !== null ? { lastHash: basis.last_hash } : {}),
+        ...(basis.last_checkpoint !== null
+          ? { checkpoint: basis.last_checkpoint }
+          : {}),
+      });
     }
-    return { requests, basisEpochs };
+    return requests;
   }
 
   private async applySweepResponses(args: {
     readonly active: readonly Entry[];
     readonly gens: Map<string, number>;
     readonly responses: readonly QueryResponse[];
-    readonly basisEpochs: readonly number[];
   }): Promise<void> {
     for (let i = 0; i < args.active.length; i += 1) {
       const entry = args.active[i]!;
@@ -360,33 +342,33 @@ export class SubscriptionRuntime {
       if (response === undefined) continue;
       if (args.gens.get(entry.scope) !== entry.generation) continue;
       if (!this.running || entry.stopped) continue;
-      await this.handleResponse(entry, response, args.basisEpochs[i] ?? 0);
+      await this.handleResponse(entry, response);
     }
   }
 
   private async handleResponse(
     entry: Entry,
-    response: QueryResponse,
-    basisEpoch: number
+    response: QueryResponse
   ): Promise<void> {
-    const action = await applyQueryResponse(
-      {
-        db: this.options.db,
-        getMergeDeps: this.options.getMergeDeps,
-        onSynced: this.options.onSynced,
-        markFirst: (scope) => {
-          const e = this.entries.get(scope);
-          if (e !== undefined) markFirst(e);
-        },
-      },
-      { scope: entry.scope, name: entry.spec.name, params: entry.spec.params },
-      response,
-      basisEpoch
-    );
-    if (action === 'stop') entry.stopped = true;
-    if (action === 'resync') {
-      this.enqueue([entry.scope]);
+    if (response.status === 'denied') {
+      await detachScope(this.options.getMergeDeps(), entry.scope);
+      entry.stopped = true;
+      markFirst(entry);
+      return;
     }
+    if (response.status === 'not_modified') {
+      markFirst(entry);
+      this.options.onSynced();
+      return;
+    }
+    await applyFullMerge(this.options.getMergeDeps(), {
+      scopeHash: entry.scope,
+      checkpoint: response.checkpoint,
+      hash: response.hash,
+      tables: response.tables,
+    });
+    markFirst(entry);
+    this.options.onSynced();
   }
 
   private emitSubscriptionsChange(): void {
@@ -397,11 +379,6 @@ export class SubscriptionRuntime {
         this.options.onError(error);
       }
     }
-  }
-
-  private clearJitterTimers(): void {
-    for (const timer of this.jitterTimers) this.timers.clearTimeout(timer);
-    this.jitterTimers.clear();
   }
 
   private clearCoalesceTimer(): void {

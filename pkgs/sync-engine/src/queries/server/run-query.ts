@@ -39,7 +39,7 @@ export async function runQuery(
 ): Promise<QueryResponse> {
   const def = deps.registry[input.name];
   if (def === undefined) {
-    return { status: 'gone' };
+    return { status: 'denied' };
   }
   return runDefinedQuery(deps, def, input);
 }
@@ -54,7 +54,7 @@ async function runDefinedQuery(
     params = def.params.parse(input.params);
   } catch (e) {
     assert.ok(e instanceof ZodError, 'query params parse failed');
-    return { status: 'gone' };
+    return { status: 'denied' };
   }
 
   const ctx = {
@@ -86,7 +86,6 @@ async function runDefinedQuery(
 
   return {
     status: 'ok',
-    mode: 'full',
     checkpoint: deps.nextCheckpoint(),
     hash,
     tables: limited,

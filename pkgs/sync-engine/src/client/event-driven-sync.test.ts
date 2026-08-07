@@ -75,17 +75,18 @@ describe('event-driven-sync', () => {
     );
     const runtime = new SubscriptionRuntime({
       db,
-      boot: queries.map((q) => ({ name: q.name, params: {} })),
       postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
       lifecycle,
-      random: sim.random,
       timers: sim.timers,
     });
+    const subscriptions = queries.map((query) =>
+      runtime.subscribe({ name: query.name, params: {} })
+    );
     runtime.start();
-    await runtime.waitForBoot();
+    await Promise.all(subscriptions.map((sub) => sub.waitForFirstSync()));
     postQueries.mockClear();
     disposers.push(() => runtime.stop());
     return {
@@ -99,7 +100,7 @@ describe('event-driven-sync', () => {
     };
   }
 
-  test('boot-coalesces-into-one-batch', async () => {
+  test('session queries coalesce into one batch', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
     const postQueries = mock(async (requests: readonly unknown[]) =>
@@ -108,16 +109,17 @@ describe('event-driven-sync', () => {
     const queries = makeQueries(5);
     const runtime = new SubscriptionRuntime({
       db,
-      boot: queries.map((q) => ({ name: q.name, params: {} })),
       postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
-      random: sim.random,
       timers: sim.timers,
     });
+    const subscriptions = queries.map((query) =>
+      runtime.subscribe({ name: query.name, params: {} })
+    );
     runtime.start();
-    await runtime.waitForBoot();
+    await Promise.all(subscriptions.map((sub) => sub.waitForFirstSync()));
     expect(postQueries.mock.calls.length).toBe(1);
     expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
       5
@@ -125,7 +127,7 @@ describe('event-driven-sync', () => {
     runtime.stop();
   });
 
-  test('subscribe-coalesces-with-pending-boot', async () => {
+  test('subscribe coalesces with pending session queries', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
     const postQueries = mock(async (requests: readonly unknown[]) =>
@@ -134,17 +136,16 @@ describe('event-driven-sync', () => {
     const queries = makeQueries(2);
     const runtime = new SubscriptionRuntime({
       db,
-      boot: [{ name: queries[0]!.name, params: {} }],
       postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
-      random: sim.random,
       timers: sim.timers,
     });
+    const first = runtime.subscribe({ name: queries[0]!.name, params: {} });
     runtime.start();
-    runtime.subscribe({ name: queries[1]!.name, params: {} });
-    await runtime.waitForBoot();
+    const second = runtime.subscribe({ name: queries[1]!.name, params: {} });
+    await Promise.all([first.waitForFirstSync(), second.waitForFirstSync()]);
     await Promise.resolve();
     expect(postQueries.mock.calls.length).toBe(1);
     expect((postQueries.mock.calls[0]?.[0] as readonly unknown[]).length).toBe(
@@ -160,27 +161,27 @@ describe('event-driven-sync', () => {
   });
 
   test('nudge-is-sole-fast-path', async () => {
-    const { runtime, postQueries, registry, db, sim } = await harness({
+    const { runtime, postQueries, registry, sim } = await harness({
       subscriptionCount: 1,
     });
     const pubsub = createInMemoryPubSub() as InMemoryPubSub;
+    let activePubSub = pubsub;
     disposers.push(
       attachNudges({
         pubsub,
         runtime,
         queryRegistry: registry,
-        mutationRegistry: {},
-        bus: { emit: () => undefined, subscribe: () => () => undefined },
-        db,
         getChannelsCtx: () => ({ actorId: 'actor1' }),
-        remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
-        debounceMs: 20,
+        remakePubSub: () => {
+          activePubSub = createInMemoryPubSub() as InMemoryPubSub;
+          return activePubSub;
+        },
         timers: sim.timers,
       })
     );
     await sim.runFor(5);
     postQueries.mockClear();
-    await pubsub.publish('user:actor1', {});
+    await activePubSub.publish('user:actor1', {});
     await sim.runFor(40);
     expect(postQueries.mock.calls.length).toBe(1);
     await sim.runFor(60);
@@ -209,7 +210,7 @@ describe('event-driven-sync', () => {
   });
 
   test('background-silence', async () => {
-    const { postQueries, setForeground, runtime, registry, db, sim } =
+    const { postQueries, setForeground, runtime, registry, sim } =
       await harness({
         subscriptionCount: 2,
       });
@@ -220,12 +221,8 @@ describe('event-driven-sync', () => {
         pubsub: createInMemoryPubSub() as InMemoryPubSub,
         runtime,
         queryRegistry: registry,
-        mutationRegistry: {},
-        bus: { emit: () => undefined, subscribe: () => () => undefined },
-        db,
         getChannelsCtx: () => ({ actorId: 'actor1' }),
         remakePubSub: () => createInMemoryPubSub() as InMemoryPubSub,
-        debounceMs: 10,
         timers: sim.timers,
       })
     );
@@ -267,24 +264,23 @@ describe('event-driven-sync', () => {
     const queries = makeQueries(2);
     const runtime = new SubscriptionRuntime({
       db,
-      boot: [{ name: queries[0]!.name, params: {} }],
       postQueries,
       getMergeDeps: () => stubMergeDeps(db),
       onError: () => undefined,
       onSynced: () => undefined,
-      random: sim.random,
       timers: sim.timers,
     });
+    const first = runtime.subscribe({ name: queries[0]!.name, params: {} });
     runtime.start();
     for (let i = 0; i < 20 && postQueries.mock.calls.length < 1; i += 1) {
       await Promise.resolve();
     }
     expect(postQueries.mock.calls.length).toBe(1);
-    runtime.wakeAll('manual');
+    runtime.wakeAll();
     await Promise.resolve();
     expect(postQueries.mock.calls.length).toBe(1);
     release();
-    await runtime.waitForBoot();
+    await first.waitForFirstSync();
     for (let i = 0; i < 20 && postQueries.mock.calls.length < 2; i += 1) {
       await Promise.resolve();
     }

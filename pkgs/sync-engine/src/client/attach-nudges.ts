@@ -1,66 +1,37 @@
 import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
-import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { MutationRegistry } from '../mutations/core/types';
-import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRegistry } from '../queries/core/types';
-import { parseMutationFanout } from '../shared/mutation-fanout-payload';
 import type { NudgePayload, QueryChannelsCtx } from '../shared/nudge-payload';
-import { peerApplyMutation } from './peer-apply-mutation';
 import { REAL_TIMERS, type Timers } from './sim-ports';
-import { STATUS_POLL_JITTER_MS } from './subscription-constants';
 import type { SubscriptionRuntime } from './subscription-runtime';
-
-const DEFAULT_DEBOUNCE_MS = 150;
-const DEFAULT_LATE_TOPIC_REMAKE_MS = 10_000;
 
 export type AttachNudgesOptions = {
   readonly pubsub: PubSub;
   readonly runtime: SubscriptionRuntime;
   readonly queryRegistry: QueryRegistry;
-  readonly mutationRegistry: MutationRegistry;
-  readonly bus: TableChangeBus;
-  readonly db: SqlClient;
   readonly getChannelsCtx: () => QueryChannelsCtx;
   readonly remakePubSub: () => PubSub;
-  readonly debounceMs?: number;
-  readonly lateTopicRemakeMs?: number;
   readonly timers?: Timers;
-  /** When set, upload-ack refreshes coalesce through the same debounce path. */
-  readonly onScheduleWakeAll?: (wakeAll: () => void) => void;
   /** Register a callback to re-derive MQTT topics after channels ctx changes. */
   readonly onBindTopicRefresh?: (refresh: () => void) => void;
-  /** Keep an outer pubsub ref current across remakes (mutation fanout). */
-  readonly onPubSubInstance?: (pubsub: PubSub) => void;
   /** Re-sync topics when membership tables change locally. */
   readonly onTablesChanged?: (
     listener: (tables: ReadonlySet<string>) => void
   ) => () => void;
 };
 
-/** `'all'` = full active set (upload-ack); otherwise a scope subset. */
-type PendingSweep = 'all' | Set<string>;
-
 type NudgeBag = {
   readonly options: AttachNudgesOptions;
-  readonly debounceMs: number;
-  readonly lateTopicRemakeMs: number;
   readonly timers: Timers;
   pubsub: PubSub;
   disposed: boolean;
   lastStatus: PubSubStatus;
-  trackLateTopics: boolean;
   unbindStatus: (() => void) | null;
-  remakeScheduled: boolean;
-  coalesceInWindow: boolean;
-  coalesceTrailing: unknown | null;
-  pendingSweep: PendingSweep | null;
   readonly topicUnsubs: Map<Topic, () => void>;
   readonly topicToScopes: Map<Topic, Set<string>>;
-  readonly lateTopics: Map<Topic, unknown>;
-  readonly topicsAtInstanceBirth: Set<Topic>;
   readonly disposers: Array<() => void>;
+  /** Sorted topic key of the last remake — skip remake when unchanged. */
+  lastTopicKey: string;
 };
 
 function parseNudgeTables(value: unknown): readonly string[] | undefined {
@@ -110,171 +81,31 @@ function filterScopesByTables(
 function createBag(options: AttachNudgesOptions): NudgeBag {
   return {
     options,
-    debounceMs: options.debounceMs ?? DEFAULT_DEBOUNCE_MS,
-    lateTopicRemakeMs:
-      options.lateTopicRemakeMs ?? DEFAULT_LATE_TOPIC_REMAKE_MS,
     timers: options.timers ?? REAL_TIMERS,
     pubsub: options.pubsub,
     disposed: false,
     lastStatus: options.pubsub.status(),
-    trackLateTopics: false,
     unbindStatus: null,
-    remakeScheduled: false,
-    coalesceInWindow: false,
-    coalesceTrailing: null,
-    pendingSweep: null,
     topicUnsubs: new Map(),
     topicToScopes: new Map(),
-    lateTopics: new Map(),
-    topicsAtInstanceBirth: new Set(),
     disposers: [],
+    lastTopicKey: '',
   };
-}
-
-function mergePendingSweep(
-  bag: NudgeBag,
-  scopes: 'all' | Iterable<string>
-): void {
-  if (scopes === 'all') {
-    bag.pendingSweep = 'all';
-    return;
-  }
-  if (bag.pendingSweep === 'all') return;
-  if (bag.pendingSweep === null) bag.pendingSweep = new Set();
-  for (const scope of scopes) bag.pendingSweep.add(scope);
-}
-
-function flushPendingSweep(bag: NudgeBag): void {
-  const pending = bag.pendingSweep;
-  bag.pendingSweep = null;
-  if (pending === null) return;
-  if (pending === 'all') {
-    bag.options.runtime.wakeAll('nudge');
-    return;
-  }
-  if (pending.size === 0) return;
-  if (pending.size === 1) {
-    bag.options.runtime.wakeScope([...pending][0]!);
-    return;
-  }
-  bag.options.runtime.wakeScopes([...pending], 'nudge');
-}
-
-/**
- * Leading + trailing debounce shared across nudges and upload-ack so a
- * shared-topic fanout becomes one batch POST instead of N singles.
- */
-function scheduleSweep(bag: NudgeBag, scopes: 'all' | Iterable<string>): void {
-  mergePendingSweep(bag, scopes);
-  if (!bag.coalesceInWindow) {
-    bag.coalesceInWindow = true;
-    flushPendingSweep(bag);
-    bag.coalesceTrailing = bag.timers.setTimeout(() => {
-      bag.coalesceInWindow = false;
-      bag.coalesceTrailing = null;
-    }, bag.debounceMs);
-    return;
-  }
-  if (bag.coalesceTrailing !== null) {
-    bag.timers.clearTimeout(bag.coalesceTrailing);
-  }
-  bag.coalesceTrailing = bag.timers.setTimeout(() => {
-    bag.coalesceInWindow = false;
-    bag.coalesceTrailing = null;
-    flushPendingSweep(bag);
-  }, bag.debounceMs);
-}
-
-function scheduleWakeAllDebounced(bag: NudgeBag): void {
-  scheduleSweep(bag, 'all');
-}
-
-function checkpointAlreadyApplied(checkpoint: string, last: string): boolean {
-  // Same wire format as query/mutation checkpoints (digits only, fixed pad).
-  if (checkpoint.length === last.length) return checkpoint <= last;
-  if (/^\d+$/.test(checkpoint) && /^\d+$/.test(last)) {
-    return (
-      checkpoint.length < last.length ||
-      (checkpoint.length === last.length && checkpoint <= last)
-    );
-  }
-  return checkpoint <= last;
-}
-
-async function shouldSkipCheckpoint(
-  bag: NudgeBag,
-  scope: string,
-  checkpoint: string
-): Promise<boolean> {
-  const rows = await bag.options.db.query(sql<{
-    last_checkpoint: string | null;
-  }>`
-    SELECT last_checkpoint FROM _scope_meta
-    WHERE scope_hash = ${scope}
-    LIMIT 1
-  `);
-  const last = rows[0]?.last_checkpoint;
-  if (last === null || last === undefined) return false;
-  return checkpointAlreadyApplied(checkpoint, last);
-}
-
-function handleMutationFanout(
-  bag: NudgeBag,
-  topic: Topic,
-  data: unknown
-): boolean {
-  const fanout = parseMutationFanout(data);
-  if (fanout === null) return false;
-  void peerApplyMutation({
-    db: bag.options.db,
-    bus: bag.options.bus,
-    registry: bag.options.mutationRegistry,
-    topic,
-    payload: fanout,
-    getChannelsCtx: bag.options.getChannelsCtx,
-  });
-  return true;
 }
 
 function handleNudge(bag: NudgeBag, topic: Topic, data: unknown): void {
   if (bag.disposed) return;
-  if (handleMutationFanout(bag, topic, data)) return;
   const payload = parseNudge(data);
   if (payload === null) return;
   const topicScopes = bag.topicToScopes.get(topic);
   if (topicScopes === undefined) return;
   const scopes = filterScopesByTables(bag, topicScopes, payload.tables);
   if (scopes.size === 0) return;
-  const checkpoint = payload.checkpoint;
-  if (checkpoint === undefined) {
-    scheduleSweep(bag, scopes);
+  if (scopes.size === 1) {
+    bag.options.runtime.wakeScope([...scopes][0]!);
     return;
   }
-  void collectNeedingScopes(bag, scopes, checkpoint).then((needing) => {
-    if (!bag.disposed && needing.length > 0) scheduleSweep(bag, needing);
-  });
-}
-
-async function collectNeedingScopes(
-  bag: NudgeBag,
-  scopes: ReadonlySet<string>,
-  checkpoint: string
-): Promise<string[]> {
-  // Parallel — serial awaits added tens/hundreds of ms before refetch started.
-  const checks = await Promise.all(
-    [...scopes].map(async (scope) => {
-      const skip = await shouldSkipCheckpoint(bag, scope, checkpoint);
-      return skip ? null : scope;
-    })
-  );
-  return checks.filter((scope): scope is string => scope !== null);
-}
-
-function clearLateTimer(bag: NudgeBag, topic: Topic): void {
-  const timer = bag.lateTopics.get(topic);
-  if (timer === undefined) return;
-  bag.timers.clearTimeout(timer);
-  bag.lateTopics.delete(topic);
+  bag.options.runtime.wakeScopes([...scopes]);
 }
 
 function collectDesiredTopics(bag: NudgeBag): Map<Topic, Set<string>> {
@@ -296,77 +127,19 @@ function collectDesiredTopics(bag: NudgeBag): Map<Topic, Set<string>> {
   return desired;
 }
 
-function dropStaleTopics(
-  bag: NudgeBag,
-  desired: Map<Topic, Set<string>>
-): void {
-  for (const topic of [...bag.topicUnsubs.keys()]) {
-    if (desired.has(topic)) continue;
-    bag.topicUnsubs.get(topic)?.();
-    bag.topicUnsubs.delete(topic);
-    bag.topicToScopes.delete(topic);
-    clearLateTimer(bag, topic);
-  }
-}
-
-function armLateTopicTimer(bag: NudgeBag, topic: Topic): void {
-  if (!bag.trackLateTopics) return;
-  if (bag.topicsAtInstanceBirth.has(topic)) return;
-  if (bag.lateTopics.has(topic)) return;
-  const timer = bag.timers.setTimeout(() => {
-    bag.lateTopics.delete(topic);
-    if (bag.disposed || bag.remakeScheduled) return;
-    if (!bag.topicToScopes.has(topic)) return;
-    bag.remakeScheduled = true;
-    remake(bag);
-  }, bag.lateTopicRemakeMs);
-  bag.lateTopics.set(topic, timer);
-}
-
-function ensureTopicSubscribed(bag: NudgeBag, topic: Topic): void {
-  if (bag.topicUnsubs.has(topic)) return;
-  try {
-    const unsub = bag.pubsub.subscribe(topic, (data) =>
-      handleNudge(bag, topic, data)
-    );
-    bag.topicUnsubs.set(topic, unsub);
-  } catch (error) {
-    console.warn('[nudges] subscribe failed', topic, error);
-    return;
-  }
-  armLateTopicTimer(bag, topic);
-}
-
-function syncTopics(bag: NudgeBag): void {
-  if (bag.disposed) return;
-  const desired = collectDesiredTopics(bag);
-  dropStaleTopics(bag, desired);
-  for (const [topic, scopes] of desired) {
-    bag.topicToScopes.set(topic, scopes);
-    ensureTopicSubscribed(bag, topic);
-  }
+function topicKey(desired: Map<Topic, Set<string>>): string {
+  return [...desired.keys()].sort().join('\0');
 }
 
 function clearTopicState(bag: NudgeBag): void {
   for (const unsub of bag.topicUnsubs.values()) unsub();
   bag.topicUnsubs.clear();
   bag.topicToScopes.clear();
-  for (const timer of bag.lateTopics.values()) bag.timers.clearTimeout(timer);
-  bag.lateTopics.clear();
-  bag.topicsAtInstanceBirth.clear();
 }
 
-function seedBirthTopics(bag: NudgeBag): void {
-  for (const topic of bag.topicUnsubs.keys()) {
-    bag.topicsAtInstanceBirth.add(topic);
-  }
-  bag.trackLateTopics = true;
-}
-
-function remake(bag: NudgeBag): void {
+function remake(bag: NudgeBag, desired: Map<Topic, Set<string>>): void {
   if (bag.disposed) return;
   clearTopicState(bag);
-  bag.trackLateTopics = false;
   bag.unbindStatus?.();
   bag.unbindStatus = null;
   try {
@@ -375,24 +148,42 @@ function remake(bag: NudgeBag): void {
     // ignore
   }
   bag.pubsub = bag.options.remakePubSub();
-  bag.options.onPubSubInstance?.(bag.pubsub);
-  bag.remakeScheduled = false;
+  bag.lastTopicKey = topicKey(desired);
   bindStatus(bag, bag.pubsub);
-  syncTopics(bag);
-  seedBirthTopics(bag);
+  for (const [topic, scopes] of desired) {
+    bag.topicToScopes.set(topic, scopes);
+    try {
+      const unsub = bag.pubsub.subscribe(topic, (data) =>
+        handleNudge(bag, topic, data)
+      );
+      bag.topicUnsubs.set(topic, unsub);
+    } catch (error) {
+      console.warn('[nudges] subscribe failed', topic, error);
+    }
+  }
+}
+
+function syncTopics(bag: NudgeBag): void {
+  if (bag.disposed) return;
+  const desired = collectDesiredTopics(bag);
+  const nextKey = topicKey(desired);
+  if (nextKey === bag.lastTopicKey && bag.topicUnsubs.size === desired.size) {
+    // Same topics — only refresh scope membership maps.
+    for (const [topic, scopes] of desired) {
+      bag.topicToScopes.set(topic, scopes);
+    }
+    return;
+  }
+  remake(bag, desired);
 }
 
 function onStatus(bag: NudgeBag, next: PubSubStatus): void {
   if (bag.disposed) return;
   const prev = bag.lastStatus;
   bag.lastStatus = next;
-  if (next === 'connected') {
-    // Catch-up after reconnect (down→connecting→connected; prev is rarely `down`).
-    if (prev !== 'connected') {
-      bag.options.runtime.wakeAllWithJitter(STATUS_POLL_JITTER_MS, 'reconnect');
-    }
+  if (next === 'connected' && prev !== 'connected') {
+    bag.options.runtime.wakeAll();
   }
-  // Do not wakeAll on `down` — auth reconnect flaps were storming /api/query.
 }
 
 function bindStatus(bag: NudgeBag, instance: PubSub): void {
@@ -404,12 +195,6 @@ function disposeBag(bag: NudgeBag): void {
   if (bag.disposed) return;
   bag.disposed = true;
   clearTopicState(bag);
-  if (bag.coalesceTrailing !== null) {
-    bag.timers.clearTimeout(bag.coalesceTrailing);
-  }
-  bag.coalesceTrailing = null;
-  bag.pendingSweep = null;
-  bag.coalesceInWindow = false;
   bag.unbindStatus?.();
   bag.unbindStatus = null;
   for (const d of bag.disposers) d();
@@ -417,14 +202,12 @@ function disposeBag(bag: NudgeBag): void {
 }
 
 /**
- * Subscribes to query-derived pubsub topics and schedules refetches via
- * SubscriptionRuntime wakeScope. Without this wiring the client hydrates
- * once at connect and relies on optimistic local writes only.
+ * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
+ * When the desired topic set changes, remakes the pubsub instance so every
+ * topic is subscribed at birth (no late-topic timers).
  */
 export function attachNudges(options: AttachNudgesOptions): () => void {
   const bag = createBag(options);
-  options.onPubSubInstance?.(bag.pubsub);
-  options.onScheduleWakeAll?.(() => scheduleWakeAllDebounced(bag));
   options.onBindTopicRefresh?.(() => {
     if (!bag.disposed) syncTopics(bag);
   });
@@ -437,9 +220,7 @@ export function attachNudges(options: AttachNudgesOptions): () => void {
       })
     );
   }
-  bindStatus(bag, bag.pubsub);
-  syncTopics(bag);
-  seedBirthTopics(bag);
+  remake(bag, collectDesiredTopics(bag));
   bag.disposers.push(
     options.runtime.onSubscriptionsChange(() => syncTopics(bag))
   );

@@ -74,6 +74,7 @@ export function PingStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="server-ping"
       order={20}
+      contentKey={`${aggregateStatus}:${health.latencyMs ?? 'na'}`}
       title={t`Server`}
       caption={caption}
       accessibilityLabel={caption}

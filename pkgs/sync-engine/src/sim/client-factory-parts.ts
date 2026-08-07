@@ -47,7 +47,7 @@ export async function createEngineFromParts(
     mutationRegistry: args.mutations,
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,
-    bootQueries: [{ name: 'simNotes', params: {} }],
+    sessionQueries: [{ name: 'simNotes', params: {} }],
     postQueries: (rs) => args.http.postQueries(rs),
     postMutations: (ms) => args.http.postMutations(ms),
     isAuthRevoked: () => false,
@@ -75,7 +75,7 @@ export type CreateMutationSideArgs = {
   readonly engine: SyncEngine;
 };
 
-/** Mutation client wired to wake uploads + fanout on apply. */
+/** Mutation client wired to wake durable uploads after local apply. */
 export function createMutationSide(
   args: CreateMutationSideArgs
 ): MutationClient {
@@ -83,13 +83,9 @@ export function createMutationSide(
     db: args.db,
     registry: args.mutations,
     env: args.getEnv(),
-    ids: {
-      clientId: args.deviceId,
-      nextSeq: () => 1,
-    },
+    ids: { clientId: args.deviceId },
     connectivity: { isOnline: () => args.lifecycle.lifecycle.isOnline() },
     createId: args.createId,
     onQueued: () => args.engine.wakeUploads(),
-    onApplied: (event) => args.engine.fanoutMutation(event),
   });
 }

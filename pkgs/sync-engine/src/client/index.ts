@@ -28,7 +28,7 @@ export type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
-export type { QueryRequest } from './subscription-fetch';
+export type { QueryRequest } from './subscription-runtime';
 export {
   type SyncEngineApi,
   SyncEngineProvider,

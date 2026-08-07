@@ -36,6 +36,7 @@ export function SoundStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="sound"
       order={50}
+      contentKey={muted}
       title={t`Sound`}
       caption={caption}
       accessibilityLabel={muted ? t`Sound muted` : t`Sound on`}

@@ -1,65 +1,54 @@
-import { useId, useLayoutEffect } from 'react';
+import { useId, useLayoutEffect, useRef } from 'react';
 
 import { useStatusBarRegistry } from './status-bar-registry-context';
 import type { RegisteredStatusBarItem, StatusBarItem } from './types';
 
-export type RegisterStatusBarItemProps = StatusBarItem;
+export type RegisterStatusBarItemProps = StatusBarItem & {
+  /**
+   * Stable key for indicator/panel visuals. Bump when the strip glyph must
+   * refresh. Do not depend on fresh ReactNode identities — that loops with
+   * provider state updates.
+   */
+  contentKey?: string | number | boolean | null;
+};
+
+function toRegisteredItem(
+  props: RegisterStatusBarItemProps
+): RegisteredStatusBarItem {
+  return {
+    id: props.id,
+    ...(props.order !== undefined ? { order: props.order } : {}),
+    indicator: props.indicator,
+    ...(props.accessibilityLabel !== undefined
+      ? { accessibilityLabel: props.accessibilityLabel }
+      : {}),
+    title: props.title,
+    ...(props.caption !== undefined ? { caption: props.caption } : {}),
+    ...(props.leading !== undefined ? { leading: props.leading } : {}),
+    panel: props.panel,
+    ...(props.visible !== undefined ? { visible: props.visible } : {}),
+    _version: 0,
+  };
+}
 
 /**
  * Declaratively registers a status-bar item while mounted. Unregisters on
- * unmount. Features call this to invert dependency — the bar does not import
- * feature UI; features push their indicator + panel into the registry.
- *
- * Uses `useLayoutEffect` so sibling hosts that subscribe in layout (or flush
- * after subscribe) see items before paint — plain `useEffect` races and leaves
- * the strip empty on first mount.
+ * unmount. Re-upserts only when membership / `contentKey` changes.
  */
 export function RegisterStatusBarItem(props: RegisterStatusBarItemProps) {
-  const { store } = useStatusBarRegistry();
+  const { upsert, remove } = useStatusBarRegistry();
   const registrationId = useId();
-
-  const {
-    id,
-    order,
-    indicator,
-    accessibilityLabel,
-    title,
-    caption,
-    leading,
-    panel,
-    visible,
-  } = props;
+  const propsRef = useRef(props);
+  propsRef.current = props;
+  const { id, order, visible, contentKey } = props;
 
   useLayoutEffect(() => {
-    const item: RegisteredStatusBarItem = {
-      id,
-      ...(order !== undefined ? { order } : {}),
-      indicator,
-      ...(accessibilityLabel !== undefined ? { accessibilityLabel } : {}),
-      title,
-      ...(caption !== undefined ? { caption } : {}),
-      ...(leading !== undefined ? { leading } : {}),
-      panel,
-      ...(visible !== undefined ? { visible } : {}),
-      _version: 0,
-    };
-    store.upsert(item, registrationId);
+    const item = toRegisteredItem(propsRef.current);
+    upsert(item, registrationId);
     return () => {
-      store.remove(id, registrationId);
+      remove(id, registrationId);
     };
-  }, [
-    store,
-    registrationId,
-    id,
-    order,
-    indicator,
-    accessibilityLabel,
-    title,
-    caption,
-    leading,
-    panel,
-    visible,
-  ]);
+  }, [upsert, remove, registrationId, id, order, visible, contentKey]);
 
   return null;
 }

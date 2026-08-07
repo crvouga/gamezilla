@@ -27,20 +27,8 @@ CREATE TABLE _mutations (
   args TEXT NOT NULL,
   client_id TEXT NOT NULL,
   seq INTEGER NOT NULL,
-  created_at TEXT NOT NULL,
-  epoch INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'pending',
-  acked_epoch INTEGER
+  created_at TEXT NOT NULL
 );
-CREATE TABLE _upload_state (
-  id TEXT PRIMARY KEY,
-  last_acked_seq INTEGER NOT NULL DEFAULT 0,
-  handoff_complete INTEGER NOT NULL DEFAULT 0,
-  next_seq INTEGER NOT NULL DEFAULT 1,
-  write_epoch INTEGER NOT NULL DEFAULT 0
-);
-INSERT INTO _upload_state (id, last_acked_seq, handoff_complete, next_seq, write_epoch)
-  VALUES ('singleton', 0, 0, 1, 0);
 CREATE TABLE _mutations_applied (
   mutation_id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,
@@ -74,20 +62,8 @@ CREATE TABLE _mutations (
   args text NOT NULL,
   client_id text NOT NULL,
   seq bigint NOT NULL,
-  created_at timestamptz NOT NULL,
-  epoch bigint NOT NULL DEFAULT 0,
-  status text NOT NULL DEFAULT 'pending',
-  acked_epoch bigint
+  created_at timestamptz NOT NULL
 );
-CREATE TABLE _upload_state (
-  id text PRIMARY KEY,
-  last_acked_seq bigint NOT NULL DEFAULT 0,
-  handoff_complete integer NOT NULL DEFAULT 0,
-  next_seq bigint NOT NULL DEFAULT 1,
-  write_epoch bigint NOT NULL DEFAULT 0
-);
-INSERT INTO _upload_state (id, last_acked_seq, handoff_complete, next_seq, write_epoch)
-  VALUES ('singleton', 0, 0, 1, 0);
 CREATE TABLE _mutations_applied (
   mutation_id text PRIMARY KEY,
   client_id text NOT NULL,
@@ -212,8 +188,7 @@ describe('mutations dual-platform harness', () => {
       ...AUTH,
       now: () => new Date('2026-01-01T00:00:00.000Z'),
     };
-    let seq = 0;
-    const ids = { clientId: 'device-a', nextSeq: () => ++seq };
+    const ids = { clientId: 'device-a' };
     const online = { isOnline: () => true };
 
     const clientSqlite = createMutationClient({
@@ -227,7 +202,7 @@ describe('mutations dual-platform harness', () => {
       db: pg,
       registry: TEST_MUTATIONS,
       env,
-      ids: { clientId: 'device-a', nextSeq: () => ++seq },
+      ids,
       connectivity: online,
     });
 
@@ -281,12 +256,11 @@ describe('mutations dual-platform harness', () => {
       ...AUTH,
       now: () => new Date('2026-01-01T00:00:00.000Z'),
     };
-    let seq = 0;
     const client = createMutationClient({
       db: sqlite,
       registry: TEST_MUTATIONS,
       env,
-      ids: { clientId: 'device-a', nextSeq: () => ++seq },
+      ids: { clientId: 'device-a' },
       connectivity: { isOnline: () => true },
     });
     const local = await client.mutate(testSetNote, {

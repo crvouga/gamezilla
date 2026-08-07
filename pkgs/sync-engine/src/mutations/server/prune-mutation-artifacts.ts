@@ -2,8 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
- * Prune applied/rejected mutation log rows older than `olderThanMs`,
- * and acknowledged write_rejections past the same window.
+ * Prune old applied/rejected idempotency rows and acknowledged write_rejections.
  * Call from a scheduled server job (dev wipe / ops), not from client uploads.
  */
 export async function pruneMutationArtifacts(
@@ -13,11 +12,8 @@ export async function pruneMutationArtifacts(
 ): Promise<void> {
   const cutoff = new Date(now.getTime() - olderThanMs).toISOString();
   await db.run(sql`
-    DELETE FROM _mutations
-    WHERE id IN (
-      SELECT mutation_id FROM _mutations_applied
-      WHERE applied_at < ${cutoff}
-    )
+    DELETE FROM _mutations_applied
+    WHERE applied_at < ${cutoff}
   `);
   await db.run(sql`
     DELETE FROM write_rejections

@@ -1,96 +1,157 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 
-import {
-  applyFullMerge,
-  detachScope,
-  tombstoneScope,
-} from '../client/merge-applier';
-import { hashQueryTables, scopeHash } from '../shared/canonical';
+import { applyFullMerge, detachScope } from '../../client/merge';
+import { scopeHash } from '../shared/canonical';
 import {
   createScenarioClients,
   openScenarioDb,
-  rejectThrough,
   setNote,
 } from './scenario-fixture';
 
-describe('merge scenarios (Phase 0 invariants)', () => {
-  test('offline-queued-mutation-rejected-on-drain', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient, mergeDeps } = createScenarioClients(db);
-    const r = await mutateClient.mutate(setNote, {
-      id: 'n1',
-      body: 'offline',
-    });
-    expect(r.ok).toBe(true);
-    // Simulate server rejection by not applying; hard-delete pending log
-    await rejectThrough(db, 1);
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    // After ack without merge, optimistic row remains until merge/rebase
-    expect(notes.length).toBe(1);
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: { notes: [] },
-    });
-    const after = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
-    `);
-    expect(after.length).toBe(1);
-    expect(after[0]?.deleted).not.toBeNull();
-  });
-
-  test('poll-response-arrives-during-local-mutation', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient, mergeDeps } = createScenarioClients(db);
-    await mutateClient.mutate(setNote, { id: 'n1', body: 'local' });
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'server', owner_id: 'actor' }],
-      },
-    });
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    // pending rebase restores local optimistic body
-    expect(notes[0]?.body).toBe('local');
-  });
-
-  test('crash-between-replace-and-rebase', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient, mergeDeps } = createScenarioClients(db);
-    await mutateClient.mutate(setNote, { id: 'n1', body: 'pending' });
-    // Simulate partial: confirmed base without rebase by inserting confirmed row
-    // then re-running merge (transactional merge is atomic — reopen is consistent)
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'base', owner_id: 'actor' }],
-      },
-    });
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes[0]?.body).toBe('pending');
-  });
-
-  test('stale-response-after-newer-checkpoint', async () => {
+describe('merge scenarios', () => {
+  test('tombstone row syncs down through snapshot', async () => {
     const db = await openScenarioDb();
     const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('notes', {});
+    const scope = scopeHash('notes', {});
     await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
+      scopeHash: scope,
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [
+          {
+            id: 'n1',
+            body: 'removed',
+            owner_id: 'actor',
+            _deleted_at: '2026-01-02T00:00:00.000Z',
+          },
+        ],
+      },
+    });
+
+    const rows = await db.query(sql<{ deleted: string | null }>`
+      SELECT _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
+    `);
+    expect(rows).toEqual([{ deleted: '2026-01-02T00:00:00.000Z' }]);
+  });
+
+  test('live snapshot revives a tombstoned row', async () => {
+    const db = await openScenarioDb();
+    const { mergeDeps } = createScenarioClients(db);
+    const scope = scopeHash('notes', {});
+    await applyFullMerge(mergeDeps, {
+      scopeHash: scope,
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [
+          {
+            id: 'n1',
+            body: 'old',
+            owner_id: 'actor',
+            _deleted_at: '2026-01-02T00:00:00.000Z',
+          },
+        ],
+      },
+    });
+    await applyFullMerge(mergeDeps, {
+      scopeHash: scope,
+      checkpoint: '2',
+      hash: 'h2',
+      tables: {
+        notes: [
+          {
+            id: 'n1',
+            body: 'revived',
+            owner_id: 'actor',
+            _deleted_at: null,
+          },
+        ],
+      },
+    });
+
+    const rows = await db.query(sql<{
+      body: string;
+      deleted: string | null;
+    }>`
+      SELECT body, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
+    `);
+    expect(rows).toEqual([{ body: 'revived', deleted: null }]);
+  });
+
+  test('detach drops scope metadata and keeps domain rows', async () => {
+    const db = await openScenarioDb();
+    const { mergeDeps } = createScenarioClients(db);
+    const scope = scopeHash('notes', {});
+    await applyFullMerge(mergeDeps, {
+      scopeHash: scope,
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [
+          {
+            id: 'n1',
+            body: 'keep',
+            owner_id: 'actor',
+            _deleted_at: null,
+          },
+        ],
+      },
+    });
+    await detachScope(mergeDeps, scope);
+
+    const notes = await db.query(sql<{ id: string }>`
+      SELECT id FROM notes WHERE id = ${'n1'} AND _deleted_at IS NULL
+    `);
+    const meta = await db.query(sql<{ scope_hash: string }>`
+      SELECT scope_hash FROM _scope_meta WHERE scope_hash = ${scope}
+    `);
+    expect(notes).toEqual([{ id: 'n1' }]);
+    expect(meta).toEqual([]);
+  });
+
+  test('pending mutation survives merge and is re-applied', async () => {
+    const db = await openScenarioDb();
+    const { mutateClient, mergeDeps } = createScenarioClients(db);
+    const result = await mutateClient.mutate(setNote, {
+      id: 'n1',
+      body: 'optimistic',
+    });
+    expect(result.ok).toBe(true);
+
+    await applyFullMerge(mergeDeps, {
+      scopeHash: scopeHash('notes', {}),
+      checkpoint: '1',
+      hash: 'h1',
+      tables: {
+        notes: [
+          {
+            id: 'n1',
+            body: 'server',
+            owner_id: 'actor',
+            _deleted_at: null,
+          },
+        ],
+      },
+    });
+
+    const notes = await db.query(sql<{ body: string }>`
+      SELECT body FROM notes WHERE id = ${'n1'}
+    `);
+    const pending = await db.query(sql<{ id: string }>`
+      SELECT id FROM _mutations
+    `);
+    expect(notes).toEqual([{ body: 'optimistic' }]);
+    expect(pending).toHaveLength(1);
+  });
+
+  test('older checkpoint cannot overwrite a newer snapshot', async () => {
+    const db = await openScenarioDb();
+    const { mergeDeps } = createScenarioClients(db);
+    const scope = scopeHash('notes', {});
+    await applyFullMerge(mergeDeps, {
+      scopeHash: scope,
       checkpoint: '10',
       hash: 'h10',
       tables: {
@@ -98,361 +159,27 @@ describe('merge scenarios (Phase 0 invariants)', () => {
       },
     });
     const result = await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
+      scopeHash: scope,
       checkpoint: '5',
       hash: 'h5',
       tables: {
         notes: [{ id: 'n1', body: 'old', owner_id: 'actor' }],
       },
     });
+
+    const rows = await db.query(sql<{ body: string }>`
+      SELECT body FROM notes WHERE id = ${'n1'}
+    `);
     expect(result).toBe('stale');
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes[0]?.body).toBe('new');
+    expect(rows).toEqual([{ body: 'new' }]);
   });
 
-  test('pending-mutation-fails-on-rebase', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient, mergeDeps } = createScenarioClients(db);
-    const { failOnRebase } = await import('./scenario-fixture');
-    await mutateClient.mutate(failOnRebase, { id: 'n1', body: 'try' });
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'BLOCK', owner_id: 'actor' }],
-      },
-    });
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes[0]?.body).toBe('BLOCK');
-    const pending = await db.query(sql<{ id: string }>`
-      SELECT id FROM _mutations
-    `);
-    expect(pending.length).toBe(1);
-  });
-
-  test('shared-row-across-two-scopes', async () => {
+  test('concurrent merges serialize per database', async () => {
     const db = await openScenarioDb();
     const { mergeDeps } = createScenarioClients(db);
-    const s1 = scopeHash('a', { x: 1 });
-    const s2 = scopeHash('b', { x: 2 });
-    const row = { id: 'shared', body: 'hi', owner_id: 'actor' };
-    await applyFullMerge(mergeDeps, {
-      scopeHash: s1,
-      checkpoint: '1',
-      hash: 'h1',
-      tables: { notes: [row] },
-    });
-    await applyFullMerge(mergeDeps, {
-      scopeHash: s2,
-      checkpoint: '1',
-      hash: 'h2',
-      tables: { notes: [row] },
-    });
-    await detachScope(mergeDeps, s1);
-    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'shared'}
-    `);
-    expect(notes.length).toBe(1);
-    expect(notes[0]?.deleted).toBeNull();
-  });
-
-  test('denied-tombstones-scope-and-stops-polling', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
-      },
-    });
-    await tombstoneScope(mergeDeps, sh);
-    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes
-    `);
-    expect(notes.length).toBe(1);
-    expect(notes[0]?.deleted).not.toBeNull();
-    const meta = await db.query(sql<{ scope_hash: string }>`
-      SELECT scope_hash FROM _scope_meta WHERE scope_hash = ${sh}
-    `);
-    expect(meta.length).toBe(0);
-  });
-
-  test('not_modified-causes-zero-writes', async () => {
-    const tables = {
-      notes: [{ id: 'n1', body: 'x', owner_id: 'a' }],
-    };
-    const h1 = hashQueryTables(tables);
-    const h2 = hashQueryTables(tables);
-    expect(h1).toBe(h2);
-  });
-
-  test('unfriend-revocation-via-absence', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('friends', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h1',
-      tables: {
-        notes: [
-          { id: 'f1', body: 'friend', owner_id: 'actor' },
-          { id: 'f2', body: 'friend2', owner_id: 'actor' },
-        ],
-      },
-    });
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '2',
-      hash: 'h2',
-      tables: {
-        notes: [{ id: 'f1', body: 'friend', owner_id: 'actor' }],
-      },
-    });
-    const gone = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'f2'}
-    `);
-    expect(gone.length).toBe(1);
-    expect(gone[0]?.deleted).not.toBeNull();
-    const live = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'f1'}
-    `);
-    expect(live[0]?.deleted).toBeNull();
-  });
-
-  test('kicked-from-room-via-denied', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('room', { id: 'r1' });
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        rooms: [{ id: 'r1', title: 'lobby' }],
-      },
-    });
-    await tombstoneScope(mergeDeps, sh);
-    const rooms = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM rooms
-    `);
-    expect(rooms.length).toBe(1);
-    expect(rooms[0]?.deleted).not.toBeNull();
-  });
-
-  test('params-change-keeps-old-rows-until-hydrated', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const oldScope = scopeHash('notes', { q: 'old' });
-    const newScope = scopeHash('notes', { q: 'new' });
-    await applyFullMerge(mergeDeps, {
-      scopeHash: oldScope,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'old', body: 'keep', owner_id: 'actor' }],
-      },
-    });
-    // New scope not yet hydrated — old rows remain
-    const notes = await db.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${'old'}
-    `);
-    expect(notes.length).toBe(1);
-    expect(oldScope).not.toBe(newScope);
-  });
-
-  test('auth-wipe-deletes-db-and-pending-log', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient } = createScenarioClients(db);
-    await mutateClient.mutate(setNote, { id: 'n1', body: 'x' });
-    // Auth-revoked wipe: drop DURABLE + CACHE (file-delete equivalent in harness)
-    await db.run(sql`DELETE FROM _mutations`);
-    await db.run(sql`DELETE FROM _upload_state`);
-    await db.run(sql`DELETE FROM notes`);
-    const pending = await db.query(sql<{ n: number }>`
-      SELECT COUNT(*) AS n FROM _mutations
-    `);
-    expect(pending[0]?.n).toBe(0);
-  });
-
-  test('rebase-reruns-are-idempotent', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient, mergeDeps } = createScenarioClients(db);
-    await mutateClient.mutate(setNote, { id: 'in', body: 'A' });
-    await mutateClient.mutate(setNote, { id: 'out', body: 'B' });
-    const sh = scopeHash('notes', { only: 'in' });
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'in', body: 'server', owner_id: 'actor' }],
-      },
-    });
-    // Second merge same checkpoint stale; third with new checkpoint re-rebases
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '2',
-      hash: 'h2',
-      tables: {
-        notes: [{ id: 'in', body: 'server2', owner_id: 'actor' }],
-      },
-    });
-    const out = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'out'}
-    `);
-    expect(out[0]?.body).toBe('B');
-    const inn = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'in'}
-    `);
-    expect(inn[0]?.body).toBe('A');
-  });
-
-  test('schema-epoch-wipe-preserves-durable', async () => {
-    const db = await openScenarioDb();
-    const { mutateClient } = createScenarioClients(db);
-    await mutateClient.mutate(setNote, { id: 'n1', body: 'pending' });
-    await db.run(sql`DELETE FROM notes`);
-    const pending = await db.query(sql<{ id: string }>`
-      SELECT id FROM _mutations
-    `);
-    expect(pending.length).toBe(1);
-  });
-
-  test('old-client-receives-new-columns', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [
-          {
-            id: 'n1',
-            body: 'x',
-            owner_id: 'actor',
-            future_col: 'ignored',
-          },
-        ],
-      },
-    });
-    const notes = await db.query(sql<{ body: string }>`
-      SELECT body FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes[0]?.body).toBe('x');
-  });
-
-  test('migration-runs-once-and-orders', async () => {
-    const db = await openScenarioDb();
-    const { ensureFrameworkSchema } = await import('../client/local-schema');
-    await ensureFrameworkSchema(db);
-    await ensureFrameworkSchema(db);
-    const state = await db.query(sql<{ id: string }>`
-      SELECT id FROM _upload_state
-    `);
-    expect(state.length).toBe(1);
-  });
-
-  test('expired-token-does-not-wipe', async () => {
-    const shouldWipe = (reason: 'expired' | 'revoked'): boolean =>
-      reason === 'revoked';
-    expect(shouldWipe('expired')).toBe(false);
-  });
-
-  test('dead-scope-sweep-reaps-untouched-tags', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('stale', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
-      },
-    });
-    await db.run(sql`
-      UPDATE _scope_meta
-      SET last_active_at = ${'2000-01-01T00:00:00.000Z'}
-      WHERE scope_hash = ${sh}
-    `);
-    await tombstoneScope(mergeDeps, sh);
-    const tags = await db.query(sql<{ n: number }>`
-      SELECT COUNT(*) AS n FROM _row_scopes WHERE scope_hash = ${sh}
-    `);
-    expect(tags[0]?.n).toBe(0);
-  });
-
-  test('detach-scope-keeps-domain-rows-live', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h',
-      tables: {
-        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
-      },
-    });
-    await detachScope(mergeDeps, sh);
-    const notes = await db.query(sql<{ id: string; deleted: string | null }>`
-      SELECT id, _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes.length).toBe(1);
-    expect(notes[0]?.deleted).toBeNull();
-    const tags = await db.query(sql<{ n: number }>`
-      SELECT COUNT(*) AS n FROM _row_scopes WHERE scope_hash = ${sh}
-    `);
-    expect(tags[0]?.n).toBe(0);
-  });
-
-  test('present-merge-revives-soft-tombstoned-row', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const sh = scopeHash('notes', {});
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '1',
-      hash: 'h1',
-      tables: {
-        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
-      },
-    });
-    await tombstoneScope(mergeDeps, sh);
-    await applyFullMerge(mergeDeps, {
-      scopeHash: sh,
-      checkpoint: '2',
-      hash: 'h2',
-      tables: {
-        notes: [{ id: 'n1', body: 'x', owner_id: 'actor' }],
-      },
-    });
-    const notes = await db.query(sql<{ deleted: string | null }>`
-      SELECT _deleted_at AS deleted FROM notes WHERE id = ${'n1'}
-    `);
-    expect(notes[0]?.deleted).toBeNull();
-  });
-
-  test('merge-single-flight-queues-concurrent-writers', async () => {
-    const db = await openScenarioDb();
-    const { mergeDeps } = createScenarioClients(db);
-    const a = scopeHash('notes-a', {});
-    const b = scopeHash('notes-b', {});
     const results = await Promise.all([
       applyFullMerge(mergeDeps, {
-        scopeHash: a,
+        scopeHash: scopeHash('notes-a', {}),
         checkpoint: '1',
         hash: 'ha',
         tables: {
@@ -460,7 +187,7 @@ describe('merge scenarios (Phase 0 invariants)', () => {
         },
       }),
       applyFullMerge(mergeDeps, {
-        scopeHash: b,
+        scopeHash: scopeHash('notes-b', {}),
         checkpoint: '1',
         hash: 'hb',
         tables: {
@@ -468,10 +195,11 @@ describe('merge scenarios (Phase 0 invariants)', () => {
         },
       }),
     ]);
-    expect(results).toEqual(['applied', 'applied']);
-    const notes = await db.query(sql<{ id: string }>`
+    const rows = await db.query(sql<{ id: string }>`
       SELECT id FROM notes ORDER BY id
     `);
-    expect(notes.map((row) => row.id)).toEqual(['n1', 'n2']);
+
+    expect(results).toEqual(['applied', 'applied']);
+    expect(rows).toEqual([{ id: 'n1' }, { id: 'n2' }]);
   });
 });

@@ -14,7 +14,7 @@ export const ownProfile = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, created_at, username, avatar_config, username_changed_at
+      SELECT id, created_at, username, avatar_config, username_changed_at, _deleted_at
       FROM profiles
       WHERE id = ${ctx.env.actorId}
       LIMIT 1
@@ -36,7 +36,7 @@ export const profilesByIds = defineQuery({
   },
   async run(ctx, { ids }) {
     const rows = await ctx.db.query(sql`
-      SELECT id, created_at, username, avatar_config, username_changed_at
+      SELECT id, created_at, username, avatar_config, username_changed_at, _deleted_at
       FROM profiles
       WHERE id IN (${join(ids)})
       LIMIT 200

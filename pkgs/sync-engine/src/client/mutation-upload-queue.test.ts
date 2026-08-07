@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { sql } from '@pkgs/sql';
 
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import {
@@ -11,7 +12,7 @@ import { createSimTestDriver } from '../sim/test-driver';
 import { MutationUploadQueue } from './mutation-upload-queue';
 
 describe('MutationUploadQueue', () => {
-  test('drains pending mutations via soft-ack', async () => {
+  test('ack deletes the pending mutation immediately', async () => {
     const sim = createSimTestDriver();
     const db = await openScenarioDb();
     const { mutateClient, bus } = createScenarioClients(db);
@@ -52,6 +53,10 @@ describe('MutationUploadQueue', () => {
     queue.wake();
     await sim.runFor(200);
     expect(postBatch.mock.calls.length).toBeGreaterThanOrEqual(1);
+    const pending = await db.query(sql<{ id: string }>`
+      SELECT id FROM _mutations
+    `);
+    expect(pending).toEqual([]);
 
     await queue.stop();
   });

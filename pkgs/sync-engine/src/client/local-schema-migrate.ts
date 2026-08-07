@@ -5,7 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import {
   ensureFrameworkSchema,
-  ensureOptimisticSchema,
+  RETIRED_LOCAL_TABLES,
   SCHEMA_EPOCH,
 } from '../queries/client/local-schema';
 import {
@@ -27,23 +27,9 @@ type Migration = (db: SqlClient, schema: LocalDomainSchema) => Promise<void>;
 
 const MIGRATIONS: readonly Migration[] = [
   async (db, schema) => {
+    await dropRetiredTables(db);
     await ensureFrameworkSchema(db);
     await ensureDomainTables(db, schema);
-  },
-  async (db) => {
-    const columns = await db.query(
-      unsafe<{ name: string }>('PRAGMA table_info("_upload_state")')
-    );
-    if (!columns.some((column) => column.name === 'next_seq')) {
-      await db.run(
-        unsafe(
-          'ALTER TABLE "_upload_state" ADD COLUMN "next_seq" INTEGER NOT NULL DEFAULT 1'
-        )
-      );
-    }
-  },
-  async (db) => {
-    await ensureOptimisticSchema(db);
   },
 ];
 
@@ -70,6 +56,12 @@ async function readUserVersion(db: SqlClient): Promise<number> {
   return Number(rows[0]?.user_version ?? 0);
 }
 
+async function dropRetiredTables(db: SqlClient): Promise<void> {
+  for (const name of RETIRED_LOCAL_TABLES) {
+    await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
+  }
+}
+
 async function ensureDomainTables(
   db: SqlClient,
   schema: LocalDomainSchema
@@ -94,6 +86,7 @@ async function dropCacheTables(
     for (const name of allCacheTableNames(schema)) {
       await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
     }
+    await dropRetiredTables(db);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(`dropCacheTables: ${detail}`, { cause: error });
@@ -105,6 +98,7 @@ async function createCurrentSchema(
   schema: LocalDomainSchema
 ): Promise<void> {
   try {
+    await dropRetiredTables(db);
     await ensureFrameworkSchema(db);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

@@ -14,11 +14,7 @@ const DELETE_FROM_RE = /\bDELETE\s+FROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi;
 const ALLOWED_TABLES = new Set([
   '_mutations',
   '_mutations_applied',
-  '_upload_state',
-  '_row_scopes',
   '_scope_meta',
-  '_peer_applied',
-  '_peer_mutations',
   'write_rejections',
 ]);
 

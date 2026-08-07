@@ -1,4 +1,7 @@
-import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
+import {
+  type AuthClientPort,
+  useAuthClientPort,
+} from '@libs/auth/client/auth-client-provider';
 import { useAuthModals } from '@libs/auth/client/auth-modals-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth/client/auth-storage-keys';
 import {
@@ -6,7 +9,6 @@ import {
   readSignInPendingSync,
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
-import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageStore,

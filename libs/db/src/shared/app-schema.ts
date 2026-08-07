@@ -106,7 +106,6 @@ export const appSchema = defineSchema({
       themes: 'json',
       game_url: 'text',
       opening_tags: 'json',
-      // Unused: clients hydrate any puzzle in rating range (no pool flag).
       sync_pool: 'boolean',
     },
     chess_puzzle_load: {

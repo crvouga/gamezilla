@@ -4,7 +4,7 @@ import type {
   MutationUploadRow,
 } from './mutation-upload-queue';
 import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
-import type { QueryRequest } from './subscription-fetch';
+import type { QueryRequest } from './subscription-runtime';
 
 export type SyncHttpFetch = (
   input: RequestInfo | URL,

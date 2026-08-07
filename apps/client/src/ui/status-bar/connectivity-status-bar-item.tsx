@@ -101,6 +101,7 @@ export function ConnectivityStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="connectivity"
       order={10}
+      contentKey={status}
       title={t`Connectivity`}
       caption={label}
       accessibilityLabel={label}

@@ -41,6 +41,11 @@ export async function assertConvergedImpl(
   ctx: AssertConvergedCtx
 ): Promise<void> {
   ctx.network.healAll();
+  for (const client of ctx.clients.values()) {
+    client.lifecycle.setOnline(true);
+    client.lifecycle.setForeground(true);
+    await client.engine.connect();
+  }
   let last: InvariantViolation | null = null;
   for (let i = 0; i < 40; i += 1) {
     last = await settleOnce(ctx);

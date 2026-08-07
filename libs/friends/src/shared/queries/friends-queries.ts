@@ -15,10 +15,9 @@ export const friendships = defineQuery({
   async run(ctx) {
     const actor = ctx.env.actorId;
     const rows = await ctx.db.query(sql`
-      SELECT id, user_low, user_high, created_at, source_request_id
+      SELECT id, user_low, user_high, created_at, source_request_id, _deleted_at
       FROM friendships
-      WHERE (user_low = ${actor} OR user_high = ${actor})
-        AND _deleted_at IS NULL
+      WHERE user_low = ${actor} OR user_high = ${actor}
       LIMIT 2000
     `);
     return { friendships: rows };
@@ -39,7 +38,7 @@ export const friendRequests = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT
         id, from_user_id, to_user_id, status, message,
-        created_at, updated_at, responded_at
+        created_at, updated_at, responded_at, _deleted_at
       FROM friend_requests
       WHERE from_user_id = ${actor} OR to_user_id = ${actor}
       LIMIT 500
@@ -59,10 +58,9 @@ export const userBlocks = defineQuery({
   },
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, blocker_id, blocked_id, created_at
+      SELECT id, blocker_id, blocked_id, created_at, _deleted_at
       FROM user_blocks
       WHERE blocker_id = ${ctx.env.actorId}
-        AND _deleted_at IS NULL
       LIMIT 500
     `);
     return { user_blocks: rows };

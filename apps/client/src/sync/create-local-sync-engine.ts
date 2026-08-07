@@ -27,13 +27,22 @@ import {
   type SyncClientAuth,
 } from './sync-api';
 
-const BOOT_QUERIES = [
+/** Session queries held for the engine lifetime (paint gate waits on all). */
+const SESSION_QUERIES = [
   'ownUser',
   'ownDevices',
   'ownExternalAccounts',
   'ownProfile',
   'clientConfig',
   'openSpaceSessions',
+  'mySpaces',
+  'mySpaceUsers',
+  'friendships',
+  'friendRequests',
+  'userBlocks',
+  'inboxActive',
+  'chessPuzzleProfile',
+  'chessPuzzleInteractions',
 ] as const;
 
 export type CreateAppLocalSyncEngineArgs = {
@@ -79,8 +88,8 @@ function membershipKey(ids: readonly string[]): string {
   return [...ids].sort().join('\0');
 }
 
-function bootQuerySpecs() {
-  return BOOT_QUERIES.map((name) => ({
+function sessionQuerySpecs() {
+  return SESSION_QUERIES.map((name) => ({
     name,
     params: {},
   }));
@@ -163,7 +172,7 @@ export async function createAppLocalSyncEngine(
     mutationRegistry: APP_MUTATIONS,
     getMutationEnv: () => mutationEnv(args),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
-    bootQueries: bootQuerySpecs(),
+    sessionQueries: sessionQuerySpecs(),
     postQueries: (requests) => postAppQueries({ ...args, requests }),
     postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
     isAuthRevoked: (error) =>

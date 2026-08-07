@@ -1,0 +1,250 @@
+import { assert } from '@pkgs/assert';
+import { ident, join, sql, unsafe, type Value } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+
+import type {
+  Mutation,
+  MutationEnv,
+  MutationRegistry,
+} from '../mutations/core/types';
+import type { TableChangeBus } from '../queries/client/table-change-bus';
+import type { QueryRow } from '../queries/core/types';
+
+export type MergeFullInput = {
+  readonly scopeHash: string;
+  readonly checkpoint: string;
+  readonly hash: string;
+  readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
+};
+
+export type MergeApplierDeps = {
+  readonly db: SqlClient;
+  readonly registry: MutationRegistry;
+  readonly env: MutationEnv;
+  readonly bus: TableChangeBus;
+  readonly clientId: string;
+};
+
+/** Per-db single-flight chain — concurrent polls queue; never overlap writers. */
+type MergeGate = { chain: Promise<void> };
+const mergeGates = new WeakMap<object, MergeGate>();
+
+function mergeGateFor(db: object): MergeGate {
+  const existing = mergeGates.get(db);
+  if (existing !== undefined) return existing;
+  const created: MergeGate = { chain: Promise.resolve() };
+  mergeGates.set(db, created);
+  return created;
+}
+
+export async function withMergeSingleFlight<T>(
+  db: object,
+  write: () => Promise<T>
+): Promise<T> {
+  const gate = mergeGateFor(db);
+  const run = gate.chain.then(write, write);
+  gate.chain = run.then(
+    () => undefined,
+    () => undefined
+  );
+  return run;
+}
+
+function assertTableName(table: string): void {
+  assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
+}
+
+/**
+ * Postgres jsonb / JSON wire values arrive as objects or arrays. expo-sqlite
+ * only accepts string | number | null | Uint8Array binds.
+ */
+function sqliteWireValue(value: unknown): Value {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' || typeof value === 'number') return value;
+  if (typeof value === 'boolean') return value ? 1 : 0;
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'bigint') return value.toString();
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+async function tableColumns(
+  tx: SqlClient,
+  table: string
+): Promise<readonly string[]> {
+  assertTableName(table);
+  const info = await tx.query(
+    unsafe<{ name: string }>(`PRAGMA table_info("${table}")`)
+  );
+  return info.map((c) => c.name);
+}
+
+/** Upsert intersecting columns verbatim (including `_deleted_at`). */
+async function upsertRowIntersect(
+  tx: SqlClient,
+  table: string,
+  row: QueryRow,
+  localCols: readonly string[]
+): Promise<void> {
+  assertTableName(table);
+  const cols = localCols.filter((c) =>
+    Object.prototype.hasOwnProperty.call(row, c)
+  );
+  assert.ok(cols.includes('id'), `${table}: id required`);
+
+  const colIdents = cols.map((c) => ident(c));
+  const valueFrags = cols.map((c) => sql`${sqliteWireValue(row[c])}`);
+  const assignments = cols
+    .filter((c) => c !== 'id')
+    .map((c) => sql`${ident(c)} = excluded.${ident(c)}`);
+
+  if (assignments.length === 0) {
+    await tx.run(sql`
+      INSERT INTO ${ident(table)} (${join(colIdents)})
+      VALUES (${join(valueFrags)})
+      ON CONFLICT (id) DO NOTHING
+    `);
+    return;
+  }
+
+  await tx.run(sql`
+    INSERT INTO ${ident(table)} (${join(colIdents)})
+    VALUES (${join(valueFrags)})
+    ON CONFLICT (id) DO UPDATE SET ${join(assignments)}
+  `);
+}
+
+async function mergeTable(
+  tx: SqlClient,
+  table: string,
+  rows: readonly QueryRow[]
+): Promise<void> {
+  const cols = await tableColumns(tx, table);
+  for (const row of rows) {
+    const id = row['id'];
+    assert.ok(typeof id === 'string' && id.length > 0, 'row id required');
+    await upsertRowIntersect(tx, table, row, cols);
+  }
+}
+
+function compareCheckpoint(a: string, b: string): number {
+  const na = Number(a);
+  const nb = Number(b);
+  if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+async function isStale(
+  tx: SqlClient,
+  scopeHash: string,
+  checkpoint: string
+): Promise<boolean> {
+  const meta = await tx.query(sql<{ last_checkpoint: string | null }>`
+    SELECT last_checkpoint FROM _scope_meta
+    WHERE scope_hash = ${scopeHash} LIMIT 1
+  `);
+  const prev = meta[0]?.last_checkpoint ?? null;
+  if (prev === null) return false;
+  return compareCheckpoint(checkpoint, prev) <= 0;
+}
+
+async function touchScopeMeta(
+  tx: SqlClient,
+  input: MergeFullInput
+): Promise<void> {
+  const now = new Date().toISOString();
+  await tx.run(sql`
+    INSERT INTO _scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
+    VALUES (${input.scopeHash}, ${now}, ${input.checkpoint}, ${input.hash})
+    ON CONFLICT (scope_hash) DO UPDATE SET
+      last_checkpoint = excluded.last_checkpoint,
+      last_hash = excluded.last_hash,
+      last_active_at = excluded.last_active_at
+  `);
+}
+
+type PendingMutation = {
+  readonly id: string;
+  readonly name: string;
+  readonly args: string;
+  readonly created_at: string;
+};
+
+/** Re-apply every pending local mutation after a server merge. */
+async function reapplyPending(
+  tx: SqlClient,
+  deps: Pick<MergeApplierDeps, 'registry' | 'env' | 'clientId'>,
+  changed: Set<string>
+): Promise<void> {
+  const pending = await tx.query(sql<PendingMutation>`
+    SELECT id, name, args, created_at
+    FROM _mutations
+    WHERE client_id = ${deps.clientId}
+    ORDER BY seq ASC
+  `);
+  for (const row of pending) {
+    const m = deps.registry[row.name] as Mutation<unknown> | undefined;
+    if (m === undefined) continue;
+    let parsed: unknown;
+    try {
+      parsed = m.args.parse(JSON.parse(row.args));
+    } catch {
+      continue;
+    }
+    try {
+      await m.run(
+        {
+          tx,
+          env: { ...deps.env, now: () => new Date(row.created_at) },
+        },
+        parsed
+      );
+      for (const t of m.writes) changed.add(t);
+    } catch {
+      // Keep queued; hide optimistic effect until upload/reject.
+    }
+  }
+}
+
+async function runMerge(
+  deps: MergeApplierDeps,
+  input: MergeFullInput
+): Promise<'applied' | 'stale'> {
+  let applied = false;
+  const changed = new Set<string>();
+  await deps.db.transaction(async (tx) => {
+    if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
+    for (const [table, rows] of Object.entries(input.tables)) {
+      await mergeTable(tx, table, rows);
+      changed.add(table);
+    }
+    await touchScopeMeta(tx, input);
+    await reapplyPending(tx, deps, changed);
+    applied = true;
+  });
+  if (!applied) return 'stale';
+  deps.bus.emit([...changed]);
+  return 'applied';
+}
+
+export async function applyFullMerge(
+  deps: MergeApplierDeps,
+  input: MergeFullInput
+): Promise<'applied' | 'stale'> {
+  return withMergeSingleFlight(deps.db, () => runMerge(deps, input));
+}
+
+/**
+ * Drop scope checkpoint/hash only. Domain rows stay (unsubscribe / denied).
+ */
+export async function detachScope(
+  deps: Pick<MergeApplierDeps, 'db' | 'bus'>,
+  scopeHash: string
+): Promise<void> {
+  await withMergeSingleFlight(deps.db, async () => {
+    await deps.db.run(sql`
+      DELETE FROM _scope_meta WHERE scope_hash = ${scopeHash}
+    `);
+    deps.bus.emit(['_scope_meta']);
+  });
+}

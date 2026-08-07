@@ -56,6 +56,7 @@ export function ThemeStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="theme"
       order={40}
+      contentKey={preference}
       title={t`Theme`}
       caption={caption}
       accessibilityLabel={t`Theme: ${caption}`}

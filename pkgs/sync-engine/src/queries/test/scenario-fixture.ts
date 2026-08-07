@@ -3,15 +3,13 @@ import { sql, unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { z } from 'zod';
-
+import type { MergeApplierDeps } from '../../client/merge';
 import { createMutationClient } from '../../mutations/client/create-mutation-client';
 import { defineMutation } from '../../mutations/core/define-mutation';
 import { mutationRegistry } from '../../mutations/core/registry';
 import { MutationError } from '../../mutations/core/types';
-import { ensureFrameworkSchema } from '../client/local-schema';
-import type { MergeApplierDeps } from '../client/merge-applier';
+import { FRAMEWORK_LOCAL_DDL } from '../client/local-schema';
 import { createTableChangeBus } from '../client/table-change-bus';
-import { bumpWriteEpoch } from '../client/write-epoch';
 import { scopeHash } from '../shared/canonical';
 
 export const DOMAIN_DDL = `
@@ -26,28 +24,18 @@ CREATE TABLE IF NOT EXISTS rooms (
   title TEXT NOT NULL DEFAULT '',
   _deleted_at TEXT
 );
-CREATE TABLE IF NOT EXISTS write_rejections (
-  id TEXT PRIMARY KEY,
-  mutation_id TEXT NOT NULL,
-  client_id TEXT NOT NULL,
-  code TEXT NOT NULL,
-  message TEXT NOT NULL,
-  meta TEXT,
-  created_at TEXT NOT NULL,
-  acknowledged INTEGER NOT NULL DEFAULT 0
-);
 `;
 
 export async function openScenarioDb(): Promise<SqlClient> {
   const raw = new Database(':memory:');
   const db = new SqlClientImplBunSqlite(raw);
   await db.connect();
-  for (const stmt of DOMAIN_DDL.split(';')
+  for (const stmt of `${DOMAIN_DDL}\n${FRAMEWORK_LOCAL_DDL}`
+    .split(';')
     .map((s) => s.trim())
     .filter(Boolean)) {
     await db.run(unsafe(stmt));
   }
-  await ensureFrameworkSchema(db);
   return db;
 }
 
@@ -111,20 +99,13 @@ export function scenarioEnv(actorId = 'actor') {
 }
 
 export function createScenarioClients(db: SqlClient) {
-  let seq = 0;
   const bus = createTableChangeBus();
   const env = scenarioEnv();
   const mutateClient = createMutationClient({
     db,
     registry: scenarioRegistry,
     env,
-    ids: {
-      clientId: 'device-1',
-      nextSeq: () => {
-        seq += 1;
-        return seq;
-      },
-    },
+    ids: { clientId: 'device-1' },
     connectivity: { isOnline: () => true },
   });
   const mergeDeps: MergeApplierDeps = {
@@ -135,43 +116,4 @@ export function createScenarioClients(db: SqlClient) {
     clientId: 'device-1',
   };
   return { mutateClient, mergeDeps, bus, env, scopeHash };
-}
-
-/** Soft-ack uploaded mutations through seq (keeps rebase log). */
-export async function softAckThrough(
-  db: SqlClient,
-  seq: number
-): Promise<number> {
-  let ackedEpoch = 0;
-  await db.transaction(async (tx) => {
-    ackedEpoch = await bumpWriteEpoch(tx);
-    await tx.run(sql`
-      UPDATE _upload_state
-      SET last_acked_seq = MAX(last_acked_seq, ${seq})
-      WHERE id = ${'singleton'}
-    `);
-    await tx.run(sql`
-      UPDATE _mutations
-      SET status = ${'uploaded'}, acked_epoch = ${ackedEpoch}
-      WHERE seq <= ${seq} AND status = ${'pending'}
-    `);
-  });
-  return ackedEpoch;
-}
-
-/** Hard-delete rejected mutations through seq (no rebase). */
-export async function rejectThrough(db: SqlClient, seq: number): Promise<void> {
-  await db.run(sql`
-    UPDATE _upload_state SET last_acked_seq = ${seq} WHERE id = ${'singleton'}
-  `);
-  await db.run(sql`
-    DELETE FROM _mutations WHERE seq <= ${seq}
-  `);
-}
-
-export async function readWriteEpochFixture(db: SqlClient): Promise<number> {
-  const rows = await db.query(sql<{ write_epoch: number }>`
-    SELECT write_epoch FROM _upload_state WHERE id = ${'singleton'} LIMIT 1
-  `);
-  return Number(rows[0]?.write_epoch ?? 0);
 }

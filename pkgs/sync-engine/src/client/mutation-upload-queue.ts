@@ -1,7 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
-import { bumpWriteEpoch } from '../queries/client/write-epoch';
 
 import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
 
@@ -74,7 +73,7 @@ async function readPending(
   return db.query(sql<StoredMutation>`
     SELECT id, name, args, client_id, seq, created_at
     FROM _mutations
-    WHERE client_id = ${clientId} AND status = ${'pending'}
+    WHERE client_id = ${clientId}
     ORDER BY seq ASC
     LIMIT ${BATCH_LIMIT}
   `);
@@ -106,18 +105,6 @@ async function storeRejection(
   `);
 }
 
-async function softAckApplied(
-  tx: SqlClient,
-  mutationId: string
-): Promise<void> {
-  const ackedEpoch = await bumpWriteEpoch(tx);
-  await tx.run(sql`
-    UPDATE _mutations
-    SET status = ${'uploaded'}, acked_epoch = ${ackedEpoch}
-    WHERE id = ${mutationId} AND status = ${'pending'}
-  `);
-}
-
 async function applyUploadResult(
   options: MutationUploadQueueOptions,
   result: MutationUploadResult,
@@ -129,24 +116,16 @@ async function applyUploadResult(
     for (const verdict of result.verdicts) {
       if (verdict.status === 'rejected') {
         await storeRejection(tx, clientId, verdict, createdAt);
-        await tx.run(sql`
-          DELETE FROM _mutations WHERE id = ${verdict.mutationId}
-        `);
-        continue;
       }
-      await softAckApplied(tx, verdict.mutationId);
+      await tx.run(sql`
+        DELETE FROM _mutations WHERE id = ${verdict.mutationId}
+      `);
     }
-    await tx.run(sql`
-      UPDATE _upload_state
-      SET last_acked_seq = MAX(last_acked_seq, ${result.ackSeq}),
-          handoff_complete = ${1}
-      WHERE id = ${'singleton'}
-    `);
   });
-  options.bus.emit(['_mutations', '_upload_state', 'write_rejections']);
+  options.bus.emit(['_mutations', 'write_rejections']);
 }
 
-/** Polling durable mutation uploader with soft-ack until query confirms. */
+/** Polling durable mutation uploader. Ack = delete local queue row. */
 export class MutationUploadQueue {
   private running = false;
   private loopPromise: Promise<void> | null = null;

@@ -84,6 +84,7 @@ export function NotificationsStatusBarItem(): ReactNode {
     <RegisterStatusBarItem
       id="notifications"
       order={60}
+      contentKey={unread}
       title={t`Notifications`}
       caption={caption}
       accessibilityLabel={caption}

@@ -18,7 +18,7 @@ export const ownUser = defineQuery({
   authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, created_at, is_anon
+      SELECT id, created_at, is_anon, _deleted_at
       FROM users
       WHERE id = ${ctx.env.actorId}
       LIMIT 1
@@ -50,7 +50,8 @@ export const ownDevices = defineQuery({
         app_build_number, 
         user_agent, 
         first_seen_at, 
-        last_seen_at
+        last_seen_at,
+        _deleted_at
       FROM devices
       WHERE user_id = ${ctx.env.actorId}
       LIMIT 50
@@ -74,7 +75,8 @@ export const ownExternalAccounts = defineQuery({
         provider, 
         external_id, 
         metadata, 
-        created_at
+        created_at,
+        _deleted_at
       FROM external_accounts
       WHERE user_id = ${ctx.env.actorId}
       LIMIT 20

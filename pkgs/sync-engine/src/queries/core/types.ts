@@ -50,24 +50,19 @@ export type QueryDef<P> = {
 
 export type QueryRegistry = Readonly<Record<string, QueryDef<unknown>>>;
 
+/**
+ * Query wire responses. Snapshots are always full tables including soft-deleted
+ * rows (`_deleted_at`); the client upserts them verbatim.
+ */
 export type QueryResponse =
   | {
       readonly status: 'ok';
-      readonly mode: 'full';
       readonly checkpoint: string;
       readonly hash: string;
       readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
     }
   | { readonly status: 'not_modified' }
-  | {
-      readonly status: 'ok';
-      readonly mode: 'delta';
-      readonly checkpoint: string;
-      readonly hash: string;
-    }
-  | { readonly status: 'resync' }
-  | { readonly status: 'denied' }
-  | { readonly status: 'gone' };
+  | { readonly status: 'denied' };
 
 export type AuthErrorBody = {
   readonly error: 'auth';

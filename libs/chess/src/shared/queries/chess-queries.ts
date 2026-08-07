@@ -19,7 +19,8 @@ export const chessPuzzleProfile = defineQuery({
         owner_id,
         rating,
         rating_deviation,
-        last_interaction_at
+        last_interaction_at,
+        _deleted_at
       FROM chess_puzzle_profiles
       WHERE owner_id = ${ctx.env.actorId}
       LIMIT 1
@@ -50,7 +51,8 @@ export const chessPuzzleInteractions = defineQuery({
         correct, 
         rating_before, 
         rating_after, 
-        at
+        at,
+        _deleted_at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${ctx.env.actorId}
       LIMIT 5000
@@ -82,7 +84,8 @@ export const chessPuzzlePool = defineQuery({
         nb_plays, 
         themes, 
         game_url, 
-        opening_tags
+        opening_tags,
+        _deleted_at
       FROM chess_puzzles
       WHERE rating >= ${ratingMin}
         AND rating <= ${ratingMax}

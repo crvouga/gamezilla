@@ -21,7 +21,7 @@
 
   Domain mutation definitions and their SQL live under `libs/<feature>/src/shared/mutations/`. Domain query definitions live under `libs/<feature>/src/shared/queries/`. The mutation environment contains the actor, account, and device identity. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
 
-- **Domain rows are soft-delete only.** Removals set managed `_deleted_at` (never `DELETE FROM` domain tables). Live reads / `defineQuery` handlers filter `_deleted_at IS NULL`. Sync-engine merge upserts revive (`_deleted_at = NULL`); absence / denied soft-tombstones; unsubscribe detaches scope tags without wiping domain rows. Mutation `tx` rejects domain hard deletes at apply/replay (`NO_HARD_DELETE`). Framework tables (`_mutations`, `_row_scopes`, …) may still hard-delete. CI: `bun run ci:no-domain-hard-delete`.
+- **Domain rows are soft-delete only.** Removals set managed `_deleted_at` (never `DELETE FROM` domain tables). `defineQuery` snapshots **include** soft-deleted rows (tombstones on the wire, with `_deleted_at` selected); UI / live client reads filter `_deleted_at IS NULL`. Sync-engine merge upserts snapshot rows verbatim (including `_deleted_at`) and re-applies pending `_mutations` on top — no absence GC, no `_row_scopes`. Unsubscribe / denied only clears `_scope_meta`. Mutation `tx` rejects domain hard deletes at apply/replay (`NO_HARD_DELETE`). Framework tables (`_mutations`, `_scope_meta`, `write_rejections`, `_mutations_applied`) may still hard-delete. CI: `bun run ci:no-domain-hard-delete`.
 
 ## `@pkgs/ui` design system
 

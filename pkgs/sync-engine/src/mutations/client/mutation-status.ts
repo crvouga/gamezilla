@@ -3,39 +3,26 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 export type MutationStatus = 'pending' | 'confirmed' | 'rejected';
 
-export type MutationStatusDeps = {
-  readonly db: Pick<SqlClient, 'query'>;
-  /** True once the local `_mutations` row has left the upload queue. */
-  readonly isMutationUploaded: (mutationId: string) => boolean;
-  /**
-   * True once a sync checkpoint has completed after that upload
-   * (server-authoritative state has streamed down past the upload).
-   */
-  readonly hasSyncedPastUpload: (mutationId: string) => boolean;
-};
-
 /**
  * Derive confirmation status for a mutation id.
  * - rejected: write_rejections row exists for this mutation_id
- * - confirmed: uploaded and a subsequent sync checkpoint completed
- * - pending: otherwise
+ * - pending: `_mutations` queue row still exists
+ * - confirmed: uploaded (queue row gone) and no rejection
  */
 export async function mutationStatus(
-  deps: MutationStatusDeps,
+  db: Pick<SqlClient, 'query'>,
   mutationId: string
 ): Promise<MutationStatus> {
-  const rejections = await deps.db.query(sql<{ id: string }>`
+  const rejections = await db.query(sql<{ id: string }>`
     SELECT id FROM write_rejections WHERE mutation_id = ${mutationId} LIMIT 1
   `);
   if (rejections.length > 0) return 'rejected';
 
-  if (
-    deps.isMutationUploaded(mutationId) &&
-    deps.hasSyncedPastUpload(mutationId)
-  ) {
-    return 'confirmed';
-  }
-  return 'pending';
+  const pending = await db.query(sql<{ id: string }>`
+    SELECT id FROM _mutations WHERE id = ${mutationId} LIMIT 1
+  `);
+  if (pending.length > 0) return 'pending';
+  return 'confirmed';
 }
 
 export type UnackedWriteRejection = {

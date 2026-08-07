@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sql, unsafe } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { applyFullMerge } from '../../client/merge';
 import { ensureFrameworkSchema } from '../client/local-schema';
-import { applyFullMerge } from '../client/merge-applier';
 import { scopeHash } from '../shared/canonical';
 import { createScenarioClients, DOMAIN_DDL } from './scenario-fixture';
 

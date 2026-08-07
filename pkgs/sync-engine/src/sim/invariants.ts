@@ -49,7 +49,10 @@ export async function checkClientNotesMatchServer(args: {
     body: string;
     owner_id: string;
   }>`
-    SELECT id, body, owner_id FROM notes ORDER BY id ASC
+    SELECT id, body, owner_id
+    FROM notes
+    WHERE _deleted_at IS NULL
+    ORDER BY id ASC
   `);
   const serverKey = JSON.stringify(server);
   const localKey = JSON.stringify(local);

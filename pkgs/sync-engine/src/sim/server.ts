@@ -117,6 +117,9 @@ export async function readServerNotes(
   db: SqlClient
 ): Promise<readonly { id: string; body: string; owner_id: string }[]> {
   return db.query(sql<{ id: string; body: string; owner_id: string }>`
-    SELECT id, body, owner_id FROM notes ORDER BY id ASC
+    SELECT id, body, owner_id
+    FROM notes
+    WHERE _deleted_at IS NULL
+    ORDER BY id ASC
   `);
 }

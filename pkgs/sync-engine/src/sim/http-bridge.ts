@@ -2,7 +2,7 @@ import type {
   MutationUploadResult,
   MutationUploadRow,
 } from '../client/mutation-upload-queue';
-import type { QueryRequest } from '../client/subscription-fetch';
+import type { QueryRequest } from '../client/subscription-runtime';
 import type { QueryResponse } from '../queries/core/types';
 import {
   createSimHttpRpc,

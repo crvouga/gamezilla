@@ -2,7 +2,7 @@ import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { MutationUploadResult } from '../client/mutation-upload-queue';
-import type { QueryRequest } from '../client/subscription-fetch';
+import type { QueryRequest } from '../client/subscription-runtime';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';

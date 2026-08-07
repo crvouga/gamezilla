@@ -43,26 +43,26 @@ export type AddClientCtx = {
   readonly nextId: () => string;
 };
 
-async function waitForBoot(
+async function waitForSessionSync(
   scheduler: SimScheduler,
   handle: SimClientHandle,
   clientId: string
 ): Promise<void> {
-  // Flush coalesce timer (QUERY_COALESCE_MS=0) so boot batch reaches HTTP.
+  // Flush coalescing so the session-query batch reaches HTTP.
   await Promise.resolve();
   await Promise.resolve();
-  let booted = false;
-  const boot = handle.engine.waitForFirstSync().then(() => {
-    booted = true;
+  let synced = false;
+  const sessionSync = handle.engine.waitForFirstSync().then(() => {
+    synced = true;
   });
-  const ok = await scheduler.runUntil(() => booted, {
+  const ok = await scheduler.runUntil(() => synced, {
     maxVirtualMs: 30_000,
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error(`SimWorld: boot sync timeout for ${clientId}`);
+    throw new Error(`SimWorld: session sync timeout for ${clientId}`);
   }
-  await boot;
+  await sessionSync;
 }
 
 /** Add a client engine to the world and wait for first sync. */
@@ -114,6 +114,6 @@ export async function addClientImpl(
     },
   });
   ctx.clients.set(clientArgs.id, handle);
-  await waitForBoot(ctx.scheduler, handle, clientArgs.id);
+  await waitForSessionSync(ctx.scheduler, handle, clientArgs.id);
   return handle;
 }

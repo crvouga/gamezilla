@@ -23,24 +23,6 @@ export function AppStatusBarRegistry({
   children: ReactNode;
 }): ReactNode {
   const { t } = useLingui();
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': '85764b',
-    },
-    body: JSON.stringify({
-      sessionId: '85764b',
-      runId: 'pre-fix',
-      hypothesisId: 'E',
-      location: 'status-bar-registry.tsx:AppStatusBarRegistry',
-      message: 'AppStatusBarRegistry render',
-      data: {},
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
   return (
     <StatusBarRegistryProvider>
       <StatusBarRegistryPortalBridge>
