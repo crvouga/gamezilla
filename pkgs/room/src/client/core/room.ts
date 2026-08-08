@@ -23,6 +23,7 @@ import type {
 import { RoomMetaAttr, roomAttrNamespace } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
+import { wipeLocalRoomCache } from './wipe-local-cache';
 
 export type RoomClientConfig<
   S extends RoomState,
@@ -104,7 +105,14 @@ export class Room<
     I2,
   >(config: RoomClientConfig<S2, C2, E2, I2>): Promise<Room<S2, C2, E2, I2>> {
     const r = new Room(config);
-    await r.hydrateLocal();
+    try {
+      await r.hydrateLocal();
+    } catch {
+      // Corrupt / incompatible local cache (e.g. event shape drift). Server is
+      // authoritative — wipe the recovery blob and open empty so sync can rebuild.
+      await wipeLocalRoomCache(config.storage);
+      await r.hydrateLocal();
+    }
     r.attachTransport();
     await Promise.resolve(config.transport.connect());
     return r;
@@ -210,11 +218,14 @@ export class Room<
   private async hydrateLocal(): Promise<void> {
     const { lastSeq, entries } = await this.storage.loadCommitted();
     for (const e of entries) {
-      assert.ok(
-        isMessageEnvelope(e.event),
-        'persisted committed entry must carry a valid message envelope; refusing to hydrate corrupt log',
-        { seq: e.seq, event: e.event }
-      );
+      // Throw a normal Error (not Tiger crash) so {@link Room.open} can wipe
+      // the local cache and retry — process-exiting asserts would leave the
+      // space UI stuck on reconnecting with no socket.
+      if (!isMessageEnvelope(e.event)) {
+        throw new Error(
+          `persisted committed entry must carry a valid message envelope (seq=${String(e.seq)})`
+        );
+      }
     }
     const folded = foldEntries(this.module, entries as LogEntry<E>[]);
     this.committedState = folded.state;

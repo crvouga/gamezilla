@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
 import type { Keyword } from '@pkgs/keyword';
-import type { Kv } from '@pkgs/kv/interface';
+import type { Kv, KvRecord } from '@pkgs/kv/interface';
 import { isMessageEnvelope } from '@pkgs/message';
 
 import type { LogEntry } from '../../../../types';
@@ -95,6 +95,50 @@ const RoomClientStorageAttr = {
   commands: Queue.array('commands', parseQueuedCommandArray),
 } as const;
 
+const LAST_SEQ_KEY = RoomClientStorageAttr.lastSeq.key;
+const ENTRIES_KEY = RoomClientStorageAttr.entries.key;
+const COMMANDS_KEY = RoomClientStorageAttr.commands.key;
+
+/** Soft parse — never calls Tiger crash asserts (those exit the process). */
+function softLoadCommitted(
+  raw: KvRecord
+): { lastSeq: number; entries: LogEntry[] } | null {
+  const lastSeqRaw = raw[LAST_SEQ_KEY];
+  const entriesRaw = raw[ENTRIES_KEY];
+  if (
+    typeof lastSeqRaw !== 'number' ||
+    !Number.isFinite(lastSeqRaw) ||
+    lastSeqRaw < 0 ||
+    !Array.isArray(entriesRaw)
+  ) {
+    return null;
+  }
+  const entries: LogEntry[] = [];
+  for (const item of entriesRaw) {
+    if (item === null || typeof item !== 'object') return null;
+    const o = item as Record<string, unknown>;
+    if (typeof o['seq'] !== 'number' || !Number.isFinite(o['seq'])) return null;
+    if (!isMessageEnvelope(o['event'])) return null;
+    entries.push({ seq: Math.floor(o['seq']), event: o['event'] });
+  }
+  return { lastSeq: Math.floor(lastSeqRaw), entries };
+}
+
+function softLoadQueued(raw: KvRecord): QueuedCommand[] | null {
+  const commandsRaw = raw[COMMANDS_KEY];
+  if (!Array.isArray(commandsRaw)) return null;
+  const out: QueuedCommand[] = [];
+  for (const item of commandsRaw) {
+    if (item === null || typeof item !== 'object') return null;
+    const o = item as Record<string, unknown>;
+    if (typeof o['id'] !== 'string' || o['id'].length === 0) return null;
+    if (typeof o['ts'] !== 'number' || !Number.isFinite(o['ts'])) return null;
+    if (!isMessageEnvelope(o['payload'])) return null;
+    out.push({ id: o['id'], ts: o['ts'], payload: o['payload'] });
+  }
+  return out;
+}
+
 /**
  * Async {@link Kv}-backed room cache + outbound queue.
  *
@@ -115,10 +159,12 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     if (raw === null) {
       return { lastSeq: 0, entries: [] };
     }
-    return {
-      lastSeq: RoomClientStorageAttr.lastSeq.from(raw),
-      entries: RoomClientStorageAttr.entries.from(raw),
-    };
+    const parsed = softLoadCommitted(raw);
+    if (parsed !== null) return parsed;
+    // Local cache is a recovery aid only — wipe unreadable blobs so Room.open
+    // can resync from the server instead of failing the whole session.
+    await this.kv.zap(this.committedKey);
+    return { lastSeq: 0, entries: [] };
   }
 
   async saveCommitted(lastSeq: number, entries: LogEntry[]): Promise<void> {
@@ -133,7 +179,10 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     if (raw === null) {
       return [];
     }
-    return RoomClientStorageAttr.commands.from(raw);
+    const parsed = softLoadQueued(raw);
+    if (parsed !== null) return parsed;
+    await this.kv.zap(this.queueKey);
+    return [];
   }
 
   async appendQueued(cmd: QueuedCommand): Promise<void> {

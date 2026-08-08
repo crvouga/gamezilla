@@ -82,7 +82,13 @@ export function SpaceOpenRoomsProvider({
   if (!isLoading) {
     stableIdsRef.current = spaceIds;
   }
-  const mountedIds = isLoading ? stableIdsRef.current : spaceIds;
+  // While the open-session query is loading, keep prior ids mounted and also
+  // include any ids already present in `spaceIds` so an optimistic create
+  // cannot unmount a brand-new room slot (which stuck the event log on
+  // "Connecting…" / "Reconnecting…" with no WebSocket).
+  const mountedIds = isLoading
+    ? Array.from(new Set([...stableIdsRef.current, ...spaceIds]))
+    : spaceIds;
   const [entries, setEntries] = useState(
     (): ReadonlyMap<string, SpaceOpenRoomEntry> => new Map()
   );

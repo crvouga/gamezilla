@@ -17,7 +17,10 @@ import {
   useState,
 } from 'react';
 import { useSpaceModule } from '../module/space-module-context';
-import { createSpaceRoom } from './create-space-room';
+import {
+  type CreateSpaceRoomResult,
+  createSpaceRoom,
+} from './create-space-room';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -103,28 +106,41 @@ function commitOpenedRoom(
   }
 }
 
+function clearOpeningKey(args: OpenSpaceRoomArgs): void {
+  if (args.openingKeyRef.current === args.bootstrapKey) {
+    args.openingKeyRef.current = null;
+  }
+}
+
 function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
   let cancelled = false;
   void (async (): Promise<void> => {
-    const { room: nextRoom, transport: nextTransport } = await createSpaceRoom({
-      spaceId: args.bootstrap.spaceId,
-      apiUrl: args.configService.getApiUrl(),
-      module: args.module,
-      kv: args.kv,
-      myId: args.bootstrap.myId,
-      installId: args.bootstrap.installId,
-      clientId: args.bootstrap.clientId,
-      getSessionToken: args.getSessionToken,
-    });
-    if (cancelled) {
-      if (args.openingKeyRef.current === args.bootstrapKey) {
-        args.openingKeyRef.current = null;
-      }
-      nextRoom.destroy();
-      nextTransport.destroy();
+    let opened: CreateSpaceRoomResult;
+    try {
+      opened = await createSpaceRoom({
+        spaceId: args.bootstrap.spaceId,
+        apiUrl: args.configService.getApiUrl(),
+        module: args.module,
+        kv: args.kv,
+        myId: args.bootstrap.myId,
+        installId: args.bootstrap.installId,
+        clientId: args.bootstrap.clientId,
+        getSessionToken: args.getSessionToken,
+      });
+    } catch {
+      // Previously this rejection left `openingKeyRef` latched and the event
+      // log stuck on reconnecting with no socket. Clear so a later bootstrap
+      // key change (or remount) can try again.
+      clearOpeningKey(args);
       return;
     }
-    commitOpenedRoom(args, nextRoom, nextTransport);
+    if (cancelled) {
+      clearOpeningKey(args);
+      opened.room.destroy();
+      opened.transport.destroy();
+      return;
+    }
+    commitOpenedRoom(args, opened.room, opened.transport);
   })();
   return () => {
     cancelled = true;

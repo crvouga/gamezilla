@@ -23,13 +23,21 @@ import { ParticipantColorRing } from '../participant-color-ring';
 
 export type EventLogBarCopy = {
   readonly empty: LocalizedString;
+  /** Shown after a prior successful sync while the socket is down. */
   readonly reconnecting: LocalizedString;
+  /** Shown before the first successful sync (initial open). Falls back to reconnecting. */
+  readonly connecting?: LocalizedString;
   readonly unreadLabel: (count: number) => LocalizedString;
 };
 
 export type EventLogBarProps = {
   latest: LogLine | null;
   disconnected?: boolean;
+  /**
+   * When true, a prior sync succeeded in this session — disconnect copy uses
+   * {@link EventLogBarCopy.reconnecting}. When false, prefer connecting.
+   */
+  everSynced?: boolean;
   unreadCount?: number;
   copy: EventLogBarCopy;
   colorForActor: (actor: RoomActor) => ParticipantColor | string;
@@ -54,10 +62,14 @@ function resolveColor(
 
 function resolveBody(
   disconnected: boolean,
+  everSynced: boolean,
   latest: LogLine | null,
   copy: EventLogBarCopy
 ): LocalizedString {
-  if (disconnected) return copy.reconnecting;
+  if (disconnected) {
+    if (!everSynced && copy.connecting !== undefined) return copy.connecting;
+    return copy.reconnecting;
+  }
   if (latest !== null) return latest.text;
   return copy.empty;
 }
@@ -182,6 +194,7 @@ function EventLogBarBody({
 export function EventLogBar({
   latest,
   disconnected = false,
+  everSynced = false,
   unreadCount = 0,
   copy,
   colorForActor,
@@ -196,7 +209,7 @@ export function EventLogBar({
   const actor = showIdentity ? latest.actor : null;
   const color = showIdentity ? resolveColor(colorForActor, actor) : null;
   const stateKey = resolveStateKey(disconnected, latest);
-  const body = resolveBody(disconnected, latest, copy);
+  const body = resolveBody(disconnected, everSynced, latest, copy);
   const timeLabel = resolveTimeLabel(disconnected, latest, formatRelativeTime);
 
   return (
