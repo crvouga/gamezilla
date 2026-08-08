@@ -16,6 +16,8 @@ import {
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
 const HAS_DB = DATABASE_URL.length > 0;
 const TEST_SCHEMA = 'gamezilla_test_scope';
+/** Remote Neon round-trips often take 2–4s; parallel `bun check` can push past 5s. */
+const REMOTE_DB_TIMEOUT_MS = 30_000;
 
 describe('postgres-schema', () => {
   test('scope carries the injected schema name', () => {
@@ -72,102 +74,122 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
     expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
   });
 
-  test('ensurePostgresSchema skips CREATE SCHEMA for public', async () => {
-    const publicScope = createPostgresDbScope('public');
-    const { pool, sqlClient } = createPgPool({
-      connectionString: DATABASE_URL,
-      dbScope: publicScope,
-      max: 1,
-    });
-    try {
-      await ensurePostgresSchema(sqlClient, publicScope);
-      const rows = await sqlClient.query(
-        raw<{ current_schema: string | null }>(
-          'SELECT current_schema() AS current_schema'
-        )
-      );
-      const current = rows[0]?.current_schema ?? null;
-      expect(current === 'public' || current === null).toBe(true);
-    } finally {
-      await pool.end();
-    }
-  });
+  test(
+    'ensurePostgresSchema skips CREATE SCHEMA for public',
+    async () => {
+      const publicScope = createPostgresDbScope('public');
+      const { pool, sqlClient } = createPgPool({
+        connectionString: DATABASE_URL,
+        dbScope: publicScope,
+        max: 1,
+      });
+      try {
+        await ensurePostgresSchema(sqlClient, publicScope);
+        const rows = await sqlClient.query(
+          raw<{ current_schema: string | null }>(
+            'SELECT current_schema() AS current_schema'
+          )
+        );
+        const current = rows[0]?.current_schema ?? null;
+        expect(current === 'public' || current === null).toBe(true);
+      } finally {
+        await pool.end();
+      }
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
 
-  test('ensurePostgresSchema creates the schema and is idempotent', async () => {
-    const { pool, sqlClient } = createPgPool({
-      connectionString: DATABASE_URL,
-      dbScope,
-      max: 1,
-    });
-    try {
-      await ensurePostgresSchema(sqlClient, dbScope);
-      // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
-      await ensurePostgresSchema(sqlClient, dbScope);
-      const rows = await sqlClient.query(
-        raw<{ exists: boolean }>(
-          `SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '${TEST_SCHEMA}') AS exists`
-        )
-      );
-      expect(rows[0]?.exists).toBe(true);
-    } finally {
-      await pool.end();
-    }
-  });
+  test(
+    'ensurePostgresSchema creates the schema and is idempotent',
+    async () => {
+      const { pool, sqlClient } = createPgPool({
+        connectionString: DATABASE_URL,
+        dbScope,
+        max: 1,
+      });
+      try {
+        await ensurePostgresSchema(sqlClient, dbScope);
+        // Second call must not throw (CREATE SCHEMA IF NOT EXISTS).
+        await ensurePostgresSchema(sqlClient, dbScope);
+        const rows = await sqlClient.query(
+          raw<{ exists: boolean }>(
+            `SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '${TEST_SCHEMA}') AS exists`
+          )
+        );
+        expect(rows[0]?.exists).toBe(true);
+      } finally {
+        await pool.end();
+      }
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
 
-  test('createPgPool pins every pooled connection to the schema', async () => {
-    const { pool, sqlClient } = createPgPool({
-      connectionString: DATABASE_URL,
-      dbScope,
-      max: 1,
-    });
-    try {
-      await ensurePostgresSchema(sqlClient, dbScope);
-      for (let i = 0; i < 3; i++) {
+  test(
+    'createPgPool pins every pooled connection to the schema',
+    async () => {
+      const { pool, sqlClient } = createPgPool({
+        connectionString: DATABASE_URL,
+        dbScope,
+        max: 1,
+      });
+      try {
+        await ensurePostgresSchema(sqlClient, dbScope);
+        for (let i = 0; i < 3; i++) {
+          const rows = await sqlClient.query(
+            raw<{ current_schema: string }>(
+              'SELECT current_schema() AS current_schema'
+            )
+          );
+          expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+        }
+      } finally {
+        await pool.end();
+      }
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
+
+  test(
+    'openPgClient pins the session and can self-bootstrap the schema',
+    async () => {
+      const { client, sqlClient } = await openPgClient({
+        connectionString: DATABASE_URL,
+        dbScope,
+        ensureSchema: true,
+      });
+      try {
         const rows = await sqlClient.query(
           raw<{ current_schema: string }>(
             'SELECT current_schema() AS current_schema'
           )
         );
         expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+      } finally {
+        await client.end();
       }
-    } finally {
-      await pool.end();
-    }
-  });
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
 
-  test('openPgClient pins the session and can self-bootstrap the schema', async () => {
-    const { client, sqlClient } = await openPgClient({
-      connectionString: DATABASE_URL,
-      dbScope,
-      ensureSchema: true,
-    });
-    try {
-      const rows = await sqlClient.query(
-        raw<{ current_schema: string }>(
-          'SELECT current_schema() AS current_schema'
-        )
-      );
-      expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
-    } finally {
-      await client.end();
-    }
-  });
-
-  test('SqlClientImplBunPostgres pins every query on Neon pooler URLs', async () => {
-    const sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
-    try {
-      await sqlClient.connect();
-      await ensurePostgresSchema(sqlClient, dbScope);
-      for (let i = 0; i < 3; i++) {
-        const rows = await sqlClient.query(
-          raw<{ current_schema: string }>(
-            'SELECT current_schema() AS current_schema'
-          )
-        );
-        expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+  test(
+    'SqlClientImplBunPostgres pins every query on Neon pooler URLs',
+    async () => {
+      const sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
+      try {
+        await sqlClient.connect();
+        await ensurePostgresSchema(sqlClient, dbScope);
+        for (let i = 0; i < 3; i++) {
+          const rows = await sqlClient.query(
+            raw<{ current_schema: string }>(
+              'SELECT current_schema() AS current_schema'
+            )
+          );
+          expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+        }
+      } finally {
+        await sqlClient.disconnect();
       }
-    } finally {
-      await sqlClient.disconnect();
-    }
-  });
+    },
+    { timeout: REMOTE_DB_TIMEOUT_MS }
+  );
 });
