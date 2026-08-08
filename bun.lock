@@ -1193,7 +1193,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "expo-sqlite": "catalog:",

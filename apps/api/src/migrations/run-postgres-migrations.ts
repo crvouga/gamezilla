@@ -8,15 +8,14 @@ import { appSchema } from '@libs/db/shared/app-schema';
 import { BetterAuthDatabaseMigration } from '@pkgs/auth-better-auth/server';
 import {
   ComposedDatabaseMigration,
+  EnsurePostgresSchemaMigration,
   PostgresAdvisoryLockedTransactionMigration,
 } from '@pkgs/db-migrate';
 import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
-
 import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
 import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { EnsurePostgresSchemaMigration } from '@pkgs/sql-client/postgres/ensure-postgres-schema-migration';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';

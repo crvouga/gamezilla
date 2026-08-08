@@ -1,10 +1,10 @@
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+
 import type {
   DatabaseMigration,
   DatabaseMigrationContext,
-} from '@pkgs/db-migrate';
-
-import { ensurePostgresSchema } from './connect';
-import type { PostgresDbScope } from './schema';
+} from './database-migration';
 
 /** Ensures the application Postgres schema exists before other migrates. */
 export class EnsurePostgresSchemaMigration implements DatabaseMigration {

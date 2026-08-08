@@ -41,6 +41,7 @@ resolveQueryHydrates
 softDeleteById
 SYNC_PROTOCOL_HEADER
 SYNC_PROTOCOL_VERSION
+SyncEngineDatabaseMigration
 TopicMap
 TopicMapCtx
 topicMapCtxFromEnv
