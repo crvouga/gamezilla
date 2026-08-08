@@ -78,6 +78,38 @@ function waitForOpen(): Promise<FakeWs> {
   });
 }
 
+function hasPing(socket: FakeWs): boolean {
+  return socket.sent.some((raw) => {
+    const m = JSON.parse(raw) as { kind?: string };
+    return m.kind === ROOM_WIRE_KIND.ping;
+  });
+}
+
+async function waitUntil(
+  predicate: () => boolean,
+  timeoutMs: number,
+  label: string
+): Promise<void> {
+  const started = Date.now();
+  while (!predicate()) {
+    if (Date.now() - started > timeoutMs) {
+      throw new Error(`${label} timed out after ${timeoutMs}ms`);
+    }
+    await new Promise((r) => setTimeout(r, 5));
+  }
+}
+
+function deliverPong(socket: FakeWs): void {
+  socket.onmessage?.(
+    new MessageEvent('message', {
+      data: JSON.stringify({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.pong,
+      }),
+    })
+  );
+}
+
 function testTransportOptions(
   overrides: ConstructorParameters<typeof WebSocketRoomTransport>[0]
 ): ConstructorParameters<typeof WebSocketRoomTransport>[0] {
@@ -106,19 +138,15 @@ describe('WebSocketRoomTransport heartbeat', () => {
         heartbeatTimeoutMs: 20,
       })
     );
-    transport.connect();
-    const first = await waitForOpen();
-    expect(first.readyState).toBe(1);
-
-    // Wait for first ping (30) + miss timeout (20) + reconnect (5).
-    await new Promise((r) => setTimeout(r, 80));
-    const ping = first.sent.find((raw) => {
-      const m = JSON.parse(raw) as { kind?: string };
-      return m.kind === ROOM_WIRE_KIND.ping;
-    });
-    expect(ping).toBeDefined();
-    expect(sockets.length).toBeGreaterThan(1);
-    transport.destroy();
+    try {
+      transport.connect();
+      const first = await waitForOpen();
+      expect(first.readyState).toBe(1);
+      await waitUntil(() => hasPing(first), 500, 'first heartbeat ping');
+      await waitUntil(() => sockets.length > 1, 500, 'reconnect after miss');
+    } finally {
+      transport.destroy();
+    }
   });
 
   test('probeLiveness reconnects when socket is closed', async () => {
@@ -129,13 +157,19 @@ describe('WebSocketRoomTransport heartbeat', () => {
         heartbeatTimeoutMs: 30_000,
       })
     );
-    transport.connect();
-    const first = await waitForOpen();
-    first.readyState = 3;
-    transport.probeLiveness();
-    await new Promise((r) => setTimeout(r, 20));
-    expect(sockets.length).toBeGreaterThan(1);
-    transport.destroy();
+    try {
+      transport.connect();
+      const first = await waitForOpen();
+      first.readyState = 3;
+      transport.probeLiveness();
+      await waitUntil(
+        () => sockets.length > 1,
+        500,
+        'reconnect after probeLiveness'
+      );
+    } finally {
+      transport.destroy();
+    }
   });
 
   test('pong clears the heartbeat miss timer', async () => {
@@ -146,20 +180,16 @@ describe('WebSocketRoomTransport heartbeat', () => {
         heartbeatTimeoutMs: 80,
       })
     );
-    transport.connect();
-    const first = await waitForOpen();
-    await new Promise((r) => setTimeout(r, 50));
-    first.onmessage?.(
-      new MessageEvent('message', {
-        data: JSON.stringify({
-          v: WIRE_VERSION,
-          kind: ROOM_WIRE_KIND.pong,
-        }),
-      })
-    );
-    // Still within heartbeatTimeoutMs of the first ping — no reconnect.
-    await new Promise((r) => setTimeout(r, 40));
-    expect(sockets.length).toBe(1);
-    transport.destroy();
+    try {
+      transport.connect();
+      const first = await waitForOpen();
+      await waitUntil(() => hasPing(first), 500, 'first heartbeat ping');
+      deliverPong(first);
+      // Miss timeout is 80ms; stay under that and confirm no reconnect.
+      await new Promise((r) => setTimeout(r, 50));
+      expect(sockets.length).toBe(1);
+    } finally {
+      transport.destroy();
+    }
   });
 });
