@@ -1,51 +1,44 @@
 @apps/api preview:serve: 
-@apps/api preview:serve:  ⛅️ wrangler 4.87.0
-@apps/api preview:serve: ───────────────────
+@apps/api preview:serve:  ⛅️ wrangler 4.87.0 (update available 4.120.0)
+@apps/api preview:serve: ──────────────────────────────────────────────
 @apps/api preview:serve: Using secrets defined in .dev.vars
 @apps/api preview:serve: Your Worker has access to the following bindings:
-@apps/api preview:serve: Binding                                                 Resource                  Mode
-@apps/api preview:serve: env.ROOM (Room)                                         Durable Object            local
-@apps/api preview:serve: env.SECRETS_ENV ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.API_URL ("(hidden)")                                Environment Variable      local
-@apps/api preview:serve: env.DATABASE_URL ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.S3_BUCKET ("(hidden)")                              Environment Variable      local
-@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.S3_REGION ("(hidden)")                              Environment Variable      local
-@apps/api preview:serve: env.CLOUDFLARE_API_TOKEN ("(hidden)")                   Environment Variable      local
-@apps/api preview:serve: env.CLOUDFLARE_ACCOUNT_ID ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.BETTER_AUTH_SECRET ("(hidden)")                     Environment Variable      local
-@apps/api preview:serve: env.WEB_CLIENT_GOOGLE_CLIENT_ID ("(hidden)")            Environment Variable      local
-@apps/api preview:serve: env.WEB_CLIENT_GOOGLE_CLIENT_SECRET ("(hidden)")        Environment Variable      local
-@apps/api preview:serve: env.STRIPE_SECRET_KEY ("(hidden)")                      Environment Variable      local
-@apps/api preview:serve: env.STRIPE_PUBLISHABLE_KEY ("(hidden)")                 Environment Variable      local
-@apps/api preview:serve: env.TURBO_TOKEN ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.TURBO_TEAM ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.TURBO_CACHE ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.TURBO_LOG_ORDER ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.TURBO_TELEMETRY_DISABLED ("(hidden)")               Environment Variable      local
-@apps/api preview:serve: env.EXPO_TOKEN ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.B2_MASTER_KEY_ID ("(hidden)")                       Environment Variable      local
-@apps/api preview:serve: env.B2_MASTER_KEY ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.ELEVEN_LABS_API_KEY ("(hidden)")                    Environment Variable      local
-@apps/api preview:serve: env.OPENAI_API_KEY ("(hidden)")                         Environment Variable      local
-@apps/api preview:serve: env.OPENAI_BASE_URL ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_API_URL ("(hidden)")                    Environment Variable      local
-@apps/api preview:serve: env.OBSERVABILITY_BACKEND ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.SENTRY_DSN ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_OBSERVABILITY_BACKEND ("(hidden)")      Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_SENTRY_DSN ("(hidden)")                 Environment Variable      local
-@apps/api preview:serve: env.RAILWAY_TOKEN ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_URL ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_KEY ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_SECRET ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EMQX_JWT_SECRET ("(hidden)")                        Environment Variable      local
+@apps/api preview:serve: Binding                                  Resource                  Mode
+@apps/api preview:serve: env.ROOM (Room)                          Durable Object            local
+@apps/api preview:serve: env.SECRETS_ENV ("(hidden)")             Environment Variable      local
+@apps/api preview:serve: env.API_URL ("(hidden)")                 Environment Variable      local
+@apps/api preview:serve: env.DATABASE_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")           Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")              Environment Variable      local
+@apps/api preview:serve: env.S3_BUCKET ("(hidden)")               Environment Variable      local
+@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")             Environment Variable      local
+@apps/api preview:serve: env.S3_REGION ("(hidden)")               Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_KEY ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_SECRET ("(hidden)")         Environment Variable      local
+@apps/api preview:serve: env.EMQX_JWT_SECRET ("(hidden)")         Environment Variable      local
+@apps/api preview:serve: env.EMQX_WSS_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.BETTER_AUTH_SECRET ("(hidden)")      Environment Variable      local
 @apps/api preview:serve: 
 @apps/api preview:serve: ⎔ Starting local server...
 @apps/api preview:serve: [wrangler:info] Ready on http://localhost:8788
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1594ms)
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.467Z","name":"api:app","msg":"stripe secret key missing; Stripe routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"ELEVEN_LABS_API_KEY missing; TTS routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"OPENAI_API_KEY / OPENAI_BASE_URL missing; LLM routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1m{"level":"error","time":"2026-08-08T21:47:32.480Z","name":"api:app","msg":"handler error","error":"proxy request failed, cannot connect to the specified address"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1518ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1379ms)
+@apps/api preview:serve: [wrangler:info] GET /api/auth/get-session 500 Internal Server Error (1593ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (14ms)
 @apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2ms)
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready

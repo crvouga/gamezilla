@@ -2,6 +2,7 @@
  * Run definitive `@libs/db` Postgres migrations against the local embedded
  * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
  */
+import { randomBytes } from 'node:crypto';
 import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
@@ -11,12 +12,29 @@ import { LOCAL_DATABASE_URL } from './ports';
 
 /** Schema migrate only — Better Auth DDL does not call this origin. */
 const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
+const MIN_BETTER_AUTH_SECRET_LENGTH = 32;
 
 async function resolveBetterAuthMigrateSecret(): Promise<string> {
   const fromEnv = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
-  if (fromEnv.length >= 32) return fromEnv;
-  const store = createScriptSecretStore();
-  return (await store.getRequired('BETTER_AUTH_SECRET')).readSecretValue();
+  if (fromEnv.length >= MIN_BETTER_AUTH_SECRET_LENGTH) return fromEnv;
+  try {
+    const store = createScriptSecretStore();
+    const fromStore = (
+      await store.getRequired('BETTER_AUTH_SECRET')
+    ).readSecretValue();
+    if (fromStore.trim().length >= MIN_BETTER_AUTH_SECRET_LENGTH) {
+      return fromStore.trim();
+    }
+  } catch {
+    // Offline / Infisical unavailable — seed below.
+  }
+  // Local sidecar must boot without Infisical (same as api setup-dev-vars).
+  const seeded = randomBytes(32).toString('base64url');
+  process.env['BETTER_AUTH_SECRET'] = seeded;
+  process.stdout.write(
+    '[postgres] BETTER_AUTH_SECRET missing; seeded local random secret for migrate.\n'
+  );
+  return seeded;
 }
 
 export async function runLocalMigrate(): Promise<void> {
