@@ -32,6 +32,18 @@ const LOCAL_EMQX_DEV_DEFAULTS: Readonly<Record<string, string>> = {
 const LOCAL_POSTGRES_DATABASE_URL =
   'postgresql://postgres:postgres@127.0.0.1:15432/gamezilla?sslmode=disable';
 
+/**
+ * Local `@apps/minio` S3 secrets (keep in sync with apps/minio/scripts/ports.ts).
+ * SECRETS_ENV=dev always uses MinIO — Infisical B2/S3 app secrets are ignored.
+ */
+const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
+  B2_APP_KEY_ID: 'minioadmin',
+  B2_APP_KEY: 'minioadmin',
+  S3_BUCKET: 'gamezilla',
+  S3_ENDPOINT: 'http://127.0.0.1:9000',
+  S3_REGION: 'us-east-1',
+};
+
 function readApiUrlForDevVars(): string {
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
@@ -61,6 +73,14 @@ async function main(): Promise<void> {
 
   process.stdout.write(
     '[setup-dev-vars] DATABASE_URL → @apps/postgres local embedded (Infisical ignored).\n'
+  );
+
+  for (const [name, value] of Object.entries(LOCAL_MINIO_S3_SECRETS)) {
+    lines.push(`${name}=${encodeDevVarValue(value)}`);
+    written.add(name);
+  }
+  process.stdout.write(
+    '[setup-dev-vars] S3/B2_APP_* → @apps/minio local (Infisical ignored).\n'
   );
 
   for (const entry of getSecretMap()) {

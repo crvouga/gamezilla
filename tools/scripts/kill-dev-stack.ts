@@ -21,6 +21,8 @@ const DEV_PORTS = [
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API
   15432, // @apps/postgres embedded
+  9000, // @apps/minio S3 API
+  9001, // @apps/minio console
 ] as const;
 
 function runTurboKill(): void {
@@ -41,6 +43,7 @@ function pkillOrphans(): void {
     '[e]xpo start',
     '[s]tripe listen',
     '[e]mqx foreground',
+    '[m]inio server',
   ];
   for (const pattern of patterns) {
     try {

@@ -54,6 +54,7 @@ function startPreviewStack(): PreviewHandle {
       '--filter=@apps/api',
       '--filter=@apps/client',
       '--filter=@apps/postgres',
+      '--filter=@apps/minio',
     ],
     {
       cwd: REPO_ROOT,

@@ -1,20 +1,23 @@
 @apps/api preview:serve: 
-@apps/api preview:serve:  ⛅️ wrangler 4.87.0 (update available 4.120.0)
-@apps/api preview:serve: ──────────────────────────────────────────────
+@apps/api preview:serve:  ⛅️ wrangler 4.87.0
+@apps/api preview:serve: ───────────────────
 @apps/api preview:serve: Using secrets defined in .dev.vars
 @apps/api preview:serve: Your Worker has access to the following bindings:
 @apps/api preview:serve: Binding                                                 Resource                  Mode
 @apps/api preview:serve: env.ROOM (Room)                                         Durable Object            local
 @apps/api preview:serve: env.SECRETS_ENV ("(hidden)")                            Environment Variable      local
 @apps/api preview:serve: env.API_URL ("(hidden)")                                Environment Variable      local
+@apps/api preview:serve: env.DATABASE_URL ("(hidden)")                           Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")                          Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")                             Environment Variable      local
+@apps/api preview:serve: env.S3_BUCKET ("(hidden)")                              Environment Variable      local
+@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")                            Environment Variable      local
+@apps/api preview:serve: env.S3_REGION ("(hidden)")                              Environment Variable      local
 @apps/api preview:serve: env.CLOUDFLARE_API_TOKEN ("(hidden)")                   Environment Variable      local
 @apps/api preview:serve: env.CLOUDFLARE_ACCOUNT_ID ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.DATABASE_URL ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.AUTH_PUBLISHABLE_KEY ("(hidden)")                   Environment Variable      local
-@apps/api preview:serve: env.AUTH_SECRET_KEY ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY ("(hidden)")       Environment Variable      local
-@apps/api preview:serve: env.CLERK_PUBLISHABLE_KEY ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.CLERK_SECRET_KEY ("(hidden)")                       Environment Variable      local
+@apps/api preview:serve: env.BETTER_AUTH_SECRET ("(hidden)")                     Environment Variable      local
+@apps/api preview:serve: env.WEB_CLIENT_GOOGLE_CLIENT_ID ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.WEB_CLIENT_GOOGLE_CLIENT_SECRET ("(hidden)")        Environment Variable      local
 @apps/api preview:serve: env.STRIPE_SECRET_KEY ("(hidden)")                      Environment Variable      local
 @apps/api preview:serve: env.STRIPE_PUBLISHABLE_KEY ("(hidden)")                 Environment Variable      local
 @apps/api preview:serve: env.TURBO_TOKEN ("(hidden)")                            Environment Variable      local
@@ -25,11 +28,6 @@
 @apps/api preview:serve: env.EXPO_TOKEN ("(hidden)")                             Environment Variable      local
 @apps/api preview:serve: env.B2_MASTER_KEY_ID ("(hidden)")                       Environment Variable      local
 @apps/api preview:serve: env.B2_MASTER_KEY ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.S3_BUCKET ("(hidden)")                              Environment Variable      local
-@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.S3_REGION ("(hidden)")                              Environment Variable      local
 @apps/api preview:serve: env.ELEVEN_LABS_API_KEY ("(hidden)")                    Environment Variable      local
 @apps/api preview:serve: env.OPENAI_API_KEY ("(hidden)")                         Environment Variable      local
 @apps/api preview:serve: env.OPENAI_BASE_URL ("(hidden)")                        Environment Variable      local
@@ -46,29 +44,6 @@
 @apps/api preview:serve: 
 @apps/api preview:serve: ⎔ Starting local server...
 @apps/api preview:serve: [wrangler:info] Ready on http://localhost:8788
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2205ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (21ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (11ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (6ms)
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
-@apps/api preview:serve: ⎔ Reloading local server...
-@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1594ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2ms)

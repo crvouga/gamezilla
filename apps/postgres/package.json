@@ -15,7 +15,7 @@
   "dependencies": {
     "@apps/api": "workspace:*",
     "@pkgs/os": "workspace:*",
-    "embedded-postgres": "18.4.0-beta.17"
+    "embedded-postgres": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

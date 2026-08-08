@@ -200,13 +200,27 @@
         "typescript": "catalog:",
       },
     },
+    "apps/minio": {
+      "name": "@apps/minio",
+      "version": "0.0.0",
+      "dependencies": {
+        "@aws-sdk/client-s3": "catalog:",
+        "@pkgs/os": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "apps/postgres": {
       "name": "@apps/postgres",
       "version": "0.0.0",
       "dependencies": {
         "@apps/api": "workspace:*",
         "@pkgs/os": "workspace:*",
-        "embedded-postgres": "18.4.0-beta.17",
+        "embedded-postgres": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1472,6 +1486,7 @@
     "chess.js": "^1.4.0",
     "csv-parse": "^6.2.1",
     "dependency-cruiser": "^17.4.0",
+    "embedded-postgres": "18.4.0-beta.17",
     "esbuild": "^0.28.1",
     "expo": "~55.0.27",
     "expo-audio": "~55.0.15",
@@ -1555,6 +1570,8 @@
     "@apps/client": ["@apps/client@workspace:apps/client"],
 
     "@apps/emqx": ["@apps/emqx@workspace:apps/emqx"],
+
+    "@apps/minio": ["@apps/minio@workspace:apps/minio"],
 
     "@apps/postgres": ["@apps/postgres@workspace:apps/postgres"],
 

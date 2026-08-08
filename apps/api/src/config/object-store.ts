@@ -1,5 +1,4 @@
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
-import { DEVELOPMENT_SECRETS_ENV } from '@libs/infra/shared/database-url-policy';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
@@ -8,8 +7,6 @@ import { S3SecretName } from '@pkgs/object-store/s3-config';
 import type { SecretStore } from '@pkgs/secret-store';
 
 const log = createLogger({ name: 'api-object-store' });
-
-let devInMemoryObjectStoreNoticed = false;
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
@@ -21,33 +18,25 @@ const S3_SECRET_NAMES = [
 
 /**
  * S3-compatible object store for the API Worker. Credentials are loaded from
- * Credentials are loaded from env bindings at boot; every key is scoped
- * {@link createS3ObjectStore}.
+ * env bindings at boot; every key is scoped via {@link createS3ObjectStore}.
+ *
+ * Non-prod (`SECRETS_ENV=dev`) uses local `@apps/minio` via `.dev.vars` S3
+ * overrides. Production uses Infisical → Backblaze B2.
  *
  * Object storage only backs non-critical caches (e.g. TTS audio). When the S3
- * credentials are absent — local dev, preview, and CI check runs that never
- * provision object storage — fall back to an ephemeral in-memory store so the
- * Worker still boots and serves auth / sync / rooms instead of latching
- * fatal and answering every request with `503`. Production misconfiguration is
- * caught earlier by the deploy-time `s3-bucket` resource check.
+ * credentials are absent, fall back to an ephemeral in-memory store so the
+ * Worker still boots. Production misconfiguration is caught earlier by the
+ * deploy-time `s3-bucket` resource check.
  */
 export type CreateApiObjectStoreOptions = {
-  /** Secrets env (`dev` / `prd`). Dev uses an in-memory store so local wrangler is not blocked by remote S3. */
+  /** Secrets env (`dev` / `prd`). Reserved for callers; no longer gates in-memory. */
   readonly secretsEnv?: string | null;
 };
 
 export async function createApiObjectStore(
   secretStore: SecretStore,
-  options: CreateApiObjectStoreOptions = {}
+  _options: CreateApiObjectStoreOptions = {}
 ): Promise<ObjectStore> {
-  if (options.secretsEnv === DEVELOPMENT_SECRETS_ENV) {
-    if (!devInMemoryObjectStoreNoticed) {
-      devInMemoryObjectStoreNoticed = true;
-      log.debug('dev secrets env — using in-memory object store');
-    }
-    return new ObjectStoreImplInMemory();
-  }
-
   const secrets = await secretStore.getOptionalMany(S3_SECRET_NAMES);
   const missing = S3_SECRET_NAMES.filter((name) => secrets[name] === null);
 
