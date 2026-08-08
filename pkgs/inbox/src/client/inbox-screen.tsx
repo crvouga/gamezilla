@@ -11,7 +11,6 @@ import { useInboxActions } from './use-inbox-actions';
 import { useInboxBackfill } from './use-inbox-backfill';
 
 export type InboxScreenProps = {
-  readonly accountMenu?: ReactNode;
   readonly leading?: ReactNode;
   readonly initialFilter?: InteractionFilter;
 };
@@ -87,7 +86,6 @@ function InboxScreenBody({
 }
 
 export function InboxScreen({
-  accountMenu,
   leading,
   initialFilter,
 }: InboxScreenProps): ReactNode {
@@ -97,7 +95,6 @@ export function InboxScreen({
     <ScreenBase
       screenId="inbox"
       breadcrumbs={[{ name: t`Inbox` }]}
-      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <Box style={sx}>

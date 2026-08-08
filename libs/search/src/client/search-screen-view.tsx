@@ -65,21 +65,16 @@ function SearchScreenBody(): ReactNode {
 }
 
 export type SearchScreenProps = {
-  readonly accountMenu?: ReactNode;
   readonly leading?: ReactNode;
 };
 
-export function SearchScreen({
-  accountMenu,
-  leading,
-}: SearchScreenProps): ReactNode {
+export function SearchScreen({ leading }: SearchScreenProps): ReactNode {
   const { t } = useLingui();
 
   return (
     <ScreenBase
       screenId="search"
       breadcrumbs={[{ name: t`Search` }]}
-      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <Box style={sx}>

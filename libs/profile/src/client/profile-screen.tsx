@@ -7,8 +7,6 @@ import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
 
 export type ProfileScreenProps = {
-  /** Always-visible account avatar menu in the header trailing slot. */
-  readonly accountMenu?: ReactNode;
   /** Leading slot (typically the app logo on root tabs). */
   readonly leading?: ReactNode;
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
@@ -20,7 +18,6 @@ export type ProfileScreenProps = {
 };
 
 export function ProfileScreen({
-  accountMenu,
   leading,
   friendsStats,
   friendsActions,
@@ -31,7 +28,6 @@ export function ProfileScreen({
     <ScreenBase
       screenId="profile"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      accountMenu={accountMenu}
       leading={leading}
       content={({ sx }) => (
         <ScreenBodyScrollView

@@ -5,7 +5,7 @@
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button.
  *   - `center`   -> page title (from breadcrumbs).
- *   - `trailing` -> responsive action bar (actions + account menu end slot).
+ *   - `trailing` -> responsive action bar (header actions).
  */
 
 import { type ReactNode, useContext, useMemo } from 'react';
@@ -110,7 +110,6 @@ export function ScreenBaseHeader({
   breadcrumbs,
   actions: actionsProp,
   leading: leadingProp,
-  accountMenu,
   largeTitle = false,
 }: ScreenBaseHeaderProps) {
   const insets = useSafeAreaInsetsCompat();
@@ -137,13 +136,10 @@ export function ScreenBaseHeader({
   );
 
   const trailingSlot =
-    iconItems.length > 0 ||
-    textActions.length > 0 ||
-    accountMenu !== undefined ? (
+    iconItems.length > 0 || textActions.length > 0 ? (
       <ActionBar
         items={iconItems}
         textActions={textActions}
-        endSlot={accountMenu}
         buttonSize={chrome.buttonSize}
         gap={chrome.gap}
         slotWidth={chrome.slotWidth}

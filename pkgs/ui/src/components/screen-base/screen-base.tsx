@@ -197,7 +197,6 @@ export function ScreenBase({
   footer,
   primaryAction,
   primaryActionBottomInset = 0,
-  accountMenu,
   onRefresh,
   refreshing,
   dataSet,
@@ -212,7 +211,6 @@ export function ScreenBase({
         breadcrumbs={breadcrumbs}
         actions={actions ?? []}
         leading={leading}
-        accountMenu={accountMenu}
         largeTitle={largeTitle}
       />
       {primaryAction !== undefined ? (

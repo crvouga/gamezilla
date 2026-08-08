@@ -3,7 +3,6 @@ import { by, type Driver, expectHidden, expectVisible } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 
 import type { AuthPort } from '../support/auth-port';
-import { openUserMenu } from '../support/chrome-menu';
 
 function requireE2eClerkUserEmail(): string {
   const email = process.env['E2E_CLERK_USER_EMAIL']?.trim() ?? '';
@@ -32,7 +31,8 @@ export function createClerkAuthAdapter(page: Page, driver: Driver): AuthPort {
       await clerk.signOut({ page });
     },
     async expectSignedOut(): Promise<void> {
-      await openUserMenu(driver);
+      // Header avatar menu is gone; assert via account screen actions.
+      await page.goto('/more/account');
       await expectVisible(driver, by.role('button', 'Sign in'));
       await expectHidden(driver, by.role('button', 'Sign out'));
     },

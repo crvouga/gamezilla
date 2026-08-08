@@ -74,11 +74,10 @@ function SpacesList() {
 }
 
 export type SpacesScreenProps = {
-  readonly accountMenu?: ReactNode;
   readonly leading?: ReactNode;
 };
 
-export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
+export function SpacesScreen({ leading }: SpacesScreenProps) {
   const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
@@ -107,7 +106,6 @@ export function SpacesScreen({ accountMenu, leading }: SpacesScreenProps) {
     <ScreenBase
       screenId="spaces"
       breadcrumbs={[{ name: t`Spaces` }]}
-      accountMenu={accountMenu}
       leading={leading}
       primaryAction={primaryAction}
       content={({ sx }) => (

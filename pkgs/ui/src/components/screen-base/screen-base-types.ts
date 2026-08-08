@@ -108,8 +108,6 @@ export type ScreenBaseProps = {
   primaryAction?: ScreenBasePrimaryAction;
   /** Extra bottom inset for the primary-action FAB above the tab bar. */
   primaryActionBottomInset?: number;
-  /** Always-visible account avatar menu rendered after header actions. */
-  accountMenu?: ReactNode;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -120,8 +118,6 @@ export type ScreenBaseHeaderProps = {
   actions?: ScreenBaseAction[] | undefined;
   /** See {@link ScreenBaseProps.leading}. */
   leading?: ReactNode | undefined;
-  /** Always-visible account menu rendered after header actions. */
-  accountMenu?: ReactNode | undefined;
   /**
    * When true, TopBar title is shown only after the body large title scrolls
    * past the reveal threshold (via {@link ScreenTitleProvider}).

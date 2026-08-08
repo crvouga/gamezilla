@@ -47,7 +47,7 @@ export type ActionBarProps = {
   items: readonly ActionBarItem[];
   /** Icon-less actions that render as compact text buttons when visible inline. */
   textActions?: readonly ActionBarTextAction[];
-  /** Always-visible trailing slot (e.g. account avatar menu). */
+  /** Always-visible trailing slot after overflow-managed items. */
   endSlot?: ReactNode;
   /** Main-axis packing. Defaults to `'end'` (trailing chrome). */
   align?: ActionBarAlign;
