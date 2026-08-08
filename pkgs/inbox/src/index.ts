@@ -3,6 +3,7 @@ export {
   deactivateInteraction,
   INBOX_SERVER_MANAGED,
   Inbox,
+  InboxDatabaseMigration,
   migrateInbox,
   publishInteraction,
   registerActionHandler,

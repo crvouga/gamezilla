@@ -1,6 +1,4 @@
-export type {
-  SqliteDriver,
-  SqliteDriverOptions,
-  SqliteOwnership,
-} from './driver';
-export { sqlite } from './driver';
+export {
+  SqliteSchemaDatabaseMigration,
+  type SqliteSchemaDatabaseMigrationOptions,
+} from './sqlite-schema-database-migration';

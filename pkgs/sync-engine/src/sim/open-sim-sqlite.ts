@@ -1,8 +1,14 @@
 import { Database } from 'bun:sqlite';
-import { sqlite as reconcileSqlite } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+
+const domainMigrateLogger = createLogger({
+  name: 'open-sim-sqlite',
+  level: 'silent',
+});
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import { createSerialSqlClient } from './serial-sql';
@@ -67,9 +73,9 @@ export async function openSimSqliteServer(
   await base.connect();
   const sqlClient = createSerialSqlClient(base);
   await applyDdl(sqlClient, FRAMEWORK_SIM_SERVER_DDL);
-  await reconcileSqlite(domain.domainSchema, sqlClient, {
+  await new SqliteSchemaDatabaseMigration(domain.domainSchema, {
     ownership: 'declared-only',
-  }).reconcile();
+  }).migrate({ sqlClient, logger: domainMigrateLogger });
   return {
     sqlClient,
     close: async () => {

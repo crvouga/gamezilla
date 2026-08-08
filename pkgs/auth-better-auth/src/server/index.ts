@@ -1,3 +1,4 @@
+export { BetterAuthDatabaseMigration } from './better-auth-database-migration';
 export {
   type BetterAuthInstance,
   type CreateBetterAuthConfig,

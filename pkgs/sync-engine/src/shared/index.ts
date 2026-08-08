@@ -62,6 +62,7 @@ export {
   FRAMEWORK_TOPIC_MAP,
   withFrameworkTopicMap,
 } from './framework-topic-map';
+export { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
 export {
   defineTopicMap,
   type TopicMap,

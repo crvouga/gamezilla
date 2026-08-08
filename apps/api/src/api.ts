@@ -180,7 +180,9 @@ function handleMisroutedSsoCallback(
   if (url.pathname !== '/sso-callback') return null;
   if (request.method !== 'GET' && request.method !== 'HEAD') return null;
   const apiUrl =
-    readOptionalApiUrlOverride(env) ?? env.API_URL?.trim() ?? 'http://localhost:8788';
+    readOptionalApiUrlOverride(env) ??
+    env.API_URL?.trim() ??
+    'http://localhost:8788';
   const webOrigin = resolveWebClientOrigin(apiUrl);
   const dest = new URL(`/sso-callback${url.search}`, `${webOrigin}/`);
   return Response.redirect(dest.toString(), 302);

@@ -47,6 +47,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/inbox": "workspace:*",
@@ -622,6 +623,7 @@
         "@better-auth/expo": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "better-auth": "catalog:",
         "expo-secure-store": "catalog:",
         "expo-web-browser": "catalog:",
@@ -723,12 +725,27 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/db-migrate": {
+      "name": "@pkgs/db-migrate",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/db-schema": {
       "name": "@pkgs/db-schema",
       "version": "0.0.0",
       "dependencies": {
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
       },
@@ -759,6 +776,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -807,6 +825,7 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -843,6 +862,7 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -897,6 +917,7 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -1172,6 +1193,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "expo-sqlite": "catalog:",
@@ -1216,6 +1238,7 @@
       "dependencies": {
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
@@ -2407,6 +2430,8 @@
     "@pkgs/collab-ui": ["@pkgs/collab-ui@workspace:pkgs/collab-ui"],
 
     "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
+
+    "@pkgs/db-migrate": ["@pkgs/db-migrate@workspace:pkgs/db-migrate"],
 
     "@pkgs/db-schema": ["@pkgs/db-schema@workspace:pkgs/db-schema"],
 

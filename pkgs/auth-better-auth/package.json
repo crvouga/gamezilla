@@ -22,6 +22,7 @@
     "@better-auth/expo": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "better-auth": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",

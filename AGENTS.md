@@ -86,6 +86,10 @@ Local dev and CI use **hosted dev Postgres** only — there is no embedded/local
 - **`bun run db:wipe:dev`** — secrets env `dev` only: `DROP SCHEMA public CASCADE`, then remigrate. Production blocked by fail-closed Tiger guards (no confirm flag).
 - **Production** — only `bun run infra` sets `SECRETS_ENV=prd`; deploy runs `db:migrate` against secrets env `prd` `DATABASE_URL`.
 
+### Database migrations (`@pkgs/db-migrate`)
+
+Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@apps/api` `runPostgresMigrations` composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot).
+
 ### Database safety (Tiger policy)
 
 Non-deploy contexts must never reach production Postgres. Guards live in `@libs/infra/shared/database-url-policy`:
@@ -149,7 +153,8 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/db` — domain schema via `defineSchema` (`app-schema.ts`) reconciled by `@pkgs/db-schema` on Postgres migrate and local SQLite open; sync topics. Framework tables (`_mutations`, `write_rejections`, …) are owned by `@pkgs/sync-engine` (`FRAMEWORK_SERVER_DDL` / `applyFrameworkServerDdl`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
+- `@libs/db` — domain schema via `defineSchema` (`app-schema.ts`) applied by `PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` on Postgres migrate and local SQLite open; sync topics. Framework tables (`_mutations`, `write_rejections`, …) are owned by `@pkgs/sync-engine` (`SyncEngineDatabaseMigration` / `FRAMEWORK_SERVER_DDL`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
+
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
 - `@libs/client-config` — server-pushed runtime config (singleton `clientConfig` entity): shared entity defs, server `POST /client-config/refresh` route, client cards / screens, and `dev-refresh-client-config.ts`.

@@ -1,20 +1,26 @@
 /**
- * Canonical Postgres migration order: ensure schema → framework DDL →
- * domain reconcile → Better Auth DDL → purge Clerk links → kv / entity_store.
+ * Canonical Postgres migration order: compose {@link DatabaseMigration}
+ * units (ensure schema → advisory-locked framework/domain/kv/entity_store →
+ * Better Auth → purge Clerk links).
  */
 
 import { appSchema } from '@libs/db/shared/app-schema';
-import { runBetterAuthMigrations } from '@pkgs/auth-better-auth/server';
-import { postgres } from '@pkgs/db-schema/postgres';
-import { EntityStoreImplPostgres } from '@pkgs/entity-store/impl-postgres';
-import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
+import { BetterAuthDatabaseMigration } from '@pkgs/auth-better-auth/server';
+import {
+  ComposedDatabaseMigration,
+  PostgresAdvisoryLockedTransactionMigration,
+} from '@pkgs/db-migrate';
+import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
+
+import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
+import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql } from '@pkgs/sql';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
-import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import { EnsurePostgresSchemaMigration } from '@pkgs/sql-client/postgres/ensure-postgres-schema-migration';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
-import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared';
+import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
 /**
  * Session/transaction advisory lock for `api:migrate`. Serializes concurrent
@@ -35,13 +41,6 @@ export type RunPostgresMigrationsArgs = {
   betterAuthSecret: string;
 };
 
-function asPostgresClient(
-  client: SqlClient,
-  dbScope: PostgresDbScope
-): PostgresSqlClient {
-  return Object.assign(client, { dbScope });
-}
-
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
@@ -53,47 +52,34 @@ export async function runPostgresMigrations(
     betterAuthBaseURL,
     betterAuthSecret,
   } = args;
-  await ensurePostgresSchema(sqlClient, dbScope);
 
-  await sqlClient.transaction(async (tx) => {
-    // Wait unbounded for the migrate mutex (other CI migrates). DDL lock_timeout
-    // is set after the advisory lock is held (see below).
-    // (Do not set deadlock_timeout: hosted Postgres often denies it.)
-    await tx.run(raw("SET LOCAL lock_timeout = '0'"));
-    logger.info('acquiring migrate advisory lock');
-    await tx.run(
-      sql<void>`
-        SELECT pg_advisory_xact_lock(
-          ${API_MIGRATE_ADVISORY_LOCK_ID}::bigint
-        ) AS locked`
-    );
-    logger.info('migrate advisory lock acquired');
-    // Keep DDL lock waits bounded so a wedged backend fails into migrate-db
-    // retries rather than hanging the job indefinitely.
-    await tx.run(raw("SET LOCAL lock_timeout = '5min'"));
-    await applyFrameworkServerDdl({ sqlClient: tx, logger });
-    await postgres(appSchema, asPostgresClient(tx, dbScope), {
-      skipAdvisoryLock: true,
-      alreadyInTransaction: true,
-    }).reconcile();
-    logger.info('domain schema reconciled');
-    await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
-    await EntityStoreImplPostgres.migrateUp({ sqlClient: tx, logger });
-  });
+  const locked = new ComposedDatabaseMigration()
+    .register(new SyncEngineDatabaseMigration())
+    .register(
+      new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
+        skipAdvisoryLock: true,
+        alreadyInTransaction: true,
+      })
+    )
+    .register(new KvPostgresDatabaseMigration())
+    .register(new EntityStorePostgresDatabaseMigration());
 
-  // Better Auth’s migrator opens its own Kysely connection via the pool —
-  // run outside the domain transaction.
-  logger.info('applying Better Auth schema');
-  await runBetterAuthMigrations({
-    database: pool,
-    secret: betterAuthSecret,
-    baseURL: betterAuthBaseURL,
-  });
-  logger.info('Better Auth schema applied');
+  const databaseMigration = new ComposedDatabaseMigration()
+    .register(new EnsurePostgresSchemaMigration(dbScope))
+    .register(
+      new PostgresAdvisoryLockedTransactionMigration({
+        lockId: API_MIGRATE_ADVISORY_LOCK_ID,
+        inner: locked,
+      })
+    )
+    .register(
+      new BetterAuthDatabaseMigration({
+        database: pool,
+        secret: betterAuthSecret,
+        baseURL: betterAuthBaseURL,
+      })
+    )
+    .register(new PurgeClerkExternalAccountsMigration());
 
-  await sqlClient.run(sql<void>`
-    DELETE FROM external_accounts
-    WHERE provider = 'clerk'
-  `);
-  logger.info('purged clerk external_accounts rows (hard cutover)');
+  await databaseMigration.migrate({ sqlClient, logger });
 }

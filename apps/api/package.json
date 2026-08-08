@@ -41,6 +41,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/inbox": "workspace:*",

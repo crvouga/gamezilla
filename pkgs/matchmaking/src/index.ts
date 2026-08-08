@@ -65,6 +65,10 @@ export {
   type TickOptions,
   type TickResult,
 } from './matchmaking';
+export {
+  MatchmakingDatabaseMigration,
+  type MatchmakingDatabaseMigrationArgs,
+} from './matchmaking-database-migration';
 export type { MatchmakingSchema } from './migrate';
 export {
   DEFAULT_RADIUS_OPTIONS,

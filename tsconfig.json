@@ -97,6 +97,9 @@
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
       "@pkgs/db-schema": ["./pkgs/db-schema/src/index.ts"],
       "@pkgs/db-schema/*": ["./pkgs/db-schema/src/*"],
+      "@pkgs/db-migrate": ["./pkgs/db-migrate/src/index.ts"],
+      "@pkgs/db-migrate/*": ["./pkgs/db-migrate/src/*"],
+
       "@pkgs/sql": ["./pkgs/sql/src/index.ts"],
       "@pkgs/sql/*": ["./pkgs/sql/src/*"],
       "@pkgs/sql-map": ["./pkgs/sql-map/src/index.ts"],
@@ -214,7 +217,9 @@
     "pkgs/colors/src/**/*.ts",
     "pkgs/uuid/src/**/*.ts",
     "pkgs/db-schema/src/**/*.ts",
+    "pkgs/db-migrate/src/**/*.ts",
     "pkgs/sql/src/**/*.ts",
+
     "pkgs/sql/scripts/**/*.ts",
     "pkgs/sql-map/src/**/*.ts",
     "pkgs/pubsub/src/**/*.ts",

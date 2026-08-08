@@ -20,7 +20,10 @@ export function exposeBearerFromSessionCookie(): BetterAuthPlugin {
           matcher: () => true,
           handler: createAuthMiddleware(async (ctx) => {
             if (ctx.context.responseHeaders?.get('set-auth-token')) return;
-            if (ctx.context.session === null || ctx.context.session === undefined) {
+            if (
+              ctx.context.session === null ||
+              ctx.context.session === undefined
+            ) {
               return;
             }
             const cookieName = ctx.context.authCookies.sessionToken.name;

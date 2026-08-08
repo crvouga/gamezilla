@@ -14,6 +14,7 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",

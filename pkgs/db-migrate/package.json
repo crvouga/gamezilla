@@ -1,0 +1,27 @@
+{
+  "name": "@pkgs/db-migrate",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

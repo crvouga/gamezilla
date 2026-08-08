@@ -21,6 +21,7 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",

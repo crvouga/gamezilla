@@ -1,7 +1,13 @@
 import type { Schema } from '@pkgs/db-schema';
-import { sqlite } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+
+const domainMigrateLogger = createLogger({
+  name: 'local-schema-migrate',
+  level: 'silent',
+});
 
 import {
   ensureFrameworkSchema,
@@ -17,7 +23,7 @@ const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 export type LocalDomainSchema = {
-  /** Declarative domain schema reconciled via `@pkgs/db-schema/sqlite`. */
+  /** Declarative domain schema applied via `SqliteSchemaDatabaseMigration`. */
   readonly domainSchema: Schema;
   /** Domain table names wiped on CACHE clear / epoch bump. */
   readonly cacheTableNames: readonly string[];
@@ -65,12 +71,12 @@ async function ensureDomainTables(
   schema: LocalDomainSchema
 ): Promise<void> {
   try {
-    await sqlite(schema.domainSchema, db, {
+    await new SqliteSchemaDatabaseMigration(schema.domainSchema, {
       ownership: 'declared-only',
-    }).reconcile();
+    }).migrate({ sqlClient: db, logger: domainMigrateLogger });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`ensureDomainTables/reconcile: ${detail}`, {
+    throw new Error(`ensureDomainTables/migrate: ${detail}`, {
       cause: error,
     });
   }
