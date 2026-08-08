@@ -27,6 +27,7 @@
     "check:secrets": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-secrets.ts",
     "check:secrets:validate": "bun run libs/infra/src/bin/check-secrets.ts",
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
+    "chess:puzzles:export-load": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:audit": "bun run tools/scripts/ci-audit.ts",
     "ci:channel-exhaustiveness": "bun run tools/scripts/check-channel-exhaustiveness.ts",

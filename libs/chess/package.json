@@ -17,6 +17,7 @@
     ]
   },
   "scripts": {
+    "export:puzzles-load": "bun run scripts/export-chess-puzzles-load.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
@@ -33,6 +34,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/collab": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
@@ -40,6 +42,7 @@
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

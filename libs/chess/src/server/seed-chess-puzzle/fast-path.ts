@@ -6,7 +6,7 @@ import { raw, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PuzzleSeedReporter } from './reporter';
-import type { PuzzleBatchEntry } from './row';
+import type { PuzzleBatchEntry, PuzzleTableRow } from './row';
 
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
   return sql<void>`
@@ -126,8 +126,22 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, ms));
 }
 
-function buildInsertRows(state: SeedStats): readonly Record<string, unknown>[] {
-  return state.batch.map((b) => ({ ...b.row }));
+function buildInsertRows(state: SeedStats): readonly PuzzleTableRow[] {
+  return state.batch.map((b) => b.row);
+}
+
+/** Bulk insert puzzle rows; returns accepted row count (`ON CONFLICT DO NOTHING`). */
+export async function insertPuzzleTableRows(
+  db: SqlClient,
+  rows: readonly PuzzleTableRow[]
+): Promise<number> {
+  if (rows.length === 0) return 0;
+  let rowChanges = 0;
+  await db.transaction(async (tx) => {
+    const res = await tx.run(insertPuzzlesBatchQuery(JSON.stringify(rows)));
+    rowChanges = res.changes;
+  });
+  return rowChanges;
 }
 
 export async function flushPuzzleBatchFast(args: {
@@ -139,13 +153,7 @@ export async function flushPuzzleBatchFast(args: {
   if (state.batch.length === 0) return;
   const chunkStart = performance.now();
   const insertRows = buildInsertRows(state);
-  let rowChanges = 0;
-  await db.transaction(async (tx) => {
-    const res = await tx.run(
-      insertPuzzlesBatchQuery(JSON.stringify(insertRows))
-    );
-    rowChanges = res.changes;
-  });
+  const rowChanges = await insertPuzzleTableRows(db, insertRows);
   state.rowsInserted += rowChanges;
   state.batchesFlushed += 1;
   state.batch.length = 0;

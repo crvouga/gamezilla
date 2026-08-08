@@ -47,6 +47,13 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnvForTooling'],
   },
   {
+    file: 'libs/chess/src/server/seed-chess-puzzle/export-chess-puzzles-load.ts',
+    mustInclude: [
+      'assertDevSecretsEnv',
+      'assertDatabaseUrlAllowedForSecretsEnvForTooling',
+    ],
+  },
+  {
     file: 'libs/integration-test/src/preview-stack-env.ts',
     mustInclude: ['assertDevSecretsEnv', 'LOCAL_POSTGRES_DATABASE_URL'],
   },

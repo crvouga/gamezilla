@@ -13,8 +13,10 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/chess": "workspace:*",
     "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

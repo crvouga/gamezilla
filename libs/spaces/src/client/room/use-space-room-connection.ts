@@ -117,6 +117,8 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
   void (async (): Promise<void> => {
     let opened: CreateSpaceRoomResult;
     try {
+      // Local hydrate first; WS may still be connecting. Commit as soon as
+      // createSpaceRoom resolves so Games/Chess dispatch is not a no-op.
       opened = await createSpaceRoom({
         spaceId: args.bootstrap.spaceId,
         apiUrl: args.configService.getApiUrl(),
@@ -128,9 +130,8 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         getSessionToken: args.getSessionToken,
       });
     } catch {
-      // Previously this rejection left `openingKeyRef` latched and the event
-      // log stuck on reconnecting with no socket. Clear so a later bootstrap
-      // key change (or remount) can try again.
+      // Room.open is hardened to avoid this; if it still throws, clear the
+      // latch so a later bootstrap key change / remount can retry.
       clearOpeningKey(args);
       return;
     }

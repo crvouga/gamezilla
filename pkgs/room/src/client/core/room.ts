@@ -98,6 +98,12 @@ export class Room<
   E extends RoomEvent,
   Identity,
 > {
+  /**
+   * Hydrate local cache, attach transport, and kick off connect. The returned
+   * client is usable offline immediately (optimistic `dispatch` + durable
+   * queue); WebSocket open / welcome are background. A throwing `connect()`
+   * must not prevent returning the Room — offline-first UI depends on it.
+   */
   static async open<
     S2 extends RoomState,
     C2 extends RoomCommandPayload,
@@ -110,11 +116,21 @@ export class Room<
     } catch {
       // Corrupt / incompatible local cache (e.g. event shape drift). Server is
       // authoritative — wipe the recovery blob and open empty so sync can rebuild.
-      await wipeLocalRoomCache(config.storage);
-      await r.hydrateLocal();
+      try {
+        await wipeLocalRoomCache(config.storage);
+        await r.hydrateLocal();
+      } catch {
+        // Storage still unusable — start empty in memory. Welcome will rebuild.
+        r.resetToEmptyLocalState();
+      }
     }
     r.attachTransport();
-    await Promise.resolve(config.transport.connect());
+    try {
+      await Promise.resolve(config.transport.connect());
+    } catch {
+      // Stay offline; transport reconnect / a later probe can open the socket.
+      // Domain UI must keep working against the hydrated local Room.
+    }
     return r;
   }
 
@@ -213,6 +229,17 @@ export class Room<
   private reportError(err: RoomError | Error): void {
     this.lastError = err;
     this.onError?.(err);
+  }
+
+  /** In-memory empty open when local storage hydrate is unrecoverable. */
+  private resetToEmptyLocalState(): void {
+    this.committedState = this.module.initialState();
+    this.committedEntries = [];
+    this.lastSeq = 0;
+    this.pendingQueue = [];
+    this.optimistic.clear();
+    this.synced = false;
+    this.snapshot = this.computeSnapshot();
   }
 
   private async hydrateLocal(): Promise<void> {

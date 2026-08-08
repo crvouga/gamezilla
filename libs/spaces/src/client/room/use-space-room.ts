@@ -22,7 +22,11 @@ import { useSpaceRoomConnection } from './use-space-room-connection';
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 export type SpaceRoomUiState = {
-  /** Open room client for registry-backed hooks; `null` while connecting. */
+  /**
+   * Open room client for registry-backed hooks. `null` only before local
+   * hydrate finishes (or if open failed hard). Not tied to WebSocket /
+   * Connecting… — once set, optimistic dispatch works offline.
+   */
   room: SpaceRoom | null;
   transport: WebSocketRoomTransport | null;
   isSynced: boolean;

@@ -49,6 +49,11 @@ export type CreateSpaceRoomResult = {
   transport: WebSocketRoomTransport;
 };
 
+/**
+ * Opens a space room client for local-first UI. Returns after local hydrate;
+ * the WebSocket may still be connecting (or offline). Callers must register
+ * the Room immediately so optimistic commands work while Connecting… shows.
+ */
 export async function createSpaceRoom(
   params: CreateSpaceRoomParams
 ): Promise<CreateSpaceRoomResult> {
@@ -78,6 +83,8 @@ export async function createSpaceRoom(
   const { committed, queue } = keyValueRoomClientKeywords(spaceId);
   const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
 
+  // Room.open is offline-first: hydrate + attach, connect in background.
+  // Connect failures do not reject — the Room stays usable locally.
   const room = await Room.open({
     topic,
     module,
