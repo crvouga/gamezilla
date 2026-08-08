@@ -1,7 +1,8 @@
 /**
  * Programmatic app Postgres migrate — owned by `@apps/api/db`.
- * Callers ( `@apps/postgres`, api preview/dev, wipe, deploy CLI) import this
- * instead of spawning a package script.
+ * Same-package callers (api preview/dev, wipe) import this in-process.
+ * Cross-app callers (`@apps/postgres` boot, root `db:migrate`, infra) shell
+ * out to `migrate-cli.ts` — apps must not import other `@apps/*` packages.
  */
 import { join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';

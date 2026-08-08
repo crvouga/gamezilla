@@ -1,16 +1,16 @@
 /**
- * Idempotent bootstrap for `@apps/postgres`: ensure data dir + initdb when empty.
- * The server itself is started by `dev` / `preview`.
+ * Idempotent bootstrap for `@apps/postgres`: ensure data dir + initdb when empty
+ * or incomplete. The server itself is started by `dev` / `preview`.
  */
 import {
-  clusterAlreadyInitialised,
+  clusterLooksHealthy,
   createEmbeddedPostgres,
   DATA_DIR,
   ensureClusterInitialised,
 } from './cluster';
 
 const pg = createEmbeddedPostgres();
-if (clusterAlreadyInitialised()) {
+if (clusterLooksHealthy()) {
   process.stdout.write(
     `[postgres] setup complete (existing cluster) ${DATA_DIR}\n`
   );

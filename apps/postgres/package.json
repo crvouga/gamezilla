@@ -13,7 +13,6 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@apps/api": "workspace:*",
     "@pkgs/os": "workspace:*",
     "embedded-postgres": "catalog:"
   },

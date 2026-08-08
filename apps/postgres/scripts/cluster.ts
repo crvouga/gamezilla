@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import EmbeddedPostgres from 'embedded-postgres';
 import {
@@ -12,6 +12,16 @@ import {
 export const APP_DIR = join(import.meta.dirname, '..');
 export const DATA_DIR = join(APP_DIR, 'data');
 export const DATABASE_DIR = join(DATA_DIR, 'db');
+
+/** Subdirs every initdb cluster must have (detect interrupted / wiped clusters). */
+const REQUIRED_CLUSTER_DIRS = [
+  'base',
+  'global',
+  'pg_notify',
+  'pg_tblspc',
+  'pg_wal',
+  'pg_xact',
+] as const;
 
 export function createEmbeddedPostgres(): EmbeddedPostgres {
   mkdirSync(DATA_DIR, { recursive: true });
@@ -40,19 +50,49 @@ export function createEmbeddedPostgres(): EmbeddedPostgres {
   });
 }
 
-/** True when initdb has already produced a cluster in {@link DATABASE_DIR}. */
-export function clusterAlreadyInitialised(): boolean {
-  return existsSync(join(DATABASE_DIR, 'PG_VERSION'));
+/** True when initdb has produced a usable cluster under {@link DATABASE_DIR}. */
+export function clusterLooksHealthy(): boolean {
+  if (!existsSync(join(DATABASE_DIR, 'PG_VERSION'))) return false;
+  for (const dir of REQUIRED_CLUSTER_DIRS) {
+    if (!existsSync(join(DATABASE_DIR, dir))) return false;
+  }
+  return true;
 }
 
+/** @deprecated use {@link clusterLooksHealthy} */
+export function clusterAlreadyInitialised(): boolean {
+  return clusterLooksHealthy();
+}
+
+export function wipeClusterData(): void {
+  if (!existsSync(DATABASE_DIR)) return;
+  process.stdout.write(
+    `[postgres] wiping incomplete cluster at ${DATABASE_DIR}\n`
+  );
+  rmSync(DATABASE_DIR, { recursive: true, force: true });
+}
+
+/**
+ * Ensure a healthy cluster exists. Wipes and re-runs initdb when PG_VERSION
+ * is present but required dirs (e.g. pg_notify) are missing — common after a
+ * crashed first boot or partial data wipe.
+ */
 export async function ensureClusterInitialised(
   pg: EmbeddedPostgres
 ): Promise<void> {
-  if (clusterAlreadyInitialised()) {
+  if (clusterLooksHealthy()) {
     return;
+  }
+  if (existsSync(join(DATABASE_DIR, 'PG_VERSION'))) {
+    wipeClusterData();
   }
   process.stdout.write('[postgres] initialising cluster…\n');
   await pg.initialise();
+  if (!clusterLooksHealthy()) {
+    throw new Error(
+      `[postgres] initdb finished but cluster is still incomplete under ${DATABASE_DIR}`
+    );
+  }
 }
 
 export async function ensureAppDatabase(pg: EmbeddedPostgres): Promise<void> {
@@ -69,6 +109,18 @@ export async function ensureAppDatabase(pg: EmbeddedPostgres): Promise<void> {
       return;
     }
     throw error;
+  }
+}
+
+export function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.length > 0 ? error.message : error.name;
+  }
+  if (typeof error === 'string') return error;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
   }
 }
 

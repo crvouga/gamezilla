@@ -1,9 +1,13 @@
-import { createApiRpcClient } from '@apps/api/rpc';
 import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-servers';
+import { createTypedApiRpcClient } from '@libs/client-config/shared/typed-api-rpc-client';
 
 /**
  * Typed Hono RPC client for the API Worker. Base URL must be the API
- * API origin (no legacy path suffix).
+ * origin (no legacy path suffix).
+ *
+ * Delegates to `@libs/client-config` so the client has no value/`package.json`
+ * edge on `@apps/api` or a direct `hono` import (Metro resolves `hono/client`
+ * from client-config's own dependency tree).
  */
 export function createApiClient(apiUrl: string) {
   if (typeof apiUrl !== 'string' || apiUrl.length === 0) {
@@ -22,7 +26,7 @@ export function createApiClient(apiUrl: string) {
     parsed.origin,
     'forbid-prod-in-expo-dev-bundle'
   );
-  return createApiRpcClient(parsed.toString());
+  return createTypedApiRpcClient(parsed.toString());
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;

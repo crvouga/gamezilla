@@ -89,7 +89,7 @@ Non-production (`SECRETS_ENV=dev`) uses **`@apps/postgres`** (embedded Postgres 
 
 ### Database migrations (`@pkgs/db-migrate`)
 
-Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@apps/api/db` (`runPostgresMigrations` / `migratePostgresApp`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot). Callers import `@apps/api/db/migrate` in-process — do not spawn a package `migrate` script.
+Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@apps/api/db` (`runPostgresMigrations` / `migratePostgresApp`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot). Same-package api callers import `migratePostgresApp` in-process; cross-app callers (`@apps/postgres` boot, root `db:migrate`, infra) shell out to `apps/api/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
 ### Database safety (Tiger policy)
 
@@ -190,7 +190,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 **Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`:
 
 ```text
-apps  →  libs, pkgs   (apps compose anything)
+apps  →  libs, pkgs   (never other @apps/* packages)
 libs  →  pkgs only    (libs may not import apps)
 pkgs  →  pkgs only    (leaf tier: reusable, app-agnostic)
 ```
@@ -199,6 +199,7 @@ pkgs  →  pkgs only    (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
+- `@apps/<name>` must not import or depend on another `@apps/<other>` (`ci:tier-imports` apps-not-apps). Same-package deep imports and type-only `import type` are fine.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.

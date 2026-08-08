@@ -1,4 +1,4 @@
-import { createTypedApiRpcClient } from '../src/typed-api-rpc-client';
+import { createTypedApiRpcClient } from '../src/shared/typed-api-rpc-client';
 
 const API_URL = 'http://localhost:8788';
 const MAX_WAIT_MS = 60_000;
