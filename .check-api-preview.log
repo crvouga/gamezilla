@@ -44,3 +44,8 @@
 @apps/api preview:serve: env.EMQX_API_SECRET ("(hidden)")                        Environment Variable      local
 @apps/api preview:serve: env.EMQX_JWT_SECRET ("(hidden)")                        Environment Variable      local
 @apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Starting local server...
+@apps/api preview:serve: [wrangler:info] Ready on http://localhost:8788
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1146ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (7ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
