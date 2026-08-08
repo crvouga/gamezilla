@@ -76,6 +76,7 @@ function parseEntityStoreData(raw: unknown): Record<string, unknown> | null {
 
 function readOAuthProviderUserId(oauth: OAuthAccountJson): string {
   return (
+    readString(oauth['accountId']) ??
     readString(oauth['provider_user_id']) ??
     readString(oauth['providerUserId']) ??
     readString(oauth['id']) ??
@@ -83,38 +84,34 @@ function readOAuthProviderUserId(oauth: OAuthAccountJson): string {
   );
 }
 
-function readOAuthEmail(oauth: OAuthAccountJson): string | null {
+function readOAuthEmail(
+  oauth: OAuthAccountJson,
+  snapshotEmail: string | null
+): string | null {
   return (
-    readString(oauth['email_address']) ?? readString(oauth['emailAddress'])
+    readString(oauth['email']) ??
+    readString(oauth['email_address']) ??
+    readString(oauth['emailAddress']) ??
+    snapshotEmail
   );
 }
 
 function readOAuthLinkedAt(oauth: OAuthAccountJson, fallback: string): string {
-  const verification = oauth['verification'];
-  if (verification !== null && typeof verification === 'object') {
-    const status = readString((verification as OAuthAccountJson)['status']);
-    const verifiedAt = readString(
-      (verification as OAuthAccountJson)['verified_at']
-    );
-    if (status === 'verified' && verifiedAt !== null) {
-      const ms = Number(verifiedAt);
-      if (!Number.isNaN(ms)) {
-        return new Date(ms).toISOString();
-      }
-    }
+  const createdAt = oauth['createdAt'];
+  if (createdAt instanceof Date) {
+    return createdAt.toISOString();
   }
-  const approvedAt = readString(oauth['approved_at']);
-  if (approvedAt !== null) {
-    const ms = Number(approvedAt);
-    if (!Number.isNaN(ms)) {
-      return new Date(ms).toISOString();
-    }
+  const asString = readString(createdAt);
+  if (asString !== null) {
+    const ms = Date.parse(asString);
+    if (!Number.isNaN(ms)) return new Date(ms).toISOString();
   }
   return fallback;
 }
 
 function readOAuthAccounts(data: Record<string, unknown>): OAuthAccountJson[] {
-  const raw = data['external_accounts'] ?? data['externalAccounts'];
+  const raw =
+    data['accounts'] ?? data['external_accounts'] ?? data['externalAccounts'];
   if (!Array.isArray(raw)) return [];
   return raw.filter(
     (entry): entry is OAuthAccountJson =>
@@ -144,9 +141,11 @@ function buildOAuthProviderRows(args: {
   readonly snapshot: Record<string, unknown>;
   readonly entityCreatedAt: string;
 }): LinkedProvider[] {
+  const snapshotEmail = readString(args.snapshot['email']);
   const rows: LinkedProvider[] = [];
   for (const oauth of readOAuthAccounts(args.snapshot)) {
-    const provider = readString(oauth['provider']);
+    const provider =
+      readString(oauth['providerId']) ?? readString(oauth['provider']);
     const oauthId = readString(oauth['id']);
     if (provider === null || oauthId === null) continue;
     const providerUserId = readOAuthProviderUserId(oauth);
@@ -156,7 +155,7 @@ function buildOAuthProviderRows(args: {
       accountId: args.accountId,
       provider,
       providerUserId,
-      email: readOAuthEmail(oauth),
+      email: readOAuthEmail(oauth, snapshotEmail),
       linkedAt: readOAuthLinkedAt(oauth, args.entityCreatedAt),
     });
   }
@@ -174,7 +173,8 @@ export function buildLinkedProviders(
     sources.entityCreatedAt ??
     primaryAuth.createdAt ??
     new Date(0).toISOString();
-  const primaryAuthEmail = parseMetadataEmail(primaryAuth.metadata);
+  const primaryAuthEmail =
+    parseMetadataEmail(primaryAuth.metadata) ?? readString(snapshot['email']);
 
   return [
     buildPrimaryAuthProviderRow({

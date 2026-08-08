@@ -7,7 +7,7 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
 
-const PRIMARY_AUTH_PROVIDER = 'clerk';
+const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
 function makeFakeAuthServer(args: {
   providerLabel?: string;
@@ -70,7 +70,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   `);
 }
 
-async function readClerkExternalAccount(
+async function readPrimaryAuthExternalAccount(
   db: SqlClient,
   accountId: string
 ): Promise<
@@ -121,12 +121,10 @@ const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_ID = '22222222-2222-4222-8222-222222222222';
 const EXTERNAL_USER_ID = 'user_external_1';
 
-const CLERK_SNAPSHOT = {
+const AUTH_SNAPSHOT = {
   id: EXTERNAL_USER_ID,
-  primary_email: 'alice@example.com',
-  email_addresses: [{ id: 'ea_1', email_address: 'alice@example.com' }],
-  primary_email_address_id: 'ea_1',
-  external_accounts: [],
+  email: 'alice@example.com',
+  accounts: [],
 };
 
 const DEVICE_ATTRS: Record<string, string | null> = {
@@ -149,7 +147,7 @@ describe('refreshAuthSnapshot', () => {
     await sqlClient.disconnect();
   });
 
-  test('mirrors clerk external account and binds device on first run', async () => {
+  test('mirrors primary auth external account and binds device on first run', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -157,7 +155,7 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
     await refreshAuthSnapshot({
@@ -169,9 +167,9 @@ describe('refreshAuthSnapshot', () => {
       deviceAttributes: DEVICE_ATTRS,
     });
 
-    const clerk = await readClerkExternalAccount(sqlClient, ACCOUNT_ID);
-    expect(clerk?.external_id).toBe(EXTERNAL_USER_ID);
-    const metadata = JSON.parse(clerk!.metadata!) as Record<string, unknown>;
+    const primary = await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID);
+    expect(primary?.external_id).toBe(EXTERNAL_USER_ID);
+    const metadata = JSON.parse(primary!.metadata!) as Record<string, unknown>;
     expect(metadata['email']).toBe('alice@example.com');
     expect(await readDeviceUserId(sqlClient, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect((await readDevice(sqlClient, DEVICE_ID))?.platform).toBe('web');
@@ -185,7 +183,7 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
     const inputs = {
@@ -209,7 +207,7 @@ describe('refreshAuthSnapshot', () => {
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();
   });
 
-  test('updates clerk metadata without removing other external_account rows', async () => {
+  test('updates primary auth metadata without removing other external_account rows', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -217,7 +215,7 @@ describe('refreshAuthSnapshot', () => {
         email: null,
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
     const now = new Date().toISOString();
@@ -252,13 +250,13 @@ describe('refreshAuthSnapshot', () => {
     `);
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
-    const clerkRows = await sqlClient.query(sql<{ metadata: string }>`
+    const primaryRows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
       FROM external_accounts
       WHERE user_id = ${ACCOUNT_ID}
         AND provider = ${PRIMARY_AUTH_PROVIDER}
     `);
-    const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<
+    const metadata = JSON.parse(primaryRows[0]!.metadata) as Record<
       string,
       unknown
     >;
@@ -281,7 +279,7 @@ describe('refreshAuthSnapshot', () => {
     });
 
     expect(
-      await readClerkExternalAccount(sqlClient, ACCOUNT_ID)
+      await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID)
     ).toBeUndefined();
     expect(await readDeviceUserId(sqlClient, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();

@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { PROJECT_CONFIG } from '../../project-config';
-import { resolveAuthPublishableKeyForClientBuild } from '../lib/client-build-env';
 import {
   deleteLegacyWorkerScripts,
   deleteWorkerByName,
@@ -71,7 +70,6 @@ async function buildClientWeb(
     EXPO_PUBLIC_API_URL: apiUrl,
     EXPO_PUBLIC_COMMIT_HASH: commitHash,
     EXPO_PUBLIC_COMMIT_DATE: commitDate,
-    EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY: resolveAuthPublishableKeyForClientBuild(),
   };
 
   await runAsync(platform, 'bun', ['run', 'check:production-env'], {

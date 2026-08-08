@@ -4,7 +4,7 @@ import type { AuthPort } from './auth-port';
 
 /**
  * Per-target handle for driver-agnostic scenarios.
- * The web binding wires PlaywrightDriver + Clerk; future in-process /
+ * The web binding wires PlaywrightDriver + Better Auth; future in-process /
  * native bindings construct the same shape.
  */
 export type TestApp = {

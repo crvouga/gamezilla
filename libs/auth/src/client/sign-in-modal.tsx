@@ -84,7 +84,10 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     onClose();
   }, [dismiss, onClose]);
 
-  const surfaceClose = phase === 'loading' ? () => undefined : dismissModal;
+  // Allow dismiss while loading if we resumed a stuck pending marker (user
+  // can close instead of waiting for OAuth that never finishes).
+  const surfaceClose =
+    phase === 'loading' && !resumePending ? () => undefined : dismissModal;
 
   return (
     <ResponsiveSurface

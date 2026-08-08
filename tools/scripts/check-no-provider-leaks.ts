@@ -1,28 +1,46 @@
 /**
- * Ensures Clerk SDK and `@pkgs/auth-clerk` stay behind the auth adapter boundary.
+ * Ensures Better Auth SDK and `@pkgs/auth-better-auth` stay behind the auth
+ * adapter boundary.
  *
- * `@clerk/*` imports: only in pkgs/auth-clerk and libs/integration-test.
- * `@pkgs/auth-clerk` imports: only in the adapter itself and app composition roots.
+ * `better-auth` / `@better-auth/*` imports: only in pkgs/auth-better-auth and
+ * libs/integration-test.
+ * `@pkgs/auth-better-auth` imports: only in the adapter itself and app
+ * composition roots.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 
-const CLERK_SDK_ALLOW_PREFIXES = ['pkgs/auth-clerk/', 'libs/integration-test/'];
+const BETTER_AUTH_SDK_ALLOW_PREFIXES = [
+  'pkgs/auth-better-auth/',
+  'libs/integration-test/',
+];
 
-const AUTH_CLERK_PKG_ALLOW_PREFIXES = ['pkgs/auth-clerk/'];
+const AUTH_BETTER_AUTH_PKG_ALLOW_PREFIXES = ['pkgs/auth-better-auth/'];
 
-const AUTH_CLERK_PKG_ALLOW_FILES = new Set([
+const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/client/src/providers/app-auth-provider.tsx',
   'apps/api/src/api.ts',
+  'apps/api/src/app/request-db-middleware.ts',
+  'apps/api/src/app/create-app.ts',
+  'apps/api/src/auth/better-auth-routes.ts',
+  'apps/api/src/config/better-auth-boot.ts',
+  'apps/api/src/migrations/run-postgres-migrations.ts',
+  'apps/api/src/request-scope.ts',
+  'apps/api/scripts/migrate-db.ts',
+  'apps/api/scripts/wipe-dev-db.ts',
+  'tools/scripts/run-postgres-migrations-secrets.ts',
 ]);
 
-const CLERK_SDK_IMPORT_RE =
-  /from\s+['"]@clerk\/[^'"]+['"]|require\(\s*['"]@clerk\/|import\(\s*['"]@clerk\//;
+const BETTER_AUTH_SDK_IMPORT_RE =
+  /from\s+['"]better-auth(?:\/[^'"]*)?['"]|from\s+['"]@better-auth\/[^'"]+['"]|require\(\s*['"]better-auth|require\(\s*['"]@better-auth\/|import\(\s*['"]better-auth|import\(\s*['"]@better-auth\//;
 
-const AUTH_CLERK_PKG_IMPORT_RE =
-  /from\s+['"]@pkgs\/auth-clerk(?:\/[^'"]*)?['"]|require\(\s*['"]@pkgs\/auth-clerk|import\(\s*['"]@pkgs\/auth-clerk/;
+const AUTH_BETTER_AUTH_PKG_IMPORT_RE =
+  /from\s+['"]@pkgs\/auth-better-auth(?:\/[^'"]*)?['"]|require\(\s*['"]@pkgs\/auth-better-auth|import\(\s*['"]@pkgs\/auth-better-auth/;
+
+const CLERK_IMPORT_RE =
+  /from\s+['"]@clerk\/[^'"]+['"]|require\(\s*['"]@clerk\/|import\(\s*['"]@clerk\/|from\s+['"]@pkgs\/auth-clerk/;
 
 const SKIP_DIR = new Set([
   'node_modules',
@@ -53,17 +71,17 @@ function startsWithAny(rel: string, prefixes: readonly string[]): boolean {
   return prefixes.some((prefix) => rel.startsWith(prefix));
 }
 
-function isClerkSdkAllowed(rel: string): boolean {
-  return startsWithAny(rel, CLERK_SDK_ALLOW_PREFIXES);
+function isBetterAuthSdkAllowed(rel: string): boolean {
+  return startsWithAny(rel, BETTER_AUTH_SDK_ALLOW_PREFIXES);
 }
 
-function isAuthClerkPkgAllowed(rel: string): boolean {
-  if (startsWithAny(rel, AUTH_CLERK_PKG_ALLOW_PREFIXES)) return true;
-  return AUTH_CLERK_PKG_ALLOW_FILES.has(rel);
+function isAuthBetterAuthPkgAllowed(rel: string): boolean {
+  if (startsWithAny(rel, AUTH_BETTER_AUTH_PKG_ALLOW_PREFIXES)) return true;
+  return AUTH_BETTER_AUTH_PKG_ALLOW_FILES.has(rel);
 }
 
 const files: string[] = [];
-for (const root of ['apps', 'libs', 'pkgs']) {
+for (const root of ['apps', 'libs', 'pkgs', 'tools']) {
   const abs = join(REPO_ROOT, root);
   try {
     if (!statSync(abs).isDirectory()) continue;
@@ -73,33 +91,53 @@ for (const root of ['apps', 'libs', 'pkgs']) {
   walk(abs, files);
 }
 
-const clerkSdkOffenders: string[] = [];
-const authClerkPkgOffenders: string[] = [];
+const betterAuthSdkOffenders: string[] = [];
+const authBetterAuthPkgOffenders: string[] = [];
+const clerkOffenders: string[] = [];
 
 for (const file of files) {
   const rel = relative(REPO_ROOT, file);
   const text = readFileSync(file, 'utf8');
-  if (!isClerkSdkAllowed(rel) && CLERK_SDK_IMPORT_RE.test(text)) {
-    clerkSdkOffenders.push(rel);
+  if (!isBetterAuthSdkAllowed(rel) && BETTER_AUTH_SDK_IMPORT_RE.test(text)) {
+    betterAuthSdkOffenders.push(rel);
   }
-  if (!isAuthClerkPkgAllowed(rel) && AUTH_CLERK_PKG_IMPORT_RE.test(text)) {
-    authClerkPkgOffenders.push(rel);
+  if (
+    !isAuthBetterAuthPkgAllowed(rel) &&
+    AUTH_BETTER_AUTH_PKG_IMPORT_RE.test(text)
+  ) {
+    authBetterAuthPkgOffenders.push(rel);
+  }
+  if (CLERK_IMPORT_RE.test(text)) {
+    clerkOffenders.push(rel);
   }
 }
 
-if (clerkSdkOffenders.length > 0 || authClerkPkgOffenders.length > 0) {
+if (
+  betterAuthSdkOffenders.length > 0 ||
+  authBetterAuthPkgOffenders.length > 0 ||
+  clerkOffenders.length > 0
+) {
   console.error('Provider leak check failed:\n');
-  if (clerkSdkOffenders.length > 0) {
+  if (clerkOffenders.length > 0) {
     console.error(
-      '@clerk/* imports must stay in pkgs/auth-clerk or libs/integration-test:\n' +
-        clerkSdkOffenders.map((f) => `  - ${f}`).join('\n')
+      'Clerk must be fully purged — remove @clerk/* / @pkgs/auth-clerk:\n' +
+        clerkOffenders.map((f) => `  - ${f}`).join('\n')
     );
   }
-  if (authClerkPkgOffenders.length > 0) {
-    if (clerkSdkOffenders.length > 0) console.error('');
+  if (betterAuthSdkOffenders.length > 0) {
+    if (clerkOffenders.length > 0) console.error('');
     console.error(
-      '@pkgs/auth-clerk imports must stay in the adapter or app composition roots:\n' +
-        authClerkPkgOffenders.map((f) => `  - ${f}`).join('\n')
+      'better-auth / @better-auth/* imports must stay in pkgs/auth-better-auth or libs/integration-test:\n' +
+        betterAuthSdkOffenders.map((f) => `  - ${f}`).join('\n')
+    );
+  }
+  if (authBetterAuthPkgOffenders.length > 0) {
+    if (clerkOffenders.length > 0 || betterAuthSdkOffenders.length > 0) {
+      console.error('');
+    }
+    console.error(
+      '@pkgs/auth-better-auth imports must stay in the adapter or allowlisted composition roots:\n' +
+        authBetterAuthPkgOffenders.map((f) => `  - ${f}`).join('\n')
     );
   }
   process.exit(1);

@@ -46,7 +46,7 @@ function put(
 
 /**
  * Best-effort device metadata for the current install, keyed by snake_case
- * column names matching `devices`. Sent to `POST /auth/refresh`, which merges
+ * column names matching `devices`. Sent to `POST /identity/refresh`, which merges
  * the record into the server row without field-name remapping.
  */
 export function collectDeviceSnapshot(): Record<string, string> {

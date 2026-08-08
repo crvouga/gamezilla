@@ -1,9 +1,10 @@
 /**
  * Canonical Postgres migration order: ensure schema → framework DDL →
- * domain reconcile → kv migrate → entity_store migrate.
+ * domain reconcile → Better Auth DDL → purge Clerk links → kv / entity_store.
  */
 
 import { appSchema } from '@libs/db/shared/app-schema';
+import { runBetterAuthMigrations } from '@pkgs/auth-better-auth/server';
 import { postgres } from '@pkgs/db-schema/postgres';
 import { EntityStoreImplPostgres } from '@pkgs/entity-store/impl-postgres';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
@@ -11,6 +12,7 @@ import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
+import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { applyFrameworkServerDdl } from '@pkgs/sync-engine/shared';
 
@@ -24,8 +26,13 @@ export const API_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
+  /** Pinned pool for Better Auth Kysely migrations (same TCP session). */
+  pool: Pool;
   logger: Logger;
   dbScope: PostgresDbScope;
+  /** Used as Better Auth baseURL during migrate (placeholder OK). */
+  betterAuthBaseURL: string;
+  betterAuthSecret: string;
 };
 
 function asPostgresClient(
@@ -38,7 +45,14 @@ function asPostgresClient(
 export async function runPostgresMigrations(
   args: RunPostgresMigrationsArgs
 ): Promise<void> {
-  const { sqlClient, logger, dbScope } = args;
+  const {
+    sqlClient,
+    pool,
+    logger,
+    dbScope,
+    betterAuthBaseURL,
+    betterAuthSecret,
+  } = args;
   await ensurePostgresSchema(sqlClient, dbScope);
 
   await sqlClient.transaction(async (tx) => {
@@ -66,4 +80,20 @@ export async function runPostgresMigrations(
     await KvImplPostgres.migrateUp({ sqlClient: tx, logger });
     await EntityStoreImplPostgres.migrateUp({ sqlClient: tx, logger });
   });
+
+  // Better Auth’s migrator opens its own Kysely connection via the pool —
+  // run outside the domain transaction.
+  logger.info('applying Better Auth schema');
+  await runBetterAuthMigrations({
+    database: pool,
+    secret: betterAuthSecret,
+    baseURL: betterAuthBaseURL,
+  });
+  logger.info('Better Auth schema applied');
+
+  await sqlClient.run(sql<void>`
+    DELETE FROM external_accounts
+    WHERE provider = 'clerk'
+  `);
+  logger.info('purged clerk external_accounts rows (hard cutover)');
 }

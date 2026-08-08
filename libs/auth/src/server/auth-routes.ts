@@ -15,7 +15,7 @@ type AnonEnsureBody = {
   forceNew: boolean;
 };
 
-/** Writable device metadata columns accepted by `POST /auth/refresh`. */
+/** Writable device metadata columns accepted by `POST /identity/refresh`. */
 const DEVICE_SNAPSHOT_COLUMNS = new Set([
   'platform',
   'os_name',
@@ -86,15 +86,15 @@ function requireBearerToken(header: string | null): string {
 }
 
 /**
- * Auth routes:
- * - `POST /auth/anon/ensure` — mint/bind anon `users` row for the install
- * - `POST /auth/refresh` — upgrade-or-switch on provider sign-in
+ * Domain identity routes (outside Better Auth’s `/api/auth/*` namespace):
+ * - `POST /identity/anon/ensure` — mint/bind anon `users` row for the install
+ * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
  */
 export function createAuthApiRoutes(deps?: {
   readonly onUserDomainWrite?: (userId: string) => void;
 }) {
   return new Hono<ApiHonoEnv<AuthContext>>()
-    .post('/auth/anon/ensure', async (c) => {
+    .post('/identity/anon/ensure', async (c) => {
       const sql = c.get('sqlClient');
       const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
@@ -114,7 +114,7 @@ export function createAuthApiRoutes(deps?: {
         200
       );
     })
-    .post('/auth/refresh', async (c) => {
+    .post('/identity/refresh', async (c) => {
       const sql = c.get('sqlClient');
       const authServer = c.get('authServer');
       const bearerToken = requireBearerToken(

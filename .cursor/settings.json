@@ -1,7 +1,3 @@
 {
-  "plugins": {
-    "clerk": {
-      "enabled": true
-    }
-  }
+  "plugins": {}
 }

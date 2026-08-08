@@ -39,8 +39,8 @@ async function migrateTables(db: SqlClient): Promise<void> {
 describe('external-accounts-sql', () => {
   let sqlClient: SqlClient;
   const userId = '11111111-1111-4111-8111-111111111111';
-  const primaryAuthProvider = 'clerk';
-  const clerkUserId = 'user_clerk_1';
+  const primaryAuthProvider = 'better-auth';
+  const externalUserId = 'user_ext_1';
 
   beforeEach(async () => {
     sqlClient = SqlClientImplBunSqlite.open(':memory:');
@@ -57,7 +57,7 @@ describe('external-accounts-sql', () => {
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
       metadata: { email: 'a@example.com' },
     });
 
@@ -65,17 +65,17 @@ describe('external-accounts-sql', () => {
       await findUserIdByProviderExternalId(
         sqlClient,
         primaryAuthProvider,
-        clerkUserId
+        externalUserId
       )
     ).toBe(userId);
     expect(
       await readExternalAccountId(sqlClient, userId, primaryAuthProvider)
-    ).toBe(clerkUserId);
+    ).toBe(externalUserId);
 
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
       metadata: { email: 'b@example.com' },
     });
 
@@ -83,7 +83,7 @@ describe('external-accounts-sql', () => {
       SELECT metadata
       FROM external_accounts
       WHERE provider = ${primaryAuthProvider}
-        AND external_id = ${clerkUserId}
+        AND external_id = ${externalUserId}
     `);
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     expect(metadata['email']).toBe('b@example.com');
@@ -100,10 +100,10 @@ describe('external-accounts-sql', () => {
         created_at
       )
       VALUES (
-        ${`${primaryAuthProvider}:${clerkUserId}`},
+        ${`${primaryAuthProvider}:${externalUserId}`},
         ${userId},
         ${primaryAuthProvider},
-        ${clerkUserId},
+        ${externalUserId},
         ${'{}'},
         ${new Date().toISOString()}
       )
@@ -113,7 +113,7 @@ describe('external-accounts-sql', () => {
       await findUserIdByPrimaryAuthExternalId(
         sqlClient,
         primaryAuthProvider,
-        clerkUserId
+        externalUserId
       )
     ).toBe(userId);
   });
@@ -122,14 +122,14 @@ describe('external-accounts-sql', () => {
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
     });
 
     await expect(
       upsertExternalAccount(sqlClient, {
         userId,
         provider: primaryAuthProvider,
-        externalId: 'user_clerk_2',
+        externalId: 'user_ext_2',
       })
     ).rejects.toThrow();
   });
@@ -140,14 +140,14 @@ describe('external-accounts-sql', () => {
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
       metadata: { email: 'owner@example.com' },
     });
 
     await upsertExternalAccount(sqlClient, {
       userId: otherUserId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
       metadata: { email: 'thief@example.com' },
     });
 
@@ -155,7 +155,7 @@ describe('external-accounts-sql', () => {
       await findUserIdByProviderExternalId(
         sqlClient,
         primaryAuthProvider,
-        clerkUserId
+        externalUserId
       )
     ).toBe(userId);
 
@@ -163,7 +163,7 @@ describe('external-accounts-sql', () => {
       SELECT metadata
       FROM external_accounts
       WHERE provider = ${primaryAuthProvider}
-        AND external_id = ${clerkUserId}
+        AND external_id = ${externalUserId}
     `);
     const metadata = JSON.parse(rows[0]!.metadata) as Record<string, unknown>;
     // Wrong-owner upsert must not rewrite metadata either (WHERE guard).
@@ -176,13 +176,13 @@ describe('external-accounts-sql', () => {
     await insertExternalAccountOrGet(sqlClient, {
       userId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
     });
 
     const adopted = await insertExternalAccountOrGet(sqlClient, {
       userId: otherUserId,
       provider: primaryAuthProvider,
-      externalId: clerkUserId,
+      externalId: externalUserId,
     });
 
     expect(adopted).toBe(userId);
@@ -190,7 +190,7 @@ describe('external-accounts-sql', () => {
       await findUserIdByProviderExternalId(
         sqlClient,
         primaryAuthProvider,
-        clerkUserId
+        externalUserId
       )
     ).toBe(userId);
   });

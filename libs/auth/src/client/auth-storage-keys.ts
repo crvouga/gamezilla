@@ -16,7 +16,7 @@ export const SESSION_TOKEN_KEY = 'sessionToken';
 
 /**
  * Current `users.id` for this install (anon or signed-in). Written by
- * `POST /auth/anon/ensure` and `POST /auth/refresh`. Storage key kept as
+ * `POST /identity/anon/ensure` and `POST /identity/refresh`. Storage key kept as
  * `lastLocalAccountId` for existing installs.
  */
 export const LAST_LOCAL_ACCOUNT_ID_KEY = 'lastLocalAccountId';

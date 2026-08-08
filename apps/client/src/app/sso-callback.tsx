@@ -9,14 +9,20 @@ import {
   readSignInPendingSync,
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
+import { useLingui } from '@lingui/react/macro';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
+import { LoadingState, useTheme } from '@pkgs/ui';
 import { type Href, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
+import { View } from 'react-native';
+
+/** Cap wait for bearer capture so the blank callback route never sticks. */
+const SSO_HANDOFF_NAVIGATE_MS = 800;
 
 function writePendingMarker(store: SecureStorageStore): void {
   const syncPending = readSignInPendingSync();
@@ -45,6 +51,12 @@ async function finishHostedAuthRedirect(port: AuthClientPort): Promise<void> {
   await port.ensureSessionReady?.();
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 async function completeSsoCallbackAndNavigate(args: {
   readonly store: SecureStorageStore;
   readonly port: AuthClientPort;
@@ -53,25 +65,26 @@ async function completeSsoCallbackAndNavigate(args: {
 }): Promise<void> {
   writePendingMarker(args.store);
   args.openSignInModal();
-  try {
-    await finishHostedAuthRedirect(args.port);
-  } catch {
-    // Modal resume path surfaces cancel/error once auth settles signed-out.
-  }
+  // Better Auth already set the session cookie on the API during Google return.
+  // Settle bearer in parallel; don't block leaving `/sso-callback` on a slow
+  // get-session (wrangler often takes multiple seconds per call).
+  const settle = finishHostedAuthRedirect(args.port).catch(() => undefined);
+  await Promise.race([settle, delay(SSO_HANDOFF_NAVIGATE_MS)]);
   const target = signInReturnHrefFromPending(readSignInPendingSync());
   args.replace(target as Href);
+  await settle;
 }
 
 /**
- * OAuth callback route (handoff only). Must finish `completeHostedAuthRedirect`
- * **before** `router.replace` — navigating first strips `rotating_token_nonce`
- * from the URL and leaves SignInModal stuck on "Signing in…".
+ * OAuth callback route (handoff only). Shows an immediate loading state, then
+ * leaves for the return href while SignInModal resume finishes session UX.
  */
-export default function SsoCallbackScreen() {
+export default function SsoCallbackScreen(): ReactNode {
+  const { t } = useLingui();
+  const theme = useTheme();
   const router = useRouter();
   const store = useSecureStorageStore();
   const port = useAuthClientPort();
-  const authState = port.useAuthSession();
   const { openSignInModal } = useAuthModals();
   const didFinishRef = useRef(false);
 
@@ -81,7 +94,6 @@ export default function SsoCallbackScreen() {
 
   useEffect(() => {
     if (didFinishRef.current) return;
-    if (!authState.isHydrated) return;
     didFinishRef.current = true;
     void completeSsoCallbackAndNavigate({
       store,
@@ -91,7 +103,18 @@ export default function SsoCallbackScreen() {
         router.replace(href);
       },
     });
-  }, [authState.isHydrated, openSignInModal, port, router, store]);
+  }, [openSignInModal, port, router, store]);
 
-  return null;
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <LoadingState size="large" caption={t`Signing in…`} />
+    </View>
+  );
 }

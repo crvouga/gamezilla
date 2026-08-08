@@ -117,9 +117,8 @@
   },
   "catalog": {
     "@aws-sdk/client-s3": "^3.750.0",
-    "@clerk/backend": "^3.11.0",
-    "@clerk/expo": "^3.7.0",
-    "@clerk/testing": "^1.14.8",
+    "@better-auth/expo": "1.6.26",
+    "better-auth": "1.6.26",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",

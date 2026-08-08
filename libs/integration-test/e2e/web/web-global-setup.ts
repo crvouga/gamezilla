@@ -1,7 +1,4 @@
-import { clerkSetup } from '@clerk/testing/playwright';
-
 import { resolveGamezillaRepoRoot } from '../../src/browser-artifact-paths';
-import { applyClerkPlaywrightEnv } from '../../src/clerk-env';
 import { resolveLocalPreviewApiOriginSync } from '../../src/local-api-preview';
 import {
   DEV_CLIENT_BASE_URL,
@@ -22,8 +19,6 @@ export async function webGlobalSetup(): Promise<void> {
   });
   await waitForLocalE2eStack();
   assertBrowserPreviewEnvReady();
-  applyClerkPlaywrightEnv();
-  await clerkSetup();
   const repoRoot = resolveGamezillaRepoRoot(__dirname);
   await ensureChessPuzzlesSeeded(repoRoot);
 }

@@ -20,6 +20,7 @@ import {
 } from '../secrets/secret';
 import {
   deleteSecretIn,
+  ensureSeedInAllEnvsSecrets,
   exportSecretsMap,
   fetchSecret,
   fetchSecretFrom,
@@ -107,9 +108,25 @@ export class SecretsResource extends ResourceBase {
       }
     }
 
+    try {
+      const seededAllEnvs = await ensureSeedInAllEnvsSecrets();
+      for (const r of seededAllEnvs) {
+        if (r.action === 'seeded') {
+          ok(r.name, `seeded in secrets env ${r.env}`);
+        }
+      }
+    } catch (e) {
+      platform.warning(
+        `seedInAllEnvs failed: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
+
     const storedActive = new Map(await exportSecretsMap(active));
     for (const entry of getSeedableSecrets()) {
       if (entry.name.startsWith('S3_') || entry.name.startsWith('B2_APP_')) {
+        continue;
+      }
+      if (entry.seedInAllEnvs) {
         continue;
       }
       const current = (storedActive.get(entry.name) ?? '').trim();

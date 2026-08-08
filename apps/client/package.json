@@ -53,7 +53,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/assistant": "workspace:*",
     "@pkgs/async": "workspace:*",
-    "@pkgs/auth-clerk": "workspace:*",
+    "@pkgs/auth-better-auth": "workspace:*",
     "@pkgs/browser": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/inbox": "workspace:*",

@@ -167,7 +167,7 @@ function useRefreshOnAppForeground(args: {
 
 /**
  * Reconciles the auth port session with local secure-storage pointers
- * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh`.
+ * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /identity/refresh`.
  * Sign-in remounts per-account SQLite via `lastLocalAccountId` changes.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
@@ -240,7 +240,7 @@ async function applyRefreshSuccess(args: {
   readonly accountId: string;
 }): Promise<void> {
   const { deps, token, accountId } = args;
-  // Sign-out may clear the token while /auth/refresh is in flight — never
+  // Sign-out may clear the token while /identity/refresh is in flight — never
   // re-bind lastLocalAccountId after the session is gone.
   if (readSessionToken(deps.store) !== token) return;
   await writeSecureStorageItem(

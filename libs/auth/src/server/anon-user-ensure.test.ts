@@ -132,7 +132,7 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       deviceId: DEVICE_ID,
     });
     const authServer: AuthServerPort = {
-      providerLabel: 'clerk',
+      providerLabel: 'better-auth',
       verifySessionToken: async () => null,
       getUserProfile: async () => null,
       getUserSnapshot: async () => ({ id: 'ext_1' }),
@@ -165,11 +165,11 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
     const now = new Date().toISOString();
     await db.run(sql<void>`
       INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)
-      VALUES (${'clerk:ext_existing'}, ${other.userId}, 'clerk', 'ext_existing', '{}', ${now})
+      VALUES (${'better-auth:ext_existing'}, ${other.userId}, 'better-auth', 'ext_existing', '{}', ${now})
     `);
 
     const authServer: AuthServerPort = {
-      providerLabel: 'clerk',
+      providerLabel: 'better-auth',
       verifySessionToken: async () => null,
       getUserProfile: async () => null,
       getUserSnapshot: async () => ({ id: 'ext_existing' }),

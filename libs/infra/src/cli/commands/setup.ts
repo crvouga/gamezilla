@@ -13,6 +13,7 @@ import {
   type SecretsEnv,
 } from '../secrets/secret';
 import {
+  ensureSeedInAllEnvsSecrets,
   loadSecretsIntoEnv,
   setSecret,
   validateSecretOrError,
@@ -105,6 +106,12 @@ export class SetupCommand implements Command {
       this.platform,
       'Load secrets',
       async () => {
+        const seededAllEnvs = await ensureSeedInAllEnvsSecrets();
+        for (const r of seededAllEnvs) {
+          if (r.action === 'seeded') {
+            ok(r.name, `seeded in secrets env ${r.env}`);
+          }
+        }
         const secrets = await loadSecretsIntoEnv();
         for (const s of secrets) {
           if (s.set) ok(s.env);

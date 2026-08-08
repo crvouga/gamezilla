@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/auth-clerk",
+  "name": "@pkgs/auth-better-auth",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -19,18 +19,20 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@clerk/backend": "catalog:",
-    "@clerk/expo": "catalog:",
+    "@better-auth/expo": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
-    "expo-auth-session": "catalog:",
+    "better-auth": "catalog:",
     "expo-secure-store": "catalog:",
-    "expo-web-browser": "catalog:"
+    "expo-web-browser": "catalog:",
+    "react-native": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
+    "pg": "catalog:",
     "react": "catalog:",
     "typescript": "catalog:"
   },

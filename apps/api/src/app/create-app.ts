@@ -13,6 +13,7 @@ import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
+import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createInboxSubApp } from '../inbox/route';
@@ -149,7 +150,7 @@ function createStripeSubApp(stripe: Stripe) {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, dbScope, observability, authServer, secretsEnv } =
+  const { secretStore, dbScope, observability, betterAuth, secretsEnv } =
     config;
   const [stripe, ttsApp, llmApp] = await Promise.all([
     createStripeClient(secretStore),
@@ -167,7 +168,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .use(
       '*',
       createRequestDbMiddleware(secretStore, dbScope, {
-        authServer,
+        betterAuth,
         apiUrlOverride: config.apiUrlOverride,
         databaseUrlOverride: config.databaseUrlOverride,
         secretsEnv,
@@ -176,6 +177,13 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .use('*', apiCors)
     .route('/', healthApp)
+    .route(
+      '/',
+      createBetterAuthRoutes({
+        secretsEnv,
+        webClientOrigin: betterAuth.webClientOrigin,
+      })
+    )
     .route(
       '/',
       createClientConfigApp(log, {

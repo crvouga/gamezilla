@@ -16,14 +16,14 @@ export type EnsureAnonAuthResult = {
 };
 
 /**
- * `POST /auth/anon/ensure` — mint or reuse an anon `users` row for this install.
+ * `POST /identity/anon/ensure` — mint or reuse an anon `users` row for this install.
  */
 export async function ensureAnonAuth(
   args: EnsureAnonAuthArgs
 ): Promise<EnsureAnonAuthResult> {
   const { apiUrl, deviceId, forceNew = false } = args;
   const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/api/auth/anon/ensure`, {
+  const res = await fetch(`${base}/api/identity/anon/ensure`, {
     method: 'POST',
     headers: {
       [X_ANON_ID]: deviceId,

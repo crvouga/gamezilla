@@ -2,13 +2,13 @@ import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
-import { createClerkAuthServerAdapter } from '@pkgs/auth-clerk/server';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import * as Sentry from '@sentry/cloudflare';
 import { createApiApp } from './app/create-app';
+import { loadBetterAuthBootConfig } from './config/better-auth-boot';
 import type { ApiWorkerEnv } from './config/env';
 import {
   assertSecretsEnvBinding,
@@ -18,8 +18,8 @@ import {
   workerEnvToSecretRecord,
 } from './config/env';
 import { createApiObjectStore } from './config/object-store';
-import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
+import { resolveWebClientOrigin } from './config/web-client-origin';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
@@ -39,9 +39,21 @@ type BootState =
 let bootState: BootState = { kind: 'pending' };
 let fatalLogged = false;
 
-const ERROR_CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-} as const;
+/**
+ * Better Auth (and credentialed browser fetches) require a concrete
+ * `Access-Control-Allow-Origin` + `Allow-Credentials` — `*` fails preflight.
+ */
+function corsHeadersForRequest(request: Request): Record<string, string> {
+  const origin = request.headers.get('Origin')?.trim() ?? '';
+  if (origin.length > 0) {
+    return {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Credentials': 'true',
+      Vary: 'Origin',
+    };
+  }
+  return { 'Access-Control-Allow-Origin': '*' };
+}
 
 function preflightResponse(request: Request): Response {
   const requested = request.headers.get('Access-Control-Request-Headers');
@@ -52,7 +64,7 @@ function preflightResponse(request: Request): Response {
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      ...corsHeadersForRequest(request),
       'Access-Control-Allow-Methods':
         'GET, HEAD, PUT, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': allowHeaders,
@@ -60,13 +72,13 @@ function preflightResponse(request: Request): Response {
   });
 }
 
-function fatalConfigResponse(reason: string): Response {
+function fatalConfigResponse(request: Request, reason: string): Response {
   return new Response(JSON.stringify({ error: 'api misconfigured', reason }), {
     status: 503,
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store',
-      ...ERROR_CORS_HEADERS,
+      ...corsHeadersForRequest(request),
     },
   });
 }
@@ -96,22 +108,18 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       : {}),
   });
 
-  const authPublishableKey = (
-    await secretStore.getRequired(ApiSecretName.authPublishableKey)
-  ).readSecretValue();
-  const authSecretKey = (
-    await secretStore.getRequired(ApiSecretName.authSecretKey)
-  ).readSecretValue();
-  const authServer = createClerkAuthServerAdapter({
-    publishableKey: authPublishableKey,
-    secretKey: authSecretKey,
+  const apiUrlOverride = readOptionalApiUrlOverride(env);
+  const betterAuth = await loadBetterAuthBootConfig({
+    secretStore,
+    apiUrlOverride,
+    secretsEnv,
   });
 
   return await createApiApp({
     secretStore,
-    authServer,
+    betterAuth,
     dbScope,
-    apiUrlOverride: readOptionalApiUrlOverride(env),
+    apiUrlOverride,
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
     secretsEnv,
     objectStore,
@@ -141,10 +149,11 @@ function handleHealthRequest(
   pathname: string
 ): Response | null {
   if (pathname !== '/api/health') return null;
+  const cors = corsHeadersForRequest(request);
   if (request.method === 'HEAD') {
     return new Response(null, {
       status: 200,
-      headers: { ...ERROR_CORS_HEADERS },
+      headers: { ...cors },
     });
   }
   if (request.method === 'GET') {
@@ -152,11 +161,29 @@ function handleHealthRequest(
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        ...ERROR_CORS_HEADERS,
+        ...cors,
       },
     });
   }
   return null;
+}
+
+/**
+ * Relative OAuth `callbackURL`s resolve against the API host. Bounce the SPA
+ * route to the web client so Google return never 404s on `:8788`.
+ */
+function handleMisroutedSsoCallback(
+  request: Request,
+  env: ApiWorkerEnv
+): Response | null {
+  const url = new URL(request.url);
+  if (url.pathname !== '/sso-callback') return null;
+  if (request.method !== 'GET' && request.method !== 'HEAD') return null;
+  const apiUrl =
+    readOptionalApiUrlOverride(env) ?? env.API_URL?.trim() ?? 'http://localhost:8788';
+  const webOrigin = resolveWebClientOrigin(apiUrl);
+  const dest = new URL(`/sso-callback${url.search}`, `${webOrigin}/`);
+  return Response.redirect(dest.toString(), 302);
 }
 
 async function handleWorkerFetch(
@@ -169,6 +196,9 @@ async function handleWorkerFetch(
   const health = handleHealthRequest(request, url.pathname);
   if (health !== null) return health;
 
+  const ssoBounce = handleMisroutedSsoCallback(request, env);
+  if (ssoBounce !== null) return ssoBounce;
+
   if (request.method === 'OPTIONS') {
     return preflightResponse(request);
   }
@@ -176,7 +206,7 @@ async function handleWorkerFetch(
   const app = await ensureApp(env);
   if (app === null) {
     const reason = bootState.kind === 'fatal' ? bootState.reason : 'unknown';
-    return fatalConfigResponse(reason);
+    return fatalConfigResponse(request, reason);
   }
 
   return app.fetch(
@@ -207,7 +237,7 @@ const workerHandler = {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store',
-          ...ERROR_CORS_HEADERS,
+          ...corsHeadersForRequest(request),
         },
       });
     }

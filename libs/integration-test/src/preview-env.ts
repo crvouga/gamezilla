@@ -2,7 +2,6 @@ import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
 import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 
-import { applyClerkPlaywrightEnv } from './clerk-env';
 import { previewStackEnv } from './preview-stack-env';
 
 /**
@@ -55,7 +54,6 @@ export function applyBrowserPreviewEnv(args: {
     process.env['DATABASE_URL'],
     'DATABASE_URL must be set from secrets env `dev` for preview migrations'
   );
-  applyClerkPlaywrightEnv();
   return true;
 }
 

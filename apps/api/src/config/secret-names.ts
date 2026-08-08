@@ -10,8 +10,9 @@
  * `libs/stripe/src/secret-keys.ts` (covered by a smoke test in stripe).
  */
 export const ApiSecretName = {
-  authPublishableKey: 'AUTH_PUBLISHABLE_KEY',
-  authSecretKey: 'AUTH_SECRET_KEY',
+  betterAuthSecret: 'BETTER_AUTH_SECRET',
+  webClientGoogleClientId: 'WEB_CLIENT_GOOGLE_CLIENT_ID',
+  webClientGoogleClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   dbUrl: 'DATABASE_URL',
   apiUrl: 'API_URL',
   stripeSecretKey: 'STRIPE_SECRET_KEY',

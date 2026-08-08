@@ -8,7 +8,7 @@ import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
 import { upsertExternalAccount } from './external-accounts-sql';
 
 /**
- * Idempotent server-side upsert run from `POST /auth/refresh`. Given a
+ * Idempotent server-side upsert run from `POST /identity/refresh`. Given a
  * resolved `accountId` (users.id) plus the client's device snapshot, mirrors
  * the auth provider user into external_accounts and binds the device row.
  */

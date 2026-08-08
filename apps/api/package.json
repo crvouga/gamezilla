@@ -40,7 +40,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
-    "@pkgs/auth-clerk": "workspace:*",
+    "@pkgs/auth-better-auth": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/inbox": "workspace:*",

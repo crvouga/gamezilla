@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import type { SessionAuth } from '@libs/auth/server/session-middleware';
+import type { BetterAuthInstance } from '@pkgs/auth-better-auth/server';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
@@ -15,6 +16,7 @@ export type ApiRequestAsyncStore = {
   readonly kv: Kv;
   readonly observability: Observability;
   readonly secretStore: SecretStore;
+  readonly betterAuth: BetterAuthInstance;
 };
 
 export const apiRequestAsyncLocalStorage =

@@ -10,7 +10,7 @@ import {
 import { DEV_CLIENT_BASE_URL } from '../../src/local-e2e-stack';
 
 import type { TestApp } from '../support/test-app';
-import { createClerkAuthAdapter } from './clerk-auth-adapter';
+import { createBetterAuthE2eAdapter } from './better-auth-adapter';
 
 export type WithWebAppOptions = {
   /** Path opened on launch (default `/`). */
@@ -18,7 +18,7 @@ export type WithWebAppOptions = {
 };
 
 /**
- * Launches Chromium, builds a {@link TestApp} over PlaywrightDriver + Clerk,
+ * Launches Chromium, builds a {@link TestApp} over PlaywrightDriver + Better Auth,
  * runs `fn`, screenshots on failure, then tears down.
  */
 export async function withWebApp(
@@ -40,7 +40,7 @@ export async function withWebApp(
   });
   const app: TestApp = {
     driver,
-    auth: createClerkAuthAdapter(page, driver),
+    auth: createBetterAuthE2eAdapter(page, driver),
     open: async (appPath) => {
       await page.goto(appPath);
     },

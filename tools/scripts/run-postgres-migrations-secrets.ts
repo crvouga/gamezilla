@@ -59,6 +59,14 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function requireEnv(name: string): string {
+  const value = process.env[name]?.trim() ?? '';
+  if (value.length === 0) {
+    throw new Error(`${name} must be set (loadSecretsIntoEnv first)`);
+  }
+  return value;
+}
+
 async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrl();
   const dbScope = appPostgresDbScope();
@@ -69,7 +77,14 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
     max: 1,
   });
   try {
-    await runPostgresMigrations({ sqlClient, logger, dbScope });
+    await runPostgresMigrations({
+      sqlClient,
+      pool,
+      logger,
+      dbScope,
+      betterAuthSecret: requireEnv('BETTER_AUTH_SECRET'),
+      betterAuthBaseURL: requireEnv('API_URL').replace(/\/$/, ''),
+    });
     process.stdout.write(
       '[postgres:migrate-secrets] schema + sync publication OK\n'
     );

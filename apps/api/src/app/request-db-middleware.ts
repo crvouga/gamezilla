@@ -5,13 +5,21 @@ import {
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import {
+  type BetterAuthInstance,
+  createBetterAuth,
+  createBetterAuthServerAdapter,
+} from '@pkgs/auth-better-auth/server';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
+import {
+  type BetterAuthBootConfig,
+  betterAuthConfigForPool,
+} from '../config/better-auth-boot';
 import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
@@ -45,7 +53,7 @@ async function ensureDevDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
-  readonly authServer: AuthServerPort;
+  readonly betterAuth: BetterAuthBootConfig;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
@@ -91,17 +99,26 @@ async function openObservedRequestDb(
   });
 }
 
+function createRequestBetterAuth(
+  boot: BetterAuthBootConfig,
+  pool: Awaited<ReturnType<typeof openRequestDb>>['pool']
+): BetterAuthInstance {
+  return createBetterAuth(betterAuthConfigForPool(boot, pool));
+}
+
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, dbScope, dbUrl, options, secretStore } = args;
-  const { authServer, observability } = options;
+  const { betterAuth: boot, observability } = options;
   const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
   const sqlClient = wrapSqlClientForObservability(
     observability,
     opened.sqlClient
   );
   const { pool } = opened;
+  const betterAuth = createRequestBetterAuth(boot, pool);
+  const authServer = createBetterAuthServerAdapter(betterAuth);
   const kv = new KvImplPostgres(sqlClient);
   const sessionAuth = createSessionAuth({ authServer });
   const store = {
@@ -110,11 +127,13 @@ async function attachRequestDatabase(
     kv,
     observability,
     secretStore,
+    betterAuth,
   };
   return await apiRequestAsyncLocalStorage.run(store, async () => {
     c.set('sqlClient', sqlClient);
     c.set('sessionAuth', sessionAuth);
     c.set('authServer', authServer);
+    c.set('betterAuth', betterAuth);
     try {
       return await next();
     } finally {

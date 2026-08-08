@@ -228,45 +228,6 @@ async function resolveExpoPublicSentryDsn(
   return null;
 }
 
-async function resolveExpoPublicAuthPublishableKey(
-  store: SecretStore | null
-): Promise<string | null> {
-  const fromExpoEnv = trimStringOrNull(
-    process.env['EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY']
-  );
-  if (fromExpoEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from process env (e.g. secrets-run).\n'
-    );
-    return fromExpoEnv;
-  }
-
-  const fromAuthEnv = trimStringOrNull(process.env['AUTH_PUBLISHABLE_KEY']);
-  if (fromAuthEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from AUTH_PUBLISHABLE_KEY in process env.\n'
-    );
-    return fromAuthEnv;
-  }
-
-  if (store === null) return null;
-
-  const fromSecrets = (
-    await store.getOptional('AUTH_PUBLISHABLE_KEY')
-  )?.readSecretValue();
-  const trimmed =
-    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
-      ? fromSecrets.trim()
-      : null;
-  if (trimmed !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from secret store AUTH_PUBLISHABLE_KEY.\n'
-    );
-    return trimmed;
-  }
-  return null;
-}
-
 async function resolveExpoPublicEmqxWssUrl(
   store: SecretStore | null
 ): Promise<string | null> {
@@ -359,18 +320,12 @@ async function main(): Promise<void> {
   }
 
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
-  const authPublishableKey = await resolveExpoPublicAuthPublishableKey(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
   const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
-    );
-  }
-  if (authPublishableKey === null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY unset; sign-in disabled until AUTH_PUBLISHABLE_KEY is provisioned.\n'
     );
   }
   if (emqxWssUrl === null) {
@@ -386,9 +341,6 @@ async function main(): Promise<void> {
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
   if (sentryDsn !== null) {
     body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
-  }
-  if (authPublishableKey !== null) {
-    body += `EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY=${JSON.stringify(authPublishableKey)}\n`;
   }
   if (observabilityBackend !== null) {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;

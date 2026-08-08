@@ -1,12 +1,13 @@
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
+import type { BetterAuthBootConfig } from '../config/better-auth-boot';
+
 export type ApiHandlerConfig = {
   readonly secretStore: SecretStore;
-  readonly authServer: AuthServerPort;
+  readonly betterAuth: BetterAuthBootConfig;
   readonly dbScope: PostgresDbScope;
   /** When set, overrides secret store `API_URL` for preview / check. */
   readonly apiUrlOverride?: string | null;

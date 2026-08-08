@@ -20,7 +20,7 @@ export type RefreshAuthResult = {
 };
 
 /**
- * `POST /auth/refresh` — idempotent server upsert of the auth-related sync
+ * `POST /identity/refresh` — idempotent server upsert of the auth-related sync
  * entities (auth user snapshot, device binding) for the current bearer +
  * device. Returns just the internal `accountId`; everything else flows back
  * to the client through sync sync.
@@ -30,7 +30,7 @@ export async function refreshAuth(
 ): Promise<RefreshAuthResult> {
   const { apiUrl, bearerToken, deviceId, deviceSnapshot } = args;
   const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/api/auth/refresh`, {
+  const res = await fetch(`${base}/api/identity/refresh`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${bearerToken}`,

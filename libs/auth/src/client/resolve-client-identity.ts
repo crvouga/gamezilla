@@ -36,7 +36,7 @@ export function shouldClearAccountOnExternalUserChange(
 }
 
 /**
- * After `POST /auth/anon/ensure` returns, only bind the anon `users.id` when
+ * After `POST /identity/anon/ensure` returns, only bind the anon `users.id` when
  * no session token landed while the request was in flight. Otherwise a stale
  * signed-out ensure overwrites the signed-in account id and refresh is skipped.
  */

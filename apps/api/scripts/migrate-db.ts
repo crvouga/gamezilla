@@ -11,7 +11,7 @@ import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
-import { readDevVarsDatabaseUrl } from './dev-vars';
+import { readDevVar, readDevVarsDatabaseUrl } from './dev-vars';
 
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
@@ -141,9 +141,36 @@ async function waitForPostgresReachable(
   });
 }
 
+/** Schema migrate only — Better Auth DDL does not call this origin. */
+const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
+
+async function resolveBetterAuthMigrateSecrets(): Promise<{
+  readonly secret: string;
+  readonly baseURL: string;
+}> {
+  const fromDevVars = readDevVar('BETTER_AUTH_SECRET')?.trim() ?? '';
+  const fromEnvSecret = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
+  const fromEnvUrl =
+    readDevVar('API_URL')?.trim() || process.env['API_URL']?.trim() || '';
+  const store = createScriptSecretStore();
+  const secret =
+    fromDevVars.length >= 32
+      ? fromDevVars
+      : fromEnvSecret.length >= 32
+        ? fromEnvSecret
+        : (await store.getRequired('BETTER_AUTH_SECRET')).readSecretValue();
+  const baseURL =
+    fromEnvUrl.length > 0
+      ? fromEnvUrl.replace(/\/$/, '')
+      : BETTER_AUTH_MIGRATE_BASE_URL;
+  return { secret, baseURL };
+}
+
 async function runMigrateOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrlForMigrate();
   await assertMigrateDatabasePolicy(databaseUrl);
+  const { secret: betterAuthSecret, baseURL: betterAuthBaseURL } =
+    await resolveBetterAuthMigrateSecrets();
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -154,14 +181,17 @@ async function runMigrateOnce(): Promise<void> {
   try {
     await runPostgresMigrations({
       sqlClient,
+      pool,
       logger: log,
       dbScope,
+      betterAuthSecret,
+      betterAuthBaseURL,
     });
     log.info(
-      'postgres migrations finished (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)'
+      'postgres migrations finished (schema + kv + Better Auth; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:migrate] completed (schema + kv; legacy auth tables dropped if present; matchmaking self-migrates on first request)\n'
+      '[api:migrate] completed (schema + kv + Better Auth; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();

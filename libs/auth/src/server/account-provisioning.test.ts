@@ -46,7 +46,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';
-const PRIMARY_AUTH_PROVIDER = 'clerk';
+const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
 describe('ensureInternalAccountIdForExternalUser', () => {
   let sqlClient: SqlClient;
@@ -61,7 +61,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     await sqlClient.disconnect();
   });
 
-  test('returns existing user id for known clerk user', async () => {
+  test('returns existing user id for known external user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date().toISOString();
     await sqlClient.run(sql<void>`
@@ -96,7 +96,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     expect(resolved).toBe(userId);
   });
 
-  test('creates user and clerk external_account row', async () => {
+  test('creates user and external_account row', async () => {
     const resolved = await ensureInternalAccountIdForExternalUser({
       sql: sqlClient,
       authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
