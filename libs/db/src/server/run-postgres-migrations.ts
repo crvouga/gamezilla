@@ -26,7 +26,7 @@ import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-acco
  * migrates (api + `@apps/postgres` boot, parallel CI jobs) so they wait instead
  * of thrashing on DDL `lock_timeout`. Distinct from the matchmaking tick lock id.
  */
-export const API_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
+export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
 export type RunPostgresMigrationsArgs = {
   sqlClient: SqlClient;
@@ -66,7 +66,7 @@ export async function runPostgresMigrations(
     .register(new EnsurePostgresSchemaMigration(dbScope))
     .register(
       new PostgresAdvisoryLockedTransactionMigration({
-        lockId: API_MIGRATE_ADVISORY_LOCK_ID,
+        lockId: POSTGRES_MIGRATE_ADVISORY_LOCK_ID,
         inner: locked,
       })
     )

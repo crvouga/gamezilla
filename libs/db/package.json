@@ -6,6 +6,10 @@
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
     ]
   },
   "scripts": {
@@ -13,9 +17,15 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/entity-store": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*"
   },
   "devDependencies": {

@@ -217,7 +217,12 @@
       "name": "@apps/postgres",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/db": "workspace:*",
+        "@libs/infra": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/os": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "embedded-postgres": "catalog:",
       },
       "devDependencies": {
@@ -344,9 +349,15 @@
       "name": "@libs/db",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/entity-store": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
       },
       "devDependencies": {

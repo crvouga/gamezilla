@@ -1,33 +1,45 @@
 /**
- * Run `@apps/api/db` migrations against the local embedded DATABASE_URL
- * via subprocess (apps must not import other @apps/* packages).
+ * Run definitive `@libs/db` Postgres migrations against the local embedded
+ * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
  */
-import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
+import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { createLogger } from '@pkgs/logger';
+import { createScriptSecretStore } from '@pkgs/secret-store';
+import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { LOCAL_DATABASE_URL } from './ports';
 
-const REPO_ROOT = join(import.meta.dirname, '../../..');
+/** Schema migrate only — Better Auth DDL does not call this origin. */
+const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
+
+async function resolveBetterAuthMigrateSecret(): Promise<string> {
+  const fromEnv = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
+  if (fromEnv.length >= 32) return fromEnv;
+  const store = createScriptSecretStore();
+  return (await store.getRequired('BETTER_AUTH_SECRET')).readSecretValue();
+}
 
 export async function runLocalMigrate(): Promise<void> {
   process.stdout.write('[postgres] migrating…\n');
-  const result = spawnSync(
-    process.execPath,
-    [
-      'run',
-      'apps/api/src/db/migrate-cli.ts',
-      '--wait',
-      `--database-url=${LOCAL_DATABASE_URL}`,
-    ],
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      env: { ...process.env, SECRETS_ENV: 'dev' },
-    }
-  );
-  if (result.status !== 0) {
-    throw new Error(
-      `[postgres] migrate failed with exit ${String(result.status ?? 'null')}`
-    );
+  const betterAuthSecret = await resolveBetterAuthMigrateSecret();
+  const dbScope = appPostgresDbScope();
+  const logger = createLogger({ name: 'postgres:migrate' });
+  const { pool, sqlClient } = createPgPool({
+    connectionString: LOCAL_DATABASE_URL,
+    dbScope,
+    max: 1,
+  });
+  try {
+    await runPostgresMigrations({
+      sqlClient,
+      pool,
+      logger,
+      dbScope,
+      betterAuthSecret,
+      betterAuthBaseURL: BETTER_AUTH_MIGRATE_BASE_URL,
+    });
+  } finally {
+    await pool.end();
   }
   process.stdout.write('[postgres] migrate complete\n');
 }

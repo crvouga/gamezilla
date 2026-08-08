@@ -10,7 +10,7 @@
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '../../apps/api/src/db/run-postgres-migrations';
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 

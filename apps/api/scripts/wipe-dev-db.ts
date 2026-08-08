@@ -17,7 +17,7 @@ import { createLogger } from '@pkgs/logger';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '../src/db/run-postgres-migrations';
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const apiRoot = join(import.meta.dirname, '..');

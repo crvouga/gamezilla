@@ -17,7 +17,7 @@ Production (`SECRETS_ENV=prd`) continues to use Infisical Neon — this app is n
 postgresql://postgres:postgres@127.0.0.1:15432/local?sslmode=disable
 ```
 
-On start: initialise cluster (once) → start → create DB → migrate (subprocess to `apps/api/src/db/migrate-cli.ts` with `--database-url=`) → local seed hook → stay alive.
+On start: initialise cluster (once) → start → create DB → migrate in-process via `@libs/db/server/run-postgres-migrations` → local seed hook → stay alive.
 
 `@apps/api` `setup` always writes this URL into `.dev.vars` for `SECRETS_ENV=dev`.
 

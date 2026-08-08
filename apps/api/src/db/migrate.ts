@@ -1,10 +1,12 @@
 /**
- * Programmatic app Postgres migrate — owned by `@apps/api/db`.
- * Same-package callers (api preview/dev, wipe) import this in-process.
- * Cross-app callers (`@apps/postgres` boot, root `db:migrate`, infra) shell
- * out to `migrate-cli.ts` — apps must not import other `@apps/*` packages.
+ * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.
+ * Compose site is `@libs/db/server/run-postgres-migrations`. Same-package
+ * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
+ * shell out to `migrate-cli.ts`. `@apps/postgres` imports the lib compose site
+ * directly (apps must not import other `@apps/*` packages).
  */
 import { join } from 'node:path';
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -21,7 +23,6 @@ import {
   isPostgresTransientMigrateError,
   transientMigrateRetryReason,
 } from './migrate-transient-errors';
-import { runPostgresMigrations } from './run-postgres-migrations';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
 
