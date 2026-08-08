@@ -25,6 +25,13 @@ const LOCAL_EMQX_DEV_DEFAULTS: Readonly<Record<string, string>> = {
   EMQX_JWT_SECRET: 'local-emqx-jwt-secret-change-me',
 };
 
+/**
+ * Local `@apps/postgres` wire URL (keep in sync with apps/postgres/scripts/ports.ts).
+ * SECRETS_ENV=dev always uses embedded Postgres — Infisical DATABASE_URL is ignored.
+ */
+const LOCAL_POSTGRES_DATABASE_URL =
+  'postgresql://postgres:postgres@127.0.0.1:15432/gamezilla?sslmode=disable';
+
 function readApiUrlForDevVars(): string {
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
@@ -42,15 +49,19 @@ async function main(): Promise<void> {
   assertDevSecretsEnv(secretsEnv);
   await loadSecretsIntoEnv();
 
-  const databaseUrl = (process.env['DATABASE_URL'] ?? '').trim();
-  await assertNonProdDatabaseUrlForTooling(databaseUrl, {
+  await assertNonProdDatabaseUrlForTooling(LOCAL_POSTGRES_DATABASE_URL, {
     surface: 'setup-dev-vars',
     secretsEnv,
   });
 
   const lines: string[] = [`SECRETS_ENV=${encodeDevVarValue(secretsEnv)}`];
   lines.push(`API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`);
-  const written = new Set<string>(['SECRETS_ENV', 'API_URL']);
+  lines.push(`DATABASE_URL=${encodeDevVarValue(LOCAL_POSTGRES_DATABASE_URL)}`);
+  const written = new Set<string>(['SECRETS_ENV', 'API_URL', 'DATABASE_URL']);
+
+  process.stdout.write(
+    '[setup-dev-vars] DATABASE_URL → @apps/postgres local embedded (Infisical ignored).\n'
+  );
 
   for (const entry of getSecretMap()) {
     if (written.has(entry.name)) continue;

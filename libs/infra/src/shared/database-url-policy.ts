@@ -1,5 +1,4 @@
 import { assert } from '@pkgs/assert';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 import { PROJECT_CONFIG } from '../project-config';
 
 export const PRODUCTION_SECRETS_ENV = 'prd' as const;
@@ -51,14 +50,8 @@ function assertValidDevPostgresWireUrl(
       { ...context, url: normalizeDatabaseUrlForCompare(url) }
     );
   }
-  if (isLoopbackPostgresUrl(url)) {
-    assert.fail(
-      'Tiger invariant: non-production DATABASE_URL must not target loopback Postgres. ' +
-        'Use secrets env `dev` `DATABASE_URL` (hosted dev database). ' +
-        'If you intentionally need a loopback or production URL, set ALLOW_PRODUCTION_DATABASE_URL=1.',
-      context
-    );
-  }
+  // Loopback is allowed for `@apps/postgres` embedded (SECRETS_ENV=dev).
+  // Production hostnames / dual-compare vs `prd` still block remote prod.
 }
 
 function parsePostgresHostname(

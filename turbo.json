@@ -190,7 +190,7 @@
     "//#ci:database-url-policy": {
       "inputs": [
         "apps/api/scripts/setup-dev-vars.ts",
-        "apps/api/scripts/migrate-db.ts",
+        "apps/api/src/db/migrate.ts",
         "apps/api/src/app/request-db-middleware.ts",
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",

@@ -1,0 +1,26 @@
+{
+  "name": "@apps/postgres",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bun -e \"process.exit(0)\"",
+    "dev": "bun run scripts/dev.ts",
+    "install:deps": "bun run scripts/install-deps.ts",
+    "kill": "bun run scripts/kill-dev.ts",
+    "preview": "bun run scripts/dev.ts",
+    "seed": "bun run scripts/seed.ts",
+    "setup": "bun run scripts/setup.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@apps/api": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "embedded-postgres": "18.4.0-beta.17"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -19,7 +19,7 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/api/scripts/migrate-db.ts',
+    file: 'apps/api/src/db/migrate.ts',
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
@@ -48,7 +48,7 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
   },
   {
     file: 'libs/integration-test/src/preview-stack-env.ts',
-    mustInclude: ['assertDevSecretsEnv', 'isLoopbackPostgresUrl'],
+    mustInclude: ['assertDevSecretsEnv', 'LOCAL_POSTGRES_DATABASE_URL'],
   },
 ];
 

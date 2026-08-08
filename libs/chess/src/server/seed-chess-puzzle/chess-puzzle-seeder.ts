@@ -22,7 +22,7 @@
  *
  * The seed assumes the `patches` and `snapshots` tables and the
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
- * standard migration step first (`bun run --filter @apps/api db:migrate`)
+ * standard migration step first (`bun run db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
  * of the seed lets `@libs/chess` stay independent of `@apps/api`
  * and avoids a workspace-level dependency cycle.
@@ -36,7 +36,7 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Dev (secrets env `dev`, hosted dev Postgres):
+ * Dev (secrets env `dev`, local `@apps/postgres` or resolved DATABASE_URL):
  *   SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (secrets env `prd`, `DATABASE_URL` → Postgres):
@@ -478,7 +478,7 @@ export class ChessPuzzleSeeder {
   ): Promise<void> {
     const cli = this.#cli;
     reporter.phase('Connect database (single TCP session)', {
-      note: 'Schema (chess_puzzles + chess_puzzle_load) must already exist; run `bun run --filter @apps/api db:migrate` first on a fresh database.',
+      note: 'Schema (chess_puzzles + chess_puzzle_load) must already exist; run `bun run db:migrate` first on a fresh database.',
     });
     const store = createScriptSecretStore();
     const secretsEnv =

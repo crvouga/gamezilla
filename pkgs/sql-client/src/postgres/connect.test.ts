@@ -63,15 +63,19 @@ describe('withPostgresSearchPathOption', () => {
   });
 });
 
-// These hit the ambient `DATABASE_URL`, which under `secrets-run` is the shared
-// remote dev database. Keep the connection footprint minimal (`max: 1`, each
-// pool closed in its own `finally`) so this suite never contends for connection
-// slots with other DB-touching suites running concurrently under `bun check`.
+// These hit the ambient `DATABASE_URL` (secrets-run Infisical and/or local
+// `@apps/postgres`). Keep the connection footprint minimal (`max: 1`, each
+// pool closed in its own `finally`).
 describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL)', () => {
   const dbScope = createPostgresDbScope(TEST_SCHEMA);
 
-  test('DATABASE_URL is not loopback (secret store dev hosted Postgres)', () => {
-    expect(isLoopbackPostgresUrl(DATABASE_URL)).toBe(false);
+  test('DATABASE_URL is a postgres wire URL', () => {
+    expect(
+      DATABASE_URL.startsWith('postgres://') ||
+        DATABASE_URL.startsWith('postgresql://')
+    ).toBe(true);
+    // Loopback (`@apps/postgres`) and hosted Neon are both valid for SECRETS_ENV=dev.
+    expect(typeof isLoopbackPostgresUrl(DATABASE_URL)).toBe('boolean');
   });
 
   test(

@@ -43,7 +43,7 @@ function seedChessPuzzles(repoRoot: string): void {
   );
 }
 
-/** Ensures hosted dev Postgres has enough chess puzzles for browser E2E. */
+/** Ensures SECRETS_ENV=dev Postgres has enough chess puzzles for browser E2E. */
 export async function ensureChessPuzzlesSeeded(
   repoRoot: string
 ): Promise<void> {

@@ -79,23 +79,24 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local database
 
-Local dev and CI use **hosted dev Postgres** only — there is no embedded/local Postgres process. `DATABASE_URL` comes exclusively from secrets env **`dev`** (injected by `bun run tools/scripts/secrets-run.ts`, which defaults to `SECRETS_ENV=dev` from the repo-root secrets scope config).
+Non-production (`SECRETS_ENV=dev`) uses **`@apps/postgres`** — an embedded Postgres sidecar (port `15432`) started by Turbo alongside api/client/emqx. `@apps/api` `setup` always writes the loopback `DATABASE_URL` into `.dev.vars` (Infisical `dev` `DATABASE_URL` is ignored for app runtime). Production (`SECRETS_ENV=prd`) uses Infisical Neon only.
 
-- **`bun run dev`** — `secrets-run` → turbo starts api + client; `@apps/api` `setup` writes `.dev.vars` with the secrets env `dev` `DATABASE_URL` (mirrored, not loopback).
-- **`bun db:migrate`** — `secrets-run` → `@apps/api db:migrate` against secrets env `dev` `DATABASE_URL`.
-- **`bun run db:wipe:dev`** — secrets env `dev` only: `DROP SCHEMA public CASCADE`, then remigrate. Production blocked by fail-closed Tiger guards (no confirm flag).
+- **`bun run dev`** — `secrets-run` → turbo starts `@apps/postgres` + api + client (+ emqx); postgres migrates/seeds; api `.dev.vars` points at `127.0.0.1:15432`.
+- **`bun preview` / CI check stacks** — same embedded URL; turbo preview includes `@apps/postgres`.
+- **`bun db:migrate`** — migrates the URL from `.dev.vars` (local embedded after setup), waiting until Postgres is up.
+- **`bun run db:wipe:dev`** — secrets env `dev` only: `DROP SCHEMA public CASCADE` on the local (or resolved) DB, then remigrate. Production blocked by fail-closed Tiger guards (no confirm flag). Hard reset: `rm -rf apps/postgres/data`.
 - **Production** — only `bun run infra` sets `SECRETS_ENV=prd`; deploy runs `db:migrate` against secrets env `prd` `DATABASE_URL`.
 
 ### Database migrations (`@pkgs/db-migrate`)
 
-Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@apps/api` `runPostgresMigrations` composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot).
+Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@apps/api/db` (`runPostgresMigrations` / `migratePostgresApp`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot). Callers import `@apps/api/db/migrate` in-process — do not spawn a package `migrate` script.
 
 ### Database safety (Tiger policy)
 
 Non-deploy contexts must never reach production Postgres. Guards live in `@libs/infra/shared/database-url-policy`:
 
 1. **`assertDevSecretsEnv`** — scripts exit unless `SECRETS_ENV === 'dev'`.
-2. **`assertNonProdDatabaseUrl`** — rejects loopback URLs and URLs equal to secrets env `prd` `DATABASE_URL` (dual-fetch at setup/migrate time).
+2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to secrets env `prd` `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@apps/postgres`) is allowed for `dev`.
 3. **API worker** — when `SECRETS_ENV` binding is `dev`, the first DB request asserts non-prod URL.
 4. **`ci:database-url-policy`** — static check that every DATABASE_URL entrypoint wires the guards.
 5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `EXPO_PUBLIC_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live `prd` dual-fetch before any destructive SQL.

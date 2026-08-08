@@ -3,14 +3,14 @@
  * Used by sync setup/deploy so schema + publication target the same DB.
  *
  * Retries on transient Postgres errors (deadlock / too many clients) — same
- * policy as `apps/api/scripts/migrate-db.ts`. Dropping sync tables while
+ * policy as `@apps/api/db/migrate`. Dropping sync tables while
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '../../apps/api/src/migrations/run-postgres-migrations';
+import { runPostgresMigrations } from '../../apps/api/src/db/run-postgres-migrations';
 import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 

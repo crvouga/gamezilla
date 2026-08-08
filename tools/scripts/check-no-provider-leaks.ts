@@ -26,9 +26,9 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/api/src/app/create-app.ts',
   'apps/api/src/auth/better-auth-routes.ts',
   'apps/api/src/config/better-auth-boot.ts',
-  'apps/api/src/migrations/run-postgres-migrations.ts',
+  'apps/api/src/db/run-postgres-migrations.ts',
+  'apps/api/src/db/migrate.ts',
   'apps/api/src/request-scope.ts',
-  'apps/api/scripts/migrate-db.ts',
   'apps/api/scripts/wipe-dev-db.ts',
   'tools/scripts/run-postgres-migrations-secrets.ts',
 ]);

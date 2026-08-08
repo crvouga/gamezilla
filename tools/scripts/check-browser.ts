@@ -48,7 +48,13 @@ function startPreviewStack(): PreviewHandle {
   const logFd = openSync(PREVIEW_LOG, 'w');
   const child: ChildProcess = spawn(
     'turbo',
-    ['run', 'preview', '--filter=@apps/api', '--filter=@apps/client'],
+    [
+      'run',
+      'preview',
+      '--filter=@apps/api',
+      '--filter=@apps/client',
+      '--filter=@apps/postgres',
+    ],
     {
       cwd: REPO_ROOT,
       detached: true,

@@ -55,7 +55,7 @@
     "ci:tier-imports": "bun run tools/scripts/check-tier-imports.ts",
     "client:ios": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/client ios",
     "client:sentry-dsn": "bun run --filter @apps/client setup:sentry-dsn",
-    "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:migrate",
+    "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run apps/api/src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
     "dev": "bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui",
@@ -66,7 +66,7 @@
     "infra": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "kill": "bun run tools/scripts/kill-dev-stack.ts",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
-    "preview": "bun run tools/scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client",
+    "preview": "bun run tools/scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client --filter=@apps/postgres",
     "sim:lab": "bun install && bun run --filter @pkgs/sync-engine sim:lab",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
@@ -225,6 +225,15 @@
     "@biomejs/biome": "2.5.7"
   },
   "trustedDependencies": [
-    "@shopify/react-native-skia"
+    "@shopify/react-native-skia",
+    "embedded-postgres",
+    "@embedded-postgres/darwin-arm64",
+    "@embedded-postgres/darwin-x64",
+    "@embedded-postgres/linux-arm",
+    "@embedded-postgres/linux-arm64",
+    "@embedded-postgres/linux-ia32",
+    "@embedded-postgres/linux-ppc64",
+    "@embedded-postgres/linux-x64",
+    "@embedded-postgres/windows-x64"
   ]
 }

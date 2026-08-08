@@ -76,19 +76,19 @@ describe('assertNonProdDatabaseUrl', () => {
     ).rejects.toThrow(/matches production/);
   });
 
-  test('blocks loopback', async () => {
+  test('allows loopback (@apps/postgres embedded)', async () => {
     await expect(
       assertNonProdDatabaseUrl(LOOPBACK_URL, {}, { productionUrl: PROD_URL })
-    ).rejects.toThrow(/loopback/);
+    ).resolves.toBeUndefined();
   });
 
-  test('escape hatch skips loopback check', async () => {
+  test('escape hatch still skips remaining checks', async () => {
     const prev = process.env['ALLOW_PRODUCTION_DATABASE_URL'];
     process.env['ALLOW_PRODUCTION_DATABASE_URL'] = '1';
     try {
       expect(productionDatabaseUrlTigerExceptionEnabled()).toBe(true);
       await expect(
-        assertNonProdDatabaseUrl(LOOPBACK_URL, {}, { productionUrl: PROD_URL })
+        assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrl: PROD_URL })
       ).resolves.toBeUndefined();
     } finally {
       if (prev === undefined) {

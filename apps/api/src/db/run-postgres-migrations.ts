@@ -22,10 +22,9 @@ import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
 /**
- * Session/transaction advisory lock for `api:migrate`. Serializes concurrent
- * CI jobs (check-api + check-browser) against the shared hosted dev Postgres so
- * they wait instead of thrashing on DDL `lock_timeout`. Distinct from the
- * matchmaking tick lock id.
+ * Session/transaction advisory lock for app migrate. Serializes concurrent
+ * migrates (api + `@apps/postgres` boot, parallel CI jobs) so they wait instead
+ * of thrashing on DDL `lock_timeout`. Distinct from the matchmaking tick lock id.
  */
 export const API_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 

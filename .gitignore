@@ -46,11 +46,10 @@ libs/chess/.cache/
 apps/api/.cache/
 apps/emqx/.cache/
 apps/emqx/data/
+apps/postgres/data/
 
-
-# Local PostgreSQL cluster + lifecycle artifacts (pkgs/postgres)
+# Legacy local PostgreSQL cluster paths (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.postgres/
-# Legacy PGlite data dir (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.pglite/
 
 # typescript

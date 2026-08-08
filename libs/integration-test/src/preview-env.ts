@@ -1,20 +1,18 @@
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
-import { isLoopbackPostgresUrl } from '@pkgs/sql-client/postgres/connect';
 
 import { previewStackEnv } from './preview-stack-env';
 
 /**
- * Applies secret-store-backed preview env when `DATABASE_URL` is already injected
- * (e.g. `bun run check:browser` under `secrets-run`). Returns `false` when secrets
- * are missing so callers can soft-skip during IDE probes.
+ * Applies preview env for browser E2E (local `@apps/postgres` + wrangler).
+ * Returns `false` when SECRETS_ENV is missing so callers can soft-skip during IDE probes.
  */
 export function applyBrowserPreviewEnv(args: {
   readonly baseURL: string;
   readonly localApiPreviewOrigin: string;
 }): boolean {
-  const databaseUrl = process.env['DATABASE_URL']?.trim() ?? '';
-  if (databaseUrl.length === 0) return false;
+  const secretsEnv = process.env['SECRETS_ENV']?.trim() ?? '';
+  if (secretsEnv.length === 0) return false;
 
   process.env['API_URL'] = args.localApiPreviewOrigin;
   process.env['EXPO_PUBLIC_API_URL'] = args.localApiPreviewOrigin;
@@ -26,11 +24,6 @@ export function applyBrowserPreviewEnv(args: {
   process.env['SECRETS_ENV'] = previewEnv['SECRETS_ENV']!;
 
   assertDevSecretsEnv(process.env['SECRETS_ENV'] ?? '');
-  assert.ok(
-    !isLoopbackPostgresUrl(process.env['DATABASE_URL'] ?? ''),
-    'DATABASE_URL must be secrets env `dev` hosted Postgres, not loopback',
-    { databaseUrlHost: new URL(process.env['DATABASE_URL']!).hostname }
-  );
 
   assert.equals(
     process.env['API_URL'],
@@ -52,7 +45,7 @@ export function applyBrowserPreviewEnv(args: {
   );
   assert.nonEmptyString(
     process.env['DATABASE_URL'],
-    'DATABASE_URL must be set from secrets env `dev` for preview migrations'
+    'DATABASE_URL must be set for preview migrations (@apps/postgres)'
   );
   return true;
 }

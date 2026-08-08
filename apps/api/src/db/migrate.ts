@@ -1,3 +1,8 @@
+/**
+ * Programmatic app Postgres migrate — owned by `@apps/api/db`.
+ * Callers ( `@apps/postgres`, api preview/dev, wipe, deploy CLI) import this
+ * instead of spawning a package script.
+ */
 import { join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -10,22 +15,37 @@ import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
-import { readDevVar, readDevVarsDatabaseUrl } from './dev-vars';
+import { readDevVar, readDevVarsDatabaseUrl } from '../../scripts/dev-vars';
+import {
+  isPostgresTransientMigrateError,
+  transientMigrateRetryReason,
+} from './migrate-transient-errors';
+import { runPostgresMigrations } from './run-postgres-migrations';
 
-const apiRoot = join(import.meta.dirname, '..');
-const REPO_ROOT = join(apiRoot, '../..');
-// Concurrent migrates serialize via `pg_advisory_xact_lock` in
-// `runPostgresMigrations`; these delays cover transient database contention.
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
+
+/** Concurrent migrates serialize via advisory lock; these cover contention. */
 const MIGRATE_RETRY_DELAYS_MS = [
   0, 3_000, 8_000, 15_000, 30_000, 60_000, 90_000, 120_000,
 ] as const;
 const WAIT_FOR_POSTGRES_MS = 60_000;
 const WAIT_FOR_POSTGRES_RETRY_MS = 1_000;
-const WAIT_FOR_POSTGRES = process.argv.includes('--wait');
+/** Schema migrate only — Better Auth DDL does not call this origin. */
+const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
+
+export type MigratePostgresAppOptions = {
+  /** Wait until DATABASE_URL accepts connections (local embedded boot). */
+  readonly wait?: boolean;
+  /** Override URL resolution (`.dev.vars` → env → secret store). */
+  readonly databaseUrl?: string;
+};
 
 function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function resolveSecretsEnvForMigrate(): string {
@@ -34,50 +54,13 @@ function resolveSecretsEnvForMigrate(): string {
   return resolveSecretsScope(REPO_ROOT).env;
 }
 
-function isPostgresConnectionLimitError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  const msg = error.message.toLowerCase();
-  if (
-    msg.includes('too many clients') ||
-    msg.includes('remaining connection slots')
-  ) {
-    return true;
+async function resolveDatabaseUrlForMigrate(
+  override: string | undefined
+): Promise<string> {
+  const fromOverride = override?.trim() ?? '';
+  if (fromOverride.length > 0 && isPostgresUrl(fromOverride)) {
+    return fromOverride;
   }
-  const code = (error as { code?: string }).code;
-  return code === '53300';
-}
-
-function isPostgresDeadlockError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  const code = (error as { code?: string }).code;
-  if (code === '40P01') return true;
-  return error.message.toLowerCase().includes('deadlock detected');
-}
-
-function isPostgresLockTimeoutError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  const code = (error as { code?: string }).code;
-  if (code === '55P03') return true;
-  const msg = error.message.toLowerCase();
-  return (
-    msg.includes('lock timeout') ||
-    msg.includes('canceling statement due to lock')
-  );
-}
-
-function isPostgresTransientMigrateError(error: unknown): boolean {
-  return (
-    isPostgresConnectionLimitError(error) ||
-    isPostgresDeadlockError(error) ||
-    isPostgresLockTimeoutError(error)
-  );
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function resolveDatabaseUrlForMigrate(): Promise<string> {
   const fromDevVars = readDevVarsDatabaseUrl();
   if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
     return fromDevVars;
@@ -97,7 +80,7 @@ async function assertMigrateDatabasePolicy(databaseUrl: string): Promise<void> {
   }
   assertDevSecretsEnv(secretsEnv);
   await assertNonProdDatabaseUrlForTooling(databaseUrl, {
-    surface: 'api:migrate',
+    surface: 'api:db:migrate',
     secretsEnv,
   });
 }
@@ -141,9 +124,6 @@ async function waitForPostgresReachable(
   });
 }
 
-/** Schema migrate only — Better Auth DDL does not call this origin. */
-const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
-
 async function resolveBetterAuthMigrateSecrets(): Promise<{
   readonly secret: string;
   readonly baseURL: string;
@@ -166,8 +146,7 @@ async function resolveBetterAuthMigrateSecrets(): Promise<{
   return { secret, baseURL };
 }
 
-async function runMigrateOnce(): Promise<void> {
-  const databaseUrl = await resolveDatabaseUrlForMigrate();
+async function runMigrateOnce(databaseUrl: string): Promise<void> {
   await assertMigrateDatabasePolicy(databaseUrl);
   const { secret: betterAuthSecret, baseURL: betterAuthBaseURL } =
     await resolveBetterAuthMigrateSecrets();
@@ -177,7 +156,7 @@ async function runMigrateOnce(): Promise<void> {
     dbScope,
     max: 1,
   });
-  const log = createLogger({ name: 'api:migrate' });
+  const log = createLogger({ name: 'api:db:migrate' });
   try {
     await runPostgresMigrations({
       sqlClient,
@@ -191,38 +170,38 @@ async function runMigrateOnce(): Promise<void> {
       'postgres migrations finished (schema + kv + Better Auth; matchmaking self-migrates on first request)'
     );
     process.stdout.write(
-      '[api:migrate] completed (schema + kv + Better Auth; matchmaking self-migrates on first request)\n'
+      '[api:db:migrate] completed (schema + kv + Better Auth; matchmaking self-migrates on first request)\n'
     );
   } finally {
     await pool.end();
   }
 }
 
-async function main(): Promise<void> {
-  const log = createLogger({ name: 'api:migrate' });
-  if (WAIT_FOR_POSTGRES) {
-    const databaseUrl = await resolveDatabaseUrlForMigrate();
+/**
+ * Run the composed app migrations against the resolved (or overridden) URL.
+ */
+export async function migratePostgresApp(
+  options: MigratePostgresAppOptions = {}
+): Promise<void> {
+  const log = createLogger({ name: 'api:db:migrate' });
+  const databaseUrl = await resolveDatabaseUrlForMigrate(options.databaseUrl);
+  if (options.wait) {
     await assertMigrateDatabasePolicy(databaseUrl);
     await waitForPostgresReachable(databaseUrl, log);
   }
-  let lastError: unknown;
 
+  let lastError: unknown;
   for (let attempt = 0; attempt < MIGRATE_RETRY_DELAYS_MS.length; attempt++) {
     const delayMs = MIGRATE_RETRY_DELAYS_MS[attempt] ?? 0;
     if (delayMs > 0) {
-      const reason = isPostgresDeadlockError(lastError)
-        ? 'deadlock'
-        : isPostgresLockTimeoutError(lastError)
-          ? 'lock timeout'
-          : 'connection limit';
-      log.warn(`Postgres ${reason} — retrying migrate`, {
-        attempt: attempt + 1,
-        delayMs,
-      });
+      log.warn(
+        `Postgres ${transientMigrateRetryReason(lastError)} — retrying migrate`,
+        { attempt: attempt + 1, delayMs }
+      );
       await sleep(delayMs);
     }
     try {
-      await runMigrateOnce();
+      await runMigrateOnce(databaseUrl);
       return;
     } catch (error: unknown) {
       lastError = error;
@@ -232,11 +211,7 @@ async function main(): Promise<void> {
     }
   }
 
-  assert.fail('api:migrate failed after transient-error retries', {
+  assert.fail('api:db:migrate failed after transient-error retries', {
     error: lastError,
   });
 }
-
-await main().catch((error: unknown) => {
-  assert.fail('api:migrate failed', { error });
-});

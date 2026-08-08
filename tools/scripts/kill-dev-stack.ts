@@ -20,6 +20,7 @@ const DEV_PORTS = [
   1883, // EMQX MQTT TCP
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API
+  15432, // @apps/postgres embedded
 ] as const;
 
 function runTurboKill(): void {

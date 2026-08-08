@@ -165,6 +165,7 @@
     "pkgs/sounds/scripts/**/*.ts",
     "apps/api/scripts/**/*.ts",
     "apps/emqx/scripts/**/*.ts",
+    "apps/postgres/scripts/**/*.ts",
     "libs/friends/src/**/*.ts",
     "libs/friends/src/**/*.tsx",
     "libs/search/src/**/*.ts",

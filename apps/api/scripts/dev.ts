@@ -3,8 +3,9 @@
  * wrangler under one Node process so turbo SIGINT/SIGTERM tear down the whole
  * tree instead of leaving a shell background job alive.
  */
-import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
+import { migratePostgresApp } from '../src/db/migrate';
 
 const API_DIR = join(import.meta.dirname, '..');
 const REPO_ROOT = join(API_DIR, '../..');
@@ -53,13 +54,7 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
   });
 }
 
-const migrate = spawnSync('bun', ['run', 'scripts/migrate-db.ts', '--wait'], {
-  cwd: API_DIR,
-  stdio: 'inherit',
-});
-if (migrate.status !== 0) {
-  process.exit(migrate.status ?? 1);
-}
+await migratePostgresApp({ wait: true });
 
 const refresh = spawn(
   'bun',
