@@ -10,11 +10,11 @@ Production (`SECRETS_ENV=prd`) continues to use Infisical Neon — this app is n
 | --- | --- |
 | Port | `15432` |
 | User / password | `postgres` / `postgres` |
-| Database | `gamezilla` |
+| Database | `local` |
 | Data dir | `apps/postgres/data/db` (gitignored) |
 
 ```text
-postgresql://postgres:postgres@127.0.0.1:15432/gamezilla?sslmode=disable
+postgresql://postgres:postgres@127.0.0.1:15432/local?sslmode=disable
 ```
 
 On start: initialise cluster (once) → start → create DB → migrate (subprocess to `apps/api/src/db/migrate-cli.ts` with `--database-url=`) → local seed hook → stay alive.

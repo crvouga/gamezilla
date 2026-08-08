@@ -3,7 +3,7 @@ export const POSTGRES_PORT = 15_432;
 
 export const POSTGRES_USER = 'postgres';
 export const POSTGRES_PASSWORD = 'postgres';
-export const POSTGRES_DATABASE = 'gamezilla';
+export const POSTGRES_DATABASE = 'local';
 
 export const POSTGRES_LOCAL_PORTS = [POSTGRES_PORT] as const;
 

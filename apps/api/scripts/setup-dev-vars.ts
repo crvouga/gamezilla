@@ -30,7 +30,7 @@ const LOCAL_EMQX_DEV_DEFAULTS: Readonly<Record<string, string>> = {
  * SECRETS_ENV=dev always uses embedded Postgres — Infisical DATABASE_URL is ignored.
  */
 const LOCAL_POSTGRES_DATABASE_URL =
-  'postgresql://postgres:postgres@127.0.0.1:15432/gamezilla?sslmode=disable';
+  'postgresql://postgres:postgres@127.0.0.1:15432/local?sslmode=disable';
 
 /**
  * Local `@apps/minio` S3 secrets (keep in sync with apps/minio/scripts/ports.ts).
@@ -39,7 +39,7 @@ const LOCAL_POSTGRES_DATABASE_URL =
 const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
   B2_APP_KEY_ID: 'minioadmin',
   B2_APP_KEY: 'minioadmin',
-  S3_BUCKET: 'gamezilla',
+  S3_BUCKET: 'local',
   S3_ENDPOINT: 'http://127.0.0.1:9000',
   S3_REGION: 'us-east-1',
 };

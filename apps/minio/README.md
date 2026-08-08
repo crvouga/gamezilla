@@ -11,7 +11,7 @@ Production (`SECRETS_ENV=prd`) continues to use Infisical → Backblaze B2 — t
 | S3 API | `http://127.0.0.1:9000` |
 | Console | `http://127.0.0.1:9001` |
 | Access key / secret | `minioadmin` / `minioadmin` |
-| Bucket | `gamezilla` |
+| Bucket | `local` |
 | Region | `us-east-1` |
 | Data dir | `apps/minio/data` (gitignored) |
 

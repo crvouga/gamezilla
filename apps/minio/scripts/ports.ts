@@ -9,7 +9,7 @@ export const MINIO_LOCAL_PORTS = [MINIO_API_PORT, MINIO_CONSOLE_PORT] as const;
 export const MINIO_ROOT_USER = 'minioadmin';
 export const MINIO_ROOT_PASSWORD = 'minioadmin';
 
-export const MINIO_BUCKET = 'gamezilla';
+export const MINIO_BUCKET = 'local';
 export const MINIO_REGION = 'us-east-1';
 
 export const MINIO_ENDPOINT =

@@ -8,7 +8,7 @@ import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-api-preview';
  * Non-prod preview/check stacks use `@apps/postgres` embedded, not Infisical Neon.
  */
 const LOCAL_POSTGRES_DATABASE_URL =
-  'postgresql://postgres:postgres@127.0.0.1:15432/gamezilla?sslmode=disable';
+  'postgresql://postgres:postgres@127.0.0.1:15432/local?sslmode=disable';
 
 /**
  * Env overrides for local/CI check preview stacks. Pins the client export to

@@ -2,14 +2,14 @@ import {
   useSignInModal,
   useSignOutModal,
 } from '@libs/auth/client/auth-modals-provider';
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useHasAuthSession } from '@libs/auth/client/use-current-user';
 import { useLingui } from '@lingui/react/macro';
 import { useAsync } from '@pkgs/async/use-async';
 import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';
 
 export function AccountCommand() {
   const { t } = useLingui();
-  const isAuthenticated = useIsSignedIn();
+  const isAuthenticated = useHasAuthSession();
   const { open: openSignInModal } = useSignInModal();
   const { open: openSignOutConfirm } = useSignOutModal();
   const { run } = useAsync({
