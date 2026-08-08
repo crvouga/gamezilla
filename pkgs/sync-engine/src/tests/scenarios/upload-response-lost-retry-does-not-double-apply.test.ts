@@ -5,7 +5,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('upload response lost retry does not double apply', () => {
@@ -15,7 +14,6 @@ describe('upload response lost retry does not double apply', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

@@ -2,10 +2,10 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   notesDomainPack,
+  readLiveNotes,
   setNote,
   writeNoteBody,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('non mutation server write without notify stale until sweep', () => {
@@ -14,7 +14,6 @@ describe('non mutation server write without notify stale until sweep', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1090,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -27,8 +26,14 @@ describe('non mutation server write without notify stale until sweep', () => {
       body: 'v2-silent',
       notify: false,
     });
-    await world.runFor(400);
     await expectLiveNote(world.server.db, 'n1', { body: 'v2-silent' });
+    await world.never(
+      async () =>
+        (await readLiveNotes(b.db)).some(
+          (n) => n.id === 'n1' && n.body === 'v2-silent'
+        ),
+      { forMs: 400 }
+    );
     await expectLiveNote(b.db, 'n1', { body: 'v1' });
 
     // nudge: explicit sweep — missed notify is the footgun under test
@@ -44,7 +49,6 @@ describe('non mutation server write without notify stale until sweep', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

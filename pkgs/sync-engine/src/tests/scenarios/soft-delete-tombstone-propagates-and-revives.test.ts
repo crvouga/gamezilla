@@ -7,7 +7,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('soft delete tombstone propagates and revives', () => {
@@ -15,7 +14,6 @@ describe('soft delete tombstone propagates and revives', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 13,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -36,7 +34,6 @@ describe('soft delete tombstone propagates and revives', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 14,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

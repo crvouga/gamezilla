@@ -6,7 +6,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('crash mid merge restart rehydrates', () => {
@@ -14,7 +13,6 @@ describe('crash mid merge restart rehydrates', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 830,
-      faults: RELIABLE_FAULTS,
       // Force sync refetch path so afterNextSyncResponseDelivered fires.
       rowImageFanout: false,
     });

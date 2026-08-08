@@ -6,7 +6,6 @@ import {
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('topic sync waits for mutations drain', () => {
@@ -14,7 +13,6 @@ describe('topic sync waits for mutations drain', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 803,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

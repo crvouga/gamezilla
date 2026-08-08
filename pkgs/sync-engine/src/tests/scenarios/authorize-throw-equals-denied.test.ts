@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('authorize throw equals denied', () => {
@@ -13,7 +12,6 @@ describe('authorize throw equals denied', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 930,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'keep-me' });
@@ -40,7 +38,6 @@ describe('authorize throw equals denied', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setNote, { id: `n-${seed}`, body: 'x' });

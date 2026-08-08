@@ -6,7 +6,6 @@ import {
   serverRejectNote,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('optimistic push rejected server side heals', () => {
@@ -14,7 +13,6 @@ describe('optimistic push rejected server side heals', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 810,
-      faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNoteWrongTopic,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('wrong invalidates topic heals on refetch', () => {
@@ -14,7 +13,6 @@ describe('wrong invalidates topic heals on refetch', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1080,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -50,7 +48,6 @@ describe('wrong invalidates topic heals on refetch', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({ id: 'alice' });

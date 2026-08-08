@@ -87,13 +87,18 @@ export async function expectLiveNote(
   }
 }
 
+/** True when note id is live (present and not tombstoned). */
+export async function isLiveNote(db: SqlClient, id: string): Promise<boolean> {
+  const rows = await db.query(sql<{ id: string }>`
+    SELECT id FROM notes WHERE id = ${id} AND _deleted_at IS NULL
+  `);
+  return rows.length > 0;
+}
+
 /** Assert note is not live (absent or tombstoned). */
 export async function expectNoteNotLive(
   db: SqlClient,
   id: string
 ): Promise<void> {
-  const rows = await db.query(sql<{ id: string }>`
-    SELECT id FROM notes WHERE id = ${id} AND _deleted_at IS NULL
-  `);
-  expect(rows).toEqual([]);
+  expect(await isLiveNote(db, id)).toBe(false);
 }

@@ -6,7 +6,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('cache clear preserves pending mutations', () => {
@@ -14,7 +13,6 @@ describe('cache clear preserves pending mutations', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 610,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

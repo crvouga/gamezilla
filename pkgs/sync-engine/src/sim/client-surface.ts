@@ -6,7 +6,7 @@ import type {
   SimClientHandle,
   SimRejection,
   SimSubscription,
-} from './client-factory';
+} from './client-handle';
 import type { SimHttpClient } from './http-bridge';
 import type { SimPollablePromise } from './until';
 

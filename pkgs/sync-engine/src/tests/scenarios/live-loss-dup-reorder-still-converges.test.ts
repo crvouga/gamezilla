@@ -19,7 +19,6 @@ describe('live loss dup reorder still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 401,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -42,7 +41,6 @@ describe('live loss dup reorder still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 402,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -58,7 +56,6 @@ describe('live loss dup reorder still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 403,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -79,7 +76,6 @@ describe('live loss dup reorder still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 404,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -105,7 +101,6 @@ describe('live loss dup reorder still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 405,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

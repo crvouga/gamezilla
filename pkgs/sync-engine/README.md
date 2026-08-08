@@ -757,7 +757,7 @@ seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
 
 | Boundary | Implementation |
 |----------|----------------|
-| Time | `runFor` / `until` over `SimClock` + `SimScheduler` |
+| Time | `runFor` / `until` / `never` over `SimClock` + `SimScheduler` |
 | Wall clocks | `world.node(id).skewClock(ms)` / `.now()` (scheduler stays on base clock) |
 | Timers | `createSimTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
@@ -772,23 +772,43 @@ server uses SQLite dialect; production server is Postgres.
 
 Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
 `await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
-runner. Failures from `assertConverged` / `until` / `checkInvariants` embed
-`seed=<hex>` and virtual `now=` for replay.
+runner. Failures from `assertConverged` / `until` / `never` / `checkInvariants`
+embed `seed=<hex>` and virtual `now=` for replay.
 
 **Five concepts:**
 
-1. **Time** — `world.runFor(ms)` (negative windows) and `world.until(target, { budgetMs?, stepMs? })` (promise / async predicate; returns completion timestamp).
-2. **Network** — `using _ = world.net(nodeId, traffic?).set('hold' \| 'down' \| 'ok' \| FaultProfile)`; dispose restores prior state (restore-prior stack). Settle neutralizes outstanding net effects.
-3. **Node** — `world.node(id)` with `crash({ at? })`, `restart(opts)`, `auth(status)`, `skewClock(ms)`, `now()`, `httpFault(fault)`, `publishFault(count)` (server). Server id is `'server'`.
-4. **Client** — `mutate`, `db`, `online` / `foreground`, `connect` / `disconnect`, `subscribe`, `outcome`, `rejections`, `nudge` (rare; needs `// nudge:` comment).
-5. **Settle** — `assertConverged()` clears holds/partitions/faults, wakes uploads + refreshes, diffs each client vs server.
+1. **Time** — `world.runFor(ms)` (documented grains / flicker loops),
+   `world.until(target, { budgetMs?, stepMs? })` (positive wait; returns
+   completion timestamp), `world.never(target, { forMs, stepMs? })` (fail if
+   target becomes true within the window). All scheduler-driven — never
+   wall-clock.
+2. **Network** — `using _ = world.net(nodeId, traffic?).set('hold' \| 'down' \|
+   'ok' \| FaultProfile)`; dispose restores prior state (restore-prior stack).
+   Settle neutralizes outstanding net effects.
+3. **Node** — `world.node(id)` with `crash({ at? })`, `restart(opts)`,
+   `auth(status)`, `skewClock(ms)`, `now()`, `httpFault(fault)`,
+   `publishFault(count)` (server). Server id is `'server'`.
+4. **Client** — `mutate`, `db`, connectivity triad (below), `subscribe`,
+   `outcome`, `rejections`, `nudge` (rare; needs `// nudge:` comment).
+5. **Settle** — `assertConverged()` clears holds/partitions/faults, forces
+   online/foreground/connect, wakes uploads + refreshes, diffs each client vs
+   server (differential oracle). Does **not** absorb negative-timing windows —
+   use `never` for those.
+
+#### Connectivity triad (do not conflate)
+
+| API | Layer | Use when |
+|-----|-------|----------|
+| `client.online(false\|true)` | AppLifecycle intent | `requiresOnline` gate; queue-while-offline that still allows engine session |
+| `client.disconnect()` / `connect()` | Engine session | Stop/start upload runtime + push attach (auth revoke / upload-stop) |
+| `world.net(id).set('hold'\|'down'\|…)` | Network reality | Partition, hold sync/live, packet loss |
 
 #### Quick start
 
 ```ts
 import { describe, test } from 'bun:test';
 import { notesDomainPack, setNote } from '../domain-packs/notes-app';
-import { openSimWorld } from './world';
+import { openSimWorld } from '../../sim/world';
 
 describe('example', () => {
   test('mutate converges', async () => {
@@ -800,16 +820,18 @@ describe('example', () => {
 });
 ```
 
-Scoped hold + latency budget:
+Scoped hold + latency budget + negative window:
 
 ```ts
 {
   using _hold = world.net('bob', 'sync').set('hold');
   const t0 = world.node('bob').now();
-  await a.connect();
-  const at = await world.until(() => isVisible(b), { budgetMs: 400 });
+  await a.mutate(setNote, { id: 'n1', body: 'x' });
+  await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 200 });
+  const at = await world.until(() => isLiveNote(b.db, 'n1'), { budgetMs: 400 });
+  // … after hold released
   expect(at - t0).toBeLessThan(200);
-} // hold released; queued sync deliveries drain
+}
 await world.assertConverged();
 ```
 
@@ -853,12 +875,14 @@ world.node('alice').now(); // base + skew
 | Knob | Default | Meaning |
 |------|---------|---------|
 | `seed` | required | Root RNG seed (`number \| bigint \| string`) |
-| `faults` | `RELIABLE_FAULTS` | Default mesh fault profile (all zeros) |
+| `faults` | `RELIABLE_FAULTS` | Omit unless customizing — bare `faults: RELIABLE_FAULTS` is banned by CI |
 | `sampleFaults` | `false` | Ignore `faults`; sample lossy profile from `rng.fork('faults')` |
 | `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
 | `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe |
 | `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect |
 | `localSchema` / `mutationRegistry` / `queryRegistry` / `sessionQuery` | domain pack | Override server+default client registries/schema for drift scenarios |
+
+Custom faults: `faults: { ...RELIABLE_FAULTS, oneWayDelayMeanMs: 30 }` (spread OK).
 
 **Network faults** (`SimFaultOptions` in `faults.ts`):
 `oneWayDelayMeanMs` / `oneWayDelayJitterMs`, `packetLossProbability`,
@@ -866,10 +890,11 @@ world.node('alice').now(); // base + skew
 fields for fuzz profiles.
 
 **Client / node lifecycle:** `addClient`, `node(id).crash` / `restart` /
-`auth`, `online` / `foreground`, `connect` / `disconnect`. Use
+`auth`, plus the connectivity triad above. Use
 `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios.
 `pubsubRemakeCount()` / `subscribedTopics()` for membership asserts.
-`isSchedulerQuiescent()` observes empty sim timer heap.
+`isSchedulerQuiescent()` / `pendingEventCount()` observe the sim timer heap
+(use instead of `world.scheduler`).
 
 **Boundary crash arms** (`node(id).crash({ at })` returns Disposable):
 
@@ -888,6 +913,12 @@ fields for fuzz profiles.
 `server.notifyFanout({ topics, tables, label })`. Notes fixture
 `writeNoteBody(server, { id, body, notify? })` (`notify: false` pins the
 non-mutation footgun).
+
+**Demoted / internal (lab + harness; CI-banned in scenarios):** `world.clock`,
+`world.rng`, `world.scheduler`, `world.network`, `runUntilIdle`,
+`getSyncEngine` (except account-switch pool), `postMutations` (except
+duplicate-mutation-id). Optional combinators `untilAll` / `untilAny` stay
+exported but are not core concepts.
 
 **Fuzz / replay** (`runNotesSeed` in `domain-packs/notes-app`):
 
@@ -911,6 +942,91 @@ import { runNotesSeed } from '../domain-packs/notes-app';
 await runNotesSeed({ seed: 0x2a, steps: 16 });
 ```
 
+#### Scenario-writing guide (patterns, not primitives)
+
+Keep these as snippets — do **not** promote into API members:
+
+**Warm baseline**
+
+```ts
+await a.mutate(setNote, { id: 'warm', body: 'w' });
+await world.assertConverged();
+```
+
+**Offline queue (AppLifecycle)**
+
+```ts
+a.online(false);
+await a.mutate(setNote, { id: 'n1', body: 'queued' });
+await world.never(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
+a.online(true);
+await world.assertConverged();
+```
+
+**Engine offline queue (session stop)**
+
+```ts
+await a.disconnect();
+await a.mutate(setNote, { id: 'n1', body: 'queued' });
+await a.connect();
+await world.assertConverged();
+```
+
+**Sync hold race**
+
+```ts
+{
+  using _hold = world.net('bob', 'sync').set('hold');
+  await a.mutate(setNote, { id: 'n1', body: 'x' });
+  await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
+}
+await world.assertConverged();
+```
+
+**Partition heal**
+
+```ts
+{
+  using _down = world.net('bob').set('down');
+  await a.mutate(setNote, { id: 'n1', body: 'x' });
+}
+await world.assertConverged();
+```
+
+**Crash + preserve DB**
+
+```ts
+await world.node('bob').crash();
+const bob = await world.node('bob').restart({ preserveLocalDb: true });
+await world.assertConverged();
+```
+
+**Subscribe scope**
+
+```ts
+{
+  using sub = a.subscribe('notesDenied', {});
+  await world.until(sub.ready);
+  // … asserts …
+} // dispose unsubscribes
+```
+
+**Flicker window** (keep explicit ms; do not absorb into settle)
+
+```ts
+for (let i = 0; i < 8; i += 1) {
+  await world.runFor(25);
+  await expectLiveNote(a.db, 'n1', { body: 'optimistic' });
+}
+```
+
+**Heal-by-refetch pin**
+
+```ts
+// nudge: reason under test
+await world.until(b.nudge());
+```
+
 #### Sim layout
 
 ```text
@@ -919,7 +1035,7 @@ src/sim/                             # domain-agnostic DST harness (not public)
   network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
   world.ts client-factory.ts server.ts open-sim-sqlite.ts
   domain-pack.ts                     # SimDomainPack type (no built-in packs)
-  faults.ts invariants.ts replay-steps.ts
+  faults.ts invariants.ts until.ts replay-steps.ts
   test-driver.ts
 
 src/domain-packs/
@@ -931,7 +1047,7 @@ src/sim-lab/                         # interactive host + web UI
 
 src/tests/
   scenarios/                         # black-box correctness suite (111 files)
-  harness/                           # sim kernel self-tests
+  harness/                           # sim kernel self-tests + scenario-api
 ```
 
 Full per-file scenario catalog: [Scenario catalog](#scenario-catalog) at the

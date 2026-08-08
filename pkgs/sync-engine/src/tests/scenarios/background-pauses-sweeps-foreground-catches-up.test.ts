@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('background pauses sweeps foreground catches up', () => {
@@ -13,7 +12,6 @@ describe('background pauses sweeps foreground catches up', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 507,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -23,8 +21,7 @@ describe('background pauses sweeps foreground catches up', () => {
 
     b.foreground(false);
     await a.mutate(setNote, { id: 'n1', body: 'while-bg' });
-    await world.runFor(300);
-    await expectNoteNotLive(b.db, 'n1');
+    await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
 
     b.foreground(true);
     // nudge: foreground catch-up after paused sweeps
@@ -37,7 +34,6 @@ describe('background pauses sweeps foreground catches up', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 508,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     a.foreground(false);

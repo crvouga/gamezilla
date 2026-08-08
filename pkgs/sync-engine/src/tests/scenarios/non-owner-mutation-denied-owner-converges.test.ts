@@ -6,7 +6,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('non owner mutation denied owner converges', () => {
@@ -14,7 +13,6 @@ describe('non owner mutation denied owner converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 50,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -37,7 +35,6 @@ describe('non owner mutation denied owner converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 51,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

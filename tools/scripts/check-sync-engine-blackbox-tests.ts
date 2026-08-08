@@ -4,8 +4,9 @@
  * - all `*.test.ts` live under `pkgs/sync-engine/src/tests/`
  * - scenario tests do not assert framework tables or import private modules
  * - scenario authoring uses the five-concept sim API (no old DSL / pump helpers)
+ * - demoted surface banned; bare faults: RELIABLE_FAULTS banned
  */
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { Glob } from 'bun';
 
 const root = join(import.meta.dirname, '../..');
@@ -24,6 +25,13 @@ const PRIVATE_PACKAGE_IMPORT_RE = /from\s+['"]@pkgs\/sync-engine\/src\//;
 
 const ALLOWED_PACKAGE_IMPORT_RE =
   /from\s+['"]@pkgs\/sync-engine\/(client|server|shared|test)['"]/;
+
+const GET_SYNC_ENGINE_ALLOW = new Set([
+  'account-switch-pool-isolation.test.ts',
+]);
+const POST_MUTATIONS_ALLOW = new Set([
+  'duplicate-mutation-id-different-args-first-wins.test.ts',
+]);
 
 function prevNonEmpty(lines: string[], idx: number): string {
   for (let j = idx - 1; j >= 0; j -= 1) {
@@ -46,6 +54,11 @@ function seedLoopOpensWorld(lines: string[], start: number): boolean {
   return seenOpen && !seenRunSeed;
 }
 
+/** Bare `faults: RELIABLE_FAULTS` (not a spread / custom object). */
+function isBareReliableFaults(line: string): boolean {
+  return /^\s*faults:\s*RELIABLE_FAULTS\s*,?\s*$/.test(line);
+}
+
 for await (const file of new Glob(`${pkg}/src/**/*.test.ts`).scan({
   cwd: root,
   absolute: false,
@@ -59,6 +72,7 @@ for await (const file of new Glob(`${testsRoot}/scenarios/**/*.test.ts`).scan({
   cwd: root,
   absolute: false,
 })) {
+  const base = basename(file);
   const text = await Bun.file(join(root, file)).text();
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i += 1) {
@@ -139,6 +153,39 @@ for await (const file of new Glob(`${testsRoot}/scenarios/**/*.test.ts`).scan({
     ) {
       violations.push(
         `${file}:${n}: client.nudge() requires a preceding // nudge: comment`
+      );
+    }
+    if (/\bworld\.scheduler\b/.test(line)) {
+      violations.push(
+        `${file}:${n}: use world.isSchedulerQuiescent() — world.scheduler is internal`
+      );
+    }
+    if (/\bworld\.rng\b/.test(line)) {
+      violations.push(`${file}:${n}: world.rng is internal (lab/fuzz only)`);
+    }
+    if (/\bworld\.network\b/.test(line)) {
+      violations.push(
+        `${file}:${n}: use world.net() — world.network is internal`
+      );
+    }
+    if (/\brunUntilIdle\s*\(/.test(line)) {
+      violations.push(
+        `${file}:${n}: runUntilIdle is internal — use until / assertConverged`
+      );
+    }
+    if (isBareReliableFaults(line)) {
+      violations.push(
+        `${file}:${n}: omit faults: RELIABLE_FAULTS (default); spread for custom faults`
+      );
+    }
+    if (/\.getSyncEngine\s*\(/.test(line) && !GET_SYNC_ENGINE_ALLOW.has(base)) {
+      violations.push(
+        `${file}:${n}: getSyncEngine is allowlisted for pool isolation only`
+      );
+    }
+    if (/\.postMutations\s*\(/.test(line) && !POST_MUTATIONS_ALLOW.has(base)) {
+      violations.push(
+        `${file}:${n}: postMutations is allowlisted for wire-idempotency only`
       );
     }
   }

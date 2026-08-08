@@ -6,7 +6,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('late join hydrates soft deleted tombstones', () => {
@@ -14,7 +13,6 @@ describe('late join hydrates soft deleted tombstones', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 511,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'gone' });

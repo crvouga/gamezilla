@@ -2,11 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('logout login same device no bleed', () => {
@@ -14,7 +14,6 @@ describe('logout login same device no bleed', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 960,
-      faults: RELIABLE_FAULTS,
     });
     const phoneA = await world.addClient({
       id: 'phone',
@@ -30,8 +29,9 @@ describe('logout login same device no bleed', () => {
       id: 'a-pending',
       body: 'never-upload-as-b',
     });
-    await world.runFor(50);
-    await expectNoteNotLive(world.server.db, 'a-pending');
+    await world.never(() => isLiveNote(world.server.db, 'a-pending'), {
+      forMs: 50,
+    });
 
     // Logout: dispose without preserving local DB (fresh login DB).
     await world.node('phone').crash();
@@ -62,7 +62,6 @@ describe('logout login same device no bleed', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const phone = await world.addClient({
         id: 'phone',

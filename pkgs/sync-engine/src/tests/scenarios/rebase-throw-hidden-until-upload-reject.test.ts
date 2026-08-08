@@ -8,7 +8,6 @@ import {
   setNote,
   setNoteStrictExists,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('rebase throw hidden until upload reject', () => {
@@ -16,7 +15,6 @@ describe('rebase throw hidden until upload reject', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 821,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });

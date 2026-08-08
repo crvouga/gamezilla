@@ -9,7 +9,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('peer create during leave keeps mqtt session', () => {
@@ -17,7 +16,6 @@ describe('peer create during leave keeps mqtt session', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 802,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

@@ -6,7 +6,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('row image for inactive table ignored safely', () => {
@@ -14,7 +13,6 @@ describe('row image for inactive table ignored safely', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 807,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const notesPeer = await world.addClient({

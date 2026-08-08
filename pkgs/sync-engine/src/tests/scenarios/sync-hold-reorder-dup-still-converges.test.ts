@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
@@ -19,7 +18,6 @@ describe('sync hold reorder dup still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 503,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -41,7 +39,6 @@ describe('sync hold reorder dup still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 504,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -62,7 +59,6 @@ describe('sync hold reorder dup still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 505,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

@@ -7,7 +7,6 @@ import {
   notesMutationRegistry,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('unknown mutation name rejected and rolled back', () => {
@@ -17,7 +16,6 @@ describe('unknown mutation name rejected and rolled back', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({

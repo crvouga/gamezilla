@@ -7,7 +7,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('crash during epoch migrate recovers', () => {
@@ -15,7 +14,6 @@ describe('crash during epoch migrate recovers', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 834,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

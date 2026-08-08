@@ -2,10 +2,10 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   expectLiveNote,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('sim scenario API', () => {
@@ -13,7 +13,6 @@ describe('sim scenario API', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 2,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -33,7 +32,6 @@ describe('sim scenario API', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 3,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const queued = await a.mutate(setNote, { id: 'n1', body: 'y' });
@@ -44,11 +42,40 @@ describe('sim scenario API', () => {
     expect(await p).toBe('confirmed');
   });
 
+  test('never holds for negative window', async () => {
+    await using world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 7,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    {
+      using _hold = world.net('bob', 'sync').set('hold');
+      using _live = world.net('bob', 'live').set('down');
+      await a.mutate(setNote, { id: 'n-never', body: 'hidden' });
+      await world.never(() => isLiveNote(b.db, 'n-never'), { forMs: 300 });
+    }
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n-never', { body: 'hidden' });
+  });
+
+  test('never fails when target becomes true', async () => {
+    await using world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 8,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n-seen', body: 'visible' });
+    await expect(
+      world.never(() => isLiveNote(b.db, 'n-seen'), { forMs: 2_000 })
+    ).rejects.toThrow(/never violated/);
+  });
+
   test('assertConverged neutralizes net effects', async () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 4,
-      faults: RELIABLE_FAULTS,
     });
     await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
@@ -64,7 +91,6 @@ describe('sim scenario API', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 5,
-      faults: RELIABLE_FAULTS,
     });
     await world.addClient({ id: 'alice' });
     const base = world.node('alice').now();
@@ -79,7 +105,6 @@ describe('sim scenario API', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 6,
-      faults: RELIABLE_FAULTS,
     });
     await world.addClient({ id: 'alice' });
     using outer = world.net('alice', 'sync').set('hold');

@@ -9,7 +9,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
@@ -17,7 +16,6 @@ describe('membership revoked mid session scope denied topics dropped', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 970,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',
@@ -70,7 +68,6 @@ describe('membership revoked mid session scope denied topics dropped', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({
         id: 'alice',

@@ -10,7 +10,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('folders and notes multi table converge', () => {
@@ -18,7 +17,6 @@ describe('folders and notes multi table converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 20,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -44,7 +42,6 @@ describe('folders and notes multi table converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 21,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -69,7 +66,6 @@ describe('folders and notes multi table converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 22,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

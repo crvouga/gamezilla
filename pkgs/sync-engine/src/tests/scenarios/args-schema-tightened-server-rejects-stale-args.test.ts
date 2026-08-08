@@ -7,7 +7,6 @@ import {
   setNote,
   setNoteArgsLoose,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('args schema tightened server rejects stale args', () => {
@@ -17,7 +16,6 @@ describe('args schema tightened server rejects stale args', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({

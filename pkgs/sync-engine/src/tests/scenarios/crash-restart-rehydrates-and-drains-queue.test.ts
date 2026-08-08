@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('crash restart rehydrates and drains queue', () => {
@@ -12,11 +11,11 @@ describe('crash restart rehydrates and drains queue', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 40,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
+    // AppLifecycle offline: requiresOnline gate; upload may still run.
     a.online(false);
     await a.mutate(setNote, { id: 'n1', body: 'queued' });
     await world.runFor(50);
@@ -30,7 +29,6 @@ describe('crash restart rehydrates and drains queue', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 41,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });

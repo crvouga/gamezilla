@@ -5,7 +5,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('scope hash stable under param key order', () => {
@@ -15,7 +14,6 @@ describe('scope hash stable under param key order', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setFolder, { id: 'f1', title: 'Folder' });

@@ -11,7 +11,6 @@ import {
   setTag,
   tagsWorldQuery,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('new domain table added mid life hydrates after migrate', () => {
@@ -21,7 +20,6 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         localSchema: notesLocalSchemaExtraTable,
         mutationRegistry: {
           ...notesMutationRegistry,

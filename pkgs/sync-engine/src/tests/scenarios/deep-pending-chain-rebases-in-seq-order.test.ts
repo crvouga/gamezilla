@@ -8,7 +8,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const CHAIN = 60;
@@ -18,7 +17,6 @@ describe('deep pending chain rebases in seq order', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 822,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

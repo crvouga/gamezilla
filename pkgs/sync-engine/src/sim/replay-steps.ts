@@ -1,5 +1,5 @@
 import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
-import type { SimWorld } from './world';
+import type { SimWorld } from './world-api';
 
 /** Add N clients and optionally enable sampled network faults. */
 export async function bootClients(args: {

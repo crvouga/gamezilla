@@ -1,11 +1,12 @@
-import type { SimClientHandle } from './client-factory';
+import type { SimClientHandle } from './client-handle';
 import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 import { createSimNetHandle } from './net-effect';
 import { createSimNodeHandle } from './node-handle';
 import { unregisterSimWorld } from './scenario-dispose-hook';
-import { runWorldUntil } from './until';
-import type { SimWorld } from './world';
+import type { UntilContext } from './until';
+import { runWorldNever, runWorldUntil } from './until';
+import type { SimWorld } from './world-api';
 import {
   crashClientImpl,
   fireCrashIfArmed,
@@ -47,6 +48,45 @@ export function createArmCrashHook(
   };
 }
 
+function untilCtx(k: BootedSimKernel): UntilContext {
+  return {
+    clock: k.clock,
+    scheduler: k.scheduler,
+    seed: k.rng.seed,
+    heldSummary: () => k.network.heldSummary(),
+  };
+}
+
+function bindNodeAndNet(args: {
+  readonly k: BootedSimKernel;
+  readonly netEffects: NetEffectRegistry;
+  readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
+  readonly crashServer: () => Promise<void>;
+}): Pick<SimWorld, 'net' | 'node'> {
+  const { k, netEffects, armCrashHook, crashServer } = args;
+  const { clients, network } = k;
+  return {
+    net: (nodeId, traffic = 'all') =>
+      createSimNetHandle({
+        network,
+        nodeId,
+        traffic,
+        registry: netEffects,
+        onHoldReleased: (id) => {
+          clients.get(id)?.engine.wakeUploads();
+        },
+      }),
+    node: (id) =>
+      createSimNodeHandle(k, id, {
+        crashClient: (cid) => crashClientImpl(k, cid),
+        restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
+        crashServer,
+        restartServer: (opts) => restartServerImpl(k, opts),
+        armCrashHook,
+      }),
+  };
+}
+
 export function bindWorldMethods(args: {
   readonly k: BootedSimKernel;
   readonly netEffects: NetEffectRegistry;
@@ -60,6 +100,13 @@ export function bindWorldMethods(args: {
   const { k, netEffects, armCrashHook, crashServer, worldRef, markDisposed } =
     args;
   const { clients, scheduler, network, broker, rng, domain } = k;
+  const ctx = untilCtx(k);
+  const { net, node } = bindNodeAndNet({
+    k,
+    netEffects,
+    armCrashHook,
+    crashServer,
+  });
 
   const dispose = async () => {
     if (markDisposed()) return;
@@ -84,38 +131,14 @@ export function bindWorldMethods(args: {
     clients,
     nextId: k.nextId,
     addClient: (clientArgs) => addClientImpl(k, clientArgs),
-    net: (nodeId, traffic = 'all') =>
-      createSimNetHandle({
-        network,
-        nodeId,
-        traffic,
-        registry: netEffects,
-        onHoldReleased: (id) => {
-          clients.get(id)?.engine.wakeUploads();
-        },
-      }),
-    node: (id) =>
-      createSimNodeHandle(k, id, {
-        crashClient: (cid) => crashClientImpl(k, cid),
-        restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
-        crashServer,
-        restartServer: (opts) => restartServerImpl(k, opts),
-        armCrashHook,
-      }),
-    until: (target, opts) =>
-      runWorldUntil(
-        {
-          clock: k.clock,
-          scheduler,
-          seed: rng.seed,
-          heldSummary: () => network.heldSummary(),
-        },
-        target,
-        opts
-      ),
+    net,
+    node,
+    until: (target, opts) => runWorldUntil(ctx, target, opts),
+    never: (target, opts) => runWorldNever(ctx, target, opts),
     runFor: (ms) => scheduler.runFor(ms),
     runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
     isSchedulerQuiescent: () => scheduler.pendingCount() === 0,
+    pendingEventCount: () => scheduler.pendingCount(),
     checkInvariants: () =>
       checkClientSeqs(clients, rng.seed, () => k.clock.now()),
     assertConverged: () =>

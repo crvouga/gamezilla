@@ -8,7 +8,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('rebase onto peer tombstone pinned semantics', () => {
@@ -17,7 +16,6 @@ describe('rebase onto peer tombstone pinned semantics', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 820,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

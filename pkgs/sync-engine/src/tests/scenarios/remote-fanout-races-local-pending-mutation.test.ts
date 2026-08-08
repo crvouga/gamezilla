@@ -1,6 +1,5 @@
 import { describe, test } from 'bun:test';
 import { notesDomainPack, setNote } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('remote fanout races local pending mutation', () => {
@@ -8,7 +7,6 @@ describe('remote fanout races local pending mutation', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 29,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

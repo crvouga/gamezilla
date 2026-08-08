@@ -7,7 +7,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('push tables filter wakes overlapping scopes', () => {
@@ -17,7 +16,6 @@ describe('push tables filter wakes overlapping scopes', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 690,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });

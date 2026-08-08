@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 /** Over MAX_FANOUT_BYTES (32KiB) so fanoutRowsWithinCap drops row images. */
@@ -16,7 +15,6 @@ describe('oversized fanout falls back to refetch', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 670,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

@@ -7,7 +7,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('mutate local apply and queue atomic under crash', () => {
@@ -15,7 +14,6 @@ describe('mutate local apply and queue atomic under crash', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 831,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

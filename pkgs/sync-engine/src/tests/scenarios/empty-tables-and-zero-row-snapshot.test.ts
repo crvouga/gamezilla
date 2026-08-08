@@ -6,7 +6,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('empty tables and zero row snapshot', () => {
@@ -14,7 +13,6 @@ describe('empty tables and zero row snapshot', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1020,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -36,7 +34,6 @@ describe('empty tables and zero row snapshot', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1021,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
@@ -60,7 +57,6 @@ describe('empty tables and zero row snapshot', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

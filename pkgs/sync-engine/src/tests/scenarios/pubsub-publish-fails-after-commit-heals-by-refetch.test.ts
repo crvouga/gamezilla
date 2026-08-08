@@ -1,11 +1,10 @@
 import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('pubsub publish fails after commit heals by refetch', () => {
@@ -15,7 +14,6 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 901,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -27,12 +25,13 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       using _hold = world.net('bob', 'sync').set('hold');
       using _pub = world.node('server').publishFault('next');
       await a.mutate(setNote, { id: 'n-lost-push', body: 'committed' });
-      await world.runFor(400);
-
+      await world.until(() => isLiveNote(world.server.db, 'n-lost-push'), {
+        budgetMs: 5_000,
+      });
       await expectLiveNote(world.server.db, 'n-lost-push', {
         body: 'committed',
       });
-      await expectNoteNotLive(b.db, 'n-lost-push');
+      await world.never(() => isLiveNote(b.db, 'n-lost-push'), { forMs: 400 });
     }
     b.foreground(false);
     b.foreground(true);
@@ -48,7 +47,6 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({ id: 'alice' });
@@ -61,7 +59,9 @@ describe('pubsub publish fails after commit heals by refetch', () => {
       await world.runFor(200);
       await b.disconnect();
       await b.connect();
-      await world.runFor(500);
+      await world.until(() => isLiveNote(b.db, `n-${seed}`), {
+        budgetMs: 5_000,
+      });
       await world.assertConverged();
       await expectLiveNote(b.db, `n-${seed}`, { body: `b-${seed}` });
     }

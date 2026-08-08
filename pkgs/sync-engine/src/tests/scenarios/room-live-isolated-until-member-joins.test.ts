@@ -2,14 +2,13 @@ import { describe, test } from 'bun:test';
 import {
   createSpace,
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   joinSpace,
   notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('room live isolated until member joins', () => {
@@ -17,7 +16,6 @@ describe('room live isolated until member joins', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 804,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',
@@ -30,7 +28,6 @@ describe('room live isolated until member joins', () => {
 
     await a.mutate(createSpace, { id: 'room-a', title: 'A' });
     await b.mutate(createSpace, { id: 'room-b', title: 'B' });
-    await world.runFor(300);
     await world.until(() => a.subscribedTopics().includes(roomTopic('room-a')));
     await world.until(() => b.subscribedTopics().includes(roomTopic('room-b')));
 
@@ -39,8 +36,7 @@ describe('room live isolated until member joins', () => {
       spaceId: 'room-b',
       body: 'secret-b',
     });
-    await world.runFor(300);
-    await expectNoteNotLive(a.db, 'b-only');
+    await world.never(() => isLiveNote(a.db, 'b-only'), { forMs: 300 });
     await expectLiveNote(b.db, 'b-only', { body: 'secret-b' });
 
     await a.mutate(joinSpace, { spaceId: 'room-b' });

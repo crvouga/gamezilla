@@ -6,7 +6,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('account switch pool isolation', () => {
@@ -14,7 +13,6 @@ describe('account switch pool isolation', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 950,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const acctA = await world.addClient({
@@ -72,7 +70,6 @@ describe('account switch pool isolation', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({ id: 'a', actorId: 'ua' });

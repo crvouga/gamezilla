@@ -7,7 +7,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('tombstone row image deletes live row', () => {
@@ -15,7 +14,6 @@ describe('tombstone row image deletes live row', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 806,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

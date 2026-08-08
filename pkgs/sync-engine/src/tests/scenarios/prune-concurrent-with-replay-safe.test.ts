@@ -5,7 +5,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('prune concurrent with replay safe', () => {
@@ -13,7 +12,6 @@ describe('prune concurrent with replay safe', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 940,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -58,7 +56,6 @@ describe('prune concurrent with replay safe', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

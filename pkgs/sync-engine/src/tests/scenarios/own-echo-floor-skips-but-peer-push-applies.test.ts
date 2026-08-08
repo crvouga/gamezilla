@@ -5,7 +5,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('own echo floor skips but peer push applies', () => {
@@ -13,7 +12,6 @@ describe('own echo floor skips but peer push applies', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 805,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

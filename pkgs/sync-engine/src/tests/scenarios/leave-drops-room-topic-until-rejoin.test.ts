@@ -3,7 +3,7 @@ import {
   createSpace,
   endSpace,
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   joinSpace,
   leaveSpace,
   notesDomainPack,
@@ -11,7 +11,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('leave drops room topic until rejoin', () => {
@@ -19,7 +18,6 @@ describe('leave drops room topic until rejoin', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 806,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',
@@ -51,8 +49,7 @@ describe('leave drops room topic until rejoin', () => {
         spaceId: 'end-room',
         body: 'miss-me',
       });
-      await world.runFor(300);
-      await expectNoteNotLive(a.db, 'after-leave');
+      await world.never(() => isLiveNote(a.db, 'after-leave'), { forMs: 300 });
       await expectLiveNote(b.db, 'after-leave', { body: 'miss-me' });
       expect(a.pubsubRemakeCount()).toBe(remakes);
     }
@@ -65,7 +62,6 @@ describe('leave drops room topic until rejoin', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 807,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

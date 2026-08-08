@@ -6,10 +6,7 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import { createControllableLifecycle } from '../client/app-lifecycle';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
-import type { SyncEngine } from '../client/sync-engine-port';
-import type { MutationClient } from '../mutations/client/create-mutation-client';
 import type {
-  MutateResult,
   Mutation,
   MutationEnv,
   MutationRegistry,
@@ -21,78 +18,21 @@ import {
   createMutationSide,
   type SimAuthControl,
 } from './client-factory-parts';
+import type { SimClientHandle, SimClientLifecycle } from './client-handle';
 import { decorateClientSurface } from './client-surface';
 import type { SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
 import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
 
-export type SimClientLifecycle = ReturnType<typeof createControllableLifecycle>;
 export type { SimAuthControl, SimAuthStatus } from './client-factory-parts';
-
-export type SimClientDbBundle = {
-  readonly raw: SqlClient;
-  readonly serial: SqlClient;
-};
-
-export type SimSubscription = Disposable & {
-  readonly ready: Promise<void>;
-};
-
-export type SimRejection = {
-  readonly id: string;
-  readonly mutationId: string;
-  readonly code: string;
-  readonly message: string;
-  readonly meta: string | null;
-};
-
-export type SimClientHandle = {
-  readonly id: string;
-  readonly actorId: string;
-  readonly deviceId: string;
-  readonly db: SqlClient;
-  /** Underlying DB handles for preserveLocalDb restarts. */
-  readonly dbBundle: SimClientDbBundle;
-  /**
-   * Real sync engine — sim internals / settle only.
-   * Scenarios: use flattened methods; pool tests use {@link getSyncEngine}.
-   */
-  readonly engine: SyncEngine;
-  /** Controllable lifecycle — prefer `online` / `foreground` in scenarios. */
-  readonly lifecycle: SimClientLifecycle;
-  /** Explicit SyncEngine access for pool / identity tests. */
-  readonly getSyncEngine: () => SyncEngine;
-  readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
-  readonly mutationClient: MutationClient;
-  readonly http: SimHttpClient;
-  /** createPubSub invocations (bootstrap + each remake). */
-  readonly pubsubRemakeCount: () => number;
-  /** Live pubsub handler topics for this client. */
-  readonly subscribedTopics: () => readonly string[];
-  /** Dispose engine + HTTP; optionally keep the SQLite DB for preserveLocalDb. */
-  readonly dispose: (opts?: { readonly keepDb?: boolean }) => Promise<void>;
-
-  readonly online: (value: boolean) => void;
-  readonly foreground: (value: boolean) => void;
-  readonly connect: () => Promise<void>;
-  readonly disconnect: () => Promise<void>;
-  readonly clearLocalData: (reason: string) => Promise<void>;
-  readonly subscribe: (
-    name: string,
-    params: Readonly<Record<string, unknown>>
-  ) => SimSubscription;
-  readonly outcome: (mutationId: string) => Promise<'confirmed' | 'rejected'>;
-  readonly rejections: () => Promise<readonly SimRejection[]>;
-  readonly connection: () => string;
-  readonly lastError: () => string | null;
-  readonly hasSynced: () => boolean;
-  /** Rare explicit wake+refresh. Scenarios need a `// nudge:` comment above. */
-  readonly nudge: () => Promise<void>;
-  readonly postMutations: (
-    rows: Parameters<SimHttpClient['postMutations']>[0]
-  ) => Promise<Awaited<ReturnType<SimHttpClient['postMutations']>>>;
-};
+export type {
+  SimClientDbBundle,
+  SimClientHandle,
+  SimClientLifecycle,
+  SimRejection,
+  SimSubscription,
+} from './client-handle';
 
 export type BuildSimClientArgs = {
   readonly id: string;

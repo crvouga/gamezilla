@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 const BEHIND = -60_000;
@@ -72,7 +71,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 301,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     await liveBeforeSync(world);
@@ -82,7 +80,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 302,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     await syncBeforeLive(world);
@@ -93,7 +90,6 @@ describe('live vs sync ordering races converge', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed: 310,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       using _sa = world.node('alice').skewClock(order.alice);
@@ -106,7 +102,6 @@ describe('live vs sync ordering races converge', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed: 320,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       using _sa = world.node('alice').skewClock(order.alice);
@@ -120,7 +115,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 303,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -141,7 +135,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 304,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -163,7 +156,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 305,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -184,7 +176,6 @@ describe('live vs sync ordering races converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 306,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

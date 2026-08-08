@@ -8,7 +8,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('leave join topics without pubsub remake', () => {
@@ -16,7 +15,6 @@ describe('leave join topics without pubsub remake', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 801,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

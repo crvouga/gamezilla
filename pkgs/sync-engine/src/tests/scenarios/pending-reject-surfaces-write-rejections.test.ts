@@ -6,7 +6,6 @@ import {
   serverRejectNote,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('pending reject surfaces write rejections', () => {
@@ -15,7 +14,6 @@ describe('pending reject surfaces write rejections', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 711,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });

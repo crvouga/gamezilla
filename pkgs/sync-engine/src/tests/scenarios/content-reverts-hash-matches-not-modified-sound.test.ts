@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('content reverts hash matches not modified sound', () => {
@@ -13,7 +12,6 @@ describe('content reverts hash matches not modified sound', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 803,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

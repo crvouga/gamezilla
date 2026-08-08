@@ -1,6 +1,6 @@
 import { createNetEffectRegistry } from './net-effect';
 import { registerSimWorld } from './scenario-dispose-hook';
-import type { SimWorld } from './world';
+import type { SimWorld } from './world-api';
 import { bindWorldMethods, createArmCrashHook } from './world-facade-parts';
 import { worldFaultApi } from './world-lifecycle';
 import type { BootedSimKernel } from './world-types';

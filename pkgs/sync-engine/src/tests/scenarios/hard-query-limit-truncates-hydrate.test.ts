@@ -8,7 +8,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('hard query limit truncates hydrate', () => {
@@ -16,7 +15,6 @@ describe('hard query limit truncates hydrate', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 630,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
@@ -49,7 +47,6 @@ describe('hard query limit truncates hydrate', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 631,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });

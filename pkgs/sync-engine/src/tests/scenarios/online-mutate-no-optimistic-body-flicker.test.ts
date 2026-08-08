@@ -5,7 +5,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('online mutate no optimistic body flicker', () => {
@@ -13,7 +12,6 @@ describe('online mutate no optimistic body flicker', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 700,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });

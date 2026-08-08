@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('same actor two devices converge', () => {
@@ -13,7 +12,6 @@ describe('same actor two devices converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 509,
-      faults: RELIABLE_FAULTS,
     });
     const phone = await world.addClient({
       id: 'phone',

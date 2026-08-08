@@ -5,6 +5,7 @@ export {
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
+  isLiveNote,
   type LiveFolder,
   type LiveNote,
   readLiveFolders,

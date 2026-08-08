@@ -11,7 +11,6 @@ import {
   notesWorldWithColorQuery,
   setNoteColor,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('server snapshot with unknown column merges cleanly', () => {
@@ -21,7 +20,6 @@ describe('server snapshot with unknown column merges cleanly', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         localSchema: notesLocalSchemaExtraColumn,
         mutationRegistry: {
           ...notesMutationRegistry,

@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('full partition during write then heal', () => {
@@ -12,7 +11,6 @@ describe('full partition during write then heal', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 33,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

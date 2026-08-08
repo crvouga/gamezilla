@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('reordered http responses stale checkpoint dropped', () => {
@@ -13,7 +12,6 @@ describe('reordered http responses stale checkpoint dropped', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 802,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

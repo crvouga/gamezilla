@@ -7,7 +7,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('replay pins now to mutation created at', () => {
@@ -15,7 +14,6 @@ describe('replay pins now to mutation created at', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 720,
-      faults: RELIABLE_FAULTS,
     });
     using _sa = world.node('alice').skewClock(-60_000);
     using _sb = world.node('bob').skewClock(0);
@@ -50,7 +48,6 @@ describe('replay pins now to mutation created at', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 721,
-      faults: RELIABLE_FAULTS,
     });
     using _sa = world.node('alice').skewClock(-120_000);
     using _sb = world.node('bob').skewClock(0);

@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 /** Happy-path latency budget components (simulated ms). */
@@ -19,7 +18,6 @@ describe('live fanout peer visibility within budget', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 7,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -38,7 +36,6 @@ describe('live fanout peer visibility within budget', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 23,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });

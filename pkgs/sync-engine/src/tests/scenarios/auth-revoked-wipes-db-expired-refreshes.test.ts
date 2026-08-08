@@ -2,11 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('auth revoked wipes db expired refreshes', () => {
@@ -14,15 +14,15 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 601,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
 
     await a.disconnect();
     await a.mutate(setNote, { id: 'n-exp', body: 'queued-through-refresh' });
-    await world.runFor(50);
-    await expectNoteNotLive(world.server.db, 'n-exp');
+    await world.never(() => isLiveNote(world.server.db, 'n-exp'), {
+      forMs: 50,
+    });
 
     world.node('alice').auth('expired');
     await a.connect();
@@ -36,7 +36,6 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 602,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await world.addClient({ id: 'bob' });
@@ -46,13 +45,15 @@ describe('auth revoked wipes db expired refreshes', () => {
 
     await a.disconnect();
     await a.mutate(setNote, { id: 'n-lost', body: 'never-uploaded' });
-    await world.runFor(50);
-    await expectNoteNotLive(world.server.db, 'n-lost');
+    await world.never(() => isLiveNote(world.server.db, 'n-lost'), {
+      forMs: 50,
+    });
 
     world.node('alice').auth('revoked');
     await a.connect();
-    await world.runFor(500);
-    await expectNoteNotLive(world.server.db, 'n-lost');
+    await world.never(() => isLiveNote(world.server.db, 'n-lost'), {
+      forMs: 500,
+    });
 
     const alice2 = await world.node('alice').restart();
     await world.assertConverged();
@@ -66,7 +67,6 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 603,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -78,8 +78,9 @@ describe('auth revoked wipes db expired refreshes', () => {
         body: `d${i}`,
       });
     }
-    await world.runFor(50);
-    await expectNoteNotLive(world.server.db, 'drain-0');
+    await world.never(() => isLiveNote(world.server.db, 'drain-0'), {
+      forMs: 50,
+    });
 
     world.node('alice').auth('expired');
     await a.connect();
@@ -95,7 +96,6 @@ describe('auth revoked wipes db expired refreshes', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 604,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -108,7 +108,9 @@ describe('auth revoked wipes db expired refreshes', () => {
     await b.mutate(setNote, { id: 'n-late', body: 'after-revoke' });
     // nudge: revoke path may reject refresh — drive until settle/timeout
     await world.until(a.nudge().catch(() => undefined));
-    await world.runFor(500);
+    await world.until(() => a.subscribedTopics().length === 0, {
+      budgetMs: 2_000,
+    });
 
     expect(a.subscribedTopics()).toEqual([]);
     await expectLiveNote(world.server.db, 'n-before', { body: 'visible' });

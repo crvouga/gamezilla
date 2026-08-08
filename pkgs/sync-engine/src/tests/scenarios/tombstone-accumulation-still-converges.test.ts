@@ -8,7 +8,6 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const TOMBSTONE_COUNT = 120;
@@ -19,7 +18,6 @@ describe('tombstone accumulation still converges', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1040,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -47,7 +45,6 @@ describe('tombstone accumulation still converges', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

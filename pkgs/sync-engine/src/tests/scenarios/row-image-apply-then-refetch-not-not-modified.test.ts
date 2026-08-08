@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('row image apply then refetch not not modified', () => {
@@ -14,7 +13,6 @@ describe('row image apply then refetch not not modified', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 801,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

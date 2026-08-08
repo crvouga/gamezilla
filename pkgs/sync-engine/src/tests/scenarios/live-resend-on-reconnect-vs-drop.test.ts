@@ -1,11 +1,10 @@
 import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('live resend on reconnect vs drop', () => {
@@ -13,7 +12,6 @@ describe('live resend on reconnect vs drop', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 601,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -26,8 +24,7 @@ describe('live resend on reconnect vs drop', () => {
     await world.runFor(80);
 
     await b.connect();
-    await world.runFor(200);
-    await expectNoteNotLive(b.db, 'n1');
+    await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 200 });
 
     _hold.restore();
     await world.assertConverged();
@@ -38,7 +35,6 @@ describe('live resend on reconnect vs drop', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 602,
-      faults: RELIABLE_FAULTS,
       liveResendOnReconnect: true,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -52,7 +48,7 @@ describe('live resend on reconnect vs drop', () => {
     await world.runFor(80);
 
     await b.connect();
-    await world.runFor(200);
+    await world.until(() => isLiveNote(b.db, 'n1'), { budgetMs: 2_000 });
     await expectLiveNote(b.db, 'n1', { body: 'resent' });
 
     _hold.restore();

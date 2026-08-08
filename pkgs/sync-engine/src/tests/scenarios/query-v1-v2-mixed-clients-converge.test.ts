@@ -6,7 +6,6 @@ import {
   setNote,
   setNoteV2,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('query v1 v2 mixed clients converge', () => {
@@ -16,7 +15,6 @@ describe('query v1 v2 mixed clients converge', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({
         id: 'alice',

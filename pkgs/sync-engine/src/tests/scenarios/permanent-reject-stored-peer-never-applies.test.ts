@@ -7,7 +7,6 @@ import {
   serverRejectNote,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('permanent reject stored peer never applies', () => {
@@ -16,7 +15,6 @@ describe('permanent reject stored peer never applies', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 501,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });

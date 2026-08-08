@@ -4,7 +4,6 @@ import {
   setFolder,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('scope churn no leaked timers or subscriptions', () => {
@@ -12,7 +11,6 @@ describe('scope churn no leaked timers or subscriptions', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1030,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setFolder, { id: 'f1', title: 'A' });
@@ -33,7 +31,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
     await world.runFor(1_000);
     expect([...a.subscribedTopics()].sort()).toEqual(baseline);
     // No runaway timer storm: pending work stays bounded after churn.
-    expect(world.scheduler.pendingCount()).toBeLessThan(50);
+    expect(world.pendingEventCount()).toBeLessThan(50);
     await world.assertConverged();
   });
 
@@ -43,7 +41,6 @@ describe('scope churn no leaked timers or subscriptions', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const baseline = [...a.subscribedTopics()].sort();
@@ -54,7 +51,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
       await world.runFor(500);
       expect([...a.subscribedTopics()].sort()).toEqual(baseline);
       expect(
-        world.isSchedulerQuiescent() || world.scheduler.pendingCount() < 50
+        world.isSchedulerQuiescent() || world.pendingEventCount() < 50
       ).toBe(true);
     }
   );

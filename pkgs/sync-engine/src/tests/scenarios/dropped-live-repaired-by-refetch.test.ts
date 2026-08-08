@@ -12,7 +12,6 @@ describe('dropped live repaired by refetch', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 11,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

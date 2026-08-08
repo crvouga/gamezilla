@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('push seq gap forces refetch not image apply', () => {
@@ -13,7 +12,6 @@ describe('push seq gap forces refetch not image apply', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 804,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

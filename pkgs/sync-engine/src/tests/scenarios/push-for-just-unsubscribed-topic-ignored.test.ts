@@ -2,7 +2,7 @@ import { describe, test } from 'bun:test';
 import {
   createSpace,
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   joinSpace,
   leaveSpace,
   notesDomainPack,
@@ -10,7 +10,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('push for just unsubscribed topic ignored', () => {
@@ -18,7 +17,6 @@ describe('push for just unsubscribed topic ignored', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 812,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',
@@ -48,8 +46,7 @@ describe('push for just unsubscribed topic ignored', () => {
         spaceId: 'race-room',
         body: 'missed',
       });
-      await world.runFor(300);
-      await expectNoteNotLive(a.db, 'late-push');
+      await world.never(() => isLiveNote(a.db, 'late-push'), { forMs: 300 });
       await expectLiveNote(b.db, 'late-push', { body: 'missed' });
     }
     await a.mutate(joinSpace, { spaceId: 'race-room' });

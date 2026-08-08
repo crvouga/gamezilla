@@ -2,11 +2,10 @@ import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/client';
 import {
   expectLiveNote,
-  expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump mid offline session then drain', () => {
@@ -16,7 +15,6 @@ describe('epoch bump mid offline session then drain', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -25,8 +23,7 @@ describe('epoch bump mid offline session then drain', () => {
       // still allows HTTP in this sim).
       await a.disconnect();
       await a.mutate(setNote, { id: 'n1', body: 'mid-offline' });
-      await world.runFor(50);
-      await expectNoteNotLive(world.server.db, 'n1');
+      await world.never(() => isLiveNote(world.server.db, 'n1'), { forMs: 50 });
 
       // Restart applies epoch wipe on preserved DB; engine reconnects for
       // session sync (sim always boots online). Pending durable uploads drain.

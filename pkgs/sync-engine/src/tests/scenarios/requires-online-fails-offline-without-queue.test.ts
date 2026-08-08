@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   requiresOnlineNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('requires online fails offline without queue', () => {
@@ -12,7 +11,6 @@ describe('requires online fails offline without queue', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 510,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     a.online(false);

@@ -5,7 +5,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('server 500 mid batch full retry idempotent', () => {
@@ -15,7 +14,6 @@ describe('server 500 mid batch full retry idempotent', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -41,7 +39,6 @@ describe('server 500 mid batch full retry idempotent', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed: seed + 10,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

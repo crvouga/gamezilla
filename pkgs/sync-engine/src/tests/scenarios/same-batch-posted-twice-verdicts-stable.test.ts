@@ -15,7 +15,6 @@ describe('same batch posted twice verdicts stable', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

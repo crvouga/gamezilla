@@ -5,7 +5,6 @@ import {
   readLiveFolders,
   setNoteUndeclaredFolderWrite,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('undeclared table write misses table filter heals on wakeall', () => {
@@ -14,7 +13,6 @@ describe('undeclared table write misses table filter heals on wakeall', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1070,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -58,7 +56,6 @@ describe('undeclared table write misses table filter heals on wakeall', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
       const a = await world.addClient({ id: 'alice' });

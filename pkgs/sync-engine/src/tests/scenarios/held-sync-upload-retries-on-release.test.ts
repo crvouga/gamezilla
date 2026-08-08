@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('held sync upload retries on release', () => {
@@ -12,7 +11,6 @@ describe('held sync upload retries on release', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 502,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -28,10 +26,7 @@ describe('held sync upload retries on release', () => {
       if (!queued.ok) return;
       mutationId = queued.mutationId;
 
-      await world.runFor(200);
-      await expect(
-        world.until(a.outcome(mutationId), { budgetMs: 100 })
-      ).rejects.toThrow(/until timed out/);
+      await world.never(a.outcome(mutationId), { forMs: 300 });
     }
     await world.until(a.outcome(mutationId), { budgetMs: 5_000 });
     expect(await a.outcome(mutationId)).toBe('confirmed');

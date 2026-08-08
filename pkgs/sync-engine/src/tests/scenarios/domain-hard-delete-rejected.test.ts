@@ -6,7 +6,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('domain hard delete rejected', () => {
@@ -14,7 +13,6 @@ describe('domain hard delete rejected', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 60,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'keep-me' });

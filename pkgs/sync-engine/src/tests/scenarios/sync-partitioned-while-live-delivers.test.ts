@@ -5,7 +5,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('sync partitioned while live delivers', () => {
@@ -13,7 +12,6 @@ describe('sync partitioned while live delivers', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 506,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });

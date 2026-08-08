@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
@@ -19,7 +18,6 @@ describe('bigint ids and float precision stable', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1010,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -50,7 +48,6 @@ describe('bigint ids and float precision stable', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

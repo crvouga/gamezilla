@@ -8,7 +8,6 @@ import {
   setNote,
   setNoteV2,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 /** Old-client registry: setNoteV2 not registered locally (server still has both). */
@@ -25,7 +24,6 @@ describe('set note v1 v2 interleaved converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 660,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -50,7 +48,6 @@ describe('set note v1 v2 interleaved converge', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 661,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

@@ -6,7 +6,6 @@ import {
   notesLocalSchemaExtraColumn,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('client column missing from server snapshot not clobbered', () => {
@@ -17,7 +16,6 @@ describe('client column missing from server snapshot not clobbered', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({
         id: 'alice',

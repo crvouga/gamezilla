@@ -4,7 +4,6 @@ import {
   notesDomainPack,
   setNoteNoFanout,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('push without affected rows wakes refetch', () => {
@@ -13,7 +12,6 @@ describe('push without affected rows wakes refetch', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 680,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

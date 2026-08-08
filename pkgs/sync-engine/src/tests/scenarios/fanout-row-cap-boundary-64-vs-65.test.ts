@@ -8,7 +8,6 @@ import {
   retouchNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 function noteIds(count: number): string[] {
@@ -23,7 +22,6 @@ describe('fanout row cap boundary 64 vs 65', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 808,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -52,7 +50,6 @@ describe('fanout row cap boundary 64 vs 65', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 809,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });

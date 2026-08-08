@@ -8,7 +8,6 @@ import {
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('join paints peer space note via live', () => {
@@ -16,7 +15,6 @@ describe('join paints peer space note via live', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 805,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({
       id: 'alice',

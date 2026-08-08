@@ -6,7 +6,6 @@ import {
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const PEER_VISIBLE_BUDGET_MS = 200;
@@ -16,7 +15,6 @@ describe('buffer outbound live flush on reconnect', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 701,
-      faults: RELIABLE_FAULTS,
     });
     const a = await world.addClient({ id: 'alice' });
     const b = await world.addClient({ id: 'bob' });
@@ -39,7 +37,6 @@ describe('buffer outbound live flush on reconnect', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 702,
-      faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -63,7 +60,6 @@ describe('buffer outbound live flush on reconnect', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 703,
-      faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
     });
     const a = await world.addClient({ id: 'alice' });

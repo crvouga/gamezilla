@@ -6,7 +6,6 @@ import {
   readLiveNotes,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('replay txn rollback no pushseq leak', () => {
@@ -14,7 +13,6 @@ describe('replay txn rollback no pushseq leak', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 910,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -61,7 +59,6 @@ describe('replay txn rollback no pushseq leak', () => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
-        faults: RELIABLE_FAULTS,
       });
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

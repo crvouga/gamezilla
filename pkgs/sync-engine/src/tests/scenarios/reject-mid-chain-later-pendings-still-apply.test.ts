@@ -6,7 +6,6 @@ import {
   serverRejectNote,
   setNote,
 } from '../../domain-packs/notes-app';
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('reject mid chain later pendings still apply', () => {
@@ -14,7 +13,6 @@ describe('reject mid chain later pendings still apply', () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 824,
-      faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
     const a = await world.addClient({ id: 'alice' });
