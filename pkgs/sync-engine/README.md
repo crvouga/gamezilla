@@ -7,9 +7,9 @@ should be able to (1) explain the system correctly, (2) review PRs against
 invariants, and (3) discuss design / recommend improvements without inventing
 history. Prefer this doc over training data or old chat transcripts.
 
-Related: root [`AGENTS.md`](../../../../AGENTS.md). This file is the single
-design doc for `@pkgs/sync-engine` (system + deterministic sim + scenario
-catalog) — load it alone for design discussion.
+Related: root [`AGENTS.md`](../../AGENTS.md). This file is the single design
+doc for `@pkgs/sync-engine` (system + deterministic sim + scenario catalog) —
+load it alone for design discussion.
 
 ---
 
@@ -66,9 +66,28 @@ custom per-feature REST sync; peer mutation replay.
 
 ---
 
+## Ownership: package vs product
+
+| Owned by `@pkgs/sync-engine` | Owned by product (`@libs/*`, `apps/*`) |
+|------------------------------|----------------------------------------|
+| Merge / rebase / upload queue | Domain schema (`@libs/db` `appSchema`) |
+| Query/mutation registries API | Query + mutation **defs** per feature |
+| Framework tables + DDL | Topic naming (`user:`, `room:`, …) |
+| `createSyncApp` Hono routes | Auth resolution, Postgres client |
+| Client engine + React hooks | Session query list, paint gate wiring |
+| Push apply / optimistic fanout | MQTT/EMQX pubsub adapter |
+| Deterministic sim + scenarios | Product REST exceptions |
+
+**Tier rule:** this is a flat `pkgs/` package — **no** product imports
+(`@libs/*`, `gamezilla`, apps). Product topics and schemas live in `@libs/db`
+/ feature packages; the engine only sees registries + SQL clients + pubsub
+ports.
+
+---
+
 ## Public API (four entrypoints only)
 
-Deep imports under `src/` are **not** public. Consumers must use:
+Deep imports under `src/` are **not** public. `package.json` `exports`:
 
 | Import | Role |
 |--------|------|
@@ -77,10 +96,24 @@ Deep imports under `src/` are **not** public. Consumers must use:
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, framework DDL |
 | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` for unit tests |
 
-Package layout rule (monorepo): this is a **flat `pkgs/` package** — agnostic
-utility, **no** product imports (`@libs/*`, `gamezilla`, apps). Product topics
-and schemas live in `@libs/db` / feature packages; the engine only sees
-registries + SQL clients + pubsub ports.
+### Notable public symbols
+
+**client:** `createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`,
+`SyncEngineProvider`, `useSyncEngine`, `useSyncEngineInstance`, `useQuery`,
+`MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
+`AppLifecycle` helpers, status types.
+
+**server:** `createSyncApp`, `notifyChannels`, `allocateTopicPushSeq(s)`,
+`isAuthErrorBody`, `SyncAppAuth`.
+
+**shared:** `defineQuery`, `defineMutation`, `queryRegistry`, `mutationRegistry`,
+`MutationError`, `LIVE_ROW_SQL`, `softDeleteById`, `withFrameworkMutations`,
+`applyFrameworkServerDdl`, `FRAMEWORK_*` constants,
+`assertChannelExhaustiveness` / `findChannelExhaustivenessGaps`.
+
+**Not public** (internal modules agents may cite but must not import from apps):
+`merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
+`createMutationClient`, `runQuery`, `replayMutation`, anything under `src/sim/`.
 
 ---
 
@@ -89,15 +122,17 @@ registries + SQL clients + pubsub ports.
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ apps/client                                                  │
-│  createLocalSyncEngine + sessionQueries + MQTT pushes        │
-│  useQuery / useMutationClient                                │
+│  createAppLocalSyncEngine → createLocalSyncEngine            │
+│  sessionQueries + MQTT pushes (rowImageFanout: true)         │
+│  useQuery / useMutationClient / SyncEnginePaintGateContext   │
 └───────────────────────────┬─────────────────────────────────┘
-                            │ POST /query, POST /mutations
+                            │ POST /api/query, POST /api/mutations
                             │ MQTT pushes (EMQX)
 ┌───────────────────────────▼─────────────────────────────────┐
-│ apps/api  createSyncApp                                      │
+│ apps/api  createSyncApp (package mounts /query, /mutations)  │
 │  runQuery / processMutationsBatch / notifyChannels           │
 │  Postgres (domain + _mutations_applied + write_rejections)   │
+│  product opts rowImageFanout: true                           │
 └───────────────────────────┬─────────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
@@ -106,6 +141,11 @@ registries + SQL clients + pubsub ports.
    (realtime play)     (external)            friends/search,
                                              client-config/refresh
 ```
+
+**Wire path layering:** the package Hono app mounts `POST /query` and
+`POST /mutations`. The product HTTP client defaults to `/api/query` and
+`/api/mutations` (host mount prefix). Both names appear in docs — they are
+the same routes at different layers.
 
 **Absolute REST exceptions** (do not casually grow — see `AGENTS.md`):
 `POST /friends/search`, `POST /client-config/refresh`, Stripe/external APIs.
@@ -153,11 +193,13 @@ defineQuery({
 - UI / live client reads **do** filter live rows (`_deleted_at IS NULL` or
   `LIVE_ROW_SQL`).
 
-**Scopes:** each `(name, params)` pair hashes to a `scope_hash`. Active scopes
-are refcounted subscriptions. Checkpoint + content hash live in `_scope_meta`.
+**Scopes:** each `(name, params)` pair hashes to a `scope_hash`
+(`sha256(name\0canonicalJson(params))`). Active scopes are refcounted
+subscriptions. Checkpoint + content hash live in `_scope_meta`.
 
-**Limits:** every query has a hard `limit`; `runQuery` truncates across tables.
-Unbounded sync is forbidden by design (Tiger).
+**Limits:** every query has a hard `limit`; `runQuery` truncates across tables
+(`applyHardLimit`). Unbounded sync is forbidden by design (Tiger).
+Batch bound: max **64** queries per POST.
 
 ### Mutations (`defineMutation`)
 
@@ -171,6 +213,7 @@ defineMutation({
   invalidates: (args, env, db) => topics, // post-replay pubsub topics
   affectedRows: (args) => ({ friendships: [id] }), // optional fanout ids
   requiresOnline: false,
+  pendingUx: 'instant',          // product UI knob; engine does not enforce
   constraintErrors: { ... },     // map PG unique violations → business codes
   run: async ({ tx, env }, args) => { /* SQL only */ },
 });
@@ -183,25 +226,37 @@ Rules:
 - Use `softDeleteById` / `LIVE_ROW_SQL` from `@pkgs/sync-engine/shared`.
 - Optional `affectedRows` declares entity ids for post-replay fanout SELECTs.
   Undeclared → pushSeq-only push. Framework owns the SELECT — never derive
-  row images from mutation args.
+  row images from mutation args. Caps: `MAX_FANOUT_ROWS=64`,
+  `MAX_FANOUT_BYTES=32KiB`.
 - Breaking wire changes → new `name` (`joinSpaceV2`); keep old handlers until
   clients adopt.
 - Server replay is idempotent via `_mutations_applied` (keyed by mutation id).
-- Framework mutations (e.g. acknowledge write rejection) are merged via
-  `withFrameworkMutations`.
+- Framework mutations (e.g. `acknowledgeWriteRejection`) are merged via
+  `withFrameworkMutations` in both `createSyncApp` and `createLocalSyncEngine`.
 
 ### Sync engine (client)
 
 `createLocalSyncEngine` owns:
-1. Local schema migrate (framework + domain via `@pkgs/db-schema/sqlite`)
+1. Local schema migrate (framework + domain via `@pkgs/db-schema/sqlite`;
+   `SCHEMA_EPOCH = 7`)
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `_mutations` → `POST /mutations`
 4. Optional `attachPush` — MQTT topics derived from active query `channels`
 5. Table-change bus + `watch` / React `useQuery`
 
-Paint gate: `waitForFirstSync()` awaits **sessionQueries** (held for the engine
-lifetime). Product session list today (apps/client): identity + shell —
-`ownUser`, `ownDevices`, `ownExternalAccounts`, `ownProfile`, `clientConfig`,
+**Injected ports** (product or sim): `db`, `postQueries`, `postMutations`,
+`getMutationEnv`, `getClientId`, `isAuthRevoked`, `deleteDatabase`, optional
+`push`, `lifecycle`, and sim-only `now` / `random` / `timers` / `createId`.
+
+**Session queries vs paint gate:**
+- `sessionQueries` are held for the engine lifetime; `waitForFirstSync()`
+  awaits their first successful sync.
+- `paintReady` is **not** computed inside the engine. Product boot provides
+  `SyncEnginePaintGateContext` (default `true`); `useSyncEngine().paintReady`
+  reads that context (identity-match gate during account switch).
+
+Product session list today (`apps/client` `SESSION_QUERIES`): `ownUser`,
+`ownDevices`, `ownExternalAccounts`, `ownProfile`, `clientConfig`,
 `openSpaceSessions`, `mySpaces`, `mySpaceUsers`, `friendships`,
 `friendRequests`, `userBlocks`, `inboxActive`, `chessPuzzleProfile`,
 `chessPuzzleInteractions`. Feature screens may still `subscribeQueries`
@@ -227,6 +282,19 @@ tables that a query `hydrates`, their topic sets should overlap (sentinel args).
 Async `invalidates` is approximated. Missed `notifyChannels` on non-mutation
 server writes is a separate runtime footgun — prefer mutations.
 
+### `rowImageFanout` defaults (important)
+
+| Surface | Default | Notes |
+|---------|---------|-------|
+| `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
+| Client `push.rowImageFanout` | **false** | Opt-in |
+| Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
+| `openSimWorld` / Sim Lab | **true** | `!== false` |
+
+When off, pushes are wake+refetch only (still correct). When on, contiguous
+`pushSeq` + `rows` may apply via `applyRowImages` without updating
+`_scope_meta.last_hash` (keeps `not_modified` sound).
+
 ---
 
 ## Tables
@@ -244,14 +312,14 @@ server writes is a separate runtime footgun — prefer mutations.
 idempotency is by **mutation id**, so seq restarts are harmless.
 
 **Deleted on purpose (do not resurrect without a design review):**
-`_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`, full
-write-epoch / `status` / `acked_epoch` barriers, MQTT mutation fanout payloads.
-Ack-then-stale-merge flicker is addressed by sync `bumpGenerations` on upload
-ack (not a write-epoch).
+`_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`,
+`_topic_applied`, full write-epoch / `status` / `acked_epoch` barriers, MQTT
+mutation fanout payloads. Ack-then-stale-merge flicker is addressed by sync
+`bumpGenerations` on upload ack (not a write-epoch).
 
-`SCHEMA_EPOCH` bumps wipe **cache** tables and drop retired tables; durable
-`_mutations` survive epoch wipe semantics carefully (see migrate code —
-domain cache tables + framework cache names).
+`SCHEMA_EPOCH` (currently **7**) bumps wipe **cache** tables and drop retired
+tables; durable `_mutations` survive epoch wipe semantics carefully (see
+`local-schema-migrate.ts`).
 
 Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
 `@libs/db` `appSchema`). Managed columns include `_deleted_at`.
@@ -277,7 +345,7 @@ row sync of a `_mutations` table.
 
 ## Wire protocol
 
-### `POST /query`
+### `POST /query` (package) / `POST /api/query` (product client)
 
 ```ts
 { queries: Array<{ name, params, lastHash?, checkpoint? }> }  // max 64
@@ -293,13 +361,14 @@ row sync of a `_mutations` table.
 ```
 
 - Unknown name / bad params / authorize fail → `denied`
-- Same content hash as `lastHash` → `not_modified`
+- Same content hash as `lastHash` → `not_modified` (no merge, no rebase)
 - Auth failure → HTTP 401 `{ error: 'auth', reason: 'expired' | 'revoked' }`
+- Bad body → HTTP 400 `{ status: 'denied' }`
 
 **Removed forever (unless redesign):** `mode: 'delta' | 'full'`, `resync`,
 `gone`.
 
-### `POST /mutations`
+### `POST /mutations` (package) / `POST /api/mutations` (product client)
 
 ```ts
 { mutations: Array<{ id, name, args /* JSON string */, clientId, seq, createdAt }> }
@@ -314,18 +383,32 @@ own echoed fanout is skipped.
 After successful replay, server `notifyChannels` per invalidated topic with a
 **strictly monotonic per-topic `pushSeq`** (from `_sync_topic_seq`).
 When `rowImageFanout` is enabled and the mutation declares `affectedRows`, the
-push may also carry post-replay **row images** (size-capped).
+push may also carry post-replay **row images** (size-capped). Replay + fanout
+SELECT + pushSeq allocate share **one Postgres transaction**.
+
+Bad body → 400 `{ error: 'invalid_batch' }`; oversized → 413
+`{ error: 'batch_too_large' }`.
 
 ### Pubsub push
 
 ```ts
-{ pushSeq: string; tables?: string[]; rows?: Record<string, QueryRow[]> }
+{ pushSeq: string; optimistic?: true; tables?: string[]; rows?: Record<string, QueryRow[]> }
 ```
 
 `pushSeq` is required and monotonic per topic. Optional `rows` are
 server-authored post-replay images (incl. `_deleted_at`) — a **lossy
-optimization**. Any dropped, reordered, duplicated, or ignored fanout must
-degrade to push → refetch. Snapshots alone define correctness.
+optimization**. `optimistic: true` is a **client-local** MQTT hint before
+server replay (`pushSeq: '0'`); apply rows without advancing `_push_applied`.
+Any dropped, reordered, duplicated, or ignored fanout must degrade to
+push → refetch. Snapshots alone define correctness.
+
+**Client `handlePush` order (simplified):**
+1. Optimistic → maybe apply rows; do not advance `_push_applied`
+2. Exact echo (`pushSeq === last`) with rows → apply images (own echo)
+3. `pushSeq ≤ last` → drop
+4. Table filter → wake overlapping `hydrates` scopes
+5. Contiguous next + rows → `applyRowImages` + record seq; else wake refetch
+   (pending seq committed after successful sweep)
 
 **Removed forever (unless redesign):** peer **mutation** fanout / MQTT as a
 mutation log. Peer-executed mutations diverge under state skew, and
@@ -341,12 +424,24 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 1. Skip if checkpoint ≤ stored `_scope_meta.last_checkpoint` (stale).
 2. Per table: upsert column intersection **verbatim** (incl. `_deleted_at`).
    No tagging, no absence tombstones, no orphan GC.
-3. Touch `_scope_meta`.
-4. Rebase every pending `_mutations` for this `clientId` in `seq` order.
+3. Touch `_scope_meta` (`last_checkpoint`, `last_hash`, `last_active_at`).
+4. Rebase every pending `_mutations` for this `clientId` in `seq` order
+   (`env.now` pinned to each row’s `created_at`).
    Throws swallowed → optimistic effect hidden until upload/reject.
 5. Emit table-change bus for watches.
 
+`applyRowImages` = same upsert+rebase, **does not** update
+`_scope_meta.last_hash`.
+
 `detachScope` (unsubscribe / `denied`) = delete `_scope_meta` row only.
+
+**Reject semantics:** upload reject deletes the queue row and inserts
+`write_rejections`. Domain optimistic rows are **not** auto-reverted on reject
+alone — the next successful merge without a pending rebase restores server
+truth (see `pending-reject-surfaces-write-rejections` scenario).
+
+**Ack fence:** on any `applied` verdict, `runtime.bumpGenerations()` drops
+in-flight pre-replay query sweeps (reject-only batches do not fence).
 
 ---
 
@@ -357,7 +452,7 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 - One coalesce queue (`QUERY_COALESCE_MS = 0` → microtask coalesce)
 - One in-flight flush; further wakes queue
 - Background (`AppLifecycle`) pauses sweeps
-- Session queries held for engine life; paint waits on them
+- Session queries held for engine life; `waitForFirstSync` waits on them
 
 ### `attachPush`
 
@@ -366,9 +461,11 @@ For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 - **Membership / topic churn** syncs incrementally (subscribe add / unsubscribe
   remove) — does **not** `close()` the MQTT session (avoids sessionExpiry-0
   queue wipe during create-after-end peer fanout)
+- Topic sync **waits until local `_mutations` drain** (membership pending gate)
 - After incremental topic add/remove → `wakeAll()` once (heal subscribe races)
 - Reconnect → `wakeAll()`
 - Local `spaces` / `space_users` changes refresh membership topics
+- Optional `bufferOutboundLive` queues optimistic fanout while detached
 
 ---
 
@@ -393,19 +490,22 @@ don’t invent a second delete model without review.
 | Event | Behavior |
 |-------|----------|
 | Offline mutate | Applies locally, queues `_mutations`, UI updates via watch |
+| `requiresOnline` offline | Returns `{ ok: false, code: 'OFFLINE' }`; no queue |
 | Upload success | Delete queue row; sync gen bump drops in-flight pre-replay sweeps; peers learn via push → query |
-| Upload reject | Delete queue row + `write_rejections`; UI should surface rejection |
+| Upload reject | Delete queue row + `write_rejections`; domain rolls back on later merge |
 | Merge while pending | Server snapshot applied, then pending mutations re-run |
 | Stale snapshot | Checkpoint compare drops it; post-ack gen bump drops in-flight pre-replay sweeps |
 | Denied query | Detach scope meta; domain rows remain |
 | Auth revoked | Wipe identity DB |
+| Auth expired | Refresh; must not wipe |
 | Push lost | Next reconnect / foreground / membership wakeAll eventually refetches |
 | Partial multi-query batch | Per-response apply; generation guards drop superseded scopes |
 
 **Not provided:** causal multi-device domain locks, exactly-once UI effects.
 Optimistic body must not briefly revert to server-old after own ack (lite
-soft-ack + generation fence); see `own-echo-no-flicker` /
-`ack-stale-merge-no-flicker`.
+soft-ack + generation fence); see
+`online-mutate-no-optimistic-body-flicker` /
+`delayed-sync-after-ack-no-optimistic-flicker`.
 
 ---
 
@@ -431,9 +531,10 @@ soft-ack + generation fence); see `own-echo-no-flicker` /
 - Narrower sessionQueries / staged paint gate if first paint is too slow
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
-- Sim coverage expansion / fixing stale `TIGER_INVARIANTS` name list
+- Sim coverage expansion / fix stale `TIGER_INVARIANTS` name
+  (`scope-complete-membership` still listed though `_row_scopes` is retired)
 - Clearing stale locals that left a scope without soft-delete (product policy)
-- `process-upload-with-mutations` legacy CRUD path — simplify or delete if unused
+- Delete dead `process-upload-with-mutations.ts` (zero importers; legacy CRUD)
 
 ### Explicitly rejected for now
 
@@ -464,10 +565,11 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
 5. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
-   remake). Tiny subscribe-race window healed by `wakeAll`; true dispose still
-   closes with sessionExpiry 0.
+   remake). Waits for pending `_mutations` drain; tiny subscribe-race window
+   healed by `wakeAll`; true dispose still closes with sessionExpiry 0.
 6. **Paint waits on all session queries** — correct single lifetime model;
-   may delay first paint vs old boot/shell split.
+   may delay first paint vs old boot/shell split. Product `paintReady` is a
+   separate identity-match context.
 7. **Rebase swallows errors** — pending mutation that fails against new
    server state stays queued until upload reject; UI may look “stuck”
    optimistic. Product should watch `write_rejections`.
@@ -475,21 +577,23 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    a mutation can touch undeclared tables.
 9. **Channel exhaustiveness is sentinel-based** — async party expansion and
    weird args can false-pass/fail.
-10. **Legacy upload CRUD classifier** (`process-upload-with-mutations`) —
-    historical path; main product uses `/mutations` JSON.
+10. **Dead legacy upload CRUD** (`mutations/server/process-upload-with-mutations.ts`) —
+    zero importers; safe delete candidate. Main product uses `/mutations` JSON.
 
 ---
 
 ## Complexity hotspots (edit carefully)
 
-| Area | Why it’s sharp |
-|------|----------------|
-| `client/merge.ts` | Single-flight + checkpoint + upsert + rebase; correctness core |
-| `client/subscription-runtime.ts` | Coalesce, generation guards, lifecycle, session refs |
-| `client/attach-push.ts` | Incremental topic sync vs membership ctx races |
-| `mutations/server/replay-mutation.ts` | Idempotency + rejection recording + constraint mapping |
-| `client/local-schema-migrate.ts` | Epoch wipe vs durable queue |
-| Product `invalidates` / `channels` | Wrong topics ⇒ silent staleness |
+| Area | Path | Why it’s sharp |
+|------|------|----------------|
+| Merge | `client/merge.ts` | Single-flight + checkpoint + upsert + rebase; correctness core |
+| Subscriptions | `client/subscription-runtime.ts` | Coalesce, generation guards, lifecycle, session refs |
+| Push attach | `client/attach-push.ts` | Incremental topic sync vs membership ctx races |
+| Push handle | `client/attach-push-handle.ts` | Optimistic / echo / contiguous / wake fallback |
+| Replay | `mutations/server/replay-mutation.ts` | Idempotency + rejection recording + constraint mapping |
+| Mutations route | `server/sync-app-mutations-route.ts` | Replay + fanout SELECT + pushSeq in one txn |
+| Local migrate | `client/local-schema-migrate.ts` | Epoch wipe vs durable queue |
+| Product topics | feature `invalidates` / `channels` | Wrong topics ⇒ silent staleness |
 
 Prefer deleting machinery over adding flags. If a proposal adds a table or wire
 status, it needs a stronger justification than “might be useful.”
@@ -519,31 +623,33 @@ single-flight (it does) — mainly HTTP/server load then.
 
 - **Domain schema:** `@libs/db` `defineSchema` / `appSchema`; local reconcile via
   `@pkgs/db-schema/sqlite`; Postgres migrate separate.
-- **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` in
+- **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` (= 7) in
   `queries/client/local-schema.ts`.
 - **Framework server:** `FRAMEWORK_SERVER_DDL` via `applyFrameworkServerDdl`.
 - **Query/mutation wire names:** append `V2` for breaking changes; keep old
   handlers until clients migrate.
 - **Cache clear:** `clearLocalData({ reason: 'cache' })` drops cache tables and
   recreates schema; durable `_mutations` policy follows migrate helpers.
+  `{ reason: 'revoked' }` is the auth-wipe path.
 
 ---
 
 ## App wiring (Gamezilla)
 
-**Client**
+**Client** (`apps/client/src/sync/create-local-sync-engine.ts`)
 
 1. Open identity SQLite → `createLocalSyncEngine({ sessionQueries, postQueries,
-   postMutations, push, lifecycle, … })`
-2. `SyncEngineProvider` + `SqlClientProvider` + paint gate
+   postMutations, push: { rowImageFanout: true, … }, lifecycle, … })`
+2. `SyncEngineProvider` + `SqlClientProvider` + `SyncEnginePaintGateContext`
 3. `MutationClientProvider` with `MutationEnv` + `{ clientId: deviceId }`
 4. Feature: `useQuery(sql\`… AND _deleted_at IS NULL\`)` +
    `useMutationClient().mutate(def, args)`
 
-**API**
+**API** (`apps/api/src/sync/sync-app.ts`)
 
 1. `applyFrameworkServerDdl` during migrate
-2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub })`
+2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub,
+   rowImageFanout: true })`
 3. Non-mutation DOMAIN writes must `notifyChannels`
 
 Registries: `apps/client|api/src/sync/app-queries.ts` + `app-mutations.ts`.
@@ -554,11 +660,11 @@ Registries: `apps/client|api/src/sync/app-queries.ts` + `app-mutations.ts`.
 
 ```text
 pkgs/sync-engine/src/
-  client/           # engine, merge, subscriptions, push, React, HTTP
+  client/           # engine, merge, subscriptions, push, React, HTTP, pool
   mutations/
     core/           # defineMutation, types, registry
     client/         # createMutationClient, mutation-status
-    server/         # replay, batch, prune, legacy upload classifier
+    server/         # replay, batch, prune, dead legacy upload classifier
     shared/         # wrapMutationDb, soft-delete, framework mutations
   queries/
     core/           # defineQuery, types, registry
@@ -567,20 +673,26 @@ pkgs/sync-engine/src/
     shared/         # hash/canonical, bounds, tiger invariant names
   server/           # createSyncApp, routes, notifyChannels
   shared/           # framework DDL, channel exhaustiveness, push types
-  sim/              # deterministic multi-client simulation
+  sim/              # deterministic multi-client simulation (not public)
+  sim-lab/          # interactive GUI over shapes domain (`bun run sim:lab`)
   test/             # in-memory engine
+  tests/
+    scenarios/      # black-box correctness (51 files)
+    harness/        # sim kernel self-tests
 ```
 
 ---
 
 ## React hooks (client)
 
-| Hook | Use |
-|------|-----|
-| `useSyncEngine()` | Reactive status + paintReady + methods |
+| Hook / API | Use |
+|------------|-----|
+| `useSyncEngine()` | Reactive status + `paintReady` (from paint context) + methods |
 | `useSyncEngineInstance()` | Stable engine (effects/providers) |
 | `useQuery(sql)` | Live SQLite watch |
 | `useMutationClient()` | `mutate(def, args)` |
+| `SyncEnginePaintGateContext` | Product sets identity-match gate |
+| `createSyncEnginePool` | Multi-identity engine pool (account switch) |
 
 Mutation UX (product/`@pkgs/ui`, not this package): destructive →
 `MutationModal`; light → `useMutationButton`. Don’t `router.back()` from
@@ -593,6 +705,7 @@ mutation `onSuccess` — stay and let SQLite drive UI.
 ```bash
 bun run --filter @pkgs/sync-engine tc
 bun run --filter @pkgs/sync-engine test
+bun run --filter @pkgs/sync-engine sim:lab   # http://localhost:7788 shapes domain
 bun run ci:no-domain-hard-delete
 bun run ci:fanout-rows-from-reads
 bun run ci:channel-exhaustiveness
@@ -605,19 +718,20 @@ bun run ci:lint
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
 
-`queries/shared/tiger-invariants.ts` lists named invariants aligned with current
-behavior (rebase, pushSeq monotonicity, lossy fanout).
+`queries/shared/tiger-invariants.ts` lists named invariants. Note:
+`scope-complete-membership` is a **stale name** from the retired `_row_scopes`
+era — cleanup is open design space; do not reintroduce `_row_scopes` to
+“satisfy” the name.
 
 ### Deterministic simulator
 
 TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
 identical timeline.** Scenarios call `openSimWorld`; fuzz calls `runSeed`.
-Domain under test: tiny notes+folders app in `src/sim/notes-app/` (kept out of
+Default domain: tiny notes+folders app in `src/sim/notes-app/` (kept out of
 `tests/` so sim code never imports test paths). Assert **live domain rows
 only** — never framework tables or private modules. The interactive **Sim Lab**
 GUI (`src/sim-lab/`) boots a shapes domain (`domain: 'shapes'`) instead — run
-`bun run sim:lab` from the repo root (installs deps, then serves
-http://localhost:7788).
+`bun run --filter @pkgs/sync-engine sim:lab` (serves http://localhost:7788).
 
 ```text
 seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
@@ -650,8 +764,9 @@ server uses SQLite dialect; production server is Postgres.
 
 Injected ports (`now`, `random`, `createId`, `timers`) keep the production
 engine on the virtual clock. Convergence: after quiescence, every client’s live
-domain view (notes + folders) matches the server (`assertConverged`).
-`assertConverged` / settle clear holds, partitions, and node fault overrides.
+domain view matches the server (`assertConverged`).
+`assertConverged` / settle clear holds, partitions, and node fault overrides
+(heal up to 40×250ms virtual).
 
 #### Quick start
 
@@ -769,7 +884,7 @@ Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
 Fuzz failures print `seed=<hex>`. Replay:
 
 ```bash
-SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/fuzz.test.ts
+SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.test.ts
 ```
 
 ```ts
@@ -785,119 +900,21 @@ src/sim/                             # DST implementation (not a public export)
   network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
   world.ts client-factory.ts server.ts open-sim-sqlite.ts
   notes-app/                         # tiny defineSchema + mutations/queries
+  shapes-app/                        # Sim Lab domain
+  domain-pack.ts                     # notes | shapes
   faults.ts workload.ts invariants.ts replay.ts
   test-driver.ts
 
+src/sim-lab/                         # interactive host + web UI
+  server.ts host/ web/
+
 src/tests/
-  scenarios/                         # black-box correctness suite
+  scenarios/                         # black-box correctness suite (51 files)
   harness/                           # sim kernel self-tests
 ```
 
-### Scenario catalog
-
-Black-box correctness under `src/tests/scenarios/` (44 files). Most use
-`openSimWorld` + notes-app asserts. Row-image fanout is on unless a test sets
-`rowImageFanout: false`.
-
-#### Happy path / multi-client
-
-| File | Proves |
-|------|--------|
-| `mutate-upload.test.ts` | Single-client mutate uploads and persists title/body |
-| `multi-client-converge.test.ts` | Two-client converge + seed sweep of mutual writes |
-| `fanout-delivery.test.ts` | Happy-path live visibility within sim-time budget; restart rehydrates |
-| `folders-multi-table.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
-| `multi-device-same-actor.test.ts` | Two devices, same `actorId`, concurrent writes converge |
-| `latency-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
-| `mutation-version-coexist.test.ts` | `setNote` + `setNoteV2` interleaved writes converge |
-| `upload-batch-bounds.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
-| `query-limit-truncation.test.ts` | Hard query `limit` truncates hydrate; engine stays healthy |
-
-#### Tombstones / soft-delete
-
-| File | Proves |
-|------|--------|
-| `tombstones.test.ts` | Soft-delete propagates as tombstone; set after delete revives |
-| `cold-peer-tombstone.test.ts` | Late-joining peer hydrates soft-deleted rows from snapshot |
-| `hard-delete-rejected.test.ts` | Domain hard delete rejected (`NO_HARD_DELETE`); row stays live |
-
-#### Authz / rejection
-
-| File | Proves |
-|------|--------|
-| `authz-deny.test.ts` | Non-owner delete forbidden; owner soft-delete peers converge |
-| `write-rejection-drain.test.ts` | Permanent reject stored; peer never applies bad body; ack clears |
-| `requires-online.test.ts` | Requires-online mutations fail offline without queueing |
-| `query-denied-detach.test.ts` | Denied query detaches scope without wiping domain rows |
-| `auth-revoke-vs-expired.test.ts` | Expired refreshes and drains queue; revoked wipe drops unuploaded edit |
-| `mid-session-deny.test.ts` | Mid-session authorize flip denies scope; domain rows remain |
-| `rebase-reject-surface.test.ts` | Pending rejectable mutate surfaces `write_rejections`; domain rolls back |
-
-#### Offline / crash / partition
-
-| File | Proves |
-|------|--------|
-| `offline-conflict.test.ts` | Two-offline conflict on same id → single winner everywhere |
-| `pending-race.test.ts` | Remote fanout races a locally pending mutation; no stuck divergence |
-| `crash-restart.test.ts` | Offline queue drains on reconnect; crash+restart rehydrates from server |
-| `partition-heal.test.ts` | Full partition during write; heal converges |
-| `node-lifecycle-consistency.test.ts` | Offline, crash, partition, flip-flop contest matrix |
-| `idempotent-replay.test.ts` | Re-upload / repeated sets do not duplicate domain rows |
-| `cache-clear-durable-queue.test.ts` | Cache clear wipes domain; durable `_mutations` still upload and converge |
-| `not-modified-optimistic.test.ts` | `not_modified` refetch does not clobber pending optimistic; later rebase |
-
-#### Network / delivery faults
-
-| File | Proves |
-|------|--------|
-| `network-faults.test.ts` | Dropped live repaired by refetch; reorder; duplicate delivery |
-| `live-delivery-chaos.test.ts` | Live loss/dup/reorder/asymmetric faults; live-loss + sync-hold converge after repair |
-| `sync-path-faults.test.ts` | Sync hold, reorder, and duplicate delivery still converge |
-| `sync-only-partition.test.ts` | Sync partitioned while live can deliver (refetch fanout mode) |
-| `transient-upload-retry.test.ts` | Held sync keeps upload pending; release + wake confirms |
-| `live-reconnect-resend.test.ts` | Default live drop vs `liveResendOnReconnect` while sync held |
-| `outbound-live-buffer.test.ts` | Default skip vs `bufferOutboundLive` flush on reconnect; live-before-sync + latency budget |
-| `fanout-degrade-size-cap.test.ts` | Oversized fanout images fall back to pushSeq-only; peers converge |
-| `fanout-undeclared-affected-rows.test.ts` | No `affectedRows` → pushSeq-only wake+refetch still converges |
-| `push-table-filter-wake.test.ts` | Push `tables` filter skips non-overlapping scopes; overlapping wakes |
-
-#### Membership topics / room live
-
-Notes-app `spaceMembership` session (`spaces` / `space_users` + room-scoped notes).
-Channels follow `user:` + `room:` from live membership. Observability:
-`client.pubsubRemakeCount()` / `client.subscribedTopics()`.
-
-| File | Proves |
-|------|--------|
-| `membership-topic-churn.test.ts` | Leave/join rooms sync topics incrementally — no pubsub remake |
-| `membership-create-during-leave.test.ts` | Peer create during leave does not wipe MQTT; rejoin hydrates |
-| `membership-pending-gate.test.ts` | Topic sync waits until pending `_mutations` drain |
-| `membership-room-isolation.test.ts` | Room-B live does not reach room-A member until join |
-| `membership-join-live.test.ts` | After join, peer space note paints via live while sync held |
-| `membership-end-unsub.test.ts` | Leave/end drops room topic; further live missed until rejoin |
-
-#### Races / skew / lifecycle
-
-| File | Proves |
-|------|--------|
-| `push-query-races.test.ts` | Hold live vs sync ordering races; live-only partition repaired via sync pull |
-| `clock-skew-consistency.test.ts` | Convergence under Alice/Bob/server clock-order permutations |
-| `background-foreground.test.ts` | Background pauses remote sweeps; local optimistic still applies; foreground catches up |
-| `own-echo-no-flicker.test.ts` | Online mutate never reverts optimistic body before quiescence |
-| `ack-stale-merge-no-flicker.test.ts` | Delayed/reordered sync after ack never reverts optimistic body |
-| `created-at-pinning.test.ts` | Replay pins `env.now` to mutation `createdAt` under client clock skew |
-
-#### Fuzz
-
-| File | Proves |
-|------|--------|
-| `fuzz.test.ts` | Seeded workload determinism; corpus/env seeds; multi-client skew/crash; optional lossy faults |
-
-#### Unit (non-world)
-
-| File | Proves |
-|------|--------|
-| `watch-reactivity.test.ts` | In-memory engine `watch` reacts to local domain INSERT (`createInMemorySyncEngine`) |
+Full per-file scenario catalog: [Scenario catalog](#scenario-catalog) at the
+bottom of this README.
 
 ---
 
@@ -937,6 +954,10 @@ Agents recommending changes should answer:
 5. **Can CI enforce the new rule?** (prefer gates over comments)
 6. **Does product UI SQL still make sense?** (live filters, paint gate)
 7. **Is Room DO the right place instead?** (realtime play / presence)
+8. **Which surface’s `rowImageFanout` default changes?** (package false /
+   product true / sim true — do not conflate)
+9. **Does a scenario already cover it?** Prefer extending sim over new
+   production flags.
 
 Good proposals usually: prune policy, CI for query tombstone contract, delete
 dead legacy upload path, measure snapshot sizes, improve rejection UX.
@@ -955,11 +976,15 @@ delta mode “for completeness,” raise in-flight polls without evidence.
   staleness.
 - `DELETE FROM` in a mutation → `NO_HARD_DELETE`.
 - Expecting unsubscribe to wipe domain rows → only `_scope_meta` clears.
+- Expecting reject alone to revert domain rows → need a subsequent merge.
 - Expecting multi-device domain edits &lt;100ms → use Room DO.
 - Importing `@pkgs/sync-engine/src/...` → not public.
 - Treating `declaredWrites` as enforced permissions — they’re not.
+- Assuming package `rowImageFanout` defaults on — product opts in; package
+  defaults off.
 - Reintroducing boot vs shell subscription special cases without measuring
   paint cost.
+- Conflating `checkpoint` / `pushSeq` / mutation `seq` (see Sequences below).
 
 ---
 
@@ -968,12 +993,14 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 | Term | Definition |
 |------|------------|
 | Scope | One subscribed `(queryName, params)` identity (`scope_hash`) |
-| Session queries | Scopes held for engine lifetime; paint gate waits on them |
+| Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them |
+| Paint gate | Product `SyncEnginePaintGateContext` + session first-sync |
 | Tombstone | Domain row with `_deleted_at` set; still synced |
 | Push | Pubsub message that wakes overlapping query scopes (formerly 'nudge') |
+| Row-image fanout | Lossy optional `rows` on push; snapshots remain truth |
+| Optimistic fanout | Client MQTT hint (`optimistic: true`) before server replay |
 | Replay | Server re-executes mutation SQL idempotently |
 | Rebase | Client re-runs pending mutation SQL after a merge |
-| Paint gate | UI blocked until session queries first-sync |
 | Durable / cache | Local tables that survive vs wipe on epoch/cache clear |
 
 ### Sequences
@@ -990,7 +1017,175 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Related docs
 
-- Root [`AGENTS.md`](../../../../AGENTS.md) — monorepo hard rules
+- Root [`AGENTS.md`](../../AGENTS.md) — monorepo hard rules
 - Product defs: `libs/<feature>/src/shared/{queries,mutations}/`
+- Product client wiring: `apps/client/src/sync/create-local-sync-engine.ts`
+- Product API wiring: `apps/api/src/sync/sync-app.ts`
 - Topics: `libs/db/src/shared/sync-topics.ts`
 - Schema: `libs/db/src/shared/app-schema.ts`
+
+---
+
+## Scenario catalog
+
+Black-box correctness under `src/tests/scenarios/` (**51** files) plus harness
+`src/tests/harness/kernel.test.ts`. Most scenarios use `openSimWorld` +
+notes-app asserts. Row-image fanout is on unless a test sets
+`rowImageFanout: false`. File names describe the behavior under test.
+
+### Happy path / multi-client (9)
+
+| File | Proves |
+|------|--------|
+| `single-client-mutate-uploads-and-persists.test.ts` | Single-client mutate uploads and persists title/body |
+| `two-client-mutual-writes-converge.test.ts` | Two-client converge + seed sweep of mutual writes |
+| `live-fanout-peer-visibility-within-budget.test.ts` | Happy-path live visibility within sim-time budget; restart rehydrates |
+| `folders-and-notes-multi-table-converge.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
+| `same-actor-two-devices-converge.test.ts` | Two devices, same `actorId`, concurrent writes converge |
+| `peer-visibility-under-200ms-sim-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
+| `set-note-v1-v2-interleaved-converge.test.ts` | `setNote` + `setNoteV2` interleaved writes converge |
+| `mutation-batch-over-max-drains-without-dupes.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
+| `hard-query-limit-truncates-hydrate.test.ts` | Hard query `limit` truncates hydrate; engine stays healthy |
+
+### Tombstones / soft-delete (3)
+
+| File | Proves |
+|------|--------|
+| `soft-delete-tombstone-propagates-and-revives.test.ts` | Soft-delete propagates as tombstone; set after delete revives |
+| `late-join-hydrates-soft-deleted-tombstones.test.ts` | Late-joining peer hydrates soft-deleted rows from snapshot |
+| `domain-hard-delete-rejected.test.ts` | Domain hard delete rejected (`NO_HARD_DELETE`); row stays live |
+
+### Authz / rejection (7)
+
+| File | Proves |
+|------|--------|
+| `non-owner-mutation-denied-owner-converges.test.ts` | Non-owner delete forbidden; owner soft-delete peers converge |
+| `permanent-reject-stored-peer-never-applies.test.ts` | Permanent reject stored; peer never applies bad body; ack clears |
+| `requires-online-fails-offline-without-queue.test.ts` | Requires-online mutations fail offline without queueing |
+| `denied-query-detaches-scope-keeps-rows.test.ts` | Denied query detaches scope without wiping domain rows |
+| `auth-revoked-wipes-db-expired-refreshes.test.ts` | Expired refreshes and drains queue; revoked wipe drops unuploaded edit |
+| `mid-session-authorize-deny-keeps-domain-rows.test.ts` | Mid-session authorize flip denies scope; domain rows remain |
+| `pending-reject-surfaces-write-rejections.test.ts` | Pending rejectable mutate surfaces `write_rejections`; domain rolls back |
+
+### Offline / crash / partition (8)
+
+| File | Proves |
+|------|--------|
+| `two-offline-same-id-single-winner.test.ts` | Two-offline conflict on same id → single winner everywhere |
+| `remote-fanout-races-local-pending-mutation.test.ts` | Remote fanout races a locally pending mutation; no stuck divergence |
+| `crash-restart-rehydrates-and-drains-queue.test.ts` | Offline queue drains on reconnect; crash+restart rehydrates from server |
+| `full-partition-during-write-then-heal.test.ts` | Full partition during write; heal converges |
+| `offline-crash-partition-lifecycle-matrix.test.ts` | Offline, crash, partition, flip-flop contest matrix |
+| `reupload-idempotent-no-duplicate-rows.test.ts` | Re-upload / repeated sets do not duplicate domain rows |
+| `cache-clear-preserves-pending-mutations.test.ts` | Cache clear wipes domain; durable `_mutations` still upload and converge |
+| `not-modified-does-not-clobber-pending.test.ts` | `not_modified` refetch does not clobber pending optimistic; later rebase |
+
+### Network / delivery faults (10)
+
+| File | Proves |
+|------|--------|
+| `dropped-live-repaired-by-refetch.test.ts` | Dropped live repaired by refetch; reorder; duplicate delivery |
+| `live-loss-dup-reorder-still-converges.test.ts` | Live loss/dup/reorder/asymmetric faults; live-loss + sync-hold converge after repair |
+| `sync-hold-reorder-dup-still-converges.test.ts` | Sync hold, reorder, and duplicate delivery still converge |
+| `sync-partitioned-while-live-delivers.test.ts` | Sync partitioned while live can deliver (refetch fanout mode) |
+| `held-sync-upload-retries-on-release.test.ts` | Held sync keeps upload pending; release + wake confirms |
+| `live-resend-on-reconnect-vs-drop.test.ts` | Default live drop vs `liveResendOnReconnect` while sync held |
+| `buffer-outbound-live-flush-on-reconnect.test.ts` | Default skip vs `bufferOutboundLive` flush on reconnect; live-before-sync + latency budget |
+| `oversized-fanout-falls-back-to-refetch.test.ts` | Oversized fanout images fall back to pushSeq-only; peers converge |
+| `push-without-affected-rows-wakes-refetch.test.ts` | No `affectedRows` → pushSeq-only wake+refetch still converges |
+| `push-tables-filter-wakes-overlapping-scopes.test.ts` | Push `tables` filter skips non-overlapping scopes; overlapping wakes |
+
+### Membership topics / room live (6)
+
+Notes-app `spaceMembership` session (`spaces` / `space_users` + room-scoped notes).
+Channels follow `user:` + `room:` from live membership. Observability:
+`client.pubsubRemakeCount()` / `client.subscribedTopics()`.
+
+| File | Proves |
+|------|--------|
+| `leave-join-topics-without-pubsub-remake.test.ts` | Leave/join rooms sync topics incrementally — no pubsub remake |
+| `peer-create-during-leave-keeps-mqtt-session.test.ts` | Peer create during leave does not wipe MQTT; rejoin hydrates |
+| `topic-sync-waits-for-mutations-drain.test.ts` | Topic sync waits until pending `_mutations` drain |
+| `room-live-isolated-until-member-joins.test.ts` | Room-B live does not reach room-A member until join |
+| `join-paints-peer-space-note-via-live.test.ts` | After join, peer space note paints via live while sync held |
+| `leave-drops-room-topic-until-rejoin.test.ts` | Leave/end drops room topic; further live missed until rejoin |
+
+### Races / skew / lifecycle (6)
+
+| File | Proves |
+|------|--------|
+| `live-vs-sync-ordering-races-converge.test.ts` | Hold live vs sync ordering races; live-only partition repaired via sync pull |
+| `clock-skew-permutations-still-converge.test.ts` | Convergence under Alice/Bob/server clock-order permutations |
+| `background-pauses-sweeps-foreground-catches-up.test.ts` | Background pauses remote sweeps; local optimistic still applies; foreground catches up |
+| `online-mutate-no-optimistic-body-flicker.test.ts` | Online mutate never reverts optimistic body before quiescence |
+| `delayed-sync-after-ack-no-optimistic-flicker.test.ts` | Delayed/reordered sync after ack never reverts optimistic body |
+| `replay-pins-now-to-mutation-created-at.test.ts` | Replay pins `env.now` to mutation `createdAt` under client clock skew |
+
+### Fuzz (1)
+
+| File | Proves |
+|------|--------|
+| `seeded-workload-fuzz-determinism.test.ts` | Seeded workload determinism; corpus/env seeds; multi-client skew/crash; optional lossy faults |
+
+### Unit / harness (2)
+
+| File | Proves |
+|------|--------|
+| `in-memory-watch-reacts-to-local-insert.test.ts` | In-memory engine `watch` reacts to local domain INSERT (`createInMemorySyncEngine`) |
+| `../harness/kernel.test.ts` | Sim kernel: RNG / scheduler / timers; membership topic sync |
+
+### Alphabetical index (51 scenarios)
+
+```text
+auth-revoked-wipes-db-expired-refreshes
+background-pauses-sweeps-foreground-catches-up
+buffer-outbound-live-flush-on-reconnect
+cache-clear-preserves-pending-mutations
+clock-skew-permutations-still-converge
+crash-restart-rehydrates-and-drains-queue
+delayed-sync-after-ack-no-optimistic-flicker
+denied-query-detaches-scope-keeps-rows
+domain-hard-delete-rejected
+dropped-live-repaired-by-refetch
+folders-and-notes-multi-table-converge
+full-partition-during-write-then-heal
+hard-query-limit-truncates-hydrate
+held-sync-upload-retries-on-release
+in-memory-watch-reacts-to-local-insert
+join-paints-peer-space-note-via-live
+late-join-hydrates-soft-deleted-tombstones
+leave-drops-room-topic-until-rejoin
+leave-join-topics-without-pubsub-remake
+live-fanout-peer-visibility-within-budget
+live-loss-dup-reorder-still-converges
+live-resend-on-reconnect-vs-drop
+live-vs-sync-ordering-races-converge
+mid-session-authorize-deny-keeps-domain-rows
+mutation-batch-over-max-drains-without-dupes
+non-owner-mutation-denied-owner-converges
+not-modified-does-not-clobber-pending
+offline-crash-partition-lifecycle-matrix
+online-mutate-no-optimistic-body-flicker
+oversized-fanout-falls-back-to-refetch
+peer-create-during-leave-keeps-mqtt-session
+peer-visibility-under-200ms-sim-budget
+pending-reject-surfaces-write-rejections
+permanent-reject-stored-peer-never-applies
+push-tables-filter-wakes-overlapping-scopes
+push-without-affected-rows-wakes-refetch
+remote-fanout-races-local-pending-mutation
+replay-pins-now-to-mutation-created-at
+requires-online-fails-offline-without-queue
+reupload-idempotent-no-duplicate-rows
+room-live-isolated-until-member-joins
+same-actor-two-devices-converge
+seeded-workload-fuzz-determinism
+set-note-v1-v2-interleaved-converge
+single-client-mutate-uploads-and-persists
+soft-delete-tombstone-propagates-and-revives
+sync-hold-reorder-dup-still-converges
+sync-partitioned-while-live-delivers
+topic-sync-waits-for-mutations-drain
+two-client-mutual-writes-converge
+two-offline-same-id-single-winner
+```
