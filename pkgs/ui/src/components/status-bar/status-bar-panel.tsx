@@ -1,52 +1,27 @@
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';
-import { Divider } from '../divider';
 import { Stack } from '../stack';
 import { Text } from '../text';
+import { StatusBarTile } from './status-bar-tile';
 import type { RegisteredStatusBarItem } from './types';
 
 export type StatusBarPanelProps = {
   items: readonly RegisteredStatusBarItem[];
 };
 
-function StatusBarSection({
-  item,
-  showDivider,
-}: {
-  item: RegisteredStatusBarItem;
-  showDivider: boolean;
-}): ReactNode {
-  return (
-    <Box>
-      {showDivider ? (
-        <Box sx={{ my: 4 }}>
-          <Divider />
-        </Box>
-      ) : null}
-      <Stack spacing={3}>
-        <Stack direction="horizontal" spacing={3} align="center">
-          {item.leading !== undefined ? item.leading : null}
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Text variant="bodyBold" label={item.title} />
-            {item.caption !== undefined ? (
-              <Text
-                variant="caption"
-                sx={{ color: 'textSecondary' }}
-                label={item.caption}
-              />
-            ) : null}
-          </Box>
-        </Stack>
-        <Box>{item.panel}</Box>
-      </Stack>
-    </Box>
-  );
+const GRID_GAP = 3;
+
+function chunkPairs<T>(items: readonly T[]): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += 2) {
+    rows.push(items.slice(i, i + 2));
+  }
+  return rows;
 }
 
 /**
- * Control-center body sections (non-scrolling). The overlay owns the scroller
- * so dismiss gestures can coordinate with scroll position.
+ * Control Center body — uniform 2-column quick-action tiles.
  */
 export function StatusBarPanel({ items }: StatusBarPanelProps): ReactNode {
   if (items.length === 0) {
@@ -59,11 +34,38 @@ export function StatusBarPanel({ items }: StatusBarPanelProps): ReactNode {
     );
   }
 
+  const rows = chunkPairs(items);
+
   return (
-    <Stack spacing={0} sx={{ pb: 4 }}>
-      {items.map((item, index) => (
-        <StatusBarSection key={item.id} item={item} showDivider={index > 0} />
-      ))}
+    <Stack spacing={GRID_GAP} sx={{ pb: 2, alignSelf: 'stretch' }}>
+      {rows.map((pair) => {
+        const rowKey = pair.map((item) => item.id).join(':');
+        return (
+          <Stack key={rowKey} direction="horizontal" spacing={GRID_GAP}>
+            {pair.map((item) => (
+              <Box key={item.id} sx={{ flex: 1, minWidth: 0 }}>
+                <StatusBarTile
+                  title={item.title}
+                  active={item.active === true}
+                  {...(item.caption !== undefined
+                    ? { caption: item.caption }
+                    : {})}
+                  {...(item.leading !== undefined
+                    ? { leading: item.leading }
+                    : {})}
+                  {...(item.onPress !== undefined
+                    ? { onPress: item.onPress }
+                    : {})}
+                  {...(item.accessibilityLabel !== undefined
+                    ? { accessibilityLabel: item.accessibilityLabel }
+                    : {})}
+                />
+              </Box>
+            ))}
+            {pair.length === 1 ? <Box sx={{ flex: 1 }} /> : null}
+          </Stack>
+        );
+      })}
     </Stack>
   );
 }

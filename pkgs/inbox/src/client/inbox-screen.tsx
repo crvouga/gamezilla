@@ -11,7 +11,6 @@ import { useInboxActions } from './use-inbox-actions';
 import { useInboxBackfill } from './use-inbox-backfill';
 
 export type InboxScreenProps = {
-  readonly leading?: ReactNode;
   readonly initialFilter?: InteractionFilter;
 };
 
@@ -85,17 +84,13 @@ function InboxScreenBody({
   );
 }
 
-export function InboxScreen({
-  leading,
-  initialFilter,
-}: InboxScreenProps): ReactNode {
+export function InboxScreen({ initialFilter }: InboxScreenProps): ReactNode {
   const { t } = useLingui();
 
   return (
     <ScreenBase
       screenId="inbox"
       breadcrumbs={[{ name: t`Inbox` }]}
-      leading={leading}
       content={({ sx }) => (
         <Box style={sx}>
           <InboxSignedInGate>

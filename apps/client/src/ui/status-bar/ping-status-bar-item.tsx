@@ -1,15 +1,7 @@
 import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useLingui } from '@lingui/react/macro';
-import {
-  Box,
-  Button,
-  RegisterStatusBarItem,
-  StatusDot,
-  Text,
-  useTheme,
-  WifiIcon,
-} from '@pkgs/ui';
-import { type ReactNode, useEffect } from 'react';
+import { Box, RegisterStatusBarItem, Text, useTheme, WifiIcon } from '@pkgs/ui';
+import { type ReactNode, useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -25,42 +17,12 @@ function PingIndicator({ latencyMs }: { latencyMs: number | null }): ReactNode {
   );
 }
 
-function PingPanel({
-  latencyMs,
-  aggregateStatus,
-  healthUrl,
-  onRefresh,
-}: {
-  latencyMs: number | null;
-  aggregateStatus: 'online' | 'offline' | 'warning';
-  healthUrl: string;
-  onRefresh: () => void;
-}): ReactNode {
-  const { t } = useLingui();
-  const latencyLabel =
-    latencyMs === null ? t`Measuring…` : t`${latencyMs} ms round-trip`;
-  return (
-    <Box sx={{ gap: 2 }}>
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-        <StatusDot status={aggregateStatus} size={10} />
-        <Text variant="body" label={latencyLabel} />
-      </Box>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={healthUrl}
-      />
-      <Button title={t`Refresh`} variant="outline" onPress={onRefresh} />
-    </Box>
-  );
-}
-
 /**
  * Registers API health / latency into the global status bar.
  */
 export function PingStatusBarItem(): ReactNode {
   const { t } = useLingui();
-  const { health, healthUrl, aggregateStatus, refresh } = useServerStatus();
+  const { health, aggregateStatus, refresh } = useServerStatus();
 
   useEffect(() => {
     const id = setInterval(() => refresh(), REFRESH_INTERVAL_MS);
@@ -68,7 +30,10 @@ export function PingStatusBarItem(): ReactNode {
   }, [refresh]);
 
   const caption =
-    health.latencyMs === null ? t`Checking server…` : t`${health.latencyMs} ms`;
+    health.latencyMs === null ? t`Checking…` : t`${health.latencyMs} ms`;
+  const onPress = useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   return (
     <RegisterStatusBarItem
@@ -78,16 +43,10 @@ export function PingStatusBarItem(): ReactNode {
       title={t`Server`}
       caption={caption}
       accessibilityLabel={caption}
+      active={aggregateStatus === 'online'}
       indicator={<PingIndicator latencyMs={health.latencyMs} />}
-      leading={<WifiIcon size={18} />}
-      panel={
-        <PingPanel
-          latencyMs={health.latencyMs}
-          aggregateStatus={aggregateStatus}
-          healthUrl={healthUrl}
-          onRefresh={refresh}
-        />
-      }
+      leading={<WifiIcon size={20} />}
+      onPress={onPress}
     />
   );
 }

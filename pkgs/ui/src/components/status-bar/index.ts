@@ -22,6 +22,10 @@ export {
   type StatusBarStripProps,
   useStatusBarPushHeight,
 } from './status-bar-strip';
+export {
+  StatusBarTile,
+  type StatusBarTileProps,
+} from './status-bar-tile';
 export type {
   RegisteredStatusBarItem,
   StatusBarItem,

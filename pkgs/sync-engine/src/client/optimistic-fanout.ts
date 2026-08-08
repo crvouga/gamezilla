@@ -2,6 +2,7 @@ import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { MutationEnv } from '../mutations/core/types';
+import { partitionFanoutRowsByTopic } from '../shared/partition-fanout-rows';
 import { fanoutRowsWithinCap } from '../shared/select-fanout-rows';
 import {
   type TopicMap,
@@ -34,6 +35,8 @@ export type BuildOptimisticFanoutArgs = {
 
 /**
  * Build optimistic topic+payload pairs from a local write capture.
+ * Row images are partitioned per topic so device-private tables do not
+ * ride along on a sibling table's user wake.
  */
 export async function buildOptimisticFanout(
   args: BuildOptimisticFanoutArgs
@@ -44,24 +47,38 @@ export async function buildOptimisticFanout(
   if (Object.keys(rows).length === 0) return [];
   if (!fanoutRowsWithinCap(rows)) return [];
 
-  const topics =
-    topicMap === undefined
-      ? []
-      : await topicsFromWriteCapture({
-          topicMap,
-          capture,
-          ctx: topicMapCtxFromEnv(env),
-          db: args.db,
-        });
+  if (topicMap === undefined) return [];
+  const ctx = topicMapCtxFromEnv(env);
+  const topics = await topicsFromWriteCapture({
+    topicMap,
+    capture,
+    ctx,
+    db: args.db,
+  });
   if (topics.length === 0) return [];
 
-  const payload: OptimisticFanoutPayload = {
-    pushSeq: '0',
-    optimistic: true,
-    tables: [...capture.tables],
+  const partitioned = await partitionFanoutRowsByTopic({
+    topicMap,
+    ctx,
     rows,
-  };
-  return topics.map((topic) => ({ topic, payload }));
+    db: args.db,
+  });
+  const items: OutboundLiveItem[] = [];
+  for (const topic of topics) {
+    const topicRows = partitioned.get(topic) ?? {};
+    const tableNames = Object.keys(topicRows);
+    if (tableNames.length === 0) continue;
+    items.push({
+      topic,
+      payload: {
+        pushSeq: '0',
+        optimistic: true,
+        tables: tableNames,
+        rows: topicRows,
+      },
+    });
+  }
+  return items;
 }
 
 async function publishItems(

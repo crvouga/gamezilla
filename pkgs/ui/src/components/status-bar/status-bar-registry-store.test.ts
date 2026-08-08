@@ -9,7 +9,6 @@ function item(id: string, order?: number): RegisteredStatusBarItem {
     ...(order !== undefined ? { order } : {}),
     indicator: null,
     title: id,
-    panel: null,
     _version: 0,
   };
 }

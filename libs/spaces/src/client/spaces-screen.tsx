@@ -12,7 +12,7 @@ import {
   ScreenBodyScrollView,
 } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
-import { type ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { SpaceCard } from './card/space-card';
 import { useCreateSpace } from './create-space/use-create-space';
@@ -73,11 +73,7 @@ function SpacesList() {
   );
 }
 
-export type SpacesScreenProps = {
-  readonly leading?: ReactNode;
-};
-
-export function SpacesScreen({ leading }: SpacesScreenProps) {
+export function SpacesScreen() {
   const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
@@ -106,7 +102,6 @@ export function SpacesScreen({ leading }: SpacesScreenProps) {
     <ScreenBase
       screenId="spaces"
       breadcrumbs={[{ name: t`Spaces` }]}
-      leading={leading}
       primaryAction={primaryAction}
       content={({ sx }) => (
         <Box style={sx}>

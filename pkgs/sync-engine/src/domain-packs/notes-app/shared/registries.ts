@@ -17,7 +17,10 @@ import {
   leaveSpace,
   setSpaceNote,
 } from './membership-mutations';
-import { spaceMembershipQuery } from './membership-query';
+import {
+  openSpaceSessionsQuery,
+  spaceMembershipQuery,
+} from './membership-query';
 import {
   deleteFolder,
   deleteNote,
@@ -75,4 +78,5 @@ export const notesQueryRegistry = queryRegistry([
   notesOnlyQuery,
   foldersOnlyQuery,
   spaceMembershipQuery,
+  openSpaceSessionsQuery,
 ]);

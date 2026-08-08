@@ -5,11 +5,11 @@ import { defineTopicMap, topicsFromWriteCapture } from '../../shared/topic-map';
 
 const map = defineTopicMap({
   space_open_sessions: {
-    topics(_row, ctx) {
-      return [`user:${ctx.actorId}` as Topic];
+    topics() {
+      return [] as Topic[];
     },
-    fallbackTopics(ctx) {
-      return [`user:${ctx.actorId}` as Topic];
+    fallbackTopics() {
+      return [] as Topic[];
     },
   },
   client_config: {
@@ -23,7 +23,7 @@ const map = defineTopicMap({
 });
 
 describe('fallbackTopics actor wake', () => {
-  test('space_open_sessions touch without images uses fallbackTopics', async () => {
+  test('space_open_sessions touch without images stays device-private', async () => {
     const topics = await topicsFromWriteCapture({
       topicMap: map,
       ctx: {
@@ -38,7 +38,7 @@ describe('fallbackTopics actor wake', () => {
         images: {},
       },
     });
-    expect(topics).toEqual(['user:actor-1']);
+    expect(topics).toEqual([]);
   });
 
   test('client_config touch without images uses system fallback', async () => {

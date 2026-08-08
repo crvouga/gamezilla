@@ -9,6 +9,7 @@ import { processMutationsBatch } from '../mutations/server/process-mutations-bat
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody, QueryRow } from '../protocol';
 import { MAX_MUTATIONS_BATCH, SYNC_PROTOCOL_VERSION } from '../protocol';
+import { partitionFanoutRowsByTopic } from '../shared/partition-fanout-rows';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
@@ -148,6 +149,9 @@ type PreparedMutationNotify = {
   readonly result: Awaited<ReturnType<typeof processMutationsBatch>>;
   readonly tables: readonly string[];
   readonly rows: Record<string, QueryRow[]> | undefined;
+  readonly rowsByTopic:
+    | ReadonlyMap<Topic, Record<string, QueryRow[]>>
+    | undefined;
   readonly checkpoints: ReadonlyMap<Topic, string>;
 };
 
@@ -171,11 +175,19 @@ async function prepareMutationNotify(
         result,
         tables: [] as string[],
         rows: undefined,
+        rowsByTopic: undefined,
         checkpoints: new Map<Topic, string>(),
       };
     }
     const captures = result.applied.map((a) => a.capture);
     const merged = mergeCaptures(captures);
+    const env: MutationEnv = {
+      actorId: auth.actorId,
+      deviceId: auth.deviceId,
+      accountId: auth.accountId,
+      isAnon: auth.isAnon,
+      now: () => new Date(),
+    };
     const topics = await collectTopicsFromCaptures({
       topicMap: deps.topicMap,
       auth,
@@ -188,8 +200,17 @@ async function prepareMutationNotify(
       capture: merged,
       rowImageFanout: deps.rowImageFanout === true,
     });
+    const rowsByTopic =
+      rows !== undefined && deps.topicMap !== undefined
+        ? await partitionFanoutRowsByTopic({
+            topicMap: deps.topicMap,
+            ctx: topicMapCtxFromEnv(env),
+            rows,
+            db: nested,
+          })
+        : undefined;
     const checkpoints = await allocateTopicPushSeqs(nested, topics);
-    return { result, tables, rows, checkpoints };
+    return { result, tables, rows, rowsByTopic, checkpoints };
   });
 }
 
@@ -203,7 +224,11 @@ function publishMutationPushes(
     pubsub: deps.pubsub,
     pushSeqs: prepared.checkpoints,
     tables: prepared.tables,
-    ...(prepared.rows !== undefined ? { rows: prepared.rows } : {}),
+    ...(prepared.rowsByTopic !== undefined
+      ? { rowsByTopic: prepared.rowsByTopic }
+      : prepared.rows !== undefined
+        ? { rows: prepared.rows }
+        : {}),
     label,
   });
 }

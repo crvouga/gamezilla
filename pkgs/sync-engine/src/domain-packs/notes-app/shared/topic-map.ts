@@ -40,6 +40,17 @@ export const notesTopicMap = defineTopicMap({
       ];
     },
   },
+  // Device-private: writer has the local mutation row; hydrate via
+  // openSpaceSessions (device_id filter). Empty topics so row images do not
+  // ride sibling spaces/space_users wakes on user:{actor}.
+  space_open_sessions: {
+    topics() {
+      return [];
+    },
+    fallbackTopics() {
+      return [];
+    },
+  },
 });
 
 export function notesDefaultEntryChannel(

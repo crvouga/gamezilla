@@ -435,6 +435,8 @@ export {
   StatusBarRegistryStore,
   StatusBarStrip,
   type StatusBarStripProps,
+  StatusBarTile,
+  type StatusBarTileProps,
   statusBarItemOrder,
   useStatusBar,
   useStatusBarPushHeight,

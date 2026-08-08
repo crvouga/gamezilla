@@ -1,13 +1,11 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
-  Box,
   RegisterStatusBarItem,
   StatusDot,
   type StatusDotStatus,
-  Text,
 } from '@pkgs/ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 function useBrowserOnline(): boolean {
@@ -40,48 +38,12 @@ function connectivityStatus(
   return 'online';
 }
 
-function ConnectivityPanel({
-  status,
-  connection,
-  lastError,
-}: {
-  status: StatusDotStatus;
-  connection: string;
-  lastError: string | null;
-}): ReactNode {
-  const { t } = useLingui();
-  const label =
-    status === 'online'
-      ? t`Online`
-      : status === 'offline'
-        ? t`Offline`
-        : t`Sync issue`;
-  return (
-    <Box sx={{ gap: 1 }}>
-      <Text variant="body" label={`${label} · ${connection}`} />
-      {lastError !== null && lastError.length > 0 ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'destructive' }}
-          label={lastError}
-        />
-      ) : (
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label={t`Changes sync when the connection is healthy.`}
-        />
-      )}
-    </Box>
-  );
-}
-
 /**
  * Registers online / sync connectivity into the global status bar.
  */
 export function ConnectivityStatusBarItem(): ReactNode {
   const { t } = useLingui();
-  const syncStatus = useSyncEngine().status;
+  const { status: syncStatus, refreshQueries } = useSyncEngine();
   const browserOnline = useBrowserOnline();
   const syncError =
     syncStatus.lastError !== null && syncStatus.lastError.length > 0;
@@ -96,24 +58,28 @@ export function ConnectivityStatusBarItem(): ReactNode {
       : status === 'offline'
         ? t`Offline`
         : t`Sync issue`;
+  const caption =
+    status === 'online'
+      ? syncStatus.connection
+      : syncError && syncStatus.lastError !== null
+        ? syncStatus.lastError
+        : label;
+  const onPress = useCallback(() => {
+    void refreshQueries();
+  }, [refreshQueries]);
 
   return (
     <RegisterStatusBarItem
       id="connectivity"
       order={10}
-      contentKey={status}
-      title={t`Connectivity`}
-      caption={label}
+      contentKey={`${status}:${syncStatus.connection}`}
+      title={t`Online`}
+      caption={caption}
       accessibilityLabel={label}
+      active={status === 'online'}
       indicator={<StatusDot status={status} size={8} />}
-      leading={<StatusDot status={status} size={12} />}
-      panel={
-        <ConnectivityPanel
-          status={status}
-          connection={syncStatus.connection}
-          lastError={syncStatus.lastError}
-        />
-      }
+      leading={<StatusDot status={status} size={14} />}
+      onPress={onPress}
     />
   );
 }

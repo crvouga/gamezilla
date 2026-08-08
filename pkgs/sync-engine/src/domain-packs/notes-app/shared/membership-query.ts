@@ -62,3 +62,32 @@ export const SPACE_MEMBERSHIP_SESSION = {
   name: 'spaceMembership',
   params: {},
 } as const;
+
+/**
+ * Device-scoped open sessions. Peers on the same actor must not receive
+ * another install's rows via user-topic fanout (see scenario test).
+ */
+export const openSpaceSessionsQuery = defineQuery({
+  name: 'openSpaceSessions',
+  limit: 20,
+  async run({ db, env }) {
+    const rows = await db.query(sql<{
+      id: string;
+      space_id: string;
+      device_id: string;
+      opened_at: string;
+      _deleted_at: string | null;
+    }>`
+      SELECT id, space_id, device_id, opened_at, _deleted_at
+      FROM space_open_sessions
+      WHERE device_id = ${env.deviceId}
+      ORDER BY id ASC
+`);
+    return { space_open_sessions: rows };
+  },
+});
+
+export const OPEN_SPACE_SESSIONS_SESSION = {
+  name: 'openSpaceSessions',
+  params: {},
+} as const;

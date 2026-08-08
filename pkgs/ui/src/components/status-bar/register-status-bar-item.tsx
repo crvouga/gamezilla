@@ -5,9 +5,9 @@ import type { RegisteredStatusBarItem, StatusBarItem } from './types';
 
 export type RegisterStatusBarItemProps = StatusBarItem & {
   /**
-   * Stable key for indicator/panel visuals. Bump when the strip glyph must
-   * refresh. Do not depend on fresh ReactNode identities — that loops with
-   * provider state updates.
+   * Stable key for indicator/tile visuals. Bump when the strip glyph or tile
+   * face must refresh. Do not depend on fresh ReactNode identities — that
+   * loops with provider state updates.
    */
   contentKey?: string | number | boolean | null;
 };
@@ -25,7 +25,8 @@ function toRegisteredItem(
     title: props.title,
     ...(props.caption !== undefined ? { caption: props.caption } : {}),
     ...(props.leading !== undefined ? { leading: props.leading } : {}),
-    panel: props.panel,
+    ...(props.onPress !== undefined ? { onPress: props.onPress } : {}),
+    ...(props.active !== undefined ? { active: props.active } : {}),
     ...(props.visible !== undefined ? { visible: props.visible } : {}),
     _version: 0,
   };

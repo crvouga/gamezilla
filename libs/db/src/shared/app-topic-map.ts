@@ -72,11 +72,14 @@ export const appTopicMap = defineTopicMap({
     },
   },
   space_open_sessions: {
-    topics(_row, ctx) {
-      return [userTopic(ctx.actorId)];
+    // Device-private: writer already has the local mutation row; hydrate on
+    // reconnect via openSpaceSessions (WHERE device_id = env.deviceId). Do not
+    // wake user: — same-account peers must not receive open-session images.
+    topics() {
+      return [];
     },
-    fallbackTopics(ctx) {
-      return [userTopic(ctx.actorId)];
+    fallbackTopics() {
+      return [];
     },
   },
   friendships: {

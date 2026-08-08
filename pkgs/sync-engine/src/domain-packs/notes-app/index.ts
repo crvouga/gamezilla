@@ -3,13 +3,17 @@ export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknow
 export {
   expectFoldersMatchServer,
   expectLiveNote,
+  expectNoForeignOpenSessions,
   expectNoteNotLive,
   expectNotesMatchServer,
+  expectOpenSession,
   isLiveNote,
   type LiveFolder,
   type LiveNote,
+  type LiveOpenSession,
   readLiveFolders,
   readLiveNotes,
+  readLiveOpenSessions,
   readNoteTombstone,
 } from './assert';
 export { notesLocalSchema } from './client/local-schema';
@@ -47,6 +51,8 @@ export {
   setSpaceNote,
 } from './shared/membership-mutations';
 export {
+  OPEN_SPACE_SESSIONS_SESSION,
+  openSpaceSessionsQuery,
   SPACE_MEMBERSHIP_SESSION,
   spaceMembershipQuery,
 } from './shared/membership-query';

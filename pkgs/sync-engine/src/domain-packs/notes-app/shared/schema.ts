@@ -33,6 +33,13 @@ export const notesAppSchema = defineSchema({
       space_id: 'text',
       user_id: 'text',
     },
+    /** Install-local "space is open here" — device-scoped, not user-scoped. */
+    space_open_sessions: {
+      id: 'text',
+      space_id: 'text',
+      device_id: 'text',
+      opened_at: 'timestamp',
+    },
   },
   uniqueIndexes: [
     ['folders', 'id'],
@@ -40,6 +47,8 @@ export const notesAppSchema = defineSchema({
     ['spaces', 'id'],
     ['space_users', 'id'],
     ['space_users', 'space_id', 'user_id'],
+    ['space_open_sessions', 'id'],
+    ['space_open_sessions', 'device_id', 'space_id'],
   ],
   indexes: [
     ['notes', 'folder_id'],
@@ -49,6 +58,8 @@ export const notesAppSchema = defineSchema({
     ['spaces', 'owner_id'],
     ['space_users', 'space_id'],
     ['space_users', 'user_id'],
+    ['space_open_sessions', 'device_id'],
+    ['space_open_sessions', 'space_id'],
   ],
 });
 
@@ -57,4 +68,5 @@ export const NOTES_APP_TABLES = [
   'notes',
   'spaces',
   'space_users',
+  'space_open_sessions',
 ] as const;

@@ -7,8 +7,6 @@ import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
 
 export type ProfileScreenProps = {
-  /** Leading slot (typically the app logo on root tabs). */
-  readonly leading?: ReactNode;
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
   readonly friendsStats?: ReactNode;
   /** Second action pill beside Edit profile (e.g. Find friends). */
@@ -18,7 +16,6 @@ export type ProfileScreenProps = {
 };
 
 export function ProfileScreen({
-  leading,
   friendsStats,
   friendsActions,
   bottomInset = 0,
@@ -28,7 +25,6 @@ export function ProfileScreen({
     <ScreenBase
       screenId="profile"
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      leading={leading}
       content={({ sx }) => (
         <ScreenBodyScrollView
           style={sx}

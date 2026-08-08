@@ -1,4 +1,5 @@
 import { useMyAccountId } from '@libs/auth/client/use-current-user';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
@@ -18,7 +19,11 @@ type PresenceRow = {
   readonly is_open: number | null;
 };
 
-function presenceSql(spaceId: string, enabled: boolean): Sql<PresenceRow> {
+function presenceSql(
+  spaceId: string,
+  enabled: boolean,
+  deviceId: string
+): Sql<PresenceRow> {
   if (!enabled) {
     return sql<PresenceRow>`
       SELECT
@@ -37,22 +42,25 @@ function presenceSql(spaceId: string, enabled: boolean): Sql<PresenceRow> {
       CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open
     FROM spaces AS s
     LEFT JOIN space_open_sessions AS o
-      ON o.space_id = s.id AND o._deleted_at IS NULL
+      ON o.space_id = s.id
+      AND o._deleted_at IS NULL
+      AND o.device_id = ${deviceId}
     WHERE s.id = ${spaceId}
   `;
 }
 
 /**
- * Resolves whether this account has `spaceId` open on this install.
- * One SQL watch joins `spaces` + `space_open_sessions`.
+ * Resolves whether this install has `spaceId` open.
+ * One SQL watch joins `spaces` + this device's `space_open_sessions`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const accountId = useMyAccountId();
+  const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
   const spaceEnabled = paintReady && spaceId.length > 0;
   const query = useMemo(
-    () => presenceSql(spaceId, spaceEnabled),
-    [spaceId, spaceEnabled]
+    () => presenceSql(spaceId, spaceEnabled, deviceId),
+    [spaceId, spaceEnabled, deviceId]
   );
   const { rows, isLoading } = useQuery(query);
   const row = rows[0] ?? null;

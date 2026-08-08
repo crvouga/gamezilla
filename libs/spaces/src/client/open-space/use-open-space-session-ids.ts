@@ -1,3 +1,4 @@
+import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
@@ -23,18 +24,19 @@ export function useOpenSpaceSessionIds(): {
   readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
+  const localDeviceId = useDeviceId();
   const query = useMemo(
     () =>
       paintReady
         ? sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions
-            WHERE _deleted_at IS NULL
+            WHERE _deleted_at IS NULL AND device_id = ${localDeviceId}
             ORDER BY opened_at DESC
           `
         : sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions WHERE false
           `,
-    [paintReady]
+    [paintReady, localDeviceId]
   );
   const { rows, isLoading } = useQuery(query);
   if (!paintReady) {
@@ -49,19 +51,22 @@ export function useOpenSpaceSessionIds(): {
 /** Whether this install currently has `spaceId` open. */
 export function useIsSpaceOpenLocally(spaceId: string): boolean {
   const { paintReady } = useSyncEngine();
+  const localDeviceId = useDeviceId();
   const enabled = paintReady && spaceId.length > 0;
   const query = useMemo(
     () =>
       enabled
         ? sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions
-            WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+            WHERE space_id = ${spaceId}
+              AND device_id = ${localDeviceId}
+              AND _deleted_at IS NULL
             LIMIT 1
           `
         : sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions WHERE false
           `,
-    [enabled, spaceId]
+    [enabled, spaceId, localDeviceId]
   );
   const { rows } = useQuery(query);
   const row = rows[0] ?? null;
@@ -75,6 +80,7 @@ export function useSpaceOpenSession(spaceId: string): {
   readonly isLoading: boolean;
 } {
   const { paintReady } = useSyncEngine();
+  const localDeviceId = useDeviceId();
   const enabled = paintReady && spaceId.length > 0;
   const query = useMemo(
     (): Sql<SessionRow> =>
@@ -82,14 +88,16 @@ export function useSpaceOpenSession(spaceId: string): {
         ? sql<SessionRow>`
             SELECT space_id, device_id, join_announced
             FROM space_open_sessions
-            WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+            WHERE space_id = ${spaceId}
+              AND device_id = ${localDeviceId}
+              AND _deleted_at IS NULL
             LIMIT 1
           `
         : sql<SessionRow>`
             SELECT space_id, device_id, join_announced
             FROM space_open_sessions WHERE false
           `,
-    [enabled, spaceId]
+    [enabled, spaceId, localDeviceId]
   );
   const { rows, isLoading } = useQuery(query);
   const row = rows[0] ?? null;

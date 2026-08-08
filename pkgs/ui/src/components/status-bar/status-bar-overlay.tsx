@@ -29,8 +29,10 @@ const ZERO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
 const GRABBER_WIDTH = 36;
 const GRABBER_HEIGHT = 5;
 const GRABBER_HIT_HEIGHT = 56;
-const CLOSE_SIZE = 48;
+const CLOSE_SIZE = 44;
 const CLOSE_INSET = 12;
+/** Max width of the Control Center tile grid (phone-like on large screens). */
+const PANEL_MAX_WIDTH = 400;
 /** How far content rides with the pointer (px at progress 0 → 0 at progress 1). */
 const CONTENT_SLIDE_PX = 36;
 
@@ -125,15 +127,18 @@ export function StatusBarOverlay({
         <GHScrollView
           style={styles.scroll}
           contentContainerStyle={{
-            paddingTop: insets.top + CLOSE_SIZE + CLOSE_INSET * 2,
-            paddingBottom: 16,
+            paddingTop: insets.top + CLOSE_SIZE + CLOSE_INSET,
+            paddingBottom: 12,
             paddingHorizontal: 16,
             flexGrow: 1,
+            alignItems: 'center',
           }}
           bounces
-          showsVerticalScrollIndicator
+          showsVerticalScrollIndicator={false}
         >
-          <StatusBarPanel items={items} />
+          <View style={[styles.panelWrap, { maxWidth: PANEL_MAX_WIDTH }]}>
+            <StatusBarPanel items={items} />
+          </View>
         </GHScrollView>
         <StatusBarBottomGrabber
           handlePan={handlePan}
@@ -160,6 +165,10 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+  },
+  panelWrap: {
+    width: '100%',
+    alignSelf: 'center',
   },
   grabberBar: {
     alignItems: 'center',

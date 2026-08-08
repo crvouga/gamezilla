@@ -4,7 +4,7 @@ export type StatusBarItemId = string;
 
 /**
  * A slot registered into the global status bar. Features own their indicator
- * and expanded panel UI; the bar only composes and sorts them.
+ * and Control Center tile face; the bar only composes and sorts them.
  */
 export type StatusBarItem = {
   id: StatusBarItemId;
@@ -17,14 +17,16 @@ export type StatusBarItem = {
   indicator: ReactNode;
   /** Accessibility label for the indicator cluster entry. */
   accessibilityLabel?: string;
-  /** Section heading in the expanded surface. */
+  /** Primary label on the Control Center tile. */
   title: ReactNode;
   /** Optional supporting line under the title. */
   caption?: ReactNode;
-  /** Optional leading icon / avatar in the expanded section header. */
+  /** Icon / avatar shown on the tile face. */
   leading?: ReactNode;
-  /** Controls and details shown under the section heading. */
-  panel: ReactNode;
+  /** Tap handler for the tile (toggle, refresh, navigate, …). */
+  onPress?: () => void;
+  /** When `true`, tile uses filled/accent treatment (toggle on). */
+  active?: boolean;
   /** When `false`, hidden from both the strip and the expanded surface. */
   visible?: boolean;
 };

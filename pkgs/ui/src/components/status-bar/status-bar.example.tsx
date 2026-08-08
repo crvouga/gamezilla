@@ -4,7 +4,6 @@ import { ExampleRoot } from '../explorer/example-root';
 import { SoundIndicator } from '../sound-indicator';
 import { Stack } from '../stack';
 import { StatusDot } from '../status-dot';
-import { Switch } from '../switch';
 import { Text } from '../text';
 import {
   RegisterStatusBarItem,
@@ -25,12 +24,13 @@ function DemoItems() {
       <RegisterStatusBarItem
         id="demo-online"
         order={10}
-        title="Connectivity"
-        caption="Network reachability"
+        title="Online"
+        caption="Connected"
         accessibilityLabel="Online"
+        active
         indicator={<StatusDot status="online" size={8} />}
-        leading={<StatusDot status="online" size={12} />}
-        panel={<Text variant="body" label="Connected to the demo network." />}
+        leading={<StatusDot status="online" size={14} />}
+        onPress={() => undefined}
       />
       <RegisterStatusBarItem
         id="demo-sound"
@@ -38,10 +38,19 @@ function DemoItems() {
         title="Sound"
         caption={muted ? 'Muted' : 'On'}
         accessibilityLabel={muted ? 'Sound muted' : 'Sound on'}
+        active={!muted}
+        contentKey={muted}
         indicator={
           <SoundIndicator state={muted ? 'muted' : 'idle'} size={12} />
         }
-        panel={<Switch label="Mute" value={muted} onValueChange={setMuted} />}
+        leading={
+          <SoundIndicator
+            state={muted ? 'muted' : 'idle'}
+            size={18}
+            backgroundColor="transparent"
+          />
+        }
+        onPress={() => setMuted((value) => !value)}
       />
     </>
   );

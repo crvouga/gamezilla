@@ -102,3 +102,48 @@ export async function expectNoteNotLive(
 ): Promise<void> {
   expect(await isLiveNote(db, id)).toBe(false);
 }
+
+export type LiveOpenSession = {
+  readonly id: string;
+  readonly space_id: string;
+  readonly device_id: string;
+};
+
+/** Live (non-tombstoned) open sessions ordered by id. */
+export async function readLiveOpenSessions(
+  db: SqlClient
+): Promise<readonly LiveOpenSession[]> {
+  return db.query(sql<LiveOpenSession>`
+    SELECT id, space_id, device_id
+    FROM space_open_sessions
+    WHERE _deleted_at IS NULL
+    ORDER BY id ASC
+  `);
+}
+
+/** Assert this install has a live open session for `spaceId`. */
+export async function expectOpenSession(
+  db: SqlClient,
+  deviceId: string,
+  spaceId: string
+): Promise<void> {
+  const rows = await db.query(sql<{ id: string }>`
+    SELECT id FROM space_open_sessions
+    WHERE space_id = ${spaceId}
+      AND device_id = ${deviceId}
+      AND _deleted_at IS NULL
+  `);
+  expect(rows.length).toBe(1);
+}
+
+/** Assert no live open-session rows owned by a foreign device. */
+export async function expectNoForeignOpenSessions(
+  db: SqlClient,
+  localDeviceId: string
+): Promise<void> {
+  const rows = await db.query(sql<{ device_id: string }>`
+    SELECT device_id FROM space_open_sessions
+    WHERE _deleted_at IS NULL AND device_id != ${localDeviceId}
+  `);
+  expect(rows).toEqual([]);
+}

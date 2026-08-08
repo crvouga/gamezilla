@@ -46,18 +46,27 @@ export function publishPushMessages(options: {
   readonly pubsub: PubSub;
   readonly pushSeqs: ReadonlyMap<Topic, string>;
   readonly tables?: readonly string[];
+  /** Same row bag on every topic (legacy). Prefer {@link rowsByTopic}. */
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
+  /** Per-topic row images from topic-map partition. */
+  readonly rowsByTopic?: ReadonlyMap<
+    Topic,
+    Readonly<Record<string, readonly QueryRow[]>>
+  >;
   readonly label?: string;
 }): void {
   const label = options.label ?? 'publishPushMessages';
   for (const [topic, pushSeq] of options.pushSeqs) {
+    const topicRows = options.rowsByTopic?.get(topic) ?? options.rows;
+    const tables =
+      topicRows !== undefined && Object.keys(topicRows).length > 0
+        ? Object.keys(topicRows)
+        : options.tables;
     const payload: PushMessage = {
       pushSeq,
-      ...(options.tables !== undefined && options.tables.length > 0
-        ? { tables: options.tables }
-        : {}),
-      ...(options.rows !== undefined && Object.keys(options.rows).length > 0
-        ? { rows: options.rows }
+      ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
+      ...(topicRows !== undefined && Object.keys(topicRows).length > 0
+        ? { rows: topicRows }
         : {}),
     };
     void options.pubsub.publish(topic, payload).catch((error: unknown) => {

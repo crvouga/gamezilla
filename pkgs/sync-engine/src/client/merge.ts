@@ -240,14 +240,36 @@ export async function applyFullMerge(
  * the server's last full-snapshot content so `not_modified` stays sound. A
  * rows-apply changes local content without claiming a full snapshot.
  */
+/**
+ * Drop peer-install rows that declare `device_id` ownership. Device-private
+ * tables (e.g. open sessions) must not land via user-topic fanout.
+ */
+function filterDeviceOwnedRows(
+  deps: MergeApplierDeps,
+  rows: readonly QueryRow[]
+): readonly QueryRow[] {
+  if (rows.length === 0) return rows;
+  const sample = rows[0];
+  if (sample === undefined || !('device_id' in sample)) return rows;
+  return rows.filter((row) => {
+    const owner = row['device_id'];
+    return typeof owner !== 'string' || owner === deps.env.deviceId;
+  });
+}
+
 export async function applyRowImages(
   deps: MergeApplierDeps,
   tables: Readonly<Record<string, readonly QueryRow[]>>
 ): Promise<void> {
+  const filtered: Record<string, readonly QueryRow[]> = {};
+  for (const [table, rows] of Object.entries(tables)) {
+    filtered[table] = filterDeviceOwnedRows(deps, rows);
+  }
   await withMergeSingleFlight(deps.db, async () => {
     const changed = new Set<string>();
     await deps.db.transaction(async (tx) => {
-      for (const [table, rows] of Object.entries(tables)) {
+      for (const [table, rows] of Object.entries(filtered)) {
+        if (rows.length === 0) continue;
         try {
           const ok = await mergeTable(tx, table, rows);
           if (ok) changed.add(table);

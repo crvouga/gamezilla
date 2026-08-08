@@ -14,6 +14,7 @@ import type {
 import { runQuery } from '../queries/server/run-query';
 import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
 import { publishPushMessages } from '../server/notify-channels';
+import { partitionFanoutRowsByTopic } from '../shared/partition-fanout-rows';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
@@ -133,13 +134,14 @@ async function notifyApplied(args: {
     now: () => new Date(args.ctx.now()),
   };
   const merged = mergeCaptures(args.captures);
+  const mapCtx = topicMapCtxFromEnv(env);
   const topics =
     args.ctx.topicMap === undefined
       ? []
       : await topicsFromWriteCapture({
           topicMap: args.ctx.topicMap,
           capture: merged,
-          ctx: topicMapCtxFromEnv(env),
+          ctx: mapCtx,
           db: args.ctx.db,
         });
   const rows = await buildFanoutRows(
@@ -147,6 +149,15 @@ async function notifyApplied(args: {
     merged,
     args.ctx.rowImageFanout
   );
+  const rowsByTopic =
+    rows !== undefined && args.ctx.topicMap !== undefined
+      ? await partitionFanoutRowsByTopic({
+          topicMap: args.ctx.topicMap,
+          ctx: mapCtx,
+          rows,
+          db: args.ctx.db,
+        })
+      : undefined;
   const checkpoints = await allocateTopicPushSeqs(args.ctx.db, topics);
   if (args.ctx.shouldFailPublish?.() === true) {
     return checkpoints;
@@ -155,7 +166,11 @@ async function notifyApplied(args: {
     pubsub: args.ctx.pubsub,
     pushSeqs: checkpoints,
     tables: merged.tables,
-    ...(rows !== undefined ? { rows } : {}),
+    ...(rowsByTopic !== undefined
+      ? { rowsByTopic }
+      : rows !== undefined
+        ? { rows }
+        : {}),
     label: args.label,
   });
   return checkpoints;

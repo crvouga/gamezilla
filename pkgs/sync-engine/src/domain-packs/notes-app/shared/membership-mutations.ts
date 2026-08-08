@@ -1,12 +1,39 @@
 import { sql } from '@pkgs/sql';
-import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
+import {
+  defineMutation,
+  type MutationDb,
+  type MutationEnv,
+  MutationError,
+} from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 function membershipRowId(spaceId: string, userId: string): string {
   return `${spaceId}:${userId}`;
 }
 
-/** Create a space and join the actor as a member. */
+function openSessionRowId(deviceId: string, spaceId: string): string {
+  return `${deviceId}:${spaceId}`;
+}
+
+async function openSession(
+  tx: MutationDb,
+  env: MutationEnv,
+  spaceId: string
+): Promise<void> {
+  const id = openSessionRowId(env.deviceId, spaceId);
+  const now = env.now().toISOString();
+  await tx.run(sql`
+    INSERT INTO space_open_sessions (id, space_id, device_id, opened_at)
+    VALUES (${id}, ${spaceId}, ${env.deviceId}, ${now})
+    ON CONFLICT (id) DO UPDATE SET
+      space_id = excluded.space_id,
+      device_id = excluded.device_id,
+      opened_at = excluded.opened_at,
+      _deleted_at = NULL
+  `);
+}
+
+/** Create a space, join the actor, and open it on this device. */
 export const createSpace = defineMutation({
   name: 'createSpace',
   args: z.object({ id: z.string(), title: z.string().optional() }),
@@ -29,6 +56,7 @@ export const createSpace = defineMutation({
         user_id = excluded.user_id,
         _deleted_at = NULL
     `);
+    await openSession(tx, env, id);
   },
 });
 
@@ -55,19 +83,27 @@ export const joinSpace = defineMutation({
         user_id = excluded.user_id,
         _deleted_at = NULL
     `);
+    await openSession(tx, env, spaceId);
   },
 });
 
-/** Leave a space — soft-delete the actor's membership. */
+/** Leave a space — soft-delete the actor's membership + this device session. */
 export const leaveSpace = defineMutation({
   name: 'leaveSpace',
   args: z.object({ spaceId: z.string() }),
   async run({ tx, env }, { spaceId }) {
+    const now = env.now().toISOString();
     const memberId = membershipRowId(spaceId, env.actorId);
     await tx.run(sql`
       UPDATE space_users
-      SET _deleted_at = ${env.now().toISOString()}
+      SET _deleted_at = ${now}
       WHERE id = ${memberId} AND _deleted_at IS NULL
+    `);
+    await tx.run(sql`
+      UPDATE space_open_sessions
+      SET _deleted_at = ${now}
+      WHERE id = ${openSessionRowId(env.deviceId, spaceId)}
+        AND _deleted_at IS NULL
     `);
   },
 });
@@ -94,6 +130,11 @@ export const endSpace = defineMutation({
     `);
     await tx.run(sql`
       UPDATE space_users
+      SET _deleted_at = ${now}
+      WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+    `);
+    await tx.run(sql`
+      UPDATE space_open_sessions
       SET _deleted_at = ${now}
       WHERE space_id = ${spaceId} AND _deleted_at IS NULL
     `);

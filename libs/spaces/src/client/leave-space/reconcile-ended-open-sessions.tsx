@@ -1,4 +1,5 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { sql } from '@pkgs/sql';
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
@@ -15,6 +16,7 @@ type EndedSessionRow = {
  */
 export function ReconcileEndedOpenSessions(): ReactNode {
   const { paintReady } = useSyncEngine();
+  const deviceId = useDeviceId();
   const mutationClient = useMutationClient();
   const runningRef = useRef(false);
   const query = useMemo(
@@ -24,12 +26,14 @@ export function ReconcileEndedOpenSessions(): ReactNode {
             SELECT o.space_id
             FROM space_open_sessions AS o
             INNER JOIN spaces AS s ON s.id = o.space_id
-            WHERE o._deleted_at IS NULL AND s.ended_at IS NOT NULL
+            WHERE o._deleted_at IS NULL
+              AND o.device_id = ${deviceId}
+              AND s.ended_at IS NOT NULL
           `
         : sql<EndedSessionRow>`
             SELECT space_id FROM space_open_sessions WHERE false
           `,
-    [paintReady]
+    [paintReady, deviceId]
   );
   const { rows } = useQuery(query);
 

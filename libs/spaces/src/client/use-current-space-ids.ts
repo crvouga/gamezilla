@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { useDeviceId } from '@libs/auth/client/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
@@ -49,7 +50,7 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function currentSpacesSql(enabled: boolean): Sql<SpaceRow> {
+function currentSpacesSql(enabled: boolean, deviceId: string): Sql<SpaceRow> {
   if (!enabled) {
     return sql<SpaceRow>`
       SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
@@ -61,24 +62,30 @@ function currentSpacesSql(enabled: boolean): Sql<SpaceRow> {
     SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
     FROM spaces AS s
     INNER JOIN space_open_sessions AS o
-      ON o.space_id = s.id AND o._deleted_at IS NULL
+      ON o.space_id = s.id
+      AND o._deleted_at IS NULL
+      AND o.device_id = ${deviceId}
     WHERE s.ended_at IS NULL
     ORDER BY o.opened_at DESC
   `;
 }
 
 /**
- * This account's locally-open live spaces (miniplayer).
- * Visibility is the SQL join of open sessions × live spaces.
+ * This install's locally-open live spaces (miniplayer).
+ * Visibility is the SQL join of this device's open sessions × live spaces.
  */
 export function useCurrentSpaceIds(): {
   entries: CurrentSpaceEntry[];
   isLoading: boolean;
 } {
   const myId = useMyId();
+  const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
   const enabled = paintReady && myId.length > 0;
-  const query = useMemo(() => currentSpacesSql(enabled), [enabled]);
+  const query = useMemo(
+    () => currentSpacesSql(enabled, deviceId),
+    [enabled, deviceId]
+  );
   const { rows, isLoading } = useQuery(query);
   if (!paintReady) {
     return { entries: [], isLoading: true };
