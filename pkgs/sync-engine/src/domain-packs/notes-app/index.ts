@@ -1,4 +1,4 @@
-/** Framework mutation — available via notes registry (`withFrameworkMutations`). */
+/** Framework mutation — merged by createLocalSyncEngine / createSyncApp. */
 export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknowledge-write-rejection';
 export {
   expectFoldersMatchServer,

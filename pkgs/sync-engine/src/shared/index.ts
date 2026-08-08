@@ -18,8 +18,22 @@ export {
   LIVE_ROW_SQL,
   softDeleteById,
 } from '../mutations/shared/soft-delete';
-export { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
-
+/** Frozen wire protocol v1 (shapes + bounds). */
+export {
+  MAX_FANOUT_BYTES,
+  MAX_FANOUT_ROWS,
+  MAX_MUTATIONS_BATCH,
+  MAX_QUERY_BATCH,
+  type MutationBatchRequest,
+  type MutationBatchResponse,
+  type MutationRequestItem,
+  type MutationVerdict,
+  type PushMessage,
+  type QueryBatchRequest,
+  type QueryBatchResponse,
+  type QueryRequestItem,
+  SYNC_PROTOCOL_VERSION,
+} from '../protocol';
 export { defineQuery } from '../queries/core/define-query';
 export { queryRegistry } from '../queries/core/registry';
 export type {
@@ -30,20 +44,11 @@ export type {
   QueryResponse,
   QueryRow,
 } from '../queries/core/types';
-export {
-  MAX_FANOUT_BYTES,
-  MAX_FANOUT_ROWS,
-  MAX_MUTATIONS_BATCH,
-} from '../queries/shared/bounds';
+
 export { applyFrameworkServerDdl } from './apply-framework-server-ddl';
+export { assertDomainTablesAvoidFrameworkNames } from './assert-domain-tables';
 export {
   assertChannelExhaustiveness,
   type ChannelGap,
   findChannelExhaustivenessGaps,
 } from './channel-exhaustiveness';
-export {
-  FRAMEWORK_CACHE_TABLE_NAMES,
-  FRAMEWORK_DURABLE_TABLE_NAMES,
-  FRAMEWORK_SERVER_DDL,
-  FRAMEWORK_TABLE_NAMES,
-} from './framework-server-ddl';

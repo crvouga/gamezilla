@@ -1,5 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { QueryRequestItem } from '../protocol/v1';
 import type { QueryResponse } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {
@@ -11,12 +12,8 @@ import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import { REAL_TIMERS, type Timers } from './sim-ports';
 import { QUERY_COALESCE_MS } from './subscription-constants';
 
-export type QueryRequest = {
-  readonly name: string;
-  readonly params: Readonly<Record<string, unknown>>;
-  readonly lastHash?: string | undefined;
-  readonly checkpoint?: string | undefined;
-};
+/** Host/port alias of protocol {@link QueryRequestItem}. */
+export type QueryRequest = QueryRequestItem;
 
 export type QuerySubscriptionSpec = {
   readonly name: string;

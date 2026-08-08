@@ -93,29 +93,74 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 |--------|------|
 | `@pkgs/sync-engine/client` | Expo / React Native engine, React hooks, HTTP client |
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
-| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, framework DDL |
-| `@pkgs/sync-engine/test` | `createInMemorySyncEngine` for unit tests |
+| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v1**, opaque migrate |
+| `@pkgs/sync-engine/test` | In-memory engine + sim/test controls (`SCHEMA_EPOCH`, controllable lifecycle) |
+
+Full contract map, leak inventory, deletion list, and refactor-freedom checklist:
+[`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports: [`api-reports/`](./api-reports/).
+
+### Contract classes (what you may depend on)
+
+| Class | Promise | Examples |
+|-------|---------|----------|
+| **Code API** | Four entrypoints; coordinated monorepo refactors OK | `createLocalSyncEngine`, hooks, `createSyncApp`, `notifyChannels` |
+| **Wire protocol** | Cross-version freeze (`src/protocol/v1.ts`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*` |
+| **Local domain SQL** | Deliberate local-first contract | Domain tables, `_deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
+| **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `MutationEnv`, `affectedRows` |
+| **Host wiring** | Injected ports | `postQueries`/`postMutations` (protocol-derived), pubsub, auth, SQL, lifecycle |
+| **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms, epoch |
+
+**Do not depend on:** framework table names/shapes (`_mutations`, `write_rejections`, …),
+`SCHEMA_EPOCH` (except via `/test`), DDL text, `allocateTopicPushSeq`, or deep
+`@pkgs/sync-engine/src/...` imports. Use `mutationOutcome` / `listRejections` /
+`pendingMutationCount` instead of SQL on framework tables.
 
 ### Notable public symbols
 
 **client:** `createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`,
 `SyncEngineProvider`, `useSyncEngine`, `useSyncEngineInstance`, `useQuery`,
 `MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
-`AppLifecycle` helpers, status types, `SCHEMA_EPOCH` (optional
-`schemaEpoch` / `onLocalMigratePhase` on create options for sim).
+`AppLifecycle` **types**, status types, `SyncEngine.mutationOutcome` /
+`listRejections` / `pendingMutationCount`. Optional create opts `schemaEpoch` /
+`onLocalMigratePhase` for sim (constants live on `/test`).
 
-**server:** `createSyncApp`, `notifyChannels`, `allocateTopicPushSeq(s)`,
-`isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
+**server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (allocates
+pushSeqs internally), `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
 
-**shared:** `defineQuery`, `defineMutation`, `queryRegistry`, `mutationRegistry`,
-`MutationError`, `LIVE_ROW_SQL`, `softDeleteById`, `withFrameworkMutations`,
-`applyFrameworkServerDdl`, `FRAMEWORK_*` constants,
-`assertChannelExhaustiveness` / `findChannelExhaustivenessGaps`,
-`MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` / `MAX_MUTATIONS_BATCH`.
+**shared:** `defineQuery`, `defineMutation`, registries, `MutationError`,
+`LIVE_ROW_SQL`, `softDeleteById`, `applyFrameworkServerDdl` (opaque),
+protocol v1 types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
+`assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames`.
 
-**Not public** (internal modules agents may cite but must not import from apps):
-`merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
-`createMutationClient`, `runQuery`, `replayMutation`, anything under `src/sim/`.
+**test:** `createInMemorySyncEngine`, `SCHEMA_EPOCH`, `createControllableLifecycle`,
+`withFrameworkMutations` (escape hatch; factories already merge).
+
+**Not public:** `merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
+`allocateTopicPushSeq*`, `FRAMEWORK_*` DDL/constants, `publishPushMessages`,
+`runQuery`, `replayMutation`, anything under `src/sim/`.
+
+### Refactor-freedom (acceptance for internals rewrites)
+
+These must be possible with zero edits outside `pkgs/sync-engine/src/`:
+
+1. Rename/restructure any framework table or storage layout.
+2. Rewrite merge/rebase/subscription/upload from scratch.
+3. Swap pubsub transport behind the pubsub port.
+4. Change coalescing, batching, retry/backoff, single-flight (wire `MAX_*` bounds still frozen).
+5. Change `SCHEMA_EPOCH` mechanics or cache-wipe strategy.
+6. Change content-hash / scope-hash **algorithms** (opaque equality only on the wire).
+7. Add a push optimization without new required host wiring.
+
+### CI (encapsulation)
+
+```bash
+bun run ci:sync-engine-public-api      # api-reports/*.txt
+bun run ci:sync-engine-protocol-freeze # protocol-v1.sha256
+bun run ci:sync-engine-framework-leak  # no framework names in apps/libs/inbox
+bun run ci:sync-engine-blackbox-tests
+bun run ci:no-local-tables
+bun run ci:channel-exhaustiveness
+```
 
 ---
 
@@ -233,8 +278,10 @@ Rules:
 - Breaking wire changes → new `name` (`joinSpaceV2`); keep old handlers until
   clients adopt.
 - Server replay is idempotent via `_mutations_applied` (keyed by mutation id).
-- Framework mutations (e.g. `acknowledgeWriteRejection`) are merged via
-  `withFrameworkMutations` in both `createSyncApp` and `createLocalSyncEngine`.
+- Framework mutations (e.g. `acknowledgeWriteRejection`) are merged
+  automatically inside `createSyncApp` and `createLocalSyncEngine` (and
+  `MutationClientProvider`). Do not call `withFrameworkMutations` in product
+  registries.
 
 ### Sync engine (client)
 
@@ -654,10 +701,10 @@ single-flight (it does) — mainly HTTP/server load then.
 
 **API** (`apps/api/src/sync/sync-app.ts`)
 
-1. `applyFrameworkServerDdl` during migrate
+1. `applyFrameworkServerDdl` during migrate (opaque; no DDL text import)
 2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub,
    rowImageFanout: true })`
-3. Non-mutation DOMAIN writes must `notifyChannels`
+3. Non-mutation DOMAIN writes must `notifyChannels({ pubsub, sql, topics, … })`
 
 Registries: `apps/client|api/src/sync/app-queries.ts` + `app-mutations.ts`.
 

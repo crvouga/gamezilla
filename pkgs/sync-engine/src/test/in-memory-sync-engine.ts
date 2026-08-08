@@ -212,6 +212,9 @@ export async function createInMemorySyncEngine(
       createImmediateQuerySubscription()
     ),
     status,
+    mutationOutcome: async () => 'confirmed',
+    listRejections: async () => [],
+    pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,
     notifyLocalMutation: () => undefined,
   };

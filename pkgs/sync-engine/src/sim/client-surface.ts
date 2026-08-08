@@ -1,7 +1,3 @@
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-} from '../mutations/client/mutation-status';
 import type {
   SimClientHandle,
   SimRejection,
@@ -11,7 +7,7 @@ import type { SimHttpClient } from './http-bridge';
 import type { SimPollablePromise } from './until';
 
 function createOutcomePromise(
-  db: SimClientHandle['db'],
+  engine: SimClientHandle['engine'],
   mutationId: string
 ): SimPollablePromise<'confirmed' | 'rejected'> {
   let settled = false;
@@ -28,7 +24,7 @@ function createOutcomePromise(
 
   const poll = async (): Promise<boolean> => {
     if (settled) return true;
-    const status = await mutationStatus(db, mutationId);
+    const status = await engine.mutationOutcome(mutationId);
     if (status === 'pending') return false;
     settle(status);
     return true;
@@ -40,7 +36,7 @@ function createOutcomePromise(
   });
 
   // Eager resolve when already terminal (safe to await without until).
-  void mutationStatus(db, mutationId).then((status) => {
+  void engine.mutationOutcome(mutationId).then((status) => {
     if (status !== 'pending') settle(status);
   });
 
@@ -95,11 +91,9 @@ export function decorateClientSurface(handle: ClientCore): SimClientHandle {
         reason: reason === 'revoked' ? 'revoked' : 'cache',
       }),
     subscribe,
-    outcome: (mutationId) => createOutcomePromise(handle.db, mutationId),
+    outcome: (mutationId) => createOutcomePromise(handle.engine, mutationId),
     rejections: () =>
-      listUnackedWriteRejections(handle.db, handle.deviceId) as Promise<
-        readonly SimRejection[]
-      >,
+      handle.engine.listRejections() as Promise<readonly SimRejection[]>,
     connection: () => handle.engine.status.getSnapshot().connection,
     lastError: () => handle.engine.status.getSnapshot().lastError,
     hasSynced: () => handle.engine.status.getSnapshot().hasSynced,

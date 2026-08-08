@@ -1,16 +1,15 @@
 #!/usr/bin/env bun
-import {
-  assertChannelExhaustiveness,
-  withFrameworkMutations,
-} from '@pkgs/sync-engine/shared';
+import { assertChannelExhaustiveness } from '@pkgs/sync-engine/shared';
 /**
  * Fail CI when a mutation writes a table a query hydrates but their
  * invalidates / channels topics do not overlap.
+ *
+ * Framework mutations are merged inside assertChannelExhaustiveness.
  */
 import { APP_MUTATIONS } from '../../apps/api/src/sync/app-mutations';
 import { APP_QUERIES } from '../../apps/api/src/sync/app-queries';
 
-const mutations = Object.values(withFrameworkMutations(APP_MUTATIONS));
+const mutations = Object.values(APP_MUTATIONS);
 const queries = Object.values(APP_QUERIES);
 
 try {

@@ -50,3 +50,14 @@ export async function listUnackedWriteRejections(
       AND wr.acknowledged = ${0}
   `);
 }
+
+/** Pending upload queue depth for this client. */
+export async function pendingMutationCount(
+  db: Pick<SqlClient, 'query'>,
+  clientId: string
+): Promise<number> {
+  const rows = await db.query(sql<{ c: number | string | bigint }>`
+    SELECT COUNT(*) AS c FROM _mutations WHERE client_id = ${clientId}
+  `);
+  return Number(rows[0]?.c ?? 0);
+}

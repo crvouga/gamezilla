@@ -4,8 +4,8 @@ import { pruneMutationArtifacts } from '@pkgs/sync-engine/server';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
+import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { QueryRegistry } from '../queries/core/types';
-import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
 import { notifyChannels } from '../server/notify-channels';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimHttpServerHandlers } from './http-bridge';
@@ -96,7 +96,9 @@ export async function openSimServer(
     closeDb = () => bundle.close();
   }
 
-  const mutations = args.mutationRegistry;
+  // Match createSyncApp / createLocalSyncEngine: product registries are
+  // product-only; framework mutations merge at the host boundary.
+  const mutations = withFrameworkMutations(args.mutationRegistry);
   const queries = args.queryRegistry;
   let checkpointSeq = 0;
   let stickyAuth: SimServerAuth = {
@@ -140,16 +142,13 @@ export async function openSimServer(
     pruneArtifacts: (olderThanMs) =>
       pruneMutationArtifacts(db, olderThanMs, new Date(args.now())),
     notifyFanout: async ({ topics, tables, label }) => {
-      const checkpoints = await allocateTopicPushSeqs(db, [...topics]);
-      for (const [topic, pushSeq] of checkpoints) {
-        notifyChannels({
-          pubsub: args.pubsub,
-          topics: [topic],
-          pushSeq,
-          tables: [...tables],
-          label,
-        });
-      }
+      notifyChannels({
+        pubsub: args.pubsub,
+        sql: db,
+        topics: [...topics],
+        tables: [...tables],
+        label,
+      });
     },
     dispose: () => closeDb(),
   };

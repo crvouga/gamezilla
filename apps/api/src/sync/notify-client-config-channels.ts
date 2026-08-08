@@ -1,5 +1,5 @@
 import { clientConfigTopic } from '@libs/db/shared/sync-topics';
-import { allocateTopicPushSeq, notifyChannels } from '@pkgs/sync-engine/server';
+import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
@@ -11,12 +11,10 @@ export function notifyClientConfigChannels(label: string): void {
   void (async () => {
     const pubsub = await getApiPubSub(store.secretStore);
     if (pubsub === undefined) return;
-    const topic = clientConfigTopic();
-    const pushSeq = await allocateTopicPushSeq(store.sqlClient, topic);
     notifyChannels({
       pubsub,
-      topics: [topic],
-      pushSeq,
+      sql: store.sqlClient,
+      topics: [clientConfigTopic()],
       label,
     });
   })();

@@ -2,9 +2,10 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { z } from 'zod';
 
+import type { AuthErrorBody, QueryResponse, QueryRow } from '../../protocol/v1';
 import type { QueryChannelsCtx } from '../../shared/push-payload';
 
-export type QueryRow = Record<string, unknown>;
+export type { AuthErrorBody, QueryResponse, QueryRow };
 
 export type QueryCtx = {
   readonly db: {
@@ -49,22 +50,3 @@ export type QueryDef<P> = {
 };
 
 export type QueryRegistry = Readonly<Record<string, QueryDef<unknown>>>;
-
-/**
- * Query wire responses. Snapshots are always full tables including soft-deleted
- * rows (`_deleted_at`); the client upserts them verbatim.
- */
-export type QueryResponse =
-  | {
-      readonly status: 'ok';
-      readonly checkpoint: string;
-      readonly hash: string;
-      readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
-    }
-  | { readonly status: 'not_modified' }
-  | { readonly status: 'denied' };
-
-export type AuthErrorBody = {
-  readonly error: 'auth';
-  readonly reason: 'expired' | 'revoked';
-};

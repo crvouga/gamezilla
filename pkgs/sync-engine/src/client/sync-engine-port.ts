@@ -3,6 +3,10 @@
  */
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type {
+  MutationStatus,
+  UnackedWriteRejection,
+} from '../mutations/client/mutation-status';
 import type { Mutation } from '../mutations/core/types';
 import type {
   SubscribeQueriesHandle,
@@ -10,6 +14,8 @@ import type {
 } from './subscribe-queries-types';
 import type { QuerySubscription } from './subscription-runtime';
 import type { SyncStatusSubscription } from './sync-status';
+
+export type { MutationStatus, UnackedWriteRejection };
 
 /**
  * A subscription handle for observing changes in a watched query.
@@ -89,13 +95,22 @@ export type SyncEngine = {
   ) => SubscribeQueriesHandle;
   /**
    * Provides a subscription to sync status changes.
+   * Snapshot shape: `{ connection, online, hasSynced, hasEverSynced, lastError }`.
    */
   readonly status: SyncStatusSubscription;
-  /** Wake the mutation upload loop (e.g. after a local `mutate` commit). */
+  /**
+   * Behavior-level mutation outcome (pending | confirmed | rejected).
+   * Do not read framework tables for this.
+   */
+  readonly mutationOutcome: (mutationId: string) => Promise<MutationStatus>;
+  /** Unacknowledged write rejections for this engine's client id. */
+  readonly listRejections: () => Promise<readonly UnackedWriteRejection[]>;
+  /** Count of local mutations still waiting to upload. */
+  readonly pendingMutationCount: () => Promise<number>;
+  /** @internal MutationClientProvider / test seam — wake upload drain. */
   readonly wakeUploads: () => void;
   /**
-   * After a successful local mutate: publish lossy row images over MQTT so
-   * peers can paint before server replay (~tens of ms locally).
+   * @internal MutationClientProvider — optimistic peer fanout after local mutate.
    */
   readonly notifyLocalMutation: (
     mutation: Mutation<unknown>,

@@ -1,0 +1,7 @@
+createSyncApp
+CreateSyncAppDeps
+isAuthErrorBody
+notifyChannels
+NotifyChannelsOptions
+pruneMutationArtifacts
+SyncAppAuth

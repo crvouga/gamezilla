@@ -1,8 +1,4 @@
-import {
-  mutationRegistry,
-  queryRegistry,
-  withFrameworkMutations,
-} from '@pkgs/sync-engine/shared';
+import { mutationRegistry, queryRegistry } from '@pkgs/sync-engine/shared';
 import {
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
@@ -43,31 +39,30 @@ import {
   notesWorldQuery,
 } from './queries';
 
-export const notesMutationRegistry = withFrameworkMutations(
-  mutationRegistry([
-    setFolder,
-    deleteFolder,
-    setNote,
-    setNoteV2,
-    setNoteNoFanout,
-    deleteNote,
-    moveNote,
-    illegalHardDeleteNote,
-    serverRejectNote,
-    requiresOnlineNote,
-    createSpace,
-    joinSpace,
-    leaveSpace,
-    endSpace,
-    setSpaceNote,
-    setNoteArgsTight,
-    setNoteUniqueSlug,
-    setNoteUndeclaredFolderWrite,
-    setNoteWrongTopic,
-    setNoteStrictExists,
-    retouchNotes,
-  ])
-);
+/** Product-only registry; createLocalSyncEngine / createSyncApp merge framework mutations. */
+export const notesMutationRegistry = mutationRegistry([
+  setFolder,
+  deleteFolder,
+  setNote,
+  setNoteV2,
+  setNoteNoFanout,
+  deleteNote,
+  moveNote,
+  illegalHardDeleteNote,
+  serverRejectNote,
+  requiresOnlineNote,
+  createSpace,
+  joinSpace,
+  leaveSpace,
+  endSpace,
+  setSpaceNote,
+  setNoteArgsTight,
+  setNoteUniqueSlug,
+  setNoteUndeclaredFolderWrite,
+  setNoteWrongTopic,
+  setNoteStrictExists,
+  retouchNotes,
+]);
 
 export const notesQueryRegistry = queryRegistry([
   notesWorldQuery,

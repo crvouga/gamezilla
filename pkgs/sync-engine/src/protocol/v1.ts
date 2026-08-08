@@ -1,0 +1,111 @@
+/**
+ * Wire protocol v1 — frozen cross-version shapes.
+ *
+ * Compatibility surface between deployed clients and servers. Changing shapes
+ * requires an explicit version bump (v2) and dual-stack decision — not a
+ * routine internal refactor.
+ *
+ * Content/scope hash *algorithms* are Internal (opaque string equality only).
+ * Numeric bounds below are part of this freeze.
+ */
+
+/** Protocol major version. Bump only with an explicit compatibility decision. */
+export const SYNC_PROTOCOL_VERSION = 1 as const;
+
+/** Max mutation rows accepted per POST /mutations. */
+export const MAX_MUTATIONS_BATCH = 64;
+
+/** Max total rows in a push `rows` payload before falling back to wake-only. */
+export const MAX_FANOUT_ROWS = 64;
+
+/** Max serialized JSON bytes for push `rows` before falling back to wake-only. */
+export const MAX_FANOUT_BYTES = 32 * 1024;
+
+/** Max queries per POST /query batch. */
+export const MAX_QUERY_BATCH = 64;
+
+/** One domain row on the wire (incl. `_deleted_at` when present). */
+export type QueryRow = Record<string, unknown>;
+
+/** One item in `POST /query` `{ queries: [...] }`. */
+export type QueryRequestItem = {
+  readonly name: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  /** Opaque content hash from a prior `ok` response; equality ⇒ `not_modified`. */
+  readonly lastHash?: string | undefined;
+  readonly checkpoint?: string | undefined;
+};
+
+export type QueryBatchRequest = {
+  readonly queries: readonly QueryRequestItem[];
+};
+
+/**
+ * Exactly three response shapes. Removed forever unless redesign:
+ * `mode: 'delta'|'full'`, `resync`, `gone`.
+ */
+export type QueryResponse =
+  | {
+      readonly status: 'ok';
+      readonly checkpoint: string;
+      /** Opaque content hash; algorithm is Internal (equality only on the wire). */
+      readonly hash: string;
+      readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
+    }
+  | { readonly status: 'not_modified' }
+  | { readonly status: 'denied' };
+
+export type QueryBatchResponse = {
+  readonly responses: readonly QueryResponse[];
+};
+
+/** One item in `POST /mutations` `{ mutations: [...] }`. */
+export type MutationRequestItem = {
+  readonly id: string;
+  readonly name: string;
+  /** JSON string of mutation args. */
+  readonly args: string;
+  readonly clientId: string;
+  readonly seq: number;
+  readonly createdAt: string;
+};
+
+export type MutationBatchRequest = {
+  readonly mutations: readonly MutationRequestItem[];
+};
+
+export type MutationVerdict =
+  | { readonly mutationId: string; readonly status: 'applied' }
+  | {
+      readonly mutationId: string;
+      readonly status: 'rejected';
+      readonly code: string;
+      readonly message: string;
+    };
+
+export type MutationBatchResponse = {
+  readonly ok: true;
+  readonly verdicts: readonly MutationVerdict[];
+  readonly ackSeq: number;
+  /**
+   * Per-topic pushSeqs for this batch. Mutating client floors local applied
+   * seq so own echoed fanout is skipped.
+   */
+  readonly topicPushSeqs?: Readonly<Record<string, string>>;
+};
+
+export type AuthErrorBody = {
+  readonly error: 'auth';
+  readonly reason: 'expired' | 'revoked';
+};
+
+/**
+ * Pubsub push payload. `pushSeq` required and monotonic per topic.
+ * Optional `rows` are a lossy optimization; snapshots define correctness.
+ */
+export type PushMessage = {
+  readonly pushSeq: string;
+  readonly optimistic?: true;
+  readonly tables?: readonly string[];
+  readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
+};

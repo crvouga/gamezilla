@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { SCHEMA_EPOCH } from '@pkgs/sync-engine/client';
+import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
   expectLiveNote,
   expectNoteNotLive,

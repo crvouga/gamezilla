@@ -236,8 +236,9 @@
     "//#ci:no-local-tables": {
       "inputs": [
         "libs/db/src/shared/**/*.ts",
-        "pkgs/sync-engine/src/shared/table-definition.ts",
-        "tools/scripts/check-no-local-tables.ts"
+        "pkgs/sync-engine/src/shared/assert-domain-tables.ts",
+        "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
+        "tools/scripts/check-local-table-categories.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -326,6 +327,37 @@
         "pkgs/sync-engine/**/*.test.ts",
         "pkgs/sync-engine/src/tests/**",
         "tools/scripts/check-sync-engine-blackbox-tests.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:sync-engine-framework-leak": {
+      "inputs": [
+        "apps/**/*.{ts,tsx}",
+        "libs/**/*.{ts,tsx}",
+        "pkgs/inbox/**/*.{ts,tsx}",
+        "tools/scripts/check-sync-engine-framework-leak.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:sync-engine-protocol-freeze": {
+      "inputs": [
+        "pkgs/sync-engine/src/protocol/v1.ts",
+        "pkgs/sync-engine/api-reports/protocol-v1.sha256",
+        "tools/scripts/check-sync-engine-protocol-freeze.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:sync-engine-public-api": {
+      "inputs": [
+        "pkgs/sync-engine/src/client/index.ts",
+        "pkgs/sync-engine/src/server/index.ts",
+        "pkgs/sync-engine/src/shared/index.ts",
+        "pkgs/sync-engine/src/test/index.ts",
+        "pkgs/sync-engine/api-reports/**",
+        "tools/scripts/check-sync-engine-public-api.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"

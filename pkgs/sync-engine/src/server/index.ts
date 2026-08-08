@@ -4,10 +4,6 @@
  */
 
 export { pruneMutationArtifacts } from '../mutations/server/prune-mutation-artifacts';
-export {
-  allocateTopicPushSeq,
-  allocateTopicPushSeqs,
-} from './allocate-topic-push-seq';
 export { isAuthErrorBody } from './auth-error';
 export {
   type CreateSyncAppDeps,

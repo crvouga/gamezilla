@@ -13,7 +13,7 @@ import type {
 } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
 import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
-import { notifyChannels } from '../server/notify-channels';
+import { publishPushMessages } from '../server/notify-channels';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
@@ -157,16 +157,13 @@ async function notifyApplied(args: {
     return checkpoints;
   }
   const label = args.applied.map((a) => a.name).join(',');
-  for (const [topic, pushSeq] of checkpoints) {
-    notifyChannels({
-      pubsub: args.ctx.pubsub,
-      topics: [topic],
-      pushSeq,
-      tables,
-      ...(rows !== undefined ? { rows } : {}),
-      label,
-    });
-  }
+  publishPushMessages({
+    pubsub: args.ctx.pubsub,
+    pushSeqs: checkpoints,
+    tables,
+    ...(rows !== undefined ? { rows } : {}),
+    label,
+  });
   return checkpoints;
 }
 

@@ -1,6 +1,8 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 
+import { mutationRegistry } from '../mutations/core/registry';
 import type { Mutation, MutationEnv } from '../mutations/core/types';
+import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { QueryDef } from '../queries/core/types';
 import type { QueryChannelsCtx } from './push-payload';
 
@@ -109,7 +111,12 @@ export function assertChannelExhaustiveness(
   mutations: readonly Mutation<unknown>[],
   queries: readonly QueryDef<unknown>[]
 ): void {
-  const gaps = findChannelExhaustivenessGaps(mutations, queries);
+  // Framework mutations are merged inside createSyncApp / createLocalSyncEngine;
+  // include them here so CI matches runtime registries without a manual merge.
+  const merged = Object.values(
+    withFrameworkMutations(mutationRegistry(mutations))
+  ) as Mutation<unknown>[];
+  const gaps = findChannelExhaustivenessGaps(merged, queries);
   if (gaps.length === 0) return;
   const lines = gaps.map(
     (g) => `  ${g.mutation} → ${g.query} (tables: ${g.tables.join(', ')})`

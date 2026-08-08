@@ -16,7 +16,7 @@ import {
 } from '../shared/select-fanout-rows';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
-import { notifyChannels } from './notify-channels';
+import { publishPushMessages } from './notify-channels';
 import type { SyncAppAuth } from './sync-app-auth';
 
 const mutationRowSchema = z.object({
@@ -212,16 +212,13 @@ function publishMutationPushes(
 ): void {
   if (deps.pubsub === undefined || prepared.result.applied.length === 0) return;
   const label = prepared.result.applied.map((a) => a.name).join(',');
-  for (const [topic, pushSeq] of prepared.checkpoints) {
-    notifyChannels({
-      pubsub: deps.pubsub,
-      topics: [topic],
-      pushSeq,
-      tables: prepared.tables,
-      ...(prepared.rows !== undefined ? { rows: prepared.rows } : {}),
-      label,
-    });
-  }
+  publishPushMessages({
+    pubsub: deps.pubsub,
+    pushSeqs: prepared.checkpoints,
+    tables: prepared.tables,
+    ...(prepared.rows !== undefined ? { rows: prepared.rows } : {}),
+    label,
+  });
 }
 
 export type MountMutationsRouteDeps = {

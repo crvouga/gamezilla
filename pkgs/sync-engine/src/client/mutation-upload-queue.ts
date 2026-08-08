@@ -1,42 +1,28 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type {
+  MutationBatchResponse,
+  MutationRequestItem,
+  MutationVerdict,
+} from '../protocol/v1';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
+import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { recordPushApplied } from './push-applied';
 import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
 
-const BATCH_LIMIT = 64;
+const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
 const IDLE_DELAY_MS = 100;
 const ERROR_DELAY_MS = 2_000;
 
-export type MutationUploadRow = {
-  readonly id: string;
-  readonly name: string;
-  readonly args: string;
-  readonly clientId: string;
-  readonly seq: number;
-  readonly createdAt: string;
-};
+/** Host/port alias of protocol {@link MutationRequestItem}. */
+export type MutationUploadRow = MutationRequestItem;
 
-export type MutationUploadVerdict =
-  | { readonly mutationId: string; readonly status: 'applied' }
-  | {
-      readonly mutationId: string;
-      readonly status: 'rejected';
-      readonly code: string;
-      readonly message: string;
-    };
+/** Host/port alias of protocol {@link MutationVerdict}. */
+export type MutationUploadVerdict = MutationVerdict;
 
-export type MutationUploadResult = {
-  readonly ok: true;
-  readonly verdicts: readonly MutationUploadVerdict[];
-  readonly ackSeq: number;
-  /**
-   * Per-topic pushSeqs assigned for this batch's pushes. The mutating
-   * client floors `_push_applied` so its own echoed fanout is ignored.
-   */
-  readonly topicPushSeqs?: Readonly<Record<string, string>>;
-};
+/** Host/port alias of protocol {@link MutationBatchResponse}. */
+export type MutationUploadResult = MutationBatchResponse;
 
 type StoredMutation = {
   readonly id: string;

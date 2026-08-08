@@ -8,19 +8,15 @@ export type {
   MutationClientIds,
   MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
-export { SCHEMA_EPOCH } from '../queries/client/local-schema';
-export {
-  type AppLifecycle,
-  type AppLifecycleEvent,
-  alwaysOnLifecycle,
-  createControllableLifecycle,
+export type {
+  AppLifecycle,
+  AppLifecycleEvent,
 } from './app-lifecycle';
 export {
   type CreateLocalSyncEngineOptions,
   createLocalSyncEngine,
   type SyncEnginePushOptions,
 } from './create-local-sync-engine';
-export type { LocalMigratePhase } from './local-schema-migrate';
 export {
   MutationClientProvider,
   type MutationClientProviderProps,
@@ -45,7 +41,12 @@ export {
   type SyncEnginePool,
   type SyncEnginePoolApi,
 } from './sync-engine-pool';
-export type { SyncEngine, WatchSubscription } from './sync-engine-port';
+export type {
+  MutationStatus,
+  SyncEngine,
+  UnackedWriteRejection,
+  WatchSubscription,
+} from './sync-engine-port';
 export {
   type CreateSyncHttpClientOptions,
   createSyncHttpClient,

@@ -2,6 +2,11 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import {
+  listUnackedWriteRejections,
+  mutationStatus,
+  pendingMutationCount,
+} from '../mutations/client/mutation-status';
 import type {
   Mutation,
   MutationEnv,
@@ -376,6 +381,12 @@ function toEngine(state: LocalEngineState): SyncEngine {
     subscribeQuery,
     subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,
+    mutationOutcome: (mutationId) =>
+      mutationStatus(state.options.db, mutationId),
+    listRejections: () =>
+      listUnackedWriteRejections(state.options.db, state.options.getClientId()),
+    pendingMutationCount: () =>
+      pendingMutationCount(state.options.db, state.options.getClientId()),
     wakeUploads: () => state.uploadQueue.wake(),
     notifyLocalMutation: (mutation, args) =>
       notifyLocalMutation(state, mutation, args),
