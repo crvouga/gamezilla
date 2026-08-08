@@ -7,10 +7,10 @@
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 

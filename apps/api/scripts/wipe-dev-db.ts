@@ -5,6 +5,7 @@
  */
 
 import { join } from 'node:path';
+import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -17,7 +18,6 @@ import { createLogger } from '@pkgs/logger';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const apiRoot = join(import.meta.dirname, '..');
