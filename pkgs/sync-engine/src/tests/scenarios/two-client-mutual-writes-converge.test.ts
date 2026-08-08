@@ -1,18 +1,22 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const FIXED_SEEDS = [1, 2, 42, 99] as const;
 
 describe('two client mutual writes converge', () => {
   test('peer sees note after assertConverged', async () => {
-    const world = await openSimWorld({ seed: 3, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 3,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -28,7 +32,11 @@ describe('two client mutual writes converge', () => {
 
   test('seed sweep converges', async () => {
     for (const seed of FIXED_SEEDS) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

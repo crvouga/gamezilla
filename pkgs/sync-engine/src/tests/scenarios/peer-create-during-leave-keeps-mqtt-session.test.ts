@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   createSpace,
   expectLiveNote,
   joinSpace,
   leaveSpace,
+  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForTopics(
@@ -31,7 +31,11 @@ async function waitForTopics(
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {
-    const world = await openSimWorld({ seed: 802, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 802,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',

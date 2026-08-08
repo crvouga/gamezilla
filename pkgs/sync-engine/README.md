@@ -733,11 +733,12 @@ era — cleanup is open design space; do not reintroduce `_row_scopes` to
 ### Deterministic simulator
 
 TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
-identical timeline.** Scenarios call `openSimWorld`; fuzz calls `runSeed`.
-Default domain: tiny notes+folders app in `src/sim/notes-app/` (kept out of
-`tests/` so sim code never imports test paths). Assert **live domain rows
-only** — never framework tables or private modules. The interactive **Sim Lab**
-GUI (`src/sim-lab/`) boots a shapes domain (`domain: 'shapes'`) instead — run
+identical timeline.** The harness is domain-agnostic: callers inject a
+`SimDomainPack`. Scenarios compose `openSimWorld` with
+`src/domain-packs/notes-app/` (`notesDomainPack`); fuzz calls `runNotesSeed` from
+that fixture. Assert **live domain rows only** — never framework tables or
+private modules. The interactive **Sim Lab** GUI (`src/sim-lab/`) injects
+`shapesDomainPack` from `src/domain-packs/shapes-app/` — run
 `bun run --filter @pkgs/sync-engine sim:lab` (serves http://localhost:7788).
 
 ```text
@@ -778,10 +779,10 @@ domain view matches the server (`assertConverged`).
 #### Quick start
 
 ```ts
+import { notesDomainPack, setNote } from '../domain-packs/notes-app';
 import { openSimWorld } from './world';
-import { setNote } from './notes-app';
 
-const world = await openSimWorld({ seed: 42 });
+const world = await openSimWorld({ seed: 42, domain: notesDomainPack });
 const a = await world.addClient({ id: 'alice' });
 await a.mutate(setNote, { id: 'n1', body: 'hi' });
 await world.assertConverged();
@@ -904,10 +905,11 @@ Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
 | `armPublishFault` | Suppress post-commit pubsub publish (upload still acks) |
 
 **Server ops:** `server.pruneArtifacts(olderThanMs)`,
-`server.writeNoteBody({ id, body, notify? })` (direct domain write; `notify:
-false` pins the non-mutation footgun).
+`server.notifyFanout({ topics, tables, label })` (domain-agnostic post-write
+fanout). Notes fixture `writeNoteBody(server, { id, body, notify? })` wraps a
+direct domain write (`notify: false` pins the non-mutation footgun).
 
-**Fuzz / replay** (`runSeed`):
+**Fuzz / replay** (`runNotesSeed` in `domain-packs/notes-app`):
 
 | Knob | Default | Meaning |
 |------|---------|---------|
@@ -925,28 +927,30 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 ```
 
 ```ts
-import { runSeed } from './replay';
-await runSeed({ seed: 0x2a, steps: 16 });
+import { runNotesSeed } from '../domain-packs/notes-app';
+await runNotesSeed({ seed: 0x2a, steps: 16 });
 ```
 
 #### Sim layout
 
 ```text
-src/sim/                             # DST implementation (not a public export)
+src/sim/                             # domain-agnostic DST harness (not public)
   rng.ts clock.ts scheduler.ts timers.ts
   network.ts traffic.ts http-bridge.ts pubsub-bridge.ts
   world.ts client-factory.ts server.ts open-sim-sqlite.ts
-  notes-app/                         # tiny defineSchema + mutations/queries
-  shapes-app/                        # Sim Lab domain
-  domain-pack.ts                     # notes | shapes
-  faults.ts workload.ts invariants.ts replay.ts
+  domain-pack.ts                     # SimDomainPack type (no built-in packs)
+  faults.ts invariants.ts replay-steps.ts
   test-driver.ts
+
+src/domain-packs/
+  notes-app/                         # scenario domain + notesDomainPack + fuzz
+  shapes-app/                        # Sim Lab domain + shapesDomainPack
 
 src/sim-lab/                         # interactive host + web UI
   server.ts host/ web/
 
 src/tests/
-    scenarios/                         # black-box correctness suite (111 files)
+  scenarios/                         # black-box correctness suite (111 files)
   harness/                           # sim kernel self-tests
 ```
 
@@ -1066,11 +1070,12 @@ Three distinct monotonic sequences — do not conflate them:
 ## Scenario catalog
 
 Black-box correctness under `src/tests/scenarios/` (**111** files) plus harness
-`src/tests/harness/kernel.test.ts`. Most scenarios use `openSimWorld` +
-notes-app asserts. Row-image fanout is on unless a test sets
-`rowImageFanout: false`. File names describe the behavior under test.
-Production-hardening phases (schema drift through channel drift) extend the
-original suite; all scenarios stay rewrite-safe (public + sim world API only).
+`src/tests/harness/kernel.test.ts`. Most scenarios compose `openSimWorld` with
+`notesDomainPack` + notes-app asserts from `src/domain-packs/notes-app/`.
+Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
+describe the behavior under test. Production-hardening phases (schema drift
+through channel drift) extend the original suite; all scenarios stay
+rewrite-safe (public + sim world API + domain packs only).
 
 ### Happy path / multi-client (9)
 

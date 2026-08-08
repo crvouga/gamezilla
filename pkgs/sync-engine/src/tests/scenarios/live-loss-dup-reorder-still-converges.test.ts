@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
@@ -16,7 +16,11 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
-    const world = await openSimWorld({ seed: 401, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 401,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -38,7 +42,11 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('dup live on bob converges', async () => {
-    const world = await openSimWorld({ seed: 402, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 402,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -54,7 +62,11 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('reordered live on bob converges', async () => {
-    const world = await openSimWorld({ seed: 403, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 403,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -75,7 +87,11 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
-    const world = await openSimWorld({ seed: 404, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 404,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -100,7 +116,11 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('live chaos + sync hold then release converges', async () => {
-    const world = await openSimWorld({ seed: 405, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 405,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

@@ -1,16 +1,20 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('live resend on reconnect vs drop', () => {
   test('default: missed live is dropped; sync pull repairs', async () => {
-    const world = await openSimWorld({ seed: 601, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 601,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -36,6 +40,7 @@ describe('live resend on reconnect vs drop', () => {
 
   test('liveResendOnReconnect: consistent from resent live while sync held', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 602,
       faults: RELIABLE_FAULTS,
       liveResendOnReconnect: true,

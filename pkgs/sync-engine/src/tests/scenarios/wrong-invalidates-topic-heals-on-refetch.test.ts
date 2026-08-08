@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNoteWrongTopic,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -28,6 +28,7 @@ describe('wrong invalidates topic heals on refetch', () => {
   // Companion to channel-exhaustiveness: wrong invalidates ⇒ silent staleness.
   test('peer stays stale until explicit refetch after wrong topic invalidate', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 1080,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -64,6 +65,7 @@ describe('wrong invalidates topic heals on refetch', () => {
   test('seed sweep wrong topic heals via refresh', async () => {
     for (const seed of [1081, 1082, 1083] as const) {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

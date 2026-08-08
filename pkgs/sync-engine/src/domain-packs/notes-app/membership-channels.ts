@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { QueryChannelsCtx } from '../shared/push-payload';
+import type { QueryChannelsCtx } from '../../shared/push-payload';
 
 function membershipKey(ids: readonly string[]): string {
   return [...ids].sort().join('\0');

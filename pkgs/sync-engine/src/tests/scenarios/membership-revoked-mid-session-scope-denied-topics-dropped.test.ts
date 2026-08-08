@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   createSpace,
   expectLiveNote,
   joinSpace,
   leaveSpace,
+  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForTopics(
@@ -47,7 +47,11 @@ async function pump(
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {
-    const world = await openSimWorld({ seed: 970, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 970,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',
@@ -100,7 +104,11 @@ describe('membership revoked mid session scope denied topics dropped', () => {
 
   test('seed sweep leave drops room topic', async () => {
     for (const seed of [971, 972, 973] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({
           id: 'alice',

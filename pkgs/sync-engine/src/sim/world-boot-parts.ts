@@ -1,7 +1,7 @@
 import type { SimAuthStatus } from './client-factory';
 import { createSimClock, type SimClock } from './clock';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
-import { resolveDomainPack, type SimDomainPack } from './domain-pack';
+import type { SimDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { createSimNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
@@ -12,7 +12,7 @@ import { BROKER } from './traffic';
 import type { ClientMeta, WorldClientOpts } from './world-types';
 
 export function resolveBootDomain(worldArgs: WorldClientOpts): SimDomainPack {
-  const baseDomain = resolveDomainPack(worldArgs.domain);
+  const baseDomain = worldArgs.domain;
   return {
     ...baseDomain,
     localSchema: worldArgs.localSchema ?? baseDomain.localSchema,

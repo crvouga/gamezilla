@@ -3,6 +3,7 @@ import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import type { SimClock } from './clock';
+import type { SimDomainPack } from './domain-pack';
 import type { SimFaultOptions } from './faults';
 import { RELIABLE_FAULTS } from './faults';
 import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
@@ -36,6 +37,7 @@ export type {
 } from './boundary-faults';
 export type { SimAuthStatus } from './client-factory';
 export { SIM_SERVER_NODE_ID } from './clock-skew';
+export type { SimDomainPack } from './domain-pack';
 export type { SimTraffic } from './traffic';
 export type { RestartClientOpts } from './world-lifecycle';
 
@@ -106,8 +108,8 @@ export type OpenSimWorldArgs = {
    * reconnect. Default false = peers wait for upload/sync.
    */
   readonly bufferOutboundLive?: boolean;
-  /** Domain pack. Default `notes`. Lab uses `shapes`. */
-  readonly domain?: 'notes' | 'shapes';
+  /** Injected domain pack (schema, registries, converge). Required. */
+  readonly domain: SimDomainPack;
   /** Override domain pack local schema (server + default clients). */
   readonly localSchema?: LocalDomainSchema;
   /** Override domain pack mutation registry (server + default clients). */

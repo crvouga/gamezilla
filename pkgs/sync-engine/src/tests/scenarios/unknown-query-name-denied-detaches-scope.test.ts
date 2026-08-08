@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -27,7 +27,11 @@ async function pump(
 describe('unknown query name denied detaches scope', () => {
   for (const seed of [780, 781, 782]) {
     test(`unknown query denied keeps domain rows (seed=${seed})`, async () => {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await a.mutate(setNote, { id: 'n1', body: 'keep-me' });

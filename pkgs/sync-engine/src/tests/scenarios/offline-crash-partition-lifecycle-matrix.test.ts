@@ -2,9 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
@@ -15,7 +16,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 
 describe('offline crash partition lifecycle matrix', () => {
   test('A offline while B writes; A online matches', async () => {
-    const world = await openSimWorld({ seed: 201 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 201 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -32,7 +33,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B offline while A writes; B online matches', async () => {
-    const world = await openSimWorld({ seed: 202 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 202 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -49,7 +50,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('both offline divergent writes then online converge', async () => {
-    const world = await openSimWorld({ seed: 203 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 203 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -70,7 +71,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('A crash+restart after B wrote rehydrates', async () => {
-    const world = await openSimWorld({ seed: 204 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 204 });
     try {
       await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -86,7 +87,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('B crash+restart after A wrote rehydrates', async () => {
-    const world = await openSimWorld({ seed: 205 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 205 });
     try {
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
@@ -102,7 +103,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('sequential A then B crash/restart after shared state', async () => {
-    const world = await openSimWorld({ seed: 206 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 206 });
     try {
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
@@ -122,7 +123,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('server unreachable: both mutate locally then heal converges', async () => {
-    const world = await openSimWorld({ seed: 207 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 207 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -146,7 +147,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('staggered: A partitioned, B writes; heal A; B offline writes', async () => {
-    const world = await openSimWorld({ seed: 208 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 208 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -173,7 +174,7 @@ describe('offline crash partition lifecycle matrix', () => {
   });
 
   test('flip-flop offline and partition around contested note', async () => {
-    const world = await openSimWorld({ seed: 209 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 209 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

@@ -1,18 +1,22 @@
 import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/client';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   for (const seed of [710, 711, 712]) {
     test(`offline pending survives epoch bump (seed=${seed})`, async () => {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

@@ -1,19 +1,23 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const PEER_VISIBLE_BUDGET_MS = 200;
 
 describe('buffer outbound live flush on reconnect', () => {
   test('default: no outbound buffer; peers wait for upload/sync', async () => {
-    const world = await openSimWorld({ seed: 701, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 701,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -37,6 +41,7 @@ describe('buffer outbound live flush on reconnect', () => {
 
   test('bufferOutboundLive: peer sees note while publisher sync held', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 702,
       faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
@@ -64,6 +69,7 @@ describe('buffer outbound live flush on reconnect', () => {
 
   test('bufferOutboundLive: peer visible under latency budget via live', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 703,
       faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,

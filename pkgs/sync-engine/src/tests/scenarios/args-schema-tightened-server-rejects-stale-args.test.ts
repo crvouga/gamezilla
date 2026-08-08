@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesDomainPack,
+  notesMutationRegistry,
+  setNote,
+  setNoteArgsLoose,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   listUnackedWriteRejections,
   mutationStatus,
 } from '../../sim/mutation-status';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesMutationRegistry,
-  setNote,
-  setNoteArgsLoose,
-} from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -33,6 +33,7 @@ describe('args schema tightened server rejects stale args', () => {
   for (const seed of [790, 791, 792]) {
     test(`loose client args rejected by tight server (seed=${seed})`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

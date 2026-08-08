@@ -1,7 +1,10 @@
 import { describe, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 /** Happy-path latency budget components (simulated ms). */
@@ -13,7 +16,11 @@ const PEER_VISIBLE_BUDGET_MS =
 
 describe('live fanout peer visibility within budget', () => {
   test('happy path: peer sees note without waiting for full settle', async () => {
-    const world = await openSimWorld({ seed: 7, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 7,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -32,7 +39,11 @@ describe('live fanout peer visibility within budget', () => {
   });
 
   test('crash + restart rehydrates from server', async () => {
-    const world = await openSimWorld({ seed: 23, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 23,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });

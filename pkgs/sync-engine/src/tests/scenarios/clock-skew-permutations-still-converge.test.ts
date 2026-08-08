@@ -2,10 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   deleteNote,
   expectNotesMatchServer,
+  notesDomainPack,
   readLiveNotes,
   readNoteTombstone,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
 import {
   openSimWorld,
   SIM_SERVER_NODE_ID,
@@ -129,7 +130,10 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({ seed: 101 });
+        const world = await openSimWorld({
+          domain: notesDomainPack,
+          seed: 101,
+        });
         try {
           await offlineConflictThenConverge(world, order);
         } finally {
@@ -142,7 +146,10 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({ seed: 102 });
+        const world = await openSimWorld({
+          domain: notesDomainPack,
+          seed: 102,
+        });
         try {
           await onlineOptimisticRace(world, order);
         } finally {
@@ -155,7 +162,10 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({ seed: 103 });
+        const world = await openSimWorld({
+          domain: notesDomainPack,
+          seed: 103,
+        });
         try {
           await aheadDeleteBehindPending(world, order);
         } finally {

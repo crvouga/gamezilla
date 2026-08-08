@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
@@ -13,7 +16,11 @@ const BIG_IDS = [
 
 describe('bigint ids and float precision stable', () => {
   test('string bigint ids and float JSON body round-trip stable', async () => {
-    const world = await openSimWorld({ seed: 1010, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1010,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -43,7 +50,11 @@ describe('bigint ids and float precision stable', () => {
 
   test('seed sweep bigint-looking ids converge', async () => {
     for (const seed of [1011, 1012, 1013] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

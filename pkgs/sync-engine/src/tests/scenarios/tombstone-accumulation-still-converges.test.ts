@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   readLiveNotes,
   readNoteTombstone,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 const TOMBSTONE_COUNT = 120;
@@ -16,7 +16,11 @@ const TOMBSTONE_COUNT = 120;
 describe('tombstone accumulation still converges', () => {
   // README known limitation 1 SQLite growth — soft-delete catalogs accumulate.
   test('hundreds of tombstones; live queries stay correct and converge', async () => {
-    const world = await openSimWorld({ seed: 1040, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1040,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -43,7 +47,11 @@ describe('tombstone accumulation still converges', () => {
 
   test('seed sweep modest tombstone piles converge', async () => {
     for (const seed of [1041, 1042, 1043] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

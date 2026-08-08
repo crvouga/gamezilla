@@ -1,18 +1,22 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, SIM_SERVER_NODE_ID } from '../../sim/world';
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {
-    const world = await openSimWorld({ seed: 720, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 720,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       world.setClockSkew('alice', -60_000);
       world.setClockSkew('bob', 0);
@@ -48,7 +52,11 @@ describe('replay pins now to mutation created at', () => {
 
   test('rebase env.now pinned to createdAt under skew before upload', async () => {
     // Offline pending delete + peer merge before upload: rebase uses createdAt.
-    const world = await openSimWorld({ seed: 721, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 721,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       world.setClockSkew('alice', -120_000);
       world.setClockSkew('bob', 0);

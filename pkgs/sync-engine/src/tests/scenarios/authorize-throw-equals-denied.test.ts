@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -26,7 +26,11 @@ async function pump(
 
 describe('authorize throw equals denied', () => {
   test('authorize throw detaches scope, keeps domain rows, stays healthy', async () => {
-    const world = await openSimWorld({ seed: 930, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 930,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setNote, { id: 'n1', body: 'keep-me' });
@@ -51,7 +55,11 @@ describe('authorize throw equals denied', () => {
 
   test('seed sweep authorize-throw stays healthy', async () => {
     for (const seed of [931, 932, 933] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await a.mutate(setNote, { id: `n-${seed}`, body: 'x' });

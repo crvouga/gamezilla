@@ -1,13 +1,20 @@
 import { describe, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNoteNoFanout,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNoteNoFanout } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('push without affected rows wakes refetch', () => {
   test('mutation without affectedRows converges via wake+refetch with rowImageFanout', async () => {
     // rowImageFanout true: proves pushSeq-only pushes still wake peers when images absent.
-    const world = await openSimWorld({ seed: 680, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 680,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

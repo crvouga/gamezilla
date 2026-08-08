@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -27,7 +27,11 @@ async function pump(
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
-    const world = await openSimWorld({ seed: 601, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 601,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -49,7 +53,11 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('revoked wipe drops unuploaded optimistic edit; restart rehydrates server only', async () => {
-    const world = await openSimWorld({ seed: 602, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 602,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
@@ -81,7 +89,11 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('expired during multi-mutation drain refreshes without loss', async () => {
-    const world = await openSimWorld({ seed: 603, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 603,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -111,7 +123,11 @@ describe('auth revoked wipes db expired refreshes', () => {
   });
 
   test('revoked mid-push session wipes and detaches topics', async () => {
-    const world = await openSimWorld({ seed: 604, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 604,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

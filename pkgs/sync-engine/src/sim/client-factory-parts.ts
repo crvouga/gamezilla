@@ -17,8 +17,8 @@ import {
 } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+import { emptySimPushChannels, type SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
-import { createSimMembershipChannels } from './membership-channels';
 
 export type SimAuthStatus = 'valid' | 'expired' | 'revoked';
 
@@ -51,10 +51,14 @@ export type CreateEngineOptionsArgs = {
   readonly createPubSub: () => PubSub;
   readonly rowImageFanout?: boolean;
   readonly bufferOutboundLive?: boolean;
-  readonly sessionQuery?: {
+  readonly sessionQuery: {
     readonly name: string;
     readonly params: Readonly<Record<string, unknown>>;
   };
+  readonly createPushChannels?: (args: {
+    readonly db: SqlClient;
+    readonly actorId: string;
+  }) => SimPushChannels;
   readonly authControl?: SimAuthControl;
   readonly schemaEpoch?: number;
   readonly onLocalMigratePhase?: CreateLocalSyncEngineOptions['onLocalMigratePhase'];
@@ -102,7 +106,7 @@ export async function createEngineFromParts(
     mutationRegistry: args.mutations,
     getMutationEnv: args.getEnv,
     getClientId: () => args.deviceId,
-    sessionQueries: [args.sessionQuery ?? { name: 'notesWorld', params: {} }],
+    sessionQueries: [args.sessionQuery],
     postQueries: (rs) =>
       withSimAuthRetry(auth, () => args.http.postQueries(rs)),
     postMutations: (ms) =>
@@ -132,10 +136,10 @@ export async function createEngineFromParts(
     push: {
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,
-      ...createSimMembershipChannels({
+      ...(args.createPushChannels?.({
         db: args.db,
         actorId: args.actorId,
-      }),
+      }) ?? emptySimPushChannels(args.actorId)),
       rowImageFanout: args.rowImageFanout !== false,
       ...(args.bufferOutboundLive === true ? { bufferOutboundLive: true } : {}),
     },

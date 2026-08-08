@@ -1,12 +1,15 @@
 import { describe, test } from 'bun:test';
-
+import { notesDomainPack, setNote } from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {
-    const world = await openSimWorld({ seed: 29, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 29,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

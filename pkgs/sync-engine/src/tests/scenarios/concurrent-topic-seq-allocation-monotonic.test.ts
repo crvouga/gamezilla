@@ -1,12 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  readLiveNotes,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, readLiveNotes, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    const world = await openSimWorld({ seed: 920, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 920,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -42,7 +50,11 @@ describe('concurrent topic seq allocation monotonic', () => {
 
   test('seed sweep concurrent writers converge', async () => {
     for (const seed of [921, 922, 923] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

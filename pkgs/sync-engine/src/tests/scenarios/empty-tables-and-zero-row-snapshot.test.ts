@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
+  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -27,7 +27,11 @@ async function pump(
 
 describe('empty tables and zero row snapshot', () => {
   test('zero-row world converges; not_modified refresh stays empty', async () => {
-    const world = await openSimWorld({ seed: 1020, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1020,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -47,7 +51,11 @@ describe('empty tables and zero row snapshot', () => {
 
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
     // Pin upsert contract: empty secondary scope refresh must not wipe domain.
-    const world = await openSimWorld({ seed: 1021, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1021,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       await world.addClient({ id: 'bob' });
@@ -68,7 +76,11 @@ describe('empty tables and zero row snapshot', () => {
 
   test('seed sweep empty converge', async () => {
     for (const seed of [1022, 1023, 1024] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

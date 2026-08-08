@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-} from '../../sim/mutation-status';
 import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
   setNoteStrictExists,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import {
+  listUnackedWriteRejections,
+  mutationStatus,
+} from '../../sim/mutation-status';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -33,6 +33,7 @@ async function waitForStatus(
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 821,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,

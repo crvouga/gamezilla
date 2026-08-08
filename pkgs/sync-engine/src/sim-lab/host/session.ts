@@ -1,4 +1,4 @@
-import { readLiveShapes } from '../../sim/shapes-app';
+import { readLiveShapes } from '../../domain-packs/shapes-app';
 import { runLabCommand } from './session-commands';
 import {
   createSessionMutable,

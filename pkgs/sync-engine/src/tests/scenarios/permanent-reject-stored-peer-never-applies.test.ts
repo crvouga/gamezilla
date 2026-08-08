@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  acknowledgeWriteRejectionMutation,
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesDomainPack,
+  serverRejectNote,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   listUnackedWriteRejections,
   mutationStatus,
 } from '../../sim/mutation-status';
-import {
-  acknowledgeWriteRejectionMutation,
-  expectLiveNote,
-  expectNotesMatchServer,
-  serverRejectNote,
-  setNote,
-} from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -33,6 +33,7 @@ describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 501,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,

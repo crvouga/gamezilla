@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesDomainPack,
+  serverRejectNote,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   listUnackedWriteRejections,
   mutationStatus,
 } from '../../sim/mutation-status';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  serverRejectNote,
-  setNote,
-} from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -32,6 +32,7 @@ describe('pending reject surfaces write rejections', () => {
   test('pending rejectable mutate uploads after reconnect, surfaces write_rejection, domain rolls back', async () => {
     // rowImageFanout off: rejected optimistic must not poison peers via images.
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 711,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,

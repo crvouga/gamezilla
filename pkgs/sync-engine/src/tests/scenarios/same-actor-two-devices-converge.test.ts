@@ -1,16 +1,20 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('same actor two devices converge', () => {
   test('two devices same actor converge concurrent writes', async () => {
-    const world = await openSimWorld({ seed: 509, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 509,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const phone = await world.addClient({
         id: 'phone',

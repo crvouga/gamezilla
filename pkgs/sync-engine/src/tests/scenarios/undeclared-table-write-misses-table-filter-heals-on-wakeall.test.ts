@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
+  notesDomainPack,
   readLiveFolders,
   setNoteUndeclaredFolderWrite,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -28,6 +28,7 @@ describe('undeclared table write misses table filter heals on wakeall', () => {
   // README known limitation 8 declaredWrites — push table filter only; not enforced.
   test('foldersOnly peer misses undeclared folder write until wakeAll refetch', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 1070,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -74,6 +75,7 @@ describe('undeclared table write misses table filter heals on wakeall', () => {
   test('seed sweep undeclared folder write eventually visible', async () => {
     for (const seed of [1071, 1072, 1073] as const) {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

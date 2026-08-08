@@ -1,12 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  readLiveNotes,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, readLiveNotes, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {
-    const world = await openSimWorld({ seed: 1050, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1050,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -52,7 +60,11 @@ describe('connect disconnect flapping under load', () => {
 
   test('seed sweep flap + mutate converges', async () => {
     for (const seed of [1051, 1052, 1053] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

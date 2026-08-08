@@ -1,17 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 910,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -61,7 +62,11 @@ describe('replay txn rollback no pushseq leak', () => {
 
   test('seed sweep converges after in-txn fault', async () => {
     for (const seed of [911, 912, 913] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  notesDomainPack,
+  serverRejectNote,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   listUnackedWriteRejections,
   mutationStatus,
 } from '../../sim/mutation-status';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  serverRejectNote,
-  setNote,
-} from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -31,6 +31,7 @@ async function waitForStatus(
 describe('optimistic push rejected server side heals', () => {
   test('optimistic live paint on peer heals to server truth after reject', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 810,
       faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,

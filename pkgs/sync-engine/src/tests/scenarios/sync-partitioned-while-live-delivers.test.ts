@@ -1,16 +1,17 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('sync partitioned while live delivers', () => {
   test('partition sync then heal converges', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 506,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,

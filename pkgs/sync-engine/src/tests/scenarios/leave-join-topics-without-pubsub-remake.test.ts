@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   createSpace,
   joinSpace,
   leaveSpace,
+  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForTopics(
@@ -30,7 +30,11 @@ async function waitForTopics(
 
 describe('leave join topics without pubsub remake', () => {
   test('leave then join different room without pubsub remake', async () => {
-    const world = await openSimWorld({ seed: 801, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 801,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',

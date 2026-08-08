@@ -1,23 +1,24 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   notesLocalSchema,
   notesLocalSchemaExtraColumn,
   notesMutationRegistry,
   notesQueryRegistry,
   notesWorldWithColorQuery,
   setNoteColor,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('server snapshot with unknown column merges cleanly', () => {
   for (const seed of [730, 731, 732]) {
     test(`client without color ignores server color key (seed=${seed})`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         localSchema: notesLocalSchemaExtraColumn,

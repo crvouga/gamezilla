@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   openSimWorld,
   SIM_SERVER_NODE_ID,
@@ -78,6 +78,7 @@ async function syncBeforeLive(world: SimWorld): Promise<void> {
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 301,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -91,6 +92,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('sync before live', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 302,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -105,6 +107,7 @@ describe('live vs sync ordering races converge', () => {
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed: 310,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,
@@ -119,6 +122,7 @@ describe('live vs sync ordering races converge', () => {
 
     test(`sync before live skew ${order.label}`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed: 320,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,
@@ -133,7 +137,11 @@ describe('live vs sync ordering races converge', () => {
   }
 
   test('stale sync after live fanout', async () => {
-    const world = await openSimWorld({ seed: 303, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 303,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -153,7 +161,11 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held sync converges', async () => {
-    const world = await openSimWorld({ seed: 304, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 304,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -175,7 +187,11 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held live converges', async () => {
-    const world = await openSimWorld({ seed: 305, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 305,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -195,7 +211,11 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('live-only partition then heal converges via sync', async () => {
-    const world = await openSimWorld({ seed: 306, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 306,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

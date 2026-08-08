@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { mutationStatus } from '../../sim/mutation-status';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -22,7 +25,11 @@ async function waitForStatus(
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {
-    const world = await openSimWorld({ seed: 502, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 502,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

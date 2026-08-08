@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import type { SimClientHandle } from '../../sim/client-factory';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function postMutationsPumped(
@@ -23,7 +26,11 @@ async function postMutationsPumped(
 describe('duplicate mutation id different args first wins', () => {
   for (const seed of [830, 831, 832]) {
     test(`hostile re-post same id keeps first body (seed=${seed})`, async () => {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

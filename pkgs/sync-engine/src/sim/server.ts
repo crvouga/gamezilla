@@ -1,5 +1,4 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
-import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { pruneMutationArtifacts } from '@pkgs/sync-engine/server';
 
@@ -10,14 +9,6 @@ import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
 import { notifyChannels } from '../server/notify-channels';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimHttpServerHandlers } from './http-bridge';
-import {
-  NOTES_WORLD_TOPIC,
-  notesLocalSchema,
-  notesMutationRegistry,
-  notesQueryRegistry,
-  readLiveFolders,
-  readLiveNotes,
-} from './notes-app';
 import { openSimSqliteServer } from './open-sim-sqlite';
 import {
   commitCheckpoint,
@@ -35,13 +26,13 @@ export type SimServer = {
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly pruneArtifacts: (olderThanMs: number) => Promise<void>;
   /**
-   * Direct domain write bypassing mutations. When `notify` is false, peers
-   * stay stale until a refetch trigger (documented footgun).
+   * Domain-agnostic fanout after an out-of-band server write.
+   * Allocates push seqs and publishes on the given topics.
    */
-  readonly writeNoteBody: (args: {
-    readonly id: string;
-    readonly body: string;
-    readonly notify?: boolean;
+  readonly notifyFanout: (args: {
+    readonly topics: readonly string[];
+    readonly tables: readonly string[];
+    readonly label: string;
   }) => Promise<void>;
   readonly dispose: () => Promise<void>;
 };
@@ -50,9 +41,9 @@ export type OpenSimServerArgs = {
   readonly now: () => number;
   readonly pubsub: PubSub;
   readonly resolveAuth: (clientId: string) => SimServerAuth;
-  readonly mutationRegistry?: MutationRegistry;
-  readonly queryRegistry?: QueryRegistry;
-  readonly localSchema?: LocalDomainSchema;
+  readonly mutationRegistry: MutationRegistry;
+  readonly queryRegistry: QueryRegistry;
+  readonly localSchema: LocalDomainSchema;
   readonly rowImageFanout?: boolean;
   readonly faults?: BoundaryFaultController;
   /** Reuse an existing server DB (server crash/restart with preserveDb). */
@@ -100,15 +91,13 @@ export async function openSimServer(
     db = args.existingDb;
     closeDb = args.onDisposeDb ?? (() => Promise.resolve());
   } else {
-    const bundle = await openSimSqliteServer(
-      args.localSchema ?? notesLocalSchema
-    );
+    const bundle = await openSimSqliteServer(args.localSchema);
     db = bundle.sqlClient;
     closeDb = () => bundle.close();
   }
 
-  const mutations = args.mutationRegistry ?? notesMutationRegistry;
-  const queries = args.queryRegistry ?? notesQueryRegistry;
+  const mutations = args.mutationRegistry;
+  const queries = args.queryRegistry;
   let checkpointSeq = 0;
   let stickyAuth: SimServerAuth = {
     actorId: 'server',
@@ -150,33 +139,18 @@ export async function openSimServer(
     },
     pruneArtifacts: (olderThanMs) =>
       pruneMutationArtifacts(db, olderThanMs, new Date(args.now())),
-    writeNoteBody: async ({ id, body, notify }) => {
-      await db.run(sql`
-        UPDATE notes SET body = ${body} WHERE id = ${id}
-      `);
-      if (notify === true) {
-        const checkpoints = await allocateTopicPushSeqs(db, [
-          NOTES_WORLD_TOPIC,
-        ]);
-        for (const [topic, pushSeq] of checkpoints) {
-          notifyChannels({
-            pubsub: args.pubsub,
-            topics: [topic],
-            pushSeq,
-            tables: ['notes'],
-            label: 'writeNoteBody',
-          });
-        }
+    notifyFanout: async ({ topics, tables, label }) => {
+      const checkpoints = await allocateTopicPushSeqs(db, [...topics]);
+      for (const [topic, pushSeq] of checkpoints) {
+        notifyChannels({
+          pubsub: args.pubsub,
+          topics: [topic],
+          pushSeq,
+          tables: [...tables],
+          label,
+        });
       }
     },
     dispose: () => closeDb(),
   };
-}
-
-export async function readServerNotes(db: SqlClient) {
-  return readLiveNotes(db);
-}
-
-export async function readServerFolders(db: SqlClient) {
-  return readLiveFolders(db);
 }

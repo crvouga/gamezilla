@@ -13,6 +13,13 @@ export {
 } from './assert';
 export { notesLocalSchema } from './client/local-schema';
 export {
+  checkAllClientsConverged,
+  checkClientDomainMatchServer,
+} from './converge';
+export { notesDomainPack } from './domain-pack';
+export { createSimMembershipChannels } from './membership-channels';
+export { runNotesSeed, runSeed, seedsFromEnv } from './replay';
+export {
   ghostMutation,
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
@@ -74,3 +81,4 @@ export {
   spaceMembershipChannels,
   userTopic,
 } from './shared/topics';
+export { writeNoteBody } from './write-note-body';

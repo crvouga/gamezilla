@@ -1,12 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  readLiveNotes,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, readLiveNotes, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('prune concurrent with replay safe', () => {
   test('prune interleaved with uploads; retries dedupe; world converges', async () => {
-    const world = await openSimWorld({ seed: 940, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 940,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -42,7 +50,11 @@ describe('prune concurrent with replay safe', () => {
 
   test('seed sweep prune + mutate converges', async () => {
     for (const seed of [941, 942, 943] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

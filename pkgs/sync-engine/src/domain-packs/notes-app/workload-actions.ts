@@ -1,9 +1,9 @@
-import { SIM_SERVER_NODE_ID } from './clock-skew';
-import type { SimFaultOptions } from './faults';
-import { setFolder, setNote } from './notes-app';
-import type { SeededRng } from './rng';
-import type { SimTraffic } from './traffic';
-import type { SimWorld } from './world';
+import { SIM_SERVER_NODE_ID } from '../../sim/clock-skew';
+import type { SimFaultOptions } from '../../sim/faults';
+import type { SeededRng } from '../../sim/rng';
+import type { SimTraffic } from '../../sim/traffic';
+import type { SimWorld } from '../../sim/world';
+import { setFolder, setNote } from './shared/mutations';
 
 const SKEW_MS = [-60_000, -1_000, 0, 1_000, 60_000] as const;
 const LIVE_ONLY: readonly SimTraffic[] = ['live'];
@@ -96,7 +96,6 @@ export function pickWorkloadAction(
   if (roll < 70) return { kind: 'background', clientId };
   if (roll < 74) return { kind: 'foreground', clientId };
   if (roll < 78) {
-    // Live-only so sync can still drain mutation uploads.
     return {
       kind: 'partition',
       nodeId: clientId,

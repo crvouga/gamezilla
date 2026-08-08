@@ -1,17 +1,18 @@
 import { describe, expect, test } from 'bun:test';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool switches identities without cross-DB bleed', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 950,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -67,6 +68,7 @@ describe('account switch pool isolation', () => {
   test('seed sweep dual-client pool stand-in isolates pending', async () => {
     for (const seed of [951, 952, 953] as const) {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

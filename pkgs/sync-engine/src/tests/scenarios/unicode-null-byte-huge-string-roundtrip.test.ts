@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 const EMOJI_RTL = 'hello 👋 مرحبا \u202Ertl';
@@ -10,7 +13,11 @@ const HUGE = `${'🚀'.repeat(50)}${'a'.repeat(100_000)}`;
 
 describe('unicode null byte huge string roundtrip', () => {
   test('emoji RTL null-byte and huge body round-trip across peers', async () => {
-    const world = await openSimWorld({ seed: 990, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 990,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -32,7 +39,11 @@ describe('unicode null byte huge string roundtrip', () => {
 
   test('seed sweep unicode bodies hash-stable converge', async () => {
     for (const seed of [991, 992, 993] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const b = await world.addClient({ id: 'bob' });

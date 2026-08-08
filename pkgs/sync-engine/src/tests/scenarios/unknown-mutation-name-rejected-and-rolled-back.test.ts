@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  expectNotesMatchServer,
+  ghostMutation,
+  notesDomainPack,
+  notesMutationRegistry,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   listUnackedWriteRejections,
   mutationStatus,
 } from '../../sim/mutation-status';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  ghostMutation,
-  notesMutationRegistry,
-  setNote,
-} from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForStatus(
@@ -33,6 +33,7 @@ describe('unknown mutation name rejected and rolled back', () => {
   for (const seed of [770, 771, 772]) {
     test(`ghostMutation rejected; merge heals (seed=${seed})`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
+  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('push tables filter wakes overlapping scopes', () => {
@@ -15,6 +15,7 @@ describe('push tables filter wakes overlapping scopes', () => {
     // rowImageFanout false: table filter gates wake+refetch (optimistic images
     // bypass the filter when fanout is on).
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 690,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,

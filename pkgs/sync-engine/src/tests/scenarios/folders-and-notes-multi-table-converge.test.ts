@@ -1,21 +1,25 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   deleteFolder,
   expectFoldersMatchServer,
   expectLiveNote,
   moveNote,
+  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {
-    const world = await openSimWorld({ seed: 20, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 20,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -41,7 +45,11 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('moveNote updates folder_id on peers', async () => {
-    const world = await openSimWorld({ seed: 21, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 21,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -66,7 +74,11 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('deleteFolder soft-deletes folder; notes remain', async () => {
-    const world = await openSimWorld({ seed: 22, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 22,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

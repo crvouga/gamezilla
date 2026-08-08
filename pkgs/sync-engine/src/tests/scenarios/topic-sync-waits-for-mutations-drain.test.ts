@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   createSpace,
   leaveSpace,
+  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForTopics(
@@ -28,7 +28,11 @@ async function waitForTopics(
 
 describe('topic sync waits for mutations drain', () => {
   test('topic sync waits until pending mutations drain', async () => {
-    const world = await openSimWorld({ seed: 803, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 803,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',

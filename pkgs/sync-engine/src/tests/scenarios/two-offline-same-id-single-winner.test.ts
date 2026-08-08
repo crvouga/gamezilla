@@ -1,10 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { readLiveNotes, setNote } from '../../sim/notes-app';
+import {
+  notesDomainPack,
+  readLiveNotes,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('two offline same id single winner', () => {
   test('two clients offline conflict then converge to one winner', async () => {
-    const world = await openSimWorld({ seed: 7 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 7 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

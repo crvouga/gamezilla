@@ -299,7 +299,8 @@
     "worklets",
     "xact",
     "xmark",
-    "xyflow"
+    "xyflow",
+    "unacked"
   ],
   "yaml.schemas": {
     "https://json.schemastore.org/github-workflow.json": [

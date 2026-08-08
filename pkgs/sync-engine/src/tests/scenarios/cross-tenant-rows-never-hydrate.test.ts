@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
   NOTES_AUTH_GATE_FOLDER_ID,
+  notesDomainPack,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -31,6 +31,7 @@ describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 980,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -71,6 +72,7 @@ describe('cross tenant rows never hydrate', () => {
   test('seed sweep authorize filter keeps stranger rows out', async () => {
     for (const seed of [981, 982, 983] as const) {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,

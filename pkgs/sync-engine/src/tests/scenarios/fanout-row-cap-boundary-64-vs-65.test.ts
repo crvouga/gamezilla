@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   readLiveNotes,
   retouchNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 function noteIds(count: number): string[] {
@@ -20,7 +20,11 @@ function noteIds(count: number): string[] {
 
 describe('fanout row cap boundary 64 vs 65', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
-    const world = await openSimWorld({ seed: 808, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 808,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -49,7 +53,11 @@ describe('fanout row cap boundary 64 vs 65', () => {
   });
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
-    const world = await openSimWorld({ seed: 809, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 809,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });

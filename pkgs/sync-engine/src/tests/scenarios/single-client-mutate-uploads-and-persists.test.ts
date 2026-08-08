@@ -1,10 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('single client mutate uploads and persists', () => {
   test('single client mutate uploads and is visible locally', async () => {
-    const world = await openSimWorld({ seed: 1 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 1 });
     try {
       const a = await world.addClient({ id: 'alice' });
       const result = await a.mutate(setNote, { id: 'n1', body: 'hello' });
@@ -17,7 +21,7 @@ describe('single client mutate uploads and persists', () => {
   });
 
   test('title and body both persist after converge', async () => {
-    const world = await openSimWorld({ seed: 2 });
+    const world = await openSimWorld({ domain: notesDomainPack, seed: 2 });
     try {
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setNote, {

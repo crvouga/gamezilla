@@ -1,13 +1,20 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  requiresOnlineNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { mutationStatus } from '../../sim/mutation-status';
-import { expectLiveNote, requiresOnlineNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
-    const world = await openSimWorld({ seed: 510, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 510,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       a.lifecycle.setOnline(false);

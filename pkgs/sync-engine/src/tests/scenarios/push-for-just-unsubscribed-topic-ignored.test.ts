@@ -1,16 +1,16 @@
 import { describe, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   createSpace,
   expectLiveNote,
   expectNoteNotLive,
   joinSpace,
   leaveSpace,
+  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function waitForTopics(
@@ -32,7 +32,11 @@ async function waitForTopics(
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
-    const world = await openSimWorld({ seed: 812, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 812,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',

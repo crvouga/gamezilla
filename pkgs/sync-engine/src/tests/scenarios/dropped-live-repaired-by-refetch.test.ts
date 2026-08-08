@@ -1,12 +1,19 @@
 import { describe, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {
-    const world = await openSimWorld({ seed: 11, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 11,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -26,6 +33,7 @@ describe('dropped live repaired by refetch', () => {
 
   test('reorder window still converges', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 12,
       faults: {
         ...RELIABLE_FAULTS,
@@ -49,6 +57,7 @@ describe('dropped live repaired by refetch', () => {
 
   test('duplicate delivery still converges', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 15,
       faults: {
         ...RELIABLE_FAULTS,

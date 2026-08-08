@@ -4,6 +4,7 @@ export {
   shapesMatch,
 } from './assert';
 export { shapesLocalSchema } from './client/local-schema';
+export { shapesDomainPack } from './domain-pack';
 export {
   addShape,
   removeShape,

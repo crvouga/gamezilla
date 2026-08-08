@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setNote } from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -26,7 +29,11 @@ describe('late retry after prune window documented', () => {
       // Known limitation: pruning idempotency rows lets a late retry with the
       // same mutation id apply again (setNote upsert → last write wins).
       // Retention jobs must keep the window longer than max client retry life.
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await world.addClient({ id: 'bob' });

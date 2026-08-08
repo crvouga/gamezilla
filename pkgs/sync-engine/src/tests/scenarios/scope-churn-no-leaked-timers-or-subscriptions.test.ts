@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  notesDomainPack,
+  setFolder,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { setFolder, setNote } from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -22,7 +25,11 @@ async function pump(
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {
-    const world = await openSimWorld({ seed: 1030, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 1030,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       await a.mutate(setFolder, { id: 'f1', title: 'A' });
@@ -53,7 +60,11 @@ describe('scope churn no leaked timers or subscriptions', () => {
 
   test('seed sweep churn returns to session topics', async () => {
     for (const seed of [1031, 1032, 1033] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         const baseline = [...a.subscribedTopics()].sort();

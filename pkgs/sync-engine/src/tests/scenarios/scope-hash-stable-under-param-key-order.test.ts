@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
+import {
+  expectLiveNote,
+  notesDomainPack,
+  setFolder,
+  setNote,
+} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, setFolder, setNote } from '../../sim/notes-app';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -23,7 +27,11 @@ async function pump(
 describe('scope hash stable under param key order', () => {
   for (const seed of [800, 801, 802]) {
     test(`reordered params share one scope (seed=${seed})`, async () => {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({ id: 'alice' });
         await a.mutate(setFolder, { id: 'f1', title: 'Folder' });

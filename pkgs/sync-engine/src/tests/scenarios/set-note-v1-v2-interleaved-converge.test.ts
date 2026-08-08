@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNotesMatchServer,
+  notesDomainPack,
   notesMutationRegistry,
   readLiveNotes,
   setNote,
   setNoteV2,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 /** Old-client registry: setNoteV2 not registered locally (server still has both). */
@@ -22,7 +22,11 @@ function mutationRegistryV1Only(): typeof notesMutationRegistry {
 
 describe('set note v1 v2 interleaved converge', () => {
   test('setNote and setNoteV2 interleaved writes converge', async () => {
-    const world = await openSimWorld({ seed: 660, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 660,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       const b = await world.addClient({ id: 'bob' });
@@ -47,7 +51,11 @@ describe('set note v1 v2 interleaved converge', () => {
   });
 
   test('mutation-v2-rollout-old-client-still-replays-v1', async () => {
-    const world = await openSimWorld({ seed: 661, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 661,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({
         id: 'alice',

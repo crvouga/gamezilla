@@ -109,6 +109,9 @@ export async function addClientImpl(
       clientArgs.mutationRegistry ?? ctx.domain.mutationRegistry,
     queryRegistry: clientArgs.queryRegistry ?? ctx.domain.queryRegistry,
     sessionQuery: clientArgs.sessionQuery ?? ctx.domain.sessionQuery,
+    ...(ctx.domain.createPushChannels !== undefined
+      ? { createPushChannels: ctx.domain.createPushChannels }
+      : {}),
     faults: ctx.faults,
     ...(clientArgs.schemaEpoch !== undefined
       ? { schemaEpoch: clientArgs.schemaEpoch }

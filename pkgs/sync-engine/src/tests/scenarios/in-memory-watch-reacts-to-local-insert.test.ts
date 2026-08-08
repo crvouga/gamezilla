@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { notesLocalSchema } from '../../sim/notes-app';
+import { notesLocalSchema } from '../../domain-packs/notes-app';
 import { createInMemorySyncEngine } from '../../test/in-memory-sync-engine';
 
 function waitForHydrated(sub: {

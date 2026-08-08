@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -27,6 +27,7 @@ async function pump(
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
     const world = await openSimWorld({
+      domain: notesDomainPack,
       seed: 507,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
@@ -52,7 +53,11 @@ describe('background pauses sweeps foreground catches up', () => {
   });
 
   test('background does not block local mutate visibility', async () => {
-    const world = await openSimWorld({ seed: 508, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 508,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const a = await world.addClient({ id: 'alice' });
       a.lifecycle.setForeground(false);

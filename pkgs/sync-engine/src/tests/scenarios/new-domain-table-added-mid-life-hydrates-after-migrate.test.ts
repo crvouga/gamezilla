@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
+  notesDomainPack,
   notesLocalSchema,
   notesLocalSchemaExtraTable,
   notesMutationRegistry,
@@ -11,7 +10,8 @@ import {
   setNote,
   setTag,
   tagsWorldQuery,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function pump(
@@ -34,6 +34,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
   for (const seed of [750, 751, 752]) {
     test(`tags hydrate after client schema upgrade (seed=${seed})`, async () => {
       const world = await openSimWorld({
+        domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         localSchema: notesLocalSchemaExtraTable,

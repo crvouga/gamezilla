@@ -1,19 +1,23 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
+  notesDomainPack,
   notesLocalSchemaExtraColumn,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('client column missing from server snapshot not clobbered', () => {
   for (const seed of [740, 741, 742]) {
     test(`local color survives peer body update (seed=${seed})`, async () => {
       // Server stays on base schema (no color). Client has extra column.
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const a = await world.addClient({
           id: 'alice',

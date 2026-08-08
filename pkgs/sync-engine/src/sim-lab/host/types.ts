@@ -1,7 +1,7 @@
+import type { LiveShape, ShapeKind } from '../../domain-packs/shapes-app';
+import { SHAPE_KINDS } from '../../domain-packs/shapes-app';
 import type { SimFaultOptions } from '../../sim/faults';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import type { LiveShape, ShapeKind } from '../../sim/shapes-app';
-import { SHAPE_KINDS } from '../../sim/shapes-app';
 import type { SimTraffic } from '../../sim/traffic';
 
 export type LabClientId = 'alice' | 'bob';

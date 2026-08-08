@@ -1,10 +1,10 @@
-import type { SeededRng } from './rng';
+import type { SeededRng } from '../../sim/rng';
+import type { SimWorld } from '../../sim/world';
 import {
   dispatchWorkloadAction,
   pickWorkloadAction,
   type WorkloadAction,
 } from './workload-actions';
-import type { SimWorld } from './world';
 
 export type { WorkloadAction };
 

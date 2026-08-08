@@ -1,17 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-
-import { RELIABLE_FAULTS } from '../../sim/faults';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../sim/notes-app';
+} from '../../domain-packs/notes-app';
+import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {
-    const world = await openSimWorld({ seed: 960, faults: RELIABLE_FAULTS });
+    const world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 960,
+      faults: RELIABLE_FAULTS,
+    });
     try {
       const phoneA = await world.addClient({
         id: 'phone',
@@ -58,7 +62,11 @@ describe('logout login same device no bleed', () => {
 
   test('seed sweep logout/login same device id', async () => {
     for (const seed of [961, 962, 963] as const) {
-      const world = await openSimWorld({ seed, faults: RELIABLE_FAULTS });
+      const world = await openSimWorld({
+        domain: notesDomainPack,
+        seed,
+        faults: RELIABLE_FAULTS,
+      });
       try {
         const phone = await world.addClient({
           id: 'phone',

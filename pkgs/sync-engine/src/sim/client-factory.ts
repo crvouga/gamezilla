@@ -21,12 +21,8 @@ import {
   createMutationSide,
   type SimAuthControl,
 } from './client-factory-parts';
+import type { SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
-import {
-  notesLocalSchema,
-  notesMutationRegistry,
-  notesQueryRegistry,
-} from './notes-app';
 import { createSerialSqlClient } from './serial-sql';
 import type { SimServer, SimServerAuth } from './server';
 
@@ -72,15 +68,19 @@ export type BuildSimClientArgs = {
   readonly createPubSub: () => PubSub;
   readonly pubsubRemakeCount: () => number;
   readonly subscribedTopics: () => readonly string[];
-  readonly tableRegistry?: LocalDomainSchema;
-  readonly mutationRegistry?: MutationRegistry;
-  readonly queryRegistry?: QueryRegistry;
-  readonly rowImageFanout?: boolean;
-  readonly bufferOutboundLive?: boolean;
-  readonly sessionQuery?: {
+  readonly tableRegistry: LocalDomainSchema;
+  readonly mutationRegistry: MutationRegistry;
+  readonly queryRegistry: QueryRegistry;
+  readonly sessionQuery: {
     readonly name: string;
     readonly params: Readonly<Record<string, unknown>>;
   };
+  readonly createPushChannels?: (args: {
+    readonly db: SqlClient;
+    readonly actorId: string;
+  }) => SimPushChannels;
+  readonly rowImageFanout?: boolean;
+  readonly bufferOutboundLive?: boolean;
   readonly authControl?: SimAuthControl;
   readonly schemaEpoch?: number;
   readonly faults?: BoundaryFaultController;
@@ -132,9 +132,9 @@ async function connectEngine(
   const getEnv = mutationEnvFromArgs(args);
   const engine = await createEngineFromParts({
     db,
-    tables: args.tableRegistry ?? notesLocalSchema,
-    mutations: args.mutationRegistry ?? notesMutationRegistry,
-    queries: args.queryRegistry ?? notesQueryRegistry,
+    tables: args.tableRegistry,
+    mutations: args.mutationRegistry,
+    queries: args.queryRegistry,
     getEnv,
     deviceId: args.deviceId,
     actorId: args.actorId,
@@ -145,10 +145,11 @@ async function connectEngine(
     timers: args.timers,
     createId: args.createId,
     createPubSub: args.createPubSub,
+    sessionQuery: args.sessionQuery,
     rowImageFanout: args.rowImageFanout !== false,
     bufferOutboundLive: args.bufferOutboundLive === true,
-    ...(args.sessionQuery !== undefined
-      ? { sessionQuery: args.sessionQuery }
+    ...(args.createPushChannels !== undefined
+      ? { createPushChannels: args.createPushChannels }
       : {}),
     ...(args.authControl !== undefined
       ? { authControl: args.authControl }
@@ -168,7 +169,7 @@ async function connectEngine(
   });
   const mutationClient = createMutationSide({
     db,
-    mutations: args.mutationRegistry ?? notesMutationRegistry,
+    mutations: args.mutationRegistry,
     getEnv,
     deviceId: args.deviceId,
     createId: args.createId,

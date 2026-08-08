@@ -5,7 +5,8 @@ import {
   reorderShapes,
   SHAPE_KINDS,
   type ShapeKind,
-} from '../../sim/shapes-app';
+  shapesDomainPack,
+} from '../../domain-packs/shapes-app';
 import { openSimWorld } from '../../sim/world';
 import {
   applyEdgePartition,
@@ -54,7 +55,7 @@ async function openWorldCmd(
   state.lastError = null;
   state.world = await openSimWorld({
     seed: cmd.seed ?? 42,
-    domain: 'shapes',
+    domain: shapesDomainPack,
     faults: RELIABLE_FAULTS,
     rowImageFanout: state.rowImageFanout,
     liveResendOnReconnect: state.liveResendOnReconnect,

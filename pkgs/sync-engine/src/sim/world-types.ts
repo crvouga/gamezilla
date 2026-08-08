@@ -41,8 +41,8 @@ export type WorldClientOpts = {
    * reconnect. Default false = skip outbound live while disconnected.
    */
   readonly bufferOutboundLive?: boolean;
-  /** Domain pack id. Default `notes`. Lab uses `shapes`. */
-  readonly domain?: 'notes' | 'shapes';
+  /** Injected domain pack (schema, registries, converge). Required. */
+  readonly domain: SimDomainPack;
   /** Override domain pack local schema (server + default clients). */
   readonly localSchema?: LocalDomainSchema;
   /** Override domain pack mutation registry (server + default clients). */
