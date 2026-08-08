@@ -33,8 +33,6 @@ const MIGRATIONS: readonly Migration[] = [
   },
 ];
 
-const CURRENT_USER_VERSION = SCHEMA_EPOCH * VERSION_STRIDE + MIGRATIONS.length;
-
 function quoteIdent(value: string): string {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
     throw new Error(`Invalid SQLite identifier: ${value}`);
@@ -119,25 +117,50 @@ async function runPendingMigrations(
   }
 }
 
+export type LocalMigratePhase =
+  | 'before'
+  | 'afterCacheWipe'
+  | 'afterEnsure'
+  | 'done';
+
+export type MigrateLocalSchemaOptions = {
+  /** Override {@link SCHEMA_EPOCH} (sim / migrate testing). */
+  readonly schemaEpoch?: number;
+  /** Boundary hook between migrate phases (sim crash injection). */
+  readonly onLocalMigratePhase?: (
+    phase: LocalMigratePhase
+  ) => void | Promise<void>;
+};
+
 /** Runs additive migrations and applies an epoch-triggered CACHE-only wipe. */
 export async function migrateLocalSchema(
   db: SqlClient,
-  schema: LocalDomainSchema
+  schema: LocalDomainSchema,
+  options?: MigrateLocalSchemaOptions
 ): Promise<void> {
+  const epoch = options?.schemaEpoch ?? SCHEMA_EPOCH;
+  const targetVersion = epoch * VERSION_STRIDE + MIGRATIONS.length;
+  const onPhase = options?.onLocalMigratePhase;
   const previous = await readUserVersion(db);
   const previousEpoch = Math.floor(previous / VERSION_STRIDE);
 
   try {
-    if (previousEpoch < SCHEMA_EPOCH) {
+    await onPhase?.('before');
+    if (previousEpoch < epoch) {
       await dropCacheTables(db, schema);
+      await onPhase?.('afterCacheWipe');
       await createCurrentSchema(db, schema);
-    } else if (previous < CURRENT_USER_VERSION) {
+      await onPhase?.('afterEnsure');
+    } else if (previous < targetVersion) {
       await runPendingMigrations(db, schema, previous);
+      await onPhase?.('afterEnsure');
     } else {
       await ensureDomainTables(db, schema);
+      await onPhase?.('afterEnsure');
     }
 
-    await db.run(unsafe(`PRAGMA user_version = ${CURRENT_USER_VERSION}`));
+    await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
+    await onPhase?.('done');
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(

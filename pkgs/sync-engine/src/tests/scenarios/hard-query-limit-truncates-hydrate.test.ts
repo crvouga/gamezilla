@@ -1,8 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { expectLiveNote, readLiveNotes, setNote } from '../../sim/notes-app';
-import { openSimWorld } from '../../sim/world';
+import {
+  deleteNote,
+  expectLiveNote,
+  readLiveFolders,
+  readLiveNotes,
+  setFolder,
+  setNote,
+} from '../../sim/notes-app';
+import { openSimWorld, type SimWorld } from '../../sim/world';
+
+async function pump(
+  world: SimWorld,
+  work: Promise<unknown>,
+  maxVirtualMs = 2_000
+): Promise<void> {
+  let done = false;
+  const tracked = Promise.resolve(work).finally(() => {
+    done = true;
+  });
+  const steps = Math.ceil(maxVirtualMs / 25);
+  for (let i = 0; i < steps && !done; i += 1) {
+    await world.runFor(25);
+  }
+  await tracked;
+}
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {
@@ -33,6 +56,60 @@ describe('hard query limit truncates hydrate', () => {
       await world.crashClient('limited');
       await world.assertConverged();
       await expectLiveNote(a.db, 'n99', { body: 'after-limit' });
+    } finally {
+      await world.dispose();
+    }
+  });
+
+  test('multi-table truncate then shrink below limit eventually consistent', async () => {
+    const world = await openSimWorld({ seed: 631, faults: RELIABLE_FAULTS });
+    try {
+      const a = await world.addClient({ id: 'alice' });
+      await world.addClient({ id: 'bob' });
+
+      await a.mutate(setFolder, { id: 'f1', title: 'Work' });
+      await a.mutate(setFolder, { id: 'f2', title: 'Home' });
+      for (let i = 0; i < 8; i += 1) {
+        await a.mutate(setNote, {
+          id: `n${String(i).padStart(2, '0')}`,
+          body: `b${i}`,
+          folderId: i % 2 === 0 ? 'f1' : 'f2',
+        });
+      }
+      await world.assertConverged();
+
+      const lim = await world.addClient({
+        id: 'limited',
+        sessionQuery: { name: 'notesLimited', params: {} },
+      });
+      expect((await readLiveNotes(lim.db)).length).toBe(5);
+      // Limited session hydrates notes only — folders stay empty (knowingly partial).
+      expect(await readLiveFolders(lim.db)).toEqual([]);
+
+      // Shrink live set below hard limit so a later refetch can be complete.
+      for (const id of ['n05', 'n06', 'n07'] as const) {
+        await a.mutate(deleteNote, { id });
+      }
+      await world.crashClient('limited');
+      const lim2 = await world.addClient({
+        id: 'limited',
+        sessionQuery: { name: 'notesLimited', params: {} },
+      });
+      await pump(world, lim2.engine.refreshQueries());
+      const after = await readLiveNotes(lim2.db);
+      expect(after.length).toBe(5);
+      expect(after.map((n) => n.id).sort()).toEqual([
+        'n00',
+        'n01',
+        'n02',
+        'n03',
+        'n04',
+      ]);
+
+      await world.crashClient('limited');
+      await world.assertConverged();
+      await expectLiveNote(a.db, 'n00', { body: 'b0' });
+      expect((await readLiveFolders(a.db)).length).toBe(2);
     } finally {
       await world.dispose();
     }

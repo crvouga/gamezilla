@@ -1,0 +1,49 @@
+import { describe, expect, test } from 'bun:test';
+
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import {
+  deleteNote,
+  expectLiveNote,
+  expectNoteNotLive,
+  expectNotesMatchServer,
+  readNoteTombstone,
+  setNote,
+} from '../../sim/notes-app';
+import { openSimWorld } from '../../sim/world';
+
+describe('rebase onto peer tombstone pinned semantics', () => {
+  test('pending setNote rebases onto peer tombstone and revives after upload', async () => {
+    // setNote upsert clears _deleted_at — pin revive semantics for all clients.
+    const world = await openSimWorld({ seed: 820, faults: RELIABLE_FAULTS });
+    try {
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
+
+      // Bob owns the row so peer soft-delete is authorized.
+      await b.mutate(setNote, { id: 'n1', body: 'seed' });
+      await world.assertConverged();
+
+      await a.engine.disconnect();
+      await a.mutate(setNote, { id: 'n1', body: 'alice-pending' });
+      await expectLiveNote(a.db, 'n1', { body: 'alice-pending' });
+
+      const del = await b.mutate(deleteNote, { id: 'n1' });
+      expect(del.ok).toBe(true);
+      await world.runFor(400);
+      await expectNoteNotLive(world.server.db, 'n1');
+      expect(await readNoteTombstone(world.server.db, 'n1')).not.toBeNull();
+
+      await a.engine.connect();
+      a.engine.wakeUploads();
+      await world.assertConverged();
+
+      await expectLiveNote(a.db, 'n1', { body: 'alice-pending' });
+      await expectLiveNote(b.db, 'n1', { body: 'alice-pending' });
+      await expectLiveNote(world.server.db, 'n1', { body: 'alice-pending' });
+      await expectNotesMatchServer(a.db, world.server.db);
+      await expectNotesMatchServer(b.db, world.server.db);
+    } finally {
+      await world.dispose();
+    }
+  });
+});

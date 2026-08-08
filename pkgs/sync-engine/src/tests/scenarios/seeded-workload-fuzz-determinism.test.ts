@@ -58,6 +58,28 @@ describe('seeded workload fuzz determinism', () => {
   );
 
   test(
+    'extended corpus profile (3 clients / 36 steps) converges',
+    async () => {
+      const corpus = [101, 202, 404, 505];
+      for (const seed of corpus) {
+        const result = await runSeed({
+          seed,
+          steps: 36,
+          clientCount: 3,
+          sampleFaults: false,
+        });
+        if (!result.ok) {
+          throw new Error(
+            `extended fuzz failed seed=${result.seed.toString(16)} steps=${result.steps}: ${result.error}`
+          );
+        }
+        expect(result.ok).toBe(true);
+      }
+    },
+    { timeout: 180_000 }
+  );
+
+  test(
     'lossy faults sample still settles (best-effort)',
     async () => {
       const result = await runSeed({

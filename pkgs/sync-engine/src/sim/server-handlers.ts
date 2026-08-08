@@ -19,6 +19,7 @@ import {
   mergeAffectedRows,
   selectFanoutRows,
 } from '../shared/select-fanout-rows';
+import type { SimHandleMutationsOpts } from './http-bridge-types';
 
 export type SimServerAuth = {
   readonly actorId: string;
@@ -89,6 +90,8 @@ export type SimServerHandlerCtx = {
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly nextCheckpoint: () => string;
   readonly rowImageFanout: boolean;
+  /** When true, skip notifyChannels after a successful replay commit. */
+  readonly shouldFailPublish?: () => boolean;
 };
 
 type MutationUploadRow = {
@@ -149,6 +152,10 @@ async function notifyApplied(args: {
   const tables = collectWrites(args.ctx.mutations, args.applied);
   const rows = await buildFanoutRows(args.ctx, args.auth, args.applied);
   const checkpoints = await allocateTopicPushSeqs(args.ctx.db, topics);
+  // Post-commit publish loss: upload still acks; peers heal via refetch.
+  if (args.ctx.shouldFailPublish?.() === true) {
+    return checkpoints;
+  }
   const label = args.applied.map((a) => a.name).join(',');
   for (const [topic, pushSeq] of checkpoints) {
     notifyChannels({
@@ -166,8 +173,11 @@ async function notifyApplied(args: {
 /** Build mutations HTTP handler for the sim server. */
 export function createHandleMutations(
   ctx: SimServerHandlerCtx
-): (rows: readonly MutationUploadRow[]) => Promise<MutationUploadResult> {
-  return async (rows) => {
+): (
+  rows: readonly MutationUploadRow[],
+  opts?: SimHandleMutationsOpts
+) => Promise<MutationUploadResult> {
+  return async (rows, opts) => {
     if (rows[0] !== undefined) {
       ctx.setAuth(ctx.resolveAuth(rows[0].clientId));
     }
@@ -180,6 +190,7 @@ export function createHandleMutations(
       seq: m.seq,
       createdAt: m.createdAt,
     }));
+    const failAfter = opts?.failInsideTxnAfter;
     const result = await ctx.db.transaction(async (tx) =>
       processMutationsBatch({
         serverDb: asNestedTxClient(tx),
@@ -187,6 +198,16 @@ export function createHandleMutations(
         auth: stickyAuth,
         mutations: mutationRows,
         serverNow: () => new Date(ctx.now()),
+        ...(failAfter !== undefined
+          ? {
+              onAfterMutation: (index) => {
+                if (index === failAfter) {
+                  opts?.onArmed?.();
+                  throw new Error('sim: fail inside mutations txn');
+                }
+              },
+            }
+          : {}),
       })
     );
     const checkpoints = await notifyApplied({

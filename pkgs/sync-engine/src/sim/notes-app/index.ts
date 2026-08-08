@@ -13,6 +13,25 @@ export {
 } from './assert';
 export { notesLocalSchema } from './client/local-schema';
 export {
+  ghostMutation,
+  notesAuthorizeThrowQuery,
+  notesByFolderQuery,
+  notesLocalSchemaExtraColumn,
+  notesLocalSchemaExtraTable,
+  notesWorldV2Query,
+  notesWorldWithColorQuery,
+  retouchNotes,
+  setNoteArgsLoose,
+  setNoteArgsTight,
+  setNoteColor,
+  setNoteStrictExists,
+  setNoteUndeclaredFolderWrite,
+  setNoteUniqueSlug,
+  setNoteWrongTopic,
+  setTag,
+  tagsWorldQuery,
+} from './shared/hardening-fixtures';
+export {
   createSpace,
   endSpace,
   joinSpace,

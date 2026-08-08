@@ -30,7 +30,11 @@ export type {
   QueryResponse,
   QueryRow,
 } from '../queries/core/types';
-
+export {
+  MAX_FANOUT_BYTES,
+  MAX_FANOUT_ROWS,
+  MAX_MUTATIONS_BATCH,
+} from '../queries/shared/bounds';
 export { applyFrameworkServerDdl } from './apply-framework-server-ddl';
 export {
   assertChannelExhaustiveness,

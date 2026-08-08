@@ -3,6 +3,7 @@
  * Import from `@pkgs/sync-engine/server` only — deep paths are not public.
  */
 
+export { pruneMutationArtifacts } from '../mutations/server/prune-mutation-artifacts';
 export {
   allocateTopicPushSeq,
   allocateTopicPushSeqs,

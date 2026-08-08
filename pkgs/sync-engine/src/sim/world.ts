@@ -1,3 +1,6 @@
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
+import type { MutationRegistry } from '../mutations/core/types';
+import type { QueryRegistry } from '../queries/core/types';
 import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import type { SimClock } from './clock';
 import type { SimFaultOptions } from './faults';
@@ -16,14 +19,25 @@ import {
 } from './traffic';
 import { bootSimKernel } from './world-boot';
 import {
-  type AddClientArgs,
-  addClientImpl,
-  assertConvergedImpl,
-} from './world-ops';
+  crashClientImpl,
+  fireCrashIfArmed,
+  type RestartClientOpts,
+  type WorldFaultApi,
+  worldFaultApi,
+} from './world-lifecycle';
+import { assertConvergedImpl } from './world-ops';
+import { addClientImpl } from './world-ops-add-client';
+import { restartClientImpl, restartServerImpl } from './world-restart';
+import type { AddClientArgs } from './world-types';
 
+export type {
+  SimCrashEvent,
+  SimHttpFault,
+} from './boundary-faults';
 export type { SimAuthStatus } from './client-factory';
 export { SIM_SERVER_NODE_ID } from './clock-skew';
 export type { SimTraffic } from './traffic';
+export type { RestartClientOpts } from './world-lifecycle';
 
 export type SimWorld = {
   readonly seed: bigint;
@@ -36,7 +50,10 @@ export type SimWorld = {
   readonly nextId: () => string;
   readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly crashClient: (id: string) => Promise<void>;
-  readonly restartClient: (id: string) => Promise<SimClientHandle>;
+  readonly restartClient: (
+    id: string,
+    opts?: RestartClientOpts
+  ) => Promise<SimClientHandle>;
   /** Simulate token expired / revoked / valid for a client id. */
   readonly setAuthStatus: (clientId: string, status: SimAuthStatus) => void;
   /** Drop traffic between this node and the server (default all). */
@@ -61,10 +78,15 @@ export type SimWorld = {
     readonly maxSteps?: number;
     readonly maxVirtualMs?: number;
   }) => Promise<void>;
+  readonly isSchedulerQuiescent: () => boolean;
   readonly checkInvariants: () => Promise<InvariantViolation | null>;
   readonly assertConverged: () => Promise<void>;
+  readonly crashServer: () => Promise<void>;
+  readonly restartServer: (opts?: {
+    readonly preserveDb?: boolean;
+  }) => Promise<void>;
   readonly dispose: () => Promise<void>;
-};
+} & WorldFaultApi;
 
 export type OpenSimWorldArgs = {
   readonly seed: number | bigint | string;
@@ -86,6 +108,17 @@ export type OpenSimWorldArgs = {
   readonly bufferOutboundLive?: boolean;
   /** Domain pack. Default `notes`. Lab uses `shapes`. */
   readonly domain?: 'notes' | 'shapes';
+  /** Override domain pack local schema (server + default clients). */
+  readonly localSchema?: LocalDomainSchema;
+  /** Override domain pack mutation registry (server + default clients). */
+  readonly mutationRegistry?: MutationRegistry;
+  /** Override domain pack query registry (server + default clients). */
+  readonly queryRegistry?: QueryRegistry;
+  /** Override domain pack session query. */
+  readonly sessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
 };
 
 async function checkClientSeqs(
@@ -122,32 +155,8 @@ function healNode(network: SimNetwork, nodeId: string): void {
  */
 export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
   const k = await bootSimKernel({ seed: args.seed, worldArgs: args });
-  const { clients, metas, scheduler, network, server, broker, rng, domain } = k;
-
-  const addClient = (clientArgs: AddClientArgs): Promise<SimClientHandle> =>
-    addClientImpl(k, clientArgs);
-
-  const crashClient = async (id: string): Promise<void> => {
-    const handle = clients.get(id);
-    if (handle === undefined) throw new Error(`unknown client ${id}`);
-    await handle.dispose();
-    clients.delete(id);
-  };
-
-  const restartClient = async (id: string): Promise<SimClientHandle> => {
-    const meta = metas.get(id);
-    if (meta === undefined) throw new Error(`unknown client meta ${id}`);
-    if (clients.has(id)) await crashClient(id);
-    // Re-auth after revoke: clear revoked status so the new engine can sync.
-    k.authStatusByDevice.set(meta.deviceId, 'valid');
-    return addClient({ id: meta.id, actorId: meta.actorId });
-  };
-
-  const setAuthStatus = (clientId: string, status: SimAuthStatus): void => {
-    const meta = metas.get(clientId);
-    if (meta === undefined) throw new Error(`unknown client ${clientId}`);
-    k.authStatusByDevice.set(meta.deviceId, status);
-  };
+  const { clients, metas, scheduler, network, broker, rng, domain, faults } = k;
+  const faultApi = worldFaultApi(faults);
 
   return {
     seed: rng.seed,
@@ -155,13 +164,19 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
     rng,
     scheduler,
     network,
-    server,
+    get server() {
+      return k.server;
+    },
     clients,
     nextId: k.nextId,
-    addClient,
-    crashClient,
-    restartClient,
-    setAuthStatus,
+    addClient: (clientArgs) => addClientImpl(k, clientArgs),
+    crashClient: (id) => crashClientImpl(k, id),
+    restartClient: (id, opts) => restartClientImpl(k, id, opts),
+    setAuthStatus: (clientId, status) => {
+      const meta = metas.get(clientId);
+      if (meta === undefined) throw new Error(`unknown client ${clientId}`);
+      k.authStatusByDevice.set(meta.deviceId, status);
+    },
     partition: (nodeId, traffic = 'all') =>
       partitionNode(network, nodeId, traffic),
     heal: (nodeId) => healNode(network, nodeId),
@@ -169,29 +184,51 @@ export async function openSimWorld(args: OpenSimWorldArgs): Promise<SimWorld> {
     hold: (nodeId, traffic) => network.hold(nodeId, traffic),
     release: (nodeId, traffic) => network.release(nodeId, traffic),
     releaseAll: () => network.releaseAll(),
-    setFaults: (nodeId, traffic, faults) => {
-      network.setNodeFaults(nodeId, traffic, { ...RELIABLE_FAULTS, ...faults });
+    setFaults: (nodeId, traffic, partial) => {
+      network.setNodeFaults(nodeId, traffic, {
+        ...RELIABLE_FAULTS,
+        ...partial,
+      });
     },
     clearFaults: (nodeId) => network.clearNodeFaults(nodeId),
     setClockSkew: (nodeId, skewMs) => k.clockSkew.set(nodeId, skewMs),
     nowFor: (nodeId) => k.nowFor(nodeId),
     runFor: (ms) => scheduler.runFor(ms),
     runUntilIdle: (opts) => scheduler.runUntilIdle(opts),
+    isSchedulerQuiescent: () => scheduler.pendingCount() === 0,
     checkInvariants: () => checkClientSeqs(clients),
     assertConverged: () =>
       assertConvergedImpl({
         network,
         scheduler,
         clients,
-        server,
+        server: k.server,
         seed: rng.seed,
         domain,
       }),
+    crashServer: async () => {
+      k.unbindHttp();
+    },
+    restartServer: (opts) => restartServerImpl(k, opts),
+    armCrash: (nodeId, event) => {
+      faultApi.armCrash(nodeId, event);
+      if (event === 'onNextTimerTickWhileSyncUndelivered') {
+        scheduler.scheduleAfter(0, () => {
+          void fireCrashIfArmed(k, nodeId, event);
+        });
+      }
+    },
+    clearCrashArms: faultApi.clearCrashArms,
+    armHttpFault: faultApi.armHttpFault,
+    clearHttpFaults: faultApi.clearHttpFaults,
+    armPublishFault: faultApi.armPublishFault,
+    clearPublishFault: faultApi.clearPublishFault,
     dispose: async () => {
       for (const c of [...clients.values()]) await c.dispose();
       clients.clear();
+      k.unbindHttp();
       broker.dispose();
-      await server.dispose();
+      await k.server.dispose();
     },
   };
 }

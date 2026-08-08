@@ -43,11 +43,19 @@ export type SimHttpResponse =
       readonly message: string;
     };
 
+export type SimHandleMutationsOpts = {
+  /** Throw infra error inside the batch txn after this many mutations (0-based index). */
+  readonly failInsideTxnAfter?: number;
+  /** Called when the in-txn fault arm is consumed. */
+  readonly onArmed?: () => void;
+};
+
 export type SimHttpServerHandlers = {
   readonly handleQuery: (
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly handleMutations: (
-    mutations: readonly MutationUploadRow[]
+    mutations: readonly MutationUploadRow[],
+    opts?: SimHandleMutationsOpts
   ) => Promise<MutationUploadResult>;
 };

@@ -101,15 +101,17 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 **client:** `createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`,
 `SyncEngineProvider`, `useSyncEngine`, `useSyncEngineInstance`, `useQuery`,
 `MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
-`AppLifecycle` helpers, status types.
+`AppLifecycle` helpers, status types, `SCHEMA_EPOCH` (optional
+`schemaEpoch` / `onLocalMigratePhase` on create options for sim).
 
 **server:** `createSyncApp`, `notifyChannels`, `allocateTopicPushSeq(s)`,
-`isAuthErrorBody`, `SyncAppAuth`.
+`isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
 
 **shared:** `defineQuery`, `defineMutation`, `queryRegistry`, `mutationRegistry`,
 `MutationError`, `LIVE_ROW_SQL`, `softDeleteById`, `withFrameworkMutations`,
 `applyFrameworkServerDdl`, `FRAMEWORK_*` constants,
-`assertChannelExhaustiveness` / `findChannelExhaustivenessGaps`.
+`assertChannelExhaustiveness` / `findChannelExhaustivenessGaps`,
+`MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` / `MAX_MUTATIONS_BATCH`.
 
 **Not public** (internal modules agents may cite but must not import from apps):
 `merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
@@ -313,9 +315,9 @@ idempotency is by **mutation id**, so seq restarts are harmless.
 
 **Deleted on purpose (do not resurrect without a design review):**
 `_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`,
-`_topic_applied`, full write-epoch / `status` / `acked_epoch` barriers, MQTT
-mutation fanout payloads. Ack-then-stale-merge flicker is addressed by sync
-`bumpGenerations` on upload ack (not a write-epoch).
+per-topic applied-seq cache (replaced by `_push_applied`), full write-epoch /
+`status` / `acked_epoch` barriers, MQTT mutation fanout payloads. Ack-then-stale-merge
+flicker is addressed by sync `bumpGenerations` on upload ack (not a write-epoch).
 
 `SCHEMA_EPOCH` (currently **7**) bumps wipe **cache** tables and drop retired
 tables; durable `_mutations` survive epoch wipe semantics carefully (see
@@ -579,6 +581,11 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    weird args can false-pass/fail.
 10. **Dead legacy upload CRUD** (`mutations/server/process-upload-with-mutations.ts`) —
     zero importers; safe delete candidate. Main product uses `/mutations` JSON.
+11. **Prune retention window** — after `pruneMutationArtifacts` deletes an
+    `_mutations_applied` row, a late retry of the same mutation id may
+    **double-apply** (pinned by `late-retry-after-prune-window-documented`).
+    Keep retention longer than max client offline/retry windows, or accept
+    double-apply as the documented failure mode.
 
 ---
 
@@ -677,7 +684,7 @@ pkgs/sync-engine/src/
   sim-lab/          # interactive GUI over shapes domain (`bun run sim:lab`)
   test/             # in-memory engine
   tests/
-    scenarios/      # black-box correctness (51 files)
+    scenarios/      # black-box correctness (111 files)
     harness/        # sim kernel self-tests
 ```
 
@@ -838,6 +845,7 @@ world.nowFor('alice'); // base.now() + skew
 | `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
 | `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe (sim stand-in for short offline session drain; production MQTT uses QoS 1 + persistent sessions separately) |
 | `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect (peers can paint via live before upload/sync) |
+| `localSchema` / `mutationRegistry` / `queryRegistry` / `sessionQuery` | domain pack | Override server+default client registries/schema for drift scenarios |
 
 **Network faults** (`SimFaultOptions` in `faults.ts`):
 
@@ -862,13 +870,42 @@ all knobs.
 | `setFaults(nodeId, traffic, partial)` / `clearFaults` | Per-node override = `RELIABLE_FAULTS` ∪ partial |
 | `setClockSkew(nodeId, skewMs)` / `nowFor(nodeId)` | Offset logical wall clock for mutation timestamps |
 
-**Lifecycle:** `addClient({ id, actorId?, sessionQuery? })`, `crashClient` /
-`restartClient` (fresh `:memory:` DB), `setAuthStatus(clientId, 'valid' |
-'expired' | 'revoked')`, `lifecycle.setOnline` / `setForeground`, engine
-`connect` / `disconnect` / `refreshQueries` / `wakeUploads`.
+**Lifecycle:** `addClient({ id, actorId?, sessionQuery?, localSchema?,
+mutationRegistry?, queryRegistry?, schemaEpoch? })`, `crashClient` /
+`restartClient(id, { preserveLocalDb?, schemaEpoch?, localSchema?, … })`
+(default fresh `:memory:` DB; `preserveLocalDb` keeps SQLite across engine
+rebuild for epoch/crash atomicity), `setAuthStatus`, `crashServer` /
+`restartServer({ preserveDb? })`, `lifecycle.setOnline` / `setForeground`,
+engine `connect` / `disconnect` / `refreshQueries` / `wakeUploads`.
 Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
 (`notesWorld` remains the default). Client handles expose
 `pubsubRemakeCount()` / `subscribedTopics()` for black-box membership asserts.
+`isSchedulerQuiescent()` observes empty sim timer heap (scope-churn).
+
+**Boundary crash arms** (`armCrash(nodeId, event)` / `clearCrashArms`):
+
+| Event | Boundary |
+|-------|----------|
+| `afterNextSyncResponseDelivered` | Sync HTTP reply delivered to client RPC |
+| `afterNextMutateResolved` | After `mutate()` resolves |
+| `afterNextMutationsPostAccepted` | Mutations handler finished; before response sent |
+| `onNextTimerTickWhileSyncUndelivered` | Next timer tick (use with sync hold) |
+| `onNextEngineOpenAfterCacheWipe` | Local migrate after cache wipe |
+
+**HTTP / publish faults** (`armHttpFault` / `armPublishFault`):
+
+| Fault | Effect |
+|-------|--------|
+| `dropMutationsResponse` / `dropQueryResponse` | Handler runs; response never sent |
+| `failMutationsAfterCommit` | Txn committed; error before response |
+| `failMutationsInsideTxnAfter(k)` | Infra throw inside batch txn after index `k` (full rollback) |
+| `invalidMutationsBody` | Synthesize 400 `invalid_batch` |
+| `serverErrorOnNext` | Injected 500 on next `/mutations` or `/query` |
+| `armPublishFault` | Suppress post-commit pubsub publish (upload still acks) |
+
+**Server ops:** `server.pruneArtifacts(olderThanMs)`,
+`server.writeNoteBody({ id, body, notify? })` (direct domain write; `notify:
+false` pins the non-mutation footgun).
 
 **Fuzz / replay** (`runSeed`):
 
@@ -909,7 +946,7 @@ src/sim-lab/                         # interactive host + web UI
   server.ts host/ web/
 
 src/tests/
-  scenarios/                         # black-box correctness suite (51 files)
+    scenarios/                         # black-box correctness suite (111 files)
   harness/                           # sim kernel self-tests
 ```
 
@@ -1028,10 +1065,12 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Black-box correctness under `src/tests/scenarios/` (**51** files) plus harness
+Black-box correctness under `src/tests/scenarios/` (**111** files) plus harness
 `src/tests/harness/kernel.test.ts`. Most scenarios use `openSimWorld` +
 notes-app asserts. Row-image fanout is on unless a test sets
 `rowImageFanout: false`. File names describe the behavior under test.
+Production-hardening phases (schema drift through channel drift) extend the
+original suite; all scenarios stay rewrite-safe (public + sim world API only).
 
 ### Happy path / multi-client (9)
 
@@ -1043,9 +1082,9 @@ notes-app asserts. Row-image fanout is on unless a test sets
 | `folders-and-notes-multi-table-converge.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
 | `same-actor-two-devices-converge.test.ts` | Two devices, same `actorId`, concurrent writes converge |
 | `peer-visibility-under-200ms-sim-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
-| `set-note-v1-v2-interleaved-converge.test.ts` | `setNote` + `setNoteV2` interleaved writes converge |
+| `set-note-v1-v2-interleaved-converge.test.ts` | `setNote` + `setNoteV2` interleaved; V1-only client still replays |
 | `mutation-batch-over-max-drains-without-dupes.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
-| `hard-query-limit-truncates-hydrate.test.ts` | Hard query `limit` truncates hydrate; engine stays healthy |
+| `hard-query-limit-truncates-hydrate.test.ts` | Hard query `limit` truncates; multi-table shrink converges fully |
 
 ### Tombstones / soft-delete (3)
 
@@ -1063,9 +1102,9 @@ notes-app asserts. Row-image fanout is on unless a test sets
 | `permanent-reject-stored-peer-never-applies.test.ts` | Permanent reject stored; peer never applies bad body; ack clears |
 | `requires-online-fails-offline-without-queue.test.ts` | Requires-online mutations fail offline without queueing |
 | `denied-query-detaches-scope-keeps-rows.test.ts` | Denied query detaches scope without wiping domain rows |
-| `auth-revoked-wipes-db-expired-refreshes.test.ts` | Expired refreshes and drains queue; revoked wipe drops unuploaded edit |
+| `auth-revoked-wipes-db-expired-refreshes.test.ts` | Expired refreshes/drains; revoked wipe; mid-drain expire; mid-push revoke |
 | `mid-session-authorize-deny-keeps-domain-rows.test.ts` | Mid-session authorize flip denies scope; domain rows remain |
-| `pending-reject-surfaces-write-rejections.test.ts` | Pending rejectable mutate surfaces `write_rejections`; domain rolls back |
+| `pending-reject-surfaces-write-rejections.test.ts` | Pending rejectable mutate surfaces rejection; domain rolls back |
 
 ### Offline / crash / partition (8)
 
@@ -1077,7 +1116,7 @@ notes-app asserts. Row-image fanout is on unless a test sets
 | `full-partition-during-write-then-heal.test.ts` | Full partition during write; heal converges |
 | `offline-crash-partition-lifecycle-matrix.test.ts` | Offline, crash, partition, flip-flop contest matrix |
 | `reupload-idempotent-no-duplicate-rows.test.ts` | Re-upload / repeated sets do not duplicate domain rows |
-| `cache-clear-preserves-pending-mutations.test.ts` | Cache clear wipes domain; durable `_mutations` still upload and converge |
+| `cache-clear-preserves-pending-mutations.test.ts` | Cache clear wipes domain; durable pending uploads still converge |
 | `not-modified-does-not-clobber-pending.test.ts` | `not_modified` refetch does not clobber pending optimistic; later rebase |
 
 ### Network / delivery faults (10)
@@ -1097,15 +1136,11 @@ notes-app asserts. Row-image fanout is on unless a test sets
 
 ### Membership topics / room live (6)
 
-Notes-app `spaceMembership` session (`spaces` / `space_users` + room-scoped notes).
-Channels follow `user:` + `room:` from live membership. Observability:
-`client.pubsubRemakeCount()` / `client.subscribedTopics()`.
-
 | File | Proves |
 |------|--------|
 | `leave-join-topics-without-pubsub-remake.test.ts` | Leave/join rooms sync topics incrementally — no pubsub remake |
 | `peer-create-during-leave-keeps-mqtt-session.test.ts` | Peer create during leave does not wipe MQTT; rejoin hydrates |
-| `topic-sync-waits-for-mutations-drain.test.ts` | Topic sync waits until pending `_mutations` drain |
+| `topic-sync-waits-for-mutations-drain.test.ts` | Topic sync waits until pending uploads drain |
 | `room-live-isolated-until-member-joins.test.ts` | Room-B live does not reach room-A member until join |
 | `join-paints-peer-space-note-via-live.test.ts` | After join, peer space note paints via live while sync held |
 | `leave-drops-room-topic-until-rejoin.test.ts` | Leave/end drops room topic; further live missed until rejoin |
@@ -1119,73 +1154,240 @@ Channels follow `user:` + `room:` from live membership. Observability:
 | `background-pauses-sweeps-foreground-catches-up.test.ts` | Background pauses remote sweeps; local optimistic still applies; foreground catches up |
 | `online-mutate-no-optimistic-body-flicker.test.ts` | Online mutate never reverts optimistic body before quiescence |
 | `delayed-sync-after-ack-no-optimistic-flicker.test.ts` | Delayed/reordered sync after ack never reverts optimistic body |
-| `replay-pins-now-to-mutation-created-at.test.ts` | Replay pins `env.now` to mutation `createdAt` under client clock skew |
+| `replay-pins-now-to-mutation-created-at.test.ts` | Replay + rebase pin `env.now` to `createdAt` under skew |
 
-### Fuzz (1)
+### Schema drift & versioning (11)
 
 | File | Proves |
 |------|--------|
-| `seeded-workload-fuzz-determinism.test.ts` | Seeded workload determinism; corpus/env seeds; multi-client skew/crash; optional lossy faults |
+| `epoch-bump-wipes-cache-preserves-pending-uploads.test.ts` | Epoch bump wipes cache; durable pending uploads drain |
+| `epoch-bump-mid-offline-session-then-drain.test.ts` | Offline epoch bump then later reconnect drains |
+| `server-snapshot-with-unknown-column-merges-cleanly.test.ts` | Extra server column ignored via column-intersect |
+| `client-column-missing-from-server-snapshot-not-clobbered.test.ts` | Local-only column not nulled by intersection merge |
+| `new-domain-table-added-mid-life-hydrates-after-migrate.test.ts` | New table hydrates after migrate; old data intact |
+| `query-v1-v2-mixed-clients-converge.test.ts` | Mixed query wire names converge on live rows |
+| `unknown-mutation-name-rejected-and-rolled-back.test.ts` | Unknown mutation → reject + merge heal |
+| `unknown-query-name-denied-detaches-scope.test.ts` | Unknown query → denied; domain kept; engine healthy |
+| `args-schema-tightened-server-rejects-stale-args.test.ts` | Tightened zod args → permanent reject; no crash loop |
+| `scope-hash-stable-under-param-key-order.test.ts` | Param key order does not double-subscribe |
+| *(also)* `set-note-v1-v2-interleaved-converge.test.ts` | V1-only client still replays while V2 exists |
+
+### Idempotency / retries (8)
+
+| File | Proves |
+|------|--------|
+| `upload-response-lost-retry-does-not-double-apply.test.ts` | Drop mutations response; retry does not double-apply |
+| `same-batch-posted-twice-verdicts-stable.test.ts` | Duplicate POST batch is idempotent |
+| `duplicate-mutation-id-different-args-first-wins.test.ts` | Same id different args → first wins |
+| `seq-restart-after-wipe-harmless.test.ts` | Local seq restart after wipe is harmless |
+| `server-500-mid-batch-full-retry-idempotent.test.ts` | In-txn fail rolls back; post-commit fail dedupes |
+| `late-retry-after-prune-window-documented.test.ts` | Re-POST after prune double-applies (retention pin) |
+| `constraint-error-maps-to-business-code.test.ts` | Unique violation → business code on rejection surface |
+| `invalid-batch-400-no-retry-storm.test.ts` | 400 invalid batch; healthy mutates still drain |
+
+### Checkpoint / hash / row images (11)
+
+| File | Proves |
+|------|--------|
+| `row-image-apply-then-refetch-not-not-modified.test.ts` | After images, content hash path stays sound |
+| `reordered-http-responses-stale-checkpoint-dropped.test.ts` | Stale reordered sync checkpoint dropped |
+| `content-reverts-hash-matches-not-modified-sound.test.ts` | A→B→A hash/`not_modified` soundness |
+| `push-seq-gap-forces-refetch-not-image-apply.test.ts` | Push seq gap forces refetch path |
+| `own-echo-floor-skips-but-peer-push-applies.test.ts` | Own echo floor; peer push still applies |
+| `tombstone-row-image-deletes-live-row.test.ts` | Tombstone image removes live peer row |
+| `row-image-for-inactive-table-ignored-safely.test.ts` | Inactive-table images ignored safely |
+| `fanout-row-cap-boundary-64-vs-65.test.ts` | `MAX_FANOUT_ROWS` 64 vs 65 boundary |
+| `optimistic-push-rejected-server-side-heals.test.ts` | Optimistic paint heals after server reject |
+| `push-during-inflight-merge-queues-single-flight.test.ts` | Push during merge; single-flight; converge |
+| `push-for-just-unsubscribed-topic-ignored.test.ts` | Unsub races in-flight push; ignored |
+
+### Rebase & optimistic edges (5)
+
+| File | Proves |
+|------|--------|
+| `rebase-onto-peer-tombstone-pinned-semantics.test.ts` | Pending update vs peer tombstone; pinned outcome |
+| `rebase-throw-hidden-until-upload-reject.test.ts` | Rebase throw hidden until upload reject |
+| `deep-pending-chain-rebases-in-seq-order.test.ts` | Long pending chain rebases in seq order |
+| `interleaved-mutate-during-upload-inflight.test.ts` | Mutates during drain join next batch in order |
+| `reject-mid-chain-later-pendings-still-apply.test.ts` | Mid-chain reject; later pendings survive |
+
+### Crash-point matrix (5)
+
+| File | Proves |
+|------|--------|
+| `crash-mid-merge-restart-rehydrates.test.ts` | Crash after sync delivery; no torn multi-table state |
+| `mutate-local-apply-and-queue-atomic-under-crash.test.ts` | Mutate+queue atomic under crash (outcome-only) |
+| `crash-after-post-before-ack-retry-idempotent.test.ts` | Crash after accept before ack; idempotent redrain |
+| `server-crash-mid-request-client-retries.test.ts` | Server crash mid-request; clients retry |
+| `crash-during-epoch-migrate-recovers.test.ts` | Crash mid epoch migrate; next boot recovers |
+
+### Server integrity (5)
+
+| File | Proves |
+|------|--------|
+| `pubsub-publish-fails-after-commit-heals-by-refetch.test.ts` | Publish loss after commit; heal by refetch |
+| `replay-txn-rollback-no-pushseq-leak.test.ts` | In-txn rollback; no push leak; retry ok |
+| `concurrent-topic-seq-allocation-monotonic.test.ts` | Concurrent topic seq stays monotonic |
+| `authorize-throw-equals-denied.test.ts` | Authorize throw ≡ denied |
+| `prune-concurrent-with-replay-safe.test.ts` | Prune interleaved with replay stays safe |
+
+### Auth / identity / multi-tenant (5)
+
+| File | Proves |
+|------|--------|
+| `account-switch-pool-isolation.test.ts` | `createSyncEnginePool` identities isolated |
+| `logout-login-same-device-no-bleed.test.ts` | Same device A→B; no bleed |
+| `membership-revoked-mid-session-scope-denied-topics-dropped.test.ts` | Membership revoke → denied + topic drop |
+| `cross-tenant-rows-never-hydrate.test.ts` | Authorize filters; no cross-tenant hydrate |
+| *(also)* `auth-revoked-…` | Expired mid-drain / revoked mid-push |
+
+### Data-shape robustness (4)
+
+| File | Proves |
+|------|--------|
+| `unicode-null-byte-huge-string-roundtrip.test.ts` | Unicode / null byte / huge string round-trip |
+| `null-vs-missing-column-in-snapshot.test.ts` | Explicit null vs missing key merge |
+| `bigint-ids-and-float-precision-stable.test.ts` | Bigint-like ids + float stability |
+| `empty-tables-and-zero-row-snapshot.test.ts` | Zero-row snapshot; absence ≠ delete |
+
+### Endurance / churn (6)
+
+| File | Proves |
+|------|--------|
+| `seeded-workload-fuzz-determinism.test.ts` | Seeded workload determinism; corpus/env seeds |
+| `long-horizon-fuzz-hours-of-virtual-time.test.ts` | Long virtual-time fuzz with converge checkpoints |
+| `scope-churn-no-leaked-timers-or-subscriptions.test.ts` | Rapid scope churn; scheduler quiescent |
+| `tombstone-accumulation-still-converges.test.ts` | Many tombstones still converge (limitation 1) |
+| `connect-disconnect-flapping-under-load.test.ts` | Connect/disconnect flap under load |
+| `mutation-storm-batching-order-preserved.test.ts` | Large offline queue drains in seq order |
+
+### Channel drift pins (3)
+
+| File | Proves |
+|------|--------|
+| `undeclared-table-write-misses-table-filter-heals-on-wakeall.test.ts` | Undeclared write stale until wake (limitation 8) |
+| `wrong-invalidates-topic-heals-on-refetch.test.ts` | Wrong invalidates topic; heal on refetch |
+| `non-mutation-server-write-without-notify-stale-until-sweep.test.ts` | Direct server write without notify; stale until sweep |
 
 ### Unit / harness (2)
 
 | File | Proves |
 |------|--------|
-| `in-memory-watch-reacts-to-local-insert.test.ts` | In-memory engine `watch` reacts to local domain INSERT (`createInMemorySyncEngine`) |
+| `in-memory-watch-reacts-to-local-insert.test.ts` | In-memory engine `watch` reacts to local domain INSERT |
 | `../harness/kernel.test.ts` | Sim kernel: RNG / scheduler / timers; membership topic sync |
 
-### Alphabetical index (51 scenarios)
+### Alphabetical index (111 scenarios)
 
 ```text
+account-switch-pool-isolation
+args-schema-tightened-server-rejects-stale-args
 auth-revoked-wipes-db-expired-refreshes
+authorize-throw-equals-denied
 background-pauses-sweeps-foreground-catches-up
+bigint-ids-and-float-precision-stable
 buffer-outbound-live-flush-on-reconnect
 cache-clear-preserves-pending-mutations
+client-column-missing-from-server-snapshot-not-clobbered
 clock-skew-permutations-still-converge
+concurrent-topic-seq-allocation-monotonic
+connect-disconnect-flapping-under-load
+constraint-error-maps-to-business-code
+content-reverts-hash-matches-not-modified-sound
+crash-after-post-before-ack-retry-idempotent
+crash-during-epoch-migrate-recovers
+crash-mid-merge-restart-rehydrates
 crash-restart-rehydrates-and-drains-queue
+cross-tenant-rows-never-hydrate
+deep-pending-chain-rebases-in-seq-order
 delayed-sync-after-ack-no-optimistic-flicker
 denied-query-detaches-scope-keeps-rows
 domain-hard-delete-rejected
 dropped-live-repaired-by-refetch
+duplicate-mutation-id-different-args-first-wins
+empty-tables-and-zero-row-snapshot
+epoch-bump-mid-offline-session-then-drain
+epoch-bump-wipes-cache-preserves-pending-uploads
+fanout-row-cap-boundary-64-vs-65
 folders-and-notes-multi-table-converge
 full-partition-during-write-then-heal
 hard-query-limit-truncates-hydrate
 held-sync-upload-retries-on-release
 in-memory-watch-reacts-to-local-insert
+interleaved-mutate-during-upload-inflight
+invalid-batch-400-no-retry-storm
 join-paints-peer-space-note-via-live
 late-join-hydrates-soft-deleted-tombstones
+late-retry-after-prune-window-documented
 leave-drops-room-topic-until-rejoin
 leave-join-topics-without-pubsub-remake
 live-fanout-peer-visibility-within-budget
 live-loss-dup-reorder-still-converges
 live-resend-on-reconnect-vs-drop
 live-vs-sync-ordering-races-converge
+logout-login-same-device-no-bleed
+long-horizon-fuzz-hours-of-virtual-time
+membership-revoked-mid-session-scope-denied-topics-dropped
 mid-session-authorize-deny-keeps-domain-rows
+mutate-local-apply-and-queue-atomic-under-crash
 mutation-batch-over-max-drains-without-dupes
+mutation-storm-batching-order-preserved
+new-domain-table-added-mid-life-hydrates-after-migrate
+non-mutation-server-write-without-notify-stale-until-sweep
 non-owner-mutation-denied-owner-converges
 not-modified-does-not-clobber-pending
+null-vs-missing-column-in-snapshot
 offline-crash-partition-lifecycle-matrix
 online-mutate-no-optimistic-body-flicker
+optimistic-push-rejected-server-side-heals
 oversized-fanout-falls-back-to-refetch
+own-echo-floor-skips-but-peer-push-applies
 peer-create-during-leave-keeps-mqtt-session
 peer-visibility-under-200ms-sim-budget
 pending-reject-surfaces-write-rejections
 permanent-reject-stored-peer-never-applies
+prune-concurrent-with-replay-safe
+pubsub-publish-fails-after-commit-heals-by-refetch
+push-during-inflight-merge-queues-single-flight
+push-for-just-unsubscribed-topic-ignored
+push-seq-gap-forces-refetch-not-image-apply
 push-tables-filter-wakes-overlapping-scopes
 push-without-affected-rows-wakes-refetch
+query-v1-v2-mixed-clients-converge
+rebase-onto-peer-tombstone-pinned-semantics
+rebase-throw-hidden-until-upload-reject
+reject-mid-chain-later-pendings-still-apply
 remote-fanout-races-local-pending-mutation
+reordered-http-responses-stale-checkpoint-dropped
 replay-pins-now-to-mutation-created-at
+replay-txn-rollback-no-pushseq-leak
 requires-online-fails-offline-without-queue
 reupload-idempotent-no-duplicate-rows
 room-live-isolated-until-member-joins
+row-image-apply-then-refetch-not-not-modified
+row-image-for-inactive-table-ignored-safely
 same-actor-two-devices-converge
+same-batch-posted-twice-verdicts-stable
+scope-churn-no-leaked-timers-or-subscriptions
+scope-hash-stable-under-param-key-order
 seeded-workload-fuzz-determinism
+seq-restart-after-wipe-harmless
+server-500-mid-batch-full-retry-idempotent
+server-crash-mid-request-client-retries
+server-snapshot-with-unknown-column-merges-cleanly
 set-note-v1-v2-interleaved-converge
 single-client-mutate-uploads-and-persists
 soft-delete-tombstone-propagates-and-revives
 sync-hold-reorder-dup-still-converges
 sync-partitioned-while-live-delivers
+tombstone-accumulation-still-converges
+tombstone-row-image-deletes-live-row
 topic-sync-waits-for-mutations-drain
 two-client-mutual-writes-converge
 two-offline-same-id-single-winner
+undeclared-table-write-misses-table-filter-heals-on-wakeall
+unicode-null-byte-huge-string-roundtrip
+unknown-mutation-name-rejected-and-rolled-back
+unknown-query-name-denied-detaches-scope
+upload-response-lost-retry-does-not-double-apply
+wrong-invalidates-topic-heals-on-refetch
 ```

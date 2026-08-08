@@ -73,9 +73,14 @@
 @apps/api preview:serve: ? Would you like to report this error to Cloudflare? Wrangler's output and the error details will be shared with the Wrangler team to help us diagnose and fix the issue.
 @apps/api preview:serve: 🤖 Using fallback value in non-interactive context: no
 @apps/api preview:serve: 🪵  Logs were written to "/Users/chrisvouga/Library/Preferences/.wrangler/logs/wrangler-2026-08-07_11-54-32_375.log"
-@apps/api preview:serve: Exited with code 1
-version of Wrangler available (4.120.0). Consider checking whether upgrading resolves this error.
-@apps/api preview:serve: ? Would you like to report this error to Cloudflare? Wrangler's output and the error details will be shared with the Wrangler team to help us diagnose and fix the issue.
-@apps/api preview:serve: 🤖 Using fallback value in non-interactive context: no
-@apps/api preview:serve: 🪵  Logs were written to "/Users/chrisvouga/Library/Preferences/.wrangler/logs/wrangler-2026-08-07_11-56-57_239.log"
-@apps/api preview:serve: Exited with code 1
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+eview:serve: Exited with code 1

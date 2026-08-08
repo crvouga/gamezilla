@@ -16,8 +16,15 @@ const violations: string[] = [];
 const FORBIDDEN_TABLE_RE =
   /\b(_push_applied|_mutations_applied|_mutations|_scope_meta|write_rejections|sqlite_master)\b/;
 
-const PRIVATE_IMPORT_RE =
+/** Relative deep imports into package internals (not sim / tests). */
+const PRIVATE_RELATIVE_IMPORT_RE =
   /from\s+['"](?:\.\.\/)+(?:client|server|mutations|queries|shared)\//;
+
+/** Package deep path — only four public entrypoints are allowed. */
+const PRIVATE_PACKAGE_IMPORT_RE = /from\s+['"]@pkgs\/sync-engine\/src\//;
+
+const ALLOWED_PACKAGE_IMPORT_RE =
+  /from\s+['"]@pkgs\/sync-engine\/(client|server|shared|test)['"]/;
 
 for await (const file of new Glob(`${pkg}/src/**/*.test.ts`).scan({
   cwd: root,
@@ -41,10 +48,29 @@ for await (const file of new Glob(`${testsRoot}/scenarios/**/*.test.ts`).scan({
         `${file}:${i + 1}: scenario must not reference framework tables`
       );
     }
-    if (PRIVATE_IMPORT_RE.test(line)) {
+    if (PRIVATE_RELATIVE_IMPORT_RE.test(line)) {
       violations.push(
         `${file}:${i + 1}: scenario must not import sync-engine internals`
       );
+    }
+    if (PRIVATE_PACKAGE_IMPORT_RE.test(line)) {
+      violations.push(
+        `${file}:${i + 1}: scenario must not deep-import @pkgs/sync-engine/src`
+      );
+    }
+    if (
+      line.includes('@pkgs/sync-engine/') &&
+      line.includes('from') &&
+      !ALLOWED_PACKAGE_IMPORT_RE.test(line) &&
+      !line.includes('@pkgs/sync-engine/src/')
+    ) {
+      // Allow only the four public entrypoints when importing the package.
+      const m = line.match(/from\s+['"](@pkgs\/sync-engine\/[^'"]+)['"]/);
+      if (m !== null && !ALLOWED_PACKAGE_IMPORT_RE.test(line)) {
+        violations.push(
+          `${file}:${i + 1}: scenario may only import @pkgs/sync-engine/{client,server,shared,test}`
+        );
+      }
     }
   }
 }

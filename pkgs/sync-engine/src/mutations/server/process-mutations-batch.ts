@@ -36,6 +36,11 @@ export type ProcessMutationsBatchDeps = {
   readonly auth: ReplayAuth;
   readonly mutations: readonly MutationRow[];
   readonly serverNow?: () => Date;
+  /**
+   * Called after each mutation attempt (applied/rejected/duplicate).
+   * Sim uses this for in-txn fault injection at the replay loop boundary.
+   */
+  readonly onAfterMutation?: (index: number) => void;
 };
 
 /**
@@ -50,7 +55,8 @@ export async function processMutationsBatch(
   const applied: AppliedMutationRef[] = [];
   let ackSeq = 0;
 
-  for (const row of sorted) {
+  for (let index = 0; index < sorted.length; index += 1) {
+    const row = sorted[index]!;
     const outcome: ReplayOutcome = await replayMutation(
       {
         serverDb: deps.serverDb,
@@ -79,6 +85,7 @@ export async function processMutationsBatch(
       }
     }
     ackSeq = Math.max(ackSeq, row.seq);
+    deps.onAfterMutation?.(index);
   }
 
   return { ok: true, verdicts, applied, ackSeq };

@@ -72,7 +72,13 @@ async function runDefinedQuery(
   };
 
   if (def.authorize !== undefined) {
-    const ok = await def.authorize(ctx, params);
+    let ok: boolean;
+    try {
+      ok = await def.authorize(ctx, params);
+    } catch {
+      // Authorize throw ≡ denied (no 500 loop / scope stays detachable).
+      return { status: 'denied' };
+    }
     if (!ok) return { status: 'denied' };
   }
 

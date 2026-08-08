@@ -3,7 +3,17 @@ import {
   queryRegistry,
   withFrameworkMutations,
 } from '@pkgs/sync-engine/shared';
-
+import {
+  notesAuthorizeThrowQuery,
+  notesByFolderQuery,
+  notesWorldV2Query,
+  retouchNotes,
+  setNoteArgsTight,
+  setNoteStrictExists,
+  setNoteUndeclaredFolderWrite,
+  setNoteUniqueSlug,
+  setNoteWrongTopic,
+} from './hardening-fixtures';
 import {
   createSpace,
   endSpace,
@@ -50,11 +60,20 @@ export const notesMutationRegistry = withFrameworkMutations(
     leaveSpace,
     endSpace,
     setSpaceNote,
+    setNoteArgsTight,
+    setNoteUniqueSlug,
+    setNoteUndeclaredFolderWrite,
+    setNoteWrongTopic,
+    setNoteStrictExists,
+    retouchNotes,
   ])
 );
 
 export const notesQueryRegistry = queryRegistry([
   notesWorldQuery,
+  notesWorldV2Query,
+  notesByFolderQuery,
+  notesAuthorizeThrowQuery,
   notesDeniedQuery,
   notesLimitedQuery,
   notesOwnedQuery,

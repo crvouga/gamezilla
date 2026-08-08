@@ -3,7 +3,10 @@ import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { AppLifecycle } from '../client/app-lifecycle';
-import { createLocalSyncEngine } from '../client/create-local-sync-engine';
+import {
+  type CreateLocalSyncEngineOptions,
+  createLocalSyncEngine,
+} from '../client/create-local-sync-engine';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
 import type { SyncEngine } from '../client/sync-engine-port';
@@ -53,6 +56,8 @@ export type CreateEngineOptionsArgs = {
     readonly params: Readonly<Record<string, unknown>>;
   };
   readonly authControl?: SimAuthControl;
+  readonly schemaEpoch?: number;
+  readonly onLocalMigratePhase?: CreateLocalSyncEngineOptions['onLocalMigratePhase'];
 };
 
 async function wipeIdentityDb(db: SqlClient): Promise<void> {
@@ -118,6 +123,12 @@ export async function createEngineFromParts(
     random: args.random,
     timers: args.timers,
     createId: args.createId,
+    ...(args.schemaEpoch !== undefined
+      ? { schemaEpoch: args.schemaEpoch }
+      : {}),
+    ...(args.onLocalMigratePhase !== undefined
+      ? { onLocalMigratePhase: args.onLocalMigratePhase }
+      : {}),
     push: {
       queryRegistry: args.queries,
       createPubSub: args.createPubSub,

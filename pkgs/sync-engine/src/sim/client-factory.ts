@@ -15,6 +15,7 @@ import type {
   MutationRegistry,
 } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+import type { BoundaryFaultController } from './boundary-faults';
 import {
   createEngineFromParts,
   createMutationSide,
@@ -32,11 +33,18 @@ import type { SimServer, SimServerAuth } from './server';
 export type SimClientLifecycle = ReturnType<typeof createControllableLifecycle>;
 export type { SimAuthControl, SimAuthStatus } from './client-factory-parts';
 
+export type SimClientDbBundle = {
+  readonly raw: SqlClient;
+  readonly serial: SqlClient;
+};
+
 export type SimClientHandle = {
   readonly id: string;
   readonly actorId: string;
   readonly deviceId: string;
   readonly db: SqlClient;
+  /** Underlying DB handles for preserveLocalDb restarts. */
+  readonly dbBundle: SimClientDbBundle;
   readonly engine: SyncEngine;
   readonly lifecycle: SimClientLifecycle;
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
@@ -46,7 +54,8 @@ export type SimClientHandle = {
   readonly pubsubRemakeCount: () => number;
   /** Live pubsub handler topics for this client. */
   readonly subscribedTopics: () => readonly string[];
-  readonly dispose: () => Promise<void>;
+  /** Dispose engine + HTTP; optionally keep the SQLite DB for preserveLocalDb. */
+  readonly dispose: (opts?: { readonly keepDb?: boolean }) => Promise<void>;
 };
 
 export type BuildSimClientArgs = {
@@ -73,6 +82,13 @@ export type BuildSimClientArgs = {
     readonly params: Readonly<Record<string, unknown>>;
   };
   readonly authControl?: SimAuthControl;
+  readonly schemaEpoch?: number;
+  readonly faults?: BoundaryFaultController;
+  /** Reuse an existing serial SqlClient (preserveLocalDb restart). */
+  readonly existingDb?: {
+    readonly raw: SqlClient;
+    readonly serial: SqlClient;
+  };
 };
 
 async function openMemoryDb(): Promise<SqlClient> {
@@ -107,27 +123,18 @@ function mutationEnvFromArgs(args: BuildSimClientArgs): () => MutationEnv {
   });
 }
 
-/** Build one local sync engine + mutation client on Bun SQLite. */
-export async function buildSimClient(
-  args: BuildSimClientArgs
-): Promise<SimClientHandle> {
-  const rawDb = await openMemoryDb();
-  const db = createSerialSqlClient(rawDb);
-  const lifecycle = createControllableLifecycle({
-    foreground: true,
-    online: true,
-  });
-  const tables = args.tableRegistry ?? notesLocalSchema;
-  const mutations = args.mutationRegistry ?? notesMutationRegistry;
-  const queries = args.queryRegistry ?? notesQueryRegistry;
-  const http = wireHttp(args.http, args.server, args.auth);
+async function connectEngine(
+  args: BuildSimClientArgs,
+  db: SqlClient,
+  http: SimHttpClient,
+  lifecycle: SimClientLifecycle
+) {
   const getEnv = mutationEnvFromArgs(args);
-
   const engine = await createEngineFromParts({
     db,
-    tables,
-    mutations,
-    queries,
+    tables: args.tableRegistry ?? notesLocalSchema,
+    mutations: args.mutationRegistry ?? notesMutationRegistry,
+    queries: args.queryRegistry ?? notesQueryRegistry,
     getEnv,
     deviceId: args.deviceId,
     actorId: args.actorId,
@@ -146,25 +153,55 @@ export async function buildSimClient(
     ...(args.authControl !== undefined
       ? { authControl: args.authControl }
       : {}),
+    ...(args.schemaEpoch !== undefined
+      ? { schemaEpoch: args.schemaEpoch }
+      : {}),
+    onLocalMigratePhase: async (phase) => {
+      if (
+        phase === 'afterCacheWipe' &&
+        args.faults?.takeCrash(args.id, 'onNextEngineOpenAfterCacheWipe') ===
+          true
+      ) {
+        throw new Error('sim: crash during epoch migrate after cache wipe');
+      }
+    },
   });
-
   const mutationClient = createMutationSide({
     db,
-    mutations,
+    mutations: args.mutationRegistry ?? notesMutationRegistry,
     getEnv,
     deviceId: args.deviceId,
     createId: args.createId,
     lifecycle,
     engine,
   });
-
   await engine.connect();
+  return { engine, mutationClient };
+}
 
+/** Build one local sync engine + mutation client on Bun SQLite. */
+export async function buildSimClient(
+  args: BuildSimClientArgs
+): Promise<SimClientHandle> {
+  const rawDb = args.existingDb?.raw ?? (await openMemoryDb());
+  const db = args.existingDb?.serial ?? createSerialSqlClient(rawDb);
+  const lifecycle = createControllableLifecycle({
+    foreground: true,
+    online: true,
+  });
+  const http = wireHttp(args.http, args.server, args.auth);
+  const { engine, mutationClient } = await connectEngine(
+    args,
+    db,
+    http,
+    lifecycle
+  );
   return {
     id: args.id,
     actorId: args.actorId,
     deviceId: args.deviceId,
     db,
+    dbBundle: { raw: rawDb, serial: db },
     engine,
     lifecycle,
     mutationClient,
@@ -172,10 +209,10 @@ export async function buildSimClient(
     http,
     pubsubRemakeCount: args.pubsubRemakeCount,
     subscribedTopics: args.subscribedTopics,
-    dispose: async () => {
-      // Reject in-flight sim HTTP first so upload-queue stop() can unwind.
+    dispose: async (opts) => {
       http.dispose();
       await engine.disconnect();
+      if (opts?.keepDb === true) return;
       await rawDb.disconnect();
     },
   };

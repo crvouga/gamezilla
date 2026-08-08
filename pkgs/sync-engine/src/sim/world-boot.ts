@@ -1,63 +1,24 @@
-import type { Timers } from '../client/sim-ports';
-import type { SimAuthStatus, SimClientHandle } from './client-factory';
-import { createSimClock, type SimClock } from './clock';
-import {
-  type ClockSkewTable,
-  createClockSkewTable,
-  SIM_SERVER_NODE_ID,
-} from './clock-skew';
-import { resolveDomainPack, type SimDomainPack } from './domain-pack';
-import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
+import { createBoundaryFaultController } from './boundary-faults';
+import type { SimAuthStatus } from './client-factory';
 import { bindSimHttpServer } from './http-bridge';
-import { createSimNetwork, type SimNetwork } from './network';
-import { createSimPubSubBroker, type SimPubSubBroker } from './pubsub-bridge';
-import { createSeededRng, type SeededRng } from './rng';
-import { createSimScheduler, type SimScheduler } from './scheduler';
-import { openSimServer, type SimServer } from './server';
-import { createSimTimers } from './timers';
-import { BROKER, SERVER_HTTP, SERVER_PUB } from './traffic';
-import type { ClientMeta, WorldClientOpts } from './world-ops';
+import { createSeededRng } from './rng';
+import { openSimServer } from './server';
+import { SERVER_HTTP, SERVER_PUB } from './traffic';
+import {
+  createBootRuntime,
+  makeNextId,
+  resolveAuthForDevice,
+  resolveBootDomain,
+  SIM_SERVER_NODE_ID,
+} from './world-boot-parts';
+import { fireCrashIfArmed } from './world-lifecycle';
+import type {
+  BootedSimKernel,
+  ClientMeta,
+  WorldClientOpts,
+} from './world-types';
 
-export type BootedSimKernel = {
-  readonly rng: SeededRng;
-  readonly clock: SimClock;
-  readonly clockSkew: ClockSkewTable;
-  readonly scheduler: SimScheduler;
-  readonly timers: Timers;
-  readonly network: SimNetwork;
-  readonly server: SimServer;
-  readonly broker: SimPubSubBroker;
-  readonly clients: Map<string, SimClientHandle>;
-  readonly metas: Map<string, ClientMeta>;
-  readonly authByDevice: Map<string, ClientMeta>;
-  /** Per-device auth token status for expired/revoked scenarios. */
-  readonly authStatusByDevice: Map<string, SimAuthStatus>;
-  readonly nextId: () => string;
-  readonly worldArgs: WorldClientOpts;
-  readonly domain: SimDomainPack;
-  readonly nowFor: (nodeId: string) => number;
-};
-
-function resolveAuthForDevice(
-  authByDevice: Map<string, ClientMeta>,
-  clientId: string
-) {
-  const meta = authByDevice.get(clientId);
-  if (meta === undefined) {
-    return {
-      actorId: clientId,
-      deviceId: clientId,
-      accountId: null,
-      isAnon: true,
-    };
-  }
-  return {
-    actorId: meta.actorId,
-    deviceId: meta.deviceId,
-    accountId: `acct:${meta.actorId}`,
-    isAnon: false,
-  };
-}
+export type { BootedSimKernel } from './world-types';
 
 /** Clock, network, broker, and in-memory SQLite server for a sim world. */
 export async function bootSimKernel(args: {
@@ -65,70 +26,60 @@ export async function bootSimKernel(args: {
   readonly worldArgs: WorldClientOpts;
 }): Promise<BootedSimKernel> {
   const rng = createSeededRng(args.seed);
-  const clock = createSimClock(1_700_000_000_000);
-  const clockSkew = createClockSkewTable();
-  const nowFor = (nodeId: string): number =>
-    clockSkew.nowFor(nodeId, clock.now());
-  const scheduler = createSimScheduler(clock);
-  const timers = createSimTimers(scheduler);
-  const faults =
-    args.worldArgs.sampleFaults === true
-      ? sampleFaultOptions(rng.fork('faults'))
-      : (args.worldArgs.faults ?? RELIABLE_FAULTS);
-  const network = createSimNetwork({
-    scheduler,
-    rng: rng.fork('net'),
-    faults,
-  });
-
-  const domain = resolveDomainPack(args.worldArgs.domain);
+  const runtime = createBootRuntime(rng, args.worldArgs);
+  const boundaryFaults = createBoundaryFaultController();
+  const domain = resolveBootDomain(args.worldArgs);
   const authByDevice = new Map<string, ClientMeta>();
   const authStatusByDevice = new Map<string, SimAuthStatus>();
-  const broker = createSimPubSubBroker({
-    network,
-    brokerId: BROKER,
-    liveResendOnReconnect: args.worldArgs.liveResendOnReconnect === true,
-  });
+  const serverPub = runtime.broker.createPubSub(SERVER_PUB);
   const server = await openSimServer({
-    now: () => nowFor(SIM_SERVER_NODE_ID),
-    pubsub: broker.createPubSub(SERVER_PUB),
+    now: () => runtime.nowFor(SIM_SERVER_NODE_ID),
+    pubsub: serverPub,
     resolveAuth: (clientId) => resolveAuthForDevice(authByDevice, clientId),
     rowImageFanout: args.worldArgs.rowImageFanout !== false,
     localSchema: domain.localSchema,
     mutationRegistry: domain.mutationRegistry,
     queryRegistry: domain.queryRegistry,
+    faults: boundaryFaults,
   });
 
-  bindSimHttpServer({
-    network,
-    serverId: SERVER_HTTP,
-    handlers: server.handlers,
-  });
-
-  const idRng = rng.fork('ids');
-  let idCounter = 0;
-  return {
+  const kernel: BootedSimKernel = {
     rng,
-    clock,
-    clockSkew,
-    scheduler,
-    timers,
-    network,
+    clock: runtime.clock,
+    clockSkew: runtime.clockSkew,
+    scheduler: runtime.scheduler,
+    timers: runtime.timers,
+    network: runtime.network,
     server,
-    broker,
+    broker: runtime.broker,
     clients: new Map(),
     metas: new Map(),
     authByDevice,
     authStatusByDevice,
     worldArgs: args.worldArgs,
     domain,
-    nowFor,
-    nextId: () => {
-      idCounter += 1;
-      const n = idRng.int(0x7fffffff);
-      return `id-${idCounter.toString(16)}-${n.toString(16)}`;
-    },
+    nowFor: runtime.nowFor,
+    faults: boundaryFaults,
+    serverPub,
+    unbindHttp: () => undefined,
+    nextId: makeNextId(rng),
   };
+
+  kernel.unbindHttp = bindSimHttpServer({
+    network: runtime.network,
+    serverId: SERVER_HTTP,
+    handlers: server.handlers,
+    faults: boundaryFaults,
+    onMutationsAccepted: async (clientNodeId) => {
+      await fireCrashIfArmed(
+        kernel,
+        clientNodeId,
+        'afterNextMutationsPostAccepted'
+      );
+    },
+  });
+
+  return kernel;
 }
 
 export { BROKER, SERVER_HTTP } from './traffic';

@@ -8,6 +8,7 @@ export type {
   MutationClientIds,
   MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
+export { SCHEMA_EPOCH } from '../queries/client/local-schema';
 export {
   type AppLifecycle,
   type AppLifecycleEvent,
@@ -19,6 +20,7 @@ export {
   createLocalSyncEngine,
   type SyncEnginePushOptions,
 } from './create-local-sync-engine';
+export type { LocalMigratePhase } from './local-schema-migrate';
 export {
   MutationClientProvider,
   type MutationClientProviderProps,

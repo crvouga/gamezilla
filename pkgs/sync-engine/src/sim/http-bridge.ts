@@ -4,6 +4,8 @@ import type {
 } from '../client/mutation-upload-queue';
 import type { QueryRequest } from '../client/subscription-runtime';
 import type { QueryResponse } from '../queries/core/types';
+import type { BoundaryFaultController } from './boundary-faults';
+import { dispatchSimHttpRequest } from './http-bridge-dispatch';
 import {
   createSimHttpRpc,
   rejectAllPending,
@@ -16,6 +18,7 @@ import type {
 } from './http-bridge-types';
 import type { SimEndpointId, SimNetwork } from './network';
 import type { SimScheduler } from './scheduler';
+import { classifyEndpoint } from './traffic';
 
 export type {
   SimHttpRequest,
@@ -40,55 +43,24 @@ function isHttpResponse(value: unknown): value is SimHttpResponse {
   return typeof r['correlationId'] === 'string' && 'ok' in r;
 }
 
-async function dispatchHttpRequest(args: {
-  readonly payload: SimHttpRequest;
-  readonly serverId: SimEndpointId;
-  readonly network: SimNetwork;
-  readonly handlers: SimHttpServerHandlers;
-}): Promise<void> {
-  const { payload, serverId, network, handlers } = args;
-  const replyTo = payload.replyTo;
-  try {
-    if (payload.kind === 'query') {
-      const body = await handlers.handleQuery(payload.requests);
-      network.send(serverId, replyTo, {
-        kind: 'query',
-        correlationId: payload.correlationId,
-        ok: true,
-        body,
-      } satisfies SimHttpResponse);
-      return;
-    }
-    const body = await handlers.handleMutations(payload.mutations);
-    network.send(serverId, replyTo, {
-      kind: 'mutations',
-      correlationId: payload.correlationId,
-      ok: true,
-      body,
-    } satisfies SimHttpResponse);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    network.send(serverId, replyTo, {
-      kind: 'error',
-      correlationId: payload.correlationId,
-      ok: false,
-      message,
-    } satisfies SimHttpResponse);
-  }
-}
-
 export function bindSimHttpServer(args: {
   readonly network: SimNetwork;
   readonly serverId: SimEndpointId;
   readonly handlers: SimHttpServerHandlers;
+  readonly faults?: BoundaryFaultController;
+  readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
 }): () => void {
   args.network.register(args.serverId, async (payload) => {
     if (!isHttpRequest(payload)) return;
-    await dispatchHttpRequest({
+    await dispatchSimHttpRequest({
       payload,
       serverId: args.serverId,
       network: args.network,
       handlers: args.handlers,
+      ...(args.faults !== undefined ? { faults: args.faults } : {}),
+      ...(args.onMutationsAccepted !== undefined
+        ? { onMutationsAccepted: args.onMutationsAccepted }
+        : {}),
     });
   });
 
@@ -121,16 +93,24 @@ export function createSimHttpClient(args: {
   readonly createId: () => string;
   readonly scheduler: SimScheduler;
   readonly rpcTimeoutMs?: number;
+  /** Fired when a sync response is delivered to this client (before resolve). */
+  readonly onSyncResponseDelivered?: () => void | Promise<void>;
 }): SimHttpClient {
   const timeoutMs = args.rpcTimeoutMs ?? DEFAULT_RPC_TIMEOUT_MS;
   const pending: SimHttpPending = new Map();
+  const nodeId = classifyEndpoint(args.clientId)?.nodeId;
 
   args.network.register(args.clientId, (payload) => {
     if (!isHttpResponse(payload)) return;
     const waiter = pending.get(payload.correlationId);
     if (waiter === undefined) return;
     pending.delete(payload.correlationId);
-    waiter.resolve(payload);
+    const finish = () => waiter.resolve(payload);
+    if (args.onSyncResponseDelivered === undefined || nodeId === undefined) {
+      finish();
+      return;
+    }
+    void Promise.resolve(args.onSyncResponseDelivered()).then(finish, finish);
   });
 
   const rpc = createSimHttpRpc({

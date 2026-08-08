@@ -18,6 +18,7 @@ import { attachPush } from './attach-push';
 import {
   clearLocalCache,
   type LocalDomainSchema,
+  type LocalMigratePhase,
   migrateLocalSchema,
 } from './local-schema-migrate';
 import {
@@ -88,6 +89,18 @@ export type CreateLocalSyncEngineOptions = {
   readonly random?: () => number;
   readonly timers?: Timers;
   readonly createId?: CreateId;
+  /**
+   * Override local schema epoch (default {@link SCHEMA_EPOCH}).
+   * Used by the deterministic sim for epoch-bump scenarios.
+   */
+  readonly schemaEpoch?: number;
+  /**
+   * Boundary hook during local migrate (sim crash / fault injection).
+   * Phases: before → afterCacheWipe → afterEnsure → done.
+   */
+  readonly onLocalMigratePhase?: (
+    phase: LocalMigratePhase
+  ) => void | Promise<void>;
 };
 
 type LocalEngineState = {
@@ -377,6 +390,13 @@ export async function createLocalSyncEngine(
     ...options,
     mutationRegistry: withFrameworkMutations(options.mutationRegistry),
   };
-  await migrateLocalSchema(merged.db, merged.localSchema);
+  await migrateLocalSchema(merged.db, merged.localSchema, {
+    ...(merged.schemaEpoch !== undefined
+      ? { schemaEpoch: merged.schemaEpoch }
+      : {}),
+    ...(merged.onLocalMigratePhase !== undefined
+      ? { onLocalMigratePhase: merged.onLocalMigratePhase }
+      : {}),
+  });
   return toEngine(createState(merged));
 }
