@@ -20,8 +20,8 @@ export async function runBetterAuthMigrations(
     database: args.database,
     secret: args.secret,
     baseURL: args.baseURL,
-    googleClientId: 'migrate-placeholder',
-    googleClientSecret: 'migrate-placeholder',
+    googleClientId: null,
+    googleClientSecret: null,
     trustedOrigins: [args.baseURL],
     enableEmailPassword: false,
   });

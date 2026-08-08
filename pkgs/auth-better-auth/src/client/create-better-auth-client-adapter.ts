@@ -3,7 +3,10 @@ import type {
   AuthClientPort,
   GetFreshTokenOptions,
 } from '@pkgs/auth/client/auth-client-port';
-import type { SignInStrategy } from '@pkgs/auth/shared/sign-in-strategy';
+import type {
+  SignInCredentials,
+  SignInStrategy,
+} from '@pkgs/auth/shared/sign-in-strategy';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
@@ -16,6 +19,10 @@ import {
   writeStoredBearerToken,
 } from './bearer-token-store';
 import { getOrCreateBetterAuthReactClient } from './create-auth-client';
+import {
+  BETTER_AUTH_NETWORK_ERROR,
+  runEmailPasswordSignIn,
+} from './email-password-sign-in';
 import { configureAuthBaseURL, readAuthBaseURL } from './read-auth-base-url';
 import { useBetterAuthSessionState } from './use-better-auth-session-state';
 
@@ -33,8 +40,7 @@ export type BetterAuthClientAdapterConfig = {
 export const BETTER_AUTH_SSO_CANCELLED_ERROR =
   "Sign-in was cancelled or didn't finish.";
 
-export const BETTER_AUTH_NETWORK_ERROR =
-  'No internet connection. Connect and try again.';
+export { BETTER_AUTH_NETWORK_ERROR };
 
 function client() {
   return getOrCreateBetterAuthReactClient({ baseURL: readAuthBaseURL() });
@@ -104,11 +110,23 @@ function readSocialRedirectUrl(data: unknown): string | null {
   return typeof url === 'string' && url.trim().length > 0 ? url.trim() : null;
 }
 
-async function runSignIn(strategy: SignInStrategy): Promise<void> {
-  assert.equals(strategy, 'oauth-google', 'Only Google OAuth is supported', {
-    strategy,
-  });
+function throwAuthClientError(error: unknown): never {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as { message: unknown }).message === 'string'
+        ? (error as { message: string }).message
+        : 'Sign-in failed';
+  if (/network|fetch|offline/i.test(message)) {
+    throw new Error(BETTER_AUTH_NETWORK_ERROR);
+  }
+  throw new Error(message);
+}
 
+async function runGoogleOAuthSignIn(): Promise<void> {
   const callbackURL = resolveOAuthCallbackURL();
 
   if (await hasUsableBearerSession()) {
@@ -139,11 +157,7 @@ async function runSignIn(strategy: SignInStrategy): Promise<void> {
   }
 
   if (result.error !== null && result.error !== undefined) {
-    const message = result.error.message ?? 'Sign-in failed';
-    if (/network|fetch|offline/i.test(message)) {
-      throw new Error(BETTER_AUTH_NETWORK_ERROR);
-    }
-    throw new Error(message);
+    throwAuthClientError(result.error);
   }
 
   const oauthUrl = readSocialRedirectUrl(result.data);
@@ -170,6 +184,24 @@ async function runSignIn(strategy: SignInStrategy): Promise<void> {
     throw new Error(BETTER_AUTH_SSO_CANCELLED_ERROR);
   }
   await completeHostedAuthRedirect();
+}
+
+async function runSignIn(
+  strategy: SignInStrategy,
+  credentials?: SignInCredentials
+): Promise<void> {
+  if (strategy === 'email-password') {
+    assert.defined(credentials, 'email/password credentials required');
+    await runEmailPasswordSignIn({
+      credentials,
+      hasUsableBearerSession,
+    });
+    return;
+  }
+  assert.equals(strategy, 'oauth-google', 'Unsupported sign-in strategy', {
+    strategy,
+  });
+  await runGoogleOAuthSignIn();
 }
 
 function clearReactSessionAtom(): void {

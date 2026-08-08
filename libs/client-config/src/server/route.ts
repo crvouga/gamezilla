@@ -26,8 +26,10 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
-function loadClientConfigAttributes(): Record<string, unknown> {
-  return ClientConfigAttr.googleWebClientId(null);
+function loadClientConfigAttributes(
+  googleWebClientId: string | null
+): Record<string, unknown> {
+  return ClientConfigAttr.googleWebClientId(googleWebClientId);
 }
 
 async function readClientConfigRow(
@@ -65,13 +67,14 @@ async function handleClientConfigRefresh(
   c: Context<ApiHonoEnv>,
   deps: {
     readonly logger: Logger;
+    readonly googleWebClientId: string | null;
     readonly onConfigUpdated?: () => void;
   }
 ): Promise<Response> {
   const db = c.get('sqlClient');
   const { logger } = deps;
   logger.info('POST /client-config/refresh: requested');
-  const configNew = loadClientConfigAttributes();
+  const configNew = loadClientConfigAttributes(deps.googleWebClientId);
   const configPrev = await readClientConfigRow(db);
   const before = snapshotAttributes(configPrev ?? undefined);
   logger.debug('Client config comparison', { configPrev, configNew });
@@ -116,11 +119,15 @@ export function createClientConfigApp(
   logger: Logger,
   options?: {
     readonly onConfigUpdated?: () => void;
+    /** Google OAuth web client id when configured; null disables Google in client config. */
+    readonly googleWebClientId?: string | null;
   }
 ) {
+  const googleWebClientId = options?.googleWebClientId ?? null;
   return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
     handleClientConfigRefresh(c, {
       logger,
+      googleWebClientId,
       ...(options?.onConfigUpdated !== undefined
         ? { onConfigUpdated: options.onConfigUpdated }
         : {}),

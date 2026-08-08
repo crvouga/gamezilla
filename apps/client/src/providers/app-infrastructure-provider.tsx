@@ -1,3 +1,4 @@
+import { ApiFeaturesProvider } from '@libs/auth/client/api-features-context';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
@@ -10,6 +11,7 @@ const infrastructureProviders = [
   AppSecureStorage,
   AppLogger,
   AppConfigService,
+  ApiFeaturesProvider,
   AppObservability,
 ];
 

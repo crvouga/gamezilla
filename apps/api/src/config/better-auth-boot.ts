@@ -8,13 +8,20 @@ import type { Pool } from 'pg';
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';
 
+function trimOrNull(raw: string | undefined | null): string | null {
+  if (typeof raw !== 'string') return null;
+  const t = raw.trim();
+  return t.length > 0 ? t : null;
+}
+
 export type BetterAuthBootConfig = {
   readonly secret: string;
   readonly baseURL: string;
   /** Expo web / production www origin for OAuth return. */
   readonly webClientOrigin: string;
-  readonly googleClientId: string;
-  readonly googleClientSecret: string;
+  readonly googleClientId: string | null;
+  readonly googleClientSecret: string | null;
+  readonly googleEnabled: boolean;
   readonly trustedOrigins: readonly string[];
   readonly enableEmailPassword: boolean;
 };
@@ -28,12 +35,17 @@ export async function loadBetterAuthBootConfig(args: {
   const secret = (
     await secretStore.getRequired(ApiSecretName.betterAuthSecret)
   ).readSecretValue();
-  const googleClientId = (
-    await secretStore.getRequired(ApiSecretName.webClientGoogleClientId)
-  ).readSecretValue();
-  const googleClientSecret = (
-    await secretStore.getRequired(ApiSecretName.webClientGoogleClientSecret)
-  ).readSecretValue();
+  const googleClientId = trimOrNull(
+    (
+      await secretStore.getOptional(ApiSecretName.webClientGoogleClientId)
+    )?.readSecretValue()
+  );
+  const googleClientSecret = trimOrNull(
+    (
+      await secretStore.getOptional(ApiSecretName.webClientGoogleClientSecret)
+    )?.readSecretValue()
+  );
+  const googleEnabled = googleClientId !== null && googleClientSecret !== null;
 
   const override = args.apiUrlOverride?.trim();
   const baseURL =
@@ -50,6 +62,7 @@ export async function loadBetterAuthBootConfig(args: {
     webClientOrigin,
     googleClientId,
     googleClientSecret,
+    googleEnabled,
     trustedOrigins: buildBetterAuthTrustedOrigins({
       apiBaseURL: baseURL,
       clientWebOrigins: [webClientOrigin],

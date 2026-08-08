@@ -15,6 +15,8 @@ import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
+import { createApiFeatures } from '../features/api-features';
+import { createFeaturesApp } from '../features/features-route';
 import { healthApp } from '../health/route';
 import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
@@ -80,21 +82,23 @@ function createApiErrorHandler() {
 
 async function createStripeClient(
   secretStore: ApiHandlerConfig['secretStore']
-): Promise<Stripe> {
+): Promise<Stripe | null> {
   const raw = (
     await secretStore.getOptional(ApiSecretName.stripeSecretKey)
   )?.readSecretValue();
   const key =
-    typeof raw === 'string' && raw.trim().length > 0
-      ? raw.trim()
-      : assert.fail('stripe secret key is required');
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
+  if (key === null) {
+    log.warn('stripe secret key missing; Stripe routes will return 503');
+    return null;
+  }
   return new Stripe(key, {
     httpClient: Stripe.createFetchHttpClient(),
   });
 }
 
 async function createTtsAppForApi(config: ApiHandlerConfig) {
-  return await createTtsAppFromBindings({
+  const result = await createTtsAppFromBindings({
     secretStore: config.secretStore,
     objectStore: config.objectStore,
     publicPathPrefix: '/api',
@@ -104,10 +108,14 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
+  if (!result.configured) {
+    log.warn('ELEVEN_LABS_API_KEY missing; TTS routes will return 503');
+  }
+  return result;
 }
 
 async function createLlmAppForApi(config: ApiHandlerConfig) {
-  return await createLlmAppFromBindings({
+  const result = await createLlmAppFromBindings({
     secretStore: config.secretStore,
     getKv: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -120,9 +128,15 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
+  if (!result.configured) {
+    log.warn(
+      'OPENAI_API_KEY / OPENAI_BASE_URL missing; LLM routes will return 503'
+    );
+  }
+  return result;
 }
 
-function createStripeSubApp(stripe: Stripe) {
+function createStripeSubApp(stripe: Stripe | null) {
   return createStripeApp({
     getSqlClient: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -152,11 +166,25 @@ function createStripeSubApp(stripe: Stripe) {
 export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore, dbScope, observability, betterAuth, secretsEnv } =
     config;
-  const [stripe, ttsApp, llmApp] = await Promise.all([
+  const [stripe, tts, llm] = await Promise.all([
     createStripeClient(secretStore),
     createTtsAppForApi(config),
     createLlmAppForApi(config),
   ]);
+
+  if (!betterAuth.googleEnabled) {
+    log.warn(
+      'Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)'
+    );
+  }
+
+  const features = createApiFeatures({
+    googleEnabled: betterAuth.googleEnabled,
+    emailPasswordEnabled: betterAuth.enableEmailPassword,
+    stripeConfigured: stripe !== null,
+    ttsConfigured: tts.configured,
+    llmConfigured: llm.configured,
+  });
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -177,6 +205,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .use('*', apiCors)
     .route('/', healthApp)
+    .route('/', createFeaturesApp(features))
     .route(
       '/',
       createBetterAuthRoutes({
@@ -189,6 +218,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
       createClientConfigApp(log, {
         onConfigUpdated: () =>
           notifyClientConfigChannels('client-config-refresh'),
+        googleWebClientId: betterAuth.googleClientId,
       })
     )
     .route('/', createFriendsApp())
@@ -201,8 +231,8 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .route('/', createSyncApp())
     .route('/', createPubSubTokenRoutes())
-    .route('/', ttsApp)
-    .route('/', llmApp)
+    .route('/', tts.app)
+    .route('/', llm.app)
     .route('/', createStripeSubApp(stripe))
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())

@@ -228,9 +228,31 @@ async function resolveExpoPublicSentryDsn(
   return null;
 }
 
+const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
+
+function isLoopbackApiOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Local loopback API always uses `@apps/emqx` — Infisical / process-env cloud
+ * EMQX hosts are ignored so sync pushes stay self-contained.
+ */
 async function resolveExpoPublicEmqxWssUrl(
-  store: SecretStore | null
+  store: SecretStore | null,
+  apiOrigin: string
 ): Promise<string | null> {
+  if (isLoopbackApiOrigin(apiOrigin)) {
+    process.stdout.write(
+      `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL → local ${LOCAL_EMQX_WSS_URL} (loopback API; Infisical ignored).\n`
+    );
+    return LOCAL_EMQX_WSS_URL;
+  }
   const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_EMQX_WSS_URL']);
   if (fromEnv !== null) {
     process.stdout.write(
@@ -260,12 +282,10 @@ async function resolveExpoPublicEmqxWssUrl(
       return trimmed;
     }
   }
-  // Local @apps/emqx WebSocket listener (see apps/emqx/scripts/ports.ts).
-  const local = 'ws://127.0.0.1:8083/mqtt';
   process.stdout.write(
-    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset in secrets; using local ${local}.\n`
+    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; using local ${LOCAL_EMQX_WSS_URL}.\n`
   );
-  return local;
+  return LOCAL_EMQX_WSS_URL;
 }
 
 async function resolveExpoPublicObservabilityBackend(
@@ -322,7 +342,7 @@ async function main(): Promise<void> {
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
-  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store);
+  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store, origin);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'

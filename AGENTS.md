@@ -79,9 +79,11 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local database
 
-Non-production (`SECRETS_ENV=dev`) uses **`@apps/postgres`** (embedded Postgres on `15432`) and **`@apps/minio`** (S3 on `9000`), started by Turbo alongside api/client/emqx. `@apps/api` `setup` always writes loopback `DATABASE_URL` and MinIO `S3_*` / `B2_APP_*` into `.dev.vars` (Infisical ignored for those). Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 only.
+Non-production (`SECRETS_ENV=dev`) is **self-contained**: Turbo starts **`@apps/postgres`** (`15432`), **`@apps/minio`** (`9000`), and **`@apps/emqx`** (MQTT WS `8083` / API `18083`) alongside api/client. `@apps/api` `setup` always writes loopback `DATABASE_URL`, MinIO `S3_*` / `B2_APP_*`, and local `EMQX_*` into `.dev.vars` (Infisical Neon/B2/EMQX ignored for those). No third-party cloud is required to boot or use the core app. Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
-- **`bun run dev`** — `secrets-run` → turbo starts `@apps/postgres` + `@apps/minio` + api + client (+ emqx); postgres migrates/seeds; api `.dev.vars` points at local Postgres + MinIO.
+- **`bun run dev`** — `secrets-run` → turbo starts postgres + minio + emqx + api + client; postgres migrates/seeds; api `.dev.vars` points at local sidecars. Infisical is optional (overlay for real Google/Stripe/TTS/LLM test keys). Offline: `LOCAL_SECRETS=1 bun run dev` skips Infisical entirely; `setup-dev-vars` seeds `BETTER_AUTH_SECRET` locally.
+- **Sign-in** — email/password is enabled when `SECRETS_ENV=dev` (create an account in the sign-in modal). Google OAuth appears only when both Google client secrets are configured. Anon play still works without signing in.
+- **Optional clouds degrade** — missing Stripe / ElevenLabs / OpenAI / Google secrets never crash the Worker. `GET /api/features` reports `{ google, emailPassword, stripe, tts, llm }`; those routes return 503 / UI hides entry points until configured.
 - **`bun preview` / CI check stacks** — same local sidecars; turbo preview includes `@apps/postgres` and `@apps/minio`.
 - **`bun db:migrate`** — migrates the URL from `.dev.vars` (local embedded after setup), waiting until Postgres is up.
 - **`bun run db:wipe:dev`** — secrets env `dev` only: `DROP SCHEMA public CASCADE` on the local (or resolved) DB, then remigrate. Production blocked by fail-closed Tiger guards (no confirm flag). Hard reset: `rm -rf apps/postgres/data`.

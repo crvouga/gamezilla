@@ -1,10 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
 import {
-  getSecretMap,
+  getApiWorkerSecrets,
   loadSecretsIntoEnv,
 } from '@libs/infra/cli/secrets/secrets';
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
@@ -17,12 +18,16 @@ const repoRoot = join(apiRoot, '../..');
 const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-/** Local @apps/emqx defaults when the secret store has not seeded EMQX_* yet. */
-const LOCAL_EMQX_DEV_DEFAULTS: Readonly<Record<string, string>> = {
+/**
+ * Local `@apps/emqx` secrets (keep in sync with apps/emqx/scripts/ports.ts).
+ * SECRETS_ENV=dev always uses local EMQX — Infisical EMQX_* is ignored.
+ */
+const LOCAL_EMQX_DEV_SECRETS: Readonly<Record<string, string>> = {
   EMQX_API_URL: 'http://127.0.0.1:18083',
   EMQX_API_KEY: 'pubsub-test',
   EMQX_API_SECRET: 'pubsub-test-secret',
   EMQX_JWT_SECRET: 'local-emqx-jwt-secret-change-me',
+  EMQX_WSS_URL: 'ws://127.0.0.1:8083/mqtt',
 };
 
 /**
@@ -44,6 +49,34 @@ const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
   S3_REGION: 'us-east-1',
 };
 
+/**
+ * Worker secrets that enable optional cloud features. Missing values are skipped
+ * so local boot can degrade those features instead of failing setup.
+ */
+const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
+  'WEB_CLIENT_GOOGLE_CLIENT_ID',
+  'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_PUBLISHABLE_KEY',
+  'ELEVEN_LABS_API_KEY',
+  'OPENAI_API_KEY',
+  'OPENAI_BASE_URL',
+  'EMQX_API_URL',
+  'EMQX_WSS_URL',
+  'EMQX_API_KEY',
+  'EMQX_API_SECRET',
+  'EMQX_JWT_SECRET',
+  'OBSERVABILITY_BACKEND',
+  'SENTRY_DSN',
+  'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
+  'EXPO_PUBLIC_SENTRY_DSN',
+  'API_URL',
+  'EXPO_PUBLIC_API_URL',
+  'LOCAL_PREVIEW_API_ORIGIN',
+  'EXPO_PUBLIC_COMMIT_HASH',
+  'EXPO_PUBLIC_COMMIT_DATE',
+]);
+
 function readApiUrlForDevVars(): string {
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
@@ -56,10 +89,55 @@ function readApiUrlForDevVars(): string {
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
+function ensureBetterAuthSecret(): string {
+  const existing = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
+  if (existing.length >= 32) return existing;
+  const seeded = randomBytes(32).toString('base64url');
+  process.env['BETTER_AUTH_SECRET'] = seeded;
+  process.stdout.write(
+    '[setup-dev-vars] BETTER_AUTH_SECRET missing; seeded local random secret.\n'
+  );
+  return seeded;
+}
+
+function preferLocalSecretsOnly(): boolean {
+  const raw = process.env['LOCAL_SECRETS']?.trim().toLowerCase() ?? '';
+  return raw === '1' || raw === 'true';
+}
+
+const SECRETS_OVERLAY_TIMEOUT_MS = 8_000;
+
+async function loadOptionalSecretsOverlay(): Promise<void> {
+  if (preferLocalSecretsOnly()) {
+    process.stdout.write(
+      '[setup-dev-vars] LOCAL_SECRETS=1 — skipping Infisical loadSecretsIntoEnv.\n'
+    );
+    return;
+  }
+  try {
+    await Promise.race([
+      loadSecretsIntoEnv(),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(
+            new Error(`timed out after ${String(SECRETS_OVERLAY_TIMEOUT_MS)}ms`)
+          );
+        }, SECRETS_OVERLAY_TIMEOUT_MS);
+      }),
+    ]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stdout.write(
+      `[setup-dev-vars] secret overlay skipped (${message}); continuing with local defaults.\n`
+    );
+  }
+}
+
 async function main(): Promise<void> {
   const { env: secretsEnv } = resolveSecretsScope(repoRoot);
   assertDevSecretsEnv(secretsEnv);
-  await loadSecretsIntoEnv();
+  // Best-effort Infisical overlay; local Postgres/MinIO/EMQX always win below.
+  await loadOptionalSecretsOverlay();
 
   await assertNonProdDatabaseUrlForTooling(LOCAL_POSTGRES_DATABASE_URL, {
     surface: 'setup-dev-vars',
@@ -83,24 +161,34 @@ async function main(): Promise<void> {
     '[setup-dev-vars] S3/B2_APP_* → @apps/minio local (Infisical ignored).\n'
   );
 
-  for (const entry of getSecretMap()) {
+  for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_SECRETS)) {
+    lines.push(`${name}=${encodeDevVarValue(value)}`);
+    written.add(name);
+  }
+  process.stdout.write(
+    '[setup-dev-vars] EMQX_* → @apps/emqx local (Infisical ignored).\n'
+  );
+
+  const betterAuthSecret = ensureBetterAuthSecret();
+  lines.push(`BETTER_AUTH_SECRET=${encodeDevVarValue(betterAuthSecret)}`);
+  written.add('BETTER_AUTH_SECRET');
+
+  // Only Worker-bound secrets belong in `.dev.vars`. Infra-only keys
+  // (CLOUDFLARE_*, EXPO_TOKEN, TURBO_*, B2_MASTER_*, …) are skipped.
+  for (const entry of getApiWorkerSecrets()) {
     if (written.has(entry.name)) continue;
     const value = (process.env[entry.name] ?? '').trim();
     if (value.length === 0) {
-      if (entry.optional) continue;
+      if (entry.optional || OPTIONAL_FEATURE_WORKER_SECRETS.has(entry.name)) {
+        process.stdout.write(
+          `[setup-dev-vars] ${entry.name} unset; feature will degrade if needed.\n`
+        );
+        continue;
+      }
       throw new Error(`setup-dev-vars: missing secret ${entry.name}`);
     }
     lines.push(`${entry.name}=${encodeDevVarValue(value)}`);
     written.add(entry.name);
-  }
-
-  for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_DEFAULTS)) {
-    if (written.has(name)) continue;
-    lines.push(`${name}=${encodeDevVarValue(value)}`);
-    written.add(name);
-    process.stdout.write(
-      `[setup-dev-vars] ${name} unset in secrets; using local default.\n`
-    );
   }
 
   const body = `${lines.join('\n')}\n`;

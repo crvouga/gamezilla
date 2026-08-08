@@ -2,15 +2,13 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Drives the same `loading -> success / error` lifecycle as
- * {@link MutationModal}, but its idle body is a provider picker rather than a
- * single confirm submit. The loading state is durable across the OAuth
- * redirect (full page unload on web) -- see {@link useSignInModalLifecycle}.
- * Provider buttons never show their own spinner; the whole modal transitions
- * to a loading state instead.
+ * Idle flow is a method picker → dedicated email sign-in / create-account
+ * steps. Google uses a durable pending marker across OAuth redirect;
+ * email/password completes in-place via the same phase machine.
  */
 
 import { useLingui } from '@lingui/react/macro';
+import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import {
   Box,
   ErrorState,
@@ -21,8 +19,19 @@ import {
   ResponsiveSurface,
   SuccessState,
 } from '@pkgs/ui';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
-import { SignInModalBody } from './sign-in-modal-body';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  SignInIdleBody,
+  SignInIdleFooter,
+  type SignInIdleStep,
+  titleForSignInIdleStep,
+} from './sign-in-idle-content';
 import {
   type SignInPhase,
   useSignInModalLifecycle,
@@ -33,9 +42,11 @@ export type SignInModalProps = {
   onClose: () => void;
   /** True when resuming a sign-in that began before an OAuth redirect. */
   resumePending: boolean;
-  signInAvailable: boolean;
+  googleAvailable: boolean;
+  emailPasswordAvailable: boolean;
   signInUnavailableReason: string | null;
-  onSignInWithHosted: () => Promise<void>;
+  onSignInWithGoogle: () => Promise<void>;
+  onSignInWithEmail: (credentials: SignInCredentials) => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -44,7 +55,8 @@ const STATE_AREA_MIN_HEIGHT = 200;
 function useResetOnClose(
   visible: boolean,
   phase: SignInPhase,
-  reset: () => void
+  reset: () => void,
+  resetStep: () => void
 ): void {
   const phaseRef = useRef<SignInPhase>(phase);
   phaseRef.current = phase;
@@ -58,34 +70,44 @@ function useResetOnClose(
     if (phaseRef.current === 'loading') return;
     if (phaseRef.current === 'success') return;
     reset();
-  }, [visible, reset]);
+    resetStep();
+  }, [visible, reset, resetStep]);
 }
 
 export function SignInModal(props: SignInModalProps): ReactNode {
   const { t } = useLingui();
-  const { visible, onClose, resumePending, signInAvailable, onError } = props;
+  const {
+    visible,
+    onClose,
+    resumePending,
+    googleAvailable,
+    emailPasswordAvailable,
+    onError,
+  } = props;
   const { phase, error, start, reset, dismiss } = useSignInModalLifecycle({
     resumePending,
     ...(onError !== undefined ? { onError } : {}),
   });
+  const [idleStep, setIdleStep] = useState<SignInIdleStep>('methods');
+  const resetStep = useCallback(() => setIdleStep('methods'), []);
 
-  useResetOnClose(visible, phase, reset);
+  useResetOnClose(visible, phase, reset, resetStep);
 
+  const anyMethod = googleAvailable || emailPasswordAvailable;
   const trigger = useCallback(
     (runner: () => Promise<void>) => {
-      if (!signInAvailable || phase === 'loading') return;
+      if (!anyMethod || phase === 'loading') return;
       void start(runner);
     },
-    [signInAvailable, phase, start]
+    [anyMethod, phase, start]
   );
 
   const dismissModal = useCallback(() => {
     dismiss();
+    resetStep();
     onClose();
-  }, [dismiss, onClose]);
+  }, [dismiss, onClose, resetStep]);
 
-  // Allow dismiss while loading if we resumed a stuck pending marker (user
-  // can close instead of waiting for OAuth that never finishes).
   const surfaceClose =
     phase === 'loading' && !resumePending ? () => undefined : dismissModal;
 
@@ -93,7 +115,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     <ResponsiveSurface
       visible={visible}
       onClose={surfaceClose}
-      title={t`Sign in`}
+      title={titleForSignInIdleStep(idleStep, t)}
       presentation="modal"
     >
       <MutationStateTransition stateKey={phase} active={visible}>
@@ -104,12 +126,25 @@ export function SignInModal(props: SignInModalProps): ReactNode {
           onDismiss={dismissModal}
           onRetry={reset}
           idleBody={
-            <SignInModalBody
-              signInAvailable={props.signInAvailable}
+            <SignInIdleBody
+              idleStep={idleStep}
+              googleAvailable={googleAvailable}
+              emailPasswordAvailable={emailPasswordAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
-              onPressGoogle={() => {
-                trigger(props.onSignInWithHosted);
+              onPressGoogle={() => trigger(props.onSignInWithGoogle)}
+              onPressEmail={() => setIdleStep('email-sign-in')}
+              onSubmitEmail={(credentials) => {
+                trigger(() => props.onSignInWithEmail(credentials));
               }}
+              onGoToSignUp={() => setIdleStep('email-sign-up')}
+              onGoToSignIn={() => setIdleStep('email-sign-in')}
+            />
+          }
+          idleFooter={
+            <SignInIdleFooter
+              idleStep={idleStep}
+              onClose={onClose}
+              onBackToMethods={resetStep}
             />
           }
         />
@@ -125,6 +160,7 @@ function SignInPhaseContent({
   onDismiss,
   onRetry,
   idleBody,
+  idleFooter,
 }: {
   phase: SignInPhase;
   error: Error | null;
@@ -132,6 +168,7 @@ function SignInPhaseContent({
   onDismiss: () => void;
   onRetry: () => void;
   idleBody: ReactNode;
+  idleFooter: ReactNode;
 }): ReactNode {
   const { t } = useLingui();
   switch (phase) {
@@ -163,9 +200,7 @@ function SignInPhaseContent({
       return (
         <>
           {idleBody}
-          <ModalFooter>
-            <ModalButton label={t`Close`} variant="cancel" onPress={onClose} />
-          </ModalFooter>
+          <ModalFooter>{idleFooter}</ModalFooter>
         </>
       );
   }

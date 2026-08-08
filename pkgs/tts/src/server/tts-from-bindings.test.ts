@@ -10,15 +10,22 @@ import { ttsObjectKey } from './tts-synthesize';
 
 const SAMPLE_MP3 = new Uint8Array([0xff, 0xfb, 0x90, 0x00, 0x01, 0x02, 0x03]);
 
-function makeSecretStore(apiKey = 'test-eleven-key'): SecretStore {
+function makeSecretStore(
+  apiKey: string | null = 'test-eleven-key'
+): SecretStore {
   return {
     getRequired: async (name) => {
-      if (name === TtsSecretName.elevenLabsApiKey) {
+      if (name === TtsSecretName.elevenLabsApiKey && apiKey !== null) {
         return wrapSecret(name, apiKey);
       }
       throw new Error(`unexpected secret: ${name}`);
     },
-    getOptional: async () => null,
+    getOptional: async (name) => {
+      if (name === TtsSecretName.elevenLabsApiKey && apiKey !== null) {
+        return wrapSecret(name, apiKey);
+      }
+      return null;
+    },
     getRequiredMany: async () => ({}),
     getOptionalMany: async (names) =>
       Object.fromEntries(names.map((name) => [name, null])),
@@ -48,11 +55,12 @@ describe('createTtsAppFromBindings', () => {
   });
 
   test('stores audio under the tts-audio/ prefix in the root object store', async () => {
-    const app = await createTtsAppFromBindings({
+    const { app, configured } = await createTtsAppFromBindings({
       secretStore: makeSecretStore(),
       objectStore: rootStore,
       requireAuth: () => Promise.resolve(undefined),
     });
+    expect(configured).toBe(true);
 
     const res = await app.fetch(
       new Request('https://example.test/tts/synthesize', {
@@ -75,5 +83,27 @@ describe('createTtsAppFromBindings', () => {
     const physicalKey = `${ObjectStorePrefix.ttsAudio}${domainKey}`;
     expect(await rootStore.head(physicalKey)).toBe(true);
     expect(await rootStore.head(domainKey)).toBe(false);
+  });
+
+  test('returns 503 when ElevenLabs key is missing', async () => {
+    const { app, configured } = await createTtsAppFromBindings({
+      secretStore: makeSecretStore(null),
+      objectStore: rootStore,
+      requireAuth: () => Promise.resolve(undefined),
+    });
+    expect(configured).toBe(false);
+
+    const res = await app.fetch(
+      new Request('https://example.test/tts/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: 'Hello',
+          voice: Voices.David,
+          format: 'mp3',
+        }),
+      })
+    );
+    expect(res.status).toBe(503);
   });
 });

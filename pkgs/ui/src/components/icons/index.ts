@@ -21,6 +21,7 @@ import {
   ListChecks,
   LogIn,
   LogOut,
+  Mail,
   Menu,
   Paintbrush,
   Play,
@@ -62,6 +63,7 @@ export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);
 export const LogInIcon = createIcon(LogIn);
 export const LogOutIcon = createIcon(LogOut);
+export const MailIcon = createIcon(Mail);
 export const MenuIcon = createIcon(Menu);
 export const DatabaseIcon = createIcon(Database);
 export const DoorOpenIcon = createIcon(DoorOpen);

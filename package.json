@@ -37,6 +37,7 @@
     "ci:fanout-rows-from-reads": "bun run tools/scripts/check-fanout-rows-from-reads.ts",
     "ci:format": "bunx biome check --error-on-warnings .",
     "ci:lint": "bunx biome check --error-on-warnings .",
+    "ci:local-dev-self-contained": "bun run tools/scripts/check-local-dev-self-contained.ts",
     "ci:mutation-determinism": "bun run tools/scripts/check-mutation-determinism.ts && bun run tools/scripts/check-mutation-idempotency.ts",
     "ci:no-direct-pg-imports": "bun run tools/scripts/check-no-direct-pg-imports.ts",
     "ci:no-domain-hard-delete": "bun run tools/scripts/check-no-domain-hard-delete.ts",

@@ -20,6 +20,7 @@ const CI_GATE_TASKS = [
   'ci:syncpack',
   'ci:no-direct-pg-imports',
   'ci:database-url-policy',
+  'ci:local-dev-self-contained',
   'ci:no-local-tables',
   'ci:no-legacy-writes',
   'ci:no-domain-hard-delete',

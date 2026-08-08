@@ -200,6 +200,16 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:local-dev-self-contained": {
+      "inputs": [
+        "apps/api/scripts/setup-dev-vars.ts",
+        "apps/api/scripts/dev-vars.ts",
+        "apps/client/scripts/setup-env.ts",
+        "tools/scripts/check-local-dev-self-contained.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:tier-imports": {
       "inputs": [
         "apps/**/*.ts",
