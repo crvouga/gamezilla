@@ -29,14 +29,19 @@ function isCi(): boolean {
   );
 }
 
-/** Value written to `.env.local` as `EXPO_USE_WATCHMAN` for Metro. */
+/**
+ * Value written to `.env.local` as `EXPO_USE_WATCHMAN` for Metro.
+ *
+ * Always re-probes Watchman. Do not early-return on `EXPO_USE_WATCHMAN=0` from
+ * the environment: Bun auto-loads the `.env.local` we are about to rewrite, so
+ * a previous failed probe (Watchman missing) would permanently pin Watchman off
+ * after install. Explicit opt-out while Watchman works: uninstall Watchman or
+ * make `watchman watch-project` fail for `apps/client`.
+ */
 export function resolveExpoUseWatchmanForSetup(args: {
   readonly clientRoot: string;
   readonly monorepoRoot: string;
 }): '0' | '1' {
-  if (process.env['EXPO_USE_WATCHMAN'] === '0') {
-    return '0';
-  }
   const required = process.env['EXPO_USE_WATCHMAN'] === '1';
   const primed = primeWatchmanRoots(args.clientRoot, args.monorepoRoot);
   if (primed) {
