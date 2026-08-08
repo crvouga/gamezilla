@@ -10,38 +10,35 @@ import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
-  for (const seed of [710, 711, 712]) {
-    test(`offline pending survives epoch bump (seed=${seed})`, async () => {
-      const world = await openSimWorld({
+  test.each([710, 711, 712])(
+    'offline pending survives epoch bump (seed=%i)',
+    async (seed) => {
+      await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
       });
-      try {
-        const a = await world.addClient({ id: 'alice' });
-        const b = await world.addClient({ id: 'bob' });
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
 
-        await b.mutate(setNote, { id: 'peer', body: 'from-bob' });
-        await world.assertConverged();
+      await b.mutate(setNote, { id: 'peer', body: 'from-bob' });
+      await world.assertConverged();
 
-        await a.engine.disconnect();
-        await a.mutate(setNote, { id: 'n1', body: 'queued' });
-        await world.runFor(50);
-        await expectNoteNotLive(world.server.db, 'n1');
+      await a.disconnect();
+      await a.mutate(setNote, { id: 'n1', body: 'queued' });
+      await world.runFor(50);
+      await expectNoteNotLive(world.server.db, 'n1');
 
-        const alice2 = await world.restartClient('alice', {
-          preserveLocalDb: true,
-          schemaEpoch: SCHEMA_EPOCH + 1,
-        });
-        await world.assertConverged();
+      const alice2 = await world.node('alice').restart({
+        preserveLocalDb: true,
+        schemaEpoch: SCHEMA_EPOCH + 1,
+      });
+      await world.assertConverged();
 
-        await expectLiveNote(alice2.db, 'n1', { body: 'queued' });
-        await expectLiveNote(alice2.db, 'peer', { body: 'from-bob' });
-        await expectLiveNote(b.db, 'n1', { body: 'queued' });
-        await expectLiveNote(world.server.db, 'n1', { body: 'queued' });
-      } finally {
-        await world.dispose();
-      }
-    });
-  }
+      await expectLiveNote(alice2!.db, 'n1', { body: 'queued' });
+      await expectLiveNote(alice2!.db, 'peer', { body: 'from-bob' });
+      await expectLiveNote(b.db, 'n1', { body: 'queued' });
+      await expectLiveNote(world.server.db, 'n1', { body: 'queued' });
+    }
+  );
 });

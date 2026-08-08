@@ -20,67 +20,60 @@ function noteIds(count: number): string[] {
 
 describe('fanout row cap boundary 64 vs 65', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 808,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      const ids = noteIds(MAX_FANOUT_ROWS);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    const ids = noteIds(MAX_FANOUT_ROWS);
 
-      for (const id of ids) {
-        await a.mutate(setNote, { id, body: 'seed' });
-      }
-      await world.assertConverged();
+    for (const id of ids) {
+      await a.mutate(setNote, { id, body: 'seed' });
+    }
+    await world.assertConverged();
 
-      world.hold('bob', 'sync');
+    {
+      using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(retouchNotes, { ids, body: 'at-cap' });
       await world.runFor(500);
 
       for (const id of ids) {
         await expectLiveNote(b.db, id, { body: 'at-cap' });
       }
-
-      world.release('bob', 'sync');
-      await world.assertConverged();
-      expect((await readLiveNotes(b.db)).length).toBe(MAX_FANOUT_ROWS);
-      await expectNotesMatchServer(b.db, world.server.db);
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+    expect((await readLiveNotes(b.db)).length).toBe(MAX_FANOUT_ROWS);
+    await expectNotesMatchServer(b.db, world.server.db);
   });
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 809,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      const ids = noteIds(MAX_FANOUT_ROWS + 1);
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    const ids = noteIds(MAX_FANOUT_ROWS + 1);
 
-      for (const id of ids) {
-        await a.mutate(setNote, { id, body: 'seed' });
-      }
-      await world.assertConverged();
+    for (const id of ids) {
+      await a.mutate(setNote, { id, body: 'seed' });
+    }
+    await world.assertConverged();
 
-      world.hold('bob', 'sync');
+    {
+      using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(retouchNotes, { ids, body: 'over-cap' });
       await world.runFor(200);
       // Over-cap omits images; peer waits for sync refetch.
-      world.release('bob', 'sync');
-      await world.assertConverged();
-
-      await expectLiveNote(b.db, ids[0]!, { body: 'over-cap' });
-      await expectLiveNote(b.db, ids[MAX_FANOUT_ROWS]!, { body: 'over-cap' });
-      expect((await readLiveNotes(b.db)).length).toBe(MAX_FANOUT_ROWS + 1);
-      await expectNotesMatchServer(b.db, world.server.db);
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+
+    await expectLiveNote(b.db, ids[0]!, { body: 'over-cap' });
+    await expectLiveNote(b.db, ids[MAX_FANOUT_ROWS]!, { body: 'over-cap' });
+    expect((await readLiveNotes(b.db)).length).toBe(MAX_FANOUT_ROWS + 1);
+    await expectNotesMatchServer(b.db, world.server.db);
   });
 });

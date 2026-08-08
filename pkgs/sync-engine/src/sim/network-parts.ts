@@ -41,6 +41,41 @@ export function holdKey(nodeId: string, traffic: SimTraffic): string {
   return `${nodeId}\0${traffic}`;
 }
 
+export function heldSummary(state: SimNetworkState): readonly string[] {
+  return [...state.heldKeys].map((k) => k.replace('\0', ':'));
+}
+
+export function networkIsHeld(
+  state: SimNetworkState,
+  nodeId: string,
+  traffic: SimTraffic
+): boolean {
+  if (traffic === 'all') {
+    return (
+      state.heldKeys.has(holdKey(nodeId, 'all')) ||
+      state.heldKeys.has(holdKey(nodeId, 'live')) ||
+      state.heldKeys.has(holdKey(nodeId, 'sync'))
+    );
+  }
+  return isHeld(state, nodeId, traffic);
+}
+
+export function getNodeFaults(
+  state: SimNetworkState,
+  nodeId: string,
+  traffic: SimTraffic
+): SimFaultOptions | undefined {
+  return state.nodeFaults.get(faultKey(nodeId, traffic));
+}
+
+export function clearNodeFaultsForTraffic(
+  state: SimNetworkState,
+  nodeId: string,
+  traffic: SimTraffic
+): void {
+  state.nodeFaults.delete(faultKey(nodeId, traffic));
+}
+
 export function isPartitioned(
   state: SimNetworkState,
   from: string,

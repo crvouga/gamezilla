@@ -10,21 +10,17 @@ import { openSimWorld } from '../../sim/world';
 describe('push without affected rows wakes refetch', () => {
   test('mutation without affectedRows converges via wake+refetch with rowImageFanout', async () => {
     // rowImageFanout true: proves pushSeq-only pushes still wake peers when images absent.
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 680,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      await a.mutate(setNoteNoFanout, { id: 'n1', body: 'no-images' });
-      await world.assertConverged();
+    await a.mutate(setNoteNoFanout, { id: 'n1', body: 'no-images' });
+    await world.assertConverged();
 
-      await expectLiveNote(b.db, 'n1', { body: 'no-images' });
-    } finally {
-      await world.dispose();
-    }
+    await expectLiveNote(b.db, 'n1', { body: 'no-images' });
   });
 });

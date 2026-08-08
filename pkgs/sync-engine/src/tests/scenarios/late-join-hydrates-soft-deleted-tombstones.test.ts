@@ -11,24 +11,20 @@ import { openSimWorld } from '../../sim/world';
 
 describe('late join hydrates soft deleted tombstones', () => {
   test('peer that joins after delete gets tombstone from snapshot', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 511,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      await a.mutate(setNote, { id: 'n1', body: 'gone' });
-      await world.assertConverged();
-      await a.mutate(deleteNote, { id: 'n1' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    await a.mutate(setNote, { id: 'n1', body: 'gone' });
+    await world.assertConverged();
+    await a.mutate(deleteNote, { id: 'n1' });
+    await world.assertConverged();
 
-      const c = await world.addClient({ id: 'charlie' });
-      await expectNoteNotLive(c.db, 'n1');
-      const tomb = await readNoteTombstone(c.db, 'n1');
-      expect(tomb).not.toBeNull();
-    } finally {
-      await world.dispose();
-    }
+    const c = await world.addClient({ id: 'charlie' });
+    await expectNoteNotLive(c.db, 'n1');
+    const tomb = await readNoteTombstone(c.db, 'n1');
+    expect(tomb).not.toBeNull();
   });
 });

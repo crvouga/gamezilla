@@ -5,78 +5,56 @@ import {
   setNoteUniqueSlug,
 } from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-} from '../../sim/mutation-status';
-import { openSimWorld, type SimWorld } from '../../sim/world';
-
-async function waitForStatus(
-  world: SimWorld,
-  db: Parameters<typeof mutationStatus>[0],
-  mutationId: string,
-  want: 'pending' | 'confirmed' | 'rejected'
-): Promise<void> {
-  for (let i = 0; i < 80; i += 1) {
-    const status = await mutationStatus(db, mutationId);
-    if (status === want) return;
-    await world.runFor(50);
-  }
-  const status = await mutationStatus(db, mutationId);
-  throw new Error(`expected status ${want}, got ${status}`);
-}
+import { openSimWorld } from '../../sim/world';
 
 describe('constraint error maps to business code', () => {
-  for (const seed of [870, 871, 872]) {
-    test(`unique conflict surfaces SLUG_TAKEN (seed=${seed})`, async () => {
-      const world = await openSimWorld({
+  test.each([870, 871, 872])(
+    'unique conflict surfaces SLUG_TAKEN (seed=%i)',
+    async (seed) => {
+      await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
-      try {
-        const a = await world.addClient({ id: 'alice' });
-        const b = await world.addClient({ id: 'bob' });
+      const a = await world.addClient({ id: 'alice' });
+      const b = await world.addClient({ id: 'bob' });
 
-        // Bob offline so local DB lacks Alice's slug — conflict only on replay.
-        await b.engine.disconnect();
-        await a.mutate(setNoteUniqueSlug, {
-          id: 'n1',
-          slug: 'taken',
-          body: 'owner',
-        });
-        await world.runFor(500);
-        await expectLiveNote(world.server.db, 'n1', {
-          body: 'owner',
-          title: 'taken',
-        });
+      // Bob offline so local DB lacks Alice's slug — conflict only on replay.
+      await b.disconnect();
+      await a.mutate(setNoteUniqueSlug, {
+        id: 'n1',
+        slug: 'taken',
+        body: 'owner',
+      });
+      await world.runFor(500);
+      await expectLiveNote(world.server.db, 'n1', {
+        body: 'owner',
+        title: 'taken',
+      });
 
-        const rejected = await b.mutate(setNoteUniqueSlug, {
-          id: 'n2',
-          slug: 'taken',
-          body: 'conflict',
-        });
-        expect(rejected.ok).toBe(true);
-        if (!rejected.ok) return;
+      const rejected = await b.mutate(setNoteUniqueSlug, {
+        id: 'n2',
+        slug: 'taken',
+        body: 'conflict',
+      });
+      expect(rejected.ok).toBe(true);
+      if (!rejected.ok) return;
 
-        await b.engine.connect();
-        b.engine.wakeUploads();
-        await waitForStatus(world, b.db, rejected.mutationId, 'rejected');
-        const unacked = await listUnackedWriteRejections(b.db, b.deviceId);
-        expect(unacked.some((r) => r.code === 'SLUG_TAKEN')).toBe(true);
+      await b.connect();
+      await world.until(b.outcome(rejected.mutationId), { budgetMs: 5_000 });
+      expect(await b.outcome(rejected.mutationId)).toBe('rejected');
+      const unacked = await b.rejections();
+      expect(unacked.some((r) => r.code === 'SLUG_TAKEN')).toBe(true);
 
-        await expectLiveNote(a.db, 'n1', { body: 'owner', title: 'taken' });
+      await expectLiveNote(a.db, 'n1', { body: 'owner', title: 'taken' });
 
-        // Rejected insert left a local-only row (absence ≠ delete). Wipe cache
-        // and rehydrate so converge can succeed.
-        await b.engine.clearLocalData({ reason: 'cache' });
-        await b.engine.connect();
-        await world.assertConverged();
-        await expectLiveNote(b.db, 'n1', { body: 'owner', title: 'taken' });
-      } finally {
-        await world.dispose();
-      }
-    });
-  }
+      // Rejected insert left a local-only row (absence ≠ delete). Wipe cache
+      // and rehydrate so converge can succeed.
+      await b.clearLocalData('cache');
+      await b.connect();
+      await world.assertConverged();
+      await expectLiveNote(b.db, 'n1', { body: 'owner', title: 'taken' });
+    }
+  );
 });

@@ -2,15 +2,20 @@ import type { SimFaultOptions } from './faults';
 import { RELIABLE_FAULTS } from './faults';
 import {
   clearNodeFaults as clearStateNodeFaults,
+  clearNodeFaultsForTraffic as clearStateNodeFaultsForTraffic,
   edgeKey,
   faultKey,
+  getNodeFaults as getStateNodeFaults,
   holdKey,
+  isPartitioned,
+  networkIsHeld,
   networkRelease,
   networkReleaseAll,
   networkSend,
   type SimDeliver,
   type SimEndpointId,
   type SimNetworkState,
+  heldSummary as stateHeldSummary,
 } from './network-parts';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
@@ -48,6 +53,17 @@ export type SimNetwork = {
     faults: SimFaultOptions
   ) => void;
   readonly clearNodeFaults: (nodeId?: string) => void;
+  readonly clearNodeFaultsForTraffic: (
+    nodeId: string,
+    traffic: SimTraffic
+  ) => void;
+  readonly getNodeFaults: (
+    nodeId: string,
+    traffic: SimTraffic
+  ) => SimFaultOptions | undefined;
+  readonly isHeld: (nodeId: string, traffic: SimTraffic) => boolean;
+  readonly isEdgePartitioned: (a: SimEndpointId, b: SimEndpointId) => boolean;
+  readonly heldSummary: () => readonly string[];
 };
 
 function createNetworkState(args: {
@@ -116,5 +132,18 @@ export function createSimNetwork(args: {
     clearNodeFaults(nodeId) {
       clearStateNodeFaults(state, nodeId);
     },
+    clearNodeFaultsForTraffic(nodeId, traffic) {
+      clearStateNodeFaultsForTraffic(state, nodeId, traffic);
+    },
+    getNodeFaults(nodeId, traffic) {
+      return getStateNodeFaults(state, nodeId, traffic);
+    },
+    isHeld(nodeId, traffic) {
+      return networkIsHeld(state, nodeId, traffic);
+    },
+    isEdgePartitioned(a, b) {
+      return isPartitioned(state, a, b);
+    },
+    heldSummary: () => stateHeldSummary(state),
   };
 }

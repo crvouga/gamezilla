@@ -10,19 +10,19 @@ import { openSimWorld } from '../../sim/world';
 
 describe('own echo floor skips but peer push applies', () => {
   test('mutator never flickers on own echo; peer still paints', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 805,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      await a.mutate(setNote, { id: 'n1', body: 'seed' });
-      await world.assertConverged();
+    await a.mutate(setNote, { id: 'n1', body: 'seed' });
+    await world.assertConverged();
 
-      world.hold('bob', 'sync');
+    {
+      using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n1', body: 'final' });
 
       for (let i = 0; i < 8; i += 1) {
@@ -32,11 +32,8 @@ describe('own echo floor skips but peer push applies', () => {
       }
 
       await expectLiveNote(b.db, 'n1', { body: 'final' });
-      world.release('bob', 'sync');
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'final' });
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'final' });
   });
 });

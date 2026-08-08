@@ -13,7 +13,7 @@ const PEER_VISIBLE_BUDGET_MS =
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 19,
       faults: {
@@ -22,29 +22,22 @@ describe('peer visibility under 200ms sim budget', () => {
         oneWayDelayJitterMs: 0,
       },
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'warm', body: 'w' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'warm', body: 'w' });
+    await world.assertConverged();
 
-      const t0 = world.clock.now();
-      await a.mutate(setNote, { id: 'fast', body: 'y' });
-      let visibleAt: number | null = null;
-      for (let i = 0; i < 30; i += 1) {
-        await world.runFor(10);
+    const t0 = world.node('bob').now();
+    await a.mutate(setNote, { id: 'fast', body: 'y' });
+    const at = await world.until(
+      async () => {
         const rows = await b.db.query(sql<{ body: string }>`
           SELECT body FROM notes WHERE id = 'fast' AND _deleted_at IS NULL
         `);
-        if (rows[0]?.body === 'y') {
-          visibleAt = world.clock.now();
-          break;
-        }
-      }
-      expect(visibleAt).not.toBeNull();
-      expect((visibleAt ?? 0) - t0).toBeLessThan(200);
-    } finally {
-      await world.dispose();
-    }
+        return rows[0]?.body === 'y';
+      },
+      { budgetMs: 400, stepMs: 10 }
+    );
+    expect(at - t0).toBeLessThan(200);
   });
 });

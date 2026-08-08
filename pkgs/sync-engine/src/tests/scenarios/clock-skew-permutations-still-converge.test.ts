@@ -7,11 +7,7 @@ import {
   readNoteTombstone,
   setNote,
 } from '../../domain-packs/notes-app';
-import {
-  openSimWorld,
-  SIM_SERVER_NODE_ID,
-  type SimWorld,
-} from '../../sim/world';
+import { openSimWorld, type SimWorld } from '../../sim/world';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -37,9 +33,9 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
 ];
 
 function applyOrder(world: SimWorld, order: ClockOrder): void {
-  world.setClockSkew('alice', order.alice);
-  world.setClockSkew('bob', order.bob);
-  world.setClockSkew(SIM_SERVER_NODE_ID, order.server);
+  world.node('alice').skewClock(order.alice);
+  world.node('bob').skewClock(order.bob);
+  world.node('server').skewClock(order.server);
 }
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
@@ -57,12 +53,12 @@ async function offlineConflictThenConverge(
   const b = await world.addClient({ id: 'bob' });
   await world.runFor(50);
 
-  a.lifecycle.setOnline(false);
-  b.lifecycle.setOnline(false);
+  a.online(false);
+  b.online(false);
   await a.mutate(setNote, { id: 'shared', body: 'from-a' });
   await b.mutate(setNote, { id: 'shared', body: 'from-b' });
-  a.lifecycle.setOnline(true);
-  b.lifecycle.setOnline(true);
+  a.online(true);
+  b.online(true);
   await world.assertConverged();
 
   const server = await readLiveNotes(world.server.db);
@@ -106,12 +102,12 @@ async function aheadDeleteBehindPending(
   await owner.mutate(setNote, { id: 'n1', body: 'owned' });
   await world.assertConverged();
 
-  behind.lifecycle.setOnline(false);
+  behind.online(false);
   await behind.mutate(setNote, { id: 'n1', body: 'behind-pending' });
   const del = await owner.mutate(deleteNote, { id: 'n1' });
   expect(del.ok).toBe(true);
 
-  behind.lifecycle.setOnline(true);
+  behind.online(true);
   await world.assertConverged();
   await expectClientsMatchServer(world);
 
@@ -130,15 +126,11 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({
+        await using world = await openSimWorld({
           domain: notesDomainPack,
           seed: 101,
         });
-        try {
-          await offlineConflictThenConverge(world, order);
-        } finally {
-          await world.dispose();
-        }
+        await offlineConflictThenConverge(world, order);
       },
       { timeout: 60_000 }
     );
@@ -146,15 +138,11 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({
+        await using world = await openSimWorld({
           domain: notesDomainPack,
           seed: 102,
         });
-        try {
-          await onlineOptimisticRace(world, order);
-        } finally {
-          await world.dispose();
-        }
+        await onlineOptimisticRace(world, order);
       },
       { timeout: 60_000 }
     );
@@ -162,15 +150,11 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        const world = await openSimWorld({
+        await using world = await openSimWorld({
           domain: notesDomainPack,
           seed: 103,
         });
-        try {
-          await aheadDeleteBehindPending(world, order);
-        } finally {
-          await world.dispose();
-        }
+        await aheadDeleteBehindPending(world, order);
       },
       { timeout: 60_000 }
     );

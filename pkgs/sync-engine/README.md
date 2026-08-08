@@ -757,11 +757,11 @@ seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
 
 | Boundary | Implementation |
 |----------|----------------|
-| Time | `SimClock` + `SimScheduler` (discrete events; same-time ordered by insertion seq) |
-| Wall clocks | Per-node skew via `setClockSkew` / `nowFor` (scheduler stays on base clock) |
+| Time | `runFor` / `until` over `SimClock` + `SimScheduler` |
+| Wall clocks | `world.node(id).skewClock(ms)` / `.now()` (scheduler stays on base clock) |
 | Timers | `createSimTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
-| Network | `SimNetwork` — delay, loss, reorder, replay, partition, hold |
+| Network | `world.net(nodeId, traffic?).set(state)` — hold / down / fault profiles |
 | HTTP | `createSimHttpClient` / `bindSimHttpServer` over the mesh (`sync` traffic) |
 | PubSub | `createSimPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
 | Server | Bun `:memory:` SQLite + framework DDL + schema reconcile |
@@ -770,23 +770,47 @@ seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
 **Not simulated:** disk bitflips, real EMQX, Cloudflare Worker runtime. Sim
 server uses SQLite dialect; production server is Postgres.
 
-Injected ports (`now`, `random`, `createId`, `timers`) keep the production
-engine on the virtual clock. Convergence: after quiescence, every client’s live
-domain view matches the server (`assertConverged`).
-`assertConverged` / settle clear holds, partitions, and node fault overrides
-(heal up to 40×250ms virtual).
+Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
+`await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
+runner. Failures from `assertConverged` / `until` / `checkInvariants` embed
+`seed=<hex>` and virtual `now=` for replay.
+
+**Five concepts:**
+
+1. **Time** — `world.runFor(ms)` (negative windows) and `world.until(target, { budgetMs?, stepMs? })` (promise / async predicate; returns completion timestamp).
+2. **Network** — `using _ = world.net(nodeId, traffic?).set('hold' \| 'down' \| 'ok' \| FaultProfile)`; dispose restores prior state (restore-prior stack). Settle neutralizes outstanding net effects.
+3. **Node** — `world.node(id)` with `crash({ at? })`, `restart(opts)`, `auth(status)`, `skewClock(ms)`, `now()`, `httpFault(fault)`, `publishFault(count)` (server). Server id is `'server'`.
+4. **Client** — `mutate`, `db`, `online` / `foreground`, `connect` / `disconnect`, `subscribe`, `outcome`, `rejections`, `nudge` (rare; needs `// nudge:` comment).
+5. **Settle** — `assertConverged()` clears holds/partitions/faults, wakes uploads + refreshes, diffs each client vs server.
 
 #### Quick start
 
 ```ts
+import { describe, test } from 'bun:test';
 import { notesDomainPack, setNote } from '../domain-packs/notes-app';
 import { openSimWorld } from './world';
 
-const world = await openSimWorld({ seed: 42, domain: notesDomainPack });
-const a = await world.addClient({ id: 'alice' });
-await a.mutate(setNote, { id: 'n1', body: 'hi' });
+describe('example', () => {
+  test('mutate converges', async () => {
+    await using world = await openSimWorld({ seed: 42, domain: notesDomainPack });
+    const a = await world.addClient({ id: 'alice' });
+    await a.mutate(setNote, { id: 'n1', body: 'hi' });
+    await world.assertConverged();
+  });
+});
+```
+
+Scoped hold + latency budget:
+
+```ts
+{
+  using _hold = world.net('bob', 'sync').set('hold');
+  const t0 = world.node('bob').now();
+  await a.connect();
+  const at = await world.until(() => isVisible(b), { budgetMs: 400 });
+  expect(at - t0).toBeLessThan(200);
+} // hold released; queued sync deliveries drain
 await world.assertConverged();
-await world.dispose();
 ```
 
 Lightweight clock/timers without a full world:
@@ -799,8 +823,6 @@ await sim.runFor(150);
 
 #### Traffic classes
 
-Public API uses semantic traffic (not transport names):
-
 | Traffic | Intent |
 |---------|--------|
 | `live` | Realtime peer updates (pushes / fanout) |
@@ -808,30 +830,20 @@ Public API uses semantic traffic (not transport names):
 | `all` | Both |
 
 ```ts
-world.hold('bob', 'sync');      // pause bob's pull deliveries (queued)
-world.release('bob', 'sync');   // drain without re-sampling faults
-world.partition('bob', 'live'); // drop bob's realtime; sync still works
-world.heal('bob');
-world.setFaults('bob', 'live', { packetLossProbability: 1 });
-world.clearFaults('bob');
+using _hold = world.net('bob', 'sync').set('hold');
+using _down = world.net('bob', 'live').set('down');
+using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
 ```
 
-**Live is unreliable by design.** Never assume live messages arrive exactly once,
-in order, or at all. Control loss / dup / reorder / delay **per node** via
-`setFaults(nodeId, 'live', …)`. Named tests assert domain convergence after
-settle, not push ordering. `sync` stays near-reliable by default; use
-`hold`/`release` to script push↔query races.
+**Live is unreliable by design.** Named tests assert domain convergence after
+settle, not push ordering. Prefer `hold` on `sync` to script push↔query races.
 
 #### Clock skew
 
-Scheduler / network delivery use the shared base `SimClock`. Logical wall
-clocks for mutation `created_at` / soft-delete timestamps are per-node:
-
 ```ts
-world.setClockSkew('alice', -60_000);
-world.setClockSkew('bob', 0);
-world.setClockSkew('server', 60_000);
-world.nowFor('alice'); // base.now() + skew
+using _a = world.node('alice').skewClock(-60_000);
+using _s = world.node('server').skewClock(60_000);
+world.node('alice').now(); // base + skew
 ```
 
 #### Knobs
@@ -844,46 +856,22 @@ world.nowFor('alice'); // base.now() + skew
 | `faults` | `RELIABLE_FAULTS` | Default mesh fault profile (all zeros) |
 | `sampleFaults` | `false` | Ignore `faults`; sample lossy profile from `rng.fork('faults')` |
 | `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
-| `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe (sim stand-in for short offline session drain; production MQTT uses QoS 1 + persistent sessions separately) |
-| `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect (peers can paint via live before upload/sync) |
+| `liveResendOnReconnect` | `false` | Drop live while peer closed; `true` buffers last topics and flushes on re-subscribe |
+| `bufferOutboundLive` | `false` | Skip optimistic fanout while push detached; `true` queues and flushes on reconnect |
 | `localSchema` / `mutationRegistry` / `queryRegistry` / `sessionQuery` | domain pack | Override server+default client registries/schema for drift scenarios |
 
 **Network faults** (`SimFaultOptions` in `faults.ts`):
+`oneWayDelayMeanMs` / `oneWayDelayJitterMs`, `packetLossProbability`,
+`packetReplayProbability`, `reorderWindow`, plus unused partition probability
+fields for fuzz profiles.
 
-| Knob | Effect |
-|------|--------|
-| `oneWayDelayMeanMs` / `oneWayDelayJitterMs` | Delivery delay |
-| `packetLossProbability` | Drop before schedule |
-| `packetReplayProbability` | Duplicate delivery |
-| `reorderWindow` | Extra delay for reordering |
-| `partitionProbability` / `unpartitionProbability` | Fuzz partition profile (not auto-applied on every send) |
+**Client / node lifecycle:** `addClient`, `node(id).crash` / `restart` /
+`auth`, `online` / `foreground`, `connect` / `disconnect`. Use
+`sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios.
+`pubsubRemakeCount()` / `subscribedTopics()` for membership asserts.
+`isSchedulerQuiescent()` observes empty sim timer heap.
 
-World-open `faults` / `sampleFaults` set the **default** profile. Per-node
-overrides win for that node's `live` / `sync` / `all`. `RELIABLE_FAULTS` zeros
-all knobs.
-
-**Runtime traffic** (`SimTraffic`: `live` \| `sync` \| `all`):
-
-| API | Meaning |
-|-----|---------|
-| `partition(nodeId, traffic?)` / `heal` / `healAll` | Cut / restore edges (default traffic `all`) |
-| `hold(nodeId, traffic)` / `release` / `releaseAll` | Queue then drain deliveries (no re-sample of faults on release) |
-| `setFaults(nodeId, traffic, partial)` / `clearFaults` | Per-node override = `RELIABLE_FAULTS` ∪ partial |
-| `setClockSkew(nodeId, skewMs)` / `nowFor(nodeId)` | Offset logical wall clock for mutation timestamps |
-
-**Lifecycle:** `addClient({ id, actorId?, sessionQuery?, localSchema?,
-mutationRegistry?, queryRegistry?, schemaEpoch? })`, `crashClient` /
-`restartClient(id, { preserveLocalDb?, schemaEpoch?, localSchema?, … })`
-(default fresh `:memory:` DB; `preserveLocalDb` keeps SQLite across engine
-rebuild for epoch/crash atomicity), `setAuthStatus`, `crashServer` /
-`restartServer({ preserveDb? })`, `lifecycle.setOnline` / `setForeground`,
-engine `connect` / `disconnect` / `refreshQueries` / `wakeUploads`.
-Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
-(`notesWorld` remains the default). Client handles expose
-`pubsubRemakeCount()` / `subscribedTopics()` for black-box membership asserts.
-`isSchedulerQuiescent()` observes empty sim timer heap (scope-churn).
-
-**Boundary crash arms** (`armCrash(nodeId, event)` / `clearCrashArms`):
+**Boundary crash arms** (`node(id).crash({ at })` returns Disposable):
 
 | Event | Boundary |
 |-------|----------|
@@ -893,21 +881,13 @@ Use `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios
 | `onNextTimerTickWhileSyncUndelivered` | Next timer tick (use with sync hold) |
 | `onNextEngineOpenAfterCacheWipe` | Local migrate after cache wipe |
 
-**HTTP / publish faults** (`armHttpFault` / `armPublishFault`):
-
-| Fault | Effect |
-|-------|--------|
-| `dropMutationsResponse` / `dropQueryResponse` | Handler runs; response never sent |
-| `failMutationsAfterCommit` | Txn committed; error before response |
-| `failMutationsInsideTxnAfter(k)` | Infra throw inside batch txn after index `k` (full rollback) |
-| `invalidMutationsBody` | Synthesize 400 `invalid_batch` |
-| `serverErrorOnNext` | Injected 500 on next `/mutations` or `/query` |
-| `armPublishFault` | Suppress post-commit pubsub publish (upload still acks) |
+**HTTP / publish faults:** `node(id).httpFault(fault)`,
+`node('server').publishFault(count)` — both `Disposable`.
 
 **Server ops:** `server.pruneArtifacts(olderThanMs)`,
-`server.notifyFanout({ topics, tables, label })` (domain-agnostic post-write
-fanout). Notes fixture `writeNoteBody(server, { id, body, notify? })` wraps a
-direct domain write (`notify: false` pins the non-mutation footgun).
+`server.notifyFanout({ topics, tables, label })`. Notes fixture
+`writeNoteBody(server, { id, body, notify? })` (`notify: false` pins the
+non-mutation footgun).
 
 **Fuzz / replay** (`runNotesSeed` in `domain-packs/notes-app`):
 

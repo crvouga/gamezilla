@@ -4,6 +4,7 @@ import type { SimClientHandle } from './client-factory';
 import type { SimDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS } from './faults';
 import type { InvariantViolation } from './invariants';
+import type { NetEffectRegistry } from './net-effect';
 import type { SimNetwork } from './network';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
@@ -15,6 +16,8 @@ export type AssertConvergedCtx = {
   readonly server: SimServer;
   readonly seed: bigint;
   readonly domain: SimDomainPack;
+  readonly netEffects: NetEffectRegistry;
+  readonly now: () => number;
 };
 
 function clientSnapshots(
@@ -26,9 +29,20 @@ function clientSnapshots(
   }));
 }
 
+function nudgeClients(clients: ReadonlyMap<string, SimClientHandle>): void {
+  for (const client of clients.values()) {
+    client.engine.wakeUploads();
+    // Must not await: refresh needs the sim scheduler to advance (runFor below).
+    void client.engine.refreshQueries().catch(() => {
+      // revoke / disconnect paths may reject refresh
+    });
+  }
+}
+
 async function settleOnce(
   ctx: AssertConvergedCtx
 ): Promise<InvariantViolation | null> {
+  nudgeClients(ctx.clients);
   await ctx.scheduler.runFor(250);
   return ctx.domain.checkAllConverged({
     clients: clientSnapshots(ctx.clients),
@@ -44,6 +58,7 @@ export async function assertConvergedImpl(
   ctx.network.healAll();
   ctx.network.clearNodeFaults();
   ctx.network.setDefaultFaults(RELIABLE_FAULTS);
+  ctx.netEffects.neutralizeAll();
   for (const client of ctx.clients.values()) {
     client.lifecycle.setOnline(true);
     client.lifecycle.setForeground(true);
@@ -55,6 +70,6 @@ export async function assertConvergedImpl(
     if (last === null) return;
   }
   throw new Error(
-    `convergence failed seed=${ctx.seed.toString(16)} ${last?.detail ?? ''}`
+    `convergence failed seed=${ctx.seed.toString(16)} now=${ctx.now()} ${last?.detail ?? ''}`
   );
 }

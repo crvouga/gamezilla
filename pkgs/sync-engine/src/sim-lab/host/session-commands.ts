@@ -72,7 +72,7 @@ async function lifecycleCmd(
   switch (cmd.type) {
     case 'setOnline': {
       const c = clientOrThrow(state, cmd.clientId);
-      c.lifecycle.setOnline(cmd.value);
+      c.online(cmd.value);
       state.life = {
         ...state.life,
         [cmd.clientId]: {
@@ -85,7 +85,7 @@ async function lifecycleCmd(
     }
     case 'setForeground': {
       const c = clientOrThrow(state, cmd.clientId);
-      c.lifecycle.setForeground(cmd.value);
+      c.foreground(cmd.value);
       state.life = {
         ...state.life,
         [cmd.clientId]: {
@@ -98,7 +98,7 @@ async function lifecycleCmd(
     }
     case 'connect': {
       const c = clientOrThrow(state, cmd.clientId);
-      await c.engine.connect();
+      await c.connect();
       state.life = {
         ...state.life,
         [cmd.clientId]: {
@@ -111,7 +111,7 @@ async function lifecycleCmd(
     }
     case 'disconnect': {
       const c = clientOrThrow(state, cmd.clientId);
-      await c.engine.disconnect();
+      await c.disconnect();
       state.life = {
         ...state.life,
         [cmd.clientId]: {
@@ -124,13 +124,13 @@ async function lifecycleCmd(
     }
     case 'crash': {
       if (state.world === null) throw new Error('World is not open');
-      await state.world.crashClient(cmd.clientId);
+      await state.world.node(cmd.clientId).crash();
       pushAction(state, `${cmd.clientId} crash`, true);
       return;
     }
     case 'restart': {
       if (state.world === null) throw new Error('World is not open');
-      await state.world.restartClient(cmd.clientId);
+      await state.world.node(cmd.clientId).restart();
       state.life = {
         ...state.life,
         [cmd.clientId]: {
@@ -144,7 +144,7 @@ async function lifecycleCmd(
     }
     case 'setClockSkew': {
       if (state.world === null) throw new Error('World is not open');
-      state.world.setClockSkew(cmd.clientId, cmd.skewMs);
+      state.world.node(cmd.clientId).skewClock(cmd.skewMs);
       state.skew = { ...state.skew, [cmd.clientId]: cmd.skewMs };
       pushAction(state, `${cmd.clientId} skew=${cmd.skewMs}`, true);
       return;

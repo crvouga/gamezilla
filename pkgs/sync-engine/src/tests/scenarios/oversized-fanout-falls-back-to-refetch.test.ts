@@ -13,21 +13,17 @@ const HUGE_BODY = 'x'.repeat(33 * 1024);
 describe('oversized fanout falls back to refetch', () => {
   test('oversized row images fall back to pushSeq-only; peers still converge', async () => {
     // rowImageFanout true (default): cap drops images; wake+refetch still converges.
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 670,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      await a.mutate(setNote, { id: 'huge', body: HUGE_BODY });
-      await world.assertConverged();
+    await a.mutate(setNote, { id: 'huge', body: HUGE_BODY });
+    await world.assertConverged();
 
-      await expectLiveNote(b.db, 'huge', { body: HUGE_BODY });
-    } finally {
-      await world.dispose();
-    }
+    await expectLiveNote(b.db, 'huge', { body: HUGE_BODY });
   });
 });

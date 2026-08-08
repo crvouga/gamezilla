@@ -5,53 +5,37 @@ import {
   setNote,
 } from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { mutationStatus } from '../../sim/mutation-status';
-import { openSimWorld, type SimWorld } from '../../sim/world';
-
-async function waitForStatus(
-  world: SimWorld,
-  db: Parameters<typeof mutationStatus>[0],
-  mutationId: string,
-  want: 'pending' | 'confirmed' | 'rejected'
-): Promise<void> {
-  for (let i = 0; i < 80; i += 1) {
-    const status = await mutationStatus(db, mutationId);
-    if (status === want) return;
-    await world.runFor(50);
-  }
-  const status = await mutationStatus(db, mutationId);
-  throw new Error(`expected status ${want}, got ${status}`);
-}
+import { openSimWorld } from '../../sim/world';
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 502,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      world.hold('alice', 'sync');
+    let mutationId = '';
+    {
+      using _hold = world.net('alice', 'sync').set('hold');
       const queued = await a.mutate(setNote, {
         id: 'n1',
         body: 'transient',
       });
       expect(queued.ok).toBe(true);
       if (!queued.ok) return;
+      mutationId = queued.mutationId;
 
       await world.runFor(200);
-      expect(await mutationStatus(a.db, queued.mutationId)).toBe('pending');
-
-      world.release('alice', 'sync');
-      a.engine.wakeUploads();
-      await waitForStatus(world, a.db, queued.mutationId, 'confirmed');
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'transient' });
-    } finally {
-      await world.dispose();
+      await expect(
+        world.until(a.outcome(mutationId), { budgetMs: 100 })
+      ).rejects.toThrow(/until timed out/);
     }
+    await world.until(a.outcome(mutationId), { budgetMs: 5_000 });
+    expect(await a.outcome(mutationId)).toBe('confirmed');
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'transient' });
   });
 });

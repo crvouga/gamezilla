@@ -78,23 +78,33 @@ export function clientOrThrow(state: SessionMutable, id: LabClientId) {
   return c;
 }
 
+function reapplyPartitions(
+  world: SimWorld,
+  clientId: LabClientId,
+  edge: LabEdgeState
+): void {
+  world.net(clientId, 'all').set('ok');
+  if (edge.livePartitioned) world.net(clientId, 'live').set('down');
+  if (edge.syncPartitioned) world.net(clientId, 'sync').set('down');
+  if (edge.liveHeld) world.net(clientId, 'live').set('hold');
+  if (edge.syncHeld) world.net(clientId, 'sync').set('hold');
+}
+
 export function applyEdgePartition(
   state: SessionMutable,
   clientId: LabClientId,
   traffic: 'live' | 'sync' | 'all'
 ): void {
   const prev = state.edges[clientId] ?? EMPTY_EDGE;
-  state.edges = {
-    ...state.edges,
-    [clientId]: {
-      ...prev,
-      livePartitioned:
-        traffic === 'live' || traffic === 'all' ? true : prev.livePartitioned,
-      syncPartitioned:
-        traffic === 'sync' || traffic === 'all' ? true : prev.syncPartitioned,
-    },
+  const next: LabEdgeState = {
+    ...prev,
+    livePartitioned:
+      traffic === 'live' || traffic === 'all' ? true : prev.livePartitioned,
+    syncPartitioned:
+      traffic === 'sync' || traffic === 'all' ? true : prev.syncPartitioned,
   };
-  state.world?.partition(clientId, traffic);
+  state.edges = { ...state.edges, [clientId]: next };
+  if (state.world !== null) reapplyPartitions(state.world, clientId, next);
 }
 
 export function applyUnpartition(
@@ -111,9 +121,7 @@ export function applyUnpartition(
       traffic === 'sync' || traffic === 'all' ? false : prev.syncPartitioned,
   };
   state.edges = { ...state.edges, [clientId]: next };
-  state.world?.heal(clientId);
-  if (next.livePartitioned) state.world?.partition(clientId, 'live');
-  if (next.syncPartitioned) state.world?.partition(clientId, 'sync');
+  if (state.world !== null) reapplyPartitions(state.world, clientId, next);
 }
 
 export function applyHold(
@@ -123,21 +131,13 @@ export function applyHold(
   held: boolean
 ): void {
   const prev = state.edges[clientId] ?? EMPTY_EDGE;
-  const live = traffic === 'live' || traffic === 'all' ? held : prev.liveHeld;
-  const sync = traffic === 'sync' || traffic === 'all' ? held : prev.syncHeld;
-  state.edges = {
-    ...state.edges,
-    [clientId]: { ...prev, liveHeld: live, syncHeld: sync },
+  const next: LabEdgeState = {
+    ...prev,
+    liveHeld: traffic === 'live' || traffic === 'all' ? held : prev.liveHeld,
+    syncHeld: traffic === 'sync' || traffic === 'all' ? held : prev.syncHeld,
   };
-  const w = state.world;
-  if (w === null) return;
-  if (held) {
-    if (traffic === 'live' || traffic === 'all') w.hold(clientId, 'live');
-    if (traffic === 'sync' || traffic === 'all') w.hold(clientId, 'sync');
-    return;
-  }
-  if (traffic === 'live' || traffic === 'all') w.release(clientId, 'live');
-  if (traffic === 'sync' || traffic === 'all') w.release(clientId, 'sync');
+  state.edges = { ...state.edges, [clientId]: next };
+  if (state.world !== null) reapplyPartitions(state.world, clientId, next);
 }
 
 export function applyFaults(
@@ -151,7 +151,7 @@ export function applyFaults(
     ...state.edges,
     [clientId]: { ...prev, faults: { ...prev.faults, ...faults } },
   };
-  state.world?.setFaults(clientId, traffic, faults);
+  state.world?.net(clientId, traffic).set(faults);
 }
 
 export function clearFaultsState(
@@ -163,5 +163,9 @@ export function clearFaultsState(
     ...state.edges,
     [clientId]: { ...prev, faults: RELIABLE_FAULTS },
   };
-  state.world?.clearFaults(clientId);
+  state.world?.net(clientId, 'all').set('ok');
+  const edge = state.edges[clientId];
+  if (state.world !== null && edge !== undefined) {
+    reapplyPartitions(state.world, clientId, edge);
+  }
 }

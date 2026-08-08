@@ -27,7 +27,6 @@ async function buildClientSnap(
   if (state.world === null) return null;
   const c = state.world.clients.get(id);
   if (c === undefined) return null;
-  const status = c.engine.status.getSnapshot();
   const edge = state.edges[id];
   const l = state.life[id];
   return {
@@ -38,10 +37,10 @@ async function buildClientSnap(
     foreground: l?.foreground ?? true,
     connected: l?.connected ?? true,
     syncStatus: {
-      connection: status.connection,
-      online: status.online,
-      hasSynced: status.hasSynced,
-      lastError: status.lastError,
+      connection: c.connection(),
+      online: l?.online ?? true,
+      hasSynced: c.hasSynced(),
+      lastError: c.lastError(),
     },
     skewMs: state.skew[id] ?? 0,
     edge: edge ?? EMPTY_EDGE,

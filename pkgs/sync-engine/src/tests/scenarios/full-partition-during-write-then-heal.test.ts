@@ -9,27 +9,24 @@ import { openSimWorld } from '../../sim/world';
 
 describe('full partition during write then heal', () => {
   test('partition then heal converges domain state', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 33,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'warm', body: 'w' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'warm', body: 'w' });
+    await world.assertConverged();
 
-      world.partition('alice');
-      world.partition('bob');
+    {
+      using _pa = world.net('alice').set('down');
+      using _pb = world.net('bob').set('down');
       await a.mutate(setNote, { id: 'n1', body: 'during-partition' });
       await world.runFor(100);
-      world.healAll();
-      await world.assertConverged();
-
-      await expectLiveNote(b.db, 'n1', { body: 'during-partition' });
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+
+    await expectLiveNote(b.db, 'n1', { body: 'during-partition' });
   });
 });

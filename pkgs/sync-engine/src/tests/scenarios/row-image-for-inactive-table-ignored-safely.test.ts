@@ -11,29 +11,28 @@ import { openSimWorld } from '../../sim/world';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 807,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const notesPeer = await world.addClient({
-        id: 'notesPeer',
-        sessionQuery: { name: 'notesOnly', params: {} },
-      });
+    const a = await world.addClient({ id: 'alice' });
+    const notesPeer = await world.addClient({
+      id: 'notesPeer',
+      sessionQuery: { name: 'notesOnly', params: {} },
+    });
 
-      await a.mutate(setNote, { id: 'n1', body: 'seed' });
-      await world.runFor(400);
-      await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
-      expect(await readLiveFolders(notesPeer.db)).toEqual([]);
+    await a.mutate(setNote, { id: 'n1', body: 'seed' });
+    await world.runFor(400);
+    await expectLiveNote(notesPeer.db, 'n1', { body: 'seed' });
+    expect(await readLiveFolders(notesPeer.db)).toEqual([]);
 
-      // No optimistic fanout — only server push (table-filtered).
-      await a.engine.disconnect();
-      await a.mutate(setFolder, { id: 'f1', title: 'ignored' });
-      world.hold('notesPeer', 'sync');
-      await a.engine.connect();
-      a.engine.wakeUploads();
+    // No optimistic fanout — only server push (table-filtered).
+    await a.disconnect();
+    await a.mutate(setFolder, { id: 'f1', title: 'ignored' });
+    {
+      using _hold = world.net('notesPeer', 'sync').set('hold');
+      await a.connect();
       await world.runFor(400);
 
       expect(await readLiveFolders(notesPeer.db)).toEqual([]);
@@ -42,13 +41,9 @@ describe('row image for inactive table ignored safely', () => {
       await a.mutate(setNote, { id: 'n1', body: 'after-ignore' });
       await world.runFor(300);
       await expectLiveNote(notesPeer.db, 'n1', { body: 'after-ignore' });
-
-      world.release('notesPeer', 'sync');
-      await world.crashClient('notesPeer');
-      await world.addClient({ id: 'bob' });
-      await world.assertConverged();
-    } finally {
-      await world.dispose();
     }
+    await world.node('notesPeer').crash();
+    await world.addClient({ id: 'bob' });
+    await world.assertConverged();
   });
 });

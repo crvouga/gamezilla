@@ -9,30 +9,26 @@ import { openSimWorld } from '../../sim/world';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 11,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      world.setFaults('bob', 'live', { packetLossProbability: 1 });
+    {
+      using _loss = world.net('bob', 'live').set({ packetLossProbability: 1 });
       await a.mutate(setNote, { id: 'n1', body: 'lost' });
       await world.runFor(50);
-      world.clearFaults('bob');
-      world.healAll();
-      await world.assertConverged();
-
-      await expectLiveNote(b.db, 'n1', { body: 'lost' });
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+
+    await expectLiveNote(b.db, 'n1', { body: 'lost' });
   });
 
   test('reorder window still converges', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 12,
       faults: {
@@ -42,21 +38,17 @@ describe('dropped live repaired by refetch', () => {
         reorderWindow: 5,
       },
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'n1', body: 'a' });
-      await a.mutate(setNote, { id: 'n2', body: 'b' });
-      await a.mutate(setNote, { id: 'n3', body: 'c' });
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n2', { body: 'b' });
-    } finally {
-      await world.dispose();
-    }
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n1', body: 'a' });
+    await a.mutate(setNote, { id: 'n2', body: 'b' });
+    await a.mutate(setNote, { id: 'n3', body: 'c' });
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n2', { body: 'b' });
   });
 
   test('duplicate delivery still converges', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 15,
       faults: {
@@ -64,14 +56,10 @@ describe('dropped live repaired by refetch', () => {
         packetReplayProbability: 0.8,
       },
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'n1', body: 'dup' });
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'dup' });
-    } finally {
-      await world.dispose();
-    }
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n1', body: 'dup' });
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'dup' });
   });
 });

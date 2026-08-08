@@ -26,16 +26,16 @@ export async function settleWorld(args: {
   readonly world: SimWorld;
   readonly ids: readonly string[];
 }): Promise<void> {
-  args.world.releaseAll();
-  args.world.healAll();
-  args.world.clearFaults();
+  for (const id of args.ids) {
+    args.world.net(id, 'all').set('ok');
+  }
   args.world.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const id of args.ids) {
     if (!args.world.clients.has(id)) {
-      await args.world.restartClient(id);
+      await args.world.node(id).restart();
     }
-    args.world.clients.get(id)?.lifecycle.setOnline(true);
-    args.world.clients.get(id)?.lifecycle.setForeground(true);
+    args.world.clients.get(id)?.online(true);
+    args.world.clients.get(id)?.foreground(true);
   }
   await args.world.assertConverged();
 }

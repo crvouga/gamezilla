@@ -13,97 +13,81 @@ const PEER_VISIBLE_BUDGET_MS = 200;
 
 describe('buffer outbound live flush on reconnect', () => {
   test('default: no outbound buffer; peers wait for upload/sync', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 701,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'warm', body: 'w' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'warm', body: 'w' });
+    await world.assertConverged();
 
-      await a.engine.disconnect();
-      world.hold('alice', 'sync');
+    await a.disconnect();
+    {
+      using _hold = world.net('alice', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n1', body: 'while-down' });
-      await a.engine.connect();
+      await a.connect();
       await world.runFor(200);
       await expectNoteNotLive(b.db, 'n1');
-
-      world.release('alice', 'sync');
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'while-down' });
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'while-down' });
   });
 
   test('bufferOutboundLive: peer sees note while publisher sync held', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 702,
       faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'warm', body: 'w' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'warm', body: 'w' });
+    await world.assertConverged();
 
-      await a.engine.disconnect();
-      world.hold('alice', 'sync');
+    await a.disconnect();
+    {
+      using _hold = world.net('alice', 'sync').set('hold');
       await a.mutate(setNote, { id: 'n1', body: 'buffered' });
-      await a.engine.connect();
+      await a.connect();
       await world.runFor(200);
       await expectLiveNote(b.db, 'n1', { body: 'buffered' });
-
-      world.release('alice', 'sync');
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'buffered' });
-    } finally {
-      await world.dispose();
     }
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'buffered' });
   });
 
   test('bufferOutboundLive: peer visible under latency budget via live', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 703,
       faults: RELIABLE_FAULTS,
       bufferOutboundLive: true,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'warm', body: 'w' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'warm', body: 'w' });
+    await world.assertConverged();
 
-      await a.engine.disconnect();
-      world.hold('bob', 'sync');
+    await a.disconnect();
+    {
+      using _hold = world.net('bob', 'sync').set('hold');
       await a.mutate(setNote, { id: 'fast', body: 'y' });
-
-      const t0 = world.clock.now();
-      await a.engine.connect();
-      let visibleAt: number | null = null;
-      for (let i = 0; i < 40; i += 1) {
-        await world.runFor(5);
-        const rows = await b.db.query(sql<{ body: string }>`
-          SELECT body FROM notes WHERE id = 'fast' AND _deleted_at IS NULL
-        `);
-        if (rows[0]?.body === 'y') {
-          visibleAt = world.clock.now();
-          break;
-        }
-      }
-      expect(visibleAt).not.toBeNull();
-      expect((visibleAt ?? 0) - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
-
-      world.release('bob', 'sync');
-      await world.assertConverged();
-    } finally {
-      await world.dispose();
+      const t0 = world.node('bob').now();
+      await a.connect();
+      const at = await world.until(
+        async () => {
+          const rows = await b.db.query(sql<{ body: string }>`
+            SELECT body FROM notes WHERE id = 'fast' AND _deleted_at IS NULL
+          `);
+          return rows[0]?.body === 'y';
+        },
+        { budgetMs: 400, stepMs: 5 }
+      );
+      expect(at - t0).toBeLessThan(PEER_VISIBLE_BUDGET_MS);
     }
+    await world.assertConverged();
   });
 });

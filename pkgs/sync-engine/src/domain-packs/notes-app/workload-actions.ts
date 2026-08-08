@@ -1,9 +1,10 @@
-import { SIM_SERVER_NODE_ID } from '../../sim/clock-skew';
 import type { SimFaultOptions } from '../../sim/faults';
 import type { SeededRng } from '../../sim/rng';
 import type { SimTraffic } from '../../sim/traffic';
 import type { SimWorld } from '../../sim/world';
 import { setFolder, setNote } from './shared/mutations';
+
+const SERVER_NODE = 'server';
 
 const SKEW_MS = [-60_000, -1_000, 0, 1_000, 60_000] as const;
 const LIVE_ONLY: readonly SimTraffic[] = ['live'];
@@ -126,7 +127,7 @@ export function pickWorkloadAction(
     };
   }
   if (roll < 96) {
-    const nodeId = rng.int(5) === 0 ? SIM_SERVER_NODE_ID : rng.pick(clientIds);
+    const nodeId = rng.int(5) === 0 ? SERVER_NODE : rng.pick(clientIds);
     return {
       kind: 'skew',
       nodeId,
@@ -173,50 +174,50 @@ const ACTION_HANDLERS: {
   mutate: handleMutate,
   mutateFolder: handleMutateFolder,
   offline: async (world, action) => {
-    world.clients.get(action.clientId)?.lifecycle.setOnline(false);
+    world.clients.get(action.clientId)?.online(false);
   },
   online: async (world, action) => {
-    world.clients.get(action.clientId)?.lifecycle.setOnline(true);
+    world.clients.get(action.clientId)?.online(true);
   },
   background: async (world, action) => {
-    world.clients.get(action.clientId)?.lifecycle.setForeground(false);
+    world.clients.get(action.clientId)?.foreground(false);
   },
   foreground: async (world, action) => {
-    world.clients.get(action.clientId)?.lifecycle.setForeground(true);
+    world.clients.get(action.clientId)?.foreground(true);
   },
   partition: async (world, action) => {
-    world.partition(action.nodeId, action.traffic);
+    world.net(action.nodeId, action.traffic).set('down');
   },
   heal: async (world) => {
-    world.releaseAll();
-    world.healAll();
-    world.clearFaults();
+    for (const id of world.clients.keys()) {
+      world.net(id, 'all').set('ok');
+    }
   },
   idle: async (world, action) => {
     await world.runFor(action.ms);
   },
   skew: async (world, action) => {
-    world.setClockSkew(action.nodeId, action.skewMs);
+    world.node(action.nodeId).skewClock(action.skewMs);
   },
   crash: async (world, action) => {
     if (!world.clients.has(action.clientId)) return;
-    await world.crashClient(action.clientId);
+    await world.node(action.clientId).crash();
   },
   restart: async (world, action) => {
     try {
-      await world.restartClient(action.clientId);
+      await world.node(action.clientId).restart();
     } catch {
       // No meta yet (should not happen for boot clients).
     }
   },
   hold: async (world, action) => {
-    world.hold(action.nodeId, action.traffic);
+    world.net(action.nodeId, action.traffic).set('hold');
   },
   release: async (world, action) => {
-    world.release(action.nodeId, action.traffic);
+    world.net(action.nodeId, action.traffic).set('ok');
   },
   setFaults: async (world, action) => {
-    world.setFaults(action.nodeId, action.traffic, action.faults);
+    world.net(action.nodeId, action.traffic).set(action.faults);
   },
 };
 

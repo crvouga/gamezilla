@@ -102,13 +102,12 @@ describe('seeded workload fuzz determinism', () => {
   );
 
   test('single mutate then fuzz-style settle', async () => {
-    const world = await openSimWorld({ domain: notesDomainPack, seed: 88 });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      await a.mutate(setNote, { id: 'n1', body: 'ok' });
-      await world.assertConverged();
-    } finally {
-      await world.dispose();
-    }
+    await using world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 88,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    await a.mutate(setNote, { id: 'n1', body: 'ok' });
+    await world.assertConverged();
   });
 });

@@ -21,6 +21,7 @@ import {
   createMutationSide,
   type SimAuthControl,
 } from './client-factory-parts';
+import { decorateClientSurface } from './client-surface';
 import type { SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
 import { createSerialSqlClient } from './serial-sql';
@@ -34,6 +35,18 @@ export type SimClientDbBundle = {
   readonly serial: SqlClient;
 };
 
+export type SimSubscription = Disposable & {
+  readonly ready: Promise<void>;
+};
+
+export type SimRejection = {
+  readonly id: string;
+  readonly mutationId: string;
+  readonly code: string;
+  readonly message: string;
+  readonly meta: string | null;
+};
+
 export type SimClientHandle = {
   readonly id: string;
   readonly actorId: string;
@@ -41,8 +54,15 @@ export type SimClientHandle = {
   readonly db: SqlClient;
   /** Underlying DB handles for preserveLocalDb restarts. */
   readonly dbBundle: SimClientDbBundle;
+  /**
+   * Real sync engine — sim internals / settle only.
+   * Scenarios: use flattened methods; pool tests use {@link getSyncEngine}.
+   */
   readonly engine: SyncEngine;
+  /** Controllable lifecycle — prefer `online` / `foreground` in scenarios. */
   readonly lifecycle: SimClientLifecycle;
+  /** Explicit SyncEngine access for pool / identity tests. */
+  readonly getSyncEngine: () => SyncEngine;
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
   readonly mutationClient: MutationClient;
   readonly http: SimHttpClient;
@@ -52,6 +72,26 @@ export type SimClientHandle = {
   readonly subscribedTopics: () => readonly string[];
   /** Dispose engine + HTTP; optionally keep the SQLite DB for preserveLocalDb. */
   readonly dispose: (opts?: { readonly keepDb?: boolean }) => Promise<void>;
+
+  readonly online: (value: boolean) => void;
+  readonly foreground: (value: boolean) => void;
+  readonly connect: () => Promise<void>;
+  readonly disconnect: () => Promise<void>;
+  readonly clearLocalData: (reason: string) => Promise<void>;
+  readonly subscribe: (
+    name: string,
+    params: Readonly<Record<string, unknown>>
+  ) => SimSubscription;
+  readonly outcome: (mutationId: string) => Promise<'confirmed' | 'rejected'>;
+  readonly rejections: () => Promise<readonly SimRejection[]>;
+  readonly connection: () => string;
+  readonly lastError: () => string | null;
+  readonly hasSynced: () => boolean;
+  /** Rare explicit wake+refresh. Scenarios need a `// nudge:` comment above. */
+  readonly nudge: () => Promise<void>;
+  readonly postMutations: (
+    rows: Parameters<SimHttpClient['postMutations']>[0]
+  ) => Promise<Awaited<ReturnType<SimHttpClient['postMutations']>>>;
 };
 
 export type BuildSimClientArgs = {
@@ -197,7 +237,7 @@ export async function buildSimClient(
     http,
     lifecycle
   );
-  return {
+  const base = {
     id: args.id,
     actorId: args.actorId,
     deviceId: args.deviceId,
@@ -206,15 +246,16 @@ export async function buildSimClient(
     engine,
     lifecycle,
     mutationClient,
-    mutate: (m, a) => mutationClient.mutate(m, a),
+    mutate: <A>(m: Mutation<A>, a: A) => mutationClient.mutate(m, a),
     http,
     pubsubRemakeCount: args.pubsubRemakeCount,
     subscribedTopics: args.subscribedTopics,
-    dispose: async (opts) => {
+    dispose: async (opts?: { readonly keepDb?: boolean }) => {
       http.dispose();
       await engine.disconnect();
       if (opts?.keepDb === true) return;
       await rawDb.disconnect();
     },
   };
+  return decorateClientSurface(base);
 }

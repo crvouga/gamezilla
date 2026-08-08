@@ -3,6 +3,7 @@
  * Enforce black-box sync-engine tests:
  * - all `*.test.ts` live under `pkgs/sync-engine/src/tests/`
  * - scenario tests do not assert framework tables or import private modules
+ * - scenario authoring uses the five-concept sim API (no old DSL / pump helpers)
  */
 import { join } from 'node:path';
 import { Glob } from 'bun';
@@ -16,15 +17,34 @@ const violations: string[] = [];
 const FORBIDDEN_TABLE_RE =
   /\b(_push_applied|_mutations_applied|_mutations|_scope_meta|write_rejections|sqlite_master)\b/;
 
-/** Relative deep imports into package internals (not sim / tests). */
 const PRIVATE_RELATIVE_IMPORT_RE =
   /from\s+['"](?:\.\.\/)+(?:client|server|mutations|queries|shared)\//;
 
-/** Package deep path — only four public entrypoints are allowed. */
 const PRIVATE_PACKAGE_IMPORT_RE = /from\s+['"]@pkgs\/sync-engine\/src\//;
 
 const ALLOWED_PACKAGE_IMPORT_RE =
   /from\s+['"]@pkgs\/sync-engine\/(client|server|shared|test)['"]/;
+
+function prevNonEmpty(lines: string[], idx: number): string {
+  for (let j = idx - 1; j >= 0; j -= 1) {
+    const t = lines[j]!.trim();
+    if (t.length > 0) return t;
+  }
+  return '';
+}
+
+/** True when a seed for-of loop body opens a world (not runSeed fuzz). */
+function seedLoopOpensWorld(lines: string[], start: number): boolean {
+  let seenOpen = false;
+  let seenRunSeed = false;
+  for (let k = start; k < Math.min(start + 25, lines.length); k += 1) {
+    const t = lines[k]!;
+    if (k > start && /^\s*test\s*[\.(]/.test(t)) break;
+    if (/openSimWorld\s*\(/.test(t)) seenOpen = true;
+    if (/runSeed\s*\(/.test(t)) seenRunSeed = true;
+  }
+  return seenOpen && !seenRunSeed;
+}
 
 for await (const file of new Glob(`${pkg}/src/**/*.test.ts`).scan({
   cwd: root,
@@ -43,19 +63,20 @@ for await (const file of new Glob(`${testsRoot}/scenarios/**/*.test.ts`).scan({
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i]!;
+    const n = i + 1;
     if (FORBIDDEN_TABLE_RE.test(line)) {
       violations.push(
-        `${file}:${i + 1}: scenario must not reference framework tables`
+        `${file}:${n}: scenario must not reference framework tables`
       );
     }
     if (PRIVATE_RELATIVE_IMPORT_RE.test(line)) {
       violations.push(
-        `${file}:${i + 1}: scenario must not import sync-engine internals`
+        `${file}:${n}: scenario must not import sync-engine internals`
       );
     }
     if (PRIVATE_PACKAGE_IMPORT_RE.test(line)) {
       violations.push(
-        `${file}:${i + 1}: scenario must not deep-import @pkgs/sync-engine/src`
+        `${file}:${n}: scenario must not deep-import @pkgs/sync-engine/src`
       );
     }
     if (
@@ -64,13 +85,61 @@ for await (const file of new Glob(`${testsRoot}/scenarios/**/*.test.ts`).scan({
       !ALLOWED_PACKAGE_IMPORT_RE.test(line) &&
       !line.includes('@pkgs/sync-engine/src/')
     ) {
-      // Allow only the four public entrypoints when importing the package.
       const m = line.match(/from\s+['"](@pkgs\/sync-engine\/[^'"]+)['"]/);
       if (m !== null && !ALLOWED_PACKAGE_IMPORT_RE.test(line)) {
         violations.push(
-          `${file}:${i + 1}: scenario may only import @pkgs/sync-engine/{client,server,shared,test}`
+          `${file}:${n}: scenario may only import @pkgs/sync-engine/{client,server,shared,test}`
         );
       }
+    }
+    if (/\.engine\./.test(line)) {
+      violations.push(
+        `${file}:${n}: scenario must not use .engine. (use flattened client API)`
+      );
+    }
+    if (/\.lifecycle\./.test(line)) {
+      violations.push(
+        `${file}:${n}: scenario must not use .lifecycle. (use online/foreground)`
+      );
+    }
+    if (/function\s+pump\b/.test(line)) {
+      violations.push(`${file}:${n}: use world.until instead of local pump()`);
+    }
+    if (/function\s+waitForStatus\b/.test(line)) {
+      violations.push(
+        `${file}:${n}: use client.outcome + world.until instead of waitForStatus`
+      );
+    }
+    if (/function\s+waitForTopics\b/.test(line)) {
+      violations.push(
+        `${file}:${n}: use world.until(() => topics…) instead of waitForTopics`
+      );
+    }
+    if (/mutation-status/.test(line) && /from\s+['"]/.test(line)) {
+      violations.push(
+        `${file}:${n}: use client.outcome / rejections instead of mutation-status`
+      );
+    }
+    if (/await\s+world\.dispose\s*\(/.test(line)) {
+      violations.push(
+        `${file}:${n}: use await using world = … instead of manual dispose`
+      );
+    }
+    if (
+      /for\s*\(\s*const\s+seed\s+of\b/.test(line) &&
+      seedLoopOpensWorld(lines, i)
+    ) {
+      violations.push(
+        `${file}:${n}: use test.each for seed sweeps that openSimWorld`
+      );
+    }
+    if (
+      /\.nudge\s*\(/.test(line) &&
+      !prevNonEmpty(lines, i).startsWith('// nudge:')
+    ) {
+      violations.push(
+        `${file}:${n}: client.nudge() requires a preceding // nudge: comment`
+      );
     }
   }
 }

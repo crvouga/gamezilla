@@ -9,76 +9,59 @@ import {
   setNoteStrictExists,
 } from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-} from '../../sim/mutation-status';
-import { openSimWorld, type SimWorld } from '../../sim/world';
-
-async function waitForStatus(
-  world: SimWorld,
-  db: Parameters<typeof mutationStatus>[0],
-  mutationId: string,
-  want: 'pending' | 'confirmed' | 'rejected'
-): Promise<void> {
-  for (let i = 0; i < 80; i += 1) {
-    const status = await mutationStatus(db, mutationId);
-    if (status === want) return;
-    await world.runFor(50);
-  }
-  const status = await mutationStatus(db, mutationId);
-  throw new Error(`expected status ${want}, got ${status}`);
-}
+import { openSimWorld } from '../../sim/world';
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 821,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      // Bob owns the row so peer soft-delete is authorized.
-      await b.mutate(setNote, { id: 'n1', body: 'seed' });
-      await world.assertConverged();
+    // Bob owns the row so peer soft-delete is authorized.
+    await b.mutate(setNote, { id: 'n1', body: 'seed' });
+    await world.assertConverged();
 
-      await a.engine.disconnect();
-      const pending = await a.mutate(setNoteStrictExists, {
-        id: 'n1',
-        body: 'strict-pending',
-      });
-      expect(pending.ok).toBe(true);
-      if (!pending.ok) return;
-      await expectLiveNote(a.db, 'n1', { body: 'strict-pending' });
+    await a.disconnect();
+    const pending = await a.mutate(setNoteStrictExists, {
+      id: 'n1',
+      body: 'strict-pending',
+    });
+    expect(pending.ok).toBe(true);
+    if (!pending.ok) return;
+    await expectLiveNote(a.db, 'n1', { body: 'strict-pending' });
 
-      const del = await b.mutate(deleteNote, { id: 'n1' });
-      expect(del.ok).toBe(true);
-      await world.runFor(400);
-      await expectNoteNotLive(world.server.db, 'n1');
+    const del = await b.mutate(deleteNote, { id: 'n1' });
+    expect(del.ok).toBe(true);
+    await world.runFor(400);
+    await expectNoteNotLive(world.server.db, 'n1');
 
-      await a.engine.connect();
-      // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
-      await a.engine.waitForFirstSync();
-      await world.runFor(200);
-      await expectNoteNotLive(a.db, 'n1');
+    await a.connect();
+    // Merge+rebase throws → optimistic effect hidden (tombstone wins locally).
+    await world.until(async () => {
+      try {
+        await expectNoteNotLive(a.db, 'n1');
+        return true;
+      } catch {
+        return false;
+      }
+    });
+    await expectNoteNotLive(a.db, 'n1');
 
-      a.engine.wakeUploads();
-      await waitForStatus(world, a.db, pending.mutationId, 'rejected');
-      const unacked = await listUnackedWriteRejections(a.db, a.deviceId);
-      expect(unacked.length).toBe(1);
-      expect(unacked[0]?.mutationId).toBe(pending.mutationId);
+    await world.until(a.outcome(pending.mutationId));
+    expect(await a.outcome(pending.mutationId)).toBe('rejected');
+    const unacked = await a.rejections();
+    expect(unacked.length).toBe(1);
+    expect(unacked[0]?.mutationId).toBe(pending.mutationId);
 
-      await b.mutate(setNote, { id: 'bump', body: 'x' });
-      await world.assertConverged();
-      await expectNoteNotLive(a.db, 'n1');
-      await expectNotesMatchServer(a.db, world.server.db);
-      await expectNotesMatchServer(b.db, world.server.db);
-    } finally {
-      await world.dispose();
-    }
+    await b.mutate(setNote, { id: 'bump', body: 'x' });
+    await world.assertConverged();
+    await expectNoteNotLive(a.db, 'n1');
+    await expectNotesMatchServer(a.db, world.server.db);
+    await expectNotesMatchServer(b.db, world.server.db);
   });
 });

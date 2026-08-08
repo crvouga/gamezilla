@@ -6,45 +6,29 @@ import {
   setNoteUndeclaredFolderWrite,
 } from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld, type SimWorld } from '../../sim/world';
-
-async function pump(
-  world: SimWorld,
-  work: Promise<unknown>,
-  maxVirtualMs = 2_000
-): Promise<void> {
-  let done = false;
-  const tracked = Promise.resolve(work).finally(() => {
-    done = true;
-  });
-  const steps = Math.ceil(maxVirtualMs / 25);
-  for (let i = 0; i < steps && !done; i += 1) {
-    await world.runFor(25);
-  }
-  await tracked;
-}
+import { openSimWorld } from '../../sim/world';
 
 describe('undeclared table write misses table filter heals on wakeall', () => {
   // README known limitation 8 declaredWrites — push table filter only; not enforced.
   test('foldersOnly peer misses undeclared folder write until wakeAll refetch', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1070,
       faults: RELIABLE_FAULTS,
       rowImageFanout: false,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const notesPeer = await world.addClient({
-        id: 'notesPeer',
-        sessionQuery: { name: 'notesOnly', params: {} },
-      });
-      const foldersPeer = await world.addClient({
-        id: 'foldersPeer',
-        sessionQuery: { name: 'foldersOnly', params: {} },
-      });
+    const a = await world.addClient({ id: 'alice' });
+    const notesPeer = await world.addClient({
+      id: 'notesPeer',
+      sessionQuery: { name: 'notesOnly', params: {} },
+    });
+    const foldersPeer = await world.addClient({
+      id: 'foldersPeer',
+      sessionQuery: { name: 'foldersOnly', params: {} },
+    });
 
-      world.hold('foldersPeer', 'sync');
+    {
+      using _hold = world.net('foldersPeer', 'sync').set('hold');
       await a.mutate(setNoteUndeclaredFolderWrite, {
         noteId: 'n1',
         folderId: 'f-undeclared',
@@ -56,53 +40,47 @@ describe('undeclared table write misses table filter heals on wakeall', () => {
       // notes declared → notesOnly peer can wake; folders write undeclared.
       await expectLiveNote(notesPeer.db, 'n1', { body: 'note-ok' });
       expect(await readLiveFolders(foldersPeer.db)).toEqual([]);
-
-      world.release('foldersPeer', 'sync');
-      await foldersPeer.engine.disconnect();
-      await foldersPeer.engine.connect();
-      await pump(world, foldersPeer.engine.waitForFirstSync());
-      const folders = await readLiveFolders(foldersPeer.db);
-      expect(folders.some((f) => f.id === 'f-undeclared')).toBe(true);
-
-      await world.crashClient('notesPeer');
-      await world.crashClient('foldersPeer');
-      await world.assertConverged();
-    } finally {
-      await world.dispose();
     }
+    await foldersPeer.disconnect();
+    await foldersPeer.connect();
+    await world.runFor(500);
+    const folders = await readLiveFolders(foldersPeer.db);
+    expect(folders.some((f) => f.id === 'f-undeclared')).toBe(true);
+
+    await world.node('notesPeer').crash();
+    await world.node('foldersPeer').crash();
+    await world.assertConverged();
   });
 
-  test('seed sweep undeclared folder write eventually visible', async () => {
-    for (const seed of [1071, 1072, 1073] as const) {
-      const world = await openSimWorld({
+  test.each([1071, 1072, 1073])(
+    'seed sweep undeclared folder write eventually visible (seed=%i)',
+    async (seed) => {
+      await using world = await openSimWorld({
         domain: notesDomainPack,
         seed,
         faults: RELIABLE_FAULTS,
         rowImageFanout: false,
       });
-      try {
-        const a = await world.addClient({ id: 'alice' });
-        const foldersPeer = await world.addClient({
-          id: 'foldersPeer',
-          sessionQuery: { name: 'foldersOnly', params: {} },
-        });
-        await a.mutate(setNoteUndeclaredFolderWrite, {
-          noteId: `n-${seed}`,
-          folderId: `f-${seed}`,
-          folderTitle: 'T',
-          body: 'x',
-        });
-        await pump(world, foldersPeer.engine.refreshQueries());
-        expect(
-          (await readLiveFolders(foldersPeer.db)).some(
-            (f) => f.id === `f-${seed}`
-          )
-        ).toBe(true);
-        await world.crashClient('foldersPeer');
-        await world.assertConverged();
-      } finally {
-        await world.dispose();
-      }
+      const a = await world.addClient({ id: 'alice' });
+      const foldersPeer = await world.addClient({
+        id: 'foldersPeer',
+        sessionQuery: { name: 'foldersOnly', params: {} },
+      });
+      await a.mutate(setNoteUndeclaredFolderWrite, {
+        noteId: `n-${seed}`,
+        folderId: `f-${seed}`,
+        folderTitle: 'T',
+        body: 'x',
+      });
+      // nudge: undeclared folder write missed table filter — heal by refetch
+      await world.until(foldersPeer.nudge());
+      expect(
+        (await readLiveFolders(foldersPeer.db)).some(
+          (f) => f.id === `f-${seed}`
+        )
+      ).toBe(true);
+      await world.node('foldersPeer').crash();
+      await world.assertConverged();
     }
-  });
+  );
 });

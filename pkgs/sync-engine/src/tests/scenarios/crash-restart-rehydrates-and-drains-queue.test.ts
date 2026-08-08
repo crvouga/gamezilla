@@ -9,47 +9,39 @@ import { openSimWorld } from '../../sim/world';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 40,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      const b = await world.addClient({ id: 'bob' });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
 
-      a.lifecycle.setOnline(false);
-      await a.mutate(setNote, { id: 'n1', body: 'queued' });
-      await world.runFor(50);
+    a.online(false);
+    await a.mutate(setNote, { id: 'n1', body: 'queued' });
+    await world.runFor(50);
 
-      a.lifecycle.setOnline(true);
-      await world.assertConverged();
-      await expectLiveNote(b.db, 'n1', { body: 'queued' });
-    } finally {
-      await world.dispose();
-    }
+    a.online(true);
+    await world.assertConverged();
+    await expectLiveNote(b.db, 'n1', { body: 'queued' });
   });
 
   test('restart after crash rehydrates all live notes', async () => {
-    const world = await openSimWorld({
+    await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 41,
       faults: RELIABLE_FAULTS,
     });
-    try {
-      const a = await world.addClient({ id: 'alice' });
-      await world.addClient({ id: 'bob' });
-      await a.mutate(setNote, { id: 'n1', body: 'one' });
-      await a.mutate(setNote, { id: 'n2', body: 'two' });
-      await world.assertConverged();
+    const a = await world.addClient({ id: 'alice' });
+    await world.addClient({ id: 'bob' });
+    await a.mutate(setNote, { id: 'n1', body: 'one' });
+    await a.mutate(setNote, { id: 'n2', body: 'two' });
+    await world.assertConverged();
 
-      await world.crashClient('bob');
-      const bob = await world.restartClient('bob');
-      await world.assertConverged();
-      await expectLiveNote(bob.db, 'n1', { body: 'one' });
-      await expectLiveNote(bob.db, 'n2', { body: 'two' });
-    } finally {
-      await world.dispose();
-    }
+    await world.node('bob').crash();
+    const bob = await world.node('bob').restart();
+    await world.assertConverged();
+    await expectLiveNote(bob!.db, 'n1', { body: 'one' });
+    await expectLiveNote(bob!.db, 'n2', { body: 'two' });
   });
 });
