@@ -14,7 +14,8 @@
 #    same scripts are root Turbo tasks locally (`//#check:*` in turbo.json):
 #    `check-static` (actionlint + gitleaks; gitleaks needs `fetch-depth: 0`),
 #    `check-api`, `check-browser` (Chromium cache, failure screenshots).
-#    Local `bun check` runs one Turbo graph via `run-check-turbo.ts`.
+#    Local `bun check` runs the offline Turbo graph via `run-check-turbo.ts`
+#    (no live `check:api` / `check:browser`; those stay CI / opt-in).
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe, and the

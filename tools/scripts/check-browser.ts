@@ -6,7 +6,8 @@
  * When ports :5173 / :8788 are already healthy (`bun dev`, `bun preview`, or CI's
  * prior "Start preview stack" step), runs tests immediately. Otherwise starts
  * `turbo preview` locally, waits for readiness, runs tests, then frees ports.
- * Also a root Turbo task (`//#check:browser`, depends on `//#check:api`).
+ * Also a root Turbo task (`//#check:browser`, depends on `//#check:api`) for
+ * CI / opt-in local runs (not part of `bun check`).
  *
  * Invoked via `bun run check:browser` (wraps `secrets-run` for dev secrets).
  */

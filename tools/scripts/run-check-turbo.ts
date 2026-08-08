@@ -2,12 +2,13 @@
  * Single entry for local / CI Turbo check graphs.
  *
  * Modes:
- * - `all` — full `bun check` (tc/test/lint/gates/static/secrets/api/browser + build)
+ * - `all` — full `bun check` (tc/test/lint/gates/static/secrets + build; no api/browser)
  * - `ci` — turbo-only lanes (no static/api/browser)
  * - `gates` / `verify` / `build` — GHA job subsets
  *
  * `build` is a second turbo-ci-run so `--filter=!@apps/client` does not
  * exclude the client from `tc` / `test`.
+ * Live-server checks (`check:api` / `check:browser`) stay opt-in / CI-only.
  */
 import { spawnSync } from 'node:child_process';
 
@@ -83,8 +84,6 @@ function mainTasks(mode: Mode): readonly string[] | null {
         ...CI_GATE_TASKS,
         'check:static',
         SECRETS_VALIDATE_TASK,
-        'check:api',
-        'check:browser',
       ];
     case 'ci':
       return ['tc', 'test', 'ci:lint', ...CI_GATE_TASKS, SECRETS_VALIDATE_TASK];

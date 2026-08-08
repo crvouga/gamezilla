@@ -7,7 +7,9 @@
  *
  * Also the step list for `check:heal` (runs these scripts sequentially).
  * Local `bun run check` is a single Turbo graph via
- * `tools/scripts/run-check-turbo.ts` (same tasks; not this parallel fan-out).
+ * `tools/scripts/run-check-turbo.ts` (gates/verify/static/secrets + build;
+ * not this parallel fan-out). Live `check:api` / `check:browser` stay
+ * CI / heal / opt-in only.
  *
  * Turbo-cacheable work is split across `check-gates` / `check-verify` /
  * `check-build` (gates include `check:secrets:validate`, cached on a

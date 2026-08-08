@@ -33,7 +33,7 @@ describe('buildLocalCheckFixPromptBody', () => {
     expect(body).toContain('`check-static`');
     expect(body).toContain('`check-verify`');
     expect(body).toContain('bun run check:static');
-    expect(body).toContain('bun run check:api');
+    expect(body).toContain('opt-in / CI-only');
     expect(body).toContain('Never patch dependencies');
     expect(body).toContain('actionlint: syntax error');
     expect(body).toContain('turbo: lint failed');
@@ -45,13 +45,13 @@ describe('buildLocalCheckFixPromptBody', () => {
 });
 
 describe('buildCheckHealPromptBody', () => {
-  test('includes step ids and bun check verify hints', () => {
+  test('includes step ids and live-check verify hints', () => {
     const body = buildCheckHealPromptBody([
       { stepId: 'check-static', output: 'actionlint: syntax error' },
       { stepId: 'check-verify', output: 'turbo: lint failed' },
     ]);
-    expect(body).toContain('`bun check`');
     expect(body).toContain('check:heal');
+    expect(body).toContain('check:api');
     expect(body).toContain('`check-static`');
     expect(body).toContain('`check-verify`');
     expect(body).toContain('bun run check:static');

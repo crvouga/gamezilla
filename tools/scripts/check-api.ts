@@ -6,7 +6,8 @@
  * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
  * "Start API preview" step), runs tests immediately. Otherwise starts
  * `preview:serve` locally, waits, runs tests, then frees the API port.
- * Also a root Turbo task (`//#check:api`) used by `bun check`.
+ * Also a root Turbo task (`//#check:api`) for CI / opt-in local runs
+ * (not part of `bun check`).
  *
  * Invoked via `bun run check:api` (wraps `secrets-run` for dev secrets).
  */

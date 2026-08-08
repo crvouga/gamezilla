@@ -7,8 +7,9 @@ export interface CheckHealStep {
 }
 
 /**
- * Same logical steps as GHA deploy-gate jobs. Heal runs them sequentially;
- * local `bun check` runs the equivalent Turbo task graph in one invocation.
+ * Same logical steps as GHA deploy-gate jobs. Heal runs them sequentially
+ * (including live `check:api` / `check:browser`). Local `bun check` covers
+ * the offline Turbo graph only (gates/verify/static/secrets + build).
  */
 export const CHECK_HEAL_STEPS: ReadonlyArray<CheckHealStep> =
   DEPLOYMENT_PIPELINE_CHECK_STEPS.map((step) => ({
