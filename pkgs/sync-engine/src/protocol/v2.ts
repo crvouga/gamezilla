@@ -1,16 +1,12 @@
 /**
- * Wire protocol v1 — frozen cross-version shapes.
+ * Wire protocol v2 — hard cut from v1.
  *
- * Compatibility surface between deployed clients and servers. Changing shapes
- * requires an explicit version bump (v2) and dual-stack decision — not a
- * routine internal refactor.
- *
- * Content/scope hash *algorithms* are Internal (opaque string equality only).
- * Numeric bounds below are part of this freeze.
+ * Same query/mutation/push envelopes as v1; version gate rejects pre-cut clients
+ * with `{ error: 'auth', reason: 'upgrade_required' }` (no local DB wipe).
  */
 
-/** Protocol major version. Bump only with an explicit compatibility decision. */
-export const SYNC_PROTOCOL_VERSION = 1 as const;
+/** Protocol major version. */
+export const SYNC_PROTOCOL_VERSION = 2 as const;
 
 /** Max mutation rows accepted per POST /mutations. */
 export const MAX_MUTATIONS_BATCH = 64;
@@ -85,7 +81,7 @@ export type MutationVerdict =
 
 export type MutationBatchResponse = {
   readonly ok: true;
-  readonly verdicts: readonly MutationVerdict[];
+  readonly verdicts: MutationVerdict[];
   readonly ackSeq: number;
   /**
    * Per-topic pushSeqs for this batch. Mutating client floors local applied
@@ -96,12 +92,13 @@ export type MutationBatchResponse = {
 
 export type AuthErrorBody = {
   readonly error: 'auth';
-  readonly reason: 'expired' | 'revoked';
+  readonly reason: 'expired' | 'revoked' | 'upgrade_required';
 };
 
 /**
  * Pubsub push payload. `pushSeq` required and monotonic per topic.
  * Optional `rows` are a lossy optimization; snapshots define correctness.
+ * `tables` comes from captured writes (AST), not hand declarations.
  */
 export type PushMessage = {
   readonly pushSeq: string;
@@ -109,3 +106,6 @@ export type PushMessage = {
   readonly tables?: readonly string[];
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
 };
+
+/** Header / body field clients send; server rejects mismatch. */
+export const SYNC_PROTOCOL_HEADER = 'x-sync-protocol';

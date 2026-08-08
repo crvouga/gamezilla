@@ -14,9 +14,7 @@ import type {
 import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
 import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import { useMemo } from 'react';
-
-import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
-import { useSpacePresence } from '../use-space-presence';
+import { getOrCreateSpaceClientId } from './space-open-session-store';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceRoomConnection } from './use-space-room-connection';
@@ -36,14 +34,14 @@ export type SpaceRoomUiState = {
 export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const deviceId = useMyDeviceId();
   const memberId = useMyId();
-  const presence = useSpacePresence(spaceId);
-  const session = useSpaceOpenSession(spaceId);
   const configService = useConfigService();
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
-  const clientId = session.clientId ?? '';
+  const clientId = spaceId.length > 0 ? getOrCreateSpaceClientId(spaceId) : '';
 
+  // Lifetime is owned by SpaceOpenRoomSlot (open-session row). Do not gate on
+  // presence/paintReady — those flap and were destroying the single WS.
   const bootstrap = useMemo((): SpaceRoomConnectionBootstrap | null => {
     if (
       spaceId.length === 0 ||
@@ -53,16 +51,13 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
     ) {
       return null;
     }
-    if (presence.status !== 'active') {
-      return null;
-    }
     return {
       spaceId,
       myId: memberId,
       installId: deviceId,
       clientId,
     };
-  }, [spaceId, deviceId, memberId, presence.status, clientId]);
+  }, [spaceId, deviceId, memberId, clientId]);
 
   const { room, transport } = useSpaceRoomConnection({
     bootstrap,

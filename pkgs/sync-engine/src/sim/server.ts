@@ -7,6 +7,8 @@ import type { MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { QueryRegistry } from '../queries/core/types';
 import { notifyChannels } from '../server/notify-channels';
+import { withFrameworkTopicMap } from '../shared/framework-topic-map';
+import type { TopicMap } from '../shared/topic-map';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimHttpServerHandlers } from './http-bridge';
 import { openSimSqliteServer } from './open-sim-sqlite';
@@ -46,6 +48,7 @@ export type OpenSimServerArgs = {
   readonly localSchema: LocalDomainSchema;
   readonly rowImageFanout?: boolean;
   readonly faults?: BoundaryFaultController;
+  readonly topicMap?: TopicMap;
   /** Reuse an existing server DB (server crash/restart with preserveDb). */
   readonly existingDb?: SqlClient;
   readonly onDisposeDb?: () => Promise<void>;
@@ -63,7 +66,9 @@ function buildHandlerCtx(args: {
   readonly nextCheckpoint: () => string;
   readonly rowImageFanout: boolean;
   readonly faults?: BoundaryFaultController;
+  readonly topicMap?: TopicMap;
 }): SimServerHandlerCtx {
+  const topicMap = withFrameworkTopicMap(args.topicMap);
   return {
     db: args.db,
     now: args.now,
@@ -75,6 +80,7 @@ function buildHandlerCtx(args: {
     setAuth: args.setAuth,
     nextCheckpoint: args.nextCheckpoint,
     rowImageFanout: args.rowImageFanout,
+    ...(topicMap !== undefined ? { topicMap } : {}),
     ...(args.faults !== undefined
       ? { shouldFailPublish: () => args.faults!.takePublishFault() }
       : {}),
@@ -124,6 +130,7 @@ export async function openSimServer(
       return commitCheckpoint(args.now(), checkpointSeq);
     },
     rowImageFanout: args.rowImageFanout !== false,
+    ...(args.topicMap !== undefined ? { topicMap: args.topicMap } : {}),
     ...(args.faults !== undefined ? { faults: args.faults } : {}),
   });
 

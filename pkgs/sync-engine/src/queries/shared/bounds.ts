@@ -4,7 +4,7 @@ import {
   MAX_FANOUT_BYTES as PROTOCOL_MAX_FANOUT_BYTES,
   MAX_FANOUT_ROWS as PROTOCOL_MAX_FANOUT_ROWS,
   MAX_MUTATIONS_BATCH as PROTOCOL_MAX_MUTATIONS_BATCH,
-} from '../../protocol/v1';
+} from '../../protocol';
 
 /** Max mutation rows accepted per POST /mutations (protocol v1). */
 export const MAX_MUTATIONS_BATCH = PROTOCOL_MAX_MUTATIONS_BATCH;

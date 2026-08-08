@@ -1,4 +1,4 @@
-import type { PubSub } from '@pkgs/pubsub/interface';
+import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -17,7 +17,10 @@ import { createSqlWatch } from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
+import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { QueryChannelsCtx } from '../shared/push-payload';
+import type { TopicMap } from '../shared/topic-map';
+import type { WriteCaptureSnapshot } from '../sql-ast';
 import type { AppLifecycle } from './app-lifecycle';
 import { attachPush } from './attach-push';
 import {
@@ -65,6 +68,11 @@ export type SyncEnginePushOptions = {
    * flush on attach. Default false = skip (peers wait for upload/sync).
    */
   readonly bufferOutboundLive?: boolean;
+  readonly topicMap?: TopicMap;
+  readonly defaultEntryChannel?: (
+    params: unknown,
+    ctx: QueryChannelsCtx
+  ) => readonly Topic[];
 };
 
 export type CreateLocalSyncEngineOptions = {
@@ -234,6 +242,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
   try {
     let pubsub = push.createPubSub();
     state.pushPubSub = pubsub;
+    const topicMap = withFrameworkTopicMap(push.topicMap);
     state.disposePush = attachPush({
       pubsub,
       runtime: state.runtime,
@@ -252,6 +261,10 @@ function attachPushIfConfigured(state: LocalEngineState): void {
       },
       ...(push.onBindTopicRefresh !== undefined
         ? { onBindTopicRefresh: push.onBindTopicRefresh }
+        : {}),
+      ...(topicMap !== undefined ? { topicMap } : {}),
+      ...(push.defaultEntryChannel !== undefined
+        ? { defaultEntryChannel: push.defaultEntryChannel }
         : {}),
       ...(state.options.timers !== undefined
         ? { timers: state.options.timers }
@@ -275,29 +288,26 @@ function detachPush(state: LocalEngineState): void {
 
 function notifyLocalMutation(
   state: LocalEngineState,
-  mutation: Mutation<unknown>,
-  args: unknown
+  _mutation: Mutation<unknown>,
+  _args: unknown,
+  capture: WriteCaptureSnapshot
 ): void {
   const push = state.options.push;
   if (push === undefined || push.rowImageFanout !== true) return;
+  const topicMap = withFrameworkTopicMap(push.topicMap);
+  const fanoutArgs = {
+    db: state.options.db,
+    env: state.options.getMutationEnv(),
+    capture,
+    ...(topicMap !== undefined ? { topicMap } : {}),
+  };
   const pubsub = state.pushPubSub;
   if (pubsub !== null && pubsub.status() === 'connected') {
-    void publishOptimisticFanout({
-      pubsub,
-      db: state.options.db,
-      env: state.options.getMutationEnv(),
-      mutation,
-      args,
-    });
+    void publishOptimisticFanout({ pubsub, ...fanoutArgs });
     return;
   }
   if (state.outboundLive === null) return;
-  void buildOptimisticFanout({
-    db: state.options.db,
-    env: state.options.getMutationEnv(),
-    mutation,
-    args,
-  }).then((items) => {
+  void buildOptimisticFanout(fanoutArgs).then((items) => {
     if (items.length === 0) return;
     state.outboundLive?.enqueue(items);
     flushOutboundLive(state);
@@ -388,8 +398,8 @@ function toEngine(state: LocalEngineState): SyncEngine {
     pendingMutationCount: () =>
       pendingMutationCount(state.options.db, state.options.getClientId()),
     wakeUploads: () => state.uploadQueue.wake(),
-    notifyLocalMutation: (mutation, args) =>
-      notifyLocalMutation(state, mutation, args),
+    notifyLocalMutation: (mutation, args, capture) =>
+      notifyLocalMutation(state, mutation, args, capture),
   };
 }
 

@@ -1,3 +1,4 @@
+import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '../protocol';
 import type { QueryResponse } from '../queries/core/types';
 import type {
   MutationUploadResult,
@@ -27,8 +28,8 @@ export type SyncClientAuth = {
 };
 
 export class SyncApiAuthError extends Error {
-  readonly reason: 'expired' | 'revoked';
-  constructor(reason: 'expired' | 'revoked') {
+  readonly reason: 'expired' | 'revoked' | 'upgrade_required';
+  constructor(reason: 'expired' | 'revoked' | 'upgrade_required') {
     super(`auth:${reason}`);
     this.reason = reason;
   }
@@ -173,6 +174,7 @@ function postJson(args: PostJsonArgs): Promise<Response> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      [SYNC_PROTOCOL_HEADER]: String(SYNC_PROTOCOL_VERSION),
       ...authHeadersFromBearer(args.bearer, args.deviceId, args.anonIdHeader),
     },
     body: args.body,
@@ -223,6 +225,9 @@ async function postAuthedJson(
     const json = (await response.json().catch(() => ({}))) as {
       readonly reason?: unknown;
     };
+    if (json.reason === 'upgrade_required') {
+      throw new SyncApiAuthError('upgrade_required');
+    }
     throw new SyncApiAuthError(
       json.reason === 'revoked' ? 'revoked' : 'expired'
     );

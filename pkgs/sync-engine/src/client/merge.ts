@@ -7,6 +7,7 @@ import type {
   MutationEnv,
   MutationRegistry,
 } from '../mutations/core/types';
+import { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
 import { compareCheckpoint } from './push-applied';
@@ -188,14 +189,15 @@ async function rebasePending(
       continue;
     }
     try {
+      const wrapped = wrapMutationDb(tx);
       await m.run(
         {
-          tx,
+          tx: wrapped.tx,
           env: { ...deps.env, now: () => new Date(row.created_at) },
         },
         parsed
       );
-      for (const t of m.declaredWrites) changed.add(t);
+      for (const t of wrapped.getCapture().tables) changed.add(t);
     } catch {
       // Keep queued; hide optimistic effect until upload/reject.
     }

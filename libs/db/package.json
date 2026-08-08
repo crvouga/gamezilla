@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/pubsub": "workspace:*"
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

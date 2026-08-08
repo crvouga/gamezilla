@@ -18,7 +18,17 @@ describe('scope churn no leaked timers or subscriptions', () => {
     await a.mutate(setNote, { id: 'n1', body: 'x', folderId: 'f1' });
     await world.assertConverged();
 
+    // Warm held-row topic projection (same path subscribe churn uses).
+    {
+      using warm = a.subscribe('notesByFolder', {
+        folderId: 'f1',
+        includeArchived: false,
+      });
+      await world.until(warm.ready, { budgetMs: 1_000 });
+    }
+    await world.runFor(200);
     const baseline = [...a.subscribedTopics()].sort();
+
     for (let i = 0; i < 20; i += 1) {
       const folderId = i % 2 === 0 ? 'f1' : 'f2';
       using sub = a.subscribe('notesByFolder', {

@@ -1,11 +1,14 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { Mutation, MutationEnv } from '../mutations/core/types';
+import type { MutationEnv } from '../mutations/core/types';
+import { fanoutRowsWithinCap } from '../shared/select-fanout-rows';
 import {
-  fanoutRowsWithinCap,
-  selectFanoutRows,
-} from '../shared/select-fanout-rows';
+  type TopicMap,
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '../shared/topic-map';
+import type { WriteCaptureSnapshot } from '../sql-ast';
 
 /** Cap queued outbound optimistic publishes (Tiger bound). */
 const MAX_OUTBOUND_LIVE = 256;
@@ -22,53 +25,40 @@ export type OutboundLiveItem = {
   readonly payload: OptimisticFanoutPayload;
 };
 
-export type PublishOptimisticFanoutArgs = {
-  readonly pubsub: PubSub;
-  readonly db: SqlClient;
-  readonly env: MutationEnv;
-  readonly mutation: Mutation<unknown>;
-  readonly args: unknown;
-};
-
 export type BuildOptimisticFanoutArgs = {
   readonly db: SqlClient;
   readonly env: MutationEnv;
-  readonly mutation: Mutation<unknown>;
-  readonly args: unknown;
+  readonly capture: WriteCaptureSnapshot;
+  readonly topicMap?: TopicMap;
 };
 
 /**
- * Build optimistic topic+payload pairs without publishing. Returns empty when
- * the mutation cannot produce a fanout hint.
+ * Build optimistic topic+payload pairs from a local write capture.
  */
 export async function buildOptimisticFanout(
   args: BuildOptimisticFanoutArgs
 ): Promise<readonly OutboundLiveItem[]> {
-  const { mutation, env, db } = args;
-  if (mutation.affectedRows === undefined) return [];
-
-  let parsed: unknown;
-  try {
-    parsed = mutation.args.parse(args.args);
-  } catch {
-    return [];
-  }
-
-  const affected = mutation.affectedRows(parsed, env);
-  if (Object.keys(affected).length === 0) return [];
-
-  const rows = await selectFanoutRows(db, affected);
+  const { env, capture, topicMap } = args;
+  if (capture.tables.length === 0) return [];
+  const rows = capture.images;
   if (Object.keys(rows).length === 0) return [];
   if (!fanoutRowsWithinCap(rows)) return [];
 
-  const topics = await resolveOptimisticTopics(mutation, parsed, env, db);
+  const topics =
+    topicMap === undefined
+      ? []
+      : await topicsFromWriteCapture({
+          topicMap,
+          capture,
+          ctx: topicMapCtxFromEnv(env),
+          db: args.db,
+        });
   if (topics.length === 0) return [];
 
-  const tables = [...mutation.declaredWrites];
   const payload: OptimisticFanoutPayload = {
     pushSeq: '0',
     optimistic: true,
-    ...(tables.length > 0 ? { tables } : {}),
+    tables: [...capture.tables],
     rows,
   };
   return topics.map((topic) => ({ topic, payload }));
@@ -87,10 +77,13 @@ async function publishItems(
   );
 }
 
+export type PublishOptimisticFanoutArgs = BuildOptimisticFanoutArgs & {
+  readonly pubsub: PubSub;
+};
+
 /**
  * Lossy peer-visible hint: publish local row images over MQTT immediately
  * after a successful local mutate, without waiting for server replay.
- * Server fanout + snapshots remain the source of truth.
  */
 export async function publishOptimisticFanout(
   args: PublishOptimisticFanoutArgs
@@ -126,27 +119,4 @@ export function createOutboundLiveBuffer(): OutboundLiveBuffer {
       queue.length = 0;
     },
   };
-}
-
-async function resolveOptimisticTopics(
-  mutation: Mutation<unknown>,
-  parsed: unknown,
-  env: MutationEnv,
-  db: SqlClient
-): Promise<Topic[]> {
-  if (mutation.invalidates === undefined) return [];
-  try {
-    const topics = await Promise.resolve(mutation.invalidates(parsed, env, db));
-    const seen = new Set<Topic>();
-    const out: Topic[] = [];
-    for (const topic of topics) {
-      if (seen.has(topic)) continue;
-      seen.add(topic);
-      out.push(topic);
-    }
-    return out;
-  } catch (error) {
-    console.warn('[push] optimistic invalidates failed', error);
-    return [];
-  }
 }

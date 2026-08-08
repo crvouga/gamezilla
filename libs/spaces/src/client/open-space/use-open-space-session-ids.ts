@@ -68,9 +68,8 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
   return row !== null;
 }
 
-/** Open-session fields for room clientId / join announce. */
+/** Open-session fields for join announce (room clientId is per-tab in-memory). */
 export function useSpaceOpenSession(spaceId: string): {
-  readonly clientId: string | null;
   readonly joinAnnounced: boolean;
   readonly isOpen: boolean;
   readonly isLoading: boolean;
@@ -96,14 +95,12 @@ export function useSpaceOpenSession(spaceId: string): {
   const row = rows[0] ?? null;
   if (!paintReady) {
     return {
-      clientId: null,
       joinAnnounced: false,
       isOpen: false,
       isLoading: true,
     };
   }
   return {
-    clientId: row?.device_id ?? null,
     joinAnnounced: row?.join_announced === 1,
     isOpen: row !== null,
     isLoading,

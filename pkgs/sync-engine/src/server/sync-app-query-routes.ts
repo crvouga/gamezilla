@@ -6,6 +6,7 @@ import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
 import { isAuthErrorBody } from './auth-error';
 import type { SyncAppAuth } from './sync-app-auth';
+import { assertSyncProtocol } from './sync-protocol-gate';
 
 const queryItemSchema = z.object({
   name: z.string().min(1),
@@ -23,6 +24,7 @@ type RunQueryDeps = {
   readonly registry: QueryRegistry;
   readonly auth: SyncAppAuth & { readonly now: () => Date };
   readonly nextCheckpoint: () => string;
+  readonly strictQueryLimits?: boolean;
 };
 
 async function runOne(
@@ -44,10 +46,13 @@ export type MountQueryRoutesDeps = {
   readonly getSql: () => SqlClient;
   readonly queries: QueryRegistry;
   readonly nextCheckpoint: () => string;
+  readonly strictQueryLimits?: boolean;
 };
 
 export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
   app.post('/query', async (c) => {
+    const protocolErr = assertSyncProtocol(c.req.raw);
+    if (protocolErr !== null) return c.json(protocolErr, 401);
     const auth = await deps.resolveAuth(c.req.raw);
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
@@ -61,6 +66,7 @@ export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
       registry: deps.queries,
       auth: { ...auth, now: () => new Date() },
       nextCheckpoint: deps.nextCheckpoint,
+      ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     };
     const responses = [];
     for (const item of parsed.data.queries) {

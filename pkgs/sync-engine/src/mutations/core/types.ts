@@ -1,4 +1,3 @@
-import type { Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { z } from 'zod';
 
@@ -48,29 +47,14 @@ type MutationRun<A> = {
   bivarianceHack(ctx: MutationCtx, args: A): Promise<void>;
 }['bivarianceHack'];
 
-type MutationInvalidates<A> = {
-  bivarianceHack(
-    args: A,
-    env: MutationEnv,
-    /** Post-commit read client for party expansion (optional). */
-    db?: MutationDb
-  ): readonly Topic[] | Promise<readonly Topic[]>;
-}['bivarianceHack'];
-
-/** Declare entity ids touched so the framework can post-replay SELECT fanout rows. */
-type MutationAffectedRows<A> = {
-  bivarianceHack(
-    args: A,
-    env: MutationEnv
-  ): Readonly<Record<string, readonly string[]>>;
-}['bivarianceHack'];
-
+/**
+ * Domain mutation. Write sets, fanout ids, and invalidation topics are derived
+ * from SQL AST capture + the host topic map — not declared on the def.
+ */
 export type Mutation<A> = {
-  /** Stable wire contract; version by suffix (joinSpaceV2). */
+  /** Stable wire contract. */
   readonly name: string;
   readonly args: z.ZodType<A>;
-  /** Documentation + push table filter. NOT runtime-enforced. */
-  readonly declaredWrites: readonly string[];
   /** Map DB constraint violations to business rejections during replay. */
   readonly constraintErrors?: Readonly<
     Record<string, { readonly code: string; readonly message: string }>
@@ -79,14 +63,6 @@ export type Mutation<A> = {
   readonly pendingUx?: 'instant' | 'pending';
   /** If true, client runner refuses to initiate while offline. */
   readonly requiresOnline?: boolean;
-  /** Topics to push after successful server replay (optional). */
-  readonly invalidates?: MutationInvalidates<A>;
-  /**
-   * Entity ids touched by this mutation. Framework SELECTs post-replay row
-   * images for fanout when `rowImageFanout` is enabled. Undeclared →
-   * pushSeq-only push (today's behavior).
-   */
-  readonly affectedRows?: MutationAffectedRows<A>;
   readonly run: MutationRun<A>;
 };
 

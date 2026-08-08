@@ -2,10 +2,13 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { z } from 'zod';
 
-import type { AuthErrorBody, QueryResponse, QueryRow } from '../../protocol/v1';
+import type { AuthErrorBody, QueryResponse, QueryRow } from '../../protocol';
 import type { QueryChannelsCtx } from '../../shared/push-payload';
 
 export type { AuthErrorBody, QueryResponse, QueryRow };
+
+/** Package default hard row budget when `limit` is omitted on a query. */
+export const DEFAULT_QUERY_LIMIT = 2000;
 
 export type QueryCtx = {
   readonly db: {
@@ -31,21 +34,53 @@ type QueryRun<P> = {
   ): Promise<Readonly<Record<string, readonly QueryRow[]>>>;
 }['bivarianceHack'];
 
-type QueryChannels<P> = {
+type QueryEntryChannel<P> = {
   bivarianceHack(params: P, ctx: QueryChannelsCtx): Topic[];
 }['bivarianceHack'];
 
-export type QueryDef<P> = {
-  /** Stable wire contract; version by suffix (fooV2). */
+/**
+ * Named snapshot query. `hydrates` is derived from `run` return keys (runtime).
+ * Wake topics = topic-map(held live rows) ∪ entryChannel (host default).
+ */
+export type QueryDef<P = unknown> = {
+  /** Stable wire contract. */
   readonly name: string;
-  readonly params: z.ZodType<P>;
-  /** Local tables this query's rows land in. */
-  readonly hydrates: readonly string[];
-  /** Hard row limit — required; enforced at registry time. */
-  readonly limit: number;
-  /** Topics whose pushes affect this query's scope (optional; reconcile-only if omitted). */
-  readonly channels?: QueryChannels<P>;
+  readonly run: QueryRun<P>;
+  /**
+   * Hard row budget. Omit to use {@link DEFAULT_QUERY_LIMIT}.
+   * Explicit only for real budget decisions (not cardinality assertions).
+   * After {@link defineQuery}, always a positive number.
+   */
+  readonly limit?: number;
+  /**
+   * True when `limit` was filled from {@link DEFAULT_QUERY_LIMIT}.
+   * Strict sim/dev clipping only throws for default budgets (explicit
+   * truncate tests keep silent clip).
+   */
+  readonly limitIsDefault?: boolean;
+  /** Wire params; defaults to empty object schema at registry time. */
+  readonly params?: z.ZodType<P>;
+  /** Real authz only — default deny-anon when omitted. */
   readonly authorize?: QueryAuthorize<P>;
+  /** Opt out of default signed-in requirement. */
+  readonly allowAnon?: boolean;
+  /**
+   * Entry wakes for rows not yet in scope. Omit → host `defaultEntryChannel`.
+   * `false` = reconcile-only (no entry topic).
+   */
+  readonly entryChannel?: QueryEntryChannel<P> | false;
+  /**
+   * Tables this query hydrates — **runtime-derived** from `run` return keys
+   * (filled on first execution). Not an authoring field.
+   */
+  readonly hydrates: readonly string[];
+};
+
+/** Authoring input to {@link defineQuery} — no runtime-derived fields. */
+export type QueryDefInput<P = unknown> = Omit<
+  QueryDef<P>,
+  'hydrates' | 'limitIsDefault'
+> & {
   readonly run: QueryRun<P>;
 };
 

@@ -1,23 +1,11 @@
-import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
-
-import { NOTES_WORLD_TOPIC, userTopic } from './topics';
-
-/** World + actor user topic so membership queries share exhaustiveness. */
-const worldTopics = (
-  _args: unknown,
-  env: { readonly actorId: string }
-): Topic[] => [NOTES_WORLD_TOPIC, userTopic(env.actorId)];
 
 /** Upsert a folder (revive clears tombstone). */
 export const setFolder = defineMutation({
   name: 'setFolder',
   args: z.object({ id: z.string(), title: z.string() }),
-  declaredWrites: ['folders'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ folders: [id] }),
   async run({ tx, env }, { id, title }) {
     await tx.run(sql`
       INSERT INTO folders (id, title, owner_id)
@@ -34,9 +22,6 @@ export const setFolder = defineMutation({
 export const deleteFolder = defineMutation({
   name: 'deleteFolder',
   args: z.object({ id: z.string() }),
-  declaredWrites: ['folders'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ folders: [id] }),
   async run({ tx, env }, { id }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM folders
@@ -64,9 +49,6 @@ export const setNote = defineMutation({
     body: z.string(),
     folderId: z.string().nullable().optional(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, title, body, folderId }) {
     const folder = folderId ?? null;
     const noteTitle = title ?? '';
@@ -87,9 +69,6 @@ export const setNote = defineMutation({
 export const deleteNote = defineMutation({
   name: 'deleteNote',
   args: z.object({ id: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM notes
@@ -115,9 +94,6 @@ export const moveNote = defineMutation({
     id: z.string(),
     folderId: z.string().nullable(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, folderId }) {
     await tx.run(sql`
       UPDATE notes
@@ -134,9 +110,6 @@ export const moveNote = defineMutation({
 export const illegalHardDeleteNote = defineMutation({
   name: 'illegalHardDeleteNote',
   args: z.object({ id: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx }, { id }) {
     await tx.run(sql`DELETE FROM notes WHERE id = ${id}`);
   },
@@ -150,9 +123,6 @@ export const illegalHardDeleteNote = defineMutation({
 export const serverRejectNote = defineMutation({
   name: 'serverRejectNote',
   args: z.object({ id: z.string(), body: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     if (env.serverNow !== undefined) {
       throw new MutationError('FORBIDDEN', 'Server rejects this mutation');
@@ -177,10 +147,7 @@ export const requiresOnlineNote = defineMutation({
     id: z.string(),
     body: z.string(),
   }),
-  declaredWrites: ['notes'],
   requiresOnline: true,
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -205,9 +172,6 @@ export const setNoteV2 = defineMutation({
     body: z.string(),
     folderId: z.string().nullable().optional(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, title, body, folderId }) {
     const folder = folderId ?? null;
     const noteTitle = title ?? '';
@@ -225,7 +189,7 @@ export const setNoteV2 = defineMutation({
 });
 
 /**
- * Like setNote but omits affectedRows — pushSeq-only wake (no row images).
+ * Like setNote — distinct wire name for pushSeq-only / no-fanout scenarios.
  */
 export const setNoteNoFanout = defineMutation({
   name: 'setNoteNoFanout',
@@ -235,8 +199,6 @@ export const setNoteNoFanout = defineMutation({
     body: z.string(),
     folderId: z.string().nullable().optional(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
   async run({ tx, env }, { id, title, body, folderId }) {
     const folder = folderId ?? null;
     const noteTitle = title ?? '';

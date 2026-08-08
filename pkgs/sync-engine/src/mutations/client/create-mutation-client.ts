@@ -2,6 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ZodError } from 'zod';
 
+import type { WriteCaptureSnapshot } from '../../sql-ast';
 import {
   isMutationError,
   mutationErrorToFailure,
@@ -38,6 +39,7 @@ export type CreateMutationClientOptions = {
   readonly onQueued?: (info: {
     readonly mutation: Mutation<unknown>;
     readonly args: unknown;
+    readonly capture: WriteCaptureSnapshot;
   }) => void;
   /** Deterministic id mint for sim; defaults to crypto.randomUUID. */
   readonly createId?: () => string;
@@ -78,10 +80,17 @@ export function createMutationClient(
       const mutationId = (options.createId ?? (() => crypto.randomUUID()))();
       try {
         const parsed = m.args.parse(args);
+        let capture: WriteCaptureSnapshot = {
+          tables: [],
+          ids: {},
+          images: {},
+        };
         await db.transaction(async (txc) => {
           const seq = await nextMutationSeq(txc);
           const createdAt = env.now().toISOString();
-          await m.run({ tx: wrapMutationDb(txc), env }, parsed);
+          const wrapped = wrapMutationDb(txc);
+          await m.run({ tx: wrapped.tx, env }, parsed);
+          capture = wrapped.getCapture();
           await txc.run(sql`
             INSERT INTO _mutations (
               id, name, args, client_id, seq, created_at
@@ -99,6 +108,7 @@ export function createMutationClient(
         options.onQueued?.({
           mutation: m as Mutation<unknown>,
           args: parsed,
+          capture,
         });
         return { ok: true, mutationId };
       } catch (e) {

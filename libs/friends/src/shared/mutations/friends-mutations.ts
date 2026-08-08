@@ -1,4 +1,3 @@
-import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import {
   defineMutation,
@@ -26,10 +25,6 @@ import {
   FRIENDS_REQUEST_EXISTS,
   FRIENDS_SELF,
 } from './friends-mutation-codes';
-
-function friendsPartyInvalidates(env: MutationEnv, otherUserId: string) {
-  return [userTopic(env.actorId), userTopic(otherUserId)];
-}
 
 type FriendRequestRow = {
   readonly id: string;
@@ -246,9 +241,6 @@ export const sendFriendRequestMutation = defineMutation({
     toUserId: z.string().min(1),
     message: z.string().nullable().optional(),
   }),
-  declaredWrites: ['friend_requests'],
-  invalidates: ({ toUserId }, env) => friendsPartyInvalidates(env, toUserId),
-  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId, toUserId, message }) {
     const fromUserId = otherUserId(env, toUserId, 'send a friend request to');
     const nowDate = env.now();
@@ -270,8 +262,6 @@ export const sendFriendRequestMutation = defineMutation({
 export const acceptFriendRequestMutation = defineMutation({
   name: 'acceptFriendRequest',
   args: requestIdArgs,
-  declaredWrites: ['friend_requests', 'friendships'],
-  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, { requestId }) {
     const actor = actorId(env);
     const request = await requireRequestParty(tx, {
@@ -318,9 +308,6 @@ export const acceptFriendRequestMutation = defineMutation({
 export const declineFriendRequestMutation = defineMutation({
   name: 'declineFriendRequest',
   args: requestIdArgs,
-  declaredWrites: ['friend_requests'],
-  invalidates: (_args, env) => [userTopic(env.actorId)],
-  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
     const request = await requireRequestParty(tx, {
       requestId,
@@ -342,9 +329,6 @@ export const declineFriendRequestMutation = defineMutation({
 export const cancelFriendRequestMutation = defineMutation({
   name: 'cancelFriendRequest',
   args: requestIdArgs,
-  declaredWrites: ['friend_requests'],
-  invalidates: (_args, env) => [userTopic(env.actorId)],
-  affectedRows: ({ requestId }) => ({ friend_requests: [requestId] }),
   async run({ tx, env }, { requestId }) {
     const request = await requireRequestParty(tx, {
       requestId,
@@ -366,8 +350,6 @@ export const cancelFriendRequestMutation = defineMutation({
 export const removeFriendMutation = defineMutation({
   name: 'removeFriend',
   args: userIdArgs,
-  declaredWrites: ['friendships'],
-  invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'remove');
     if (!(await friendshipExists(tx, actor, userId))) {
@@ -380,8 +362,6 @@ export const removeFriendMutation = defineMutation({
 export const blockUserMutation = defineMutation({
   name: 'blockUser',
   args: userIdArgs.extend({ blockId: z.string().min(1) }),
-  declaredWrites: ['friend_requests', 'friendships', 'user_blocks'],
-  invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId, blockId }) {
     const actor = otherUserId(env, userId, 'block');
     const now = env.now().toISOString();
@@ -400,8 +380,6 @@ export const blockUserMutation = defineMutation({
 export const unblockUserMutation = defineMutation({
   name: 'unblockUser',
   args: userIdArgs,
-  declaredWrites: ['user_blocks'],
-  invalidates: ({ userId }, env) => friendsPartyInvalidates(env, userId),
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'unblock');
     await softDeleteBlock(tx, actor, userId, env.now().toISOString());

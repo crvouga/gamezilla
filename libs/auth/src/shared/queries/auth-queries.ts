@@ -1,39 +1,21 @@
-import { userChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
-import { z } from 'zod';
-
-async function requireActor(ctx: {
-  env: { actorId: string };
-}): Promise<boolean> {
-  return ctx.env.actorId.length > 0;
-}
 
 export const ownUser = defineQuery({
   name: 'ownUser',
-  params: z.object({}),
-  hydrates: ['users'],
-  limit: 1,
-  channels: (_params, ctx) => userChannels(ctx),
-  authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT id, created_at, is_anon, _deleted_at
       FROM users
       WHERE id = ${ctx.env.actorId}
-      LIMIT 1
-    `);
+`);
     return { users: rows };
   },
 });
 
 export const ownDevices = defineQuery({
   name: 'ownDevices',
-  params: z.object({}),
-  hydrates: ['devices'],
   limit: 50,
-  channels: (_params, ctx) => userChannels(ctx),
-  authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT
@@ -54,19 +36,14 @@ export const ownDevices = defineQuery({
         _deleted_at
       FROM devices
       WHERE user_id = ${ctx.env.actorId}
-      LIMIT 50
-    `);
+`);
     return { devices: rows };
   },
 });
 
 export const ownExternalAccounts = defineQuery({
   name: 'ownExternalAccounts',
-  params: z.object({}),
-  hydrates: ['external_accounts'],
   limit: 20,
-  channels: (_params, ctx) => userChannels(ctx),
-  authorize: requireActor,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT
@@ -79,8 +56,7 @@ export const ownExternalAccounts = defineQuery({
         _deleted_at
       FROM external_accounts
       WHERE user_id = ${ctx.env.actorId}
-      LIMIT 20
-    `);
+`);
     return { external_accounts: rows };
   },
 });

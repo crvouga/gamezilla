@@ -19,6 +19,12 @@ import {
   mergeAffectedRows,
   selectFanoutRows,
 } from '../shared/select-fanout-rows';
+import {
+  type TopicMap,
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '../shared/topic-map';
+import type { WriteCaptureSnapshot } from '../sql-ast';
 import type { SimHandleMutationsOpts } from './http-bridge-types';
 
 export type SimServerAuth = {
@@ -39,44 +45,34 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
   };
 }
 
-/** Query-response checkpoint (scope merge). Distinct from per-topic pushSeq. */
-function commitCheckpoint(nowMs: number, seq: number): string {
-  return `${nowMs}${String(seq).padStart(6, '0')}`;
-}
-
-async function collectInvalidates(
-  registry: MutationRegistry,
-  env: MutationEnv,
-  applied: readonly { name: string; argsJson: string }[],
-  db: SqlClient
-): Promise<Topic[]> {
-  const topics: Topic[] = [];
-  for (const row of applied) {
-    const mutation = registry[row.name];
-    if (mutation?.invalidates === undefined) continue;
-    let args: unknown;
-    try {
-      args = mutation.args.parse(JSON.parse(row.argsJson));
-    } catch {
-      continue;
+function mergeCaptures(
+  captures: readonly WriteCaptureSnapshot[]
+): WriteCaptureSnapshot {
+  const tableSet = new Set<string>();
+  const idParts: Array<Readonly<Record<string, readonly string[]>>> = [];
+  const imageParts: Record<string, QueryRow[]> = {};
+  for (const c of captures) {
+    for (const t of c.tables) tableSet.add(t);
+    idParts.push(c.ids);
+    for (const [table, rows] of Object.entries(c.images)) {
+      const byId = new Map(
+        (imageParts[table] ?? []).map(
+          (r) => [String(r['id'] ?? ''), r] as const
+        )
+      );
+      for (const row of rows) {
+        const id = String(row['id'] ?? '');
+        if (id.length === 0) continue;
+        byId.set(id, { ...row });
+      }
+      imageParts[table] = [...byId.values()];
     }
-    const next = await Promise.resolve(mutation.invalidates(args, env, db));
-    topics.push(...next);
   }
-  return topics;
-}
-
-function collectWrites(
-  registry: MutationRegistry,
-  applied: readonly { name: string }[]
-): string[] {
-  const tables = new Set<string>();
-  for (const row of applied) {
-    const mutation = registry[row.name];
-    if (mutation === undefined) continue;
-    for (const table of mutation.declaredWrites) tables.add(table);
-  }
-  return [...tables];
+  return {
+    tables: [...tableSet].sort(),
+    ids: mergeAffectedRows(idParts),
+    images: imageParts,
+  };
 }
 
 export type SimServerHandlerCtx = {
@@ -90,6 +86,7 @@ export type SimServerHandlerCtx = {
   readonly setAuth: (auth: SimServerAuth) => void;
   readonly nextCheckpoint: () => string;
   readonly rowImageFanout: boolean;
+  readonly topicMap?: TopicMap;
   /** When true, skip notifyChannels after a successful replay commit. */
   readonly shouldFailPublish?: () => boolean;
 };
@@ -104,30 +101,21 @@ type MutationUploadRow = {
 };
 
 async function buildFanoutRows(
-  ctx: SimServerHandlerCtx,
-  auth: SimServerAuth,
-  applied: readonly { name: string; argsJson: string }[]
+  db: SqlClient,
+  capture: WriteCaptureSnapshot,
+  rowImageFanout: boolean
 ): Promise<Record<string, QueryRow[]> | undefined> {
-  if (!ctx.rowImageFanout) return undefined;
-  const env: MutationEnv = {
-    ...auth,
-    now: () => new Date(ctx.now()),
-  };
-  const parts: Array<Readonly<Record<string, readonly string[]>>> = [];
-  for (const row of applied) {
-    const mutation = ctx.mutations[row.name];
-    if (mutation?.affectedRows === undefined) continue;
-    let args: unknown;
-    try {
-      args = mutation.args.parse(JSON.parse(row.argsJson));
-    } catch {
-      continue;
+  if (!rowImageFanout) return undefined;
+  if (Object.keys(capture.images).length > 0) {
+    if (!fanoutRowsWithinCap(capture.images)) return undefined;
+    const copy: Record<string, QueryRow[]> = {};
+    for (const [table, rows] of Object.entries(capture.images)) {
+      copy[table] = rows.map((r) => ({ ...r }));
     }
-    parts.push(mutation.affectedRows(args, env));
+    return copy;
   }
-  const affected = mergeAffectedRows(parts);
-  if (Object.keys(affected).length === 0) return undefined;
-  const rows = await selectFanoutRows(ctx.db, affected);
+  if (Object.keys(capture.ids).length === 0) return undefined;
+  const rows = await selectFanoutRows(db, capture.ids);
   if (Object.keys(rows).length === 0) return undefined;
   if (!fanoutRowsWithinCap(rows)) return undefined;
   return rows;
@@ -136,33 +124,39 @@ async function buildFanoutRows(
 async function notifyApplied(args: {
   readonly ctx: SimServerHandlerCtx;
   readonly auth: SimServerAuth;
-  readonly applied: readonly { name: string; argsJson: string }[];
+  readonly captures: readonly WriteCaptureSnapshot[];
+  readonly label: string;
 }): Promise<ReadonlyMap<Topic, string>> {
-  if (args.applied.length === 0) return new Map();
+  if (args.captures.length === 0) return new Map();
   const env: MutationEnv = {
     ...args.auth,
     now: () => new Date(args.ctx.now()),
   };
-  const topics = await collectInvalidates(
-    args.ctx.mutations,
-    env,
-    args.applied,
-    args.ctx.db
+  const merged = mergeCaptures(args.captures);
+  const topics =
+    args.ctx.topicMap === undefined
+      ? []
+      : await topicsFromWriteCapture({
+          topicMap: args.ctx.topicMap,
+          capture: merged,
+          ctx: topicMapCtxFromEnv(env),
+          db: args.ctx.db,
+        });
+  const rows = await buildFanoutRows(
+    args.ctx.db,
+    merged,
+    args.ctx.rowImageFanout
   );
-  const tables = collectWrites(args.ctx.mutations, args.applied);
-  const rows = await buildFanoutRows(args.ctx, args.auth, args.applied);
   const checkpoints = await allocateTopicPushSeqs(args.ctx.db, topics);
-  // Post-commit publish loss: upload still acks; peers heal via refetch.
   if (args.ctx.shouldFailPublish?.() === true) {
     return checkpoints;
   }
-  const label = args.applied.map((a) => a.name).join(',');
   publishPushMessages({
     pubsub: args.ctx.pubsub,
     pushSeqs: checkpoints,
-    tables,
+    tables: merged.tables,
     ...(rows !== undefined ? { rows } : {}),
-    label,
+    label: args.label,
   });
   return checkpoints;
 }
@@ -207,14 +201,16 @@ export function createHandleMutations(
           : {}),
       })
     );
+    const captures = result.applied.map((a) => a.capture);
     const checkpoints = await notifyApplied({
       ctx,
       auth: stickyAuth,
-      applied: result.applied,
+      captures,
+      label: result.applied.map((a) => a.name).join(','),
     });
     return {
-      ok: true,
-      verdicts: result.verdicts,
+      ok: true as const,
+      verdicts: [...result.verdicts],
       ackSeq: result.ackSeq,
       ...(checkpoints.size > 0
         ? { topicPushSeqs: Object.fromEntries(checkpoints) }
@@ -237,6 +233,7 @@ export function createHandleQuery(
           now: () => new Date(ctx.now()),
         },
         nextCheckpoint: ctx.nextCheckpoint,
+        strictQueryLimits: true,
       },
       {
         name: request.name,
@@ -251,4 +248,7 @@ export function createHandleQuery(
     );
 }
 
-export { commitCheckpoint };
+/** Query-response checkpoint (scope merge). Distinct from per-topic pushSeq. */
+export function commitCheckpoint(nowMs: number, seq: number): string {
+  return `${nowMs}${String(seq).padStart(6, '0')}`;
+}

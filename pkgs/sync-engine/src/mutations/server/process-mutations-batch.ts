@@ -1,5 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import type { WriteCaptureSnapshot } from '../../sql-ast';
 import type { MutationRegistry } from '../core/types';
 import {
   type MutationRow,
@@ -21,6 +22,7 @@ export type AppliedMutationRef = {
   readonly mutationId: string;
   readonly name: string;
   readonly argsJson: string;
+  readonly capture: WriteCaptureSnapshot;
 };
 
 export type ProcessMutationsBatchResult = {
@@ -81,6 +83,7 @@ export async function processMutationsBatch(
           mutationId: row.id,
           name: row.name,
           argsJson: row.args,
+          capture: outcome.capture,
         });
       }
     }

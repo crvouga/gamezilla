@@ -6,8 +6,8 @@ import {
 } from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
-describe('push without affected rows wakes refetch', () => {
-  test('mutation without affectedRows converges via wake+refetch with rowImageFanout', async () => {
+describe('push without row images wakes refetch', () => {
+  test('mutation without capture images converges via wake+refetch with rowImageFanout', async () => {
     // rowImageFanout true: proves pushSeq-only pushes still wake peers when images absent.
     await using world = await openSimWorld({
       domain: notesDomainPack,

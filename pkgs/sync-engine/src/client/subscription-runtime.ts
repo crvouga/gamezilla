@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { QueryRequestItem } from '../protocol/v1';
+import type { QueryRequestItem } from '../protocol';
 import type { QueryResponse } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {

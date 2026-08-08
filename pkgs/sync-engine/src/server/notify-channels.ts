@@ -1,7 +1,7 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { QueryRow } from '../protocol/v1';
+import type { QueryRow } from '../protocol';
 import type { PushMessage } from '../shared/push-payload';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 
@@ -10,7 +10,7 @@ export type NotifyChannelsOptions = {
   /** Allocates strictly monotonic per-topic pushSeqs (hosts never touch sequences). */
   readonly sql: SqlClient;
   readonly topics: readonly Topic[];
-  /** Mutation `declaredWrites` — client filters scopes by query `hydrates` overlap. */
+  /** Captured write tables — client filters scopes by query `hydrates` overlap. */
   readonly tables?: readonly string[];
   /** Post-replay row images (lossy fanout optimization). */
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;

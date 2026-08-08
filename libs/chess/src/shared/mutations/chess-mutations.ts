@@ -1,4 +1,3 @@
-import { userTopic } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
@@ -30,8 +29,6 @@ function requireOwner(ownerId: string, actorId: string): void {
 export const appendPuzzleInteractionMutation = defineMutation({
   name: 'appendPuzzleInteraction',
   args: interactionArgs,
-  declaredWrites: ['chess_puzzle_interactions'],
-  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);
     await tx.run(sql`
@@ -66,8 +63,6 @@ export const upsertPuzzleProfileMutation = defineMutation({
     ratingDeviation: z.number().int().nonnegative(),
     lastInteractionAt: z.string().min(1).optional(),
   }),
-  declaredWrites: ['chess_puzzle_profiles'],
-  invalidates: (_args, env) => [userTopic(env.actorId)],
   async run({ tx, env }, args) {
     requireOwner(args.ownerId, env.actorId);
     await tx.run(sql`

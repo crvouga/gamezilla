@@ -41,6 +41,7 @@ export async function bootSimKernel(args: {
     mutationRegistry: domain.mutationRegistry,
     queryRegistry: domain.queryRegistry,
     faults: boundaryFaults,
+    ...(domain.topicMap !== undefined ? { topicMap: domain.topicMap } : {}),
   });
 
   const kernel: BootedSimKernel = {

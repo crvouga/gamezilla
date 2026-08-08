@@ -16,6 +16,7 @@ import {
 } from 'react';
 
 import { useOpenSpaceSessionIds } from '../open-space/use-open-space-session-ids';
+import { clearSpaceOpenSession } from './space-open-session-store';
 import { useSpaceRoom } from './use-space-room';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -56,6 +57,12 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
       setEntry(spaceId, null);
     };
   }, [setEntry, spaceId, state.room, state.clientId]);
+
+  useEffect(() => {
+    return () => {
+      clearSpaceOpenSession(spaceId);
+    };
+  }, [spaceId]);
 
   return null;
 }

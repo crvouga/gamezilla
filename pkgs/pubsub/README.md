@@ -11,13 +11,13 @@ Application-agnostic **topic pub/sub port**. One interface (`PubSub`) for every 
 ### Product topic helpers (Gamezilla)
 
 Entity-scoped, coarse names for the sync push layer live in
-`@libs/db/shared/sync-topics` (`userTopic`, `roomTopic`, `userChannels`,
-`spaceListChannels`) — not in `@pkgs/sync-engine` or this package:
+`@libs/db/shared/sync-topics` (`userTopic`, `roomTopic`, `userChannels`) —
+not in `@pkgs/sync-engine` or this package:
 
 - `user:{actorId}` — actor-scoped boot / membership list invalidation
 - `room:{spaceId}` — space/room membership invalidation (product entity is a space)
 
-Over-nudging is fine (`not_modified` absorbs it). Under-nudging is a latency bug, not a correctness bug. Topics are produced only from `defineQuery.channels` / `defineMutation.invalidates` and validated at registry construction.
+Over-nudging is fine (`not_modified` absorbs it). Under-nudging is a latency bug, not a correctness bug. Topics are produced from `defineTopicMap` (mutation capture + held-row projection) ∪ query `entryChannel` / host `defaultEntryChannel`.
 
 - Consumers own repair. `onStatus` signals transport health; when a session expired or the offline queue overflowed, domain sync (not this port) is the catch-up path.
 - **`publish`** resolving means **ACCEPTED** by the transport, never DELIVERED.

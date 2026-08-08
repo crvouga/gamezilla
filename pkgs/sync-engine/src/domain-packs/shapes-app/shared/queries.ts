@@ -1,6 +1,5 @@
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
-import { z } from 'zod';
 
 import { SHAPES_WORLD_TOPIC } from './topics';
 
@@ -10,10 +9,8 @@ import { SHAPES_WORLD_TOPIC } from './topics';
  */
 export const shapesWorldQuery = defineQuery({
   name: 'shapesWorld',
-  params: z.object({}),
-  hydrates: ['shapes'],
   limit: 500,
-  channels: () => [SHAPES_WORLD_TOPIC],
+  entryChannel: () => [SHAPES_WORLD_TOPIC],
   async run({ db }) {
     const shapes = await db.query(sql<{
       id: string;
@@ -24,8 +21,7 @@ export const shapesWorldQuery = defineQuery({
     }>`
       SELECT id, kind, sort_key, owner_id, _deleted_at FROM shapes
       ORDER BY sort_key ASC, id ASC
-      LIMIT ${500}
-    `);
+`);
     return { shapes };
   },
 });

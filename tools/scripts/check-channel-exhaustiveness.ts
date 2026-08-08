@@ -1,19 +1,18 @@
 #!/usr/bin/env bun
+import { appTopicMap } from '@libs/db/shared/app-topic-map';
 import { assertChannelExhaustiveness } from '@pkgs/sync-engine/shared';
 /**
- * Fail CI when a mutation writes a table a query hydrates but their
- * invalidates / channels topics do not overlap.
- *
- * Framework mutations are merged inside assertChannelExhaustiveness.
+ * Fail CI when a query hydrates a table with no topic map entry
+ * (unless reconcile-only). Hydrates are resolved via stub run.
  */
-import { APP_MUTATIONS } from '../../apps/api/src/sync/app-mutations';
 import { APP_QUERIES } from '../../apps/api/src/sync/app-queries';
 
-const mutations = Object.values(APP_MUTATIONS);
 const queries = Object.values(APP_QUERIES);
 
 try {
-  assertChannelExhaustiveness(mutations, queries);
+  await assertChannelExhaustiveness(appTopicMap, queries, {
+    reconcileOnlyTables: new Set(['chess_puzzles']),
+  });
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message);
@@ -21,5 +20,5 @@ try {
 }
 
 console.log(
-  `ci:channel-exhaustiveness OK (${String(mutations.length)} mutations × ${String(queries.length)} queries)`
+  `ci:channel-exhaustiveness OK (${String(queries.length)} queries × topic map)`
 );

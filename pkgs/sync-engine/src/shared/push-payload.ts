@@ -1,10 +1,8 @@
-import type { PushMessage } from '../protocol/v1';
+import type { PushMessage } from '../protocol';
 
 export type { PushMessage };
 
-/** Framework channels context — identity only; product packages may pass a wider object. */
+/** Framework channels context — identity only; room topics come from held rows. */
 export type QueryChannelsCtx = {
   readonly actorId: string;
-  /** Live space ids for room topic subscribe + fanout trust gates. */
-  readonly membershipSpaceIds?: readonly string[];
 };

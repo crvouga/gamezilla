@@ -1,6 +1,6 @@
 /**
- * Frozen wire protocol. Prefer importing via `@pkgs/sync-engine/shared`
- * (`protocol` re-exports). Do not change shapes without a version bump.
+ * Frozen wire protocol. Prefer importing via `@pkgs/sync-engine/shared`.
+ * Do not change shapes without a version bump.
  */
 export {
   type AuthErrorBody,
@@ -18,5 +18,6 @@ export {
   type QueryRequestItem,
   type QueryResponse,
   type QueryRow,
+  SYNC_PROTOCOL_HEADER,
   SYNC_PROTOCOL_VERSION,
-} from './v1';
+} from './v2';

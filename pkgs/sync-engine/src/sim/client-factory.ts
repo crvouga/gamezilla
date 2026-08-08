@@ -1,8 +1,7 @@
 import { Database } from 'bun:sqlite';
-import type { PubSub } from '@pkgs/pubsub/interface';
+import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-
 import { createControllableLifecycle } from '../client/app-lifecycle';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
@@ -12,6 +11,8 @@ import type {
   MutationRegistry,
 } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+import type { QueryChannelsCtx } from '../shared/push-payload';
+import type { TopicMap } from '../shared/topic-map';
 import type { BoundaryFaultController } from './boundary-faults';
 import {
   createEngineFromParts,
@@ -59,6 +60,11 @@ export type BuildSimClientArgs = {
     readonly db: SqlClient;
     readonly actorId: string;
   }) => SimPushChannels;
+  readonly topicMap?: TopicMap;
+  readonly defaultEntryChannel?: (
+    params: unknown,
+    ctx: QueryChannelsCtx
+  ) => readonly Topic[];
   readonly rowImageFanout?: boolean;
   readonly bufferOutboundLive?: boolean;
   readonly authControl?: SimAuthControl;
@@ -130,6 +136,10 @@ async function connectEngine(
     bufferOutboundLive: args.bufferOutboundLive === true,
     ...(args.createPushChannels !== undefined
       ? { createPushChannels: args.createPushChannels }
+      : {}),
+    ...(args.topicMap !== undefined ? { topicMap: args.topicMap } : {}),
+    ...(args.defaultEntryChannel !== undefined
+      ? { defaultEntryChannel: args.defaultEntryChannel }
       : {}),
     ...(args.authControl !== undefined
       ? { authControl: args.authControl }

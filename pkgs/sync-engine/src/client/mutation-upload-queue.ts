@@ -4,7 +4,7 @@ import type {
   MutationBatchResponse,
   MutationRequestItem,
   MutationVerdict,
-} from '../protocol/v1';
+} from '../protocol';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { recordPushApplied } from './push-applied';

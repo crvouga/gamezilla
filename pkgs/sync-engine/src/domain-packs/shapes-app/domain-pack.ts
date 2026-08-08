@@ -8,6 +8,7 @@ import {
   shapesMutationRegistry,
   shapesQueryRegistry,
 } from './shared/registries';
+import { shapesDefaultEntryChannel, shapesTopicMap } from './shared/topic-map';
 
 async function checkShapesConverged(args: {
   readonly clients: readonly {
@@ -37,4 +38,6 @@ export const shapesDomainPack: SimDomainPack = {
   queryRegistry: shapesQueryRegistry,
   sessionQuery: { name: 'shapesWorld', params: {} },
   checkAllConverged: checkShapesConverged,
+  topicMap: shapesTopicMap,
+  defaultEntryChannel: shapesDefaultEntryChannel,
 };

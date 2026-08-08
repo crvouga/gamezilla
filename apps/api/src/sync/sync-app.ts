@@ -1,3 +1,4 @@
+import { appTopicMap } from '@libs/db/shared/app-topic-map';
 import { assert } from '@pkgs/assert';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
@@ -44,5 +45,9 @@ export function createSyncApp() {
     mutations: APP_MUTATIONS,
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
+    topicMap: appTopicMap,
+    ...(process.env['SECRETS_ENV'] === 'dev'
+      ? { strictQueryLimits: true }
+      : {}),
   });
 }

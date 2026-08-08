@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRegistry, QueryRow } from '../queries/core/types';
 import type { PushMessage, QueryChannelsCtx } from '../shared/push-payload';
+import type { TopicMap } from '../shared/topic-map';
 import type { MergeApplierDeps } from './merge';
 import { REAL_TIMERS, type Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
@@ -22,6 +23,11 @@ export type AttachPushOptions = {
     listener: (tables: ReadonlySet<string>) => void
   ) => () => void;
   readonly onPubSubChanged?: (pubsub: PubSub) => void;
+  readonly topicMap?: TopicMap;
+  readonly defaultEntryChannel?: (
+    params: unknown,
+    ctx: QueryChannelsCtx
+  ) => readonly Topic[];
 };
 
 export type PushBag = {
@@ -34,6 +40,8 @@ export type PushBag = {
   readonly topicUnsubs: Map<Topic, () => void>;
   readonly topicToScopes: Map<Topic, Set<string>>;
   readonly pendingTopicPushSeqs: Map<Topic, string>;
+  /** Row-derived topics per scope (live projection after merge). */
+  readonly scopeRowTopics: Map<string, readonly Topic[]>;
   readonly disposers: Array<() => void>;
   lastTopicKey: string;
   membershipRemakePending: boolean;
@@ -51,6 +59,7 @@ export function createPushBag(options: AttachPushOptions): PushBag {
     topicUnsubs: new Map(),
     topicToScopes: new Map(),
     pendingTopicPushSeqs: new Map(),
+    scopeRowTopics: new Map(),
     disposers: [],
     lastTopicKey: '',
     membershipRemakePending: false,

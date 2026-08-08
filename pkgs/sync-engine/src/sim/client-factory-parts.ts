@@ -1,7 +1,6 @@
-import type { PubSub } from '@pkgs/pubsub/interface';
+import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
 import type { AppLifecycle } from '../client/app-lifecycle';
 import {
   type CreateLocalSyncEngineOptions,
@@ -17,6 +16,8 @@ import {
 } from '../mutations/client/create-mutation-client';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
+import type { QueryChannelsCtx } from '../shared/push-payload';
+import type { TopicMap } from '../shared/topic-map';
 import { emptySimPushChannels, type SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
 
@@ -59,6 +60,11 @@ export type CreateEngineOptionsArgs = {
     readonly db: SqlClient;
     readonly actorId: string;
   }) => SimPushChannels;
+  readonly topicMap?: TopicMap;
+  readonly defaultEntryChannel?: (
+    params: unknown,
+    ctx: QueryChannelsCtx
+  ) => readonly Topic[];
   readonly authControl?: SimAuthControl;
   readonly schemaEpoch?: number;
   readonly onLocalMigratePhase?: CreateLocalSyncEngineOptions['onLocalMigratePhase'];
@@ -142,6 +148,10 @@ export async function createEngineFromParts(
       }) ?? emptySimPushChannels(args.actorId)),
       rowImageFanout: args.rowImageFanout !== false,
       ...(args.bufferOutboundLive === true ? { bufferOutboundLive: true } : {}),
+      ...(args.topicMap !== undefined ? { topicMap: args.topicMap } : {}),
+      ...(args.defaultEntryChannel !== undefined
+        ? { defaultEntryChannel: args.defaultEntryChannel }
+        : {}),
     },
   });
 }
@@ -167,9 +177,9 @@ export function createMutationSide(
     ids: { clientId: args.deviceId },
     connectivity: { isOnline: () => args.lifecycle.lifecycle.isOnline() },
     createId: args.createId,
-    onQueued: ({ mutation, args: mutationArgs }) => {
+    onQueued: ({ mutation, args: mutationArgs, capture }) => {
       args.engine.wakeUploads();
-      args.engine.notifyLocalMutation(mutation, mutationArgs);
+      args.engine.notifyLocalMutation(mutation, mutationArgs, capture);
     },
   });
 }

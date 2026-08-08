@@ -7,9 +7,9 @@ import {
 } from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
-describe('wrong invalidates topic heals on refetch', () => {
-  // Companion to channel-exhaustiveness: wrong invalidates ⇒ silent staleness.
-  test('peer stays stale until explicit refetch after wrong topic invalidate', async () => {
+describe('wrong topic map heals on refetch', () => {
+  // Companion to channel-exhaustiveness: wrong topic-map wake ⇒ silent staleness.
+  test('peer stays stale until explicit refetch after wrong topic wake', async () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1080,
@@ -34,7 +34,7 @@ describe('wrong invalidates topic heals on refetch', () => {
       });
       await expectNoteNotLive(b.db, 'stale-until-refetch');
     }
-    // nudge: heal-by-refetch after wrong invalidates topic
+    // nudge: heal-by-refetch after wrong topic-map wake
     await world.until(b.nudge());
     await world.assertConverged();
     await expectLiveNote(b.db, 'stale-until-refetch', {

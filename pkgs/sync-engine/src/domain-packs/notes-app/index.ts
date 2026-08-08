@@ -77,9 +77,12 @@ export {
 } from './shared/registries';
 export { NOTES_APP_TABLES, notesAppSchema } from './shared/schema';
 export {
+  notesDefaultEntryChannel,
+  notesTopicMap,
+} from './shared/topic-map';
+export {
   NOTES_WORLD_TOPIC,
   roomTopic,
-  spaceMembershipChannels,
   userTopic,
 } from './shared/topics';
 export { writeNoteBody } from './write-note-body';

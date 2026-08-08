@@ -50,15 +50,33 @@ function registerClientMeta(
   return { actorId, deviceId };
 }
 
-/** Add a client engine to the world and wait for first sync. */
-export async function addClientImpl(
+function createPubSubFactory(
   ctx: BootedSimKernel,
-  clientArgs: AddClientArgs
-): Promise<SimClientHandle> {
-  if (ctx.clients.has(clientArgs.id)) {
-    throw new Error(`SimWorld: client ${clientArgs.id} already exists`);
-  }
-  const { actorId, deviceId } = registerClientMeta(ctx, clientArgs);
+  pubEndpoint: string
+): {
+  readonly createPubSub: () => PubSub;
+  readonly pubsubRemakeCount: () => number;
+  readonly subscribedTopics: () => readonly string[];
+} {
+  let pubsubInstance: PubSub | null = null;
+  let remakeCount = 0;
+  return {
+    createPubSub: () => {
+      remakeCount += 1;
+      pubsubInstance?.close();
+      pubsubInstance = ctx.broker.createPubSub(pubEndpoint);
+      return pubsubInstance;
+    },
+    pubsubRemakeCount: () => remakeCount,
+    subscribedTopics: () => ctx.broker.subscribedTopics(pubEndpoint),
+  };
+}
+
+function simClientBuildArgs(
+  ctx: BootedSimKernel,
+  clientArgs: AddClientArgs,
+  ids: { readonly actorId: string; readonly deviceId: string }
+) {
   const pubEndpoint = `pubsub:${clientArgs.id}`;
   const clientRng = ctx.rng.fork(`client:${clientArgs.id}`);
   const http = createSimHttpClient({
@@ -75,13 +93,11 @@ export async function addClientImpl(
       );
     },
   });
-
-  let pubsubInstance: PubSub | null = null;
-  let remakeCount = 0;
-  const handle = await buildSimClient({
+  const pubsub = createPubSubFactory(ctx, pubEndpoint);
+  return {
     id: clientArgs.id,
-    actorId,
-    deviceId,
+    actorId: ids.actorId,
+    deviceId: ids.deviceId,
     now: () => ctx.nowFor(clientArgs.id),
     random: () => clientRng.random(),
     timers: ctx.timers,
@@ -89,19 +105,12 @@ export async function addClientImpl(
     http,
     server: ctx.server,
     auth: {
-      actorId,
-      deviceId,
-      accountId: `acct:${actorId}`,
+      actorId: ids.actorId,
+      deviceId: ids.deviceId,
+      accountId: `acct:${ids.actorId}`,
       isAnon: false,
     },
-    createPubSub: () => {
-      remakeCount += 1;
-      pubsubInstance?.close();
-      pubsubInstance = ctx.broker.createPubSub(pubEndpoint);
-      return pubsubInstance;
-    },
-    pubsubRemakeCount: () => remakeCount,
-    subscribedTopics: () => ctx.broker.subscribedTopics(pubEndpoint),
+    ...pubsub,
     rowImageFanout: ctx.worldArgs.rowImageFanout !== false,
     bufferOutboundLive: ctx.worldArgs.bufferOutboundLive === true,
     tableRegistry: clientArgs.localSchema ?? ctx.domain.localSchema,
@@ -112,6 +121,12 @@ export async function addClientImpl(
     ...(ctx.domain.createPushChannels !== undefined
       ? { createPushChannels: ctx.domain.createPushChannels }
       : {}),
+    ...(ctx.domain.topicMap !== undefined
+      ? { topicMap: ctx.domain.topicMap }
+      : {}),
+    ...(ctx.domain.defaultEntryChannel !== undefined
+      ? { defaultEntryChannel: ctx.domain.defaultEntryChannel }
+      : {}),
     faults: ctx.faults,
     ...(clientArgs.schemaEpoch !== undefined
       ? { schemaEpoch: clientArgs.schemaEpoch }
@@ -120,14 +135,26 @@ export async function addClientImpl(
       ? { existingDb: clientArgs.existingDb }
       : {}),
     authControl: {
-      getStatus: () => ctx.authStatusByDevice.get(deviceId) ?? 'valid',
+      getStatus: () => ctx.authStatusByDevice.get(ids.deviceId) ?? 'valid',
       refreshExpired: () => {
-        if (ctx.authStatusByDevice.get(deviceId) === 'expired') {
-          ctx.authStatusByDevice.set(deviceId, 'valid');
+        if (ctx.authStatusByDevice.get(ids.deviceId) === 'expired') {
+          ctx.authStatusByDevice.set(ids.deviceId, 'valid');
         }
       },
     },
-  });
+  };
+}
+
+/** Add a client engine to the world and wait for first sync. */
+export async function addClientImpl(
+  ctx: BootedSimKernel,
+  clientArgs: AddClientArgs
+): Promise<SimClientHandle> {
+  if (ctx.clients.has(clientArgs.id)) {
+    throw new Error(`SimWorld: client ${clientArgs.id} already exists`);
+  }
+  const ids = registerClientMeta(ctx, clientArgs);
+  const handle = await buildSimClient(simClientBuildArgs(ctx, clientArgs, ids));
   const wrapped = wireMutateCrashArm(ctx, handle);
   ctx.clients.set(clientArgs.id, wrapped);
   await waitForSessionSync(ctx.scheduler, wrapped, clientArgs.id);

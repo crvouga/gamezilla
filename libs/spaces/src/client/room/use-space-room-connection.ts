@@ -221,10 +221,23 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const bootstrapKey =
     bootstrap === null
       ? null
-      : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}`;
+      : `${bootstrap.spaceId}:${bootstrap.myId}:${bootstrap.installId}:${bootstrap.clientId}`;
   const hasBearer = normalizeSessionToken(sessionToken) !== null;
   const hasBearerOrAnon =
     hasBearer || (bootstrap !== null && bootstrap.myId.length > 0);
+
+  // Keep open args off the effect dep list so JWT/token/provider identity
+  // churn cannot destroy+recreate the WebSocket.
+  const bootstrapRef = useRef(bootstrap);
+  bootstrapRef.current = bootstrap;
+  const configServiceRef = useRef(configService);
+  configServiceRef.current = configService;
+  const kvRef = useRef(kv);
+  kvRef.current = kv;
+  const moduleRef = useRef(module);
+  moduleRef.current = module;
+  const hasBearerOrAnonRef = useRef(hasBearerOrAnon);
+  hasBearerOrAnonRef.current = hasBearerOrAnon;
 
   const tearDown = useCallback(() => {
     connectedKeyRef.current = null;
@@ -238,14 +251,15 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   }, [bootstrapKey, tearDown]);
 
   useEffect(() => {
-    if (bootstrap === null || bootstrapKey === null) return;
+    const current = bootstrapRef.current;
+    if (current === null || bootstrapKey === null) return;
     return beginOpenSpaceRoom({
-      bootstrap,
+      bootstrap: current,
       bootstrapKey,
-      configService,
-      kv,
-      module,
-      hasBearerOrAnon,
+      configService: configServiceRef.current,
+      kv: kvRef.current,
+      module: moduleRef.current,
+      hasBearerOrAnon: hasBearerOrAnonRef.current,
       getSessionToken: makeGetSessionToken({
         getFreshTokenRef,
         sessionTokenRef,
@@ -258,16 +272,9 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
       openingKeyRef,
       tearDown,
     });
-  }, [
-    bootstrap,
-    bootstrapKey,
-    hasBearer,
-    hasBearerOrAnon,
-    configService,
-    kv,
-    module,
-    tearDown,
-  ]);
+    // Intentionally keyed only on bootstrapKey: one live socket per open
+    // space identity. Token refresh is via refs + URL factory on reconnect.
+  }, [bootstrapKey, tearDown]);
 
   return { room, roomRef, transport };
 }

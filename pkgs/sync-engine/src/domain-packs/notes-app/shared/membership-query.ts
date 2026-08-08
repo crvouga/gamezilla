@@ -1,19 +1,13 @@
 import { join, sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
-import { z } from 'zod';
-
-import { spaceMembershipChannels } from './topics';
 
 /**
- * Membership-scoped hydrate — channels follow live space membership
- * (`user:` + `room:`), matching product space-list channel shape.
+ * Membership-scoped hydrate — wakes follow live held rows via topic-map
+ * plus host default entry (user topic).
  */
 export const spaceMembershipQuery = defineQuery({
   name: 'spaceMembership',
-  params: z.object({}),
-  hydrates: ['spaces', 'space_users', 'notes'],
   limit: 500,
-  channels: (_params, ctx) => spaceMembershipChannels(ctx),
   async run({ db, env }) {
     const memberships = await db.query(sql<{
       id: string;
@@ -24,8 +18,7 @@ export const spaceMembershipQuery = defineQuery({
       SELECT id, space_id, user_id, _deleted_at FROM space_users
       WHERE user_id = ${env.actorId}
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     const liveSpaceIds: string[] = [];
     for (const row of memberships) {
       const deletedAt = row['_deleted_at'] as string | null;
@@ -46,8 +39,7 @@ export const spaceMembershipQuery = defineQuery({
       SELECT id, title, owner_id, _deleted_at FROM spaces
       WHERE id IN (${idList})
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -61,8 +53,7 @@ export const spaceMembershipQuery = defineQuery({
       FROM notes
       WHERE space_id IN (${idList})
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { spaces, space_users: memberships, notes };
   },
 });

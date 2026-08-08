@@ -22,6 +22,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
+    "node-sql-parser": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "zod": "catalog:"

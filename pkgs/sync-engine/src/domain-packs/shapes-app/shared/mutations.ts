@@ -1,12 +1,8 @@
-import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import { SHAPE_KINDS } from './schema';
-import { SHAPES_WORLD_TOPIC } from './topics';
-
-const worldTopics = (): Topic[] => [SHAPES_WORLD_TOPIC];
 
 const kindSchema = z.enum(SHAPE_KINDS);
 
@@ -17,9 +13,6 @@ export const addShape = defineMutation({
     id: z.string(),
     kind: kindSchema,
   }),
-  declaredWrites: ['shapes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ shapes: [id] }),
   async run({ tx, env }, { id, kind }) {
     const maxRows = await tx.query(sql<{ max_key: number | null }>`
       SELECT MAX(sort_key) AS max_key FROM shapes WHERE _deleted_at IS NULL
@@ -41,9 +34,6 @@ export const addShape = defineMutation({
 export const removeShape = defineMutation({
   name: 'removeShape',
   args: z.object({ id: z.string() }),
-  declaredWrites: ['shapes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ shapes: [id] }),
   async run({ tx, env }, { id }) {
     await tx.run(sql`
       UPDATE shapes
@@ -59,9 +49,6 @@ export const reorderShapes = defineMutation({
   args: z.object({
     orderedIds: z.array(z.string()).min(1),
   }),
-  declaredWrites: ['shapes'],
-  invalidates: worldTopics,
-  affectedRows: ({ orderedIds }) => ({ shapes: orderedIds }),
   async run({ tx }, { orderedIds }) {
     for (let i = 0; i < orderedIds.length; i += 1) {
       const id = orderedIds[i];

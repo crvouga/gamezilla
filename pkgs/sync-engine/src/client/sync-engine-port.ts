@@ -114,6 +114,7 @@ export type SyncEngine = {
    */
   readonly notifyLocalMutation: (
     mutation: Mutation<unknown>,
-    args: unknown
+    args: unknown,
+    capture: import('../sql-ast').WriteCaptureSnapshot
   ) => void;
 };

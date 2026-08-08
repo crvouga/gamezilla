@@ -8,6 +8,7 @@ import {
   type PushBag,
 } from './attach-push-bag';
 import { commitPendingPushSeqs, handlePush } from './attach-push-handle';
+import { deriveScopeRowTopics } from './attach-push-held-rows';
 import { clearRemovedPushApplied } from './push-applied';
 
 export type { AttachPushOptions } from './attach-push-bag';
@@ -19,12 +20,12 @@ async function countPendingMutations(db: SqlClient): Promise<number> {
   return Number(rows[0]?.c ?? 0);
 }
 
-function scheduleMembershipSync(bag: PushBag): void {
+function scheduleTopicSync(bag: PushBag): void {
   bag.membershipRemakePending = true;
-  void flushMembershipSync(bag);
+  void flushTopicSync(bag);
 }
 
-async function flushMembershipSync(bag: PushBag): Promise<void> {
+async function flushTopicSync(bag: PushBag): Promise<void> {
   if (bag.disposed || !bag.membershipRemakePending || bag.remakeFlushInFlight) {
     return;
   }
@@ -36,20 +37,52 @@ async function flushMembershipSync(bag: PushBag): Promise<void> {
       // Stay pending; retry only when `_mutations` bus fires (do not recurse).
       return;
     }
+    await refreshHeldRowTopics(bag);
+    if (bag.disposed) return;
     bag.membershipRemakePending = false;
     syncTopics(bag);
+  } catch (error) {
+    console.warn('[push] held-row topic refresh failed', error);
   } finally {
     bag.remakeFlushInFlight = false;
   }
 }
 
+async function refreshHeldRowTopics(bag: PushBag): Promise<void> {
+  const derived = await deriveScopeRowTopics({
+    db: bag.options.db,
+    queryRegistry: bag.options.queryRegistry,
+    topicMap: bag.options.topicMap,
+    defaultEntryChannel: bag.options.defaultEntryChannel,
+    channelsCtx: bag.options.getChannelsCtx(),
+    active: bag.options.runtime.listActive(),
+  });
+  bag.scopeRowTopics.clear();
+  for (const [scope, topics] of derived) {
+    bag.scopeRowTopics.set(scope, topics);
+  }
+}
+
+/**
+ * Desired topics = entryChannel ∪ held-row topic-map projection.
+ * No separate membership SQL — live `space_users` / `spaces` rows drive rooms.
+ */
 function collectDesiredTopics(bag: PushBag): Map<Topic, Set<string>> {
   const ctx = bag.options.getChannelsCtx();
   const desired = new Map<Topic, Set<string>>();
+  const defaultEntry = bag.options.defaultEntryChannel;
   for (const sub of bag.options.runtime.listActive()) {
     const query = bag.options.queryRegistry[sub.name];
-    const channels =
-      query?.channels?.(sub.params as never, ctx) ?? ([] as Topic[]);
+    const entry =
+      query?.entryChannel === false
+        ? ([] as Topic[])
+        : (query?.entryChannel?.(sub.params as never, ctx) ??
+          defaultEntry?.(sub.params, ctx) ??
+          ([] as Topic[]));
+    const rowDerived = bag.scopeRowTopics.get(sub.scope) ?? [];
+    // rowDerived already includes entry when refreshHeldRowTopics ran; union
+    // entry again so cold start (empty scopeRowTopics) still wakes.
+    const channels = [...entry, ...rowDerived];
     for (const topic of channels) {
       let scopes = desired.get(topic);
       if (scopes === undefined) {
@@ -188,8 +221,8 @@ function disposeBag(bag: PushBag): void {
 
 /**
  * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
- * Initial bind remakes pubsub once. Later membership / subscription changes
- * sync topics incrementally (no session wipe). Membership sync waits until
+ * Initial bind remakes pubsub once. Later held-row / subscription changes
+ * sync topics incrementally (no session wipe). Topic sync waits until
  * `_mutations` is idle so upload fanout is not racing topic updates.
  */
 export function attachPush(options: AttachPushOptions): () => void {
@@ -198,24 +231,34 @@ export function attachPush(options: AttachPushOptions): () => void {
     void commitPendingPushSeqs(bag, scopes);
   });
   options.onBindTopicRefresh?.(() => {
-    if (!bag.disposed) scheduleMembershipSync(bag);
+    if (!bag.disposed) scheduleTopicSync(bag);
   });
   if (options.onTablesChanged !== undefined) {
     bag.disposers.push(
       options.onTablesChanged((tables) => {
         if (bag.disposed) return;
-        if (tables.has('spaces') || tables.has('space_users')) {
-          scheduleMembershipSync(bag);
+        // Room / session subscribe sets change with membership tables.
+        // World-topic queries (notes/folders) stay on entryChannel and must
+        // not resync on every row write (deterministic fuzz refetch races).
+        if (
+          tables.has('spaces') ||
+          tables.has('space_users') ||
+          tables.has('space_open_sessions')
+        ) {
+          scheduleTopicSync(bag);
         }
         if (tables.has('_mutations')) {
-          void flushMembershipSync(bag);
+          void flushTopicSync(bag);
         }
       })
     );
   }
   remake(bag, collectDesiredTopics(bag));
+  scheduleTopicSync(bag);
   bag.disposers.push(
-    options.runtime.onSubscriptionsChange(() => syncTopics(bag))
+    options.runtime.onSubscriptionsChange(() => {
+      scheduleTopicSync(bag);
+    })
   );
   return () => disposeBag(bag);
 }

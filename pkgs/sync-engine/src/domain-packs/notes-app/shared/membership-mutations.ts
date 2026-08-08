@@ -1,13 +1,6 @@
-import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
-
-import { roomTopic, userTopic } from './topics';
-
-function membershipTopics(spaceId: string, actorId: string): Topic[] {
-  return [userTopic(actorId), roomTopic(spaceId)];
-}
 
 function membershipRowId(spaceId: string, userId: string): string {
   return `${spaceId}:${userId}`;
@@ -17,12 +10,6 @@ function membershipRowId(spaceId: string, userId: string): string {
 export const createSpace = defineMutation({
   name: 'createSpace',
   args: z.object({ id: z.string(), title: z.string().optional() }),
-  declaredWrites: ['spaces', 'space_users'],
-  invalidates: ({ id }, env) => membershipTopics(id, env.actorId),
-  affectedRows: ({ id }, env) => ({
-    spaces: [id],
-    space_users: [membershipRowId(id, env.actorId)],
-  }),
   async run({ tx, env }, { id, title }) {
     const spaceTitle = title ?? '';
     await tx.run(sql`
@@ -49,11 +36,6 @@ export const createSpace = defineMutation({
 export const joinSpace = defineMutation({
   name: 'joinSpace',
   args: z.object({ spaceId: z.string() }),
-  declaredWrites: ['space_users'],
-  invalidates: ({ spaceId }, env) => membershipTopics(spaceId, env.actorId),
-  affectedRows: ({ spaceId }, env) => ({
-    space_users: [membershipRowId(spaceId, env.actorId)],
-  }),
   async run({ tx, env }, { spaceId }) {
     if (env.serverNow !== undefined) {
       const spaces = await tx.query(sql<{ id: string }>`
@@ -80,11 +62,6 @@ export const joinSpace = defineMutation({
 export const leaveSpace = defineMutation({
   name: 'leaveSpace',
   args: z.object({ spaceId: z.string() }),
-  declaredWrites: ['space_users'],
-  invalidates: ({ spaceId }, env) => membershipTopics(spaceId, env.actorId),
-  affectedRows: ({ spaceId }, env) => ({
-    space_users: [membershipRowId(spaceId, env.actorId)],
-  }),
   async run({ tx, env }, { spaceId }) {
     const memberId = membershipRowId(spaceId, env.actorId);
     await tx.run(sql`
@@ -99,12 +76,6 @@ export const leaveSpace = defineMutation({
 export const endSpace = defineMutation({
   name: 'endSpace',
   args: z.object({ spaceId: z.string() }),
-  declaredWrites: ['spaces', 'space_users'],
-  invalidates: ({ spaceId }, env) => membershipTopics(spaceId, env.actorId),
-  affectedRows: ({ spaceId }, env) => ({
-    spaces: [spaceId],
-    space_users: [membershipRowId(spaceId, env.actorId)],
-  }),
   async run({ tx, env }, { spaceId }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM spaces
@@ -138,9 +109,6 @@ export const setSpaceNote = defineMutation({
     body: z.string(),
     title: z.string().optional(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: ({ spaceId }, env) => membershipTopics(spaceId, env.actorId),
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, spaceId, body, title }) {
     if (env.serverNow !== undefined) {
       const members = await tx.query(sql<{ id: string }>`

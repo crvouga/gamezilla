@@ -1,6 +1,5 @@
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
-import { z } from 'zod';
 
 import { NOTES_WORLD_TOPIC } from './topics';
 
@@ -13,10 +12,8 @@ export const NOTES_AUTH_GATE_FOLDER_ID = '__auth_gate__';
  */
 export const notesWorldQuery = defineQuery({
   name: 'notesWorld',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -26,8 +23,7 @@ export const notesWorldQuery = defineQuery({
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -38,8 +34,7 @@ export const notesWorldQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { folders, notes };
   },
 });
@@ -50,10 +45,8 @@ export const notesWorldQuery = defineQuery({
  */
 export const notesDeniedQuery = defineQuery({
   name: 'notesDenied',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   authorize: async () => false,
   async run({ db }) {
     const folders = await db.query(sql<{
@@ -64,8 +57,7 @@ export const notesDeniedQuery = defineQuery({
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -76,8 +68,7 @@ export const notesDeniedQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { folders, notes };
   },
 });
@@ -87,10 +78,8 @@ export const notesDeniedQuery = defineQuery({
  */
 export const notesLimitedQuery = defineQuery({
   name: 'notesLimited',
-  params: z.object({}),
-  hydrates: ['notes'],
   limit: 5,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const notes = await db.query(sql<{
       id: string;
@@ -102,8 +91,7 @@ export const notesLimitedQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
-      LIMIT ${5}
-    `);
+`);
     return { notes };
   },
 });
@@ -114,10 +102,8 @@ export const notesLimitedQuery = defineQuery({
  */
 export const notesOwnedQuery = defineQuery({
   name: 'notesOwned',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   authorize: async ({ db, env }) => {
     const rows = await db.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM folders
@@ -134,8 +120,7 @@ export const notesOwnedQuery = defineQuery({
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -146,8 +131,7 @@ export const notesOwnedQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { folders, notes };
   },
 });
@@ -155,10 +139,8 @@ export const notesOwnedQuery = defineQuery({
 /** Notes-only hydrate — push table-filter wake scenarios. */
 export const notesOnlyQuery = defineQuery({
   name: 'notesOnly',
-  params: z.object({}),
-  hydrates: ['notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const notes = await db.query(sql<{
       id: string;
@@ -170,8 +152,7 @@ export const notesOnlyQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { notes };
   },
 });
@@ -179,10 +160,8 @@ export const notesOnlyQuery = defineQuery({
 /** Folders-only hydrate — push table-filter wake scenarios. */
 export const foldersOnlyQuery = defineQuery({
   name: 'foldersOnly',
-  params: z.object({}),
-  hydrates: ['folders'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -192,8 +171,7 @@ export const foldersOnlyQuery = defineQuery({
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
       ORDER BY id ASC
-      LIMIT ${500}
-    `);
+`);
     return { folders };
   },
 });

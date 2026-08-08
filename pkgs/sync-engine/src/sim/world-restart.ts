@@ -87,6 +87,7 @@ export async function restartServerImpl(
     mutationRegistry: k.domain.mutationRegistry,
     queryRegistry: k.domain.queryRegistry,
     faults: k.faults,
+    ...(k.domain.topicMap !== undefined ? { topicMap: k.domain.topicMap } : {}),
     ...(existingDb !== undefined
       ? { existingDb, onDisposeDb: () => Promise.resolve() }
       : {}),

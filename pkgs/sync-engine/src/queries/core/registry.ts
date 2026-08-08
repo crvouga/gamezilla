@@ -8,7 +8,7 @@ export function queryRegistry(qs: readonly QueryDef<unknown>[]): QueryRegistry {
   for (const q of qs) {
     assert.ok(out[q.name] === undefined, `Duplicate query name: ${q.name}`);
     assert.ok(
-      Number.isFinite(q.limit) && q.limit > 0,
+      q.limit !== undefined && Number.isFinite(q.limit) && q.limit > 0,
       `Query ${q.name}: hard limit required`
     );
     validateQueryChannels(q);

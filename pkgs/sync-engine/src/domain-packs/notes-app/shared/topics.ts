@@ -10,12 +10,3 @@ export function userTopic(actorId: string): Topic {
 export function roomTopic(spaceId: string): Topic {
   return `room:${spaceId}` as Topic;
 }
-
-/** Product-shaped channels: user inbox + live room memberships. */
-export function spaceMembershipChannels(ctx: {
-  readonly actorId: string;
-  readonly membershipSpaceIds?: readonly string[];
-}): Topic[] {
-  const memberships = ctx.membershipSpaceIds ?? [];
-  return [userTopic(ctx.actorId), ...memberships.map((id) => roomTopic(id))];
-}

@@ -1,7 +1,7 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ZodError } from 'zod';
-
+import type { WriteCaptureSnapshot } from '../../sql-ast';
 import {
   isMutationError,
   mutationErrorToFailure,
@@ -39,7 +39,7 @@ export type ReplayMutationDeps = {
 };
 
 export type ReplayOutcome =
-  | { readonly status: 'applied' }
+  | { readonly status: 'applied'; readonly capture: WriteCaptureSnapshot }
   | { readonly status: 'duplicate' }
   | {
       readonly status: 'rejected';
@@ -104,13 +104,15 @@ export async function replayMutation(
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       };
 
-      await mutation.run({ tx: wrapMutationDb(txc), env }, parsed);
+      const wrapped = wrapMutationDb(txc);
+      await mutation.run({ tx: wrapped.tx, env }, parsed);
+      const capture = wrapped.getCapture();
 
       await txc.run(sql`
         INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
         VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'})
       `);
-      return { status: 'applied' as const };
+      return { status: 'applied' as const, capture };
     });
   } catch (e) {
     const mutation = deps.registry[m.name];

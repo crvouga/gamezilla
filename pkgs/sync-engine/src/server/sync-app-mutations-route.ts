@@ -7,17 +7,24 @@ import { z } from 'zod';
 import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
-import type { AuthErrorBody, QueryRow } from '../queries/core/types';
-import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
+import type { AuthErrorBody, QueryRow } from '../protocol';
+import { MAX_MUTATIONS_BATCH, SYNC_PROTOCOL_VERSION } from '../protocol';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
   selectFanoutRows,
 } from '../shared/select-fanout-rows';
+import {
+  type TopicMap,
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '../shared/topic-map';
+import type { WriteCaptureSnapshot } from '../sql-ast';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { publishPushMessages } from './notify-channels';
 import type { SyncAppAuth } from './sync-app-auth';
+import { assertSyncProtocol } from './sync-protocol-gate';
 
 const mutationRowSchema = z.object({
   id: z.string().min(1),
@@ -60,95 +67,78 @@ async function acquireLock(tx: SqlClient, lockUserId: string): Promise<void> {
   }
 }
 
-function collectAppliedWrites(
-  mutationRegistry: MutationRegistry,
-  applied: readonly { name: string }[]
-): string[] {
-  const tables = new Set<string>();
-  for (const row of applied) {
-    const mutation = mutationRegistry[row.name];
-    if (mutation === undefined) continue;
-    for (const table of mutation.declaredWrites) tables.add(table);
+function mergeCaptures(
+  captures: readonly WriteCaptureSnapshot[]
+): WriteCaptureSnapshot {
+  const tableSet = new Set<string>();
+  const idParts: Array<Readonly<Record<string, readonly string[]>>> = [];
+  const imageParts: Record<string, QueryRow[]> = {};
+  for (const c of captures) {
+    for (const t of c.tables) tableSet.add(t);
+    idParts.push(c.ids);
+    for (const [table, rows] of Object.entries(c.images)) {
+      const byId = new Map(
+        (imageParts[table] ?? []).map(
+          (r) => [String(r['id'] ?? ''), r] as const
+        )
+      );
+      for (const row of rows) {
+        const id = String(row['id'] ?? '');
+        if (id.length === 0) continue;
+        // Later captures win (batch order) so last write's post-image is published.
+        byId.set(id, { ...row });
+      }
+      imageParts[table] = [...byId.values()];
+    }
   }
-  return [...tables];
+  return {
+    tables: [...tableSet].sort(),
+    ids: mergeAffectedRows(idParts),
+    images: imageParts,
+  };
 }
 
-async function collectInvalidates(
-  mutationRegistry: MutationRegistry,
-  auth: SyncAppAuth,
-  applied: readonly { name: string; argsJson: string }[],
-  db: SqlClient
-): Promise<Topic[]> {
+async function collectTopicsFromCaptures(args: {
+  readonly topicMap: TopicMap | undefined;
+  readonly auth: SyncAppAuth;
+  readonly captures: readonly WriteCaptureSnapshot[];
+  readonly db: SqlClient;
+}): Promise<Topic[]> {
+  if (args.topicMap === undefined || args.captures.length === 0) return [];
   const env: MutationEnv = {
-    actorId: auth.actorId,
-    deviceId: auth.deviceId,
-    accountId: auth.accountId,
-    isAnon: auth.isAnon,
+    actorId: args.auth.actorId,
+    deviceId: args.auth.deviceId,
+    accountId: args.auth.accountId,
+    isAnon: args.auth.isAnon,
     now: () => new Date(),
   };
-  const seen = new Set<Topic>();
-  const topics: Topic[] = [];
-  for (const row of applied) {
-    const mutation = mutationRegistry[row.name];
-    if (mutation?.invalidates === undefined) continue;
-    let args: unknown;
-    try {
-      args = mutation.args.parse(JSON.parse(row.argsJson));
-    } catch {
-      continue;
-    }
-    const next = await Promise.resolve(mutation.invalidates(args, env, db));
-    for (const topic of next) {
-      if (seen.has(topic)) continue;
-      seen.add(topic);
-      topics.push(topic);
-    }
-  }
-  return topics;
-}
-
-function collectAffectedRowMaps(
-  mutationRegistry: MutationRegistry,
-  auth: SyncAppAuth,
-  applied: readonly { name: string; argsJson: string }[]
-): Record<string, string[]> {
-  const env: MutationEnv = {
-    actorId: auth.actorId,
-    deviceId: auth.deviceId,
-    accountId: auth.accountId,
-    isAnon: auth.isAnon,
-    now: () => new Date(),
-  };
-  const parts: Array<Readonly<Record<string, readonly string[]>>> = [];
-  for (const row of applied) {
-    const mutation = mutationRegistry[row.name];
-    if (mutation?.affectedRows === undefined) continue;
-    let args: unknown;
-    try {
-      args = mutation.args.parse(JSON.parse(row.argsJson));
-    } catch {
-      continue;
-    }
-    parts.push(mutation.affectedRows(args, env));
-  }
-  return mergeAffectedRows(parts);
+  const merged = mergeCaptures(args.captures);
+  return topicsFromWriteCapture({
+    topicMap: args.topicMap,
+    capture: merged,
+    ctx: topicMapCtxFromEnv(env),
+    db: args.db,
+  });
 }
 
 async function buildFanoutRows(args: {
   readonly db: SqlClient;
-  readonly mutationRegistry: MutationRegistry;
-  readonly auth: SyncAppAuth;
-  readonly applied: readonly { name: string; argsJson: string }[];
+  readonly capture: WriteCaptureSnapshot;
   readonly rowImageFanout: boolean;
 }): Promise<Record<string, QueryRow[]> | undefined> {
   if (!args.rowImageFanout) return undefined;
-  const affected = collectAffectedRowMaps(
-    args.mutationRegistry,
-    args.auth,
-    args.applied
-  );
-  if (Object.keys(affected).length === 0) return undefined;
-  const rows = await selectFanoutRows(args.db, affected);
+  // Prefer RETURNING images; fall back to SELECT for id-only tables.
+  const fromCapture = args.capture.images;
+  if (Object.keys(fromCapture).length > 0) {
+    if (!fanoutRowsWithinCap(fromCapture)) return undefined;
+    const copy: Record<string, QueryRow[]> = {};
+    for (const [table, rows] of Object.entries(fromCapture)) {
+      copy[table] = rows.map((r) => ({ ...r }));
+    }
+    return copy;
+  }
+  if (Object.keys(args.capture.ids).length === 0) return undefined;
+  const rows = await selectFanoutRows(args.db, args.capture.ids);
   if (Object.keys(rows).length === 0) return undefined;
   if (!fanoutRowsWithinCap(rows)) return undefined;
   return rows;
@@ -167,9 +157,6 @@ async function prepareMutationNotify(
   mutationRows: MutationRow[]
 ): Promise<PreparedMutationNotify> {
   const db = deps.getSql();
-  // Replay + fanout SELECT + checkpoint allocate share one transaction so
-  // remote Postgres pays one connection RTT chain instead of post-commit
-  // round-trips (was dominating peer-visible latency).
   return db.transaction(async (tx) => {
     await acquireLock(tx, auth.actorId);
     const nested = asNestedTxClient(tx);
@@ -187,18 +174,18 @@ async function prepareMutationNotify(
         checkpoints: new Map<Topic, string>(),
       };
     }
-    const topics = await collectInvalidates(
-      deps.mutations,
+    const captures = result.applied.map((a) => a.capture);
+    const merged = mergeCaptures(captures);
+    const topics = await collectTopicsFromCaptures({
+      topicMap: deps.topicMap,
       auth,
-      result.applied,
-      nested
-    );
-    const tables = collectAppliedWrites(deps.mutations, result.applied);
+      captures,
+      db: nested,
+    });
+    const tables = merged.tables;
     const rows = await buildFanoutRows({
       db: nested,
-      mutationRegistry: deps.mutations,
-      auth,
-      applied: result.applied,
+      capture: merged,
       rowImageFanout: deps.rowImageFanout === true,
     });
     const checkpoints = await allocateTopicPushSeqs(nested, topics);
@@ -230,6 +217,7 @@ export type MountMutationsRouteDeps = {
   readonly pubsub?: PubSub;
   /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;
+  readonly topicMap?: TopicMap;
 };
 
 export function mountMutationsRoute(
@@ -237,6 +225,8 @@ export function mountMutationsRoute(
   deps: MountMutationsRouteDeps
 ): void {
   app.post('/mutations', async (c) => {
+    const protocolErr = assertSyncProtocol(c.req.raw);
+    if (protocolErr !== null) return c.json(protocolErr, 401);
     const auth = await deps.resolveAuth(c.req.raw);
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
@@ -266,12 +256,18 @@ export function mountMutationsRoute(
           verdicts: result.verdicts,
           ackSeq: result.ackSeq,
           topicPushSeqs: Object.fromEntries(checkpoints),
+          protocol: SYNC_PROTOCOL_VERSION,
         },
         200
       );
     }
     return c.json(
-      { ok: result.ok, verdicts: result.verdicts, ackSeq: result.ackSeq },
+      {
+        ok: result.ok,
+        verdicts: result.verdicts,
+        ackSeq: result.ackSeq,
+        protocol: SYNC_PROTOCOL_VERSION,
+      },
       200
     );
   });

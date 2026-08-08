@@ -3,9 +3,11 @@ import {
   appSchema,
   LOCAL_DOMAIN_TABLE_NAMES,
 } from '@libs/db/shared/app-schema';
+import {
+  appDefaultEntryChannel,
+  appTopicMap,
+} from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
-import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   createLocalSyncEngine,
   type SyncEngine,
@@ -66,28 +68,6 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
   };
 }
 
-async function loadMembershipSpaceIds(
-  db: SqlClient,
-  actorId: string
-): Promise<string[]> {
-  const rows = await db.query(sql<{ id: string }>`
-    SELECT id FROM spaces
-    WHERE ended_at IS NULL
-      AND (
-        host_member_id = ${actorId}
-        OR host_account_id = ${actorId}
-        OR id IN (
-          SELECT space_id FROM space_users WHERE user_id = ${actorId}
-        )
-      )
-  `);
-  return rows.map((row) => row.id).filter((id) => id.length > 0);
-}
-
-function membershipKey(ids: readonly string[]): string {
-  return [...ids].sort().join('\0');
-}
-
 function sessionQuerySpecs() {
   return SESSION_QUERIES.map((name) => ({
     name,
@@ -95,35 +75,27 @@ function sessionQuerySpecs() {
   }));
 }
 
+/** Identity-only ctx — room topics derive from held rows in attachPush. */
 function createMembershipChannels(args: {
-  readonly db: SqlClient;
   readonly auth: SyncClientAuth;
   readonly userId: string;
 }): {
   readonly getChannelsCtx: () => AppChannelsCtx;
   readonly onBindTopicRefresh: (refresh: () => void) => void;
 } {
-  let membershipCache: string[] = [];
-  let topicRefresh: (() => void) | null = null;
   return {
-    onBindTopicRefresh: (refresh) => {
-      topicRefresh = refresh;
+    onBindTopicRefresh: () => {
+      // Held-row refresh is driven by the local table-change bus.
     },
-    getChannelsCtx: () => {
-      const actorId = args.auth.getAccountId() ?? args.userId;
-      void loadMembershipSpaceIds(args.db, actorId).then((ids) => {
-        if (membershipKey(ids) === membershipKey(membershipCache)) return;
-        membershipCache = ids;
-        topicRefresh?.();
-      });
-      return { actorId, membershipSpaceIds: membershipCache };
-    },
+    getChannelsCtx: () => ({
+      actorId: args.auth.getAccountId() ?? args.userId,
+    }),
   };
 }
 
 function pushOptions(
   args: CreateAppLocalSyncEngineArgs,
-  channels: ReturnType<typeof createMembershipChannels>
+  pushCtx: ReturnType<typeof createMembershipChannels>
 ) {
   const raw = process.env['EXPO_PUBLIC_EMQX_WSS_URL']?.trim() ?? '';
   const enabled = raw.length > 0;
@@ -143,9 +115,11 @@ function pushOptions(
         }
         return next;
       },
-      getChannelsCtx: channels.getChannelsCtx,
-      onBindTopicRefresh: channels.onBindTopicRefresh,
+      getChannelsCtx: pushCtx.getChannelsCtx,
+      onBindTopicRefresh: pushCtx.onBindTopicRefresh,
       rowImageFanout: true,
+      topicMap: appTopicMap,
+      defaultEntryChannel: appDefaultEntryChannel,
     },
   };
 }
@@ -156,10 +130,7 @@ export async function createAppLocalSyncEngine(
 ): Promise<SyncEngine> {
   await deleteLegacySidecarDb(args.databaseName);
   const db = await openMainSqlClient(args.userId);
-  // Membership loads after migrateLocalSchema (inside createLocalSyncEngine);
-  // querying `spaces` before migrate fails on a fresh DB.
-  const channels = createMembershipChannels({
-    db,
+  const pushCtx = createMembershipChannels({
     auth: args.auth,
     userId: args.userId,
   });
@@ -180,6 +151,6 @@ export async function createAppLocalSyncEngine(
       error instanceof SyncApiAuthError && error.reason === 'revoked',
     deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
     lifecycle: createAppSyncLifecycle(),
-    ...pushOptions(args, channels),
+    ...pushOptions(args, pushCtx),
   });
 }

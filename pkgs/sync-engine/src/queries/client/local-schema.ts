@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 7;
+export const SCHEMA_EPOCH = 8;
 
 /** Retired local tables dropped on epoch migrate. */
 export const RETIRED_LOCAL_TABLES = [

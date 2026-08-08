@@ -1,9 +1,10 @@
+import type { Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { QueryChannelsCtx } from '../shared/push-payload';
+import type { TopicMap } from '../shared/topic-map';
 import type { InvariantViolation } from './invariants';
 
 export type SimSessionQuery = {
@@ -37,6 +38,11 @@ export type SimDomainPack = {
     readonly db: SqlClient;
     readonly actorId: string;
   }) => SimPushChannels;
+  readonly topicMap?: TopicMap;
+  readonly defaultEntryChannel?: (
+    params: unknown,
+    ctx: QueryChannelsCtx
+  ) => readonly Topic[];
 };
 
 /** Default push channels when a pack does not supply membership wiring. */

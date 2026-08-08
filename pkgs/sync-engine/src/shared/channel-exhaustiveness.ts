@@ -1,127 +1,73 @@
-import type { Topic } from '@pkgs/pubsub/interface';
-
-import { mutationRegistry } from '../mutations/core/registry';
-import type { Mutation, MutationEnv } from '../mutations/core/types';
-import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
+import { resolveQueryHydrates } from '../queries/core/define-query';
 import type { QueryDef } from '../queries/core/types';
-import type { QueryChannelsCtx } from './push-payload';
-
-const SENTINEL_CHANNELS_CTX = {
-  actorId: 'actor_x',
-  membershipSpaceIds: ['space_x'],
-} as QueryChannelsCtx;
-
-const SENTINEL_MUTATION_ENV: MutationEnv = {
-  actorId: 'actor_x',
-  deviceId: 'device_x',
-  accountId: 'account_x',
-  isAnon: false,
-  now: () => new Date(0),
-};
-
-const SENTINEL_MUTATION_ARGS = {
-  spaceId: 'space_x',
-  userId: 'user_x',
-  toUserId: 'user_x',
-  requestId: 'req_x',
-  blockId: 'block_x',
-  username: 'user_x',
-  visibility: 'private',
-  title: 't',
-  avatarConfig: {},
-  interactionId: 'ix_x',
-  ownerId: 'actor_x',
-  puzzleId: 'pz_x',
-  puzzleRating: 1000,
-  kind: 'started',
-  solveIdx: 0,
-  rating: 1000,
-  ratingDeviation: 100,
-  rejectionId: 'rej_x',
-  ids: ['id_x'],
-} as const;
+import type { TopicMap } from './topic-map';
 
 export type ChannelGap = {
-  readonly mutation: string;
+  readonly table: string;
   readonly query: string;
-  readonly tables: readonly string[];
+  readonly reason: string;
 };
 
-function tablesOverlap(
-  declaredWrites: readonly string[],
-  hydrates: readonly string[]
-): string[] {
-  const hydrateSet = new Set(hydrates);
-  return declaredWrites.filter((t) => hydrateSet.has(t));
-}
-
-function topicsOverlap(
-  left: readonly Topic[],
-  right: readonly Topic[]
-): boolean {
-  const rightSet = new Set(right);
-  return left.some((t) => rightSet.has(t));
-}
-
-function mutationTopics(m: Mutation<unknown>): Topic[] {
-  if (m.invalidates === undefined) return [];
-  const parsed = m.args.safeParse(SENTINEL_MUTATION_ARGS);
-  const args = parsed.success ? parsed.data : SENTINEL_MUTATION_ARGS;
-  const result = m.invalidates(args, SENTINEL_MUTATION_ENV);
-  // Exhaustiveness is sync/static; async party expansion is validated at runtime.
-  if (result instanceof Promise) return [`user:actor_x`, `room:space_x`];
-  return [...result];
-}
-
-function queryTopics(q: QueryDef<unknown>): Topic[] {
-  if (q.channels === undefined) return [];
-  const parsed = q.params.safeParse(SENTINEL_MUTATION_ARGS);
-  const params = parsed.success ? parsed.data : SENTINEL_MUTATION_ARGS;
-  return q.channels(params as never, SENTINEL_CHANNELS_CTX);
+function entryChannelEmpty(query: QueryDef<unknown>): boolean {
+  if (query.entryChannel === false) return true;
+  if (query.entryChannel === undefined) return false;
+  return query.entryChannel({} as never, { actorId: 'actor_x' }).length === 0;
 }
 
 /**
- * For every (mutation, query) with declaredWrites ∩ hydrates ≠ ∅, require
- * invalidates topics ∩ channels topics ≠ ∅. Returns named gaps.
+ * Static join: every hydrated table must have a topic map entry (or the query
+ * is reconcile-only with empty/false entryChannel — allowed).
+ * Tables listed as reconcileOnly are skipped.
+ *
+ * Resolves `hydrates` via {@link resolveQueryHydrates} when not yet filled.
  */
-export function findChannelExhaustivenessGaps(
-  mutations: readonly Mutation<unknown>[],
-  queries: readonly QueryDef<unknown>[]
-): ChannelGap[] {
+export async function findChannelExhaustivenessGaps(
+  topicMap: TopicMap,
+  queries: readonly QueryDef<unknown>[],
+  opts?: {
+    readonly reconcileOnlyTables?: ReadonlySet<string>;
+  }
+): Promise<ChannelGap[]> {
+  const reconcile = opts?.reconcileOnlyTables ?? new Set<string>();
   const gaps: ChannelGap[] = [];
-  for (const mutation of mutations) {
-    for (const query of queries) {
-      const tables = tablesOverlap(mutation.declaredWrites, query.hydrates);
-      if (tables.length === 0) continue;
-      const inv = mutationTopics(mutation);
-      const ch = queryTopics(query);
-      if (topicsOverlap(inv, ch)) continue;
-      gaps.push({
-        mutation: mutation.name,
-        query: query.name,
-        tables,
-      });
+  for (const query of queries) {
+    const hydrates = await resolveQueryHydrates(query);
+    const entryEmpty = entryChannelEmpty(query);
+    for (const table of hydrates) {
+      if (reconcile.has(table)) continue;
+      if (topicMap[table] !== undefined) continue;
+      if (
+        entryEmpty &&
+        hydrates.every((t) => reconcile.has(t) || topicMap[t] === undefined)
+      ) {
+        // reconcile-only query (e.g. chessPuzzlePool)
+        continue;
+      }
+      if (topicMap[table] === undefined) {
+        gaps.push({
+          table,
+          query: query.name,
+          reason:
+            'hydrated table has no topicMap entry (add map or mark reconcile-only)',
+        });
+      }
     }
   }
   return gaps;
 }
 
-/** Throws with named pairs when any gap exists. */
-export function assertChannelExhaustiveness(
-  mutations: readonly Mutation<unknown>[],
-  queries: readonly QueryDef<unknown>[]
-): void {
-  // Framework mutations are merged inside createSyncApp / createLocalSyncEngine;
-  // include them here so CI matches runtime registries without a manual merge.
-  const merged = Object.values(
-    withFrameworkMutations(mutationRegistry(mutations))
-  ) as Mutation<unknown>[];
-  const gaps = findChannelExhaustivenessGaps(merged, queries);
+export async function assertChannelExhaustiveness(
+  topicMap: TopicMap,
+  queries: readonly QueryDef<unknown>[],
+  opts?: {
+    readonly reconcileOnlyTables?: ReadonlySet<string>;
+  }
+): Promise<void> {
+  const gaps = await findChannelExhaustivenessGaps(topicMap, queries, opts);
   if (gaps.length === 0) return;
   const lines = gaps.map(
-    (g) => `  ${g.mutation} → ${g.query} (tables: ${g.tables.join(', ')})`
+    (g) =>
+      `CHANNEL_EXHAUST: table "${g.table}" hydrated by query "${g.query}": ${g.reason}`
   );
-  throw new Error(
-    `Channel exhaustiveness failed — declaredWrites∩hydrates without overlapping topics:\n${lines.join('\n')}`
-  );
+  throw new Error(`Channel exhaustiveness failed:\n${lines.join('\n')}`);
 }

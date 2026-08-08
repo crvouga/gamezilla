@@ -4,7 +4,6 @@
  */
 
 import { defineSchema } from '@pkgs/db-schema';
-import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import {
   defineMutation,
@@ -14,12 +13,7 @@ import {
 import { z } from 'zod';
 
 import type { LocalDomainSchema } from '../../../client/local-schema-migrate';
-import { NOTES_WORLD_TOPIC, userTopic } from './topics';
-
-const worldTopics = (
-  _args: unknown,
-  env: { readonly actorId: string }
-): Topic[] => [NOTES_WORLD_TOPIC, userTopic(env.actorId)];
+import { NOTES_WORLD_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */
 export const notesAppSchemaExtraColumn = defineSchema({
@@ -147,10 +141,8 @@ export const notesLocalSchemaExtraTable: LocalDomainSchema = {
 /** V2 query name — same hydrate as notesWorld. */
 export const notesWorldV2Query = defineQuery({
   name: 'notesWorldV2',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -159,8 +151,8 @@ export const notesWorldV2Query = defineQuery({
       _deleted_at: string | null;
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -170,8 +162,8 @@ export const notesWorldV2Query = defineQuery({
       _deleted_at: string | null;
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     return { folders, notes };
   },
 });
@@ -182,10 +174,8 @@ export const notesWorldV2Query = defineQuery({
  */
 export const notesWorldWithColorQuery = defineQuery({
   name: 'notesWorldWithColor',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const folders = await db.query(sql<{
       id: string;
@@ -194,8 +184,8 @@ export const notesWorldWithColorQuery = defineQuery({
       _deleted_at: string | null;
     }>`
       SELECT id, title, owner_id, _deleted_at FROM folders
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     const notes = await db.query(sql<{
       id: string;
       folder_id: string | null;
@@ -207,8 +197,8 @@ export const notesWorldWithColorQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, color, owner_id, _deleted_at
       FROM notes
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     return { folders, notes };
   },
 });
@@ -220,9 +210,8 @@ export const notesByFolderQuery = defineQuery({
     folderId: z.string(),
     includeArchived: z.boolean().optional(),
   }),
-  hydrates: ['notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }, params) {
     const notes = await db.query(sql<{
       id: string;
@@ -234,8 +223,8 @@ export const notesByFolderQuery = defineQuery({
     }>`
       SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
       WHERE folder_id = ${params.folderId}
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     return { notes };
   },
 });
@@ -243,10 +232,8 @@ export const notesByFolderQuery = defineQuery({
 /** authorize throws — must behave as denied. */
 export const notesAuthorizeThrowQuery = defineQuery({
   name: 'notesAuthorizeThrow',
-  params: z.object({}),
-  hydrates: ['folders', 'notes'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   authorize: async () => {
     throw new Error('authorize exploded');
   },
@@ -258,10 +245,8 @@ export const notesAuthorizeThrowQuery = defineQuery({
 /** Hydrates tags — used after mid-life schema add. */
 export const tagsWorldQuery = defineQuery({
   name: 'tagsWorld',
-  params: z.object({}),
-  hydrates: ['tags'],
   limit: 500,
-  channels: () => [NOTES_WORLD_TOPIC],
+  entryChannel: () => [NOTES_WORLD_TOPIC],
   async run({ db }) {
     const tags = await db.query(sql<{
       id: string;
@@ -270,8 +255,8 @@ export const tagsWorldQuery = defineQuery({
       _deleted_at: string | null;
     }>`
       SELECT id, label, owner_id, _deleted_at FROM tags
-      ORDER BY id ASC LIMIT ${500}
-    `);
+      ORDER BY id ASC
+`);
     return { tags };
   },
 });
@@ -280,9 +265,6 @@ export const tagsWorldQuery = defineQuery({
 export const ghostMutation = defineMutation({
   name: 'ghostMutation',
   args: z.object({ id: z.string(), body: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -302,9 +284,6 @@ export const setNoteArgsTight = defineMutation({
     id: z.string(),
     body: z.string().min(1).max(32),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -327,9 +306,6 @@ export const setNoteArgsLoose = defineMutation({
     id: z.string(),
     body: z.string(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -350,9 +326,6 @@ export const setNoteUniqueSlug = defineMutation({
     slug: z.string(),
     body: z.string(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   constraintErrors: {
     notes_title_unique: {
       code: 'SLUG_TAKEN',
@@ -382,7 +355,7 @@ export const setNoteUniqueSlug = defineMutation({
   },
 });
 
-/** Writes folders but declares only notes — channel/table-filter footgun. */
+/** Writes folders + notes — historically undeclared folder write footgun. */
 export const setNoteUndeclaredFolderWrite = defineMutation({
   name: 'setNoteUndeclaredFolderWrite',
   args: z.object({
@@ -391,9 +364,6 @@ export const setNoteUndeclaredFolderWrite = defineMutation({
     folderTitle: z.string(),
     body: z.string(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ noteId }) => ({ notes: [noteId] }),
   async run({ tx, env }, { noteId, folderId, folderTitle, body }) {
     await tx.run(sql`
       INSERT INTO folders (id, title, owner_id)
@@ -415,13 +385,10 @@ export const setNoteUndeclaredFolderWrite = defineMutation({
   },
 });
 
-/** Invalidates a non-existent topic — peers stale until refetch. */
+/** Note upsert kept for wrong-topic / peer-stale scenarios. */
 export const setNoteWrongTopic = defineMutation({
   name: 'setNoteWrongTopic',
   args: z.object({ id: z.string(), body: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: () => ['notes:wrong-topic' as Topic],
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -442,9 +409,6 @@ export const setNoteColor = defineMutation({
     body: z.string(),
     color: z.string(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body, color }) {
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, color, owner_id)
@@ -461,9 +425,6 @@ export const setNoteColor = defineMutation({
 export const setTag = defineMutation({
   name: 'setTag',
   args: z.object({ id: z.string(), label: z.string() }),
-  declaredWrites: ['tags'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ tags: [id] }),
   async run({ tx, env }, { id, label }) {
     await tx.run(sql`
       INSERT INTO tags (id, label, owner_id)
@@ -480,9 +441,6 @@ export const setTag = defineMutation({
 export const setNoteStrictExists = defineMutation({
   name: 'setNoteStrictExists',
   args: z.object({ id: z.string(), body: z.string() }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ id }) => ({ notes: [id] }),
   async run({ tx, env }, { id, body }) {
     const rows = await tx.query(sql<{ id: string }>`
       SELECT id FROM notes WHERE id = ${id} AND _deleted_at IS NULL
@@ -507,9 +465,6 @@ export const retouchNotes = defineMutation({
     ids: z.array(z.string()).min(1),
     body: z.string(),
   }),
-  declaredWrites: ['notes'],
-  invalidates: worldTopics,
-  affectedRows: ({ ids }) => ({ notes: ids }),
   async run({ tx, env }, { ids, body }) {
     for (const id of ids) {
       await tx.run(sql`

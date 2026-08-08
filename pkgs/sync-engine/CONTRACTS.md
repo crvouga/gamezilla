@@ -30,15 +30,15 @@ Coordinated monorepo refactors OK. Evidence: apps/client, apps/api, libs/\*, pkg
 
 ### Wire protocol
 
-Frozen in [`src/protocol/v1.ts`](./src/protocol/v1.ts) (`SYNC_PROTOCOL_VERSION = 1`). CI: `ci:sync-engine-protocol-freeze`. Shapes: query/mutation batches, `QueryResponse`, auth error body, `PushMessage`, `MAX_*` bounds. **No shape changes without a version bump.**
+Frozen in [`src/protocol/v2.ts`](./src/protocol/v2.ts) (`SYNC_PROTOCOL_VERSION = 2`). CI: `ci:sync-engine-protocol-freeze` (`api-reports/protocol-v2.sha256`). Shapes: query/mutation batches, `QueryResponse`, auth error body (`upgrade_required`), `PushMessage`, `MAX_*` bounds. Pre-cut clients are rejected without wiping local DB.
 
 ### Local domain SQL read contract
 
-Domain tables from host schema; managed `_deleted_at`; UI filters live rows (`_deleted_at IS NULL` / `LIVE_ROW_SQL`); `useQuery` / `watch` semantics. Soft-delete-only domain writes.
+Domain tables from host schema; managed `_deleted_at`; UI filters live rows (`_deleted_at IS NULL` / `LIVE_ROW_SQL`); `useQuery` / `watch` semantics. Soft-delete-only domain writes. Query `run` SQL must include tombstones (no `_deleted_at` predicates); `limit` comes from the query field (no inline `LIMIT`).
 
 ### Extension contract
 
-`defineQuery` / `defineMutation`, registries, `MutationEnv` / `MutationError`, `channels` / `invalidates` / `affectedRows` / `constraintErrors` / `declaredWrites`.
+`defineQuery` / `defineMutation`, registries, `MutationEnv` / `MutationError`, `defineTopicMap`, `entryChannel?` (or `false` for reconcile-only), `constraintErrors`, `pendingUx`, `requiresOnline`. Write sets and wake topics are derived from AST capture + topic map — no authoring `hydrates` / `declaredWrites` / `affectedRows` / `invalidates`. Query `limit` defaults to `DEFAULT_QUERY_LIMIT` (2000); sim + `SECRETS_ENV=dev` set `strictQueryLimits` so clipping a **default** budget throws `QueryLimitExceeded` (explicit budgets still truncate-and-serve).
 
 ### Host wiring / ports
 
@@ -69,9 +69,10 @@ Framework table names/shapes/DDL text, merge/rebase/upload/subscription, `alloca
 ### `@pkgs/sync-engine/shared` (protocol + extension)
 
 ```ts
-/** Wire protocol v1 — frozen. */
+/** Wire protocol v2 — frozen. */
 export {
   SYNC_PROTOCOL_VERSION,
+  SYNC_PROTOCOL_HEADER,
   MAX_MUTATIONS_BATCH, MAX_QUERY_BATCH, MAX_FANOUT_ROWS, MAX_FANOUT_BYTES,
   type QueryRow, type QueryRequestItem, type QueryBatchRequest,
   type QueryResponse, type QueryBatchResponse,
@@ -80,16 +81,23 @@ export {
   type AuthErrorBody, type PushMessage,
 } from './protocol';
 
-export function defineQuery<P>(def: QueryDef<P>): QueryDef<P>;
+export const DEFAULT_QUERY_LIMIT: 2000;
+export function defineQuery<P>(def: QueryDefInput<P>): QueryDef<P>;
+export function resolveQueryHydrates(query): Promise<readonly string[]>; // CI / exhaustiveness
 export function defineMutation<A>(def: Mutation<A>): Mutation<A>;
 export function queryRegistry(defs: readonly QueryDef<unknown>[]): QueryRegistry;
 export function mutationRegistry(defs: readonly Mutation<unknown>[]): MutationRegistry;
+export function defineTopicMap(entries): TopicMap;
 export const LIVE_ROW_SQL: string;
 export function softDeleteById(...): Promise<void>;
 export function applyFrameworkServerDdl(args: { sqlClient; logger? }): Promise<void>;
 export function assertDomainTablesAvoidFrameworkNames(names: readonly string[]): void;
-export function assertChannelExhaustiveness(mutations, queries): void;
+export function assertChannelExhaustiveness(mutations, queries, topicMap): Promise<void>;
 ```
+
+`QueryDefInput` omits runtime `hydrates` / `limitIsDefault`. `Mutation` is
+`{ name, args, run, constraintErrors?, pendingUx?, requiresOnline? }` — capture
++ topic map replace hand-written write/invalidates declarations.
 
 ### `@pkgs/sync-engine/client`
 
@@ -113,7 +121,7 @@ export type SyncEngine = {
   listRejections(): Promise<readonly UnackedWriteRejection[]>;
   pendingMutationCount(): Promise<number>;
   /** @internal */ wakeUploads(): void;
-  /** @internal */ notifyLocalMutation(mutation, args): void;
+  /** @internal */ notifyLocalMutation(mutation, args, capture): void;
 };
 export type SyncEngineStatus = {
   connection: SyncConnectionState;
@@ -209,10 +217,44 @@ Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (af
 | Gate | Script |
 |------|--------|
 | `ci:sync-engine-public-api` | `api-reports/{client,server,shared,test}.txt` |
-| `ci:sync-engine-protocol-freeze` | `api-reports/protocol-v1.sha256` |
+| `ci:sync-engine-protocol-freeze` | `api-reports/protocol-v2.sha256` |
 | `ci:sync-engine-framework-leak` | No framework table/DDL symbols in apps/libs/inbox/tools |
+| `ci:sync-engine-terminology` | Ban retired authoring names (`hydrates:`, `declaredWrites`, …) |
 | `ci:sync-engine-blackbox-tests` | Scenarios stay black-box |
 | `ci:no-local-tables` | Opaque domain↔framework collision |
-| `ci:channel-exhaustiveness` | Topic overlap (auto-merges framework mutations) |
+| `ci:channel-exhaustiveness` | Topic overlap via `resolveQueryHydrates` + topic map |
 
 To update a freeze deliberately: change the surface, run the check once to rewrite the report/hash (or edit the snapshot), and review in PR.
+
+---
+
+## 8. Protocol cutover runbook (v2)
+
+| Step | Behavior |
+|------|----------|
+| Client header / body version ≠ 2 | Server returns auth error `upgrade_required` — **no local wipe** |
+| Pending `_mutations` on upgrade | Preserve-and-drain after client updates (scenario: `pending-mutations-across-protocol-cut-drain`) |
+| Wire shapes | Stay v2 envelopes; derivation did not need topics-in-payload |
+
+No second cutover policy. Do not keep dual handlers “until clients adopt” for
+protocol — reject old clients loudly; product mutation renames (`joinSpaceV2`)
+are independent name-versioning, not a dual-wire period.
+
+---
+
+## 9. Authoring drift (closed)
+
+**Mutations:** Hand-declared `declaredWrites` / `affectedRows` / `invalidates`
+are gone. Historical misses (e.g. `endSpace` omitting sessions from
+`affectedRows`, friends actor-only invalidates) are fixed by AST capture +
+`defineTopicMap` / `fallbackTopics`. Escape remains `fallbackTopics` +
+`// topic-map-db:` only where needed (e.g. end-space party wake).
+
+**Queries:**
+
+| Concern | Rule |
+|---------|------|
+| Hydrate tables | Derived from `run` return keys (`resolveQueryHydrates` for CI) |
+| Limit | Default 2000; no inline `LIMIT`; explicit overrides for real budgets |
+| Channels | `entryChannel` ∪ topic-map(held rows); `entryChannel: false` = reconcile-only |
+| Equivalence | spaces queries ≡ `userTopic(actor)` entry ∪ topic-map(held); empty / N rooms / host-only covered by leave/join + entry-channel scenarios |

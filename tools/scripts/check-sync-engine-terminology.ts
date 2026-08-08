@@ -10,10 +10,14 @@ const root = join(import.meta.dirname, '../..');
 
 const SCAN_GLOBS = [
   'pkgs/sync-engine/**/*.{ts,tsx,md}',
+  'pkgs/inbox/src/**/*.{ts,tsx}',
+  'pkgs/pubsub/README.md',
   'apps/client/src/sync/**/*.{ts,tsx}',
   'apps/api/src/sync/**/*.{ts,tsx}',
   'libs/**/shared/mutations/**/*.{ts,tsx}',
+  'libs/**/shared/queries/**/*.{ts,tsx}',
   'libs/db/src/shared/sync-topics.ts',
+  'libs/db/src/shared/app-topic-map.ts',
   'AGENTS.md',
   'tools/scripts/check-no-domain-hard-delete.ts',
 ] as const;
@@ -23,6 +27,9 @@ type Rule = {
   readonly re: RegExp;
   readonly allow?: (rel: string, line: string) => boolean;
 };
+
+const isTerminologyScript = (rel: string) =>
+  rel.endsWith('check-sync-engine-terminology.ts');
 
 const RULES: readonly Rule[] = [
   {
@@ -52,18 +59,51 @@ const RULES: readonly Rule[] = [
     re: /attach-nudges|attachNudges/,
   },
   {
-    name: 'mutation def writes: (use declaredWrites)',
-    re: /^\s*writes:\s*\[/,
+    name: 'retired declaredWrites field',
+    re: /\bdeclaredWrites\b/,
+    allow: (rel) =>
+      isTerminologyScript(rel) ||
+      rel.includes('/api-reports/') ||
+      rel.endsWith('CONTRACTS.md'),
   },
   {
-    name: 'mutation.writes reader',
-    re: /mutation\.writes\b|\.writes\b(?=\s*[;,)\]])/,
-    allow: (_rel, line) => {
-      // Ordinary English / unrelated property access outside mutation defs.
-      if (/declaredWrites/.test(line)) return true;
-      if (/read.*writes|write.?client|table.?writes/i.test(line)) return true;
-      return false;
-    },
+    name: 'retired affectedRows field',
+    re: /\baffectedRows\b/,
+    allow: (rel) => isTerminologyScript(rel) || rel.endsWith('CONTRACTS.md'),
+  },
+  {
+    name: 'retired invalidates field',
+    re: /\binvalidates\s*:/,
+    allow: (rel) => isTerminologyScript(rel),
+  },
+  {
+    name: 'retired authoring hydrates field',
+    re: /\bhydrates\s*:/,
+    allow: (rel) =>
+      isTerminologyScript(rel) ||
+      // Runtime-resolved field on QueryDef (not authoring).
+      rel.endsWith('queries/core/types.ts') ||
+      rel.endsWith('CONTRACTS.md'),
+  },
+  {
+    name: 'retired spaceListChannels helper',
+    re: /\bspaceListChannels\b/,
+    allow: (rel) => isTerminologyScript(rel),
+  },
+  {
+    name: 'retired spacePartyInvalidates helper',
+    re: /\bspacePartyInvalidates\b/,
+    allow: (rel) => isTerminologyScript(rel),
+  },
+  {
+    name: 'retired query channels field',
+    re: /^\s*channels:\s*/,
+    allow: (rel) => isTerminologyScript(rel),
+  },
+  {
+    name: 'protocol v1 module',
+    re: /protocol\/v1/,
+    allow: (rel) => isTerminologyScript(rel),
   },
 ];
 
