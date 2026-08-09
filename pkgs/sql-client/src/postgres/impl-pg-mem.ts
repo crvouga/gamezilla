@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * {@link SqlClient} backed by [pg-mem](https://github.com/oguimbal/pg-mem) —
  * an in-process Postgres emulator for fast unit tests.

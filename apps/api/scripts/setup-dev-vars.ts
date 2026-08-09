@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

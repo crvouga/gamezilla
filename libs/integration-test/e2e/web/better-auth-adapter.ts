@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { wallIo } from '@pkgs/io';
 import { by, type Driver, expectHidden, expectVisible } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';

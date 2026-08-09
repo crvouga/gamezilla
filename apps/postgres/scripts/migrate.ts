@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Run definitive `@libs/db` Postgres migrations against the local embedded
  * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).

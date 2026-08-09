@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { existsSync, readFileSync } from 'node:fs';
 import { wallIo } from '@pkgs/io';
 import { resolveLocalApiOrigin } from '../src/harness';

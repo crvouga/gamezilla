@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { ChessPuzzleSeeder } from '@libs/chess/server/seed-chess-puzzle/chess-puzzle-seeder';
 import {
   formatPostgresStorageLimitError,

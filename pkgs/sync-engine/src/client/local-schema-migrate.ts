@@ -1,3 +1,4 @@
+// @io-wall-ok
 import type { Schema } from '@pkgs/db-schema';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 import { wallIo } from '@pkgs/io';

@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Injectable id mint for mutations / domain creates.
  * Production defaults to `crypto.randomUUID`.

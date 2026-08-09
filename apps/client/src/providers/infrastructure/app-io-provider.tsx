@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Composition-root I/O: single {@link Io} bag + projections for existing hooks.
  * Feature code reads via {@link useIo} / useClock / useHttpClient / useCreateId —

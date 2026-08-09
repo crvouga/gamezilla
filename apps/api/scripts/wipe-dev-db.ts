@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Wipe SECRETS_ENV=dev Postgres (DROP SCHEMA public) then remigrate.
  * Prefers `.dev.vars` (local `@apps/postgres`) then secrets-run env.

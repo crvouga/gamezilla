@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { execFileSync } from 'node:child_process';
 
 import { wallIo } from '@pkgs/io';

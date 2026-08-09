@@ -3,26 +3,13 @@
  *
  * Ban Date.now / performance.now / zero-arg new Date / timers / fetch /
  * crypto.randomUUID / Math.random / crypto.getRandomValues outside wall
- * adapters. Temporary burn-down: tools/io-bare-allowlist.json
- *
- * GENERATE_ALLOWLIST=1 rewrites the allowlist from current offenses.
+ * adapters. Wall adapter modules and polyfills opt in with `@io-wall-ok`.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 
+import { fileHasIoWallOkPragma } from './io-scan-pragma';
 import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
-
-const ALLOWLIST_PATH = join(REPO_ROOT, 'tools/io-bare-allowlist.json');
-
-/** Permanent allow — wall adapters + polyfills only. */
-const PERMANENT_PREFIXES = [
-  'pkgs/clock/src/wall.ts',
-  'pkgs/http-client/src/global.ts',
-  'pkgs/uuid/src/create-id.ts',
-  'pkgs/io/src/wall-io.ts',
-  'pkgs/io/src/sim-io.ts',
-  'apps/client/src/polyfill-entry.ts',
-];
 
 type Ban = {
   readonly kind: string;
@@ -54,10 +41,6 @@ function offenseKey(o: Offense): string {
   return `${o.path}:${String(o.line)}:${o.kind}`;
 }
 
-function isPermanentAllow(rel: string): boolean {
-  return PERMANENT_PREFIXES.some((p) => rel === p || rel.startsWith(`${p}/`));
-}
-
 function stripLineComment(line: string): string {
   const trimmed = line.trim();
   if (
@@ -74,8 +57,8 @@ function stripLineComment(line: string): string {
 
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
-  if (isPermanentAllow(rel)) return [];
   const text = readFileSync(abs, 'utf8');
+  if (fileHasIoWallOkPragma(text)) return [];
   const lines = text.split('\n');
   const out: Offense[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -96,62 +79,24 @@ function scanFile(abs: string): Offense[] {
   return out;
 }
 
-function loadAllowlist(): Set<string> {
-  if (!existsSync(ALLOWLIST_PATH)) return new Set();
-  const raw = JSON.parse(readFileSync(ALLOWLIST_PATH, 'utf8')) as unknown;
-  if (!Array.isArray(raw)) {
-    throw new Error('io-bare-allowlist.json must be a JSON array of strings');
-  }
-  return new Set(raw.map((x) => String(x)));
-}
-
 const files = collectIoScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
 }
 
-if (process.env['GENERATE_ALLOWLIST'] === '1') {
-  const keys = [...new Set(offenses.map(offenseKey))].sort();
-  writeFileSync(ALLOWLIST_PATH, `${JSON.stringify(keys, null, 2)}\n`);
-  console.log(
-    `Wrote ${String(keys.length)} allowlist entries → tools/io-bare-allowlist.json`
+if (offenses.length > 0) {
+  console.error(
+    'Bare I/O check failed — use @pkgs/io (io.clock / io.timers / io.http / io.createId / io.random).\n' +
+      'Wall adapters / polyfills must mark with `// @io-wall-ok`:\n'
   );
-  process.exit(0);
-}
-
-const allow = loadAllowlist();
-const offenseKeys = new Set(offenses.map(offenseKey));
-
-const unexpected = offenses.filter((o) => !allow.has(offenseKey(o)));
-const stale = [...allow].filter((k) => !offenseKeys.has(k));
-
-if (unexpected.length > 0 || stale.length > 0) {
-  if (unexpected.length > 0) {
-    console.error(
-      'Bare I/O check failed — use @pkgs/io (io.clock / io.timers / io.http / io.createId / io.random):\n'
-    );
-    for (const o of unexpected.slice(0, 200)) {
-      console.error(`  - ${offenseKey(o)}`);
-    }
-    if (unexpected.length > 200) {
-      console.error(`  … and ${String(unexpected.length - 200)} more`);
-    }
+  for (const o of offenses.slice(0, 200)) {
+    console.error(`  - ${offenseKey(o)}`);
   }
-  if (stale.length > 0) {
-    console.error(
-      '\nStale allowlist entries (offense gone — remove from tools/io-bare-allowlist.json):\n'
-    );
-    for (const k of stale.slice(0, 100)) {
-      console.error(`  - ${k}`);
-    }
-    if (stale.length > 100) {
-      console.error(`  … and ${String(stale.length - 100)} more`);
-    }
+  if (offenses.length > 200) {
+    console.error(`  … and ${String(offenses.length - 200)} more`);
   }
   process.exit(1);
 }
 
-console.log(
-  `Bare I/O check passed (${String(files.length)} files, ${String(offenses.length)} allowlisted offenses, ${String(allow.size)} allowlist entries).`
-);
+console.log(`Bare I/O check passed (${String(files.length)} files).`);

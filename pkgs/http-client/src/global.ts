@@ -1,3 +1,4 @@
+// @io-wall-ok
 import type { HttpClient, HttpFetch } from './types';
 
 /** Production {@link HttpClient} backed by `globalThis.fetch`. */

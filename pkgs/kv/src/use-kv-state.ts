@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * `useState`-like hook persisted via {@link Kv}.
  *

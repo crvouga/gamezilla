@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { wallIo } from '@pkgs/io';
 import { by, expectVisible, first, waitUntil } from '@pkgs/ui-testing';
 

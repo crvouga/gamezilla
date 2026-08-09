@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Root layout for UI explorer component examples.
  *

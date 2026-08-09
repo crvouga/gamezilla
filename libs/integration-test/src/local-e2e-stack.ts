@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { execFileSync } from 'node:child_process';
 import { wallIo } from '@pkgs/io';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-api-preview';

@@ -1,3 +1,4 @@
+// @io-wall-ok
 import type { Clock, Timers } from './types';
 
 /** Production clock backed by `Date.now`. */

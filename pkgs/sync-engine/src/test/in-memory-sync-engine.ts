@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { Database } from 'bun:sqlite';
 
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';

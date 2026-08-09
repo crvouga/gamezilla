@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * CLI entry for root `bun run db:migrate` / infra migrate phase.
  * Local `@apps/postgres` boot migrates in-process via `@libs/db`.

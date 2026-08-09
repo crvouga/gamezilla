@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger/logger';
 

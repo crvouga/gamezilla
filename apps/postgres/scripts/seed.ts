@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Local-dev seed orchestrator. Invoked after migrate on `@apps/postgres` boot.
  * Compose {@link DatabaseSeeder} units here (same pattern as migrations).

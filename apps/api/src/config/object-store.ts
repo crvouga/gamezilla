@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';

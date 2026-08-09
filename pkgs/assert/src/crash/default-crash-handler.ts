@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { wallTimers } from '@pkgs/clock';
 
 import type { CrashHandler } from './crash-handler/crash-handler';

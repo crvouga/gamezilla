@@ -391,7 +391,7 @@
       "inputs": [
         "tools/scripts/check-no-bare-io.ts",
         "tools/scripts/io-scan-roots.ts",
-        "tools/io-bare-allowlist.json",
+        "tools/scripts/io-scan-pragma.ts",
         "apps/**/*.ts",
         "apps/**/*.tsx",
         "libs/**/*.ts",
@@ -406,7 +406,7 @@
       "inputs": [
         "tools/scripts/check-no-resolve-wall-defaults.ts",
         "tools/scripts/io-scan-roots.ts",
-        "tools/io-resolve-allowlist.json",
+        "tools/scripts/io-scan-pragma.ts",
         "apps/**/*.ts",
         "apps/**/*.tsx",
         "libs/**/*.ts",
@@ -421,7 +421,7 @@
       "inputs": [
         "tools/scripts/check-no-sql-wall-io.ts",
         "tools/scripts/io-scan-roots.ts",
-        "tools/io-sql-wall-allowlist.json",
+        "tools/scripts/io-scan-pragma.ts",
         "apps/**/*.ts",
         "apps/**/*.tsx",
         "apps/**/*.sql",

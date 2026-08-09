@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';

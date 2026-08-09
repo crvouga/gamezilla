@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { assert, setHotAssertsEnabled } from '@pkgs/assert';
 import { BrowserCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-expo';

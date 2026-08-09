@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';

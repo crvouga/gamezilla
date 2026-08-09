@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.
  * Compose site is `@libs/db/server/run-postgres-migrations`. Same-package

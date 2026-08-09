@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';

@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { wallIo } from '@pkgs/io';
 import { createTypedApiRpcClient } from '../src/shared/typed-api-rpc-client';
 

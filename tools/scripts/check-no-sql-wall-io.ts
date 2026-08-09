@@ -3,25 +3,15 @@
  *
  * App-supplied now/createId must own timestamps and ids — no DEFAULT now(),
  * gen_random_uuid(), randomblob, strftime('now'), datetime('now'), or bare
- * SQL now()/gen_random_uuid() outside the burn-down allowlist.
+ * SQL now()/gen_random_uuid(). Test / extension stubs opt in with `@io-wall-ok`.
  *
  * Only scans .sql files and known SQL-emitting TS modules (avoids JS `now()`).
- *
- * Burn-down: tools/io-sql-wall-allowlist.json
- * GENERATE_ALLOWLIST=1 rewrites the allowlist from current offenses.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 
+import { fileHasIoWallOkPragma } from './io-scan-pragma';
 import { collectSqlWallScanFiles, REPO_ROOT } from './io-scan-roots';
-
-const ALLOWLIST_PATH = join(REPO_ROOT, 'tools/io-sql-wall-allowlist.json');
-
-/** Permanent allow — pg-mem registers gen_random_uuid as an extension stub. */
-const PERMANENT_PREFIXES: readonly string[] = [
-  'pkgs/sql-client/src/postgres/impl-pg-mem.ts',
-  'pkgs/sql-client/src/postgres/impl-pg-mem.test.ts',
-];
 
 type Ban = {
   readonly kind: string;
@@ -59,10 +49,6 @@ type Offense = {
 
 function offenseKey(o: Offense): string {
   return `${o.path}:${String(o.line)}:${o.kind}`;
-}
-
-function isPermanentAllow(rel: string): boolean {
-  return PERMANENT_PREFIXES.some((p) => rel === p || rel.startsWith(`${p}/`));
 }
 
 /** Paths that emit or embed SQL (not general TS with injected `now` callbacks). */
@@ -107,10 +93,10 @@ function stripLineComment(line: string, isSql: boolean): string {
 
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
-  if (isPermanentAllow(rel)) return [];
   if (!isSqlishPath(rel)) return [];
   const isSql = rel.endsWith('.sql');
   const text = readFileSync(abs, 'utf8');
+  if (fileHasIoWallOkPragma(text)) return [];
   const lines = text.split('\n');
   const out: Offense[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -134,61 +120,24 @@ function scanFile(abs: string): Offense[] {
   return out;
 }
 
-function loadAllowlist(): Set<string> {
-  if (!existsSync(ALLOWLIST_PATH)) return new Set();
-  const raw = JSON.parse(readFileSync(ALLOWLIST_PATH, 'utf8')) as unknown;
-  if (!Array.isArray(raw)) {
-    throw new Error(
-      'io-sql-wall-allowlist.json must be a JSON array of strings'
-    );
-  }
-  return new Set(raw.map((x) => String(x)));
-}
-
 const files = collectSqlWallScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
 }
 
-if (process.env['GENERATE_ALLOWLIST'] === '1') {
-  const keys = [...new Set(offenses.map(offenseKey))].sort();
-  writeFileSync(ALLOWLIST_PATH, `${JSON.stringify(keys, null, 2)}\n`);
-  console.log(
-    `Wrote ${String(keys.length)} allowlist entries → tools/io-sql-wall-allowlist.json`
+if (offenses.length > 0) {
+  console.error(
+    'SQL wall-I/O check failed — inject now/createId; do not use engine now()/uuid defaults.\n' +
+      'Extension stubs may mark with `// @io-wall-ok`:\n'
   );
-  process.exit(0);
-}
-
-const allow = loadAllowlist();
-const offenseKeys = new Set(offenses.map(offenseKey));
-
-const unexpected = offenses.filter((o) => !allow.has(offenseKey(o)));
-const stale = [...allow].filter((k) => !offenseKeys.has(k));
-
-if (unexpected.length > 0 || stale.length > 0) {
-  if (unexpected.length > 0) {
-    console.error(
-      'SQL wall-I/O check failed — inject now/createId; do not use engine now()/uuid defaults:\n'
-    );
-    for (const o of unexpected.slice(0, 200)) {
-      console.error(`  - ${offenseKey(o)}`);
-    }
-    if (unexpected.length > 200) {
-      console.error(`  … and ${String(unexpected.length - 200)} more`);
-    }
+  for (const o of offenses.slice(0, 200)) {
+    console.error(`  - ${offenseKey(o)}`);
   }
-  if (stale.length > 0) {
-    console.error(
-      '\nStale allowlist entries (remove from tools/io-sql-wall-allowlist.json):\n'
-    );
-    for (const k of stale.slice(0, 100)) {
-      console.error(`  - ${k}`);
-    }
+  if (offenses.length > 200) {
+    console.error(`  … and ${String(offenses.length - 200)} more`);
   }
   process.exit(1);
 }
 
-console.log(
-  `SQL wall-I/O check passed (${String(files.length)} files, ${String(offenses.length)} allowlisted, ${String(allow.size)} allowlist entries).`
-);
+console.log(`SQL wall-I/O check passed (${String(files.length)} files).`);
