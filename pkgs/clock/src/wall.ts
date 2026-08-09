@@ -19,16 +19,3 @@ export const wallTimers: Timers = {
     );
   },
 };
-
-export function resolveClock(override?: Clock): Clock {
-  return override ?? wallClock;
-}
-
-export function resolveTimers(override?: Timers): Timers {
-  return override ?? wallTimers;
-}
-
-/** Convenience: resolve a `now()` function (sync-engine style). */
-export function resolveNow(override?: () => number): () => number {
-  return override ?? wallClock.now;
-}

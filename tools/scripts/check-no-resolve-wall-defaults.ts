@@ -1,11 +1,12 @@
 /**
- * Ban silent wall I/O fallbacks in product runtime.
+ * Ban silent wall I/O fallbacks and deleted resolve* escape hatches.
  *
- * Production code must not call resolveNow()/resolveTimers()/resolveCreateId()/
- * resolveRandom()/resolveClock() with no argument. Wall adapters
- * (createGlobalHttpClient, wallIo, wallClock, …) are only allowed in test
- * files or entry-shaped files marked `@io-wall-ok`. Zero-arg resolve* stays
- * banned everywhere.
+ * - `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` /
+ *   `resolveClock` — banned everywhere (including definitions/imports).
+ * - `cryptoCreateId` / `mathRandom` — banned everywhere; wall RNG/UUID only
+ *   via `wallIo()`.
+ * - `wallIo` / `wallClock` / `wallTimers` / `createGlobalHttpClient` — only in
+ *   test files or entry-shaped files marked `@io-wall-ok`.
  */
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
@@ -18,17 +19,20 @@ type Ban = {
   readonly re: RegExp;
   /**
    * When true, skipped in test files and in entry-shaped `@io-wall-ok` roots.
-   * When false/undefined, banned everywhere (silent resolve* fallbacks).
+   * When false/undefined, banned everywhere.
    */
   readonly allowInWallOk?: boolean;
 };
 
 const BANS: readonly Ban[] = [
-  { kind: 'resolveNow()', re: /\bresolveNow\s*\(\s*\)/ },
-  { kind: 'resolveTimers()', re: /\bresolveTimers\s*\(\s*\)/ },
-  { kind: 'resolveCreateId()', re: /\bresolveCreateId\s*\(\s*\)/ },
-  { kind: 'resolveRandom()', re: /\bresolveRandom\s*\(\s*\)/ },
-  { kind: 'resolveClock()', re: /\bresolveClock\s*\(\s*\)/ },
+  // Deleted escape hatches — ban any remaining identifier.
+  { kind: 'resolveNow', re: /\bresolveNow\b/ },
+  { kind: 'resolveTimers', re: /\bresolveTimers\b/ },
+  { kind: 'resolveCreateId', re: /\bresolveCreateId\b/ },
+  { kind: 'resolveRandom', re: /\bresolveRandom\b/ },
+  { kind: 'resolveClock', re: /\bresolveClock\b/ },
+  { kind: 'cryptoCreateId', re: /\bcryptoCreateId\b/ },
+  { kind: 'mathRandom', re: /\bmathRandom\b/ },
   {
     kind: 'createGlobalHttpClient()',
     re: /\bcreateGlobalHttpClient\s*\(\s*\)/,
@@ -47,16 +51,6 @@ const BANS: readonly Ban[] = [
   {
     kind: 'wallTimers',
     re: /\bwallTimers\b/,
-    allowInWallOk: true,
-  },
-  {
-    kind: 'cryptoCreateId',
-    re: /\bcryptoCreateId\b/,
-    allowInWallOk: true,
-  },
-  {
-    kind: 'mathRandom',
-    re: /\bmathRandom\b/,
     allowInWallOk: true,
   },
 ];
@@ -126,8 +120,8 @@ for (const f of files) {
 if (offenses.length > 0) {
   console.error(
     'Silent wall-I/O fallback check failed — inject Io via constructor or React context (useIo / getIo).\n' +
-      'wallIo/wallClock/… only in tests or entry-shaped files with `// @io-wall-ok` (scripts/, wall adapters, app/cli roots).\n' +
-      'Zero-arg resolve*() is never allowed:\n'
+      'wallIo/wallClock/wallTimers/createGlobalHttpClient only in tests or entry-shaped `@io-wall-ok` files.\n' +
+      'resolve*/cryptoCreateId/mathRandom are removed — use wallIo() or createSimIo() at composition roots:\n'
   );
   for (const o of offenses.slice(0, 200)) {
     console.error(`  - ${offenseKey(o)}`);

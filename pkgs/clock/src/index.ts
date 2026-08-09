@@ -8,10 +8,4 @@ export {
   useTimers,
 } from './clock-context';
 export type { Clock, Timers } from './types';
-export {
-  resolveClock,
-  resolveNow,
-  resolveTimers,
-  wallClock,
-  wallTimers,
-} from './wall';
+export { wallClock, wallTimers } from './wall';

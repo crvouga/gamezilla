@@ -26,7 +26,6 @@ const ENTRY_BASENAMES = new Set([
   'sim-io.ts',
   'wall.ts',
   'global.ts',
-  'create-id.ts',
   'cli-io.ts',
   'app-io-provider.tsx',
   'polyfill-entry.ts',
@@ -45,7 +44,7 @@ const ENTRY_BASENAMES = new Set([
 
 /**
  * Structural entry shape — scripts/, known entry basenames, explorer examples,
- * and the clock/uuid barrels that re-export wall adapters.
+ * and the clock barrel that re-exports wall adapters.
  */
 export function isIoCompositionEntryPath(rel: string): boolean {
   if (rel.includes('/scripts/')) return true;
@@ -54,7 +53,7 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   if (base.endsWith('.example.ts') || base.endsWith('.example.tsx')) {
     return true;
   }
-  if (rel === 'pkgs/clock/src/index.ts' || rel === 'pkgs/uuid/src/index.ts') {
+  if (rel === 'pkgs/clock/src/index.ts') {
     return true;
   }
   return false;

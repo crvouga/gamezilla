@@ -1,7 +1,6 @@
 // @io-wall-ok
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
-import { cryptoCreateId, mathRandom } from '@pkgs/uuid';
 
 import type { Io } from './types';
 
@@ -20,8 +19,8 @@ export function wallIo(): Io {
   return {
     clock: wallClock,
     timers: wallTimers,
-    createId: cryptoCreateId,
-    random: mathRandom,
+    createId: () => crypto.randomUUID(),
+    random: () => Math.random(),
     http: createGlobalHttpClient(),
     seed: mintWallSeed(),
   };
