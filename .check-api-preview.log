@@ -40,5 +40,125 @@
 @apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1518ms)
 @apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1379ms)
 @apps/api preview:serve: [wrangler:info] GET /api/auth/get-session 500 Internal Server Error (1593ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (14ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (3ms)
+@apps/api preview:serve: [wra@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bund@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready

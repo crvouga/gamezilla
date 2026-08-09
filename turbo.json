@@ -387,6 +387,17 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-bare-io": {
+      "inputs": [
+        "tools/scripts/check-no-bare-io.ts",
+        "apps/client/src/**/*.ts",
+        "apps/client/src/**/*.tsx",
+        "libs/*/src/client/**/*.ts",
+        "libs/*/src/client/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:pubsub-emqx-imports": {
       "inputs": [
         "tools/scripts/check-pubsub-emqx-imports.ts",

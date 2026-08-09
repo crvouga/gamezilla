@@ -17,4 +17,9 @@ export interface ClientTransport {
   subscribe(handler: (raw: unknown) => void): () => void;
   onHandlers(h: ClientTransportHandlers): () => void;
   destroy(): void;
+  /**
+   * Optional liveness probe (WebSocket zombie detection on foreground).
+   * Loopback / test transports omit this.
+   */
+  probeLiveness?(): void;
 }

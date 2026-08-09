@@ -1,6 +1,7 @@
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { ChessPuzzleInteractionKind } from '../chess-puzzle-interaction-entities';
 
@@ -18,9 +19,10 @@ export type AppendPuzzleInteractionInput = {
 
 export async function appendPuzzleInteractionRowSql(
   db: SqlClient,
-  input: AppendPuzzleInteractionInput
+  input: AppendPuzzleInteractionInput,
+  createId: CreateId
 ): Promise<void> {
-  const id = crypto.randomUUID();
+  const id = createId();
   const at = new Date().toISOString();
   const correct =
     input.correct === null || input.correct === undefined

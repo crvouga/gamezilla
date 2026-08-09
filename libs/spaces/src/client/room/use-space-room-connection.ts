@@ -1,12 +1,12 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
+  ClientTransport,
   Room,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
-import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import {
   type Dispatch,
   type MutableRefObject,
@@ -21,6 +21,7 @@ import {
   type CreateSpaceRoomResult,
   createSpaceRoom,
 } from './create-space-room';
+import { useCreateRoomTransport } from './room-transport-factory';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -58,9 +59,9 @@ function raceFreshToken(
 
 function destroyRoomPair(args: {
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+  transportRef: MutableRefObject<ClientTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
 }): void {
   const room = args.roomRef.current;
   const transport = args.transportRef.current;
@@ -79,10 +80,11 @@ type OpenSpaceRoomArgs = {
   kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
   getSessionToken: () => string | null | Promise<string | null>;
+  createTransport: ReturnType<typeof useCreateRoomTransport>;
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+  transportRef: MutableRefObject<ClientTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
   connectedKeyRef: MutableRefObject<string | null>;
   openingKeyRef: MutableRefObject<string | null>;
 };
@@ -90,7 +92,7 @@ type OpenSpaceRoomArgs = {
 function commitOpenedRoom(
   args: OpenSpaceRoomArgs,
   nextRoom: SpaceRoom,
-  nextTransport: WebSocketRoomTransport
+  nextTransport: ClientTransport
 ): void {
   const prevRoom = args.roomRef.current;
   const prevTransport = args.transportRef.current;
@@ -128,6 +130,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         installId: args.bootstrap.installId,
         clientId: args.bootstrap.clientId,
         getSessionToken: args.getSessionToken,
+        createTransport: args.createTransport,
       });
     } catch {
       // Room.open is hardened to avoid this; if it still throws, clear the
@@ -218,20 +221,21 @@ export type UseSpaceRoomConnectionArgs = {
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: SpaceRoom | null;
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transport: WebSocketRoomTransport | null;
+  transport: ClientTransport | null;
 } {
   const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
   const [room, setRoom] = useState<SpaceRoom | null>(null);
-  const [transport, setTransport] = useState<WebSocketRoomTransport | null>(
-    null
-  );
-  const transportRef = useRef<WebSocketRoomTransport | null>(null);
+  const [transport, setTransport] = useState<ClientTransport | null>(null);
+  const transportRef = useRef<ClientTransport | null>(null);
   const roomRef = useRef<SpaceRoom | null>(null);
   const module = useSpaceModule();
+  const createTransport = useCreateRoomTransport();
   const sessionTokenRef = useRef(sessionToken);
   sessionTokenRef.current = sessionToken;
   const getFreshTokenRef = useRef(getFreshToken);
   getFreshTokenRef.current = getFreshToken;
+  const createTransportRef = useRef(createTransport);
+  createTransportRef.current = createTransport;
   const connectedKeyRef = useRef<string | null>(null);
   const openingKeyRef = useRef<string | null>(null);
 
@@ -281,6 +285,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
         getFreshTokenRef,
         sessionTokenRef,
       }),
+      createTransport: createTransportRef.current,
       roomRef,
       transportRef,
       setRoom,

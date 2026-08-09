@@ -1,3 +1,4 @@
+import { useClock } from '@pkgs/clock';
 import {
   MutationClientProvider as SyncMutationClientProvider,
   useMutationClient,
@@ -18,15 +19,16 @@ export function MutationClientProvider({
   readonly registry: MutationRegistry;
 }): ReactNode {
   const auth = useRulesAuth();
+  const clock = useClock();
   const env = useMemo(
     () => ({
       actorId: auth.userId,
       deviceId: auth.deviceId,
       accountId: auth.accountId,
       isAnon: auth.isAnon,
-      now: () => new Date(),
+      now: () => new Date(clock.now()),
     }),
-    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId]
+    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId, clock]
   );
   const ids = useMemo(
     () => ({

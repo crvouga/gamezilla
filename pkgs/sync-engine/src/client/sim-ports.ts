@@ -1,45 +1,23 @@
 /**
  * Injectable nondeterminism boundaries for deterministic simulation.
- * Production defaults to wall clock / Math.random / real timers.
+ * Re-exports shared ports from `@pkgs/clock` / `@pkgs/uuid` and keeps
+ * sync-engine-named aliases for existing call sites.
  */
 
-export type Timers = {
-  readonly setTimeout: (fn: () => void, ms: number) => unknown;
-  readonly clearTimeout: (handle: unknown) => void;
-};
+import type { Clock, Timers } from '@pkgs/clock';
+import { resolveNow, resolveTimers, wallClock, wallTimers } from '@pkgs/clock';
+import type { CreateId, Random } from '@pkgs/uuid';
+import { resolveCreateId, resolveRandom } from '@pkgs/uuid';
 
-export type SyncClock = {
-  /** Epoch milliseconds (virtual or wall). */
-  readonly now: () => number;
-};
+export type { CreateId, Timers };
+export type SyncClock = Clock;
+export type SyncRandom = { readonly random: Random };
 
-export type SyncRandom = {
-  /** Uniform float in [0, 1). */
-  readonly random: () => number;
-};
+/** @deprecated Prefer `wallTimers` from `@pkgs/clock` — kept for sync call sites. */
+export const REAL_TIMERS: Timers = wallTimers;
 
-/** Stable id mint for mutations / rejection rows. */
-export type CreateId = () => string;
+export { resolveCreateId, resolveNow, resolveRandom, resolveTimers };
 
-export const REAL_TIMERS: Timers = {
-  setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
-  clearTimeout: (handle) => {
-    globalThis.clearTimeout(handle as ReturnType<typeof globalThis.setTimeout>);
-  },
-};
-
-export function resolveTimers(override?: Timers): Timers {
-  return override ?? REAL_TIMERS;
-}
-
-export function resolveNow(override?: () => number): () => number {
-  return override ?? Date.now;
-}
-
-export function resolveRandom(override?: () => number): () => number {
-  return override ?? Math.random;
-}
-
-export function resolveCreateId(override?: CreateId): CreateId {
-  return override ?? (() => crypto.randomUUID());
+export function resolveClock(override?: Clock): Clock {
+  return override ?? wallClock;
 }

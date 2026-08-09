@@ -1,4 +1,6 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import type { HttpFetch } from '@pkgs/http-client';
+import { useHttpClient } from '@pkgs/http-client';
 import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -15,7 +17,8 @@ const FETCH_TIMEOUT_MS = 8000;
 
 async function fetchHealth(
   healthUrl: string,
-  outerSignal: AbortSignal
+  outerSignal: AbortSignal,
+  httpFetch: HttpFetch
 ): Promise<{ latencyMs: number }> {
   const combined = new AbortController();
   const onOuterAbort = () => combined.abort();
@@ -28,7 +31,7 @@ async function fetchHealth(
       : Date.now();
 
   try {
-    const res = await fetch(healthUrl, {
+    const res = await httpFetch(healthUrl, {
       method: 'GET',
       signal: combined.signal,
     });
@@ -62,7 +65,7 @@ function useHealthUrl(apiUrl: string): string {
   }, [apiUrl]);
 }
 
-function useHealthState(healthUrl: string) {
+function useHealthState(healthUrl: string, httpFetch: HttpFetch) {
   const [health, setHealth] = useState<ServerHealthState>({
     phase: 'loading',
     latencyMs: null,
@@ -83,7 +86,7 @@ function useHealthState(healthUrl: string) {
       healthUrl,
     }));
 
-    void fetchHealth(healthUrl, ac.signal)
+    void fetchHealth(healthUrl, ac.signal, httpFetch)
       .then(({ latencyMs }) => {
         if (ac.signal.aborted) return;
         setHealth({
@@ -106,7 +109,7 @@ function useHealthState(healthUrl: string) {
       });
 
     return ac;
-  }, [healthUrl]);
+  }, [healthUrl, httpFetch]);
 
   useEffect(() => {
     const ac = runCheck();
@@ -128,11 +131,12 @@ function computeAggregateStatus(
 
 export function useServerStatus() {
   const config = useConfigService();
+  const { fetch: httpFetch } = useHttpClient();
   const networkState = useNetworkState();
 
   const apiUrl = config.getApiUrl();
   const healthUrl = useHealthUrl(apiUrl);
-  const { health, runCheck } = useHealthState(healthUrl);
+  const { health, runCheck } = useHealthState(healthUrl, httpFetch);
 
   const refresh = useCallback(() => {
     runCheck();

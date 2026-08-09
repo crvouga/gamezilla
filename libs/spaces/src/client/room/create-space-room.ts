@@ -1,5 +1,6 @@
 import type { Kv } from '@pkgs/kv/interface';
 import {
+  type ClientTransport,
   Room,
   type RoomCommandPayload,
   type RoomEvent,
@@ -9,10 +10,12 @@ import {
   KeyValueClientRoomStorage,
   keyValueRoomClientKeywords,
 } from '@pkgs/room/client/adapters/storage/key-value';
-import { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 
 import type { SpaceRoomModule } from '../module/space-module-context';
-import { apiUrlToRoomWebSocketUrl } from './space-room-url';
+import {
+  type CreateRoomTransport,
+  createWebSocketRoomTransport,
+} from './room-transport-factory';
 
 export type CreateSpaceRoomParams = {
   spaceId: string;
@@ -42,11 +45,13 @@ export type CreateSpaceRoomParams = {
    * refresh a rotated JWT before the socket upgrade.
    */
   getSessionToken: () => string | null | Promise<string | null>;
+  /** Defaults to WebSocket when omitted (production). */
+  createTransport?: CreateRoomTransport;
 };
 
 export type CreateSpaceRoomResult = {
   room: Room<RoomState, RoomCommandPayload, RoomEvent, string>;
-  transport: WebSocketRoomTransport;
+  transport: ClientTransport;
 };
 
 /**
@@ -66,19 +71,15 @@ export async function createSpaceRoom(
     installId,
     clientId,
     getSessionToken,
+    createTransport,
   } = params;
   const topic = `space:${spaceId}`;
-  const transport = new WebSocketRoomTransport({
-    url: async () => {
-      const token = await Promise.resolve(getSessionToken());
-      return apiUrlToRoomWebSocketUrl({
-        apiUrl,
-        topic,
-        sessionToken: token,
-        installId,
-        clientId,
-      });
-    },
+  const transport = (createTransport ?? createWebSocketRoomTransport)({
+    spaceId,
+    apiUrl,
+    installId,
+    clientId,
+    getSessionToken,
   });
   const { committed, queue } = keyValueRoomClientKeywords(spaceId);
   const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);

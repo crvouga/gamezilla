@@ -34,6 +34,7 @@ const CI_GATE_TASKS = [
   'ci:sync-engine-protocol-freeze',
   'ci:sync-engine-public-api',
   'ci:no-provider-leaks',
+  'ci:no-bare-io',
   'ci:pubsub-emqx-imports',
   'ci:depcruise',
   'ci:circular-deps',

@@ -1,5 +1,7 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import type { HttpFetch } from '@pkgs/http-client';
+import { useHttpClient } from '@pkgs/http-client';
 import { useLogger } from '@pkgs/logger/react';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
@@ -37,6 +39,7 @@ type ExpiresAtRef = { current: string | null };
 type RefreshDeps = {
   apiUrl: string;
   deviceId: string;
+  fetchFn: HttpFetch;
   store: SecureStorageStore;
   log: Logger;
   lastSyncedTokenRef: TokenRef;
@@ -177,6 +180,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const authState = port.useAuthSession();
   const store = useSecureStorageStore();
   const deviceId = useDeviceId();
+  const { fetch: fetchFn } = useHttpClient();
   const authToken = useFreshAuthToken();
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
@@ -195,13 +199,14 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     () => ({
       apiUrl,
       deviceId,
+      fetchFn,
       store,
       log,
       lastSyncedTokenRef,
       inFlightRef,
       pendingTokenRef,
     }),
-    [apiUrl, deviceId, store, log]
+    [apiUrl, deviceId, fetchFn, store, log]
   );
 
   useClearStaleAccountOnExternalUserChange({ authState, deps });
@@ -310,6 +315,7 @@ async function runRefresh(args: {
       apiUrl: deps.apiUrl,
       bearerToken: token,
       deviceId: deps.deviceId,
+      fetchFn: deps.fetchFn,
       deviceSnapshot: collectDeviceSnapshot(),
     });
     const currentToken = readSessionToken(deps.store);
@@ -351,6 +357,7 @@ async function ensureAnonUserWithRetries(deps: RefreshDeps): Promise<string> {
       const { userId } = await ensureAnonAuth({
         apiUrl: deps.apiUrl,
         deviceId: deps.deviceId,
+        fetchFn: deps.fetchFn,
         // First cold start / already-anon: reuse. After sign-out from a
         // signed-in session the device is still bound to a non-anon user on
         // the server, so forceNew is unnecessary — ensureAnonUserForDevice

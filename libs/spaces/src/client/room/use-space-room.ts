@@ -6,13 +6,14 @@ import {
 } from '@libs/auth/client/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import type {
+  ClientTransport,
   Room,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
 import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
-import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
+import { useCreateId } from '@pkgs/uuid';
 import { useMemo } from 'react';
 import { getOrCreateSpaceClientId } from './space-open-session-store';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
@@ -28,7 +29,7 @@ export type SpaceRoomUiState = {
    * Connecting… — once set, optimistic dispatch works offline.
    */
   room: SpaceRoom | null;
-  transport: WebSocketRoomTransport | null;
+  transport: ClientTransport | null;
   isSynced: boolean;
   roomActive: boolean;
   /** Stable per open-session client id for the live roster. */
@@ -42,7 +43,9 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const kv = useKv();
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
-  const clientId = spaceId.length > 0 ? getOrCreateSpaceClientId(spaceId) : '';
+  const createId = useCreateId();
+  const clientId =
+    spaceId.length > 0 ? getOrCreateSpaceClientId(spaceId, createId) : '';
 
   // Lifetime is owned by SpaceOpenRoomSlot (open-session row). Do not gate on
   // presence/paintReady — those flap and were destroying the single WS.

@@ -2,6 +2,7 @@ import { assertDatabaseName } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
+import { cryptoCreateId } from '@pkgs/uuid';
 import { Platform } from 'react-native';
 
 import { resolveSqliteDbName } from './resolve-sqlite-db-name';
@@ -16,7 +17,8 @@ function readOrCreateWebTabDbId(): string {
   if (existing !== null && existing.length > 0) {
     return existing;
   }
-  const id = crypto.randomUUID().replace(/-/g, '');
+  // Storage adapter (composition-root adjacent): wall createId is fine.
+  const id = cryptoCreateId().replace(/-/g, '');
   sessionStorage.setItem(WEB_TAB_DB_ID_KEY, id);
   return id;
 }

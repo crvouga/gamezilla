@@ -1,3 +1,5 @@
+import type { HttpFetch } from '@pkgs/http-client';
+import { useHttpClient } from '@pkgs/http-client';
 import {
   createContext,
   type ReactNode,
@@ -20,11 +22,14 @@ type ApiFeaturesState = {
 
 const Ctx = createContext<ApiFeaturesState | null>(null);
 
-async function fetchApiFeatures(apiUrl: string): Promise<ApiFeatures> {
+async function fetchApiFeatures(
+  apiUrl: string,
+  fetchFn: HttpFetch
+): Promise<ApiFeatures> {
   const base = apiUrl.replace(/\/$/, '');
   if (base.length === 0) return DEFAULT_API_FEATURES;
   try {
-    const res = await fetch(`${base}/api/features`, {
+    const res = await fetchFn(`${base}/api/features`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     });
@@ -46,6 +51,7 @@ export function ApiFeaturesProvider({
   children: ReactNode;
 }): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
+  const { fetch: fetchFn } = useHttpClient();
   const [state, setState] = useState<ApiFeaturesState>({
     features: DEFAULT_API_FEATURES,
     isHydrated: false,
@@ -53,14 +59,14 @@ export function ApiFeaturesProvider({
 
   useEffect(() => {
     let cancelled = false;
-    void fetchApiFeatures(apiUrl).then((features) => {
+    void fetchApiFeatures(apiUrl, fetchFn).then((features) => {
       if (cancelled) return;
       setState({ features, isHydrated: true });
     });
     return () => {
       cancelled = true;
     };
-  }, [apiUrl]);
+  }, [apiUrl, fetchFn]);
 
   return <Ctx.Provider value={state}>{children}</Ctx.Provider>;
 }

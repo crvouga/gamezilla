@@ -82,7 +82,11 @@
       "@pkgs/sounds/*": ["../../pkgs/sounds/src/*"],
       "@pkgs/ui/*": ["../../pkgs/ui/src/*"],
       "@pkgs/uuid": ["../../pkgs/uuid/src/index.ts"],
-      "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"]
+      "@pkgs/uuid/*": ["../../pkgs/uuid/src/*"],
+      "@pkgs/clock": ["../../pkgs/clock/src/index.ts"],
+      "@pkgs/clock/*": ["../../pkgs/clock/src/*"],
+      "@pkgs/http-client": ["../../pkgs/http-client/src/index.ts"],
+      "@pkgs/http-client/*": ["../../pkgs/http-client/src/*"]
     }
   }
 }

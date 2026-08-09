@@ -5,6 +5,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/client/use-fresh-auth-token';
+import { useHttpClient } from '@pkgs/http-client';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
@@ -57,15 +58,12 @@ function useSyncEnginePromise(
 ): Promise<SyncEngine> {
   const config = useConfigService();
   const observability = useObservability();
+  const { fetch: httpFetch } = useHttpClient();
   const getFreshAuthToken = useGetFreshAuthToken();
   const auth = useSyncClientAuthRef();
   const fetchFn = useMemo(
-    () =>
-      instrumentFetch(
-        observability,
-        globalThis.fetch.bind(globalThis)
-      ) as SyncApiFetch,
-    [observability]
+    () => instrumentFetch(observability, httpFetch) as SyncApiFetch,
+    [observability, httpFetch]
   );
   const configRef = useRef(config);
   const fetchFnRef = useRef(fetchFn);

@@ -8,10 +8,12 @@ import {
   appTopicMap,
 } from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
+import type { Clock, Timers } from '@pkgs/clock';
 import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
+import type { CreateId } from '@pkgs/uuid';
 import * as SQLite from 'expo-sqlite';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
@@ -54,17 +56,22 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly databaseName: string;
   readonly getFreshAuthToken: GetFreshAuthToken;
   readonly auth: SyncClientAuth;
+  /** Injectable nondeterminism — defaults to wall clock / crypto ids. */
+  readonly clock?: Clock;
+  readonly timers?: Timers;
+  readonly createId?: CreateId;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
   const actorId = args.auth.getAccountId() ?? args.userId;
   const deviceId = args.auth.getDeviceId() ?? '';
+  const nowMs = args.clock?.now ?? (() => Date.now());
   return {
     actorId,
     deviceId,
     accountId: args.auth.getAccountId(),
     isAnon: args.auth.getSessionToken() === null,
-    now: () => new Date(),
+    now: () => new Date(nowMs()),
   };
 }
 
@@ -151,6 +158,9 @@ export async function createAppLocalSyncEngine(
       error instanceof SyncApiAuthError && error.reason === 'revoked',
     deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
     lifecycle: createAppSyncLifecycle(),
+    ...(args.clock !== undefined ? { now: args.clock.now } : {}),
+    ...(args.timers !== undefined ? { timers: args.timers } : {}),
+    ...(args.createId !== undefined ? { createId: args.createId } : {}),
     ...pushOptions(args, pushCtx),
   });
 }

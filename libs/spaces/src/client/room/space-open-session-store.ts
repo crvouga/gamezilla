@@ -7,13 +7,18 @@
  * `(actor, clientId)`, so tabs/opens need distinct ids.
  */
 
+import type { CreateId } from '@pkgs/uuid';
+
 const clientIdBySpaceId = new Map<string, string>();
 
 /** Stable per-tab client id for this space while it remains open. */
-export function getOrCreateSpaceClientId(spaceId: string): string {
+export function getOrCreateSpaceClientId(
+  spaceId: string,
+  createId: CreateId
+): string {
   const existing = clientIdBySpaceId.get(spaceId);
   if (existing !== undefined) return existing;
-  const next = globalThis.crypto.randomUUID();
+  const next = createId();
   clientIdBySpaceId.set(spaceId, next);
   return next;
 }

@@ -44,6 +44,7 @@
     "ci:no-domain-hard-delete": "bun run tools/scripts/check-no-domain-hard-delete.ts",
     "ci:no-legacy-writes": "bun run tools/scripts/check-no-legacy-writes.ts",
     "ci:no-local-tables": "bun run tools/scripts/check-local-table-categories.ts",
+    "ci:no-bare-io": "bun run tools/scripts/check-no-bare-io.ts",
     "ci:no-provider-leaks": "bun run tools/scripts/check-no-provider-leaks.ts",
     "ci:no-size-limit-overrides": "bun run tools/scripts/check-no-size-limit-overrides.ts",
     "ci:pubsub-emqx-imports": "bun run tools/scripts/check-pubsub-emqx-imports.ts",

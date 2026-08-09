@@ -108,7 +108,9 @@
         "@pkgs/async": "workspace:*",
         "@pkgs/auth-better-auth": "workspace:*",
         "@pkgs/browser": "workspace:*",
+        "@pkgs/clock": "workspace:*",
         "@pkgs/git": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/inbox": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
@@ -128,6 +130,7 @@
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
         "@react-native/virtualized-lists": "catalog:",
         "@react-navigation/bottom-tabs": "catalog:",
@@ -244,6 +247,8 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -288,6 +293,7 @@
         "@pkgs/assistant": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/chess-board": "workspace:*",
+        "@pkgs/clock": "workspace:*",
         "@pkgs/collab": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/i18n": "workspace:*",
@@ -303,6 +309,7 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "chess.js": "catalog:",
         "csv-parse": "catalog:",
         "expo-audio": "catalog:",
@@ -381,12 +388,14 @@
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/inbox": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "expo-router": "catalog:",
         "hono": "catalog:",
         "react": "catalog:",
@@ -535,6 +544,7 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "expo-clipboard": "catalog:",
         "expo-router": "catalog:",
         "hono": "catalog:",
@@ -581,6 +591,7 @@
         "@libs/profile": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -720,6 +731,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/clock": {
+      "name": "@pkgs/clock",
+      "version": "0.0.0",
+      "dependencies": {
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/collab": {
       "name": "@pkgs/collab",
       "version": "0.0.0",
@@ -847,6 +871,19 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/http-client": {
+      "name": "@pkgs/http-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "react": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1279,12 +1316,14 @@
       "dependencies": {
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
         "node-sql-parser": "catalog:",
         "react": "catalog:",
@@ -1412,9 +1451,11 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+        "react": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@types/react": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -2496,6 +2537,8 @@
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
 
+    "@pkgs/clock": ["@pkgs/clock@workspace:pkgs/clock"],
+
     "@pkgs/collab": ["@pkgs/collab@workspace:pkgs/collab"],
 
     "@pkgs/collab-ui": ["@pkgs/collab-ui@workspace:pkgs/collab-ui"],
@@ -2513,6 +2556,8 @@
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
 
     "@pkgs/git": ["@pkgs/git@workspace:pkgs/git"],
+
+    "@pkgs/http-client": ["@pkgs/http-client@workspace:pkgs/http-client"],
 
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
 

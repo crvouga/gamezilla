@@ -42,6 +42,7 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "expo-clipboard": "catalog:",
     "expo-router": "catalog:",
     "hono": "catalog:",

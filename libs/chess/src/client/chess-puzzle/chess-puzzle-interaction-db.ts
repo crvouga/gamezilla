@@ -1,4 +1,6 @@
+import type { Clock } from '@pkgs/clock';
 import type { MutationClient } from '@pkgs/sync-engine/client';
+import type { CreateId } from '@pkgs/uuid';
 import {
   deriveOutcomeScore,
   isPlayClosed,
@@ -14,16 +16,17 @@ import {
 import type { AppendPuzzleInteractionInput } from '../../shared/writes/append-puzzle-interaction-write';
 import type { UpsertPuzzleProfileInput } from '../../shared/writes/upsert-puzzle-profile-write';
 
-function nowIso(): string {
-  return new Date().toISOString();
+function nowIso(clock: Clock): string {
+  return new Date(clock.now()).toISOString();
 }
 
 export async function appendPuzzleInteractionRow(
   mutationClient: MutationClient,
-  args: AppendPuzzleInteractionInput
+  args: AppendPuzzleInteractionInput,
+  createId: CreateId
 ): Promise<void> {
   const result = await mutationClient.mutate(appendPuzzleInteractionMutation, {
-    interactionId: crypto.randomUUID(),
+    interactionId: createId(),
     ...args,
   });
   if (!result.ok) throw new Error(result.failures[0]?.message);
@@ -45,6 +48,7 @@ function computeFinalizeRatings(args: {
   terminalKind: 'solved' | 'abandoned';
   profileRating: number;
   profileRd: number;
+  clock: Clock;
 }): {
   ratingBefore: number;
   ratingAfter: number;
@@ -52,7 +56,7 @@ function computeFinalizeRatings(args: {
   at: string;
 } {
   const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-  const at = nowIso();
+  const at = nowIso(args.clock);
   const closed = [
     ...play,
     {
@@ -95,19 +99,25 @@ export async function finalizePuzzlePlayWithProfile(
     terminalKind: 'solved' | 'abandoned';
     profileRating: number;
     profileRd: number;
+    createId: CreateId;
+    clock: Clock;
   }
 ): Promise<void> {
   if (isPlayClosed(args.interactions, args.puzzleId)) return;
   const ratings = computeFinalizeRatings(args);
-  await appendPuzzleInteractionRow(mutationClient, {
-    ownerId: args.ownerId,
-    puzzleId: args.puzzleId,
-    puzzleRating: args.puzzleRating,
-    kind: args.terminalKind,
-    solveIdx: args.solveIdx,
-    ratingBefore: ratings.ratingBefore,
-    ratingAfter: ratings.ratingAfter,
-  });
+  await appendPuzzleInteractionRow(
+    mutationClient,
+    {
+      ownerId: args.ownerId,
+      puzzleId: args.puzzleId,
+      puzzleRating: args.puzzleRating,
+      kind: args.terminalKind,
+      solveIdx: args.solveIdx,
+      ratingBefore: ratings.ratingBefore,
+      ratingAfter: ratings.ratingAfter,
+    },
+    args.createId
+  );
   await upsertPuzzleProfile(mutationClient, {
     ownerId: args.ownerId,
     rating: ratings.ratingAfter,

@@ -1,5 +1,7 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useMyId } from '@libs/auth/client/use-current-user';
+import { useClock } from '@pkgs/clock';
+import { useCreateId } from '@pkgs/uuid';
 import { useCallback } from 'react';
 
 import type {
@@ -33,22 +35,28 @@ export function useChessPuzzleInteractionWrites(args: {
   const { puzzleId, puzzleRating, solveIdx, interactions } = args;
   const myId = useMyId();
   const mutationClient = useMutationClient();
+  const createId = useCreateId();
+  const clock = useClock();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
 
   const appendInteraction = useCallback(
     async (kind: ChessPuzzleInteractionKind, extra?: AppendExtra) => {
       if (myId.length === 0) return;
-      await appendPuzzleInteractionRow(mutationClient, {
-        ownerId: myId,
-        puzzleId,
-        puzzleRating,
-        kind,
-        solveIdx: extra?.solveIdx ?? solveIdx,
-        uci: extra?.uci ?? null,
-        correct: extra?.correct ?? null,
-      });
+      await appendPuzzleInteractionRow(
+        mutationClient,
+        {
+          ownerId: myId,
+          puzzleId,
+          puzzleRating,
+          kind,
+          solveIdx: extra?.solveIdx ?? solveIdx,
+          uci: extra?.uci ?? null,
+          correct: extra?.correct ?? null,
+        },
+        createId
+      );
     },
-    [mutationClient, myId, puzzleId, puzzleRating, solveIdx]
+    [mutationClient, myId, puzzleId, puzzleRating, solveIdx, createId]
   );
 
   const finalizePlay = useCallback(
@@ -63,6 +71,8 @@ export function useChessPuzzleInteractionWrites(args: {
         terminalKind,
         profileRating,
         profileRd,
+        createId,
+        clock,
       });
     },
     [
@@ -74,6 +84,8 @@ export function useChessPuzzleInteractionWrites(args: {
       puzzleId,
       puzzleRating,
       solveIdx,
+      createId,
+      clock,
     ]
   );
 
