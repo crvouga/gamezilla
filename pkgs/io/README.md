@@ -25,4 +25,4 @@ type Io = {
 
 ## Policy
 
-Product code must not use bare `Date.now`, zero-arg `new Date()`, `setTimeout`, `fetch`, `crypto.randomUUID`, `Math.random`, etc. Composition roots and wall adapters that construct `wallIo()` mark `// @io-wall-ok`. CI: `bun run ci:no-bare-io`, `ci:no-resolve-wall-defaults` (see `AGENTS.md`).
+Product code must not use bare `Date.now`, zero-arg `new Date()`, `setTimeout`, `fetch`, `crypto.randomUUID`, `Math.random`, etc. Call `wallIo()` only at process entries (scripts / app boot / CLI); helpers take injected ports. Entry files mark `// @io-wall-ok`. CI: `bun run ci:no-bare-io`, `ci:no-resolve-wall-defaults` (see `AGENTS.md`).

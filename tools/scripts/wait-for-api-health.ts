@@ -1,10 +1,14 @@
 // @io-wall-ok
+/**
+ * Poll `/api/health` until ready (used by CI after starting `preview:serve`).
+ * Optional `API_PREVIEW_PID` / `API_PREVIEW_LOG` fail fast if the process dies.
+ */
 import { existsSync, readFileSync } from 'node:fs';
 import { wallIo } from '@pkgs/io';
-import { resolveLocalApiOrigin } from '../src/harness';
 
 const io = wallIo();
 
+const DEFAULT_ORIGIN = 'http://localhost:8788';
 const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');
 const previewPidRaw = (process.env['API_PREVIEW_PID'] ?? '').trim();
 const previewPid = previewPidRaw.length > 0 ? Number(previewPidRaw) : NaN;
@@ -39,7 +43,9 @@ function formatPreviewLog(): string {
       : '';
 }
 
-const origin = await resolveLocalApiOrigin();
+const fromEnv = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim();
+const origin =
+  fromEnv !== undefined && fromEnv.length > 0 ? fromEnv : DEFAULT_ORIGIN;
 const healthUrl = `${origin}/api/health`;
 const deadline = io.clock.now() + timeoutMs;
 let lastErr: string | undefined;
@@ -66,7 +72,9 @@ while (io.clock.now() < deadline) {
     lastErr = e instanceof Error ? e.message : String(e);
   }
 
-  await Bun.sleep(250);
+  await new Promise<void>((resolve) => {
+    io.timers.setTimeout(() => resolve(), 250);
+  });
 }
 
 throw new Error(

@@ -9,7 +9,7 @@
  * Builds use package-scoped entrypoints (`@apps/api#build` etc.) so
  * `@apps/client` still gets `tc`/`test` without Expo `build`, in one
  * `turbo run` (no second filtered pass).
- * Live-server checks (`check:api` / `check:browser`) stay opt-in / CI-only.
+ * Live-server checks (`check:api`) stay opt-in / CI-only.
  * Secrets validation stays CI / opt-in (`check:ci:gates`, `check:secrets`).
  */
 import { spawnSync } from 'node:child_process';

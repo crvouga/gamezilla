@@ -8,7 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
-import { fileHasIoWallOkPragma } from './io-scan-pragma';
+import { fileAllowsWallConstruction } from './io-scan-pragma';
 import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
 
 type Ban = {
@@ -58,7 +58,7 @@ function stripLineComment(line: string): string {
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
   const text = readFileSync(abs, 'utf8');
-  if (fileHasIoWallOkPragma(text)) return [];
+  if (fileAllowsWallConstruction(rel, text)) return [];
   const lines = text.split('\n');
   const out: Offense[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -88,7 +88,7 @@ for (const f of files) {
 if (offenses.length > 0) {
   console.error(
     'Bare I/O check failed — use @pkgs/io (io.clock / io.timers / io.http / io.createId / io.random).\n' +
-      'Wall adapters / polyfills must mark with `// @io-wall-ok`:\n'
+      'Wall adapters / polyfills must be entry-shaped and mark `// @io-wall-ok`:\n'
   );
   for (const o of offenses.slice(0, 200)) {
     console.error(`  - ${offenseKey(o)}`);

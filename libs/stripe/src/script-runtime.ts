@@ -9,6 +9,7 @@
  */
 
 import { join } from 'node:path';
+import { cliIo } from '@libs/infra/cli/lib/cli-io';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -24,6 +25,10 @@ import { StripeSecretKeys } from './secret-keys';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
+function stripeScriptFetch() {
+  return cliIo.http.fetch.bind(cliIo.http);
+}
+
 function isPostgresDbUrl(u: string): boolean {
   return u.startsWith('postgres://') || u.startsWith('postgresql://');
 }
@@ -35,7 +40,9 @@ function isPostgresDbUrl(u: string): boolean {
 export async function assertStripeSecretKey(
   scriptTag: string
 ): Promise<string> {
-  const store = await createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore({
+    fetchFn: stripeScriptFetch(),
+  });
   const raw = (
     await store.getOptional(StripeSecretKeys.secretKey)
   )?.readSecretValue();
@@ -64,7 +71,9 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
     assertDevSecretsEnv(secretsEnv);
   }
-  const store = await createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore({
+    fetchFn: stripeScriptFetch(),
+  });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();
@@ -91,7 +100,9 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
  * (legacy helper; catalog sync no longer requires SQL).
  */
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
-  const store = await createStripeScriptSecretStore();
+  const store = await createStripeScriptSecretStore({
+    fetchFn: stripeScriptFetch(),
+  });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
   const u = raw.trim();

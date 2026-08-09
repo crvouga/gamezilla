@@ -17,7 +17,8 @@ import { join } from 'node:path';
 
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '../../libs/integration-test/src/local-api-preview';
+/** Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788). */
+const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const API_PORT = Number(new URL(DEFAULT_LOCAL_PREVIEW_API_ORIGIN).port);

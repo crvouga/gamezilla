@@ -55,15 +55,6 @@
     ".": {
       "entry": ["package.json", "tools/scripts/*.ts", "tools/*.ts"]
     },
-    "libs/integration-test": {
-      "entry": [
-        "scripts/kill-preview-ports.ts",
-        "scripts/wait-for-api-health.ts",
-        "scripts/wait-for-browser-e2e-stack.ts",
-        "playwright/playwright.config.ts",
-        "src/preview-stack-env.ts"
-      ]
-    },
     "apps/client": {
       "entry": ["src/integration/*.test.ts"]
     },

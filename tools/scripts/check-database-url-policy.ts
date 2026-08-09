@@ -53,10 +53,6 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
       'assertDatabaseUrlAllowedForSecretsEnvForTooling',
     ],
   },
-  {
-    file: 'libs/integration-test/src/preview-stack-env.ts',
-    mustInclude: ['assertDevSecretsEnv', 'LOCAL_POSTGRES_DATABASE_URL'],
-  },
 ];
 
 const violations: string[] = [];

@@ -1,21 +1,19 @@
-// @io-wall-ok
 import { Database } from 'bun:sqlite';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
-import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-const simSqliteIo = wallIo();
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
+import { createSerialSqlClient } from './serial-sql';
+
+/** Silent migrate logger — level silent; `now` unused but required by createLogger. */
 const domainMigrateLogger = createLogger({
   name: 'open-sim-sqlite',
   level: 'silent',
-  now: simSqliteIo.clock.now,
+  now: () => 0,
 });
-
-import type { LocalDomainSchema } from '../client/local-schema-migrate';
-import { createSerialSqlClient } from './serial-sql';
 
 /**
  * Server framework tables needed by mutation replay + pushSeq allocation.

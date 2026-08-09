@@ -10,7 +10,10 @@
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
-import { fileHasIoWallOkPragma } from './io-scan-pragma';
+import {
+  fileAllowsWallConstruction,
+  fileHasIoWallOkPragma,
+} from './io-scan-pragma';
 import { collectSqlWallScanFiles, REPO_ROOT } from './io-scan-roots';
 
 type Ban = {
@@ -96,7 +99,13 @@ function scanFile(abs: string): Offense[] {
   if (!isSqlishPath(rel)) return [];
   const isSql = rel.endsWith('.sql');
   const text = readFileSync(abs, 'utf8');
-  if (fileHasIoWallOkPragma(text)) return [];
+  const isTest = /\.test\.[tj]sx?$/.test(rel) || /\.spec\.[tj]sx?$/.test(rel);
+  if (
+    fileAllowsWallConstruction(rel, text) ||
+    (isTest && fileHasIoWallOkPragma(text))
+  ) {
+    return [];
+  }
   const lines = text.split('\n');
   const out: Offense[] = [];
   for (let i = 0; i < lines.length; i++) {

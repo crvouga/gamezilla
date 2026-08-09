@@ -14,9 +14,9 @@
 # 2. Jobs that need a distinct runner shape stay separate even though the
 #    same scripts are root Turbo tasks locally (`//#check:*` in turbo.json):
 #    `check-static` (actionlint + gitleaks; gitleaks needs `fetch-depth: 0`),
-#    `check-api`, `check-browser` (Chromium cache, failure screenshots).
+#    `check-api` (live preview Worker + Hono integration).
 #    Local `bun check` is one offline `turbo-ci-run` (no live
-#    `check:api` / `check:browser`; those stay CI / opt-in).
+#    `check:api`; that stays CI / opt-in).
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe, and the
@@ -120,8 +120,8 @@ jobs:
           job: check-verify
           mode: save
 
-  # Workspace build excluding @apps/client (check-browser owns the E2E client
-  # export). Same affected filter as check-verify on PRs.
+  # Workspace build excluding @apps/client (Expo web export happens in deploy).
+  # Same affected filter as check-verify on PRs.
   check-build:
     runs-on: ubuntu-latest
     env:
@@ -235,8 +235,7 @@ jobs:
           environment: dev
       # Run setup + migrate in the foreground so DB failures surface in the job
       # log instead of a silent background death that only shows up as a
-      # health-wait timeout. Then start wrangler only (`preview:serve`) — avoids
-      # a second migrate racing check-browser on the shared hosted dev Postgres.
+      # health-wait timeout. Then start wrangler only (`preview:serve`).
       - name: Setup and migrate API
         run: bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts setup migrate --filter=@apps/api
       - name: Start API preview
@@ -249,7 +248,7 @@ jobs:
           API_PREVIEW_PID="$(cat /tmp/api-preview.pid)"
           export API_PREVIEW_PID
           export API_PREVIEW_LOG=/tmp/api-preview.log
-          if ! bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-api-health; then
+          if ! bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/wait-for-api-health.ts; then
             echo "::group::api-preview.log (last 200 lines)"
             tail -n 200 /tmp/api-preview.log || true
             echo "::endgroup::"
@@ -269,113 +268,6 @@ jobs:
           job: check-api
           mode: save
 
-  check-browser:
-    # Intentionally not `needs: [check-build]`. `check:ci:build` only runs
-    # package-scoped `@apps/api|minio|postgres#build` (not Expo client),
-    # so check-browser is the only place the web client is actually built
-    # in CI before deploy. Sequencing on check-build would just delay this
-    # job for little cache benefit (remote cache already shared). CI starts
-    # `turbo preview` in a prior step; browser E2E never spawns servers —
-    # it fails fast when the stack is down.
-    runs-on: ubuntu-latest
-    env:
-      # Metro must SHA-1 Bun-store deps via Watchman (see apps/client/metro.config.js).
-      EXPO_USE_WATCHMAN: '1'
-    concurrency:
-      group: check-browser-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
-      cancel-in-progress: true
-    timeout-minutes: 45
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - uses: ./.github/actions/turbo-cache
-        with:
-          job: check-browser
-          mode: restore
-      - uses: ./.github/actions/setup
-        with:
-          watchman: true
-
-      # Resolve the actually-installed @playwright/test version (not the
-      # caret range from package.json) so the browser cache key only
-      # invalidates when Playwright itself bumps -- not on every unrelated
-      # bun.lock change. Resolved from libs/integration-test because that's
-      # the package that lists @playwright/test as a dependency (bun install
-      # uses isolated node_modules, so the package is not resolvable from
-      # repo root). See https://playwright.dev/docs/ci#caching-browsers.
-      - name: Resolve Playwright version
-        id: playwright
-        working-directory: libs/integration-test
-        run: |
-          version=$(node -p "require('@playwright/test/package.json').version")
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Resolved @playwright/test version: $version"
-
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-      # On cache miss: download browsers + install system deps (apt). On
-      # cache hit: skip the browser download (~150MB) and only install the
-      # apt deps -- GitHub-hosted runners are ephemeral, so even a cached
-      # browser binary needs its system libs reinstalled each run.
-      - name: Install Playwright browsers (cache miss)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bun run --filter '@libs/integration-test' install:browsers
-
-      - name: Install Playwright system deps (cache hit)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bun --bun x playwright install-deps chromium
-
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-      # Preview depends on `setup`, workspace `^build`, and client `expo export`.
-      # Build first so the wait step only covers migrate + wrangler + static server
-      # startup — cold CI can exceed 240s when build + preview run together.
-      - name: Build preview stack artifacts
-        run: bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_API_URL=http://localhost:8788 API_URL=http://localhost:8788 EXPO_PUBLIC_E2E=1 bun run tools/scripts/turbo-ci-run.ts setup build --filter=@apps/api --filter=@apps/client'
-      - name: Start preview stack
-        env:
-          BROWSER_E2E_STACK_WAIT_MS: 480000
-        run: |
-          nohup bun run tools/scripts/secrets-run.ts -- sh -c 'EXPO_PUBLIC_API_URL=http://localhost:8788 API_URL=http://localhost:8788 EXPO_PUBLIC_E2E=1 bun turbo run preview --filter=@apps/api --filter=@apps/client --cache=local:rw --cache-workers=4' > /tmp/preview-stack.log 2>&1 &
-          echo $! > /tmp/preview-stack.pid
-          if ! bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/integration-test wait-for-browser-e2e-stack; then
-            echo "::group::preview-stack.log (last 200 lines)"
-            tail -n 200 /tmp/preview-stack.log || true
-            echo "::endgroup::"
-            exit 1
-          fi
-      - name: Check browser E2E
-        run: bun run check:browser
-      - name: Stop preview stack
-        if: always()
-        run: |
-          if [ -f /tmp/preview-stack.pid ]; then
-            kill "$(cat /tmp/preview-stack.pid)" 2>/dev/null || true
-          fi
-
-      # Screenshots written by the web driver binding on failure.
-      - name: Upload browser artifacts
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: browser-artifacts
-          path: check/browser-artifacts/
-          retention-days: 7
-          if-no-files-found: ignore
-      - uses: ./.github/actions/turbo-cache
-        if: always() && !cancelled()
-        with:
-          job: check-browser
-          mode: save
-
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global Postgres lock, runs every phase in-process
@@ -393,7 +285,7 @@ jobs:
   # (`infra build-client-native`), not here.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [check-gates, check-verify, check-build, check-static, check-api, check-browser]
+    needs: [check-gates, check-verify, check-build, check-static, check-api]
     runs-on: ubuntu-latest
     env:
       EXPO_USE_WATCHMAN: '1'
@@ -485,7 +377,6 @@ jobs:
         check-build,
         check-static,
         check-api,
-        check-browser,
         deploy,
         lock-release,
       ]

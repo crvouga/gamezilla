@@ -17,7 +17,6 @@
       "@pkgs/assistant/client": ["../../pkgs/assistant/src/client/index.ts"],
       "@libs/auth/*": ["../../libs/auth/src/*"],
       "@libs/chess/*": ["../../libs/chess/src/*"],
-      "@libs/integration-test/*": ["../../libs/integration-test/src/*"],
       "@libs/client-config/*": ["../../libs/client-config/src/*"],
       "@libs/db/*": ["../../libs/db/src/*"],
       "@libs/friends/*": ["../../libs/friends/src/*"],

@@ -103,6 +103,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretStore = createApiSecretStore(workerEnvToSecretRecord(env));
   const objectStore = await createApiObjectStore(secretStore, {
     secretsEnv,
+    now: roomIo.clock.now,
   });
   const dbScope = appPostgresDbScope();
   const observability = createServerObservability({

@@ -6,6 +6,7 @@
     "./project-config": "./src/project-config.ts",
     "./shared/database-url-policy": "./src/shared/database-url-policy.ts",
     "./shared/database-url-policy-tooling": "./src/shared/database-url-policy-tooling.ts",
+    "./cli/lib/cli-io": "./src/cli/lib/cli-io.ts",
     "./cli/secrets/secrets": "./src/cli/secrets/secrets.ts"
   },
   "scripts": {

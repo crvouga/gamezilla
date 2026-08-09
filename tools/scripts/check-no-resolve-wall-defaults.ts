@@ -4,20 +4,20 @@
  * Production code must not call resolveNow()/resolveTimers()/resolveCreateId()/
  * resolveRandom()/resolveClock() with no argument. Wall adapters
  * (createGlobalHttpClient, wallIo, wallClock, …) are only allowed in test
- * files or files that opt in with `@io-wall-ok` (composition roots / wall
- * adapter modules). Zero-arg resolve* stays banned even in marked files.
+ * files or entry-shaped files marked `@io-wall-ok`. Zero-arg resolve* stays
+ * banned everywhere.
  */
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
-import { fileHasIoWallOkPragma } from './io-scan-pragma';
+import { fileAllowsWallConstruction } from './io-scan-pragma';
 import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
 
 type Ban = {
   readonly kind: string;
   readonly re: RegExp;
   /**
-   * When true, skipped in test files and in `@io-wall-ok` composition roots.
+   * When true, skipped in test files and in entry-shaped `@io-wall-ok` roots.
    * When false/undefined, banned everywhere (silent resolve* fallbacks).
    */
   readonly allowInWallOk?: boolean;
@@ -76,6 +76,7 @@ function isTestFile(rel: string): boolean {
     /\.test\.[tj]sx?$/.test(rel) ||
     /\.spec\.[tj]sx?$/.test(rel) ||
     /(?:^|\/)test-harness\.tsx?$/.test(rel) ||
+    /(?:^|\/)test\//.test(rel) ||
     rel.includes('/tests/') ||
     rel.includes('/testing/') ||
     rel.endsWith('.bench.ts') ||
@@ -100,7 +101,7 @@ function stripLineComment(line: string): string {
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
   const text = readFileSync(abs, 'utf8');
-  const wallOk = fileHasIoWallOkPragma(text);
+  const wallOk = fileAllowsWallConstruction(rel, text);
   const testFile = isTestFile(rel);
   const lines = text.split('\n');
   const out: Offense[] = [];
@@ -125,7 +126,7 @@ for (const f of files) {
 if (offenses.length > 0) {
   console.error(
     'Silent wall-I/O fallback check failed — inject Io via constructor or React context (useIo / getIo).\n' +
-      'Composition roots / wall adapters may use wallIo/wallClock/… when marked with `// @io-wall-ok`.\n' +
+      'wallIo/wallClock/… only in tests or entry-shaped files with `// @io-wall-ok` (scripts/, wall adapters, app/cli roots).\n' +
       'Zero-arg resolve*() is never allowed:\n'
   );
   for (const o of offenses.slice(0, 200)) {

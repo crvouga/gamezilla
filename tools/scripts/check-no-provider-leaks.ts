@@ -2,8 +2,7 @@
  * Ensures Better Auth SDK and `@pkgs/auth-better-auth` stay behind the auth
  * adapter boundary.
  *
- * `better-auth` / `@better-auth/*` imports: only in pkgs/auth-better-auth and
- * libs/integration-test.
+ * `better-auth` / `@better-auth/*` imports: only in pkgs/auth-better-auth.
  * `@pkgs/auth-better-auth` imports: only in the adapter itself and app
  * composition roots.
  */
@@ -12,10 +11,7 @@ import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 
-const BETTER_AUTH_SDK_ALLOW_PREFIXES = [
-  'pkgs/auth-better-auth/',
-  'libs/integration-test/',
-];
+const BETTER_AUTH_SDK_ALLOW_PREFIXES = ['pkgs/auth-better-auth/'];
 
 const AUTH_BETTER_AUTH_PKG_ALLOW_PREFIXES = ['pkgs/auth-better-auth/'];
 
@@ -127,7 +123,7 @@ if (
   if (betterAuthSdkOffenders.length > 0) {
     if (clerkOffenders.length > 0) console.error('');
     console.error(
-      'better-auth / @better-auth/* imports must stay in pkgs/auth-better-auth or libs/integration-test:\n' +
+      'better-auth / @better-auth/* imports must stay in pkgs/auth-better-auth:\n' +
         betterAuthSdkOffenders.map((f) => `  - ${f}`).join('\n')
     );
   }

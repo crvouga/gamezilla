@@ -31,7 +31,6 @@
     "@libs/friends": "workspace:*",
     "@libs/games": "workspace:*",
     "@libs/infra": "workspace:*",
-    "@libs/integration-test": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/stripe": "workspace:*",

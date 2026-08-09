@@ -101,4 +101,4 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 
 ## Product consumer (follow-up)
 
-Wire a product `SimulationSystem` in `@libs/integration-test` (or a feature package) that boots the real app stack in-process. Keep acceptance scenarios asserting only through `actor.ui`. Live Playwright (`check:browser`) can reuse the same scenarios with `ui: 'playwright'`.
+Wire a product `SimulationSystem` in a feature or test package that boots the real app stack in-process. Keep acceptance scenarios asserting only through `actor.ui`.

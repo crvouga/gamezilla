@@ -42,7 +42,6 @@
     "@libs/db": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/games": "workspace:*",
-    "@libs/integration-test": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/search": "workspace:*",
     "@libs/spaces": "workspace:*",

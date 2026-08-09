@@ -1,15 +1,10 @@
-// @io-wall-ok
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
-import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { S3SecretName } from '@pkgs/object-store/s3-config';
 import type { SecretStore } from '@pkgs/secret-store';
-
-const io = wallIo();
-const log = createLogger({ name: 'api-object-store', now: io.clock.now });
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
@@ -34,12 +29,15 @@ const S3_SECRET_NAMES = [
 export type CreateApiObjectStoreOptions = {
   /** Secrets env (`dev` / `prd`). Reserved for callers; no longer gates in-memory. */
   readonly secretsEnv?: string | null;
+  /** Injected clock from the worker composition root. */
+  readonly now: () => number;
 };
 
 export async function createApiObjectStore(
   secretStore: SecretStore,
-  _options: CreateApiObjectStoreOptions = {}
+  options: CreateApiObjectStoreOptions
 ): Promise<ObjectStore> {
+  const log = createLogger({ name: 'api-object-store', now: options.now });
   const secrets = await secretStore.getOptionalMany(S3_SECRET_NAMES);
   const missing = S3_SECRET_NAMES.filter((name) => secrets[name] === null);
 

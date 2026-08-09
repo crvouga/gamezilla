@@ -1,17 +1,15 @@
-// @io-wall-ok
-import { wallIo } from '@pkgs/io';
 import {
   createCombinedSecretStore,
   createScriptSecretStore,
   type SecretStore,
 } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import { createInfisicalSecretStore } from './impl-infisical/http-secret-store';
+import {
+  createInfisicalSecretStore,
+  type InfisicalFetch,
+} from './impl-infisical/http-secret-store';
 import { resolveInfisicalAccessTokenForWrites } from './impl-infisical/oidc-access-token';
 import { resolveInfisicalEndpoint } from './impl-infisical/resolve-endpoint';
-
-/** Composition-root Io for tooling secret stores (scripts / CI). */
-const toolingIo = wallIo();
 
 export type CreateConfiguredSecretStoreOptions = {
   readonly repoRoot: string;
@@ -19,6 +17,8 @@ export type CreateConfiguredSecretStoreOptions = {
   readonly token?: string;
   /** When true, compose env reads with remote writes (script/CI pattern). */
   readonly writable?: boolean;
+  /** Injected HTTP transport (composition root supplies wall/script fetch). */
+  readonly fetchFn: InfisicalFetch;
 };
 
 /**
@@ -30,7 +30,7 @@ export async function createConfiguredSecretStore(
 ): Promise<SecretStore> {
   const scope = resolveSecretsScope(options.repoRoot, options.envOverride);
   const endpoint = resolveInfisicalEndpoint(scope);
-  const fetchFn = toolingIo.http.fetch.bind(toolingIo.http);
+  const { fetchFn } = options;
 
   if (options.writable === true) {
     const readStore = createScriptSecretStore();
@@ -72,6 +72,7 @@ export type CreateToolingSecretStoreOptions = {
   readonly repoRoot: string;
   readonly envOverride?: string;
   readonly token?: string;
+  readonly fetchFn: InfisicalFetch;
 };
 
 /** Sync tooling store — requires an explicit or env `SECRETS_TOKEN`. */
@@ -90,13 +91,14 @@ export function createToolingSecretStore(
     workspaceId: scope.projectId,
     env: scope.env,
     token,
-    fetchFn: toolingIo.http.fetch.bind(toolingIo.http),
+    fetchFn: options.fetchFn,
   });
 }
 
 export type CreateWritableScriptSecretStoreOptions = {
   readonly repoRoot: string;
   readonly secretsEnv?: string;
+  readonly fetchFn: InfisicalFetch;
 };
 
 /**
@@ -112,5 +114,6 @@ export async function createWritableScriptSecretStore(
       ? { envOverride: options.secretsEnv }
       : {}),
     writable: true,
+    fetchFn: options.fetchFn,
   });
 }

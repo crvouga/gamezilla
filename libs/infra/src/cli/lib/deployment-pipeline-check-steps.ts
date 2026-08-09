@@ -8,14 +8,13 @@
  * Also the step list for `check:heal` (runs these scripts sequentially).
  * Local `bun run check` is one offline `turbo-ci-run` graph (gates/verify/
  * static + package-scoped app builds; not this parallel fan-out). Live
- * `check:api` / `check:browser` stay CI / heal / opt-in only.
+ * `check:api` stays CI / heal / opt-in only.
  *
  * Turbo-cacheable work is split across `check-gates` / `check-verify` /
  * `check-build` (gates include `check:secrets:validate`, cached on a
  * fingerprint of registry secret values in `dev` + `prd`).
- * `check-static` covers actionlint + gitleaks, and the two remaining
- * `check-*` job ids match the per-job Hono integration / Playwright runs
- * (`check:api` / `check:browser`).
+ * `check-static` covers actionlint + gitleaks; `check-api` is the Hono
+ * integration run against a live preview Worker.
  */
 export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'check-gates', bunScript: 'check:ci:gates' },
@@ -23,7 +22,6 @@ export const DEPLOYMENT_PIPELINE_CHECK_STEPS = [
   { jobId: 'check-build', bunScript: 'check:ci:build' },
   { jobId: 'check-static', bunScript: 'check:static' },
   { jobId: 'check-api', bunScript: 'check:api' },
-  { jobId: 'check-browser', bunScript: 'check:browser' },
 ] as const;
 
 export type DeploymentPipelineCheckStep =

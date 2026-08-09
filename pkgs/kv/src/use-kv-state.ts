@@ -1,4 +1,3 @@
-// @io-wall-ok
 /**
  * `useState`-like hook persisted via {@link Kv}.
  *
@@ -13,14 +12,15 @@
  * after the hydrate started.
  */
 
-import { wallIo } from '@pkgs/io';
+import { useClock } from '@pkgs/clock';
 import type { Keyword } from '@pkgs/keyword/keyword';
-import { createLogger } from '@pkgs/logger/logger';
+import { createLogger, type Logger } from '@pkgs/logger/logger';
 import {
   type Dispatch,
   type SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -28,9 +28,6 @@ import {
 import type { Kv, KvRecord } from './interface';
 import { useKvOptional } from './kv-context';
 import type { KvStateCodec } from './kv-state-codec';
-
-const io = wallIo();
-const log = createLogger({ name: 'kv-state', now: io.clock.now });
 
 export type UseKvStateOptions<T> = {
   /** Namespaced row key, e.g. `asKeyword('ui.prefs/speaking-avatar-muted')`. */
@@ -62,12 +59,14 @@ function applyUpdater<T>(updater: SetStateAction<T>, prev: T): T {
     : updater;
 }
 
-function persistValue<T>(
-  kv: Kv,
-  key: Keyword,
-  codec: KvStateCodec<T>,
-  value: T
-): void {
+function persistValue<T>(args: {
+  kv: Kv;
+  key: Keyword;
+  codec: KvStateCodec<T>;
+  value: T;
+  log: Logger;
+}): void {
+  const { kv, key, codec, value, log } = args;
   void kv.put(key, codec.encode(value)).catch((error: unknown) => {
     log.error('persist failed', {
       key,
@@ -81,6 +80,11 @@ export function useKvState<T>(
 ): [T, Dispatch<SetStateAction<T>>] {
   const { key, default: defaultValue, codec, persist = true } = options;
   const kv = useKvOptional();
+  const clock = useClock();
+  const log = useMemo(
+    () => createLogger({ name: 'kv-state', now: clock.now }),
+    [clock]
+  );
   const enabled = kv !== null && persist;
 
   const [value, setValueRaw] = useState<T>(defaultValue);
@@ -111,7 +115,7 @@ export function useKvState<T>(
     return () => {
       cancelled = true;
     };
-  }, [enabled, kv, key, codec]);
+  }, [enabled, kv, key, codec, log]);
 
   const setValue = useCallback<Dispatch<SetStateAction<T>>>(
     (updater) => {
@@ -120,10 +124,10 @@ export function useKvState<T>(
       setValueRaw(next);
       if (kv !== null && persist) {
         genRef.current += 1;
-        persistValue(kv, key, codec, next);
+        persistValue({ kv, key, codec, value: next, log });
       }
     },
-    [kv, persist, key, codec]
+    [kv, persist, key, codec, log]
   );
 
   return [value, setValue];

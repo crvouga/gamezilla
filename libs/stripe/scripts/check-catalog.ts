@@ -7,6 +7,7 @@
  *   the dev workflow doesn't block on a dashboard-only secret.
  */
 
+import { cliIo } from '@libs/infra/cli/lib/cli-io';
 import { createStripeClientFromSecret } from '../src/script-runtime';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
 import { StripeSecretKeys } from '../src/secret-keys';
@@ -24,7 +25,9 @@ function isCi(): boolean {
 async function resolveStripeSecretOrSkip(): Promise<string | null> {
   let store;
   try {
-    store = await createStripeScriptSecretStore();
+    store = await createStripeScriptSecretStore({
+      fetchFn: cliIo.http.fetch.bind(cliIo.http),
+    });
   } catch {
     if (isCi()) {
       console.error(

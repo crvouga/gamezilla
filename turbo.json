@@ -102,11 +102,6 @@
       "outputLogs": "new-only",
       "outputs": []
     },
-    "test:e2e": {
-      "dependsOn": ["^tc"],
-      "cache": false,
-      "outputs": ["../../check/browser-artifacts/**"]
-    },
     "//#ci:lint": {
       "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
       "outputs": [],
@@ -196,7 +191,6 @@
         "apps/api/src/app/request-db-middleware.ts",
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
-        "libs/integration-test/src/preview-stack-env.ts",
         "tools/scripts/check-database-url-policy.ts"
       ],
       "outputs": [],
@@ -466,10 +460,6 @@
     },
     "//#check:api": {
       "cache": false
-    },
-    "//#check:browser": {
-      "cache": false,
-      "dependsOn": ["//#check:api"]
     }
   }
 }

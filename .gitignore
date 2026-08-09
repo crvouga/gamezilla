@@ -68,7 +68,7 @@ apps/client/android/
 
 .cursor/debug*.log
 
-# Local preview-stack log from check:browser / check:api
+# Local preview-stack log from check:api
 .check-*
 
 # Local observability span export (opt-in dev debugging)
@@ -87,9 +87,8 @@ apps/client/android/
 .turbo
 
 
-# Playwright check artifacts (reports, traces, videos)
+# Check / Playwright artifacts (reports, traces, videos)
 /check/
 **/playwright-report/
 **/test-results/
-check/browser-artifacts/
 **/blob-report/
