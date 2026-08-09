@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
+import { cliIo } from '../lib/cli-io';
 import { info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfHeaders } from '../secrets/cloudflare';
@@ -21,7 +22,7 @@ export class ClientRedirectRuleResource extends ResourceBase {
     const zoneId = ctx.zoneId;
     const domain = PROJECT_CONFIG.domain;
 
-    const res = await fetch(
+    const res = await cliIo.http.fetch(
       `${CF_API}/zones/${zoneId}/rulesets?phase=${PHASE}`,
       { headers }
     );
@@ -39,32 +40,35 @@ export class ClientRedirectRuleResource extends ResourceBase {
       }
     }
 
-    const create = await fetch(`${CF_API}/zones/${zoneId}/rulesets`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        name: 'Redirect apex to www',
-        kind: 'zone',
-        phase: PHASE,
-        rules: [
-          {
-            action: 'redirect',
-            action_parameters: {
-              from_value: {
-                status_code: 301,
-                target_url: {
-                  expression: `concat("https://www.${domain}", http.request.uri.path)`,
+    const create = await cliIo.http.fetch(
+      `${CF_API}/zones/${zoneId}/rulesets`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: 'Redirect apex to www',
+          kind: 'zone',
+          phase: PHASE,
+          rules: [
+            {
+              action: 'redirect',
+              action_parameters: {
+                from_value: {
+                  status_code: 301,
+                  target_url: {
+                    expression: `concat("https://www.${domain}", http.request.uri.path)`,
+                  },
+                  preserve_query_string: true,
                 },
-                preserve_query_string: true,
               },
+              expression: `(http.host eq "${domain}")`,
+              description: 'Redirect apex to www',
+              enabled: true,
             },
-            expression: `(http.host eq "${domain}")`,
-            description: 'Redirect apex to www',
-            enabled: true,
-          },
-        ],
-      }),
-    });
+          ],
+        }),
+      }
+    );
     assert.ok(create.ok, `Redirect rule create failed: HTTP ${create.status}`);
     ok('Redirect rule', `apex → www (created)`);
   }
@@ -74,7 +78,7 @@ export class ClientRedirectRuleResource extends ResourceBase {
     const zoneId = await this.findZoneId(headers);
     if (!zoneId) return;
 
-    const res = await fetch(`${CF_API}/zones/${zoneId}/rulesets`, {
+    const res = await cliIo.http.fetch(`${CF_API}/zones/${zoneId}/rulesets`, {
       headers,
     });
     if (!res.ok) return;
@@ -86,10 +90,13 @@ export class ClientRedirectRuleResource extends ResourceBase {
     if (rulesets.length === 0) return;
 
     for (const rs of rulesets) {
-      const del = await fetch(`${CF_API}/zones/${zoneId}/rulesets/${rs.id}`, {
-        method: 'DELETE',
-        headers,
-      });
+      const del = await cliIo.http.fetch(
+        `${CF_API}/zones/${zoneId}/rulesets/${rs.id}`,
+        {
+          method: 'DELETE',
+          headers,
+        }
+      );
       if (del.ok || del.status === 404) {
         info('Deleted ruleset', rs.name);
       } else {
@@ -101,7 +108,7 @@ export class ClientRedirectRuleResource extends ResourceBase {
   private async findZoneId(
     headers: Record<string, string>
   ): Promise<string | null> {
-    const res = await fetch(
+    const res = await cliIo.http.fetch(
       `${CF_API}/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
       { headers }
     );

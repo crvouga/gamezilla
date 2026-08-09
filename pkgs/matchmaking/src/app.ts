@@ -311,12 +311,13 @@ function parseLeaveBody(raw: unknown): LeaveBody {
 export type CreateMatchmakingAppOptions = {
   readonly matchmaker: Matchmaker;
   readonly requireAuth: MiddlewareHandler;
+  /** Epoch ms — required for error logging (no wall fallback). */
+  readonly now: () => number;
 };
 
-const log = createLogger({ name: 'matchmaking-app' });
-
 export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
-  const { matchmaker, requireAuth } = opts;
+  const { matchmaker, requireAuth, now } = opts;
+  const log = createLogger({ name: 'matchmaking-app', now });
   const app = new Hono();
   app.use('*', requireAuth);
 

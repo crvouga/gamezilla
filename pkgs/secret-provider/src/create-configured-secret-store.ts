@@ -1,3 +1,4 @@
+import { wallIo } from '@pkgs/io';
 import {
   createCombinedSecretStore,
   createScriptSecretStore,
@@ -7,6 +8,9 @@ import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { createInfisicalSecretStore } from './impl-infisical/http-secret-store';
 import { resolveInfisicalAccessTokenForWrites } from './impl-infisical/oidc-access-token';
 import { resolveInfisicalEndpoint } from './impl-infisical/resolve-endpoint';
+
+/** Composition-root Io for tooling secret stores (scripts / CI). */
+const toolingIo = wallIo();
 
 export type CreateConfiguredSecretStoreOptions = {
   readonly repoRoot: string;
@@ -25,6 +29,7 @@ export async function createConfiguredSecretStore(
 ): Promise<SecretStore> {
   const scope = resolveSecretsScope(options.repoRoot, options.envOverride);
   const endpoint = resolveInfisicalEndpoint(scope);
+  const fetchFn = toolingIo.http.fetch.bind(toolingIo.http);
 
   if (options.writable === true) {
     const readStore = createScriptSecretStore();
@@ -42,6 +47,7 @@ export async function createConfiguredSecretStore(
       workspaceId: scope.projectId,
       env: scope.env,
       token,
+      fetchFn,
     });
     return createCombinedSecretStore(writeStore, readStore);
   }
@@ -57,6 +63,7 @@ export async function createConfiguredSecretStore(
     workspaceId: scope.projectId,
     env: scope.env,
     token,
+    fetchFn,
   });
 }
 
@@ -82,6 +89,7 @@ export function createToolingSecretStore(
     workspaceId: scope.projectId,
     env: scope.env,
     token,
+    fetchFn: toolingIo.http.fetch.bind(toolingIo.http),
   });
 }
 

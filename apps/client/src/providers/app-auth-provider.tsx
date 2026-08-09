@@ -1,8 +1,8 @@
 import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
 import { assert } from '@pkgs/assert';
-import { useIo } from '@pkgs/io';
 import { createBetterAuthClientAdapter } from '@pkgs/auth-better-auth/client';
+import { useIo } from '@pkgs/io';
 import { ComposeProviders } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
 

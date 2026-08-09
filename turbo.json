@@ -390,10 +390,14 @@
     "//#ci:no-bare-io": {
       "inputs": [
         "tools/scripts/check-no-bare-io.ts",
-        "apps/client/src/**/*.ts",
-        "apps/client/src/**/*.tsx",
-        "libs/*/src/client/**/*.ts",
-        "libs/*/src/client/**/*.tsx"
+        "tools/scripts/io-scan-roots.ts",
+        "tools/io-bare-allowlist.json",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -401,6 +405,7 @@
     "//#ci:no-resolve-wall-defaults": {
       "inputs": [
         "tools/scripts/check-no-resolve-wall-defaults.ts",
+        "tools/scripts/io-scan-roots.ts",
         "tools/io-resolve-allowlist.json",
         "apps/**/*.ts",
         "apps/**/*.tsx",
@@ -408,6 +413,24 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-sql-wall-io": {
+      "inputs": [
+        "tools/scripts/check-no-sql-wall-io.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "tools/io-sql-wall-allowlist.json",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "apps/**/*.sql",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "libs/**/*.sql",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.sql"
       ],
       "outputs": [],
       "outputLogs": "new-only"

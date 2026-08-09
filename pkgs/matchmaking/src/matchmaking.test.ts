@@ -20,6 +20,7 @@ import {
 } from './matchmaking';
 import {
   bootMatchmaking,
+  defaultTestTuning,
   expectMatched,
   KindAttr,
   type MmHarness,
@@ -554,6 +555,7 @@ describe('Matchmaking - options validation', () => {
         new Matchmaking({
           storage: {} as unknown as { sqlClient: never },
           schema: {},
+          tuning: defaultTestTuning(),
         })
     ).toThrow();
   });
@@ -567,6 +569,7 @@ describe('Matchmaking - options validation', () => {
           new Matchmaking({
             storage: { sqlClient },
             schema: { partitionKeys: ['', 'mmtest/kind'] },
+            tuning: defaultTestTuning(),
           })
       ).toThrow();
     } finally {
@@ -693,6 +696,7 @@ describe('Matchmaking.tick - bounded fan-out and cancellation', () => {
     const mm = new Matchmaking({
       storage: { sqlClient: counting },
       schema: { partitionKeys: ['mmtest/region'] },
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     try {
@@ -753,6 +757,7 @@ describe('Matchmaking.tick - advisory lock', () => {
     const mm = new Matchmaking({
       storage: { sqlClient: stub },
       schema: {},
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     try {
@@ -802,6 +807,7 @@ describe('Matchmaking.tick - advisory lock', () => {
     const mm = new Matchmaking({
       storage: { sqlClient: flaky },
       schema: {},
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     try {
@@ -871,6 +877,7 @@ describe('Matchmaking - schema drift', () => {
       const mm = new Matchmaking({
         storage: { sqlClient },
         schema: { partitionKeys: ['mmtest/region'] },
+        tuning: defaultTestTuning(),
       });
       await mm.ready();
       // Corrupt the stored fingerprint to simulate another process
@@ -885,6 +892,7 @@ describe('Matchmaking - schema drift', () => {
       const mm2 = new Matchmaking({
         storage: { sqlClient },
         schema: { partitionKeys: ['mmtest/region'] },
+        tuning: defaultTestTuning(),
       });
       // mm2.ready() runs migrate which re-writes the fingerprint, so
       // we need to corrupt AFTER mm2 boots but BEFORE its first join.
@@ -1115,6 +1123,7 @@ describe('Matchmaking - group matching (groupSize)', () => {
     const mm = new Matchmaking({
       storage: { sqlClient },
       schema: { partitionKeys: ['mmtest/region'] },
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     try {

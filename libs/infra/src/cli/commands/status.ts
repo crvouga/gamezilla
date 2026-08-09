@@ -2,6 +2,7 @@ import { PROJECT_CONFIG } from '../../project-config';
 import { ALL_DEPS } from '../deps/registry';
 import { collectDepVersionIssues } from '../deps/version-check';
 import { buildDistributedLock } from '../lib/build-distributed-lock';
+import { cliIo } from '../lib/cli-io';
 import { banner, fail, fmtMs, heading, kv, ok, warn } from '../lib/fmt';
 import { httpProbe } from '../lib/http-probe';
 import { type InfraOutputs, infraOutputs } from '../lib/infra-outputs';
@@ -126,7 +127,7 @@ export class StatusCommand implements Command {
         } else {
           const started = Date.parse(s.startedAt);
           const age = Number.isFinite(started)
-            ? fmtMs(Date.now() - started)
+            ? fmtMs(cliIo.clock.now() - started)
             : 'unknown';
           kv('holder', s.holder);
           kv('operation', s.operation);

@@ -83,7 +83,13 @@ export async function ensureInternalAccountIdForExternalUser(args: {
     if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
       await clearUserAnonFlag(tx, candidateUserId);
     } else {
-      await insertUser(tx, candidateUserId, now, nowIso, false);
+      await insertUser({
+        db: tx,
+        userId: candidateUserId,
+        now,
+        createdAt: nowIso,
+        isAnon: false,
+      });
     }
 
     const ownerId = await insertExternalAccountOrGet(tx, {

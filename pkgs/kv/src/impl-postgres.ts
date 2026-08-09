@@ -50,7 +50,7 @@ const MIGRATIONS = `
 CREATE UNLOGGED TABLE IF NOT EXISTS ${TABLE} (
   key        TEXT        PRIMARY KEY,
   value      JSONB       NOT NULL,
-  ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL DEFAULT now()
+  ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL
 ) WITH (${STORAGE_PARAMS});
 ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
 `;
@@ -116,6 +116,13 @@ async function applyKvStorageOptimizations(
   }
 }
 
+/** Idempotent: strip wall DEFAULT now() left by older CREATE TABLE. */
+async function dropKvWallDefaults(sqlClient: SqlClient): Promise<void> {
+  await sqlClient.run(
+    raw(`ALTER TABLE ${TABLE} ALTER COLUMN ${LAST_MODIFIED_AT} DROP DEFAULT`)
+  );
+}
+
 /** Idempotent Postgres DDL for the `kv` table (same as `KvImplPostgres.migrate`). */
 async function runKvPostgresMigrations(
   sqlClient: SqlClient,
@@ -144,6 +151,7 @@ async function runKvPostgresMigrations(
   if (existing.length > 0) {
     await ensureKvPrimaryKeyOnKeyColumn(sqlClient, log);
   }
+  await dropKvWallDefaults(sqlClient);
   await applyKvStorageOptimizations(sqlClient, log);
   // Table name must be spliced via ident/raw — bound params cannot be FROM targets.
   await sqlClient.query(
@@ -154,7 +162,7 @@ async function runKvPostgresMigrations(
 /**
  * Postgres-backed {@link Kv}.
  *
- * - **`new KvImplPostgres(sqlClient)`** — use in hot paths when
+ * - **`new KvImplPostgres(sqlClient, now)`** — use in hot paths when
  *   {@link KvImplPostgres.migrateUp} has already run (e.g. API request middleware).
  * - **`KvImplPostgres.open(...)`** — runs {@link KvImplPostgres.migrateUp} then
  *   returns an instance (scripts / one-off tools).
@@ -162,7 +170,10 @@ async function runKvPostgresMigrations(
  * Migration: `KvImplPostgres.migrateUp({ sqlClient, logger })` (static), same as the sync entity store.
  */
 export class KvImplPostgres implements Kv {
-  constructor(private readonly sqlClient: SqlClient) {}
+  constructor(
+    private readonly sqlClient: SqlClient,
+    private readonly now: () => number
+  ) {}
 
   /**
    * Ensures the `kv` table exists (idempotent DDL), then returns a ready store.
@@ -170,9 +181,10 @@ export class KvImplPostgres implements Kv {
   static async open(args: {
     sqlClient: SqlClient;
     logger: Logger;
+    now: () => number;
   }): Promise<KvImplPostgres> {
     await KvImplPostgres.migrateUp(args);
-    return new KvImplPostgres(args.sqlClient);
+    return new KvImplPostgres(args.sqlClient, args.now);
   }
 
   /** Idempotent Postgres DDL for the `kv` table (no instance required). */
@@ -210,13 +222,14 @@ export class KvImplPostgres implements Kv {
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres put');
+    const iso = new Date(this.now()).toISOString();
     await this.sqlClient.run(
       sql<void>`
-        INSERT INTO kv (key, value)
-        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+        INSERT INTO kv (key, value, last_modified_at)
+        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb, ${iso})
         ON CONFLICT (key) DO UPDATE SET
           value = excluded.value,
-          last_modified_at = now()`
+          last_modified_at = excluded.last_modified_at`
     );
   }
 
@@ -233,7 +246,7 @@ export class KvImplPostgres implements Kv {
             hashtext(${TABLE}::text)::bigint
           )`
       );
-      const adapter = new KvImplPostgresTx(sqlTx);
+      const adapter = new KvImplPostgresTx(sqlTx, this.now);
       return fn(adapter);
     });
   }

@@ -72,7 +72,11 @@ import {
   CREATE_SWEEP_MATCHED_SQL,
   CREATE_WAITING_INDEX_SQL,
   DROP_ACTIVE_PARTITIONS_SQL,
+  DROP_MATCHED_AT_DEFAULT_SQL,
   DROP_RUN_MATCH_PASS_SQL,
+  DROP_RUN_MATCH_PASS_V5_SQL,
+  DROP_TICK_FUNCTION_NOARG_SQL,
+  DROP_TICK_FUNCTION_NOW_ONLY_SQL,
   DROP_TICK_FUNCTION_SQL,
   DROP_WAITING_TABLE_SQL,
   NUM_WAITING_PARTITIONS,
@@ -108,9 +112,10 @@ export type MatchmakingSchema = {
  * accepts via `MatchmakingTuning`; the constructor forwards them here
  * so the cron-driven tick uses the deployment's configured values.
  *
- * No `now` clock hook — the tick function calls `now()` server-side. JS
- * tests that want a simulated clock keep driving via `mm.tick()` (which
- * does pass `nowParam`).
+ * No `now` / `createId` hooks here — those are JS-only and threaded
+ * through `Matchmaking` / `Matchmaker` into every SQL call. The baked
+ * `matchmaking_tick(p_now, p_match_ids)` function requires the caller
+ * to supply both.
  */
 export type MigrateTuning = {
   readonly maxPairsPerPass?: number;
@@ -162,7 +167,10 @@ const CRON_JOB_NAME = 'matchmaking-tick';
 //       hot index to (sig, group_size, primary_bucket, priority DESC,
 //       joined_at). Adds `metadata` column on matched. Per-formula
 //       radius is honoured by matchmaking_pair_match.
-const SCHEMA_VERSION = 5;
+//   v6: drop wall DEFAULT now()/gen_random_uuid() on waiting +
+//       active_partitions; matched_at DEFAULT dropped in place.
+//       SQL functions require caller-supplied p_now / p_match_ids.
+const SCHEMA_VERSION = 6;
 
 type ResolvedSchema = {
   readonly partitionKeys: readonly string[];
@@ -345,7 +353,12 @@ async function scheduleMatchmakingTick(sqlClient: SqlClient): Promise<void> {
   // — when that happens, fall back to `cron.unschedule(name)` then
   // re-schedule. The unschedule fallback is itself best-effort; if the
   // platform doesn't expose unschedule we surface the original error.
-  const tickBody = `SELECT matchmaking_tick()`;
+  // Cron supplies Postgres `now()` + an empty match-id budget (sweep /
+  // prune only). Pairing is driven by JS `Matchmaking.tick()` which
+  // mints ids via injected `createId`. The `now()` literal lives in this
+  // non-sqlish orchestration file (composition-root schedule), not in
+  // migrate-sql / tick-sql DDL emitters.
+  const tickBody = `SELECT matchmaking_tick(now(), ARRAY[]::uuid[])`;
   const scheduleQuery = sql<void>`
     SELECT cron.schedule(
       ${CRON_JOB_NAME},
@@ -379,6 +392,7 @@ export async function migrate(args: MigrateArgs): Promise<void> {
     CREATE_SCHEMA_STATE_TABLE_SQL,
     CREATE_MATCHED_TABLE_SQL,
     ADD_METADATA_COLUMN_TO_MATCHED_SQL,
+    DROP_MATCHED_AT_DEFAULT_SQL,
     CREATE_MATCHED_MATCH_ID_INDEX_SQL,
     CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
     CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
@@ -402,10 +416,13 @@ export async function migrate(args: MigrateArgs): Promise<void> {
     CREATE_PAIR_DISTANCE_SQL,
     CREATE_PAIR_COMPATIBLE_SQL,
     CREATE_PAIR_MATCH_SQL,
+    DROP_RUN_MATCH_PASS_V5_SQL,
     DROP_RUN_MATCH_PASS_SQL,
     CREATE_RUN_MATCH_PASS_SQL,
     CREATE_SWEEP_EXPIRED_SQL,
     CREATE_SWEEP_MATCHED_SQL,
+    DROP_TICK_FUNCTION_NOARG_SQL,
+    DROP_TICK_FUNCTION_NOW_ONLY_SQL,
     DROP_TICK_FUNCTION_SQL,
     buildCreateTickFunctionSql({
       baseRadius: radius.baseRadius,

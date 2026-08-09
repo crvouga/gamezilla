@@ -4,9 +4,9 @@ import { appAuth } from '@libs/auth/shared/auth-context';
 import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
 import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
 import { assert } from '@pkgs/assert';
-import { getIo } from '@pkgs/io';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
+import { getIo } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 
@@ -35,13 +35,15 @@ function ensureInboxHandlers(): void {
     }
     const actor = inboxActorStorage.getStore();
     assert.defined(actor, 'friends inbox: actor missing');
+    const io = getIo();
     const result = await handleFriendsInboxAction({
       sql: ctx.sql,
       actorId: ctx.actorId,
       deviceId: actor.deviceId,
       actionId: ctx.actionId,
       requestId,
-      now: getIo().clock.now,
+      now: io.clock.now,
+      createId: io.createId,
     });
     notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
   });

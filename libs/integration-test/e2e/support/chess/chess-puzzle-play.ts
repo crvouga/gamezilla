@@ -1,3 +1,4 @@
+import { wallIo } from '@pkgs/io';
 import { by, type Driver, expectVisible, waitUntil } from '@pkgs/ui-testing';
 
 import { sleep } from '../sleep';
@@ -12,6 +13,8 @@ import {
   isSpaceJoinPromptVisible,
   reestablishHostSpace,
 } from './chess-space';
+
+const io = wallIo();
 
 const PUZZLE_SOLVE_TIMEOUT_MS = 120_000;
 const SPACE_NAV_TIMEOUT_MS = 60_000;
@@ -86,6 +89,8 @@ export async function openChessPuzzle(app: TestApp): Promise<void> {
     {
       timeoutMs: PUZZLE_SOLVE_TIMEOUT_MS,
       description: 'chess puzzle board ready',
+      now: io.clock.now,
+      timers: io.timers,
     }
   );
 }
@@ -98,8 +103,8 @@ export async function openChessStats(driver: Driver): Promise<void> {
 }
 
 export async function solveCurrentPuzzle(driver: Driver): Promise<void> {
-  const deadline = Date.now() + PUZZLE_SOLVE_TIMEOUT_MS;
-  while (Date.now() < deadline) {
+  const deadline = io.clock.now() + PUZZLE_SOLVE_TIMEOUT_MS;
+  while (io.clock.now() < deadline) {
     if (await driver.isVisible(by.testId('chess-puzzle-summary'))) return;
     let uci = await readChessPuzzleExpectedUci(driver);
     if (uci === null) {

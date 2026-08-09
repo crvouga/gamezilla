@@ -1,5 +1,5 @@
-import { Hono } from 'hono';
 import { getIo } from '@pkgs/io';
+import { Hono } from 'hono';
 import { ensureAnonUserForDevice } from './anon-user-ensure';
 import type { ApiHonoEnv } from './api-hono-env';
 import { resolveAccountIdFromBearer } from './bearer-resolve';

@@ -12,13 +12,13 @@ async function handleSearchUsers(c: Parameters<typeof withFriendsAuth>[0]) {
   return withFriendsAuth(c, async (auth) => {
     const body = (await c.req.json()) as SearchBody;
     const query = readRequiredString(body.query, 'query');
-    const results = await FriendService.searchUsers(
-      c.get('sqlClient'),
-      auth.myId,
-      query,
-      getIo().clock.now,
-      typeof body.limit === 'number' ? body.limit : undefined
-    );
+    const results = await FriendService.searchUsers({
+      db: c.get('sqlClient'),
+      viewerId: auth.myId,
+      rawQuery: query,
+      now: getIo().clock.now,
+      ...(typeof body.limit === 'number' ? { limit: body.limit } : {}),
+    });
     return c.json({ results });
   });
 }

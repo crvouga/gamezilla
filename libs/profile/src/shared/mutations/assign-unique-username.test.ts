@@ -19,6 +19,7 @@ function mutationEnv(myId: string) {
     accountId: null,
     isAnon: true,
     now: () => new Date('2026-08-06T00:00:00.000Z'),
+    createId: () => myId,
   };
 }
 

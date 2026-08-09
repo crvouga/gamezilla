@@ -81,21 +81,43 @@ async function tableColumns(
   return info.map((c) => c.name);
 }
 
-/** Upsert intersecting columns verbatim (including `_deleted_at`). */
-async function upsertRowIntersect(
-  tx: SqlClient,
-  table: string,
+function withManagedDefaults(
   row: QueryRow,
-  localCols: readonly string[]
-): Promise<void> {
+  localCols: readonly string[],
+  env: MutationEnv
+): QueryRow {
+  const filled: Record<string, unknown> = { ...row };
+  const nowIso = env.now().toISOString();
+  if (localCols.includes('_id') && filled['_id'] == null) {
+    filled['_id'] = env.createId();
+  }
+  if (localCols.includes('_created_at') && filled['_created_at'] == null) {
+    filled['_created_at'] = nowIso;
+  }
+  if (localCols.includes('_updated_at') && filled['_updated_at'] == null) {
+    filled['_updated_at'] = nowIso;
+  }
+  return filled as QueryRow;
+}
+
+/** Upsert intersecting columns verbatim (including `_deleted_at`). */
+async function upsertRowIntersect(args: {
+  readonly tx: SqlClient;
+  readonly table: string;
+  readonly row: QueryRow;
+  readonly localCols: readonly string[];
+  readonly env: MutationEnv;
+}): Promise<void> {
+  const { tx, table, row, localCols, env } = args;
   assertTableName(table);
+  const filled = withManagedDefaults(row, localCols, env);
   const cols = localCols.filter((c) =>
-    Object.prototype.hasOwnProperty.call(row, c)
+    Object.prototype.hasOwnProperty.call(filled, c)
   );
   assert.ok(cols.includes('id'), `${table}: id required`);
 
   const colIdents = cols.map((c) => ident(c));
-  const valueFrags = cols.map((c) => sql`${sqliteWireValue(row[c])}`);
+  const valueFrags = cols.map((c) => sql`${sqliteWireValue(filled[c])}`);
   const assignments = cols
     .filter((c) => c !== 'id')
     .map((c) => sql`${ident(c)} = excluded.${ident(c)}`);
@@ -119,14 +141,15 @@ async function upsertRowIntersect(
 async function mergeTable(
   tx: SqlClient,
   table: string,
-  rows: readonly QueryRow[]
+  rows: readonly QueryRow[],
+  env: MutationEnv
 ): Promise<boolean> {
   const cols = await tableColumns(tx, table);
   if (cols.length === 0) return false;
   for (const row of rows) {
     const id = row['id'];
     assert.ok(typeof id === 'string' && id.length > 0, 'row id required');
-    await upsertRowIntersect(tx, table, row, cols);
+    await upsertRowIntersect({ tx, table, row, localCols: cols, env });
   }
   return true;
 }
@@ -190,14 +213,12 @@ async function rebasePending(
       continue;
     }
     try {
-      const wrapped = wrapMutationDb(tx);
-      await m.run(
-        {
-          tx: wrapped.tx,
-          env: { ...deps.env, now: () => new Date(row.created_at) },
-        },
-        parsed
-      );
+      const env = {
+        ...deps.env,
+        now: () => new Date(row.created_at),
+      };
+      const wrapped = wrapMutationDb(tx, env);
+      await m.run({ tx: wrapped.tx, env }, parsed);
       for (const t of wrapped.getCapture().tables) changed.add(t);
     } catch {
       // Keep queued; hide optimistic effect until upload/reject.
@@ -214,7 +235,7 @@ async function runMerge(
   await deps.db.transaction(async (tx) => {
     if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
     for (const [table, rows] of Object.entries(input.tables)) {
-      const ok = await mergeTable(tx, table, rows);
+      const ok = await mergeTable(tx, table, rows, deps.env);
       if (ok) changed.add(table);
     }
     await touchScopeMeta(tx, input, deps.env.now);
@@ -272,7 +293,7 @@ export async function applyRowImages(
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
         try {
-          const ok = await mergeTable(tx, table, rows);
+          const ok = await mergeTable(tx, table, rows, deps.env);
           if (ok) changed.add(table);
         } catch {
           // Table absent from local schema — skip (mirrors snapshot tolerance).

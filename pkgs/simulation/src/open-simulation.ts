@@ -1,9 +1,9 @@
 import { createSimIo, type SimClock, type SimIo } from '@pkgs/io';
 
 import { createSimActor, type SimActor } from './actor';
-import type { SimulationOptions, SimulationUiKind } from './options';
+import type { SimulationOptions } from './options';
 import { createSeededRng } from './rng';
-import type { SimulationSystemHandle } from './system-port';
+import type { SimulationSystemHandle, SimulationUiKind } from './system-port';
 
 export type Simulation = {
   readonly seed: bigint;

@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { wallIo } from '@pkgs/io';
 import { createDriver } from '@pkgs/ui-testing';
 import { type Browser, chromium, devices, type Page } from '@playwright/test';
 
@@ -11,6 +12,8 @@ import { DEV_CLIENT_BASE_URL } from '../../src/local-e2e-stack';
 
 import type { TestApp } from '../support/test-app';
 import { createBetterAuthE2eAdapter } from './better-auth-adapter';
+
+const io = wallIo();
 
 export type WithWebAppOptions = {
   /** Path opened on launch (default `/`). */
@@ -67,7 +70,7 @@ async function captureFailureScreenshot(
     const repoRoot = resolveGamezillaRepoRoot(__dirname);
     const dir = browserArtifactDir(repoRoot);
     mkdirSync(dir, { recursive: true });
-    const file = path.join(dir, `failure-${String(Date.now())}.png`);
+    const file = path.join(dir, `failure-${String(io.clock.now())}.png`);
     await page.screenshot({ path: file, fullPage: true });
     process.stderr.write(`[e2e] screenshot: ${file}\n`);
   } catch (screenshotError) {

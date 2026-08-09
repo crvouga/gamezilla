@@ -1,4 +1,5 @@
 import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
@@ -6,7 +7,8 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import { S3SecretName } from '@pkgs/object-store/s3-config';
 import type { SecretStore } from '@pkgs/secret-store';
 
-const log = createLogger({ name: 'api-object-store' });
+const io = wallIo();
+const log = createLogger({ name: 'api-object-store', now: io.clock.now });
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,

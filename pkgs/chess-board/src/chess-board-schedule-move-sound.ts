@@ -21,13 +21,14 @@ export type DelayedSoundRegistrar = (timer: unknown) => void;
  * Capture delay is optional (0 when animations are off / instant snap).
  * Promo+capture never fire in the same tick.
  */
-export function schedulePrimaryMoveSound(
-  sounds: ChessBoardSounds,
-  move: Move,
-  captureDelayMs: number,
-  registerDelayed: DelayedSoundRegistrar,
-  timers: Timers
-): number {
+export function schedulePrimaryMoveSound(args: {
+  readonly sounds: ChessBoardSounds;
+  readonly move: Move;
+  readonly captureDelayMs: number;
+  readonly registerDelayed: DelayedSoundRegistrar;
+  readonly timers: Timers;
+}): number {
+  const { sounds, move, captureDelayMs, registerDelayed, timers } = args;
   const defer = (fn: () => void, ms: number) => {
     if (ms > 0) {
       registerDelayed(

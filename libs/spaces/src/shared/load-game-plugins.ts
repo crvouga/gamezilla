@@ -51,7 +51,11 @@ export function composeSpaceRoomModule(
   games: readonly GameDefinition[],
   now: () => number
 ): RoomModule<RoomState, Message, Message, string> {
-  return createSpaceModule(assertRoomModuleName(SPACE_ROOM_MODULE_NAME), games, now);
+  return createSpaceModule(
+    assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
+    games,
+    now
+  );
 }
 
 /**

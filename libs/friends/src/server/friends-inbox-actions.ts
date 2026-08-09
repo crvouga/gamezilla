@@ -1,6 +1,7 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
+import { wrapMutationDb } from '@pkgs/sync-engine/shared';
 import type { FriendRequest } from '../shared/friends-types';
 import {
   acceptFriendRequestMutation,
@@ -19,6 +20,7 @@ type InboxFriendsCtx = {
   readonly actionId: string;
   readonly requestId: string;
   readonly now: () => number;
+  readonly createId: () => string;
 };
 
 function mutationEnv(ctx: InboxFriendsCtx): MutationEnv {
@@ -28,6 +30,7 @@ function mutationEnv(ctx: InboxFriendsCtx): MutationEnv {
     accountId: ctx.actorId,
     isAnon: false,
     now: () => new Date(ctx.now()),
+    createId: ctx.createId,
   };
 }
 
@@ -68,11 +71,12 @@ export async function handleFriendsInboxAction(
   ctx: InboxFriendsCtx
 ): Promise<{ readonly userIds: readonly string[] }> {
   const env = mutationEnv(ctx);
+  const wrapped = wrapMutationDb(ctx.sql, env);
 
   if (ctx.actionId === 'accept') {
     await acceptFriendRequestMutation.run(
       {
-        tx: ctx.sql,
+        tx: wrapped.tx,
         env,
       },
       { requestId: ctx.requestId }
@@ -85,7 +89,7 @@ export async function handleFriendsInboxAction(
   if (ctx.actionId === 'decline') {
     await declineFriendRequestMutation.run(
       {
-        tx: ctx.sql,
+        tx: wrapped.tx,
         env,
       },
       { requestId: ctx.requestId }
@@ -97,7 +101,7 @@ export async function handleFriendsInboxAction(
   if (ctx.actionId === 'cancel') {
     await cancelFriendRequestMutation.run(
       {
-        tx: ctx.sql,
+        tx: wrapped.tx,
         env,
       },
       { requestId: ctx.requestId }

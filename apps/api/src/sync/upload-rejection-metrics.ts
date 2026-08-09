@@ -1,6 +1,10 @@
+import { getIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 
-const log = createLogger({ name: 'api:mutation-reject' });
+const log = createLogger({
+  name: 'api:mutation-reject',
+  now: () => getIo().clock.now(),
+});
 
 const counts = new Map<string, number>();
 

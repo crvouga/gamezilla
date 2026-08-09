@@ -1,5 +1,6 @@
 import { PROJECT_CONFIG } from '../../project-config';
 import { PIPELINE_REPORT_USER_AGENT } from '../constants';
+import { cliIo } from './cli-io';
 import type { NeedState } from './pipeline-needs';
 
 /**
@@ -56,7 +57,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
   const perPage = 100;
   for (let page = 1; page < 50; page++) {
     const url = `https://api.github.com/repos/${ctx.repo}/actions/runs/${ctx.runId}/jobs?per_page=${String(perPage)}&page=${String(page)}`;
-    const res = await fetch(url, {
+    const res = await cliIo.http.fetch(url, {
       headers: {
         Authorization: `Bearer ${ctx.token}`,
         Accept: 'application/vnd.github+json',
@@ -76,7 +77,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
 
 async function fetchJobLog(ctx: PromptCtx, jobId: number): Promise<string> {
   const url = `https://api.github.com/repos/${ctx.repo}/actions/jobs/${String(jobId)}/logs`;
-  const res = await fetch(url, {
+  const res = await cliIo.http.fetch(url, {
     headers: {
       Authorization: `Bearer ${ctx.token}`,
       Accept: 'application/vnd.github+json',

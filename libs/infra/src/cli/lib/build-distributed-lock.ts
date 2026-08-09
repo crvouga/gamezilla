@@ -1,4 +1,5 @@
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { DefaultLockIdentityProvider } from '@pkgs/distributed-lock/default-lock-identity-provider';
 import { DistributedLockImplKv } from '@pkgs/distributed-lock/impl-kv';
 import type { DistributedLock } from '@pkgs/distributed-lock/interface';
 import { asKeyword } from '@pkgs/keyword';
@@ -7,6 +8,7 @@ import { createLogger } from '@pkgs/logger';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { resolveDatabaseUrl } from '../resources/postgres';
+import { cliIo } from './cli-io';
 
 export interface DistributedLockConnection {
   readonly lock: DistributedLock;
@@ -38,10 +40,21 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[infra lock] session timeouts not applied (${msg})`);
   }
-  const kvLogger = createLogger({ name: 'infra-distributed-lock-kv' });
-  const kv = await KvImplPostgres.open({ sqlClient: sql, logger: kvLogger });
+  const kvLogger = createLogger({
+    name: 'infra-distributed-lock-kv',
+    now: cliIo.clock.now,
+  });
+  const kv = await KvImplPostgres.open({
+    sqlClient: sql,
+    logger: kvLogger,
+    now: cliIo.clock.now,
+  });
   const lock = new DistributedLockImplKv(kv, {
     key: asKeyword('infra/distributed-lock'),
+    identity: new DefaultLockIdentityProvider({
+      now: cliIo.clock.now,
+      createId: cliIo.createId,
+    }),
   });
   return {
     lock,

@@ -146,12 +146,17 @@ export type MatchmakerOptions = {
   readonly sqlClient: SqlClient;
   readonly radius?: RadiusOptions;
   /**
-   * Optional clock override (epoch ms). When omitted, the SQL function uses
-   * the database's `now()` — recommended in production so wait times stay
-   * consistent with `joined_at`. Tests inject this to simulate time
-   * advancing without sleeping.
+   * Required clock (epoch ms). Bound into every pass/sweep/join as
+   * `p_now` / `joined_at` / `first_seen_at` — SQL never reads wall time.
+   * Tests inject a mutable ref to simulate time advancing without sleeping.
    */
-  readonly now?: () => number;
+  readonly now: () => number;
+  /**
+   * Required id mint. Used for waiting-row ids and pre-minted `match_id`s
+   * passed into `matchmaking_run_match_pass` — SQL never calls
+   * `gen_random_uuid()`.
+   */
+  readonly createId: () => string;
   /**
    * Maximum pairs emitted per `runMatchPass()` call. Default
    * {@link DEFAULT_MAX_PAIRS_PER_PASS} (500). Cron/ticker-driven
@@ -227,7 +232,8 @@ type SchemaDriftCallback = (expected: string, actual: string) => never;
 export class Matchmaker {
   private readonly sqlClient: SqlClient;
   private readonly radius: RadiusOptions;
-  private readonly clock: (() => number) | undefined;
+  private readonly clock: () => number;
+  private readonly createId: () => string;
   private readonly maxPairsPerPass: number;
   private readonly maxWaitSeconds: number | undefined;
   private readonly bucketWidth: number;
@@ -245,9 +251,15 @@ export class Matchmaker {
   private fingerprintProbeOk: boolean | undefined;
 
   constructor(opts: MatchmakerOptions) {
+    assert.ok(typeof opts.now === 'function', 'Matchmaker: now required');
+    assert.ok(
+      typeof opts.createId === 'function',
+      'Matchmaker: createId required'
+    );
     this.sqlClient = opts.sqlClient;
     this.radius = opts.radius ?? DEFAULT_RADIUS_OPTIONS;
     this.clock = opts.now;
+    this.createId = opts.createId;
     this.maxPairsPerPass = opts.maxPairsPerPass ?? DEFAULT_MAX_PAIRS_PER_PASS;
     this.maxWaitSeconds = opts.maxWaitSeconds;
     this.bucketWidth = opts.bucketWidth ?? DEFAULT_BUCKET_WIDTH;
@@ -343,10 +355,14 @@ export class Matchmaker {
     const signature = this.partitionSignatureFor(data);
     const metadata =
       attrs.metadata === null ? null : JSON.stringify(attrs.metadata);
+    const participantId = this.createId();
+    const joinedAt = this.nowParam();
     const rows = await this.sqlClient.query(
       sql<{ id: string }>`
         WITH ins AS (
           INSERT INTO matchmaking_waiting (
+            id,
+            joined_at,
             data, 
             formulas, 
             partition_signature, 
@@ -355,6 +371,8 @@ export class Matchmaker {
             metadata
           )
           VALUES (
+            ${participantId}::uuid,
+            ${joinedAt}::timestamptz,
             ${JSON.stringify(data)}::jsonb,
             ${JSON.stringify(formulas)}::jsonb,
             ${signature},
@@ -366,9 +384,9 @@ export class Matchmaker {
         ), 
         reg AS (
           INSERT INTO matchmaking_active_partitions (
-            partition_signature, group_size
+            partition_signature, group_size, first_seen_at
           )
-          VALUES (${signature}, ${attrs.groupSize})
+          VALUES (${signature}, ${attrs.groupSize}, ${joinedAt}::timestamptz)
           ON CONFLICT (partition_signature, group_size) DO NOTHING
           RETURNING partition_signature
         )
@@ -513,6 +531,10 @@ export class Matchmaker {
       'Matchmaker.runMatchPass'
     );
     const nowParam = this.nowParam();
+    const mintedMatchIds: string[] = [];
+    for (let i = 0; i < this.maxPairsPerPass; i += 1) {
+      mintedMatchIds.push(this.createId());
+    }
     const rows = await this.sqlClient.query(
       runMatchPassQuery({
         partitionSignature,
@@ -523,11 +545,12 @@ export class Matchmaker {
         bucketWidth: this.bucketWidth,
         groupSize: resolvedGroupSize,
         nowParam,
+        matchIdsParam: toPostgresUuidArrayLiteral(mintedMatchIds),
       })
     );
-    const matchIds = new Set<string>();
-    for (const r of rows) matchIds.add(r.match_id);
-    return { matches: matchIds.size };
+    const producedMatchIds = new Set<string>();
+    for (const r of rows) producedMatchIds.add(r.match_id);
+    return { matches: producedMatchIds.size };
   }
 
   /**
@@ -731,8 +754,13 @@ export class Matchmaker {
     }));
   }
 
-  private nowParam(): string | null {
-    if (this.clock === undefined) return null;
+  private nowParam(): string {
     return new Date(this.clock()).toISOString();
   }
+}
+
+/** `{uuid,uuid,...}` text accepted by Postgres `::uuid[]` casts. */
+function toPostgresUuidArrayLiteral(ids: readonly string[]): string {
+  if (ids.length === 0) return '{}';
+  return `{${ids.join(',')}}`;
 }

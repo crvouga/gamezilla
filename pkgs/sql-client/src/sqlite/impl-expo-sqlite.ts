@@ -418,17 +418,24 @@ async function openAfterFirstFailure(
     );
   } catch (second: unknown) {
     if (Platform.OS !== 'web') throw second;
-    return openAfterSecondFailure(databaseName, first, second, timers, directory);
+    return openAfterSecondFailure({
+      databaseName,
+      first,
+      second,
+      timers,
+      ...(directory !== undefined ? { directory } : {}),
+    });
   }
 }
 
-async function openAfterSecondFailure(
-  databaseName: string,
-  first: unknown,
-  second: unknown,
-  timers: Timers,
-  directory?: string
-): Promise<SqlClientImplExpoSqlite> {
+async function openAfterSecondFailure(args: {
+  readonly databaseName: string;
+  readonly first: unknown;
+  readonly second: unknown;
+  readonly timers: Timers;
+  readonly directory?: string;
+}): Promise<SqlClientImplExpoSqlite> {
+  const { databaseName, first, second, timers, directory } = args;
   await deleteDbFile(databaseName, directory);
   const postOpfsReload =
     typeof sessionStorage !== 'undefined' &&
@@ -436,7 +443,13 @@ async function openAfterSecondFailure(
   if (!postOpfsReload) {
     return openWithOpfsRecovery(databaseName, first, second, directory);
   }
-  return openAfterOpfsRecovery(databaseName, first, second, timers, directory);
+  return openAfterOpfsRecovery({
+    databaseName,
+    first,
+    second,
+    timers,
+    ...(directory !== undefined ? { directory } : {}),
+  });
 }
 
 async function openWithOpfsRecovery(
@@ -468,13 +481,14 @@ async function openWithOpfsRecovery(
   throw second;
 }
 
-async function openAfterOpfsRecovery(
-  databaseName: string,
-  first: unknown,
-  second: unknown,
-  timers: Timers,
-  directory?: string
-): Promise<SqlClientImplExpoSqlite> {
+async function openAfterOpfsRecovery(args: {
+  readonly databaseName: string;
+  readonly first: unknown;
+  readonly second: unknown;
+  readonly timers: Timers;
+  readonly directory?: string;
+}): Promise<SqlClientImplExpoSqlite> {
+  const { databaseName, first, second, timers, directory } = args;
   // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
   // breaks the worker VFS. Retry with fresh connections only.
   console.warn(

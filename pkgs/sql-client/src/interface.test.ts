@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { wallClock, wallTimers } from '@pkgs/clock/wall';
 import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
@@ -22,7 +23,8 @@ async function loadImplementations(): Promise<
         Promise.resolve(
           new SqlClientWithPubSub(
             SqlClientImplBunSqlite.open(':memory:'),
-            createInMemoryPubSub()
+            createInMemoryPubSub(),
+            wallClock.now
           )
         ),
     },
@@ -33,7 +35,7 @@ async function loadImplementations(): Promise<
     );
     impls.push({
       name: 'SqlClientImplExpoSqlite',
-      createClient: () => SqlClientImplExpoSqlite.open(':memory:'),
+      createClient: () => SqlClientImplExpoSqlite.open(':memory:', wallTimers),
     });
   } catch {
     // expo-sqlite requires React Native runtime; skip in Bun test env

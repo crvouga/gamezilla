@@ -1,6 +1,7 @@
 import * as dns from 'dns/promises';
 import * as http from 'http';
 import * as https from 'https';
+import { cliIo } from './cli-io';
 
 interface HealthResult {
   ok: boolean;
@@ -15,7 +16,7 @@ export async function httpProbe(
   rawUrl: string,
   timeoutMs = 5000
 ): Promise<HealthResult> {
-  const start = Date.now();
+  const start = cliIo.clock.now();
   const url = new URL(rawUrl);
   const isHttps = url.protocol === 'https:';
   const hostname = url.hostname;
@@ -29,7 +30,7 @@ export async function httpProbe(
     if (first === undefined) {
       return {
         ok: false,
-        durationMs: Date.now() - start,
+        durationMs: cliIo.clock.now() - start,
         error: 'DNS returned no A records',
       };
     }
@@ -37,7 +38,7 @@ export async function httpProbe(
   } catch (err) {
     return {
       ok: false,
-      durationMs: Date.now() - start,
+      durationMs: cliIo.clock.now() - start,
       error: `DNS failed: ${err instanceof Error ? err.message : String(err)}`,
     };
   }
@@ -68,7 +69,7 @@ export async function httpProbe(
           if (body.length < 4096) body += chunk;
         });
         res.on('end', () => {
-          const durationMs = Date.now() - start;
+          const durationMs = cliIo.clock.now() - start;
           const statusCode = res.statusCode;
           const base: HealthResult = {
             ok: (statusCode ?? 0) < 500,
@@ -91,7 +92,7 @@ export async function httpProbe(
       req.destroy();
       resolve({
         ok: false,
-        durationMs: Date.now() - start,
+        durationMs: cliIo.clock.now() - start,
         error: 'Timeout',
         resolvedIp,
       });
@@ -100,7 +101,7 @@ export async function httpProbe(
     req.on('error', (err) => {
       resolve({
         ok: false,
-        durationMs: Date.now() - start,
+        durationMs: cliIo.clock.now() - start,
         error: err.message,
         resolvedIp,
       });

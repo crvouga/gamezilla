@@ -46,8 +46,19 @@ describe('in memory watch reacts to local insert', () => {
     });
 
     await engine.db.run(sql`
-      INSERT INTO notes (id, folder_id, title, body, owner_id)
-      VALUES (${'n1'}, ${null}, ${''}, ${'watched'}, ${'alice'})
+      INSERT INTO notes (
+        id, folder_id, title, body, owner_id, _id, _created_at, _updated_at
+      )
+      VALUES (
+        ${'n1'},
+        ${null},
+        ${''},
+        ${'watched'},
+        ${'alice'},
+        ${'mid-1'},
+        ${'2020-01-01T00:00:00.000Z'},
+        ${'2020-01-01T00:00:00.000Z'}
+      )
     `);
     expect(await next).toBe('watched');
     await engine.disconnect();

@@ -106,6 +106,7 @@ function mutationEnvFromArgs(args: BuildSimClientArgs): () => MutationEnv {
     accountId: args.auth.accountId,
     isAnon: args.auth.isAnon,
     now: () => new Date(args.now()),
+    createId: args.createId,
   });
 }
 

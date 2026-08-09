@@ -1,9 +1,12 @@
+import { wallIo } from '@pkgs/io';
 import { by, expectVisible, first, waitUntil } from '@pkgs/ui-testing';
 
 import { createE2eLog, e2eStep } from '../../src/e2e-step';
 import { expectAppBooted } from '../support/app-boot';
 import { createChessDSL } from '../support/chess/chess-dsl';
 import type { TestApp } from '../support/test-app';
+
+const io = wallIo();
 
 /**
  * Driver-agnostic chess puzzle loop.
@@ -38,6 +41,8 @@ export async function chessPuzzleLoopScenario(app: TestApp): Promise<void> {
         {
           timeoutMs: 30_000,
           description: 'summary contains elo delta',
+          now: io.clock.now,
+          timers: io.timers,
         }
       );
     });

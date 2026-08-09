@@ -1,6 +1,6 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v1:initial';
+export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v2:no-wall-now-defaults';
 
 export const CREATE_SCHEMA_STATE_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_schema_state (
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS inbox_interactions (
   archived_at TIMESTAMPTZ,
   dismissed_at TIMESTAMPTZ,
   active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   CONSTRAINT inbox_interactions_category_check CHECK (
     category IN ('action_required', 'informational', 'system')
   )
@@ -56,8 +56,21 @@ export const CREATE_PREFERENCES_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_preferences (
   user_id TEXT PRIMARY KEY,
   preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL
 )
+`.trim();
+
+/** Strip wall DEFAULT now() from older installs (CREATE IF NOT EXISTS is a no-op). */
+export const DROP_INTERACTIONS_CREATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_interactions ALTER COLUMN created_at DROP DEFAULT
+`.trim();
+
+export const DROP_INTERACTIONS_UPDATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_interactions ALTER COLUMN updated_at DROP DEFAULT
+`.trim();
+
+export const DROP_PREFERENCES_UPDATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_preferences ALTER COLUMN updated_at DROP DEFAULT
 `.trim();
 
 export const READ_SCHEMA_FINGERPRINT_SQL = `

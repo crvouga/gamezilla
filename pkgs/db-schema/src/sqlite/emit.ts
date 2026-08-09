@@ -17,11 +17,13 @@ function columnDdl(
 ): Sql<void> {
   const typeSql = raw(SQLITE_TYPE_SQL[type]);
   if (isPrimaryKey) {
-    // Pseudo-uuid so INSERTs that omit `_id` still succeed (STRICT + NOT NULL).
-    return sql`${ident(name)} ${typeSql} PRIMARY KEY DEFAULT (lower(hex(randomblob(16))))`;
+    // No engine RNG default — mutation wrap / writers supply `_id` via createId.
+    return sql`${ident(name)} ${typeSql} PRIMARY KEY`;
   }
   if (name === '_created_at' || name === '_updated_at') {
-    return sql`${ident(name)} ${typeSql} DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`;
+    // No engine clock default — writers supply timestamps via injected now.
+    // Nullable: schema contract requires non-PK columns nullable.
+    return sql`${ident(name)} ${typeSql}`;
   }
   return sql`${ident(name)} ${typeSql}`;
 }

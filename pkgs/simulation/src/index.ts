@@ -9,7 +9,7 @@
 export type { SimActor } from './actor';
 export { createSimIo, type SimulationClock } from './clock';
 export { openSimulation, type Simulation } from './open-simulation';
-export type { SimulationOptions, SimulationUiKind } from './options';
+export type { SimulationOptions } from './options';
 export { createSeededRng, type SeededRng } from './rng';
 export type {
   InProcessSimulationSession,
@@ -18,4 +18,5 @@ export type {
   SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
+  SimulationUiKind,
 } from './system-port';

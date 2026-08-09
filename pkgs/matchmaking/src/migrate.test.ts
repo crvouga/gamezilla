@@ -1,11 +1,22 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
+import { wallIo } from '@pkgs/io';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
 import { registerTestCrashHandler } from './test-harness';
+
+const migrateTestIo = wallIo();
+
+function isoNow(offsetMs = 0): string {
+  return new Date(migrateTestIo.clock.now() + offsetMs).toISOString();
+}
+
+function freshUuid(): string {
+  return migrateTestIo.createId();
+}
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {
@@ -199,8 +210,12 @@ describe('migrate v3 - idempotency', () => {
       // permits an insert with caller-supplied partition_signature.
       await sqlClient.run(
         sql<void>`
-          INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
+          INSERT INTO matchmaking_waiting (
+            id, joined_at, data, formulas, partition_signature
+          )
           VALUES (
+            ${freshUuid()}::uuid,
+            ${isoNow()}::timestamptz,
             ${JSON.stringify({ 'mmtest/region': 'us-east' })}::jsonb,
             ${JSON.stringify([{ numeric: [] }])}::jsonb,
             ${''}
@@ -223,8 +238,12 @@ describe('migrate v3 - idempotency', () => {
       // partition_signature; verify it round-trips.
       await sqlClient.run(
         sql<void>`
-          INSERT INTO matchmaking_waiting (data, formulas, partition_signature)
+          INSERT INTO matchmaking_waiting (
+            id, joined_at, data, formulas, partition_signature
+          )
           VALUES (
+            ${freshUuid()}::uuid,
+            ${isoNow()}::timestamptz,
             ${JSON.stringify({ 'mmtest/region': 'eu-west' })}::jsonb,
             ${JSON.stringify([{ numeric: [] }])}::jsonb,
             ${'eu-west'}
@@ -244,7 +263,7 @@ describe('migrate v3 - idempotency', () => {
 });
 
 describe('migrate v3 - matchmaking_tick() function', () => {
-  test('installs matchmaking_tick() as a no-arg VOID function', async () => {
+  test('installs matchmaking_tick(timestamptz, uuid[]) as a VOID function', async () => {
     const { db, sqlClient } = await boot();
     try {
       await migrate({ sqlClient });
@@ -260,29 +279,32 @@ describe('migrate v3 - matchmaking_tick() function', () => {
          JOIN pg_type t ON t.oid = p.prorettype
          WHERE p.proname = 'matchmaking_tick'`);
       expect(fn.length).toBe(1);
-      expect(fn[0]?.pronargs).toBe(0);
+      expect(fn[0]?.pronargs).toBe(2);
       expect(fn[0]?.prorettype_name).toBe('void');
     } finally {
       await db.close();
     }
   });
 
-  test('SELECT matchmaking_tick() runs cleanly on an empty queue', async () => {
+  test('SELECT matchmaking_tick(p_now) runs cleanly on an empty queue', async () => {
     const { db, sqlClient } = await boot();
     try {
       await migrate({ sqlClient });
+      const t = isoNow();
       // Calling on an empty queue exercises the advisory-lock acquire/
       // release path and the fan-out loop with zero partitions; any
       // PL/pgSQL regression (unbalanced lock, bad function signature,
       // missing helper) surfaces here.
       await sqlClient.query(
-        sql<Record<string, unknown>>`SELECT matchmaking_tick()`
+        sql<Record<string, unknown>>`
+          SELECT matchmaking_tick(${t}::timestamptz)`
       );
       // Second call confirms the advisory lock was released on the
       // happy path — otherwise the second tick would silently no-op
       // (but here we just assert it doesn't throw).
       await sqlClient.query(
-        sql<Record<string, unknown>>`SELECT matchmaking_tick()`
+        sql<Record<string, unknown>>`
+          SELECT matchmaking_tick(${t}::timestamptz)`
       );
       // Cross-check the advisory lock is not held by the current
       // session after both ticks return.
@@ -449,10 +471,13 @@ describe('migrate - matchmaking_active_partitions prune', () => {
     try {
       await migrate({ sqlClient });
       // Seed a synthetic active-partitions row pointing at no waiters.
+      const t = isoNow();
       await sqlClient.run(
         sql<void>`
-          INSERT INTO matchmaking_active_partitions (partition_signature)
-          VALUES (${'orphaned-partition'})`
+          INSERT INTO matchmaking_active_partitions (
+            partition_signature, first_seen_at
+          )
+          VALUES (${'orphaned-partition'}, ${t}::timestamptz)`
       );
       const before = await sqlClient.query(
         sql<{ n: number }>`
@@ -461,7 +486,8 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       );
       expect(before[0]?.n).toBe(1);
       await sqlClient.query(
-        sql<Record<string, unknown>>`SELECT matchmaking_tick()`
+        sql<Record<string, unknown>>`
+          SELECT matchmaking_tick(${t}::timestamptz)`
       );
       const after = await sqlClient.query(
         sql<{ n: number }>`
@@ -484,17 +510,20 @@ describe('migrate - matchmaking_active_partitions prune', () => {
       // clause too — this test verifies the watermark clause runs
       // (the two clauses are independent) by checking that the row
       // count drops to zero.
+      const t = isoNow();
+      const old = isoNow(-30 * 24 * 60 * 60 * 1000);
       await sqlClient.run(
         sql<void>`
           INSERT INTO matchmaking_active_partitions (
             partition_signature, first_seen_at
           )
           VALUES
-            (${'old'}, now() - interval '30 days'),
-            (${'new'}, now())`
+            (${'old'}, ${old}::timestamptz),
+            (${'new'}, ${t}::timestamptz)`
       );
       await sqlClient.query(
-        sql<Record<string, unknown>>`SELECT matchmaking_tick()`
+        sql<Record<string, unknown>>`
+          SELECT matchmaking_tick(${t}::timestamptz)`
       );
       const after = await sqlClient.query(
         sql<{ n: number }>`

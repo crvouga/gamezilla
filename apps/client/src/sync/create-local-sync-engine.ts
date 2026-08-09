@@ -71,6 +71,7 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
     accountId: args.auth.getAccountId(),
     isAnon: args.auth.getSessionToken() === null,
     now: () => new Date(args.clock.now()),
+    createId: args.createId,
   };
 }
 

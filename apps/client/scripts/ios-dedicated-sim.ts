@@ -1,14 +1,17 @@
-/**
- * Shared helpers for pinning Expo iOS dev to a project-dedicated simulator
- * and opening the installed `expo-dev-client` against a running Metro server.
- */
-
 import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+import { wallIo } from '@pkgs/io';
 import { ensurePodsMatchNodeModules } from './ios-pods';
+
+const io = wallIo();
+
+/**
+ * Shared helpers for pinning Expo iOS dev to a project-dedicated simulator
+ * and opening the installed `expo-dev-client` against a running Metro server.
+ */
 
 /** Must match `expo.ios.bundleIdentifier` in `apps/client/app.json`. */
 export const DEV_CLIENT_BUNDLE_ID = 'app.gamezilla';
@@ -131,7 +134,7 @@ export function openSimulatorApp(): void {
 
 async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {
   try {
-    const res = await fetch(url, { signal });
+    const res = await io.http.fetch(url, { signal });
     return res.status > 0;
   } catch {
     return false;
@@ -160,8 +163,8 @@ export async function waitForDevServer(
   timeoutMs: number,
   abort: AbortSignal
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
+  const deadline = io.clock.now() + timeoutMs;
+  while (io.clock.now() < deadline) {
     if (abort.aborted) return;
     const probe = AbortSignal.any([abort, AbortSignal.timeout(1500)]);
     if (await pingDevServer(url, probe)) return;

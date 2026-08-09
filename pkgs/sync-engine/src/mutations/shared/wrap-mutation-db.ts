@@ -8,7 +8,12 @@ import {
   type WriteCaptureBag,
   type WriteCaptureSnapshot,
 } from '../../sql-ast';
-import { type MutationDb, MutationError } from '../core/types';
+import {
+  type MutationDb,
+  type MutationEnv,
+  MutationError,
+} from '../core/types';
+import { injectManagedColumns } from './inject-managed-columns';
 
 const FRAMEWORK_TABLE_SET: ReadonlySet<string> = new Set(FRAMEWORK_TABLE_NAMES);
 
@@ -25,15 +30,26 @@ function withReturning(query: Sql<unknown>): Sql<QueryRow> {
 }
 
 /**
- * Wrap mutation tx: AST classify, NO_HARD_DELETE, RETURNING capture.
- * Domain hard DELETE → MutationError. Captured writes feed fanout + topic map.
+ * Wrap mutation tx: AST classify, NO_HARD_DELETE, managed-column inject,
+ * RETURNING capture. Domain hard DELETE → MutationError. Captured writes feed
+ * fanout + topic map.
  */
-export function wrapMutationDb(tx: MutationDb): WrappedMutationDb {
+export function wrapMutationDb(
+  tx: MutationDb,
+  env: MutationEnv
+): WrappedMutationDb {
   const capture: WriteCaptureBag = createWriteCaptureBag();
 
-  async function execWrite(query: Sql<unknown>, table: string): Promise<void> {
+  async function execWrite(
+    query: Sql<unknown>,
+    table: string,
+    op: 'insert' | 'upsert' | 'update'
+  ): Promise<void> {
     capture.touch(table);
-    const returning = withReturning(query);
+    const injected = FRAMEWORK_TABLE_SET.has(table)
+      ? query
+      : injectManagedColumns(query, env, op);
+    const returning = withReturning(injected);
     const rows = await tx.query(returning);
     if (rows.length > 0) {
       capture.addImages(table, rows as QueryRow[]);
@@ -54,7 +70,7 @@ export function wrapMutationDb(tx: MutationDb): WrappedMutationDb {
         return tx.query(query);
       }
       if (classified.kind === 'write') {
-        await execWrite(query, classified.table);
+        await execWrite(query, classified.table, classified.op);
         return [] as never;
       }
       return tx.query(query);
@@ -72,7 +88,7 @@ export function wrapMutationDb(tx: MutationDb): WrappedMutationDb {
         return tx.run(query);
       }
       if (classified.kind === 'write') {
-        await execWrite(query, classified.table);
+        await execWrite(query, classified.table, classified.op);
         return { changes: 0, lastInsertRowid: 0 };
       }
       if (

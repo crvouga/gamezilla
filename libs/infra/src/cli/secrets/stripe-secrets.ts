@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 async function validateStripeSecretKey(input: SecretInput): Promise<void> {
@@ -7,9 +8,12 @@ async function validateStripeSecretKey(input: SecretInput): Promise<void> {
     throw new Error('Must start with sk_live_ or sk_test_');
   }
   try {
-    const res = await fetch('https://api.stripe.com/v1/products?limit=1', {
-      headers: { Authorization: `Bearer ${v}` },
-    });
+    const res = await cliIo.http.fetch(
+      'https://api.stripe.com/v1/products?limit=1',
+      {
+        headers: { Authorization: `Bearer ${v}` },
+      }
+    );
     if (!res.ok) {
       throw new Error(`Stripe API returned HTTP ${String(res.status)}`);
     }

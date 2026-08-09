@@ -1,11 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import {
-  collect,
-  expectRejects,
-  waitMs,
-  waitUntil,
-} from './contract-helpers';
+import { collect, expectRejects, waitMs, waitUntil } from './contract-helpers';
 import type { PubSubContractEnv } from './contract-types';
 import { InMemoryPubSub } from './in-memory';
 

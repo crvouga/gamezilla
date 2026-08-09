@@ -1,3 +1,4 @@
+import { useHttpClient } from '@pkgs/http-client';
 import { useObjectStore } from '@pkgs/object-store/react-context';
 import {
   createContext,
@@ -76,14 +77,15 @@ export function TtsProvider({
   children,
 }: TtsProviderProps): ReactNode {
   const objectStore = useObjectStore();
+  const http = useHttpClient();
   const client = useMemo(
     () =>
       new TtsClient({
         apiUrl,
         objectStore,
-        ...(fetchOverride !== undefined ? { fetch: fetchOverride } : {}),
+        fetch: fetchOverride ?? http.fetch.bind(http),
       }),
-    [apiUrl, objectStore, fetchOverride]
+    [apiUrl, objectStore, fetchOverride, http]
   );
 
   const player = useTtsPlayer();

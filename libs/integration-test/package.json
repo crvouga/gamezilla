@@ -21,6 +21,7 @@
   "dependencies": {
     "@libs/infra": "workspace:*",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

@@ -130,7 +130,12 @@ export class SqlClientWithPubSub implements SqlClient {
     const start = this.now();
     try {
       const result = await this.client.transaction(async (tx) => {
-        const wrappedTx = new SqlClientWithPubSub(tx, this.pubSub, this.now, this.topic);
+        const wrappedTx = new SqlClientWithPubSub(
+          tx,
+          this.pubSub,
+          this.now,
+          this.topic
+        );
         return fn(wrappedTx);
       });
       const durationMs = this.now() - start;

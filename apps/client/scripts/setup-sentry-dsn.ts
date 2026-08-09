@@ -1,9 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-
 import { assert } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
+
+const io = wallIo();
 
 const CLIENT_DSN_SECRET = 'EXPO_PUBLIC_SENTRY_DSN';
 const API_DSN_SECRET = 'SENTRY_DSN';
@@ -119,7 +121,7 @@ async function fetchPublicDsnFromSentryApi(args: {
   authToken: string;
 }): Promise<string> {
   const url = `${SENTRY_API_ORIGIN}/api/0/projects/${encodeURIComponent(args.org)}/${encodeURIComponent(args.project)}/keys/`;
-  const res = await fetch(url, {
+  const res = await io.http.fetch(url, {
     headers: {
       Authorization: `Bearer ${args.authToken}`,
       Accept: 'application/json',

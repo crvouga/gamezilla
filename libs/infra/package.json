@@ -23,6 +23,7 @@
     "@pkgs/async": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
     "@pkgs/git": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",

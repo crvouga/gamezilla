@@ -19,6 +19,7 @@
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
     "@libs/infra": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

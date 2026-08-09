@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { runSmokePhase } from '../lib/phases/smoke';
@@ -18,11 +19,11 @@ export class SmokeCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Smoke');
     const ctx = readInfraContextFromEnv();
     const outputs = infraOutputs(ctx);
     await runSmokePhase(this.platform, outputs);
-    banner('Smoke complete', performance.now() - t0);
+    banner('Smoke complete', cliIo.clock.now() - t0);
   }
 }

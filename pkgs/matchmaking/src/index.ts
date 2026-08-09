@@ -29,6 +29,7 @@
  *   const mm = new Matchmaking({
  *     storage: { sqlClient },
  *     schema: { partitionKeys: ['chess/mode'], bucketWidth: 50 },
+ *     tuning: { now: () => io.clock.now(), createId: io.createId },
  *   });
  *   await mm.ready();
  *

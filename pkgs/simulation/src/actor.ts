@@ -6,8 +6,7 @@ import {
   type PlaywrightDriverConfig,
 } from '@pkgs/ui-testing';
 
-import type { SimulationUiKind } from './options';
-import type { SimulationSession } from './system-port';
+import type { SimulationSession, SimulationUiKind } from './system-port';
 
 /**
  * One user session in a simulation. The only test-facing surface is {@link ui}.

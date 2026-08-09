@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { stepDone, stepFail } from '../lib/fmt';
 
 export interface CiPlatform {
@@ -16,15 +17,15 @@ export async function runStep<T>(
   fn: () => T | Promise<T>
 ): Promise<T> {
   platform.startGroup(label);
-  const t0 = performance.now();
+  const t0 = cliIo.clock.now();
   try {
     const result = await fn();
-    const ms = performance.now() - t0;
+    const ms = cliIo.clock.now() - t0;
     platform.endGroup();
     stepDone(label, ms);
     return result;
   } catch (e) {
-    const ms = performance.now() - t0;
+    const ms = cliIo.clock.now() - t0;
     platform.endGroup();
     stepFail(label, ms);
     throw e;

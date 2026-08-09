@@ -1,11 +1,15 @@
+import { type ChildProcess, spawn } from 'node:child_process';
+import { join } from 'node:path';
+import { wallIo } from '@pkgs/io';
+import { migratePostgresApp } from '../src/db/migrate';
+
+const io = wallIo();
+
 /**
  * Foreground entry for `@apps/api dev`. Runs migrate → client-config refresh →
  * wrangler under one Node process so turbo SIGINT/SIGTERM tear down the whole
  * tree instead of leaving a shell background job alive.
  */
-import { type ChildProcess, spawn } from 'node:child_process';
-import { join } from 'node:path';
-import { migratePostgresApp } from '../src/db/migrate';
 
 const API_DIR = join(import.meta.dirname, '..');
 const REPO_ROOT = join(API_DIR, '../..');
@@ -29,7 +33,7 @@ function killChildren(): void {
   for (const child of children) {
     killChild(child, 'SIGTERM');
   }
-  setTimeout(() => {
+  io.timers.setTimeout(() => {
     for (const child of children) {
       killChild(child, 'SIGKILL');
     }

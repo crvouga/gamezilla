@@ -10,7 +10,7 @@ import {
   createBetterAuth,
   createBetterAuthServerAdapter,
 } from '@pkgs/auth-better-auth/server';
-import { runWithIo, wallIo } from '@pkgs/io';
+import { type Io, runWithIo } from '@pkgs/io';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -59,6 +59,8 @@ export type RequestDbMiddlewareOptions = {
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
   readonly observability: Observability;
+  /** Process-level Io from the API composition root. */
+  readonly io: Io;
 };
 
 type AttachRequestDatabaseArgs = {
@@ -111,7 +113,7 @@ async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, dbScope, dbUrl, options, secretStore } = args;
-  const { betterAuth: boot, observability } = options;
+  const { betterAuth: boot, observability, io } = options;
   const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
   const sqlClient = wrapSqlClientForObservability(
     observability,
@@ -120,9 +122,8 @@ async function attachRequestDatabase(
   const { pool } = opened;
   const betterAuth = createRequestBetterAuth(boot, pool);
   const authServer = createBetterAuthServerAdapter(betterAuth);
-  const kv = new KvImplPostgres(sqlClient);
+  const kv = new KvImplPostgres(sqlClient, io.clock.now);
   const sessionAuth = createSessionAuth({ authServer });
-  const io = wallIo();
   const store = {
     sqlClient,
     sessionAuth,

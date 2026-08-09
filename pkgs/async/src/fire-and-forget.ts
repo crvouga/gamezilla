@@ -1,6 +1,8 @@
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger/logger';
 
-const log = createLogger({ name: 'fire-and-forget' });
+const io = wallIo();
+const log = createLogger({ name: 'fire-and-forget', now: io.clock.now });
 
 /**
  * Wraps a promise to log rejections with structured context instead of silently swallowing.

@@ -64,17 +64,18 @@ export async function readExternalAccountId(
     : null;
 }
 
-export async function insertUser(
-  db: SqlClient,
-  userId: string,
-  now: () => number,
-  createdAt?: string,
-  isAnon = false
-): Promise<void> {
-  const created = createdAt ?? new Date(now()).toISOString();
-  await db.run(sql<void>`
+export async function insertUser(args: {
+  readonly db: SqlClient;
+  readonly userId: string;
+  readonly now: () => number;
+  readonly createdAt?: string;
+  readonly isAnon?: boolean;
+}): Promise<void> {
+  const isAnon = args.isAnon ?? false;
+  const created = args.createdAt ?? new Date(args.now()).toISOString();
+  await args.db.run(sql<void>`
     INSERT INTO users (id, created_at, is_anon)
-    VALUES (${userId}, ${created}, ${isAnon})
+    VALUES (${args.userId}, ${created}, ${isAnon})
     ON CONFLICT (id) DO NOTHING
   `);
 }

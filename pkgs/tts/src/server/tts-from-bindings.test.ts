@@ -60,6 +60,10 @@ describe('createTtsAppFromBindings', () => {
       secretStore: makeSecretStore(),
       objectStore: rootStore,
       requireAuth: () => Promise.resolve(undefined),
+      fetch: fetchMock as (
+        input: RequestInfo | URL,
+        init?: RequestInit
+      ) => Promise<Response>,
     });
     expect(configured).toBe(true);
 
@@ -91,6 +95,10 @@ describe('createTtsAppFromBindings', () => {
       secretStore: makeSecretStore(null),
       objectStore: rootStore,
       requireAuth: () => Promise.resolve(undefined),
+      fetch: fetchMock as (
+        input: RequestInfo | URL,
+        init?: RequestInit
+      ) => Promise<Response>,
     });
     expect(configured).toBe(false);
 

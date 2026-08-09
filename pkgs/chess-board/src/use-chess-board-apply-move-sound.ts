@@ -38,13 +38,13 @@ export function useChessBoardApplyMoveSound(
       clearAllTimers();
       const captureDelayMs =
         animations && move.captured ? CHESS_PIECE_MOVE_MS : 0;
-      const primaryOffsetMs = schedulePrimaryMoveSound(
+      const primaryOffsetMs = schedulePrimaryMoveSound({
         sounds,
         move,
         captureDelayMs,
         registerDelayed,
-        timers
-      );
+        timers,
+      });
       // Primary may itself defer (capture). Follow-ups start after that delay
       // plus a short gap so they never share a tick with the primary SFX.
       const followUpBase = primaryOffsetMs + CHECK_AFTER_PRIMARY_MS;

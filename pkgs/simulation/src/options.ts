@@ -1,7 +1,6 @@
-import type { SimulationSystem } from './system-port';
+import type { SimulationSystem, SimulationUiKind } from './system-port';
 
-/** UI backend for each actor session. Default: in-process. */
-export type SimulationUiKind = 'in-process' | 'playwright';
+export type { SimulationUiKind };
 
 export type SimulationOptions = {
   readonly seed: number | bigint | string;

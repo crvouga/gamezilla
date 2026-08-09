@@ -9,11 +9,13 @@
 
 import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 
+const io = wallIo();
 const MIGRATE_RETRY_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
 
 function isPostgresConnectionLimitError(error: unknown): boolean {
@@ -56,7 +58,9 @@ function isPostgresTransientMigrateError(error: unknown): boolean {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    io.timers.setTimeout(resolve, ms);
+  });
 }
 
 function requireEnv(name: string): string {
@@ -70,7 +74,10 @@ function requireEnv(name: string): string {
 async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
   const databaseUrl = await resolveDatabaseUrl();
   const dbScope = appPostgresDbScope();
-  const logger = createLogger({ name: 'postgres:migrate-secrets' });
+  const logger = createLogger({
+    name: 'postgres:migrate-secrets',
+    now: io.clock.now,
+  });
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
     dbScope,
@@ -95,7 +102,10 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
 
 export async function runPostgresMigrationsFromSecrets(): Promise<void> {
   await loadSecretsIntoEnv();
-  const logger = createLogger({ name: 'postgres:migrate-secrets' });
+  const logger = createLogger({
+    name: 'postgres:migrate-secrets',
+    now: io.clock.now,
+  });
   let lastError: unknown;
 
   for (let attempt = 0; attempt < MIGRATE_RETRY_DELAYS_MS.length; attempt++) {

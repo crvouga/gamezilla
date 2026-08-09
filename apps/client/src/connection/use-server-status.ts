@@ -16,13 +16,14 @@ export type ServerHealthState = {
 
 const FETCH_TIMEOUT_MS = 8000;
 
-async function fetchHealth(
-  healthUrl: string,
-  outerSignal: AbortSignal,
-  httpFetch: HttpFetch,
-  timers: Timers,
-  now: () => number
-): Promise<{ latencyMs: number }> {
+async function fetchHealth(args: {
+  readonly healthUrl: string;
+  readonly outerSignal: AbortSignal;
+  readonly httpFetch: HttpFetch;
+  readonly timers: Timers;
+  readonly now: () => number;
+}): Promise<{ latencyMs: number }> {
+  const { healthUrl, outerSignal, httpFetch, timers, now } = args;
   const combined = new AbortController();
   const onOuterAbort = () => combined.abort();
   outerSignal.addEventListener('abort', onOuterAbort);
@@ -87,7 +88,13 @@ function useHealthState(
       healthUrl,
     }));
 
-    void fetchHealth(healthUrl, ac.signal, httpFetch, timers, now)
+    void fetchHealth({
+      healthUrl,
+      outerSignal: ac.signal,
+      httpFetch,
+      timers,
+      now,
+    })
       .then(({ latencyMs }) => {
         if (ac.signal.aborted) return;
         setHealth({

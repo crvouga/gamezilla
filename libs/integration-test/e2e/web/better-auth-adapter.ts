@@ -1,7 +1,9 @@
+import { wallIo } from '@pkgs/io';
 import { by, type Driver, expectHidden, expectVisible } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
-
 import type { AuthPort } from '../support/auth-port';
+
+const io = wallIo();
 
 const E2E_USER_EMAIL = 'e2e@gamezilla.test';
 const BEARER_STORAGE_KEY = 'gamezilla.better-auth.bearer';
@@ -20,7 +22,7 @@ function apiOrigin(): string {
 }
 
 async function mintE2eBearerToken(): Promise<string> {
-  const res = await fetch(`${apiOrigin()}/api/identity/e2e/sign-in`, {
+  const res = await io.http.fetch(`${apiOrigin()}/api/identity/e2e/sign-in`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: E2E_USER_EMAIL }),

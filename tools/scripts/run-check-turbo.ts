@@ -37,6 +37,8 @@ const CI_GATE_TASKS = [
   'ci:sync-engine-public-api',
   'ci:no-provider-leaks',
   'ci:no-bare-io',
+  'ci:no-resolve-wall-defaults',
+  'ci:no-sql-wall-io',
   'ci:pubsub-emqx-imports',
   'ci:depcruise',
   'ci:circular-deps',

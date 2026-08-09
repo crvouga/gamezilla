@@ -8,6 +8,8 @@ import type { Span, SpanContext, StartSpanOptions } from '../shared/types';
 
 const NOOP_TRACE_ID = '0'.repeat(32);
 const NOOP_SPAN_ID = '0'.repeat(16);
+/** Distinct from {@link NOOP_SPAN_ID} so parent/child contexts differ. */
+const NOOP_CHILD_SPAN_ID = '1'.repeat(16);
 
 class NoopSpan implements Span {
   readonly spanContext: SpanContext;
@@ -15,7 +17,7 @@ class NoopSpan implements Span {
   constructor(options?: StartSpanOptions) {
     const traceId = options?.parent?.traceId ?? NOOP_TRACE_ID;
     const spanId =
-      options?.parent !== undefined ? NOOP_SPAN_ID : NOOP_SPAN_ID;
+      options?.parent !== undefined ? NOOP_CHILD_SPAN_ID : NOOP_SPAN_ID;
     this.spanContext = sampledSpanContext(traceId, spanId);
   }
 

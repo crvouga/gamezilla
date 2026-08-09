@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
-
+import { wallIo } from '@pkgs/io';
 import { resolveLocalApiOrigin } from '../src/harness';
+
+const io = wallIo();
 
 const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');
 const previewPidRaw = (process.env['API_PREVIEW_PID'] ?? '').trim();
@@ -38,10 +40,10 @@ function formatPreviewLog(): string {
 
 const origin = await resolveLocalApiOrigin();
 const healthUrl = `${origin}/api/health`;
-const deadline = Date.now() + timeoutMs;
+const deadline = io.clock.now() + timeoutMs;
 let lastErr: string | undefined;
 
-while (Date.now() < deadline) {
+while (io.clock.now() < deadline) {
   if (
     Number.isFinite(previewPid) &&
     previewPid > 0 &&
@@ -53,7 +55,7 @@ while (Date.now() < deadline) {
   }
 
   try {
-    const res = await fetch(healthUrl);
+    const res = await io.http.fetch(healthUrl);
     if (res.ok) {
       process.stdout.write(`[wait-for-api-health] ready ${healthUrl}\n`);
       process.exit(0);

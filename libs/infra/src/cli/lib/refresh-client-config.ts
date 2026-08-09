@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import type { CiPlatform } from '../platform/platform';
+import { cliIo } from './cli-io';
 import { fail, fmtElapsed, fmtMs, info, ok, warn } from './fmt';
 import type { InfraOutputs } from './infra-outputs';
 
@@ -12,7 +13,7 @@ function clientConfigRefreshUrl(apiUrl: string): string {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => cliIo.timers.setTimeout(resolve, ms));
 }
 
 /**
@@ -40,15 +41,15 @@ export async function refreshClientConfig(
   info('Target', url);
 
   const timeoutMs = 30_000;
-  const started = performance.now();
+  const started = cliIo.clock.now();
   const maxAttempts = Math.ceil(MAX_WAIT_MS / RETRY_MS);
 
   for (let attempt = 1; ; attempt++) {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
 
     let res: Response;
     try {
-      res = await fetch(url, {
+      res = await cliIo.http.fetch(url, {
         method: 'POST',
         redirect: 'follow',
         signal: AbortSignal.timeout(timeoutMs),
@@ -56,8 +57,8 @@ export async function refreshClientConfig(
         headers: { Accept: 'application/json' },
       });
     } catch (e) {
-      const elapsed = performance.now() - started;
-      const elapsedStr = fmtMs(performance.now() - t0);
+      const elapsed = cliIo.clock.now() - started;
+      const elapsedStr = fmtMs(cliIo.clock.now() - t0);
       const msg = e instanceof Error ? e.message : String(e);
 
       if (isFetchException(e) && elapsed < MAX_WAIT_MS) {
@@ -74,11 +75,11 @@ export async function refreshClientConfig(
       assert.fail(`client-config refresh: ${msg}`);
     }
 
-    const elapsed = performance.now() - t0;
+    const elapsed = cliIo.clock.now() - t0;
     const elapsedStr = fmtMs(elapsed);
 
     if (!res.ok) {
-      const totalElapsed = performance.now() - started;
+      const totalElapsed = cliIo.clock.now() - started;
       const bodyPreview = await res.text().catch(() => '');
 
       if (res.status >= 500 && totalElapsed < MAX_WAIT_MS) {
@@ -129,7 +130,7 @@ export async function refreshClientConfig(
     if (attempt > 1) {
       ok(
         'Client config refresh',
-        `HTTP ${res.status} — ${elapsedStr} — succeeded after ${attempt} attempts (${fmtElapsed(performance.now() - started)} total)`
+        `HTTP ${res.status} — ${elapsedStr} — succeeded after ${attempt} attempts (${fmtElapsed(cliIo.clock.now() - started)} total)`
       );
     } else {
       ok(

@@ -1,4 +1,3 @@
-import { randomBytes } from 'node:crypto';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,8 +9,11 @@ import {
 } from '@libs/infra/cli/secrets/secrets';
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { wallIo } from '@pkgs/io';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
+
+const io = wallIo();
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(apiRoot, '../..');
@@ -92,7 +94,11 @@ function readApiUrlForDevVars(): string {
 function ensureBetterAuthSecret(): string {
   const existing = process.env['BETTER_AUTH_SECRET']?.trim() ?? '';
   if (existing.length >= 32) return existing;
-  const seeded = randomBytes(32).toString('base64url');
+  const bytes = new Uint8Array(32);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = Math.floor(io.random() * 256);
+  }
+  const seeded = Buffer.from(bytes).toString('base64url');
   process.env['BETTER_AUTH_SECRET'] = seeded;
   process.stdout.write(
     '[setup-dev-vars] BETTER_AUTH_SECRET missing; seeded local random secret.\n'
@@ -118,7 +124,7 @@ async function loadOptionalSecretsOverlay(): Promise<void> {
     await Promise.race([
       loadSecretsIntoEnv(),
       new Promise<never>((_, reject) => {
-        setTimeout(() => {
+        io.timers.setTimeout(() => {
           reject(
             new Error(`timed out after ${String(SECRETS_OVERLAY_TIMEOUT_MS)}ms`)
           );

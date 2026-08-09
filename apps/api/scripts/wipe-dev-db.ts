@@ -14,12 +14,14 @@ import {
   normalizeDatabaseUrlForCompare,
 } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
+const io = wallIo();
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
 
@@ -98,7 +100,7 @@ async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const log = createLogger({ name: 'api:wipe-dev' });
+  const log = createLogger({ name: 'api:wipe-dev', now: io.clock.now });
   const databaseUrl = resolveDatabaseUrlForWipe();
   await assertWipeDatabasePolicy(databaseUrl);
 

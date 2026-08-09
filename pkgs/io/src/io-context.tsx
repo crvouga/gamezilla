@@ -1,14 +1,13 @@
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 import type { Io } from './types';
-import { wallIo } from './wall-io';
 
 const Ctx = createContext<Io | null>(null);
 
 export type IoProviderProps = {
   readonly children: ReactNode;
-  /** Defaults to a fresh {@link wallIo} instance. */
-  readonly io?: Io;
+  /** Required — construct via wallIo / createSimIo at a composition root. */
+  readonly io: Io;
 };
 
 /**
@@ -16,7 +15,7 @@ export type IoProviderProps = {
  * Prefer composing {@link IoProvider} at the app root; feature code uses {@link useIo}.
  */
 export function IoProvider({ children, io }: IoProviderProps): ReactNode {
-  const value = useMemo(() => io ?? wallIo(), [io]);
+  const value = useMemo(() => io, [io]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

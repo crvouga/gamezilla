@@ -39,10 +39,7 @@ export function createDefaultAvatarConfig(
 const RANDOM_SEED_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 /** Short alphanumeric seed for DiceBear randomize (not a UUID). */
-export function generateRandomAvatarSeed(
-  random: Random,
-  length = 12
-): string {
+export function generateRandomAvatarSeed(random: Random, length = 12): string {
   let out = '';
   for (let i = 0; i < length; i++) {
     const idx = Math.floor(random() * RANDOM_SEED_CHARS.length);

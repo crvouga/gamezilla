@@ -89,7 +89,7 @@ export function createMutationClient(
         await db.transaction(async (txc) => {
           const seq = await nextMutationSeq(txc);
           const createdAt = env.now().toISOString();
-          const wrapped = wrapMutationDb(txc);
+          const wrapped = wrapMutationDb(txc, env);
           await m.run({ tx: wrapped.tx, env }, parsed);
           capture = wrapped.getCapture();
           await txc.run(sql`

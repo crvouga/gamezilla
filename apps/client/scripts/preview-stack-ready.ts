@@ -1,15 +1,19 @@
+import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/shared/resolve-local-preview-api-origin';
+import { wallIo } from '@pkgs/io';
+
+const io = wallIo();
+
 /**
  * Readiness probe for Playwright / `turbo preview`: the static export on
  * `PREVIEW_PORT` becomes reachable before wrangler finishes booting, so probing
  * `/` alone starts browser tests while the API is still down.
  */
-import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/shared/resolve-local-preview-api-origin';
 
 const PROBE_TIMEOUT_MS = 2_000;
 
 async function probeOk(url: string): Promise<boolean> {
   try {
-    const res = await fetch(url, {
+    const res = await io.http.fetch(url, {
       signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     });
     if (!res.ok) return false;

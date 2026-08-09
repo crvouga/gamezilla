@@ -1,3 +1,4 @@
+import { getIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 
@@ -10,7 +11,10 @@ export type CreateInboxAppOptions = {
   readonly requestContext: () => InboxRequestContext;
 };
 
-const log = createLogger({ name: 'inbox-app' });
+const log = createLogger({
+  name: 'inbox-app',
+  now: () => getIo().clock.now(),
+});
 
 function mapInboxError(error: unknown): { status: number; body: unknown } {
   if (error instanceof InboxError) {

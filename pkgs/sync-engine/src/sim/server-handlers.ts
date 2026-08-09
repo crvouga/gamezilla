@@ -134,6 +134,7 @@ async function notifyApplied(args: {
   const env: MutationEnv = {
     ...args.auth,
     now: () => new Date(args.ctx.now()),
+    createId: args.ctx.createId,
   };
   const merged = mergeCaptures(args.captures);
   const mapCtx = topicMapCtxFromEnv(env);

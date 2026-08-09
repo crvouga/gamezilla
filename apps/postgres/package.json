@@ -17,6 +17,7 @@
     "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

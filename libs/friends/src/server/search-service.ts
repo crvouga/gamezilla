@@ -43,13 +43,15 @@ function mapSearchHit(row: SearchHitRow): UserSearchResult {
   };
 }
 
-export async function searchUsers(
-  db: SqlClient,
-  viewerId: string,
-  rawQuery: string,
-  now: () => number,
-  limit: number = USER_SEARCH_MAX_RESULTS
-): Promise<readonly UserSearchResult[]> {
+export async function searchUsers(args: {
+  readonly db: SqlClient;
+  readonly viewerId: string;
+  readonly rawQuery: string;
+  readonly now: () => number;
+  readonly limit?: number;
+}): Promise<readonly UserSearchResult[]> {
+  const { db, viewerId, rawQuery, now } = args;
+  const limit = args.limit ?? USER_SEARCH_MAX_RESULTS;
   const query = rawQuery.trim();
   if (query.length < USER_SEARCH_MIN_LENGTH) {
     throw new FriendsError(

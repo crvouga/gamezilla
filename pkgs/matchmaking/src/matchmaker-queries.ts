@@ -65,7 +65,9 @@ export type RunMatchPassArgs = {
   readonly maxPairsPerPass: number;
   readonly bucketWidth: number;
   readonly groupSize: number;
-  readonly nowParam: string | null;
+  readonly nowParam: string;
+  /** Pre-minted match ids (Postgres `uuid[]` literal text). */
+  readonly matchIdsParam: string;
 };
 
 /** Set-returning `matchmaking_run_match_pass(...)` call in FROM position. */
@@ -85,7 +87,8 @@ export function runMatchPassQuery(args: RunMatchPassArgs): Sql<MatchPassRow> {
         ${args.maxPairsPerPass},
         ${args.bucketWidth},
         ${args.groupSize},
-        ${args.nowParam}
+        ${args.nowParam}::timestamptz,
+        ${args.matchIdsParam}::uuid[]
     ) AS t`;
 }
 
@@ -105,25 +108,25 @@ export function prunePartitionsQuery(): SqlFragment {
 export function sweepExpiredQuery(args: {
   readonly partitionSignature: string;
   readonly maxWaitSeconds: number;
-  readonly nowParam: string | null;
+  readonly nowParam: string;
 }): Sql<SweepExpiredCountRow> {
   return sql<SweepExpiredCountRow>`
     SELECT matchmaking_sweep_expired(
       ${args.partitionSignature},
       ${args.maxWaitSeconds},
-      ${args.nowParam}
+      ${args.nowParam}::timestamptz
     ) AS matchmaking_sweep_expired`;
 }
 
 /** `matchmaking_sweep_matched(retentionSeconds, now)` scalar call. */
 export function sweepMatchedQuery(args: {
   readonly matchedRetentionSeconds: number;
-  readonly nowParam: string | null;
+  readonly nowParam: string;
 }): Sql<SweepMatchedCountRow> {
   return sql<SweepMatchedCountRow>`
     SELECT matchmaking_sweep_matched(
       ${args.matchedRetentionSeconds},
-      ${args.nowParam}
+      ${args.nowParam}::timestamptz
     ) AS matchmaking_sweep_matched`;
 }
 

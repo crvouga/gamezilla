@@ -8,54 +8,73 @@
  * Burn-down: tools/io-resolve-allowlist.json
  * GENERATE_ALLOWLIST=1 rewrites the allowlist from current offenses.
  */
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const REPO_ROOT = join(import.meta.dirname, '../..');
-const ALLOWLIST_PATH = join(REPO_ROOT, 'tools/io-resolve-allowlist.json');
+import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
 
-const SKIP_DIR = new Set([
-  'node_modules',
-  'dist',
-  '.git',
-  '.turbo',
-  'coverage',
-  '.expo',
-  '.wrangler',
-  'ios',
-  'android',
-  'scripts',
-  'data',
-]);
+const ALLOWLIST_PATH = join(REPO_ROOT, 'tools/io-resolve-allowlist.json');
 
 /** Permanent allow — wall adapters + package barrels + composition roots only. */
 const PERMANENT_PREFIXES = [
   'pkgs/clock/src/wall.ts',
   'pkgs/clock/src/index.ts',
   'pkgs/http-client/src/global.ts',
-  'pkgs/http-client/src/http-client-context.tsx',
   'pkgs/uuid/src/create-id.ts',
   'pkgs/uuid/src/index.ts',
-  'pkgs/uuid/src/create-id-context.tsx',
-  'pkgs/clock/src/clock-context.tsx',
   'pkgs/io/src/wall-io.ts',
   'pkgs/io/src/sim-io.ts',
-  'pkgs/io/src/io-context.tsx',
   'apps/client/src/providers/infrastructure/app-io-provider.tsx',
   'apps/client/src/polyfill-entry.ts',
   'apps/api/src/app/create-app.ts',
-  'apps/api/src/app/request-db-middleware.ts',
   'apps/api/src/api.ts',
+  'apps/api/src/config/object-store.ts',
   'apps/api/src/db/migrate.ts',
   'apps/api/src/db/migrate-cli.ts',
+  'apps/postgres/scripts/migrate.ts',
+  'apps/postgres/scripts/seed.ts',
   'pkgs/observability/src/impl-local-file/summarize-cli.ts',
   'pkgs/observability/src/impl-local-file/dev.ts',
+  // Assert default crash handler (module-level wallTimers for browser overlay).
+  'pkgs/assert/src/crash/default-crash-handler.ts',
+  // Package utilities with module-level wallIo for silent/structured loggers.
+  'pkgs/async/src/fire-and-forget.ts',
+  'pkgs/kv/src/use-kv-state.ts',
+  'pkgs/sync-engine/src/client/local-schema-migrate.ts',
+  'pkgs/sync-engine/src/test/in-memory-sync-engine.ts',
+  // Infra CLI composition root (module-level wallIo).
+  'libs/infra/src/cli/lib/cli-io.ts',
+  // Chess puzzle seeder CLI entry.
+  'libs/chess/scripts/seed-chess-puzzles.ts',
+  'libs/chess/src/server/seed-chess-puzzle/export-chess-puzzles-load.ts',
+  // Script / e2e harness composition roots (module-level wallIo).
+  'apps/api/scripts/dev.ts',
+  'apps/api/scripts/preview-serve.ts',
+  'apps/api/scripts/setup-dev-vars.ts',
+  'apps/api/scripts/wipe-dev-db.ts',
+  'apps/client/scripts/ios-dedicated-sim.ts',
+  'apps/client/scripts/preview-stack-ready.ts',
+  'apps/client/scripts/setup-sentry-dsn.ts',
+  'libs/client-config/scripts/dev-refresh-client-config.ts',
+  'libs/integration-test/e2e/scenarios/chess-puzzle-loop.ts',
+  'libs/integration-test/e2e/setup/ensure-chess-puzzles-seeded.ts',
+  'libs/integration-test/e2e/support/chess/chess-puzzle-play.ts',
+  'libs/integration-test/e2e/support/sleep.ts',
+  'libs/integration-test/e2e/web/better-auth-adapter.ts',
+  'libs/integration-test/e2e/web/web-session.ts',
+  'libs/integration-test/scripts/wait-for-api-health.ts',
+  'libs/integration-test/src/e2e-step.ts',
+  'libs/integration-test/src/harness.ts',
+  'libs/integration-test/src/local-e2e-stack.ts',
+  'pkgs/sounds/scripts/fetch-kenney-packs.ts',
+  'tools/scripts/run-postgres-migrations-secrets.ts',
+  // UI explorer examples (composition roots for demos).
+  'pkgs/ui/src/components/explorer/example-root.tsx',
+  'pkgs/ui/src/components/command-palette/command-palette.example.tsx',
+  // Sync sim local SQLite open (silent migrate logger).
+  'pkgs/sync-engine/src/sim/open-sim-sqlite.ts',
+  // Tooling secret-store composition root.
+  'pkgs/secret-provider/src/create-configured-secret-store.ts',
 ];
 
 type Ban = {
@@ -71,7 +90,10 @@ const BANS: readonly Ban[] = [
   { kind: 'resolveCreateId()', re: /\bresolveCreateId\s*\(\s*\)/ },
   { kind: 'resolveRandom()', re: /\bresolveRandom\s*\(\s*\)/ },
   { kind: 'resolveClock()', re: /\bresolveClock\s*\(\s*\)/ },
-  { kind: 'createGlobalHttpClient()', re: /\bcreateGlobalHttpClient\s*\(\s*\)/ },
+  {
+    kind: 'createGlobalHttpClient()',
+    re: /\bcreateGlobalHttpClient\s*\(\s*\)/,
+  },
   {
     kind: 'wallIo()',
     re: /\bwallIo\s*\(\s*\)/,
@@ -121,63 +143,6 @@ function isTestFile(rel: string): boolean {
   );
 }
 
-function walk(dir: string, out: string[]): void {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return;
-  }
-  for (const entry of entries) {
-    const abs = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (SKIP_DIR.has(entry.name)) continue;
-      walk(abs, out);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    if (!/\.(ts|tsx)$/.test(entry.name)) continue;
-    if (entry.name.endsWith('.d.ts')) continue;
-    out.push(abs);
-  }
-}
-
-function collectScanFiles(): string[] {
-  const files: string[] = [];
-  const client = join(REPO_ROOT, 'apps/client/src');
-  const api = join(REPO_ROOT, 'apps/api/src');
-  if (existsSync(client)) walk(client, files);
-  if (existsSync(api)) walk(api, files);
-
-  const libsRoot = join(REPO_ROOT, 'libs');
-  if (existsSync(libsRoot)) {
-    for (const name of readdirSync(libsRoot)) {
-      const base = join(libsRoot, name, 'src');
-      for (const runtime of ['client', 'server', 'shared'] as const) {
-        const dir = join(base, runtime);
-        try {
-          if (statSync(dir).isDirectory()) walk(dir, files);
-        } catch {
-          // missing
-        }
-      }
-    }
-  }
-
-  const pkgsRoot = join(REPO_ROOT, 'pkgs');
-  if (existsSync(pkgsRoot)) {
-    for (const name of readdirSync(pkgsRoot)) {
-      const src = join(pkgsRoot, name, 'src');
-      try {
-        if (statSync(src).isDirectory()) walk(src, files);
-      } catch {
-        // missing
-      }
-    }
-  }
-  return files;
-}
-
 function isPermanentAllow(rel: string): boolean {
   return PERMANENT_PREFIXES.some((p) => rel === p || rel.startsWith(`${p}/`));
 }
@@ -206,7 +171,6 @@ function scanFile(abs: string): Offense[] {
   for (let i = 0; i < lines.length; i++) {
     const code = stripLineComment(lines[i] ?? '');
     if (code.length === 0) continue;
-    // Import-only lines of wall symbols are still coupling — flag them.
     for (const ban of BANS) {
       if (ban.allowInTests && testFile) continue;
       if (!ban.re.test(code)) continue;
@@ -227,13 +191,13 @@ function loadAllowlist(): Set<string> {
   return new Set(raw.map((x) => String(x)));
 }
 
-const files = collectScanFiles();
+const files = collectIoScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
 }
 
-if (process.env.GENERATE_ALLOWLIST === '1') {
+if (process.env['GENERATE_ALLOWLIST'] === '1') {
   const keys = [...new Set(offenses.map(offenseKey))].sort();
   writeFileSync(ALLOWLIST_PATH, `${JSON.stringify(keys, null, 2)}\n`);
   console.log(

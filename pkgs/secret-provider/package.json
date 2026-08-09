@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secret-string": "workspace:*",

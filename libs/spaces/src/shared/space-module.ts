@@ -33,10 +33,10 @@ import {
   spaceLogEvtNs,
 } from './space-log/space-log-messages';
 import {
+  createSpaceMembersEventReducer,
   SpaceMembersRoomAttr,
   spaceMembersCmdNs,
   spaceMembersCommandRouter,
-  createSpaceMembersEventReducer,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
 

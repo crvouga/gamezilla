@@ -1,4 +1,4 @@
-import { ClockProvider, useTimers } from '@pkgs/clock';
+import { ClockProvider, useTimers, wallClock, wallTimers } from '@pkgs/clock';
 import { useCallback, useState } from 'react';
 
 import { Button } from '../button';
@@ -106,7 +106,7 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
 export default function CommandPaletteExample() {
   const [count, setCount] = useState(0);
   return (
-    <ClockProvider>
+    <ClockProvider clock={wallClock} timers={wallTimers}>
       <CommandRegistryProvider enableDefaultShortcuts={false}>
         <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
         <ExampleRoot>

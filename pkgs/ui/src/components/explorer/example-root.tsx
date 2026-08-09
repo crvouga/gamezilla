@@ -6,7 +6,7 @@
  * layout extras (`minHeight`, `flex`, …).
  */
 
-import { ClockProvider } from '@pkgs/clock';
+import { ClockProvider, wallClock, wallTimers } from '@pkgs/clock';
 import type { ReactNode } from 'react';
 
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
@@ -27,7 +27,7 @@ export function ExampleRoot({
   dataSet,
 }: ExampleRootProps): ReactNode {
   return (
-    <ClockProvider>
+    <ClockProvider clock={wallClock} timers={wallTimers}>
       <Box sx={{ gap: 4, ...sx }} {...componentDataSet('ExampleRoot', dataSet)}>
         {children}
       </Box>

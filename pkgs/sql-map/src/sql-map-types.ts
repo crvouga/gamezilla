@@ -82,7 +82,7 @@ export type TableRef =
  *
  * - `'col'` — column
  * - `[expr, 'alias']` — expression with alias (e.g. `[['count', '*'], 'n']`)
- * - `OpCall` — bare expression (e.g. `['now']`)
+ * - `OpCall` — bare expression (e.g. `['lower', 'name']`)
  */
 export type SelectItem =
   | string

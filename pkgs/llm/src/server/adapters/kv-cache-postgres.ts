@@ -10,6 +10,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
  */
 export function createLlmPostgresKv(args: {
   readonly sqlClient: SqlClient;
+  readonly now: () => number;
 }): Kv {
-  return new KvImplPostgres(args.sqlClient);
+  return new KvImplPostgres(args.sqlClient, args.now);
 }

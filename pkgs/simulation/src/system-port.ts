@@ -2,8 +2,10 @@ import type { SimIo } from '@pkgs/io';
 import type { AppHarness } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 
-import type { SimulationUiKind } from './options';
 import type { SeededRng } from './rng';
+
+/** UI backend for each actor session. Default: in-process. */
+export type SimulationUiKind = 'in-process' | 'playwright';
 
 /** Context passed to {@link SimulationSystem.start}. */
 export type SimulationStartContext = {

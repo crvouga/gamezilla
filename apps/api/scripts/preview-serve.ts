@@ -1,3 +1,9 @@
+import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
+import { join } from 'node:path';
+import { wallIo } from '@pkgs/io';
+
+const io = wallIo();
+
 /**
  * Local `wrangler dev` for preview/check with short-startup retries.
  *
@@ -6,8 +12,6 @@
  * `connect EADDRNOTAVAIL 127.0.0.1:<inspector>`. Fail fast with a clear
  * message when TIME_WAIT is extreme; otherwise retry a couple of times.
  */
-import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
-import { join } from 'node:path';
 
 const API_DIR = join(import.meta.dirname, '..');
 const API_PORT = 8788;
@@ -34,7 +38,7 @@ function shutdown(exitCode: number): void {
   if (shuttingDown) return;
   shuttingDown = true;
   for (const child of children) killChild(child, 'SIGTERM');
-  setTimeout(() => {
+  io.timers.setTimeout(() => {
     for (const child of children) killChild(child, 'SIGKILL');
     process.exit(exitCode);
   }, 2_000);
@@ -52,7 +56,7 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => io.timers.setTimeout(resolve, ms));
 }
 
 function countTcpTimeWait(): number {
@@ -91,7 +95,7 @@ type WranglerRun = {
 };
 
 function runWranglerOnce(): Promise<WranglerRun> {
-  const startedAt = Date.now();
+  const startedAt = io.clock.now();
   return new Promise((resolve) => {
     const child = spawn(
       'wrangler',
@@ -106,7 +110,7 @@ function runWranglerOnce(): Promise<WranglerRun> {
     );
     children.push(child);
     child.on('exit', (code) => {
-      resolve({ code: code ?? 1, elapsedMs: Date.now() - startedAt });
+      resolve({ code: code ?? 1, elapsedMs: io.clock.now() - startedAt });
     });
   });
 }

@@ -16,6 +16,7 @@
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "react": "catalog:"
   },

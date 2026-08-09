@@ -1,6 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import { deleteDnsRecordsByName, upsertDnsRecord } from '../lib/cf-dns';
+import { cliIo } from '../lib/cli-io';
 import { info, ok, warn } from '../lib/fmt';
 import {
   deleteService,
@@ -157,7 +158,7 @@ export class EmqxResource extends ResourceBase {
 }
 
 async function findZoneId(): Promise<string | null> {
-  const res = await fetch(
+  const res = await cliIo.http.fetch(
     `https://api.cloudflare.com/client/v4/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
     { headers: cfHeaders() }
   );

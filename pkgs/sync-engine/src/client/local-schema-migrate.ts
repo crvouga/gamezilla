@@ -1,12 +1,15 @@
 import type { Schema } from '@pkgs/db-schema';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+const domainMigrateIo = wallIo();
 const domainMigrateLogger = createLogger({
   name: 'local-schema-migrate',
   level: 'silent',
+  now: domainMigrateIo.clock.now,
 });
 
 import {

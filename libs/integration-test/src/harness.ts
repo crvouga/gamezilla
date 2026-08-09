@@ -1,9 +1,11 @@
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallIo } from '@pkgs/io';
 import type { Subprocess } from 'bun';
-
 import { resolveLocalPreviewApiOrigin } from './local-api-preview';
+
+const io = wallIo();
 
 /** Loopback API Worker origin from the secret store — used by API integration tests. */
 export async function resolveLocalApiOrigin(): Promise<string> {
@@ -102,7 +104,7 @@ export async function assertHttpOk(
 ): Promise<void> {
   let lastErr: string | undefined;
   try {
-    const res = await fetch(url);
+    const res = await io.http.fetch(url);
     if (res.ok) return;
     lastErr = `HTTP ${String(res.status)}`;
   } catch (e) {
@@ -136,11 +138,11 @@ export async function waitForHttpOk(
     process?: SpawnedProcess;
   }
 ): Promise<void> {
-  const deadline = Date.now() + opts.timeoutMs;
+  const deadline = io.clock.now() + opts.timeoutMs;
   let lastErr: string | undefined;
-  while (Date.now() < deadline) {
+  while (io.clock.now() < deadline) {
     try {
-      const res = await fetch(url);
+      const res = await io.http.fetch(url);
       if (res.ok) return;
       lastErr = `HTTP ${String(res.status)}`;
     } catch (e) {

@@ -29,8 +29,9 @@ export function MutationClientProvider({
       accountId: auth.accountId,
       isAnon: auth.isAnon,
       now: () => new Date(clock.now()),
+      createId,
     }),
-    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId, clock]
+    [auth.accountId, auth.deviceId, auth.isAnon, auth.userId, clock, createId]
   );
   const ids = useMemo(
     () => ({

@@ -1,4 +1,5 @@
 import { DEPLOY_DEPS } from '../deps/registry';
+import { cliIo } from '../lib/cli-io';
 import { banner, ok } from '../lib/fmt';
 import { runWithGlobalLock } from '../lib/global-lock-session';
 import { infraOutputs } from '../lib/infra-outputs';
@@ -43,7 +44,7 @@ export class DeployCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Deploy');
     const p = this.platform;
 
@@ -65,7 +66,7 @@ export class DeployCommand implements Command {
       await runPublishClientEasUpdatePhase(p, ctx);
       await runEnsureDestroyedPhase(p);
 
-      banner('Deploy Complete', performance.now() - t0);
+      banner('Deploy Complete', cliIo.clock.now() - t0);
       ok('client_url', outputs.client_url);
       ok('api_url', outputs.api_url);
 

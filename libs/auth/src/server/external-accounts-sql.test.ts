@@ -49,7 +49,7 @@ describe('external-accounts-sql', () => {
     sqlClient = SqlClientImplBunSqlite.open(':memory:');
     await sqlClient.connect();
     await migrateTables(sqlClient);
-    await insertUser(sqlClient, userId, io.clock.now);
+    await insertUser({ db: sqlClient, userId, now: io.clock.now });
   });
 
   afterEach(async () => {
@@ -143,7 +143,11 @@ describe('external-accounts-sql', () => {
 
   test('upsertExternalAccount never reassigns user_id on conflict', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser(sqlClient, otherUserId, io.clock.now);
+    await insertUser({
+      db: sqlClient,
+      userId: otherUserId,
+      now: io.clock.now,
+    });
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
@@ -181,7 +185,11 @@ describe('external-accounts-sql', () => {
 
   test('insertExternalAccountOrGet adopts existing owner', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser(sqlClient, otherUserId, io.clock.now);
+    await insertUser({
+      db: sqlClient,
+      userId: otherUserId,
+      now: io.clock.now,
+    });
     await insertExternalAccountOrGet(sqlClient, {
       userId,
       provider: primaryAuthProvider,

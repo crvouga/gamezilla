@@ -58,8 +58,8 @@ import {
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
-import { createLogger, type Logger } from '@pkgs/logger';
 import type { Io } from '@pkgs/io';
+import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
@@ -129,7 +129,10 @@ export class ChessPuzzleSeeder {
   }
 
   async run(): Promise<void> {
-    const log = createLogger({ name: 'db:seed-puzzles' });
+    const log = createLogger({
+      name: 'db:seed-puzzles',
+      now: this.#io.clock.now,
+    });
     const reporter = createPuzzleSeedReporter({
       pretty: this.#cli.prettyOutput,
       logger: log,

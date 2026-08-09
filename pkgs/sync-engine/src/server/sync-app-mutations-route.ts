@@ -106,6 +106,7 @@ async function collectTopicsFromCaptures(args: {
   readonly captures: readonly WriteCaptureSnapshot[];
   readonly db: SqlClient;
   readonly now: () => number;
+  readonly createId: () => string;
 }): Promise<Topic[]> {
   if (args.topicMap === undefined || args.captures.length === 0) return [];
   const env: MutationEnv = {
@@ -114,6 +115,7 @@ async function collectTopicsFromCaptures(args: {
     accountId: args.auth.accountId,
     isAnon: args.auth.isAnon,
     now: () => new Date(args.now()),
+    createId: args.createId,
   };
   const merged = mergeCaptures(args.captures);
   return topicsFromWriteCapture({
@@ -191,6 +193,7 @@ async function prepareMutationNotify(
       accountId: auth.accountId,
       isAnon: auth.isAnon,
       now: () => new Date(deps.now()),
+      createId: deps.createId,
     };
     const topics = await collectTopicsFromCaptures({
       topicMap: deps.topicMap,
@@ -198,6 +201,7 @@ async function prepareMutationNotify(
       captures,
       db: nested,
       now: deps.now,
+      createId: deps.createId,
     });
     const tables = merged.tables;
     const rows = await buildFanoutRows({

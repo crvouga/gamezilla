@@ -1,5 +1,5 @@
-import type { CreateId } from '@pkgs/uuid';
 import { createLogger } from '@pkgs/logger/logger';
+import type { CreateId } from '@pkgs/uuid';
 import { BaseObservability } from '../port/base-observability';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
 import type { Observability, SpanContextStorage } from '../port/observability';
@@ -50,8 +50,7 @@ export function createLocalFileObservability(
     storage,
     now: options.now,
     createId: options.createId,
-    exporter: (record) =>
-      exportSpanViaHttp(record, collectorUrl, fetchFn, log),
+    exporter: (record) => exportSpanViaHttp(record, collectorUrl, fetchFn, log),
   });
 }
 

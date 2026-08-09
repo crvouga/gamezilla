@@ -28,7 +28,10 @@ describe('streamParallelIndexed', () => {
       streamParallelIndexed(
         delays.length,
         async (i) => {
-          await new Promise<void>((r) => timers.setTimeout(r, delays[i]));
+          const delayMs = delays[i] ?? 0;
+          await new Promise<void>((r) => {
+            timers.setTimeout(() => r(), delayMs);
+          });
           return `r${i}`;
         },
         genericMapError

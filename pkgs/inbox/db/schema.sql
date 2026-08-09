@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS inbox_interactions (
   archived_at TIMESTAMPTZ,
   dismissed_at TIMESTAMPTZ,
   active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   CONSTRAINT inbox_interactions_category_check CHECK (
     category IN ('action_required', 'informational', 'system')
   )
@@ -46,5 +46,5 @@ CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx
 CREATE TABLE IF NOT EXISTS inbox_preferences (
   user_id TEXT PRIMARY KEY,
   preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL
 );

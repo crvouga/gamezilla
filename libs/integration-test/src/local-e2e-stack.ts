@@ -1,6 +1,8 @@
 import { execFileSync } from 'node:child_process';
-
+import { wallIo } from '@pkgs/io';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from './local-api-preview';
+
+const io = wallIo();
 
 /** Expo web — `bun dev` (Metro) and `bun preview` (static export) both use :5173. */
 export const DEV_CLIENT_PORT = 5173;
@@ -52,7 +54,7 @@ const DEFAULT_STACK_WAIT_MS = 240_000;
 const STACK_POLL_MS = 1_000;
 
 function sleepMs(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => io.timers.setTimeout(resolve, ms));
 }
 
 /** Synchronous readiness probe for scripts that start or skip the preview stack. */
@@ -106,10 +108,10 @@ export async function waitForLocalE2eStack(
     process.env['BROWSER_E2E_STACK_WAIT_MS'] ?? DEFAULT_STACK_WAIT_MS
   )
 ): Promise<LocalE2eStack> {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = io.clock.now() + timeoutMs;
   let lastMessage = browserStackNotRunningMessage(apiOrigin);
 
-  while (Date.now() < deadline) {
+  while (io.clock.now() < deadline) {
     if (devStackReady(apiOrigin)) {
       return localE2eStackFromReady(apiOrigin);
     }

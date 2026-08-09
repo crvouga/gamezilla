@@ -49,3 +49,4 @@ TopicMapEntry
 topicsFromHeldRows
 topicsFromWriteCapture
 withFrameworkTopicMap
+wrapMutationDb

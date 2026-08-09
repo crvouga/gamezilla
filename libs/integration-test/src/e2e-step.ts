@@ -1,8 +1,11 @@
+import { wallIo } from '@pkgs/io';
 import { createLogger, type Logger } from '@pkgs/logger';
 
+const io = wallIo();
 const ROOT_LOGGER = createLogger({
   name: 'integration-test.e2e',
   level: process.env['CI'] ? 'info' : 'debug',
+  now: io.clock.now,
 });
 
 /** Structured logger scoped to the active E2E test. */

@@ -1,5 +1,5 @@
-import { assertDatabaseName } from '@pkgs/sql';
 import type { Timers } from '@pkgs/clock';
+import { assertDatabaseName } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { tryAcquireExpoSqliteWebSessionLock } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';

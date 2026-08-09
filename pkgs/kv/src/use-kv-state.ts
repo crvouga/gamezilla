@@ -12,6 +12,7 @@
  * after the hydrate started.
  */
 
+import { wallIo } from '@pkgs/io';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { createLogger } from '@pkgs/logger/logger';
 import {
@@ -27,7 +28,8 @@ import type { Kv, KvRecord } from './interface';
 import { useKvOptional } from './kv-context';
 import type { KvStateCodec } from './kv-state-codec';
 
-const log = createLogger({ name: 'kv-state' });
+const io = wallIo();
+const log = createLogger({ name: 'kv-state', now: io.clock.now });
 
 export type UseKvStateOptions<T> = {
   /** Namespaced row key, e.g. `asKeyword('ui.prefs/speaking-avatar-muted')`. */

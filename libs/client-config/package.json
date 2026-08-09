@@ -30,6 +30,7 @@
     "@pkgs/async": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/equal": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",

@@ -104,16 +104,18 @@ export async function replayMutation(
         accountId: deps.auth.accountId,
         isAnon: deps.auth.isAnon,
         now: () => new Date(m.createdAt),
+        createId: deps.createId,
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       };
 
-      const wrapped = wrapMutationDb(txc);
+      const wrapped = wrapMutationDb(txc, env);
       await mutation.run({ tx: wrapped.tx, env }, parsed);
       const capture = wrapped.getCapture();
 
+      const appliedAt = new Date(deps.now()).toISOString();
       await txc.run(sql`
-        INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
-        VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'})
+        INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+        VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'}, ${appliedAt})
       `);
       return { status: 'applied' as const, capture };
     });
@@ -158,9 +160,10 @@ async function recordRejectedInTxn(
   `);
   if (seen.length > 0) return;
 
+  const appliedAt = new Date(deps.now()).toISOString();
   await txc.run(sql`
-    INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
-    VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'})
+    INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+    VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'}, ${appliedAt})
   `);
 
   const metaJson =

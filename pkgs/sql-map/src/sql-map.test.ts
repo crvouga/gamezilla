@@ -202,11 +202,14 @@ describe('sqlMap', () => {
 
     it('compiles allowlisted functions', () => {
       const q = sqlMap({
-        select: [['lower', 'name'], ['coalesce', 'nickname', 'name'], ['now']],
+        select: [
+          ['lower', 'name'],
+          ['coalesce', 'nickname', 'name'],
+        ],
         from: 'users',
       });
       expect(q.text).toEqual(
-        'SELECT LOWER(name), COALESCE(nickname, name), NOW() FROM users'
+        'SELECT LOWER(name), COALESCE(nickname, name) FROM users'
       );
     });
   });
@@ -381,14 +384,14 @@ describe('sqlMap', () => {
           target: ['key'],
           set: {
             value: col('excluded.value'),
-            updated_at: ['now'],
+            updated_at: 1,
           },
         },
       });
       expect(q.text).toEqual(
-        'INSERT INTO kv (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = NOW()'
+        'INSERT INTO kv (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = $3'
       );
-      expect(q.values).toEqual(['k', '{}']);
+      expect(q.values).toEqual(['k', '{}', 1]);
     });
 
     it('crashes on empty target or mixed doNothing/set', () => {

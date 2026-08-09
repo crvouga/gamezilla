@@ -18,6 +18,7 @@ export {
   LIVE_ROW_SQL,
   softDeleteById,
 } from '../mutations/shared/soft-delete';
+export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 /** Frozen wire protocol (shapes + bounds). */
 export {
   MAX_FANOUT_BYTES,

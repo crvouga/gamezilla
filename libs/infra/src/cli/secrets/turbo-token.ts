@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
@@ -20,7 +21,7 @@ async function validateTurboToken(input: SecretInput): Promise<void> {
   const team = (input.secrets.get('TURBO_TEAM') ?? '').trim();
   if (team === '') return;
   try {
-    const res = await fetch(buildArtifactsStatusUrl(team), {
+    const res = await cliIo.http.fetch(buildArtifactsStatusUrl(team), {
       headers: { Authorization: `Bearer ${value}` },
     });
     if (res.status === 401 || res.status === 403) {

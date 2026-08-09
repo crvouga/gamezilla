@@ -6,8 +6,8 @@ import { createClientConfigApp } from '@libs/client-config/server/route';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
 import { createStripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
-import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { wallIo } from '@pkgs/io';
+import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
@@ -104,6 +104,7 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
     secretStore: config.secretStore,
     objectStore: config.objectStore,
     publicPathPrefix: '/api',
+    fetch: appIo.http.fetch.bind(appIo.http),
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
@@ -119,6 +120,7 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
 async function createLlmAppForApi(config: ApiHandlerConfig) {
   const result = await createLlmAppFromBindings({
     secretStore: config.secretStore,
+    http: appIo.http,
     getKv: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'llm kv: request store missing');
@@ -203,6 +205,7 @@ export async function createApiApp(config: ApiHandlerConfig) {
         databaseUrlOverride: config.databaseUrlOverride,
         secretsEnv,
         observability,
+        io: appIo,
       })
     )
     .use('*', apiCors)

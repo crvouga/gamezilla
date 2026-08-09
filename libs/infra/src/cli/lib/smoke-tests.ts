@@ -3,6 +3,7 @@ import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
+import { cliIo } from './cli-io';
 import { fmtElapsed, ok, warn } from './fmt';
 import { httpProbe } from './http-probe';
 import type { InfraOutputs } from './infra-outputs';
@@ -52,7 +53,7 @@ const POST_DEPLOY_HTTP_RETRY_MS = parsePositiveIntMsEnv(
 );
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => cliIo.timers.setTimeout(resolve, ms));
 }
 
 function isTransientHttpStatus(status: number): boolean {
@@ -248,14 +249,14 @@ async function checkHttpEndpoint(
   const fallbackUrl = opts.fallbackRawUrl
     ? probeUrl(opts.fallbackRawUrl, opts.probePath)
     : undefined;
-  const started = Date.now();
+  const started = cliIo.clock.now();
   const maxWaitStr = fmtElapsed(POST_DEPLOY_HTTP_MAX_WAIT_MS);
   const maxAttempts = Math.ceil(
     POST_DEPLOY_HTTP_MAX_WAIT_MS / POST_DEPLOY_HTTP_RETRY_MS
   );
 
   for (let attempt = 1; ; attempt++) {
-    const elapsed = Date.now() - started;
+    const elapsed = cliIo.clock.now() - started;
     const elapsedStr = fmtElapsed(elapsed);
 
     const result = await httpProbe(url);

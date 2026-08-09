@@ -13,6 +13,7 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { assert } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
@@ -24,6 +25,7 @@ import {
   resolveChessPuzzlesLoadFilePath,
 } from './load-file';
 
+const io = wallIo();
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 
 type ExportRow = {
@@ -79,7 +81,10 @@ export async function exportChessPuzzlesLoadFile(
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<{ readonly outPath: string; readonly rowCount: number }> {
   const { confirmProd } = parseArgs(argv);
-  const log = createLogger({ name: 'chess:export-puzzles-load' });
+  const log = createLogger({
+    name: 'chess:export-puzzles-load',
+    now: io.clock.now,
+  });
   const store = createScriptSecretStore();
   const secretsEnv =
     process.env['SECRETS_ENV']?.trim() || resolveSecretsScope(REPO_ROOT).env;

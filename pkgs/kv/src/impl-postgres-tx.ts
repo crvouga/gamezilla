@@ -12,7 +12,10 @@ function assertKvKey(key: string): asserts key is Keyword {
 }
 
 export class KvImplPostgresTx implements Kv {
-  constructor(private readonly db: SqlClient) {}
+  constructor(
+    private readonly db: SqlClient,
+    private readonly now: () => number
+  ) {}
 
   async get(key: Keyword): Promise<KvRecord | null> {
     assertKvKey(key);
@@ -31,13 +34,14 @@ export class KvImplPostgresTx implements Kv {
   async put(key: Keyword, value: KvRecord): Promise<void> {
     assertKvKey(key);
     assertKvRecord(hotAssert(), value, 'kv postgres tx put');
+    const iso = new Date(this.now()).toISOString();
     await this.db.run(
       sql<void>`
-        INSERT INTO kv (key, value)
-        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb)
+        INSERT INTO kv (key, value, last_modified_at)
+        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb, ${iso})
         ON CONFLICT (key) DO UPDATE SET
           value = excluded.value,
-          last_modified_at = now()`
+          last_modified_at = excluded.last_modified_at`
     );
   }
 

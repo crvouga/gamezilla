@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 import { readExternalAccountId } from '@libs/auth/server/external-accounts-sql';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
+import { getIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
@@ -10,7 +11,10 @@ import type Stripe from 'stripe';
 import { z } from 'zod';
 import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
 
-const log = createLogger({ name: 'stripe:checkout' });
+const log = createLogger({
+  name: 'stripe:checkout',
+  now: () => getIo().clock.now(),
+});
 
 export type StripeAuthContext = {
   readonly accountId: string;

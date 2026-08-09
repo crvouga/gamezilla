@@ -1,14 +1,13 @@
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
-import { createGlobalHttpClient } from './global';
 import type { HttpClient } from './types';
 
 const Ctx = createContext<HttpClient | null>(null);
 
 export type HttpClientProviderProps = {
   readonly children: ReactNode;
-  /** Defaults to {@link createGlobalHttpClient}. */
-  readonly client?: HttpClient;
+  /** Required — construct via createGlobalHttpClient / Io.http at a composition root. */
+  readonly client: HttpClient;
 };
 
 /**
@@ -19,10 +18,7 @@ export function HttpClientProvider({
   children,
   client,
 }: HttpClientProviderProps): ReactNode {
-  const value = useMemo<HttpClient>(
-    () => client ?? createGlobalHttpClient(),
-    [client]
-  );
+  const value = useMemo<HttpClient>(() => client, [client]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

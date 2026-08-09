@@ -2,6 +2,7 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
+import { unsafe } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
@@ -46,6 +47,28 @@ export class PostgresSchemaDatabaseMigration implements DatabaseMigration {
       dbScope: this.dbScope,
     }) as PostgresSqlClient;
     await postgres(this.schema, client, this.options).reconcile();
+    // Existing tables may still have engine DEFAULT now()/gen_random_uuid().
+    await ctx.sqlClient.run(
+      unsafe(`
+DO $$
+DECLARE r record;
+BEGIN
+  FOR r IN
+    SELECT c.table_name, c.column_name
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema()
+      AND c.column_name IN ('_id', '_created_at', '_updated_at')
+      AND c.column_default IS NOT NULL
+  LOOP
+    EXECUTE format(
+      'ALTER TABLE %I ALTER COLUMN %I DROP DEFAULT',
+      r.table_name,
+      r.column_name
+    );
+  END LOOP;
+END $$;
+`)
+    );
     ctx.logger.info('domain schema reconciled');
   }
 }

@@ -7,6 +7,9 @@ import {
   CREATE_INTERACTIONS_TABLE_SQL,
   CREATE_PREFERENCES_TABLE_SQL,
   CREATE_SCHEMA_STATE_TABLE_SQL,
+  DROP_INTERACTIONS_CREATED_AT_DEFAULT_SQL,
+  DROP_INTERACTIONS_UPDATED_AT_DEFAULT_SQL,
+  DROP_PREFERENCES_UPDATED_AT_DEFAULT_SQL,
   INBOX_SCHEMA_FINGERPRINT,
   READ_SCHEMA_FINGERPRINT_SQL,
   upsertSchemaFingerprintSql,
@@ -20,8 +23,18 @@ const BOOT_STATEMENTS = [
   CREATE_PREFERENCES_TABLE_SQL,
 ] as const;
 
+/** Always run — CREATE IF NOT EXISTS leaves old DEFAULT now() in place. */
+const DROP_WALL_DEFAULT_STATEMENTS = [
+  DROP_INTERACTIONS_CREATED_AT_DEFAULT_SQL,
+  DROP_INTERACTIONS_UPDATED_AT_DEFAULT_SQL,
+  DROP_PREFERENCES_UPDATED_AT_DEFAULT_SQL,
+] as const;
+
 export async function migrateInbox(db: SqlClient): Promise<void> {
   for (const statement of BOOT_STATEMENTS) {
+    await db.run(raw(statement));
+  }
+  for (const statement of DROP_WALL_DEFAULT_STATEMENTS) {
     await db.run(raw(statement));
   }
 

@@ -3,7 +3,6 @@ import { createAttrNamespace } from '@pkgs/attribute/attribute';
 import type { Keyword } from '@pkgs/keyword/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv/interface';
-import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import {
   type DistributedLock,
   type LockHandle,

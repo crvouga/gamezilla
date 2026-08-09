@@ -72,7 +72,9 @@ async function waitUntil(pred: () => boolean, ms = 2000): Promise<void> {
   const deadline = now() + ms;
   while (now() < deadline) {
     if (pred()) return;
-    await new Promise((r) => timers.setTimeout(r, 5));
+    await new Promise<void>((r) => {
+      timers.setTimeout(() => r(), 5);
+    });
   }
   throw new Error('waitUntil timed out');
 }
