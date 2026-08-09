@@ -98,10 +98,60 @@ export type MmHarness = {
   readonly mm: Matchmaking;
 };
 
+type BootOverrides = Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>;
+
 /**
- * Boots a fresh PGlite + Matchmaking pair. Idiomatic for one-off
- * harnesses inside a test (when the default `beforeEach` harness
- * isn't suitable, e.g. needs `partitionKeys` or a simulated clock).
+ * Migrated once, then {@link PGlite.clone}'d per default-schema boot.
+ * Fresh `PGlite.create()` + `migrate()` is ~1–3s; clones are tens of ms.
+ * Without this, `bun check` looks hung for several minutes on
+ * `@pkgs/matchmaking#test` (140× cold boots, Turbo grouped logs silent).
+ */
+let defaultTemplatePromise: Promise<PGlite> | null = null;
+
+async function defaultMigratedTemplate(): Promise<PGlite> {
+  if (defaultTemplatePromise === null) {
+    defaultTemplatePromise = (async () => {
+      const db = await PGlite.create();
+      const mm = new Matchmaking({
+        storage: { sqlClient: createPgliteSqlClient(db) },
+        schema: {},
+      });
+      await mm.ready();
+      return db;
+    })();
+  }
+  return defaultTemplatePromise;
+}
+
+/**
+ * Default empty schema (+ client-only `tuning.now`) can clone the
+ * template. Schema / migrate-baked tuning still need a cold boot.
+ */
+function canCloneDefaultTemplate(overrides?: BootOverrides): boolean {
+  if (overrides === undefined) return true;
+  const schema = overrides.schema;
+  if (schema !== undefined && Object.keys(schema).length > 0) return false;
+  const tuning = overrides.tuning;
+  if (tuning === undefined) return true;
+  return (
+    tuning.maxPairsPerPass === undefined &&
+    tuning.maxWaitSeconds === undefined &&
+    tuning.matchedRetentionSeconds === undefined
+  );
+}
+
+async function openBootDb(overrides?: BootOverrides): Promise<PGlite> {
+  if (canCloneDefaultTemplate(overrides)) {
+    // Upstream types `clone()` as PGliteInterface; runtime is a PGlite.
+    const cloned = await (await defaultMigratedTemplate()).clone();
+    return cloned as PGlite;
+  }
+  return PGlite.create();
+}
+
+/**
+ * Boots a PGlite + Matchmaking pair. Default-schema boots clone a
+ * migrated template; custom schema / migrate-baked tuning still cold-boot.
  *
  * The v3 schema has no SQL-side throttling — tests drive `mm.tick()`
  * explicitly. Callers are responsible for `await harness.db.close()`
@@ -109,9 +159,9 @@ export type MmHarness = {
  * exercise leak behaviour).
  */
 export async function bootMatchmaking(
-  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>
+  overrides?: BootOverrides
 ): Promise<MmHarness> {
-  const db = await PGlite.create();
+  const db = await openBootDb(overrides);
   const sqlClient = createPgliteSqlClient(db);
   const schema = overrides?.schema ?? {};
   const mm = new Matchmaking({

@@ -1,14 +1,16 @@
 /**
- * Single entry for local / CI Turbo check graphs.
+ * CI Turbo check graphs (secrets-run wrappers in package.json).
  *
  * Modes:
- * - `all` — full `bun check` (tc/test/lint/gates/static/secrets + build; no api/browser)
- * - `ci` — turbo-only lanes (no static/api/browser)
+ * - `all` — offline graph (same task set as root `bun check`; kept for callers)
+ * - `ci` — turbo-only lanes including secrets validate (no static/api/browser)
  * - `gates` / `verify` / `build` — GHA job subsets
  *
- * `build` is a second turbo-ci-run so `--filter=!@apps/client` does not
- * exclude the client from `tc` / `test`.
+ * Builds use package-scoped entrypoints (`@apps/api#build` etc.) so
+ * `@apps/client` still gets `tc`/`test` without Expo `build`, in one
+ * `turbo run` (no second filtered pass).
  * Live-server checks (`check:api` / `check:browser`) stay opt-in / CI-only.
+ * Secrets validation stays CI / opt-in (`check:ci:gates`, `check:secrets`).
  */
 import { spawnSync } from 'node:child_process';
 
@@ -44,7 +46,13 @@ const CI_GATE_TASKS = [
   'ci:audit',
 ] as const;
 
-const BUILD_ARGS = ['build', '--filter=!@apps/client'] as const;
+/** No-op app builds only — never `@apps/client#build` (Expo export). */
+const CHECK_BUILD_TASKS = [
+  '@apps/api#build',
+  '@apps/minio#build',
+  '@apps/postgres#build',
+] as const;
+
 const SECRETS_VALIDATE_TASK = 'check:secrets:validate';
 
 type Mode = 'all' | 'ci' | 'gates' | 'verify' | 'build';
@@ -75,7 +83,7 @@ function turboCiRun(args: readonly string[]): number {
   return result.status ?? 1;
 }
 
-function mainTasks(mode: Mode): readonly string[] | null {
+function mainTasks(mode: Mode): readonly string[] {
   switch (mode) {
     case 'all':
       return [
@@ -84,16 +92,23 @@ function mainTasks(mode: Mode): readonly string[] | null {
         'ci:lint',
         ...CI_GATE_TASKS,
         'check:static',
-        SECRETS_VALIDATE_TASK,
+        ...CHECK_BUILD_TASKS,
       ];
     case 'ci':
-      return ['tc', 'test', 'ci:lint', ...CI_GATE_TASKS, SECRETS_VALIDATE_TASK];
+      return [
+        'tc',
+        'test',
+        'ci:lint',
+        ...CI_GATE_TASKS,
+        SECRETS_VALIDATE_TASK,
+        ...CHECK_BUILD_TASKS,
+      ];
     case 'gates':
       return [...CI_GATE_TASKS, SECRETS_VALIDATE_TASK];
     case 'verify':
       return ['tc', 'test', 'ci:lint'];
     case 'build':
-      return null;
+      return [...CHECK_BUILD_TASKS];
   }
 }
 
@@ -101,21 +116,15 @@ async function ensureSecretsFingerprint(
   tasks: readonly string[]
 ): Promise<void> {
   if (!tasks.includes(SECRETS_VALIDATE_TASK)) return;
+  // Infisical `export` for dev+prd has no CLI timeout; without a log line
+  // CI gates look hung before Turbo starts.
+  console.log('run-check-turbo: computing secrets fingerprint (Infisical)…');
   const fingerprint = await computeCheckSecretsFingerprint();
   process.env[CHECK_SECRETS_FINGERPRINT_ENV] = fingerprint;
+  console.log('run-check-turbo: secrets fingerprint ready.');
 }
 
 const mode = parseMode(process.argv.slice(2));
 const main = mainTasks(mode);
-
-if (main !== null) {
-  await ensureSecretsFingerprint(main);
-  const code = turboCiRun(main);
-  if (code !== 0) process.exit(code);
-}
-
-if (mode === 'all' || mode === 'ci' || mode === 'build') {
-  process.exit(turboCiRun(BUILD_ARGS));
-}
-
-process.exit(0);
+await ensureSecretsFingerprint(main);
+process.exit(turboCiRun(main));

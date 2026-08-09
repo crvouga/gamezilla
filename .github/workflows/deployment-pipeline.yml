@@ -5,17 +5,18 @@
 #
 # 1. Turbo-cacheable tasks fan out across parallel jobs — `check-gates`
 #    (root `ci:*` + `check:secrets`), `check-verify` (`tc`/`test` + root
-#    Biome `ci:lint`), `check-build` (`build` excluding `@apps/client`). Each job uses
-#    per-job `actions/cache` on `.turbo` (`.github/actions/turbo-cache`)
-#    and `tools/scripts/turbo-ci-run.ts` with `--cache=local:rw,remote:rw`
-#    when Vercel Remote Cache creds are present.
+#    Biome `ci:lint`), `check-build` (`@apps/api|minio|postgres#build`).
+#    Each job uses per-job `actions/cache` on `.turbo`
+#    (`.github/actions/turbo-cache`) and `tools/scripts/turbo-ci-run.ts`
+#    with `--cache=local:rw,remote:rw` when Vercel Remote Cache creds
+#    are present.
 #
 # 2. Jobs that need a distinct runner shape stay separate even though the
 #    same scripts are root Turbo tasks locally (`//#check:*` in turbo.json):
 #    `check-static` (actionlint + gitleaks; gitleaks needs `fetch-depth: 0`),
 #    `check-api`, `check-browser` (Chromium cache, failure screenshots).
-#    Local `bun check` runs the offline Turbo graph via `run-check-turbo.ts`
-#    (no live `check:api` / `check:browser`; those stay CI / opt-in).
+#    Local `bun check` is one offline `turbo-ci-run` (no live
+#    `check:api` / `check:browser`; those stay CI / opt-in).
 #
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe, and the
@@ -269,8 +270,8 @@ jobs:
           mode: save
 
   check-browser:
-    # Intentionally not `needs: [check-build]`. The CI `build` task filters
-    # `@apps/client` out (see `check:ci:build` in root package.json),
+    # Intentionally not `needs: [check-build]`. `check:ci:build` only runs
+    # package-scoped `@apps/api|minio|postgres#build` (not Expo client),
     # so check-browser is the only place the web client is actually built
     # in CI before deploy. Sequencing on check-build would just delay this
     # job for little cache benefit (remote cache already shared). CI starts
