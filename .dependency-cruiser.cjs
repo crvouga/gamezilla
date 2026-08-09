@@ -92,6 +92,20 @@ module.exports = {
       from: { path: '^libs/' },
       to: { path: '^apps/' },
     },
+    {
+      name: 'shared-no-wall-io-packages',
+      severity: 'error',
+      comment:
+        'Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See DETERMINISM.md.',
+      from: {
+        path: '(^libs/[^/]+/src/shared/|^pkgs/room/src/(client/core|server/core|types\\.ts|hash-room-state\\.ts))',
+        pathNot:
+          '(\\.(test|spec|sim\\.test)\\.|/(test|tests|testing|testkit|__tests__)/)',
+      },
+      to: {
+        path: '(^pkgs/http-client/|^pkgs/pubsub/|^pkgs/pubsub-emqx/|/wall-io\\.ts$|/src/wall\\.ts$)',
+      },
+    },
   ],
   options: {
     doNotFollow: {

@@ -122,4 +122,10 @@ export type RoomModule<
     identity: Identity
   ): HandleResult<E>;
   reduce(state: S, event: E): S;
+  /**
+   * Canonical digest of synced state for reconnect / replay / anti-cheat.
+   * Must cover the full attribute map clients need to match. Prefer
+   * `hashRoomState` unless the module needs a narrower projection.
+   */
+  hash(state: S): string;
 };

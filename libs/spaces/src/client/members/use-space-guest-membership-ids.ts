@@ -13,6 +13,8 @@ export function useSpaceGuestMembershipIds(spaceId: string): string[] {
   const seats = useSpaceRoomSelector(SpaceMembersRoomAttr.seats.from);
   return useMemo(() => {
     if (spaceId.length === 0) return [];
-    return Object.keys(seats).filter((id) => id !== hostMemberId);
+    return Object.keys(seats)
+      .filter((id) => id !== hostMemberId)
+      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }, [spaceId, seats, hostMemberId]);
 }

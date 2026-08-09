@@ -122,7 +122,11 @@ export function createSpaceMembersEventReducer(
 }
 
 export function spaceSeatMemberIds(state: RoomState): readonly string[] {
-  return Object.keys(readSeats(state));
+  // Explicit sort: plain-object key order is not a stable roster / turn order
+  // (integer-like ids reorder per the JS property-order rules).
+  return Object.keys(readSeats(state)).sort((a, b) =>
+    a < b ? -1 : a > b ? 1 : 0
+  );
 }
 
 export function spaceSeatCount(state: RoomState): number {

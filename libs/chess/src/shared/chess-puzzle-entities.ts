@@ -1,5 +1,7 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
+import { compareCodeUnit } from './code-unit-compare';
+
 /** Sync entity type for a Lichess puzzle row (static reference data). */
 export const CHESS_PUZZLE_ENTITY_TYPE = 'chess.puzzle';
 
@@ -47,14 +49,14 @@ function readStringArray(v: unknown): string[] {
       .filter((x): x is string => typeof x === 'string')
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
-    return [...new Set(out)].sort((a, b) => a.localeCompare(b));
+    return [...new Set(out)].sort(compareCodeUnit);
   }
   if (typeof v !== 'string') return [];
   const parts = v
     .split(/\s+/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
-  return [...new Set(parts)].sort((a, b) => a.localeCompare(b));
+  return [...new Set(parts)].sort(compareCodeUnit);
 }
 
 const chessPuzzleNs = createAttrNamespace('chess', 'puzzle');

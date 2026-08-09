@@ -39,6 +39,8 @@ const CI_GATE_TASKS = [
   'ci:no-bare-io',
   'ci:no-resolve-wall-defaults',
   'ci:no-sql-wall-io',
+  'ci:hard-determinism',
+  'ci:sim-determinism',
   'ci:pubsub-emqx-imports',
   'ci:depcruise',
   'ci:circular-deps',

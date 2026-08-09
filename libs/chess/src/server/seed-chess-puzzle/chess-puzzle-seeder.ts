@@ -303,7 +303,7 @@ export class ChessPuzzleSeeder {
   ): boolean {
     if (resumeCursor === null) return false;
     const id = String(row['PuzzleId'] ?? '').trim();
-    return id.length > 0 && id.localeCompare(resumeCursor) <= 0;
+    return id.length > 0 && (id < resumeCursor || id === resumeCursor);
   }
 
   async #maybeFlushBatch(args: {

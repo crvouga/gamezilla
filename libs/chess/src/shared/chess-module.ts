@@ -6,6 +6,7 @@ import {
 import {
   assertRoomModuleName,
   type HandleResult,
+  hashRoomState,
   ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomError,
@@ -72,5 +73,9 @@ export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
     const ev = isMessageEnvelope(event) ? event : null;
     if (ev === null) return state;
     return eventReducer.dispatch(state, undefined, ev, (s) => s);
+  },
+
+  hash(state): string {
+    return hashRoomState(state);
   },
 };

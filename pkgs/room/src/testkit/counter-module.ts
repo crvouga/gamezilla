@@ -6,6 +6,7 @@ import {
   type Message,
 } from '@pkgs/message';
 
+import { hashRoomState } from '../hash-room-state';
 import {
   assertRoomModuleName,
   type HandleResult,
@@ -90,6 +91,10 @@ export const TestCounterModule: RoomModule<
       return { ...state, ...counterCount(readCount(state) - 1) };
     }
     return state;
+  },
+
+  hash(state: RoomState): string {
+    return hashRoomState(state);
   },
 };
 

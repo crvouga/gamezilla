@@ -5,6 +5,7 @@ import {
 } from '@pkgs/message';
 import {
   type HandleResult,
+  hashRoomState,
   ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomError,
@@ -139,6 +140,10 @@ export function createSpaceModule(
       const ev = isMessageEnvelope(event) ? event : null;
       if (ev === null) return state;
       return eventReducer.dispatch(state, undefined, ev, (s) => s);
+    },
+
+    hash(state: RoomState): string {
+      return hashRoomState(state);
     },
   };
 }

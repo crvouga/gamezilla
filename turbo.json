@@ -396,6 +396,31 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:hard-determinism": {
+      "inputs": [
+        "tools/scripts/check-hard-determinism.ts",
+        "libs/**/src/shared/**/*.ts",
+        "libs/**/src/shared/**/*.tsx",
+        "pkgs/sync-engine/src/mutations/**/*.ts",
+        "pkgs/sync-engine/src/client/**/*.ts",
+        "pkgs/sync-engine/src/sim/**/*.ts",
+        "pkgs/room/src/client/core/**/*.ts",
+        "pkgs/room/src/server/core/**/*.ts",
+        "pkgs/room/src/types.ts",
+        "pkgs/room/src/hash-room-state.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:sim-determinism": {
+      "inputs": [
+        "tools/scripts/run-sim-determinism.ts",
+        "libs/**/*.sim.test.ts",
+        "pkgs/**/*.sim.test.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-resolve-wall-defaults": {
       "inputs": [
         "tools/scripts/check-no-resolve-wall-defaults.ts",
