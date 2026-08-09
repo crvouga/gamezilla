@@ -123,12 +123,11 @@
 @apps/api preview:serve: ⎔ Local server updated and ready
 @apps/api preview:serve: ⎔ Reloading local server...
 @apps/api preview:serve: ⎔ Local server updated and ready
- it from the bundle, which will remove this error and leave the unresolved path in the bundle.
-@apps/api preview:serve:   
-@apps/api preview:serve:   
-@apps/api preview:serve: 
-@apps/api preview:serve: 
-@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
 @apps/api preview:serve: 
 @apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
 @apps/api preview:serve:   
@@ -150,6 +149,10 @@
 @apps/api preview:serve:   
 @apps/api preview:serve: 
 @apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
 @apps/api preview:serve: ⎔ Reloading local server...
 @apps/api preview:serve: ⎔ Local server updated and ready
 @apps/api preview:serve: ⎔ Reloading local server...

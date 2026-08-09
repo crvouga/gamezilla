@@ -136,7 +136,9 @@
       "@pkgs/os": ["./pkgs/os/src/index.ts"],
       "@pkgs/os/*": ["./pkgs/os/src/*"],
       "@pkgs/ui-testing": ["./pkgs/ui-testing/src/index.ts"],
-      "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"]
+      "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"],
+      "@pkgs/simulation": ["./pkgs/simulation/src/index.ts"],
+      "@pkgs/simulation/*": ["./pkgs/simulation/src/*"]
     }
   },
   "include": [
@@ -259,6 +261,8 @@
     "pkgs/os/src/**/*.ts",
     "pkgs/ui-testing/src/**/*.ts",
     "pkgs/ui-testing/src/**/*.tsx",
+    "pkgs/simulation/src/**/*.ts",
+    "pkgs/simulation/src/**/*.tsx",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]

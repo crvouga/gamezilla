@@ -1224,6 +1224,28 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/simulation": {
+      "name": "@pkgs/simulation",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "react-native": "catalog:",
+        "react-native-web": "catalog:",
+      },
+      "devDependencies": {
+        "@happy-dom/global-registrator": "catalog:",
+        "@playwright/test": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@typescript/native": "catalog:",
+        "happy-dom": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/sounds": {
       "name": "@pkgs/sounds",
       "version": "0.0.0",
@@ -2602,6 +2624,8 @@
     "@pkgs/secrets-config": ["@pkgs/secrets-config@workspace:pkgs/secrets-config"],
 
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
+
+    "@pkgs/simulation": ["@pkgs/simulation@workspace:pkgs/simulation"],
 
     "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 
