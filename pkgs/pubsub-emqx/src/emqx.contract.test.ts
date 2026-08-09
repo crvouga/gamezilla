@@ -20,6 +20,7 @@ const io = wallIo();
 const http = io.http;
 const now = io.clock.now;
 const timers = io.timers;
+const random = io.random;
 
 function waitMs(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -127,8 +128,9 @@ if (!brokerReady) {
         // Unique stable id per instance so concurrent contract peers do not kick each other.
         const ps = createEmqxPubSub({
           url: WSS_URL!,
-          clientIdPrefix: `contract_${randomClientIdSuffix()}`,
+          clientIdPrefix: `contract_${randomClientIdSuffix(random)}`,
           timers,
+          random,
           auth: async () => ({
             username: MQTT_USER,
             password: MQTT_PASS,
@@ -165,8 +167,8 @@ if (!brokerReady) {
   describe('EMQX offline session buffer', () => {
     test('reconnect with same clientId receives queued qos1 publish', async () => {
       const apiBaseUrl = API_URL!;
-      const clientId = `offline_${randomClientIdSuffix()}`;
-      const topic = `offline_${randomClientIdSuffix()}`;
+      const clientId = `offline_${randomClientIdSuffix(random)}`;
+      const topic = `offline_${randomClientIdSuffix(random)}`;
       const received: unknown[] = [];
 
       // Slow reconnect so we can publish while the session is offline.
@@ -174,6 +176,7 @@ if (!brokerReady) {
         url: WSS_URL!,
         clientIdPrefix: clientId,
         timers,
+        random,
         auth: async () => ({
           username: MQTT_USER,
           password: MQTT_PASS,

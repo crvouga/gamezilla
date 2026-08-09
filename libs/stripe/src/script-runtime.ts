@@ -42,6 +42,7 @@ export async function assertStripeSecretKey(
 ): Promise<string> {
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
+    now: cliIo.clock.now,
   });
   const raw = (
     await store.getOptional(StripeSecretKeys.secretKey)
@@ -73,6 +74,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   }
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
+    now: cliIo.clock.now,
   });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
@@ -102,6 +104,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
+    now: cliIo.clock.now,
   });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';

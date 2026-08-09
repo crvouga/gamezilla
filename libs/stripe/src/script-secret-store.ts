@@ -8,6 +8,8 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 export type CreateStripeScriptSecretStoreOptions = {
   readonly fetchFn: HttpClient['fetch'];
+  /** Injectable clock (composition-root {@link Io}.clock.now). */
+  readonly now: () => number;
 };
 
 /**
@@ -22,5 +24,8 @@ export async function createStripeScriptSecretStore(
     repoRoot: REPO_ROOT,
     fetchFn: options.fetchFn,
   });
-  return createCachingSecretStore(store, { ttlMs: 60_000 });
+  return createCachingSecretStore(store, {
+    ttlMs: 60_000,
+    now: options.now,
+  });
 }

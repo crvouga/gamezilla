@@ -10,8 +10,8 @@ import { wrapSecret, wrapSecretOptional } from './wrap-secret';
 export type CachingSecretStoreOptions = {
   /** Time-to-live for successfully resolved values, in ms. */
   ttlMs: number;
-  /** @default Date.now */
-  now?: () => number;
+  /** Injectable clock (composition-root {@link Io}.clock.now). */
+  now: () => number;
 };
 
 type CacheEntry = { value: string | null; expiresAt: number };
@@ -59,7 +59,7 @@ export class CachingSecretStore implements SecretStore {
   constructor(inner: SecretStore, options: CachingSecretStoreOptions) {
     this.inner = inner;
     this.ttlMs = options.ttlMs;
-    this.now = options.now ?? Date.now;
+    this.now = options.now;
   }
 
   /** Testing: drop all cached entries. */

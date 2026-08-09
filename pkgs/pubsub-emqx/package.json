@@ -11,8 +11,9 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests",
-    "test:broker": "bun test src/contract.test.ts"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:broker": "bun test src/emqx.contract.test.ts",
+    "test:contract": "bun test src/emqx.contract.test.ts"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",

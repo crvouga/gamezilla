@@ -12,13 +12,6 @@ import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';
 
-let checkpointSeq = 0;
-
-function nextCheckpointFromIo(): string {
-  checkpointSeq += 1;
-  return `${String(getIo().clock.now())}${String(checkpointSeq).padStart(6, '0')}`;
-}
-
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
   assert.defined(requestStore, 'sync sql: request store missing');
@@ -46,6 +39,8 @@ function createRequestScopedPubSub(): PubSub {
 
 /** Product mount: `POST /api/query` (batch body), `/api/mutations`. */
 export function createSyncApp() {
+  // Per-app counter — never module-scope (multi-sim / multi-app isolation).
+  let checkpointSeq = 0;
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
     getSql: openRequestSqlClient,
@@ -56,7 +51,10 @@ export function createSyncApp() {
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: appTopicMap,
-    nextCheckpoint: nextCheckpointFromIo,
+    nextCheckpoint: () => {
+      checkpointSeq += 1;
+      return `${String(getIo().clock.now())}${String(checkpointSeq).padStart(6, '0')}`;
+    },
     ...(process.env['SECRETS_ENV'] === 'dev'
       ? { strictQueryLimits: true }
       : {}),

@@ -3,6 +3,7 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { CreateId, Random } from '@pkgs/uuid';
 
+import { createSeededRng, type SeededRng } from './seeded-rng';
 import type { Io } from './types';
 
 export type SimClock = Clock & {
@@ -12,6 +13,8 @@ export type SimClock = Clock & {
 
 export type SimIo = Io & {
   readonly clock: SimClock;
+  /** Root seeded RNG — fork for subcomponents; do not share `random` streams. */
+  readonly rng: SeededRng;
 };
 
 export type CreateSimIoArgs = {
@@ -20,35 +23,6 @@ export type CreateSimIoArgs = {
   /** Defaults to a client that rejects all fetches. */
   readonly http?: HttpClient;
 };
-
-function toSeedBigInt(seed: number | bigint | string): bigint {
-  if (typeof seed === 'bigint') {
-    return seed === 0n ? 1n : seed & 0xffffffffffffffffn;
-  }
-  if (typeof seed === 'string') {
-    let h = 0xcbf29ce484222325n;
-    for (let i = 0; i < seed.length; i += 1) {
-      h ^= BigInt(seed.charCodeAt(i));
-      h = (h * 0x100000001b3n) & 0xffffffffffffffffn;
-    }
-    return h === 0n ? 1n : h;
-  }
-  if (!Number.isFinite(seed)) return 1n;
-  const asInt = BigInt(Math.floor(Math.abs(seed))) & 0xffffffffffffffffn;
-  return asInt === 0n ? 1n : asInt;
-}
-
-function createMulberryRandom(seed: bigint): Random {
-  let state = Number(seed & 0xffffffffn) >>> 0;
-  if (state === 0) state = 1;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function createSeededCreateId(random: Random): CreateId {
   return () => {
@@ -155,15 +129,17 @@ const rejectingHttp: HttpClient = {
 
 /** Deterministic {@link Io} for simulation (virtual clock + seeded rng/ids). */
 export function createSimIo(args: CreateSimIoArgs): SimIo {
-  const seed = toSeedBigInt(args.seed);
-  const random = createMulberryRandom(seed);
+  const root = createSeededRng(args.seed);
+  const ioRng = root.fork('io');
+  const idRng = root.fork('ids');
   const { clock, timers } = createSimClockAndTimers(args.startMs ?? 0);
   return {
     clock,
     timers,
-    createId: createSeededCreateId(random),
-    random,
+    createId: createSeededCreateId(idRng.random),
+    random: ioRng.random,
     http: args.http ?? rejectingHttp,
-    seed,
+    seed: root.seed,
+    rng: root,
   };
 }

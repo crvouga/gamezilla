@@ -18,7 +18,7 @@ describe('long horizon fuzz hours of virtual time', () => {
           seed,
           steps: 36,
           clientCount: 3,
-          sampleFaults: false,
+          dstFaults: true,
         });
         if (!result.ok) {
           throw new Error(
@@ -38,7 +38,7 @@ describe('long horizon fuzz hours of virtual time', () => {
         seed: 909,
         steps: 48,
         clientCount: 3,
-        sampleFaults: false,
+        dstFaults: true,
       });
       if (!result.ok) {
         throw new Error(

@@ -2,7 +2,7 @@ import type { SimAuthStatus } from './client-factory';
 import { createSimClock, type SimClock } from './clock';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
-import { RELIABLE_FAULTS, sampleFaultOptions } from './faults';
+import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
 import { createSimNetwork } from './network';
 import { createSimPubSubBroker } from './pubsub-bridge';
 import type { SeededRng } from './rng';
@@ -33,7 +33,11 @@ export function createBootRuntime(rng: SeededRng, worldArgs: WorldClientOpts) {
   const faults =
     worldArgs.sampleFaults === true
       ? sampleFaultOptions(rng.fork('faults'))
-      : (worldArgs.faults ?? RELIABLE_FAULTS);
+      : worldArgs.faults !== undefined
+        ? worldArgs.faults
+        : worldArgs.dstFaults === true
+          ? DST_FAULTS
+          : RELIABLE_FAULTS;
   const network = createSimNetwork({
     scheduler,
     rng: rng.fork('net'),

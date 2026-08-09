@@ -9,6 +9,19 @@ describe('createSimIo', () => {
     expect(a.createId()).toBe(b.createId());
     expect(a.random()).toBe(b.random());
     expect(a.seed).toBe(b.seed);
+    expect(a.rng.fork('simulation').random()).toBe(
+      b.rng.fork('simulation').random()
+    );
+  });
+
+  test('io.random and createId use independent forks of the root seed', () => {
+    const io = createSimIo({ seed: 7 });
+    const id = io.createId();
+    const r = io.random();
+    // Consuming ids must not advance the io.random stream (and vice versa).
+    const again = createSimIo({ seed: 7 });
+    expect(again.random()).toBe(r);
+    expect(again.createId()).toBe(id);
   });
 
   test('clock advance fires setTimeout', () => {

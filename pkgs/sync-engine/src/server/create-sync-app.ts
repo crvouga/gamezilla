@@ -36,20 +36,19 @@ export type CreateSyncAppDeps = {
   readonly strictQueryLimits?: boolean;
 };
 
-let checkpointSeq = 0;
-
-function defaultNextCheckpoint(now: () => number): string {
-  checkpointSeq += 1;
-  return `${String(now())}${String(checkpointSeq).padStart(6, '0')}`;
-}
-
 /**
  * Single Hono app for sync: `POST /query` (batch body), `POST /mutations`.
  * Always merges framework mutations into the product registry.
  */
 export function createSyncApp(deps: CreateSyncAppDeps) {
+  // Per-app counter — never module-scope (multi-sim / multi-app isolation).
+  let checkpointSeq = 0;
   const nextCheckpoint =
-    deps.nextCheckpoint ?? (() => defaultNextCheckpoint(deps.now));
+    deps.nextCheckpoint ??
+    (() => {
+      checkpointSeq += 1;
+      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
+    });
   const mutations = withFrameworkMutations(deps.mutations);
   const app = new Hono();
   mountQueryRoutes(app, {

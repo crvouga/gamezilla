@@ -2,7 +2,6 @@ import { createSimIo, type SimClock, type SimIo } from '@pkgs/io';
 
 import { createSimActor, type SimActor } from './actor';
 import type { SimulationOptions } from './options';
-import { createSeededRng } from './rng';
 import type { SimulationSystemHandle, SimulationUiKind } from './system-port';
 
 export type Simulation = {
@@ -30,7 +29,8 @@ export async function openSimulation(
     seed: options.seed,
     startMs: options.startMs ?? 0,
   });
-  const rng = createSeededRng(options.seed);
+  // Derive from parent Io seed — never an independent createSeededRng(seed).
+  const rng = io.rng.fork('simulation');
 
   const handle: SimulationSystemHandle = await options.system.start({
     io,

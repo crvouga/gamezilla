@@ -27,6 +27,7 @@ async function resolveStripeSecretOrSkip(): Promise<string | null> {
   try {
     store = await createStripeScriptSecretStore({
       fetchFn: cliIo.http.fetch.bind(cliIo.http),
+      now: cliIo.clock.now,
     });
   } catch {
     if (isCi()) {

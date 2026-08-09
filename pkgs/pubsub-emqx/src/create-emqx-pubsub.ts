@@ -5,6 +5,7 @@ import {
   encodePayload,
   type PubSub,
   PubSubClosedError,
+  PubSubPublishError,
   type PubSubStatus,
   type Topic,
 } from '@pkgs/pubsub/interface';
@@ -33,6 +34,8 @@ export type EmqxPubSubOptions = {
   clientIdPrefix: string;
   /** Injectable timers for reconnect delay. */
   timers: Timers;
+  /** Injectable RNG for reconnect jitter (from composition-root Io.random). */
+  random: () => number;
   reconnect?: { baseMs?: number; maxMs?: number };
   keepaliveSec?: number;
   /** Injectable for unit tests. Defaults to `mqtt.connect`. */
@@ -52,6 +55,7 @@ class EmqxMqttPubSub implements PubSub {
   private readonly keepaliveSec: number;
   private readonly connectFn: ConnectFn;
   private readonly timers: Timers;
+  private readonly random: () => number;
 
   private client: MqttClient | null = null;
   private currentStatus: PubSubStatus = 'connecting';
@@ -71,6 +75,7 @@ class EmqxMqttPubSub implements PubSub {
     this.keepaliveSec = options.keepaliveSec ?? 30;
     this.connectFn = options.connectFn ?? mqtt.connect;
     this.timers = options.timers;
+    this.random = options.random;
     rememberEmqxClientId(this, this.clientId);
     void this.openConnection();
   }
@@ -219,7 +224,8 @@ class EmqxMqttPubSub implements PubSub {
     const delay = fullJitterDelayMs(
       this.reconnectAttempt,
       this.baseMs,
-      this.maxMs
+      this.maxMs,
+      this.random
     );
     this.reconnectAttempt += 1;
     this.setStatus('connecting');
@@ -271,7 +277,7 @@ class EmqxMqttPubSub implements PubSub {
 
   private requireClient(): MqttClient {
     if (!this.client?.connected) {
-      throw new Error('PubSub MQTT client is not connected');
+      throw new PubSubPublishError('PubSub MQTT client is not connected');
     }
     return this.client;
   }
@@ -292,8 +298,15 @@ function publishQos1(
       payload,
       { qos: EMQX_PUBSUB_QOS, retain: false },
       (err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          reject(
+            new PubSubPublishError(
+              err instanceof Error ? err.message : 'MQTT publish failed'
+            )
+          );
+        } else {
+          resolve();
+        }
       }
     );
   });

@@ -63,6 +63,8 @@ export class RoomServer<
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   private readonly clock: Clock;
   private readonly connections = new Map<string, RoomConnection>();
+  /** Per-connection command serial — matches typical WS single-threaded drain. */
+  private readonly commandChains = new Map<string, Promise<void>>();
   private committedState: S;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
@@ -129,6 +131,7 @@ export class RoomServer<
 
   unregisterConnection(id: string): void {
     if (!this.connections.delete(id)) return;
+    this.commandChains.delete(id);
     this.broadcastRoster();
   }
 
@@ -356,6 +359,25 @@ export class RoomServer<
   }
 
   async handleClientMessage(
+    connectionId: string,
+    identity: Identity,
+    raw: unknown
+  ): Promise<void> {
+    const prev = this.commandChains.get(connectionId) ?? Promise.resolve();
+    const run = prev
+      .catch(() => undefined)
+      .then(() => this.handleClientMessageSerial(connectionId, identity, raw));
+    this.commandChains.set(
+      connectionId,
+      run.then(
+        () => undefined,
+        () => undefined
+      )
+    );
+    await run;
+  }
+
+  private async handleClientMessageSerial(
     connectionId: string,
     identity: Identity,
     raw: unknown

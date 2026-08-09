@@ -976,6 +976,7 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
@@ -1076,6 +1077,7 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/io": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",

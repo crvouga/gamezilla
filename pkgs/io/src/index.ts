@@ -5,6 +5,7 @@ export {
   useIo,
   useIoOptional,
 } from './io-context';
+export { createSeededRng, type SeededRng } from './seeded-rng';
 export {
   type CreateSimIoArgs,
   createSimIo,

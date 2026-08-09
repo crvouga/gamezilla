@@ -11,7 +11,8 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:contract": "bun test src/kv.postgres.contract.test.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
@@ -27,6 +28,7 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

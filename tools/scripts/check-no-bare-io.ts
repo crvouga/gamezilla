@@ -17,8 +17,9 @@ type Ban = {
 };
 
 const BANS: readonly Ban[] = [
-  { kind: 'Date.now', re: /\bDate\.now\s*\(/ },
-  { kind: 'performance.now', re: /\bperformance\.now\s*\(/ },
+  // Call forms and bare identifier refs (e.g. `now ?? Date.now`, `= Math.random`).
+  { kind: 'Date.now', re: /\bDate\.now\b/ },
+  { kind: 'performance.now', re: /\bperformance\.now\b/ },
   { kind: 'new Date()', re: /\bnew\s+Date\s*\(\s*\)/ },
   { kind: 'setTimeout', re: /(?:^|[^\w.])setTimeout\s*\(/ },
   { kind: 'clearTimeout', re: /(?:^|[^\w.])clearTimeout\s*\(/ },
@@ -26,9 +27,9 @@ const BANS: readonly Ban[] = [
   { kind: 'clearInterval', re: /(?:^|[^\w.])clearInterval\s*\(/ },
   { kind: 'bare fetch', re: /(?:^|[^.\w])fetch\s*\(/ },
   { kind: 'globalThis.fetch', re: /globalThis\.fetch/ },
-  { kind: 'crypto.randomUUID', re: /crypto\.randomUUID\s*\(/ },
-  { kind: 'Math.random', re: /\bMath\.random\s*\(/ },
-  { kind: 'crypto.getRandomValues', re: /crypto\.getRandomValues\s*\(/ },
+  { kind: 'crypto.randomUUID', re: /crypto\.randomUUID\b/ },
+  { kind: 'Math.random', re: /\bMath\.random\b/ },
+  { kind: 'crypto.getRandomValues', re: /crypto\.getRandomValues\b/ },
 ];
 
 type Offense = {

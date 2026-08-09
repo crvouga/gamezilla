@@ -100,7 +100,10 @@ function latchFatal(reason: string): void {
 
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretsEnv = assertSecretsEnvBinding(env);
-  const secretStore = createApiSecretStore(workerEnvToSecretRecord(env));
+  const secretStore = createApiSecretStore(
+    workerEnvToSecretRecord(env),
+    roomIo.clock.now
+  );
   const objectStore = await createApiObjectStore(secretStore, {
     secretsEnv,
     now: roomIo.clock.now,

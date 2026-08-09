@@ -11,7 +11,8 @@
   "scripts": {
     "sim:lab": "bun ./src/sim-lab/server.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test",
+    "test:sim": "bun test src/tests/scenarios"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",

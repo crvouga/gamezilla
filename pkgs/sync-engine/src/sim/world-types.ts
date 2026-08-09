@@ -26,6 +26,11 @@ export type ClientMeta = {
 export type WorldClientOpts = {
   readonly faults?: SimFaultOptions;
   readonly sampleFaults?: boolean;
+  /**
+   * When true (and `faults` / `sampleFaults` unset), boot with {@link DST_FAULTS}
+   * so scenarios exercise mild reorder/loss by default.
+   */
+  readonly dstFaults?: boolean;
   /** When false, pushes wake query refetch instead of row-image apply. */
   readonly rowImageFanout?: boolean;
   /**

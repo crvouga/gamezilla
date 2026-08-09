@@ -102,6 +102,9 @@ function useSyncEnginePromise(
         get createId() {
           return ioRef.current.createId;
         },
+        get random() {
+          return ioRef.current.random;
+        },
         getFreshAuthToken: (options) => getFreshAuthTokenRef.current(options),
         databaseName: dbName,
         userId,

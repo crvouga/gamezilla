@@ -2,6 +2,7 @@ import type { ConfigService } from '@libs/auth/client/config-service-types';
 import type { Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';
+import type { Random } from '@pkgs/uuid';
 import { fetchPubSubToken } from './pubsub-token';
 import type {
   GetFreshAuthToken,
@@ -21,6 +22,7 @@ export function tryCreateClientPubSub(args: {
   readonly auth: SyncClientAuth;
   readonly getFreshAuthToken: GetFreshAuthToken;
   readonly timers: Timers;
+  readonly random: Random;
 }): PubSub | null {
   const url = process.env['EXPO_PUBLIC_EMQX_WSS_URL']?.trim() ?? '';
   if (url.length === 0) return null;
@@ -29,6 +31,7 @@ export function tryCreateClientPubSub(args: {
     url,
     clientIdPrefix: deviceId,
     timers: args.timers,
+    random: args.random,
     auth: async () =>
       fetchPubSubToken({
         config: args.config,

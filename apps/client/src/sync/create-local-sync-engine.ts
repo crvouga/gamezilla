@@ -13,7 +13,7 @@ import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
-import type { CreateId } from '@pkgs/uuid';
+import type { CreateId, Random } from '@pkgs/uuid';
 import * as SQLite from 'expo-sqlite';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
@@ -60,6 +60,7 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
+  readonly random: Random;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
@@ -117,6 +118,7 @@ function pushOptions(
           auth: args.auth,
           getFreshAuthToken: args.getFreshAuthToken,
           timers: args.timers,
+          random: args.random,
         });
         if (next === null) {
           throw new Error('pubsub unavailable');

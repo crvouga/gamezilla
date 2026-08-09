@@ -11,7 +11,8 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:contract": "bun test src/object-store.s3.contract.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
@@ -21,6 +22,7 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

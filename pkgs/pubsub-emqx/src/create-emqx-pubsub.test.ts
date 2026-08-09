@@ -12,6 +12,7 @@ import {
 const io = wallIo();
 const now = io.clock.now;
 const timers = io.timers;
+const random = io.random;
 
 class FakeMqttClient extends EventEmitter {
   connected = false;
@@ -94,6 +95,7 @@ async function boot(
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
     timers,
+    random,
     connectFn: (_url: string, opts: IClientOptions) => {
       lastOpts = opts;
       return fake as unknown as MqttClient;
@@ -214,6 +216,7 @@ describe('createEmqxPubSub', () => {
       auth: async () => ({ username: 'u', password: 'p' }),
       clientIdPrefix: 'stable-id',
       timers,
+      random,
       reconnect: { baseMs: 1, maxMs: 1 },
       connectFn: (_url, opts) => {
         optsList.push(opts);

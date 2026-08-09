@@ -21,7 +21,11 @@ import type { TopicMap } from '../shared/topic-map';
 import { emptySimPushChannels, type SimPushChannels } from './domain-pack';
 import type { SimHttpClient } from './http-bridge';
 
-export type SimAuthStatus = 'valid' | 'expired' | 'revoked';
+export type SimAuthStatus =
+  | 'valid'
+  | 'expired'
+  | 'revoked'
+  | 'upgrade_required';
 
 export type SimAuthControl = {
   readonly getStatus: () => SimAuthStatus;
@@ -82,8 +86,10 @@ async function wipeIdentityDb(db: SqlClient): Promise<void> {
 }
 
 /**
- * Wrap postQueries/postMutations: revoked → SyncApiAuthError; expired →
- * refresh once then retry (queue survives).
+ * Wrap postQueries/postMutations:
+ * - revoked → SyncApiAuthError (client wipes DB)
+ * - upgrade_required → SyncApiAuthError (no wipe; protocol cut)
+ * - expired → refresh once then retry (queue survives)
  */
 export function withSimAuthRetry<T>(
   auth: SimAuthControl | undefined,
@@ -93,6 +99,9 @@ export function withSimAuthRetry<T>(
   const status = auth.getStatus();
   if (status === 'revoked') {
     return Promise.reject(new SyncApiAuthError('revoked'));
+  }
+  if (status === 'upgrade_required') {
+    return Promise.reject(new SyncApiAuthError('upgrade_required'));
   }
   if (status === 'expired') {
     auth.refreshExpired();

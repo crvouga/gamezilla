@@ -17,6 +17,8 @@ export type RunSeedOptions = {
   readonly clientCount?: number;
   readonly steps?: number;
   readonly sampleFaults?: boolean;
+  /** Mild fixed reorder/loss (see {@link DST_FAULTS}). */
+  readonly dstFaults?: boolean;
 };
 
 type WorkloadLoopFail = {
@@ -77,6 +79,7 @@ export async function runNotesSeed(
       world,
       clientCount,
       sampleFaults: opts.sampleFaults === true,
+      dstFaults: opts.dstFaults === true,
     });
     const loop = await runWorkloadLoop({ world, ids, steps });
     done = loop.done;

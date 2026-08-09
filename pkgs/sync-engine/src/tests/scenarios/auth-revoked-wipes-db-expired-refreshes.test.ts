@@ -124,4 +124,31 @@ describe('auth revoked wipes db expired refreshes', () => {
       await readLiveNotes(world.server.db)
     );
   });
+
+  test('upgrade_required rejects without wiping local rows', async () => {
+    await using world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 605,
+    });
+    const a = await world.addClient({ id: 'alice' });
+
+    await a.mutate(setNote, { id: 'n-keep', body: 'local-and-server' });
+    await world.assertConverged();
+
+    world.node('alice').auth('upgrade_required');
+    await a.disconnect();
+    await a.connect();
+    await world.until(
+      () => (a.lastError() ?? '').includes('upgrade_required'),
+      {
+        budgetMs: 2_000,
+      }
+    );
+
+    // Protocol cut must not wipe — local + server still hold the note.
+    await expectLiveNote(a.db, 'n-keep', { body: 'local-and-server' });
+    await expectLiveNote(world.server.db, 'n-keep', {
+      body: 'local-and-server',
+    });
+  });
 });
