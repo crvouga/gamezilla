@@ -7,7 +7,7 @@
  */
 export type RoomNamespace = {
   idFromName(name: string): object;
-  get(id: object): { fetch(request: Request): Promise<Response> };
+  get(id: object): { fetch: (request: Request) => Promise<Response> };
 };
 
 export type ApiWorkerEnv = {

@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import { useEffect, useRef } from 'react';
 import type { TextInput as RNTextInput } from 'react-native';
 
@@ -18,17 +19,18 @@ export function CommandPaletteInput({
   autoFocus = true,
 }: CommandPaletteInputProps) {
   const { t } = useLingui();
+  const timers = useTimers();
   const inputRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
     if (autoFocus && editable) {
-      const timerId = setTimeout(() => inputRef.current?.focus(), 50);
+      const timerId = timers.setTimeout(() => inputRef.current?.focus(), 50);
       return () => {
-        clearTimeout(timerId);
+        timers.clearTimeout(timerId);
       };
     }
     return undefined;
-  }, [autoFocus, editable]);
+  }, [autoFocus, editable, timers]);
 
   return (
     <TextInput

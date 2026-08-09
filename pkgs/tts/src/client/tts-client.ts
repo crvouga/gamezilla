@@ -27,8 +27,8 @@ export type TtsClientOptions = {
    * to a local URI without hitting the API.
    */
   readonly objectStore: ObjectStore;
-  /** Override `globalThis.fetch` (used for tests / authenticated wrappers). */
-  readonly fetch?: FetchFn;
+  /** HTTP transport (inject from Io / HttpClient). */
+  readonly fetch: FetchFn;
 };
 
 export type TtsClientSynthesizeRequest = TtsSynthesizeRequest & {
@@ -59,8 +59,7 @@ export class TtsClient {
 
   constructor(options: TtsClientOptions) {
     this.base = trimBaseUrl(options.apiUrl);
-    this.fetchFn =
-      options.fetch ?? ((input, init) => globalThis.fetch(input, init));
+    this.fetchFn = options.fetch;
     this.objectStore = options.objectStore;
   }
 

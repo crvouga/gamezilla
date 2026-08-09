@@ -1,4 +1,5 @@
 import { Assert } from '@pkgs/assert';
+import type { Clock } from '@pkgs/clock';
 import { isMessageEnvelope } from '@pkgs/message';
 
 import {
@@ -35,6 +36,8 @@ export type RoomServerConfig<
     topic: string,
     command: RoomCommand<C>
   ) => Promise<{ ok: true } | { ok: false; reason: string }>;
+  /** Injectable clock (required — no wall default). */
+  clock: Clock;
 };
 
 type Sender = (payload: unknown) => void;
@@ -58,6 +61,7 @@ export class RoomServer<
   private readonly module: RoomModule<S, C, E, Identity>;
   private readonly storage: RoomStorage;
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
+  private readonly clock: Clock;
   private readonly connections = new Map<string, RoomConnection>();
   private committedState: S;
 
@@ -66,6 +70,7 @@ export class RoomServer<
     this.module = config.module;
     this.storage = config.storage;
     this.authorize = config.authorize;
+    this.clock = config.clock;
     this.committedState = config.module.initialState();
   }
 
@@ -258,7 +263,7 @@ export class RoomServer<
         { event }
       );
     }
-    const ts = Date.now();
+    const ts = this.clock.now();
     const entries: LogEntry<E>[] = events.map((event, i) => ({
       seq: lastSeqBefore + i + 1,
       event,

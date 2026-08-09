@@ -1,3 +1,5 @@
+import type { CreateId } from '@pkgs/uuid';
+
 import { createSpanId, createTraceId } from '../shared/ids';
 import { sampledSpanContext } from '../shared/trace-context';
 import type {
@@ -18,7 +20,8 @@ type SpanEvent = {
 
 export class BaseSpan implements Span {
   readonly spanContext: SpanContext;
-  private readonly startedAt = performance.now();
+  private readonly now: () => number;
+  private readonly startedAt: number;
   private readonly attributes: SpanAttributes;
   private readonly events: SpanEvent[] = [];
   private readonly exporter: SpanExporter;
@@ -34,13 +37,18 @@ export class BaseSpan implements Span {
     readonly name: string;
     readonly kind: SpanKind;
     readonly exporter: SpanExporter;
+    readonly now: () => number;
+    readonly createId: CreateId;
     readonly parent?: SpanContext;
     readonly attributes?: SpanAttributes;
     readonly traceId?: string;
     readonly spanId?: string;
   }) {
-    const traceId = args.traceId ?? args.parent?.traceId ?? createTraceId();
-    const spanId = args.spanId ?? createSpanId();
+    this.now = args.now;
+    this.startedAt = this.now();
+    const traceId =
+      args.traceId ?? args.parent?.traceId ?? createTraceId(args.createId);
+    const spanId = args.spanId ?? createSpanId(args.createId);
     this.spanContext = sampledSpanContext(traceId, spanId);
     this.serviceName = args.serviceName;
     this.name = args.name;
@@ -61,7 +69,7 @@ export class BaseSpan implements Span {
     if (this.ended) return;
     this.events.push({
       name,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(this.now()).toISOString(),
       ...(attributes !== undefined ? { attributes } : {}),
     });
   }
@@ -74,9 +82,9 @@ export class BaseSpan implements Span {
   end(): void {
     if (this.ended) return;
     this.ended = true;
-    const durationMs = performance.now() - this.startedAt;
+    const durationMs = this.now() - this.startedAt;
     const record: ExportedSpanRecord = {
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(this.now()).toISOString(),
       serviceName: this.serviceName,
       traceId: this.spanContext.traceId,
       spanId: this.spanContext.spanId,

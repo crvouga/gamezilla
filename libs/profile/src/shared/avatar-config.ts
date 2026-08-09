@@ -4,6 +4,8 @@
  * `options` holds partial DiceBear style + core options (arrays for enums/colors, etc.).
  */
 
+import type { Random } from '@pkgs/uuid';
+
 export const DEFAULT_AVATAR_STYLE = 'funEmoji';
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -37,12 +39,14 @@ export function createDefaultAvatarConfig(
 const RANDOM_SEED_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 /** Short alphanumeric seed for DiceBear randomize (not a UUID). */
-export function generateRandomAvatarSeed(length = 12): string {
-  const bytes = new Uint8Array(length);
-  globalThis.crypto.getRandomValues(bytes);
+export function generateRandomAvatarSeed(
+  random: Random,
+  length = 12
+): string {
   let out = '';
   for (let i = 0; i < length; i++) {
-    out += RANDOM_SEED_CHARS[bytes[i]! % RANDOM_SEED_CHARS.length]!;
+    const idx = Math.floor(random() * RANDOM_SEED_CHARS.length);
+    out += RANDOM_SEED_CHARS[idx]!;
   }
   return out;
 }

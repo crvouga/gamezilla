@@ -1,3 +1,4 @@
+import type { HttpClient } from '@pkgs/http-client';
 import type { SecretStore } from '@pkgs/secret-store';
 import { Hono } from 'hono';
 import { OpenAiLlmProvider } from './adapters/openai-llm-provider';
@@ -21,6 +22,7 @@ export type CreateLlmAppFromBindingsOptions = {
   readonly secretStore: SecretStore;
   readonly getKv: LlmGetKv;
   readonly requireAuth: LlmRequireAuth;
+  readonly http: HttpClient;
 };
 
 export type CreateLlmAppFromBindingsResult = {
@@ -64,6 +66,7 @@ export async function createLlmAppFromBindings(
   const provider = new OpenAiLlmProvider({
     apiKey,
     baseUrl,
+    http: options.http,
   });
 
   const createOptions: CreateLlmAppOptions = {

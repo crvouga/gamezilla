@@ -1,5 +1,6 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { FriendService } from '@libs/friends/server/friend-service';
+import { getIo } from '@pkgs/io';
 import { Hono } from 'hono';
 
 import { withFriendsAuth } from './friends-route-auth';
@@ -15,6 +16,7 @@ async function handleSearchUsers(c: Parameters<typeof withFriendsAuth>[0]) {
       c.get('sqlClient'),
       auth.myId,
       query,
+      getIo().clock.now,
       typeof body.limit === 'number' ? body.limit : undefined
     );
     return c.json({ results });

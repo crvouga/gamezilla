@@ -1,3 +1,4 @@
+import type { Timers } from '@pkgs/clock';
 import type { Sql, Value } from '@pkgs/sql';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
@@ -111,11 +112,13 @@ function buildLockedOpfsError(
 async function openDatabaseOnce(
   databaseName: string,
   recovery: boolean,
+  timers: Timers,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   return withOpenTimeout(
     databaseName,
-    openDatabaseOnceInner(databaseName, recovery, directory)
+    openDatabaseOnceInner(databaseName, recovery, directory),
+    timers
   );
 }
 
@@ -135,11 +138,12 @@ async function openDatabaseOnceInner(
 
 async function withOpenTimeout<T>(
   databaseName: string,
-  promise: Promise<T>
+  promise: Promise<T>,
+  timers: Timers
 ): Promise<T> {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let timeoutId: unknown | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
+    timeoutId = timers.setTimeout(() => {
       reject(
         new Error(
           `Timed out opening SQLite database "${databaseName}" after ${OPEN_DATABASE_TIMEOUT_MS}ms`
@@ -150,7 +154,7 @@ async function withOpenTimeout<T>(
   try {
     return await Promise.race([promise, timeout]);
   } finally {
-    if (timeoutId !== undefined) clearTimeout(timeoutId);
+    if (timeoutId !== undefined) timers.clearTimeout(timeoutId);
   }
 }
 
@@ -249,6 +253,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
    */
   static async open(
     databaseName: string,
+    timers: Timers,
     directory?: string
   ): Promise<SqlClientImplExpoSqlite> {
     assertSecureContext();
@@ -257,7 +262,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
       Platform.OS === 'web' || directory === undefined || directory.length === 0
         ? undefined
         : directory;
-    return openWithRecovery(databaseName, dir);
+    return openWithRecovery(databaseName, timers, dir);
   }
 
   /** Underlying expo-sqlite handle (for modules that need `SQLiteDatabase`). */
@@ -373,14 +378,15 @@ async function finishOpen(
 
 async function openWithRecovery(
   databaseName: string,
+  timers: Timers,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   try {
     return await finishOpen(
-      await openDatabaseOnce(databaseName, false, directory)
+      await openDatabaseOnce(databaseName, false, timers, directory)
     );
   } catch (first: unknown) {
-    return openAfterFirstFailure(databaseName, first, directory);
+    return openAfterFirstFailure(databaseName, first, timers, directory);
   }
 }
 
@@ -398,6 +404,7 @@ async function deleteDbFile(
 async function openAfterFirstFailure(
   databaseName: string,
   first: unknown,
+  timers: Timers,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   await deleteDbFile(databaseName, directory);
@@ -407,11 +414,11 @@ async function openAfterFirstFailure(
   );
   try {
     return await finishOpen(
-      await openDatabaseOnce(databaseName, true, directory)
+      await openDatabaseOnce(databaseName, true, timers, directory)
     );
   } catch (second: unknown) {
     if (Platform.OS !== 'web') throw second;
-    return openAfterSecondFailure(databaseName, first, second, directory);
+    return openAfterSecondFailure(databaseName, first, second, timers, directory);
   }
 }
 
@@ -419,6 +426,7 @@ async function openAfterSecondFailure(
   databaseName: string,
   first: unknown,
   second: unknown,
+  timers: Timers,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   await deleteDbFile(databaseName, directory);
@@ -428,7 +436,7 @@ async function openAfterSecondFailure(
   if (!postOpfsReload) {
     return openWithOpfsRecovery(databaseName, first, second, directory);
   }
-  return openAfterOpfsRecovery(databaseName, first, second, directory);
+  return openAfterOpfsRecovery(databaseName, first, second, timers, directory);
 }
 
 async function openWithOpfsRecovery(
@@ -464,6 +472,7 @@ async function openAfterOpfsRecovery(
   databaseName: string,
   first: unknown,
   second: unknown,
+  timers: Timers,
   directory?: string
 ): Promise<SqlClientImplExpoSqlite> {
   // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
@@ -474,13 +483,13 @@ async function openAfterOpfsRecovery(
   );
   try {
     return await finishOpen(
-      await openDatabaseOnce(databaseName, true, directory)
+      await openDatabaseOnce(databaseName, true, timers, directory)
     );
   } catch (third: unknown) {
     await deleteDbFile(databaseName, directory);
     try {
       return await finishOpen(
-        await openDatabaseOnce(databaseName, true, directory)
+        await openDatabaseOnce(databaseName, true, timers, directory)
       );
     } catch (fourth: unknown) {
       throw buildPostRecoveryError(databaseName, [

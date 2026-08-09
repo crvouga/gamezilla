@@ -4,10 +4,10 @@ function startOfLocalDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function sectionKeyForDate(iso: string): string {
+function sectionKeyForDate(iso: string, now: () => number): string {
   const date = new Date(iso);
   if (!Number.isFinite(date.getTime())) return 'earlier';
-  const today = startOfLocalDay(new Date());
+  const today = startOfLocalDay(new Date(now()));
   const day = startOfLocalDay(date);
   const diffDays = Math.floor(
     (today.getTime() - day.getTime()) / (24 * 60 * 60 * 1000)
@@ -27,11 +27,12 @@ const SECTION_TITLES: Record<string, string> = {
 
 export function buildInteractionSections(
   items: readonly Interaction[],
+  now: () => number,
   titleForKey: (key: string) => string = (key) => SECTION_TITLES[key] ?? key
 ): readonly InteractionSection[] {
   const buckets = new Map<string, Interaction[]>();
   for (const item of items) {
-    const key = sectionKeyForDate(item.createdAt);
+    const key = sectionKeyForDate(item.createdAt, now);
     const list = buckets.get(key) ?? [];
     list.push(item);
     buckets.set(key, list);

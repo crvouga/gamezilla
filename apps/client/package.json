@@ -58,6 +58,7 @@
     "@pkgs/git": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/inbox": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/llm": "workspace:*",
     "@pkgs/logger": "workspace:*",

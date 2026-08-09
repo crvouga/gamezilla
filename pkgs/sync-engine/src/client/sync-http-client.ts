@@ -4,7 +4,7 @@ import type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
-import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
+import type { Timers } from './sim-ports';
 import type { QueryRequest } from './subscription-runtime';
 
 export type SyncHttpFetch = (
@@ -49,8 +49,8 @@ export type CreateSyncHttpClientOptions = {
   readonly paths?: SyncHttpClientPaths | undefined;
   /** Extra header name for device/anon id. Default `x-anon-id`. */
   readonly anonIdHeader?: string | undefined;
-  readonly timers?: Timers;
-  readonly now?: () => number;
+  readonly timers: Timers;
+  readonly now: () => number;
 };
 
 const FRESH_TOKEN_TIMEOUT_MS = 4_000;
@@ -188,8 +188,8 @@ async function postAuthedJson(
   body: string
 ): Promise<unknown> {
   const deps = {
-    now: resolveNow(options.now),
-    timers: options.timers ?? REAL_TIMERS,
+    now: options.now,
+    timers: options.timers,
   };
   const deviceId = options.auth.getDeviceId();
   let bearer = await resolveBearerToken(

@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import * as Clipboard from 'expo-clipboard';
 import { Component, type ReactNode, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -17,6 +18,7 @@ function formatCrashText(error: Error): string {
 }
 
 function CopyErrorButton({ error }: { error: Error }): ReactNode {
+  const timers = useTimers();
   const [copied, setCopied] = useState(false);
 
   return (
@@ -26,7 +28,7 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
       onPress={() => {
         void Clipboard.setStringAsync(formatCrashText(error)).then(() => {
           setCopied(true);
-          setTimeout(() => setCopied(false), COPIED_RESET_MS);
+          timers.setTimeout(() => setCopied(false), COPIED_RESET_MS);
         });
       }}
       style={({ pressed }) => ({
@@ -49,10 +51,11 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
 }
 
 /**
- * Last-resort boundary OUTSIDE every app provider so a startup render throw
+ * Last-resort boundary outside feature providers so a startup render throw
  * (e.g. a provider that calls `getApiBaseUrl()` / asserts) renders a readable
- * error instead of a blank white screen. Uses raw react-native primitives so
- * it never depends on the (possibly-crashing) theme/provider stack.
+ * error instead of a blank white screen. Must sit under `AppIoProvider` so the
+ * fallback UI can use `useTimers`. Uses raw react-native primitives so it never
+ * depends on the (possibly-crashing) theme/provider stack.
  */
 export class RootErrorBoundary extends Component<Props, State> {
   override state: State = { error: null };

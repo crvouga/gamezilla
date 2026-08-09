@@ -42,6 +42,7 @@ export class SqlClientWithPubSub implements SqlClient {
   constructor(
     private client: SqlClient,
     private pubSub: PubSub,
+    private now: () => number,
     private topic: string = SQL_CLIENT_TOPIC
   ) {}
 
@@ -60,9 +61,9 @@ export class SqlClientWithPubSub implements SqlClient {
   }
 
   async query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
-    const start = performance.now();
+    const start = this.now();
     const rows = await this.client.query(query);
-    const durationMs = performance.now() - start;
+    const durationMs = this.now() - start;
     await this.pubSub.publish(this.topic, {
       type: 'query',
       sql: query.sql,
@@ -74,9 +75,9 @@ export class SqlClientWithPubSub implements SqlClient {
   }
 
   async run(query: Sql<unknown>): Promise<RunResult> {
-    const start = performance.now();
+    const start = this.now();
     const result = await this.client.run(query);
-    const durationMs = performance.now() - start;
+    const durationMs = this.now() - start;
     await this.pubSub.publish(this.topic, {
       type: 'run',
       sql: query.sql,
@@ -94,9 +95,9 @@ export class SqlClientWithPubSub implements SqlClient {
     const text = query.sql;
     return {
       query: async (params?: Value[]) => {
-        const start = performance.now();
+        const start = this.now();
         const rows = await stmt.query(params);
-        const durationMs = performance.now() - start;
+        const durationMs = this.now() - start;
         await this.pubSub.publish(this.topic, {
           type: 'query',
           sql: text,
@@ -107,9 +108,9 @@ export class SqlClientWithPubSub implements SqlClient {
         return rows;
       },
       run: async (params?: Value[]) => {
-        const start = performance.now();
+        const start = this.now();
         const result = await stmt.run(params);
-        const durationMs = performance.now() - start;
+        const durationMs = this.now() - start;
         await this.pubSub.publish(this.topic, {
           type: 'run',
           sql: text,
@@ -126,20 +127,20 @@ export class SqlClientWithPubSub implements SqlClient {
     await this.pubSub.publish(this.topic, {
       type: 'transaction:begin',
     } satisfies SqlClientEvent);
-    const start = performance.now();
+    const start = this.now();
     try {
       const result = await this.client.transaction(async (tx) => {
-        const wrappedTx = new SqlClientWithPubSub(tx, this.pubSub, this.topic);
+        const wrappedTx = new SqlClientWithPubSub(tx, this.pubSub, this.now, this.topic);
         return fn(wrappedTx);
       });
-      const durationMs = performance.now() - start;
+      const durationMs = this.now() - start;
       await this.pubSub.publish(this.topic, {
         type: 'transaction:commit',
         durationMs,
       } satisfies SqlClientEvent);
       return result;
     } catch (error) {
-      const durationMs = performance.now() - start;
+      const durationMs = this.now() - start;
       await this.pubSub.publish(this.topic, {
         type: 'transaction:rollback',
         durationMs,

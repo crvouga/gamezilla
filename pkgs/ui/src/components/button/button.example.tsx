@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import { useCallback, useState } from 'react';
 import { useTheme } from '../../theme';
 import { Divider } from '../divider';
@@ -14,10 +15,6 @@ import {
 } from './button';
 import { useMutationButton } from './use-mutation-button';
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function ButtonRow({
   intent,
   variant = 'solid',
@@ -30,6 +27,7 @@ function ButtonRow({
   setLoading: (b: boolean) => void;
 }) {
   const theme = useTheme();
+  const { setTimeout: schedule } = useTimers();
   const iconColor = buttonForegroundColor(theme, intent, false, variant);
   return (
     <Stack spacing={2}>
@@ -60,7 +58,7 @@ function ButtonRow({
         loading={loading}
         onPress={() => {
           setLoading(true);
-          setTimeout(() => setLoading(false), 2000);
+          schedule(() => setLoading(false), 2000);
         }}
       />
     </Stack>
@@ -100,8 +98,16 @@ function VariantBlock({
 }
 
 function FeedbackBlock() {
+  const timers = useTimers();
+  const delay = useCallback(
+    (ms: number) =>
+      new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, ms);
+      }),
+    [timers]
+  );
   const succeed = useMutationButton({
-    operation: useCallback(() => delay(900), []),
+    operation: useCallback(() => delay(900), [delay]),
     labels: {
       idle: 'Save',
       loading: 'Saving…',
@@ -113,7 +119,7 @@ function FeedbackBlock() {
     operation: useCallback(async () => {
       await delay(900);
       throw new Error('Network unreachable');
-    }, []),
+    }, [delay]),
     labels: {
       idle: 'Join space',
       loading: 'Joining…',

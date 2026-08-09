@@ -1,5 +1,11 @@
 import { expect, test } from 'bun:test';
-import { collect, expectRejects, waitUntil } from './contract-helpers';
+
+import {
+  collect,
+  expectRejects,
+  waitMs,
+  waitUntil,
+} from './contract-helpers';
 import type { PubSubContractEnv } from './contract-types';
 import { InMemoryPubSub } from './in-memory';
 
@@ -35,7 +41,7 @@ export function registerCoreContractTests(env: () => PubSubContractEnv): void {
     await waitUntil(() => items.length === 1);
     unsub();
     await a.publish('u', 2);
-    await waitMsSafe(50);
+    await waitMs(50);
     expect(items).toEqual([1]);
     a.close();
   });
@@ -106,10 +112,6 @@ export function registerCoreContractTests(env: () => PubSubContractEnv): void {
   registerEdgeTests(env);
 }
 
-function waitMsSafe(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function registerValidationTests(env: () => PubSubContractEnv): void {
   test('invalid-topic-rejected', async () => {
     const { make } = env();
@@ -145,7 +147,7 @@ function registerEdgeTests(env: () => PubSubContractEnv): void {
       a.close();
       throw new Error('malformed-inbound: injectMalformedInbound required');
     }
-    await waitMsSafe(50);
+    await waitMs(50);
     expect(items).toEqual([]);
     expect(a.status()).not.toBe('down');
     unsub();

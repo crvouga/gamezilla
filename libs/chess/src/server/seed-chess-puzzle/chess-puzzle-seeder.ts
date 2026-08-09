@@ -59,6 +59,7 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { createLogger, type Logger } from '@pkgs/logger';
+import type { Io } from '@pkgs/io';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
@@ -116,13 +117,15 @@ type PuzzleLoadPriorState = {
 
 export class ChessPuzzleSeeder {
   readonly #cli: Cli;
+  readonly #io: Io;
 
-  static fromArgv(argv: string[]): ChessPuzzleSeeder {
-    return new ChessPuzzleSeeder(parseCli(argv));
+  static fromArgv(argv: string[], io: Io): ChessPuzzleSeeder {
+    return new ChessPuzzleSeeder(parseCli(argv), io);
   }
 
-  constructor(config: Cli) {
+  constructor(config: Cli, io: Io) {
     this.#cli = config;
+    this.#io = io;
   }
 
   async run(): Promise<void> {
@@ -130,6 +133,7 @@ export class ChessPuzzleSeeder {
     const reporter = createPuzzleSeedReporter({
       pretty: this.#cli.prettyOutput,
       logger: log,
+      now: this.#io.clock.now,
     });
     const resolved = await this.#resolveArchive(log, reporter);
     if (this.#cli.dryRun) {
@@ -249,6 +253,8 @@ export class ChessPuzzleSeeder {
       source: cli.source,
       cacheDir: cli.cacheDir,
       log,
+      http: this.#io.http,
+      now: this.#io.clock.now,
       onDownloadProgress: (p) => reporter.downloadProgress(p),
     });
     reporter.endDownloadProgressLine();
@@ -307,6 +313,7 @@ export class ChessPuzzleSeeder {
       db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
+      now: this.#io.clock.now,
     });
     if (
       rowState.state.batchesFlushed - rowState.lastProgressBatchIdx >=
@@ -332,7 +339,7 @@ export class ChessPuzzleSeeder {
         checkpointEvery: ctx.profile.checkpointEvery,
       });
     }
-    await sleep(ctx.profile.paceMs);
+    await sleep(ctx.profile.paceMs, this.#io.timers);
   }
 
   async #processPuzzleRow(args: {
@@ -353,7 +360,7 @@ export class ChessPuzzleSeeder {
 
   async #streamPuzzles(ctx: StreamContext): Promise<SeedStats> {
     const rowState: StreamRowState = {
-      state: createSeedStats(ctx.resumeCursor),
+      state: createSeedStats(ctx.resumeCursor, this.#io.clock.now),
       lastProgressBatchIdx: 0,
     };
     ctx.reporter.phase('Stream puzzles into chess_puzzles (fast path)', {
@@ -377,6 +384,7 @@ export class ChessPuzzleSeeder {
       db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
+      now: this.#io.clock.now,
     });
     await this.#persistResumeCursor({
       db: ctx.db,
@@ -451,7 +459,7 @@ export class ChessPuzzleSeeder {
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag: resolved.etag,
       cursor: stats.lastPuzzleId,
-      finishedAt: new Date().toISOString(),
+      finishedAt: new Date(this.#io.clock.now()).toISOString(),
     });
     await runFinalMaintenance({
       db,
@@ -463,7 +471,7 @@ export class ChessPuzzleSeeder {
       processed: stats.processed,
       rowsInserted: stats.rowsInserted,
       batchesFlushed: stats.batchesFlushed,
-      totalMs: Math.round(performance.now() - stats.startedAt),
+      totalMs: Math.round(this.#io.clock.now() - stats.startedAt),
       etagPreview:
         resolved.etag.length > 48
           ? `${resolved.etag.slice(0, 48)}…`

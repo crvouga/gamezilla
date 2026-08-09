@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import { useEffect, useRef, useState } from 'react';
 import { indexFromSquare } from './chess-board-geometry';
 import { CHESS_PIECE_MOVE_MS } from './chess-board-piece';
@@ -70,10 +71,11 @@ export function useChessBoardCaptureGhost(
    * cleanup step and the early-return branch below would leave `captureGhost`
    * stuck forever — visually stacking the captured piece on top of the mover.
    */
-  const ghostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timers = useTimers();
+  const ghostTimerRef = useRef<unknown | null>(null);
   const clearGhostTimer = (): void => {
     if (ghostTimerRef.current !== null) {
-      clearTimeout(ghostTimerRef.current);
+      timers.clearTimeout(ghostTimerRef.current);
       ghostTimerRef.current = null;
     }
   };
@@ -117,11 +119,11 @@ export function useChessBoardCaptureGhost(
 
     clearGhostTimer();
     setCaptureGhost(payload);
-    ghostTimerRef.current = setTimeout(() => {
+    ghostTimerRef.current = timers.setTimeout(() => {
       ghostTimerRef.current = null;
       setCaptureGhost(null);
     }, CHESS_PIECE_MOVE_MS);
-  }, [position, lastMove, animations]);
+  }, [position, lastMove, animations, timers]);
 
   return { captureGhost };
 }

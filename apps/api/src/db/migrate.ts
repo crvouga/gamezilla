@@ -14,6 +14,7 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { assert } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
@@ -25,6 +26,10 @@ import {
 } from './migrate-transient-errors';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
+/** Composition root: migrate CLI / in-process migrate owns wall I/O. */
+const io = wallIo();
+const now = io.clock.now;
+const timers = io.timers;
 
 /** Concurrent migrates serialize via advisory lock; these cover contention. */
 const MIGRATE_RETRY_DELAYS_MS = [
@@ -47,7 +52,7 @@ function isPostgresUrl(url: string): boolean {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => timers.setTimeout(resolve, ms));
 }
 
 function resolveSecretsEnvForMigrate(): string {
@@ -91,18 +96,18 @@ async function waitForPostgresReachable(
   databaseUrl: string,
   log: Logger
 ): Promise<void> {
-  const started = Date.now();
+  const started = now();
   let attempt = 0;
   let lastError: unknown = null;
 
-  while (Date.now() - started < WAIT_FOR_POSTGRES_MS) {
+  while (now() - started < WAIT_FOR_POSTGRES_MS) {
     attempt += 1;
     try {
-      await pingPostgres(databaseUrl);
+      await pingPostgres(databaseUrl, timers);
       if (attempt > 1) {
         log.info('postgres reachable for migrate', {
           attempt,
-          elapsedMs: Date.now() - started,
+          elapsedMs: now() - started,
         });
       }
       return;
@@ -111,7 +116,7 @@ async function waitForPostgresReachable(
       if (attempt === 1 || attempt % 5 === 0) {
         log.info('waiting for postgres before migrate', {
           attempt,
-          elapsedMs: Date.now() - started,
+          elapsedMs: now() - started,
           error: error instanceof Error ? error.message : String(error),
         });
       }
@@ -158,7 +163,7 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
     dbScope,
     max: 1,
   });
-  const log = createLogger({ name: 'api:db:migrate' });
+  const log = createLogger({ name: 'api:db:migrate', now });
   try {
     await runPostgresMigrations({
       sqlClient,
@@ -185,7 +190,7 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
 export async function migratePostgresApp(
   options: MigratePostgresAppOptions = {}
 ): Promise<void> {
-  const log = createLogger({ name: 'api:db:migrate' });
+  const log = createLogger({ name: 'api:db:migrate', now });
   const databaseUrl = await resolveDatabaseUrlForMigrate(options.databaseUrl);
   if (options.wait) {
     await assertMigrateDatabasePolicy(databaseUrl);

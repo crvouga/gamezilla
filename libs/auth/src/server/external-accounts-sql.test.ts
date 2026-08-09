@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { createSimIo } from '@pkgs/io';
 
 import { sql } from '@pkgs/sql';
 
@@ -13,6 +14,8 @@ import {
   readExternalAccountId,
   upsertExternalAccount,
 } from './external-accounts-sql';
+
+const io = createSimIo({ seed: 1 });
 
 async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
@@ -46,7 +49,7 @@ describe('external-accounts-sql', () => {
     sqlClient = SqlClientImplBunSqlite.open(':memory:');
     await sqlClient.connect();
     await migrateTables(sqlClient);
-    await insertUser(sqlClient, userId);
+    await insertUser(sqlClient, userId, io.clock.now);
   });
 
   afterEach(async () => {
@@ -59,6 +62,7 @@ describe('external-accounts-sql', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'a@example.com' },
+      now: io.clock.now,
     });
 
     expect(
@@ -77,6 +81,7 @@ describe('external-accounts-sql', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'b@example.com' },
+      now: io.clock.now,
     });
 
     const rows = await sqlClient.query(sql<{ metadata: string }>`
@@ -105,7 +110,7 @@ describe('external-accounts-sql', () => {
         ${primaryAuthProvider},
         ${externalUserId},
         ${'{}'},
-        ${new Date().toISOString()}
+        ${new Date(io.clock.now()).toISOString()}
       )
     `);
 
@@ -123,6 +128,7 @@ describe('external-accounts-sql', () => {
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
+      now: io.clock.now,
     });
 
     await expect(
@@ -130,18 +136,20 @@ describe('external-accounts-sql', () => {
         userId,
         provider: primaryAuthProvider,
         externalId: 'user_ext_2',
+        now: io.clock.now,
       })
     ).rejects.toThrow();
   });
 
   test('upsertExternalAccount never reassigns user_id on conflict', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser(sqlClient, otherUserId);
+    await insertUser(sqlClient, otherUserId, io.clock.now);
     await upsertExternalAccount(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'owner@example.com' },
+      now: io.clock.now,
     });
 
     await upsertExternalAccount(sqlClient, {
@@ -149,6 +157,7 @@ describe('external-accounts-sql', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'thief@example.com' },
+      now: io.clock.now,
     });
 
     expect(
@@ -172,17 +181,19 @@ describe('external-accounts-sql', () => {
 
   test('insertExternalAccountOrGet adopts existing owner', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser(sqlClient, otherUserId);
+    await insertUser(sqlClient, otherUserId, io.clock.now);
     await insertExternalAccountOrGet(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
+      now: io.clock.now,
     });
 
     const adopted = await insertExternalAccountOrGet(sqlClient, {
       userId: otherUserId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
+      now: io.clock.now,
     });
 
     expect(adopted).toBe(userId);

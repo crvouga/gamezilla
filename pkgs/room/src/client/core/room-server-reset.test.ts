@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
@@ -10,6 +11,9 @@ import { openLoopbackRoom } from '../../testkit/simulator';
 import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
+
+const io = wallIo();
+const timers = io.timers;
 
 /**
  * Records outbound frames; delivers only what the test injects (no auto welcome).
@@ -70,13 +74,14 @@ class ManualClientTransport implements ClientTransport {
 describe('Room server-reset recovery', () => {
   it('ignores a duplicate committed broadcast at or below the local tip', async () => {
     const { room, transport } = await openLoopbackRoom({
+      io,
       topic: 't-reset-broadcast',
       module: TestCounterModule,
     });
     await room.untilSynced();
     room.dispatch(Increment({}));
     room.dispatch(Increment({}));
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
 
     const k = asKeyword('counter/count');
     expect(room.getSnapshot()[k]).toBe(2);
@@ -89,19 +94,20 @@ describe('Room server-reset recovery', () => {
       entries: [{ seq: 1, event: CounterIncremented({}) }],
     });
 
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(2);
     room.destroy();
   });
 
   it('recovers from a welcome whose lastSeq is behind our local tail', async () => {
     const { room, transport } = await openLoopbackRoom({
+      io,
       topic: 't-reset-welcome',
       module: TestCounterModule,
     });
     await room.untilSynced();
     room.dispatch(Increment({}));
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
 
     const k = asKeyword('counter/count');
     expect(room.getSnapshot()[k]).toBe(1);
@@ -117,7 +123,7 @@ describe('Room server-reset recovery', () => {
       entries: [],
     });
 
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(1);
     room.destroy();
   });
@@ -130,6 +136,9 @@ describe('Room server-reset recovery', () => {
       storage: new InMemoryClientStorage(),
       transport,
       identity: 'test-user',
+      clock: io.clock,
+      timers: io.timers,
+      createId: io.createId,
     });
 
     // onOpen already sent sync(fromSeq=0). Deliver a tip-sync welcome that
@@ -142,7 +151,7 @@ describe('Room server-reset recovery', () => {
       lastSeq: 11,
       entries: [],
     });
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
 
     const syncs = transport.sent.filter(
       (m): m is { kind: string; fromSeq?: number } =>
@@ -167,12 +176,13 @@ describe('Room server-reset recovery', () => {
 
   it('is idempotent against a duplicate welcome that re-delivers known entries', async () => {
     const { room, transport } = await openLoopbackRoom({
+      io,
       topic: 't-reset-duplicate-welcome',
       module: TestCounterModule,
     });
     await room.untilSynced();
     room.dispatch(Increment({}));
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
 
     const k = asKeyword('counter/count');
     expect(room.getSnapshot()[k]).toBe(1);
@@ -189,7 +199,7 @@ describe('Room server-reset recovery', () => {
       entries: [{ seq: 1, event: CounterIncremented({}) }],
     });
 
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(1);
     room.destroy();
   });

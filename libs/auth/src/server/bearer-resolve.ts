@@ -5,6 +5,7 @@ import {
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
 import { findUserIdByDeviceId } from './anon-user-ensure';
@@ -18,24 +19,28 @@ function accountCacheKey(deviceId: string, externalUserId: string): string {
   return `${deviceId}\0${externalUserId}`;
 }
 
-function readCachedAccountId(key: string): string | null {
+function readCachedAccountId(key: string, now: () => number): string | null {
   const hit = accountIdCache.get(key);
   if (hit === undefined) return null;
-  if (hit.exp <= Date.now()) {
+  if (hit.exp <= now()) {
     accountIdCache.delete(key);
     return null;
   }
   return hit.accountId;
 }
 
-function writeCachedAccountId(key: string, accountId: string): void {
+function writeCachedAccountId(
+  key: string,
+  accountId: string,
+  now: () => number
+): void {
   if (accountIdCache.size >= ACCOUNT_CACHE_MAX) {
     const oldest = accountIdCache.keys().next().value;
     if (oldest !== undefined) accountIdCache.delete(oldest);
   }
   accountIdCache.set(key, {
     accountId,
-    exp: Date.now() + ACCOUNT_CACHE_TTL_MS,
+    exp: now() + ACCOUNT_CACHE_TTL_MS,
   });
 }
 
@@ -54,8 +59,10 @@ export async function resolveAccountIdFromBearer(args: {
   authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;
+  now: () => number;
+  createId: CreateId;
 }): Promise<string | null> {
-  const { sql, authServer, bearerToken, deviceId } = args;
+  const { sql, authServer, bearerToken, deviceId, now, createId } = args;
   assertUuid(deviceId, 'deviceId must be a valid UUID');
   const trimmed = bearerToken.trim();
   if (trimmed.length === 0) return null;
@@ -64,7 +71,7 @@ export async function resolveAccountIdFromBearer(args: {
   if (session === null) return null;
 
   const cacheKey = accountCacheKey(deviceId, session.externalUserId);
-  const cached = readCachedAccountId(cacheKey);
+  const cached = readCachedAccountId(cacheKey, now);
   if (cached !== null) return cached;
 
   const upgradeUserId = await findUserIdByDeviceId(sql, deviceId);
@@ -74,8 +81,10 @@ export async function resolveAccountIdFromBearer(args: {
     authServer,
     externalUserId: session.externalUserId,
     upgradeUserId,
+    now,
+    createId,
   });
-  if (accountId !== null) writeCachedAccountId(cacheKey, accountId);
+  if (accountId !== null) writeCachedAccountId(cacheKey, accountId, now);
   return accountId;
 }
 
@@ -84,6 +93,8 @@ export async function buildAppAuthContextFromBearer(args: {
   authServer: AuthServerPort;
   bearerToken: string;
   deviceId: string;
+  now: () => number;
+  createId: CreateId;
 }): Promise<AppAuthContext | null> {
   const { deviceId } = args;
   const accountId = await resolveAccountIdFromBearer(args);

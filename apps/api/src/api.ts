@@ -2,6 +2,7 @@ import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
@@ -23,11 +24,16 @@ import { resolveWebClientOrigin } from './config/web-client-origin';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
+/** Room DO composition root — wall I/O (no request ALS in the DO isolate). */
+const roomIo = wallIo();
+
 export const Room = createDurableObjectAdapter({
-  modules: composeRoomModules(GAME_DEFINITIONS),
+  modules: composeRoomModules(GAME_DEFINITIONS, roomIo.clock.now),
+  clock: roomIo.clock,
+  createId: roomIo.createId,
 });
 
-const log = createLogger({ name: 'api' });
+const log = createLogger({ name: 'api', now: roomIo.clock.now });
 
 type App = Awaited<ReturnType<typeof createApiApp>>;
 
@@ -100,6 +106,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const dbScope = appPostgresDbScope();
   const observability = createServerObservability({
     serviceName: 'gamezilla-api',
+    now: roomIo.clock.now,
+    createId: roomIo.createId,
     envBackend: env.OBSERVABILITY_BACKEND,
     isProduction: secretsEnv === 'prd',
     ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&

@@ -147,12 +147,13 @@ async function isStale(
 
 async function touchScopeMeta(
   tx: SqlClient,
-  input: MergeFullInput
+  input: MergeFullInput,
+  now: () => Date
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const nowIso = now().toISOString();
   await tx.run(sql`
     INSERT INTO _scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
-    VALUES (${input.scopeHash}, ${now}, ${input.checkpoint}, ${input.hash})
+    VALUES (${input.scopeHash}, ${nowIso}, ${input.checkpoint}, ${input.hash})
     ON CONFLICT (scope_hash) DO UPDATE SET
       last_checkpoint = excluded.last_checkpoint,
       last_hash = excluded.last_hash,
@@ -216,7 +217,7 @@ async function runMerge(
       const ok = await mergeTable(tx, table, rows);
       if (ok) changed.add(table);
     }
-    await touchScopeMeta(tx, input);
+    await touchScopeMeta(tx, input, deps.env.now);
     await rebasePending(tx, deps, changed);
     applied = true;
   });

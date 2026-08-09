@@ -16,7 +16,11 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
+  "dependencies": {
+    "@pkgs/clock": "workspace:*"
+  },
   "devDependencies": {
+    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

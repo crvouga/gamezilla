@@ -63,7 +63,7 @@ export function pushAction(
   state.actions = [
     ...state.actions.slice(-79),
     {
-      at: state.world?.clock.now() ?? Date.now(),
+      at: state.world === null ? 0 : state.world.clock.now(),
       label,
       ok,
       ...(error !== undefined ? { error } : {}),

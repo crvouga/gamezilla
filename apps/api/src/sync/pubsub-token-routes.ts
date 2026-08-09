@@ -1,5 +1,6 @@
 import { loadMySpaceIdsFromSql } from '@libs/spaces/server/load-my-space-ids-sql';
 import { assert } from '@pkgs/assert';
+import { getIo } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import { Hono } from 'hono';
@@ -42,6 +43,7 @@ export function createPubSubTokenRoutes() {
       secret: secret.trim(),
       actorId: auth.actorId,
       spaceIds,
+      now: getIo().clock.now,
     });
     return c.json(
       {

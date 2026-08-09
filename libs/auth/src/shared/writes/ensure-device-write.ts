@@ -116,7 +116,8 @@ async function updateDeviceRow(
 export async function ensureDeviceRow(
   db: SqlClient,
   deviceId: string,
-  snapshot: DeviceSnapshot
+  snapshot: DeviceSnapshot,
+  now: () => number
 ): Promise<void> {
   const rows = await db.query(sql<DeviceRow>`
     SELECT *
@@ -125,14 +126,14 @@ export async function ensureDeviceRow(
     LIMIT 1
   `);
   const row = rows[0];
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   if (!isDeviceRowComplete(row, deviceId)) {
-    await insertDeviceRow(db, deviceId, now, snapshot);
+    await insertDeviceRow(db, deviceId, nowIso, snapshot);
     return;
   }
   await updateDeviceRow(
     db,
     deviceId,
-    buildDeviceUpdates(row as DeviceRow, snapshot, now)
+    buildDeviceUpdates(row as DeviceRow, snapshot, nowIso)
   );
 }

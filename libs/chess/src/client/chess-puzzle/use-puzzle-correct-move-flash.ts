@@ -1,4 +1,5 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
+import { useTimers } from '@pkgs/clock';
 import { type MutableRefObject, useEffect, useState } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -27,6 +28,7 @@ export function usePuzzleCorrectMoveFlash(args: {
     lastSubmittedToRef,
     prevSolveIdxRef,
   } = args;
+  const timers = useTimers();
   const [showCorrectFlash, setShowCorrectFlash] = useState(false);
   const [lastCorrectToSquare, setLastCorrectToSquare] = useState<Square | null>(
     null
@@ -51,13 +53,13 @@ export function usePuzzleCorrectMoveFlash(args: {
     if (lastSubmittedToRef.current !== null) {
       setLastCorrectToSquare(lastSubmittedToRef.current);
     }
-    const t = setTimeout(() => {
+    const t = timers.setTimeout(() => {
       setShowCorrectFlash(false);
       setLastCorrectToSquare(null);
     }, CORRECT_FLASH_MS);
     prevSolveIdxRef.current = solveIdx;
-    return () => clearTimeout(t);
-  }, [feedback, lastSubmittedToRef, prevSolveIdxRef, solveIdx, status]);
+    return () => timers.clearTimeout(t);
+  }, [feedback, lastSubmittedToRef, prevSolveIdxRef, solveIdx, status, timers]);
 
   return { showCorrectFlash, lastCorrectToSquare };
 }

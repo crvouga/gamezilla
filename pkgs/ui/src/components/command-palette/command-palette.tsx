@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import {
   type ReactNode,
   useCallback,
@@ -291,6 +292,7 @@ function PaletteList({
   flatListRef: React.RefObject<RNFlatList<PaletteRow> | null>;
   renderDeps: RenderRowDeps;
 }) {
+  const timers = useTimers();
   return (
     <FlatList
       ref={flatListRef}
@@ -299,7 +301,7 @@ function PaletteList({
       data={rows}
       keyExtractor={(item) => item.key}
       onScrollToIndexFailed={({ index }) => {
-        setTimeout(() => {
+        timers.setTimeout(() => {
           flatListRef.current?.scrollToIndex({ index, viewPosition: 0.4 });
         }, 100);
       }}

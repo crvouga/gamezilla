@@ -14,6 +14,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "react": "catalog:"
   },

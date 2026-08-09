@@ -46,6 +46,7 @@ export type MountQueryRoutesDeps = {
   readonly getSql: () => SqlClient;
   readonly queries: QueryRegistry;
   readonly nextCheckpoint: () => string;
+  readonly now: () => number;
   readonly strictQueryLimits?: boolean;
 };
 
@@ -64,7 +65,7 @@ export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
     const runDeps: RunQueryDeps = {
       db: deps.getSql(),
       registry: deps.queries,
-      auth: { ...auth, now: () => new Date() },
+      auth: { ...auth, now: () => new Date(deps.now()) },
       nextCheckpoint: deps.nextCheckpoint,
       ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     };

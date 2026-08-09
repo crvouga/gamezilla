@@ -10,6 +10,7 @@ import {
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
 import { useLingui } from '@lingui/react/macro';
+import { useClock, useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageStore,
@@ -24,11 +25,15 @@ import { View } from 'react-native';
 /** Cap wait for bearer capture so the blank callback route never sticks. */
 const SSO_HANDOFF_NAVIGATE_MS = 800;
 
-function writePendingMarker(store: SecureStorageStore): void {
-  const syncPending = readSignInPendingSync();
+function writePendingMarker(
+  store: SecureStorageStore,
+  nowMs: number,
+  now: () => number
+): void {
+  const syncPending = readSignInPendingSync(now);
   const wire =
     syncPending === null
-      ? JSON.stringify({ startedAt: new Date().toISOString() })
+      ? JSON.stringify({ startedAt: new Date(nowMs).toISOString() })
       : JSON.stringify({
           startedAt: syncPending.startedAt.toISOString(),
           ...(syncPending.returnHref !== undefined
@@ -37,7 +42,7 @@ function writePendingMarker(store: SecureStorageStore): void {
         });
   store.setValue(SIGN_IN_PENDING_KEY, wire);
   if (syncPending === null) {
-    void markSignInPending(store);
+    void markSignInPending(store, () => nowMs);
   } else {
     void writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, wire);
   }
@@ -51,9 +56,12 @@ async function finishHostedAuthRedirect(port: AuthClientPort): Promise<void> {
   await port.ensureSessionReady?.();
 }
 
-function delay(ms: number): Promise<void> {
+function delay(
+  ms: number,
+  setTimeoutFn: (fn: () => void, delayMs: number) => unknown
+): Promise<void> {
   return new Promise((resolve) => {
-    setTimeout(resolve, ms);
+    setTimeoutFn(resolve, ms);
   });
 }
 
@@ -62,15 +70,18 @@ async function completeSsoCallbackAndNavigate(args: {
   readonly port: AuthClientPort;
   readonly openSignInModal: () => void;
   readonly replace: (href: Href) => void;
+  readonly nowMs: number;
+  readonly now: () => number;
+  readonly setTimeout: (fn: () => void, ms: number) => unknown;
 }): Promise<void> {
-  writePendingMarker(args.store);
+  writePendingMarker(args.store, args.nowMs, args.now);
   args.openSignInModal();
   // Better Auth already set the session cookie on the API during Google return.
   // Settle bearer in parallel; don't block leaving `/sso-callback` on a slow
   // get-session (wrangler often takes multiple seconds per call).
   const settle = finishHostedAuthRedirect(args.port).catch(() => undefined);
-  await Promise.race([settle, delay(SSO_HANDOFF_NAVIGATE_MS)]);
-  const target = signInReturnHrefFromPending(readSignInPendingSync());
+  await Promise.race([settle, delay(SSO_HANDOFF_NAVIGATE_MS, args.setTimeout)]);
+  const target = signInReturnHrefFromPending(readSignInPendingSync(args.now));
   args.replace(target as Href);
   await settle;
 }
@@ -86,6 +97,8 @@ export default function SsoCallbackScreen(): ReactNode {
   const store = useSecureStorageStore();
   const port = useAuthClientPort();
   const { openSignInModal } = useAuthModals();
+  const clock = useClock();
+  const timers = useTimers();
   const didFinishRef = useRef(false);
 
   useEffect(() => {
@@ -102,8 +115,11 @@ export default function SsoCallbackScreen(): ReactNode {
       replace: (href) => {
         router.replace(href);
       },
+      nowMs: clock.now(),
+      now: clock.now,
+      setTimeout: timers.setTimeout,
     });
-  }, [openSignInModal, port, router, store]);
+  }, [clock, openSignInModal, port, router, store, timers]);
 
   return (
     <View

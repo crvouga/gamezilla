@@ -4,14 +4,9 @@ import { Semconv } from '../shared/semconv';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { HttpFetchFn } from '../shared/types';
 
-/** Window/Worker `fetch` must stay bound — bare `fetch` throws Illegal invocation. */
-function defaultFetch(): HttpFetchFn {
-  return globalThis.fetch.bind(globalThis);
-}
-
 export function instrumentFetch(
   observability: Observability,
-  fetchFn: HttpFetchFn = defaultFetch()
+  fetchFn: HttpFetchFn
 ): HttpFetchFn {
   if (!isObservabilityActive(observability)) return fetchFn;
 

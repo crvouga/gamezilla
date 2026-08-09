@@ -15,6 +15,7 @@
  */
 
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import { useClock, useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
 import { usePathname } from 'expo-router';
@@ -69,6 +70,7 @@ function useResumePendingEffect(args: {
     setAwaitingCallback,
     setError,
   } = args;
+  const timers = useTimers();
   useEffect(() => {
     if (!resumePending) return;
     // `markSignInPending` during start() flips resumePending on this same page
@@ -80,7 +82,7 @@ function useResumePendingEffect(args: {
 
   useEffect(() => {
     if (!resumePending || startInFlightRef.current) return;
-    const timer = setTimeout(() => {
+    const timer = timers.setTimeout(() => {
       if (startInFlightRef.current) return;
       void clearSignInPending(store);
       setAwaitingCallback(false);
@@ -88,7 +90,7 @@ function useResumePendingEffect(args: {
       setPhase('error');
     }, RESUME_PENDING_TIMEOUT_MS);
     return () => {
-      clearTimeout(timer);
+      timers.clearTimeout(timer);
     };
   }, [
     resumePending,
@@ -97,6 +99,7 @@ function useResumePendingEffect(args: {
     setPhase,
     setAwaitingCallback,
     setError,
+    timers,
   ]);
 }
 
@@ -199,6 +202,7 @@ function useSignInOutcomeEffect(args: {
 function useSignInStart(args: {
   store: SecureStorageStore;
   pathname: string;
+  now: () => number;
   startInFlightRef: { current: boolean };
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
@@ -208,6 +212,7 @@ function useSignInStart(args: {
   const {
     store,
     pathname,
+    now,
     startInFlightRef,
     onError,
     setAwaitingCallback,
@@ -221,7 +226,7 @@ function useSignInStart(args: {
       startInFlightRef.current = true;
       const returnHref = resolveSignInReturnHref(pathname);
       try {
-        await markSignInPending(store, {
+        await markSignInPending(store, now, {
           ...(returnHref !== undefined ? { returnHref } : {}),
         });
         await runner();
@@ -242,6 +247,7 @@ function useSignInStart(args: {
     },
     [
       store,
+      now,
       onError,
       pathname,
       startInFlightRef,
@@ -259,6 +265,7 @@ export function useSignInModalLifecycle({
   const store = useSecureStorageStore();
   const port = useAuthClientPort();
   const pathname = usePathname();
+  const { now } = useClock();
   const authState = port.useAuthSession();
   const startInFlightRef = useRef(false);
   const [phase, setPhase] = useState<SignInPhase>(() =>
@@ -291,6 +298,7 @@ export function useSignInModalLifecycle({
   const start = useSignInStart({
     store,
     pathname,
+    now,
     startInFlightRef,
     onError,
     setAwaitingCallback,

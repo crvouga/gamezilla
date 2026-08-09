@@ -1,27 +1,37 @@
+import { useTimers } from '@pkgs/clock';
 import { useEffect, useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { ProgressBar } from './progress-bar';
 
-export default function ProgressBarExample() {
+function DeterminateDemo() {
+  const timers = useTimers();
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => {
+    const id = timers.setInterval(() => {
       setProgress((p) => (p >= 1 ? 0 : p + 0.05));
     }, 200);
-    return () => clearInterval(id);
-  }, []);
+    return () => timers.clearInterval(id);
+  }, [timers]);
 
+  return (
+    <>
+      <Text
+        variant="label"
+        label={`Determinate (${Math.round(progress * 100)}%)`}
+      />
+      <ProgressBar progress={progress} />
+    </>
+  );
+}
+
+export default function ProgressBarExample() {
   return (
     <ExampleRoot>
       <Stack spacing={3}>
-        <Text
-          variant="label"
-          label={`Determinate (${Math.round(progress * 100)}%)`}
-        />
-        <ProgressBar progress={progress} />
+        <DeterminateDemo />
 
         <Text variant="label" label="Indeterminate" />
         <ProgressBar indeterminate />

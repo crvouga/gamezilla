@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -11,6 +11,8 @@ import {
   findUserIdByPrimaryAuthExternalId,
   readExternalAccountId,
 } from './external-accounts-sql';
+
+const io = createSimIo({ seed: 1 });
 
 function makeFakeAuthServer(
   snapshot: Record<string, unknown> | null
@@ -63,7 +65,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
 
   test('returns existing user id for known external user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO users (id, created_at)
       VALUES (${userId}, ${now})
@@ -91,6 +93,8 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       sql: sqlClient,
       authServer: makeFakeAuthServer(null),
       externalUserId: EXTERNAL_USER_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(resolved).toBe(userId);
@@ -101,6 +105,8 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       sql: sqlClient,
       authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
       externalUserId: EXTERNAL_USER_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(
@@ -128,11 +134,15 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       sql: sqlClient,
       authServer,
       externalUserId: EXTERNAL_USER_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     const b = await ensureInternalAccountIdForExternalUser({
       sql: sqlClient,
       authServer,
       externalUserId: EXTERNAL_USER_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(a).toBe(b);
@@ -156,7 +166,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
 
   test('adopts existing link when a candidate insert loses the race', async () => {
     const winnerId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO users (id, created_at)
       VALUES (${winnerId}, ${now})
@@ -184,6 +194,8 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       sql: sqlClient,
       authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID }),
       externalUserId: EXTERNAL_USER_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(resolved).toBe(winnerId);

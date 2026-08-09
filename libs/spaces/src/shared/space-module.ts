@@ -36,7 +36,7 @@ import {
   SpaceMembersRoomAttr,
   spaceMembersCmdNs,
   spaceMembersCommandRouter,
-  spaceMembersEventReducer,
+  createSpaceMembersEventReducer,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
 
@@ -64,10 +64,16 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
   ]);
 }
 
-function buildEventReducer(games: readonly GameDefinition[]) {
+function buildEventReducer(
+  games: readonly GameDefinition[],
+  now: () => number
+) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
-    { namespace: spaceMembersEvtNs, router: spaceMembersEventReducer },
+    {
+      namespace: spaceMembersEvtNs,
+      router: createSpaceMembersEventReducer(now),
+    },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
     ...games.flatMap((game) => [...game.eventRouters]),
@@ -98,11 +104,12 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
  */
 export function createSpaceModule(
   name: RoomModuleName,
-  games: readonly GameDefinition[]
+  games: readonly GameDefinition[],
+  now: () => number
 ): RoomModule<RoomState, Message, Message, string> {
   assertUniqueGameIds(games);
   const commandRouter = buildCommandRouter(games);
-  const eventReducer = buildEventReducer(games);
+  const eventReducer = buildEventReducer(games, now);
 
   return {
     name,

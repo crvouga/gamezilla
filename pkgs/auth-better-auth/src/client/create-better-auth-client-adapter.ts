@@ -7,6 +7,7 @@ import type {
   SignInCredentials,
   SignInStrategy,
 } from '@pkgs/auth/shared/sign-in-strategy';
+import type { Timers } from '@pkgs/clock';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
@@ -35,7 +36,11 @@ function isWebSsoCallbackPath(): boolean {
 
 export type BetterAuthClientAdapterConfig = {
   readonly baseURL: string;
+  readonly timers: Timers;
 };
+
+/** Set by {@link createBetterAuthClientAdapter}; required for delay / sign-out. */
+let adapterTimers: Timers | undefined;
 
 export const BETTER_AUTH_SSO_CANCELLED_ERROR =
   "Sign-in was cancelled or didn't finish.";
@@ -51,9 +56,15 @@ function waitUntilUnload(): Promise<never> {
   return new Promise(() => undefined);
 }
 
+function requireTimers(): Timers {
+  assert.defined(adapterTimers, 'Better Auth client adapter not configured');
+  return adapterTimers;
+}
+
 function delay(ms: number): Promise<void> {
+  const timers = requireTimers();
   return new Promise((resolve) => {
-    setTimeout(resolve, ms);
+    timers.setTimeout(resolve, ms);
   });
 }
 
@@ -254,7 +265,7 @@ async function runSignOut(): Promise<void> {
     // previous signed-in `data`, so the account UI stays logged in. Force-clear.
     clearReactSessionAtom();
     // Allow capture again after BA's deferred session-signal refetch (~10ms).
-    setTimeout(() => {
+    requireTimers().setTimeout(() => {
       setSuppressBearerCapture(false);
       clearStoredBearerTokenSync();
       void clearStoredBearerToken();
@@ -296,6 +307,7 @@ async function completeHostedAuthRedirect(): Promise<void> {
 export function createBetterAuthClientAdapter(
   config: BetterAuthClientAdapterConfig
 ): AuthClientPort {
+  adapterTimers = config.timers;
   configureAuthBaseURL(config.baseURL);
   // OAuth return: browser already has the API session cookie, but a leftover
   // localStorage bearer would be attached on the first useSession get-session

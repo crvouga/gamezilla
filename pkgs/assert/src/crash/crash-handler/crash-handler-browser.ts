@@ -1,4 +1,6 @@
 /// <reference lib="dom" />
+import type { Timers } from '@pkgs/clock';
+
 import type { CrashHandler } from './crash-handler';
 import { CRASH_OVERLAY_STYLES } from './crash-handler-browser-styles';
 
@@ -34,7 +36,11 @@ function buildErrorText(message: string, contextJson: string): string {
   return `Assertion failed: ${body}`;
 }
 
-async function copyErrorText(text: string, button: HTMLButtonElement) {
+async function copyErrorText(
+  text: string,
+  button: HTMLButtonElement,
+  timers: Timers
+) {
   const label = button.textContent;
   try {
     await navigator.clipboard.writeText(text);
@@ -42,7 +48,7 @@ async function copyErrorText(text: string, button: HTMLButtonElement) {
   } catch {
     button.textContent = 'Copy failed';
   }
-  setTimeout(() => {
+  timers.setTimeout(() => {
     button.textContent = label;
   }, 1500);
 }
@@ -72,7 +78,11 @@ function buildOverlayHtml(message: string, contextJson: string): string {
 </div>`;
 }
 
-function wireOverlayActions(overlay: HTMLElement, errorText: string) {
+function wireOverlayActions(
+  overlay: HTMLElement,
+  errorText: string,
+  timers: Timers
+) {
   const reload = overlay.querySelector('[data-assert-action="reload"]');
   if (reload instanceof HTMLButtonElement) {
     reload.addEventListener('click', () => {
@@ -82,12 +92,16 @@ function wireOverlayActions(overlay: HTMLElement, errorText: string) {
   const copy = overlay.querySelector('[data-assert-action="copy"]');
   if (copy instanceof HTMLButtonElement) {
     copy.addEventListener('click', () => {
-      void copyErrorText(errorText, copy);
+      void copyErrorText(errorText, copy, timers);
     });
   }
 }
 
-function crashBrowser(message: string, context?: Record<string, unknown>) {
+function crashBrowser(
+  message: string,
+  timers: Timers,
+  context?: Record<string, unknown>
+) {
   const existing = document.getElementById(OVERLAY_ID);
   if (existing !== null) {
     bumpSuppressed();
@@ -98,16 +112,17 @@ function crashBrowser(message: string, context?: Record<string, unknown>) {
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
   overlay.innerHTML = buildOverlayHtml(message, contextJson);
-  wireOverlayActions(overlay, buildErrorText(message, contextJson));
+  wireOverlayActions(overlay, buildErrorText(message, contextJson), timers);
   document.body.appendChild(overlay);
 }
 
 export class BrowserCrashHandler implements CrashHandler {
   readonly priority: number = 10;
+  constructor(private readonly timers: Timers) {}
   match(): boolean {
     return isBrowser();
   }
   crash(message: string, context?: Record<string, unknown>): void {
-    crashBrowser(message, context);
+    crashBrowser(message, this.timers, context);
   }
 }

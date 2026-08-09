@@ -1,3 +1,4 @@
+import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -20,10 +21,11 @@ export type AppendPuzzleInteractionInput = {
 export async function appendPuzzleInteractionRowSql(
   db: SqlClient,
   input: AppendPuzzleInteractionInput,
-  createId: CreateId
+  createId: CreateId,
+  now: Clock['now']
 ): Promise<void> {
   const id = createId();
-  const at = new Date().toISOString();
+  const at = new Date(now()).toISOString();
   const correct =
     input.correct === null || input.correct === undefined
       ? null

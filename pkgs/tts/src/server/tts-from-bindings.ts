@@ -13,6 +13,10 @@ export type CreateTtsAppFromBindingsOptions = {
   readonly secretStore: SecretStore;
   readonly objectStore: ObjectStore;
   readonly requireAuth: TtsRequireAuth;
+  readonly fetch: (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => Promise<Response>;
   readonly publicPathPrefix?: string;
 };
 
@@ -47,7 +51,7 @@ export async function createTtsAppFromBindings(
     return { app: createUnconfiguredTtsApp(), configured: false };
   }
 
-  const provider = new ElevenLabsTtsProvider({ apiKey });
+  const provider = new ElevenLabsTtsProvider({ apiKey, fetch: options.fetch });
 
   return {
     configured: true,

@@ -4,6 +4,7 @@ import {
   type PublishInteractionInput,
   publishInteraction,
 } from '@pkgs/inbox/server/publish';
+import { getIo } from '@pkgs/io';
 import { Sounds } from '@pkgs/sounds/sound-id';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { FriendRequest } from '../shared/friends-types';
@@ -111,7 +112,7 @@ export async function publishIncomingFriendRequestInteraction(
     groupKey: 'friends:requests',
     priority: 10,
   };
-  await publishInteraction(sql, input);
+  await publishInteraction(sql, input, getIo().clock.now);
 }
 
 export async function publishFriendRequestAcceptedInteraction(
@@ -119,33 +120,41 @@ export async function publishFriendRequestAcceptedInteraction(
   request: FriendRequest
 ): Promise<void> {
   const accepterProfile = await loadActorProfile(sql, request.toUserId);
-  await publishInteraction(sql, {
-    userId: request.fromUserId,
-    source: friendAcceptedSource(request.id),
-    category: 'informational',
-    presentation: profilePresentation(
-      accepterProfile,
-      `${formatUsernameLabel(accepterProfile.username)} accepted your friend request`,
-      request.toUserId
-    ),
-    actions: [],
-    payload: {
-      requestId: request.id,
-      toUserId: request.toUserId,
+  await publishInteraction(
+    sql,
+    {
+      userId: request.fromUserId,
+      source: friendAcceptedSource(request.id),
+      category: 'informational',
+      presentation: profilePresentation(
+        accepterProfile,
+        `${formatUsernameLabel(accepterProfile.username)} accepted your friend request`,
+        request.toUserId
+      ),
+      actions: [],
+      payload: {
+        requestId: request.id,
+        toUserId: request.toUserId,
+      },
+      groupKey: 'friends:accepted',
+      priority: 5,
     },
-    groupKey: 'friends:accepted',
-    priority: 5,
-  });
+    getIo().clock.now
+  );
 }
 
 export async function deactivateFriendRequestInteraction(
   sql: SqlClient,
   request: Pick<FriendRequest, 'id' | 'toUserId'>
 ): Promise<void> {
-  await deactivateInteraction(sql, {
-    userId: request.toUserId,
-    source: friendRequestSource(request.id),
-  });
+  await deactivateInteraction(
+    sql,
+    {
+      userId: request.toUserId,
+      source: friendRequestSource(request.id),
+    },
+    getIo().clock.now
+  );
 }
 
 export async function deactivatePendingFriendRequestInteractionsBetween(

@@ -1,3 +1,4 @@
+import type { Timers } from '@pkgs/clock';
 import type { AppHarness } from '../bootstrap/app-harness';
 import type { RenderAdapter } from '../bootstrap/render-adapter';
 import {
@@ -18,6 +19,8 @@ export type InProcessDriverConfig<TContext = void> = {
   kind: 'in-process';
   harness: AppHarness<TContext>;
   renderer?: RenderAdapter;
+  readonly now: () => number;
+  readonly timers: Timers;
 };
 
 export type PlaywrightDriverConfig = {

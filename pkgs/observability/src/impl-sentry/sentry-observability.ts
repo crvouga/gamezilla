@@ -15,16 +15,19 @@ export class SentryObservability implements Observability {
   readonly backend = 'sentry' as const;
   private readonly sdk: SentrySdk;
   private readonly storage: SpanContextStorage;
+  private readonly now: () => number;
   private readonly spanRegistry = new Map<string, SentrySpanType>();
 
   constructor(args: {
     readonly serviceName: string;
     readonly sdk: SentrySdk;
     readonly storage: SpanContextStorage;
+    readonly now: () => number;
   }) {
     this.serviceName = args.serviceName;
     this.sdk = args.sdk;
     this.storage = args.storage;
+    this.now = args.now;
   }
 
   activeSpanContext(): SpanContext | undefined {
@@ -64,6 +67,7 @@ export class SentryObservability implements Observability {
       sdk: this.sdk,
       name: options.name,
       kind: options.kind ?? 'internal',
+      now: this.now,
       ...(options.attributes !== undefined
         ? { attributes: options.attributes }
         : {}),
@@ -139,6 +143,7 @@ export function createSentryObservability(args: {
   readonly serviceName: string;
   readonly sdk: SentrySdk;
   readonly storage: SpanContextStorage;
+  readonly now: () => number;
 }): Observability {
   return new SentryObservability(args);
 }

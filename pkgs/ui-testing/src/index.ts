@@ -26,7 +26,11 @@ export {
   UiTestError,
 } from './core/errors';
 export { DRIVER_KEY_TO_DOM, type DriverKey } from './core/keys';
-export { type WaitOptions, waitUntil } from './core/wait';
+export {
+  type WaitOptions,
+  type WaitPollOptions,
+  waitUntil,
+} from './core/wait';
 export {
   createDriver,
   type DetoxDriverConfig,

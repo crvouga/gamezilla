@@ -1,3 +1,5 @@
+import type { CreateId } from '@pkgs/uuid';
+
 import type { ObservabilityBackend } from '../shared/backend';
 import {
   extractTraceContext,
@@ -16,17 +18,23 @@ export class BaseObservability implements Observability {
   readonly backend: ObservabilityBackend;
   private readonly storage: SpanContextStorage;
   private readonly exporter: SpanExporter;
+  private readonly now: () => number;
+  private readonly createId: CreateId;
 
   constructor(args: {
     readonly serviceName: string;
     readonly backend: ObservabilityBackend;
     readonly storage: SpanContextStorage;
     readonly exporter: SpanExporter;
+    readonly now: () => number;
+    readonly createId: CreateId;
   }) {
     this.serviceName = args.serviceName;
     this.backend = args.backend;
     this.storage = args.storage;
     this.exporter = args.exporter;
+    this.now = args.now;
+    this.createId = args.createId;
   }
 
   activeSpanContext() {
@@ -48,6 +56,8 @@ export class BaseObservability implements Observability {
       name: options.name,
       kind: options.kind ?? 'internal',
       exporter: this.exporter,
+      now: this.now,
+      createId: this.createId,
       ...(parent !== undefined ? { parent } : {}),
       ...(options.attributes !== undefined
         ? { attributes: options.attributes }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
@@ -7,6 +8,9 @@ import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
 import { RoomMetaAttr } from './room-meta';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
+
+const io = wallIo();
+const timers = io.timers;
 
 /**
  * Transport that never opens — simulates Connecting… / offline.
@@ -79,6 +83,9 @@ describe('Room offline-first dispatch', () => {
       storage: new InMemoryClientStorage(),
       transport,
       identity: 'u1',
+      clock: io.clock,
+      timers: io.timers,
+      createId: io.createId,
     });
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(false);
     expect(RoomMetaAttr.isSynced.from(room.getSnapshot())).toBe(false);
@@ -95,6 +102,9 @@ describe('Room offline-first dispatch', () => {
       storage,
       transport,
       identity: 'u1',
+      clock: io.clock,
+      timers: io.timers,
+      createId: io.createId,
     });
 
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(false);
@@ -106,14 +116,14 @@ describe('Room offline-first dispatch', () => {
     expect(transport.sent.length).toBe(0);
 
     // Durable append is async (dispatchSerial); wait for it.
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
     const queued = await storage.loadQueued();
     expect(queued.length).toBe(1);
 
     transport.openAndWelcome();
     await room.untilSynced();
     // After welcome, outbound queue flushes.
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
     expect(
       transport.sent.some((f) => {
         const frame = f as { kind?: string };

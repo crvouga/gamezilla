@@ -5,7 +5,7 @@ import type { QueryRegistry, QueryRow } from '../queries/core/types';
 import type { PushMessage, QueryChannelsCtx } from '../shared/push-payload';
 import type { TopicMap } from '../shared/topic-map';
 import type { MergeApplierDeps } from './merge';
-import { REAL_TIMERS, type Timers } from './sim-ports';
+import type { Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
 
 export type AttachPushOptions = {
@@ -15,7 +15,7 @@ export type AttachPushOptions = {
   readonly getChannelsCtx: () => QueryChannelsCtx;
   readonly remakePubSub: () => PubSub;
   readonly db: SqlClient;
-  readonly timers?: Timers;
+  readonly timers: Timers;
   readonly rowImageFanout?: boolean;
   readonly getMergeDeps?: () => MergeApplierDeps;
   readonly onBindTopicRefresh?: (refresh: () => void) => void;
@@ -51,7 +51,7 @@ export type PushBag = {
 export function createPushBag(options: AttachPushOptions): PushBag {
   return {
     options,
-    timers: options.timers ?? REAL_TIMERS,
+    timers: options.timers,
     pubsub: options.pubsub,
     disposed: false,
     lastStatus: options.pubsub.status(),

@@ -11,4 +11,6 @@ export type Clock = {
 export type Timers = {
   readonly setTimeout: (fn: () => void, ms: number) => unknown;
   readonly clearTimeout: (handle: unknown) => void;
+  readonly setInterval: (fn: () => void, ms: number) => unknown;
+  readonly clearInterval: (handle: unknown) => void;
 };

@@ -12,6 +12,8 @@ import { PassThrough, Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { assert } from '@pkgs/assert';
+import type { Clock } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import type { Logger } from '@pkgs/logger';
 import { parse } from 'csv-parse';
 import { Decompress as ZstdDecompress } from 'fzstd';
@@ -69,6 +71,7 @@ async function streamWebBodyToFile(args: {
   body: NodeReadableStream;
   destPath: string;
   totalBytes: number | null;
+  now: Clock['now'];
   onProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
@@ -83,13 +86,13 @@ async function streamWebBodyToFile(args: {
     transform(chunk: Buffer, _enc, cb): void {
       received += chunk.length;
       if (args.onProgress !== undefined) {
-        const now = performance.now();
-        if (now - lastEmit >= throttleMs) {
+        const t = args.now();
+        if (t - lastEmit >= throttleMs) {
           args.onProgress({
             receivedBytes: received,
             totalBytes: args.totalBytes,
           });
-          lastEmit = now;
+          lastEmit = t;
         }
       }
       cb(null, chunk);
@@ -112,12 +115,14 @@ async function downloadAndPersistHttpArchive(args: {
   manifestPath: string;
   log: Logger;
   headEtag: string;
+  http: HttpClient;
+  now: Clock['now'];
   onDownloadProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
   }) => void;
 }): Promise<ResolvedSource> {
-  const res = await fetch(args.source);
+  const res = await args.http.fetch(args.source);
   if (!res.ok || res.body === null) {
     assert.fail('seed:puzzles: download failed', {
       status: res.status,
@@ -136,6 +141,7 @@ async function downloadAndPersistHttpArchive(args: {
     body: res.body as unknown as NodeReadableStream,
     destPath: tmpPath,
     totalBytes,
+    now: args.now,
     ...(args.onDownloadProgress !== undefined
       ? { onProgress: args.onDownloadProgress }
       : {}),
@@ -148,7 +154,7 @@ async function downloadAndPersistHttpArchive(args: {
       {
         etag: etagFinal,
         url: args.source,
-        downloadedAt: new Date().toISOString(),
+        downloadedAt: new Date(args.now()).toISOString(),
       },
       null,
       2
@@ -163,6 +169,8 @@ async function resolveHttpArchiveSource(args: {
   source: string;
   cacheDir: string;
   log: Logger;
+  http: HttpClient;
+  now: Clock['now'];
   onDownloadProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
@@ -171,7 +179,7 @@ async function resolveHttpArchiveSource(args: {
   const manifestPath = join(args.cacheDir, MANIFEST_NAME);
   const dataPath = join(args.cacheDir, ZST_NAME);
   args.log.info('seed:puzzles: HTTP HEAD', { source: args.source });
-  const head = await fetch(args.source, { method: 'HEAD' });
+  const head = await args.http.fetch(args.source, { method: 'HEAD' });
   const headEtag = (head.headers.get('etag') ?? '').trim();
   const manifestEtag = await readCachedManifestEtag(manifestPath);
   if (
@@ -191,6 +199,8 @@ async function resolveHttpArchiveSource(args: {
     manifestPath,
     log: args.log,
     headEtag,
+    http: args.http,
+    now: args.now,
     ...(args.onDownloadProgress !== undefined
       ? { onDownloadProgress: args.onDownloadProgress }
       : {}),
@@ -220,6 +230,8 @@ export async function ensureCachedArchive(args: {
   source: string;
   cacheDir: string;
   log: Logger;
+  http: HttpClient;
+  now: Clock['now'];
   onDownloadProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;

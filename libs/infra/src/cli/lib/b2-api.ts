@@ -4,6 +4,9 @@
  */
 import { assert } from '@pkgs/assert';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
+import { wallIo } from '@pkgs/io';
+
+const io = wallIo();
 
 const B2_AUTH_URL = 'https://api.backblazeb2.com/b2api/v4/b2_authorize_account';
 
@@ -127,9 +130,13 @@ export function authorizeB2(
   const cacheKey = `${id}\0${key}`;
   if (authCache?.key === cacheKey) return authCache.auth;
   const auth = (async (): Promise<B2Auth> => {
-    const res = await fetchWithRetry(B2_AUTH_URL, {
-      headers: { Authorization: basicAuthHeader(id, key) },
-    });
+    const res = await fetchWithRetry(
+      B2_AUTH_URL,
+      {
+        headers: { Authorization: basicAuthHeader(id, key) },
+      },
+      { fetch: io.http.fetch, timers: io.timers }
+    );
     const body = await readB2Json<AuthorizeBody>(res, 'b2_authorize_account');
     return parseAuthorizeBody(body);
   })();
@@ -162,14 +169,18 @@ async function listBucketByName(
   auth: B2Auth,
   bucketName: string
 ): Promise<BucketRow | null> {
-  const res = await fetchWithRetry(`${auth.apiUrl}/b2api/v4/b2_list_buckets`, {
-    method: 'POST',
-    headers: authHeaders(auth),
-    body: JSON.stringify({
-      accountId: auth.accountId,
-      bucketName,
-    }),
-  });
+  const res = await fetchWithRetry(
+    `${auth.apiUrl}/b2api/v4/b2_list_buckets`,
+    {
+      method: 'POST',
+      headers: authHeaders(auth),
+      body: JSON.stringify({
+        accountId: auth.accountId,
+        bucketName,
+      }),
+    },
+    { fetch: io.http.fetch, timers: io.timers }
+  );
   const body = await readB2Json<{ buckets?: BucketRow[] }>(
     res,
     `b2_list_buckets(${bucketName})`
@@ -187,15 +198,19 @@ export async function ensureB2Bucket(
   const existing = await listBucketByName(auth, name);
   if (existing !== null) return existing.bucketId;
 
-  const res = await fetchWithRetry(`${auth.apiUrl}/b2api/v4/b2_create_bucket`, {
-    method: 'POST',
-    headers: authHeaders(auth),
-    body: JSON.stringify({
-      accountId: auth.accountId,
-      bucketName: name,
-      bucketType: 'allPrivate',
-    }),
-  });
+  const res = await fetchWithRetry(
+    `${auth.apiUrl}/b2api/v4/b2_create_bucket`,
+    {
+      method: 'POST',
+      headers: authHeaders(auth),
+      body: JSON.stringify({
+        accountId: auth.accountId,
+        bucketName: name,
+        bucketType: 'allPrivate',
+      }),
+    },
+    { fetch: io.http.fetch, timers: io.timers }
+  );
   const body = await readB2Json<{ bucketId?: string }>(
     res,
     `b2_create_bucket(${name})`
@@ -216,16 +231,20 @@ async function listAllKeys(auth: B2Auth): Promise<KeyRow[]> {
   const keys: KeyRow[] = [];
   let nextApplicationKeyId: string | undefined;
   for (;;) {
-    const res = await fetchWithRetry(`${auth.apiUrl}/b2api/v4/b2_list_keys`, {
-      method: 'POST',
-      headers: authHeaders(auth),
-      body: JSON.stringify({
-        accountId: auth.accountId,
-        ...(nextApplicationKeyId !== undefined
-          ? { startApplicationKeyId: nextApplicationKeyId }
-          : {}),
-      }),
-    });
+    const res = await fetchWithRetry(
+      `${auth.apiUrl}/b2api/v4/b2_list_keys`,
+      {
+        method: 'POST',
+        headers: authHeaders(auth),
+        body: JSON.stringify({
+          accountId: auth.accountId,
+          ...(nextApplicationKeyId !== undefined
+            ? { startApplicationKeyId: nextApplicationKeyId }
+            : {}),
+        }),
+      },
+      { fetch: io.http.fetch, timers: io.timers }
+    );
     const body = await readB2Json<{
       keys?: KeyRow[];
       nextApplicationKeyId?: string | null;
@@ -246,11 +265,15 @@ async function deleteKeysNamed(auth: B2Auth, keyName: string): Promise<void> {
   const keys = await listAllKeys(auth);
   for (const key of keys) {
     if (key.keyName !== keyName) continue;
-    const res = await fetchWithRetry(`${auth.apiUrl}/b2api/v4/b2_delete_key`, {
-      method: 'POST',
-      headers: authHeaders(auth),
-      body: JSON.stringify({ applicationKeyId: key.applicationKeyId }),
-    });
+    const res = await fetchWithRetry(
+      `${auth.apiUrl}/b2api/v4/b2_delete_key`,
+      {
+        method: 'POST',
+        headers: authHeaders(auth),
+        body: JSON.stringify({ applicationKeyId: key.applicationKeyId }),
+      },
+      { fetch: io.http.fetch, timers: io.timers }
+    );
     await readB2Json(res, `b2_delete_key(${keyName})`);
   }
 }
@@ -278,7 +301,8 @@ export async function mintB2S3Credentials(options: {
         keyName,
         bucketIds: [bucketId],
       }),
-    }
+    },
+    { fetch: io.http.fetch, timers: io.timers }
   );
   const body = await readB2Json<{
     applicationKeyId?: string;

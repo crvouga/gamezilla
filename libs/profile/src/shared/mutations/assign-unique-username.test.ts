@@ -10,6 +10,7 @@ import { ensureProfileMutation } from './profile-mutations';
 
 const ACCOUNT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const OTHER_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const NOW_ISO = '2026-08-06T00:00:00.000Z';
 
 function mutationEnv(myId: string) {
   return {
@@ -48,7 +49,7 @@ describe('assignUniqueUsernameIfEmpty', () => {
   });
 
   test('assigns a username when empty', async () => {
-    const now = new Date().toISOString();
+    const now = NOW_ISO;
     await sqlClient.run(sql<void>`
       INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{}'})
@@ -63,7 +64,7 @@ describe('assignUniqueUsernameIfEmpty', () => {
   });
 
   test('leaves an existing username alone', async () => {
-    const now = new Date().toISOString();
+    const now = NOW_ISO;
     await sqlClient.run(sql<void>`
       INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${'AlreadyTaken'}, ${'alreadytaken'}, ${'{}'})
@@ -78,7 +79,7 @@ describe('assignUniqueUsernameIfEmpty', () => {
   });
 
   test('skips colliding generated names', async () => {
-    const now = new Date().toISOString();
+    const now = NOW_ISO;
     const collision = generateRandomUsername(`${ACCOUNT_ID}:0`);
     await sqlClient.run(sql<void>`
       INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
@@ -99,7 +100,7 @@ describe('assignUniqueUsernameIfEmpty', () => {
   });
 
   test('throws when every attempt collides', async () => {
-    const now = new Date().toISOString();
+    const now = NOW_ISO;
     for (let attempt = 0; attempt < 8; attempt += 1) {
       const username = generateRandomUsername(`${ACCOUNT_ID}:${attempt}`);
       await sqlClient.run(sql<void>`
@@ -168,7 +169,7 @@ describe('ensureProfileMutation', () => {
   });
 
   test('fills empty username on an existing row', async () => {
-    const now = new Date().toISOString();
+    const now = NOW_ISO;
     await sqlClient.run(sql<void>`
       INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{"seed":"x"}'})

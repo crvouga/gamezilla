@@ -1,7 +1,9 @@
 import type { Assert } from '@pkgs/assert';
 import { assert, hotAssert } from '@pkgs/assert';
+import type { Clock, Timers } from '@pkgs/clock';
 import { assertKeywordRecord, isNamespacedKeyword } from '@pkgs/keyword';
 import { isMessageEnvelope } from '@pkgs/message';
+import type { CreateId } from '@pkgs/uuid';
 
 import { newCommandId } from '../../protocol/ids';
 import {
@@ -20,6 +22,7 @@ import type {
   RoomModule,
   RoomState,
 } from '../../types';
+import { foldDisplay, foldEntries } from './room-fold';
 import { RoomMetaAttr, roomAttrNamespace } from './room-meta';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
@@ -37,50 +40,13 @@ export type RoomClientConfig<
   transport: ClientTransport;
   identity: Identity;
   onError?: (err: RoomError | Error) => void;
+  /** Injectable clock (required — no wall default). */
+  clock: Clock;
+  /** Injectable timers (required — no wall default). */
+  timers: Timers;
+  /** Injectable id mint (required — no wall default). */
+  createId: CreateId;
 };
-
-function foldEntries<S extends RoomState, E extends RoomEvent>(
-  module: RoomModule<S, RoomCommandPayload, E, unknown>,
-  entries: LogEntry<E>[]
-): { state: S; lastSeq: number } {
-  let state = module.initialState();
-  let lastSeq = 0;
-  const a: Assert = hotAssert();
-  for (const e of entries) {
-    state = module.reduce(state, e.event);
-    assertKeywordRecord(
-      a,
-      state as Record<string, unknown>,
-      'room.foldEntries'
-    );
-    lastSeq = e.seq;
-  }
-  return { state, lastSeq };
-}
-
-function foldDisplay<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
-  Identity,
->(
-  module: RoomModule<S, C, E, Identity>,
-  committed: S,
-  queue: QueuedCommand[],
-  optimistic: Map<string, E[]>
-): S {
-  let s = committed;
-  const a: Assert = hotAssert();
-  for (const q of queue) {
-    const ev = optimistic.get(q.id);
-    if (ev === undefined) continue;
-    for (const e of ev) {
-      s = module.reduce(s, e);
-      assertKeywordRecord(a, s as Record<string, unknown>, 'room.foldDisplay');
-    }
-  }
-  return s;
-}
 
 /**
  * Client room: optimistic commands + durable queue; server is source of truth for commits.
@@ -136,12 +102,14 @@ export class Room<
 
   /** Test / bootstrap: wait until first `welcome` applied. */
   async untilSynced(timeoutMs = 2000): Promise<void> {
-    const start = Date.now();
+    const start = this.clock.now();
     while (!RoomMetaAttr.isSynced.from(this.snapshot)) {
-      if (Date.now() - start > timeoutMs) {
+      if (this.clock.now() - start > timeoutMs) {
         throw new Error('Room.untilSynced: timeout waiting for welcome');
       }
-      await new Promise<void>((resolve) => setTimeout(resolve, 2));
+      await new Promise<void>((resolve) => {
+        this.timers.setTimeout(resolve, 2);
+      });
     }
   }
 
@@ -150,6 +118,9 @@ export class Room<
   private readonly transport: ClientTransport;
   private readonly identity: Identity;
   private readonly onError: ((err: RoomError | Error) => void) | undefined;
+  private readonly clock: Clock;
+  private readonly timers: Timers;
+  private readonly createId: CreateId;
 
   private committedState: S;
   private committedEntries: LogEntry<E>[] = [];
@@ -179,6 +150,9 @@ export class Room<
     this.transport = config.transport;
     this.identity = config.identity;
     this.onError = config.onError;
+    this.clock = config.clock;
+    this.timers = config.timers;
+    this.createId = config.createId;
     this.committedState = config.module.initialState();
     this.snapshot = this.computeSnapshot();
   }
@@ -515,8 +489,8 @@ export class Room<
   dispatch(payload: C): void {
     if (this.destroyed) return;
     const cmd: RoomCommand<C> = {
-      id: newCommandId(),
-      ts: Date.now(),
+      id: newCommandId(this.createId),
+      ts: this.clock.now(),
       payload,
     };
     const row = this.applyDispatchCommandSync(cmd);

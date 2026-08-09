@@ -19,17 +19,17 @@ function assertNotSelf(actorId: string, targetId: string): void {
 export async function blockUser(
   sql: SqlClient,
   blockerId: string,
-  blockedId: string
+  blockedId: string,
+  now: string
 ): Promise<void> {
   assertNotSelf(blockerId, blockedId);
-  const now = new Date().toISOString();
   await deactivatePendingFriendRequestInteractionsBetween(
     sql,
     blockerId,
     blockedId
   );
   await sql.transaction(async (tx) => {
-    await deleteFriendship(tx, blockerId, blockedId);
+    await deleteFriendship(tx, blockerId, blockedId, now);
     await cancelPendingRequestsBetween(tx, blockerId, blockedId, now);
     await insertBlock(tx, blockerId, blockedId, now);
   });
@@ -39,8 +39,9 @@ export async function blockUser(
 export async function unblockUser(
   sql: SqlClient,
   blockerId: string,
-  blockedId: string
+  blockedId: string,
+  now: string
 ): Promise<void> {
   assertNotSelf(blockerId, blockedId);
-  await deleteBlock(sql, blockerId, blockedId);
+  await deleteBlock(sql, blockerId, blockedId, now);
 }

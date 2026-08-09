@@ -20,13 +20,15 @@ describe('validateUsername', () => {
 });
 
 describe('canChangeUsername', () => {
+  const nowMs = 1_700_000_000_000;
+
   test('allows first change', () => {
-    expect(canChangeUsername(null)).toBe(true);
-    expect(canChangeUsername('')).toBe(true);
+    expect(canChangeUsername(null, nowMs)).toBe(true);
+    expect(canChangeUsername('', nowMs)).toBe(true);
   });
 
   test('enforces cooldown', () => {
-    const now = Date.now();
+    const now = nowMs;
     const recent = new Date(
       now - USERNAME_CHANGE_COOLDOWN_MS + 1000
     ).toISOString();

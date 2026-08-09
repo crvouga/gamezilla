@@ -9,6 +9,7 @@
  * re-opens the modal on a cold start.
  */
 
+import { useClock } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
   useSecureStorageItem,
@@ -41,10 +42,10 @@ type SignInPendingWire = {
   readonly returnHref?: string;
 };
 
-function isFreshStartedAt(startedAt: Date): boolean {
+function isFreshStartedAt(startedAt: Date, now: () => number): boolean {
   const ms = startedAt.getTime();
   if (Number.isNaN(ms)) return false;
-  return Date.now() - ms <= SIGN_IN_PENDING_TTL_MS;
+  return now() - ms <= SIGN_IN_PENDING_TTL_MS;
 }
 
 /**
@@ -91,29 +92,36 @@ export function signInReturnHrefFromPending(
  * hydration — that path can stall and leave the blank callback mounted forever.
  * Web reads `localStorage` directly (same backend as {@link createWebSecureStorage}).
  */
-export function readSignInPendingSync(): SignInPending | null {
+export function readSignInPendingSync(now: () => number): SignInPending | null {
   if (typeof globalThis.localStorage === 'undefined') return null;
   try {
     return parseSignInPending(
-      globalThis.localStorage.getItem(SIGN_IN_PENDING_KEY)
+      globalThis.localStorage.getItem(SIGN_IN_PENDING_KEY),
+      now
     );
   } catch {
     return null;
   }
 }
 
-function parseLegacySignInPending(value: string): SignInPending | null {
+function parseLegacySignInPending(
+  value: string,
+  now: () => number
+): SignInPending | null {
   const startedAt = new Date(value);
-  if (!isFreshStartedAt(startedAt)) return null;
+  if (!isFreshStartedAt(startedAt, now)) return null;
   return { startedAt };
 }
 
-function parseSignInPendingWire(wire: unknown): SignInPending | null {
+function parseSignInPendingWire(
+  wire: unknown,
+  now: () => number
+): SignInPending | null {
   if (typeof wire !== 'object' || wire === null) return null;
   const record = wire as Partial<SignInPendingWire>;
   if (typeof record.startedAt !== 'string') return null;
   const startedAt = new Date(record.startedAt);
-  if (!isFreshStartedAt(startedAt)) return null;
+  if (!isFreshStartedAt(startedAt, now)) return null;
   const returnHref = sanitizeSignInReturnHref(
     typeof record.returnHref === 'string' ? record.returnHref : undefined
   );
@@ -127,11 +135,14 @@ function parseSignInPendingWire(wire: unknown): SignInPending | null {
  * Returns a non-stale pending payload, or `null` when there is no marker or it
  * has expired. Accepts legacy bare ISO timestamps.
  */
-export function parseSignInPending(value: string | null): SignInPending | null {
+export function parseSignInPending(
+  value: string | null,
+  now: () => number
+): SignInPending | null {
   if (value === null || value.length === 0) return null;
-  if (!value.startsWith('{')) return parseLegacySignInPending(value);
+  if (!value.startsWith('{')) return parseLegacySignInPending(value, now);
   try {
-    return parseSignInPendingWire(JSON.parse(value) as unknown);
+    return parseSignInPendingWire(JSON.parse(value) as unknown, now);
   } catch {
     return null;
   }
@@ -139,11 +150,12 @@ export function parseSignInPending(value: string | null): SignInPending | null {
 
 export async function markSignInPending(
   store: SecureStorageStore,
+  now: () => number,
   options?: MarkSignInPendingOptions
 ): Promise<void> {
   const returnHref = sanitizeSignInReturnHref(options?.returnHref);
   const wire: SignInPendingWire = {
-    startedAt: new Date().toISOString(),
+    startedAt: new Date(now()).toISOString(),
     ...(returnHref !== undefined ? { returnHref } : {}),
   };
   await writeSecureStorageItem(
@@ -168,6 +180,7 @@ export function useSignInPending(): {
   pending: SignInPending | null;
   isHydrated: boolean;
 } {
+  const { now } = useClock();
   const { value, isHydrated } = useSecureStorageItem(SIGN_IN_PENDING_KEY);
-  return { pending: parseSignInPending(value), isHydrated };
+  return { pending: parseSignInPending(value, now), isHydrated };
 }

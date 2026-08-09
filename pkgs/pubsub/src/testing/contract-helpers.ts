@@ -1,8 +1,14 @@
 import { expect } from 'bun:test';
+import { wallIo } from '@pkgs/io';
+
 import type { PubSub } from '../interface';
 
+const io = wallIo();
+
 export function waitMs(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    io.timers.setTimeout(resolve, ms);
+  });
 }
 
 export async function waitUntil(
@@ -10,8 +16,9 @@ export async function waitUntil(
   timeoutMs = 2000,
   intervalMs = 20
 ): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
+  const now = io.clock.now;
+  const deadline = now() + timeoutMs;
+  while (now() < deadline) {
     if (predicate()) return;
     await waitMs(intervalMs);
   }

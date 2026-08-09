@@ -4,6 +4,7 @@ import {
   useMutationClient,
 } from '@pkgs/sync-engine/client';
 import type { MutationRegistry } from '@pkgs/sync-engine/shared';
+import { useCreateId } from '@pkgs/uuid';
 import { type ReactNode, useMemo } from 'react';
 
 import { useRulesAuth } from './use-rules-auth';
@@ -20,6 +21,7 @@ export function MutationClientProvider({
 }): ReactNode {
   const auth = useRulesAuth();
   const clock = useClock();
+  const createId = useCreateId();
   const env = useMemo(
     () => ({
       actorId: auth.userId,
@@ -37,7 +39,12 @@ export function MutationClientProvider({
     [auth.deviceId]
   );
   return (
-    <SyncMutationClientProvider registry={registry} env={env} ids={ids}>
+    <SyncMutationClientProvider
+      registry={registry}
+      env={env}
+      ids={ids}
+      createId={createId}
+    >
       {children}
     </SyncMutationClientProvider>
   );

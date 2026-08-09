@@ -1,5 +1,6 @@
 import { appTopicMap } from '@libs/db/shared/app-topic-map';
 import { assert } from '@pkgs/assert';
+import { getIo } from '@pkgs/io';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -10,6 +11,13 @@ import { getApiPubSub } from './api-pubsub';
 import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';
+
+let checkpointSeq = 0;
+
+function nextCheckpointFromIo(): string {
+  checkpointSeq += 1;
+  return `${String(getIo().clock.now())}${String(checkpointSeq).padStart(6, '0')}`;
+}
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
@@ -43,9 +51,12 @@ export function createSyncApp() {
     getSql: openRequestSqlClient,
     queries: APP_QUERIES,
     mutations: APP_MUTATIONS,
+    now: () => getIo().clock.now(),
+    createId: () => getIo().createId(),
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: appTopicMap,
+    nextCheckpoint: nextCheckpointFromIo,
     ...(process.env['SECRETS_ENV'] === 'dev'
       ? { strictQueryLimits: true }
       : {}),

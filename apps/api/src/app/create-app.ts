@@ -7,6 +7,7 @@ import { createFriendsApp } from '@libs/friends/server/friends-routes';
 import { createStripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
@@ -31,7 +32,8 @@ import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
 import { createRequestDbMiddleware } from './request-db-middleware';
 
-const log = createLogger({ name: 'api:app' });
+const appIo = wallIo();
+const log = createLogger({ name: 'api:app', now: appIo.clock.now });
 
 export type { ApiHandlerConfig } from './config';
 

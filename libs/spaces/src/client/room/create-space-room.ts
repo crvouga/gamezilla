@@ -1,3 +1,4 @@
+import type { Io } from '@pkgs/io';
 import type { Kv } from '@pkgs/kv/interface';
 import {
   type ClientTransport,
@@ -45,6 +46,8 @@ export type CreateSpaceRoomParams = {
    * refresh a rotated JWT before the socket upgrade.
    */
   getSessionToken: () => string | null | Promise<string | null>;
+  /** Injectable I/O bag (required — no wall default). */
+  io: Io;
   /** Defaults to WebSocket when omitted (production). */
   createTransport?: CreateRoomTransport;
 };
@@ -71,6 +74,7 @@ export async function createSpaceRoom(
     installId,
     clientId,
     getSessionToken,
+    io,
     createTransport,
   } = params;
   const topic = `space:${spaceId}`;
@@ -80,6 +84,8 @@ export async function createSpaceRoom(
     installId,
     clientId,
     getSessionToken,
+    timers: io.timers,
+    random: io.random,
   });
   const { committed, queue } = keyValueRoomClientKeywords(spaceId);
   const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
@@ -92,6 +98,9 @@ export async function createSpaceRoom(
     storage: clientStorage,
     transport,
     identity: myId,
+    clock: io.clock,
+    timers: io.timers,
+    createId: io.createId,
   });
 
   return { room, transport };

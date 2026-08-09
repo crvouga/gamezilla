@@ -19,6 +19,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",

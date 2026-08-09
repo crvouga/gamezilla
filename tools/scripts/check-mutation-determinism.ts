@@ -12,6 +12,9 @@ const banned = [
   { re: /\bMath\.random\s*\(/, label: 'Math.random(' },
   { re: /\bfetch\s*\(/, label: 'fetch(' },
   { re: /\bisoNow\s*\(/, label: 'isoNow(' },
+  { re: /crypto\.randomUUID\s*\(/, label: 'crypto.randomUUID(' },
+  { re: /(?:^|[^\w.])setTimeout\s*\(/, label: 'setTimeout(' },
+  { re: /(?:^|[^\w.])setInterval\s*\(/, label: 'setInterval(' },
 ] as const;
 
 const files = new Glob('{libs,pkgs}/**/mutations/**/*.{ts,tsx}').scan({

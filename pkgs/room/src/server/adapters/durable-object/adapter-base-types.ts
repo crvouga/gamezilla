@@ -1,3 +1,6 @@
+import type { Clock } from '@pkgs/clock';
+import type { CreateId } from '@pkgs/uuid';
+
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -29,4 +32,6 @@ export type ResolvedAdapterConfig<
     env: Env,
     moduleName: RoomModuleName
   ) => RoomStorage;
+  clock: Clock;
+  createId: CreateId;
 };

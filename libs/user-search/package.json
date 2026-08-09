@@ -21,6 +21,7 @@
     "@libs/profile": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "react": "catalog:",

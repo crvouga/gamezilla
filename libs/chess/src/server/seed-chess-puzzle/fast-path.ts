@@ -1,6 +1,7 @@
 /**
  * Fast-path bulk writer for the chess puzzle seed.
  */
+import type { Clock, Timers } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
 
@@ -110,20 +111,23 @@ export type SeedStats = {
   batch: PuzzleBatchEntry[];
 };
 
-export function createSeedStats(initialCursor: string | null): SeedStats {
+export function createSeedStats(
+  initialCursor: string | null,
+  now: Clock['now']
+): SeedStats {
   return {
     processed: 0,
     rowsInserted: 0,
     batchesFlushed: 0,
     lastPuzzleId: initialCursor,
-    startedAt: performance.now(),
+    startedAt: now(),
     batch: [],
   };
 }
 
-export function sleep(ms: number): Promise<void> {
+export function sleep(ms: number, timers: Timers): Promise<void> {
   if (ms <= 0) return Promise.resolve();
-  return new Promise((res) => setTimeout(res, ms));
+  return new Promise((res) => timers.setTimeout(res, ms));
 }
 
 function buildInsertRows(state: SeedStats): readonly PuzzleTableRow[] {
@@ -148,10 +152,11 @@ export async function flushPuzzleBatchFast(args: {
   db: SqlClient;
   reporter: PuzzleSeedReporter;
   state: SeedStats;
+  now: Clock['now'];
 }): Promise<void> {
-  const { db, reporter, state } = args;
+  const { db, reporter, state, now } = args;
   if (state.batch.length === 0) return;
-  const chunkStart = performance.now();
+  const chunkStart = now();
   const insertRows = buildInsertRows(state);
   const rowChanges = await insertPuzzleTableRows(db, insertRows);
   state.rowsInserted += rowChanges;
@@ -161,7 +166,7 @@ export async function flushPuzzleBatchFast(args: {
     processed: state.processed,
     rowsInserted: state.rowsInserted,
     batchRowsAccepted: rowChanges,
-    batchMs: Math.round(performance.now() - chunkStart),
+    batchMs: Math.round(now() - chunkStart),
     lastPuzzleId: state.lastPuzzleId,
   });
 }

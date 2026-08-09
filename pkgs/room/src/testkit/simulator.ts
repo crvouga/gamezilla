@@ -1,3 +1,5 @@
+import type { Io } from '@pkgs/io';
+
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { Room } from '../client/core/room';
 import { InMemoryRoomStorage } from '../server/adapters/memory';
@@ -29,6 +31,8 @@ export type OpenLoopbackRoomArgs<
 > = {
   topic: string;
   module: RoomModule<S, C, E, string>;
+  /** Injectable I/O bag (required — no wall default). */
+  io: Io;
   identity?: string;
   clientId?: string;
   connectionId?: string;
@@ -49,6 +53,7 @@ export async function openLoopbackRoom<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(args: OpenLoopbackRoomArgs<S, C, E>): Promise<LoopbackRoomSystem<S, C, E>> {
+  const { io } = args;
   let server = args.server;
   if (server === undefined) {
     const storage = new InMemoryRoomStorage();
@@ -56,11 +61,12 @@ export async function openLoopbackRoom<
       topic: args.topic,
       module: args.module,
       storage,
+      clock: io.clock,
     });
     await server.hydrateFromStorage();
   }
 
-  const connectionId = args.connectionId ?? `loopback-${crypto.randomUUID()}`;
+  const connectionId = args.connectionId ?? `loopback-${io.createId()}`;
   const identity = args.identity ?? 'test-user';
   const clientId = args.clientId ?? connectionId;
 
@@ -81,6 +87,9 @@ export async function openLoopbackRoom<
     storage: clientStorage,
     transport,
     identity,
+    clock: io.clock,
+    timers: io.timers,
+    createId: io.createId,
     ...(args.onError !== undefined ? { onError: args.onError } : {}),
   });
 

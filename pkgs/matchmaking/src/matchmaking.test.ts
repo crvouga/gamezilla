@@ -9,6 +9,7 @@ import {
 } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import type { AttributeState } from '@pkgs/attribute';
+import { wallIo } from '@pkgs/io';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
@@ -223,7 +224,7 @@ describe('Matchmaking - formula behaviors', () => {
       tuning: { now: () => nowRef.value },
     });
     try {
-      nowRef.value = Date.now();
+      nowRef.value = wallIo().clock.now();
       const regionFormula: DistanceFormula = {
         numeric: [{ tag: RatingAttr, weight: 1 }],
         categorical: [{ tag: RegionAttr, penalty: 75 }],
@@ -247,7 +248,7 @@ describe('Matchmaking - formula behaviors', () => {
   });
 
   test('partition (hard-equality) never crosses partitions even at max wait', async () => {
-    let now = Date.now();
+    let now = wallIo().clock.now();
     const isolated = await bootMatchmaking({ tuning: { now: () => now } });
     try {
       const kindFormula: DistanceFormula = {
@@ -293,7 +294,7 @@ describe('Matchmaking - formula behaviors', () => {
   });
 
   test('asymmetric formulas: B partition rejects pair A would accept', async () => {
-    let now = Date.now();
+    let now = wallIo().clock.now();
     const isolated = await bootMatchmaking({ tuning: { now: () => now } });
     try {
       const open: DistanceFormula = {
@@ -412,7 +413,7 @@ describe('Matchmaking.tick - sweeps', () => {
       },
     });
     try {
-      nowRef.value = Date.now();
+      nowRef.value = wallIo().clock.now();
       const { participantId } = await isolated.mm.join({
         data: RatingAttr(1000),
         formulas: [SimpleFormula],
@@ -441,7 +442,7 @@ describe('Matchmaking.tick - sweeps', () => {
       },
     });
     try {
-      nowRef.value = Date.now();
+      nowRef.value = wallIo().clock.now();
       const a = await isolated.mm.join({
         data: RatingAttr(1000),
         formulas: [SimpleFormula],

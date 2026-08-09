@@ -1,6 +1,7 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { pruneMutationArtifacts } from '@pkgs/sync-engine/server';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
@@ -41,6 +42,7 @@ export type SimServer = {
 
 export type OpenSimServerArgs = {
   readonly now: () => number;
+  readonly createId: CreateId;
   readonly pubsub: PubSub;
   readonly resolveAuth: (clientId: string) => SimServerAuth;
   readonly mutationRegistry: MutationRegistry;
@@ -57,6 +59,7 @@ export type OpenSimServerArgs = {
 function buildHandlerCtx(args: {
   readonly db: SqlClient;
   readonly now: () => number;
+  readonly createId: CreateId;
   readonly pubsub: PubSub;
   readonly resolveAuth: (clientId: string) => SimServerAuth;
   readonly mutations: MutationRegistry;
@@ -72,6 +75,7 @@ function buildHandlerCtx(args: {
   return {
     db: args.db,
     now: args.now,
+    createId: args.createId,
     pubsub: args.pubsub,
     resolveAuth: args.resolveAuth,
     mutations: args.mutations,
@@ -117,6 +121,7 @@ export async function openSimServer(
   const ctx = buildHandlerCtx({
     db,
     now: args.now,
+    createId: args.createId,
     pubsub: args.pubsub,
     resolveAuth: args.resolveAuth,
     mutations,

@@ -6,6 +6,7 @@
  * layout extras (`minHeight`, `flex`, …).
  */
 
+import { ClockProvider } from '@pkgs/clock';
 import type { ReactNode } from 'react';
 
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
@@ -26,8 +27,10 @@ export function ExampleRoot({
   dataSet,
 }: ExampleRootProps): ReactNode {
   return (
-    <Box sx={{ gap: 4, ...sx }} {...componentDataSet('ExampleRoot', dataSet)}>
-      {children}
-    </Box>
+    <ClockProvider>
+      <Box sx={{ gap: 4, ...sx }} {...componentDataSet('ExampleRoot', dataSet)}>
+        {children}
+      </Box>
+    </ClockProvider>
   );
 }

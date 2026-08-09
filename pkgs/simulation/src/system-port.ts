@@ -1,4 +1,4 @@
-import type { Clock, Timers } from '@pkgs/clock';
+import type { SimIo } from '@pkgs/io';
 import type { AppHarness } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 
@@ -7,9 +7,9 @@ import type { SeededRng } from './rng';
 
 /** Context passed to {@link SimulationSystem.start}. */
 export type SimulationStartContext = {
-  readonly clock: Clock;
-  readonly timers: Timers;
-  readonly seed: bigint;
+  /** Seeded deterministic I/O bag (clock, timers, ids, random, http). */
+  readonly io: SimIo;
+  /** Extra RNG stream (same seed family) for system-side forks. */
   readonly rng: SeededRng;
   readonly ui: SimulationUiKind;
 };

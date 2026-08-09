@@ -1,3 +1,5 @@
+import type { Timers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 import {
@@ -56,19 +58,20 @@ function pendingAnimatePlan(args: {
  */
 function applyPlanTimers(
   plan: AnimatePlan,
-  setPhase: (phase: StagePhase | null) => void
+  setPhase: (phase: StagePhase | null) => void,
+  timers: Timers
 ): () => void {
   setPhase({ fen: plan.fromFen, locked: true });
   const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
-  let t1: ReturnType<typeof setTimeout> | undefined;
-  let t2: ReturnType<typeof setTimeout> | undefined;
+  let t1: unknown;
+  let t2: unknown;
   let raf2 = 0;
   const raf1 = requestAnimationFrame(() => {
     raf2 = requestAnimationFrame(() => {
-      t1 = setTimeout(() => {
+      t1 = timers.setTimeout(() => {
         setPhase({ fen: plan.toFen, locked: true });
       }, plan.holdMs);
-      t2 = setTimeout(() => {
+      t2 = timers.setTimeout(() => {
         setPhase(null);
       }, plan.holdMs + moveMs);
     });
@@ -76,8 +79,8 @@ function applyPlanTimers(
   return () => {
     cancelAnimationFrame(raf1);
     cancelAnimationFrame(raf2);
-    if (t1 !== undefined) clearTimeout(t1);
-    if (t2 !== undefined) clearTimeout(t2);
+    if (t1 !== undefined) timers.clearTimeout(t1);
+    if (t2 !== undefined) timers.clearTimeout(t2);
   };
 }
 
@@ -110,6 +113,7 @@ export function usePuzzleOpponentMoveStage(args: {
 }): PuzzleOpponentMoveStage {
   const { startFen, moves, displayFen, solveIdx, furthestSolveIdx, status } =
     args;
+  const timers = useTimers();
   const prevRef = useRef<PrevSolveCursor>({
     solveIdx: -1,
     furthestSolveIdx: -1,
@@ -152,7 +156,7 @@ export function usePuzzleOpponentMoveStage(args: {
       setPhase(null);
       return;
     }
-    return applyPlanTimers(plan, setPhase);
+    return applyPlanTimers(plan, setPhase, timers);
   }, [
     canStage,
     displayFen,
@@ -161,6 +165,7 @@ export function usePuzzleOpponentMoveStage(args: {
     solveIdx,
     startFen,
     status,
+    timers,
   ]);
 
   return {

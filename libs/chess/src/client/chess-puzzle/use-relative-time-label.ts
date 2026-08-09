@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
+import { useClock } from '@pkgs/clock';
 import { useEffect, useState } from 'react';
 
 function formatRelativeTime(
@@ -23,10 +24,11 @@ function formatRelativeTime(
 
 export function useRelativeTimeLabel(at: string): string {
   const { t } = useLingui();
-  const [nowMs, setNowMs] = useState(() => Date.now());
+  const clock = useClock();
+  const [nowMs, setNowMs] = useState(() => clock.now());
   useEffect(() => {
-    setNowMs(Date.now());
-  }, [at]);
+    setNowMs(clock.now());
+  }, [at, clock]);
   const label = formatRelativeTime(at, nowMs, t);
   return label.trim().length > 0 ? label : t`just now`;
 }

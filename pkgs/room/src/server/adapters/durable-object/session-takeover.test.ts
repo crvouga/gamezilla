@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 
 import { TestCounterModule } from '../../../testkit/counter-module';
 import { createDurableObjectAdapter } from './adapter';
@@ -7,6 +8,8 @@ import type {
   DurableObjectKvListOptions,
   DurableObjectKvStorage,
 } from './types';
+
+const io = wallIo();
 
 type FakeSocket = WebSocket & {
   readonly sent: unknown[];
@@ -169,6 +172,8 @@ describe('Durable Object session take-over', () => {
     const state = createFakeDoState(createMemoryDoKv());
     const RoomDo = createDurableObjectAdapter({
       modules: [TestCounterModule],
+      clock: io.clock,
+      createId: io.createId,
     });
     const topic = 'space:session-takeover';
     const moduleName = String(TestCounterModule.name);
@@ -209,6 +214,8 @@ describe('Durable Object session take-over', () => {
     const state = createFakeDoState(createMemoryDoKv());
     const RoomDo = createDurableObjectAdapter({
       modules: [TestCounterModule],
+      clock: io.clock,
+      createId: io.createId,
     });
     const topic = 'space:multi-tab';
     const moduleName = String(TestCounterModule.name);

@@ -19,6 +19,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "react": "catalog:"
   },

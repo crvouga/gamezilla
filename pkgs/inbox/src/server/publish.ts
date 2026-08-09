@@ -19,10 +19,11 @@ import type {
 
 export async function publishInteraction(
   db: SqlClient,
-  input: PublishInteractionInput
+  input: PublishInteractionInput,
+  now: () => number
 ): Promise<Interaction> {
-  const now = new Date().toISOString();
-  await db.run(upsertInteractionSql(input, now));
+  const nowIso = new Date(now()).toISOString();
+  await db.run(upsertInteractionSql(input, nowIso));
 
   const row = await findById(
     db,
@@ -36,20 +37,22 @@ export async function publishInteraction(
 
 export async function updateInteraction(
   db: SqlClient,
-  input: UpdateInteractionInput
+  input: UpdateInteractionInput,
+  now: () => number
 ): Promise<Interaction> {
-  return publishInteraction(db, input);
+  return publishInteraction(db, input, now);
 }
 
 export async function deactivateInteraction(
   db: SqlClient,
-  input: DeactivateInteractionInput
+  input: DeactivateInteractionInput,
+  now: () => number
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET active = false, updated_at = ${now}
+         SET active = false, updated_at = ${nowIso}
        WHERE user_id = ${input.userId}
          AND source_namespace = ${input.source.namespace}
          AND source_type = ${input.source.type}

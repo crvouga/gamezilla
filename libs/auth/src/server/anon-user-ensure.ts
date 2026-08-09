@@ -1,6 +1,7 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 type DeviceUserRow = {
   readonly user_id: string | null;
@@ -44,11 +45,15 @@ async function readUserIsAnon(
   return isAnonFlag(row.is_anon);
 }
 
-async function insertAnonUser(db: SqlClient, userId: string): Promise<void> {
-  const now = new Date().toISOString();
+async function insertAnonUser(
+  db: SqlClient,
+  userId: string,
+  now: () => number
+): Promise<void> {
+  const nowIso = new Date(now()).toISOString();
   await db.run(sql<void>`
     INSERT INTO users (id, created_at, is_anon)
-    VALUES (${userId}, ${now}, true)
+    VALUES (${userId}, ${nowIso}, true)
     ON CONFLICT (id) DO NOTHING
   `);
 }
@@ -56,9 +61,10 @@ async function insertAnonUser(db: SqlClient, userId: string): Promise<void> {
 async function bindDeviceToUser(
   db: SqlClient,
   deviceId: string,
-  userId: string
+  userId: string,
+  now: () => number
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
   `);
@@ -70,7 +76,7 @@ async function bindDeviceToUser(
       'first_seen_at',
       'last_seen_at',
     ];
-    const vals: Value[] = [deviceId, userId, now, now, now];
+    const vals: Value[] = [deviceId, userId, nowIso, nowIso, nowIso];
     await db.run(sql<void>`
       INSERT INTO devices (${raw(cols.join(', '))})
       VALUES ${join(vals, ', ', '(', ')')}
@@ -79,7 +85,7 @@ async function bindDeviceToUser(
   }
   await db.run(sql<void>`
     UPDATE devices
-    SET user_id = ${userId}, last_seen_at = ${now}
+    SET user_id = ${userId}, last_seen_at = ${nowIso}
     WHERE id = ${deviceId}
   `);
 }
@@ -100,8 +106,10 @@ export async function ensureAnonUserForDevice(args: {
   readonly sql: SqlClient;
   readonly deviceId: string;
   readonly forceNew?: boolean;
+  readonly now: () => number;
+  readonly createId: CreateId;
 }): Promise<EnsureAnonUserResult> {
-  const { sql: db, deviceId, forceNew = false } = args;
+  const { sql: db, deviceId, forceNew = false, now, createId } = args;
   assertDeviceId(deviceId);
 
   return db.transaction(async (tx) => {
@@ -116,10 +124,10 @@ export async function ensureAnonUserForDevice(args: {
       }
     }
 
-    const userId = crypto.randomUUID();
+    const userId = createId();
     assertUuid(userId, 'userId must be UUID');
-    await insertAnonUser(tx, userId);
-    await bindDeviceToUser(tx, deviceId, userId);
+    await insertAnonUser(tx, userId, now);
+    await bindDeviceToUser(tx, deviceId, userId, now);
     return { userId, isAnon: true as const };
   });
 }

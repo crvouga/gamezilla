@@ -1,3 +1,4 @@
+import { globalHttpFetch } from '@pkgs/http-client';
 import { type SkImage, Skia, type SkSVG } from '@shopify/react-native-skia';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { PieceCode } from './chess-board-types';
@@ -60,7 +61,7 @@ function isSvgUrl(source: string): boolean {
 async function resolveSvgXml(code: PieceCode, source: string): Promise<string> {
   if (!isSvgUrl(source)) return source;
   try {
-    const res = await fetch(source);
+    const res = await globalHttpFetch(source);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.text();
   } catch {

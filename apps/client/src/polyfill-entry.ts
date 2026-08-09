@@ -1,6 +1,7 @@
 import { assert, setHotAssertsEnabled } from '@pkgs/assert';
 import { BrowserCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-browser';
 import { ExpoCrashHandler } from '@pkgs/assert/crash/crash-handler/crash-handler-expo';
+import { wallIo } from '@pkgs/io';
 import { polyfill } from '@pkgs/polyfill';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -23,8 +24,9 @@ if (forceHotAsserts === '1' || forceHotAsserts === 'true') {
   setHotAssertsEnabled(false);
 }
 
-assert.registerCrashHandler(new BrowserCrashHandler());
-assert.registerCrashHandler(new ExpoCrashHandler());
+const polyfillIo = wallIo();
+assert.registerCrashHandler(new BrowserCrashHandler(polyfillIo.timers));
+assert.registerCrashHandler(new ExpoCrashHandler(polyfillIo.timers));
 
 polyfill();
 

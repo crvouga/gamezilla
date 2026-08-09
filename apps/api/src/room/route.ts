@@ -1,4 +1,5 @@
 import { ANON_ID_HEADER, resolveAccountIdFromBearer } from '@libs/auth/server';
+import { getIo } from '@pkgs/io';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -84,7 +85,7 @@ async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
     return anonId;
   }
   if (anonId !== null) return anonId;
-  return crypto.randomUUID();
+  return getIo().createId();
 }
 
 async function tryResolveAccount(
@@ -93,11 +94,14 @@ async function tryResolveAccount(
   deviceId: string
 ): Promise<string | null> {
   try {
+    const io = getIo();
     return await resolveAccountIdFromBearer({
       sql: c.get('sqlClient'),
       authServer: c.get('authServer'),
       bearerToken,
       deviceId,
+      now: io.clock.now,
+      createId: io.createId,
     });
   } catch {
     // Any auth resolution failure (invalid token, DB hiccup, etc.) falls back

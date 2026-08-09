@@ -4,6 +4,7 @@ import { appAuth } from '@libs/auth/shared/auth-context';
 import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
 import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
 import { assert } from '@pkgs/assert';
+import { getIo } from '@pkgs/io';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -40,6 +41,7 @@ function ensureInboxHandlers(): void {
       deviceId: actor.deviceId,
       actionId: ctx.actionId,
       requestId,
+      now: getIo().clock.now,
     });
     notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
   });

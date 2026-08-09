@@ -37,11 +37,13 @@ function createReactNativeSentrySdk(): SentrySdk {
 
 export function createClientSentryObservability(args: {
   readonly serviceName: string;
+  readonly now: () => number;
   readonly storage?: SpanContextStorage;
 }): Observability {
   return createSentryObservability({
     serviceName: args.serviceName,
     sdk: createReactNativeSentrySdk(),
     storage: args.storage ?? new InMemorySpanContextStorage(),
+    now: args.now,
   });
 }

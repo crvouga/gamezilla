@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",

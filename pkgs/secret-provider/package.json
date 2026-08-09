@@ -15,6 +15,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secret-string": "workspace:*",

@@ -10,6 +10,7 @@ import {
   createBetterAuth,
   createBetterAuthServerAdapter,
 } from '@pkgs/auth-better-auth/server';
+import { runWithIo, wallIo } from '@pkgs/io';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -121,6 +122,7 @@ async function attachRequestDatabase(
   const authServer = createBetterAuthServerAdapter(betterAuth);
   const kv = new KvImplPostgres(sqlClient);
   const sessionAuth = createSessionAuth({ authServer });
+  const io = wallIo();
   const store = {
     sqlClient,
     sessionAuth,
@@ -128,27 +130,30 @@ async function attachRequestDatabase(
     observability,
     secretStore,
     betterAuth,
+    io,
   };
-  return await apiRequestAsyncLocalStorage.run(store, async () => {
-    c.set('sqlClient', sqlClient);
-    c.set('sessionAuth', sessionAuth);
-    c.set('authServer', authServer);
-    c.set('betterAuth', betterAuth);
-    try {
-      return await next();
-    } finally {
-      // Await close on the request path. Deferred `waitUntil` teardown left
-      // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
-      // fan-out (ephemeral-port exhaustion → "proxy request failed").
+  return await runWithIo(io, () =>
+    apiRequestAsyncLocalStorage.run(store, async () => {
+      c.set('sqlClient', sqlClient);
+      c.set('sessionAuth', sessionAuth);
+      c.set('authServer', authServer);
+      c.set('betterAuth', betterAuth);
       try {
-        await Promise.all([sqlClient.disconnect(), pool.end()]);
-      } catch (error: unknown) {
-        observability.recordException(error, {
-          operation: 'request-db-cleanup',
-        });
+        return await next();
+      } finally {
+        // Await close on the request path. Deferred `waitUntil` teardown left
+        // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
+        // fan-out (ephemeral-port exhaustion → "proxy request failed").
+        try {
+          await Promise.all([sqlClient.disconnect(), pool.end()]);
+        } catch (error: unknown) {
+          observability.recordException(error, {
+            operation: 'request-db-cleanup',
+          });
+        }
       }
-    }
-  });
+    })
+  );
 }
 
 export function createRequestDbMiddleware(

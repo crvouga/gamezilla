@@ -9,6 +9,7 @@ export type ExternalAccountWriteArgs = {
   readonly provider: string;
   readonly externalId: string;
   readonly metadata?: Record<string, unknown>;
+  readonly now: () => number;
 };
 
 function parseMetadata(value: unknown): Record<string, unknown> {
@@ -66,13 +67,14 @@ export async function readExternalAccountId(
 export async function insertUser(
   db: SqlClient,
   userId: string,
+  now: () => number,
   createdAt?: string,
   isAnon = false
 ): Promise<void> {
-  const now = createdAt ?? new Date().toISOString();
+  const created = createdAt ?? new Date(now()).toISOString();
   await db.run(sql<void>`
     INSERT INTO users (id, created_at, is_anon)
-    VALUES (${userId}, ${now}, ${isAnon})
+    VALUES (${userId}, ${created}, ${isAnon})
     ON CONFLICT (id) DO NOTHING
   `);
 }
@@ -85,7 +87,7 @@ export async function upsertExternalAccount(
   db: SqlClient,
   args: ExternalAccountWriteArgs
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const now = new Date(args.now()).toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
   const id = `${args.provider}:${args.externalId}`;
   await db.run(sql<void>`
@@ -123,7 +125,7 @@ export async function insertExternalAccountOrGet(
   db: SqlClient,
   args: ExternalAccountWriteArgs
 ): Promise<string> {
-  const now = new Date().toISOString();
+  const now = new Date(args.now()).toISOString();
   const metadataJson = JSON.stringify(args.metadata ?? {});
   const id = `${args.provider}:${args.externalId}`;
   await db.run(sql<void>`

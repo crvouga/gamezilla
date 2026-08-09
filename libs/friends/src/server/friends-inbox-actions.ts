@@ -18,6 +18,7 @@ type InboxFriendsCtx = {
   readonly deviceId: string;
   readonly actionId: string;
   readonly requestId: string;
+  readonly now: () => number;
 };
 
 function mutationEnv(ctx: InboxFriendsCtx): MutationEnv {
@@ -26,7 +27,7 @@ function mutationEnv(ctx: InboxFriendsCtx): MutationEnv {
     deviceId: ctx.deviceId,
     accountId: ctx.actorId,
     isAnon: false,
-    now: () => new Date(),
+    now: () => new Date(ctx.now()),
   };
 }
 

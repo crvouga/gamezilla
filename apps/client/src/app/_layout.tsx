@@ -1,4 +1,5 @@
 import { AppProviders } from '@apps/client/providers/app-providers';
+import { AppIoProvider } from '@apps/client/providers/infrastructure/app-io-provider';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
 import { useStackProps } from '@pkgs/ui';
@@ -35,11 +36,13 @@ function AppStack() {
 
 function RootLayout() {
   return (
-    <RootErrorBoundary>
-      <AppProviders>
-        <AppStack />
-      </AppProviders>
-    </RootErrorBoundary>
+    <AppIoProvider>
+      <RootErrorBoundary>
+        <AppProviders>
+          <AppStack />
+        </AppProviders>
+      </RootErrorBoundary>
+    </AppIoProvider>
   );
 }
 

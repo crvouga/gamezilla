@@ -20,9 +20,12 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
-    "@pkgs/message": "workspace:*"
+    "@pkgs/message": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

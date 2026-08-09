@@ -28,6 +28,7 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",

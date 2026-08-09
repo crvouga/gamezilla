@@ -7,6 +7,7 @@ import {
 import { assertDeviceId } from '@libs/auth/shared/device-id';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { getIo } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { findUserIdByDeviceId, readUserAnonState } from './anon-user-ensure';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';
@@ -81,11 +82,14 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
       return UNAUTH_CLIENT_CONTEXT;
     }
 
+    const io = getIo();
     const ctx = await buildAppAuthContextFromBearer({
       sql,
       authServer,
       bearerToken: token,
       deviceId: anonRaw,
+      now: io.clock.now,
+      createId: io.createId,
     });
     return ctx ?? UNAUTH_CLIENT_CONTEXT;
   }

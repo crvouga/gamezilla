@@ -51,7 +51,8 @@ describe('createTtsAppFromBindings', () => {
       }
       return new Response('not found', { status: 404 });
     });
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const g = globalThis as Record<string, unknown>;
+    g['fetch'] = fetchMock;
   });
 
   test('stores audio under the tts-audio/ prefix in the root object store', async () => {

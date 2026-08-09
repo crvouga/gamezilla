@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
+import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+
+const io = createSimIo({ seed: 1 });
 
 const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
@@ -165,6 +168,7 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
     });
 
     const primary = await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID);
@@ -193,6 +197,7 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
     };
 
     await refreshAuthSnapshot(inputs);
@@ -218,7 +223,7 @@ describe('refreshAuthSnapshot', () => {
       snapshot: AUTH_SNAPSHOT,
     });
 
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
         id,
@@ -238,6 +243,7 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
     });
 
     const stripeRows = await sqlClient.query(sql<{
@@ -276,6 +282,7 @@ describe('refreshAuthSnapshot', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
     });
 
     expect(

@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { ElementNotFoundError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import type { WaitOptions } from '../../core/wait';
+import type { WaitPollOptions } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
@@ -91,7 +91,7 @@ export class PlaywrightDriver implements Driver {
   async waitFor(
     target: Selector,
     state: WaitState,
-    options?: WaitOptions
+    options?: WaitPollOptions
   ): Promise<void> {
     const waitState = state === 'visible' ? 'visible' : 'hidden';
     if (options?.timeoutMs !== undefined) {

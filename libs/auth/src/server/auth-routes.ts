@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { getIo } from '@pkgs/io';
 import { ensureAnonUserForDevice } from './anon-user-ensure';
 import type { ApiHonoEnv } from './api-hono-env';
 import { resolveAccountIdFromBearer } from './bearer-resolve';
@@ -101,10 +102,14 @@ export function createAuthApiRoutes(deps?: {
       const rawBody: unknown = await c.req.json().catch(() => null);
       const body = readAnonEnsureBody(rawBody);
 
+      const io = getIo();
+
       const result = await ensureAnonUserForDevice({
         sql,
         deviceId,
         forceNew: body.forceNew,
+        now: io.clock.now,
+        createId: io.createId,
       });
 
       deps?.onUserDomainWrite?.(result.userId);
@@ -122,11 +127,15 @@ export function createAuthApiRoutes(deps?: {
       );
       const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
+      const io = getIo();
+
       const accountId = await resolveAccountIdFromBearer({
         sql,
         authServer,
         bearerToken,
         deviceId,
+        now: io.clock.now,
+        createId: io.createId,
       });
       if (accountId === null) {
         throw new UnauthorizedError('Invalid or expired session');
@@ -142,6 +151,7 @@ export function createAuthApiRoutes(deps?: {
         accountId,
         deviceId,
         deviceAttributes: body.device,
+        now: io.clock.now,
       });
 
       deps?.onUserDomainWrite?.(accountId);

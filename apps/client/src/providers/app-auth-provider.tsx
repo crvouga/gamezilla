@@ -1,6 +1,7 @@
 import { AuthBridge } from '@libs/auth/client/auth-bridge';
 import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
 import { assert } from '@pkgs/assert';
+import { useIo } from '@pkgs/io';
 import { createBetterAuthClientAdapter } from '@pkgs/auth-better-auth/client';
 import { ComposeProviders } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
@@ -18,9 +19,10 @@ function readAuthBaseURL(): string {
 
 function BetterAuthStack({ children }: { children: ReactNode }): ReactNode {
   const baseURL = useMemo(() => readAuthBaseURL(), []);
+  const io = useIo();
   const port = useMemo(
-    () => createBetterAuthClientAdapter({ baseURL }),
-    [baseURL]
+    () => createBetterAuthClientAdapter({ baseURL, timers: io.timers }),
+    [baseURL, io.timers]
   );
   return <AuthClientProvider port={port}>{children}</AuthClientProvider>;
 }

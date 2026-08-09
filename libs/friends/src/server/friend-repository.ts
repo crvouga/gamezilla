@@ -226,7 +226,7 @@ export async function deleteFriendship(
   db: SqlClient,
   userA: string,
   userB: string,
-  now: string = new Date().toISOString()
+  now: string
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(sql<void>`
@@ -257,7 +257,7 @@ export async function deleteBlock(
   db: SqlClient,
   blockerId: string,
   blockedId: string,
-  now: string = new Date().toISOString()
+  now: string
 ): Promise<void> {
   await db.run(sql<void>`
     UPDATE user_blocks

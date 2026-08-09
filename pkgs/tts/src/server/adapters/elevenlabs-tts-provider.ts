@@ -34,8 +34,8 @@ type FetchFn = (
 
 export type ElevenLabsTtsProviderOptions = {
   readonly apiKey: string;
-  /** Override for tests. Defaults to `globalThis.fetch`. */
-  readonly fetch?: FetchFn;
+  /** HTTP transport (inject from Io / HttpClient). */
+  readonly fetch: FetchFn;
   /** Override the ElevenLabs base URL (for proxies / staging). */
   readonly baseUrl?: string;
 };
@@ -75,8 +75,7 @@ export class ElevenLabsTtsProvider implements TtsProvider {
       'ElevenLabsTtsProvider: apiKey must be non-empty'
     );
     this.apiKey = options.apiKey;
-    this.fetchFn =
-      options.fetch ?? ((input, init) => globalThis.fetch(input, init));
+    this.fetchFn = options.fetch;
     this.baseUrl = options.baseUrl ?? ELEVEN_LABS_BASE_URL;
   }
 

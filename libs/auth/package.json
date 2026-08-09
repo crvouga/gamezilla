@@ -31,6 +31,7 @@
     "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",

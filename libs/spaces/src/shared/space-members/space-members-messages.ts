@@ -101,23 +101,25 @@ export const spaceMembersCommandRouter: MessageRouter<
     };
   });
 
-export const spaceMembersEventReducer: MessageRouter<
-  RoomState,
-  void,
-  RoomState
-> = createMessageRouter<RoomState, void, RoomState>(spaceMembersEvtNs)
-  .on(SpaceSeatJoined, (state, _ctx, evt) => {
-    const seats = { ...readSeats(state) };
-    if (seats[evt.payload.memberId] === undefined) {
-      seats[evt.payload.memberId] = { joinedAt: new Date().toISOString() };
-    }
-    return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
-  })
-  .on(SpaceSeatLeft, (state, _ctx, evt) => {
-    const seats = { ...readSeats(state) };
-    delete seats[evt.payload.memberId];
-    return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
-  });
+export function createSpaceMembersEventReducer(
+  now: () => number
+): MessageRouter<RoomState, void, RoomState> {
+  return createMessageRouter<RoomState, void, RoomState>(spaceMembersEvtNs)
+    .on(SpaceSeatJoined, (state, _ctx, evt) => {
+      const seats = { ...readSeats(state) };
+      if (seats[evt.payload.memberId] === undefined) {
+        seats[evt.payload.memberId] = {
+          joinedAt: new Date(now()).toISOString(),
+        };
+      }
+      return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
+    })
+    .on(SpaceSeatLeft, (state, _ctx, evt) => {
+      const seats = { ...readSeats(state) };
+      delete seats[evt.payload.memberId];
+      return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
+    });
+}
 
 export function spaceSeatMemberIds(state: RoomState): readonly string[] {
   return Object.keys(readSeats(state));

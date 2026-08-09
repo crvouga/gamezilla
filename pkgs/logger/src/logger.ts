@@ -26,16 +26,19 @@ const CONSOLE_METHOD: Record<Exclude<LogLevel, 'silent'>, keyof Console> = {
 export interface CreateLoggerOptions {
   name: string;
   level?: LogLevel;
+  /** Epoch ms — required (no wall-clock fallback). */
+  now: () => number;
 }
 
 export function createLogger(options: CreateLoggerOptions): Logger {
-  return buildLogger(options.name, options.level ?? 'debug', {});
+  return buildLogger(options.name, options.level ?? 'debug', {}, options.now);
 }
 
 function buildLogger(
   name: string,
   level: LogLevel,
-  bindings: Record<string, unknown>
+  bindings: Record<string, unknown>,
+  now: () => number
 ): Logger {
   const threshold = LEVEL_VALUE[level];
 
@@ -48,7 +51,7 @@ function buildLogger(
 
     const entry = {
       level: lvl,
-      time: new Date().toISOString(),
+      time: new Date(now()).toISOString(),
       name,
       msg,
       ...bindings,
@@ -64,6 +67,6 @@ function buildLogger(
     info: (msg, context) => emit('info', msg, context),
     warn: (msg, context) => emit('warn', msg, context),
     error: (msg, context) => emit('error', msg, context),
-    child: (extra) => buildLogger(name, level, { ...bindings, ...extra }),
+    child: (extra) => buildLogger(name, level, { ...bindings, ...extra }, now),
   };
 }

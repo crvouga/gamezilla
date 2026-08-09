@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import { Increment, TestCounterModule } from '../../testkit/counter-module';
@@ -6,6 +7,9 @@ import type { LogEntry } from '../../types';
 import { InMemoryRoomStorage } from '../adapters/memory/storage';
 import { RoomServer } from './room-server';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
+
+const io = wallIo();
+const timers = io.timers;
 
 /**
  * Simulates storage where `getLastSeq` disagrees with the event log read
@@ -50,6 +54,7 @@ describe('RoomServer welcome lastSeq', () => {
       topic: 't-welcome-seq',
       module: TestCounterModule,
       storage,
+      clock: io.clock,
     });
     await server.hydrateFromStorage();
 
@@ -67,7 +72,7 @@ describe('RoomServer welcome lastSeq', () => {
       kind: ROOM_WIRE_KIND.sync,
       fromSeq: 0,
     });
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => timers.setTimeout(r, 5));
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,
@@ -76,14 +81,14 @@ describe('RoomServer welcome lastSeq', () => {
       ts: 1,
       payload: Increment({}),
     });
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => timers.setTimeout(r, 5));
 
     await server.handleClientMessage('c1', 'u1', {
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.sync,
       fromSeq: 0,
     });
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => timers.setTimeout(r, 5));
 
     const welcomes = out.filter(
       (m): m is { kind: string; lastSeq?: number; entries?: LogEntry[] } =>

@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../../protocol/wire';
 import { WebSocketRoomTransport } from './transport';
+
+const io = wallIo();
+const now = io.clock.now;
+const timers = io.timers;
 
 type FakeWs = {
   readyState: number;
@@ -90,12 +95,14 @@ async function waitUntil(
   timeoutMs: number,
   label: string
 ): Promise<void> {
-  const started = Date.now();
+  const started = now();
   while (!predicate()) {
-    if (Date.now() - started > timeoutMs) {
+    if (now() - started > timeoutMs) {
       throw new Error(`${label} timed out after ${timeoutMs}ms`);
     }
-    await new Promise((r) => setTimeout(r, 5));
+    await new Promise<void>((resolve) => {
+      timers.setTimeout(resolve, 5);
+    });
   }
 }
 
@@ -110,13 +117,18 @@ function deliverPong(socket: FakeWs): void {
   );
 }
 
+type TransportOpts = ConstructorParameters<typeof WebSocketRoomTransport>[0];
+
 function testTransportOptions(
-  overrides: ConstructorParameters<typeof WebSocketRoomTransport>[0]
-): ConstructorParameters<typeof WebSocketRoomTransport>[0] {
+  overrides: Omit<TransportOpts, 'timers' | 'random'> &
+    Partial<Pick<TransportOpts, 'timers' | 'random'>>
+): TransportOpts {
   return {
     reconnectBaseMs: 5,
     reconnectMaxMs: 10,
     reconnectJitterMs: 0,
+    timers: io.timers,
+    random: io.random,
     ...overrides,
   };
 }
@@ -186,7 +198,9 @@ describe('WebSocketRoomTransport heartbeat', () => {
       await waitUntil(() => hasPing(first), 500, 'first heartbeat ping');
       deliverPong(first);
       // Miss timeout is 80ms; stay under that and confirm no reconnect.
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, 50);
+      });
       expect(sockets.length).toBe(1);
     } finally {
       transport.destroy();

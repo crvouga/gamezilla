@@ -19,6 +19,7 @@ export async function refreshAuthSnapshot(args: {
   accountId: string;
   deviceId: string;
   deviceAttributes: Record<string, string | null>;
+  now: () => number;
 }): Promise<void> {
   const {
     sql: db,
@@ -27,16 +28,24 @@ export async function refreshAuthSnapshot(args: {
     accountId,
     deviceId,
     deviceAttributes,
+    now,
   } = args;
   assertUuid(accountId, 'accountId must be UUID');
   assertDeviceId(deviceId);
 
-  await upsertAuthUserFromBearer({ db, authServer, bearerToken, accountId });
+  await upsertAuthUserFromBearer({
+    db,
+    authServer,
+    bearerToken,
+    accountId,
+    now,
+  });
   await upsertDeviceRow({
     db,
     deviceId,
     userId: accountId,
     attributes: deviceAttributes,
+    now,
   });
 }
 
@@ -45,8 +54,9 @@ async function upsertAuthUserFromBearer(args: {
   authServer: AuthServerPort;
   bearerToken: string;
   accountId: string;
+  now: () => number;
 }): Promise<void> {
-  const { db, authServer, bearerToken, accountId } = args;
+  const { db, authServer, bearerToken, accountId, now } = args;
 
   let session: Awaited<ReturnType<AuthServerPort['verifySessionToken']>> = null;
   try {
@@ -71,6 +81,7 @@ async function upsertAuthUserFromBearer(args: {
     provider: authServer.providerLabel,
     externalId: session.externalUserId,
     metadata: email === undefined ? {} : { email },
+    now,
   });
 }
 
@@ -81,8 +92,9 @@ async function upsertDeviceRow(args: {
   deviceId: string;
   userId: string;
   attributes: Record<string, string | null>;
+  now: () => number;
 }): Promise<void> {
-  const { db, deviceId, userId, attributes } = args;
+  const { db, deviceId, userId, attributes, now } = args;
   const rows = await db.query(sql<DeviceRow>`
     SELECT *
     FROM devices
@@ -90,7 +102,7 @@ async function upsertDeviceRow(args: {
     LIMIT 1
   `);
   const existing = rows[0];
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
 
   if (existing === undefined) {
     const cols: string[] = [
@@ -100,7 +112,7 @@ async function upsertDeviceRow(args: {
       'first_seen_at',
       'last_seen_at',
     ];
-    const vals: (string | null)[] = [deviceId, userId, now, now, now];
+    const vals: (string | null)[] = [deviceId, userId, nowIso, nowIso, nowIso];
     for (const [key, value] of Object.entries(attributes)) {
       if (value === null) continue;
       cols.push(key);
@@ -117,9 +129,9 @@ async function upsertDeviceRow(args: {
   const created = readNullableString(existing['created_at']);
   const updates: Record<string, string> = {
     user_id: userId,
-    last_seen_at: now,
+    last_seen_at: nowIso,
     ...(existingFirst === null
-      ? { first_seen_at: created !== null ? created : now }
+      ? { first_seen_at: created !== null ? created : nowIso }
       : {}),
   };
   for (const [key, next] of Object.entries(attributes)) {

@@ -9,7 +9,7 @@
     "tools"
   ],
   "scripts": {
-    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:no-legacy-writes ci:no-domain-hard-delete ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:no-bare-io ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:component-ids ci:no-size-limit-overrides ci:audit check:static @apps/api#build @apps/minio#build @apps/postgres#build",
+    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:no-legacy-writes ci:no-domain-hard-delete ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:no-bare-io ci:no-resolve-wall-defaults ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:component-ids ci:no-size-limit-overrides ci:audit check:static @apps/api#build @apps/minio#build @apps/postgres#build",
     "check:actionlint": "actionlint -color",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-api.ts",
     "check:browser": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-browser.ts",
@@ -41,6 +41,7 @@
     "ci:local-dev-self-contained": "bun run tools/scripts/check-local-dev-self-contained.ts",
     "ci:mutation-determinism": "bun run tools/scripts/check-mutation-determinism.ts && bun run tools/scripts/check-mutation-idempotency.ts",
     "ci:no-bare-io": "bun run tools/scripts/check-no-bare-io.ts",
+    "ci:no-resolve-wall-defaults": "bun run tools/scripts/check-no-resolve-wall-defaults.ts",
     "ci:no-direct-pg-imports": "bun run tools/scripts/check-no-direct-pg-imports.ts",
     "ci:no-domain-hard-delete": "bun run tools/scripts/check-no-domain-hard-delete.ts",
     "ci:no-legacy-writes": "bun run tools/scripts/check-no-legacy-writes.ts",

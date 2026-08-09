@@ -1,10 +1,10 @@
 import { UiTestError } from '../core/errors';
-import type { WaitOptions } from '../core/wait';
+import type { WaitPollOptions } from '../core/wait';
 import type { Driver } from '../driver/driver';
 import { formatSelector } from '../selector/format';
 import type { Selector } from '../selector/selector';
 
-export type AssertionOptions = WaitOptions;
+export type AssertionOptions = WaitPollOptions;
 
 /** Poll until `target` is visible, then return. Throws on timeout. */
 export async function expectVisible(

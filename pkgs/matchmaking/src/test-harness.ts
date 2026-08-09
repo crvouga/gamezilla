@@ -17,6 +17,7 @@ import { expect } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
+import { wallIo } from '@pkgs/io';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import type { Hono, MiddlewareHandler } from 'hono';
 import { Matchmaking, type MatchmakingOptions } from './matchmaking';
@@ -67,8 +68,9 @@ export const UUID_REGEX =
  * same timestamp and make FIFO-order assertions nondeterministic.
  */
 export async function pauseForJoinedAtOrdering(): Promise<void> {
+  const timers = wallIo().timers;
   await new Promise<void>((resolve) => {
-    setTimeout(resolve, 50);
+    timers.setTimeout(resolve, 50);
   });
 }
 

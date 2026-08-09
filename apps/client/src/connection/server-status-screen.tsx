@@ -1,6 +1,7 @@
 import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import { Box, Button, Card, ScreenBase, StatusDot, Text } from '@pkgs/ui';
 import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
@@ -134,6 +135,7 @@ function ServerHealthCard({
 export function ServerStatusScreen() {
   const { t } = useLingui();
   const nav = useBreadcrumbNav();
+  const timers = useTimers();
   const { apiUrl, healthUrl, networkState, health, aggregateStatus, refresh } =
     useServerStatus();
 
@@ -142,11 +144,11 @@ export function ServerStatusScreen() {
   }, [refresh]);
 
   useEffect(() => {
-    const id = setInterval(() => {
+    const id = timers.setInterval(() => {
       stableRefresh();
     }, REFRESH_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [stableRefresh]);
+    return () => timers.clearInterval(id);
+  }, [stableRefresh, timers]);
 
   return (
     <ScreenBase

@@ -1,10 +1,8 @@
+import type { HttpClient } from '@pkgs/http-client';
 import type { Kv } from '@pkgs/kv/interface';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
-import {
-  HttpLlmProvider,
-  type HttpLlmProviderOptions,
-} from '../shared/adapters/http-llm-provider';
+import { HttpLlmProvider } from '../shared/adapters/http-llm-provider';
 import { LlmProviderWithKvCache } from '../shared/llm-cache';
 import type { LlmProvider } from '../shared/llm-provider';
 
@@ -13,7 +11,7 @@ const LlmReactContext = createContext<LlmProvider | null>(null);
 export type LlmContextProviderProps = {
   readonly apiUrl: string;
   readonly kv: Kv;
-  readonly fetch?: HttpLlmProviderOptions['fetch'];
+  readonly http: HttpClient;
   readonly children: ReactNode;
 };
 
@@ -26,14 +24,10 @@ export function LlmContextProvider(
   const value = useMemo<LlmProvider>(
     () =>
       new LlmProviderWithKvCache(
-        new HttpLlmProvider(
-          props.fetch === undefined
-            ? { apiUrl: props.apiUrl }
-            : { apiUrl: props.apiUrl, fetch: props.fetch }
-        ),
+        new HttpLlmProvider({ apiUrl: props.apiUrl, http: props.http }),
         props.kv
       ),
-    [props.apiUrl, props.kv, props.fetch]
+    [props.apiUrl, props.kv, props.http]
   );
 
   return (

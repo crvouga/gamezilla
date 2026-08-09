@@ -14,7 +14,9 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "catalog:",
+    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

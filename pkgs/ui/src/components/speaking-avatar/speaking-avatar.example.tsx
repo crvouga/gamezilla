@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { ObjectStoreProvider } from '@pkgs/object-store/react-context';
 import { TtsProvider } from '@pkgs/tts/client/tts-context';
@@ -17,15 +18,16 @@ const ROTATING_LINES = [
 const ROTATE_INTERVAL_MS = 4500;
 
 function RotatingMessage() {
+  const timers = useTimers();
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => {
+    const id = timers.setInterval(() => {
       setIndex((i) => (i + 1) % ROTATING_LINES.length);
     }, ROTATE_INTERVAL_MS);
     return () => {
-      clearInterval(id);
+      timers.clearInterval(id);
     };
-  }, []);
+  }, [timers]);
   return (
     <SpeakingAvatar
       message={ROTATING_LINES[index] ?? ''}

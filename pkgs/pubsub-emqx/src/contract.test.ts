@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import {
   type PubSubContractEnv,
   runPubSubContractTests,
@@ -15,16 +16,43 @@ const API_SECRET = process.env['EMQX_TEST_API_SECRET'] ?? 'pubsub-test-secret';
 const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? 'pubsub';
 const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? 'pubsub';
 
+const io = wallIo();
+const http = io.http;
+const now = io.clock.now;
+const timers = io.timers;
+
+function waitMs(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    timers.setTimeout(resolve, ms);
+  });
+}
+
+async function waitUntilStatus(
+  getStatus: () => string,
+  wanted: string | ((s: string) => boolean),
+  timeoutMs: number
+): Promise<void> {
+  const deadline = now() + timeoutMs;
+  const match =
+    typeof wanted === 'string' ? (s: string) => s === wanted : wanted;
+  while (now() < deadline && !match(getStatus())) {
+    await waitMs(50);
+  }
+}
+
 async function probeBroker(): Promise<boolean> {
   if (!WSS_URL || !API_URL) return false;
   try {
-    const res = await fetch(`${API_URL.replace(/\/$/, '')}/api/v5/status`, {
-      headers: {
-        Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
-        Accept: 'application/json',
-      },
-      signal: AbortSignal.timeout(2000),
-    });
+    const res = await http.fetch(
+      `${API_URL.replace(/\/$/, '')}/api/v5/status`,
+      {
+        headers: {
+          Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
+          Accept: 'application/json',
+        },
+        signal: AbortSignal.timeout(2000),
+      }
+    );
     return res.ok || res.status === 401 || res.status === 404;
   } catch {
     return false;
@@ -36,20 +64,23 @@ async function httpPublish(
   topic: string,
   payload: string
 ): Promise<void> {
-  const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/v5/publish`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      topic,
-      payload,
-      qos: EMQX_PUBSUB_QOS,
-      retain: false,
-    }),
-  });
+  const res = await http.fetch(
+    `${apiBaseUrl.replace(/\/$/, '')}/api/v5/publish`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        topic,
+        payload,
+        qos: EMQX_PUBSUB_QOS,
+        retain: false,
+      }),
+    }
+  );
   if (!res.ok) {
     throw new Error(`EMQX publish failed: ${String(res.status)}`);
   }
@@ -59,7 +90,7 @@ async function forceDisconnectClient(
   apiBaseUrl: string,
   clientId: string
 ): Promise<void> {
-  const res = await fetch(
+  const res = await http.fetch(
     `${apiBaseUrl.replace(/\/$/, '')}/api/v5/clients/${encodeURIComponent(clientId)}`,
     {
       method: 'DELETE',
@@ -97,6 +128,7 @@ if (!brokerReady) {
         const ps = createEmqxPubSub({
           url: WSS_URL!,
           clientIdPrefix: `contract_${randomClientIdSuffix()}`,
+          timers,
           auth: async () => ({
             username: MQTT_USER,
             password: MQTT_PASS,
@@ -104,10 +136,7 @@ if (!brokerReady) {
           reconnect: { baseMs: 100, maxMs: 1000 },
         });
         instances.push(ps);
-        const deadline = Date.now() + 10_000;
-        while (Date.now() < deadline && ps.status() !== 'connected') {
-          await new Promise((r) => setTimeout(r, 50));
-        }
+        await waitUntilStatus(() => ps.status(), 'connected', 10_000);
         if (ps.status() !== 'connected') {
           throw new Error('EMQX WSS failed to connect');
         }
@@ -144,28 +173,27 @@ if (!brokerReady) {
       const first = createEmqxPubSub({
         url: WSS_URL!,
         clientIdPrefix: clientId,
+        timers,
         auth: async () => ({
           username: MQTT_USER,
           password: MQTT_PASS,
         }),
         reconnect: { baseMs: 1500, maxMs: 3000 },
       });
-      const deadline = Date.now() + 10_000;
-      while (Date.now() < deadline && first.status() !== 'connected') {
-        await new Promise((r) => setTimeout(r, 50));
-      }
+      await waitUntilStatus(() => first.status(), 'connected', 10_000);
       expect(first.status()).toBe('connected');
       first.subscribe(topic, (data) => {
         received.push(data);
       });
       // Allow SUBSCRIBE to settle on the broker before forcing disconnect.
-      await new Promise((r) => setTimeout(r, 400));
+      await waitMs(400);
 
       await forceDisconnectClient(apiBaseUrl, clientId);
-      const downDeadline = Date.now() + 5000;
-      while (Date.now() < downDeadline && first.status() === 'connected') {
-        await new Promise((r) => setTimeout(r, 50));
-      }
+      await waitUntilStatus(
+        () => first.status(),
+        (s) => s !== 'connected',
+        5000
+      );
       expect(first.status()).not.toBe('connected');
 
       await httpPublish(
@@ -174,15 +202,14 @@ if (!brokerReady) {
         JSON.stringify({ while: 'offline' })
       );
 
-      const upDeadline = Date.now() + 20_000;
-      while (Date.now() < upDeadline && first.status() !== 'connected') {
-        await new Promise((r) => setTimeout(r, 50));
-      }
+      await waitUntilStatus(() => first.status(), 'connected', 20_000);
       expect(first.status()).toBe('connected');
 
-      const recvDeadline = Date.now() + 10_000;
-      while (Date.now() < recvDeadline && received.length === 0) {
-        await new Promise((r) => setTimeout(r, 50));
+      {
+        const deadline = now() + 10_000;
+        while (now() < deadline && received.length === 0) {
+          await waitMs(50);
+        }
       }
       expect(received).toEqual([{ while: 'offline' }]);
       first.close();

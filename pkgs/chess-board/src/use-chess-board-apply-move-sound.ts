@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import { useCallback, useEffect, useRef } from 'react';
 import { CHESS_PIECE_MOVE_MS } from './chess-board-piece';
 import {
@@ -18,21 +19,19 @@ export function useChessBoardApplyMoveSound(
   sounds: ChessBoardSounds,
   animations: boolean
 ) {
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const timers = useTimers();
+  const timersRef = useRef<unknown[]>([]);
 
   const clearAllTimers = useCallback(() => {
-    for (const t of timersRef.current) clearTimeout(t);
+    for (const t of timersRef.current) timers.clearTimeout(t);
     timersRef.current = [];
-  }, []);
+  }, [timers]);
 
   useEffect(() => () => clearAllTimers(), [clearAllTimers]);
 
-  const registerDelayed = useCallback(
-    (timer: ReturnType<typeof setTimeout>) => {
-      timersRef.current.push(timer);
-    },
-    []
-  );
+  const registerDelayed = useCallback((timer: unknown) => {
+    timersRef.current.push(timer);
+  }, []);
 
   return useCallback(
     (move: Move, post: PostMoveAudio) => {
@@ -43,14 +42,15 @@ export function useChessBoardApplyMoveSound(
         sounds,
         move,
         captureDelayMs,
-        registerDelayed
+        registerDelayed,
+        timers
       );
       // Primary may itself defer (capture). Follow-ups start after that delay
       // plus a short gap so they never share a tick with the primary SFX.
       const followUpBase = primaryOffsetMs + CHECK_AFTER_PRIMARY_MS;
       if (post.inCheck) {
         registerDelayed(
-          setTimeout(() => {
+          timers.setTimeout(() => {
             sounds.playCheck();
           }, followUpBase)
         );
@@ -59,12 +59,12 @@ export function useChessBoardApplyMoveSound(
         const gameEndAt =
           followUpBase + (post.inCheck ? GAME_END_AFTER_CHECK_MS : 0);
         registerDelayed(
-          setTimeout(() => {
+          timers.setTimeout(() => {
             sounds.playGameEnd();
           }, gameEndAt)
         );
       }
     },
-    [sounds, clearAllTimers, registerDelayed, animations]
+    [sounds, clearAllTimers, registerDelayed, animations, timers]
   );
 }

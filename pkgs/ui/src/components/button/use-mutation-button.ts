@@ -22,6 +22,7 @@
  * ```
  */
 
+import { useTimers } from '@pkgs/clock';
 import { asLocalized, type LocalizedString } from '@pkgs/i18n';
 import type { SoundId } from '@pkgs/sounds';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
@@ -135,6 +136,7 @@ export function useMutationButton({
     onPhaseChange,
   });
 
+  const timers = useTimers();
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
   const resetRef = useRef(reset);
@@ -142,7 +144,7 @@ export function useMutationButton({
 
   useEffect(() => {
     if (phase !== 'success') return undefined;
-    const id = setTimeout(() => {
+    const id = timers.setTimeout(() => {
       const cb = onSuccessRef.current;
       try {
         if (cb !== undefined) cb();
@@ -150,8 +152,8 @@ export function useMutationButton({
         resetRef.current();
       }
     }, successHoldMs);
-    return () => clearTimeout(id);
-  }, [phase, successHoldMs]);
+    return () => timers.clearTimeout(id);
+  }, [phase, successHoldMs, timers]);
 
   const buttonProps = useMemo<MutationButtonProps>(
     () => ({

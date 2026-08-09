@@ -1,7 +1,5 @@
 /**
- * Browser/Node-compatible HTTP client for the matchmaking app. Uses native
- * `fetch` (available in Node ≥18 and every modern browser) so it picks up no
- * runtime dependencies.
+ * Browser/Node-compatible HTTP client for the matchmaking app.
  *
  * Auth is delegated to a caller-supplied `getToken()` — the library never
  * stores credentials and never assumes a scheme; the returned string is sent
@@ -15,6 +13,8 @@
  */
 
 import type { AttributeState } from '@pkgs/attribute';
+import type { Timers } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import { MatchmakingHttpError } from './client-error';
 import type { FormulaWire } from './matchmaker';
 import type {
@@ -31,7 +31,10 @@ export type MatchmakingClientOptions = {
   readonly baseUrl: string;
   readonly getToken: () => Promise<string>;
   readonly pollIntervalMs?: number;
-  readonly fetch?: typeof globalThis.fetch;
+  /** Injectable HTTP transport (required — no wall default). */
+  readonly http: HttpClient;
+  /** Injectable timers for poll sleep (required — no wall default). */
+  readonly timers: Timers;
 };
 
 export type WaitForMatchOptions = {
@@ -43,19 +46,23 @@ function joinUrl(baseUrl: string, path: string): string {
   return `${trimmed}${path}`;
 }
 
-function sleep(ms: number, signal: AbortSignal | undefined): Promise<void> {
+function sleep(
+  ms: number,
+  signal: AbortSignal | undefined,
+  timers: Timers
+): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
+    const timeout = timers.setTimeout(() => {
       signal?.removeEventListener('abort', onAbort);
       resolve();
     }, ms);
     function onAbort(): void {
-      clearTimeout(timeout);
+      timers.clearTimeout(timeout);
       reject(new Error('waitForMatch aborted'));
     }
     if (signal !== undefined) {
       if (signal.aborted) {
-        clearTimeout(timeout);
+        timers.clearTimeout(timeout);
         reject(new Error('waitForMatch aborted'));
         return;
       }
@@ -68,13 +75,15 @@ export class MatchmakingClient {
   private readonly baseUrl: string;
   private readonly getToken: () => Promise<string>;
   private readonly pollIntervalMs: number;
-  private readonly fetchImpl: typeof globalThis.fetch;
+  private readonly http: HttpClient;
+  private readonly timers: Timers;
 
   constructor(opts: MatchmakingClientOptions) {
     this.baseUrl = opts.baseUrl;
     this.getToken = opts.getToken;
     this.pollIntervalMs = opts.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
-    this.fetchImpl = opts.fetch ?? globalThis.fetch.bind(globalThis);
+    this.http = opts.http;
+    this.timers = opts.timers;
   }
 
   /**
@@ -126,7 +135,7 @@ export class MatchmakingClient {
       `/update-formulas/${encodeURIComponent(participantId)}`
     );
     const token = await this.getToken();
-    const response = await this.fetchImpl(url, {
+    const response = await this.http.fetch(url, {
       method: 'POST',
       headers: {
         Authorization: token,
@@ -156,7 +165,7 @@ export class MatchmakingClient {
       `/status/${encodeURIComponent(participantId)}`
     );
     const token = await this.getToken();
-    const response = await this.fetchImpl(url, {
+    const response = await this.http.fetch(url, {
       method: 'GET',
       headers: { Authorization: token },
     });
@@ -187,7 +196,7 @@ export class MatchmakingClient {
       if (current.status === 'matched') {
         return current;
       }
-      await sleep(this.pollIntervalMs, signal);
+      await sleep(this.pollIntervalMs, signal, this.timers);
     }
   }
 
@@ -198,7 +207,7 @@ export class MatchmakingClient {
   ): Promise<T> {
     const url = joinUrl(this.baseUrl, path);
     const token = await this.getToken();
-    const response = await this.fetchImpl(url, {
+    const response = await this.http.fetch(url, {
       method,
       headers: {
         Authorization: token,

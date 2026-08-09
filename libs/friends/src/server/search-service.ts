@@ -17,15 +17,15 @@ type SearchHitRow = {
 
 const searchTimestamps = new Map<string, number[]>();
 
-function assertSearchRateLimit(userId: string): void {
-  const now = Date.now();
-  const windowStart = now - USER_SEARCH_RATE_WINDOW_MS;
+function assertSearchRateLimit(userId: string, now: () => number): void {
+  const nowMs = now();
+  const windowStart = nowMs - USER_SEARCH_RATE_WINDOW_MS;
   const prior = searchTimestamps.get(userId) ?? [];
   const recent = prior.filter((ts) => ts >= windowStart);
   if (recent.length >= USER_SEARCH_RATE_LIMIT) {
     throw new FriendsError('FRIENDS_SEARCH_RATE_LIMIT', 'Too many searches');
   }
-  recent.push(now);
+  recent.push(nowMs);
   searchTimestamps.set(userId, recent);
 }
 
@@ -47,6 +47,7 @@ export async function searchUsers(
   db: SqlClient,
   viewerId: string,
   rawQuery: string,
+  now: () => number,
   limit: number = USER_SEARCH_MAX_RESULTS
 ): Promise<readonly UserSearchResult[]> {
   const query = rawQuery.trim();
@@ -56,7 +57,7 @@ export async function searchUsers(
       `Search query must be at least ${USER_SEARCH_MIN_LENGTH} characters`
     );
   }
-  assertSearchRateLimit(viewerId);
+  assertSearchRateLimit(viewerId, now);
   const boundedLimit = Math.min(Math.max(limit, 1), USER_SEARCH_MAX_RESULTS);
   const likeQuery = `${query.toLowerCase()}%`;
   const rows = await db.query(sql<SearchHitRow>`

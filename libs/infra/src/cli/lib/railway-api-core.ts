@@ -4,9 +4,12 @@
  */
 import { assert } from '@pkgs/assert';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
+import { wallIo } from '@pkgs/io';
 import type { TadaDocumentNode } from 'gql.tada';
 import { print } from 'graphql';
 import { MeIdQuery } from './railway-graphql/documents';
+
+const io = wallIo();
 
 const RAILWAY_GQL = 'https://backboard.railway.com/graphql/v2';
 
@@ -21,17 +24,21 @@ export async function railwayGql<TResult, TVariables>(
   document: TadaDocumentNode<TResult, TVariables>,
   variables?: TVariables
 ): Promise<TResult> {
-  const res = await fetchWithRetry(RAILWAY_GQL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+  const res = await fetchWithRetry(
+    RAILWAY_GQL,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: print(document),
+        variables: variables ?? undefined,
+      }),
     },
-    body: JSON.stringify({
-      query: print(document),
-      variables: variables ?? undefined,
-    }),
-  });
+    { fetch: io.http.fetch, timers: io.timers }
+  );
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Railway GraphQL HTTP ${String(res.status)}: ${text}`);

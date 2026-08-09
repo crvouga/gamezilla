@@ -79,6 +79,7 @@ export function createDemoSimulationSystem(): SimulationSystem {
       if (ctx.ui !== 'in-process') {
         throw new Error('demo system only supports ui: in-process');
       }
+      void ctx.io;
       const store = createDemoStore();
       const sessions = new Set<InProcessSimulationSession>();
 

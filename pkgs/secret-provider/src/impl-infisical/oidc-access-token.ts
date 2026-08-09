@@ -1,3 +1,4 @@
+import { globalHttpFetch } from '@pkgs/http-client';
 import {
   SecretStoreParseError,
   SecretStoreRequestError,
@@ -33,7 +34,7 @@ async function fetchGithubActionsOidcJwt(audience: string): Promise<string> {
     return '';
   }
   const url = `${requestUrl}&audience=${encodeURIComponent(audience)}`;
-  const response = await fetch(url, {
+  const response = await globalHttpFetch(url, {
     headers: { Authorization: `Bearer ${requestToken}` },
   });
   if (!response.ok) {
@@ -62,7 +63,7 @@ async function exchangeOidcJwtForInfisicalAccessToken(args: {
   readonly identityId: string;
   readonly jwt: string;
 }): Promise<string> {
-  const response = await fetch(
+  const response = await globalHttpFetch(
     `${normalizeDomain(args.domain)}/api/v1/auth/oidc-auth/login`,
     {
       method: 'POST',

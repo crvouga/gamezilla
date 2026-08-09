@@ -15,10 +15,13 @@
     "test:broker": "bun test src/contract.test.ts"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "mqtt": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -6,6 +6,7 @@ import {
   useGetFreshAuthToken,
 } from '@libs/auth/client/use-fresh-auth-token';
 import { useHttpClient } from '@pkgs/http-client';
+import { useIo } from '@pkgs/io';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
@@ -29,7 +30,11 @@ import {
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
 function useIdentitySqliteDbName(userId: string): string {
-  return useMemo(() => getMainSqliteDbName(userId), [userId]);
+  const createId = useIo().createId;
+  return useMemo(
+    () => getMainSqliteDbName(userId, createId),
+    [userId, createId]
+  );
 }
 
 function useSyncClientAuthRef(): SyncClientAuth {
@@ -58,6 +63,7 @@ function useSyncEnginePromise(
 ): Promise<SyncEngine> {
   const config = useConfigService();
   const observability = useObservability();
+  const io = useIo();
   const { fetch: httpFetch } = useHttpClient();
   const getFreshAuthToken = useGetFreshAuthToken();
   const auth = useSyncClientAuthRef();
@@ -69,10 +75,12 @@ function useSyncEnginePromise(
   const fetchFnRef = useRef(fetchFn);
   const getFreshAuthTokenRef = useRef(getFreshAuthToken);
   const authRef = useRef(auth);
+  const ioRef = useRef(io);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   getFreshAuthTokenRef.current = getFreshAuthToken;
   authRef.current = auth;
+  ioRef.current = io;
   return useMemo(
     () =>
       getOrCreateAppLocalSyncEngine({
@@ -84,6 +92,15 @@ function useSyncEnginePromise(
         },
         get auth() {
           return authRef.current;
+        },
+        get clock() {
+          return ioRef.current.clock;
+        },
+        get timers() {
+          return ioRef.current.timers;
+        },
+        get createId() {
+          return ioRef.current.createId;
         },
         getFreshAuthToken: (options) => getFreshAuthTokenRef.current(options),
         databaseName: dbName,

@@ -4,6 +4,9 @@ import {
   assertHttpOk,
   resolveLocalApiOrigin,
 } from '@libs/integration-test/harness';
+import { wallIo } from '@pkgs/io';
+
+const io = wallIo();
 
 test('api GET /health returns ok when preview is already running', async () => {
   const localApiOrigin = await resolveLocalApiOrigin();
@@ -15,7 +18,7 @@ test('api GET /health returns ok when preview is already running', async () => {
       'Start the stack first:\n  bun dev\n  bun preview\n\nThen re-run:\n  bun check:api',
   });
 
-  const res = await fetch(healthUrl);
+  const res = await io.http.fetch(healthUrl);
   expect(res.ok).toBe(true);
   expect(await res.json()).toEqual({ status: 'ok' });
 });

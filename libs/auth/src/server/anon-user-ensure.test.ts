@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -9,6 +10,8 @@ import {
   ensureAnonUserForDevice,
   findUserIdByDeviceId,
 } from './anon-user-ensure';
+
+const io = createSimIo({ seed: 1 });
 
 const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';
@@ -61,6 +64,8 @@ describe('ensureAnonUserForDevice', () => {
     const result = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(result.isAnon).toBe(true);
     expect(result.userId.length).toBeGreaterThan(0);
@@ -76,10 +81,14 @@ describe('ensureAnonUserForDevice', () => {
     const first = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     const second = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(second.userId).toBe(first.userId);
   });
@@ -88,12 +97,16 @@ describe('ensureAnonUserForDevice', () => {
     const first = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     await clearUserAnonFlag(db, first.userId);
 
     const next = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(next.userId).not.toBe(first.userId);
     expect(await findUserIdByDeviceId(db, DEVICE_ID)).toBe(next.userId);
@@ -103,11 +116,15 @@ describe('ensureAnonUserForDevice', () => {
     const first = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     const next = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
       forceNew: true,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(next.userId).not.toBe(first.userId);
   });
@@ -130,6 +147,8 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
     const anon = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     const authServer: AuthServerPort = {
       providerLabel: 'better-auth',
@@ -143,6 +162,8 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       authServer,
       externalUserId: 'ext_1',
       upgradeUserId: anon.userId,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(accountId).toBe(anon.userId);
 
@@ -156,13 +177,17 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
     const anon = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_ID,
+      now: io.clock.now,
+      createId: io.createId,
     });
     const other = await ensureAnonUserForDevice({
       sql: db,
       deviceId: DEVICE_B,
+      now: io.clock.now,
+      createId: io.createId,
     });
     await clearUserAnonFlag(db, other.userId);
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await db.run(sql<void>`
       INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)
       VALUES (${'better-auth:ext_existing'}, ${other.userId}, 'better-auth', 'ext_existing', '{}', ${now})
@@ -180,6 +205,8 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       authServer,
       externalUserId: 'ext_existing',
       upgradeUserId: anon.userId,
+      now: io.clock.now,
+      createId: io.createId,
     });
     expect(accountId).toBe(other.userId);
     expect(accountId).not.toBe(anon.userId);

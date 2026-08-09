@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useEffect, useRef } from 'react';
 import type { TextInput as RNTextInput } from 'react-native';
@@ -16,15 +17,16 @@ export function ComboboxSearch({
   placeholder: LocalizedString;
   autoFocus: boolean;
 }) {
+  const timers = useTimers();
   const inputRef = useRef<RNTextInput>(null);
 
   useEffect(() => {
     if (!autoFocus) return undefined;
-    const timerId = setTimeout(() => inputRef.current?.focus(), 50);
+    const timerId = timers.setTimeout(() => inputRef.current?.focus(), 50);
     return () => {
-      clearTimeout(timerId);
+      timers.clearTimeout(timerId);
     };
-  }, [autoFocus]);
+  }, [autoFocus, timers]);
 
   return (
     <Box sx={{ px: 0, pb: 2 }}>

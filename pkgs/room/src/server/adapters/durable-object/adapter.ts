@@ -1,4 +1,7 @@
 import { assert } from '@pkgs/assert';
+import type { Clock } from '@pkgs/clock';
+import type { CreateId } from '@pkgs/uuid';
+
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -61,6 +64,10 @@ export type CreateDurableObjectAdapterOptions<
     env: Env,
     moduleName: RoomModuleName
   ) => RoomStorage;
+  /** Injectable clock (required — no wall default). */
+  clock: Clock;
+  /** Injectable id mint (required — no wall default). */
+  createId: CreateId;
 };
 
 function defaultParseIdentity<Identity>(raw: string): Identity | null {
@@ -106,6 +113,8 @@ function resolveOptions<
       options.createStorage ??
       ((state, _env, moduleName) =>
         new DurableObjectRoomStorage(state.storage, moduleName)),
+    clock: options.clock,
+    createId: options.createId,
   };
 }
 
@@ -128,7 +137,11 @@ function resolveOptions<
  * import { APP_ROOM_MODULES } from './shared/rooms';
  * import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
  *
- * export const Room = createDurableObjectAdapter({ modules: APP_ROOM_MODULES });
+ * export const Room = createDurableObjectAdapter({
+ *   modules: APP_ROOM_MODULES,
+ *   clock: io.clock,
+ *   createId: io.createId,
+ * });
  * ```
  */
 export function createDurableObjectAdapter<

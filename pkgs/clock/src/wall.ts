@@ -5,11 +5,17 @@ export const wallClock: Clock = {
   now: () => Date.now(),
 };
 
-/** Production timers backed by `globalThis.setTimeout` / `clearTimeout`. */
+/** Production timers backed by `globalThis` timer APIs. */
 export const wallTimers: Timers = {
   setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
   clearTimeout: (handle) => {
     globalThis.clearTimeout(handle as ReturnType<typeof globalThis.setTimeout>);
+  },
+  setInterval: (fn, ms) => globalThis.setInterval(fn, ms),
+  clearInterval: (handle) => {
+    globalThis.clearInterval(
+      handle as ReturnType<typeof globalThis.setInterval>
+    );
   },
 };
 

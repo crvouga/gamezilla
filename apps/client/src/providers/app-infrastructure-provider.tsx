@@ -3,13 +3,12 @@ import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import { AppConfigService } from './auth/config-service';
-import { AppIoProvider } from './infrastructure/app-io-provider';
 import { AppLogger } from './infrastructure/logger';
 import { AppObservability } from './infrastructure/observability';
 import { AppSecureStorage } from './infrastructure/secure-storage';
 
+/** Io is mounted in `_layout` around `RootErrorBoundary`. */
 const infrastructureProviders = [
-  AppIoProvider,
   AppSecureStorage,
   AppLogger,
   AppConfigService,

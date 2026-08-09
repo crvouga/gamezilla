@@ -1,16 +1,14 @@
+import { createSimIo, type SimClock, type SimIo } from '@pkgs/io';
+
 import { createSimActor, type SimActor } from './actor';
-import {
-  createSimulationClock,
-  createSimulationTimers,
-  type SimulationClock,
-} from './clock';
 import type { SimulationOptions, SimulationUiKind } from './options';
 import { createSeededRng } from './rng';
 import type { SimulationSystemHandle } from './system-port';
 
 export type Simulation = {
   readonly seed: bigint;
-  readonly clock: SimulationClock;
+  readonly io: SimIo;
+  readonly clock: SimClock;
   readonly ui: SimulationUiKind;
   /** Create (or return cached) actor session with a live UI driver. */
   actor(id: string): Promise<SimActor>;
@@ -28,14 +26,14 @@ export async function openSimulation(
   options: SimulationOptions
 ): Promise<Simulation> {
   const ui: SimulationUiKind = options.ui ?? 'in-process';
+  const io = createSimIo({
+    seed: options.seed,
+    startMs: options.startMs ?? 0,
+  });
   const rng = createSeededRng(options.seed);
-  const clock = createSimulationClock(options.startMs ?? 0);
-  const timers = createSimulationTimers();
 
   const handle: SimulationSystemHandle = await options.system.start({
-    clock,
-    timers,
-    seed: rng.seed,
+    io,
     rng,
     ui,
   });
@@ -55,8 +53,9 @@ export async function openSimulation(
   };
 
   return {
-    seed: rng.seed,
-    clock,
+    seed: io.seed,
+    io,
+    clock: io.clock,
     ui,
     async actor(id: string): Promise<SimActor> {
       if (disposed) {
@@ -66,7 +65,7 @@ export async function openSimulation(
       if (existing) return existing;
 
       const session = await handle.createSession(id);
-      const created = await createSimActor({ id, session, uiKind: ui });
+      const created = await createSimActor({ id, session, uiKind: ui, io });
       actors.set(id, created);
       return created;
     },

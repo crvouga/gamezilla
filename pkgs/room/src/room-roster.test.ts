@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND } from './protocol/wire';
 import { Increment, TestCounterModule } from './testkit/counter-module';
 import { openLoopbackRoom } from './testkit/simulator';
 
+const io = wallIo();
+const now = io.clock.now;
+const timers = io.timers;
+
 describe('room roster + actor metadata', () => {
   it('grows and shrinks the roster on connect/disconnect', async () => {
     const a = await openLoopbackRoom({
+      io,
       topic: 't-roster',
       module: TestCounterModule,
       identity: 'alice',
@@ -24,6 +30,7 @@ describe('room roster + actor metadata', () => {
     ]);
 
     const b = await openLoopbackRoom({
+      io,
       topic: 't-roster',
       module: TestCounterModule,
       identity: 'bob',
@@ -34,12 +41,12 @@ describe('room roster + actor metadata', () => {
     await b.room.untilSynced();
 
     // Both clients converge on the two-actor roster.
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
     expect(a.room.getRoster()).toHaveLength(2);
     expect(b.room.getRoster()).toHaveLength(2);
 
     a.server.unregisterConnection('conn-a');
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
     expect(b.room.getRoster()).toEqual([{ id: 'bob', clientId: 'bob-tab-1' }]);
 
     a.room.destroy();
@@ -48,6 +55,7 @@ describe('room roster + actor metadata', () => {
 
   it('lists two clients for the same actor id', async () => {
     const a = await openLoopbackRoom({
+      io,
       topic: 't-multi-tab',
       module: TestCounterModule,
       identity: 'alice',
@@ -57,6 +65,7 @@ describe('room roster + actor metadata', () => {
     await a.room.untilSynced();
 
     const a2 = await openLoopbackRoom({
+      io,
       topic: 't-multi-tab',
       module: TestCounterModule,
       identity: 'alice',
@@ -65,7 +74,7 @@ describe('room roster + actor metadata', () => {
       server: a.server,
     });
     await a2.room.untilSynced();
-    await new Promise<void>((r) => setTimeout(r, 10));
+    await new Promise<void>((r) => timers.setTimeout(r, 10));
 
     const roster = a.room.getRoster();
     expect(roster).toHaveLength(2);
@@ -80,6 +89,7 @@ describe('room roster + actor metadata', () => {
 
   it('stamps actor + ts on committed log entries', async () => {
     const { room, server } = await openLoopbackRoom({
+      io,
       topic: 't-actor-meta',
       module: TestCounterModule,
       identity: 'alice',
@@ -87,9 +97,9 @@ describe('room roster + actor metadata', () => {
       connectionId: 'conn-meta',
     });
     await room.untilSynced();
-    const before = Date.now();
+    const before = now();
     room.dispatch(Increment({}));
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
 
     const log = room.getLog();
     expect(log.length).toBeGreaterThanOrEqual(1);

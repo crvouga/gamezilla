@@ -2,6 +2,7 @@ import { assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import { clearUserAnonFlag, readUserAnonState } from './anon-user-ensure';
 import {
@@ -46,8 +47,17 @@ export async function ensureInternalAccountIdForExternalUser(args: {
   externalUserId: string;
   /** Device-bound anon user to upgrade when this external id is new. */
   upgradeUserId?: string | null;
+  now: () => number;
+  createId: CreateId;
 }): Promise<string> {
-  const { sql: db, authServer, externalUserId, upgradeUserId } = args;
+  const {
+    sql: db,
+    authServer,
+    externalUserId,
+    upgradeUserId,
+    now,
+    createId,
+  } = args;
   const provider = authServer.providerLabel;
   const lockKey = `${provider}:${externalUserId}`;
 
@@ -64,12 +74,16 @@ export async function ensureInternalAccountIdForExternalUser(args: {
       return existingUserId;
     }
 
-    const candidateUserId = await resolveCandidateUserId(tx, upgradeUserId);
-    const now = new Date().toISOString();
+    const candidateUserId = await resolveCandidateUserId(
+      tx,
+      upgradeUserId,
+      createId
+    );
+    const nowIso = new Date(now()).toISOString();
     if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
       await clearUserAnonFlag(tx, candidateUserId);
     } else {
-      await insertUser(tx, candidateUserId, now, false);
+      await insertUser(tx, candidateUserId, now, nowIso, false);
     }
 
     const ownerId = await insertExternalAccountOrGet(tx, {
@@ -77,6 +91,7 @@ export async function ensureInternalAccountIdForExternalUser(args: {
       provider,
       externalId: externalUserId,
       metadata: {},
+      now,
     });
     assertUuid(ownerId, 'userId must be UUID');
 
@@ -91,7 +106,8 @@ export async function ensureInternalAccountIdForExternalUser(args: {
 
 async function resolveCandidateUserId(
   tx: SqlClient,
-  upgradeUserId: string | null | undefined
+  upgradeUserId: string | null | undefined,
+  createId: CreateId
 ): Promise<string> {
   if (typeof upgradeUserId === 'string' && upgradeUserId.length > 0) {
     assertUuid(upgradeUserId, 'upgradeUserId must be UUID');
@@ -100,5 +116,5 @@ async function resolveCandidateUserId(
       return upgradeUserId;
     }
   }
-  return crypto.randomUUID();
+  return createId();
 }

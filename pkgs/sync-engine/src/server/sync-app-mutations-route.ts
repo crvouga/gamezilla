@@ -1,6 +1,7 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -104,6 +105,7 @@ async function collectTopicsFromCaptures(args: {
   readonly auth: SyncAppAuth;
   readonly captures: readonly WriteCaptureSnapshot[];
   readonly db: SqlClient;
+  readonly now: () => number;
 }): Promise<Topic[]> {
   if (args.topicMap === undefined || args.captures.length === 0) return [];
   const env: MutationEnv = {
@@ -111,7 +113,7 @@ async function collectTopicsFromCaptures(args: {
     deviceId: args.auth.deviceId,
     accountId: args.auth.accountId,
     isAnon: args.auth.isAnon,
-    now: () => new Date(),
+    now: () => new Date(args.now()),
   };
   const merged = mergeCaptures(args.captures);
   return topicsFromWriteCapture({
@@ -169,6 +171,8 @@ async function prepareMutationNotify(
       registry: deps.mutations,
       auth,
       mutations: mutationRows,
+      now: deps.now,
+      createId: deps.createId,
     });
     if (result.applied.length === 0 || deps.pubsub === undefined) {
       return {
@@ -186,13 +190,14 @@ async function prepareMutationNotify(
       deviceId: auth.deviceId,
       accountId: auth.accountId,
       isAnon: auth.isAnon,
-      now: () => new Date(),
+      now: () => new Date(deps.now()),
     };
     const topics = await collectTopicsFromCaptures({
       topicMap: deps.topicMap,
       auth,
       captures,
       db: nested,
+      now: deps.now,
     });
     const tables = merged.tables;
     const rows = await buildFanoutRows({
@@ -239,6 +244,8 @@ export type MountMutationsRouteDeps = {
   ) => Promise<SyncAppAuth | AuthErrorBody>;
   readonly getSql: () => SqlClient;
   readonly mutations: MutationRegistry;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly pubsub?: PubSub;
   /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;

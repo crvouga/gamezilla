@@ -1,3 +1,4 @@
+import type { Clock } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
 
 const ansi = {
@@ -61,12 +62,12 @@ function writeErr(s: string): void {
   process.stderr.write(s);
 }
 
-function createTtyReporter(): PuzzleSeedReporter {
+function createTtyReporter(now: Clock['now']): PuzzleSeedReporter {
   let downloadLineActive = false;
   let parseLineActive = false;
 
   const phase = (title: string, detail?: Record<string, unknown>): void => {
-    const time = new Date().toLocaleTimeString(undefined, {
+    const time = new Date(now()).toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -135,14 +136,17 @@ function createTtyReporter(): PuzzleSeedReporter {
   };
 }
 
-function createJsonReporter(logger: Logger): PuzzleSeedReporter {
+function createJsonReporter(
+  logger: Logger,
+  now: Clock['now']
+): PuzzleSeedReporter {
   let lastJsonDownloadLog = 0;
   return {
     phase: (title, detail) => logger.info(title, detail),
     downloadProgress: (p) => {
-      const now = performance.now();
-      if (now - lastJsonDownloadLog < 750) return;
-      lastJsonDownloadLog = now;
+      const t = now();
+      if (t - lastJsonDownloadLog < 750) return;
+      lastJsonDownloadLog = t;
       logger.info('seed:puzzles: download progress', {
         receivedBytes: p.receivedBytes,
         totalBytes: p.totalBytes,
@@ -160,7 +164,10 @@ function createJsonReporter(logger: Logger): PuzzleSeedReporter {
 export function createPuzzleSeedReporter(args: {
   pretty: boolean;
   logger: Logger;
+  now: Clock['now'];
 }): PuzzleSeedReporter {
   const tty = args.pretty === true && process.stderr.isTTY === true;
-  return tty ? createTtyReporter() : createJsonReporter(args.logger);
+  return tty
+    ? createTtyReporter(args.now)
+    : createJsonReporter(args.logger, args.now);
 }

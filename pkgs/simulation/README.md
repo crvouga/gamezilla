@@ -48,7 +48,8 @@ import type { AppHarness } from '@pkgs/ui-testing';
 
 const mySystem: SimulationSystem = {
   async start(ctx) {
-    // ctx.clock / ctx.timers / ctx.seed / ctx.rng / ctx.ui
+    // ctx.io (createSimIo bag: clock/timers/createId/random/http)
+    // ctx.rng / ctx.ui
     // Boot shared backend here (DBs, in-proc servers, fakes, …).
     return {
       async createSession(actorId) {
@@ -87,9 +88,10 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 
 ## Determinism
 
-- `seed` → stable `SeededRng` passed into `system.start`
-- `SimulationClock` (virtual, start at `startMs` or `0`) passed as `ctx.clock`
+- `seed` → `createSimIo({ seed })` bag on `ctx.io` (virtual clock + seeded ids/random)
+- Extra `ctx.rng` for system-side forks
 - Re-run the same seed + system for reproducible actor scheduling on your side
+- Prefer injecting `ctx.io` into app providers (`IoProvider` / sync factories)
 
 ## What not to do
 

@@ -32,8 +32,10 @@ export async function bootSimKernel(args: {
   const authByDevice = new Map<string, ClientMeta>();
   const authStatusByDevice = new Map<string, SimAuthStatus>();
   const serverPub = runtime.broker.createPubSub(SERVER_PUB);
+  const nextId = makeNextId(rng);
   const server = await openSimServer({
     now: () => runtime.nowFor(SIM_SERVER_NODE_ID),
+    createId: nextId,
     pubsub: serverPub,
     resolveAuth: (clientId) => resolveAuthForDevice(authByDevice, clientId),
     rowImageFanout: args.worldArgs.rowImageFanout !== false,
@@ -63,7 +65,7 @@ export async function bootSimKernel(args: {
     faults: boundaryFaults,
     serverPub,
     unbindHttp: () => undefined,
-    nextId: makeNextId(rng),
+    nextId,
   };
 
   kernel.unbindHttp = bindSimHttpServer({

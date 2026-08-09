@@ -1,10 +1,14 @@
 import type { ExportedSpanRecord } from '../shared/types';
-import { ObservabilityFileSink } from './file-sink';
+import {
+  DEFAULT_FILE_SINK_OPTIONS,
+  ObservabilityFileSink,
+} from './file-sink';
 
 export type CollectorOptions = {
   readonly port?: number;
   readonly host?: string;
   readonly rootDir?: string;
+  readonly now: () => number;
 };
 
 export type CollectorHandle = {
@@ -34,13 +38,15 @@ function isExportedSpanRecord(v: unknown): v is ExportedSpanRecord {
 }
 
 export function startObservabilityCollector(
-  options: CollectorOptions = {}
+  options: CollectorOptions
 ): CollectorHandle {
   const port = options.port ?? 8799;
   const host = options.host ?? '127.0.0.1';
-  const sink = new ObservabilityFileSink(
-    options.rootDir !== undefined ? { rootDir: options.rootDir } : {}
-  );
+  const sink = new ObservabilityFileSink({
+    ...DEFAULT_FILE_SINK_OPTIONS,
+    now: options.now,
+    ...(options.rootDir !== undefined ? { rootDir: options.rootDir } : {}),
+  });
 
   const server = Bun.serve({
     hostname: host,

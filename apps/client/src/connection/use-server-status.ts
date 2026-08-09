@@ -1,4 +1,5 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
+import { type Timers, useClock, useTimers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
 import { useHttpClient } from '@pkgs/http-client';
 import { useNetworkState } from 'expo-network';
@@ -18,28 +19,23 @@ const FETCH_TIMEOUT_MS = 8000;
 async function fetchHealth(
   healthUrl: string,
   outerSignal: AbortSignal,
-  httpFetch: HttpFetch
+  httpFetch: HttpFetch,
+  timers: Timers,
+  now: () => number
 ): Promise<{ latencyMs: number }> {
   const combined = new AbortController();
   const onOuterAbort = () => combined.abort();
   outerSignal.addEventListener('abort', onOuterAbort);
-  const timeoutId = setTimeout(() => combined.abort(), FETCH_TIMEOUT_MS);
+  const timeoutId = timers.setTimeout(() => combined.abort(), FETCH_TIMEOUT_MS);
 
-  const t0 =
-    typeof performance !== 'undefined' && performance.now !== undefined
-      ? performance.now()
-      : Date.now();
+  const t0 = now();
 
   try {
     const res = await httpFetch(healthUrl, {
       method: 'GET',
       signal: combined.signal,
     });
-    const t1 =
-      typeof performance !== 'undefined' && performance.now !== undefined
-        ? performance.now()
-        : Date.now();
-    const latencyMs = Math.round(t1 - t0);
+    const latencyMs = Math.round(now() - t0);
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
@@ -53,7 +49,7 @@ async function fetchHealth(
     }
     return { latencyMs };
   } finally {
-    clearTimeout(timeoutId);
+    timers.clearTimeout(timeoutId);
     outerSignal.removeEventListener('abort', onOuterAbort);
   }
 }
@@ -65,7 +61,12 @@ function useHealthUrl(apiUrl: string): string {
   }, [apiUrl]);
 }
 
-function useHealthState(healthUrl: string, httpFetch: HttpFetch) {
+function useHealthState(
+  healthUrl: string,
+  httpFetch: HttpFetch,
+  timers: Timers,
+  now: () => number
+) {
   const [health, setHealth] = useState<ServerHealthState>({
     phase: 'loading',
     latencyMs: null,
@@ -86,7 +87,7 @@ function useHealthState(healthUrl: string, httpFetch: HttpFetch) {
       healthUrl,
     }));
 
-    void fetchHealth(healthUrl, ac.signal, httpFetch)
+    void fetchHealth(healthUrl, ac.signal, httpFetch, timers, now)
       .then(({ latencyMs }) => {
         if (ac.signal.aborted) return;
         setHealth({
@@ -109,7 +110,7 @@ function useHealthState(healthUrl: string, httpFetch: HttpFetch) {
       });
 
     return ac;
-  }, [healthUrl, httpFetch]);
+  }, [healthUrl, httpFetch, now, timers]);
 
   useEffect(() => {
     const ac = runCheck();
@@ -132,11 +133,18 @@ function computeAggregateStatus(
 export function useServerStatus() {
   const config = useConfigService();
   const { fetch: httpFetch } = useHttpClient();
+  const clock = useClock();
+  const timers = useTimers();
   const networkState = useNetworkState();
 
   const apiUrl = config.getApiUrl();
   const healthUrl = useHealthUrl(apiUrl);
-  const { health, runCheck } = useHealthState(healthUrl, httpFetch);
+  const { health, runCheck } = useHealthState(
+    healthUrl,
+    httpFetch,
+    timers,
+    clock.now
+  );
 
   const refresh = useCallback(() => {
     runCheck();

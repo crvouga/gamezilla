@@ -8,7 +8,7 @@ import type {
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { recordPushApplied } from './push-applied';
-import { REAL_TIMERS, resolveNow, type Timers } from './sim-ports';
+import type { Timers } from './sim-ports';
 
 const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
@@ -46,8 +46,8 @@ export type MutationUploadQueueOptions = {
    * awaits). Bump query generations so in-flight pre-replay sweeps drop.
    */
   readonly onAckFence?: (() => void) | undefined;
-  readonly timers?: Timers;
-  readonly now?: () => number;
+  readonly timers: Timers;
+  readonly now: () => number;
 };
 
 function toWireRow(row: StoredMutation): MutationUploadRow {
@@ -151,8 +151,8 @@ export class MutationUploadQueue {
   private readonly now: () => number;
 
   constructor(private readonly options: MutationUploadQueueOptions) {
-    this.timers = options.timers ?? REAL_TIMERS;
-    this.now = resolveNow(options.now);
+    this.timers = options.timers;
+    this.now = options.now;
   }
 
   start(): void {
