@@ -1,10 +1,7 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
 import type { FriendRequest, FriendRequestStatus } from '../friends-types';
-
-type Db = Pick<SqlClient, 'query' | 'run'>;
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];
@@ -35,10 +32,10 @@ function mapFriendRequest(row: Record<string, unknown>): FriendRequest {
 }
 
 export class FriendRequestRepository {
-  constructor(private readonly db: Db) {}
+  constructor(private readonly tx: SqlTx) {}
 
   async findById(requestId: string): Promise<FriendRequest | null> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE id = ${requestId}
@@ -52,7 +49,7 @@ export class FriendRequestRepository {
     fromUserId: string,
     toUserId: string
   ): Promise<FriendRequest | null> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE from_user_id = ${fromUserId}
@@ -68,7 +65,7 @@ export class FriendRequestRepository {
     userA: string,
     userB: string
   ): Promise<readonly FriendRequest[]> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE status = 'pending'
@@ -84,7 +81,7 @@ export class FriendRequestRepository {
     fromUserId: string,
     toUserId: string
   ): Promise<FriendRequest | null> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE from_user_id = ${fromUserId}
@@ -98,7 +95,7 @@ export class FriendRequestRepository {
   }
 
   async listPendingIncoming(userId: string): Promise<readonly FriendRequest[]> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE to_user_id = ${userId} AND status = 'pending'
@@ -108,7 +105,7 @@ export class FriendRequestRepository {
   }
 
   async listPendingOutgoing(userId: string): Promise<readonly FriendRequest[]> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
       FROM friend_requests
       WHERE from_user_id = ${userId} AND status = 'pending'
@@ -124,7 +121,7 @@ export class FriendRequestRepository {
     readonly message: string | null;
     readonly now: string;
   }): Promise<FriendRequest> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
       VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
     `);
@@ -140,7 +137,7 @@ export class FriendRequestRepository {
     status: FriendRequestStatus,
     now: string
   ): Promise<void> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE friend_requests
       SET status = ${status}, updated_at = ${now}, responded_at = ${now}
       WHERE id = ${requestId}
@@ -152,7 +149,7 @@ export class FriendRequestRepository {
     userB: string,
     now: string
   ): Promise<void> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE friend_requests
       SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
       WHERE status = 'pending'

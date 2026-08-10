@@ -1,7 +1,8 @@
 import { assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import { AnonUserService } from './anon-user-service';
@@ -12,7 +13,7 @@ import { ExternalAccountRepository } from './external-account-repository';
  * `pg_advisory_xact_lock` / `hashtext` are unavailable.
  */
 async function acquireExternalUserAdvisoryLock(
-  tx: SqlClient,
+  tx: SqlTx,
   lockKey: string
 ): Promise<void> {
   try {
@@ -30,14 +31,17 @@ async function acquireExternalUserAdvisoryLock(
   }
 }
 
+/** Transaction-scoped account provisioning. Open a transaction in a use case. */
 export class AccountProvisioningService {
   constructor(
-    private readonly db: SqlClient,
+    private readonly tx: SqlTx,
+    private readonly io: Io,
     private readonly authServer: AuthServerPort
   ) {}
 
   /**
-   * Resolves the immutable internal `users.id` for a primary-auth external user.
+   * Resolves the immutable internal `users.id` for a primary-auth external user
+   * (caller must be inside a transaction).
    *
    * 1. Existing `external_accounts` link → that `users.id` (switch).
    * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
@@ -47,64 +51,64 @@ export class AccountProvisioningService {
     externalUserId: string;
     /** Device-bound anon user to upgrade when this external id is new. */
     upgradeUserId?: string | null;
-    now: () => number;
-    createId: CreateId;
+    now?: () => number;
+    createId?: CreateId;
   }): Promise<string> {
-    const { externalUserId, upgradeUserId, now, createId } = args;
+    const { externalUserId, upgradeUserId } = args;
+    const now = args.now ?? this.io.clock.now;
+    const createId = args.createId ?? this.io.createId;
     const provider = this.authServer.providerLabel;
     const lockKey = `${provider}:${externalUserId}`;
 
-    return this.db.transaction(async (tx) => {
-      await acquireExternalUserAdvisoryLock(tx, lockKey);
+    await acquireExternalUserAdvisoryLock(this.tx, lockKey);
 
-      const externalAccounts = new ExternalAccountRepository(tx);
-      const anonUsers = new AnonUserService(tx);
+    const externalAccounts = new ExternalAccountRepository(this.tx);
+    const anonUsers = new AnonUserService(this.tx, this.io);
 
-      const existingUserId =
-        await externalAccounts.findUserIdByPrimaryAuthExternalId(
-          provider,
-          externalUserId
-        );
-      if (existingUserId !== null) {
-        assertUuid(existingUserId, 'userId must be UUID');
-        return existingUserId;
-      }
-
-      const candidateUserId = await this.resolveCandidateUserId(
-        anonUsers,
-        upgradeUserId,
-        createId
-      );
-      const nowIso = new Date(now()).toISOString();
-      if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
-        await anonUsers.clearUserAnonFlag(candidateUserId, now);
-      } else {
-        await externalAccounts.insertUser({
-          userId: candidateUserId,
-          now,
-          createId,
-          createdAt: nowIso,
-          isAnon: false,
-        });
-      }
-
-      const ownerId = await externalAccounts.insertExternalAccountOrGet({
-        userId: candidateUserId,
+    const existingUserId =
+      await externalAccounts.findUserIdByPrimaryAuthExternalId(
         provider,
-        externalId: externalUserId,
-        metadata: {},
+        externalUserId
+      );
+    if (existingUserId !== null) {
+      assertUuid(existingUserId, 'userId must be UUID');
+      return existingUserId;
+    }
+
+    const candidateUserId = await this.resolveCandidateUserId(
+      anonUsers,
+      upgradeUserId,
+      createId
+    );
+    const nowIso = new Date(now()).toISOString();
+    if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
+      await anonUsers.clearUserAnonFlag(candidateUserId, now);
+    } else {
+      await externalAccounts.insertUser({
+        userId: candidateUserId,
         now,
         createId,
+        createdAt: nowIso,
+        isAnon: false,
       });
-      assertUuid(ownerId, 'userId must be UUID');
+    }
 
-      // Race: another txn linked the external id to a different user.
-      if (ownerId !== candidateUserId && candidateUserId === upgradeUserId) {
-        // Leave the anon row upgraded but unlinked; canonical owner wins.
-      }
-
-      return ownerId;
+    const ownerId = await externalAccounts.insertExternalAccountOrGet({
+      userId: candidateUserId,
+      provider,
+      externalId: externalUserId,
+      metadata: {},
+      now,
+      createId,
     });
+    assertUuid(ownerId, 'userId must be UUID');
+
+    // Race: another txn linked the external id to a different user.
+    if (ownerId !== candidateUserId && candidateUserId === upgradeUserId) {
+      // Leave the anon row upgraded but unlinked; canonical owner wins.
+    }
+
+    return ownerId;
   }
 
   private async resolveCandidateUserId(

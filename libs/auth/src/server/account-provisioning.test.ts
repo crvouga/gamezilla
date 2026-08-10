@@ -6,7 +6,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { AccountProvisioningService } from './account-provisioning';
+import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
 import { ExternalAccountRepository } from './external-account-repository';
 
 const io = createSimIo({ seed: 1 });
@@ -90,13 +90,12 @@ describe('AccountProvisioningService', () => {
       )
     `);
 
-    const resolved = await new AccountProvisioningService(
+    const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
+      io,
       makeFakeAuthServer(null)
-    ).ensureInternalAccountIdForExternalUser({
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
 
     expect(resolved).toBe(userId);
@@ -104,13 +103,12 @@ describe('AccountProvisioningService', () => {
 
   test('creates user and external_account row', async () => {
     const externalAccounts = new ExternalAccountRepository(sqlClient);
-    const resolved = await new AccountProvisioningService(
+    const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
+      io,
       makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' })
-    ).ensureInternalAccountIdForExternalUser({
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
 
     expect(
@@ -136,16 +134,16 @@ describe('AccountProvisioningService', () => {
       id: EXTERNAL_USER_ID,
       email: 'a@b.c',
     });
-    const provisioning = new AccountProvisioningService(sqlClient, authServer);
-    const a = await provisioning.ensureInternalAccountIdForExternalUser({
+    const provisioning = new EnsureInternalAccountUseCase(
+      sqlClient,
+      io,
+      authServer
+    );
+    const a = await provisioning.execute({
       externalUserId: EXTERNAL_USER_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
-    const b = await provisioning.ensureInternalAccountIdForExternalUser({
+    const b = await provisioning.execute({
       externalUserId: EXTERNAL_USER_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
 
     expect(a).toBe(b);
@@ -194,13 +192,12 @@ describe('AccountProvisioningService', () => {
       )
     `);
 
-    const resolved = await new AccountProvisioningService(
+    const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
+      io,
       makeFakeAuthServer({ id: EXTERNAL_USER_ID })
-    ).ensureInternalAccountIdForExternalUser({
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
 
     expect(resolved).toBe(winnerId);

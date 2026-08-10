@@ -290,6 +290,42 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-eager-di-construction": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-no-eager-di-construction.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:layer-c-sql-tx": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-layer-c-sql-tx.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-di-container": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-no-di-container.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:fanout-rows-from-reads": {
       "inputs": [
         "pkgs/sync-engine/src/server/**/*.ts",

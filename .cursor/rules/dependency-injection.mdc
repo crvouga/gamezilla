@@ -1,25 +1,35 @@
 ---
-description: Dependency injection convention
+description: Dependency lifetimes and construction
 globs: ["libs/*/src/**/*.ts", "libs/*/src/**/*.tsx", "apps/api/src/**/*.ts"]
 alwaysApply: true
 ---
 
-When writing code that needs SqlClient, CreateId, a logger, config, or any other
-shared dependency:
+Three layers. Do not blur them.
 
-- Put it behind a class, injected via the constructor.
-- Never write an exported top-level function whose parameters include a
-  dependency like this — that's what `ci:no-top-level-di-functions` catches, but
-  don't rely on the linter; default to the class from the start.
-- Suffix the class by role: XRepository for DB access, XService for
-  orchestration/business logic, XPublisher for outbound events.
-- Wire new server classes into `ApiRequestContainer` (request-scoped composition
-  root in `apps/api`).
-- Inside `sql.transaction`, construct transaction-scoped repos with
-  `new XRepository(tx, …)` — that is expected.
-- Pure functions with no injected dependency (row mappers, formatters,
-  validators) may stay top-level — don't wrap those in classes.
-- Do not convert `defineMutation` / `defineQuery` `run` handlers, React hooks,
-  or `wallIo()` composition roots.
+1. Primitives (`SqlClient`, `Io`) are the only long-lived dependencies. Thread them
+   through request context. Never build a container/registry object.
 
-Full pattern and examples: docs/dependency-injection.md
+2. Use-case classes take primitives in the constructor: `(db: SqlClient, io: Io)`.
+   One class per endpoint/use case. Write methods open `db.transaction`. Read
+   methods construct Layer C with the request `db` as `SqlTx` without a write
+   transaction. Use cases must not call other use cases.
+
+3. Repositories, services, publishers, and handlers take `SqlTx` (never
+   `SqlClient`) plus `Io`. `SqlTx` is `Pick<SqlClient, 'query' | 'run'>` from
+   `@pkgs/sql-client/interface`. Construct them inline inside a
+   `db.transaction(async (tx) => …)` callback (writes) or at the point of use
+   (reads). Never store one on a field of anything longer-lived than that
+   callback. Never construct one eagerly "in case it's needed."
+
+If wiring repeats across use cases, extract a factory FUNCTION taking `(tx, io)` —
+never a class that holds constructed objects.
+
+Read `now` per-operation via `io.clock.now()`; don't capture it at construction.
+
+Do not convert `defineMutation` / `defineQuery` `run` handlers, React hooks, or
+`wallIo()` composition roots. Inside mutations, `new XRepository(tx)` is correct.
+
+CI: `ci:no-top-level-di-functions`, `ci:no-eager-di-construction`,
+`ci:layer-c-sql-tx`, `ci:no-di-container`.
+
+Full rationale: docs/dependency-injection.md

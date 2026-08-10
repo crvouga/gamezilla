@@ -1,11 +1,8 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedInsertColumns } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
 import { pairId } from '../pair-id';
-
-type Db = Pick<SqlClient, 'query' | 'run'>;
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];
@@ -17,16 +14,13 @@ function managedAtIso(createId: CreateId, nowIso: string, id?: string) {
 }
 
 export class UserBlockRepository {
-  constructor(
-    private readonly db: Db,
-    private readonly createId?: CreateId
-  ) {}
+  constructor(private readonly tx: SqlTx) {}
 
   async isBlockedEitherDirection(
     userA: string,
     userB: string
   ): Promise<'none' | 'by_a' | 'by_b'> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT blocker_id, blocked_id
       FROM user_blocks
       WHERE deleted_at IS NULL
@@ -48,7 +42,7 @@ export class UserBlockRepository {
     blockedId: string,
     now: string
   ): Promise<void> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
       VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now}, ${null})
       ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
@@ -61,17 +55,11 @@ export class UserBlockRepository {
   async insertManaged(
     blockerId: string,
     blockedId: string,
-    now: string
+    now: string,
+    createId: CreateId
   ): Promise<void> {
-    if (this.createId === undefined) {
-      throw new Error('UserBlockRepository.insertManaged requires createId');
-    }
-    const managed = managedAtIso(
-      this.createId,
-      now,
-      pairId(blockerId, blockedId)
-    );
-    await this.db.run(sql<void>`
+    const managed = managedAtIso(createId, now, pairId(blockerId, blockedId));
+    await this.tx.run(sql<void>`
       INSERT INTO user_blocks (
         id, blocker_id, blocked_id, created_at, updated_at, deleted_at
       )
@@ -95,7 +83,7 @@ export class UserBlockRepository {
     blockedId: string,
     now: string
   ): Promise<void> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE user_blocks
       SET deleted_at = ${now}
       WHERE blocker_id = ${blockerId}
@@ -110,7 +98,7 @@ export class UserBlockRepository {
     blockedId: string,
     now: string
   ): Promise<void> {
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE user_blocks
       SET deleted_at = ${now}, updated_at = ${now}
       WHERE blocker_id = ${blockerId}

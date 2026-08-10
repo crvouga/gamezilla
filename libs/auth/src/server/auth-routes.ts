@@ -1,8 +1,8 @@
 import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-import { AnonUserService } from './anon-user-service';
 import type { ApiHonoEnv } from './api-hono-env';
 import { BearerAuthResolver } from './bearer-resolve';
+import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
 import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 import { ANON_ID_HEADER } from './session-middleware';
 import type { AuthContext } from './types';
@@ -104,11 +104,9 @@ export function createAuthApiRoutes(deps?: {
 
       const io = getIo();
 
-      const result = await new AnonUserService(sql).ensureForDevice({
+      const result = await new EnsureAnonUserUseCase(sql, io).execute({
         deviceId,
         forceNew: body.forceNew,
-        now: io.clock.now,
-        createId: io.createId,
       });
 
       deps?.onUserDomainWrite?.(result.userId);
@@ -131,8 +129,7 @@ export function createAuthApiRoutes(deps?: {
       const accountId = await new BearerAuthResolver(
         sql,
         authServer,
-        io.clock.now,
-        io.createId
+        io
       ).resolveAccountId(bearerToken, deviceId);
       if (accountId === null) {
         throw new UnauthorizedError('Invalid or expired session');

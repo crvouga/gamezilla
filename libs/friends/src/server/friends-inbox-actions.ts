@@ -1,5 +1,6 @@
+import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
 import { wrapMutationDb } from '@pkgs/sync-engine/shared';
 import type { FriendRequest } from '../shared/friends-types';
@@ -19,9 +20,8 @@ export type FriendsInboxActionArgs = {
 
 export class FriendsInboxActionHandler {
   constructor(
-    private readonly sql: SqlClient,
-    private readonly now: () => number,
-    private readonly createId: () => string,
+    private readonly tx: SqlTx,
+    private readonly io: Io,
     private readonly inboxPublisher: FriendsInboxPublisher
   ) {}
 
@@ -31,13 +31,13 @@ export class FriendsInboxActionHandler {
       deviceId: args.deviceId,
       accountId: args.actorId,
       isAnon: false,
-      now: () => new Date(this.now()),
-      createId: this.createId,
+      now: () => new Date(this.io.clock.now()),
+      createId: this.io.createId,
     };
   }
 
   private async getRequest(requestId: string): Promise<FriendRequest> {
-    const rows = await this.sql.query<{
+    const rows = await this.tx.query<{
       readonly id: string;
       readonly from_user_id: string;
       readonly to_user_id: string;
@@ -70,7 +70,7 @@ export class FriendsInboxActionHandler {
     args: FriendsInboxActionArgs
   ): Promise<{ readonly userIds: readonly string[] }> {
     const env = this.mutationEnv(args);
-    const wrapped = wrapMutationDb(this.sql, env);
+    const wrapped = wrapMutationDb(this.tx, env);
 
     if (args.actionId === 'accept') {
       await acceptFriendRequestMutation.run(

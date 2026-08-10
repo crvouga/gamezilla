@@ -4,8 +4,9 @@ import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { AccountProvisioningService } from './account-provisioning';
 import { AnonUserService } from './anon-user-service';
+import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
+import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
 
 const io = createSimIo({ seed: 1 });
 
@@ -51,13 +52,15 @@ async function migrate(db: SqlClient): Promise<void> {
 
 describe('AnonUserService', () => {
   let db: SqlClient;
+  let ensureAnon: EnsureAnonUserUseCase;
   let anonUsers: AnonUserService;
 
   beforeEach(async () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
-    anonUsers = new AnonUserService(db);
+    ensureAnon = new EnsureAnonUserUseCase(db, io);
+    anonUsers = new AnonUserService(db, io);
   });
 
   afterEach(async () => {
@@ -65,10 +68,8 @@ describe('AnonUserService', () => {
   });
 
   test('mints anon user and binds device', async () => {
-    const result = await anonUsers.ensureForDevice({
+    const result = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(result.isAnon).toBe(true);
     expect(result.userId.length).toBeGreaterThan(0);
@@ -81,47 +82,35 @@ describe('AnonUserService', () => {
   });
 
   test('idempotent when already bound to anon user', async () => {
-    const first = await anonUsers.ensureForDevice({
+    const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
-    const second = await anonUsers.ensureForDevice({
+    const second = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(second.userId).toBe(first.userId);
   });
 
   test('mints new anon when device was bound to non-anon user', async () => {
-    const first = await anonUsers.ensureForDevice({
+    const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
     await anonUsers.clearUserAnonFlag(first.userId, io.clock.now);
 
-    const next = await anonUsers.ensureForDevice({
+    const next = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(next.userId).not.toBe(first.userId);
     expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(next.userId);
   });
 
   test('forceNew always mints a new anon user', async () => {
-    const first = await anonUsers.ensureForDevice({
+    const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
-    const next = await anonUsers.ensureForDevice({
+    const next = await ensureAnon.execute({
       deviceId: DEVICE_ID,
       forceNew: true,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(next.userId).not.toBe(first.userId);
   });
@@ -129,13 +118,15 @@ describe('AnonUserService', () => {
 
 describe('AccountProvisioningService upgrade', () => {
   let db: SqlClient;
+  let ensureAnon: EnsureAnonUserUseCase;
   let anonUsers: AnonUserService;
 
   beforeEach(async () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
-    anonUsers = new AnonUserService(db);
+    ensureAnon = new EnsureAnonUserUseCase(db, io);
+    anonUsers = new AnonUserService(db, io);
   });
 
   afterEach(async () => {
@@ -143,10 +134,8 @@ describe('AccountProvisioningService upgrade', () => {
   });
 
   test('upgrades anon user in place when external id is new', async () => {
-    const anon = await anonUsers.ensureForDevice({
+    const anon = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
     const authServer: AuthServerPort = {
       providerLabel: 'better-auth',
@@ -155,14 +144,13 @@ describe('AccountProvisioningService upgrade', () => {
       getUserSnapshot: async () => ({ id: 'ext_1' }),
     };
 
-    const accountId = await new AccountProvisioningService(
+    const accountId = await new EnsureInternalAccountUseCase(
       db,
+      io,
       authServer
-    ).ensureInternalAccountIdForExternalUser({
+    ).execute({
       externalUserId: 'ext_1',
       upgradeUserId: anon.userId,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(accountId).toBe(anon.userId);
 
@@ -173,15 +161,11 @@ describe('AccountProvisioningService upgrade', () => {
   });
 
   test('switches to existing linked account instead of upgrading', async () => {
-    const anon = await anonUsers.ensureForDevice({
+    const anon = await ensureAnon.execute({
       deviceId: DEVICE_ID,
-      now: io.clock.now,
-      createId: io.createId,
     });
-    const other = await anonUsers.ensureForDevice({
+    const other = await ensureAnon.execute({
       deviceId: DEVICE_B,
-      now: io.clock.now,
-      createId: io.createId,
     });
     await anonUsers.clearUserAnonFlag(other.userId, io.clock.now);
     const now = new Date(io.clock.now()).toISOString();
@@ -197,14 +181,13 @@ describe('AccountProvisioningService upgrade', () => {
       getUserSnapshot: async () => ({ id: 'ext_existing' }),
     };
 
-    const accountId = await new AccountProvisioningService(
+    const accountId = await new EnsureInternalAccountUseCase(
       db,
+      io,
       authServer
-    ).ensureInternalAccountIdForExternalUser({
+    ).execute({
       externalUserId: 'ext_existing',
       upgradeUserId: anon.userId,
-      now: io.clock.now,
-      createId: io.createId,
     });
     expect(accountId).toBe(other.userId);
     expect(accountId).not.toBe(anon.userId);

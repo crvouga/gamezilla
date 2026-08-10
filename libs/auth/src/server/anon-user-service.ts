@@ -1,6 +1,7 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+import type { Io } from '@pkgs/io';
 import { join, raw, sql, type Value } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import {
@@ -26,11 +27,16 @@ export type EnsureAnonUserResult = {
   readonly isAnon: true;
 };
 
+/** Transaction-scoped anon user helpers. Open a transaction in a use case. */
 export class AnonUserService {
-  constructor(private readonly db: SqlClient) {}
+  constructor(
+    private readonly tx: SqlTx,
+    private readonly io: Io
+  ) {}
 
   /**
-   * Ensures the install device is bound to an anon `users` row.
+   * Ensures the install device is bound to an anon `users` row (caller must be
+   * inside a transaction).
    *
    * - Idempotent when already bound to an anon user (unless `forceNew`).
    * - Mints a new anon user when unbound, bound to a non-anon user, or
@@ -39,31 +45,30 @@ export class AnonUserService {
   async ensureForDevice(args: {
     readonly deviceId: string;
     readonly forceNew?: boolean;
-    readonly now: () => number;
-    readonly createId: CreateId;
+    readonly now?: () => number;
+    readonly createId?: CreateId;
   }): Promise<EnsureAnonUserResult> {
-    const { deviceId, forceNew = false, now, createId } = args;
+    const { deviceId, forceNew = false } = args;
+    const now = args.now ?? this.io.clock.now;
+    const createId = args.createId ?? this.io.createId;
     assertDeviceId(deviceId);
 
-    return this.db.transaction(async (tx) => {
-      const service = new AnonUserService(tx);
-      if (!forceNew) {
-        const boundUserId = await service.readDeviceUserId(deviceId);
-        if (boundUserId !== null) {
-          const anon = await service.readUserIsAnon(boundUserId);
-          if (anon === true) {
-            assertUuid(boundUserId, 'userId must be UUID');
-            return { userId: boundUserId, isAnon: true as const };
-          }
+    if (!forceNew) {
+      const boundUserId = await this.readDeviceUserId(deviceId);
+      if (boundUserId !== null) {
+        const anon = await this.readUserIsAnon(boundUserId);
+        if (anon === true) {
+          assertUuid(boundUserId, 'userId must be UUID');
+          return { userId: boundUserId, isAnon: true as const };
         }
       }
+    }
 
-      const userId = createId();
-      assertUuid(userId, 'userId must be UUID');
-      await service.insertAnonUser(userId, now, createId);
-      await service.bindDeviceToUser({ deviceId, userId, now, createId });
-      return { userId, isAnon: true as const };
-    });
+    const userId = createId();
+    assertUuid(userId, 'userId must be UUID');
+    await this.insertAnonUser(userId, now, createId);
+    await this.bindDeviceToUser({ deviceId, userId, now, createId });
+    return { userId, isAnon: true as const };
   }
 
   /** Looks up `devices.user_id` for session / sync resolution. */
@@ -85,7 +90,7 @@ export class AnonUserService {
   async clearUserAnonFlag(userId: string, now: () => number): Promise<void> {
     assertUuid(userId, 'userId must be UUID');
     const nowIso = managedUpdatedAtIso(now);
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE users
       SET is_anon = false, updated_at = ${nowIso}
       WHERE id = ${userId}
@@ -93,7 +98,7 @@ export class AnonUserService {
   }
 
   private async readDeviceUserId(deviceId: string): Promise<string | null> {
-    const rows = await this.db.query(sql<DeviceUserRow>`
+    const rows = await this.tx.query(sql<DeviceUserRow>`
       SELECT user_id
       FROM devices
       WHERE id = ${deviceId}
@@ -104,7 +109,7 @@ export class AnonUserService {
   }
 
   private async readUserIsAnon(userId: string): Promise<boolean | null> {
-    const rows = await this.db.query(sql<UserAnonRow>`
+    const rows = await this.tx.query(sql<UserAnonRow>`
       SELECT id, is_anon
       FROM users
       WHERE id = ${userId}
@@ -121,7 +126,7 @@ export class AnonUserService {
     createId: CreateId
   ): Promise<void> {
     const managed = managedInsertColumns(createId, now, userId);
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       INSERT INTO users (id, created_at, updated_at, is_anon)
       VALUES (
         ${managed.id},
@@ -141,7 +146,7 @@ export class AnonUserService {
   }): Promise<void> {
     const { deviceId, userId, now, createId } = args;
     const nowIso = managedUpdatedAtIso(now);
-    const rows = await this.db.query(sql<{ readonly id: string }>`
+    const rows = await this.tx.query(sql<{ readonly id: string }>`
       SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
     `);
     if (rows[0] === undefined) {
@@ -162,13 +167,13 @@ export class AnonUserService {
         managed.created_at,
         managed.created_at,
       ];
-      await this.db.run(sql<void>`
+      await this.tx.run(sql<void>`
         INSERT INTO devices (${raw(cols.join(', '))})
         VALUES ${join(vals, ', ', '(', ')')}
       `);
       return;
     }
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE devices
       SET user_id = ${userId},
           last_seen_at = ${nowIso},

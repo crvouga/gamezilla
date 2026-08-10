@@ -26,7 +26,8 @@ async function buildAnonAppAuthContext(
   deviceId: string
 ): Promise<AppAuthContext | null> {
   assertDeviceId(deviceId);
-  const anonUsers = new AnonUserService(sql);
+  const io = getIo();
+  const anonUsers = new AnonUserService(sql, io);
   const userId = await anonUsers.findUserIdByDeviceId(deviceId);
   if (userId === null) return null;
   const state = await anonUsers.readUserAnonState(userId);
@@ -77,8 +78,7 @@ export class SessionAuth {
     const ctx = await new BearerAuthResolver(
       sql,
       this.authServer,
-      io.clock.now,
-      io.createId
+      io
     ).buildAppAuthContext(token, anonRaw);
     return ctx ?? UNAUTH_CLIENT_CONTEXT;
   }

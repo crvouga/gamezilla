@@ -1,6 +1,5 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import { managedInsertColumns } from '../shared/managed-row';
@@ -35,7 +34,7 @@ function parseMetadata(value: unknown): Record<string, unknown> {
 }
 
 export class ExternalAccountRepository {
-  constructor(private readonly db: SqlClient) {}
+  constructor(private readonly db: SqlTx) {}
 
   async findUserIdByProviderExternalId(
     provider: string,

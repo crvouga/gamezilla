@@ -1,6 +1,6 @@
 import { join, raw, sql, type Value } from '@pkgs/sql';
 
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedInsertColumns } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -105,7 +105,7 @@ function buildDeviceUpdates(
  * Snapshot values are collected on the client (expo/platform); shared stays pure.
  */
 export class DeviceWriteRepository {
-  constructor(private readonly db: SqlClient) {}
+  constructor(private readonly db: SqlTx) {}
 
   async ensureRow(args: {
     readonly deviceId: string;

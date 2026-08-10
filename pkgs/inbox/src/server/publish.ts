@@ -1,6 +1,5 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedUpdatedAtIso } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -20,7 +19,7 @@ import type {
 } from './types';
 
 export async function publishInteraction(
-  db: SqlClient,
+  db: SqlTx,
   input: PublishInteractionInput,
   now: () => number,
   createId: CreateId
@@ -38,7 +37,7 @@ export async function publishInteraction(
 }
 
 export async function updateInteraction(
-  db: SqlClient,
+  db: SqlTx,
   input: UpdateInteractionInput,
   now: () => number,
   createId: CreateId
@@ -47,7 +46,7 @@ export async function updateInteraction(
 }
 
 export async function deactivateInteraction(
-  db: SqlClient,
+  db: SqlTx,
   input: DeactivateInteractionInput,
   now: () => number
 ): Promise<void> {
@@ -66,7 +65,7 @@ export async function deactivateInteraction(
 }
 
 export async function findInteractionById(
-  db: SqlClient,
+  db: SqlTx,
   actorId: string,
   interactionId: string
 ): Promise<Interaction | null> {
@@ -76,7 +75,7 @@ export async function findInteractionById(
 }
 
 export async function findInteractionBySource(
-  db: SqlClient,
+  db: SqlTx,
   lookup: {
     readonly userId: string;
     readonly source: PublishInteractionInput['source'];

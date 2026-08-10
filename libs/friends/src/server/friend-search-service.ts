@@ -5,8 +5,9 @@ import {
   USER_SEARCH_RATE_WINDOW_MS,
   type UserSearchResult,
 } from '@libs/user-search/shared/user-search-types';
+import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { FriendsError } from '../shared/friends-errors';
 
 type SearchHitRow = {
@@ -44,15 +45,17 @@ function mapSearchHit(row: SearchHitRow): UserSearchResult {
 }
 
 export class FriendSearchService {
-  constructor(private readonly db: SqlClient) {}
+  constructor(
+    private readonly tx: SqlTx,
+    private readonly io: Io
+  ) {}
 
   async searchUsers(args: {
     readonly viewerId: string;
     readonly rawQuery: string;
-    readonly now: () => number;
     readonly limit?: number;
   }): Promise<readonly UserSearchResult[]> {
-    const { viewerId, rawQuery, now } = args;
+    const { viewerId, rawQuery } = args;
     const limit = args.limit ?? USER_SEARCH_MAX_RESULTS;
     const query = rawQuery.trim();
     if (query.length < USER_SEARCH_MIN_LENGTH) {
@@ -61,10 +64,10 @@ export class FriendSearchService {
         `Search query must be at least ${USER_SEARCH_MIN_LENGTH} characters`
       );
     }
-    assertSearchRateLimit(viewerId, now);
+    assertSearchRateLimit(viewerId, this.io.clock.now);
     const boundedLimit = Math.min(Math.max(limit, 1), USER_SEARCH_MAX_RESULTS);
     const likeQuery = `${query.toLowerCase()}%`;
-    const rows = await this.db.query(sql<SearchHitRow>`
+    const rows = await this.tx.query(sql<SearchHitRow>`
       SELECT p.id, p.username, p.avatar_config
       FROM profiles AS p
       WHERE p.id <> ${viewerId}

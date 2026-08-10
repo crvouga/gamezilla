@@ -98,8 +98,7 @@ async function tryResolveAccount(
     return await new BearerAuthResolver(
       c.get('sqlClient'),
       c.get('authServer'),
-      io.clock.now,
-      io.createId
+      io
     ).resolveAccountId(bearerToken, deviceId);
   } catch {
     // Any auth resolution failure (invalid token, DB hiccup, etc.) falls back

@@ -1,6 +1,5 @@
 import { join, sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
 import type { ProfileCard } from '../shared/profile-card';
 
@@ -24,10 +23,10 @@ function readProfileCard(row: Record<string, unknown>): ProfileCard | null {
 }
 
 export class ProfileReadRepository {
-  constructor(private readonly db: SqlClient) {}
+  constructor(private readonly tx: SqlTx) {}
 
   async readCardById(profileId: string): Promise<ProfileCard | null> {
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
       FROM profiles
       WHERE id = ${profileId}
@@ -42,7 +41,7 @@ export class ProfileReadRepository {
     profileIds: readonly string[]
   ): Promise<readonly ProfileCard[]> {
     if (profileIds.length === 0) return [];
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
       FROM profiles
       WHERE id IN (${join([...profileIds])})

@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { CreateId } from '@pkgs/uuid';
+import type { Io } from '@pkgs/io';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
 import { publishFriendEvent } from '../shared/friend-events';
 import { FriendsError } from '../shared/friends-errors';
@@ -8,10 +8,11 @@ import { FriendshipRepository } from '../shared/friends-sql/friendship-repositor
 import { UserBlockRepository } from '../shared/friends-sql/user-block-repository';
 import type { FriendsInboxPublisher } from './friends-inbox-publisher';
 
+/** Caller must supply a transaction-scoped {@link SqlTx}. */
 export class FriendBlockService {
   constructor(
-    private readonly sql: SqlClient,
-    private readonly createId: CreateId,
+    private readonly tx: SqlTx,
+    private readonly io: Io,
     private readonly inboxPublisher: FriendsInboxPublisher
   ) {}
 
@@ -31,14 +32,12 @@ export class FriendBlockService {
       blockerId,
       blockedId
     );
-    await this.sql.transaction(async (tx) => {
-      const friendshipRepo = new FriendshipRepository(tx);
-      const requestRepo = new FriendRequestRepository(tx);
-      const blockRepo = new UserBlockRepository(tx, this.createId);
-      await friendshipRepo.delete(blockerId, blockedId, now);
-      await requestRepo.cancelPendingBetween(blockerId, blockedId, now);
-      await blockRepo.insertManaged(blockerId, blockedId, now);
-    });
+    const friendshipRepo = new FriendshipRepository(this.tx);
+    const requestRepo = new FriendRequestRepository(this.tx);
+    const blockRepo = new UserBlockRepository(this.tx);
+    await friendshipRepo.delete(blockerId, blockedId, now);
+    await requestRepo.cancelPendingBetween(blockerId, blockedId, now);
+    await blockRepo.insertManaged(blockerId, blockedId, now, this.io.createId);
     publishFriendEvent({ type: 'friend.blocked', blockerId, blockedId });
   }
 
@@ -48,10 +47,6 @@ export class FriendBlockService {
     now: string
   ): Promise<void> {
     this.assertNotSelf(blockerId, blockedId);
-    await new UserBlockRepository(this.sql, this.createId).delete(
-      blockerId,
-      blockedId,
-      now
-    );
+    await new UserBlockRepository(this.tx).delete(blockerId, blockedId, now);
   }
 }

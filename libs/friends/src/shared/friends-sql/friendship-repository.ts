@@ -1,17 +1,14 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { canonicalUserPair } from '../canonical-pair';
 import { pairId } from '../pair-id';
 
-type Db = Pick<SqlClient, 'query' | 'run'>;
-
 export class FriendshipRepository {
-  constructor(private readonly db: Db) {}
+  constructor(private readonly tx: SqlTx) {}
 
   async exists(userA: string, userB: string): Promise<boolean> {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
-    const rows = await this.db.query(sql<Record<string, unknown>>`
+    const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id
       FROM friendships
       WHERE user_low = ${userLow}
@@ -29,7 +26,7 @@ export class FriendshipRepository {
     readonly now: string;
   }): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id, deleted_at)
       VALUES (
         ${pairId(userLow, userHigh)},
@@ -48,7 +45,7 @@ export class FriendshipRepository {
 
   async softDelete(userA: string, userB: string, now: string): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE friendships
       SET deleted_at = ${now}
       WHERE user_low = ${userLow}
@@ -60,7 +57,7 @@ export class FriendshipRepository {
   /** Soft-delete and bump updated_at (server block path). */
   async delete(userA: string, userB: string, now: string): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
-    await this.db.run(sql<void>`
+    await this.tx.run(sql<void>`
       UPDATE friendships
       SET deleted_at = ${now}, updated_at = ${now}
       WHERE user_low = ${userLow}

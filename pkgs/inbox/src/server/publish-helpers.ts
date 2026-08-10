@@ -1,6 +1,6 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedInsertColumns } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -14,7 +14,7 @@ type SourceLookup = InteractionSource & {
 };
 
 async function findById(
-  db: SqlClient,
+  db: SqlTx,
   id: string
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query(
@@ -24,7 +24,7 @@ async function findById(
 }
 
 async function findBySource(
-  db: SqlClient,
+  db: SqlTx,
   lookup: SourceLookup
 ): Promise<StoredInteractionRow | null> {
   const rows = await db.query(

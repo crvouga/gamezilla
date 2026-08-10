@@ -58,7 +58,17 @@ const EXEMPT_TYPE_NAMES = new Set([
   'MutationEnv',
   'QueryContext',
   'QueryEnv',
+  'SqlTx',
 ]);
+
+/** Factory escape hatch: first param typed `SqlTx` (transaction-scoped wiring). */
+function isSqlTxFactory(params: readonly ts.ParameterDeclaration[]): boolean {
+  const first = params[0];
+  if (first === undefined || first.type === undefined) return false;
+  if (!ts.isTypeReferenceNode(first.type)) return false;
+  if (!ts.isIdentifier(first.type.typeName)) return false;
+  return first.type.typeName.text === 'SqlTx';
+}
 
 type Violation = {
   readonly key: string;
@@ -209,6 +219,7 @@ function checkFunctionLike(
   out: Violation[]
 ): void {
   if (isReactComponentName(name) || isReactHookName(name)) return;
+  if (isSqlTxFactory(params)) return;
   for (const param of params) {
     if (paramIsExempt(param)) continue;
     const paramType = injectableFromTypeNode(param.type, aliases);
