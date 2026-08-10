@@ -81,12 +81,13 @@ export async function ensureInternalAccountIdForExternalUser(args: {
     );
     const nowIso = new Date(now()).toISOString();
     if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
-      await clearUserAnonFlag(tx, candidateUserId);
+      await clearUserAnonFlag(tx, candidateUserId, now);
     } else {
       await insertUser({
         db: tx,
         userId: candidateUserId,
         now,
+        createId,
         createdAt: nowIso,
         isAnon: false,
       });
@@ -98,6 +99,7 @@ export async function ensureInternalAccountIdForExternalUser(args: {
       externalId: externalUserId,
       metadata: {},
       now,
+      createId,
     });
     assertUuid(ownerId, 'userId must be UUID');
 

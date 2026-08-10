@@ -83,7 +83,7 @@ async function blockedEitherDirection(
 ): Promise<boolean> {
   const rows = await tx.query(sql<{ readonly id: string }>`
     SELECT id FROM user_blocks
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
       AND (
         (blocker_id = ${userA} AND blocked_id = ${userB})
         OR (blocker_id = ${userB} AND blocked_id = ${userA})
@@ -291,14 +291,14 @@ export const acceptFriendRequestMutation = defineMutation({
     );
     await tx.run(sql`
       INSERT INTO friendships (
-        id, user_low, user_high, created_at, source_request_id, _deleted_at
+        id, user_low, user_high, created_at, source_request_id, deleted_at
       )
       VALUES (
         ${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${now},
         ${requestId}, ${null}
       )
       ON CONFLICT (user_low, user_high) DO UPDATE SET
-        _deleted_at = NULL,
+        deleted_at = NULL,
         created_at = excluded.created_at,
         source_request_id = excluded.source_request_id
     `);
@@ -368,10 +368,10 @@ export const blockUserMutation = defineMutation({
     await softDeleteFriendship(tx, actor, userId, now);
     await cancelPendingRequests(tx, actor, userId, now);
     await tx.run(sql`
-      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
+      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
       VALUES (${blockId}, ${actor}, ${userId}, ${now}, ${null})
       ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
-        _deleted_at = NULL,
+        deleted_at = NULL,
         created_at = excluded.created_at
     `);
   },

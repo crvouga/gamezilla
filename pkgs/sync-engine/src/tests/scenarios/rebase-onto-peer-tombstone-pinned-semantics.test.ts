@@ -12,7 +12,7 @@ import { openSimWorld } from '../../sim/world';
 
 describe('rebase onto peer tombstone pinned semantics', () => {
   test('pending setNote rebases onto peer tombstone and revives after upload', async () => {
-    // setNote upsert clears _deleted_at — pin revive semantics for all clients.
+    // setNote upsert clears deleted_at — pin revive semantics for all clients.
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 820,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Fail if libs domain mutation/SQL paths hard-delete domain rows.
- * Soft-delete (`UPDATE … SET _deleted_at`) is required.
+ * Soft-delete (`UPDATE … SET deleted_at`) is required.
  */
 import { join } from 'node:path';
 import { Glob } from 'bun';

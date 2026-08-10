@@ -63,7 +63,7 @@ export function wrapMutationDb(
         if (!FRAMEWORK_TABLE_SET.has(classified.table)) {
           throw new MutationError(
             'NO_HARD_DELETE',
-            `Hard DELETE FROM ${classified.table} is forbidden; set _deleted_at instead.`,
+            `Hard DELETE FROM ${classified.table} is forbidden; set deleted_at instead.`,
             { table: classified.table }
           );
         }
@@ -81,7 +81,7 @@ export function wrapMutationDb(
         if (!FRAMEWORK_TABLE_SET.has(classified.table)) {
           throw new MutationError(
             'NO_HARD_DELETE',
-            `Hard DELETE FROM ${classified.table} is forbidden; set _deleted_at instead.`,
+            `Hard DELETE FROM ${classified.table} is forbidden; set deleted_at instead.`,
             { table: classified.table }
           );
         }

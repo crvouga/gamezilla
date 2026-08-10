@@ -14,7 +14,7 @@ export function useHasSpaceUserLocal(
   const { rows } = useQuery(sql<{ readonly id: string }>`
     SELECT id
     FROM space_users
-    WHERE id = ${id} AND _deleted_at IS NULL
+    WHERE id = ${id} AND deleted_at IS NULL
     LIMIT 1
   `);
   const row = rows[0] ?? null;

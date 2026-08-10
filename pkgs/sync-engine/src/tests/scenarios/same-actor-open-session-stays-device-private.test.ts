@@ -46,7 +46,7 @@ describe('same actor open session stays device private', () => {
     expect(tabletSessions).toEqual([]);
 
     const tabletSpaces = await tablet.db.query(sql<{ id: string }>`
-      SELECT id FROM spaces WHERE id = ${'room-1'} AND _deleted_at IS NULL
+      SELECT id FROM spaces WHERE id = ${'room-1'} AND deleted_at IS NULL
     `);
     expect(tabletSpaces.length).toBe(1);
   });

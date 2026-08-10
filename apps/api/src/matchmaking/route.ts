@@ -32,7 +32,7 @@
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { Matchmaking } from '@pkgs/matchmaking';
 import type { Sql } from '@pkgs/sql';
 import type {

@@ -18,7 +18,7 @@ describe('planServer', () => {
     if (!plan.ok) return;
     const kinds = plan.operations.map((o) => o.kind);
     expect(kinds.filter((k) => k === 'create_table').length).toBe(3);
-    expect(kinds.filter((k) => k === 'create_index').length).toBe(2);
+    expect(kinds.filter((k) => k === 'create_index').length).toBe(3);
   });
 
   test('extra user column is drift (not an operation)', () => {
@@ -41,15 +41,14 @@ describe('planServer', () => {
         [
           'todos',
           tableWithColumns('todos', [
-            { name: '_id', type: 'uuid', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'timestamp' },
-            { name: '_updated_at', type: 'timestamp' },
-            { name: '_deleted_at', type: 'timestamp' },
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
             { name: 'user_id', type: 'text' }, // should be uuid
             { name: 'title', type: 'text' },
             { name: 'done', type: 'boolean' },
             { name: 'status', type: 'text' },
-            { name: 'created_at', type: 'timestamp' },
             { name: 'due_at', type: 'timestamp' },
           ]),
         ],
@@ -71,7 +70,6 @@ describe('planServer', () => {
           title: 'text',
           done: 'boolean',
           status: 'text',
-          created_at: 'timestamp',
           due_at: 'timestamp',
         },
       },
@@ -93,21 +91,20 @@ describe('planServer', () => {
     ).toBe(false);
   });
 
-  test('managed _id type mismatch is drift', () => {
+  test('managed id type mismatch is drift', () => {
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
           'todos',
           tableWithColumns('todos', [
-            { name: '_id', type: 'text', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'timestamp' },
-            { name: '_updated_at', type: 'timestamp' },
-            { name: '_deleted_at', type: 'timestamp' },
+            { name: 'id', type: 'uuid', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
             { name: 'user_id', type: 'uuid' },
             { name: 'title', type: 'text' },
             { name: 'done', type: 'boolean' },
             { name: 'status', type: 'text' },
-            { name: 'created_at', type: 'timestamp' },
             { name: 'due_at', type: 'timestamp' },
           ]),
         ],
@@ -118,7 +115,7 @@ describe('planServer', () => {
     const plan = planServer(sampleSchema._declared, catalog);
     expect(plan.ok).toBe(false);
     if (plan.ok) return;
-    expect(plan.drift.some((d) => d.path === 'todos._id')).toBe(true);
+    expect(plan.drift.some((d) => d.path === 'todos.id')).toBe(true);
   });
 
   test('deprecated column missing from existing table is drift', () => {
@@ -127,10 +124,10 @@ describe('planServer', () => {
         [
           'users',
           tableWithColumns('users', [
-            { name: '_id', type: 'uuid', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'timestamp' },
-            { name: '_updated_at', type: 'timestamp' },
-            { name: '_deleted_at', type: 'timestamp' },
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
             { name: 'email', type: 'text' },
             { name: 'display_name', type: 'text' },
             // name (deprecated) missing
@@ -164,7 +161,6 @@ describe('planServer', () => {
           title: 'text',
           done: 'boolean',
           status: 'text',
-          created_at: 'timestamp',
           due_at: 'timestamp',
         },
       },
@@ -210,16 +206,15 @@ describe('planClient', () => {
         [
           'todos',
           tableWithColumns('todos', [
-            { name: '_id', type: 'TEXT', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'INTEGER' },
-            { name: '_updated_at', type: 'INTEGER' },
-            { name: '_deleted_at', type: 'INTEGER' },
+            { name: 'id', type: 'TEXT', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'TEXT' },
+            { name: 'updated_at', type: 'TEXT' },
+            { name: 'deleted_at', type: 'TEXT' },
             { name: 'user_id', type: 'TEXT' },
             { name: 'title', type: 'TEXT' },
             { name: 'done', type: 'INTEGER' },
             { name: 'status', type: 'TEXT' },
-            { name: 'created_at', type: 'INTEGER' },
-            { name: 'due_at', type: 'INTEGER' },
+            { name: 'due_at', type: 'TEXT' },
             { name: 'extra_col', type: 'TEXT' },
           ]),
         ],
@@ -242,16 +237,15 @@ describe('planClient', () => {
         [
           'todos',
           tableWithColumns('todos', [
-            { name: '_id', type: 'TEXT', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'INTEGER' },
-            { name: '_updated_at', type: 'INTEGER' },
-            { name: '_deleted_at', type: 'INTEGER' },
+            { name: 'id', type: 'TEXT', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'TEXT' },
+            { name: 'updated_at', type: 'TEXT' },
+            { name: 'deleted_at', type: 'TEXT' },
             { name: 'user_id', type: 'TEXT' },
             { name: 'title', type: 'TEXT' },
             { name: 'done', type: 'INTEGER' },
             { name: 'status', type: 'TEXT' },
-            { name: 'created_at', type: 'INTEGER' },
-            { name: 'due_at', type: 'INTEGER' },
+            { name: 'due_at', type: 'TEXT' },
             { name: 'extra_col', type: 'TEXT' },
             { name: '_meta', type: 'TEXT' },
           ]),
@@ -270,28 +264,27 @@ describe('planClient', () => {
     expect([...rebuild.copyColumns] as string[]).toContain('_meta');
   });
 
-  test('managed _id physical mismatch converges via rebuild', () => {
+  test('managed id physical mismatch converges via rebuild', () => {
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
           'todos',
           tableWithColumns('todos', [
-            // wrong physical type for uuid → TEXT expected; INTEGER is mismatch
+            // wrong physical type for text → TEXT expected; INTEGER is mismatch
             {
-              name: '_id',
+              name: 'id',
               type: 'INTEGER',
               nullable: false,
               isPrimaryKey: true,
             },
-            { name: '_created_at', type: 'INTEGER' },
-            { name: '_updated_at', type: 'INTEGER' },
-            { name: '_deleted_at', type: 'INTEGER' },
+            { name: 'created_at', type: 'TEXT' },
+            { name: 'updated_at', type: 'TEXT' },
+            { name: 'deleted_at', type: 'TEXT' },
             { name: 'user_id', type: 'TEXT' },
             { name: 'title', type: 'TEXT' },
             { name: 'done', type: 'INTEGER' },
             { name: 'status', type: 'TEXT' },
-            { name: 'created_at', type: 'INTEGER' },
-            { name: 'due_at', type: 'INTEGER' },
+            { name: 'due_at', type: 'TEXT' },
           ]),
         ],
       ]),
@@ -312,14 +305,14 @@ describe('planClient', () => {
           'notes',
           tableWithColumns('notes', [
             {
-              name: '_id',
-              type: SQLITE_TYPE_SQL.uuid,
+              name: 'id',
+              type: SQLITE_TYPE_SQL.text,
               nullable: false,
               isPrimaryKey: true,
             },
-            { name: '_created_at', type: SQLITE_TYPE_SQL.timestamp },
-            { name: '_updated_at', type: SQLITE_TYPE_SQL.timestamp },
-            { name: '_deleted_at', type: SQLITE_TYPE_SQL.timestamp },
+            { name: 'created_at', type: SQLITE_TYPE_SQL.timestamp },
+            { name: 'updated_at', type: SQLITE_TYPE_SQL.timestamp },
+            { name: 'deleted_at', type: SQLITE_TYPE_SQL.timestamp },
             { name: 'body', type: SQLITE_TYPE_SQL.text },
           ]),
         ],
@@ -340,16 +333,15 @@ describe('planClient', () => {
         [
           'todos',
           tableWithColumns('todos', [
-            { name: '_id', type: 'TEXT', nullable: false, isPrimaryKey: true },
-            { name: '_created_at', type: 'INTEGER' },
-            { name: '_updated_at', type: 'INTEGER' },
-            { name: '_deleted_at', type: 'INTEGER' },
+            { name: 'id', type: 'TEXT', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'TEXT' },
+            { name: 'updated_at', type: 'TEXT' },
+            { name: 'deleted_at', type: 'TEXT' },
             { name: 'user_id', type: 'TEXT' },
             { name: 'title', type: 'TEXT' },
             { name: 'done', type: 'INTEGER' },
             { name: 'status', type: 'TEXT' },
-            { name: 'created_at', type: 'INTEGER' },
-            { name: 'due_at', type: 'INTEGER' },
+            { name: 'due_at', type: 'TEXT' },
           ]),
         ],
       ]),
@@ -366,8 +358,8 @@ describe('planClient', () => {
 describe('planServer unique indexes', () => {
   test('plans unique create_index with unique flag', () => {
     const schema = defineSchema({
-      tables: { notes: { id: 'text', body: 'text' } },
-      uniqueIndexes: [['notes', 'id']],
+      tables: { notes: { body: 'text', slug: 'text' } },
+      uniqueIndexes: [['notes', 'slug']],
       indexes: [['notes', 'body']],
     });
     const plan = planServer(schema._declared, emptyCatalog());

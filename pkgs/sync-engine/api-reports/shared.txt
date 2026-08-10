@@ -10,6 +10,9 @@ defineTopicMap
 findChannelExhaustivenessGaps
 FRAMEWORK_TOPIC_MAP
 LIVE_ROW_SQL
+managedInsertColumns
+ManagedInsertColumns
+managedUpdatedAtIso
 MAX_FANOUT_BYTES
 MAX_FANOUT_ROWS
 MAX_MUTATIONS_BATCH

@@ -1,5 +1,5 @@
 import { ANON_ID_HEADER, resolveAccountIdFromBearer } from '@libs/auth/server';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';

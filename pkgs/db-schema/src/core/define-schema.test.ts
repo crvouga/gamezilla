@@ -40,6 +40,35 @@ describe('defineSchema runtime validation', () => {
     ).toThrow(/tables\.users\._id:/);
   });
 
+  test('rejects declaring engine-owned managed columns', () => {
+    expect(() =>
+      defineSchema({
+        tables: {
+          users: {
+            id: 'text',
+          },
+        },
+      } as never)
+    ).toThrow(/tables\.users\.id:.*engine-owned/);
+  });
+
+  test('rejects unique index on primary key id', () => {
+    expect(() =>
+      defineSchema({
+        tables: { users: { email: 'text' } },
+        uniqueIndexes: [['users', 'id']],
+      } as never)
+    ).toThrow(/cannot index primary key 'id'/);
+  });
+
+  test('allows index on managed created_at', () => {
+    const schema = defineSchema({
+      tables: { users: { email: 'text' } },
+      indexes: [['users', 'created_at']],
+    });
+    expect(schema._declared.indexes).toEqual([['users', 'created_at']]);
+  });
+
   test('rejects unknown type tokens', () => {
     expect(() =>
       defineSchema({
@@ -106,15 +135,15 @@ describe('defineSchema runtime validation', () => {
 
   test('accepts uniqueIndexes', () => {
     const schema = defineSchema({
-      tables: { users: { email: 'text', id: 'text' } },
+      tables: { users: { email: 'text', slug: 'text' } },
       uniqueIndexes: [
-        ['users', 'id'],
+        ['users', 'slug'],
         ['users', 'email'],
       ],
     });
     expect(schema.snapshot().uniqueIndexes).toEqual([
       ['users', 'email'],
-      ['users', 'id'],
+      ['users', 'slug'],
     ]);
   });
 

@@ -13,15 +13,15 @@ export const spaceMembershipQuery = defineQuery({
       id: string;
       space_id: string;
       user_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, space_id, user_id, _deleted_at FROM space_users
+      SELECT id, space_id, user_id, deleted_at FROM space_users
       WHERE user_id = ${env.actorId}
       ORDER BY id ASC
 `);
     const liveSpaceIds: string[] = [];
     for (const row of memberships) {
-      const deletedAt = row['_deleted_at'] as string | null;
+      const deletedAt = row['deleted_at'] as string | null;
       const spaceId = row['space_id'] as string;
       if (deletedAt !== null) continue;
       liveSpaceIds.push(spaceId);
@@ -34,9 +34,9 @@ export const spaceMembershipQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM spaces
+      SELECT id, title, owner_id, deleted_at FROM spaces
       WHERE id IN (${idList})
       ORDER BY id ASC
 `);
@@ -47,9 +47,9 @@ export const spaceMembershipQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, space_id, title, body, owner_id, _deleted_at
+      SELECT id, folder_id, space_id, title, body, owner_id, deleted_at
       FROM notes
       WHERE space_id IN (${idList})
       ORDER BY id ASC
@@ -76,9 +76,9 @@ export const openSpaceSessionsQuery = defineQuery({
       space_id: string;
       device_id: string;
       opened_at: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, space_id, device_id, opened_at, _deleted_at
+      SELECT id, space_id, device_id, opened_at, deleted_at
       FROM space_open_sessions
       WHERE device_id = ${env.deviceId}
       ORDER BY id ASC

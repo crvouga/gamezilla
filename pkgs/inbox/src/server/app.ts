@@ -1,4 +1,4 @@
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 

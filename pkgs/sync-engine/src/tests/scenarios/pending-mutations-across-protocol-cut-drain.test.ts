@@ -9,8 +9,8 @@ import { SYNC_PROTOCOL_VERSION } from '../../protocol';
 import { openSimWorld } from '../../sim/world';
 
 describe('pending mutations across protocol cut drain', () => {
-  test('offline queue drains under protocol v2 (preserve-and-drain)', async () => {
-    expect(SYNC_PROTOCOL_VERSION).toBe(2);
+  test('offline queue drains under current protocol (preserve-and-drain)', async () => {
+    expect(SYNC_PROTOCOL_VERSION).toBe(3);
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1210,
@@ -24,7 +24,7 @@ describe('pending mutations across protocol cut drain', () => {
       forMs: 50,
     });
 
-    // Reconnect speaks protocol v2; stable mutation names drain unchanged.
+    // Reconnect speaks current protocol; stable mutation names drain unchanged.
     await a.connect();
     await world.assertConverged();
     await expectLiveNote(a.db, 'pending-cut', { body: 'queued-at-cut' });

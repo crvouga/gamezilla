@@ -43,7 +43,7 @@ function presenceSql(
     FROM spaces AS s
     LEFT JOIN space_open_sessions AS o
       ON o.space_id = s.id
-      AND o._deleted_at IS NULL
+      AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
     WHERE s.id = ${spaceId}
   `;

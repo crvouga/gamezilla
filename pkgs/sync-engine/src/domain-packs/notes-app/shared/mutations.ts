@@ -13,7 +13,7 @@ export const setFolder = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         title = excluded.title,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -25,7 +25,7 @@ export const deleteFolder = defineMutation({
   async run({ tx, env }, { id }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM folders
-      WHERE id = ${id} AND _deleted_at IS NULL
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
     const row = rows[0];
     if (row === undefined) return;
@@ -34,8 +34,8 @@ export const deleteFolder = defineMutation({
     }
     await tx.run(sql`
       UPDATE folders
-      SET _deleted_at = ${env.now().toISOString()}
-      WHERE id = ${id} AND _deleted_at IS NULL
+      SET deleted_at = ${env.now().toISOString()}
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
   },
 });
@@ -60,7 +60,7 @@ export const setNote = defineMutation({
         title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -72,7 +72,7 @@ export const deleteNote = defineMutation({
   async run({ tx, env }, { id }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM notes
-      WHERE id = ${id} AND _deleted_at IS NULL
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
     const row = rows[0];
     if (row === undefined) return;
@@ -81,8 +81,8 @@ export const deleteNote = defineMutation({
     }
     await tx.run(sql`
       UPDATE notes
-      SET _deleted_at = ${env.now().toISOString()}
-      WHERE id = ${id} AND _deleted_at IS NULL
+      SET deleted_at = ${env.now().toISOString()}
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
   },
 });
@@ -98,7 +98,7 @@ export const moveNote = defineMutation({
     await tx.run(sql`
       UPDATE notes
       SET folder_id = ${folderId}, owner_id = ${env.actorId}
-      WHERE id = ${id} AND _deleted_at IS NULL
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
   },
 });
@@ -133,7 +133,7 @@ export const serverRejectNote = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -155,7 +155,7 @@ export const requiresOnlineNote = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -183,7 +183,7 @@ export const setNoteV2 = defineMutation({
         title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -210,7 +210,7 @@ export const setNoteNoFanout = defineMutation({
         title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });

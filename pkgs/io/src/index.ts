@@ -1,4 +1,7 @@
-export { getIo, runWithIo, tryGetIo } from './als';
+/**
+ * Client-safe surface. Server request-scope helpers live at `@pkgs/io/als`
+ * (`getIo` / `runWithIo`) so Metro / web never evaluate `node:async_hooks`.
+ */
 export {
   IoProvider,
   type IoProviderProps,

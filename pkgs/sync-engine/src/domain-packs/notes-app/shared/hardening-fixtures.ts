@@ -19,12 +19,10 @@ import { NOTES_WORLD_TOPIC } from './topics';
 export const notesAppSchemaExtraColumn = defineSchema({
   tables: {
     folders: {
-      id: 'text',
       title: 'text',
       owner_id: 'text',
     },
     notes: {
-      id: 'text',
       folder_id: 'text',
       space_id: 'text',
       title: 'text',
@@ -33,29 +31,21 @@ export const notesAppSchemaExtraColumn = defineSchema({
       owner_id: 'text',
     },
     spaces: {
-      id: 'text',
       title: 'text',
       owner_id: 'text',
     },
     space_users: {
-      id: 'text',
       space_id: 'text',
       user_id: 'text',
     },
     space_open_sessions: {
-      id: 'text',
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
   },
   uniqueIndexes: [
-    ['folders', 'id'],
-    ['notes', 'id'],
-    ['spaces', 'id'],
-    ['space_users', 'id'],
     ['space_users', 'space_id', 'user_id'],
-    ['space_open_sessions', 'id'],
     ['space_open_sessions', 'device_id', 'space_id'],
   ],
   indexes: [
@@ -88,12 +78,10 @@ export const notesLocalSchemaExtraColumn: LocalDomainSchema = {
 export const notesAppSchemaExtraTable = defineSchema({
   tables: {
     folders: {
-      id: 'text',
       title: 'text',
       owner_id: 'text',
     },
     notes: {
-      id: 'text',
       folder_id: 'text',
       space_id: 'text',
       title: 'text',
@@ -101,35 +89,25 @@ export const notesAppSchemaExtraTable = defineSchema({
       owner_id: 'text',
     },
     tags: {
-      id: 'text',
       label: 'text',
       owner_id: 'text',
     },
     spaces: {
-      id: 'text',
       title: 'text',
       owner_id: 'text',
     },
     space_users: {
-      id: 'text',
       space_id: 'text',
       user_id: 'text',
     },
     space_open_sessions: {
-      id: 'text',
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
   },
   uniqueIndexes: [
-    ['folders', 'id'],
-    ['notes', 'id'],
-    ['tags', 'id'],
-    ['spaces', 'id'],
-    ['space_users', 'id'],
     ['space_users', 'space_id', 'user_id'],
-    ['space_open_sessions', 'id'],
     ['space_open_sessions', 'device_id', 'space_id'],
   ],
   indexes: [
@@ -170,9 +148,9 @@ export const notesWorldV2Query = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     const notes = await db.query(sql<{
@@ -181,9 +159,9 @@ export const notesWorldV2Query = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { folders, notes };
@@ -203,9 +181,9 @@ export const notesWorldWithColorQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     const notes = await db.query(sql<{
@@ -215,9 +193,9 @@ export const notesWorldWithColorQuery = defineQuery({
       body: string;
       color: string | null;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, color, owner_id, _deleted_at
+      SELECT id, folder_id, title, body, color, owner_id, deleted_at
       FROM notes
       ORDER BY id ASC
 `);
@@ -241,9 +219,9 @@ export const notesByFolderQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       WHERE folder_id = ${params.folderId}
       ORDER BY id ASC
 `);
@@ -274,9 +252,9 @@ export const tagsWorldQuery = defineQuery({
       id: string;
       label: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, label, owner_id, _deleted_at FROM tags
+      SELECT id, label, owner_id, deleted_at FROM tags
       ORDER BY id ASC
 `);
     return { tags };
@@ -294,7 +272,7 @@ export const ghostMutation = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -313,7 +291,7 @@ export const setNoteArgsTight = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -335,7 +313,7 @@ export const setNoteArgsLoose = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -357,7 +335,7 @@ export const setNoteUniqueSlug = defineMutation({
   async run({ tx, env }, { id, slug, body }) {
     const taken = await tx.query(sql<{ id: string }>`
       SELECT id FROM notes
-      WHERE title = ${slug} AND id != ${id} AND _deleted_at IS NULL
+      WHERE title = ${slug} AND id != ${id} AND deleted_at IS NULL
     `);
     if (taken[0] !== undefined) {
       throw Object.assign(new Error('unique_violation'), {
@@ -372,7 +350,7 @@ export const setNoteUniqueSlug = defineMutation({
         title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -393,7 +371,7 @@ export const setNoteUndeclaredFolderWrite = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         title = excluded.title,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
@@ -402,7 +380,7 @@ export const setNoteUndeclaredFolderWrite = defineMutation({
         folder_id = excluded.folder_id,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -418,7 +396,7 @@ export const setNoteWrongTopic = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -439,7 +417,7 @@ export const setNoteColor = defineMutation({
         body = excluded.body,
         color = excluded.color,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -454,7 +432,7 @@ export const setTag = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         label = excluded.label,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -465,14 +443,14 @@ export const setNoteStrictExists = defineMutation({
   args: z.object({ id: z.string(), body: z.string() }),
   async run({ tx, env }, { id, body }) {
     const rows = await tx.query(sql<{ id: string }>`
-      SELECT id FROM notes WHERE id = ${id} AND _deleted_at IS NULL
+      SELECT id FROM notes WHERE id = ${id} AND deleted_at IS NULL
     `);
     if (rows[0] === undefined) {
       throw new MutationError('NOT_FOUND', 'Note missing for strict update');
     }
     await tx.run(sql`
       UPDATE notes SET body = ${body}, owner_id = ${env.actorId}
-      WHERE id = ${id} AND _deleted_at IS NULL
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
   },
 });
@@ -492,7 +470,7 @@ export const retouchNotes = defineMutation({
       await tx.run(sql`
         UPDATE notes
         SET body = ${body}, owner_id = ${env.actorId}
-        WHERE id = ${id} AND _deleted_at IS NULL
+        WHERE id = ${id} AND deleted_at IS NULL
       `);
     }
   },

@@ -11,18 +11,16 @@ import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry, PuzzleTableRow } from './row';
 
 type PuzzleInsertRow = PuzzleTableRow & {
-  readonly _id: string;
-  readonly _created_at: string;
-  readonly _updated_at: string;
+  readonly created_at: string;
+  readonly updated_at: string;
 };
 
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
   return sql<void>`
     INSERT INTO chess_puzzles (
-      _id,
-      _created_at,
-      _updated_at,
       id,
+      created_at,
+      updated_at,
       fen,
       moves,
       rating,
@@ -34,10 +32,9 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
       opening_tags
     )
     SELECT
-      _id::uuid,
-      _created_at::timestamptz,
-      _updated_at::timestamptz,
       id,
+      created_at::timestamptz,
+      updated_at::timestamptz,
       fen,
       moves,
       rating,
@@ -49,10 +46,9 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
       opening_tags::jsonb
     FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb)
       AS batch_rows(
-        _id text,
-        _created_at text,
-        _updated_at text,
         id text,
+        created_at text,
+        updated_at text,
         fen text,
         moves text,
         rating integer,
@@ -161,9 +157,8 @@ export async function insertPuzzleTableRows(
   const nowIso = new Date(io.now()).toISOString();
   const insertRows: PuzzleInsertRow[] = rows.map((row) => ({
     ...row,
-    _id: io.createId(),
-    _created_at: nowIso,
-    _updated_at: nowIso,
+    created_at: nowIso,
+    updated_at: nowIso,
   }));
   let rowChanges = 0;
   await db.transaction(async (tx) => {
@@ -230,23 +225,21 @@ export async function writeLoadProgressFast(args: {
   createId: CreateId;
   now: Clock['now'];
 }): Promise<void> {
-  const { db, loadId, sourceEtag, cursor, finishedAt, createId, now } = args;
+  const { db, loadId, sourceEtag, cursor, finishedAt, now } = args;
   const nowIso = new Date(now()).toISOString();
   await db.run(sql<void>`
     INSERT INTO chess_puzzle_load (
-      _id,
-      _created_at,
-      _updated_at,
       id,
+      created_at,
+      updated_at,
       source_etag,
       cursor,
       finished_at
     )
     VALUES (
-      ${createId()}::uuid,
-      ${nowIso}::timestamptz,
-      ${nowIso}::timestamptz,
       ${loadId},
+      ${nowIso}::timestamptz,
+      ${nowIso}::timestamptz,
       ${sourceEtag},
       ${cursor},
       ${finishedAt}
@@ -255,7 +248,7 @@ export async function writeLoadProgressFast(args: {
       source_etag = excluded.source_etag,
       cursor = excluded.cursor,
       finished_at = excluded.finished_at,
-      _updated_at = excluded._updated_at
+      updated_at = excluded.updated_at
   `);
 }
 

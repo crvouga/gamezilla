@@ -1,4 +1,4 @@
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import type { Hono } from 'hono';
 import type { InboxRequestContext } from './inbox-context';
 import {

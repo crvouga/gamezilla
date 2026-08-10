@@ -12,7 +12,7 @@ export const chessPuzzleProfile = defineQuery({
         rating,
         rating_deviation,
         last_interaction_at,
-        _deleted_at
+        deleted_at
       FROM chess_puzzle_profiles
       WHERE owner_id = ${ctx.env.actorId}
 `);
@@ -37,7 +37,7 @@ export const chessPuzzleInteractions = defineQuery({
         rating_before, 
         rating_after, 
         at,
-        _deleted_at
+        deleted_at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${ctx.env.actorId}
 `);
@@ -68,7 +68,7 @@ export const chessPuzzlePool = defineQuery({
         themes, 
         game_url, 
         opening_tags,
-        _deleted_at
+        deleted_at
       FROM chess_puzzles
       WHERE rating >= ${ratingMin}
         AND rating <= ${ratingMax}

@@ -7,7 +7,7 @@ import { Parser } from 'node-sql-parser';
 import { sqlTextForAst } from '../../sql-ast/classify';
 import type { MutationEnv } from '../core/types';
 
-const MANAGED_INSERT = ['_id', '_created_at', '_updated_at'] as const;
+const MANAGED_INSERT = ['id', 'created_at', 'updated_at'] as const;
 const parser = new Parser();
 
 type AstNode = Record<string, unknown>;
@@ -101,7 +101,7 @@ function injectInsert(
   const extraCols: string[] = [];
   for (const col of missing) {
     extraCols.push(col);
-    if (col === '_id') extraValues.push(env.createId());
+    if (col === 'id') extraValues.push(env.createId());
     else extraValues.push(nowIso);
   }
 
@@ -144,13 +144,13 @@ function injectUpdate(
   env: MutationEnv,
   setCols: readonly string[]
 ): Sql<unknown> {
-  if (setCols.includes('_updated_at')) return query;
+  if (setCols.includes('updated_at')) return query;
   const nowIso = env.now().toISOString();
   const text = query.sql;
   const setMatch = text.match(/\bSET\b/i);
   if (setMatch === null || setMatch.index === undefined) return query;
   const insertAt = setMatch.index + setMatch[0].length;
-  const nextText = `${text.slice(0, insertAt)} _updated_at = ?,${text.slice(insertAt)}`;
+  const nextText = `${text.slice(0, insertAt)} updated_at = ?,${text.slice(insertAt)}`;
   return sqlWithValues(nextText, [nowIso, ...query.values]);
 }
 

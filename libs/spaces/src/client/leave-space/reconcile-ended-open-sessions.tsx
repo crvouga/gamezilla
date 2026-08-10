@@ -26,7 +26,7 @@ export function ReconcileEndedOpenSessions(): ReactNode {
             SELECT o.space_id
             FROM space_open_sessions AS o
             INNER JOIN spaces AS s ON s.id = o.space_id
-            WHERE o._deleted_at IS NULL
+            WHERE o.deleted_at IS NULL
               AND o.device_id = ${deviceId}
               AND s.ended_at IS NOT NULL
           `

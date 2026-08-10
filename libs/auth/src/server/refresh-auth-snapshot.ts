@@ -3,7 +3,9 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
+import { managedInsertColumns } from '../shared/managed-row';
 import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
 import { upsertExternalAccount } from './external-accounts-sql';
 
@@ -20,6 +22,7 @@ export async function refreshAuthSnapshot(args: {
   deviceId: string;
   deviceAttributes: Record<string, string | null>;
   now: () => number;
+  createId: CreateId;
 }): Promise<void> {
   const {
     sql: db,
@@ -29,6 +32,7 @@ export async function refreshAuthSnapshot(args: {
     deviceId,
     deviceAttributes,
     now,
+    createId,
   } = args;
   assertUuid(accountId, 'accountId must be UUID');
   assertDeviceId(deviceId);
@@ -39,6 +43,7 @@ export async function refreshAuthSnapshot(args: {
     bearerToken,
     accountId,
     now,
+    createId,
   });
   await upsertDeviceRow({
     db,
@@ -46,6 +51,7 @@ export async function refreshAuthSnapshot(args: {
     userId: accountId,
     attributes: deviceAttributes,
     now,
+    createId,
   });
 }
 
@@ -55,8 +61,9 @@ async function upsertAuthUserFromBearer(args: {
   bearerToken: string;
   accountId: string;
   now: () => number;
+  createId: CreateId;
 }): Promise<void> {
-  const { db, authServer, bearerToken, accountId, now } = args;
+  const { db, authServer, bearerToken, accountId, now, createId } = args;
 
   let session: Awaited<ReturnType<AuthServerPort['verifySessionToken']>> = null;
   try {
@@ -82,6 +89,7 @@ async function upsertAuthUserFromBearer(args: {
     externalId: session.externalUserId,
     metadata: email === undefined ? {} : { email },
     now,
+    createId,
   });
 }
 
@@ -93,8 +101,9 @@ async function upsertDeviceRow(args: {
   userId: string;
   attributes: Record<string, string | null>;
   now: () => number;
+  createId: CreateId;
 }): Promise<void> {
-  const { db, deviceId, userId, attributes, now } = args;
+  const { db, deviceId, userId, attributes, now, createId } = args;
   const rows = await db.query(sql<DeviceRow>`
     SELECT *
     FROM devices
@@ -105,14 +114,23 @@ async function upsertDeviceRow(args: {
   const nowIso = new Date(now()).toISOString();
 
   if (existing === undefined) {
+    const managed = managedInsertColumns(createId, now, deviceId);
     const cols: string[] = [
       'id',
-      'user_id',
       'created_at',
+      'updated_at',
+      'user_id',
       'first_seen_at',
       'last_seen_at',
     ];
-    const vals: (string | null)[] = [deviceId, userId, nowIso, nowIso, nowIso];
+    const vals: (string | null)[] = [
+      managed.id,
+      managed.created_at,
+      managed.updated_at,
+      userId,
+      managed.created_at,
+      managed.created_at,
+    ];
     for (const [key, value] of Object.entries(attributes)) {
       if (value === null) continue;
       cols.push(key);
@@ -130,6 +148,7 @@ async function upsertDeviceRow(args: {
   const updates: Record<string, string> = {
     user_id: userId,
     last_seen_at: nowIso,
+    updated_at: nowIso,
     ...(existingFirst === null
       ? { first_seen_at: created !== null ? created : nowIso }
       : {}),

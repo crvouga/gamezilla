@@ -4,7 +4,7 @@ import {
   type PublishInteractionInput,
   publishInteraction,
 } from '@pkgs/inbox/server/publish';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { Sounds } from '@pkgs/sounds/sound-id';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { FriendRequest } from '../shared/friends-types';
@@ -112,7 +112,8 @@ export async function publishIncomingFriendRequestInteraction(
     groupKey: 'friends:requests',
     priority: 10,
   };
-  await publishInteraction(sql, input, getIo().clock.now);
+  const io = getIo();
+  await publishInteraction(sql, input, io.clock.now, io.createId);
 }
 
 export async function publishFriendRequestAcceptedInteraction(
@@ -120,6 +121,7 @@ export async function publishFriendRequestAcceptedInteraction(
   request: FriendRequest
 ): Promise<void> {
   const accepterProfile = await loadActorProfile(sql, request.toUserId);
+  const io = getIo();
   await publishInteraction(
     sql,
     {
@@ -139,7 +141,8 @@ export async function publishFriendRequestAcceptedInteraction(
       groupKey: 'friends:accepted',
       priority: 5,
     },
-    getIo().clock.now
+    io.clock.now,
+    io.createId
   );
 }
 

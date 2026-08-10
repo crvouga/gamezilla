@@ -22,7 +22,7 @@ export async function friendshipExists(
     FROM friendships
     WHERE user_low = ${userLow}
       AND user_high = ${userHigh}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   return rows.length > 0;
@@ -36,7 +36,7 @@ export async function isBlockedEitherDirection(
   const rows = await db.query(sql<Record<string, unknown>>`
     SELECT blocker_id, blocked_id
     FROM user_blocks
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
       AND (
         (blocker_id = ${userA} AND blocked_id = ${userB})
         OR (blocker_id = ${userB} AND blocked_id = ${userA})
@@ -61,7 +61,7 @@ export async function insertFriendship(
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
   await db.run(sql<void>`
-    INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id, _deleted_at)
+    INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id, deleted_at)
     VALUES (
       ${pairId(userLow, userHigh)},
       ${userLow},
@@ -71,7 +71,7 @@ export async function insertFriendship(
       ${null}
     )
     ON CONFLICT (user_low, user_high) DO UPDATE SET
-      _deleted_at = NULL,
+      deleted_at = NULL,
       created_at = excluded.created_at,
       source_request_id = excluded.source_request_id
   `);
@@ -86,10 +86,10 @@ export async function softDeleteFriendship(
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(sql<void>`
     UPDATE friendships
-    SET _deleted_at = ${now}
+    SET deleted_at = ${now}
     WHERE user_low = ${userLow}
       AND user_high = ${userHigh}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
   `);
 }
 
@@ -100,10 +100,10 @@ export async function insertBlock(
   now: string
 ): Promise<void> {
   await db.run(sql<void>`
-    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
+    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
     VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now}, ${null})
     ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
-      _deleted_at = NULL,
+      deleted_at = NULL,
       created_at = excluded.created_at
   `);
 }
@@ -116,9 +116,9 @@ export async function softDeleteBlock(
 ): Promise<void> {
   await db.run(sql<void>`
     UPDATE user_blocks
-    SET _deleted_at = ${now}
+    SET deleted_at = ${now}
     WHERE blocker_id = ${blockerId}
       AND blocked_id = ${blockedId}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
   `);
 }

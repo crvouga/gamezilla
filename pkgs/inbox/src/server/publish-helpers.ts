@@ -1,6 +1,8 @@
 import { type Sql, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { managedInsertColumns } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { InteractionSource } from '../shared/interaction-id';
 import { buildInteractionId } from '../shared/interaction-id';
@@ -88,13 +90,15 @@ type InteractionInsertValues = {
 
 function upsertInteractionValues(
   input: PublishInteractionInput,
-  now: string
+  now: () => number,
+  createId: CreateId
 ): InteractionInsertValues {
   const id = buildInteractionId(input.source, input.userId);
+  const managed = managedInsertColumns(createId, now, id);
   const payload = assertBoundedPayload(input.payload);
   const { presentation } = input;
   return {
-    id,
+    id: managed.id,
     user_id: input.userId,
     source_namespace: input.source.namespace,
     source_type: input.source.type,
@@ -112,16 +116,17 @@ function upsertInteractionValues(
     payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
     active: true,
-    created_at: now,
-    updated_at: now,
+    created_at: managed.created_at,
+    updated_at: managed.updated_at,
   };
 }
 
 function upsertInteractionSql(
   input: PublishInteractionInput,
-  now: string
+  now: () => number,
+  createId: CreateId
 ): Sql {
-  const values = upsertInteractionValues(input, now);
+  const values = upsertInteractionValues(input, now, createId);
   return sql<void>`
     INSERT INTO inbox_interactions (
       id, user_id, source_namespace, source_type, source_id, category,

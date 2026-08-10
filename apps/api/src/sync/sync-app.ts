@@ -1,6 +1,6 @@
 import { appTopicMap } from '@libs/db/shared/app-topic-map';
 import { assert } from '@pkgs/assert';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';

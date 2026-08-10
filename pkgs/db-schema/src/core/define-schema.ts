@@ -9,7 +9,7 @@ import type {
   Schema,
   Snapshot,
 } from './types';
-import { COLUMN_TYPE_SET } from './types';
+import { COLUMN_TYPE_SET, MANAGED_IMPLICIT_SET } from './types';
 import type {
   SchemaInput,
   SchemaLiteral,
@@ -111,6 +111,11 @@ function parseTableColumns(
   for (const [colName, token] of Object.entries(cols)) {
     const path = `tables.${tableName}.${colName}`;
     assertSnakeCaseIdent(colName, path);
+    if (MANAGED_IMPLICIT_SET.has(colName)) {
+      throw new Error(
+        `${path}: '${colName}' is engine-owned (implicit on every table)`
+      );
+    }
     if (typeof token !== 'string' || !COLUMN_TYPE_SET.has(token)) {
       throw new Error(
         `${path}: column type must be one of uuid|text|integer|boolean|timestamp|json`
@@ -149,7 +154,7 @@ function registerColumnDeprecation(args: {
   deprecatedColumns: Set<string>;
 }): void {
   const { path, table, column, tables, deprecatedColumns } = args;
-  if (column.startsWith('_')) {
+  if (MANAGED_IMPLICIT_SET.has(column)) {
     throw new Error(
       `${path}: cannot deprecate engine-owned column '${column}'`
     );
@@ -215,7 +220,8 @@ function assertIndexColumns(
   ctx: IndexParseCtx
 ): void {
   for (const col of columns) {
-    if (!(col in ctx.tables[table]!)) {
+    const isManaged = MANAGED_IMPLICIT_SET.has(col);
+    if (!isManaged && !(col in ctx.tables[table]!)) {
       throw new Error(`${path}: unknown column '${col}' on table '${table}'`);
     }
     if (ctx.deprecatedColumns.has(`${table}.${col}`)) {
@@ -223,8 +229,10 @@ function assertIndexColumns(
         `${path}: column '${table}.${col}' is deprecated and cannot be indexed`
       );
     }
-    if (col.startsWith('_')) {
-      throw new Error(`${path}: cannot index engine-owned column '${col}'`);
+    if (col === 'id') {
+      throw new Error(
+        `${path}: cannot index primary key 'id' (already unique via PK)`
+      );
     }
   }
 }

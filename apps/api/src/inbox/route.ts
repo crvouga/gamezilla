@@ -6,7 +6,7 @@ import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/req
 import { assert } from '@pkgs/assert';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 

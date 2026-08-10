@@ -88,19 +88,19 @@ function withManagedDefaults(
 ): QueryRow {
   const filled: Record<string, unknown> = { ...row };
   const nowIso = env.now().toISOString();
-  if (localCols.includes('_id') && filled['_id'] == null) {
-    filled['_id'] = env.createId();
+  if (localCols.includes('id') && filled['id'] == null) {
+    filled['id'] = env.createId();
   }
-  if (localCols.includes('_created_at') && filled['_created_at'] == null) {
-    filled['_created_at'] = nowIso;
+  if (localCols.includes('created_at') && filled['created_at'] == null) {
+    filled['created_at'] = nowIso;
   }
-  if (localCols.includes('_updated_at') && filled['_updated_at'] == null) {
-    filled['_updated_at'] = nowIso;
+  if (localCols.includes('updated_at') && filled['updated_at'] == null) {
+    filled['updated_at'] = nowIso;
   }
   return filled as QueryRow;
 }
 
-/** Upsert intersecting columns verbatim (including `_deleted_at`). */
+/** Upsert intersecting columns verbatim (including `deleted_at`). */
 async function upsertRowIntersect(args: {
   readonly tx: SqlClient;
   readonly table: string;

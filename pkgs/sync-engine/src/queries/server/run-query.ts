@@ -61,13 +61,13 @@ function enforceReadSql(query: Sql<unknown>, limit: number): Sql<QueryRow> {
   }
   if (classified.hasDeletedAtPredicate) {
     throw new Error(
-      'defineQuery.run must not filter on _deleted_at (tombstones must sync)'
+      'defineQuery.run must not filter on deleted_at (tombstones must sync)'
     );
   }
   let next: Sql<QueryRow> = query as Sql<QueryRow>;
   if (!classified.hasDeletedAtColumn && !classified.selectsStar) {
     // Inject managed column for explicit column lists.
-    next = sql<QueryRow>`SELECT *, _deleted_at FROM (${query}) AS _sync_q`;
+    next = sql<QueryRow>`SELECT *, deleted_at FROM (${query}) AS _sync_q`;
   }
   if (classified.hasLimit) {
     throw new Error(

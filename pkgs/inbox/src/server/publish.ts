@@ -1,6 +1,8 @@
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { managedUpdatedAtIso } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 
 import { InboxError } from '../shared/inbox-errors';
 import type { Interaction } from '../shared/interaction';
@@ -20,10 +22,10 @@ import type {
 export async function publishInteraction(
   db: SqlClient,
   input: PublishInteractionInput,
-  now: () => number
+  now: () => number,
+  createId: CreateId
 ): Promise<Interaction> {
-  const nowIso = new Date(now()).toISOString();
-  await db.run(upsertInteractionSql(input, nowIso));
+  await db.run(upsertInteractionSql(input, now, createId));
 
   const row = await findById(
     db,
@@ -38,9 +40,10 @@ export async function publishInteraction(
 export async function updateInteraction(
   db: SqlClient,
   input: UpdateInteractionInput,
-  now: () => number
+  now: () => number,
+  createId: CreateId
 ): Promise<Interaction> {
-  return publishInteraction(db, input, now);
+  return publishInteraction(db, input, now, createId);
 }
 
 export async function deactivateInteraction(
@@ -48,11 +51,13 @@ export async function deactivateInteraction(
   input: DeactivateInteractionInput,
   now: () => number
 ): Promise<void> {
-  const nowIso = new Date(now()).toISOString();
+  const nowIso = managedUpdatedAtIso(now);
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET active = false, updated_at = ${nowIso}
+         SET active = false,
+             updated_at = ${nowIso},
+             updated_at = ${nowIso}
        WHERE user_id = ${input.userId}
          AND source_namespace = ${input.source.namespace}
          AND source_type = ${input.source.type}

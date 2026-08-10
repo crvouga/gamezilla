@@ -30,11 +30,11 @@ Coordinated monorepo refactors OK. Evidence: apps/client, apps/api, libs/\*, pkg
 
 ### Wire protocol
 
-Frozen in [`src/protocol/v2.ts`](./src/protocol/v2.ts) (`SYNC_PROTOCOL_VERSION = 2`). CI: `ci:sync-engine-protocol-freeze` (`api-reports/protocol-v2.sha256`). Shapes: query/mutation batches, `QueryResponse`, auth error body (`upgrade_required`), `PushMessage`, `MAX_*` bounds. Pre-cut clients are rejected without wiping local DB.
+Frozen in [`src/protocol/v2.ts`](./src/protocol/v2.ts) (`SYNC_PROTOCOL_VERSION = 3`). CI: `ci:sync-engine-protocol-freeze` (`api-reports/protocol-v2.sha256`). Shapes: query/mutation batches, `QueryResponse`, auth error body (`upgrade_required`), `PushMessage`, `MAX_*` bounds. Domain row managed columns are `id` / `created_at` / `updated_at` / `deleted_at`. Pre-cut clients are rejected without wiping local DB.
 
 ### Local domain SQL read contract
 
-Domain tables from host schema; managed `_deleted_at`; UI filters live rows (`_deleted_at IS NULL` / `LIVE_ROW_SQL`); `useQuery` / `watch` semantics. Soft-delete-only domain writes. Query `run` SQL must include tombstones (no `_deleted_at` predicates); `limit` comes from the query field (no inline `LIMIT`).
+Domain tables from host schema; managed `deleted_at`; UI filters live rows (`deleted_at IS NULL` / `LIVE_ROW_SQL`); `useQuery` / `watch` semantics. Soft-delete-only domain writes. Query `run` SQL must include tombstones (no `deleted_at` predicates); `limit` comes from the query field (no inline `LIMIT`).
 
 ### Extension contract
 
@@ -69,7 +69,7 @@ Framework table names/shapes/DDL text, merge/rebase/upload/subscription, `alloca
 ### `@pkgs/sync-engine/shared` (protocol + extension)
 
 ```ts
-/** Wire protocol v2 — frozen. */
+/** Wire protocol (v3) — frozen in protocol/v2.ts. */
 export {
   SYNC_PROTOCOL_VERSION,
   SYNC_PROTOCOL_HEADER,

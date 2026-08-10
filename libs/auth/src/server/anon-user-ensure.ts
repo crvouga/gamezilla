@@ -3,6 +3,11 @@ import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '../shared/managed-row';
+
 type DeviceUserRow = {
   readonly user_id: string | null;
 };
@@ -48,35 +53,52 @@ async function readUserIsAnon(
 async function insertAnonUser(
   db: SqlClient,
   userId: string,
-  now: () => number
+  now: () => number,
+  createId: CreateId
 ): Promise<void> {
-  const nowIso = new Date(now()).toISOString();
+  const managed = managedInsertColumns(createId, now, userId);
   await db.run(sql<void>`
-    INSERT INTO users (id, created_at, is_anon)
-    VALUES (${userId}, ${nowIso}, true)
+    INSERT INTO users (id, created_at, updated_at, is_anon)
+    VALUES (
+      ${managed.id},
+      ${managed.created_at},
+      ${managed.updated_at},
+      true
+    )
     ON CONFLICT (id) DO NOTHING
   `);
 }
 
-async function bindDeviceToUser(
-  db: SqlClient,
-  deviceId: string,
-  userId: string,
-  now: () => number
-): Promise<void> {
-  const nowIso = new Date(now()).toISOString();
+async function bindDeviceToUser(args: {
+  readonly db: SqlClient;
+  readonly deviceId: string;
+  readonly userId: string;
+  readonly now: () => number;
+  readonly createId: CreateId;
+}): Promise<void> {
+  const { db, deviceId, userId, now, createId } = args;
+  const nowIso = managedUpdatedAtIso(now);
   const rows = await db.query(sql<{ readonly id: string }>`
     SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
   `);
   if (rows[0] === undefined) {
+    const managed = managedInsertColumns(createId, now, deviceId);
     const cols = [
       'id',
-      'user_id',
       'created_at',
+      'updated_at',
+      'user_id',
       'first_seen_at',
       'last_seen_at',
     ];
-    const vals: Value[] = [deviceId, userId, nowIso, nowIso, nowIso];
+    const vals: Value[] = [
+      managed.id,
+      managed.created_at,
+      managed.updated_at,
+      userId,
+      managed.created_at,
+      managed.created_at,
+    ];
     await db.run(sql<void>`
       INSERT INTO devices (${raw(cols.join(', '))})
       VALUES ${join(vals, ', ', '(', ')')}
@@ -85,7 +107,9 @@ async function bindDeviceToUser(
   }
   await db.run(sql<void>`
     UPDATE devices
-    SET user_id = ${userId}, last_seen_at = ${nowIso}
+    SET user_id = ${userId},
+        last_seen_at = ${nowIso},
+        updated_at = ${nowIso}
     WHERE id = ${deviceId}
   `);
 }
@@ -126,8 +150,8 @@ export async function ensureAnonUserForDevice(args: {
 
     const userId = createId();
     assertUuid(userId, 'userId must be UUID');
-    await insertAnonUser(tx, userId, now);
-    await bindDeviceToUser(tx, deviceId, userId, now);
+    await insertAnonUser(tx, userId, now, createId);
+    await bindDeviceToUser({ db: tx, deviceId, userId, now, createId });
     return { userId, isAnon: true as const };
   });
 }
@@ -154,12 +178,14 @@ export async function readUserAnonState(
 /** Clears `is_anon` on an upgraded user row. */
 export async function clearUserAnonFlag(
   db: SqlClient,
-  userId: string
+  userId: string,
+  now: () => number
 ): Promise<void> {
   assertUuid(userId, 'userId must be UUID');
+  const nowIso = managedUpdatedAtIso(now);
   await db.run(sql<void>`
     UPDATE users
-    SET is_anon = false
+    SET is_anon = false, updated_at = ${nowIso}
     WHERE id = ${userId}
   `);
 }

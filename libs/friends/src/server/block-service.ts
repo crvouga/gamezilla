@@ -1,4 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import { publishFriendEvent } from '../shared/friend-events';
 import { FriendsError } from '../shared/friends-errors';
@@ -16,12 +17,14 @@ function assertNotSelf(actorId: string, targetId: string): void {
   }
 }
 
-export async function blockUser(
-  sql: SqlClient,
-  blockerId: string,
-  blockedId: string,
-  now: string
-): Promise<void> {
+export async function blockUser(args: {
+  readonly sql: SqlClient;
+  readonly blockerId: string;
+  readonly blockedId: string;
+  readonly now: string;
+  readonly createId: CreateId;
+}): Promise<void> {
+  const { sql, blockerId, blockedId, now, createId } = args;
   assertNotSelf(blockerId, blockedId);
   await deactivatePendingFriendRequestInteractionsBetween(
     sql,
@@ -31,7 +34,7 @@ export async function blockUser(
   await sql.transaction(async (tx) => {
     await deleteFriendship(tx, blockerId, blockedId, now);
     await cancelPendingRequestsBetween(tx, blockerId, blockedId, now);
-    await insertBlock(tx, blockerId, blockedId, now);
+    await insertBlock({ db: tx, blockerId, blockedId, now, createId });
   });
   publishFriendEvent({ type: 'friend.blocked', blockerId, blockedId });
 }

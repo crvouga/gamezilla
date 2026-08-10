@@ -1,5 +1,6 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { isEqual } from '@pkgs/equal/is-equal';
+import { getIo } from '@pkgs/io/als';
 import type { Logger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -55,11 +56,24 @@ async function upsertClientConfigRow(
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
   const googleWebClientId = typeof googleId === 'string' ? googleId : null;
+  const io = getIo();
+  const nowIso = new Date(io.clock.now()).toISOString();
   await db.run(sql<void>`
-    INSERT INTO client_config (id, google_web_client_id)
-    VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${googleWebClientId})
+    INSERT INTO client_config (
+      id,
+      created_at,
+      updated_at,
+      google_web_client_id
+    )
+    VALUES (
+      ${CLIENT_CONFIG_ENTITY_ID},
+      ${nowIso}::timestamptz,
+      ${nowIso}::timestamptz,
+      ${googleWebClientId}
+    )
     ON CONFLICT (id) DO UPDATE SET
-      google_web_client_id = EXCLUDED.google_web_client_id
+      google_web_client_id = EXCLUDED.google_web_client_id,
+      updated_at = EXCLUDED.updated_at
   `);
 }
 

@@ -1,7 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 import { readExternalAccountId } from '@libs/auth/server/external-accounts-sql';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';

@@ -31,7 +31,7 @@ describe('client column missing from server snapshot not clobbered', () => {
         UPDATE notes SET color = ${'red'} WHERE id = ${'n1'}
       `);
       const before = await a.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND _deleted_at IS NULL
+        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
       `);
       expect(before[0]?.color).toBe('red');
 
@@ -40,7 +40,7 @@ describe('client column missing from server snapshot not clobbered', () => {
 
       await expectLiveNote(a.db, 'n1', { body: 'from-bob' });
       const after = await a.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND _deleted_at IS NULL
+        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
       `);
       expect(after[0]?.color).toBe('red');
     }

@@ -1,6 +1,8 @@
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { managedInsertColumns } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 
 import { canonicalUserPair } from '../shared/canonical-pair';
 import type {
@@ -8,6 +10,11 @@ import type {
   FriendRequestStatus,
 } from '../shared/friends-types';
 import { pairId } from '../shared/pair-id';
+
+/** Bind managed columns when the caller already has an ISO timestamp. */
+function managedAtIso(createId: CreateId, nowIso: string, id?: string) {
+  return managedInsertColumns(createId, () => new Date(nowIso).getTime(), id);
+}
 
 function readString(row: Record<string, unknown>, key: string): string {
   const value = row[key];
@@ -114,7 +121,7 @@ export async function friendshipExists(
     FROM friendships
     WHERE user_low = ${userLow}
       AND user_high = ${userHigh}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   return rows.length > 0;
@@ -128,7 +135,7 @@ export async function isBlockedEitherDirection(
   const rows = await db.query(sql<Record<string, unknown>>`
     SELECT blocker_id, blocked_id
     FROM user_blocks
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
       AND (
         (blocker_id = ${userA} AND blocked_id = ${userB})
         OR (blocker_id = ${userB} AND blocked_id = ${userA})
@@ -150,11 +157,18 @@ export async function insertFriendRequest(
     readonly toUserId: string;
     readonly message: string | null;
     readonly now: string;
+    readonly createId: CreateId;
   }
 ): Promise<FriendRequest> {
+  const managed = managedAtIso(args.createId, args.now, args.id);
   await db.run(sql<void>`
-    INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
-    VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
+    INSERT INTO friend_requests (
+      id, from_user_id, to_user_id, status, message, created_at, updated_at
+    )
+    VALUES (
+      ${managed.id}, ${args.fromUserId}, ${args.toUserId}, 'pending',
+      ${args.message}, ${managed.created_at}, ${managed.updated_at}
+    )
   `);
   const created = await findFriendRequestById(db, args.id);
   if (created === null) {
@@ -171,7 +185,9 @@ export async function markFriendRequestStatus(
 ): Promise<void> {
   await db.run(sql<void>`
     UPDATE friend_requests
-    SET status = ${status}, updated_at = ${now}, responded_at = ${now}
+    SET status = ${status},
+        updated_at = ${now},
+        responded_at = ${now}
     WHERE id = ${requestId}
   `);
 }
@@ -184,7 +200,9 @@ export async function cancelPendingRequestsBetween(
 ): Promise<void> {
   await db.run(sql<void>`
     UPDATE friend_requests
-    SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
+    SET status = 'cancelled',
+        updated_at = ${now},
+        responded_at = ${now}
     WHERE status = 'pending'
       AND (
         (from_user_id = ${userA} AND to_user_id = ${userB})
@@ -200,25 +218,33 @@ export async function insertFriendship(
     readonly userB: string;
     readonly sourceRequestId: string;
     readonly now: string;
+    readonly createId: CreateId;
   }
 ): Promise<void> {
   const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
+  const managed = managedAtIso(
+    args.createId,
+    args.now,
+    pairId(userLow, userHigh)
+  );
   await db.run(sql<void>`
     INSERT INTO friendships (
-      id, user_low, user_high, created_at, source_request_id, _deleted_at
+      id, user_low, user_high, created_at, updated_at, source_request_id, deleted_at
     )
     VALUES (
-      ${pairId(userLow, userHigh)},
+      ${managed.id},
       ${userLow},
       ${userHigh},
-      ${args.now},
+      ${managed.created_at},
+      ${managed.updated_at},
       ${args.sourceRequestId},
       ${null}
     )
     ON CONFLICT (user_low, user_high) DO UPDATE SET
-      _deleted_at = NULL,
+      deleted_at = NULL,
       created_at = excluded.created_at,
-      source_request_id = excluded.source_request_id
+      source_request_id = excluded.source_request_id,
+      updated_at = excluded.updated_at
   `);
 }
 
@@ -231,25 +257,38 @@ export async function deleteFriendship(
   const { userLow, userHigh } = canonicalUserPair(userA, userB);
   await db.run(sql<void>`
     UPDATE friendships
-    SET _deleted_at = ${now}
+    SET deleted_at = ${now}, updated_at = ${now}
     WHERE user_low = ${userLow}
       AND user_high = ${userHigh}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
   `);
 }
 
-export async function insertBlock(
-  db: SqlClient,
-  blockerId: string,
-  blockedId: string,
-  now: string
-): Promise<void> {
+export async function insertBlock(args: {
+  readonly db: SqlClient;
+  readonly blockerId: string;
+  readonly blockedId: string;
+  readonly now: string;
+  readonly createId: CreateId;
+}): Promise<void> {
+  const { db, blockerId, blockedId, now, createId } = args;
+  const managed = managedAtIso(createId, now, pairId(blockerId, blockedId));
   await db.run(sql<void>`
-    INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
-    VALUES (${pairId(blockerId, blockedId)}, ${blockerId}, ${blockedId}, ${now}, ${null})
+    INSERT INTO user_blocks (
+      id, blocker_id, blocked_id, created_at, updated_at, deleted_at
+    )
+    VALUES (
+      ${managed.id},
+      ${blockerId},
+      ${blockedId},
+      ${managed.created_at},
+      ${managed.updated_at},
+      ${null}
+    )
     ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
-      _deleted_at = NULL,
-      created_at = excluded.created_at
+      deleted_at = NULL,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at
   `);
 }
 
@@ -261,10 +300,10 @@ export async function deleteBlock(
 ): Promise<void> {
   await db.run(sql<void>`
     UPDATE user_blocks
-    SET _deleted_at = ${now}
+    SET deleted_at = ${now}, updated_at = ${now}
     WHERE blocker_id = ${blockerId}
       AND blocked_id = ${blockedId}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
   `);
 }
 
@@ -278,13 +317,13 @@ export async function listMutualFriendIds(
       SELECT CASE WHEN user_low = ${viewerId} THEN user_high ELSE user_low END AS friend_id
       FROM friendships
       WHERE (user_low = ${viewerId} OR user_high = ${viewerId})
-        AND _deleted_at IS NULL
+        AND deleted_at IS NULL
     ),
     their_friends AS (
       SELECT CASE WHEN user_low = ${targetUserId} THEN user_high ELSE user_low END AS friend_id
       FROM friendships
       WHERE (user_low = ${targetUserId} OR user_high = ${targetUserId})
-        AND _deleted_at IS NULL
+        AND deleted_at IS NULL
     )
     SELECT mf.friend_id
     FROM my_friends AS mf

@@ -51,8 +51,8 @@ describe('postgres emitter safety', () => {
 
   test('unique create_index emits CREATE UNIQUE INDEX', () => {
     const schema = defineSchema({
-      tables: { notes: { id: 'text' } },
-      uniqueIndexes: [['notes', 'id']],
+      tables: { notes: { slug: 'text' } },
+      uniqueIndexes: [['notes', 'slug']],
     });
     const plan = planServer(schema._declared, emptyCatalog());
     expect(plan.ok).toBe(true);

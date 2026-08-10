@@ -20,28 +20,34 @@ async function migrate(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       is_anon INTEGER NOT NULL DEFAULT 0
     )
   `);
   await db.run(sql<void>`
     CREATE TABLE devices (
       id TEXT PRIMARY KEY,
-      user_id TEXT,
       created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
+      user_id TEXT,
       first_seen_at TEXT,
       last_seen_at TEXT
     )
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);
@@ -100,7 +106,7 @@ describe('ensureAnonUserForDevice', () => {
       now: io.clock.now,
       createId: io.createId,
     });
-    await clearUserAnonFlag(db, first.userId);
+    await clearUserAnonFlag(db, first.userId, io.clock.now);
 
     const next = await ensureAnonUserForDevice({
       sql: db,
@@ -186,7 +192,7 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       now: io.clock.now,
       createId: io.createId,
     });
-    await clearUserAnonFlag(db, other.userId);
+    await clearUserAnonFlag(db, other.userId, io.clock.now);
     const now = new Date(io.clock.now()).toISOString();
     await db.run(sql<void>`
       INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)

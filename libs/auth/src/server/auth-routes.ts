@@ -1,4 +1,4 @@
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
 import { ensureAnonUserForDevice } from './anon-user-ensure';
 import type { ApiHonoEnv } from './api-hono-env';
@@ -152,6 +152,7 @@ export function createAuthApiRoutes(deps?: {
         deviceId,
         deviceAttributes: body.device,
         now: io.clock.now,
+        createId: io.createId,
       });
 
       deps?.onUserDomainWrite?.(accountId);

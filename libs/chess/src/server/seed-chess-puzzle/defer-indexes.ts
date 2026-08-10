@@ -3,8 +3,8 @@
  * inserts do not maintain btrees on managed Postgres tiers with tight
  * storage caps.
  *
- * Unique indexes (especially business `id`) must stay — seed uses
- * `ON CONFLICT (id)` and the table PK is managed `_id`, not `id`.
+ * Unique indexes must stay — seed uses `ON CONFLICT (id)` and the
+ * table PK is managed text `id`.
  */
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
@@ -18,7 +18,7 @@ export async function dropPuzzleSnapshotIndexes(args: {
   const { db, log } = args;
   const table = 'chess_puzzles';
   // Only non-unique secondary indexes. Unique indexes (ux_*) and the PK
-  // remain so ON CONFLICT (id) keeps working after the _id PK migration.
+  // remain so ON CONFLICT (id) keeps working.
   const rows = await db.query(sql<{ indexname: string }>`
     SELECT i.relname AS indexname
     FROM pg_index x

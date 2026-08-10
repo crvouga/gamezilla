@@ -1,6 +1,6 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { FriendService } from '@libs/friends/server/friend-service';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
 
 import { withFriendsAuth } from './friends-route-auth';

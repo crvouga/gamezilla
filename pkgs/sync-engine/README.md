@@ -18,7 +18,7 @@ load it alone for design discussion.
 The client is a **replicator**: the server sends **full query snapshots that
 include soft-deleted rows**; the client **upserts every row verbatim**, then
 **rebases its pending local mutations on top**. Deletion is data
-(`_deleted_at`), never inferred from absence. Peers learn about each other’s
+(`deleted_at`), never inferred from absence. Peers learn about each other’s
 changes via **pubsub push → (optional row-image apply) or query refetch**.
 Snapshots alone define correctness; row-image fanout is a **lossy
 optimization**. There is **no peer mutation fanout**.
@@ -93,7 +93,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 |--------|------|
 | `@pkgs/sync-engine/client` | Expo / React Native engine, React hooks, HTTP client |
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
-| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v2**, opaque migrate |
+| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
 | `@pkgs/sync-engine/test` | In-memory engine + sim/test controls (`SCHEMA_EPOCH`, controllable lifecycle) |
 
 Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
@@ -106,7 +106,7 @@ checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
 |-------|---------|----------|
 | **Code API** | Four entrypoints; coordinated monorepo refactors OK | `createLocalSyncEngine`, hooks, `createSyncApp`, `notifyChannels` |
 | **Wire protocol** | Cross-version freeze (`src/protocol/v2.ts`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*`, `upgrade_required` |
-| **Local domain SQL** | Deliberate local-first contract | Domain tables, `_deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
+| **Local domain SQL** | Deliberate local-first contract | Domain tables, `deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
 | **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `defineTopicMap`, `MutationEnv` |
 | **Host wiring** | Injected ports | `postQueries`/`postMutations` (protocol-derived), pubsub, auth, SQL, lifecycle |
 | **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms, epoch |
@@ -130,7 +130,7 @@ pushSeqs internally), `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`
 
 **shared:** `defineQuery`, `defineMutation`, registries, `MutationError`,
 `LIVE_ROW_SQL`, `softDeleteById`, `applyFrameworkServerDdl` (opaque),
-protocol v2 types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
+protocol types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
 `defineTopicMap`, `assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames`.
 
 **test:** `createInMemorySyncEngine`, `SCHEMA_EPOCH`, `createControllableLifecycle`,
@@ -235,10 +235,10 @@ defineQuery({
 ```
 
 **Tombstones on the wire (required):**
-- `run` SQL must **select `_deleted_at`** and must **not** filter
-  `_deleted_at IS NULL` (AST-enforced).
+- `run` SQL must **select `deleted_at`** and must **not** filter
+  `deleted_at IS NULL` (AST-enforced).
 - Snapshots include soft-deleted rows so the client can upsert tombstones.
-- UI / live client reads **do** filter live rows (`_deleted_at IS NULL` or
+- UI / live client reads **do** filter live rows (`deleted_at IS NULL` or
   `LIVE_ROW_SQL`).
 
 **Wake topics:** held live rows → `defineTopicMap` ∪ `entryChannel` (no hand
@@ -268,7 +268,7 @@ defineMutation({
 ```
 
 Rules:
-- Bodies must **soft-delete** (`UPDATE … SET _deleted_at = …`), never
+- Bodies must **soft-delete** (`UPDATE … SET deleted_at = …`), never
   `DELETE FROM` domain tables. AST capture throws `MutationError`
   `NO_HARD_DELETE` on domain hard deletes at apply **and** replay.
 - Use `softDeleteById` / `LIVE_ROW_SQL` from `@pkgs/sync-engine/shared`.
@@ -276,7 +276,7 @@ Rules:
   classifies SQL, injects `RETURNING *`, feeds `defineTopicMap` (+ optional
   `fallbackTopics` when a table is touched without row images). Caps:
   `MAX_FANOUT_ROWS=64`, `MAX_FANOUT_BYTES=32KiB`.
-- Protocol is hard-cut (`SYNC_PROTOCOL_VERSION = 2`); old clients get
+- Protocol is hard-cut (`SYNC_PROTOCOL_VERSION = 3`); old clients get
   `upgrade_required` (no DB wipe). Pending `_mutations` preserve-and-drain
   across the cut (stable wire names).
 - Server replay is idempotent via `_mutations_applied` (keyed by mutation id).
@@ -374,7 +374,7 @@ tables; durable `_mutations` survive epoch wipe semantics carefully (see
 `local-schema-migrate.ts`).
 
 Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
-`@libs/db` `appSchema`). Managed columns include `_deleted_at`.
+`@libs/db` `appSchema`). Managed columns include `deleted_at`.
 
 ### Server Postgres (framework)
 
@@ -437,7 +437,7 @@ After successful replay, server `notifyChannels` per topic-map topic with a
 When `rowImageFanout` is enabled and AST capture produced row images, the
 push may also carry post-replay **row images** (size-capped). Replay + fanout
 SELECT + pushSeq allocate share **one Postgres transaction**. Wire envelopes
-stay protocol v2 (derivation did not need leaner payloads).
+stay on the current protocol (derivation did not need leaner payloads).
 
 Bad body → 400 `{ error: 'invalid_batch' }`; oversized → 413
 `{ error: 'batch_too_large' }`.
@@ -449,7 +449,7 @@ Bad body → 400 `{ error: 'invalid_batch' }`; oversized → 413
 ```
 
 `pushSeq` is required and monotonic per topic. Optional `rows` are
-server-authored post-replay images (incl. `_deleted_at`) — a **lossy
+server-authored post-replay images (incl. `deleted_at`) — a **lossy
 optimization**. `optimistic: true` is a **client-local** MQTT hint before
 server replay (`pushSeq: '0'`); apply rows without advancing `_push_applied`.
 Any dropped, reordered, duplicated, or ignored fanout must degrade to
@@ -475,7 +475,7 @@ Row-image fanout is different: peers upsert server facts, never execute.
 For each `ok` response (single-flight per DB — `MAX_IN_FLIGHT_POLLS = 1`):
 
 1. Skip if checkpoint ≤ stored `_scope_meta.last_checkpoint` (stale).
-2. Per table: upsert column intersection **verbatim** (incl. `_deleted_at`).
+2. Per table: upsert column intersection **verbatim** (incl. `deleted_at`).
    No tagging, no absence tombstones, no orphan GC.
 3. Touch `_scope_meta` (`last_checkpoint`, `last_hash`, `last_active_at`).
 4. Rebase every pending `_mutations` for this `clientId` in `seq` order
@@ -526,10 +526,10 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 
 | Surface | Rule |
 |---------|------|
-| Domain mutations | `UPDATE … SET _deleted_at`; never `DELETE FROM` |
-| `defineQuery.run` | **Include** tombstones (`SELECT …, _deleted_at`, no live filter) |
-| UI / `useQuery` SQL | Filter `_deleted_at IS NULL` (or `LIVE_ROW_SQL`) |
-| Merge | Upsert `_deleted_at` as a normal column |
+| Domain mutations | `UPDATE … SET deleted_at`; never `DELETE FROM` |
+| `defineQuery.run` | **Include** tombstones (`SELECT …, deleted_at`, no live filter) |
+| UI / `useQuery` SQL | Filter `deleted_at IS NULL` (or `LIVE_ROW_SQL`) |
+| Merge | Upsert `deleted_at` as a normal column |
 | Framework tables | May hard-delete |
 | CI | `bun run ci:no-domain-hard-delete` |
 
@@ -580,7 +580,7 @@ soft-ack + generation fence); see
 ### Open (reasonable improvement territory)
 
 - Local **prune / size policy** for catalogs + old tombstones (chess puzzles)
-- Stronger CI that `defineQuery.run` selects `_deleted_at` / omits live filters
+- Stronger CI that `defineQuery.run` selects `deleted_at` / omits live filters
 - Narrower sessionQueries / staged paint gate if first paint is too slow
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
@@ -607,7 +607,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    tombstones accumulate. Need age/size caps or explicit “clear cache” for
    non-durable tables. Highest long-term reliability risk on devices.
 2. **Stale live rows outside soft-delete** — if a row leaves a query result
-   without `_deleted_at` set, it stays live locally. Mitigate with better
+   without `deleted_at` set, it stays live locally. Mitigate with better
    query design (always tombstone membership edges) or accept + filter in UI.
 3. **~~Ack-then-stale-merge flicker~~ (fixed)** — on applied ack, synchronously
    `bumpGenerations` so in-flight pre-replay query sweeps are dropped before
@@ -627,7 +627,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    server state stays queued until upload reject; UI may look “stuck”
    optimistic. Product should watch `write_rejections`.
 8. **Inbox `active` filter vs tombstones** — inbox may filter `active = true`
-   (not a `_deleted_at` predicate); remaining product staleness risk if rows
+   (not a `deleted_at` predicate); remaining product staleness risk if rows
    are soft-deleted without clearing `active`.
 9. **Prune retention window** — after `pruneMutationArtifacts` deletes an
     `_mutations_applied` row, a late retry of the same mutation id may
@@ -698,7 +698,7 @@ single-flight (it does) — mainly HTTP/server load then.
    postMutations, push: { rowImageFanout: true, … }, lifecycle, … })`
 2. `SyncEngineProvider` + `SqlClientProvider` + `SyncEnginePaintGateContext`
 3. `MutationClientProvider` with `MutationEnv` + `{ clientId: deviceId }`
-4. Feature: `useQuery(sql\`… AND _deleted_at IS NULL\`)` +
+4. Feature: `useQuery(sql\`… AND deleted_at IS NULL\`)` +
    `useMutationClient().mutate(def, args)`
 
 **API** (`apps/api/src/sync/sync-app.ts`)
@@ -1154,9 +1154,9 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 
 ## Common pitfalls
 
-- Filtering `_deleted_at IS NULL` inside `defineQuery.run` → tombstones never
+- Filtering `deleted_at IS NULL` inside `defineQuery.run` → tombstones never
   sync → stale live rows after soft-delete.
-- Forgetting `_deleted_at` in SELECT → upsert won’t update deletion state.
+- Forgetting `deleted_at` in SELECT → upsert won’t update deletion state.
 - UI query missing live filter → soft-deleted rows appear in UI.
 - Domain write outside mutations without `notifyChannels` → silent peer
   staleness.
@@ -1181,7 +1181,7 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 | Scope | One subscribed `(queryName, params)` identity (`scope_hash`) |
 | Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them |
 | Paint gate | Product `SyncEnginePaintGateContext` + session first-sync |
-| Tombstone | Domain row with `_deleted_at` set; still synced |
+| Tombstone | Domain row with `deleted_at` set; still synced |
 | Push | Pubsub message that wakes overlapping query scopes (formerly 'nudge') |
 | Row-image fanout | Lossy optional `rows` on push; snapshots remain truth |
 | Optimistic fanout | Client MQTT hint (`optimistic: true`) before server replay |

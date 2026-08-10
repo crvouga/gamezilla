@@ -13,7 +13,7 @@ function assertTableName(table: string): void {
  * Post-replay SELECT of affected domain rows for push fanout.
  *
  * This is the **only** legal source of fanout `rows` payloads — never derive
- * row images from mutation args. Includes `_deleted_at` (no live filter).
+ * row images from mutation args. Includes `deleted_at` (no live filter).
  */
 export async function selectFanoutRows(
   db: SqlClient,
@@ -25,7 +25,7 @@ export async function selectFanoutRows(
     assertTableName(table);
     const unique = [...new Set(ids)];
     const idFrags = unique.map((id) => sql`${id}`);
-    // SELECT * so synced columns + `_deleted_at` are included; no live filter.
+    // SELECT * so synced columns + `deleted_at` are included; no live filter.
     const rows = await db.query(sql<QueryRow>`
       SELECT * FROM ${ident(table)}
       WHERE id IN (${join(idFrags)})

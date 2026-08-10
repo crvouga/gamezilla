@@ -10,7 +10,8 @@ import {
   createBetterAuth,
   createBetterAuthServerAdapter,
 } from '@pkgs/auth-better-auth/server';
-import { type Io, runWithIo } from '@pkgs/io';
+import type { Io } from '@pkgs/io';
+import { runWithIo } from '@pkgs/io/als';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';

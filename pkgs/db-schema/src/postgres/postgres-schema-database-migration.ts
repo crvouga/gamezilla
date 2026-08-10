@@ -57,7 +57,7 @@ BEGIN
     SELECT c.table_name, c.column_name
     FROM information_schema.columns c
     WHERE c.table_schema = current_schema()
-      AND c.column_name IN ('_id', '_created_at', '_updated_at')
+      AND c.column_name IN ('id', 'created_at', 'updated_at')
       AND c.column_default IS NOT NULL
   LOOP
     EXECUTE format(

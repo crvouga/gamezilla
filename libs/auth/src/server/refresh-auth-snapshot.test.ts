@@ -44,8 +44,10 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE devices (
       id TEXT PRIMARY KEY,
-      user_id TEXT,
       created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
+      user_id TEXT,
       platform TEXT,
       os_name TEXT,
       os_version TEXT,
@@ -61,13 +63,15 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);
@@ -169,6 +173,7 @@ describe('refreshAuthSnapshot', () => {
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     const primary = await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID);
@@ -198,6 +203,7 @@ describe('refreshAuthSnapshot', () => {
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
       now: io.clock.now,
+      createId: io.createId,
     };
 
     await refreshAuthSnapshot(inputs);
@@ -244,6 +250,7 @@ describe('refreshAuthSnapshot', () => {
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     const stripeRows = await sqlClient.query(sql<{
@@ -283,6 +290,7 @@ describe('refreshAuthSnapshot', () => {
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(

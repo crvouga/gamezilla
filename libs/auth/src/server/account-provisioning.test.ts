@@ -29,19 +29,23 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       is_anon INTEGER NOT NULL DEFAULT 0
     )
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);

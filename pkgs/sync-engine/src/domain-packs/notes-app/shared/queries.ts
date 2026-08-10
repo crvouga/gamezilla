@@ -19,9 +19,9 @@ export const notesWorldQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     const notes = await db.query(sql<{
@@ -30,9 +30,9 @@ export const notesWorldQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { folders, notes };
@@ -53,9 +53,9 @@ export const notesDeniedQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     const notes = await db.query(sql<{
@@ -64,9 +64,9 @@ export const notesDeniedQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { folders, notes };
@@ -87,9 +87,9 @@ export const notesLimitedQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { notes };
@@ -107,7 +107,7 @@ export const notesOwnedQuery = defineQuery({
   authorize: async ({ db, env }) => {
     const rows = await db.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM folders
-      WHERE id = ${NOTES_AUTH_GATE_FOLDER_ID} AND _deleted_at IS NULL
+      WHERE id = ${NOTES_AUTH_GATE_FOLDER_ID} AND deleted_at IS NULL
     `);
     return rows[0]?.['owner_id'] === env.actorId;
   },
@@ -116,9 +116,9 @@ export const notesOwnedQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     const notes = await db.query(sql<{
@@ -127,9 +127,9 @@ export const notesOwnedQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { folders, notes };
@@ -148,9 +148,9 @@ export const notesOnlyQuery = defineQuery({
       title: string;
       body: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, folder_id, title, body, owner_id, _deleted_at FROM notes
+      SELECT id, folder_id, title, body, owner_id, deleted_at FROM notes
       ORDER BY id ASC
 `);
     return { notes };
@@ -167,9 +167,9 @@ export const foldersOnlyQuery = defineQuery({
       id: string;
       title: string;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, title, owner_id, _deleted_at FROM folders
+      SELECT id, title, owner_id, deleted_at FROM folders
       ORDER BY id ASC
 `);
     return { folders };

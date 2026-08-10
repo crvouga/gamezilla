@@ -1,6 +1,9 @@
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
+
+import { managedInsertColumns } from '../shared/managed-row';
 
 type UserIdRow = { readonly user_id: string };
 
@@ -10,6 +13,7 @@ export type ExternalAccountWriteArgs = {
   readonly externalId: string;
   readonly metadata?: Record<string, unknown>;
   readonly now: () => number;
+  readonly createId: CreateId;
 };
 
 function parseMetadata(value: unknown): Record<string, unknown> {
@@ -68,14 +72,21 @@ export async function insertUser(args: {
   readonly db: SqlClient;
   readonly userId: string;
   readonly now: () => number;
+  readonly createId: CreateId;
   readonly createdAt?: string;
   readonly isAnon?: boolean;
 }): Promise<void> {
   const isAnon = args.isAnon ?? false;
-  const created = args.createdAt ?? new Date(args.now()).toISOString();
+  const managed = managedInsertColumns(args.createId, args.now, args.userId);
+  const created = args.createdAt ?? managed.created_at;
   await args.db.run(sql<void>`
-    INSERT INTO users (id, created_at, is_anon)
-    VALUES (${args.userId}, ${created}, ${isAnon})
+    INSERT INTO users (id, created_at, updated_at, is_anon)
+    VALUES (
+      ${managed.id},
+      ${created},
+      ${managed.updated_at},
+      ${isAnon}
+    )
     ON CONFLICT (id) DO NOTHING
   `);
 }
@@ -88,28 +99,31 @@ export async function upsertExternalAccount(
   db: SqlClient,
   args: ExternalAccountWriteArgs
 ): Promise<void> {
-  const now = new Date(args.now()).toISOString();
-  const metadataJson = JSON.stringify(args.metadata ?? {});
   const id = `${args.provider}:${args.externalId}`;
+  const managed = managedInsertColumns(args.createId, args.now, id);
+  const metadataJson = JSON.stringify(args.metadata ?? {});
   await db.run(sql<void>`
     INSERT INTO external_accounts (
       id,
+      created_at,
+      updated_at,
       user_id,
       provider,
       external_id,
-      metadata,
-      created_at
+      metadata
     )
     VALUES (
-      ${id},
+      ${managed.id},
+      ${managed.created_at},
+      ${managed.updated_at},
       ${args.userId},
       ${args.provider},
       ${args.externalId},
-      ${metadataJson}::jsonb,
-      ${now}
+      ${metadataJson}::jsonb
     )
     ON CONFLICT (provider, external_id) DO UPDATE SET
-      metadata = excluded.metadata
+      metadata = excluded.metadata,
+      updated_at = excluded.updated_at
     WHERE external_accounts.user_id = excluded.user_id
   `);
 }
@@ -126,25 +140,27 @@ export async function insertExternalAccountOrGet(
   db: SqlClient,
   args: ExternalAccountWriteArgs
 ): Promise<string> {
-  const now = new Date(args.now()).toISOString();
-  const metadataJson = JSON.stringify(args.metadata ?? {});
   const id = `${args.provider}:${args.externalId}`;
+  const managed = managedInsertColumns(args.createId, args.now, id);
+  const metadataJson = JSON.stringify(args.metadata ?? {});
   await db.run(sql<void>`
     INSERT INTO external_accounts (
       id,
+      created_at,
+      updated_at,
       user_id,
       provider,
       external_id,
-      metadata,
-      created_at
+      metadata
     )
     VALUES (
-      ${id},
+      ${managed.id},
+      ${managed.created_at},
+      ${managed.updated_at},
       ${args.userId},
       ${args.provider},
       ${args.externalId},
-      ${metadataJson}::jsonb,
-      ${now}
+      ${metadataJson}::jsonb
     )
     ON CONFLICT (provider, external_id) DO NOTHING
   `);

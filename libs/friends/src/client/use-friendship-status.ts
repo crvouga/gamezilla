@@ -29,14 +29,14 @@ function friendshipStatusSql(
         FROM user_blocks
         WHERE blocker_id = ${myId}
           AND blocked_id = ${targetUserId}
-          AND _deleted_at IS NULL
+          AND deleted_at IS NULL
       ) THEN 'blocked_by_me'
       WHEN EXISTS (
         SELECT user_low
         FROM friendships
         WHERE user_low = ${userLow}
           AND user_high = ${userHigh}
-          AND _deleted_at IS NULL
+          AND deleted_at IS NULL
       ) THEN 'friends'
       WHEN EXISTS (
         SELECT from_user_id

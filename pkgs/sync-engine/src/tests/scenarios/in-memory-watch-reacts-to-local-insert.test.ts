@@ -29,7 +29,7 @@ describe('in memory watch reacts to local insert', () => {
 
     const sub = engine.watch(sql<{ id: string; body: string }>`
       SELECT id, body FROM notes
-      WHERE _deleted_at IS NULL
+      WHERE deleted_at IS NULL
       ORDER BY id ASC
     `);
     await waitForHydrated(sub);
@@ -47,7 +47,7 @@ describe('in memory watch reacts to local insert', () => {
 
     await engine.db.run(sql`
       INSERT INTO notes (
-        id, folder_id, title, body, owner_id, _id, _created_at, _updated_at
+        id, folder_id, title, body, owner_id, created_at, updated_at
       )
       VALUES (
         ${'n1'},
@@ -55,7 +55,6 @@ describe('in memory watch reacts to local insert', () => {
         ${''},
         ${'watched'},
         ${'alice'},
-        ${'mid-1'},
         ${'2020-01-01T00:00:00.000Z'},
         ${'2020-01-01T00:00:00.000Z'}
       )

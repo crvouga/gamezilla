@@ -106,7 +106,7 @@ function columnNames(columns: unknown): string[] {
 function hasDeletedAtInWhere(where: unknown): boolean {
   if (where === null || where === undefined) return false;
   const json = JSON.stringify(where);
-  return json.includes('"_deleted_at"');
+  return json.includes('"deleted_at"');
 }
 
 function columnRefName(col: unknown): string | undefined {
@@ -135,7 +135,7 @@ function setAssignsDeletedAt(set: unknown): boolean {
   for (const item of set) {
     const node = asNode(item);
     if (node === undefined) continue;
-    if (columnRefName(node['column']) === '_deleted_at') return true;
+    if (columnRefName(node['column']) === 'deleted_at') return true;
   }
   return false;
 }
@@ -208,7 +208,7 @@ function classifySelect(ast: AstNode): ClassifiedStatement {
     kind: 'read',
     tables: collectSelectTables(ast),
     selectsStar,
-    hasDeletedAtColumn: selectsStar || cols.includes('_deleted_at'),
+    hasDeletedAtColumn: selectsStar || cols.includes('deleted_at'),
     hasDeletedAtPredicate: hasDeletedAtInWhere(ast['where']),
     hasLimit: selectHasLimit(ast['limit']),
   };

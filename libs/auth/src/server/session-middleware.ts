@@ -7,7 +7,7 @@ import {
 import { assertDeviceId } from '@libs/auth/shared/device-id';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { getIo } from '@pkgs/io';
+import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { findUserIdByDeviceId, readUserAnonState } from './anon-user-ensure';
 import { buildAppAuthContextFromBearer } from './bearer-resolve';

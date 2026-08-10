@@ -21,19 +21,23 @@ async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       is_anon INTEGER NOT NULL DEFAULT 0
     )
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);
@@ -49,7 +53,12 @@ describe('external-accounts-sql', () => {
     sqlClient = SqlClientImplBunSqlite.open(':memory:');
     await sqlClient.connect();
     await migrateTables(sqlClient);
-    await insertUser({ db: sqlClient, userId, now: io.clock.now });
+    await insertUser({
+      db: sqlClient,
+      userId,
+      now: io.clock.now,
+      createId: io.createId,
+    });
   });
 
   afterEach(async () => {
@@ -63,6 +72,7 @@ describe('external-accounts-sql', () => {
       externalId: externalUserId,
       metadata: { email: 'a@example.com' },
       now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(
@@ -82,6 +92,7 @@ describe('external-accounts-sql', () => {
       externalId: externalUserId,
       metadata: { email: 'b@example.com' },
       now: io.clock.now,
+      createId: io.createId,
     });
 
     const rows = await sqlClient.query(sql<{ metadata: string }>`
@@ -129,6 +140,7 @@ describe('external-accounts-sql', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     await expect(
@@ -137,6 +149,7 @@ describe('external-accounts-sql', () => {
         provider: primaryAuthProvider,
         externalId: 'user_ext_2',
         now: io.clock.now,
+        createId: io.createId,
       })
     ).rejects.toThrow();
   });
@@ -147,6 +160,7 @@ describe('external-accounts-sql', () => {
       db: sqlClient,
       userId: otherUserId,
       now: io.clock.now,
+      createId: io.createId,
     });
     await upsertExternalAccount(sqlClient, {
       userId,
@@ -154,6 +168,7 @@ describe('external-accounts-sql', () => {
       externalId: externalUserId,
       metadata: { email: 'owner@example.com' },
       now: io.clock.now,
+      createId: io.createId,
     });
 
     await upsertExternalAccount(sqlClient, {
@@ -162,6 +177,7 @@ describe('external-accounts-sql', () => {
       externalId: externalUserId,
       metadata: { email: 'thief@example.com' },
       now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(
@@ -189,12 +205,14 @@ describe('external-accounts-sql', () => {
       db: sqlClient,
       userId: otherUserId,
       now: io.clock.now,
+      createId: io.createId,
     });
     await insertExternalAccountOrGet(sqlClient, {
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     const adopted = await insertExternalAccountOrGet(sqlClient, {
@@ -202,6 +220,7 @@ describe('external-accounts-sql', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(adopted).toBe(userId);

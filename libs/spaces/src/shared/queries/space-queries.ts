@@ -9,7 +9,7 @@ export const mySpaces = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT
         id, title, host_id, created_at, ended_at, visibility,
-        host_account_id, host_member_id, _deleted_at
+        host_account_id, host_member_id, deleted_at
       FROM spaces
       WHERE host_member_id = ${actor}
          OR host_account_id = ${actor}
@@ -44,7 +44,7 @@ export const mySpaceUsers = defineQuery({
         user_id,
         created_at,
         created_by_account_id,
-        _deleted_at
+        deleted_at
       FROM space_users
       WHERE user_id = ${actor}
          OR space_id IN (SELECT id FROM related_spaces)
@@ -58,7 +58,7 @@ export const openSpaceSessions = defineQuery({
   limit: 20,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, space_id, device_id, opened_at, join_announced, _deleted_at
+      SELECT id, space_id, device_id, opened_at, join_announced, deleted_at
       FROM space_open_sessions
       WHERE device_id = ${ctx.env.deviceId}
 `);

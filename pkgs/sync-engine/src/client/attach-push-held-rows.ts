@@ -11,14 +11,14 @@ import {
 } from '../shared/topic-map';
 
 function isLiveSpaceRow(row: QueryRow): boolean {
-  if (row['_deleted_at'] != null) return false;
+  if (row['deleted_at'] != null) return false;
   // Match product attach filter: ended spaces leave room subscribe set.
   if ('ended_at' in row && row['ended_at'] != null) return false;
   return true;
 }
 
 function isLiveRow(row: QueryRow): boolean {
-  return row['_deleted_at'] == null;
+  return row['deleted_at'] == null;
 }
 
 function isActorHost(row: QueryRow, actorId: string): boolean {
@@ -43,7 +43,7 @@ async function loadLiveRows(
   if (tables.includes('spaces')) {
     const members = await db.query(sql<{ space_id: string }>`
       SELECT space_id FROM space_users
-      WHERE user_id = ${actorId} AND _deleted_at IS NULL
+      WHERE user_id = ${actorId} AND deleted_at IS NULL
     `);
     memberSpaceIds = new Set(
       members.map((m) => m.space_id).filter((id) => id.length > 0)
