@@ -14,7 +14,7 @@ export type GetFreshTokenOptions = {
  * {@link AuthClientPortProviderProps}.
  */
 export interface AuthClientPort {
-  /** Slug stored in `external_accounts.provider` for this adapter. */
+  /** Slug stored in `auth_external_accounts.provider` for this adapter. */
   readonly providerLabel: string;
   useAuthSession(): AuthSessionState;
   signIn(

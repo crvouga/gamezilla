@@ -7,10 +7,10 @@ export const friendships = defineQuery({
     const actor = ctx.env.actorId;
     const rows = await ctx.db.query(sql`
       SELECT id, user_low, user_high, created_at, source_request_id, deleted_at
-      FROM friendships
+      FROM friends_friendships
       WHERE user_low = ${actor} OR user_high = ${actor}
 `);
-    return { friendships: rows };
+    return { friends_friendships: rows };
   },
 });
 
@@ -23,10 +23,10 @@ export const friendRequests = defineQuery({
       SELECT
         id, from_user_id, to_user_id, status, message,
         created_at, updated_at, responded_at, deleted_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE from_user_id = ${actor} OR to_user_id = ${actor}
 `);
-    return { friend_requests: rows };
+    return { friends_requests: rows };
   },
 });
 
@@ -36,10 +36,10 @@ export const userBlocks = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT id, blocker_id, blocked_id, created_at, deleted_at
-      FROM user_blocks
+      FROM friends_blocks
       WHERE blocker_id = ${ctx.env.actorId}
 `);
-    return { user_blocks: rows };
+    return { friends_blocks: rows };
   },
 });
 

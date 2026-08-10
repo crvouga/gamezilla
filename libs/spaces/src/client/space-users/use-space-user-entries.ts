@@ -22,8 +22,8 @@ export function useSpaceUserEntries(spaceId: string): {
   const query = useMemo(
     () => sql<SpaceUserRow>`
       SELECT a.user_id, p.username, p.avatar_config
-      FROM space_users AS a
-      INNER JOIN profiles AS p ON p.id = a.user_id
+      FROM spaces_users AS a
+      INNER JOIN profile AS p ON p.id = a.user_id
       WHERE a.space_id = ${spaceId} AND a.deleted_at IS NULL
       ORDER BY p.username COLLATE NOCASE ASC
     `,

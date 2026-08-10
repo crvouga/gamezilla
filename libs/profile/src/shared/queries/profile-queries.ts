@@ -7,10 +7,10 @@ export const ownProfile = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT id, created_at, username, avatar_config, username_changed_at, deleted_at
-      FROM profiles
+      FROM profile
       WHERE id = ${ctx.env.actorId}
 `);
-    return { profiles: rows };
+    return { profile: rows };
   },
 });
 
@@ -23,10 +23,10 @@ export const profilesByIds = defineQuery({
   async run(ctx, { ids }) {
     const rows = await ctx.db.query(sql`
       SELECT id, created_at, username, avatar_config, username_changed_at, deleted_at
-      FROM profiles
+      FROM profile
       WHERE id IN (${join(ids)})
 `);
-    return { profiles: rows };
+    return { profile: rows };
   },
 });
 

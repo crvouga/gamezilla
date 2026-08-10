@@ -43,7 +43,7 @@ export class AccountProvisioningService {
    * Resolves the immutable internal `users.id` for a primary-auth external user
    * (caller must be inside a transaction).
    *
-   * 1. Existing `external_accounts` link → that `users.id` (switch).
+   * 1. Existing `auth_external_accounts` link → that `users.id` (switch).
    * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
    * 3. Else mint a new non-anon `users` row.
    */

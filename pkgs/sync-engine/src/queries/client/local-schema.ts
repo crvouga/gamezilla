@@ -1,14 +1,20 @@
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  SYNC_ENGINE_MUTATIONS,
+  SYNC_ENGINE_PUSH_APPLIED,
+  SYNC_ENGINE_SCOPE_META,
+  SYNC_ENGINE_WRITE_REJECTIONS,
+} from '../../shared/framework-server-ddl';
 
 /**
  * Framework local tables for defineQuery sync.
  * Domain hydration is soft-delete only: merge upserts rows (including
  * `deleted_at`) verbatim from server snapshots. Scope membership tags and
- * peer mutation logs are gone — `_scope_meta` is the only cache metadata.
+ * peer mutation logs are gone — `sync_engine_scope_meta` is the only cache metadata.
  */
 export const FRAMEWORK_LOCAL_DDL = `
-CREATE TABLE IF NOT EXISTS _mutations (
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_MUTATIONS} (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   args TEXT NOT NULL,
@@ -16,17 +22,17 @@ CREATE TABLE IF NOT EXISTS _mutations (
   seq INTEGER NOT NULL,
   created_at TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS _scope_meta (
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_SCOPE_META} (
   scope_hash TEXT PRIMARY KEY,
   last_active_at TEXT NOT NULL,
   last_checkpoint TEXT,
   last_hash TEXT
 );
-CREATE TABLE IF NOT EXISTS _push_applied (
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_PUSH_APPLIED} (
   topic TEXT PRIMARY KEY,
   last_push_seq TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS write_rejections (
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_WRITE_REJECTIONS} (
   id TEXT PRIMARY KEY,
   mutation_id TEXT NOT NULL,
   client_id TEXT NOT NULL,
@@ -36,22 +42,28 @@ CREATE TABLE IF NOT EXISTS write_rejections (
   created_at TEXT NOT NULL,
   acknowledged INTEGER NOT NULL DEFAULT 0
 );
-CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx
-  ON write_rejections (client_id);
-CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
-  ON write_rejections (mutation_id);
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx
+  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (client_id);
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
+  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (mutation_id);
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 8;
+export const SCHEMA_EPOCH = 9;
 
-/** Retired local tables dropped on epoch migrate. */
+/** Retired local tables dropped on epoch migrate (legacy + pre-prefix names). */
 export const RETIRED_LOCAL_TABLES = [
   '_row_scopes',
   '_upload_state',
   '_peer_applied',
   '_peer_mutations',
   '_topic_applied',
+  '_mutations',
+  '_mutations_applied',
+  'write_rejections',
+  '_scope_meta',
+  '_push_applied',
+  '_sync_topic_seq',
 ] as const;
 
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {

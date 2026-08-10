@@ -10,7 +10,7 @@ export class FriendshipRepository {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id
-      FROM friendships
+      FROM friends_friendships
       WHERE user_low = ${userLow}
         AND user_high = ${userHigh}
         AND deleted_at IS NULL
@@ -27,7 +27,7 @@ export class FriendshipRepository {
   }): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(args.userA, args.userB);
     await this.tx.run(sql<void>`
-      INSERT INTO friendships (id, user_low, user_high, created_at, source_request_id, deleted_at)
+      INSERT INTO friends_friendships (id, user_low, user_high, created_at, source_request_id, deleted_at)
       VALUES (
         ${pairId(userLow, userHigh)},
         ${userLow},
@@ -46,7 +46,7 @@ export class FriendshipRepository {
   async softDelete(userA: string, userB: string, now: string): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
     await this.tx.run(sql<void>`
-      UPDATE friendships
+      UPDATE friends_friendships
       SET deleted_at = ${now}
       WHERE user_low = ${userLow}
         AND user_high = ${userHigh}
@@ -58,7 +58,7 @@ export class FriendshipRepository {
   async delete(userA: string, userB: string, now: string): Promise<void> {
     const { userLow, userHigh } = canonicalUserPair(userA, userB);
     await this.tx.run(sql<void>`
-      UPDATE friendships
+      UPDATE friends_friendships
       SET deleted_at = ${now}, updated_at = ${now}
       WHERE user_low = ${userLow}
         AND user_high = ${userHigh}

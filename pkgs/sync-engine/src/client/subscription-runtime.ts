@@ -109,7 +109,7 @@ async function loadBasis(
     last_hash: string | null;
   }>`
     SELECT last_checkpoint, last_hash
-    FROM _scope_meta
+    FROM sync_engine_scope_meta
     WHERE scope_hash = ${scope}
     LIMIT 1
   `);
@@ -222,7 +222,7 @@ export class SubscriptionRuntime {
 
   /**
    * Called after a successful sweep applies responses (ok / not_modified /
-   * denied). Used by attachPush to advance `_push_applied` after refetch.
+   * denied). Used by attachPush to advance `sync_engine_push_applied` after refetch.
    */
   setAfterSweep(cb: ((scopes: readonly string[]) => void) | null): void {
     this.afterSweep = cb;

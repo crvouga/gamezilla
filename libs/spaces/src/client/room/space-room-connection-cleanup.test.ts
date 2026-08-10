@@ -6,7 +6,7 @@ import { describe, expect, it } from 'bun:test';
  * effect cleanup must destroy an active room/transport so Close→reopen
  * cannot stack orphan WebSockets when the detail bridge remounts.
  *
- * The host owns lifetime via `space_open_sessions`; the connect
+ * The host owns lifetime via `spaces_open_sessions`; the connect
  * effect still must tear down on its own cleanup when a slot unmounts.
  */
 describe('space room connection cleanup contract', () => {

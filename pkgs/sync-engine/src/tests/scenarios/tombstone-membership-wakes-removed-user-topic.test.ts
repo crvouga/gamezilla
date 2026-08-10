@@ -13,7 +13,7 @@ import {
 import { openSimWorld } from '../../sim/world';
 
 describe('tombstone membership wakes removed user topic', () => {
-  test('space_users tombstone post-image still maps to removed user topic', async () => {
+  test('spaces_users tombstone post-image still maps to removed user topic', async () => {
     const topics = await topicsFromWriteCapture({
       topicMap: notesTopicMap,
       ctx: {
@@ -23,10 +23,10 @@ describe('tombstone membership wakes removed user topic', () => {
         isAnon: false,
       },
       capture: {
-        tables: ['space_users'],
-        ids: { space_users: ['room-1:bob'] },
+        tables: ['spaces_users'],
+        ids: { spaces_users: ['room-1:bob'] },
         images: {
-          space_users: [
+          spaces_users: [
             {
               id: 'room-1:bob',
               space_id: 'room-1',

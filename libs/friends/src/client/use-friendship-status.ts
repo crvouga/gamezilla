@@ -26,28 +26,28 @@ function friendshipStatusSql(
     SELECT CASE
       WHEN EXISTS (
         SELECT blocker_id
-        FROM user_blocks
+        FROM friends_blocks
         WHERE blocker_id = ${myId}
           AND blocked_id = ${targetUserId}
           AND deleted_at IS NULL
       ) THEN 'blocked_by_me'
       WHEN EXISTS (
         SELECT user_low
-        FROM friendships
+        FROM friends_friendships
         WHERE user_low = ${userLow}
           AND user_high = ${userHigh}
           AND deleted_at IS NULL
       ) THEN 'friends'
       WHEN EXISTS (
         SELECT from_user_id
-        FROM friend_requests
+        FROM friends_requests
         WHERE from_user_id = ${myId}
           AND to_user_id = ${targetUserId}
           AND status = 'pending'
       ) THEN 'pending_outgoing'
       WHEN EXISTS (
         SELECT from_user_id
-        FROM friend_requests
+        FROM friends_requests
         WHERE from_user_id = ${targetUserId}
           AND to_user_id = ${myId}
           AND status = 'pending'

@@ -114,7 +114,7 @@ export function splitSqlStatements(sql: string): string[] {
   return statements;
 }
 
-/** Apply sync-engine framework tables (`_mutations`, …). */
+/** Apply sync-engine framework tables (`sync_engine_mutations`, …). */
 export async function applyFrameworkServerDdl(args: {
   sqlClient: SqlClient;
   logger: Logger;
@@ -128,7 +128,7 @@ export async function applyFrameworkServerDdl(args: {
   await sqlClient.run(
     unsafeSql(`
 DO $$ BEGIN
-  ALTER TABLE IF EXISTS public._mutations_applied
+  ALTER TABLE IF EXISTS public.sync_engine_mutations_applied
     ALTER COLUMN applied_at DROP DEFAULT;
 EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
 END $$;
@@ -137,7 +137,7 @@ END $$;
   await sqlClient.run(
     unsafeSql(`
 DO $$ BEGIN
-  ALTER TABLE IF EXISTS public.write_rejections
+  ALTER TABLE IF EXISTS public.sync_engine_write_rejections
     ALTER COLUMN created_at DROP DEFAULT;
 EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
 END $$;

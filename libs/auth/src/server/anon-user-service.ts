@@ -91,7 +91,7 @@ export class AnonUserService {
     assertUuid(userId, 'userId must be UUID');
     const nowIso = managedUpdatedAtIso(now);
     await this.tx.run(sql<void>`
-      UPDATE users
+      UPDATE auth_users
       SET is_anon = false, updated_at = ${nowIso}
       WHERE id = ${userId}
     `);
@@ -100,7 +100,7 @@ export class AnonUserService {
   private async readDeviceUserId(deviceId: string): Promise<string | null> {
     const rows = await this.tx.query(sql<DeviceUserRow>`
       SELECT user_id
-      FROM devices
+      FROM auth_devices
       WHERE id = ${deviceId}
       LIMIT 1
     `);
@@ -111,7 +111,7 @@ export class AnonUserService {
   private async readUserIsAnon(userId: string): Promise<boolean | null> {
     const rows = await this.tx.query(sql<UserAnonRow>`
       SELECT id, is_anon
-      FROM users
+      FROM auth_users
       WHERE id = ${userId}
       LIMIT 1
     `);
@@ -127,7 +127,7 @@ export class AnonUserService {
   ): Promise<void> {
     const managed = managedInsertColumns(createId, now, userId);
     await this.tx.run(sql<void>`
-      INSERT INTO users (id, created_at, updated_at, is_anon)
+      INSERT INTO auth_users (id, created_at, updated_at, is_anon)
       VALUES (
         ${managed.id},
         ${managed.created_at},
@@ -147,7 +147,7 @@ export class AnonUserService {
     const { deviceId, userId, now, createId } = args;
     const nowIso = managedUpdatedAtIso(now);
     const rows = await this.tx.query(sql<{ readonly id: string }>`
-      SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
+      SELECT id FROM auth_devices WHERE id = ${deviceId} LIMIT 1
     `);
     if (rows[0] === undefined) {
       const managed = managedInsertColumns(createId, now, deviceId);
@@ -168,13 +168,13 @@ export class AnonUserService {
         managed.created_at,
       ];
       await this.tx.run(sql<void>`
-        INSERT INTO devices (${raw(cols.join(', '))})
+        INSERT INTO auth_devices (${raw(cols.join(', '))})
         VALUES ${join(vals, ', ', '(', ')')}
       `);
       return;
     }
     await this.tx.run(sql<void>`
-      UPDATE devices
+      UPDATE auth_devices
       SET user_id = ${userId},
           last_seen_at = ${nowIso},
           updated_at = ${nowIso}

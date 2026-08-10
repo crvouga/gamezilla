@@ -23,7 +23,7 @@ async function openSession(
   const id = openSessionRowId(env.deviceId, spaceId);
   const now = env.now().toISOString();
   await tx.run(sql`
-    INSERT INTO space_open_sessions (id, space_id, device_id, opened_at)
+    INSERT INTO spaces_open_sessions (id, space_id, device_id, opened_at)
     VALUES (${id}, ${spaceId}, ${env.deviceId}, ${now})
     ON CONFLICT (id) DO UPDATE SET
       space_id = excluded.space_id,
@@ -49,7 +49,7 @@ export const createSpace = defineMutation({
     `);
     const memberId = membershipRowId(id, env.actorId);
     await tx.run(sql`
-      INSERT INTO space_users (id, space_id, user_id)
+      INSERT INTO spaces_users (id, space_id, user_id)
       VALUES (${memberId}, ${id}, ${env.actorId})
       ON CONFLICT (id) DO UPDATE SET
         space_id = excluded.space_id,
@@ -76,7 +76,7 @@ export const joinSpace = defineMutation({
     }
     const memberId = membershipRowId(spaceId, env.actorId);
     await tx.run(sql`
-      INSERT INTO space_users (id, space_id, user_id)
+      INSERT INTO spaces_users (id, space_id, user_id)
       VALUES (${memberId}, ${spaceId}, ${env.actorId})
       ON CONFLICT (id) DO UPDATE SET
         space_id = excluded.space_id,
@@ -95,12 +95,12 @@ export const leaveSpace = defineMutation({
     const now = env.now().toISOString();
     const memberId = membershipRowId(spaceId, env.actorId);
     await tx.run(sql`
-      UPDATE space_users
+      UPDATE spaces_users
       SET deleted_at = ${now}
       WHERE id = ${memberId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
-      UPDATE space_open_sessions
+      UPDATE spaces_open_sessions
       SET deleted_at = ${now}
       WHERE id = ${openSessionRowId(env.deviceId, spaceId)}
         AND deleted_at IS NULL
@@ -129,12 +129,12 @@ export const endSpace = defineMutation({
       WHERE id = ${spaceId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
-      UPDATE space_users
+      UPDATE spaces_users
       SET deleted_at = ${now}
       WHERE space_id = ${spaceId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
-      UPDATE space_open_sessions
+      UPDATE spaces_open_sessions
       SET deleted_at = ${now}
       WHERE space_id = ${spaceId} AND deleted_at IS NULL
     `);
@@ -153,7 +153,7 @@ export const setSpaceNote = defineMutation({
   async run({ tx, env }, { id, spaceId, body, title }) {
     if (env.serverNow !== undefined) {
       const members = await tx.query(sql<{ id: string }>`
-        SELECT id FROM space_users
+        SELECT id FROM spaces_users
         WHERE space_id = ${spaceId}
           AND user_id = ${env.actorId}
           AND deleted_at IS NULL

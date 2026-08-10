@@ -6,6 +6,11 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
+import {
+  SYNC_ENGINE_MUTATIONS_APPLIED,
+  SYNC_ENGINE_TOPIC_SEQ,
+  SYNC_ENGINE_WRITE_REJECTIONS,
+} from '../shared/framework-server-ddl';
 import { createSerialSqlClient } from './serial-sql';
 
 /** Silent migrate logger — level silent; `now` unused but required by createLogger. */
@@ -20,16 +25,16 @@ const domainMigrateLogger = createLogger({
  * SQLite dialect for the sim (production uses Postgres FRAMEWORK_SERVER_DDL).
  */
 export const FRAMEWORK_SIM_SERVER_DDL = `
-CREATE TABLE IF NOT EXISTS _mutations_applied (
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_MUTATIONS_APPLIED} (
   mutation_id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,
   seq INTEGER NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('applied', 'rejected')),
   applied_at TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS _mutations_applied_client_id_seq_idx
-  ON _mutations_applied (client_id, seq);
-CREATE TABLE IF NOT EXISTS write_rejections (
+CREATE INDEX IF NOT EXISTS sync_engine_mutations_applied_client_id_seq_idx
+  ON ${SYNC_ENGINE_MUTATIONS_APPLIED} (client_id, seq);
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_WRITE_REJECTIONS} (
   id TEXT PRIMARY KEY,
   mutation_id TEXT NOT NULL,
   client_id TEXT NOT NULL,
@@ -39,11 +44,11 @@ CREATE TABLE IF NOT EXISTS write_rejections (
   created_at TEXT NOT NULL,
   acknowledged INTEGER NOT NULL DEFAULT 0
 );
-CREATE INDEX IF NOT EXISTS write_rejections_client_id_idx
-  ON write_rejections (client_id);
-CREATE INDEX IF NOT EXISTS write_rejections_mutation_id_idx
-  ON write_rejections (mutation_id);
-CREATE TABLE IF NOT EXISTS _sync_topic_seq (
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx
+  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (client_id);
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
+  ON ${SYNC_ENGINE_WRITE_REJECTIONS} (mutation_id);
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_TOPIC_SEQ} (
   topic TEXT PRIMARY KEY,
   n INTEGER NOT NULL
 );

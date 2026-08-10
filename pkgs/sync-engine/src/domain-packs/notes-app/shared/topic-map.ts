@@ -23,13 +23,13 @@ export const notesTopicMap = defineTopicMap({
     },
   },
   spaces: {
-    // Room subscribe/publish for membership comes from space_users images.
+    // Room subscribe/publish for membership comes from spaces_users images.
     // Holding a stale spaces row after leave must not keep room:{id}.
     topics(_row, ctx) {
       return [userTopic(ctx.actorId)];
     },
   },
-  space_users: {
+  spaces_users: {
     topics(row, ctx) {
       const spaceId = String(row['space_id'] ?? '');
       const userId = String(row['user_id'] ?? '');
@@ -42,8 +42,8 @@ export const notesTopicMap = defineTopicMap({
   },
   // Device-private: writer has the local mutation row; hydrate via
   // openSpaceSessions (device_id filter). Empty topics so row images do not
-  // ride sibling spaces/space_users wakes on user:{actor}.
-  space_open_sessions: {
+  // ride sibling spaces/spaces_users wakes on user:{actor}.
+  spaces_open_sessions: {
     topics() {
       return [];
     },

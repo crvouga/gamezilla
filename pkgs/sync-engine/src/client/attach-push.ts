@@ -15,7 +15,7 @@ export type { AttachPushOptions } from './attach-push-bag';
 
 async function countPendingMutations(db: SqlClient): Promise<number> {
   const rows = await db.query(sql<{ c: number | string }>`
-    SELECT COUNT(*) AS c FROM _mutations
+    SELECT COUNT(*) AS c FROM sync_engine_mutations
   `);
   return Number(rows[0]?.c ?? 0);
 }
@@ -34,7 +34,7 @@ async function flushTopicSync(bag: PushBag): Promise<void> {
     const pending = await countPendingMutations(bag.options.db);
     if (bag.disposed) return;
     if (pending > 0) {
-      // Stay pending; retry only when `_mutations` bus fires (do not recurse).
+      // Stay pending; retry only when `sync_engine_mutations` bus fires (do not recurse).
       return;
     }
     await refreshHeldRowTopics(bag);
@@ -65,7 +65,7 @@ async function refreshHeldRowTopics(bag: PushBag): Promise<void> {
 
 /**
  * Desired topics = entryChannel ∪ held-row topic-map projection.
- * No separate membership SQL — live `space_users` / `spaces` rows drive rooms.
+ * No separate membership SQL — live `spaces_users` / `spaces` rows drive rooms.
  */
 function collectDesiredTopics(bag: PushBag): Map<Topic, Set<string>> {
   const ctx = bag.options.getChannelsCtx();
@@ -223,7 +223,7 @@ function disposeBag(bag: PushBag): void {
  * Subscribes to query-derived pubsub topics and wakes SubscriptionRuntime.
  * Initial bind remakes pubsub once. Later held-row / subscription changes
  * sync topics incrementally (no session wipe). Topic sync waits until
- * `_mutations` is idle so upload fanout is not racing topic updates.
+ * `sync_engine_mutations` is idle so upload fanout is not racing topic updates.
  */
 export function attachPush(options: AttachPushOptions): () => void {
   const bag = createPushBag(options);
@@ -242,12 +242,12 @@ export function attachPush(options: AttachPushOptions): () => void {
         // not resync on every row write (deterministic fuzz refetch races).
         if (
           tables.has('spaces') ||
-          tables.has('space_users') ||
-          tables.has('space_open_sessions')
+          tables.has('spaces_users') ||
+          tables.has('spaces_open_sessions')
         ) {
           scheduleTopicSync(bag);
         }
-        if (tables.has('_mutations')) {
+        if (tables.has('sync_engine_mutations')) {
           void flushTopicSync(bag);
         }
       })

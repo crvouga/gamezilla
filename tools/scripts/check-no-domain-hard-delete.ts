@@ -12,12 +12,12 @@ const DELETE_FROM_RE = /\bDELETE\s+FROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi;
 
 /** Framework / non-domain tables that may still hard-delete. */
 const ALLOWED_TABLES = new Set([
-  '_mutations',
-  '_mutations_applied',
-  '_scope_meta',
-  '_push_applied',
-  '_sync_topic_seq',
-  'write_rejections',
+  'sync_engine_mutations',
+  'sync_engine_mutations_applied',
+  'sync_engine_scope_meta',
+  'sync_engine_push_applied',
+  'sync_engine_topic_seq',
+  'sync_engine_write_rejections',
 ]);
 
 const SCAN_GLOBS = [

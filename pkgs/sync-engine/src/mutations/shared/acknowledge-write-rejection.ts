@@ -8,7 +8,7 @@ export const acknowledgeWriteRejectionMutation = defineMutation({
   args: z.object({ rejectionId: z.string().min(1) }),
   async run({ tx, env }, { rejectionId }) {
     await tx.run(sql`
-      UPDATE write_rejections
+      UPDATE sync_engine_write_rejections
       SET acknowledged = ${1}
       WHERE id = ${rejectionId}
         AND client_id = ${env.deviceId}

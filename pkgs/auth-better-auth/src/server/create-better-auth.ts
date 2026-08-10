@@ -3,6 +3,7 @@ import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import type { Pool } from 'pg';
 
+import { BETTER_AUTH_TABLE_NAMES } from './better-auth-table-names';
 import { exposeBearerFromSessionCookie } from './expose-bearer-from-session-cookie';
 
 export type BetterAuthInstance = ReturnType<typeof createBetterAuth>;
@@ -39,6 +40,10 @@ export function createBetterAuth(config: CreateBetterAuthConfig) {
     secret: config.secret,
     baseURL: config.baseURL,
     trustedOrigins: [...config.trustedOrigins],
+    user: { modelName: BETTER_AUTH_TABLE_NAMES.user },
+    session: { modelName: BETTER_AUTH_TABLE_NAMES.session },
+    account: { modelName: BETTER_AUTH_TABLE_NAMES.account },
+    verification: { modelName: BETTER_AUTH_TABLE_NAMES.verification },
     ...(googleConfigured
       ? {
           socialProviders: {

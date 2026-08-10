@@ -4,7 +4,7 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import { defineTopicMap, topicsFromWriteCapture } from '../../shared/topic-map';
 
 const map = defineTopicMap({
-  space_open_sessions: {
+  spaces_open_sessions: {
     topics() {
       return [] as Topic[];
     },
@@ -23,7 +23,7 @@ const map = defineTopicMap({
 });
 
 describe('fallbackTopics actor wake', () => {
-  test('space_open_sessions touch without images stays device-private', async () => {
+  test('spaces_open_sessions touch without images stays device-private', async () => {
     const topics = await topicsFromWriteCapture({
       topicMap: map,
       ctx: {
@@ -33,7 +33,7 @@ describe('fallbackTopics actor wake', () => {
         isAnon: false,
       },
       capture: {
-        tables: ['space_open_sessions'],
+        tables: ['spaces_open_sessions'],
         ids: {},
         images: {},
       },

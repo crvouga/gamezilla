@@ -12,7 +12,7 @@ import { ExternalAccountRepository } from './external-account-repository';
 /**
  * Idempotent server-side upsert run from `POST /identity/refresh`. Given a
  * resolved `accountId` (users.id) plus the client's device snapshot, mirrors
- * the auth provider user into external_accounts and binds the device row.
+ * the auth provider user into auth_external_accounts and binds the device row.
  */
 export class AuthSnapshotRefresher {
   constructor(
@@ -102,7 +102,7 @@ export class AuthSnapshotRefresher {
     const { deviceId, userId, attributes, now, createId } = args;
     const rows = await this.db.query(sql<DeviceRow>`
       SELECT *
-      FROM devices
+      FROM auth_devices
       WHERE id = ${deviceId}
       LIMIT 1
     `);
@@ -133,7 +133,7 @@ export class AuthSnapshotRefresher {
         vals.push(value);
       }
       await this.db.run(sql<void>`
-        INSERT INTO devices (${raw(cols.join(', '))})
+        INSERT INTO auth_devices (${raw(cols.join(', '))})
         VALUES ${join(vals as Value[], ', ', '(', ')')}
       `);
       return;
@@ -161,7 +161,7 @@ export class AuthSnapshotRefresher {
       entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
     );
     await this.db.run(sql<void>`
-      UPDATE devices
+      UPDATE auth_devices
       SET ${sets}
       WHERE id = ${deviceId}
     `);

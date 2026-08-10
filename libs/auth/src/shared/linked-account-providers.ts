@@ -111,7 +111,9 @@ function readOAuthLinkedAt(oauth: OAuthAccountJson, fallback: string): string {
 
 function readOAuthAccounts(data: Record<string, unknown>): OAuthAccountJson[] {
   const raw =
-    data['accounts'] ?? data['external_accounts'] ?? data['externalAccounts'];
+    data['accounts'] ??
+    data['auth_external_accounts'] ??
+    data['externalAccounts'];
   if (!Array.isArray(raw)) return [];
   return raw.filter(
     (entry): entry is OAuthAccountJson =>

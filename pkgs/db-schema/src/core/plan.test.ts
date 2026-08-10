@@ -421,7 +421,7 @@ describe('planClient', () => {
         ],
       ]),
       indexes: [],
-      allTableNames: new Set(['todos', '_mutations', 'ghost']),
+      allTableNames: new Set(['todos', 'sync_engine_mutations', 'ghost']),
     };
     const ops = planClient(sampleSchema._declared, catalog, {
       ownership: 'declared-only',

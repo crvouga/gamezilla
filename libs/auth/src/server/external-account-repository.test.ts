@@ -12,7 +12,7 @@ const io = createSimIo({ seed: 1 });
 
 async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
-    CREATE TABLE users (
+    CREATE TABLE auth_users (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -21,7 +21,7 @@ async function migrateTables(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE external_accounts (
+    CREATE TABLE auth_external_accounts (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -90,7 +90,7 @@ describe('ExternalAccountRepository', () => {
 
     const rows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE provider = ${primaryAuthProvider}
         AND external_id = ${externalUserId}
     `);
@@ -100,7 +100,7 @@ describe('ExternalAccountRepository', () => {
 
   test('findUserIdByPrimaryAuthExternalId resolves primary provider rows', async () => {
     await sqlClient.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         user_id,
         provider,
@@ -180,7 +180,7 @@ describe('ExternalAccountRepository', () => {
 
     const rows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE provider = ${primaryAuthProvider}
         AND external_id = ${externalUserId}
     `);

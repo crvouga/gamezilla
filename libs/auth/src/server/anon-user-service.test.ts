@@ -15,7 +15,7 @@ const DEVICE_B = '22222222-2222-4222-8222-222222222222';
 
 async function migrate(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
-    CREATE TABLE users (
+    CREATE TABLE auth_users (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -24,7 +24,7 @@ async function migrate(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE devices (
+    CREATE TABLE auth_devices (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -35,7 +35,7 @@ async function migrate(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE external_accounts (
+    CREATE TABLE auth_external_accounts (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -76,7 +76,7 @@ describe('AnonUserService', () => {
     expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(result.userId);
 
     const rows = await db.query(sql<{ is_anon: number }>`
-      SELECT is_anon FROM users WHERE id = ${result.userId}
+      SELECT is_anon FROM auth_users WHERE id = ${result.userId}
     `);
     expect(rows[0]?.is_anon).toBe(1);
   });
@@ -155,7 +155,7 @@ describe('AccountProvisioningService upgrade', () => {
     expect(accountId).toBe(anon.userId);
 
     const rows = await db.query(sql<{ is_anon: number }>`
-      SELECT is_anon FROM users WHERE id = ${accountId}
+      SELECT is_anon FROM auth_users WHERE id = ${accountId}
     `);
     expect(rows[0]?.is_anon).toBe(0);
   });
@@ -170,7 +170,7 @@ describe('AccountProvisioningService upgrade', () => {
     await anonUsers.clearUserAnonFlag(other.userId, io.clock.now);
     const now = new Date(io.clock.now()).toISOString();
     await db.run(sql<void>`
-      INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)
+      INSERT INTO auth_external_accounts (id, user_id, provider, external_id, metadata, created_at)
       VALUES (${'better-auth:ext_existing'}, ${other.userId}, 'better-auth', 'ext_existing', '{}', ${now})
     `);
 

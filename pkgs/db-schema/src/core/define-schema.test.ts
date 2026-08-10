@@ -213,4 +213,35 @@ describe('defineSchema runtime validation', () => {
       'a_col',
     ]);
   });
+
+  test('tableNamePolicy accepts exact domain and domain_prefixed names', () => {
+    const schema = defineSchema(
+      {
+        tables: {
+          spaces: { title: 'text' },
+          spaces_users: { space_id: 'text' },
+          auth_users: { is_anon: 'boolean' },
+        },
+      },
+      { tableNamePolicy: { domains: ['auth', 'spaces'] } }
+    );
+    expect(Object.keys(schema.snapshot().tables).sort()).toEqual([
+      'auth_users',
+      'spaces',
+      'spaces_users',
+    ]);
+  });
+
+  test('tableNamePolicy rejects tables outside registered domains', () => {
+    expect(() =>
+      defineSchema(
+        {
+          tables: {
+            orphan_table: { user_low: 'text' },
+          },
+        },
+        { tableNamePolicy: { domains: ['auth', 'friends'] } }
+      )
+    ).toThrow(/tables\.orphan_table: must equal or start with/);
+  });
 });

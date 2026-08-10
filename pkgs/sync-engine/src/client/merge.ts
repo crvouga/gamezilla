@@ -160,7 +160,7 @@ async function isStale(
   checkpoint: string
 ): Promise<boolean> {
   const meta = await tx.query(sql<{ last_checkpoint: string | null }>`
-    SELECT last_checkpoint FROM _scope_meta
+    SELECT last_checkpoint FROM sync_engine_scope_meta
     WHERE scope_hash = ${scopeHash} LIMIT 1
   `);
   const prev = meta[0]?.last_checkpoint ?? null;
@@ -175,7 +175,7 @@ async function touchScopeMeta(
 ): Promise<void> {
   const nowIso = now().toISOString();
   await tx.run(sql`
-    INSERT INTO _scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
+    INSERT INTO sync_engine_scope_meta (scope_hash, last_active_at, last_checkpoint, last_hash)
     VALUES (${input.scopeHash}, ${nowIso}, ${input.checkpoint}, ${input.hash})
     ON CONFLICT (scope_hash) DO UPDATE SET
       last_checkpoint = excluded.last_checkpoint,
@@ -199,7 +199,7 @@ async function rebasePending(
 ): Promise<void> {
   const pending = await tx.query(sql<PendingMutation>`
     SELECT id, name, args, created_at
-    FROM _mutations
+    FROM sync_engine_mutations
     WHERE client_id = ${deps.clientId}
     ORDER BY seq ASC
   `);
@@ -258,7 +258,7 @@ export async function applyFullMerge(
  * Apply post-replay row images from a push through the same upsert +
  * rebase path as a full snapshot merge.
  *
- * Intentionally does **not** update `_scope_meta.last_hash`: the hash echoes
+ * Intentionally does **not** update `sync_engine_scope_meta.last_hash`: the hash echoes
  * the server's last full-snapshot content so `not_modified` stays sound. A
  * rows-apply changes local content without claiming a full snapshot.
  */
@@ -314,8 +314,8 @@ export async function detachScope(
 ): Promise<void> {
   await withMergeSingleFlight(deps.db, async () => {
     await deps.db.run(sql`
-      DELETE FROM _scope_meta WHERE scope_hash = ${scopeHash}
+      DELETE FROM sync_engine_scope_meta WHERE scope_hash = ${scopeHash}
     `);
-    deps.bus.emit(['_scope_meta']);
+    deps.bus.emit(['sync_engine_scope_meta']);
   });
 }

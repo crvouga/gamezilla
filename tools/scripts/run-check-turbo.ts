@@ -25,6 +25,7 @@ const CI_GATE_TASKS = [
   'ci:database-url-policy',
   'ci:local-dev-self-contained',
   'ci:no-local-tables',
+  'ci:domain-table-prefixes',
   'ci:no-legacy-writes',
   'ci:no-domain-hard-delete',
   'ci:no-top-level-di-functions',

@@ -22,7 +22,7 @@ describe('decideSpaceJoinAccess', () => {
     ).toEqual({ allowed: true, reason: 'open' });
   });
 
-  test('private requires space_users', () => {
+  test('private requires spaces_users', () => {
     expect(
       decideSpaceJoinAccess({
         ...base,

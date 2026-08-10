@@ -52,7 +52,7 @@ export type ReplayOutcome =
 
 /**
  * Replay one mutation against authoritative Postgres.
- * Permanent failures record write_rejections + _mutations_applied rejected.
+ * Permanent failures record sync_engine_write_rejections + sync_engine_mutations_applied rejected.
  * Infra errors rethrow for sync retry (idempotency makes retries safe).
  */
 export async function replayMutation(
@@ -62,7 +62,7 @@ export async function replayMutation(
   try {
     return await deps.serverDb.transaction(async (txc) => {
       const seen = await txc.query(sql<{ one: number }>`
-        SELECT 1 AS one FROM _mutations_applied WHERE mutation_id = ${m.id}
+        SELECT 1 AS one FROM sync_engine_mutations_applied WHERE mutation_id = ${m.id}
       `);
       if (seen.length > 0) return { status: 'duplicate' as const };
 
@@ -114,7 +114,7 @@ export async function replayMutation(
 
       const appliedAt = new Date(deps.now()).toISOString();
       await txc.run(sql`
-        INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+        INSERT INTO sync_engine_mutations_applied (mutation_id, client_id, seq, status, applied_at)
         VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'}, ${appliedAt})
       `);
       return { status: 'applied' as const, capture };
@@ -156,20 +156,20 @@ async function recordRejectedInTxn(
   deps: Pick<ReplayMutationDeps, 'now' | 'createId'>
 ): Promise<void> {
   const seen = await txc.query(sql<{ one: number }>`
-    SELECT 1 AS one FROM _mutations_applied WHERE mutation_id = ${m.id}
+    SELECT 1 AS one FROM sync_engine_mutations_applied WHERE mutation_id = ${m.id}
   `);
   if (seen.length > 0) return;
 
   const appliedAt = new Date(deps.now()).toISOString();
   await txc.run(sql`
-    INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+    INSERT INTO sync_engine_mutations_applied (mutation_id, client_id, seq, status, applied_at)
     VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'}, ${appliedAt})
   `);
 
   const metaJson =
     failure.meta !== undefined ? JSON.stringify(failure.meta) : null;
   await txc.run(sql`
-    INSERT INTO write_rejections (
+    INSERT INTO sync_engine_write_rejections (
       id, mutation_id, client_id, code, message, meta, created_at, acknowledged
     ) VALUES (
       ${deps.createId()},

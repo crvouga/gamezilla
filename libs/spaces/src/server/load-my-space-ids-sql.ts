@@ -3,7 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
  * Space ids the actor can see via mySpaces scope: host (member or account)
- * OR space_users membership. Used for pubsub ACL + channel derivation.
+ * OR spaces_users membership. Used for pubsub ACL + channel derivation.
  */
 export class MySpaceIdsLoader {
   constructor(private readonly db: SqlClient) {}
@@ -15,7 +15,7 @@ export class MySpaceIdsLoader {
       WHERE host_member_id = ${actorId}
          OR host_account_id = ${actorId}
          OR id IN (
-           SELECT space_id FROM space_users WHERE user_id = ${actorId}
+           SELECT space_id FROM spaces_users WHERE user_id = ${actorId}
          )
     `);
     const ids = new Set<string>();

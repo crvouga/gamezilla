@@ -65,6 +65,17 @@ export {
   findChannelExhaustivenessGaps,
 } from './channel-exhaustiveness';
 export {
+  FRAMEWORK_CACHE_TABLE_NAMES,
+  FRAMEWORK_DURABLE_TABLE_NAMES,
+  FRAMEWORK_TABLE_NAMES,
+  SYNC_ENGINE_MUTATIONS,
+  SYNC_ENGINE_MUTATIONS_APPLIED,
+  SYNC_ENGINE_PUSH_APPLIED,
+  SYNC_ENGINE_SCOPE_META,
+  SYNC_ENGINE_TOPIC_SEQ,
+  SYNC_ENGINE_WRITE_REJECTIONS,
+} from './framework-server-ddl';
+export {
   FRAMEWORK_TOPIC_MAP,
   withFrameworkTopicMap,
 } from './framework-topic-map';

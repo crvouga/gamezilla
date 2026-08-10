@@ -48,7 +48,7 @@ export type CreateMutationClientOptions = {
 
 async function nextMutationSeq(tx: SqlClient): Promise<number> {
   const rows = await tx.query(sql<{ next: number | null }>`
-    SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM _mutations
+    SELECT COALESCE(MAX(seq), 0) + 1 AS next FROM sync_engine_mutations
   `);
   return Number(rows[0]?.next ?? 1);
 }
@@ -93,7 +93,7 @@ export function createMutationClient(
           await m.run({ tx: wrapped.tx, env }, parsed);
           capture = wrapped.getCapture();
           await txc.run(sql`
-            INSERT INTO _mutations (
+            INSERT INTO sync_engine_mutations (
               id, name, args, client_id, seq, created_at
             )
             VALUES (

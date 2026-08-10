@@ -48,7 +48,7 @@ function pendingIncomingSql(
       created_at, 
       updated_at, 
       responded_at
-    FROM friend_requests
+    FROM friends_requests
     WHERE to_user_id = ${myId} AND status = 'pending'
     ORDER BY created_at DESC
   `;
@@ -69,7 +69,7 @@ function pendingOutgoingSql(
       created_at, 
       updated_at, 
       responded_at
-    FROM friend_requests
+    FROM friends_requests
     WHERE from_user_id = ${myId} AND status = 'pending'
     ORDER BY created_at DESC
   `;

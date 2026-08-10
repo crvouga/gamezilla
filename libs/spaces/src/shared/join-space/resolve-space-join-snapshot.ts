@@ -68,7 +68,7 @@ function snapshotFromResolvedRow(
 
 /**
  * Derives join-screen status from local SQLite. Private spaces only appear
- * after the host adds the viewer to space_users (auto-subscribe).
+ * after the host adds the viewer to spaces_users (auto-subscribe).
  */
 export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput

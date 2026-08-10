@@ -67,7 +67,7 @@ async function readPending(
 ): Promise<readonly StoredMutation[]> {
   return db.query(sql<StoredMutation>`
     SELECT id, name, args, client_id, seq, created_at
-    FROM _mutations
+    FROM sync_engine_mutations
     WHERE client_id = ${clientId}
     ORDER BY seq ASC
     LIMIT ${BATCH_LIMIT}
@@ -81,7 +81,7 @@ async function storeRejection(
   createdAt: string
 ): Promise<void> {
   await tx.run(sql`
-    INSERT INTO write_rejections (
+    INSERT INTO sync_engine_write_rejections (
       id, mutation_id, client_id, code, message, meta, created_at, acknowledged
     )
     VALUES (
@@ -120,7 +120,7 @@ async function applyUploadResult(
         appliedAny = true;
       }
       await tx.run(sql`
-        DELETE FROM _mutations WHERE id = ${verdict.mutationId}
+        DELETE FROM sync_engine_mutations WHERE id = ${verdict.mutationId}
       `);
     }
   });
@@ -133,7 +133,7 @@ async function applyUploadResult(
       await recordPushApplied(options.db, topic, pushSeq);
     }
   }
-  options.bus.emit(['_mutations', 'write_rejections']);
+  options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);
 }
 
 /**

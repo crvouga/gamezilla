@@ -157,14 +157,14 @@ describe('sqlite reconcile integration', () => {
   test('declared-only leaves undeclared tables alone', async () => {
     const { client } = openMemoryClient();
     await client.run(
-      raw(`CREATE TABLE _mutations (id TEXT PRIMARY KEY) STRICT`)
+      raw(`CREATE TABLE sync_engine_mutations (id TEXT PRIMARY KEY) STRICT`)
     );
     const schema = defineSchema({
       tables: { notes: { body: 'text' } },
     });
     await sqlite(schema, client, { ownership: 'declared-only' }).reconcile();
     const catalog = await readSqliteCatalog(client, schema._declared);
-    expect(catalog.allTableNames.has('_mutations')).toBe(true);
+    expect(catalog.allTableNames.has('sync_engine_mutations')).toBe(true);
     expect(catalog.allTableNames.has('notes')).toBe(true);
   });
 });

@@ -116,7 +116,7 @@ export class DeviceWriteRepository {
     const { deviceId, snapshot, now, createId } = args;
     const rows = await this.db.query(sql<DeviceRow>`
       SELECT *
-      FROM devices
+      FROM auth_devices
       WHERE id = ${deviceId}
       LIMIT 1
     `);
@@ -141,7 +141,7 @@ export class DeviceWriteRepository {
     const { deviceId, now, snapshot, createId } = args;
     const { cols, vals } = buildInsertArgs(deviceId, now, snapshot, createId);
     await this.db.run(sql<void>`
-      INSERT INTO devices (${raw(cols.join(', '))})
+      INSERT INTO auth_devices (${raw(cols.join(', '))})
       VALUES ${join(vals as Value[], ', ', '(', ')')}
     `);
   }
@@ -156,7 +156,7 @@ export class DeviceWriteRepository {
       entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
     );
     await this.db.run(sql<void>`
-      UPDATE devices
+      UPDATE auth_devices
       SET ${sets}
       WHERE id = ${deviceId}
     `);

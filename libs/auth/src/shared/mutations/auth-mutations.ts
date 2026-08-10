@@ -20,7 +20,7 @@ export const ensureDeviceMutation = defineMutation({
   async run({ tx, env }, snapshot) {
     const now = env.now().toISOString();
     await tx.run(sql`
-      INSERT INTO devices (
+      INSERT INTO auth_devices (
         id, created_at, first_seen_at, last_seen_at,
         platform, os_name, os_version, device_model_name, device_brand,
         device_name, app_version, app_build_number, user_agent

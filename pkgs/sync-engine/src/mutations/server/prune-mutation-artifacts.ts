@@ -2,7 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 /**
- * Prune old applied/rejected idempotency rows and acknowledged write_rejections.
+ * Prune old applied/rejected idempotency rows and acknowledged sync_engine_write_rejections.
  * Call from a scheduled server job (dev wipe / ops), not from client uploads.
  */
 export async function pruneMutationArtifacts(
@@ -12,11 +12,11 @@ export async function pruneMutationArtifacts(
 ): Promise<void> {
   const cutoff = new Date(now.getTime() - olderThanMs).toISOString();
   await db.run(sql`
-    DELETE FROM _mutations_applied
+    DELETE FROM sync_engine_mutations_applied
     WHERE applied_at < ${cutoff}
   `);
   await db.run(sql`
-    DELETE FROM write_rejections
+    DELETE FROM sync_engine_write_rejections
     WHERE acknowledged = true
       AND created_at < ${cutoff}
   `);

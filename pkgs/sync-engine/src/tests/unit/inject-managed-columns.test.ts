@@ -17,7 +17,7 @@ function testEnv(): MutationEnv {
 describe('injectManagedColumns', () => {
   test('does not duplicate id/created_at already listed on INSERT', () => {
     const query = sql`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${'actor'}, ${'2026-08-10T05:30:13.199Z'}, ${''}, ${''}, ${'{}'})
       ON CONFLICT (id) DO NOTHING
     `;
@@ -31,7 +31,7 @@ describe('injectManagedColumns', () => {
 
   test('injects missing managed columns when INSERT omits them', () => {
     const query = sql`
-      INSERT INTO profiles (username, username_norm, avatar_config)
+      INSERT INTO profile (username, username_norm, avatar_config)
       VALUES (${'alice'}, ${'alice'}, ${'{}'})
     `;
     const out = injectManagedColumns(query, testEnv(), 'insert');
@@ -47,7 +47,7 @@ describe('injectManagedColumns', () => {
 
   test('injects updated_at on UPDATE when absent', () => {
     const query = sql`
-      UPDATE profiles SET username = ${'bob'} WHERE id = ${'actor'}
+      UPDATE profile SET username = ${'bob'} WHERE id = ${'actor'}
     `;
     const out = injectManagedColumns(query, testEnv(), 'update');
     expect(out.sql).toMatch(/SET\s+updated_at = \?/i);

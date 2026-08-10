@@ -4,7 +4,7 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import { defineTopicMap, topicsFromWriteCapture } from '../../shared/topic-map';
 
 const map = defineTopicMap({
-  friendships: {
+  friends_friendships: {
     topics(row) {
       return [
         `user:${String(row['user_low'])}` as Topic,
@@ -12,7 +12,7 @@ const map = defineTopicMap({
       ];
     },
   },
-  friend_requests: {
+  friends_requests: {
     topics(row) {
       return [
         `user:${String(row['from_user_id'])}` as Topic,
@@ -33,13 +33,13 @@ describe('friendship topic map wakes both users', () => {
         isAnon: false,
       },
       capture: {
-        tables: ['friendships', 'friend_requests'],
+        tables: ['friends_friendships', 'friends_requests'],
         ids: {
-          friendships: ['f1'],
-          friend_requests: ['r1'],
+          friends_friendships: ['f1'],
+          friends_requests: ['r1'],
         },
         images: {
-          friendships: [
+          friends_friendships: [
             {
               id: 'f1',
               user_low: 'alice',
@@ -47,7 +47,7 @@ describe('friendship topic map wakes both users', () => {
               deleted_at: null,
             },
           ],
-          friend_requests: [
+          friends_requests: [
             {
               id: 'r1',
               from_user_id: 'bob',

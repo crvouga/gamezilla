@@ -16,7 +16,7 @@ const map = defineTopicMap({
         return [...new Set(base)];
       }
       const party = (await db.query({
-        sql: 'SELECT user_id FROM space_users',
+        sql: 'SELECT user_id FROM spaces_users',
         params: [],
       } as never)) as readonly { readonly user_id: string }[];
       return [

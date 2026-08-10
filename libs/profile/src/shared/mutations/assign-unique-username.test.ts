@@ -25,7 +25,7 @@ function mutationEnv(myId: string) {
 
 async function migrate(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
-    CREATE TABLE profiles (
+    CREATE TABLE profile (
       id TEXT PRIMARY KEY,
       created_at TEXT NOT NULL,
       username TEXT NOT NULL DEFAULT '',
@@ -52,14 +52,14 @@ describe('assignUniqueUsernameIfEmpty', () => {
   test('assigns a username when empty', async () => {
     const now = NOW_ISO;
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{}'})
     `);
 
     await assignUniqueUsernameIfEmpty(sqlClient, ACCOUNT_ID);
 
     const rows = await sqlClient.query(sql<{ username: string }>`
-      SELECT username FROM profiles WHERE id = ${ACCOUNT_ID}
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
     `);
     expect(rows[0]?.username.length).toBeGreaterThan(0);
   });
@@ -67,14 +67,14 @@ describe('assignUniqueUsernameIfEmpty', () => {
   test('leaves an existing username alone', async () => {
     const now = NOW_ISO;
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${'AlreadyTaken'}, ${'alreadytaken'}, ${'{}'})
     `);
 
     await assignUniqueUsernameIfEmpty(sqlClient, ACCOUNT_ID);
 
     const rows = await sqlClient.query(sql<{ username: string }>`
-      SELECT username FROM profiles WHERE id = ${ACCOUNT_ID}
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
     `);
     expect(rows[0]?.username).toBe('AlreadyTaken');
   });
@@ -83,18 +83,18 @@ describe('assignUniqueUsernameIfEmpty', () => {
     const now = NOW_ISO;
     const collision = generateRandomUsername(`${ACCOUNT_ID}:0`);
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${OTHER_ID}, ${now}, ${collision}, ${collision.toLowerCase()}, ${'{}'})
     `);
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{}'})
     `);
 
     await assignUniqueUsernameIfEmpty(sqlClient, ACCOUNT_ID);
 
     const rows = await sqlClient.query(sql<{ username: string }>`
-      SELECT username FROM profiles WHERE id = ${ACCOUNT_ID}
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
     `);
     expect(rows[0]?.username).toBe(generateRandomUsername(`${ACCOUNT_ID}:1`));
     expect(rows[0]?.username).not.toBe(collision);
@@ -105,12 +105,12 @@ describe('assignUniqueUsernameIfEmpty', () => {
     for (let attempt = 0; attempt < 8; attempt += 1) {
       const username = generateRandomUsername(`${ACCOUNT_ID}:${attempt}`);
       await sqlClient.run(sql<void>`
-        INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+        INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
         VALUES (${`${OTHER_ID}-${attempt}`}, ${now}, ${username}, ${username.toLowerCase()}, ${'{}'})
       `);
     }
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{}'})
     `);
 
@@ -142,7 +142,7 @@ describe('ensureProfileMutation', () => {
     const row = (
       await sqlClient.query(sql<Record<string, string>>`
         SELECT username, avatar_config
-        FROM profiles
+        FROM profile
         WHERE id = ${ACCOUNT_ID}
       `)
     )[0];
@@ -163,7 +163,7 @@ describe('ensureProfileMutation', () => {
 
     const rows = await sqlClient.query(sql<{ n: number }>`
       SELECT count(*) AS n
-      FROM profiles
+      FROM profile
       WHERE id = ${ACCOUNT_ID}
     `);
     expect(rows[0]?.n).toBe(1);
@@ -172,7 +172,7 @@ describe('ensureProfileMutation', () => {
   test('fills empty username on an existing row', async () => {
     const now = NOW_ISO;
     await sqlClient.run(sql<void>`
-      INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
       VALUES (${ACCOUNT_ID}, ${now}, ${''}, ${''}, ${'{"seed":"x"}'})
     `);
 
@@ -182,7 +182,7 @@ describe('ensureProfileMutation', () => {
     );
 
     const rows = await sqlClient.query(sql<{ username: string }>`
-      SELECT username FROM profiles WHERE id = ${ACCOUNT_ID}
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
     `);
     expect(rows[0]?.username.length).toBeGreaterThan(0);
   });

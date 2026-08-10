@@ -54,7 +54,7 @@ Framework table names/shapes/DDL text, merge/rebase/upload/subscription, `alloca
 
 | Leak | Replacement |
 |------|-------------|
-| Sim/raw `write_rejections` / `_mutations` reads | `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` (sim `outcome`/`rejections` built on these) |
+| Sim/raw `sync_engine_write_rejections` / `sync_engine_mutations` reads | `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` (sim `outcome`/`rejections` built on these) |
 | `SCHEMA_EPOCH` on `/client` | `/test` only; create option `schemaEpoch` remains host wiring |
 | `FRAMEWORK_*` DDL/name exports | Opaque `applyFrameworkServerDdl` + `assertDomainTablesAvoidFrameworkNames` |
 | `allocateTopicPushSeq(s)` public | Folded into `notifyChannels({ sql, topics, … })` |
@@ -233,7 +233,7 @@ To update a freeze deliberately: change the surface, run the check once to rewri
 | Step | Behavior |
 |------|----------|
 | Client header / body version ≠ 2 | Server returns auth error `upgrade_required` — **no local wipe** |
-| Pending `_mutations` on upgrade | Preserve-and-drain after client updates (scenario: `pending-mutations-across-protocol-cut-drain`) |
+| Pending `sync_engine_mutations` on upgrade | Preserve-and-drain after client updates (scenario: `pending-mutations-across-protocol-cut-drain`) |
 | Wire shapes | Stay v2 envelopes; derivation did not need topics-in-payload |
 
 No second cutover policy. Do not keep dual handlers “until clients adopt” for

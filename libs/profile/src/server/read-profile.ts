@@ -28,7 +28,7 @@ export class ProfileReadRepository {
   async readCardById(profileId: string): Promise<ProfileCard | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
-      FROM profiles
+      FROM profile
       WHERE id = ${profileId}
       LIMIT 1
     `);
@@ -43,7 +43,7 @@ export class ProfileReadRepository {
     if (profileIds.length === 0) return [];
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
-      FROM profiles
+      FROM profile
       WHERE id IN (${join([...profileIds])})
     `);
     return rows

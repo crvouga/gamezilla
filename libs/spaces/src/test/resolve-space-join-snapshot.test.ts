@@ -76,7 +76,7 @@ describe('resolveSpaceJoinSnapshot', () => {
     ).toEqual({ status: 'live', joinable: true });
   });
 
-  test('private live row joinable only with space_users', () => {
+  test('private live row joinable only with spaces_users', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,

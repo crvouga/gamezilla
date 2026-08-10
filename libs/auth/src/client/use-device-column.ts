@@ -53,7 +53,7 @@ function deviceRowByIdSql(deviceId: string) {
       user_agent,
       first_seen_at,
       last_seen_at
-    FROM devices
+    FROM auth_devices
     WHERE id = ${deviceId}
   `;
 }

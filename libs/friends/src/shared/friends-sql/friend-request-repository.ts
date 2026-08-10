@@ -37,7 +37,7 @@ export class FriendRequestRepository {
   async findById(requestId: string): Promise<FriendRequest | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE id = ${requestId}
       LIMIT 1
     `);
@@ -51,7 +51,7 @@ export class FriendRequestRepository {
   ): Promise<FriendRequest | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE from_user_id = ${fromUserId}
         AND to_user_id = ${toUserId}
         AND status = 'pending'
@@ -67,7 +67,7 @@ export class FriendRequestRepository {
   ): Promise<readonly FriendRequest[]> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE status = 'pending'
         AND (
           (from_user_id = ${userA} AND to_user_id = ${userB})
@@ -83,7 +83,7 @@ export class FriendRequestRepository {
   ): Promise<FriendRequest | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE from_user_id = ${fromUserId}
         AND to_user_id = ${toUserId}
         AND status = 'declined'
@@ -97,7 +97,7 @@ export class FriendRequestRepository {
   async listPendingIncoming(userId: string): Promise<readonly FriendRequest[]> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE to_user_id = ${userId} AND status = 'pending'
       ORDER BY created_at DESC
     `);
@@ -107,7 +107,7 @@ export class FriendRequestRepository {
   async listPendingOutgoing(userId: string): Promise<readonly FriendRequest[]> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests
+      FROM friends_requests
       WHERE from_user_id = ${userId} AND status = 'pending'
       ORDER BY created_at DESC
     `);
@@ -122,7 +122,7 @@ export class FriendRequestRepository {
     readonly now: string;
   }): Promise<FriendRequest> {
     await this.tx.run(sql<void>`
-      INSERT INTO friend_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
+      INSERT INTO friends_requests (id, from_user_id, to_user_id, status, message, created_at, updated_at)
       VALUES (${args.id}, ${args.fromUserId}, ${args.toUserId}, 'pending', ${args.message}, ${args.now}, ${args.now})
     `);
     const created = await this.findById(args.id);
@@ -138,7 +138,7 @@ export class FriendRequestRepository {
     now: string
   ): Promise<void> {
     await this.tx.run(sql<void>`
-      UPDATE friend_requests
+      UPDATE friends_requests
       SET status = ${status}, updated_at = ${now}, responded_at = ${now}
       WHERE id = ${requestId}
     `);
@@ -150,7 +150,7 @@ export class FriendRequestRepository {
     now: string
   ): Promise<void> {
     await this.tx.run(sql<void>`
-      UPDATE friend_requests
+      UPDATE friends_requests
       SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
       WHERE status = 'pending'
         AND (

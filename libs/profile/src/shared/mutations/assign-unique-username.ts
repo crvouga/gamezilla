@@ -15,7 +15,7 @@ export async function assignUniqueUsernameIfEmpty(
 ): Promise<void> {
   const current = await tx.query(sql<{ username: string | null }>`
     SELECT username
-    FROM profiles
+    FROM profile
     WHERE id = ${profileId}
     LIMIT 1
   `);
@@ -28,7 +28,7 @@ export async function assignUniqueUsernameIfEmpty(
     const username = generateRandomUsername(`${profileId}:${attempt}`);
     const taken = await tx.query(sql<{ one: number }>`
       SELECT 1 AS one
-      FROM profiles
+      FROM profile
       WHERE lower(username) = ${username.toLowerCase()}
         AND username <> ''
       LIMIT 1
@@ -36,7 +36,7 @@ export async function assignUniqueUsernameIfEmpty(
     if (taken.length > 0) continue;
 
     await tx.run(sql`
-      UPDATE profiles
+      UPDATE profile
       SET username = ${username}, username_norm = ${username.toLowerCase()}
       WHERE id = ${profileId}
         AND (username = '' OR username IS NULL)
@@ -44,7 +44,7 @@ export async function assignUniqueUsernameIfEmpty(
 
     const after = await tx.query(sql<{ username: string | null }>`
       SELECT username
-      FROM profiles
+      FROM profile
       WHERE id = ${profileId}
       LIMIT 1
     `);

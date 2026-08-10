@@ -10,7 +10,7 @@ export type RunBetterAuthMigrationsArgs = {
 };
 
 /**
- * Applies Better Auth Kysely DDL (user / session / account / verification).
+ * Applies Better Auth Kysely DDL (`better_auth_user` / session / account / verification).
  * Uses placeholder Google credentials — schema is independent of OAuth secrets.
  */
 export async function runBetterAuthMigrations(

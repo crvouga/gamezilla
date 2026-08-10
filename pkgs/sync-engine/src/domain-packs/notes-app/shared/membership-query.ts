@@ -15,7 +15,7 @@ export const spaceMembershipQuery = defineQuery({
       user_id: string;
       deleted_at: string | null;
     }>`
-      SELECT id, space_id, user_id, deleted_at FROM space_users
+      SELECT id, space_id, user_id, deleted_at FROM spaces_users
       WHERE user_id = ${env.actorId}
       ORDER BY id ASC
 `);
@@ -27,7 +27,7 @@ export const spaceMembershipQuery = defineQuery({
       liveSpaceIds.push(spaceId);
     }
     if (liveSpaceIds.length === 0) {
-      return { spaces: [], space_users: memberships, notes: [] };
+      return { spaces: [], spaces_users: memberships, notes: [] };
     }
     const idList = join(liveSpaceIds);
     const spaces = await db.query(sql<{
@@ -54,7 +54,7 @@ export const spaceMembershipQuery = defineQuery({
       WHERE space_id IN (${idList})
       ORDER BY id ASC
 `);
-    return { spaces, space_users: memberships, notes };
+    return { spaces, spaces_users: memberships, notes };
   },
 });
 
@@ -79,11 +79,11 @@ export const openSpaceSessionsQuery = defineQuery({
       deleted_at: string | null;
     }>`
       SELECT id, space_id, device_id, opened_at, deleted_at
-      FROM space_open_sessions
+      FROM spaces_open_sessions
       WHERE device_id = ${env.deviceId}
       ORDER BY id ASC
 `);
-    return { space_open_sessions: rows };
+    return { spaces_open_sessions: rows };
   },
 });
 

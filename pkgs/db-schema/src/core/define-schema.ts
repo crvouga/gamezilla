@@ -302,12 +302,61 @@ function parseIndexes(args: {
   return indexes;
 }
 
-function validateRuntime(literal: unknown): ReadonlyDeclaredSchema {
+export type TableNamePolicy = {
+  /**
+   * Domain ids. Each table must equal a domain or start with `{domain}_`.
+   * Example: domains `['auth','spaces']` allows `auth`, `auth_users`, `spaces`.
+   */
+  readonly domains: readonly string[];
+};
+
+export type DefineSchemaOptions = {
+  readonly tableNamePolicy?: TableNamePolicy;
+};
+
+function assertMatchesTableNamePolicy(
+  tableName: string,
+  domains: readonly string[]
+): void {
+  if (domains.length === 0) {
+    throw new Error('tableNamePolicy.domains: must be a non-empty array');
+  }
+  for (const domain of domains) {
+    if (typeof domain !== 'string' || domain.length === 0) {
+      throw new Error('tableNamePolicy.domains: each domain must be a string');
+    }
+    assertSnakeCaseIdent(domain, `tableNamePolicy.domains`);
+  }
+  const ok = domains.some(
+    (d) => tableName === d || tableName.startsWith(`${d}_`)
+  );
+  if (!ok) {
+    throw new Error(
+      `tables.${tableName}: must equal or start with one of [${domains.join(', ')}] (got '${tableName}')`
+    );
+  }
+}
+
+function assertAllTablesMatchPolicy(
+  tables: Record<string, Record<string, ColumnType>>,
+  policy: TableNamePolicy | undefined
+): void {
+  if (policy === undefined) return;
+  for (const tableName of Object.keys(tables)) {
+    assertMatchesTableNamePolicy(tableName, policy.domains);
+  }
+}
+
+function validateRuntime(
+  literal: unknown,
+  options?: DefineSchemaOptions
+): ReadonlyDeclaredSchema {
   if (!isPlainObject(literal)) {
     throw new Error('schema: must be an object');
   }
   assertKnownTopLevelKeys(literal);
   const tables = parseTables(literal['tables']);
+  assertAllTablesMatchPolicy(tables, options?.tableNamePolicy);
   const { deprecations, deprecatedTables, deprecatedColumns } =
     parseDeprecations(literal['deprecations'], tables);
   const indexCtx: IndexParseCtx = {
@@ -344,8 +393,11 @@ function validateRuntime(literal: unknown): ReadonlyDeclaredSchema {
  * Validate, deep-freeze, and seal a declarative schema literal.
  * When this returns, the schema is complete and permanently immutable.
  */
-export function defineSchema<const T>(literal: SchemaInput<T>): Schema {
-  const declared = validateRuntime(literal);
+export function defineSchema<const T>(
+  literal: SchemaInput<T>,
+  options?: DefineSchemaOptions
+): Schema {
+  const declared = validateRuntime(literal, options);
   const frozenDeclared = deepFreeze(declared);
 
   const schema: Schema = {

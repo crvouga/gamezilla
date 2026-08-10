@@ -22,7 +22,7 @@ async function partyUserTopics(
   spaceId: string
 ): Promise<Topic[]> {
   const rows = await db.query(sql<{ readonly user_id: string }>`
-    SELECT DISTINCT user_id FROM space_users
+    SELECT DISTINCT user_id FROM spaces_users
     WHERE space_id = ${spaceId}
   `);
   const hosts = await db.query(sql<{
@@ -61,7 +61,7 @@ export const appTopicMap = defineTopicMap({
       return [...new Set([...base, ...party])];
     },
   },
-  space_users: {
+  spaces_users: {
     topics(row) {
       const spaceId = String(row['space_id'] ?? '');
       const userId = String(row['user_id'] ?? '');
@@ -71,7 +71,7 @@ export const appTopicMap = defineTopicMap({
       return out;
     },
   },
-  space_open_sessions: {
+  spaces_open_sessions: {
     // Device-private: writer already has the local mutation row; hydrate on
     // reconnect via openSpaceSessions (WHERE device_id = env.deviceId). Do not
     // wake user: — same-account peers must not receive open-session images.
@@ -82,7 +82,7 @@ export const appTopicMap = defineTopicMap({
       return [];
     },
   },
-  friendships: {
+  friends_friendships: {
     topics(row) {
       return [
         userTopic(String(row['user_low'])),
@@ -90,7 +90,7 @@ export const appTopicMap = defineTopicMap({
       ];
     },
   },
-  friend_requests: {
+  friends_requests: {
     topics(row) {
       return [
         userTopic(String(row['from_user_id'])),
@@ -98,7 +98,7 @@ export const appTopicMap = defineTopicMap({
       ];
     },
   },
-  user_blocks: {
+  friends_blocks: {
     topics(row) {
       return [
         userTopic(String(row['blocker_id'])),
@@ -106,23 +106,23 @@ export const appTopicMap = defineTopicMap({
       ];
     },
   },
-  profiles: {
+  profile: {
     topics(row, ctx) {
       const id = String(row['id'] ?? ctx.actorId);
       return [userTopic(id)];
     },
   },
-  users: {
+  auth_users: {
     topics(row, ctx) {
       return [userTopic(String(row['id'] ?? ctx.actorId))];
     },
   },
-  devices: {
+  auth_devices: {
     topics(_row, ctx) {
       return [userTopic(ctx.actorId)];
     },
   },
-  external_accounts: {
+  auth_external_accounts: {
     topics(_row, ctx) {
       return [userTopic(ctx.actorId)];
     },

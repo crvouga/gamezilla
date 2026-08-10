@@ -6,7 +6,7 @@ export type LiveSpaceIdRow = {
 };
 
 /**
- * Shared lobby live ids: host of the space OR has a space_users ACL row.
+ * Shared lobby live ids: host of the space OR has a spaces_users ACL row.
  */
 export function sharedLiveSpaceIdsSql(args: {
   readonly memberId: string;
@@ -20,7 +20,7 @@ export function sharedLiveSpaceIdsSql(args: {
         OR host_account_id = ${args.memberId}
         OR id IN (
           SELECT space_id
-          FROM space_users
+          FROM spaces_users
           WHERE user_id = ${args.memberId} AND deleted_at IS NULL
         )
       )

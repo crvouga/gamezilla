@@ -64,7 +64,7 @@ async function findRequest(
 ): Promise<FriendRequestRow> {
   const rows = await tx.query(sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, responded_at
-    FROM friend_requests WHERE id = ${requestId} LIMIT 1
+    FROM friends_requests WHERE id = ${requestId} LIMIT 1
   `);
   const request = rows[0];
   if (request === undefined) {
@@ -79,7 +79,7 @@ async function blockedEitherDirection(
   userB: string
 ): Promise<boolean> {
   const rows = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM user_blocks
+    SELECT id FROM friends_blocks
     WHERE deleted_at IS NULL
       AND (
         (blocker_id = ${userA} AND blocked_id = ${userB})
@@ -124,7 +124,7 @@ async function updateRequestStatus(
   now: string
 ): Promise<void> {
   await tx.run(sql`
-    UPDATE friend_requests
+    UPDATE friends_requests
     SET status = ${status}, updated_at = ${now}, responded_at = ${now}
     WHERE id = ${requestId}
   `);
@@ -137,7 +137,7 @@ async function acceptRequestsBetween(
   now: string
 ): Promise<void> {
   await tx.run(sql`
-    UPDATE friend_requests
+    UPDATE friends_requests
     SET status = 'accepted', updated_at = ${now}, responded_at = ${now}
     WHERE status = 'pending'
       AND (
@@ -154,7 +154,7 @@ async function cancelPendingRequests(
   now: string
 ): Promise<void> {
   await tx.run(sql`
-    UPDATE friend_requests
+    UPDATE friends_requests
     SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
     WHERE status = 'pending'
       AND (
@@ -170,7 +170,7 @@ async function hasPendingRequest(
   toUserId: string
 ): Promise<boolean> {
   const rows = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM friend_requests
+    SELECT id FROM friends_requests
     WHERE from_user_id = ${fromUserId}
       AND to_user_id = ${toUserId}
       AND status = 'pending'
@@ -186,7 +186,7 @@ async function latestDeclinedRequest(
 ): Promise<FriendRequestRow | undefined> {
   const rows = await tx.query(sql<FriendRequestRow>`
     SELECT id, from_user_id, to_user_id, status, responded_at
-    FROM friend_requests
+    FROM friends_requests
     WHERE from_user_id = ${fromUserId}
       AND to_user_id = ${toUserId}
       AND status = 'declined'
@@ -245,7 +245,7 @@ export const sendFriendRequestMutation = defineMutation({
       return;
     const now = nowDate.toISOString();
     await tx.run(sql`
-      INSERT INTO friend_requests (
+      INSERT INTO friends_requests (
         id, from_user_id, to_user_id, status, message, created_at, updated_at
       ) VALUES (
         ${requestId}, ${fromUserId}, ${toUserId}, 'pending',
@@ -287,7 +287,7 @@ export const acceptFriendRequestMutation = defineMutation({
       request.from_user_id
     );
     await tx.run(sql`
-      INSERT INTO friendships (
+      INSERT INTO friends_friendships (
         id, user_low, user_high, created_at, source_request_id, deleted_at
       )
       VALUES (
@@ -369,7 +369,7 @@ export const blockUserMutation = defineMutation({
     await new FriendshipRepository(tx).softDelete(actor, userId, now);
     await cancelPendingRequests(tx, actor, userId, now);
     await tx.run(sql`
-      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
+      INSERT INTO friends_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
       VALUES (${blockId}, ${actor}, ${userId}, ${now}, ${null})
       ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
         deleted_at = NULL,

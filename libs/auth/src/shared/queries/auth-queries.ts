@@ -6,10 +6,10 @@ export const ownUser = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT id, created_at, is_anon, deleted_at
-      FROM users
+      FROM auth_users
       WHERE id = ${ctx.env.actorId}
 `);
-    return { users: rows };
+    return { auth_users: rows };
   },
 });
 
@@ -34,10 +34,10 @@ export const ownDevices = defineQuery({
         first_seen_at, 
         last_seen_at,
         deleted_at
-      FROM devices
+      FROM auth_devices
       WHERE user_id = ${ctx.env.actorId}
 `);
-    return { devices: rows };
+    return { auth_devices: rows };
   },
 });
 
@@ -54,10 +54,10 @@ export const ownExternalAccounts = defineQuery({
         metadata, 
         created_at,
         deleted_at
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE user_id = ${ctx.env.actorId}
 `);
-    return { external_accounts: rows };
+    return { auth_external_accounts: rows };
   },
 });
 

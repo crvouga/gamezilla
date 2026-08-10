@@ -34,7 +34,7 @@ async function migrate(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE space_users (
+    CREATE TABLE spaces_users (
       id TEXT PRIMARY KEY,
       space_id TEXT,
       user_id TEXT,
@@ -77,7 +77,7 @@ async function seedSpaceUser(
   userId: string
 ): Promise<void> {
   await db.run(sql<void>`
-    INSERT INTO space_users (id, space_id, user_id, created_at, created_by_account_id)
+    INSERT INTO spaces_users (id, space_id, user_id, created_at, created_by_account_id)
     VALUES (
       ${spaceUserEntityId(spaceId, userId)},
       ${spaceId},
@@ -96,7 +96,7 @@ async function queryIds(
   return rows.map((r) => r.id);
 }
 
-describe('my-live-space-seat-sql — host / space_users lobby', () => {
+describe('my-live-space-seat-sql — host / spaces_users lobby', () => {
   let db: SqlClientImplBunSqlite;
 
   beforeEach(async () => {
@@ -104,7 +104,7 @@ describe('my-live-space-seat-sql — host / space_users lobby', () => {
     await migrate(db);
   });
 
-  test('host space appears in shared list without space_users row', async () => {
+  test('host space appears in shared list without spaces_users row', async () => {
     await seedSpace(db, {
       id: HOST_SPACE,
       hostAccountId: ACCOUNT_ID,
@@ -136,7 +136,7 @@ describe('my-live-space-seat-sql — host / space_users lobby', () => {
     expect(sharedIds).not.toContain(HOST_SPACE);
   });
 
-  test('space_users ACL private space appears in shared list', async () => {
+  test('spaces_users ACL private space appears in shared list', async () => {
     await seedSpace(db, {
       id: SHARED_SPACE,
       hostAccountId: OTHER_ACCOUNT,

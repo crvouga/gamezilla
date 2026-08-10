@@ -51,7 +51,10 @@ function classifyCrud(
     const policy = tablePolicyFor(entry.table);
     if (policy === undefined || policy === 'SERVER_ONLY') {
       illegal.push(entry);
-    } else if (policy === 'FRAMEWORK' && entry.table === '_mutations') {
+    } else if (
+      policy === 'FRAMEWORK' &&
+      entry.table === 'sync_engine_mutations'
+    ) {
       mutationRows.push(parseMutationRow(entry, now));
     } else if (policy === 'DOMAIN') {
       domainWrites.push(entry);
@@ -63,7 +66,7 @@ function classifyCrud(
 }
 
 /**
- * Classify upload CRUD: replay `_mutations`, discard DOMAIN residue,
+ * Classify upload CRUD: replay `sync_engine_mutations`, discard DOMAIN residue,
  * reject SERVER_ONLY / unknown / orphan DOMAIN (no mutation rows).
  */
 export async function processUploadWithMutations(
@@ -165,7 +168,7 @@ async function recordPolicyViolation(
     },
   };
   await deps.serverDb.run(sql`
-    INSERT INTO write_rejections (
+    INSERT INTO sync_engine_write_rejections (
       id, mutation_id, client_id, code, message, meta, created_at, acknowledged
     ) VALUES (
       ${deps.createId()},

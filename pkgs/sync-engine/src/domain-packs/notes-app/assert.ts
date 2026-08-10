@@ -115,7 +115,7 @@ export async function readLiveOpenSessions(
 ): Promise<readonly LiveOpenSession[]> {
   return db.query(sql<LiveOpenSession>`
     SELECT id, space_id, device_id
-    FROM space_open_sessions
+    FROM spaces_open_sessions
     WHERE deleted_at IS NULL
     ORDER BY id ASC
   `);
@@ -128,7 +128,7 @@ export async function expectOpenSession(
   spaceId: string
 ): Promise<void> {
   const rows = await db.query(sql<{ id: string }>`
-    SELECT id FROM space_open_sessions
+    SELECT id FROM spaces_open_sessions
     WHERE space_id = ${spaceId}
       AND device_id = ${deviceId}
       AND deleted_at IS NULL
@@ -142,7 +142,7 @@ export async function expectNoForeignOpenSessions(
   localDeviceId: string
 ): Promise<void> {
   const rows = await db.query(sql<{ device_id: string }>`
-    SELECT device_id FROM space_open_sessions
+    SELECT device_id FROM spaces_open_sessions
     WHERE deleted_at IS NULL AND device_id != ${localDeviceId}
   `);
   expect(rows).toEqual([]);

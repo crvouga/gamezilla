@@ -41,7 +41,7 @@ function presenceSql(
       s.ended_at,
       CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open
     FROM spaces AS s
-    LEFT JOIN space_open_sessions AS o
+    LEFT JOIN spaces_open_sessions AS o
       ON o.space_id = s.id
       AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
@@ -51,7 +51,7 @@ function presenceSql(
 
 /**
  * Resolves whether this install has `spaceId` open.
- * One SQL watch joins `spaces` + this device's `space_open_sessions`.
+ * One SQL watch joins `spaces` + this device's `spaces_open_sessions`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
   const accountId = useMyAccountId();

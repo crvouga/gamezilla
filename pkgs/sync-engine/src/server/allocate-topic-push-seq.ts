@@ -5,7 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 /**
  * Allocate the next strictly monotonic pushSeq for a pubsub topic.
  *
- * Source of truth is Postgres `_sync_topic_seq`, advanced with an atomic upsert
+ * Source of truth is Postgres `sync_engine_topic_seq`, advanced with an atomic upsert
  * so concurrent replays on the same topic serialize correctly. The wire value
  * is the decimal string of `n` (not Date.now()+ackSeq) so peers can detect gaps
  * with exact-next contiguous checks.
@@ -15,10 +15,10 @@ export async function allocateTopicPushSeq(
   topic: Topic
 ): Promise<string> {
   const rows = await db.query(sql<{ n: number | string | bigint }>`
-    INSERT INTO _sync_topic_seq (topic, n)
+    INSERT INTO sync_engine_topic_seq (topic, n)
     VALUES (${topic}, 1)
     ON CONFLICT (topic) DO UPDATE
-      SET n = _sync_topic_seq.n + 1
+      SET n = sync_engine_topic_seq.n + 1
     RETURNING n
   `);
   const n = rows[0]?.n;
@@ -61,10 +61,10 @@ export async function allocateTopicPushSeqs(
     topic: string;
     n: number | string | bigint;
   }>`
-    INSERT INTO _sync_topic_seq (topic, n)
+    INSERT INTO sync_engine_topic_seq (topic, n)
     VALUES ${join(valueFrags)}
     ON CONFLICT (topic) DO UPDATE
-      SET n = _sync_topic_seq.n + 1
+      SET n = sync_engine_topic_seq.n + 1
     RETURNING topic, n
   `);
   for (const row of rows) {

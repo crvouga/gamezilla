@@ -34,19 +34,19 @@ export const notesAppSchemaExtraColumn = defineSchema({
       title: 'text',
       owner_id: 'text',
     },
-    space_users: {
+    spaces_users: {
       space_id: 'text',
       user_id: 'text',
     },
-    space_open_sessions: {
+    spaces_open_sessions: {
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
   },
   uniqueIndexes: [
-    ['space_users', 'space_id', 'user_id'],
-    ['space_open_sessions', 'device_id', 'space_id'],
+    ['spaces_users', 'space_id', 'user_id'],
+    ['spaces_open_sessions', 'device_id', 'space_id'],
   ],
   indexes: [
     ['notes', 'folder_id'],
@@ -54,10 +54,10 @@ export const notesAppSchemaExtraColumn = defineSchema({
     ['notes', 'space_id'],
     ['folders', 'owner_id'],
     ['spaces', 'owner_id'],
-    ['space_users', 'space_id'],
-    ['space_users', 'user_id'],
-    ['space_open_sessions', 'device_id'],
-    ['space_open_sessions', 'space_id'],
+    ['spaces_users', 'space_id'],
+    ['spaces_users', 'user_id'],
+    ['spaces_open_sessions', 'device_id'],
+    ['spaces_open_sessions', 'space_id'],
   ],
 });
 
@@ -65,8 +65,8 @@ export const NOTES_APP_TABLES_EXTRA_COLUMN = [
   'folders',
   'notes',
   'spaces',
-  'space_users',
-  'space_open_sessions',
+  'spaces_users',
+  'spaces_open_sessions',
 ] as const;
 
 export const notesLocalSchemaExtraColumn: LocalDomainSchema = {
@@ -96,19 +96,19 @@ export const notesAppSchemaExtraTable = defineSchema({
       title: 'text',
       owner_id: 'text',
     },
-    space_users: {
+    spaces_users: {
       space_id: 'text',
       user_id: 'text',
     },
-    space_open_sessions: {
+    spaces_open_sessions: {
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
   },
   uniqueIndexes: [
-    ['space_users', 'space_id', 'user_id'],
-    ['space_open_sessions', 'device_id', 'space_id'],
+    ['spaces_users', 'space_id', 'user_id'],
+    ['spaces_open_sessions', 'device_id', 'space_id'],
   ],
   indexes: [
     ['notes', 'folder_id'],
@@ -117,10 +117,10 @@ export const notesAppSchemaExtraTable = defineSchema({
     ['tags', 'owner_id'],
     ['folders', 'owner_id'],
     ['spaces', 'owner_id'],
-    ['space_users', 'space_id'],
-    ['space_users', 'user_id'],
-    ['space_open_sessions', 'device_id'],
-    ['space_open_sessions', 'space_id'],
+    ['spaces_users', 'space_id'],
+    ['spaces_users', 'user_id'],
+    ['spaces_open_sessions', 'device_id'],
+    ['spaces_open_sessions', 'space_id'],
   ],
 });
 
@@ -129,8 +129,8 @@ export const NOTES_APP_TABLES_EXTRA_TABLE = [
   'notes',
   'tags',
   'spaces',
-  'space_users',
-  'space_open_sessions',
+  'spaces_users',
+  'spaces_open_sessions',
 ] as const;
 
 export const notesLocalSchemaExtraTable: LocalDomainSchema = {

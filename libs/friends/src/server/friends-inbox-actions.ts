@@ -48,7 +48,7 @@ export class FriendsInboxActionHandler {
       readonly responded_at: string | null;
     }>(sql`
       SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
-      FROM friend_requests WHERE id = ${requestId}
+      FROM friends_requests WHERE id = ${requestId}
     `);
     const request = rows[0];
     if (request === undefined) {

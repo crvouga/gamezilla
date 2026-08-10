@@ -42,7 +42,7 @@ export class ExternalAccountRepository {
   ): Promise<string | null> {
     const rows = await this.db.query(sql<UserIdRow>`
       SELECT user_id
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE provider = ${provider}
         AND external_id = ${externalId}
       LIMIT 1
@@ -57,7 +57,7 @@ export class ExternalAccountRepository {
   ): Promise<string | null> {
     const rows = await this.db.query(sql<{ external_id: string | null }>`
       SELECT external_id
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE user_id = ${userId}
         AND provider = ${provider}
       LIMIT 1
@@ -79,7 +79,7 @@ export class ExternalAccountRepository {
     const managed = managedInsertColumns(args.createId, args.now, args.userId);
     const created = args.createdAt ?? managed.created_at;
     await this.db.run(sql<void>`
-      INSERT INTO users (id, created_at, updated_at, is_anon)
+      INSERT INTO auth_users (id, created_at, updated_at, is_anon)
       VALUES (
         ${managed.id},
         ${created},
@@ -99,7 +99,7 @@ export class ExternalAccountRepository {
     const managed = managedInsertColumns(args.createId, args.now, id);
     const metadataJson = JSON.stringify(args.metadata ?? {});
     await this.db.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         created_at,
         updated_at,
@@ -120,7 +120,7 @@ export class ExternalAccountRepository {
       ON CONFLICT (provider, external_id) DO UPDATE SET
         metadata = excluded.metadata,
         updated_at = excluded.updated_at
-      WHERE external_accounts.user_id = excluded.user_id
+      WHERE auth_external_accounts.user_id = excluded.user_id
     `);
   }
 
@@ -139,7 +139,7 @@ export class ExternalAccountRepository {
     const managed = managedInsertColumns(args.createId, args.now, id);
     const metadataJson = JSON.stringify(args.metadata ?? {});
     await this.db.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         created_at,
         updated_at,
@@ -165,7 +165,7 @@ export class ExternalAccountRepository {
     );
     if (ownerId === null) {
       throw new Error(
-        `external_accounts row missing after insert (${args.provider}/${args.externalId})`
+        `auth_external_accounts row missing after insert (${args.provider}/${args.externalId})`
       );
     }
     return ownerId;

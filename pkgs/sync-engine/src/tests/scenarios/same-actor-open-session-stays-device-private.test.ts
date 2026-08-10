@@ -11,8 +11,8 @@ import {
 import { openSimWorld } from '../../sim/world';
 
 /**
- * Replicates the product bug: createSpace writes spaces + space_users (user
- * wake) and space_open_sessions (device-private). Same-account peer must get
+ * Replicates the product bug: createSpace writes spaces + spaces_users (user
+ * wake) and spaces_open_sessions (device-private). Same-account peer must get
  * the space via live fanout but must NOT apply the writer's open-session row.
  */
 describe('same actor open session stays device private', () => {

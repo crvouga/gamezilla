@@ -24,22 +24,22 @@ const CORPUS: readonly {
     expect: { kind: 'write', table: 'spaces', op: 'upsert' },
   },
   {
-    name: 'space_users upsert',
+    name: 'spaces_users upsert',
     query: sql`
-      INSERT INTO space_users (id, space_id, user_id)
+      INSERT INTO spaces_users (id, space_id, user_id)
       VALUES (NULL, NULL, NULL)
       ON CONFLICT (id) DO UPDATE SET user_id = excluded.user_id
     `,
-    expect: { kind: 'write', table: 'space_users', op: 'upsert' },
+    expect: { kind: 'write', table: 'spaces_users', op: 'upsert' },
   },
   {
-    name: 'space_open_sessions upsert',
+    name: 'spaces_open_sessions upsert',
     query: sql`
-      INSERT INTO space_open_sessions (id, space_id, device_id)
+      INSERT INTO spaces_open_sessions (id, space_id, device_id)
       VALUES (NULL, NULL, NULL)
       ON CONFLICT (id) DO UPDATE SET space_id = excluded.space_id
     `,
-    expect: { kind: 'write', table: 'space_open_sessions', op: 'upsert' },
+    expect: { kind: 'write', table: 'spaces_open_sessions', op: 'upsert' },
   },
   {
     name: 'spaces update host',
@@ -47,38 +47,38 @@ const CORPUS: readonly {
     expect: { kind: 'write', table: 'spaces', op: 'update', softDelete: false },
   },
   {
-    name: 'space_users soft-delete',
+    name: 'spaces_users soft-delete',
     query: sql`
-      UPDATE space_users SET deleted_at = NULL
+      UPDATE spaces_users SET deleted_at = NULL
       WHERE id = NULL AND deleted_at IS NULL
     `,
     expect: {
       kind: 'write',
-      table: 'space_users',
+      table: 'spaces_users',
       op: 'update',
       softDelete: true,
     },
   },
   {
-    name: 'space_open_sessions soft-delete by id',
+    name: 'spaces_open_sessions soft-delete by id',
     query: sql`
-      UPDATE space_open_sessions SET deleted_at = NULL WHERE id = NULL
+      UPDATE spaces_open_sessions SET deleted_at = NULL WHERE id = NULL
     `,
     expect: {
       kind: 'write',
-      table: 'space_open_sessions',
+      table: 'spaces_open_sessions',
       op: 'update',
       softDelete: true,
     },
   },
   {
-    name: 'space_open_sessions soft-delete by space_id',
+    name: 'spaces_open_sessions soft-delete by space_id',
     query: sql`
-      UPDATE space_open_sessions SET deleted_at = NULL WHERE space_id = NULL
+      UPDATE spaces_open_sessions SET deleted_at = NULL WHERE space_id = NULL
     `,
     expect: {
       kind: 'write',
-      table: 'space_open_sessions',
+      table: 'spaces_open_sessions',
       op: 'update',
       softDelete: true,
     },
@@ -86,12 +86,12 @@ const CORPUS: readonly {
   {
     name: 'sessions close via subquery',
     query: sql`
-      UPDATE space_open_sessions SET deleted_at = NULL
+      UPDATE spaces_open_sessions SET deleted_at = NULL
       WHERE space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
     `,
     expect: {
       kind: 'write',
-      table: 'space_open_sessions',
+      table: 'spaces_open_sessions',
       op: 'update',
       softDelete: true,
     },
@@ -102,7 +102,7 @@ const CORPUS: readonly {
       WITH related_spaces AS (
         SELECT id FROM spaces WHERE host_member_id = NULL
       )
-      SELECT id, space_id, user_id, deleted_at FROM space_users
+      SELECT id, space_id, user_id, deleted_at FROM spaces_users
       WHERE space_id IN (SELECT id FROM related_spaces)
     `,
     expect: { kind: 'read' },
@@ -143,7 +143,7 @@ describe('AST capture + RETURNING corpus', () => {
       if (exp.kind === 'read') {
         expect(classified.kind).toBe('read');
         if (classified.kind === 'read') {
-          expect(classified.tables).toContain('space_users');
+          expect(classified.tables).toContain('spaces_users');
           expect(classified.hasDeletedAtColumn).toBe(true);
           expect(classified.hasDeletedAtPredicate).toBe(false);
         }

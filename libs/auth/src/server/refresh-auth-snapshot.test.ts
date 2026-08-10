@@ -42,7 +42,7 @@ function makeFakeAuthServer(args: {
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
-    CREATE TABLE devices (
+    CREATE TABLE auth_devices (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -62,7 +62,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE external_accounts (
+    CREATE TABLE auth_external_accounts (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -92,7 +92,7 @@ async function readPrimaryAuthExternalAccount(
     metadata: string | null;
   }>`
     SELECT external_id, metadata
-    FROM external_accounts
+    FROM auth_external_accounts
     WHERE user_id = ${accountId}
       AND provider = ${PRIMARY_AUTH_PROVIDER}
     LIMIT 1
@@ -106,7 +106,7 @@ async function readDeviceUserId(
 ): Promise<string | null> {
   const rows = await db.query(sql<{ user_id: string | null }>`
     SELECT user_id
-    FROM devices
+    FROM auth_devices
     WHERE id = ${deviceId}
   `);
   return rows[0]?.user_id ?? null;
@@ -118,7 +118,7 @@ async function readDevice(
 ): Promise<{ platform: string | null } | null> {
   const rows = await db.query(sql<{ platform: string | null }>`
     SELECT platform
-    FROM devices
+    FROM auth_devices
     WHERE id = ${deviceId}
   `);
   return rows[0] ?? null;
@@ -208,7 +208,7 @@ describe('AuthSnapshotRefresher', () => {
 
     const rows = await sqlClient.query(sql<{ external_id: string }>`
       SELECT external_id
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE provider = ${PRIMARY_AUTH_PROVIDER}
     `);
     expect(rows).toHaveLength(1);
@@ -228,7 +228,7 @@ describe('AuthSnapshotRefresher', () => {
 
     const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         user_id,
         provider,
@@ -252,7 +252,7 @@ describe('AuthSnapshotRefresher', () => {
       external_id: string | null;
     }>`
       SELECT external_id
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE user_id = ${ACCOUNT_ID}
         AND provider = ${'stripe'}
     `);
@@ -260,7 +260,7 @@ describe('AuthSnapshotRefresher', () => {
 
     const primaryRows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE user_id = ${ACCOUNT_ID}
         AND provider = ${PRIMARY_AUTH_PROVIDER}
     `);

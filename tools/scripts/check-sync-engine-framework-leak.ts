@@ -9,7 +9,7 @@ import { Glob } from 'bun';
 const root = join(import.meta.dirname, '../..');
 
 const FORBIDDEN_RE =
-  /\b(_push_applied|_mutations_applied|_mutations|_scope_meta|write_rejections|_sync_topic_seq|FRAMEWORK_SERVER_DDL|FRAMEWORK_TABLE_NAMES|FRAMEWORK_CACHE_TABLE_NAMES|FRAMEWORK_DURABLE_TABLE_NAMES|allocateTopicPushSeq)\b/;
+  /\b(sync_engine_push_applied|sync_engine_mutations_applied|sync_engine_mutations|sync_engine_scope_meta|sync_engine_write_rejections|sync_engine_topic_seq|FRAMEWORK_SERVER_DDL|FRAMEWORK_TABLE_NAMES|FRAMEWORK_CACHE_TABLE_NAMES|FRAMEWORK_DURABLE_TABLE_NAMES|allocateTopicPushSeq)\b/;
 
 /** Product + tooling surfaces that must not depend on framework table names. */
 const SCAN_GLOBS = [
@@ -22,6 +22,7 @@ const SCAN_GLOBS = [
 const ALLOW_PATH_PREFIXES = [
   // This checker (and related sync-engine CI) may name tables in regexes.
   'tools/scripts/check-sync-engine-',
+  'tools/scripts/check-domain-table-prefixes.ts',
   'tools/scripts/check-no-domain-hard-delete.ts',
   'tools/scripts/check-fanout-rows-from-reads.ts',
 ];

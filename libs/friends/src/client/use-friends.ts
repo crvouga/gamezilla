@@ -32,8 +32,8 @@ function friendsSql(myId: string, enabled: boolean): Sql<FriendRow> {
       p.username,
       p.avatar_config,
       f.created_at AS friends_since
-    FROM friendships AS f
-    INNER JOIN profiles AS p
+    FROM friends_friendships AS f
+    INNER JOIN profile AS p
       ON p.id = CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END
     WHERE (f.user_low = ${myId} OR f.user_high = ${myId})
       AND f.deleted_at IS NULL

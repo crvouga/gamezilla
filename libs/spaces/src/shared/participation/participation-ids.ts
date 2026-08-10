@@ -10,12 +10,12 @@ export function resolveSpaceMemberId(accountId: string): string {
   return accountId;
 }
 
-/** Canonical space_users row id: `${spaceId}:${userId}`. */
+/** Canonical spaces_users row id: `${spaceId}:${userId}`. */
 export function spaceUserEntityId(spaceId: string, userId: string): string {
   return `${spaceId}:${userId}`;
 }
 
-/** Canonical space_open_sessions row id: `${deviceId}:${spaceId}`. */
+/** Canonical spaces_open_sessions row id: `${deviceId}:${spaceId}`. */
 export function spaceOpenSessionEntityId(
   deviceId: string,
   spaceId: string

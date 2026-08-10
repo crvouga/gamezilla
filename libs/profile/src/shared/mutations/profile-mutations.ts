@@ -63,7 +63,7 @@ async function getUsernameRow(
 ): Promise<UsernameRow> {
   const rows = await tx.query(sql<UsernameRow>`
     SELECT username, username_changed_at
-    FROM profiles
+    FROM profile
     WHERE id = ${profileId}
     LIMIT 1
   `);
@@ -81,7 +81,7 @@ async function seedProfile(
   avatarConfig: string
 ): Promise<void> {
   await tx.run(sql`
-    INSERT INTO profiles (id, created_at, username, username_norm, avatar_config)
+    INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
     VALUES (${profileId}, ${now}, ${''}, ${''}, ${avatarConfig})
     ON CONFLICT (id) DO NOTHING
   `);
@@ -114,7 +114,7 @@ export const applyEnsuredUsernameMutation = defineMutation({
     // user-chosen username (`username_changed_at` set). Do not compare
     // timestamptz to '' — Postgres rejects that cast.
     await tx.run(sql`
-      UPDATE profiles
+      UPDATE profile
       SET username = ${next}, username_norm = ${next.toLowerCase()}
       WHERE id = ${env.actorId}
         AND (
@@ -148,7 +148,7 @@ export const claimUsernameMutation = defineMutation({
     }
     const taken = await tx.query(sql<{ one: number }>`
       SELECT 1 AS one
-      FROM profiles
+      FROM profile
       WHERE username_norm = ${username}
         AND id <> ${env.actorId}
         AND username <> ''
@@ -158,7 +158,7 @@ export const claimUsernameMutation = defineMutation({
       throw new MutationError('USERNAME_TAKEN', 'Username is taken.');
     }
     await tx.run(sql`
-      UPDATE profiles
+      UPDATE profile
       SET username = ${username},
           username_norm = ${username},
           username_changed_at = ${env.now().toISOString()}
@@ -172,7 +172,7 @@ export const patchAvatarMutation = defineMutation({
   args: z.object({ avatarConfig: avatarConfigArgs }),
   async run({ tx, env }, { avatarConfig }) {
     await tx.run(sql`
-      UPDATE profiles
+      UPDATE profile
       SET avatar_config = ${avatarConfigJson(avatarConfig)}
       WHERE id = ${env.actorId}
     `);

@@ -42,7 +42,7 @@ async function loadLiveRows(
   let memberSpaceIds: Set<string> | null = null;
   if (tables.includes('spaces')) {
     const members = await db.query(sql<{ space_id: string }>`
-      SELECT space_id FROM space_users
+      SELECT space_id FROM spaces_users
       WHERE user_id = ${actorId} AND deleted_at IS NULL
     `);
     memberSpaceIds = new Set(
@@ -64,7 +64,7 @@ async function loadLiveRows(
           (memberSpaceIds?.has(String(r['id'] ?? '')) === true ||
             isActorHost(r, actorId))
       );
-    } else if (table === 'space_users') {
+    } else if (table === 'spaces_users') {
       // Peer membership fanout must not keep room topics after the actor left.
       live = rows.filter((r) => isLiveRow(r) && r['user_id'] === actorId);
     } else if (table === 'notes' || table === 'folders' || table === 'tags') {

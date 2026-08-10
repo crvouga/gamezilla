@@ -16,7 +16,7 @@ const testsRoot = `${pkg}/src/tests`;
 const violations: string[] = [];
 
 const FORBIDDEN_TABLE_RE =
-  /\b(_push_applied|_mutations_applied|_mutations|_scope_meta|write_rejections|sqlite_master)\b/;
+  /\b(sync_engine_push_applied|sync_engine_mutations_applied|sync_engine_mutations|sync_engine_scope_meta|sync_engine_write_rejections|sqlite_master)\b/;
 
 const PRIVATE_RELATIVE_IMPORT_RE =
   /from\s+['"](?:\.\.\/)+(?:client|server|mutations|queries|shared)\//;

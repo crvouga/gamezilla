@@ -88,7 +88,7 @@ async function openSession(
   const now = env.now().toISOString();
   // Single upsert — skip pre-SELECT (saves a remote Postgres RTT).
   await tx.run(sql`
-    INSERT INTO space_open_sessions (
+    INSERT INTO spaces_open_sessions (
       id, space_id, device_id, opened_at, join_announced, deleted_at
     )
     VALUES (
@@ -115,7 +115,7 @@ async function closeSession(
 ): Promise<void> {
   const now = env.now().toISOString();
   await tx.run(sql`
-    UPDATE space_open_sessions
+    UPDATE spaces_open_sessions
     SET deleted_at = ${now}
     WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
       AND deleted_at IS NULL
@@ -143,12 +143,12 @@ async function endSpace(
     WHERE id = ${spaceId} AND ended_at IS NULL
   `);
   await tx.run(sql`
-    UPDATE space_open_sessions
+    UPDATE spaces_open_sessions
     SET deleted_at = ${now}
     WHERE space_id = ${spaceId} AND deleted_at IS NULL
   `);
   await tx.run(sql`
-    UPDATE space_open_sessions
+    UPDATE spaces_open_sessions
     SET deleted_at = ${now}
     WHERE deleted_at IS NULL
       AND space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
@@ -172,7 +172,7 @@ export const createSpaceMutation = defineMutation({
         visibility = excluded.visibility
     `);
     await tx.run(sql`
-      INSERT INTO space_users (
+      INSERT INTO spaces_users (
         id, space_id, user_id, created_at, created_by_account_id, deleted_at
       )
       VALUES (
@@ -200,7 +200,7 @@ export const joinSpaceMutation = defineMutation({
     const actorMemberId = memberId(env);
     const id = spaceUserEntityId(spaceId, actorMemberId);
     const present = await tx.query(sql<{ readonly id: string }>`
-      SELECT id FROM space_users
+      SELECT id FROM spaces_users
       WHERE id = ${id} AND deleted_at IS NULL
       LIMIT 1
     `);
@@ -217,7 +217,7 @@ export const joinSpaceMutation = defineMutation({
     if (present.length === 0) {
       const now = env.now().toISOString();
       await tx.run(sql`
-        INSERT INTO space_users (
+        INSERT INTO spaces_users (
           id, space_id, user_id, created_at, created_by_account_id, deleted_at
         )
         VALUES (
@@ -323,7 +323,7 @@ export const addSpaceUserMutation = defineMutation({
     const id = spaceUserEntityId(spaceId, userId);
     const now = env.now().toISOString();
     await tx.run(sql`
-      INSERT INTO space_users (
+      INSERT INTO spaces_users (
         id, space_id, user_id, created_at, created_by_account_id, deleted_at
       )
       VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${accountId(env)}, ${null})
@@ -346,7 +346,7 @@ export const removeSpaceUserMutation = defineMutation({
       'Only the host can manage space users.'
     );
     await tx.run(sql`
-      UPDATE space_users
+      UPDATE spaces_users
       SET deleted_at = ${env.now().toISOString()}
       WHERE id = ${spaceUserEntityId(spaceId, userId)}
         AND deleted_at IS NULL
@@ -360,7 +360,7 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
   args: spaceIdArgs,
   async run({ tx, env }, { spaceId }) {
     await tx.run(sql`
-      UPDATE space_open_sessions
+      UPDATE spaces_open_sessions
       SET join_announced = ${1}
       WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
         AND join_announced = ${0}
@@ -375,7 +375,7 @@ export const closeEndedOpenSessionsMutation = defineMutation({
   args: z.object({}),
   async run({ tx, env }) {
     await tx.run(sql`
-      UPDATE space_open_sessions
+      UPDATE spaces_open_sessions
       SET deleted_at = ${env.now().toISOString()}
       WHERE deleted_at IS NULL
         AND space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)

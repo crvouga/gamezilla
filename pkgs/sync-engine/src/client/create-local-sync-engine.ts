@@ -203,7 +203,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     now: options.now,
   });
   bus.subscribe((tables) => {
-    if (tables.has('_mutations')) uploadQueue.wake();
+    if (tables.has('sync_engine_mutations')) uploadQueue.wake();
   });
   const bufferOutbound = options.push?.bufferOutboundLive === true;
   const state: LocalEngineState = {
@@ -362,8 +362,8 @@ async function clearState(
   state.runtime.reset();
   state.bus.emit([
     ...state.options.localSchema.cacheTableNames,
-    '_scope_meta',
-    'write_rejections',
+    'sync_engine_scope_meta',
+    'sync_engine_write_rejections',
   ]);
   if (reconnect) await connectState(state);
 }

@@ -14,7 +14,7 @@ export const mySpaces = defineQuery({
       WHERE host_member_id = ${actor}
          OR host_account_id = ${actor}
          OR id IN (
-           SELECT space_id FROM space_users
+           SELECT space_id FROM spaces_users
            WHERE user_id = ${actor}
          )
 `);
@@ -34,7 +34,7 @@ export const mySpaceUsers = defineQuery({
            OR host_account_id = ${actor}
            OR id IN (
              SELECT space_id
-             FROM space_users
+             FROM spaces_users
              WHERE user_id = ${actor}
            )
       )
@@ -45,11 +45,11 @@ export const mySpaceUsers = defineQuery({
         created_at,
         created_by_account_id,
         deleted_at
-      FROM space_users
+      FROM spaces_users
       WHERE user_id = ${actor}
          OR space_id IN (SELECT id FROM related_spaces)
 `);
-    return { space_users: rows };
+    return { spaces_users: rows };
   },
 });
 
@@ -59,10 +59,10 @@ export const openSpaceSessions = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT id, space_id, device_id, opened_at, join_announced, deleted_at
-      FROM space_open_sessions
+      FROM spaces_open_sessions
       WHERE device_id = ${ctx.env.deviceId}
 `);
-    return { space_open_sessions: rows };
+    return { spaces_open_sessions: rows };
   },
 });
 

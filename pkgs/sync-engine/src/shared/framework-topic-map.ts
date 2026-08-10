@@ -1,10 +1,10 @@
 import type { Topic } from '@pkgs/pubsub/interface';
-
+import { SYNC_ENGINE_WRITE_REJECTIONS } from './framework-server-ddl';
 import { defineTopicMap, type TopicMap } from './topic-map';
 
 /** Framework tables — product topic maps must not name these. */
 export const FRAMEWORK_TOPIC_MAP = defineTopicMap({
-  write_rejections: {
+  [SYNC_ENGINE_WRITE_REJECTIONS]: {
     topics(_row, ctx) {
       return [`user:${ctx.actorId}` as Topic];
     },

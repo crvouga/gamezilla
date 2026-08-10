@@ -2,7 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
 /**
- * Loads space ids the member may access via space_users ACL
+ * Loads space ids the member may access via spaces_users ACL
  * (sync upload auth / write context).
  */
 export class MemberOfSpaceIdsLoader {
@@ -11,7 +11,7 @@ export class MemberOfSpaceIdsLoader {
   async load(memberId: string): Promise<string[]> {
     const rows = await this.tx.query(sql<{ readonly space_id: string }>`
       SELECT space_id
-      FROM space_users
+      FROM spaces_users
       WHERE user_id = ${memberId}
     `);
     const ids = new Set<string>();

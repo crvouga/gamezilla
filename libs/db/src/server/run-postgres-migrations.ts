@@ -1,6 +1,6 @@
 /**
  * Canonical Postgres migration order: compose {@link DatabaseMigration}
- * units (ensure schema → advisory-locked framework/domain/kv/entity_store →
+ * units (ensure schema → advisory-locked hard-cutover drop + framework/domain/kv/entity_store →
  * Better Auth → purge Clerk links).
  */
 
@@ -19,6 +19,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
 /**
@@ -53,6 +54,7 @@ export class PostgresMigrationRunner {
     } = this.deps;
 
     const locked = new ComposedDatabaseMigration()
+      .register(new HardCutoverDropLegacyTablesMigration())
       .register(new SyncEngineDatabaseMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {

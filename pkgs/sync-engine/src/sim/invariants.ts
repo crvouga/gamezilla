@@ -16,7 +16,7 @@ export async function checkSeqMonotonicity(
     client_id: string;
     seq: number;
   }>`
-    SELECT client_id, seq FROM _mutations ORDER BY client_id ASC, seq ASC
+    SELECT client_id, seq FROM sync_engine_mutations ORDER BY client_id ASC, seq ASC
   `);
   let lastClient = '';
   let lastSeq = -1;

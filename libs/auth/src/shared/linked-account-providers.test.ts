@@ -11,7 +11,7 @@ const CREATED_AT = '2026-01-01T00:00:00.000Z';
 const PRIMARY_AUTH_PROVIDER = 'primary';
 
 describe('linked-account-providers', () => {
-  test('builds primary auth row from external_accounts', () => {
+  test('builds primary auth row from auth_external_accounts', () => {
     const rows = buildLinkedProviders({
       accountId: ACCOUNT_ID,
       primaryAuthProvider: PRIMARY_AUTH_PROVIDER,

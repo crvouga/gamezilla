@@ -158,7 +158,7 @@ describe('decideJoin', () => {
     ).toEqual({ allowed: true, reason: 'already' });
   });
 
-  test('private requires space_users for new members', () => {
+  test('private requires spaces_users for new members', () => {
     expect(
       decideJoin({
         ...base,

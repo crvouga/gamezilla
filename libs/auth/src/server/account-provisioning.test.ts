@@ -24,7 +24,7 @@ function makeFakeAuthServer(
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
-    CREATE TABLE users (
+    CREATE TABLE auth_users (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -33,7 +33,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
     )
   `);
   await db.run(sql<void>`
-    CREATE TABLE external_accounts (
+    CREATE TABLE auth_external_accounts (
       id TEXT PRIMARY KEY,
       created_at TEXT,
       updated_at TEXT,
@@ -68,11 +68,11 @@ describe('AccountProvisioningService', () => {
     const userId = '33333333-3333-4333-8333-333333333333';
     const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
-      INSERT INTO users (id, created_at)
+      INSERT INTO auth_users (id, created_at)
       VALUES (${userId}, ${now})
     `);
     await sqlClient.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         user_id,
         provider,
@@ -158,7 +158,7 @@ describe('AccountProvisioningService', () => {
 
     const linkRows = await sqlClient.query(sql<{ user_id: string }>`
       SELECT user_id
-      FROM external_accounts
+      FROM auth_external_accounts
       WHERE provider = ${PRIMARY_AUTH_PROVIDER}
         AND external_id = ${EXTERNAL_USER_ID}
     `);
@@ -170,11 +170,11 @@ describe('AccountProvisioningService', () => {
     const winnerId = '33333333-3333-4333-8333-333333333333';
     const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
-      INSERT INTO users (id, created_at)
+      INSERT INTO auth_users (id, created_at)
       VALUES (${winnerId}, ${now})
     `);
     await sqlClient.run(sql<void>`
-      INSERT INTO external_accounts (
+      INSERT INTO auth_external_accounts (
         id,
         user_id,
         provider,

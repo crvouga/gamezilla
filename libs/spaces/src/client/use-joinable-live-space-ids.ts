@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
 
-/** Live spaces the viewer can join: host or space_users ACL. */
+/** Live spaces the viewer can join: host or spaces_users ACL. */
 export function useJoinableLiveSpaceIds(): {
   readonly spaceIds: readonly string[];
   readonly isLoading: boolean;

@@ -69,11 +69,11 @@ export class FriendSearchService {
     const likeQuery = `${query.toLowerCase()}%`;
     const rows = await this.tx.query(sql<SearchHitRow>`
       SELECT p.id, p.username, p.avatar_config
-      FROM profiles AS p
+      FROM profile AS p
       WHERE p.id <> ${viewerId}
         AND NOT EXISTS (
           SELECT 1
-          FROM user_blocks AS b
+          FROM friends_blocks AS b
           WHERE (b.blocker_id = ${viewerId} AND b.blocked_id = p.id)
              OR (b.blocker_id = p.id AND b.blocked_id = ${viewerId})
         )

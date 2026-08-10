@@ -12,7 +12,7 @@ describe('partitionFanoutRowsByTopic', () => {
           return [`user:${String(row['host_account_id'])}` as Topic];
         },
       },
-      space_open_sessions: {
+      spaces_open_sessions: {
         topics() {
           return [];
         },
@@ -33,7 +33,7 @@ describe('partitionFanoutRowsByTopic', () => {
             host_account_id: 'acct-1',
           },
         ],
-        space_open_sessions: [
+        spaces_open_sessions: [
           {
             id: 'dev-a:space-1',
             space_id: 'space-1',
@@ -45,7 +45,7 @@ describe('partitionFanoutRowsByTopic', () => {
     expect([...partitioned.keys()]).toEqual(['user:acct-1']);
     const userRows = partitioned.get('user:acct-1' as Topic);
     expect(userRows?.['spaces']?.length).toBe(1);
-    expect(userRows?.['space_open_sessions']).toBeUndefined();
+    expect(userRows?.['spaces_open_sessions']).toBeUndefined();
   });
 
   test('notes topic-map partition keeps open sessions off user wake bag', async () => {
@@ -59,10 +59,10 @@ describe('partitionFanoutRowsByTopic', () => {
       },
       rows: {
         spaces: [{ id: 'room-1', title: 'T', owner_id: 'user-1' }],
-        space_users: [
+        spaces_users: [
           { id: 'room-1:user-1', space_id: 'room-1', user_id: 'user-1' },
         ],
-        space_open_sessions: [
+        spaces_open_sessions: [
           {
             id: 'device:phone:room-1',
             space_id: 'room-1',
@@ -75,7 +75,7 @@ describe('partitionFanoutRowsByTopic', () => {
 
     const userBag = partitioned.get(userTopic('user-1'));
     expect(userBag?.['spaces']?.length).toBe(1);
-    expect(userBag?.['space_users']?.length).toBe(1);
-    expect(userBag?.['space_open_sessions']).toBeUndefined();
+    expect(userBag?.['spaces_users']?.length).toBe(1);
+    expect(userBag?.['spaces_open_sessions']).toBeUndefined();
   });
 });

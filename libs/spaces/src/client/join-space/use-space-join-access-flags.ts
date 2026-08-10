@@ -3,7 +3,7 @@ import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
 
-/** True when the viewer has a local space_users ACL row for this space. */
+/** True when the viewer has a local spaces_users ACL row for this space. */
 export function useHasSpaceUserLocal(
   spaceId: string,
   userId: string | null
@@ -13,7 +13,7 @@ export function useHasSpaceUserLocal(
     enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
   const { rows } = useQuery(sql<{ readonly id: string }>`
     SELECT id
-    FROM space_users
+    FROM spaces_users
     WHERE id = ${id} AND deleted_at IS NULL
     LIMIT 1
   `);

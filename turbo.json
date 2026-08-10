@@ -249,6 +249,16 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:domain-table-prefixes": {
+      "inputs": [
+        "libs/db/src/shared/app-schema.ts",
+        "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
+        "pkgs/auth-better-auth/src/server/better-auth-table-names.ts",
+        "tools/scripts/check-domain-table-prefixes.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-legacy-writes": {
       "inputs": [
         "apps/**/*.ts",

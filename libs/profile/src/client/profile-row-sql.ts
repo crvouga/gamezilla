@@ -12,7 +12,7 @@ export type ProfileRow = {
 export function profileRowByIdSql(profileId: string): Sql<ProfileRow> {
   return sql<ProfileRow>`
     SELECT id, created_at, username, username_changed_at, avatar_config
-    FROM profiles
+    FROM profile
     WHERE id = ${profileId}
   `;
 }

@@ -56,7 +56,7 @@ export async function readLastPushSeq(
   topic: string
 ): Promise<string | null> {
   const rows = await db.query(sql<{ last_push_seq: string }>`
-    SELECT last_push_seq FROM _push_applied
+    SELECT last_push_seq FROM sync_engine_push_applied
     WHERE topic = ${topic}
     LIMIT 1
   `);
@@ -65,7 +65,7 @@ export async function readLastPushSeq(
   if (!isLegacyWallClockCheckpoint(raw)) return raw;
   // Heal poisoned rows so own-ack floor / seq pushes can advance again.
   await db.run(sql`
-    DELETE FROM _push_applied WHERE topic = ${topic}
+    DELETE FROM sync_engine_push_applied WHERE topic = ${topic}
   `);
   return null;
 }
@@ -96,7 +96,7 @@ export async function recordPushApplied(
   const prev = await readLastPushSeq(db, topic);
   if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
   await db.run(sql`
-    INSERT INTO _push_applied (topic, last_push_seq)
+    INSERT INTO sync_engine_push_applied (topic, last_push_seq)
     VALUES (${topic}, ${pushSeq})
     ON CONFLICT (topic) DO UPDATE SET
       last_push_seq = excluded.last_push_seq
@@ -109,12 +109,12 @@ export async function clearRemovedPushApplied(
   retainedTopics: ReadonlySet<string>
 ): Promise<void> {
   const rows = await db.query(sql<{ topic: string }>`
-    SELECT topic FROM _push_applied
+    SELECT topic FROM sync_engine_push_applied
   `);
   for (const row of rows) {
     if (retainedTopics.has(row.topic)) continue;
     await db.run(sql`
-      DELETE FROM _push_applied WHERE topic = ${row.topic}
+      DELETE FROM sync_engine_push_applied WHERE topic = ${row.topic}
     `);
   }
 }

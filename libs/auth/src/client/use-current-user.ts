@@ -43,13 +43,13 @@ export function useCurrentUser(): CurrentUser {
   const hasSession = useHasAuthSession();
   const { rows: userRows } = useQuery(sql<UserRow>`
     SELECT created_at, is_anon
-    FROM users
+    FROM auth_users
     WHERE id = ${userId}
   `);
   const userRow = userRows[0] ?? null;
   const { rows: stripeRows } = useQuery(sql<StripeLinkRow>`
     SELECT external_id
-    FROM external_accounts
+    FROM auth_external_accounts
     WHERE user_id = ${userId}
       AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
   `);
@@ -106,7 +106,7 @@ export function useIsAnon(): boolean {
   const watchId = myId.length > 0 ? myId : '';
   const { rows } = useQuery(sql<{ is_anon: number | boolean | null }>`
     SELECT is_anon
-    FROM users
+    FROM auth_users
     WHERE id = ${watchId}
   `);
   const row = rows[0] ?? null;

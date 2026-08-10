@@ -61,7 +61,7 @@ function currentSpacesSql(enabled: boolean, deviceId: string): Sql<SpaceRow> {
   return sql<SpaceRow>`
     SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
     FROM spaces AS s
-    INNER JOIN space_open_sessions AS o
+    INNER JOIN spaces_open_sessions AS o
       ON o.space_id = s.id
       AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}

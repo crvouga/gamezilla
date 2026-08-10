@@ -1,5 +1,9 @@
 export { BetterAuthDatabaseMigration } from './better-auth-database-migration';
 export {
+  BETTER_AUTH_TABLE_NAMES,
+  type BetterAuthTableName,
+} from './better-auth-table-names';
+export {
   type BetterAuthInstance,
   type CreateBetterAuthConfig,
   createBetterAuth,

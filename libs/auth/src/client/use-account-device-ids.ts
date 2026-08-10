@@ -60,13 +60,13 @@ export function useAccountDeviceIds(accountId: string | null): string[] {
 
   const { rows: localRows } = useQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
-    FROM devices
+    FROM auth_devices
     WHERE id = ${scopedDeviceId}
   `);
 
   const { rows: remoteRows } = useQuery(sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
-    FROM devices
+    FROM auth_devices
     WHERE user_id = ${scopedAccountId}
     LIMIT 500
   `);
