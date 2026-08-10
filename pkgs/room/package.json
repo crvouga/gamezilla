@@ -11,7 +11,7 @@
     "./client/adapters/storage/web": "./src/client/adapters/storage/web/index.ts",
     "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts",
     "./client/adapters/transport/websocket": "./src/client/adapters/transport/websocket/index.ts",
-    "./tests": "./src/tests.ts"
+    "./tests": "./src/testkit.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",

@@ -85,7 +85,7 @@ pkgs/room/src/
     └── scenarios/        DST *.sim.test.ts (import sim + fixtures)
 ```
 
-Facade: [`tests.ts`](./tests.ts) → package export `@pkgs/room/tests`.
+Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`.
 
 ## Core types (design surface)
 
