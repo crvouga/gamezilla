@@ -1,3 +1,4 @@
+import { useClock } from '@pkgs/clock';
 import { useTheme } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
@@ -54,6 +55,7 @@ function useCelebrationEloFeedback(args: {
 } {
   const { completion, onDisplayEloChange, onEloCompletePulse } = args;
   const feedback = useChessPuzzleFeedback();
+  const clock = useClock();
   const lastTickAtRef = useRef(0);
   const lastTickRatingRef = useRef(completion.ratingBefore);
   const completionKey = `${completion.outcome}-${completion.ratingAfter}`;
@@ -61,7 +63,7 @@ function useCelebrationEloFeedback(args: {
   const onRatingStep = useCallback(
     (rating: number) => {
       onDisplayEloChange(rating);
-      const now = Date.now();
+      const now = clock.now();
       if (
         shouldPlayEloTick({
           nextRating: rating,
@@ -75,7 +77,7 @@ function useCelebrationEloFeedback(args: {
         feedback.onEloTick();
       }
     },
-    [feedback, onDisplayEloChange]
+    [clock, feedback, onDisplayEloChange]
   );
 
   const onComplete = useCallback(() => {

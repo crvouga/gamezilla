@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import { useCallback, useEffect, useRef } from 'react';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import type Animated from 'react-native-reanimated';
@@ -129,6 +130,7 @@ function useProgrammaticScrollSync(args: {
     lastEmittedRef,
     itemsLenRef,
   } = args;
+  const timers = useTimers();
   const didMountRef = useRef(false);
 
   useEffect(() => {
@@ -153,7 +155,7 @@ function useProgrammaticScrollSync(args: {
     programmaticRef.current = true;
     requestAnimationFrame(() => {
       list.scrollToOffset({ offset: target, animated: !itemsChanged });
-      setTimeout(
+      timers.setTimeout(
         () => {
           programmaticRef.current = false;
         },
@@ -169,6 +171,7 @@ function useProgrammaticScrollSync(args: {
     programmaticRef,
     lastEmittedRef,
     itemsLenRef,
+    timers,
   ]);
 }
 

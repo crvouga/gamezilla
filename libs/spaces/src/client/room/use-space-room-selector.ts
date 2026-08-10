@@ -4,8 +4,11 @@ import {
   useRoomDispatch,
   useRoomSelector,
 } from '@pkgs/room';
+import { useCallback } from 'react';
 
 import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
+import { useSpaceOpenRooms } from './space-open-rooms-context';
+import { useSpaceRoomSessionId } from './space-room-context';
 
 /**
  * Registry key for the primary collaborative room in a space session.
@@ -29,9 +32,22 @@ export function useSpaceRoomSelector<R>(selector: (state: RoomState) => R): R {
 
 /**
  * Dispatch a command to the default space room (`{@link SPACE_ROOM_NAME}`).
- * Used by every game plugin to mutate room state through the same Room the
- * host has open.
+ * Routes through the open-rooms registry so commands issued while the local
+ * Room is still hydrating are buffered and flushed on commit (offline-first /
+ * Connecting… safe). Falls back to the React registry when no session id.
  */
 export function useSpaceRoomDispatch(): (payload: RoomCommandPayload) => void {
-  return useRoomDispatch(SPACE_ROOM_NAME);
+  const spaceId = useSpaceRoomSessionId();
+  const openRooms = useSpaceOpenRooms();
+  const registryDispatch = useRoomDispatch(SPACE_ROOM_NAME);
+  return useCallback(
+    (payload: RoomCommandPayload) => {
+      if (spaceId !== null && spaceId.length > 0) {
+        openRooms.dispatch(spaceId, payload);
+        return;
+      }
+      registryDispatch(payload);
+    },
+    [spaceId, openRooms, registryDispatch]
+  );
 }

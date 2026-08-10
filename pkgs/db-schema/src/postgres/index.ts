@@ -1,2 +1,4 @@
-export type { PostgresDriver, PostgresDriverOptions } from './driver';
-export { postgres } from './driver';
+export {
+  PostgresSchemaDatabaseMigration,
+  type PostgresSchemaDatabaseMigrationOptions,
+} from './postgres-schema-database-migration';

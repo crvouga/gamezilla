@@ -1,3 +1,4 @@
+import { useTimers } from '@pkgs/clock';
 import {
   type ReactNode,
   useCallback,
@@ -42,11 +43,12 @@ function usePressFeedbackReset(
   resetMs: number,
   onReset: () => void
 ): void {
+  const timers = useTimers();
   useEffect(() => {
     if (!active) return;
-    const id = setTimeout(onReset, resetMs);
-    return () => clearTimeout(id);
-  }, [active, resetMs, onReset]);
+    const id = timers.setTimeout(onReset, resetMs);
+    return () => timers.clearTimeout(id);
+  }, [active, resetMs, onReset, timers]);
 }
 
 function resolveIconPresentation(args: {

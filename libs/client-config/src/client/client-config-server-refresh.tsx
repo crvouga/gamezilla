@@ -4,7 +4,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { type AsyncRunContext, useAsync } from '@pkgs/async/use-async';
 import { Button, Card, ErrorState, SuccessState, Text } from '@pkgs/ui';
 import { useCallback } from 'react';
-import { createTypedApiRpcClient } from '../typed-api-rpc-client';
+import { createTypedApiRpcClient } from '../shared/typed-api-rpc-client';
 
 async function postClientConfigRefresh(
   configService: ConfigService,

@@ -3,7 +3,7 @@
  * spaces bounded context owns this namespace — auth has no business knowing
  * which spaces a caller is a member of.
  *
- * Stamped lazily by {@link createMemberOfSpaceIdsEnricher} (registered as a
+ * Stamped lazily by {@link MemberOfSpaceIdsEnricher} (registered as a
  * sync `enrichContext` hook) so the lookup runs **at most once per read /
  * write batch**, only when ABAC is actually about to inspect the context.
  */

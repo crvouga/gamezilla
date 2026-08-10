@@ -1,3 +1,6 @@
+// @io-wall-ok
+import { wallTimers } from '@pkgs/clock';
+
 import type { CrashHandler } from './crash-handler/crash-handler';
 import { BrowserCrashHandler } from './crash-handler/crash-handler-browser';
 import { FallbackCrashHandler } from './crash-handler/crash-handler-default';
@@ -8,7 +11,7 @@ export class DefaultCrashHandler implements CrashHandler {
   readonly priority = 100;
 
   private readonly node = new NodeCrashHandler();
-  private readonly browser = new BrowserCrashHandler();
+  private readonly browser = new BrowserCrashHandler(wallTimers);
   private readonly fallback = new FallbackCrashHandler();
 
   match(): boolean {

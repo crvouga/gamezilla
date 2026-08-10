@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import { TimeoutError } from './errors';
 import { waitUntil } from './wait';
+
+const io = wallIo();
 
 describe('waitUntil', () => {
   it('resolves when the condition becomes truthy', async () => {
@@ -10,7 +13,12 @@ describe('waitUntil', () => {
         n += 1;
         return n >= 3 ? 'ok' : null;
       },
-      { timeoutMs: 500, intervalMs: 1 }
+      {
+        timeoutMs: 500,
+        intervalMs: 1,
+        now: io.clock.now,
+        timers: io.timers,
+      }
     );
     expect(value).toBe('ok');
   });
@@ -21,6 +29,8 @@ describe('waitUntil', () => {
         timeoutMs: 30,
         intervalMs: 5,
         description: 'never',
+        now: io.clock.now,
+        timers: io.timers,
       })
     ).rejects.toBeInstanceOf(TimeoutError);
   });

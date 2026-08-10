@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import type { NdjsonErrorFrame, NdjsonFrame } from '../shared/frames';
 import { streamParallelIndexed } from './stream-parallel';
+
+const io = wallIo();
+const timers = io.timers;
 
 const genericMapError = (index: number, error: unknown): NdjsonErrorFrame => ({
   frame: 'error',
@@ -24,7 +28,10 @@ describe('streamParallelIndexed', () => {
       streamParallelIndexed(
         delays.length,
         async (i) => {
-          await new Promise<void>((r) => setTimeout(r, delays[i]));
+          const delayMs = delays[i] ?? 0;
+          await new Promise<void>((r) => {
+            timers.setTimeout(() => r(), delayMs);
+          });
           return `r${i}`;
         },
         genericMapError

@@ -76,7 +76,7 @@ describe('buffer outbound live flush on reconnect', () => {
       const at = await world.until(
         async () => {
           const rows = await b.db.query(sql<{ body: string }>`
-            SELECT body FROM notes WHERE id = 'fast' AND _deleted_at IS NULL
+            SELECT body FROM notes WHERE id = 'fast' AND deleted_at IS NULL
           `);
           return rows[0]?.body === 'y';
         },

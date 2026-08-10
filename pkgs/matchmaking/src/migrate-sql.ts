@@ -54,7 +54,7 @@ export const CREATE_ACTIVE_PARTITIONS_TABLE_SQL = `
 CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_active_partitions (
   partition_signature TEXT NOT NULL,
   group_size          INT  NOT NULL DEFAULT 2,
-  first_seen_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  first_seen_at       TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (partition_signature, group_size)
 )
 `.trim();
@@ -71,10 +71,19 @@ CREATE TABLE IF NOT EXISTS matchmaking_matched (
   id          UUID    PRIMARY KEY,
   match_id    UUID    NOT NULL,
   joined_at   TIMESTAMPTZ NOT NULL,
-  matched_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  matched_at  TIMESTAMPTZ NOT NULL,
   data        JSONB   NOT NULL,
   metadata    JSONB   NULL
 )
+`.trim();
+
+/**
+ * v6: drop wall-clock DEFAULT on durable matched rows for installs that
+ * still have the v5 `DEFAULT now()` — CREATE IF NOT EXISTS will not
+ * rewrite an existing table.
+ */
+export const DROP_MATCHED_AT_DEFAULT_SQL = `
+ALTER TABLE matchmaking_matched ALTER COLUMN matched_at DROP DEFAULT
 `.trim();
 
 /**
@@ -139,8 +148,8 @@ export function buildCreateWaitingTableSql(parts: {
 }): string {
   return `
 CREATE UNLOGGED TABLE IF NOT EXISTS matchmaking_waiting (
-  id                  UUID    NOT NULL DEFAULT gen_random_uuid(),
-  joined_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id                  UUID    NOT NULL,
+  joined_at           TIMESTAMPTZ NOT NULL,
   data                JSONB   NOT NULL DEFAULT '{}',
   formulas            JSONB   NOT NULL DEFAULT '[]',
   partition_signature TEXT    NOT NULL,
@@ -359,9 +368,17 @@ $matchmaking_pair_match$;
  * adding `metadata`) is not blocked by Postgres's
  * `CREATE OR REPLACE FUNCTION` rule that forbids altering OUT params.
  */
-export const DROP_RUN_MATCH_PASS_SQL = `
+/** Prior v5 signature (optional `p_now`). */
+export const DROP_RUN_MATCH_PASS_V5_SQL = `
 DROP FUNCTION IF EXISTS matchmaking_run_match_pass(
   TEXT, NUMERIC, NUMERIC, NUMERIC, INT, NUMERIC, INT, TIMESTAMPTZ
+)
+`.trim();
+
+/** Current v6 signature (`p_now` + `p_match_ids`). */
+export const DROP_RUN_MATCH_PASS_SQL = `
+DROP FUNCTION IF EXISTS matchmaking_run_match_pass(
+  TEXT, NUMERIC, NUMERIC, NUMERIC, INT, NUMERIC, INT, TIMESTAMPTZ, UUID[]
 )
 `.trim();
 
@@ -395,7 +412,8 @@ CREATE OR REPLACE FUNCTION matchmaking_run_match_pass(
   p_max_pairs            INT,
   p_bucket_width         NUMERIC,
   p_group_size           INT,
-  p_now                  TIMESTAMPTZ DEFAULT NULL
+  p_now                  TIMESTAMPTZ,
+  p_match_ids            UUID[]
 ) RETURNS TABLE (
   match_id       UUID,
   participant_id UUID,
@@ -405,7 +423,7 @@ CREATE OR REPLACE FUNCTION matchmaking_run_match_pass(
 )
 LANGUAGE plpgsql AS $matchmaking_run_match_pass$
 DECLARE
-  v_now         TIMESTAMPTZ := COALESCE(p_now, now());
+  v_now         TIMESTAMPTZ := p_now;
   v_ids         UUID[];
   v_joined_ats  TIMESTAMPTZ[];
   v_waits       NUMERIC[];
@@ -426,9 +444,13 @@ DECLARE
   v_group_idxs  INT[];
   v_group_ids   UUID[];
   v_compatible  BOOLEAN;
+  v_id_budget   INT;
 BEGIN
   IF p_max_pairs <= 0 THEN RETURN; END IF;
   IF p_group_size < 2 THEN RETURN; END IF;
+  IF p_match_ids IS NULL THEN RETURN; END IF;
+  v_id_budget := array_length(p_match_ids, 1);
+  IF v_id_budget IS NULL OR v_id_budget <= 0 THEN RETURN; END IF;
 
   WITH locked AS (
     SELECT q.id, q.joined_at, q.priority, q.data, q.formulas, q.metadata,
@@ -469,7 +491,7 @@ BEGIN
 
   FOR v_i IN 1..v_n - (p_group_size - 1) LOOP
     IF v_taken[v_i] THEN CONTINUE; END IF;
-    IF v_claimed >= p_max_pairs THEN EXIT; END IF;
+    IF v_claimed >= p_max_pairs OR v_claimed >= v_id_budget THEN EXIT; END IF;
 
     v_ring := CEIL(v_radii[v_i] / GREATEST(p_bucket_width, 1));
     v_group_idxs := ARRAY[v_i];
@@ -509,7 +531,7 @@ BEGIN
       v_group_ids := array_append(v_group_ids, v_ids[v_group_idxs[v_k]]);
     END LOOP;
 
-    v_match_id := gen_random_uuid();
+    v_match_id := p_match_ids[v_claimed + 1];
 
     WITH del AS (
       DELETE FROM matchmaking_waiting w
@@ -559,11 +581,11 @@ export const CREATE_SWEEP_EXPIRED_SQL = `
 CREATE OR REPLACE FUNCTION matchmaking_sweep_expired(
   p_partition_signature TEXT,
   p_max_age_seconds     INT,
-  p_now                 TIMESTAMPTZ DEFAULT NULL
+  p_now                 TIMESTAMPTZ
 ) RETURNS BIGINT
 LANGUAGE plpgsql AS $matchmaking_sweep_expired$
 DECLARE
-  v_now      TIMESTAMPTZ := COALESCE(p_now, now());
+  v_now      TIMESTAMPTZ := p_now;
   v_max_age  INTERVAL;
   v_deleted  BIGINT := 0;
 BEGIN
@@ -588,8 +610,16 @@ $matchmaking_sweep_expired$;
  * handle most cases, but a strict DROP keeps the install path identical
  * regardless of pg_cron version or what was there before.
  */
-export const DROP_TICK_FUNCTION_SQL = `
+export const DROP_TICK_FUNCTION_NOARG_SQL = `
 DROP FUNCTION IF EXISTS matchmaking_tick()
+`.trim();
+
+export const DROP_TICK_FUNCTION_NOW_ONLY_SQL = `
+DROP FUNCTION IF EXISTS matchmaking_tick(TIMESTAMPTZ)
+`.trim();
+
+export const DROP_TICK_FUNCTION_SQL = `
+DROP FUNCTION IF EXISTS matchmaking_tick(TIMESTAMPTZ, UUID[])
 `.trim();
 
 /**
@@ -617,11 +647,11 @@ export {
 export const CREATE_SWEEP_MATCHED_SQL = `
 CREATE OR REPLACE FUNCTION matchmaking_sweep_matched(
   p_max_age_seconds INT,
-  p_now             TIMESTAMPTZ DEFAULT NULL
+  p_now             TIMESTAMPTZ
 ) RETURNS BIGINT
 LANGUAGE plpgsql AS $matchmaking_sweep_matched$
 DECLARE
-  v_now      TIMESTAMPTZ := COALESCE(p_now, now());
+  v_now      TIMESTAMPTZ := p_now;
   v_max_age  INTERVAL;
   v_deleted  BIGINT := 0;
 BEGIN

@@ -1,4 +1,5 @@
 import { createLogger, type Logger } from '@pkgs/logger/logger';
+import type { CreateId } from '@pkgs/uuid';
 
 import { BaseObservability } from '../port/base-observability';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
@@ -8,6 +9,8 @@ import type { ExportedSpanRecord } from '../shared/types';
 
 export type LoggerObservabilityOptions = {
   readonly serviceName: string;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly logger?: Logger;
   readonly storage?: SpanContextStorage;
 };
@@ -54,19 +57,27 @@ export function createLoggerObservability(
 ): Observability {
   const logger =
     options.logger ??
-    createLogger({ name: options.serviceName, level: 'info' });
+    createLogger({
+      name: options.serviceName,
+      level: 'info',
+      now: options.now,
+    });
   const storage = options.storage ?? new InMemorySpanContextStorage();
 
   return new BaseObservability({
     serviceName: options.serviceName,
     backend: 'logger',
     storage,
+    now: options.now,
+    createId: options.createId,
     exporter: (record) => exportSpanToLogger(record, logger),
   });
 }
 
 export function createLoggerObservabilityWithExporter(args: {
   readonly serviceName: string;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly exporter: (record: ExportedSpanRecord) => void;
   readonly storage?: SpanContextStorage;
 }): Observability {
@@ -74,6 +85,8 @@ export function createLoggerObservabilityWithExporter(args: {
     serviceName: args.serviceName,
     backend: 'logger',
     storage: args.storage ?? new InMemorySpanContextStorage(),
+    now: args.now,
+    createId: args.createId,
     exporter: args.exporter,
   });
 }

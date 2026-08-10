@@ -63,7 +63,7 @@ function currentSpacesSql(enabled: boolean, deviceId: string): Sql<SpaceRow> {
     FROM spaces AS s
     INNER JOIN space_open_sessions AS o
       ON o.space_id = s.id
-      AND o._deleted_at IS NULL
+      AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
     WHERE s.ended_at IS NULL
     ORDER BY o.opened_at DESC

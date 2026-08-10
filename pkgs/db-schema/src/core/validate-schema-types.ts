@@ -1,15 +1,17 @@
 import type { AssertSnakeCase } from './snake-case';
-import type { ColumnType } from './types';
+import type { ColumnType, ManagedImplicitColumn } from './types';
 
 type ErrorBrand<M extends string> = { readonly __error: M };
 
 type ValidateColMap<Cols, Table extends string> = {
   readonly [K in keyof Cols]: K extends string
-    ? AssertSnakeCase<K> extends K
-      ? Cols[K] extends ColumnType
-        ? Cols[K]
-        : ErrorBrand<`tables.${Table}.${K}: invalid column type`>
-      : AssertSnakeCase<K>
+    ? K extends ManagedImplicitColumn
+      ? ErrorBrand<`tables.${Table}.${K}: engine-owned (implicit on every table)`>
+      : AssertSnakeCase<K> extends K
+        ? Cols[K] extends ColumnType
+          ? Cols[K]
+          : ErrorBrand<`tables.${Table}.${K}: invalid column type`>
+        : AssertSnakeCase<K>
     : never;
 };
 
@@ -47,7 +49,7 @@ type TableNames<T> = T extends { readonly tables: infer Tables }
   ? Extract<keyof Tables, string>
   : never;
 
-type ColumnNames<T, Table extends string> = T extends {
+type DeclaredColumnNames<T, Table extends string> = T extends {
   readonly tables: infer Tables;
 }
   ? Tables extends Record<string, unknown>
@@ -58,6 +60,11 @@ type ColumnNames<T, Table extends string> = T extends {
       : never
     : never
   : never;
+
+/** Declared columns plus engine-owned managed columns (for index validation). */
+type ColumnNames<T, Table extends string> =
+  | DeclaredColumnNames<T, Table>
+  | ManagedImplicitColumn;
 
 type DepEntries<T> = T extends { readonly deprecations: readonly (infer D)[] }
   ? D
@@ -79,6 +86,22 @@ type IsColDep<T, Table extends string, Col extends string> =
       : false
     : false;
 
+type ValidateIndexCol<
+  T,
+  Table extends string,
+  Col extends string,
+  Path extends string,
+  Rest extends readonly string[],
+> = Col extends 'id'
+  ? ErrorBrand<`${Path}: cannot index primary key 'id' (already unique via PK)`>
+  : Col extends ColumnNames<T, Table>
+    ? true extends IsColDep<T, Table, Col>
+      ? ErrorBrand<`${Path}: column '${Table}.${Col}' is deprecated and cannot be indexed`>
+      : Rest extends readonly string[]
+        ? ValidateIndexRest<T, Table, Rest, Path>
+        : unknown
+    : ErrorBrand<`${Path}: unknown column '${Col}' on table '${Table}'`>;
+
 type ValidateIndexEntry<T, Idx, Path extends string> = Idx extends readonly [
   infer Table extends string,
   infer Col extends string,
@@ -87,13 +110,13 @@ type ValidateIndexEntry<T, Idx, Path extends string> = Idx extends readonly [
   ? Table extends TableNames<T>
     ? true extends IsTableDep<T, Table>
       ? ErrorBrand<`${Path}: table '${Table}' is deprecated and cannot be indexed`>
-      : Col extends ColumnNames<T, Table>
-        ? true extends IsColDep<T, Table, Col>
-          ? ErrorBrand<`${Path}: column '${Table}.${Col}' is deprecated and cannot be indexed`>
-          : Rest extends readonly string[]
-            ? ValidateIndexRest<T, Table, Rest, Path>
-            : unknown
-        : ErrorBrand<`${Path}: unknown column '${Col}' on table '${Table}'`>
+      : ValidateIndexCol<
+          T,
+          Table,
+          Col,
+          Path,
+          Rest extends readonly string[] ? Rest : []
+        >
     : ErrorBrand<`${Path}: unknown table '${Table}'`>
   : ErrorBrand<`${Path}: index must be [table, ...columns]`>;
 
@@ -103,11 +126,13 @@ type ValidateIndexRest<
   Rest extends readonly string[],
   Path extends string,
 > = Rest extends readonly [infer C extends string, ...infer R extends string[]]
-  ? C extends ColumnNames<T, Table>
-    ? true extends IsColDep<T, Table, C>
-      ? ErrorBrand<`${Path}: column '${Table}.${C}' is deprecated and cannot be indexed`>
-      : ValidateIndexRest<T, Table, R, Path>
-    : ErrorBrand<`${Path}: unknown column '${C}' on table '${Table}'`>
+  ? C extends 'id'
+    ? ErrorBrand<`${Path}: cannot index primary key 'id' (already unique via PK)`>
+    : C extends ColumnNames<T, Table>
+      ? true extends IsColDep<T, Table, C>
+        ? ErrorBrand<`${Path}: column '${Table}.${C}' is deprecated and cannot be indexed`>
+        : ValidateIndexRest<T, Table, R, Path>
+      : ErrorBrand<`${Path}: unknown column '${C}' on table '${Table}'`>
   : unknown;
 
 type ValidateIndexesArr<T> = T extends {

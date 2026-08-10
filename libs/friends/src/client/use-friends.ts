@@ -36,7 +36,7 @@ function friendsSql(myId: string, enabled: boolean): Sql<FriendRow> {
     INNER JOIN profiles AS p
       ON p.id = CASE WHEN f.user_low = ${myId} THEN f.user_high ELSE f.user_low END
     WHERE (f.user_low = ${myId} OR f.user_high = ${myId})
-      AND f._deleted_at IS NULL
+      AND f.deleted_at IS NULL
     ORDER BY p.username COLLATE NOCASE ASC
   `;
 }

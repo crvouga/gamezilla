@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { runStripeSyncPhase } from '../lib/phases/stripe-sync';
 import type { CiPlatform } from '../platform/platform';
@@ -16,9 +17,9 @@ export class StripeSyncCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Stripe sync');
     await runStripeSyncPhase(this.platform);
-    banner('Stripe sync complete', performance.now() - t0);
+    banner('Stripe sync complete', cliIo.clock.now() - t0);
   }
 }

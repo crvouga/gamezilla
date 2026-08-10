@@ -21,6 +21,21 @@ export const RELIABLE_FAULTS: SimFaultOptions = {
   unpartitionProbability: 0,
 };
 
+/**
+ * Mild fixed faults for DST scenarios that should exercise reorder/loss
+ * without sampling (still fully deterministic for a given seed stream on
+ * delay draws). Prefer {@link sampleFaultOptions} for fuzz corpora.
+ */
+export const DST_FAULTS: SimFaultOptions = {
+  oneWayDelayMeanMs: 5,
+  oneWayDelayJitterMs: 5,
+  packetLossProbability: 0.02,
+  packetReplayProbability: 0.01,
+  reorderWindow: 2,
+  partitionProbability: 0,
+  unpartitionProbability: 0,
+};
+
 /** Sample fault options from RNG (bounded ranges suitable for sync tests). */
 export function sampleFaultOptions(rng: SeededRng): SimFaultOptions {
   return {

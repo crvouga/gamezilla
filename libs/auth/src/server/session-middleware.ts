@@ -7,9 +7,10 @@ import {
 import { assertDeviceId } from '@libs/auth/shared/device-id';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { findUserIdByDeviceId, readUserAnonState } from './anon-user-ensure';
-import { buildAppAuthContextFromBearer } from './bearer-resolve';
+import { AnonUserService } from './anon-user-service';
+import { BearerAuthResolver } from './bearer-resolve';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
 
@@ -20,18 +21,16 @@ export const ANON_ID_HEADER = 'x-anon-id';
 
 const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
-export type SessionAuthDeps = {
-  readonly authServer: AuthServerPort;
-};
-
 async function buildAnonAppAuthContext(
   sql: SqlClient,
   deviceId: string
 ): Promise<AppAuthContext | null> {
   assertDeviceId(deviceId);
-  const userId = await findUserIdByDeviceId(sql, deviceId);
+  const io = getIo();
+  const anonUsers = new AnonUserService(sql, io);
+  const userId = await anonUsers.findUserIdByDeviceId(deviceId);
   if (userId === null) return null;
-  const state = await readUserAnonState(sql, userId);
+  const state = await anonUsers.readUserAnonState(userId);
   if (!state.exists) return null;
   return buildAppAuthContext({
     deviceId,
@@ -41,24 +40,18 @@ async function buildAnonAppAuthContext(
   });
 }
 
-export type SessionAuth = {
-  resolveAuthContext(
-    sql: SqlClient,
-    request: Request
-  ): Promise<Readonly<Record<string, unknown>>>;
-  requireAuthContext(sql: SqlClient, request: Request): Promise<AuthContext>;
-};
+/**
+ * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
+ * {@link ANON_ID_HEADER} (install UUID) for `deviceId`; or anonymous
+ * {@link AppAuthContext} when only `x-anon-id` is set and the device is bound
+ * to a `users` row; or unauthenticated marker when neither applies.
+ *
+ * `sql` is passed per call because the client is request-scoped.
+ */
+export class SessionAuth {
+  constructor(private readonly authServer: AuthServerPort) {}
 
-export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
-  const { authServer } = deps;
-
-  /**
-   * Token-only request resolution. Session JWT in `Authorization: Bearer …` plus
-   * {@link ANON_ID_HEADER} (install UUID) for `deviceId`; or anonymous
-   * {@link AppAuthContext} when only `x-anon-id` is set and the device is bound
-   * to a `users` row; or unauthenticated marker when neither applies.
-   */
-  async function resolveAuthContext(
+  async resolveAuthContext(
     sql: SqlClient,
     request: Request
   ): Promise<Readonly<Record<string, unknown>>> {
@@ -81,12 +74,12 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
       return UNAUTH_CLIENT_CONTEXT;
     }
 
-    const ctx = await buildAppAuthContextFromBearer({
+    const io = getIo();
+    const ctx = await new BearerAuthResolver(
       sql,
-      authServer,
-      bearerToken: token,
-      deviceId: anonRaw,
-    });
+      this.authServer,
+      io
+    ).buildAppAuthContext(token, anonRaw);
     return ctx ?? UNAUTH_CLIENT_CONTEXT;
   }
 
@@ -94,7 +87,7 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
    * Same as {@link resolveAuthContext} but throws 401 when there is no
    * valid session + device header.
    */
-  async function requireAuthContext(
+  async requireAuthContext(
     sql: SqlClient,
     request: Request
   ): Promise<AuthContext> {
@@ -106,13 +99,11 @@ export function createSessionAuth(deps: SessionAuthDeps): SessionAuth {
     if (anonRaw.length === 0) {
       throw new UnauthorizedError('Missing x-anon-id for device binding');
     }
-    const ctx = await resolveAuthContext(sql, request);
+    const ctx = await this.resolveAuthContext(sql, request);
     const auth = appAuth(ctx);
     if (auth === null || auth.accountId === null || auth.isAnon) {
       throw new UnauthorizedError('Invalid or expired session');
     }
     return ctx as AuthContext;
   }
-
-  return { resolveAuthContext, requireAuthContext };
 }

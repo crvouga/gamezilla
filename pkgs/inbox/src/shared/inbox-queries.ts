@@ -12,7 +12,7 @@ export const inboxActive = defineQuery({
         icon_key, avatar_fallback_label, avatar_config,
         deep_link_path, deep_link_params, actions, payload,
         expires_at, read_at, archived_at, dismissed_at,
-        active, created_at, updated_at, _deleted_at
+        active, created_at, updated_at, deleted_at
       FROM inbox_interactions
       WHERE user_id = ${ctx.env.actorId} AND active = true
 `);

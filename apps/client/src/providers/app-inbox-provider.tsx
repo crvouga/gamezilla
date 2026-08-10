@@ -9,6 +9,7 @@ import {
 } from '@libs/auth/client/use-fresh-auth-token';
 import { createFriendsInteractionProvider } from '@libs/friends/client/friends-interaction-provider';
 import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
+import { useHttpClient } from '@pkgs/http-client';
 import {
   type InboxClientDeps,
   InboxProviderRegistry,
@@ -45,6 +46,7 @@ function applyInboxAuthHeaders(
 function useInboxClientDeps(): InboxClientDeps {
   const config = useConfigService();
   const apiBaseUrl = config.getApiUrl();
+  const { fetch: httpFetch } = useHttpClient();
   const getFreshToken = useGetFreshAuthToken();
   const deviceId = useDeviceId();
   const sessionToken = useFreshAuthToken();
@@ -62,7 +64,7 @@ function useInboxClientDeps(): InboxClientDeps {
           sessionTokenRef.current
         );
         applyInboxAuthHeaders(headers, token, deviceIdRef.current);
-        let response = await fetch(path, { ...init, headers });
+        let response = await httpFetch(path, { ...init, headers });
         // Stale bearer after idle — force-mint and retry once.
         if (response.status === 401) {
           token = await resolveInboxBearer(
@@ -72,12 +74,15 @@ function useInboxClientDeps(): InboxClientDeps {
           );
           const retryHeaders = new Headers(init?.headers);
           applyInboxAuthHeaders(retryHeaders, token, deviceIdRef.current);
-          response = await fetch(path, { ...init, headers: retryHeaders });
+          response = await httpFetch(path, {
+            ...init,
+            headers: retryHeaders,
+          });
         }
         return response;
       },
     }),
-    [apiBaseUrl, getFreshToken]
+    [apiBaseUrl, getFreshToken, httpFetch]
   );
 }
 

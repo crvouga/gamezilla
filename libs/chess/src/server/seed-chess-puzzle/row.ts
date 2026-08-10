@@ -1,3 +1,5 @@
+import { compareCodeUnit } from '../../shared/code-unit-compare';
+
 /**
  * Pure helpers for converting a parsed Lichess CSV row into chess_puzzles
  * table rows for bulk INSERT.
@@ -28,7 +30,7 @@ function splitSpaceSorted(raw: unknown): string[] {
     .split(/\s+/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
-  return [...new Set(parts)].sort((a, b) => a.localeCompare(b));
+  return [...new Set(parts)].sort(compareCodeUnit);
 }
 
 function readNonNegativeInt(raw: unknown): number {

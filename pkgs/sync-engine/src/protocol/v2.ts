@@ -1,12 +1,14 @@
 /**
- * Wire protocol v2 — hard cut from v1.
+ * Wire protocol v3 — hard cut from v2.
  *
- * Same query/mutation/push envelopes as v1; version gate rejects pre-cut clients
- * with `{ error: 'auth', reason: 'upgrade_required' }` (no local DB wipe).
+ * Same query/mutation/push envelopes as v2; domain row managed columns are
+ * `id` / `created_at` / `updated_at` / `deleted_at` (no underscore prefix).
+ * Version gate rejects pre-cut clients with
+ * `{ error: 'auth', reason: 'upgrade_required' }` (no local DB wipe).
  */
 
 /** Protocol major version. */
-export const SYNC_PROTOCOL_VERSION = 2 as const;
+export const SYNC_PROTOCOL_VERSION = 3 as const;
 
 /** Max mutation rows accepted per POST /mutations. */
 export const MAX_MUTATIONS_BATCH = 64;
@@ -20,7 +22,7 @@ export const MAX_FANOUT_BYTES = 32 * 1024;
 /** Max queries per POST /query batch. */
 export const MAX_QUERY_BATCH = 64;
 
-/** One domain row on the wire (incl. `_deleted_at` when present). */
+/** One domain row on the wire (incl. `deleted_at` when present). */
 export type QueryRow = Record<string, unknown>;
 
 /** One item in `POST /query` `{ queries: [...] }`. */

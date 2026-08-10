@@ -1,56 +1,45 @@
+import { randomBytes } from 'node:crypto';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
-async function validateAuthSecretKey(input: SecretInput): Promise<void> {
+const MIN_BETTER_AUTH_SECRET_LENGTH = 32;
+
+async function validateBetterAuthSecret(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
-  requireNonEmpty(v, 'AUTH_SECRET_KEY');
-  try {
-    const res = await fetch('https://api.clerk.com/v1/users?limit=1', {
-      headers: { Authorization: `Bearer ${v}` },
-    });
-    if (res.status === 401 || res.status === 403) {
-      throw new Error(
-        `Clerk rejected AUTH_SECRET_KEY — HTTP ${String(res.status)}`
-      );
-    }
-    if (!res.ok) {
-      throw new Error(`Clerk API returned HTTP ${String(res.status)}`);
-    }
-  } catch (e) {
-    if (e instanceof Error && e.message.startsWith('Clerk')) throw e;
+  requireNonEmpty(v, 'BETTER_AUTH_SECRET');
+  if (v.length < MIN_BETTER_AUTH_SECRET_LENGTH) {
     throw new Error(
-      `Clerk unreachable: ${e instanceof Error ? e.message : String(e)}`
+      `BETTER_AUTH_SECRET must be at least ${String(MIN_BETTER_AUTH_SECRET_LENGTH)} characters`
     );
   }
 }
 
-async function validateAuthPublishableKey(input: SecretInput): Promise<void> {
-  requireNonEmpty(input.secretValue, 'AUTH_PUBLISHABLE_KEY');
+async function validateGoogleClientId(input: SecretInput): Promise<void> {
+  requireNonEmpty(input.secretValue, 'WEB_CLIENT_GOOGLE_CLIENT_ID');
 }
 
-export const AUTH_SECRET_KEY = new Secret({
-  name: 'AUTH_SECRET_KEY',
-  hint: 'Auth provider secret key (Clerk sk_…)',
+async function validateGoogleClientSecret(input: SecretInput): Promise<void> {
+  requireNonEmpty(input.secretValue, 'WEB_CLIENT_GOOGLE_CLIENT_SECRET');
+}
+
+export const BETTER_AUTH_SECRET = new Secret({
+  name: 'BETTER_AUTH_SECRET',
+  hint: 'Better Auth signing secret (≥32 chars)',
   pushToApiWorker: true,
-  validate: validateAuthSecretKey,
+  seedInAllEnvs: true,
+  validate: validateBetterAuthSecret,
+  seed: async () => randomBytes(32).toString('base64url'),
 });
 
-export const AUTH_PUBLISHABLE_KEY = new Secret({
-  name: 'AUTH_PUBLISHABLE_KEY',
-  hint: 'Auth provider publishable key (public)',
+export const WEB_CLIENT_GOOGLE_CLIENT_ID = new Secret({
+  name: 'WEB_CLIENT_GOOGLE_CLIENT_ID',
+  hint: 'Google OAuth web client id',
   pushToApiWorker: true,
-  validate: validateAuthPublishableKey,
+  validate: validateGoogleClientId,
 });
 
-export const EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY = new Secret({
-  name: 'EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY',
-  hint: 'Client-facing Clerk publishable key (mirrors AUTH_PUBLISHABLE_KEY)',
-  optional: true,
-  validate: async (input) => {
-    requireNonEmpty(input.secretValue, 'EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY');
-  },
-  seed: async (input) => {
-    const fromAuth = input.secrets.get('AUTH_PUBLISHABLE_KEY')?.trim() ?? '';
-    if (fromAuth.length > 0) return fromAuth;
-    throw new Error('AUTH_PUBLISHABLE_KEY must be set before seeding');
-  },
+export const WEB_CLIENT_GOOGLE_CLIENT_SECRET = new Secret({
+  name: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
+  hint: 'Google OAuth web client secret',
+  pushToApiWorker: true,
+  validate: validateGoogleClientSecret,
 });

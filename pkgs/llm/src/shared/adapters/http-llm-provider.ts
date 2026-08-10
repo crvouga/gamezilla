@@ -1,16 +1,12 @@
 import { assert } from '@pkgs/assert';
+import type { HttpClient } from '@pkgs/http-client';
 
 import { type LlmProvider, LlmProviderError } from '../llm-provider';
 import type { LlmStructuredRequest, LlmStructuredResult } from '../llm-types';
 
-type FetchFn = (
-  input: RequestInfo | URL,
-  init?: RequestInit
-) => Promise<Response>;
-
 export type HttpLlmProviderOptions = {
   readonly apiUrl: string;
-  readonly fetch?: FetchFn;
+  readonly http: HttpClient;
 };
 
 function trimBaseUrl(url: string): string {
@@ -117,10 +113,9 @@ export class HttpLlmProvider implements LlmProvider {
 
   async structured(input: LlmStructuredRequest): Promise<LlmStructuredResult> {
     const base = trimBaseUrl(this.options.apiUrl);
-    const fetchFn =
-      this.options.fetch ?? ((url, init) => globalThis.fetch(url, init));
+    const http = this.options.http;
 
-    const response = await fetchFn(`${base}/api/llm/structured`, {
+    const response = await http.fetch(`${base}/api/llm/structured`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),

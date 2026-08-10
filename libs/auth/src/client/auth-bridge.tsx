@@ -1,5 +1,9 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import type { Timers } from '@pkgs/clock';
+import { useTimers } from '@pkgs/clock';
+import type { HttpFetch } from '@pkgs/http-client';
+import { useHttpClient } from '@pkgs/http-client';
 import { useLogger } from '@pkgs/logger/react';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
@@ -23,6 +27,7 @@ import {
   shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
 } from './resolve-client-identity';
+import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
@@ -36,8 +41,10 @@ type ExpiresAtRef = { current: string | null };
 type RefreshDeps = {
   apiUrl: string;
   deviceId: string;
+  fetchFn: HttpFetch;
   store: SecureStorageStore;
   log: Logger;
+  timers: Timers;
   lastSyncedTokenRef: TokenRef;
   inFlightRef: FlagRef;
   pendingTokenRef: TokenRef;
@@ -149,7 +156,9 @@ function useRefreshOnAppForeground(args: {
     const onChange = (state: AppStateStatus): void => {
       if (state !== 'active') return;
       void (async () => {
-        const token = await port.getFreshToken();
+        const token = await new SessionBearerTokenResolver(deps.timers).resolve(
+          port
+        );
         if (token === null) return;
         tokenRef.current = token;
         await runRefresh({
@@ -167,7 +176,7 @@ function useRefreshOnAppForeground(args: {
 
 /**
  * Reconciles the auth port session with local secure-storage pointers
- * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /auth/refresh`.
+ * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /identity/refresh`.
  * Sign-in remounts per-account SQLite via `lastLocalAccountId` changes.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
@@ -176,9 +185,11 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const authState = port.useAuthSession();
   const store = useSecureStorageStore();
   const deviceId = useDeviceId();
+  const { fetch: fetchFn } = useHttpClient();
   const authToken = useFreshAuthToken();
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
+  const timers = useTimers();
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
   const pendingTokenRef = useRef<string | null>(null);
@@ -194,13 +205,15 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     () => ({
       apiUrl,
       deviceId,
+      fetchFn,
       store,
       log,
+      timers,
       lastSyncedTokenRef,
       inFlightRef,
       pendingTokenRef,
     }),
-    [apiUrl, deviceId, store, log]
+    [apiUrl, deviceId, fetchFn, store, log, timers]
   );
 
   useClearStaleAccountOnExternalUserChange({ authState, deps });
@@ -222,8 +235,12 @@ async function handleSignedIn(args: {
   expiresAt: string | null;
 }): Promise<void> {
   const { deps, port, expiresAt } = args;
-  const token = await port.getFreshToken();
-  if (token === null) return;
+  const token = await new SessionBearerTokenResolver(deps.timers).resolve(port);
+  if (token === null) {
+    // Cookie session shows email while product chrome stays on "Sign in".
+    deps.log.warn('signed in but bearer token unavailable');
+    return;
+  }
   await writeSecureStorageItem(deps.store, SESSION_TOKEN_KEY, token);
   if (deps.lastSyncedTokenRef.current === token) return;
   await runRefresh({
@@ -240,7 +257,7 @@ async function applyRefreshSuccess(args: {
   readonly accountId: string;
 }): Promise<void> {
   const { deps, token, accountId } = args;
-  // Sign-out may clear the token while /auth/refresh is in flight — never
+  // Sign-out may clear the token while /identity/refresh is in flight — never
   // re-bind lastLocalAccountId after the session is gone.
   if (readSessionToken(deps.store) !== token) return;
   await writeSecureStorageItem(
@@ -305,6 +322,7 @@ async function runRefresh(args: {
       apiUrl: deps.apiUrl,
       bearerToken: token,
       deviceId: deps.deviceId,
+      fetchFn: deps.fetchFn,
       deviceSnapshot: collectDeviceSnapshot(),
     });
     const currentToken = readSessionToken(deps.store);
@@ -329,9 +347,9 @@ async function runRefresh(args: {
 
 const ANON_ENSURE_RETRY_DELAYS_MS = [500, 1500, 3000] as const;
 
-async function sleepMs(ms: number): Promise<void> {
+async function sleepMs(ms: number, timers: Timers): Promise<void> {
   await new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
+    timers.setTimeout(resolve, ms);
   });
 }
 
@@ -346,6 +364,7 @@ async function ensureAnonUserWithRetries(deps: RefreshDeps): Promise<string> {
       const { userId } = await ensureAnonAuth({
         apiUrl: deps.apiUrl,
         deviceId: deps.deviceId,
+        fetchFn: deps.fetchFn,
         // First cold start / already-anon: reuse. After sign-out from a
         // signed-in session the device is still bound to a non-anon user on
         // the server, so forceNew is unnecessary — ensureAnonUserForDevice
@@ -361,7 +380,7 @@ async function ensureAnonUserWithRetries(deps: RefreshDeps): Promise<string> {
         attempt: attempt + 1,
         error: e instanceof Error ? e.message : String(e),
       });
-      await sleepMs(delay);
+      await sleepMs(delay, deps.timers);
     }
   }
   throw lastError instanceof Error ? lastError : new Error(String(lastError));

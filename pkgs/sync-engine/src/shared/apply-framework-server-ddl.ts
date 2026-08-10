@@ -124,6 +124,25 @@ export async function applyFrameworkServerDdl(args: {
   for (const statement of statements) {
     await sqlClient.run(unsafeSql(statement));
   }
+  // Existing installs may still have wall DEFAULT now() — drop them.
+  await sqlClient.run(
+    unsafeSql(`
+DO $$ BEGIN
+  ALTER TABLE IF EXISTS public._mutations_applied
+    ALTER COLUMN applied_at DROP DEFAULT;
+EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
+END $$;
+`)
+  );
+  await sqlClient.run(
+    unsafeSql(`
+DO $$ BEGIN
+  ALTER TABLE IF EXISTS public.write_rejections
+    ALTER COLUMN created_at DROP DEFAULT;
+EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
+END $$;
+`)
+  );
   logger.info('framework server DDL applied', {
     statements: statements.length,
   });

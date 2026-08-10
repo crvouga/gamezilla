@@ -1,10 +1,11 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
-import { loadMemberOfSpaceIdsFromSql } from './load-member-of-space-ids-sql';
+import { MemberOfSpaceIdsLoader } from './load-member-of-space-ids-sql';
 
-export async function loadMemberOfSpaceIds(
-  sql: SqlClient,
-  myId: string
-): Promise<string[]> {
-  return loadMemberOfSpaceIdsFromSql(sql, myId);
+export class MemberOfSpaceIdsService {
+  constructor(private readonly tx: SqlTx) {}
+
+  async load(myId: string): Promise<string[]> {
+    return new MemberOfSpaceIdsLoader(this.tx).load(myId);
+  }
 }

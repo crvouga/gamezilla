@@ -1,5 +1,6 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import { Hono } from 'hono';
 
 import type { MutationRegistry } from '../mutations/core/types';
@@ -18,6 +19,9 @@ export type CreateSyncAppDeps = {
   readonly getSql: () => SqlClient;
   readonly queries: QueryRegistry;
   readonly mutations: MutationRegistry;
+  /** Epoch ms for checkpoints / auth.now (composition root injects getIo()). */
+  readonly now: () => number;
+  readonly createId: CreateId;
   /** Optional push transport; omit to keep upload correct without pubsub. */
   readonly pubsub?: PubSub;
   readonly nextCheckpoint?: () => string;
@@ -32,19 +36,19 @@ export type CreateSyncAppDeps = {
   readonly strictQueryLimits?: boolean;
 };
 
-let checkpointSeq = 0;
-
-function defaultNextCheckpoint(): string {
-  checkpointSeq += 1;
-  return `${Date.now()}${String(checkpointSeq).padStart(6, '0')}`;
-}
-
 /**
  * Single Hono app for sync: `POST /query` (batch body), `POST /mutations`.
  * Always merges framework mutations into the product registry.
  */
 export function createSyncApp(deps: CreateSyncAppDeps) {
-  const nextCheckpoint = deps.nextCheckpoint ?? defaultNextCheckpoint;
+  // Per-app counter — never module-scope (multi-sim / multi-app isolation).
+  let checkpointSeq = 0;
+  const nextCheckpoint =
+    deps.nextCheckpoint ??
+    (() => {
+      checkpointSeq += 1;
+      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
+    });
   const mutations = withFrameworkMutations(deps.mutations);
   const app = new Hono();
   mountQueryRoutes(app, {
@@ -52,6 +56,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     getSql: deps.getSql,
     queries: deps.queries,
     nextCheckpoint,
+    now: deps.now,
     ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
   });
   const topicMap = withFrameworkTopicMap(deps.topicMap);
@@ -59,6 +64,8 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     resolveAuth: deps.resolveAuth,
     getSql: deps.getSql,
     mutations,
+    now: deps.now,
+    createId: deps.createId,
     ...(deps.pubsub !== undefined ? { pubsub: deps.pubsub } : {}),
     ...(deps.rowImageFanout === true ? { rowImageFanout: true } : {}),
     ...(topicMap !== undefined ? { topicMap } : {}),

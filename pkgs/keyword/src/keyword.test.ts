@@ -58,7 +58,7 @@ const NON_STRING_VALUES: readonly unknown[] = [
   [],
   ['todo/title'],
   () => 'todo/title',
-  new Date(),
+  new Date(0),
   /todo\/title/,
 ];
 

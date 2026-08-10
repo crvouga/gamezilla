@@ -1,3 +1,6 @@
+import type { Timers } from '@pkgs/clock';
+import type { HttpFetch } from '@pkgs/http-client';
+
 export interface FetchRetryOptions {
   /** Maximum number of attempts (including the first). Defaults to 3. */
   readonly attempts?: number;
@@ -5,6 +8,10 @@ export interface FetchRetryOptions {
   readonly delayMs?: number;
   /** Predicate that decides whether a response should be retried. Defaults to status >= 500. */
   readonly shouldRetry?: (res: Response) => boolean;
+  /** Injectable HTTP transport. */
+  readonly fetch: HttpFetch;
+  /** Injectable timers for retry backoff. */
+  readonly timers: Timers;
 }
 
 const DEFAULT_ATTEMPTS = 3;
@@ -18,21 +25,22 @@ const defaultShouldRetry = (res: Response): boolean => res.status >= 500;
  */
 export async function fetchWithRetry(
   input: string | URL | Request,
-  init?: RequestInit,
-  options?: FetchRetryOptions
+  init: RequestInit | undefined,
+  options: FetchRetryOptions
 ): Promise<Response> {
-  const attempts = options?.attempts ?? DEFAULT_ATTEMPTS;
-  const delayMs = options?.delayMs ?? DEFAULT_DELAY_MS;
-  const shouldRetry = options?.shouldRetry ?? defaultShouldRetry;
+  const attempts = options.attempts ?? DEFAULT_ATTEMPTS;
+  const delayMs = options.delayMs ?? DEFAULT_DELAY_MS;
+  const shouldRetry = options.shouldRetry ?? defaultShouldRetry;
+  const fetchFn = options.fetch;
 
   let lastError: unknown;
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    const outcome = await attemptFetch(input, init, shouldRetry);
+    const outcome = await attemptFetch(fetchFn, input, init, shouldRetry);
     if (outcome.kind === 'response') return outcome.response;
     lastError = outcome.error;
     const isFinalAttempt = attempt >= attempts;
     if (isFinalAttempt) return finalizeOutcome(outcome);
-    await sleep(delayMs * attempt);
+    await sleep(delayMs * attempt, options.timers);
   }
 
   throw lastError;
@@ -51,13 +59,14 @@ type AttemptOutcome =
   | { kind: 'thrown'; error: unknown };
 
 async function attemptFetch(
+  fetchFn: HttpFetch,
   input: string | URL | Request,
   init: RequestInit | undefined,
   shouldRetry: (res: Response) => boolean
 ): Promise<AttemptOutcome> {
   let response: Response;
   try {
-    response = await fetch(input, init);
+    response = await fetchFn(input, init);
   } catch (err) {
     return { kind: 'thrown', error: err };
   }
@@ -69,6 +78,8 @@ async function attemptFetch(
   };
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, timers: Timers): Promise<void> {
+  return new Promise((resolve) => {
+    timers.setTimeout(resolve, ms);
+  });
 }

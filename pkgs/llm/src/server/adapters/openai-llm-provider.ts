@@ -1,3 +1,5 @@
+import type { HttpClient } from '@pkgs/http-client';
+
 import { type LlmProvider, LlmProviderError } from '../../shared/llm-provider';
 import type {
   LlmStructuredRequest,
@@ -7,6 +9,7 @@ import type {
 export type OpenAiLlmProviderOptions = {
   readonly apiKey: string;
   readonly baseUrl: string;
+  readonly http: HttpClient;
 };
 
 type OpenAiChatMessage = {
@@ -141,7 +144,8 @@ export class OpenAiLlmProvider implements LlmProvider {
       },
     };
 
-    const response = await fetch(url, {
+    const http = this.options.http;
+    const response = await http.fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.options.apiKey}`,

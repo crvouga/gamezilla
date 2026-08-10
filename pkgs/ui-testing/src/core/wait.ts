@@ -1,12 +1,22 @@
+import type { Timers } from '@pkgs/clock';
+
 import { TimeoutError } from './errors';
 
-export type WaitOptions = {
+/** Polling knobs shared by driver waitFor / assertions / waitUntil. */
+export type WaitPollOptions = {
   /** Maximum time to poll. Default 5_000. */
   timeoutMs?: number;
   /** Delay between polls. Default 50. */
   intervalMs?: number;
   /** Human-readable description used in the timeout error. */
   description?: string;
+};
+
+export type WaitOptions = WaitPollOptions & {
+  /** Epoch ms clock. */
+  now: () => number;
+  /** Timers for poll sleep. */
+  timers: Timers;
 };
 
 const DEFAULT_TIMEOUT_MS = 5_000;
@@ -18,15 +28,17 @@ const DEFAULT_INTERVAL_MS = 50;
  */
 export async function waitUntil<T>(
   fn: () => T | Promise<T>,
-  options: WaitOptions = {}
+  options: WaitOptions
 ): Promise<NonNullable<T>> {
+  const now = options.now;
+  const timers = options.timers;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const intervalMs = options.intervalMs ?? DEFAULT_INTERVAL_MS;
   const description = options.description ?? 'condition';
-  const deadline = Date.now() + timeoutMs;
+  const deadline = now() + timeoutMs;
   let lastError: unknown;
 
-  while (Date.now() <= deadline) {
+  while (now() <= deadline) {
     try {
       const value = await fn();
       if (value) {
@@ -35,7 +47,7 @@ export async function waitUntil<T>(
     } catch (error) {
       lastError = error;
     }
-    await sleep(intervalMs);
+    await sleep(intervalMs, timers);
   }
 
   throw new TimeoutError(
@@ -45,8 +57,8 @@ export async function waitUntil<T>(
   );
 }
 
-function sleep(ms: number): Promise<void> {
+function sleep(ms: number, timers: Timers): Promise<void> {
   return new Promise((resolve) => {
-    setTimeout(resolve, ms);
+    timers.setTimeout(resolve, ms);
   });
 }

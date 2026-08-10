@@ -1,4 +1,5 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { Clock, Timers } from '@pkgs/clock';
 import {
   createSyncHttpClient,
   type GetFreshAuthToken,
@@ -20,12 +21,16 @@ function httpClient(args: {
   readonly fetchFn: SyncApiFetch;
   readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
+  readonly clock: Clock;
+  readonly timers: Timers;
 }) {
   return createSyncHttpClient({
     getBaseUrl: () => args.config.getApiUrl(),
     fetchFn: args.fetchFn,
     auth: args.auth,
     getFreshAuthToken: args.getFreshAuthToken,
+    now: args.clock.now,
+    timers: args.timers,
   });
 }
 
@@ -34,6 +39,8 @@ export async function postAppQueries(args: {
   readonly fetchFn: SyncApiFetch;
   readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
+  readonly clock: Clock;
+  readonly timers: Timers;
   readonly requests: readonly QueryRequest[];
 }): Promise<readonly QueryResponse[]> {
   return httpClient(args).postQueries(args.requests);
@@ -44,6 +51,8 @@ export async function postMutationBatch(args: {
   readonly fetchFn: SyncApiFetch;
   readonly auth: SyncClientAuth;
   readonly getFreshAuthToken?: GetFreshAuthToken | undefined;
+  readonly clock: Clock;
+  readonly timers: Timers;
   readonly mutations: readonly MutationUploadRow[];
 }): Promise<MutationUploadResult> {
   return httpClient(args).postMutations(args.mutations);

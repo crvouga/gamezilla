@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import type { HttpFetch } from '@pkgs/http-client';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
@@ -7,6 +8,7 @@ export type RefreshAuthArgs = {
   apiUrl: string;
   bearerToken: string;
   deviceId: string;
+  fetchFn: HttpFetch;
   /**
    * Best-effort device metadata keyed directly by `device/...` sync
    * attribute names (see {@link collectDeviceSnapshot}). The server merges
@@ -20,7 +22,7 @@ export type RefreshAuthResult = {
 };
 
 /**
- * `POST /auth/refresh` — idempotent server upsert of the auth-related sync
+ * `POST /identity/refresh` — idempotent server upsert of the auth-related sync
  * entities (auth user snapshot, device binding) for the current bearer +
  * device. Returns just the internal `accountId`; everything else flows back
  * to the client through sync sync.
@@ -28,9 +30,9 @@ export type RefreshAuthResult = {
 export async function refreshAuth(
   args: RefreshAuthArgs
 ): Promise<RefreshAuthResult> {
-  const { apiUrl, bearerToken, deviceId, deviceSnapshot } = args;
+  const { apiUrl, bearerToken, deviceId, fetchFn, deviceSnapshot } = args;
   const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/api/auth/refresh`, {
+  const res = await fetchFn(`${base}/api/identity/refresh`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${bearerToken}`,

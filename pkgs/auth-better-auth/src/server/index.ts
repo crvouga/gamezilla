@@ -1,0 +1,16 @@
+export { BetterAuthDatabaseMigration } from './better-auth-database-migration';
+export {
+  type BetterAuthInstance,
+  type CreateBetterAuthConfig,
+  createBetterAuth,
+} from './create-better-auth';
+export {
+  BETTER_AUTH_PROVIDER_LABEL,
+  createBetterAuthServerAdapter,
+} from './create-better-auth-server-adapter';
+export { type MintE2eSessionResult, mintE2eSession } from './mint-e2e-session';
+export {
+  type RunBetterAuthMigrationsArgs,
+  runBetterAuthMigrations,
+} from './run-better-auth-migrations';
+export { buildBetterAuthTrustedOrigins } from './trusted-origins';

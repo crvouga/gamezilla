@@ -16,6 +16,7 @@ import {
   type AppHarness,
   bootMatchmakingApp,
   defaultStubAuth,
+  defaultTestTuning,
   getStatus,
   NameAttr,
   postJson,
@@ -274,6 +275,7 @@ describe('Matchmaking.app - SQL roundtrip count (chess.com-scale regression)', (
     const mm = new Matchmaking({
       storage: { sqlClient: counting },
       schema: {},
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     const app = mm.app({ requireAuth: defaultStubAuth });
@@ -353,6 +355,7 @@ describe('Matchmaking.app - 500 sanitisation', () => {
     const mm = new Matchmaking({
       storage: { sqlClient: flaky },
       schema: {},
+      tuning: defaultTestTuning(),
     });
     await mm.ready();
     const app = mm.app({ requireAuth: defaultStubAuth });

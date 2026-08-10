@@ -46,11 +46,12 @@ libs/chess/.cache/
 apps/api/.cache/
 apps/emqx/.cache/
 apps/emqx/data/
+apps/postgres/data/
+apps/minio/data/
+apps/minio/.cache/
 
-
-# Local PostgreSQL cluster + lifecycle artifacts (pkgs/postgres)
+# Legacy local PostgreSQL cluster paths (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.postgres/
-# Legacy PGlite data dir (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.pglite/
 
 # typescript
@@ -67,7 +68,7 @@ apps/client/android/
 
 .cursor/debug*.log
 
-# Local preview-stack log from check:browser / check:api
+# Local preview-stack log from check:api
 .check-*
 
 # Local observability span export (opt-in dev debugging)
@@ -86,9 +87,8 @@ apps/client/android/
 .turbo
 
 
-# Playwright check artifacts (reports, traces, videos)
+# Check / Playwright artifacts (reports, traces, videos)
 /check/
 **/playwright-report/
 **/test-results/
-check/browser-artifacts/
 **/blob-report/

@@ -32,6 +32,7 @@
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
+import { getIo } from '@pkgs/io/als';
 import { Matchmaking } from '@pkgs/matchmaking';
 import type { Sql } from '@pkgs/sql';
 import type {
@@ -107,7 +108,13 @@ export function createMatchmakingSubApp(): Hono {
   const matchmaking = new Matchmaking({
     storage: { sqlClient: lazyRequestSqlClient() },
     schema: MATCHMAKING_SCHEMA,
-    tuning: MATCHMAKING_TUNING,
+    tuning: {
+      ...MATCHMAKING_TUNING,
+      // Request middleware installs `runWithIo`; resolve per call so
+      // tests / sim hosts can override the ALS bag.
+      now: () => getIo().clock.now(),
+      createId: () => getIo().createId(),
+    },
   });
   return matchmaking.app({ requireAuth });
 }

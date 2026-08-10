@@ -7,10 +7,11 @@
  *   the dev workflow doesn't block on a dashboard-only secret.
  */
 
+import { cliIo } from '@libs/infra/cli/lib/cli-io';
 import { createStripeClientFromSecret } from '../src/script-runtime';
 import { createStripeScriptSecretStore } from '../src/script-secret-store';
 import { StripeSecretKeys } from '../src/secret-keys';
-import { runStripeCatalogSync } from '../src/sync';
+import { StripeCatalogSync } from '../src/sync';
 
 const SCRIPT_TAG = 'stripe check';
 
@@ -24,7 +25,10 @@ function isCi(): boolean {
 async function resolveStripeSecretOrSkip(): Promise<string | null> {
   let store;
   try {
-    store = await createStripeScriptSecretStore();
+    store = await createStripeScriptSecretStore({
+      fetchFn: cliIo.http.fetch.bind(cliIo.http),
+      now: cliIo.clock.now,
+    });
   } catch {
     if (isCi()) {
       console.error(
@@ -79,7 +83,7 @@ async function main(): Promise<void> {
   const secret = await resolveStripeSecretOrSkip();
   if (secret === null) return;
   const stripe = createStripeClientFromSecret(secret);
-  await runStripeCatalogSync({ stripe });
+  await new StripeCatalogSync(stripe).run();
   console.log(`[${SCRIPT_TAG}] catalog sync ok`);
 }
 

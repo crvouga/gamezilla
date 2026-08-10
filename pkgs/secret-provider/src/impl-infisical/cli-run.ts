@@ -126,6 +126,9 @@ export function runWithInfisicalSecrets(
   const isCi =
     process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true';
   const args = [...childArgs];
+  const forceLocal =
+    process.env['LOCAL_SECRETS']?.trim() === '1' ||
+    process.env['LOCAL_SECRETS']?.trim().toLowerCase() === 'true';
 
   if (isCi) {
     if (!hasInjectedSecrets()) {
@@ -140,15 +143,31 @@ export function runWithInfisicalSecrets(
     return runWithInjectedEnv(repoRoot, args);
   }
 
-  if (hasInjectedSecrets() || !which(INFISICAL_CLI_BIN)) {
+  if (forceLocal || hasInjectedSecrets() || !which(INFISICAL_CLI_BIN)) {
+    if (forceLocal) {
+      process.stderr.write(
+        'secrets-run: LOCAL_SECRETS=1 — skipping Infisical; using process env / local setup seeds.\n'
+      );
+    }
     return runWithInjectedEnv(repoRoot, args);
   }
 
-  return runWithInfisicalCli({
+  const infisicalStatus = runWithInfisicalCli({
     repoRoot,
     workspaceId: scope.projectId,
     env: scope.env,
     domain: endpoint,
     childArgs: args,
   });
+  if (infisicalStatus === 0) {
+    return 0;
+  }
+  // Local `dev` must stay self-contained when Infisical login/network fails.
+  if (scope.env === 'dev') {
+    process.stderr.write(
+      'secrets-run: Infisical failed; falling back to local/injected env for SECRETS_ENV=dev.\n'
+    );
+    return runWithInjectedEnv(repoRoot, args);
+  }
+  return infisicalStatus;
 }

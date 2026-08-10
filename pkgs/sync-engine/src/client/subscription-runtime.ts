@@ -9,7 +9,7 @@ import {
   alwaysOnLifecycle,
 } from './app-lifecycle';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
-import { REAL_TIMERS, type Timers } from './sim-ports';
+import type { Timers } from './sim-ports';
 import { QUERY_COALESCE_MS } from './subscription-constants';
 
 /** Host/port alias of protocol {@link QueryRequestItem}. */
@@ -54,7 +54,7 @@ export type SubscriptionRuntimeOptions = {
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
   readonly lifecycle?: AppLifecycle;
-  readonly timers?: Timers;
+  readonly timers: Timers;
   /** Coalesce window override (default QUERY_COALESCE_MS). */
   readonly coalesceMs?: number;
 };
@@ -138,7 +138,7 @@ export class SubscriptionRuntime {
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
-    this.timers = options.timers ?? REAL_TIMERS;
+    this.timers = options.timers;
     this.coalesceMs = options.coalesceMs ?? QUERY_COALESCE_MS;
     this.foregrounded = this.lifecycle.isForeground();
   }

@@ -1,4 +1,4 @@
-import { ensureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
+import { EnsureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { type ReactNode, useEffect } from 'react';
 
@@ -16,7 +16,7 @@ export function DeviceEntityBootstrap({
     let cancelled = false;
     void (async () => {
       try {
-        await ensureDeviceEntity(mutationClient);
+        await new EnsureDeviceEntity(mutationClient).run();
         if (cancelled) return;
       } catch {
         // Best-effort: the next refresh from the server will re-assert.

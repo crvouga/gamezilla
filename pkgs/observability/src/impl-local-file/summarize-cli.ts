@@ -1,5 +1,7 @@
+// @io-wall-ok
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { wallIo } from '@pkgs/io';
 import type { ExportedSpanRecord } from '../shared/types';
 import { DEFAULT_FILE_SINK_OPTIONS } from './file-sink';
 
@@ -133,16 +135,22 @@ function parseSummarizeArgs(argv: string[]): SummarizeArgs {
 
 function filterSince(
   records: ExportedSpanRecord[],
-  sinceHours: number | undefined
+  sinceHours: number | undefined,
+  now: () => number
 ): ExportedSpanRecord[] {
   if (sinceHours === undefined || !Number.isFinite(sinceHours)) return records;
-  const cutoff = Date.now() - sinceHours * 60 * 60 * 1000;
+  const cutoff = now() - sinceHours * 60 * 60 * 1000;
   return records.filter((r) => Date.parse(r.timestamp) >= cutoff);
 }
 
 function main(): void {
+  const io = wallIo();
   const args = parseSummarizeArgs(process.argv);
-  const records = filterSince(loadAllRecords(args.rootDir), args.sinceHours);
+  const records = filterSince(
+    loadAllRecords(args.rootDir),
+    args.sinceHours,
+    io.clock.now
+  );
   if (args.traceId !== undefined) {
     printWaterfall(records, args.traceId);
     return;

@@ -101,26 +101,32 @@ export const spaceMembersCommandRouter: MessageRouter<
     };
   });
 
-export const spaceMembersEventReducer: MessageRouter<
-  RoomState,
-  void,
-  RoomState
-> = createMessageRouter<RoomState, void, RoomState>(spaceMembersEvtNs)
-  .on(SpaceSeatJoined, (state, _ctx, evt) => {
-    const seats = { ...readSeats(state) };
-    if (seats[evt.payload.memberId] === undefined) {
-      seats[evt.payload.memberId] = { joinedAt: new Date().toISOString() };
-    }
-    return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
-  })
-  .on(SpaceSeatLeft, (state, _ctx, evt) => {
-    const seats = { ...readSeats(state) };
-    delete seats[evt.payload.memberId];
-    return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
-  });
+export function createSpaceMembersEventReducer(
+  now: () => number
+): MessageRouter<RoomState, void, RoomState> {
+  return createMessageRouter<RoomState, void, RoomState>(spaceMembersEvtNs)
+    .on(SpaceSeatJoined, (state, _ctx, evt) => {
+      const seats = { ...readSeats(state) };
+      if (seats[evt.payload.memberId] === undefined) {
+        seats[evt.payload.memberId] = {
+          joinedAt: new Date(now()).toISOString(),
+        };
+      }
+      return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
+    })
+    .on(SpaceSeatLeft, (state, _ctx, evt) => {
+      const seats = { ...readSeats(state) };
+      delete seats[evt.payload.memberId];
+      return { ...state, ...SpaceMembersRoomAttr.seats(seats) };
+    });
+}
 
 export function spaceSeatMemberIds(state: RoomState): readonly string[] {
-  return Object.keys(readSeats(state));
+  // Explicit sort: plain-object key order is not a stable roster / turn order
+  // (integer-like ids reorder per the JS property-order rules).
+  return Object.keys(readSeats(state)).sort((a, b) =>
+    a < b ? -1 : a > b ? 1 : 0
+  );
 }
 
 export function spaceSeatCount(state: RoomState): number {

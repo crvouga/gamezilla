@@ -44,7 +44,7 @@ describe('friendship topic map wakes both users', () => {
               id: 'f1',
               user_low: 'alice',
               user_high: 'bob',
-              _deleted_at: null,
+              deleted_at: null,
             },
           ],
           friend_requests: [
@@ -52,7 +52,7 @@ describe('friendship topic map wakes both users', () => {
               id: 'r1',
               from_user_id: 'bob',
               to_user_id: 'alice',
-              _deleted_at: '2026-01-01T00:00:00.000Z',
+              deleted_at: '2026-01-01T00:00:00.000Z',
             },
           ],
         },

@@ -12,9 +12,11 @@ import { PassThrough, Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { assert } from '@pkgs/assert';
+import type { Clock } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import type { Logger } from '@pkgs/logger';
 import { parse } from 'csv-parse';
-import { Decompress as ZstdDecompress } from 'fzstd';
+import { ZstdDecodeTransform } from './zstd-decode-transform';
 
 const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';
@@ -69,6 +71,7 @@ async function streamWebBodyToFile(args: {
   body: NodeReadableStream;
   destPath: string;
   totalBytes: number | null;
+  now: Clock['now'];
   onProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
@@ -83,13 +86,13 @@ async function streamWebBodyToFile(args: {
     transform(chunk: Buffer, _enc, cb): void {
       received += chunk.length;
       if (args.onProgress !== undefined) {
-        const now = performance.now();
-        if (now - lastEmit >= throttleMs) {
+        const t = args.now();
+        if (t - lastEmit >= throttleMs) {
           args.onProgress({
             receivedBytes: received,
             totalBytes: args.totalBytes,
           });
-          lastEmit = now;
+          lastEmit = t;
         }
       }
       cb(null, chunk);
@@ -112,12 +115,14 @@ async function downloadAndPersistHttpArchive(args: {
   manifestPath: string;
   log: Logger;
   headEtag: string;
+  http: HttpClient;
+  now: Clock['now'];
   onDownloadProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
   }) => void;
 }): Promise<ResolvedSource> {
-  const res = await fetch(args.source);
+  const res = await args.http.fetch(args.source);
   if (!res.ok || res.body === null) {
     assert.fail('seed:puzzles: download failed', {
       status: res.status,
@@ -136,6 +141,7 @@ async function downloadAndPersistHttpArchive(args: {
     body: res.body as unknown as NodeReadableStream,
     destPath: tmpPath,
     totalBytes,
+    now: args.now,
     ...(args.onDownloadProgress !== undefined
       ? { onProgress: args.onDownloadProgress }
       : {}),
@@ -148,7 +154,7 @@ async function downloadAndPersistHttpArchive(args: {
       {
         etag: etagFinal,
         url: args.source,
-        downloadedAt: new Date().toISOString(),
+        downloadedAt: new Date(args.now()).toISOString(),
       },
       null,
       2
@@ -163,6 +169,8 @@ async function resolveHttpArchiveSource(args: {
   source: string;
   cacheDir: string;
   log: Logger;
+  http: HttpClient;
+  now: Clock['now'];
   onDownloadProgress?: (p: {
     receivedBytes: number;
     totalBytes: number | null;
@@ -171,7 +179,7 @@ async function resolveHttpArchiveSource(args: {
   const manifestPath = join(args.cacheDir, MANIFEST_NAME);
   const dataPath = join(args.cacheDir, ZST_NAME);
   args.log.info('seed:puzzles: HTTP HEAD', { source: args.source });
-  const head = await fetch(args.source, { method: 'HEAD' });
+  const head = await args.http.fetch(args.source, { method: 'HEAD' });
   const headEtag = (head.headers.get('etag') ?? '').trim();
   const manifestEtag = await readCachedManifestEtag(manifestPath);
   if (
@@ -191,6 +199,8 @@ async function resolveHttpArchiveSource(args: {
     manifestPath,
     log: args.log,
     headEtag,
+    http: args.http,
+    now: args.now,
     ...(args.onDownloadProgress !== undefined
       ? { onDownloadProgress: args.onDownloadProgress }
       : {}),
@@ -216,52 +226,35 @@ async function resolveLocalFileArchive(
   return { localPath, etag, isZst: localPath.endsWith('.zst') };
 }
 
-export async function ensureCachedArchive(args: {
-  source: string;
-  cacheDir: string;
-  log: Logger;
-  onDownloadProgress?: (p: {
-    receivedBytes: number;
-    totalBytes: number | null;
-  }) => void;
-}): Promise<ResolvedSource> {
-  await mkdir(args.cacheDir, { recursive: true });
-  if (isHttpUrl(args.source)) {
-    return resolveHttpArchiveSource(args);
-  }
-  return resolveLocalFileArchive(args.source, args.log);
-}
+export class PuzzleArchiveCache {
+  constructor(
+    private readonly log: Logger,
+    private readonly http: HttpClient,
+    private readonly now: Clock['now']
+  ) {}
 
-class ZstdDecodeTransform extends Transform {
-  private readonly dec: ZstdDecompress;
-
-  constructor() {
-    super();
-    this.dec = new ZstdDecompress((chunk: Uint8Array) => {
-      this.push(Buffer.from(chunk));
-    });
-  }
-
-  override _transform(
-    chunk: Buffer,
-    _encoding: BufferEncoding,
-    callback: (error?: Error | null) => void
-  ): void {
-    try {
-      this.dec.push(new Uint8Array(chunk));
-      callback();
-    } catch (e) {
-      callback(e instanceof Error ? e : new Error(String(e)));
+  async ensureCachedArchive(args: {
+    source: string;
+    cacheDir: string;
+    onDownloadProgress?: (p: {
+      receivedBytes: number;
+      totalBytes: number | null;
+    }) => void;
+  }): Promise<ResolvedSource> {
+    await mkdir(args.cacheDir, { recursive: true });
+    if (isHttpUrl(args.source)) {
+      return resolveHttpArchiveSource({
+        source: args.source,
+        cacheDir: args.cacheDir,
+        log: this.log,
+        http: this.http,
+        now: this.now,
+        ...(args.onDownloadProgress !== undefined
+          ? { onDownloadProgress: args.onDownloadProgress }
+          : {}),
+      });
     }
-  }
-
-  override _flush(callback: (error?: Error | null) => void): void {
-    try {
-      this.dec.push(new Uint8Array(0), true);
-      callback();
-    } catch (e) {
-      callback(e instanceof Error ? e : new Error(String(e)));
-    }
+    return resolveLocalFileArchive(args.source, this.log);
   }
 }
 

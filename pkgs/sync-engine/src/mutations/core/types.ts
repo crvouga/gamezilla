@@ -11,6 +11,8 @@ export type MutationEnv = {
   readonly isAnon: boolean;
   /** Replay pins this to the mutation's created_at. */
   readonly now: () => Date;
+  /** Id mint for managed `id` (and any mutation-local ids). */
+  readonly createId: () => string;
   /** Server wall clock; present only on replay (staleness checks). */
   readonly serverNow?: () => Date;
 };

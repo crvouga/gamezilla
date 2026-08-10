@@ -1,19 +1,23 @@
-import { createTypedApiRpcClient } from '../src/typed-api-rpc-client';
+// @io-wall-ok
+import { wallIo } from '@pkgs/io';
+import { createTypedApiRpcClient } from '../src/shared/typed-api-rpc-client';
+
+const io = wallIo();
 
 const API_URL = 'http://localhost:8788';
 const MAX_WAIT_MS = 60_000;
 const RETRY_MS = 2_000;
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => io.timers.setTimeout(resolve, ms));
 }
 
 async function main(): Promise<void> {
   const client = createTypedApiRpcClient(API_URL);
-  const started = performance.now();
+  const started = io.clock.now();
 
   for (let attempt = 1; ; attempt++) {
-    const t0 = performance.now();
+    const t0 = io.clock.now();
 
     let res: Response;
     try {
@@ -21,7 +25,7 @@ async function main(): Promise<void> {
         init: { signal: AbortSignal.timeout(10_000) },
       })) as unknown as Response;
     } catch (e) {
-      const elapsed = performance.now() - started;
+      const elapsed = io.clock.now() - started;
       const msg = e instanceof Error ? e.message : String(e);
 
       if (elapsed < MAX_WAIT_MS) {
@@ -38,11 +42,11 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    const ms = Math.round(performance.now() - t0);
+    const ms = Math.round(io.clock.now() - t0);
 
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      const totalElapsed = performance.now() - started;
+      const totalElapsed = io.clock.now() - started;
 
       if (res.status >= 500 && totalElapsed < MAX_WAIT_MS) {
         process.stdout.write(

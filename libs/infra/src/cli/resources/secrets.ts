@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
+import { cliIo } from '../lib/cli-io';
 import { ok, warn } from '../lib/fmt';
 import {
   applySeededS3ToEnv,
@@ -20,6 +21,7 @@ import {
 } from '../secrets/secret';
 import {
   deleteSecretIn,
+  ensureSeedInAllEnvsSecrets,
   exportSecretsMap,
   fetchSecret,
   fetchSecretFrom,
@@ -31,10 +33,7 @@ import {
 } from '../secrets/secrets';
 import { type InfraContext, ResourceBase } from './types';
 
-assert.notThrows(
-  () => crypto.randomUUID(),
-  'crypto.randomUUID must be available'
-);
+assert.notThrows(() => cliIo.createId(), 'cliIo.createId must be available');
 
 const legacyWwwApiOrigin = (): string => `https://www.${PROJECT_CONFIG.domain}`;
 
@@ -107,9 +106,25 @@ export class SecretsResource extends ResourceBase {
       }
     }
 
+    try {
+      const seededAllEnvs = await ensureSeedInAllEnvsSecrets();
+      for (const r of seededAllEnvs) {
+        if (r.action === 'seeded') {
+          ok(r.name, `seeded in secrets env ${r.env}`);
+        }
+      }
+    } catch (e) {
+      platform.warning(
+        `seedInAllEnvs failed: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
+
     const storedActive = new Map(await exportSecretsMap(active));
     for (const entry of getSeedableSecrets()) {
       if (entry.name.startsWith('S3_') || entry.name.startsWith('B2_APP_')) {
+        continue;
+      }
+      if (entry.seedInAllEnvs) {
         continue;
       }
       const current = (storedActive.get(entry.name) ?? '').trim();

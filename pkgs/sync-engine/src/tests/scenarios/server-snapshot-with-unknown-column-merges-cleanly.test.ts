@@ -58,7 +58,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
       expect(cols.some((c) => c.name === 'color')).toBe(false);
 
       const bobColor = await b.db.query(sql<{ color: string | null }>`
-        SELECT color FROM notes WHERE id = ${'n1'} AND _deleted_at IS NULL
+        SELECT color FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
       `);
       expect(bobColor[0]?.color).toBe('blue');
     }

@@ -8,11 +8,8 @@ import {
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../canonical-pair';
-import {
-  friendshipExists as friendshipExistsSql,
-  softDeleteBlock,
-  softDeleteFriendship,
-} from '../friends-sql/friendship-block-sql';
+import { FriendshipRepository } from '../friends-sql/friendship-repository';
+import { UserBlockRepository } from '../friends-sql/user-block-repository';
 import { pairId } from '../pair-id';
 import {
   FRIEND_REQUEST_RESEND_COOLDOWN_MS,
@@ -83,7 +80,7 @@ async function blockedEitherDirection(
 ): Promise<boolean> {
   const rows = await tx.query(sql<{ readonly id: string }>`
     SELECT id FROM user_blocks
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
       AND (
         (blocker_id = ${userA} AND blocked_id = ${userB})
         OR (blocker_id = ${userB} AND blocked_id = ${userA})
@@ -98,7 +95,7 @@ async function friendshipExists(
   userA: string,
   userB: string
 ): Promise<boolean> {
-  return friendshipExistsSql(tx, userA, userB);
+  return new FriendshipRepository(tx).exists(userA, userB);
 }
 
 async function requireRequestParty(
@@ -291,14 +288,14 @@ export const acceptFriendRequestMutation = defineMutation({
     );
     await tx.run(sql`
       INSERT INTO friendships (
-        id, user_low, user_high, created_at, source_request_id, _deleted_at
+        id, user_low, user_high, created_at, source_request_id, deleted_at
       )
       VALUES (
         ${pairId(userLow, userHigh)}, ${userLow}, ${userHigh}, ${now},
         ${requestId}, ${null}
       )
       ON CONFLICT (user_low, user_high) DO UPDATE SET
-        _deleted_at = NULL,
+        deleted_at = NULL,
         created_at = excluded.created_at,
         source_request_id = excluded.source_request_id
     `);
@@ -355,7 +352,11 @@ export const removeFriendMutation = defineMutation({
     if (!(await friendshipExists(tx, actor, userId))) {
       throw new MutationError(FRIENDS_NOT_FOUND, 'Friendship not found.');
     }
-    await softDeleteFriendship(tx, actor, userId, env.now().toISOString());
+    await new FriendshipRepository(tx).softDelete(
+      actor,
+      userId,
+      env.now().toISOString()
+    );
   },
 });
 
@@ -365,13 +366,13 @@ export const blockUserMutation = defineMutation({
   async run({ tx, env }, { userId, blockId }) {
     const actor = otherUserId(env, userId, 'block');
     const now = env.now().toISOString();
-    await softDeleteFriendship(tx, actor, userId, now);
+    await new FriendshipRepository(tx).softDelete(actor, userId, now);
     await cancelPendingRequests(tx, actor, userId, now);
     await tx.run(sql`
-      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, _deleted_at)
+      INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
       VALUES (${blockId}, ${actor}, ${userId}, ${now}, ${null})
       ON CONFLICT (blocker_id, blocked_id) DO UPDATE SET
-        _deleted_at = NULL,
+        deleted_at = NULL,
         created_at = excluded.created_at
     `);
   },
@@ -382,7 +383,11 @@ export const unblockUserMutation = defineMutation({
   args: userIdArgs,
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'unblock');
-    await softDeleteBlock(tx, actor, userId, env.now().toISOString());
+    await new UserBlockRepository(tx).softDelete(
+      actor,
+      userId,
+      env.now().toISOString()
+    );
   },
 });
 

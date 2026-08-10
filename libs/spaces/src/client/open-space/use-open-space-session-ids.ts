@@ -30,7 +30,7 @@ export function useOpenSpaceSessionIds(): {
       paintReady
         ? sql<SessionIdRow>`
             SELECT space_id FROM space_open_sessions
-            WHERE _deleted_at IS NULL AND device_id = ${localDeviceId}
+            WHERE deleted_at IS NULL AND device_id = ${localDeviceId}
             ORDER BY opened_at DESC
           `
         : sql<SessionIdRow>`
@@ -60,7 +60,7 @@ export function useIsSpaceOpenLocally(spaceId: string): boolean {
             SELECT space_id FROM space_open_sessions
             WHERE space_id = ${spaceId}
               AND device_id = ${localDeviceId}
-              AND _deleted_at IS NULL
+              AND deleted_at IS NULL
             LIMIT 1
           `
         : sql<SessionIdRow>`
@@ -90,7 +90,7 @@ export function useSpaceOpenSession(spaceId: string): {
             FROM space_open_sessions
             WHERE space_id = ${spaceId}
               AND device_id = ${localDeviceId}
-              AND _deleted_at IS NULL
+              AND deleted_at IS NULL
             LIMIT 1
           `
         : sql<SessionRow>`

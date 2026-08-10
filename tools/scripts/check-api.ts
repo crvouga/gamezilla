@@ -6,7 +6,8 @@
  * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
  * "Start API preview" step), runs tests immediately. Otherwise starts
  * `preview:serve` locally, waits, runs tests, then frees the API port.
- * Also a root Turbo task (`//#check:api`) used by `bun check`.
+ * Also a root Turbo task (`//#check:api`) for CI / opt-in local runs
+ * (not part of `bun check`).
  *
  * Invoked via `bun run check:api` (wraps `secrets-run` for dev secrets).
  */
@@ -16,7 +17,8 @@ import { join } from 'node:path';
 
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '../../libs/integration-test/src/local-api-preview';
+/** Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788). */
+const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const API_PORT = Number(new URL(DEFAULT_LOCAL_PREVIEW_API_ORIGIN).port);

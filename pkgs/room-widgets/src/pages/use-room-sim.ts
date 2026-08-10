@@ -1,3 +1,4 @@
+import { type Io, useIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 import {
   Room,
@@ -34,7 +35,8 @@ type CounterRoom = SimClient['room'];
 async function connectClient(
   server: RoomServer<RoomState, RoomCommandPayload, RoomEvent, string>,
   id: string,
-  identity: string
+  identity: string,
+  io: Io
 ): Promise<CounterRoom> {
   const transport = new LoopbackRoomTransport(server, id, identity);
   server.registerConnection(id, (msg) => transport.deliverToClient(msg), {
@@ -47,6 +49,9 @@ async function connectClient(
     storage: new InMemoryClientStorage(),
     transport,
     identity,
+    clock: io.clock,
+    timers: io.timers,
+    createId: io.createId,
   });
 }
 
@@ -59,6 +64,7 @@ export function readSimCount(room: CounterRoom | null): number {
 export { Increment };
 
 export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
+  const io = useIo();
   const [, bump] = useState(0);
   const rerender = useCallback(() => bump((n) => n + 1), []);
   const [sim, setSim] = useState<RoomSim | null>(null);
@@ -79,11 +85,12 @@ export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
           topic: TOPIC,
           module: TestCounterModule,
           storage: new InMemoryRoomStorage(),
+          clock: io.clock,
         });
         await server.hydrateFromStorage();
 
-        const alice = await connectClient(server, 'c-a', 'alice');
-        const bob = await connectClient(server, 'c-b', 'bob');
+        const alice = await connectClient(server, 'c-a', 'alice', io);
+        const bob = await connectClient(server, 'c-b', 'bob', io);
         opened.push(alice, bob);
 
         if (cancelled) {
@@ -111,7 +118,7 @@ export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
       for (const r of opened) r.destroy();
       setSim(null);
     };
-  }, [rerender]);
+  }, [io, rerender]);
 
   return { sim, error };
 }

@@ -1,17 +1,27 @@
-import { createSessionAuth } from '@libs/auth/server/session-middleware';
+import { SessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import {
+  type BetterAuthInstance,
+  createBetterAuth,
+  createBetterAuthServerAdapter,
+} from '@pkgs/auth-better-auth/server';
+import type { Io } from '@pkgs/io';
+import { runWithIo } from '@pkgs/io/als';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
+import {
+  type BetterAuthBootConfig,
+  betterAuthConfigForPool,
+} from '../config/better-auth-boot';
 import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
@@ -45,11 +55,13 @@ async function ensureDevDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
-  readonly authServer: AuthServerPort;
+  readonly betterAuth: BetterAuthBootConfig;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
   readonly observability: Observability;
+  /** Process-level Io from the API composition root. */
+  readonly io: Io;
 };
 
 type AttachRequestDatabaseArgs = {
@@ -91,45 +103,59 @@ async function openObservedRequestDb(
   });
 }
 
+function createRequestBetterAuth(
+  boot: BetterAuthBootConfig,
+  pool: Awaited<ReturnType<typeof openRequestDb>>['pool']
+): BetterAuthInstance {
+  return createBetterAuth(betterAuthConfigForPool(boot, pool));
+}
+
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, dbScope, dbUrl, options, secretStore } = args;
-  const { authServer, observability } = options;
+  const { betterAuth: boot, observability, io } = options;
   const opened = await openObservedRequestDb(observability, dbUrl, dbScope);
   const sqlClient = wrapSqlClientForObservability(
     observability,
     opened.sqlClient
   );
   const { pool } = opened;
-  const kv = new KvImplPostgres(sqlClient);
-  const sessionAuth = createSessionAuth({ authServer });
+  const betterAuth = createRequestBetterAuth(boot, pool);
+  const authServer = createBetterAuthServerAdapter(betterAuth);
+  const kv = new KvImplPostgres(sqlClient, io.clock.now);
+  const sessionAuth = new SessionAuth(authServer);
   const store = {
     sqlClient,
     sessionAuth,
     kv,
     observability,
     secretStore,
+    betterAuth,
+    io,
   };
-  return await apiRequestAsyncLocalStorage.run(store, async () => {
-    c.set('sqlClient', sqlClient);
-    c.set('sessionAuth', sessionAuth);
-    c.set('authServer', authServer);
-    try {
-      return await next();
-    } finally {
-      // Await close on the request path. Deferred `waitUntil` teardown left
-      // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
-      // fan-out (ephemeral-port exhaustion → "proxy request failed").
+  return await runWithIo(io, () =>
+    apiRequestAsyncLocalStorage.run(store, async () => {
+      c.set('sqlClient', sqlClient);
+      c.set('sessionAuth', sessionAuth);
+      c.set('authServer', authServer);
+      c.set('betterAuth', betterAuth);
       try {
-        await Promise.all([sqlClient.disconnect(), pool.end()]);
-      } catch (error: unknown) {
-        observability.recordException(error, {
-          operation: 'request-db-cleanup',
-        });
+        return await next();
+      } finally {
+        // Await close on the request path. Deferred `waitUntil` teardown left
+        // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
+        // fan-out (ephemeral-port exhaustion → "proxy request failed").
+        try {
+          await Promise.all([sqlClient.disconnect(), pool.end()]);
+        } catch (error: unknown) {
+          observability.recordException(error, {
+            operation: 'request-db-cleanup',
+          });
+        }
       }
-    }
-  });
+    })
+  );
 }
 
 export function createRequestDbMiddleware(

@@ -5,6 +5,7 @@
  * session while waking a suspended compute (`Connection terminated
  * unexpectedly`). Permanent auth/config failures fail fast.
  */
+import type { Timers } from '@pkgs/clock';
 import { Client } from 'pg';
 import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 
@@ -47,12 +48,15 @@ const PERMANENT_MESSAGE_SNIPPETS = [
   'no pg_hba.conf entry',
 ] as const;
 
-export async function pingPostgres(connectionString: string): Promise<void> {
+export async function pingPostgres(
+  connectionString: string,
+  timers: Timers
+): Promise<void> {
   const sanitized = sanitizePostgresUrlForNodePg(connectionString);
   let lastError: unknown;
   for (let attempt = 0; attempt < PING_ATTEMPTS; attempt++) {
     const delayMs = PING_RETRY_DELAYS_MS[attempt] ?? 0;
-    if (delayMs > 0) await sleep(delayMs);
+    if (delayMs > 0) await sleep(delayMs, timers);
     try {
       await pingPostgresOnce(sanitized);
       return;
@@ -85,8 +89,10 @@ async function pingPostgresOnce(connectionString: string): Promise<void> {
   }
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, timers: Timers): Promise<void> {
+  return new Promise((resolve) => {
+    timers.setTimeout(resolve, ms);
+  });
 }
 
 function readErrorCode(error: Error): string {

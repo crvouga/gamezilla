@@ -1,11 +1,19 @@
 import { Database } from 'bun:sqlite';
-import { sqlite as reconcileSqlite } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { createLogger } from '@pkgs/logger';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import { createSerialSqlClient } from './serial-sql';
+
+/** Silent migrate logger — level silent; `now` unused but required by createLogger. */
+const domainMigrateLogger = createLogger({
+  name: 'open-sim-sqlite',
+  level: 'silent',
+  now: () => 0,
+});
 
 /**
  * Server framework tables needed by mutation replay + pushSeq allocation.
@@ -17,7 +25,7 @@ CREATE TABLE IF NOT EXISTS _mutations_applied (
   client_id TEXT NOT NULL,
   seq INTEGER NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('applied', 'rejected')),
-  applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+  applied_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS _mutations_applied_client_id_seq_idx
   ON _mutations_applied (client_id, seq);
@@ -67,9 +75,9 @@ export async function openSimSqliteServer(
   await base.connect();
   const sqlClient = createSerialSqlClient(base);
   await applyDdl(sqlClient, FRAMEWORK_SIM_SERVER_DDL);
-  await reconcileSqlite(domain.domainSchema, sqlClient, {
+  await new SqliteSchemaDatabaseMigration(domain.domainSchema, {
     ownership: 'declared-only',
-  }).reconcile();
+  }).migrate({ sqlClient, logger: domainMigrateLogger });
   return {
     sqlClient,
     close: async () => {

@@ -1,8 +1,9 @@
+import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-import { ensureAnonUserForDevice } from './anon-user-ensure';
 import type { ApiHonoEnv } from './api-hono-env';
-import { resolveAccountIdFromBearer } from './bearer-resolve';
-import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+import { BearerAuthResolver } from './bearer-resolve';
+import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
+import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 import { ANON_ID_HEADER } from './session-middleware';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -15,7 +16,7 @@ type AnonEnsureBody = {
   forceNew: boolean;
 };
 
-/** Writable device metadata columns accepted by `POST /auth/refresh`. */
+/** Writable device metadata columns accepted by `POST /identity/refresh`. */
 const DEVICE_SNAPSHOT_COLUMNS = new Set([
   'platform',
   'os_name',
@@ -86,23 +87,24 @@ function requireBearerToken(header: string | null): string {
 }
 
 /**
- * Auth routes:
- * - `POST /auth/anon/ensure` — mint/bind anon `users` row for the install
- * - `POST /auth/refresh` — upgrade-or-switch on provider sign-in
+ * Domain identity routes (outside Better Auth’s `/api/auth/*` namespace):
+ * - `POST /identity/anon/ensure` — mint/bind anon `users` row for the install
+ * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
  */
 export function createAuthApiRoutes(deps?: {
   readonly onUserDomainWrite?: (userId: string) => void;
 }) {
   return new Hono<ApiHonoEnv<AuthContext>>()
-    .post('/auth/anon/ensure', async (c) => {
+    .post('/identity/anon/ensure', async (c) => {
       const sql = c.get('sqlClient');
       const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
       const rawBody: unknown = await c.req.json().catch(() => null);
       const body = readAnonEnsureBody(rawBody);
 
-      const result = await ensureAnonUserForDevice({
-        sql,
+      const io = getIo();
+
+      const result = await new EnsureAnonUserUseCase(sql, io).execute({
         deviceId,
         forceNew: body.forceNew,
       });
@@ -114,7 +116,7 @@ export function createAuthApiRoutes(deps?: {
         200
       );
     })
-    .post('/auth/refresh', async (c) => {
+    .post('/identity/refresh', async (c) => {
       const sql = c.get('sqlClient');
       const authServer = c.get('authServer');
       const bearerToken = requireBearerToken(
@@ -122,12 +124,13 @@ export function createAuthApiRoutes(deps?: {
       );
       const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
-      const accountId = await resolveAccountIdFromBearer({
+      const io = getIo();
+
+      const accountId = await new BearerAuthResolver(
         sql,
         authServer,
-        bearerToken,
-        deviceId,
-      });
+        io
+      ).resolveAccountId(bearerToken, deviceId);
       if (accountId === null) {
         throw new UnauthorizedError('Invalid or expired session');
       }
@@ -135,13 +138,13 @@ export function createAuthApiRoutes(deps?: {
       const rawBody: unknown = await c.req.json().catch(() => null);
       const body = readRefreshBody(rawBody);
 
-      await refreshAuthSnapshot({
-        sql,
-        authServer,
+      await new AuthSnapshotRefresher(sql, authServer).refresh({
         bearerToken,
         accountId,
         deviceId,
         deviceAttributes: body.device,
+        now: io.clock.now,
+        createId: io.createId,
       });
 
       deps?.onUserDomainWrite?.(accountId);

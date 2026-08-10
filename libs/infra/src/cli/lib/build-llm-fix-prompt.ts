@@ -1,5 +1,6 @@
 import { PROJECT_CONFIG } from '../../project-config';
 import { PIPELINE_REPORT_USER_AGENT } from '../constants';
+import { cliIo } from './cli-io';
 import type { NeedState } from './pipeline-needs';
 
 /**
@@ -56,7 +57,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
   const perPage = 100;
   for (let page = 1; page < 50; page++) {
     const url = `https://api.github.com/repos/${ctx.repo}/actions/runs/${ctx.runId}/jobs?per_page=${String(perPage)}&page=${String(page)}`;
-    const res = await fetch(url, {
+    const res = await cliIo.http.fetch(url, {
       headers: {
         Authorization: `Bearer ${ctx.token}`,
         Accept: 'application/vnd.github+json',
@@ -76,7 +77,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
 
 async function fetchJobLog(ctx: PromptCtx, jobId: number): Promise<string> {
   const url = `https://api.github.com/repos/${ctx.repo}/actions/jobs/${String(jobId)}/logs`;
-  const res = await fetch(url, {
+  const res = await cliIo.http.fetch(url, {
     headers: {
       Authorization: `Bearer ${ctx.token}`,
       Accept: 'application/vnd.github+json',
@@ -187,24 +188,26 @@ const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
   failureIntro:
     'The Deployment Pipeline checks failed when run locally via `bun run check`.',
   fixInstructions:
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run check:api`, `bun run check:browser`).',
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run check:api`).',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
-/** Prompt body for local check / heal failures (same steps as deploy-gate jobs). */
+/** Prompt body for local `bun check` failures (offline Turbo graph). */
 const LOCAL_BUN_CHECK_PROMPT: LocalPromptOptions = {
   title: `Fix \`bun check\` failures for ${PROJECT_CONFIG.domain}`,
   failureIntro:
-    'The `bun check` gates failed (same steps as the deployment pipeline Turbo graph). An agent should fix every failing step below in one pass.',
+    'The `bun check` gates failed (offline Turbo graph: gates/verify/static/secrets + build). An agent should fix every failing step below in one pass.',
   fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`, `bun run check:api`, `bun run check:browser`).',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`). Live `check:api` is opt-in / CI-only.',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
 const CHECK_HEAL_LOCAL_PROMPT: LocalPromptOptions = {
   ...LOCAL_BUN_CHECK_PROMPT,
   failureIntro:
-    'The `bun check` gates failed when run locally via `bun run check:heal` (same steps as `bun run check`).',
+    'The deploy-gate checks failed when run locally via `bun run check:heal` (includes live `check:api`).',
+  fixInstructions:
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check:heal` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`, `bun run check:api`).',
 };
 
 function renderLocalPromptBody(
@@ -258,7 +261,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run check:api\`, \`bun run check:browser\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run check:api\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
   );
   lines.push('');
   for (const s of sections) {

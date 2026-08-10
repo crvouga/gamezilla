@@ -1,12 +1,15 @@
 import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { Timers } from '@pkgs/clock';
+import type { Io } from '@pkgs/io';
+import { useIo } from '@pkgs/io';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
+  ClientTransport,
   Room,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
-import type { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 import {
   type Dispatch,
   type MutableRefObject,
@@ -17,7 +20,11 @@ import {
   useState,
 } from 'react';
 import { useSpaceModule } from '../module/space-module-context';
-import { createSpaceRoom } from './create-space-room';
+import {
+  type CreateSpaceRoomResult,
+  SpaceRoomFactory,
+} from './create-space-room';
+import { useCreateRoomTransport } from './room-transport-factory';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
 type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -31,6 +38,7 @@ function normalizeSessionToken(t: string | null): string | null {
 const FRESH_TOKEN_TIMEOUT_MS = 4_000;
 
 function raceFreshToken(
+  timers: Timers,
   getFresh: () => Promise<string | null>
 ): Promise<string | null> {
   return new Promise((resolve) => {
@@ -40,14 +48,14 @@ function raceFreshToken(
       settled = true;
       resolve(v);
     };
-    const timer = setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
+    const timer = timers.setTimeout(() => done(null), FRESH_TOKEN_TIMEOUT_MS);
     void getFresh()
       .then((t) => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         done(t);
       })
       .catch(() => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         done(null);
       });
   });
@@ -55,9 +63,9 @@ function raceFreshToken(
 
 function destroyRoomPair(args: {
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+  transportRef: MutableRefObject<ClientTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
 }): void {
   const room = args.roomRef.current;
   const transport = args.transportRef.current;
@@ -76,10 +84,12 @@ type OpenSpaceRoomArgs = {
   kv: Kv;
   module: ReturnType<typeof useSpaceModule>;
   getSessionToken: () => string | null | Promise<string | null>;
+  createTransport: ReturnType<typeof useCreateRoomTransport>;
+  io: Io;
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transportRef: MutableRefObject<WebSocketRoomTransport | null>;
+  transportRef: MutableRefObject<ClientTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
-  setTransport: Dispatch<SetStateAction<WebSocketRoomTransport | null>>;
+  setTransport: Dispatch<SetStateAction<ClientTransport | null>>;
   connectedKeyRef: MutableRefObject<string | null>;
   openingKeyRef: MutableRefObject<string | null>;
 };
@@ -87,7 +97,7 @@ type OpenSpaceRoomArgs = {
 function commitOpenedRoom(
   args: OpenSpaceRoomArgs,
   nextRoom: SpaceRoom,
-  nextTransport: WebSocketRoomTransport
+  nextTransport: ClientTransport
 ): void {
   const prevRoom = args.roomRef.current;
   const prevTransport = args.transportRef.current;
@@ -103,28 +113,43 @@ function commitOpenedRoom(
   }
 }
 
+function clearOpeningKey(args: OpenSpaceRoomArgs): void {
+  if (args.openingKeyRef.current === args.bootstrapKey) {
+    args.openingKeyRef.current = null;
+  }
+}
+
 function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
   let cancelled = false;
   void (async (): Promise<void> => {
-    const { room: nextRoom, transport: nextTransport } = await createSpaceRoom({
-      spaceId: args.bootstrap.spaceId,
-      apiUrl: args.configService.getApiUrl(),
-      module: args.module,
-      kv: args.kv,
-      myId: args.bootstrap.myId,
-      installId: args.bootstrap.installId,
-      clientId: args.bootstrap.clientId,
-      getSessionToken: args.getSessionToken,
-    });
-    if (cancelled) {
-      if (args.openingKeyRef.current === args.bootstrapKey) {
-        args.openingKeyRef.current = null;
-      }
-      nextRoom.destroy();
-      nextTransport.destroy();
+    let opened: CreateSpaceRoomResult;
+    try {
+      // Local hydrate first; WS may still be connecting. Commit as soon as
+      // createSpaceRoom resolves so Games/Chess dispatch is not a no-op.
+      opened = await new SpaceRoomFactory(args.io).create({
+        spaceId: args.bootstrap.spaceId,
+        apiUrl: args.configService.getApiUrl(),
+        module: args.module,
+        kv: args.kv,
+        myId: args.bootstrap.myId,
+        installId: args.bootstrap.installId,
+        clientId: args.bootstrap.clientId,
+        getSessionToken: args.getSessionToken,
+        createTransport: args.createTransport,
+      });
+    } catch {
+      // Room.open is hardened to avoid this; if it still throws, clear the
+      // latch so a later bootstrap key change / remount can retry.
+      clearOpeningKey(args);
       return;
     }
-    commitOpenedRoom(args, nextRoom, nextTransport);
+    if (cancelled) {
+      clearOpeningKey(args);
+      opened.room.destroy();
+      opened.transport.destroy();
+      return;
+    }
+    commitOpenedRoom(args, opened.room, opened.transport);
   })();
   return () => {
     cancelled = true;
@@ -176,11 +201,14 @@ function beginOpenSpaceRoom(
 function makeGetSessionToken(args: {
   getFreshTokenRef: MutableRefObject<() => Promise<string | null>>;
   sessionTokenRef: MutableRefObject<string | null>;
+  timersRef: MutableRefObject<Timers>;
 }): () => Promise<string | null> {
   return async () => {
     let fresh: string | null = null;
     try {
-      fresh = await raceFreshToken(() => args.getFreshTokenRef.current());
+      fresh = await raceFreshToken(args.timersRef.current, () =>
+        args.getFreshTokenRef.current()
+      );
     } catch {
       fresh = null;
     }
@@ -201,20 +229,26 @@ export type UseSpaceRoomConnectionArgs = {
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: SpaceRoom | null;
   roomRef: MutableRefObject<SpaceRoom | null>;
-  transport: WebSocketRoomTransport | null;
+  transport: ClientTransport | null;
 } {
   const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
   const [room, setRoom] = useState<SpaceRoom | null>(null);
-  const [transport, setTransport] = useState<WebSocketRoomTransport | null>(
-    null
-  );
-  const transportRef = useRef<WebSocketRoomTransport | null>(null);
+  const [transport, setTransport] = useState<ClientTransport | null>(null);
+  const transportRef = useRef<ClientTransport | null>(null);
   const roomRef = useRef<SpaceRoom | null>(null);
   const module = useSpaceModule();
+  const createTransport = useCreateRoomTransport();
+  const io = useIo();
   const sessionTokenRef = useRef(sessionToken);
   sessionTokenRef.current = sessionToken;
   const getFreshTokenRef = useRef(getFreshToken);
   getFreshTokenRef.current = getFreshToken;
+  const timersRef = useRef(io.timers);
+  timersRef.current = io.timers;
+  const ioRef = useRef(io);
+  ioRef.current = io;
+  const createTransportRef = useRef(createTransport);
+  createTransportRef.current = createTransport;
   const connectedKeyRef = useRef<string | null>(null);
   const openingKeyRef = useRef<string | null>(null);
 
@@ -263,7 +297,10 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
       getSessionToken: makeGetSessionToken({
         getFreshTokenRef,
         sessionTokenRef,
+        timersRef,
       }),
+      createTransport: createTransportRef.current,
+      io: ioRef.current,
       roomRef,
       transportRef,
       setRoom,

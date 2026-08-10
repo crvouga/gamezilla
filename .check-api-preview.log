@@ -3,53 +3,106 @@
 @apps/api preview:serve: ──────────────────────────────────────────────
 @apps/api preview:serve: Using secrets defined in .dev.vars
 @apps/api preview:serve: Your Worker has access to the following bindings:
-@apps/api preview:serve: Binding                                                 Resource                  Mode
-@apps/api preview:serve: env.ROOM (Room)                                         Durable Object            local
-@apps/api preview:serve: env.SECRETS_ENV ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.API_URL ("(hidden)")                                Environment Variable      local
-@apps/api preview:serve: env.CLOUDFLARE_API_TOKEN ("(hidden)")                   Environment Variable      local
-@apps/api preview:serve: env.CLOUDFLARE_ACCOUNT_ID ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.DATABASE_URL ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.AUTH_PUBLISHABLE_KEY ("(hidden)")                   Environment Variable      local
-@apps/api preview:serve: env.AUTH_SECRET_KEY ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY ("(hidden)")       Environment Variable      local
-@apps/api preview:serve: env.CLERK_PUBLISHABLE_KEY ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.CLERK_SECRET_KEY ("(hidden)")                       Environment Variable      local
-@apps/api preview:serve: env.STRIPE_SECRET_KEY ("(hidden)")                      Environment Variable      local
-@apps/api preview:serve: env.STRIPE_PUBLISHABLE_KEY ("(hidden)")                 Environment Variable      local
-@apps/api preview:serve: env.TURBO_TOKEN ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.TURBO_TEAM ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.TURBO_CACHE ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.TURBO_LOG_ORDER ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.TURBO_TELEMETRY_DISABLED ("(hidden)")               Environment Variable      local
-@apps/api preview:serve: env.EXPO_TOKEN ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.B2_MASTER_KEY_ID ("(hidden)")                       Environment Variable      local
-@apps/api preview:serve: env.B2_MASTER_KEY ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.S3_BUCKET ("(hidden)")                              Environment Variable      local
-@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")                            Environment Variable      local
-@apps/api preview:serve: env.S3_REGION ("(hidden)")                              Environment Variable      local
-@apps/api preview:serve: env.ELEVEN_LABS_API_KEY ("(hidden)")                    Environment Variable      local
-@apps/api preview:serve: env.OPENAI_API_KEY ("(hidden)")                         Environment Variable      local
-@apps/api preview:serve: env.OPENAI_BASE_URL ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_API_URL ("(hidden)")                    Environment Variable      local
-@apps/api preview:serve: env.OBSERVABILITY_BACKEND ("(hidden)")                  Environment Variable      local
-@apps/api preview:serve: env.SENTRY_DSN ("(hidden)")                             Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_OBSERVABILITY_BACKEND ("(hidden)")      Environment Variable      local
-@apps/api preview:serve: env.EXPO_PUBLIC_SENTRY_DSN ("(hidden)")                 Environment Variable      local
-@apps/api preview:serve: env.RAILWAY_TOKEN ("(hidden)")                          Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_URL ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_KEY ("(hidden)")                           Environment Variable      local
-@apps/api preview:serve: env.EMQX_API_SECRET ("(hidden)")                        Environment Variable      local
-@apps/api preview:serve: env.EMQX_JWT_SECRET ("(hidden)")                        Environment Variable      local
+@apps/api preview:serve: Binding                                  Resource                  Mode
+@apps/api preview:serve: env.ROOM (Room)                          Durable Object            local
+@apps/api preview:serve: env.SECRETS_ENV ("(hidden)")             Environment Variable      local
+@apps/api preview:serve: env.API_URL ("(hidden)")                 Environment Variable      local
+@apps/api preview:serve: env.DATABASE_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY_ID ("(hidden)")           Environment Variable      local
+@apps/api preview:serve: env.B2_APP_KEY ("(hidden)")              Environment Variable      local
+@apps/api preview:serve: env.S3_BUCKET ("(hidden)")               Environment Variable      local
+@apps/api preview:serve: env.S3_ENDPOINT ("(hidden)")             Environment Variable      local
+@apps/api preview:serve: env.S3_REGION ("(hidden)")               Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_KEY ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.EMQX_API_SECRET ("(hidden)")         Environment Variable      local
+@apps/api preview:serve: env.EMQX_JWT_SECRET ("(hidden)")         Environment Variable      local
+@apps/api preview:serve: env.EMQX_WSS_URL ("(hidden)")            Environment Variable      local
+@apps/api preview:serve: env.BETTER_AUTH_SECRET ("(hidden)")      Environment Variable      local
 @apps/api preview:serve: 
 @apps/api preview:serve: ⎔ Starting local server...
 @apps/api preview:serve: [wrangler:info] Ready on http://localhost:8788
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (2205ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (21ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (11ms)
-@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (6ms)
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.467Z","name":"api:app","msg":"stripe secret key missing; Stripe routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"ELEVEN_LABS_API_KEY missing; TTS routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"OPENAI_API_KEY / OPENAI_BASE_URL missing; LLM routes will return 503"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m{"level":"warn","time":"2026-08-08T21:47:32.469Z","name":"api:app","msg":"Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1m{"level":"error","time":"2026-08-08T21:47:32.480Z","name":"api:app","msg":"handler error","error":"proxy request failed, cannot connect to the specified address"}[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1518ms)
+@apps/api preview:serve: [wrangler:info] GET /api/health 200 OK (1379ms)
+@apps/api preview:serve: [wrangler:info] GET /api/auth/get-session 500 Internal Server Error (1593ms)
+@apps/api preview:serve: [wra@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bund@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 2 errors:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:6:7:
+@apps/api preview:serve:   [37m      6 │ } from [32m'react'[37m;
+@apps/api preview:serve:           ╵        [32m~~~~~~~[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "react/jsx-runtime"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       ../../pkgs/uuid/src/create-id-context.tsx:43:9:
+@apps/api preview:serve:   [37m      43 │   return [32m[37m<Ctx.Provider value={value}>{children}</Ctx.Provider>;
+@apps/api preview:serve:            ╵          [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:     You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
 @apps/api preview:serve: ⎔ Reloading local server...
 @apps/api preview:serve: ⎔ Local server updated and ready
 @apps/api preview:serve: ⎔ Reloading local server...
@@ -72,3 +125,387 @@
 @apps/api preview:serve: ⎔ Local server updated and ready
 @apps/api preview:serve: ⎔ Reloading local server...
 @apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 1 error:[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mUnexpected ")"[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:       src/app/request-db-middleware.ts:157:3:
+@apps/api preview:serve:   [37m      157 │   }[32m)[37m;
+@apps/api preview:serve:             ╵    [32m^[0m
+@apps/api preview:serve:   
+@apps/api preview:serve:   
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mservice core:user:gamezilla-api: Uncaught Error: Disallowed operation called within global scope. Asynchronous I/O (ex: fetch() or connect()), setting a timeout, and generating random values are not allowed within global scope. To fix this error, perform this operation within a handler. https://developers.cloudflare.com/workers/runtime-apis/handlers/[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:     at null.<anonymous> (api.js:102105:10) in mintWallSeed
+@apps/api preview:serve:     at null.<anonymous> (api.js:102120:11) in wallIo
+@apps/api preview:serve:     at null.<anonymous> (api.js:186765:14)
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mThe Workers runtime failed to start. There is likely additional logging output above.[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [32mIf you think this is a bug then please create an issue at https://github.com/cloudflare/workers-sdk/issues/new/choose[0m
+@apps/api preview:serve: Note that there is a newer version of Wrangler available (4.120.0). Consider checking whether upgrading resolves this error.
+@apps/api preview:serve: ? Would you like to report this error to Cloudflare? Wrangler's output and the error details will be shared with the Wrangler team to help us diagnose and fix the issue.
+@apps/api preview:serve: 🤖 Using fallback value in non-interactive context: no
+@apps/api preview:serve: 🪵  Logs were written to "/Users/chrisvouga/Library/Preferences/.wrangler/logs/wrangler-2026-08-08_21-47-29_830.log"
+@apps/api preview:serve: Exited with code 1
+ps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: ⎔ Local server updated and ready
+@apps/api preview:serve: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "@pkgs/io" in object literal[0m [duplicate-object-key]
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:36:4:
+@apps/api preview:serve: [37m      36 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:   The original key "@pkgs/io" is here:
+@apps/api preview:serve: 
+@apps/api preview:serve:     ../../libs/friends/package.json:35:4:
+@apps/api preview:serve: [37m      35 │     [32m"@pkgs/io"[37m: "workspace:*",
+@apps/api preview:serve:          ╵     [32m~~~~~~~~~~[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: ⎔ Reloading local server...
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mservice core:user:gamezilla-api: Uncaught Error: Disallowed operation called within global scope. Asynchronous I/O (ex: fetch() or connect()), setting a timeout, and generating random values are not allowed within global scope. To fix this error, perform this operation within a handler. https://developers.cloudflare.com/workers/runtime-apis/handlers/[0m
+@apps/api preview:serve: 
+@apps/api preview:serve:     at null.<anonymous> (api.js:102105:10) in mintWallSeed
+@apps/api preview:serve:     at null.<anonymous> (api.js:102120:11) in wallIo
+@apps/api preview:serve:     at null.<anonymous> (api.js:186765:14)
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mThe Workers runtime failed to start. There is likely additional logging output above.[0m
+@apps/api preview:serve: 
+@apps/api preview:serve: 
+@apps/api preview:serve: [32mIf you think this is a bug then please create an issue at https://github.com/cloudflare/workers-sdk/issues/new/choose[0m
+@apps/api preview:serve: ? Would you like to report this error to Cloudflare? Wrangler's output and the error details will be shared with the Wrangler team to help us diagnose and fix the issue.
+@apps/api preview:serve: 🤖 Using fallback value in non-interactive context: no
+@apps/api preview:serve: 🪵  Logs were written to "/Users/chrisvouga/Library/Preferences/.wrangler/logs/wrangler-2026-08-08_21-47-10_842.log"
+@apps/api preview:serve: Exited with code 1

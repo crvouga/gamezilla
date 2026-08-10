@@ -33,6 +33,11 @@ const _kebab: ExpectError<{
   tables: { users: { 'user-id': 'text' } };
 }> = true;
 const _underscore: ExpectError<{ tables: { users: { _id: 'text' } } }> = true;
+const _managedId: ExpectError<{ tables: { users: { id: 'text' } } }> = true;
+const _indexPk: ExpectError<{
+  tables: { users: { email: 'text' } };
+  uniqueIndexes: [['users', 'id']];
+}> = true;
 const _typo: ExpectError<{ tables: { users: { email: 'txet' } } }> = true;
 const _objectCol: ExpectError<{
   tables: { users: { email: { type: 'text' } } };
@@ -58,6 +63,8 @@ void _pascal;
 void _camel;
 void _kebab;
 void _underscore;
+void _managedId;
+void _indexPk;
 void _typo;
 void _objectCol;
 void _badIndexTable;

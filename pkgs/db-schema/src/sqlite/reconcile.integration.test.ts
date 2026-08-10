@@ -53,10 +53,10 @@ describe('sqlite reconcile integration', () => {
     await client.run(
       raw(
         `CREATE TABLE notes (
-          _id TEXT PRIMARY KEY,
-          _created_at INTEGER,
-          _updated_at INTEGER,
-          _deleted_at INTEGER,
+          id TEXT PRIMARY KEY,
+          created_at TEXT,
+          updated_at TEXT,
+          deleted_at TEXT,
           body TEXT,
           extra TEXT
         ) STRICT`
@@ -83,10 +83,10 @@ describe('sqlite reconcile integration', () => {
     await client.run(
       raw(
         `CREATE TABLE notes (
-          _id TEXT PRIMARY KEY,
-          _created_at INTEGER,
-          _updated_at INTEGER,
-          _deleted_at INTEGER,
+          id TEXT PRIMARY KEY,
+          created_at TEXT,
+          updated_at TEXT,
+          deleted_at TEXT,
           body TEXT,
           extra TEXT,
           _meta TEXT
@@ -95,7 +95,7 @@ describe('sqlite reconcile integration', () => {
     );
     await client.run(
       raw(
-        `INSERT INTO notes (_id, body, extra, _meta) VALUES ('1', 'hi', 'x', 'keep')`
+        `INSERT INTO notes (id, body, extra, _meta) VALUES ('1', 'hi', 'x', 'keep')`
       )
     );
 
@@ -134,8 +134,8 @@ describe('sqlite reconcile integration', () => {
   test('uniqueIndexes emit UNIQUE INDEX', async () => {
     const { client } = openMemoryClient();
     const schema = defineSchema({
-      tables: { notes: { id: 'text', body: 'text' } },
-      uniqueIndexes: [['notes', 'id']],
+      tables: { notes: { body: 'text', slug: 'text' } },
+      uniqueIndexes: [['notes', 'slug']],
     });
     await sqlite(schema, client).reconcile();
     const catalog = await readSqliteCatalog(client, schema._declared);

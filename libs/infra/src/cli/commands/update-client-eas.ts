@@ -1,6 +1,7 @@
 import { BunDep } from '../deps/bun';
 import { EasDep } from '../deps/eas';
 import type { Dep } from '../deps/types';
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { runCheckDepsPhase } from '../lib/phases/check-deps';
 import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
@@ -29,11 +30,11 @@ export class UpdateClientEasCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Publish client OTA update (EAS)');
     await runCheckDepsPhase(this.platform, EAS_UPDATE_DEPS);
     const ctx = readInfraContextFromEnv();
     await runPublishClientEasUpdatePhase(this.platform, ctx);
-    banner('Publish client OTA update (EAS) complete', performance.now() - t0);
+    banner('Publish client OTA update (EAS) complete', cliIo.clock.now() - t0);
   }
 }

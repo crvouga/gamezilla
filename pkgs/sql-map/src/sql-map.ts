@@ -41,7 +41,7 @@
  *   values: { key: 'k', value: ['cast', '{}', 'jsonb'] },
  *   onConflict: {
  *     target: ['key'],
- *     set: { value: col('excluded.value'), updated_at: ['now'] },
+ *     set: { value: col('excluded.value'), updated_at: 1 },
  *   },
  * });
  *

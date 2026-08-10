@@ -16,6 +16,7 @@ import {
 } from 'react';
 
 import { useOpenSpaceSessionIds } from '../open-space/use-open-space-session-ids';
+import { createSpaceOpenRoomsPending } from './space-open-rooms-pending';
 import { clearSpaceOpenSession } from './space-open-session-store';
 import { useSpaceRoom } from './use-space-room';
 
@@ -42,13 +43,21 @@ const SpaceOpenRoomsRegistryContext = createContext<RegistrySetter | null>(
   null
 );
 
+type PendingClearer = (spaceId: string) => void;
+
+const SpaceOpenRoomsPendingClearContext = createContext<PendingClearer | null>(
+  null
+);
+
 function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
   const setEntry = useContext(SpaceOpenRoomsRegistryContext);
+  const clearPending = useContext(SpaceOpenRoomsPendingClearContext);
   const state = useSpaceRoom(spaceId);
 
   useEffect(() => {
     if (setEntry === null) return;
     if (state.room === null) {
+      // Keep any buffered commands — Room may still be hydrating locally.
       setEntry(spaceId, null);
       return;
     }
@@ -60,9 +69,10 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
 
   useEffect(() => {
     return () => {
+      clearPending?.(spaceId);
       clearSpaceOpenSession(spaceId);
     };
-  }, [spaceId]);
+  }, [spaceId, clearPending]);
 
   return null;
 }
@@ -82,10 +92,19 @@ export function SpaceOpenRoomsProvider({
   if (!isLoading) {
     stableIdsRef.current = spaceIds;
   }
-  const mountedIds = isLoading ? stableIdsRef.current : spaceIds;
+  // While the open-session query is loading, keep prior ids mounted and also
+  // include any ids already present in `spaceIds` so an optimistic create
+  // cannot unmount a brand-new room slot (which stuck the event log on
+  // "Connecting…" / "Reconnecting…" with no WebSocket).
+  const mountedIds = isLoading
+    ? Array.from(new Set([...stableIdsRef.current, ...spaceIds]))
+    : spaceIds;
   const [entries, setEntries] = useState(
     (): ReadonlyMap<string, SpaceOpenRoomEntry> => new Map()
   );
+  const entriesRef = useRef(entries);
+  entriesRef.current = entries;
+  const pendingRef = useRef(createSpaceOpenRoomsPending());
 
   const setEntry = useCallback<RegistrySetter>((spaceId, entry) => {
     setEntries((prev) => {
@@ -103,26 +122,51 @@ export function SpaceOpenRoomsProvider({
       next.set(spaceId, entry);
       return next;
     });
+    if (entry !== null) {
+      // Keep entriesRef in sync before flush so concurrent dispatch sees the room.
+      const next = new Map(entriesRef.current);
+      next.set(spaceId, entry);
+      entriesRef.current = next;
+      pendingRef.current.flush(spaceId, (payload) => {
+        entry.room.dispatch(payload);
+      });
+    } else {
+      const next = new Map(entriesRef.current);
+      next.delete(spaceId);
+      entriesRef.current = next;
+    }
+  }, []);
+
+  const clearPending = useCallback<PendingClearer>((spaceId) => {
+    pendingRef.current.clear(spaceId);
   }, []);
 
   const api = useMemo((): SpaceOpenRoomsApi => {
     return {
-      getEntry: (spaceId) => entries.get(spaceId) ?? null,
+      getEntry: (spaceId) => entriesRef.current.get(spaceId) ?? null,
       dispatch: (spaceId, payload) => {
-        entries.get(spaceId)?.room.dispatch(payload);
+        const entry = entriesRef.current.get(spaceId);
+        if (entry !== undefined) {
+          entry.room.dispatch(payload);
+          return;
+        }
+        // Local Room still opening — queue until registry commit.
+        pendingRef.current.enqueue(spaceId, payload);
       },
     };
-  }, [entries]);
+  }, []);
 
   return (
-    <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
-      <SpaceOpenRoomsContext.Provider value={api}>
-        {mountedIds.map((spaceId) => (
-          <SpaceOpenRoomSlot key={spaceId} spaceId={spaceId} />
-        ))}
-        {children}
-      </SpaceOpenRoomsContext.Provider>
-    </SpaceOpenRoomsRegistryContext.Provider>
+    <SpaceOpenRoomsPendingClearContext.Provider value={clearPending}>
+      <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
+        <SpaceOpenRoomsContext.Provider value={api}>
+          {mountedIds.map((spaceId) => (
+            <SpaceOpenRoomSlot key={spaceId} spaceId={spaceId} />
+          ))}
+          {children}
+        </SpaceOpenRoomsContext.Provider>
+      </SpaceOpenRoomsRegistryContext.Provider>
+    </SpaceOpenRoomsPendingClearContext.Provider>
   );
 }
 

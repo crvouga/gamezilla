@@ -5,6 +5,7 @@ import {
 } from '@pkgs/message';
 import {
   type HandleResult,
+  hashRoomState,
   ROOM_ERROR_TYPE,
   type RoomCommand,
   type RoomError,
@@ -33,10 +34,10 @@ import {
   spaceLogEvtNs,
 } from './space-log/space-log-messages';
 import {
+  createSpaceMembersEventReducer,
   SpaceMembersRoomAttr,
   spaceMembersCmdNs,
   spaceMembersCommandRouter,
-  spaceMembersEventReducer,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
 
@@ -64,10 +65,16 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
   ]);
 }
 
-function buildEventReducer(games: readonly GameDefinition[]) {
+function buildEventReducer(
+  games: readonly GameDefinition[],
+  now: () => number
+) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
-    { namespace: spaceMembersEvtNs, router: spaceMembersEventReducer },
+    {
+      namespace: spaceMembersEvtNs,
+      router: createSpaceMembersEventReducer(now),
+    },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
     ...games.flatMap((game) => [...game.eventRouters]),
@@ -98,11 +105,12 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
  */
 export function createSpaceModule(
   name: RoomModuleName,
-  games: readonly GameDefinition[]
+  games: readonly GameDefinition[],
+  now: () => number
 ): RoomModule<RoomState, Message, Message, string> {
   assertUniqueGameIds(games);
   const commandRouter = buildCommandRouter(games);
-  const eventReducer = buildEventReducer(games);
+  const eventReducer = buildEventReducer(games, now);
 
   return {
     name,
@@ -132,6 +140,10 @@ export function createSpaceModule(
       const ev = isMessageEnvelope(event) ? event : null;
       if (ev === null) return state;
       return eventReducer.dispatch(state, undefined, ev, (s) => s);
+    },
+
+    hash(state: RoomState): string {
+      return hashRoomState(state);
     },
   };
 }

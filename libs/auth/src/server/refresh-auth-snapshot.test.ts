@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
+import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
-const PRIMARY_AUTH_PROVIDER = 'clerk';
+const io = createSimIo({ seed: 1 });
+
+const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
 function makeFakeAuthServer(args: {
   providerLabel?: string;
@@ -41,8 +44,10 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE devices (
       id TEXT PRIMARY KEY,
-      user_id TEXT,
       created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
+      user_id TEXT,
       platform TEXT,
       os_name TEXT,
       os_version TEXT,
@@ -58,19 +63,21 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);
 }
 
-async function readClerkExternalAccount(
+async function readPrimaryAuthExternalAccount(
   db: SqlClient,
   accountId: string
 ): Promise<
@@ -121,12 +128,10 @@ const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_ID = '22222222-2222-4222-8222-222222222222';
 const EXTERNAL_USER_ID = 'user_external_1';
 
-const CLERK_SNAPSHOT = {
+const AUTH_SNAPSHOT = {
   id: EXTERNAL_USER_ID,
-  primary_email: 'alice@example.com',
-  email_addresses: [{ id: 'ea_1', email_address: 'alice@example.com' }],
-  primary_email_address_id: 'ea_1',
-  external_accounts: [],
+  email: 'alice@example.com',
+  accounts: [],
 };
 
 const DEVICE_ATTRS: Record<string, string | null> = {
@@ -136,7 +141,7 @@ const DEVICE_ATTRS: Record<string, string | null> = {
   app_version: '1.0.0',
 };
 
-describe('refreshAuthSnapshot', () => {
+describe('AuthSnapshotRefresher', () => {
   let sqlClient: SqlClient;
 
   beforeEach(async () => {
@@ -149,7 +154,7 @@ describe('refreshAuthSnapshot', () => {
     await sqlClient.disconnect();
   });
 
-  test('mirrors clerk external account and binds device on first run', async () => {
+  test('mirrors primary auth external account and binds device on first run', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -157,21 +162,21 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
-    const clerk = await readClerkExternalAccount(sqlClient, ACCOUNT_ID);
-    expect(clerk?.external_id).toBe(EXTERNAL_USER_ID);
-    const metadata = JSON.parse(clerk!.metadata!) as Record<string, unknown>;
+    const primary = await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID);
+    expect(primary?.external_id).toBe(EXTERNAL_USER_ID);
+    const metadata = JSON.parse(primary!.metadata!) as Record<string, unknown>;
     expect(metadata['email']).toBe('alice@example.com');
     expect(await readDeviceUserId(sqlClient, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect((await readDevice(sqlClient, DEVICE_ID))?.platform).toBe('web');
@@ -185,20 +190,21 @@ describe('refreshAuthSnapshot', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
+    const refresher = new AuthSnapshotRefresher(sqlClient, authServer);
     const inputs = {
-      sql: sqlClient,
-      authServer,
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
+      createId: io.createId,
     };
 
-    await refreshAuthSnapshot(inputs);
-    await refreshAuthSnapshot(inputs);
+    await refresher.refresh(inputs);
+    await refresher.refresh(inputs);
 
     const rows = await sqlClient.query(sql<{ external_id: string }>`
       SELECT external_id
@@ -209,7 +215,7 @@ describe('refreshAuthSnapshot', () => {
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();
   });
 
-  test('updates clerk metadata without removing other external_account rows', async () => {
+  test('updates primary auth metadata without removing other external_account rows', async () => {
     const authServer = makeFakeAuthServer({
       session: {
         externalUserId: EXTERNAL_USER_ID,
@@ -217,10 +223,10 @@ describe('refreshAuthSnapshot', () => {
         email: null,
         expiresAt: null,
       },
-      snapshot: CLERK_SNAPSHOT,
+      snapshot: AUTH_SNAPSHOT,
     });
 
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO external_accounts (
         id,
@@ -233,13 +239,13 @@ describe('refreshAuthSnapshot', () => {
       VALUES (${'stripe:cus_1'}, ${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
     `);
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token-new',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     const stripeRows = await sqlClient.query(sql<{
@@ -252,13 +258,13 @@ describe('refreshAuthSnapshot', () => {
     `);
     expect(stripeRows[0]?.external_id).toBe('cus_1');
 
-    const clerkRows = await sqlClient.query(sql<{ metadata: string }>`
+    const primaryRows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata
       FROM external_accounts
       WHERE user_id = ${ACCOUNT_ID}
         AND provider = ${PRIMARY_AUTH_PROVIDER}
     `);
-    const metadata = JSON.parse(clerkRows[0]!.metadata) as Record<
+    const metadata = JSON.parse(primaryRows[0]!.metadata) as Record<
       string,
       unknown
     >;
@@ -271,17 +277,17 @@ describe('refreshAuthSnapshot', () => {
       snapshotThrows: true,
     });
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
+      now: io.clock.now,
+      createId: io.createId,
     });
 
     expect(
-      await readClerkExternalAccount(sqlClient, ACCOUNT_ID)
+      await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID)
     ).toBeUndefined();
     expect(await readDeviceUserId(sqlClient, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();

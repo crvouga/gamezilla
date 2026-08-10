@@ -4,16 +4,17 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
-import { runPackageScriptOnce } from '@libs/integration-test/harness';
 import { assert } from '@pkgs/assert';
+
+import { runPackageScriptOnce } from './run-package-script-once';
 
 /**
  * Native bundle-export smoke. Runs the SAME Metro bundling step `eas update`
  * performs (`bun run prebuild` + `expo export` for ios + android, via the
  * `@apps/client check:export:native` script) and asserts it produces native JS
  * bundles. This catches import / module-resolution / transform errors that
- * blank-screen the deployed OTA before it ever reaches a device — the web
- * export the browser E2E job builds cannot surface native-only bundling failures.
+ * blank-screen the deployed OTA before it ever reaches a device — web-only
+ * export checks cannot surface native-only bundling failures.
  *
  * Also scans the exported bundles for an inlined loopback `EXPO_PUBLIC_API_URL`
  * so a misconfigured OTA publish cannot ship (see `production-client-bundle-guard`).

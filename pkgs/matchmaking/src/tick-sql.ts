@@ -1,15 +1,17 @@
 /**
- * Builder for the PL/pgSQL `matchmaking_tick()` function. Lives in
- * its own file so `migrate-sql.ts` stays under the per-file line cap
- * — this is otherwise a pure data-bearing module (PL/pgSQL string
+ * Builder for the PL/pgSQL `matchmaking_tick(p_now, p_match_ids)` function.
+ * Lives in its own file so `migrate-sql.ts` stays under the per-file line
+ * cap — this is otherwise a pure data-bearing module (PL/pgSQL string
  * constants + simple value-to-SQL-literal helpers).
  *
  * Tunings (radius curve, sweep windows, per-pass cap, bucket width,
  * fan-out cap, active-partitions prune age + hard cap) are baked
- * directly into the function body at migrate time — no parameters,
- * no runtime overhead for tuning lookups, and the function signature
- * stays `() RETURNS VOID` so pg_cron just calls
- * `SELECT matchmaking_tick()`.
+ * directly into the function body at migrate time — no runtime overhead
+ * for tuning lookups. Callers MUST supply wall/`Io` time as `p_now` and
+ * pre-minted match ids as `p_match_ids` (empty array → sweep/prune only,
+ * no pairing). The JS `Matchmaking.tick()` path mints ids via `createId`
+ * and usually drives pairing itself; this SQL entry point is for
+ * pg_cron-style hosts that pass `now` + an id budget explicitly.
  *
  * Single-flight guard: `pg_try_advisory_lock(bigint)` on a stable
  * lock id (see {@link MATCHMAKING_TICK_ADVISORY_LOCK_ID} in
@@ -71,10 +73,14 @@ DECLARE
   v_matched_ret  CONSTANT INT     := ${intLit(parts.matchedRetentionSeconds)};
   v_ap_prune_age CONSTANT INT     := ${intLit(parts.activePartitionsPruneAgeSeconds)};
   v_ap_hard_cap  CONSTANT INT     := ${intLit(parts.activePartitionsHardCap)};
+  v_now          TIMESTAMPTZ := p_now;
   v_part         RECORD;
   v_matches      BIGINT;
   v_pass         INT;
-  v_ap_count     BIGINT;`.trim();
+  v_ap_count     BIGINT;
+  v_id_offset    INT := 1;
+  v_slice        UUID[];
+  v_slice_len    INT;`.trim();
 }
 
 const TICK_BODY_BLOCK = `
@@ -91,23 +97,32 @@ BEGIN
       v_pass := 0;
       LOOP
         v_pass := v_pass + 1;
+        v_slice_len := LEAST(
+          v_max_pairs,
+          GREATEST(COALESCE(array_length(p_match_ids, 1), 0) - v_id_offset + 1, 0)
+        );
+        IF v_slice_len <= 0 THEN
+          EXIT;
+        END IF;
+        v_slice := p_match_ids[v_id_offset : v_id_offset + v_slice_len - 1];
         SELECT COUNT(DISTINCT match_id) INTO v_matches
         FROM matchmaking_run_match_pass(
           v_part.partition_signature,
           v_base_radius, v_growth, v_max_radius,
-          v_max_pairs, v_bucket_w, v_part.group_size, NULL
+          v_max_pairs, v_bucket_w, v_part.group_size, v_now, v_slice
         );
+        v_id_offset := v_id_offset + v_matches::INT;
         IF v_matches = 0 OR v_pass >= v_max_passes THEN EXIT; END IF;
       END LOOP;
       IF v_max_wait > 0 THEN
         PERFORM matchmaking_sweep_expired(
-          v_part.partition_signature, v_max_wait, NULL
+          v_part.partition_signature, v_max_wait, v_now
         );
       END IF;
     END LOOP;
 
     DELETE FROM matchmaking_active_partitions ap
-    WHERE first_seen_at < now() - make_interval(secs => v_ap_prune_age)
+    WHERE first_seen_at < v_now - make_interval(secs => v_ap_prune_age)
       AND NOT EXISTS (
         SELECT 1 FROM matchmaking_waiting w
         WHERE w.partition_signature = ap.partition_signature
@@ -133,7 +148,7 @@ BEGIN
     END IF;
 
     IF v_matched_ret > 0 THEN
-      PERFORM matchmaking_sweep_matched(v_matched_ret, NULL);
+      PERFORM matchmaking_sweep_matched(v_matched_ret, v_now);
     END IF;
   EXCEPTION WHEN OTHERS THEN
     PERFORM pg_advisory_unlock(v_lock_id);
@@ -160,7 +175,10 @@ export type TickFunctionTunings = {
 
 export function buildCreateTickFunctionSql(parts: TickFunctionTunings): string {
   return `
-CREATE OR REPLACE FUNCTION matchmaking_tick() RETURNS VOID
+CREATE OR REPLACE FUNCTION matchmaking_tick(
+  p_now TIMESTAMPTZ,
+  p_match_ids UUID[] DEFAULT '{}'::uuid[]
+) RETURNS VOID
 LANGUAGE plpgsql AS $matchmaking_tick$
 ${tickDeclareBlock(parts)}
 ${TICK_BODY_BLOCK}

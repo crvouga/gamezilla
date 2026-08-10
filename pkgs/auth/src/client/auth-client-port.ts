@@ -1,4 +1,7 @@
-import type { SignInStrategy } from '../shared/sign-in-strategy';
+import type {
+  SignInCredentials,
+  SignInStrategy,
+} from '../shared/sign-in-strategy';
 import type { AuthSessionState } from './auth-session-state';
 
 export type GetFreshTokenOptions = {
@@ -14,7 +17,10 @@ export interface AuthClientPort {
   /** Slug stored in `external_accounts.provider` for this adapter. */
   readonly providerLabel: string;
   useAuthSession(): AuthSessionState;
-  signIn(strategy: SignInStrategy): Promise<void>;
+  signIn(
+    strategy: SignInStrategy,
+    credentials?: SignInCredentials
+  ): Promise<void>;
   /** Clears every auth-provider session on this client. */
   signOut(): Promise<void>;
   getFreshToken(options?: GetFreshTokenOptions): Promise<string | null>;

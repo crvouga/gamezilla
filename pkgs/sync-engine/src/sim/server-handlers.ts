@@ -1,5 +1,6 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { MutationUploadResult } from '../client/mutation-upload-queue';
 import type { QueryRequest } from '../client/subscription-runtime';
@@ -79,6 +80,7 @@ function mergeCaptures(
 export type SimServerHandlerCtx = {
   readonly db: SqlClient;
   readonly now: () => number;
+  readonly createId: CreateId;
   readonly pubsub: PubSub;
   readonly resolveAuth: (clientId: string) => SimServerAuth;
   readonly mutations: MutationRegistry;
@@ -132,6 +134,7 @@ async function notifyApplied(args: {
   const env: MutationEnv = {
     ...args.auth,
     now: () => new Date(args.ctx.now()),
+    createId: args.ctx.createId,
   };
   const merged = mergeCaptures(args.captures);
   const mapCtx = topicMapCtxFromEnv(env);
@@ -203,6 +206,8 @@ export function createHandleMutations(
         registry: ctx.mutations,
         auth: stickyAuth,
         mutations: mutationRows,
+        now: ctx.now,
+        createId: ctx.createId,
         serverNow: () => new Date(ctx.now()),
         ...(failAfter !== undefined
           ? {

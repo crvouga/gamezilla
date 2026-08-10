@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Opt-in: git config core.hooksPath tools/githooks
+# Runs hard-determinism + sim tests when staged paths touch room / shared game / sync.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+if [[ -z "$STAGED" ]]; then
+  exit 0
+fi
+
+NEED=0
+while IFS= read -r f; do
+  case "$f" in
+    libs/*/src/shared/*|pkgs/room/*|pkgs/sync-engine/*|tools/scripts/check-hard-determinism.ts|tools/scripts/run-sim-determinism.ts|DETERMINISM.md)
+      NEED=1
+      break
+      ;;
+  esac
+done <<< "$STAGED"
+
+if [[ "$NEED" -eq 0 ]]; then
+  exit 0
+fi
+
+echo "pre-commit: ci:hard-determinism + ci:sim-determinism"
+bun run ci:hard-determinism
+bun run ci:sim-determinism

@@ -102,7 +102,7 @@ describe('CachingSecretStore', () => {
 
   it('coalesces concurrent misses for the same key into one upstream call', async () => {
     const inner = createCountingStore();
-    const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
+    const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => 0 });
 
     const results = await Promise.all([
       cache.getRequired('A'),
@@ -119,7 +119,7 @@ describe('CachingSecretStore', () => {
 
   it('coalesces concurrent misses for different keys into one batched call', async () => {
     const inner = createCountingStore();
-    const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
+    const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => 0 });
 
     const [a, b, c] = await Promise.all([
       cache.getRequired('A'),
@@ -136,7 +136,7 @@ describe('CachingSecretStore', () => {
 
   it('throws SecretMissingError when getRequired hits a missing key', async () => {
     const inner = createCountingStore({ X: null });
-    const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
+    const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => 0 });
     await expect(cache.getRequired('X')).rejects.toBeInstanceOf(
       SecretMissingError
     );
@@ -232,7 +232,10 @@ describe('CachingSecretStore', () => {
       },
       async setSecret() {},
     };
-    const cache = new CachingSecretStore(inner, { ttlMs: 60_000 });
+    const cache = new CachingSecretStore(inner, {
+      ttlMs: 60_000,
+      now: () => 0,
+    });
 
     expect(await cache.getOptional('A')).toBeNull();
     expect(await cache.getOptional('A')).toBeNull();
@@ -271,7 +274,7 @@ describe('CachingSecretStore', () => {
       },
       async setSecret() {},
     };
-    const cache = new CachingSecretStore(inner, { ttlMs: 1000 });
+    const cache = new CachingSecretStore(inner, { ttlMs: 1000, now: () => 0 });
     await expect(cache.getRequired('A')).rejects.toThrow('boom');
     expect((await cache.getRequired('A')).readSecretValue()).toBe('A-v');
     expect(calls).toBe(2);

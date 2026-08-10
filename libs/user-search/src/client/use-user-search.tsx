@@ -1,13 +1,14 @@
 import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/client/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import { Box, Button, Text } from '@pkgs/ui';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   USER_SEARCH_MIN_LENGTH,
   type UserSearchResult,
 } from '../shared/user-search-types';
-import { searchUsers } from './search-users';
+import { UserSearchClient } from './search-users';
 import { useUserSearchClientDeps } from './use-user-search-deps';
 
 export function useDebouncedUserSearchEffect(
@@ -16,6 +17,7 @@ export function useDebouncedUserSearchEffect(
 ) {
   const signedIn = useIsSignedIn();
   const deps = useUserSearchClientDeps();
+  const timers = useTimers();
   const [results, setResults] = useState<readonly UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const onCompletedRef = useRef(onCompleted);
@@ -31,8 +33,9 @@ export function useDebouncedUserSearchEffect(
 
     setSearching(true);
     let cancelled = false;
-    const handle = setTimeout(() => {
-      void searchUsers(deps, trimmed)
+    const handle = timers.setTimeout(() => {
+      void new UserSearchClient(deps)
+        .search(trimmed)
         .then((next) => {
           if (cancelled) return;
           setResults(next);
@@ -50,9 +53,9 @@ export function useDebouncedUserSearchEffect(
 
     return () => {
       cancelled = true;
-      clearTimeout(handle);
+      timers.clearTimeout(handle);
     };
-  }, [deps, query, signedIn]);
+  }, [deps, query, signedIn, timers]);
 
   return { results, searching, signedIn };
 }

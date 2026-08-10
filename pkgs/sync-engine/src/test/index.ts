@@ -10,8 +10,25 @@ export {
 export type { LocalMigratePhase } from '../client/local-schema-migrate';
 export { pruneMutationArtifacts } from '../mutations/server/prune-mutation-artifacts';
 export { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
-export { SCHEMA_EPOCH } from '../queries/client/local-schema';
+export {
+  ensureFrameworkSchema,
+  SCHEMA_EPOCH,
+} from '../queries/client/local-schema';
 export {
   createInMemorySyncEngine,
   type InMemorySyncEngineOptions,
 } from './in-memory-sync-engine';
+export {
+  emptySimPushChannels,
+  type NeverOpts,
+  type OpenSimWorldArgs,
+  openSimWorld,
+  type SeededRng,
+  type SimClientHandle,
+  type SimClock,
+  type SimDomainPack,
+  type SimSessionQuery,
+  type SimWorld,
+  type UntilOpts,
+  type UntilTarget,
+} from './sim-exports';

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { createSimIo } from '@pkgs/io';
 
 import {
   parseSignInPending,
@@ -7,9 +8,15 @@ import {
   signInReturnHrefFromPending,
 } from './sign-in-pending';
 
+const io = createSimIo({ seed: 1 });
+
+function isoNow(): string {
+  return new Date(io.clock.now()).toISOString();
+}
+
 describe('parseSignInPending', () => {
   test('parses legacy bare ISO', () => {
-    const pending = parseSignInPending(new Date().toISOString());
+    const pending = parseSignInPending(isoNow(), io.clock.now);
     expect(pending).not.toBeNull();
     expect(pending?.returnHref).toBeUndefined();
   });
@@ -17,10 +24,11 @@ describe('parseSignInPending', () => {
   test('ignores legacy multi-account fields', () => {
     const pending = parseSignInPending(
       JSON.stringify({
-        startedAt: new Date().toISOString(),
+        startedAt: isoNow(),
         intent: 'addAccount',
         baselineSessionIds: ['sess_a', 'sess_b'],
-      })
+      }),
+      io.clock.now
     );
     expect(pending).not.toBeNull();
     expect(pending?.returnHref).toBeUndefined();
@@ -29,9 +37,10 @@ describe('parseSignInPending', () => {
   test('parses returnHref', () => {
     const pending = parseSignInPending(
       JSON.stringify({
-        startedAt: new Date().toISOString(),
+        startedAt: isoNow(),
         returnHref: '/ui/Divider',
-      })
+      }),
+      io.clock.now
     );
     expect(pending?.returnHref).toBe('/ui/Divider');
   });
@@ -39,16 +48,17 @@ describe('parseSignInPending', () => {
   test('drops unsafe returnHref on parse', () => {
     const pending = parseSignInPending(
       JSON.stringify({
-        startedAt: new Date().toISOString(),
+        startedAt: isoNow(),
         returnHref: 'https://evil.example/',
-      })
+      }),
+      io.clock.now
     );
     expect(pending?.returnHref).toBeUndefined();
   });
 
   test('rejects stale markers', () => {
-    const stale = new Date(Date.now() - 31 * 60 * 1000).toISOString();
-    expect(parseSignInPending(stale)).toBeNull();
+    const stale = new Date(io.clock.now() - 31 * 60 * 1000).toISOString();
+    expect(parseSignInPending(stale, io.clock.now)).toBeNull();
   });
 });
 
@@ -73,7 +83,7 @@ describe('signInReturnHrefFromPending', () => {
     );
     expect(
       signInReturnHrefFromPending({
-        startedAt: new Date(),
+        startedAt: new Date(io.clock.now()),
       })
     ).toBe(SIGN_IN_RETURN_FALLBACK_HREF);
   });
@@ -81,7 +91,7 @@ describe('signInReturnHrefFromPending', () => {
   test('uses stored returnHref', () => {
     expect(
       signInReturnHrefFromPending({
-        startedAt: new Date(),
+        startedAt: new Date(io.clock.now()),
         returnHref: '/profile',
       })
     ).toBe('/profile');

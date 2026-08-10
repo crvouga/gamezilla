@@ -1,3 +1,5 @@
+import { globalHttpFetch } from '@pkgs/http-client';
+
 export type LiveShape = {
   readonly id: string;
   readonly kind: 'circle' | 'square' | 'triangle';
@@ -62,7 +64,7 @@ export type LabSnapshot = {
 export type LabCommand = { readonly type: string } & Record<string, unknown>;
 
 export async function postCommand(cmd: LabCommand): Promise<LabSnapshot> {
-  const res = await fetch('/api/command', {
+  const res = await globalHttpFetch('/api/command', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(cmd),

@@ -38,6 +38,7 @@ export class Inbox {
 }
 
 export { registerActionHandler } from './server/action-registry';
+export { InboxDatabaseMigration } from './server/inbox-database-migration';
 export { migrateInbox } from './server/migrate';
 export {
   deactivateInteraction,

@@ -1,3 +1,4 @@
+import type { CreateId } from '@pkgs/uuid';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
@@ -11,6 +12,8 @@ import { createAsyncLocalSpanContextStorage } from './context-storage';
 
 export type CreateServerObservabilityOptions = {
   readonly serviceName: string;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly envBackend?: string | undefined | null;
   readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
@@ -29,6 +32,8 @@ export function createServerObservability(
   if (backend === 'local-file') {
     return createLocalFileObservability({
       serviceName: options.serviceName,
+      now: options.now,
+      createId: options.createId,
       collectorUrl: options.collectorUrl ?? DEFAULT_COLLECTOR_URL,
       storage,
     });
@@ -36,12 +41,15 @@ export function createServerObservability(
   if (backend === 'logger') {
     return createLoggerObservability({
       serviceName: options.serviceName,
+      now: options.now,
+      createId: options.createId,
       storage,
     });
   }
   if (backend === 'sentry') {
     return createServerSentryObservability({
       serviceName: options.serviceName,
+      now: options.now,
       storage,
     });
   }

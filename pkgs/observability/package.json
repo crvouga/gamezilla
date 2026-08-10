@@ -44,7 +44,11 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "@sentry/cloudflare": "catalog:",
     "@sentry/core": "catalog:",
     "@sentry/react-native": "catalog:",

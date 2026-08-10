@@ -21,26 +21,29 @@ export type UserSearchClientDeps = {
  * Absolute REST exception: cross-user search is not in any one sync scope.
  * Server route remains `POST /friends/search`.
  */
-export async function searchUsers(
-  deps: UserSearchClientDeps,
-  query: string,
-  limit?: number
-): Promise<readonly UserSearchResult[]> {
-  const url = `${deps.config.getApiUrl()}/api/friends/search`;
-  const res = await deps.fetchFn(url, {
-    method: 'POST',
-    headers: clientAuthHeaders(deps.auth),
-    body: JSON.stringify({
-      query,
-      ...(limit !== undefined ? { limit } : {}),
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(
-      `user search failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
-    );
+export class UserSearchClient {
+  constructor(private readonly deps: UserSearchClientDeps) {}
+
+  async search(
+    query: string,
+    limit?: number
+  ): Promise<readonly UserSearchResult[]> {
+    const url = `${this.deps.config.getApiUrl()}/api/friends/search`;
+    const res = await this.deps.fetchFn(url, {
+      method: 'POST',
+      headers: clientAuthHeaders(this.deps.auth),
+      body: JSON.stringify({
+        query,
+        ...(limit !== undefined ? { limit } : {}),
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(
+        `user search failed (${res.status})${body.length > 0 ? `: ${body}` : ''}`
+      );
+    }
+    const json = (await res.json()) as { results: UserSearchResult[] };
+    return json.results;
   }
-  const json = (await res.json()) as { results: UserSearchResult[] };
-  return json.results;
 }

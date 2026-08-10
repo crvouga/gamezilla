@@ -1,0 +1,44 @@
+{
+  "name": "@pkgs/auth-better-auth",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./client": "./src/client/index.ts",
+    "./server": "./src/server/index.ts",
+    "./client/*": [
+      "./src/client/*.ts",
+      "./src/client/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "better-auth": "catalog:",
+    "expo-secure-store": "catalog:",
+    "expo-web-browser": "catalog:",
+    "react-native": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@types/react": "catalog:",
+    "@typescript/native": "catalog:",
+    "pg": "catalog:",
+    "react": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  }
+}

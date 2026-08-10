@@ -97,7 +97,6 @@ const BUILTIN_FNS = [
   'abs',
   'round',
   'coalesce',
-  'now',
   'hashtext',
   'pg_advisory_xact_lock',
   'pg_try_advisory_lock',

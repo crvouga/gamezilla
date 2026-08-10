@@ -6,6 +6,14 @@ type Entry = {
   readonly contentType: string;
 };
 
+export type ObjectStoreImplInMemoryOptions = {
+  /**
+   * DST fault knob: when set, the next mutating/read op throws this error
+   * (then clears). Missing-key semantics stay null/false/no-op when no fault.
+   */
+  readonly onFault?: () => Error | null | undefined;
+};
+
 /**
  * In-process {@link ObjectStore} backed by a `Map`. Used by the conformance
  * suite in `interface.test.ts` and by feature unit tests that want to exercise
@@ -17,10 +25,34 @@ type Entry = {
  */
 export class ObjectStoreImplInMemory implements ObjectStore {
   private readonly store = new Map<string, Entry>();
+  private fault: (() => Error | null | undefined) | null;
+  private armedFault: Error | null = null;
 
-  get(key: string): Promise<StoredObject | null> {
+  constructor(options?: ObjectStoreImplInMemoryOptions) {
+    this.fault = options?.onFault ?? null;
+  }
+
+  /** Arm a one-shot transport fault for the next operation (DST). */
+  armFault(error: Error): void {
+    this.armedFault = error;
+  }
+
+  private maybeThrow(): void {
+    if (this.armedFault !== null) {
+      const err = this.armedFault;
+      this.armedFault = null;
+      throw err;
+    }
+    if (this.fault !== null) {
+      const err = this.fault();
+      if (err != null) throw err;
+    }
+  }
+
+  async get(key: string): Promise<StoredObject | null> {
+    this.maybeThrow();
     const entry = this.store.get(key);
-    if (entry === undefined) return Promise.resolve(null);
+    if (entry === undefined) return null;
     const bytesCopy = new Uint8Array(entry.bytes);
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -28,25 +60,30 @@ export class ObjectStoreImplInMemory implements ObjectStore {
         controller.close();
       },
     });
-    return Promise.resolve({
+    return {
       body: stream,
       contentType: entry.contentType,
       size: entry.bytes.byteLength,
-    });
+    };
   }
 
-  put(key: string, bytes: Uint8Array, contentType: string): Promise<void> {
+  async put(
+    key: string,
+    bytes: Uint8Array,
+    contentType: string
+  ): Promise<void> {
+    this.maybeThrow();
     this.store.set(key, { bytes: new Uint8Array(bytes), contentType });
-    return Promise.resolve();
   }
 
-  head(key: string): Promise<boolean> {
-    return Promise.resolve(this.store.has(key));
+  async head(key: string): Promise<boolean> {
+    this.maybeThrow();
+    return this.store.has(key);
   }
 
-  delete(key: string): Promise<void> {
+  async delete(key: string): Promise<void> {
+    this.maybeThrow();
     this.store.delete(key);
-    return Promise.resolve();
   }
 
   /**
@@ -56,16 +93,17 @@ export class ObjectStoreImplInMemory implements ObjectStore {
    * playable URL on those runtimes should fall back to {@link get} + manual
    * conversion.
    */
-  getUri(key: string): Promise<string | null> {
+  async getUri(key: string): Promise<string | null> {
+    this.maybeThrow();
     const entry = this.store.get(key);
-    if (entry === undefined) return Promise.resolve(null);
+    if (entry === undefined) return null;
     if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function')
-      return Promise.resolve(null);
-    if (typeof Blob === 'undefined') return Promise.resolve(null);
+      return null;
+    if (typeof Blob === 'undefined') return null;
     const ab = new ArrayBuffer(entry.bytes.byteLength);
     new Uint8Array(ab).set(entry.bytes);
     const blob = new Blob([ab], { type: entry.contentType });
-    return Promise.resolve(URL.createObjectURL(blob));
+    return URL.createObjectURL(blob);
   }
 
   withPrefix(prefix: string): ObjectStore {

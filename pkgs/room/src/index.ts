@@ -50,6 +50,11 @@ export {
   useRoomSnapshot,
   useRoomSnapshotSelector,
 } from './client/react/use-room-snapshot';
+export {
+  canonicalRoomJson,
+  fnv1a64Hex,
+  hashRoomState,
+} from './hash-room-state';
 export { newCommandId } from './protocol/ids';
 export {
   type ClientToServerWire,

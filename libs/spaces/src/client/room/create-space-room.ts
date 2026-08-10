@@ -1,5 +1,7 @@
+import type { Io } from '@pkgs/io';
 import type { Kv } from '@pkgs/kv/interface';
 import {
+  type ClientTransport,
   Room,
   type RoomCommandPayload,
   type RoomEvent,
@@ -9,10 +11,12 @@ import {
   KeyValueClientRoomStorage,
   keyValueRoomClientKeywords,
 } from '@pkgs/room/client/adapters/storage/key-value';
-import { WebSocketRoomTransport } from '@pkgs/room/client/adapters/transport/websocket';
 
 import type { SpaceRoomModule } from '../module/space-module-context';
-import { apiUrlToRoomWebSocketUrl } from './space-room-url';
+import {
+  type CreateRoomTransport,
+  WebSocketRoomTransportFactory,
+} from './room-transport-factory';
 
 export type CreateSpaceRoomParams = {
   spaceId: string;
@@ -42,49 +46,65 @@ export type CreateSpaceRoomParams = {
    * refresh a rotated JWT before the socket upgrade.
    */
   getSessionToken: () => string | null | Promise<string | null>;
+  /** Defaults to WebSocket when omitted (production). */
+  createTransport?: CreateRoomTransport;
 };
 
 export type CreateSpaceRoomResult = {
   room: Room<RoomState, RoomCommandPayload, RoomEvent, string>;
-  transport: WebSocketRoomTransport;
+  transport: ClientTransport;
 };
 
-export async function createSpaceRoom(
-  params: CreateSpaceRoomParams
-): Promise<CreateSpaceRoomResult> {
-  const {
-    spaceId,
-    apiUrl,
-    module,
-    kv,
-    myId,
-    installId,
-    clientId,
-    getSessionToken,
-  } = params;
-  const topic = `space:${spaceId}`;
-  const transport = new WebSocketRoomTransport({
-    url: async () => {
-      const token = await Promise.resolve(getSessionToken());
-      return apiUrlToRoomWebSocketUrl({
-        apiUrl,
-        topic,
-        sessionToken: token,
-        installId,
-        clientId,
-      });
-    },
-  });
-  const { committed, queue } = keyValueRoomClientKeywords(spaceId);
-  const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
+export class SpaceRoomFactory {
+  constructor(private readonly io: Io) {}
 
-  const room = await Room.open({
-    topic,
-    module,
-    storage: clientStorage,
-    transport,
-    identity: myId,
-  });
+  /**
+   * Opens a space room client for local-first UI. Returns after local hydrate;
+   * the WebSocket may still be connecting (or offline). Callers must register
+   * the Room immediately so optimistic commands work while Connecting… shows.
+   */
+  async create(params: CreateSpaceRoomParams): Promise<CreateSpaceRoomResult> {
+    const {
+      spaceId,
+      apiUrl,
+      module,
+      kv,
+      myId,
+      installId,
+      clientId,
+      getSessionToken,
+      createTransport,
+    } = params;
+    const topic = `space:${spaceId}`;
+    const wsFactory = new WebSocketRoomTransportFactory(
+      this.io.timers,
+      this.io.random
+    );
+    const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
+      spaceId,
+      apiUrl,
+      installId,
+      clientId,
+      getSessionToken,
+      timers: this.io.timers,
+      random: this.io.random,
+    });
+    const { committed, queue } = keyValueRoomClientKeywords(spaceId);
+    const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
 
-  return { room, transport };
+    // Room.open is offline-first: hydrate + attach, connect in background.
+    // Connect failures do not reject — the Room stays usable locally.
+    const room = await Room.open({
+      topic,
+      module,
+      storage: clientStorage,
+      transport,
+      identity: myId,
+      clock: this.io.clock,
+      timers: this.io.timers,
+      createId: this.io.createId,
+    });
+
+    return { room, transport };
+  }
 }

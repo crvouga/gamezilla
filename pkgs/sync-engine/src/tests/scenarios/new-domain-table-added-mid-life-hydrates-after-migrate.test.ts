@@ -74,7 +74,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
       await expectLiveNote(alice2!.db, 'n1', { body: 'kept' });
       const tags = await alice2!.db.query(sql<{ id: string; label: string }>`
         SELECT id, label FROM tags
-        WHERE _deleted_at IS NULL
+        WHERE deleted_at IS NULL
         ORDER BY id ASC
       `);
       expect(tags).toEqual([{ id: 't1', label: 'urgent' }]);

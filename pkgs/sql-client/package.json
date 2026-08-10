@@ -12,10 +12,12 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:contract": "bun test src/postgres/postgres.contract.test.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "expo-sqlite": "catalog:",
@@ -25,6 +27,7 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

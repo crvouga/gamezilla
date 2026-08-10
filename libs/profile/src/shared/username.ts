@@ -26,7 +26,7 @@ export function validateUsername(raw: string): UsernameValidationError | null {
 
 export function canChangeUsername(
   usernameChangedAt: string | null | undefined,
-  nowMs: number = Date.now()
+  nowMs: number
 ): boolean {
   if (usernameChangedAt === null || usernameChangedAt === undefined)
     return true;

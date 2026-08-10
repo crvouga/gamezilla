@@ -171,6 +171,17 @@ function resolveViaClientNodeModules(moduleName) {
     return null;
   }
 
+  // Package exports (e.g. `hono/client` → dist/client) have no physical
+  // `node_modules/<pkg>/<subpath>` file — resolve via Node from the client root.
+  try {
+    const filePath = clientPkgRequire.resolve(moduleName);
+    if (path.isAbsolute(filePath) && fs.existsSync(filePath)) {
+      return filePath;
+    }
+  } catch {
+    // Fall through to physical path candidates.
+  }
+
   const joined = path.join(base, subpath);
   const candidates = [
     joined,

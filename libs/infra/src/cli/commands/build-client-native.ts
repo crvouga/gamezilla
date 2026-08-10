@@ -1,6 +1,7 @@
 import { BunDep } from '../deps/bun';
 import { EasDep } from '../deps/eas';
 import type { Dep } from '../deps/types';
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { runBuildClientEasNativePhase } from '../lib/phases/build-client-eas-native';
 import { runCheckDepsPhase } from '../lib/phases/check-deps';
@@ -30,10 +31,10 @@ export class BuildClientNativeCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Build client native (EAS)');
     await runCheckDepsPhase(this.platform, EAS_BUILD_DEPS);
     await runBuildClientEasNativePhase(this.platform);
-    banner('Build client native (EAS) complete', performance.now() - t0);
+    banner('Build client native (EAS) complete', cliIo.clock.now() - t0);
   }
 }

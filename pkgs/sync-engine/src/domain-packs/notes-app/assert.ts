@@ -23,7 +23,7 @@ export async function readLiveNotes(
   return db.query(sql<LiveNote>`
     SELECT id, folder_id, title, body, owner_id
     FROM notes
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
     ORDER BY id ASC
   `);
 }
@@ -35,7 +35,7 @@ export async function readLiveFolders(
   return db.query(sql<LiveFolder>`
     SELECT id, title, owner_id
     FROM folders
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
     ORDER BY id ASC
   `);
 }
@@ -45,10 +45,10 @@ export async function readNoteTombstone(
   db: SqlClient,
   id: string
 ): Promise<string | null> {
-  const rows = await db.query(sql<{ _deleted_at: string | null }>`
-    SELECT _deleted_at FROM notes WHERE id = ${id}
+  const rows = await db.query(sql<{ deleted_at: string | null }>`
+    SELECT deleted_at FROM notes WHERE id = ${id}
   `);
-  return rows[0]?._deleted_at ?? null;
+  return rows[0]?.deleted_at ?? null;
 }
 
 /** Assert live notes on client match server (domain-only). */
@@ -79,7 +79,7 @@ export async function expectLiveNote(
 ): Promise<void> {
   const rows = await db.query(sql<{ body: string; title: string }>`
     SELECT body, title FROM notes
-    WHERE id = ${id} AND _deleted_at IS NULL
+    WHERE id = ${id} AND deleted_at IS NULL
   `);
   expect(rows[0]?.body).toBe(expected.body);
   if (expected.title !== undefined) {
@@ -90,7 +90,7 @@ export async function expectLiveNote(
 /** True when note id is live (present and not tombstoned). */
 export async function isLiveNote(db: SqlClient, id: string): Promise<boolean> {
   const rows = await db.query(sql<{ id: string }>`
-    SELECT id FROM notes WHERE id = ${id} AND _deleted_at IS NULL
+    SELECT id FROM notes WHERE id = ${id} AND deleted_at IS NULL
   `);
   return rows.length > 0;
 }
@@ -116,7 +116,7 @@ export async function readLiveOpenSessions(
   return db.query(sql<LiveOpenSession>`
     SELECT id, space_id, device_id
     FROM space_open_sessions
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
     ORDER BY id ASC
   `);
 }
@@ -131,7 +131,7 @@ export async function expectOpenSession(
     SELECT id FROM space_open_sessions
     WHERE space_id = ${spaceId}
       AND device_id = ${deviceId}
-      AND _deleted_at IS NULL
+      AND deleted_at IS NULL
   `);
   expect(rows.length).toBe(1);
 }
@@ -143,7 +143,7 @@ export async function expectNoForeignOpenSessions(
 ): Promise<void> {
   const rows = await db.query(sql<{ device_id: string }>`
     SELECT device_id FROM space_open_sessions
-    WHERE _deleted_at IS NULL AND device_id != ${localDeviceId}
+    WHERE deleted_at IS NULL AND device_id != ${localDeviceId}
   `);
   expect(rows).toEqual([]);
 }

@@ -4,5 +4,5 @@ export type AssistantClockHandle = {
 
 export type AssistantClock = {
   now(): number;
-  setTimeout(fn: () => void, ms: number): AssistantClockHandle;
+  setTimeout: (fn: () => void, ms: number) => AssistantClockHandle;
 };

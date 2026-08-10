@@ -1,5 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import { ZodError } from 'zod';
 
 import type { WriteCaptureSnapshot } from '../../sql-ast';
@@ -41,8 +42,8 @@ export type CreateMutationClientOptions = {
     readonly args: unknown;
     readonly capture: WriteCaptureSnapshot;
   }) => void;
-  /** Deterministic id mint for sim; defaults to crypto.randomUUID. */
-  readonly createId?: () => string;
+  /** Id mint for queued mutation rows (wall or sim). */
+  readonly createId: CreateId;
 };
 
 async function nextMutationSeq(tx: SqlClient): Promise<number> {
@@ -77,7 +78,7 @@ export function createMutationClient(
         };
       }
 
-      const mutationId = (options.createId ?? (() => crypto.randomUUID()))();
+      const mutationId = options.createId();
       try {
         const parsed = m.args.parse(args);
         let capture: WriteCaptureSnapshot = {
@@ -88,7 +89,7 @@ export function createMutationClient(
         await db.transaction(async (txc) => {
           const seq = await nextMutationSeq(txc);
           const createdAt = env.now().toISOString();
-          const wrapped = wrapMutationDb(txc);
+          const wrapped = wrapMutationDb(txc, env);
           await m.run({ tx: wrapped.tx, env }, parsed);
           capture = wrapped.getCapture();
           await txc.run(sql`

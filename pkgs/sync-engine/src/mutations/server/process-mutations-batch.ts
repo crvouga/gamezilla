@@ -1,4 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import type { MutationRegistry } from '../core/types';
@@ -37,6 +38,8 @@ export type ProcessMutationsBatchDeps = {
   readonly registry: MutationRegistry;
   readonly auth: ReplayAuth;
   readonly mutations: readonly MutationRow[];
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly serverNow?: () => Date;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
@@ -64,6 +67,8 @@ export async function processMutationsBatch(
         serverDb: deps.serverDb,
         registry: deps.registry,
         auth: deps.auth,
+        now: deps.now,
+        createId: deps.createId,
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       },
       row

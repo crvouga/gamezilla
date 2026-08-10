@@ -47,10 +47,12 @@ export async function mintPubSubToken(args: {
   readonly secret: string;
   readonly actorId: string;
   readonly spaceIds: readonly string[];
-  readonly now?: () => Date;
+  /** Epoch ms — callers pass getIo().clock.now or a sim clock. */
+  readonly now: () => number;
 }): Promise<{ readonly token: string; readonly expiresAt: number }> {
-  const now = args.now?.() ?? new Date();
-  const expiresAt = Math.floor(now.getTime() / 1000) + TOKEN_TTL_SEC;
+  const nowMs = args.now();
+  const issuedAt = Math.floor(nowMs / 1000);
+  const expiresAt = issuedAt + TOKEN_TTL_SEC;
   const topics = pubsubTopicsForActor(args.actorId, args.spaceIds);
   const acl = buildSubscribeAcl(topics);
   const token = await new SignJWT({
@@ -58,7 +60,7 @@ export async function mintPubSubToken(args: {
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(args.actorId)
-    .setIssuedAt(Math.floor(now.getTime() / 1000))
+    .setIssuedAt(issuedAt)
     .setExpirationTime(expiresAt)
     .sign(new TextEncoder().encode(args.secret));
   return { token, expiresAt };

@@ -38,6 +38,7 @@ export const MATCHMAKING_SCHEMA: MatchmakingSchema = {
  * - `matchedRetentionSeconds: 3600`: matched rows stay queryable for
  *   1h after pairing so the `/status` poll loop can read them.
  */
+/** Numeric caps only — `now` / `createId` are wired in `route.ts` from `getIo()`. */
 export const MATCHMAKING_TUNING = {
   maxPairsPerPass: 500,
   maxWaitSeconds: 300,

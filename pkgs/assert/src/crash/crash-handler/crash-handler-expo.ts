@@ -1,3 +1,4 @@
+import type { Timers } from '@pkgs/clock';
 import * as Clipboard from 'expo-clipboard';
 import { Alert, DevSettings, Platform } from 'react-native';
 
@@ -15,7 +16,7 @@ function truncate(s: string): string {
 }
 
 /** RN Alert always dismisses its action buttons; we re-show so Copy does not end the crash UI. */
-function showAssertionAlert(fullText: string): void {
+function showAssertionAlert(fullText: string, timers: Timers): void {
   Alert.alert(
     'Assertion failed',
     truncate(fullText),
@@ -24,7 +25,7 @@ function showAssertionAlert(fullText: string): void {
         text: 'Copy error',
         onPress: () => {
           void Clipboard.setStringAsync(`'Assertion failed: ${fullText}`);
-          setTimeout(() => showAssertionAlert(fullText), 0);
+          timers.setTimeout(() => showAssertionAlert(fullText, timers), 0);
         },
       },
       {
@@ -48,6 +49,8 @@ function showAssertionAlert(fullText: string): void {
 export class ExpoCrashHandler implements CrashHandler {
   readonly priority = 20;
 
+  constructor(private readonly timers: Timers) {}
+
   match(): boolean {
     return Platform.OS !== 'web';
   }
@@ -66,6 +69,6 @@ export class ExpoCrashHandler implements CrashHandler {
       suppressedCount > 0 ? `\n\n(+${suppressedCount} more suppressed)` : '';
     const fullText = body + suffix;
 
-    showAssertionAlert(fullText);
+    showAssertionAlert(fullText, this.timers);
   }
 }

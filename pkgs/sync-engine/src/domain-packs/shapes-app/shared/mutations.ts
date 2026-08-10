@@ -15,7 +15,7 @@ export const addShape = defineMutation({
   }),
   async run({ tx, env }, { id, kind }) {
     const maxRows = await tx.query(sql<{ max_key: number | null }>`
-      SELECT MAX(sort_key) AS max_key FROM shapes WHERE _deleted_at IS NULL
+      SELECT MAX(sort_key) AS max_key FROM shapes WHERE deleted_at IS NULL
     `);
     const nextKey = (maxRows[0]?.max_key ?? -1) + 1;
     await tx.run(sql`
@@ -25,7 +25,7 @@ export const addShape = defineMutation({
         kind = excluded.kind,
         sort_key = excluded.sort_key,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });
@@ -37,8 +37,8 @@ export const removeShape = defineMutation({
   async run({ tx, env }, { id }) {
     await tx.run(sql`
       UPDATE shapes
-      SET _deleted_at = ${env.now().toISOString()}
-      WHERE id = ${id} AND _deleted_at IS NULL
+      SET deleted_at = ${env.now().toISOString()}
+      WHERE id = ${id} AND deleted_at IS NULL
     `);
   },
 });
@@ -56,7 +56,7 @@ export const reorderShapes = defineMutation({
       await tx.run(sql`
         UPDATE shapes
         SET sort_key = ${i}
-        WHERE id = ${id} AND _deleted_at IS NULL
+        WHERE id = ${id} AND deleted_at IS NULL
       `);
     }
   },

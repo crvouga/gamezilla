@@ -1,3 +1,4 @@
+import type { CreateId } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import {
   createMutationClient,
@@ -17,6 +18,7 @@ export type MutationClientProviderProps = {
   readonly registry: MutationRegistry;
   readonly env: MutationEnv;
   readonly ids: MutationClientIds;
+  readonly createId: CreateId;
   readonly connectivity?: MutationConnectivity | undefined;
 };
 
@@ -29,6 +31,7 @@ export function MutationClientProvider({
   registry,
   env,
   ids,
+  createId,
   connectivity,
 }: MutationClientProviderProps): ReactNode {
   // Stable engine — not the reactive useSyncEngine() facade (status/paintReady
@@ -45,6 +48,7 @@ export function MutationClientProvider({
         registry: mergedRegistry,
         env,
         ids,
+        createId,
         connectivity: connectivity ?? {
           isOnline: () => engine.status.getSnapshot().online,
         },
@@ -53,7 +57,7 @@ export function MutationClientProvider({
           engine.notifyLocalMutation(mutation, args, capture);
         },
       }),
-    [connectivity, engine, env, ids, mergedRegistry]
+    [connectivity, createId, engine, env, ids, mergedRegistry]
   );
   return (
     <MutationClientContext.Provider value={client}>

@@ -9,7 +9,7 @@ describe('strict default query limit', () => {
       async run() {
         const notes = Array.from({ length: 2001 }, (_, i) => ({
           id: `n${i}`,
-          _deleted_at: null,
+          deleted_at: null,
         }));
         return { notes };
       },
@@ -43,7 +43,7 @@ describe('strict default query limit', () => {
       async run() {
         const notes = Array.from({ length: 12 }, (_, i) => ({
           id: `n${i}`,
-          _deleted_at: null,
+          deleted_at: null,
         }));
         return { notes };
       },

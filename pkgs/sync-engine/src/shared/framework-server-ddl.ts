@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public._mutations_applied (
     client_id text NOT NULL,
     seq bigint NOT NULL,
     status text NOT NULL,
-    applied_at timestamp with time zone DEFAULT now() NOT NULL,
+    applied_at timestamp with time zone NOT NULL,
     CONSTRAINT _mutations_applied_status_check CHECK ((status = ANY (ARRAY['applied'::text, 'rejected'::text])))
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.write_rejections (
     code text NOT NULL,
     message text NOT NULL,
     meta jsonb,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_at timestamp with time zone NOT NULL,
     acknowledged boolean DEFAULT false NOT NULL
 );
 

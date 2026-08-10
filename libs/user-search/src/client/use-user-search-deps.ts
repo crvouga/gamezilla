@@ -1,5 +1,6 @@
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { useClientRequestAuth } from '@libs/auth/client/use-client-request-auth';
+import { useHttpClient } from '@pkgs/http-client';
 import { useMemo } from 'react';
 
 import type { UserSearchClientDeps } from './search-users';
@@ -7,12 +8,13 @@ import type { UserSearchClientDeps } from './search-users';
 export function useUserSearchClientDeps(): UserSearchClientDeps {
   const config = useConfigService();
   const auth = useClientRequestAuth();
+  const { fetch: fetchFn } = useHttpClient();
   return useMemo(
     () => ({
       config,
-      fetchFn: fetch.bind(globalThis),
+      fetchFn,
       auth,
     }),
-    [config, auth]
+    [config, auth, fetchFn]
   );
 }

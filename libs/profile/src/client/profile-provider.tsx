@@ -2,7 +2,7 @@ import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { type ReactNode, useEffect } from 'react';
 
-import { ensureProfile } from './ensure-profile-local/ensure-profile';
+import { ProfileEnsurer } from './ensure-profile-local/ensure-profile';
 
 /**
  * Profile bootstrap: ensures a local profile row (with auto username) for the
@@ -18,7 +18,7 @@ function ProfileEntityBootstrap(): null {
     void (async () => {
       try {
         if (myId.length === 0) return;
-        await ensureProfile(mutationClient);
+        await new ProfileEnsurer(mutationClient).ensure();
         if (cancelled) return;
       } catch {
         // Best-effort: re-asserted on the next identity change.

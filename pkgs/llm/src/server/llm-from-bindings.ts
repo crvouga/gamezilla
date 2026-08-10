@@ -1,4 +1,6 @@
+import type { HttpClient } from '@pkgs/http-client';
 import type { SecretStore } from '@pkgs/secret-store';
+import { Hono } from 'hono';
 import { OpenAiLlmProvider } from './adapters/openai-llm-provider';
 import {
   type CreateLlmAppOptions,
@@ -20,26 +22,51 @@ export type CreateLlmAppFromBindingsOptions = {
   readonly secretStore: SecretStore;
   readonly getKv: LlmGetKv;
   readonly requireAuth: LlmRequireAuth;
+  readonly http: HttpClient;
 };
 
+export type CreateLlmAppFromBindingsResult = {
+  readonly app: Hono;
+  readonly configured: boolean;
+};
+
+function createUnconfiguredLlmApp(): Hono {
+  return new Hono().post('/llm/structured', (c) =>
+    c.json({ error: 'LLM is not configured' }, 503)
+  );
+}
+
+function trimOrNull(raw: string | undefined | null): string | null {
+  if (typeof raw !== 'string') return null;
+  const t = raw.trim();
+  return t.length > 0 ? t : null;
+}
+
 /**
- * Pre-wired Hono sub-app: loads OpenAI credentials from the secret store and mounts
- * {@link createLlmApp}. Both secrets are required — the secret store crashes
- * if either is missing.
+ * Pre-wired Hono sub-app: loads OpenAI credentials from the secret store.
+ * When either secret is missing, mounts a degraded surface that returns 503.
  */
 export async function createLlmAppFromBindings(
   options: CreateLlmAppFromBindingsOptions
-): Promise<ReturnType<typeof createLlmApp>> {
-  const apiKey = (
-    await options.secretStore.getRequired(LlmSecretName.openAiApiKey)
-  ).readSecretValue();
-  const baseUrl = (
-    await options.secretStore.getRequired(LlmSecretName.openAiBaseUrl)
-  ).readSecretValue();
+): Promise<CreateLlmAppFromBindingsResult> {
+  const apiKey = trimOrNull(
+    (
+      await options.secretStore.getOptional(LlmSecretName.openAiApiKey)
+    )?.readSecretValue()
+  );
+  const baseUrl = trimOrNull(
+    (
+      await options.secretStore.getOptional(LlmSecretName.openAiBaseUrl)
+    )?.readSecretValue()
+  );
+  if (apiKey === null || baseUrl === null) {
+    return { app: createUnconfiguredLlmApp(), configured: false };
+  }
 
   const provider = new OpenAiLlmProvider({
     apiKey,
     baseUrl,
+    http: options.http,
   });
 
   const createOptions: CreateLlmAppOptions = {
@@ -47,5 +74,5 @@ export async function createLlmAppFromBindings(
     getKv: options.getKv,
     requireAuth: options.requireAuth,
   };
-  return createLlmApp(createOptions);
+  return { app: createLlmApp(createOptions), configured: true };
 }

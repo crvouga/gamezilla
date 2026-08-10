@@ -11,7 +11,6 @@ const KNOWN_JOB_ORDER: readonly string[] = [
   'check-build',
   'check-static',
   'check-api',
-  'check-browser',
   'deploy',
   'lock-release',
 ];

@@ -17,6 +17,8 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@shopify/react-native-skia": "catalog:",

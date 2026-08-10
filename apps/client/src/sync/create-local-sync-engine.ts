@@ -8,10 +8,12 @@ import {
   appTopicMap,
 } from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
+import type { Clock, Timers } from '@pkgs/clock';
 import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
+import type { CreateId, Random } from '@pkgs/uuid';
 import * as SQLite from 'expo-sqlite';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
@@ -54,6 +56,11 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly databaseName: string;
   readonly getFreshAuthToken: GetFreshAuthToken;
   readonly auth: SyncClientAuth;
+  /** Required nondeterminism ports from composition-root {@link Io}. */
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly createId: CreateId;
+  readonly random: Random;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
@@ -64,7 +71,8 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
     deviceId,
     accountId: args.auth.getAccountId(),
     isAnon: args.auth.getSessionToken() === null,
-    now: () => new Date(),
+    now: () => new Date(args.clock.now()),
+    createId: args.createId,
   };
 }
 
@@ -109,6 +117,8 @@ function pushOptions(
           fetchFn: args.fetchFn,
           auth: args.auth,
           getFreshAuthToken: args.getFreshAuthToken,
+          timers: args.timers,
+          random: args.random,
         });
         if (next === null) {
           throw new Error('pubsub unavailable');
@@ -129,7 +139,7 @@ export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
   await deleteLegacySidecarDb(args.databaseName);
-  const db = await openMainSqlClient(args.userId);
+  const db = await openMainSqlClient(args.userId, args.createId, args.timers);
   const pushCtx = createMembershipChannels({
     auth: args.auth,
     userId: args.userId,
@@ -151,6 +161,9 @@ export async function createAppLocalSyncEngine(
       error instanceof SyncApiAuthError && error.reason === 'revoked',
     deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
     lifecycle: createAppSyncLifecycle(),
+    now: args.clock.now,
+    timers: args.timers,
+    createId: args.createId,
     ...pushOptions(args, pushCtx),
   });
 }

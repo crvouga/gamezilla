@@ -1,16 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import {
-  findUserIdByPrimaryAuthExternalId,
-  readExternalAccountId,
-} from './external-accounts-sql';
+import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
+import { ExternalAccountRepository } from './external-account-repository';
+
+const io = createSimIo({ seed: 1 });
 
 function makeFakeAuthServer(
   snapshot: Record<string, unknown> | null
@@ -27,28 +26,32 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
     CREATE TABLE users (
       id TEXT PRIMARY KEY,
-      created_at TEXT NOT NULL,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       is_anon INTEGER NOT NULL DEFAULT 0
     )
   `);
   await db.run(sql<void>`
     CREATE TABLE external_accounts (
-      id TEXT NOT NULL UNIQUE,
+      id TEXT PRIMARY KEY,
+      created_at TEXT,
+      updated_at TEXT,
+      deleted_at TEXT,
       user_id TEXT NOT NULL,
       provider TEXT NOT NULL,
       external_id TEXT NOT NULL,
       metadata TEXT NOT NULL DEFAULT '{}',
-      created_at TEXT NOT NULL,
-      PRIMARY KEY (provider, external_id),
+      UNIQUE (provider, external_id),
       UNIQUE (user_id, provider)
     )
   `);
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';
-const PRIMARY_AUTH_PROVIDER = 'clerk';
+const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
-describe('ensureInternalAccountIdForExternalUser', () => {
+describe('AccountProvisioningService', () => {
   let sqlClient: SqlClient;
 
   beforeEach(async () => {
@@ -61,9 +64,9 @@ describe('ensureInternalAccountIdForExternalUser', () => {
     await sqlClient.disconnect();
   });
 
-  test('returns existing user id for known clerk user', async () => {
+  test('returns existing user id for known external user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO users (id, created_at)
       VALUES (${userId}, ${now})
@@ -87,31 +90,38 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       )
     `);
 
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer(null),
+    const resolved = await new EnsureInternalAccountUseCase(
+      sqlClient,
+      io,
+      makeFakeAuthServer(null)
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });
 
     expect(resolved).toBe(userId);
   });
 
-  test('creates user and clerk external_account row', async () => {
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
+  test('creates user and external_account row', async () => {
+    const externalAccounts = new ExternalAccountRepository(sqlClient);
+    const resolved = await new EnsureInternalAccountUseCase(
+      sqlClient,
+      io,
+      makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' })
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });
 
     expect(
-      await findUserIdByPrimaryAuthExternalId(
-        sqlClient,
+      await externalAccounts.findUserIdByPrimaryAuthExternalId(
         PRIMARY_AUTH_PROVIDER,
         EXTERNAL_USER_ID
       )
     ).toBe(resolved);
     expect(
-      await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
+      await externalAccounts.readExternalAccountId(
+        resolved,
+        PRIMARY_AUTH_PROVIDER
+      )
     ).toBe(EXTERNAL_USER_ID);
   });
 
@@ -124,21 +134,23 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       id: EXTERNAL_USER_ID,
       email: 'a@b.c',
     });
-    const a = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer,
+    const provisioning = new EnsureInternalAccountUseCase(
+      sqlClient,
+      io,
+      authServer
+    );
+    const a = await provisioning.execute({
       externalUserId: EXTERNAL_USER_ID,
     });
-    const b = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer,
+    const b = await provisioning.execute({
       externalUserId: EXTERNAL_USER_ID,
     });
 
     expect(a).toBe(b);
     expect(
-      await findUserIdByPrimaryAuthExternalId(
-        sqlClient,
+      await new ExternalAccountRepository(
+        sqlClient
+      ).findUserIdByPrimaryAuthExternalId(
         PRIMARY_AUTH_PROVIDER,
         EXTERNAL_USER_ID
       )
@@ -156,7 +168,7 @@ describe('ensureInternalAccountIdForExternalUser', () => {
 
   test('adopts existing link when a candidate insert loses the race', async () => {
     const winnerId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date().toISOString();
+    const now = new Date(io.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO users (id, created_at)
       VALUES (${winnerId}, ${now})
@@ -180,9 +192,11 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       )
     `);
 
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID }),
+    const resolved = await new EnsureInternalAccountUseCase(
+      sqlClient,
+      io,
+      makeFakeAuthServer({ id: EXTERNAL_USER_ID })
+    ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });
 

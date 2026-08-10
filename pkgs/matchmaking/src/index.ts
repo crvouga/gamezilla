@@ -29,6 +29,7 @@
  *   const mm = new Matchmaking({
  *     storage: { sqlClient },
  *     schema: { partitionKeys: ['chess/mode'], bucketWidth: 50 },
+ *     tuning: { now: () => io.clock.now(), createId: io.createId },
  *   });
  *   await mm.ready();
  *
@@ -65,6 +66,10 @@ export {
   type TickOptions,
   type TickResult,
 } from './matchmaking';
+export {
+  MatchmakingDatabaseMigration,
+  type MatchmakingDatabaseMigrationArgs,
+} from './matchmaking-database-migration';
 export type { MatchmakingSchema } from './migrate';
 export {
   DEFAULT_RADIUS_OPTIONS,

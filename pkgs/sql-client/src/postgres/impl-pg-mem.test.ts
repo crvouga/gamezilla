@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 import { createPgMemSqlClient } from './impl-pg-mem';

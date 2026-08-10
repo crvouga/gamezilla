@@ -2,20 +2,24 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 import type Stripe from 'stripe';
 import {
-  createStripeCheckoutRoutes,
+  StripeCheckoutRoutes,
   type StripeRequireAuth,
 } from './stripe-checkout-route';
 
-export function createStripeApp(args: {
-  readonly getSqlClient: () => SqlClient;
-  readonly stripe: Stripe | null;
-  readonly requireAuth: StripeRequireAuth;
-}) {
-  const checkout = createStripeCheckoutRoutes({
-    getSqlClient: args.getSqlClient,
-    stripe: args.stripe,
-    requireAuth: args.requireAuth,
-  });
+export class StripeApp {
+  constructor(
+    private readonly getSqlClient: () => SqlClient,
+    private readonly stripe: Stripe | null,
+    private readonly requireAuth: StripeRequireAuth
+  ) {}
 
-  return new Hono().route('/', checkout);
+  build(): Hono {
+    const checkout = new StripeCheckoutRoutes(
+      this.getSqlClient,
+      this.stripe,
+      this.requireAuth
+    ).build();
+
+    return new Hono().route('/', checkout);
+  }
 }

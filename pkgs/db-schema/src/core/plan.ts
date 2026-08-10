@@ -48,7 +48,7 @@ function createTableColumns(
     columns.push({
       name: asValidatedIdent(name),
       type: MANAGED_IMPLICIT_COLUMNS[name],
-      isPrimaryKey: name === '_id',
+      isPrimaryKey: name === 'id',
     });
   }
   for (const [name, type] of Object.entries(declared.tables[table]!)) {
@@ -88,7 +88,7 @@ function logicalTypeMatch(
 }
 
 function nullabilityOk(col: IntrospectedColumn): boolean {
-  if (col.isPrimaryKey || col.name === '_id') {
+  if (col.isPrimaryKey || col.name === 'id') {
     return !col.nullable;
   }
   return col.nullable;
@@ -119,7 +119,7 @@ function driftExtraColumns(
     if (!nullabilityOk(col)) {
       drift.push({
         path: `${tableName}.${col.name}`,
-        message: `column nullability mismatch (non-PK columns must be nullable; _id must be NOT NULL)`,
+        message: `column nullability mismatch (non-PK columns must be nullable; id must be NOT NULL)`,
       });
     }
   }
@@ -266,8 +266,8 @@ function needsRebuild(
     const expected = desired.get(col.name);
     if (expected === undefined) continue;
     if (!logicalTypeMatch(expected, col.type, 'sqlite')) return true;
-    if (col.name === '_id' && col.nullable) return true;
-    if (col.name !== '_id' && !col.nullable && desired.has(col.name)) {
+    if (col.name === 'id' && col.nullable) return true;
+    if (col.name !== 'id' && !col.nullable && desired.has(col.name)) {
       return true;
     }
   }

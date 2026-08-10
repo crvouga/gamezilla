@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useTimers } from '@pkgs/clock';
+import { useCallback, useState } from 'react';
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
@@ -8,12 +9,20 @@ import { Text } from '../text';
 import { TextInput } from '../text-input';
 import { MutationModal } from './mutation-modal';
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function useDelay() {
+  const timers = useTimers();
+  return useCallback(
+    (ms: number) =>
+      new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, ms);
+      }),
+    [timers]
+  );
 }
 
 function ConfirmExample() {
   const [open, setOpen] = useState(false);
+  const delay = useDelay();
   return (
     <>
       <Button
@@ -41,6 +50,7 @@ function ConfirmExample() {
 
 function ErrorExample() {
   const [open, setOpen] = useState(false);
+  const delay = useDelay();
   return (
     <>
       <Button title="Open confirm (fails)" onPress={() => setOpen(true)} />
@@ -64,6 +74,7 @@ function ErrorExample() {
 function FormExample() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
+  const delay = useDelay();
   return (
     <>
       <Button title="Open form mutation" onPress={() => setOpen(true)} />

@@ -252,14 +252,17 @@ async function reconcileAllPrices(
  * Catalog persistence into entity_store is intentionally omitted until
  * Stripe rewires onto `@pkgs/entity-store`.
  */
-export async function runStripeCatalogSync(args: {
-  readonly stripe: Stripe;
-}): Promise<CatalogSyncResult> {
-  const { stripe } = args;
+export class StripeCatalogSync {
+  constructor(private readonly stripe: Stripe) {}
 
-  const { entries: products, stripeIdsByKey: productIdsByKey } =
-    await reconcileAllProducts(stripe);
-  const { entries: prices } = await reconcileAllPrices(stripe, productIdsByKey);
+  async run(): Promise<CatalogSyncResult> {
+    const { entries: products, stripeIdsByKey: productIdsByKey } =
+      await reconcileAllProducts(this.stripe);
+    const { entries: prices } = await reconcileAllPrices(
+      this.stripe,
+      productIdsByKey
+    );
 
-  return { products, prices };
+    return { products, prices };
+  }
 }

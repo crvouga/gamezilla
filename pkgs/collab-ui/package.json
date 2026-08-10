@@ -15,6 +15,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/room": "workspace:*",

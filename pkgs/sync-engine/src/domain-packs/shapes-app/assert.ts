@@ -22,7 +22,7 @@ export async function readLiveShapes(
   }>`
     SELECT id, kind, sort_key, owner_id
     FROM shapes
-    WHERE _deleted_at IS NULL
+    WHERE deleted_at IS NULL
     ORDER BY sort_key ASC, id ASC
   `);
   return rows.map((r) => ({

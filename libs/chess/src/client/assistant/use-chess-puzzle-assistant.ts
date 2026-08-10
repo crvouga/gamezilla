@@ -7,6 +7,7 @@ import {
   type AssistantSignal,
   createAssistant,
 } from '@pkgs/assistant/shared';
+import { useClock, useTimers } from '@pkgs/clock';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { SolveStatus } from '../chess-puzzle/use-chess-puzzle-solver';
@@ -39,15 +40,18 @@ export function useChessPuzzleAssistant(args: {
   const prevStatusRef = useRef<SolveStatus | null>(null);
   const themesRef = useLatestRef(args.themes);
   const boardRef = useLatestRef(args.board);
+  const clock = useClock();
+  const timers = useTimers();
   const assistantRef = useRef<Assistant<ChessPuzzleAssistantPayload> | null>(
     null
   );
 
   const assistant = useMemo((): Assistant<ChessPuzzleAssistantPayload> => {
+    const assistantClock = createSystemClock({ clock, timers });
     const renderer = createAssistantDialogueTreeRenderer({
       getAssistant: () => assistantRef.current,
       tree: CHESS_PUZZLE_DIALOGUE_TREE,
-      clock: createSystemClock(),
+      clock: assistantClock,
       rngSeed: args.puzzleId,
       contextFromAction: (action) =>
         buildChessPuzzleDialogueContext({
@@ -60,13 +64,13 @@ export function useChessPuzzleAssistant(args: {
     });
     const inst = createAssistant<ChessPuzzleAssistantPayload>({
       adapter: createChessPuzzleGameAdapter(),
-      clock: createSystemClock(),
+      clock: assistantClock,
       seed: args.puzzleId,
       renderer,
     });
     assistantRef.current = inst;
     return inst;
-  }, [args.puzzleId, boardRef, themesRef]);
+  }, [args.puzzleId, boardRef, themesRef, clock, timers]);
 
   const themesKey = args.themes.join('\u0000');
 

@@ -11,7 +11,7 @@ export function createSimTimers(scheduler: SimScheduler): Timers {
   const live = new Map<number, Handle>();
 
   return {
-    setTimeout(fn: () => void, ms: number): unknown {
+    setTimeout: (fn: () => void, ms: number): unknown => {
       const handle: Handle = { id: nextId++, cancelled: false };
       live.set(handle.id, handle);
       scheduler.scheduleAfter(ms, () => {
@@ -21,7 +21,26 @@ export function createSimTimers(scheduler: SimScheduler): Timers {
       });
       return handle;
     },
-    clearTimeout(handle: unknown): void {
+    clearTimeout: (handle: unknown): void => {
+      if (handle === null || handle === undefined) return;
+      const h = handle as Handle;
+      if (typeof h.id !== 'number') return;
+      h.cancelled = true;
+      live.delete(h.id);
+    },
+    setInterval: (fn: () => void, ms: number): unknown => {
+      const handle: Handle = { id: nextId++, cancelled: false };
+      live.set(handle.id, handle);
+      const tick = (): void => {
+        if (handle.cancelled) return;
+        fn();
+        if (handle.cancelled) return;
+        scheduler.scheduleAfter(ms, tick);
+      };
+      scheduler.scheduleAfter(ms, tick);
+      return handle;
+    },
+    clearInterval: (handle: unknown): void => {
       if (handle === null || handle === undefined) return;
       const h = handle as Handle;
       if (typeof h.id !== 'number') return;

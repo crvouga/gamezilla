@@ -1,0 +1,184 @@
+import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+import type { Io } from '@pkgs/io';
+import { join, raw, sql, type Value } from '@pkgs/sql';
+import type { SqlTx } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
+
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '../shared/managed-row';
+
+type DeviceUserRow = {
+  readonly user_id: string | null;
+};
+
+type UserAnonRow = {
+  readonly id: string;
+  readonly is_anon: boolean | number | string | null;
+};
+
+function isAnonFlag(value: unknown): boolean {
+  return value === true || value === 1 || value === '1' || value === 't';
+}
+
+export type EnsureAnonUserResult = {
+  readonly userId: string;
+  readonly isAnon: true;
+};
+
+/** Transaction-scoped anon user helpers. Open a transaction in a use case. */
+export class AnonUserService {
+  constructor(
+    private readonly tx: SqlTx,
+    private readonly io: Io
+  ) {}
+
+  /**
+   * Ensures the install device is bound to an anon `users` row (caller must be
+   * inside a transaction).
+   *
+   * - Idempotent when already bound to an anon user (unless `forceNew`).
+   * - Mints a new anon user when unbound, bound to a non-anon user, or
+   *   `forceNew` (sign-out).
+   */
+  async ensureForDevice(args: {
+    readonly deviceId: string;
+    readonly forceNew?: boolean;
+    readonly now?: () => number;
+    readonly createId?: CreateId;
+  }): Promise<EnsureAnonUserResult> {
+    const { deviceId, forceNew = false } = args;
+    const now = args.now ?? this.io.clock.now;
+    const createId = args.createId ?? this.io.createId;
+    assertDeviceId(deviceId);
+
+    if (!forceNew) {
+      const boundUserId = await this.readDeviceUserId(deviceId);
+      if (boundUserId !== null) {
+        const anon = await this.readUserIsAnon(boundUserId);
+        if (anon === true) {
+          assertUuid(boundUserId, 'userId must be UUID');
+          return { userId: boundUserId, isAnon: true as const };
+        }
+      }
+    }
+
+    const userId = createId();
+    assertUuid(userId, 'userId must be UUID');
+    await this.insertAnonUser(userId, now, createId);
+    await this.bindDeviceToUser({ deviceId, userId, now, createId });
+    return { userId, isAnon: true as const };
+  }
+
+  /** Looks up `devices.user_id` for session / sync resolution. */
+  async findUserIdByDeviceId(deviceId: string): Promise<string | null> {
+    assertDeviceId(deviceId);
+    return this.readDeviceUserId(deviceId);
+  }
+
+  async readUserAnonState(
+    userId: string
+  ): Promise<{ readonly exists: boolean; readonly isAnon: boolean }> {
+    assertUuid(userId, 'userId must be UUID');
+    const anon = await this.readUserIsAnon(userId);
+    if (anon === null) return { exists: false, isAnon: false };
+    return { exists: true, isAnon: anon };
+  }
+
+  /** Clears `is_anon` on an upgraded user row. */
+  async clearUserAnonFlag(userId: string, now: () => number): Promise<void> {
+    assertUuid(userId, 'userId must be UUID');
+    const nowIso = managedUpdatedAtIso(now);
+    await this.tx.run(sql<void>`
+      UPDATE users
+      SET is_anon = false, updated_at = ${nowIso}
+      WHERE id = ${userId}
+    `);
+  }
+
+  private async readDeviceUserId(deviceId: string): Promise<string | null> {
+    const rows = await this.tx.query(sql<DeviceUserRow>`
+      SELECT user_id
+      FROM devices
+      WHERE id = ${deviceId}
+      LIMIT 1
+    `);
+    const userId = rows[0]?.user_id;
+    return typeof userId === 'string' && userId.length > 0 ? userId : null;
+  }
+
+  private async readUserIsAnon(userId: string): Promise<boolean | null> {
+    const rows = await this.tx.query(sql<UserAnonRow>`
+      SELECT id, is_anon
+      FROM users
+      WHERE id = ${userId}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (row === undefined) return null;
+    return isAnonFlag(row.is_anon);
+  }
+
+  private async insertAnonUser(
+    userId: string,
+    now: () => number,
+    createId: CreateId
+  ): Promise<void> {
+    const managed = managedInsertColumns(createId, now, userId);
+    await this.tx.run(sql<void>`
+      INSERT INTO users (id, created_at, updated_at, is_anon)
+      VALUES (
+        ${managed.id},
+        ${managed.created_at},
+        ${managed.updated_at},
+        true
+      )
+      ON CONFLICT (id) DO NOTHING
+    `);
+  }
+
+  private async bindDeviceToUser(args: {
+    readonly deviceId: string;
+    readonly userId: string;
+    readonly now: () => number;
+    readonly createId: CreateId;
+  }): Promise<void> {
+    const { deviceId, userId, now, createId } = args;
+    const nowIso = managedUpdatedAtIso(now);
+    const rows = await this.tx.query(sql<{ readonly id: string }>`
+      SELECT id FROM devices WHERE id = ${deviceId} LIMIT 1
+    `);
+    if (rows[0] === undefined) {
+      const managed = managedInsertColumns(createId, now, deviceId);
+      const cols = [
+        'id',
+        'created_at',
+        'updated_at',
+        'user_id',
+        'first_seen_at',
+        'last_seen_at',
+      ];
+      const vals: Value[] = [
+        managed.id,
+        managed.created_at,
+        managed.updated_at,
+        userId,
+        managed.created_at,
+        managed.created_at,
+      ];
+      await this.tx.run(sql<void>`
+        INSERT INTO devices (${raw(cols.join(', '))})
+        VALUES ${join(vals, ', ', '(', ')')}
+      `);
+      return;
+    }
+    await this.tx.run(sql<void>`
+      UPDATE devices
+      SET user_id = ${userId},
+          last_seen_at = ${nowIso},
+          updated_at = ${nowIso}
+      WHERE id = ${deviceId}
+    `);
+  }
+}

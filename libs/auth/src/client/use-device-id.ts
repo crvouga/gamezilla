@@ -3,6 +3,7 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
+import { useCreateId } from '@pkgs/uuid';
 import { useEffect, useRef } from 'react';
 
 import { isUuid } from '../shared/device-id';
@@ -18,6 +19,7 @@ import { DEVICE_ID_KEY } from './auth-storage-keys';
  */
 export function useDeviceId(): string {
   const store = useSecureStorageStore();
+  const createId = useCreateId();
   const { value } = useHydratedSecureStorageItem(DEVICE_ID_KEY);
   const generatedRef = useRef<string | null>(null);
 
@@ -26,7 +28,7 @@ export function useDeviceId(): string {
     resolved = value;
   } else {
     if (generatedRef.current === null) {
-      generatedRef.current = globalThis.crypto.randomUUID();
+      generatedRef.current = createId();
       // Update the store synchronously so other React readers see this id
       // before the async persist completes.
       store.setValue(DEVICE_ID_KEY, generatedRef.current);

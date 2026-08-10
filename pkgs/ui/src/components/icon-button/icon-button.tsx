@@ -22,6 +22,7 @@
  * ```
  */
 
+import { useTimers } from '@pkgs/clock';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import type { PressableProps as RNPressableProps } from 'react-native';
@@ -145,6 +146,7 @@ function IconButtonFace({
   dataSet,
 }: IconButtonFaceProps): ReactNode {
   const theme = useTheme();
+  const timers = useTimers();
   const tooltip = useTooltipTrigger();
   const hasBackground = background !== undefined;
   const bg = resolveBackgroundColor(
@@ -159,7 +161,7 @@ function IconButtonFace({
     ? () => {
         onPress();
         if (flashTooltipOnPress === true && tooltipMode !== 'none') {
-          setTimeout(() => tooltip?.show(), 0);
+          timers.setTimeout(() => tooltip?.show(), 0);
         }
       }
     : undefined;

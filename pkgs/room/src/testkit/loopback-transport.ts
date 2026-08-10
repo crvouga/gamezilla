@@ -8,6 +8,10 @@ import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 /**
  * In-process transport: `sendJson` runs the authoritative {@link RoomServer} and
  * delivers server frames back to client subscribers.
+ *
+ * Outbound messages are serialized per transport instance so concurrent
+ * `sendJson` calls cannot interleave server reduce/commit (matches WS
+ * per-connection drain + {@link RoomServer} command chains).
  */
 export class LoopbackRoomTransport<
   S extends RoomState,
@@ -17,6 +21,7 @@ export class LoopbackRoomTransport<
 {
   private readonly handlers = new Set<(raw: unknown) => void>();
   private readonly handlerSets: ClientTransportHandlers[] = [];
+  private sendChain: Promise<void> = Promise.resolve();
   opened = false;
 
   constructor(
@@ -37,8 +42,15 @@ export class LoopbackRoomTransport<
   }
 
   sendJson(payload: unknown): void {
-    void this.server
-      .handleClientMessage(this.connectionId, this.identity, payload)
+    this.sendChain = this.sendChain
+      .catch(() => undefined)
+      .then(() =>
+        this.server.handleClientMessage(
+          this.connectionId,
+          this.identity,
+          payload
+        )
+      )
       .catch((err: unknown) => {
         for (const h of this.handlerSets) {
           h.onError?.(err instanceof Error ? err : new Error(String(err)));

@@ -1,5 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { MutationFailure, MutationRegistry } from '../core/types';
 import type { TablePolicyLookup } from '../shared/table-policy';
@@ -23,6 +24,8 @@ export type ProcessUploadWithMutationsDeps = {
   readonly crud: readonly UploadCrudEntry[];
   readonly transactionId: string | number | null;
   readonly tablePolicyFor: TablePolicyLookup;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly serverNow?: () => Date;
 };
 
@@ -38,7 +41,8 @@ type ClassifiedCrud = {
 
 function classifyCrud(
   crud: readonly UploadCrudEntry[],
-  tablePolicyFor: TablePolicyLookup
+  tablePolicyFor: TablePolicyLookup,
+  now: () => number
 ): ClassifiedCrud {
   const mutationRows: MutationRow[] = [];
   const domainWrites: UploadCrudEntry[] = [];
@@ -48,7 +52,7 @@ function classifyCrud(
     if (policy === undefined || policy === 'SERVER_ONLY') {
       illegal.push(entry);
     } else if (policy === 'FRAMEWORK' && entry.table === '_mutations') {
-      mutationRows.push(parseMutationRow(entry));
+      mutationRows.push(parseMutationRow(entry, now));
     } else if (policy === 'DOMAIN') {
       domainWrites.push(entry);
     } else {
@@ -67,12 +71,13 @@ export async function processUploadWithMutations(
 ): Promise<ProcessUploadWithMutationsResult> {
   const { mutationRows, domainWrites, illegal } = classifyCrud(
     deps.crud,
-    deps.tablePolicyFor
+    deps.tablePolicyFor,
+    deps.now
   );
 
   const orphanDomain = domainWrites.length > 0 && mutationRows.length === 0;
   if (illegal.length > 0 || orphanDomain) {
-    await recordPolicyViolation(deps.serverDb, deps.auth, deps.transactionId, [
+    await recordPolicyViolation(deps, [
       ...illegal,
       ...(orphanDomain ? domainWrites : []),
     ]);
@@ -86,6 +91,8 @@ export async function processUploadWithMutations(
         serverDb: deps.serverDb,
         registry: deps.registry,
         auth: deps.auth,
+        now: deps.now,
+        createId: deps.createId,
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       },
       row
@@ -121,7 +128,10 @@ function readArgsJson(data: Record<string, unknown>): string {
   return JSON.stringify(args ?? {});
 }
 
-function parseMutationRow(entry: UploadCrudEntry): MutationRow {
+function parseMutationRow(
+  entry: UploadCrudEntry,
+  now: () => number
+): MutationRow {
   const data = entry.data ?? {};
   const id = typeof data['id'] === 'string' ? data['id'] : entry.id;
   return {
@@ -134,15 +144,13 @@ function parseMutationRow(entry: UploadCrudEntry): MutationRow {
       data,
       'created_at',
       'createdAt',
-      new Date().toISOString()
+      new Date(now()).toISOString()
     ),
   };
 }
 
 async function recordPolicyViolation(
-  serverDb: SqlClient,
-  auth: ReplayAuth,
-  transactionId: string | number | null,
+  deps: ProcessUploadWithMutationsDeps,
   entries: readonly UploadCrudEntry[]
 ): Promise<void> {
   const tables = [...new Set(entries.map((e) => e.table))].join(',');
@@ -152,20 +160,21 @@ async function recordPolicyViolation(
     message: 'Illegal or unexplained domain upload.',
     meta: {
       tables,
-      transactionId: transactionId === null ? null : String(transactionId),
+      transactionId:
+        deps.transactionId === null ? null : String(deps.transactionId),
     },
   };
-  await serverDb.run(sql`
+  await deps.serverDb.run(sql`
     INSERT INTO write_rejections (
       id, mutation_id, client_id, code, message, meta, created_at, acknowledged
     ) VALUES (
-      ${crypto.randomUUID()},
-      ${`policy:${String(transactionId ?? crypto.randomUUID())}`},
-      ${auth.deviceId},
+      ${deps.createId()},
+      ${`policy:${String(deps.transactionId ?? deps.createId())}`},
+      ${deps.auth.deviceId},
       ${failure.code},
       ${failure.message},
       ${JSON.stringify(failure.meta ?? {})},
-      ${new Date().toISOString()},
+      ${new Date(deps.now()).toISOString()},
       ${0}
     )
   `);

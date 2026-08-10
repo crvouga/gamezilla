@@ -49,8 +49,8 @@ const CORPUS: readonly {
   {
     name: 'space_users soft-delete',
     query: sql`
-      UPDATE space_users SET _deleted_at = NULL
-      WHERE id = NULL AND _deleted_at IS NULL
+      UPDATE space_users SET deleted_at = NULL
+      WHERE id = NULL AND deleted_at IS NULL
     `,
     expect: {
       kind: 'write',
@@ -62,7 +62,7 @@ const CORPUS: readonly {
   {
     name: 'space_open_sessions soft-delete by id',
     query: sql`
-      UPDATE space_open_sessions SET _deleted_at = NULL WHERE id = NULL
+      UPDATE space_open_sessions SET deleted_at = NULL WHERE id = NULL
     `,
     expect: {
       kind: 'write',
@@ -74,7 +74,7 @@ const CORPUS: readonly {
   {
     name: 'space_open_sessions soft-delete by space_id',
     query: sql`
-      UPDATE space_open_sessions SET _deleted_at = NULL WHERE space_id = NULL
+      UPDATE space_open_sessions SET deleted_at = NULL WHERE space_id = NULL
     `,
     expect: {
       kind: 'write',
@@ -86,7 +86,7 @@ const CORPUS: readonly {
   {
     name: 'sessions close via subquery',
     query: sql`
-      UPDATE space_open_sessions SET _deleted_at = NULL
+      UPDATE space_open_sessions SET deleted_at = NULL
       WHERE space_id IN (SELECT id FROM spaces WHERE ended_at IS NOT NULL)
     `,
     expect: {
@@ -102,7 +102,7 @@ const CORPUS: readonly {
       WITH related_spaces AS (
         SELECT id FROM spaces WHERE host_member_id = NULL
       )
-      SELECT id, space_id, user_id, _deleted_at FROM space_users
+      SELECT id, space_id, user_id, deleted_at FROM space_users
       WHERE space_id IN (SELECT id FROM related_spaces)
     `,
     expect: { kind: 'read' },
@@ -184,7 +184,7 @@ describe('AST capture + RETURNING corpus', () => {
       op: 'upsert',
     });
     const select = sql`
-      SELECT id, at, _deleted_at FROM chess_puzzle_interactions
+      SELECT id, at, deleted_at FROM chess_puzzle_interactions
       WHERE owner_id = ${'o'}
     `;
     expect(classify(select)).toMatchObject({

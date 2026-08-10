@@ -1,18 +1,33 @@
+import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import { useCallback } from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';
 import type { SignInTriggerResult } from './sign-in-trigger';
 
 /**
- * Triggers hosted Google sign-in via {@link AuthClientPort.signIn}. Server-side
- * provisioning + local secure-storage writes happen inside `<AuthBridge />` once
- * the session settles; this hook only starts the OAuth flow.
+ * Triggers hosted sign-in via {@link AuthClientPort.signIn}.
+ * Google uses OAuth redirect; email/password completes in-place.
  */
-export function useSignIn(): () => Promise<SignInTriggerResult> {
+export function useSignIn(): {
+  signInWithGoogle: () => Promise<SignInTriggerResult>;
+  signInWithEmail: (
+    credentials: SignInCredentials
+  ) => Promise<SignInTriggerResult>;
+} {
   const port = useAuthClientPort();
 
-  return useCallback(async () => {
+  const signInWithGoogle = useCallback(async () => {
     await port.signIn('oauth-google');
-    return 'completed';
+    return 'completed' as const;
   }, [port]);
+
+  const signInWithEmail = useCallback(
+    async (credentials: SignInCredentials) => {
+      await port.signIn('email-password', credentials);
+      return 'completed' as const;
+    },
+    [port]
+  );
+
+  return { signInWithGoogle, signInWithEmail };
 }

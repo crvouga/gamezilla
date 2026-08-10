@@ -2,7 +2,7 @@
 /**
  * Fail-fast guardrail: enforce the workspace tier import pyramid.
  *
- *   apps -> libs, pkgs   (apps may compose anything)
+ *   apps -> libs, pkgs   (never other @apps/* packages)
  *   libs -> pkgs only    (libs may not import apps)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
@@ -63,13 +63,25 @@ type ManifestViolation = {
   targetPkg: string;
 };
 
+/** True when the import/dep edge breaks the tier pyramid or apps-not-apps. */
+function isForbiddenEdge(
+  fromTier: Tier,
+  fromPkg: PackageName,
+  targetTier: Tier,
+  targetPkg: string
+): boolean {
+  if (FORBIDDEN_FROM[fromTier].has(targetTier)) return true;
+  // Apps may compose libs/pkgs, never another @apps/* package.
+  if (fromTier === 'apps' && targetTier === 'apps' && fromPkg !== targetPkg) {
+    return true;
+  }
+  return false;
+}
+
 function scanSourceImports(
   pkgName: PackageName,
   info: PackageInfo
 ): ImportViolation[] {
-  const forbidden = FORBIDDEN_FROM[info.tier];
-  if (forbidden.size === 0) return [];
-
   const violations: ImportViolation[] = [];
   const glob = new Glob('**/*.{ts,tsx,mts,cts}');
   for (const rel of glob.scanSync({ cwd: info.dir, absolute: false })) {
@@ -90,7 +102,7 @@ function scanSourceImports(
       const targetTier = match[1] as Tier | undefined;
       const targetPkg = match[2];
       if (!targetTier || !targetPkg) continue;
-      if (!forbidden.has(targetTier)) continue;
+      if (!isForbiddenEdge(info.tier, pkgName, targetTier, targetPkg)) continue;
       violations.push({
         kind: 'import',
         fromPkg: pkgName,
@@ -121,9 +133,6 @@ function scanManifestDeps(
   pkgName: PackageName,
   info: PackageInfo
 ): ManifestViolation[] {
-  const forbidden = FORBIDDEN_FROM[info.tier];
-  if (forbidden.size === 0) return [];
-
   const manifestPath = `${info.dir}/package.json`;
   const manifest = readManifest(manifestPath);
   if (!manifest) return [];
@@ -137,7 +146,7 @@ function scanManifestDeps(
       if (!match) continue;
       const targetTier = match[1] as Tier;
       const targetPkg = match[2]!;
-      if (!forbidden.has(targetTier)) continue;
+      if (!isForbiddenEdge(info.tier, pkgName, targetTier, targetPkg)) continue;
       out.push({
         kind: 'manifest',
         fromPkg: pkgName,
@@ -209,7 +218,7 @@ function main(): never {
   }
 
   console.error('Tier import law:');
-  console.error('  apps/  -> libs/, pkgs/   (apps compose anything)');
+  console.error('  apps/  -> libs/, pkgs/   (never other @apps/* packages)');
   console.error('  libs/  -> pkgs/ only     (no upward imports to apps)');
   console.error(
     '  pkgs/  -> pkgs/ only     (leaf tier: reusable, app-agnostic)'

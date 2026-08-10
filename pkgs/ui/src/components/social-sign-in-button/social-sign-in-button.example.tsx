@@ -1,21 +1,31 @@
+import { useTimers } from '@pkgs/clock';
 import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { SocialSignInButton } from './social-sign-in-button';
 
-export default function SocialSignInButtonExample() {
+function SocialSignInDemo() {
+  const timers = useTimers();
   const [loading, setLoading] = useState(false);
 
   function handlePress() {
     setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
+    timers.setTimeout(() => setLoading(false), 1500);
   }
 
   return (
-    <ExampleRoot>
+    <>
       <GoogleExamples onPress={handlePress} loading={loading} />
       <DevExamples onPress={handlePress} />
+    </>
+  );
+}
+
+export default function SocialSignInButtonExample() {
+  return (
+    <ExampleRoot>
+      <SocialSignInDemo />
     </ExampleRoot>
   );
 }

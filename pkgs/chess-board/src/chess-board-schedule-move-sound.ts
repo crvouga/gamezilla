@@ -1,3 +1,5 @@
+import type { Timers } from '@pkgs/clock';
+
 import type { ChessBoardSounds } from './chess-board-sounds';
 import type { Move } from './chess-board-types';
 
@@ -12,25 +14,25 @@ export const PROMOTE_AFTER_CAPTURE_MS = 120;
 export const CHECK_AFTER_PRIMARY_MS = 160;
 export const GAME_END_AFTER_CHECK_MS = 220;
 
-export type DelayedSoundRegistrar = (
-  timer: ReturnType<typeof setTimeout>
-) => void;
+export type DelayedSoundRegistrar = (timer: unknown) => void;
 
 /**
  * Schedules the primary move sound (move / capture / castle / promote).
  * Capture delay is optional (0 when animations are off / instant snap).
  * Promo+capture never fire in the same tick.
  */
-export function schedulePrimaryMoveSound(
-  sounds: ChessBoardSounds,
-  move: Move,
-  captureDelayMs: number,
-  registerDelayed: DelayedSoundRegistrar
-): number {
+export function schedulePrimaryMoveSound(args: {
+  readonly sounds: ChessBoardSounds;
+  readonly move: Move;
+  readonly captureDelayMs: number;
+  readonly registerDelayed: DelayedSoundRegistrar;
+  readonly timers: Timers;
+}): number {
+  const { sounds, move, captureDelayMs, registerDelayed, timers } = args;
   const defer = (fn: () => void, ms: number) => {
     if (ms > 0) {
       registerDelayed(
-        setTimeout(() => {
+        timers.setTimeout(() => {
           fn();
         }, ms)
       );
@@ -45,7 +47,7 @@ export function schedulePrimaryMoveSound(
       defer(() => {
         sounds.playCapture();
         registerDelayed(
-          setTimeout(() => {
+          timers.setTimeout(() => {
             sounds.playPromote();
           }, PROMOTE_AFTER_CAPTURE_MS)
         );

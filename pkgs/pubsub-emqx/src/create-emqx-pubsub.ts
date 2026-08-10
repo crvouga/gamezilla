@@ -1,9 +1,11 @@
+import type { Timers } from '@pkgs/clock';
 import {
   assertValidTopic,
   decodePayload,
   encodePayload,
   type PubSub,
   PubSubClosedError,
+  PubSubPublishError,
   type PubSubStatus,
   type Topic,
 } from '@pkgs/pubsub/interface';
@@ -30,6 +32,10 @@ export type EmqxPubSubOptions = {
    * id — a second connect with the same id kicks the older session.
    */
   clientIdPrefix: string;
+  /** Injectable timers for reconnect delay. */
+  timers: Timers;
+  /** Injectable RNG for reconnect jitter (from composition-root Io.random). */
+  random: () => number;
   reconnect?: { baseMs?: number; maxMs?: number };
   keepaliveSec?: number;
   /** Injectable for unit tests. Defaults to `mqtt.connect`. */
@@ -48,12 +54,14 @@ class EmqxMqttPubSub implements PubSub {
   private readonly maxMs: number;
   private readonly keepaliveSec: number;
   private readonly connectFn: ConnectFn;
+  private readonly timers: Timers;
+  private readonly random: () => number;
 
   private client: MqttClient | null = null;
   private currentStatus: PubSubStatus = 'connecting';
   private closed = false;
   private reconnectAttempt = 0;
-  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectTimer: unknown | null = null;
   private readonly topics = new Map<Topic, Set<Handler>>();
   private readonly statusListeners = new Set<(s: PubSubStatus) => void>();
   private connectWaiters = new Set<() => void>();
@@ -66,6 +74,8 @@ class EmqxMqttPubSub implements PubSub {
     this.maxMs = options.reconnect?.maxMs ?? 30_000;
     this.keepaliveSec = options.keepaliveSec ?? 30;
     this.connectFn = options.connectFn ?? mqtt.connect;
+    this.timers = options.timers;
+    this.random = options.random;
     rememberEmqxClientId(this, this.clientId);
     void this.openConnection();
   }
@@ -214,11 +224,12 @@ class EmqxMqttPubSub implements PubSub {
     const delay = fullJitterDelayMs(
       this.reconnectAttempt,
       this.baseMs,
-      this.maxMs
+      this.maxMs,
+      this.random
     );
     this.reconnectAttempt += 1;
     this.setStatus('connecting');
-    this.reconnectTimer = setTimeout(() => {
+    this.reconnectTimer = this.timers.setTimeout(() => {
       this.reconnectTimer = null;
       const old = this.client;
       this.client = null;
@@ -230,7 +241,7 @@ class EmqxMqttPubSub implements PubSub {
 
   private clearReconnectTimer(): void {
     if (!this.reconnectTimer) return;
-    clearTimeout(this.reconnectTimer);
+    this.timers.clearTimeout(this.reconnectTimer);
     this.reconnectTimer = null;
   }
 
@@ -266,7 +277,7 @@ class EmqxMqttPubSub implements PubSub {
 
   private requireClient(): MqttClient {
     if (!this.client?.connected) {
-      throw new Error('PubSub MQTT client is not connected');
+      throw new PubSubPublishError('PubSub MQTT client is not connected');
     }
     return this.client;
   }
@@ -287,8 +298,15 @@ function publishQos1(
       payload,
       { qos: EMQX_PUBSUB_QOS, retain: false },
       (err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          reject(
+            new PubSubPublishError(
+              err instanceof Error ? err.message : 'MQTT publish failed'
+            )
+          );
+        } else {
+          resolve();
+        }
       }
     );
   });

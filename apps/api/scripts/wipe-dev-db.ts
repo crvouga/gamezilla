@@ -1,9 +1,12 @@
+// @io-wall-ok
 /**
- * Wipe hosted secrets-env `dev` Postgres (DROP SCHEMA public) then remigrate.
+ * Wipe SECRETS_ENV=dev Postgres (DROP SCHEMA public) then remigrate.
+ * Prefers `.dev.vars` (local `@apps/postgres`) then secrets-run env.
  * No confirm flags — every guard exists only to block production.
  */
 
 import { join } from 'node:path';
+import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -12,12 +15,14 @@ import {
   normalizeDatabaseUrlForCompare,
 } from '@libs/infra/shared/database-url-policy';
 import { assert } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { runPostgresMigrations } from '../src/migrations/run-postgres-migrations';
+import { readDevVarsDatabaseUrl } from './dev-vars';
 
+const io = wallIo();
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
 
@@ -27,18 +32,23 @@ function resolveSecretsEnvForWipe(): string {
   return resolveSecretsScope(REPO_ROOT).env;
 }
 
+function isPostgresUrl(url: string): boolean {
+  return url.startsWith('postgresql://') || url.startsWith('postgres://');
+}
+
 function resolveDatabaseUrlForWipe(): string {
+  const fromDevVars = readDevVarsDatabaseUrl();
+  if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
+    return fromDevVars;
+  }
   const fromEnv = (process.env['DATABASE_URL'] ?? '').trim();
   assert.nonEmptyString(
     fromEnv,
-    'db:wipe:dev requires DATABASE_URL from secrets-run (secrets env `dev`). ' +
-      'Do not pass a URL on the CLI; run `bun run db:wipe:dev`.',
+    'db:wipe:dev requires DATABASE_URL from `.dev.vars` or secrets-run ' +
+      '(secrets env `dev`). Run `bun run db:wipe:dev` after setup.',
     { surface: 'api:wipe-dev' }
   );
-  if (
-    !fromEnv.startsWith('postgresql://') &&
-    !fromEnv.startsWith('postgres://')
-  ) {
+  if (!isPostgresUrl(fromEnv)) {
     assert.fail(
       'db:wipe:dev: DATABASE_URL must be a postgres:// or postgresql:// wire URL',
       {
@@ -91,7 +101,7 @@ async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const log = createLogger({ name: 'api:wipe-dev' });
+  const log = createLogger({ name: 'api:wipe-dev', now: io.clock.now });
   const databaseUrl = resolveDatabaseUrlForWipe();
   await assertWipeDatabasePolicy(databaseUrl);
 
@@ -109,7 +119,25 @@ async function main(): Promise<void> {
     await sqlClient.run(raw('DROP SCHEMA public CASCADE'));
     await sqlClient.run(raw('CREATE SCHEMA public'));
     log.info('public schema dropped and recreated; remigrating');
-    await runPostgresMigrations({ sqlClient, logger: log, dbScope });
+    const betterAuthSecret = (
+      process.env['BETTER_AUTH_SECRET']?.trim() ??
+      (await fetchSecretFrom('dev', 'BETTER_AUTH_SECRET'))
+    ).trim();
+    assert.nonEmptyString(
+      betterAuthSecret,
+      'db:wipe:dev requires BETTER_AUTH_SECRET'
+    );
+    const betterAuthBaseURL = (
+      process.env['API_URL']?.trim() || 'https://migrate.local'
+    ).replace(/\/$/, '');
+    await new PostgresMigrationRunner({
+      sqlClient,
+      pool,
+      logger: log,
+      dbScope,
+      betterAuthSecret,
+      betterAuthBaseURL,
+    }).run();
     log.info('wipe + remigrate finished');
     process.stdout.write(
       '[api:wipe-dev] completed (schema empty + remigrated)\n'

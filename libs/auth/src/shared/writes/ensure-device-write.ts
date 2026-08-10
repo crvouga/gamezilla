@@ -1,6 +1,8 @@
 import { join, raw, sql, type Value } from '@pkgs/sql';
 
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
+import { managedInsertColumns } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 
 export type DeviceSnapshot = Readonly<Record<string, string | null>>;
 
@@ -44,10 +46,28 @@ function snapshotDiffers(
 function buildInsertArgs(
   deviceId: string,
   now: string,
-  snapshot: DeviceSnapshot
+  snapshot: DeviceSnapshot,
+  createId: CreateId
 ): { cols: string[]; vals: (string | null)[] } {
-  const cols: string[] = ['id', 'created_at', 'first_seen_at', 'last_seen_at'];
-  const vals: (string | null)[] = [deviceId, now, now, now];
+  const managed = managedInsertColumns(
+    createId,
+    () => new Date(now).getTime(),
+    deviceId
+  );
+  const cols: string[] = [
+    'id',
+    'created_at',
+    'updated_at',
+    'first_seen_at',
+    'last_seen_at',
+  ];
+  const vals: (string | null)[] = [
+    managed.id,
+    managed.created_at,
+    managed.updated_at,
+    now,
+    now,
+  ];
   for (const [key, value] of Object.entries(snapshot)) {
     if (value === null) continue;
     cols.push(key);
@@ -65,6 +85,7 @@ function buildDeviceUpdates(
   const created = normString(row['created_at']);
   const updates: Record<string, string> = {
     last_seen_at: now,
+    updated_at: now,
     ...(existingFirst === null
       ? { first_seen_at: created !== null ? created : now }
       : {}),
@@ -79,60 +100,65 @@ function buildDeviceUpdates(
   return updates;
 }
 
-async function insertDeviceRow(
-  db: SqlClient,
-  deviceId: string,
-  now: string,
-  snapshot: DeviceSnapshot
-): Promise<void> {
-  const { cols, vals } = buildInsertArgs(deviceId, now, snapshot);
-  await db.run(sql<void>`
-    INSERT INTO devices (${raw(cols.join(', '))})
-    VALUES ${join(vals as Value[], ', ', '(', ')')}
-  `);
-}
-
-async function updateDeviceRow(
-  db: SqlClient,
-  deviceId: string,
-  updates: Record<string, string>
-): Promise<void> {
-  const entries = Object.entries(updates);
-  if (entries.length === 0) return;
-  const sets = join(
-    entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
-  );
-  await db.run(sql<void>`
-    UPDATE devices
-    SET ${sets}
-    WHERE id = ${deviceId}
-  `);
-}
-
 /**
  * Ensures a `devices` row exists and refreshes last-seen + changed metadata.
  * Snapshot values are collected on the client (expo/platform); shared stays pure.
  */
-export async function ensureDeviceRow(
-  db: SqlClient,
-  deviceId: string,
-  snapshot: DeviceSnapshot
-): Promise<void> {
-  const rows = await db.query(sql<DeviceRow>`
-    SELECT *
-    FROM devices
-    WHERE id = ${deviceId}
-    LIMIT 1
-  `);
-  const row = rows[0];
-  const now = new Date().toISOString();
-  if (!isDeviceRowComplete(row, deviceId)) {
-    await insertDeviceRow(db, deviceId, now, snapshot);
-    return;
+export class DeviceWriteRepository {
+  constructor(private readonly db: SqlTx) {}
+
+  async ensureRow(args: {
+    readonly deviceId: string;
+    readonly snapshot: DeviceSnapshot;
+    readonly now: () => number;
+    readonly createId: CreateId;
+  }): Promise<void> {
+    const { deviceId, snapshot, now, createId } = args;
+    const rows = await this.db.query(sql<DeviceRow>`
+      SELECT *
+      FROM devices
+      WHERE id = ${deviceId}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    const nowIso = new Date(now()).toISOString();
+    if (!isDeviceRowComplete(row, deviceId)) {
+      await this.insertDeviceRow({ deviceId, now: nowIso, snapshot, createId });
+      return;
+    }
+    await this.updateDeviceRow(
+      deviceId,
+      buildDeviceUpdates(row as DeviceRow, snapshot, nowIso)
+    );
   }
-  await updateDeviceRow(
-    db,
-    deviceId,
-    buildDeviceUpdates(row as DeviceRow, snapshot, now)
-  );
+
+  private async insertDeviceRow(args: {
+    readonly deviceId: string;
+    readonly now: string;
+    readonly snapshot: DeviceSnapshot;
+    readonly createId: CreateId;
+  }): Promise<void> {
+    const { deviceId, now, snapshot, createId } = args;
+    const { cols, vals } = buildInsertArgs(deviceId, now, snapshot, createId);
+    await this.db.run(sql<void>`
+      INSERT INTO devices (${raw(cols.join(', '))})
+      VALUES ${join(vals as Value[], ', ', '(', ')')}
+    `);
+  }
+
+  private async updateDeviceRow(
+    deviceId: string,
+    updates: Record<string, string>
+  ): Promise<void> {
+    const entries = Object.entries(updates);
+    if (entries.length === 0) return;
+    const sets = join(
+      entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
+    );
+    await this.db.run(sql<void>`
+      UPDATE devices
+      SET ${sets}
+      WHERE id = ${deviceId}
+    `);
+  }
 }

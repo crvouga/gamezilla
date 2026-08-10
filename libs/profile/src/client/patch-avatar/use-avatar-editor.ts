@@ -1,13 +1,14 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { type Random, useRandom } from '@pkgs/uuid';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AvatarConfig } from '../../shared/avatar-config';
 import {
+  AvatarSeedGenerator,
   configsEqual,
   createDefaultAvatarConfig,
-  generateRandomAvatarSeed,
   parseAvatarConfig,
   resolveAvatarSeed,
   serializeAvatarConfig,
@@ -144,8 +145,9 @@ function useDiscardActions(args: {
 function useDraftMutators(args: {
   setDraft: React.Dispatch<React.SetStateAction<AvatarConfig>>;
   effectiveSeed: string;
+  random: Random;
 }) {
-  const { setDraft, effectiveSeed } = args;
+  const { setDraft, effectiveSeed, random } = args;
   const updateOptions = useCallback(
     (fn: (o: Record<string, unknown>) => Record<string, unknown>) => {
       setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
@@ -153,8 +155,11 @@ function useDraftMutators(args: {
     [setDraft]
   );
   const shuffleSeed = useCallback(() => {
-    setDraft((d) => ({ ...d, seed: generateRandomAvatarSeed() }));
-  }, [setDraft]);
+    setDraft((d) => ({
+      ...d,
+      seed: new AvatarSeedGenerator(random).generate(),
+    }));
+  }, [random, setDraft]);
   const setSeed = useCallback(
     (seed: string) => {
       setDraft((d) => ({ ...d, seed }));
@@ -192,6 +197,7 @@ function useEditorActions(args: {
 }) {
   const { draft, setDraft, dirty, profileId, effectiveSeed, setShowDiscard } =
     args;
+  const random = useRandom();
 
   const { onBack, confirmDiscard } = useDiscardActions({
     dirty,
@@ -200,6 +206,7 @@ function useEditorActions(args: {
   const { updateOptions, shuffleSeed, setSeed, copySeed } = useDraftMutators({
     setDraft,
     effectiveSeed,
+    random,
   });
   const save = useSaveAction({ draft, profileId });
 

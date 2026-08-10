@@ -5,7 +5,7 @@ export const ownUser = defineQuery({
   name: 'ownUser',
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, created_at, is_anon, _deleted_at
+      SELECT id, created_at, is_anon, deleted_at
       FROM users
       WHERE id = ${ctx.env.actorId}
 `);
@@ -33,7 +33,7 @@ export const ownDevices = defineQuery({
         user_agent, 
         first_seen_at, 
         last_seen_at,
-        _deleted_at
+        deleted_at
       FROM devices
       WHERE user_id = ${ctx.env.actorId}
 `);
@@ -53,7 +53,7 @@ export const ownExternalAccounts = defineQuery({
         external_id, 
         metadata, 
         created_at,
-        _deleted_at
+        deleted_at
       FROM external_accounts
       WHERE user_id = ${ctx.env.actorId}
 `);

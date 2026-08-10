@@ -1,3 +1,5 @@
+import { globalHttpFetch } from '@pkgs/http-client';
+
 const FETCH_TIMEOUT_MS = 15_000;
 const USER_AGENT = 'pkgs-secret-provider';
 
@@ -23,11 +25,14 @@ async function fetchLatestViaRedirect(
   extractVersion: (tag: string) => string | null
 ): Promise<string | null> {
   try {
-    const res = await fetch(`https://github.com/${repo}/releases/latest`, {
-      method: 'HEAD',
-      redirect: 'follow',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
+    const res = await globalHttpFetch(
+      `https://github.com/${repo}/releases/latest`,
+      {
+        method: 'HEAD',
+        redirect: 'follow',
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      }
+    );
     const m = /\/releases\/tag\/(v?[\d]+\.[\d]+[\w.+-]*)$/.exec(res.url);
     return m?.[1] !== undefined ? extractVersion(m[1]) : null;
   } catch {
@@ -52,7 +57,7 @@ async function fetchLatestViaApi(
     if (token.length > 0) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    const res = await fetch(
+    const res = await globalHttpFetch(
       `https://api.github.com/repos/${repo}/releases/latest`,
       {
         headers,

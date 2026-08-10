@@ -1,6 +1,6 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v1:initial';
+export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v3:managed-cols-no-underscore';
 
 export const CREATE_SCHEMA_STATE_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_schema_state (
@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS inbox_schema_state (
 export const CREATE_INTERACTIONS_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_interactions (
   id TEXT PRIMARY KEY,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
   user_id TEXT NOT NULL,
   source_namespace TEXT NOT NULL,
   source_type TEXT NOT NULL,
@@ -34,8 +37,6 @@ CREATE TABLE IF NOT EXISTS inbox_interactions (
   archived_at TIMESTAMPTZ,
   dismissed_at TIMESTAMPTZ,
   active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT inbox_interactions_category_check CHECK (
     category IN ('action_required', 'informational', 'system')
   )
@@ -54,10 +55,26 @@ CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx
 
 export const CREATE_PREFERENCES_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_preferences (
-  user_id TEXT PRIMARY KEY,
-  preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  id TEXT PRIMARY KEY,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
+  user_id TEXT NOT NULL,
+  preferences JSONB NOT NULL DEFAULT '{}'::jsonb
 )
+`.trim();
+
+/** Strip wall DEFAULT now() from older installs (CREATE IF NOT EXISTS is a no-op). */
+export const DROP_INTERACTIONS_CREATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_interactions ALTER COLUMN created_at DROP DEFAULT
+`.trim();
+
+export const DROP_INTERACTIONS_UPDATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_interactions ALTER COLUMN updated_at DROP DEFAULT
+`.trim();
+
+export const DROP_PREFERENCES_UPDATED_AT_DEFAULT_SQL = `
+ALTER TABLE inbox_preferences ALTER COLUMN updated_at DROP DEFAULT
 `.trim();
 
 export const READ_SCHEMA_FINGERPRINT_SQL = `

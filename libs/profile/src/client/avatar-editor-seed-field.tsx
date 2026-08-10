@@ -1,4 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import {
   Box,
   CircleCheckIcon,
@@ -24,13 +25,14 @@ export function AvatarEditorSeedField({
   disabled?: boolean;
 }) {
   const { t } = useLingui();
+  const timers = useTimers();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
-    const id = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(id);
-  }, [copied]);
+    const id = timers.setTimeout(() => setCopied(false), 2000);
+    return () => timers.clearTimeout(id);
+  }, [copied, timers]);
 
   const handleCopy = useCallback(() => {
     void onCopy().then(() => setCopied(true));

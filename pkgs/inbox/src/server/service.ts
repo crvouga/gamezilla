@@ -69,17 +69,18 @@ export async function listInteractions(
 export async function markInteractionRead(
   db: SqlClient,
   actorId: string,
-  interactionId: string
+  interactionId: string,
+  now: () => number
 ): Promise<Interaction> {
   const existing = await findInteractionById(db, actorId, interactionId);
   if (existing === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET read_at = ${now}, updated_at = ${now}
+         SET read_at = ${nowIso}, updated_at = ${nowIso}
        WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);
@@ -91,13 +92,14 @@ export async function markInteractionRead(
 
 export async function markAllInteractionsRead(
   db: SqlClient,
-  actorId: string
+  actorId: string,
+  now: () => number
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET read_at = ${now}, updated_at = ${now}
+         SET read_at = ${nowIso}, updated_at = ${nowIso}
        WHERE user_id = ${actorId}
          AND read_at IS NULL
          AND active = true
@@ -109,19 +111,20 @@ export async function markAllInteractionsRead(
 export async function archiveInteraction(
   db: SqlClient,
   actorId: string,
-  interactionId: string
+  interactionId: string,
+  now: () => number
 ): Promise<Interaction> {
   const existing = await findInteractionById(db, actorId, interactionId);
   if (existing === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET archived_at = ${now},
-             read_at = COALESCE(read_at, ${now}),
-             updated_at = ${now}
+         SET archived_at = ${nowIso},
+             read_at = COALESCE(read_at, ${nowIso}),
+             updated_at = ${nowIso}
        WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);
@@ -134,19 +137,20 @@ export async function archiveInteraction(
 export async function dismissInteraction(
   db: SqlClient,
   actorId: string,
-  interactionId: string
+  interactionId: string,
+  now: () => number
 ): Promise<Interaction> {
   const existing = await findInteractionById(db, actorId, interactionId);
   if (existing === null) {
     throw new InboxError('INBOX_NOT_FOUND', 'Interaction not found');
   }
-  const now = new Date().toISOString();
+  const nowIso = new Date(now()).toISOString();
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET dismissed_at = ${now},
-             read_at = COALESCE(read_at, ${now}),
-             updated_at = ${now}
+         SET dismissed_at = ${nowIso},
+             read_at = COALESCE(read_at, ${nowIso}),
+             updated_at = ${nowIso}
        WHERE id = ${interactionId} AND user_id = ${actorId}`
   );
   const updated = await findInteractionById(db, actorId, interactionId);

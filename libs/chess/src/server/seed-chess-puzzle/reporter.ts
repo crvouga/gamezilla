@@ -1,3 +1,4 @@
+import type { Clock } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
 
 const ansi = {
@@ -40,127 +41,115 @@ function downloadIntegerPercent(
   return Math.round((100 * received) / total);
 }
 
-export type PuzzleSeedReporter = {
-  /** Human heading / machine `log.info` when not pretty. */
-  phase(title: string, detail?: Record<string, unknown>): void;
-  /** Throttled download bytes (TTY: one `\r` line). */
-  downloadProgress(args: {
-    receivedBytes: number;
-    totalBytes: number | null;
-  }): void;
-  /** End the in-place download line so following logs start clean. */
-  endDownloadProgressLine(): void;
-  /** CSV parse row count (TTY: `\r` line). */
-  parseProgress(parsedRows: number): void;
-  endParseProgressLine(): void;
-  /** Structured batch line (always also `log.info` for CI). */
-  batchSummary(msg: string, detail: Record<string, unknown>): void;
-};
-
 function writeErr(s: string): void {
   process.stderr.write(s);
 }
 
-function createTtyReporter(): PuzzleSeedReporter {
-  let downloadLineActive = false;
-  let parseLineActive = false;
+export class PuzzleSeedReporter {
+  readonly #now: Clock['now'];
+  readonly #logger: Logger;
+  readonly #tty: boolean;
+  #downloadLineActive = false;
+  #parseLineActive = false;
+  #lastJsonDownloadLog = 0;
 
-  const phase = (title: string, detail?: Record<string, unknown>): void => {
-    const time = new Date().toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-    writeErr(
-      `\n${ansi.dim}${time}${ansi.reset} ${ansi.bold}${ansi.cyan}${title}${ansi.reset}`
-    );
-    if (detail !== undefined && Object.keys(detail).length > 0) {
-      writeErr(`\n${ansi.dim}${JSON.stringify(detail, null, 2)}${ansi.reset}`);
+  constructor(args: {
+    pretty: boolean;
+    logger: Logger;
+    now: Clock['now'];
+  }) {
+    this.#now = args.now;
+    this.#logger = args.logger;
+    this.#tty = args.pretty === true && process.stderr.isTTY === true;
+  }
+
+  /** Human heading / machine `log.info` when not pretty. */
+  phase(title: string, detail?: Record<string, unknown>): void {
+    if (this.#tty) {
+      const time = new Date(this.#now()).toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+      writeErr(
+        `\n${ansi.dim}${time}${ansi.reset} ${ansi.bold}${ansi.cyan}${title}${ansi.reset}`
+      );
+      if (detail !== undefined && Object.keys(detail).length > 0) {
+        writeErr(
+          `\n${ansi.dim}${JSON.stringify(detail, null, 2)}${ansi.reset}`
+        );
+      }
+      writeErr('\n');
+      return;
     }
-    writeErr('\n');
-  };
+    this.#logger.info(title, detail);
+  }
 
-  const downloadProgress = (p: {
+  /** Throttled download bytes (TTY: one `\r` line). */
+  downloadProgress(args: {
     receivedBytes: number;
     totalBytes: number | null;
-  }): void => {
-    downloadLineActive = true;
-    const total = p.totalBytes;
-    const bar = progressBar(downloadFraction(p.receivedBytes, total), 18);
-    const pct = downloadPercentLabel(p.receivedBytes, total);
-    const right = total !== null ? formatBytes(total) : 'unknown size';
-    writeErr(
-      `\r\x1b[K${ansi.green}↓ download${ansi.reset} ${bar} ${ansi.bold}${formatBytes(p.receivedBytes)}${ansi.reset} / ${right} ${ansi.dim}(${pct})${ansi.reset}`
-    );
-  };
-
-  const endDownloadProgressLine = (): void => {
-    if (downloadLineActive) {
-      writeErr('\n');
-      downloadLineActive = false;
-    }
-  };
-
-  const parseProgress = (parsedRows: number): void => {
-    parseLineActive = true;
-    writeErr(
-      `\r\x1b[K${ansi.magenta}⋯ parse CSV${ansi.reset} ${ansi.bold}${parsedRows.toLocaleString()}${ansi.reset} rows read`
-    );
-  };
-
-  const endParseProgressLine = (): void => {
-    if (parseLineActive) {
-      writeErr('\n');
-      parseLineActive = false;
-    }
-  };
-
-  const batchSummary = (msg: string, detail: Record<string, unknown>): void => {
-    writeErr(`\n${ansi.yellow}▸ ${msg}${ansi.reset}`);
-    for (const k of Object.keys(detail)) {
+  }): void {
+    if (this.#tty) {
+      this.#downloadLineActive = true;
+      const total = args.totalBytes;
+      const bar = progressBar(downloadFraction(args.receivedBytes, total), 18);
+      const pct = downloadPercentLabel(args.receivedBytes, total);
+      const right = total !== null ? formatBytes(total) : 'unknown size';
       writeErr(
-        `\n${ansi.dim}  ${k}:${ansi.reset} ${String(JSON.stringify(detail[k]))}`
+        `\r\x1b[K${ansi.green}↓ download${ansi.reset} ${bar} ${ansi.bold}${formatBytes(args.receivedBytes)}${ansi.reset} / ${right} ${ansi.dim}(${pct})${ansi.reset}`
       );
+      return;
     }
-    writeErr('\n');
-  };
+    const t = this.#now();
+    if (t - this.#lastJsonDownloadLog < 750) return;
+    this.#lastJsonDownloadLog = t;
+    this.#logger.info('seed:puzzles: download progress', {
+      receivedBytes: args.receivedBytes,
+      totalBytes: args.totalBytes,
+      pct: downloadIntegerPercent(args.receivedBytes, args.totalBytes),
+    });
+  }
 
-  return {
-    phase,
-    downloadProgress,
-    endDownloadProgressLine,
-    parseProgress,
-    endParseProgressLine,
-    batchSummary,
-  };
-}
+  /** End the in-place download line so following logs start clean. */
+  endDownloadProgressLine(): void {
+    if (this.#tty && this.#downloadLineActive) {
+      writeErr('\n');
+      this.#downloadLineActive = false;
+    }
+  }
 
-function createJsonReporter(logger: Logger): PuzzleSeedReporter {
-  let lastJsonDownloadLog = 0;
-  return {
-    phase: (title, detail) => logger.info(title, detail),
-    downloadProgress: (p) => {
-      const now = performance.now();
-      if (now - lastJsonDownloadLog < 750) return;
-      lastJsonDownloadLog = now;
-      logger.info('seed:puzzles: download progress', {
-        receivedBytes: p.receivedBytes,
-        totalBytes: p.totalBytes,
-        pct: downloadIntegerPercent(p.receivedBytes, p.totalBytes),
-      });
-    },
-    endDownloadProgressLine: () => undefined,
-    parseProgress: (parsedRows) =>
-      logger.info('seed:puzzles: parse progress', { parsedRows }),
-    endParseProgressLine: () => undefined,
-    batchSummary: (msg, detail) => logger.info(msg, detail),
-  };
-}
+  /** CSV parse row count (TTY: `\r` line). */
+  parseProgress(parsedRows: number): void {
+    if (this.#tty) {
+      this.#parseLineActive = true;
+      writeErr(
+        `\r\x1b[K${ansi.magenta}⋯ parse CSV${ansi.reset} ${ansi.bold}${parsedRows.toLocaleString()}${ansi.reset} rows read`
+      );
+      return;
+    }
+    this.#logger.info('seed:puzzles: parse progress', { parsedRows });
+  }
 
-export function createPuzzleSeedReporter(args: {
-  pretty: boolean;
-  logger: Logger;
-}): PuzzleSeedReporter {
-  const tty = args.pretty === true && process.stderr.isTTY === true;
-  return tty ? createTtyReporter() : createJsonReporter(args.logger);
+  endParseProgressLine(): void {
+    if (this.#tty && this.#parseLineActive) {
+      writeErr('\n');
+      this.#parseLineActive = false;
+    }
+  }
+
+  /** Structured batch line (always also `log.info` for CI). */
+  batchSummary(msg: string, detail: Record<string, unknown>): void {
+    if (this.#tty) {
+      writeErr(`\n${ansi.yellow}▸ ${msg}${ansi.reset}`);
+      for (const k of Object.keys(detail)) {
+        writeErr(
+          `\n${ansi.dim}  ${k}:${ansi.reset} ${String(JSON.stringify(detail[k]))}`
+        );
+      }
+      writeErr('\n');
+      return;
+    }
+    this.#logger.info(msg, detail);
+  }
 }

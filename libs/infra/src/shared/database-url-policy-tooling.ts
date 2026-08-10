@@ -1,4 +1,5 @@
 import { createToolingSecretStore } from '@pkgs/secret-provider';
+import { cliIo } from '../cli/lib/cli-io';
 import { REPO_ROOT } from '../cli/paths';
 import {
   assertNonProdDatabaseUrl,
@@ -16,6 +17,7 @@ export async function resolveProductionDatabaseUrlFromSecretStore(): Promise<
       repoRoot: REPO_ROOT,
       envOverride: PRODUCTION_SECRETS_ENV,
       token,
+      fetchFn: cliIo.http.fetch.bind(cliIo.http),
     });
     const raw =
       (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';

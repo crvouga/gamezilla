@@ -20,6 +20,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@testing-library/dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "happy-dom": "catalog:",

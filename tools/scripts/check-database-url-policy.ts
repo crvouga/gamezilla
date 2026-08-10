@@ -19,7 +19,7 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/api/scripts/migrate-db.ts',
+    file: 'apps/api/src/db/migrate.ts',
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
@@ -47,8 +47,11 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnvForTooling'],
   },
   {
-    file: 'libs/integration-test/src/preview-stack-env.ts',
-    mustInclude: ['assertDevSecretsEnv', 'isLoopbackPostgresUrl'],
+    file: 'libs/chess/src/server/seed-chess-puzzle/export-chess-puzzles-load.ts',
+    mustInclude: [
+      'assertDevSecretsEnv',
+      'assertDatabaseUrlAllowedForSecretsEnvForTooling',
+    ],
   },
 ];
 

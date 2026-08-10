@@ -2,8 +2,8 @@ import { defineSchema } from '@pkgs/db-schema';
 
 /**
  * Declarative domain schema for Postgres + local SQLite.
- * Managed columns (`_id`, `_created_at`, `_updated_at`, `_deleted_at`) are
- * implicit. Business `id` stays a user column for sync-engine merge.
+ * Managed columns (`id`, `created_at`, `updated_at`, `deleted_at`) are
+ * implicit via `@pkgs/db-schema`. Business identity is the managed text PK `id`.
  *
  * Out of scope: framework tables, kv, entity_store, inbox_schema_state,
  * matchmaking, CHECK/FK/REPLICA IDENTITY, partial indexes.
@@ -11,13 +11,9 @@ import { defineSchema } from '@pkgs/db-schema';
 export const appSchema = defineSchema({
   tables: {
     users: {
-      id: 'text',
-      created_at: 'timestamp',
       is_anon: 'boolean',
     },
     devices: {
-      id: 'text',
-      created_at: 'timestamp',
       platform: 'text',
       os_name: 'text',
       os_version: 'text',
@@ -33,70 +29,53 @@ export const appSchema = defineSchema({
       user_id: 'text',
     },
     external_accounts: {
-      id: 'text',
       user_id: 'text',
       provider: 'text',
       external_id: 'text',
       metadata: 'json',
-      created_at: 'timestamp',
     },
     profiles: {
-      id: 'text',
-      created_at: 'timestamp',
       username: 'text',
       avatar_config: 'json',
       username_changed_at: 'timestamp',
       username_norm: 'text',
     },
     spaces: {
-      id: 'text',
       title: 'text',
       host_id: 'text',
-      created_at: 'timestamp',
       ended_at: 'timestamp',
       visibility: 'text',
       host_account_id: 'text',
       host_member_id: 'text',
     },
     space_users: {
-      id: 'text',
       space_id: 'text',
       user_id: 'text',
-      created_at: 'timestamp',
       created_by_account_id: 'text',
     },
     space_open_sessions: {
-      id: 'text',
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
       join_announced: 'boolean',
     },
     friend_requests: {
-      id: 'text',
       from_user_id: 'text',
       to_user_id: 'text',
       status: 'text',
       message: 'text',
-      created_at: 'timestamp',
-      updated_at: 'timestamp',
       responded_at: 'timestamp',
     },
     friendships: {
-      id: 'text',
       user_low: 'text',
       user_high: 'text',
-      created_at: 'timestamp',
       source_request_id: 'text',
     },
     user_blocks: {
-      id: 'text',
       blocker_id: 'text',
       blocked_id: 'text',
-      created_at: 'timestamp',
     },
     chess_puzzles: {
-      id: 'text',
       fen: 'text',
       moves: 'text',
       rating: 'integer',
@@ -109,20 +88,17 @@ export const appSchema = defineSchema({
       sync_pool: 'boolean',
     },
     chess_puzzle_load: {
-      id: 'text',
       source_etag: 'text',
       cursor: 'text',
       finished_at: 'timestamp',
     },
     chess_puzzle_profiles: {
-      id: 'text',
       owner_id: 'text',
       rating: 'integer',
       rating_deviation: 'integer',
       last_interaction_at: 'timestamp',
     },
     chess_puzzle_interactions: {
-      id: 'text',
       owner_id: 'text',
       puzzle_id: 'text',
       puzzle_rating: 'integer',
@@ -135,11 +111,9 @@ export const appSchema = defineSchema({
       at: 'timestamp',
     },
     client_config: {
-      id: 'text',
       google_web_client_id: 'text',
     },
     inbox_interactions: {
-      id: 'text',
       user_id: 'text',
       source_namespace: 'text',
       source_type: 'text',
@@ -162,39 +136,20 @@ export const appSchema = defineSchema({
       archived_at: 'timestamp',
       dismissed_at: 'timestamp',
       active: 'boolean',
-      created_at: 'timestamp',
-      updated_at: 'timestamp',
     },
     inbox_preferences: {
       user_id: 'text',
       preferences: 'json',
-      updated_at: 'timestamp',
     },
   },
   uniqueIndexes: [
-    // Former PKs / sync merge keys
-    ['users', 'id'],
-    ['devices', 'id'],
-    ['external_accounts', 'id'],
+    // Composite / alternate keys (PK `id` is already unique)
     ['external_accounts', 'provider', 'external_id'],
     ['external_accounts', 'user_id', 'provider'],
-    ['profiles', 'id'],
-    ['spaces', 'id'],
-    ['space_users', 'id'],
     ['space_users', 'space_id', 'user_id'],
-    ['space_open_sessions', 'id'],
     ['space_open_sessions', 'device_id', 'space_id'],
-    ['friend_requests', 'id'],
-    ['friendships', 'id'],
     ['friendships', 'user_low', 'user_high'],
-    ['user_blocks', 'id'],
     ['user_blocks', 'blocker_id', 'blocked_id'],
-    ['chess_puzzles', 'id'],
-    ['chess_puzzle_load', 'id'],
-    ['chess_puzzle_profiles', 'id'],
-    ['chess_puzzle_interactions', 'id'],
-    ['client_config', 'id'],
-    ['inbox_interactions', 'id'],
     [
       'inbox_interactions',
       'user_id',

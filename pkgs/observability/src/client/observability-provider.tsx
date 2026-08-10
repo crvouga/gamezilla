@@ -1,3 +1,5 @@
+import { useIo } from '@pkgs/io';
+import type { CreateId } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
@@ -31,6 +33,8 @@ export type ObservabilityProviderProps = {
 
 function createClientObservability(args: {
   readonly serviceName: string;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly backendEnv?: string | undefined;
   readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
@@ -43,6 +47,8 @@ function createClientObservability(args: {
   if (backend === 'local-file') {
     return createLocalFileObservability({
       serviceName: args.serviceName,
+      now: args.now,
+      createId: args.createId,
       collectorUrl: args.collectorUrl ?? DEFAULT_COLLECTOR_URL,
       storage: new InMemorySpanContextStorage(),
     });
@@ -50,12 +56,15 @@ function createClientObservability(args: {
   if (backend === 'logger') {
     return createLoggerObservability({
       serviceName: args.serviceName,
+      now: args.now,
+      createId: args.createId,
       storage: new InMemorySpanContextStorage(),
     });
   }
   if (backend === 'sentry') {
     return createClientSentryObservability({
       serviceName: args.serviceName,
+      now: args.now,
       storage: new InMemorySpanContextStorage(),
     });
   }
@@ -70,15 +79,26 @@ export function ObservabilityProvider({
   collectorUrl,
   observability: observabilityOverride,
 }: ObservabilityProviderProps): ReactNode {
+  const io = useIo();
   const observability = useMemo(() => {
     if (observabilityOverride !== undefined) return observabilityOverride;
     return createClientObservability({
       serviceName,
+      now: io.clock.now,
+      createId: io.createId,
       backendEnv,
       ...(forceNoop !== undefined ? { forceNoop } : {}),
       ...(collectorUrl !== undefined ? { collectorUrl } : {}),
     });
-  }, [observabilityOverride, serviceName, backendEnv, forceNoop, collectorUrl]);
+  }, [
+    observabilityOverride,
+    serviceName,
+    backendEnv,
+    forceNoop,
+    collectorUrl,
+    io.clock.now,
+    io.createId,
+  ]);
 
   return (
     <ObservabilityContext.Provider value={observability}>

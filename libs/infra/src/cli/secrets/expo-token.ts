@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const EXPO_GRAPHQL_URL = 'https://api.expo.dev/graphql';
@@ -7,7 +8,7 @@ async function validateExpoToken(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, 'EXPO_TOKEN');
   try {
-    const res = await fetch(EXPO_GRAPHQL_URL, {
+    const res = await cliIo.http.fetch(EXPO_GRAPHQL_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${v}`,

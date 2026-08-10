@@ -1,4 +1,6 @@
 import { Assert } from '@pkgs/assert';
+import type { Timers } from '@pkgs/clock';
+import type { Random } from '@pkgs/uuid';
 
 import type {
   ClientTransport,
@@ -32,6 +34,10 @@ export type WebSocketRoomTransportOptions = {
   heartbeatTimeoutMs?: number;
   /** Max wait for the URL factory before scheduling a reconnect. Default 10s. */
   urlResolveTimeoutMs?: number;
+  /** Injectable timers (required — no wall default). */
+  timers: Timers;
+  /** Injectable RNG for reconnect jitter (required — no wall default). */
+  random: Random;
 };
 
 /**
@@ -46,10 +52,12 @@ export class WebSocketRoomTransport implements ClientTransport {
   private readonly heartbeatMs: number;
   private readonly heartbeatTimeoutMs: number;
   private readonly urlResolveTimeoutMs: number;
+  private readonly timers: Timers;
+  private readonly random: Random;
 
   private socket: WebSocket | null = null;
   private reconnectAttempt = 0;
-  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectTimer: unknown | null = null;
   private destroyed = false;
   private openGeneration = 0;
   private lastResolvedUrl = '';
@@ -72,6 +80,8 @@ export class WebSocketRoomTransport implements ClientTransport {
     this.heartbeatMs = options.heartbeatMs ?? 20_000;
     this.heartbeatTimeoutMs = options.heartbeatTimeoutMs ?? 8_000;
     this.urlResolveTimeoutMs = options.urlResolveTimeoutMs ?? 10_000;
+    this.timers = options.timers;
+    this.random = options.random;
   }
 
   /** Most recently opened URL (useful for tests / diagnostics). */
@@ -85,7 +95,8 @@ export class WebSocketRoomTransport implements ClientTransport {
         ? await raceWithTimeout(
             Promise.resolve(this.urlOption()),
             this.urlResolveTimeoutMs,
-            'WebSocketRoomTransport url resolve'
+            'WebSocketRoomTransport url resolve',
+            this.timers
           )
         : this.urlOption;
     crash.nonEmptyString(resolved, 'WebSocketRoomTransport url required');
@@ -133,12 +144,12 @@ export class WebSocketRoomTransport implements ClientTransport {
   reconnectNow(): void {
     if (this.destroyed) return;
     if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
+      this.timers.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
     this.reconnectAttempt = 0;
     this.openGeneration += 1;
-    clearHeartbeatTimers(this.heartbeat);
+    clearHeartbeatTimers(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
         this.socket.close(1000, 'reconnect now');
@@ -171,8 +182,10 @@ export class WebSocketRoomTransport implements ClientTransport {
       this.reconnectNow();
       return;
     }
-    if (this.heartbeat.timeout !== null) clearTimeout(this.heartbeat.timeout);
-    this.heartbeat.timeout = setTimeout(() => {
+    if (this.heartbeat.timeout !== null) {
+      this.timers.clearTimeout(this.heartbeat.timeout);
+    }
+    this.heartbeat.timeout = this.timers.setTimeout(() => {
       this.heartbeat.timeout = null;
       if (!this.destroyed) this.reconnectNow();
     }, this.heartbeatTimeoutMs);
@@ -182,9 +195,9 @@ export class WebSocketRoomTransport implements ClientTransport {
     if (this.destroyed) return;
     this.destroyed = true;
     this.openGeneration += 1;
-    clearHeartbeatTimers(this.heartbeat);
+    clearHeartbeatTimers(this.heartbeat, this.timers);
     if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
+      this.timers.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
     if (this.socket !== null) {
@@ -215,7 +228,7 @@ export class WebSocketRoomTransport implements ClientTransport {
 
   private onHeartbeatMissed(generation: number): void {
     if (this.destroyed || generation !== this.openGeneration) return;
-    clearHeartbeatTimers(this.heartbeat);
+    clearHeartbeatTimers(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
         this.socket.close(1000, 'heartbeat missed');
@@ -240,7 +253,8 @@ export class WebSocketRoomTransport implements ClientTransport {
       if (this.destroyed || generation !== this.openGeneration) return;
       this.reconnectAttempt = 0;
       startHeartbeat({
-        timers: this.heartbeat,
+        handles: this.heartbeat,
+        timers: this.timers,
         getSocket: () => this.socket,
         heartbeatMs: this.heartbeatMs,
         heartbeatTimeoutMs: this.heartbeatTimeoutMs,
@@ -265,7 +279,7 @@ export class WebSocketRoomTransport implements ClientTransport {
       }
       if (isPongWire(parsed)) {
         if (this.heartbeat.timeout !== null) {
-          clearTimeout(this.heartbeat.timeout);
+          this.timers.clearTimeout(this.heartbeat.timeout);
           this.heartbeat.timeout = null;
         }
         return;
@@ -285,7 +299,7 @@ export class WebSocketRoomTransport implements ClientTransport {
     ws.onclose = () => {
       if (this.destroyed || generation !== this.openGeneration) return;
       this.socket = null;
-      clearHeartbeatTimers(this.heartbeat);
+      clearHeartbeatTimers(this.heartbeat, this.timers);
       for (const h of this.handlerSets) {
         h.onClose?.();
       }
@@ -303,10 +317,10 @@ export class WebSocketRoomTransport implements ClientTransport {
     );
     const jitter =
       this.reconnectJitterMs > 0
-        ? Math.floor(Math.random() * this.reconnectJitterMs)
+        ? Math.floor(this.random() * this.reconnectJitterMs)
         : 0;
     const delay = cap + jitter;
-    this.reconnectTimer = setTimeout(() => {
+    this.reconnectTimer = this.timers.setTimeout(() => {
       this.reconnectTimer = null;
       if (this.destroyed) return;
       this.openSocket();

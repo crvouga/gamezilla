@@ -1,5 +1,5 @@
 import type { DriverKey } from '../core/keys';
-import type { WaitOptions } from '../core/wait';
+import type { WaitPollOptions } from '../core/wait';
 import type { Selector } from '../selector/selector';
 
 export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
@@ -64,7 +64,7 @@ export interface Driver {
   waitFor(
     target: Selector,
     state: WaitState,
-    options?: WaitOptions
+    options?: WaitPollOptions
   ): Promise<void>;
 
   /** Snapshot whether `target` is currently visible (no polling). */

@@ -228,48 +228,31 @@ async function resolveExpoPublicSentryDsn(
   return null;
 }
 
-async function resolveExpoPublicAuthPublishableKey(
-  store: SecretStore | null
-): Promise<string | null> {
-  const fromExpoEnv = trimStringOrNull(
-    process.env['EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY']
-  );
-  if (fromExpoEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from process env (e.g. secrets-run).\n'
-    );
-    return fromExpoEnv;
-  }
+const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
 
-  const fromAuthEnv = trimStringOrNull(process.env['AUTH_PUBLISHABLE_KEY']);
-  if (fromAuthEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from AUTH_PUBLISHABLE_KEY in process env.\n'
-    );
-    return fromAuthEnv;
+function isLoopbackApiOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
   }
-
-  if (store === null) return null;
-
-  const fromSecrets = (
-    await store.getOptional('AUTH_PUBLISHABLE_KEY')
-  )?.readSecretValue();
-  const trimmed =
-    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
-      ? fromSecrets.trim()
-      : null;
-  if (trimmed !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY from secret store AUTH_PUBLISHABLE_KEY.\n'
-    );
-    return trimmed;
-  }
-  return null;
 }
 
+/**
+ * Local loopback API always uses `@apps/emqx` — Infisical / process-env cloud
+ * EMQX hosts are ignored so sync pushes stay self-contained.
+ */
 async function resolveExpoPublicEmqxWssUrl(
-  store: SecretStore | null
+  store: SecretStore | null,
+  apiOrigin: string
 ): Promise<string | null> {
+  if (isLoopbackApiOrigin(apiOrigin)) {
+    process.stdout.write(
+      `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL → local ${LOCAL_EMQX_WSS_URL} (loopback API; Infisical ignored).\n`
+    );
+    return LOCAL_EMQX_WSS_URL;
+  }
   const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_EMQX_WSS_URL']);
   if (fromEnv !== null) {
     process.stdout.write(
@@ -299,12 +282,10 @@ async function resolveExpoPublicEmqxWssUrl(
       return trimmed;
     }
   }
-  // Local @apps/emqx WebSocket listener (see apps/emqx/scripts/ports.ts).
-  const local = 'ws://127.0.0.1:8083/mqtt';
   process.stdout.write(
-    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset in secrets; using local ${local}.\n`
+    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; using local ${LOCAL_EMQX_WSS_URL}.\n`
   );
-  return local;
+  return LOCAL_EMQX_WSS_URL;
 }
 
 async function resolveExpoPublicObservabilityBackend(
@@ -359,18 +340,12 @@ async function main(): Promise<void> {
   }
 
   const sentryDsn = await resolveExpoPublicSentryDsn(store);
-  const authPublishableKey = await resolveExpoPublicAuthPublishableKey(store);
   const observabilityBackend =
     await resolveExpoPublicObservabilityBackend(store);
-  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store);
+  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store, origin);
   if (sentryDsn === null) {
     process.stdout.write(
       '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
-    );
-  }
-  if (authPublishableKey === null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY unset; sign-in disabled until AUTH_PUBLISHABLE_KEY is provisioned.\n'
     );
   }
   if (emqxWssUrl === null) {
@@ -386,9 +361,6 @@ async function main(): Promise<void> {
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
   if (sentryDsn !== null) {
     body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
-  }
-  if (authPublishableKey !== null) {
-    body += `EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY=${JSON.stringify(authPublishableKey)}\n`;
   }
   if (observabilityBackend !== null) {
     body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;

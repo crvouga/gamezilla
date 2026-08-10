@@ -48,9 +48,14 @@ export function assertMatchingGameIds(
  * Compose the canonical space `SpaceModule` from game definitions.
  */
 export function composeSpaceRoomModule(
-  games: readonly GameDefinition[]
+  games: readonly GameDefinition[],
+  now: () => number
 ): RoomModule<RoomState, Message, Message, string> {
-  return createSpaceModule(assertRoomModuleName(SPACE_ROOM_MODULE_NAME), games);
+  return createSpaceModule(
+    assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
+    games,
+    now
+  );
 }
 
 /**
@@ -58,7 +63,8 @@ export function composeSpaceRoomModule(
  * to `createDurableObjectAdapter({ modules })`.
  */
 export function composeRoomModules(
-  games: readonly GameDefinition[]
+  games: readonly GameDefinition[],
+  now: () => number
 ): readonly [RoomModule<RoomState, Message, Message, string>] {
-  return [composeSpaceRoomModule(games)] as const;
+  return [composeSpaceRoomModule(games, now)] as const;
 }

@@ -15,10 +15,12 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*"
+    "@pkgs/assert": "workspace:*",
+    "react": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
+    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

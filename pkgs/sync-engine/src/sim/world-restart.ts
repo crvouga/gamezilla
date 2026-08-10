@@ -64,6 +64,7 @@ export async function restartServerImpl(
   }
   k.server = await openSimServer({
     now: () => k.nowFor(SIM_SERVER_NODE_ID),
+    createId: k.nextId,
     pubsub: k.serverPub,
     resolveAuth: (clientId) => {
       const meta = k.authByDevice.get(clientId);

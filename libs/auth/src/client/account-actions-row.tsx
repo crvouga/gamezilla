@@ -3,12 +3,12 @@ import { Box, Button } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
 import { useSignInModal, useSignOutModal } from './auth-modals-provider';
-import { useIsSignedIn } from './use-current-user';
+import { useHasAuthSession } from './use-current-user';
 
 /** Sign in / sign out actions for the account screen. */
 export function AccountActionsRow(): ReactNode {
   const { t } = useLingui();
-  const isSignedIn = useIsSignedIn();
+  const isSignedIn = useHasAuthSession();
   const { open: openSignInModal } = useSignInModal();
   const { open: openSignOutConfirm } = useSignOutModal();
 

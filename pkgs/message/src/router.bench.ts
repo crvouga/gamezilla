@@ -158,9 +158,9 @@ function bench(
   if (typeof Bun !== 'undefined' && typeof Bun.gc === 'function') {
     Bun.gc(true);
   }
-  const start = performance.now();
+  const start = Bun.nanoseconds();
   for (let i = 0; i < iters; i++) fn();
-  const totalMs = performance.now() - start;
+  const totalMs = (Bun.nanoseconds() - start) / 1_000_000;
   const opsPerSec = (iters / totalMs) * 1000;
   const nsPerOp = (totalMs * 1_000_000) / iters;
   return { name, iters, totalMs, opsPerSec, nsPerOp };

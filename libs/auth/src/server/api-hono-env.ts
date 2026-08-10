@@ -6,6 +6,9 @@ import type { SessionAuth } from './session-middleware';
 
 /**
  * Hono `Bindings` + `Variables` for the API Worker (Neon-per-request DB + auth).
+ *
+ * `betterAuth` is set by the API composition root (provider adapter instance).
+ * Typed loosely here so `@libs/auth` stays provider-agnostic.
  */
 export type ApiHonoEnv<_TAuthContext = unknown> = {
   Bindings: ApiWorkerBindings;
@@ -13,5 +16,6 @@ export type ApiHonoEnv<_TAuthContext = unknown> = {
     sqlClient: SqlClient;
     sessionAuth: SessionAuth;
     authServer: AuthServerPort;
+    betterAuth: unknown;
   };
 };

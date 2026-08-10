@@ -3,6 +3,7 @@
  */
 import { assert } from '@pkgs/assert';
 import { cfHeaders } from '../secrets/cloudflare';
+import { cliIo } from './cli-io';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
@@ -25,7 +26,7 @@ async function listRecords(
   url.searchParams.set('name', name);
   url.searchParams.set('type', type);
   url.searchParams.set('per_page', '50');
-  const res = await fetch(url, { headers });
+  const res = await cliIo.http.fetch(url, { headers });
   if (!res.ok) {
     throw new Error(`CF DNS list failed: HTTP ${String(res.status)}`);
   }
@@ -56,7 +57,7 @@ export async function upsertDnsRecord(options: {
 
   if (existing.length > 0) {
     const id = existing[0]!.id;
-    const res = await fetch(
+    const res = await cliIo.http.fetch(
       `${CF_API}/zones/${options.zoneId}/dns_records/${id}`,
       {
         method: 'PUT',
@@ -68,11 +69,14 @@ export async function upsertDnsRecord(options: {
     return;
   }
 
-  const res = await fetch(`${CF_API}/zones/${options.zoneId}/dns_records`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
-  });
+  const res = await cliIo.http.fetch(
+    `${CF_API}/zones/${options.zoneId}/dns_records`,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    }
+  );
   assert.ok(res.ok, `CF DNS create failed: HTTP ${String(res.status)}`);
 }
 
@@ -86,10 +90,13 @@ export async function deleteDnsRecordsByName(options: {
   for (const type of types) {
     const existing = await listRecords(options.zoneId, options.name, type);
     for (const rec of existing) {
-      await fetch(`${CF_API}/zones/${options.zoneId}/dns_records/${rec.id}`, {
-        method: 'DELETE',
-        headers,
-      });
+      await cliIo.http.fetch(
+        `${CF_API}/zones/${options.zoneId}/dns_records/${rec.id}`,
+        {
+          method: 'DELETE',
+          headers,
+        }
+      );
     }
   }
 }

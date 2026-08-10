@@ -1,5 +1,6 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
+import { useCreateId } from '@pkgs/uuid';
 import { useCallback } from 'react';
 
 import { createSpaceMutation } from '../../shared/mutations/space-mutations';
@@ -10,13 +11,14 @@ export type CreateSpaceOptions = {
 
 export function useCreateSpace() {
   const mutationClient = useMutationClient();
+  const createId = useCreateId();
 
   return useCallback(
     async (
       onCreated?: (spaceId: string) => void,
       options?: CreateSpaceOptions
     ): Promise<string> => {
-      const spaceId = crypto.randomUUID();
+      const spaceId = createId();
       const input = {
         spaceId,
         visibility: options?.visibility ?? ('private' as const),
@@ -26,6 +28,6 @@ export function useCreateSpace() {
       onCreated?.(spaceId);
       return spaceId;
     },
-    [mutationClient]
+    [mutationClient, createId]
   );
 }

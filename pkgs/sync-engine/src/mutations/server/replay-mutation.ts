@@ -1,5 +1,6 @@
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import { ZodError } from 'zod';
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import {
@@ -35,6 +36,8 @@ export type ReplayMutationDeps = {
   readonly serverDb: SqlClient;
   readonly registry: MutationRegistry;
   readonly auth: ReplayAuth;
+  readonly now: () => number;
+  readonly createId: CreateId;
   readonly serverNow?: () => Date;
 };
 
@@ -70,7 +73,7 @@ export async function replayMutation(
           code: 'UNKNOWN_MUTATION',
           message: 'Unknown operation.',
         };
-        await recordRejectedInTxn(txc, m, failure);
+        await recordRejectedInTxn(txc, m, failure, deps);
         return {
           status: 'rejected' as const,
           code: failure.code,
@@ -85,7 +88,7 @@ export async function replayMutation(
         if (e instanceof ZodError) {
           const failures = zodFailures(e, m.name);
           const failure = failures[0]!;
-          await recordRejectedInTxn(txc, m, failure);
+          await recordRejectedInTxn(txc, m, failure, deps);
           return {
             status: 'rejected' as const,
             code: failure.code,
@@ -101,16 +104,18 @@ export async function replayMutation(
         accountId: deps.auth.accountId,
         isAnon: deps.auth.isAnon,
         now: () => new Date(m.createdAt),
+        createId: deps.createId,
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
       };
 
-      const wrapped = wrapMutationDb(txc);
+      const wrapped = wrapMutationDb(txc, env);
       await mutation.run({ tx: wrapped.tx, env }, parsed);
       const capture = wrapped.getCapture();
 
+      const appliedAt = new Date(deps.now()).toISOString();
       await txc.run(sql`
-        INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
-        VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'})
+        INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+        VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'applied'}, ${appliedAt})
       `);
       return { status: 'applied' as const, capture };
     });
@@ -123,7 +128,7 @@ export async function replayMutation(
         (isMutationError(e)
           ? mutationErrorToFailure(e, m.name)
           : zodFailures(e as ZodError, m.name)[0]!);
-      await recordMutationRejection(deps.serverDb, m, failure);
+      await recordMutationRejection(deps, m, failure);
       return {
         status: 'rejected',
         code: failure.code,
@@ -135,28 +140,30 @@ export async function replayMutation(
 }
 
 export async function recordMutationRejection(
-  serverDb: SqlClient,
+  deps: Pick<ReplayMutationDeps, 'serverDb' | 'now' | 'createId'>,
   m: MutationRow,
   failure: MutationFailure
 ): Promise<void> {
-  await serverDb.transaction(async (txc) => {
-    await recordRejectedInTxn(txc, m, failure);
+  await deps.serverDb.transaction(async (txc) => {
+    await recordRejectedInTxn(txc, m, failure, deps);
   });
 }
 
 async function recordRejectedInTxn(
   txc: Pick<SqlClient, 'query' | 'run'>,
   m: MutationRow,
-  failure: MutationFailure
+  failure: MutationFailure,
+  deps: Pick<ReplayMutationDeps, 'now' | 'createId'>
 ): Promise<void> {
   const seen = await txc.query(sql<{ one: number }>`
     SELECT 1 AS one FROM _mutations_applied WHERE mutation_id = ${m.id}
   `);
   if (seen.length > 0) return;
 
+  const appliedAt = new Date(deps.now()).toISOString();
   await txc.run(sql`
-    INSERT INTO _mutations_applied (mutation_id, client_id, seq, status)
-    VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'})
+    INSERT INTO _mutations_applied (mutation_id, client_id, seq, status, applied_at)
+    VALUES (${m.id}, ${m.clientId}, ${m.seq}, ${'rejected'}, ${appliedAt})
   `);
 
   const metaJson =
@@ -165,13 +172,13 @@ async function recordRejectedInTxn(
     INSERT INTO write_rejections (
       id, mutation_id, client_id, code, message, meta, created_at, acknowledged
     ) VALUES (
-      ${crypto.randomUUID()},
+      ${deps.createId()},
       ${m.id},
       ${m.clientId},
       ${failure.code},
       ${failure.message},
       ${metaJson},
-      ${new Date().toISOString()},
+      ${new Date(deps.now()).toISOString()},
       ${0}
     )
   `);

@@ -214,6 +214,7 @@ export {
   ListChecksIcon,
   LogInIcon,
   LogOutIcon,
+  MailIcon,
   MenuIcon,
   PaintbrushIcon,
   PlayIcon,

@@ -4,7 +4,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 /**
  * Framework local tables for defineQuery sync.
  * Domain hydration is soft-delete only: merge upserts rows (including
- * `_deleted_at`) verbatim from server snapshots. Scope membership tags and
+ * `deleted_at`) verbatim from server snapshots. Scope membership tags and
  * peer mutation logs are gone — `_scope_meta` is the only cache metadata.
  */
 export const FRAMEWORK_LOCAL_DDL = `

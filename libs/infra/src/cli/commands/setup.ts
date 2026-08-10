@@ -3,6 +3,7 @@ import { assert } from '@pkgs/assert';
 import { ALL_DEPS, DEPLOY_DEPS } from '../deps/registry';
 import { isAtLeastLatest } from '../deps/semver';
 import type { Dep } from '../deps/types';
+import { cliIo } from '../lib/cli-io';
 import { banner, fmt, fail as fmtFail, info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
@@ -13,6 +14,7 @@ import {
   type SecretsEnv,
 } from '../secrets/secret';
 import {
+  ensureSeedInAllEnvsSecrets,
   loadSecretsIntoEnv,
   setSecret,
   validateSecretOrError,
@@ -92,7 +94,7 @@ export class SetupCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Setup');
 
     const deps = process.env['CI'] ? DEPLOY_DEPS : ALL_DEPS;
@@ -105,6 +107,12 @@ export class SetupCommand implements Command {
       this.platform,
       'Load secrets',
       async () => {
+        const seededAllEnvs = await ensureSeedInAllEnvsSecrets();
+        for (const r of seededAllEnvs) {
+          if (r.action === 'seeded') {
+            ok(r.name, `seeded in secrets env ${r.env}`);
+          }
+        }
         const secrets = await loadSecretsIntoEnv();
         for (const s of secrets) {
           if (s.set) ok(s.env);
@@ -127,7 +135,7 @@ export class SetupCommand implements Command {
       }
     });
 
-    banner('Setup Complete', performance.now() - t0);
+    banner('Setup Complete', cliIo.clock.now() - t0);
     ok('CLI is ready');
     info('Next step', 'Run `bun run infra deploy` for a full deploy');
   }

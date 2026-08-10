@@ -1,19 +1,24 @@
+import { useTimers } from '@pkgs/clock';
 import { useCallback } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { Text } from '../text';
 import { FormActionsFooter } from './form-actions-footer';
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export default function FormActionsFooterExample() {
-  const save = useCallback(() => delay(900), []);
+  const timers = useTimers();
+  const delay = useCallback(
+    (ms: number) =>
+      new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, ms);
+      }),
+    [timers]
+  );
+  const save = useCallback(() => delay(900), [delay]);
   const failingSave = useCallback(async () => {
     await delay(900);
     throw new Error('Network unreachable');
-  }, []);
+  }, [delay]);
   return (
     <ExampleRoot>
       <Text

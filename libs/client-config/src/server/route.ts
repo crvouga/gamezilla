@@ -1,5 +1,6 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
 import { isEqual } from '@pkgs/equal/is-equal';
+import { getIo } from '@pkgs/io/als';
 import type { Logger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -26,8 +27,10 @@ function snapshotAttributes(
   return { ...attrs };
 }
 
-function loadClientConfigAttributes(): Record<string, unknown> {
-  return ClientConfigAttr.googleWebClientId(null);
+function loadClientConfigAttributes(
+  googleWebClientId: string | null
+): Record<string, unknown> {
+  return ClientConfigAttr.googleWebClientId(googleWebClientId);
 }
 
 async function readClientConfigRow(
@@ -53,11 +56,24 @@ async function upsertClientConfigRow(
 ): Promise<void> {
   const googleId = attrs[ClientConfigAttr.googleWebClientId.key];
   const googleWebClientId = typeof googleId === 'string' ? googleId : null;
+  const io = getIo();
+  const nowIso = new Date(io.clock.now()).toISOString();
   await db.run(sql<void>`
-    INSERT INTO client_config (id, google_web_client_id)
-    VALUES (${CLIENT_CONFIG_ENTITY_ID}, ${googleWebClientId})
+    INSERT INTO client_config (
+      id,
+      created_at,
+      updated_at,
+      google_web_client_id
+    )
+    VALUES (
+      ${CLIENT_CONFIG_ENTITY_ID},
+      ${nowIso}::timestamptz,
+      ${nowIso}::timestamptz,
+      ${googleWebClientId}
+    )
     ON CONFLICT (id) DO UPDATE SET
-      google_web_client_id = EXCLUDED.google_web_client_id
+      google_web_client_id = EXCLUDED.google_web_client_id,
+      updated_at = EXCLUDED.updated_at
   `);
 }
 
@@ -65,13 +81,14 @@ async function handleClientConfigRefresh(
   c: Context<ApiHonoEnv>,
   deps: {
     readonly logger: Logger;
+    readonly googleWebClientId: string | null;
     readonly onConfigUpdated?: () => void;
   }
 ): Promise<Response> {
   const db = c.get('sqlClient');
   const { logger } = deps;
   logger.info('POST /client-config/refresh: requested');
-  const configNew = loadClientConfigAttributes();
+  const configNew = loadClientConfigAttributes(deps.googleWebClientId);
   const configPrev = await readClientConfigRow(db);
   const before = snapshotAttributes(configPrev ?? undefined);
   logger.debug('Client config comparison', { configPrev, configNew });
@@ -112,18 +129,26 @@ async function handleClientConfigRefresh(
   return c.json(body, 200);
 }
 
-export function createClientConfigApp(
-  logger: Logger,
-  options?: {
-    readonly onConfigUpdated?: () => void;
+export class ClientConfigApp {
+  constructor(
+    private readonly logger: Logger,
+    private readonly options?: {
+      readonly onConfigUpdated?: () => void;
+      readonly googleWebClientId?: string | null;
+    }
+  ) {}
+
+  /** Return type must stay inferred so Hono RPC clients see `/client-config`. */
+  build() {
+    const googleWebClientId = this.options?.googleWebClientId ?? null;
+    return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
+      handleClientConfigRefresh(c, {
+        logger: this.logger,
+        googleWebClientId,
+        ...(this.options?.onConfigUpdated !== undefined
+          ? { onConfigUpdated: this.options.onConfigUpdated }
+          : {}),
+      })
+    );
   }
-) {
-  return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
-    handleClientConfigRefresh(c, {
-      logger,
-      ...(options?.onConfigUpdated !== undefined
-        ? { onConfigUpdated: options.onConfigUpdated }
-        : {}),
-    })
-  );
 }

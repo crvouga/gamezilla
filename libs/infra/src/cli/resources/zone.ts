@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
+import { cliIo } from '../lib/cli-io';
 import { ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfAccountId, cfHeaders } from '../secrets/cloudflare';
@@ -14,9 +15,12 @@ export class ZoneResource extends ResourceBase {
     const headers = cfHeaders();
     const domain = PROJECT_CONFIG.domain;
 
-    const res = await fetch(`${CF_API}/zones?name=${domain}&per_page=1`, {
-      headers,
-    });
+    const res = await cliIo.http.fetch(
+      `${CF_API}/zones?name=${domain}&per_page=1`,
+      {
+        headers,
+      }
+    );
     assert.ok(res.ok, `Zone lookup failed: HTTP ${res.status}`);
 
     const body = (await res.json()) as {
@@ -31,7 +35,7 @@ export class ZoneResource extends ResourceBase {
       return;
     }
 
-    const create = await fetch(`${CF_API}/zones`, {
+    const create = await cliIo.http.fetch(`${CF_API}/zones`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -63,7 +67,7 @@ export class ZoneResource extends ResourceBase {
       return;
     }
 
-    const res = await fetch(`${CF_API}/zones/${zoneId}`, {
+    const res = await cliIo.http.fetch(`${CF_API}/zones/${zoneId}`, {
       method: 'DELETE',
       headers,
     });
@@ -79,7 +83,7 @@ export class ZoneResource extends ResourceBase {
   private async findZone(
     headers: Record<string, string>
   ): Promise<string | null> {
-    const res = await fetch(
+    const res = await cliIo.http.fetch(
       `${CF_API}/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
       { headers }
     );

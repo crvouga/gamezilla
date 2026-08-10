@@ -17,9 +17,9 @@ export const shapesWorldQuery = defineQuery({
       kind: string;
       sort_key: number;
       owner_id: string;
-      _deleted_at: string | null;
+      deleted_at: string | null;
     }>`
-      SELECT id, kind, sort_key, owner_id, _deleted_at FROM shapes
+      SELECT id, kind, sort_key, owner_id, deleted_at FROM shapes
       ORDER BY sort_key ASC, id ASC
 `);
     return { shapes };

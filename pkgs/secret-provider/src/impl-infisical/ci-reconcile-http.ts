@@ -1,3 +1,5 @@
+import { globalHttpFetch } from '@pkgs/http-client';
+
 import type { InfisicalCtx } from './ci-reconcile-types';
 
 export async function infisicalRequest(
@@ -15,7 +17,7 @@ export async function infisicalRequest(
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   };
-  const res = await fetch(`${ctx.domain}${path}`, init);
+  const res = await globalHttpFetch(`${ctx.domain}${path}`, init);
   let json: unknown = null;
   try {
     json = await res.json();

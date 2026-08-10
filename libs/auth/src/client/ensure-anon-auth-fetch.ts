@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import type { HttpFetch } from '@pkgs/http-client';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';
@@ -6,6 +7,7 @@ const X_ANON_ID = 'x-anon-id';
 export type EnsureAnonAuthArgs = {
   readonly apiUrl: string;
   readonly deviceId: string;
+  readonly fetchFn: HttpFetch;
   /** When true, mint a fresh anon user and rebind the device (sign-out). */
   readonly forceNew?: boolean;
 };
@@ -16,14 +18,14 @@ export type EnsureAnonAuthResult = {
 };
 
 /**
- * `POST /auth/anon/ensure` — mint or reuse an anon `users` row for this install.
+ * `POST /identity/anon/ensure` — mint or reuse an anon `users` row for this install.
  */
 export async function ensureAnonAuth(
   args: EnsureAnonAuthArgs
 ): Promise<EnsureAnonAuthResult> {
-  const { apiUrl, deviceId, forceNew = false } = args;
+  const { apiUrl, deviceId, fetchFn, forceNew = false } = args;
   const base = apiUrl.replace(/\/$/, '');
-  const res = await fetch(`${base}/api/auth/anon/ensure`, {
+  const res = await fetchFn(`${base}/api/identity/anon/ensure`, {
     method: 'POST',
     headers: {
       [X_ANON_ID]: deviceId,

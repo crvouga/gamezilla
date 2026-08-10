@@ -29,7 +29,7 @@ async function openSession(
       space_id = excluded.space_id,
       device_id = excluded.device_id,
       opened_at = excluded.opened_at,
-      _deleted_at = NULL
+      deleted_at = NULL
   `);
 }
 
@@ -45,7 +45,7 @@ export const createSpace = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         title = excluded.title,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
     const memberId = membershipRowId(id, env.actorId);
     await tx.run(sql`
@@ -54,7 +54,7 @@ export const createSpace = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         space_id = excluded.space_id,
         user_id = excluded.user_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
     await openSession(tx, env, id);
   },
@@ -68,7 +68,7 @@ export const joinSpace = defineMutation({
     if (env.serverNow !== undefined) {
       const spaces = await tx.query(sql<{ id: string }>`
         SELECT id FROM spaces
-        WHERE id = ${spaceId} AND _deleted_at IS NULL
+        WHERE id = ${spaceId} AND deleted_at IS NULL
       `);
       if (spaces[0] === undefined) {
         throw new MutationError('NOT_FOUND', 'Space does not exist');
@@ -81,7 +81,7 @@ export const joinSpace = defineMutation({
       ON CONFLICT (id) DO UPDATE SET
         space_id = excluded.space_id,
         user_id = excluded.user_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
     await openSession(tx, env, spaceId);
   },
@@ -96,14 +96,14 @@ export const leaveSpace = defineMutation({
     const memberId = membershipRowId(spaceId, env.actorId);
     await tx.run(sql`
       UPDATE space_users
-      SET _deleted_at = ${now}
-      WHERE id = ${memberId} AND _deleted_at IS NULL
+      SET deleted_at = ${now}
+      WHERE id = ${memberId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
       UPDATE space_open_sessions
-      SET _deleted_at = ${now}
+      SET deleted_at = ${now}
       WHERE id = ${openSessionRowId(env.deviceId, spaceId)}
-        AND _deleted_at IS NULL
+        AND deleted_at IS NULL
     `);
   },
 });
@@ -115,7 +115,7 @@ export const endSpace = defineMutation({
   async run({ tx, env }, { spaceId }) {
     const rows = await tx.query(sql<{ owner_id: string }>`
       SELECT owner_id FROM spaces
-      WHERE id = ${spaceId} AND _deleted_at IS NULL
+      WHERE id = ${spaceId} AND deleted_at IS NULL
     `);
     const row = rows[0];
     if (row === undefined) return;
@@ -125,18 +125,18 @@ export const endSpace = defineMutation({
     const now = env.now().toISOString();
     await tx.run(sql`
       UPDATE spaces
-      SET _deleted_at = ${now}
-      WHERE id = ${spaceId} AND _deleted_at IS NULL
+      SET deleted_at = ${now}
+      WHERE id = ${spaceId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
       UPDATE space_users
-      SET _deleted_at = ${now}
-      WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+      SET deleted_at = ${now}
+      WHERE space_id = ${spaceId} AND deleted_at IS NULL
     `);
     await tx.run(sql`
       UPDATE space_open_sessions
-      SET _deleted_at = ${now}
-      WHERE space_id = ${spaceId} AND _deleted_at IS NULL
+      SET deleted_at = ${now}
+      WHERE space_id = ${spaceId} AND deleted_at IS NULL
     `);
   },
 });
@@ -156,7 +156,7 @@ export const setSpaceNote = defineMutation({
         SELECT id FROM space_users
         WHERE space_id = ${spaceId}
           AND user_id = ${env.actorId}
-          AND _deleted_at IS NULL
+          AND deleted_at IS NULL
       `);
       if (members[0] === undefined) {
         throw new MutationError('FORBIDDEN', 'Not a member of this space');
@@ -172,7 +172,7 @@ export const setSpaceNote = defineMutation({
         title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
-        _deleted_at = NULL
+        deleted_at = NULL
     `);
   },
 });

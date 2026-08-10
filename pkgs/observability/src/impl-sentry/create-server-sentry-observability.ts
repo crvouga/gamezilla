@@ -37,11 +37,13 @@ function createCloudflareSentrySdk(): SentrySdk {
 
 export function createServerSentryObservability(args: {
   readonly serviceName: string;
+  readonly now: () => number;
   readonly storage?: SpanContextStorage;
 }): Observability {
   return createSentryObservability({
     serviceName: args.serviceName,
     sdk: createCloudflareSentrySdk(),
     storage: args.storage ?? createAsyncLocalSpanContextStorage(),
+    now: args.now,
   });
 }

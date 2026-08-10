@@ -70,10 +70,15 @@ export function collectDeviceSnapshot(): DeviceSnapshot {
  * Ensures a `devices` row exists locally with id + created_at (first launch),
  * then on every launch refreshes `last_seen_at` and any changed device metadata.
  */
-export async function ensureDeviceEntity(
-  mutationClient: MutationClient
-): Promise<void> {
-  const snapshot = collectDeviceSnapshot();
-  const result = await mutationClient.mutate(ensureDeviceMutation, snapshot);
-  if (!result.ok) throw new Error(result.failures[0]?.message);
+export class EnsureDeviceEntity {
+  constructor(private readonly mutationClient: MutationClient) {}
+
+  async run(): Promise<void> {
+    const snapshot = collectDeviceSnapshot();
+    const result = await this.mutationClient.mutate(
+      ensureDeviceMutation,
+      snapshot
+    );
+    if (!result.ok) throw new Error(result.failures[0]?.message);
+  }
 }

@@ -13,6 +13,8 @@
     "LOCAL_PREVIEW_API_ORIGIN",
     "DATABASE_URL",
     "AUTH_*",
+    "BETTER_AUTH_*",
+    "LOCAL_SECRETS",
     "STRIPE_*",
     "CLOUDFLARE_*",
     "B2_*",
@@ -100,11 +102,6 @@
       "outputLogs": "new-only",
       "outputs": []
     },
-    "test:e2e": {
-      "dependsOn": ["^tc"],
-      "cache": false,
-      "outputs": ["../../check/browser-artifacts/**"]
-    },
     "//#ci:lint": {
       "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
       "outputs": [],
@@ -190,12 +187,21 @@
     "//#ci:database-url-policy": {
       "inputs": [
         "apps/api/scripts/setup-dev-vars.ts",
-        "apps/api/scripts/migrate-db.ts",
+        "apps/api/src/db/migrate.ts",
         "apps/api/src/app/request-db-middleware.ts",
         "libs/stripe/src/script-runtime.ts",
         "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
-        "libs/integration-test/src/preview-stack-env.ts",
         "tools/scripts/check-database-url-policy.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:local-dev-self-contained": {
+      "inputs": [
+        "apps/api/scripts/setup-dev-vars.ts",
+        "apps/api/scripts/dev-vars.ts",
+        "apps/client/scripts/setup-env.ts",
+        "tools/scripts/check-local-dev-self-contained.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -270,6 +276,52 @@
         "libs/friends/src/server/friend-repository.ts",
         "libs/friends/src/server/block-service.ts",
         "tools/scripts/check-no-domain-hard-delete.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-top-level-di-functions": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "tools/scripts/check-no-top-level-di-functions.ts",
+        "tools/scripts/no-top-level-di-baseline.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-eager-di-construction": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-no-eager-di-construction.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:layer-c-sql-tx": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-layer-c-sql-tx.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-di-container": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "apps/**/src/**/*.ts",
+        "apps/**/src/**/*.tsx",
+        "tools/scripts/check-no-di-container.ts",
+        "tools/scripts/di-baseline-ratchet.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -375,6 +427,79 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-bare-io": {
+      "inputs": [
+        "tools/scripts/check-no-bare-io.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "tools/scripts/io-scan-pragma.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:hard-determinism": {
+      "inputs": [
+        "tools/scripts/check-hard-determinism.ts",
+        "libs/**/src/shared/**/*.ts",
+        "libs/**/src/shared/**/*.tsx",
+        "pkgs/sync-engine/src/mutations/**/*.ts",
+        "pkgs/sync-engine/src/client/**/*.ts",
+        "pkgs/sync-engine/src/sim/**/*.ts",
+        "pkgs/room/src/client/core/**/*.ts",
+        "pkgs/room/src/server/core/**/*.ts",
+        "pkgs/room/src/types.ts",
+        "pkgs/room/src/hash-room-state.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:sim-determinism": {
+      "inputs": [
+        "tools/scripts/run-sim-determinism.ts",
+        "libs/**/*.sim.test.ts",
+        "pkgs/**/*.sim.test.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-resolve-wall-defaults": {
+      "inputs": [
+        "tools/scripts/check-no-resolve-wall-defaults.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "tools/scripts/io-scan-pragma.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-sql-wall-io": {
+      "inputs": [
+        "tools/scripts/check-no-sql-wall-io.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "tools/scripts/io-scan-pragma.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "apps/**/*.sql",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "libs/**/*.sql",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.sql"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:pubsub-emqx-imports": {
       "inputs": [
         "tools/scripts/check-pubsub-emqx-imports.ts",
@@ -406,10 +531,6 @@
     },
     "//#check:api": {
       "cache": false
-    },
-    "//#check:browser": {
-      "cache": false,
-      "dependsOn": ["//#check:api"]
     }
   }
 }

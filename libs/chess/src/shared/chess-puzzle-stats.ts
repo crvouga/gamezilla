@@ -4,6 +4,7 @@ import {
   type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
 } from './chess-puzzle-interaction-entities';
+import { compareCodeUnit } from './code-unit-compare';
 
 export type ChessPuzzleStats = {
   readonly currentElo: number;
@@ -45,7 +46,7 @@ function deriveBestStreak(
 ): number {
   const sorted = [...interactions]
     .filter((r) => isTerminalKind(r.kind))
-    .sort((a, b) => a.at.localeCompare(b.at));
+    .sort((a, b) => compareCodeUnit(a.at, b.at));
   let best = 0;
   let current = 0;
   for (const row of sorted) {
@@ -62,7 +63,7 @@ function deriveBestStreak(
 function deriveEloSeries(
   terminals: readonly ChessPuzzleInteractionRow[]
 ): number[] {
-  const sorted = [...terminals].sort((a, b) => a.at.localeCompare(b.at));
+  const sorted = [...terminals].sort((a, b) => compareCodeUnit(a.at, b.at));
   if (sorted.length === 0) return [];
   const first = sorted[0];
   if (first === undefined) return [];
@@ -87,7 +88,7 @@ export function deriveChessPuzzleStats(args: {
   const latest = terminals.reduce<ChessPuzzleInteractionRow | null>(
     (best, row) => {
       if (best === null) return row;
-      return row.at.localeCompare(best.at) > 0 ? row : best;
+      return compareCodeUnit(row.at, best.at) > 0 ? row : best;
     },
     null
   );
@@ -113,7 +114,7 @@ export function deriveChessPuzzleGameLog(
   interactions: readonly ChessPuzzleInteractionRow[]
 ): ChessPuzzleGameLogEntry[] {
   return terminalRows(interactions)
-    .sort((a, b) => b.at.localeCompare(a.at))
+    .sort((a, b) => compareCodeUnit(b.at, a.at))
     .map((row) => ({
       puzzleId: row.puzzleId,
       puzzleRating: row.puzzleRating,

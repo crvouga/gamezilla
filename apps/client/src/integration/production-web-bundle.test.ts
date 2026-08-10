@@ -4,7 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
-import { runPackageScriptOnce } from '@libs/integration-test/harness';
+
+import { runPackageScriptOnce } from './run-package-script-once';
 
 /**
  * Production web export gate. Builds the same `expo export -p web` artifact

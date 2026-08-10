@@ -1,3 +1,4 @@
+import { useClock } from '@pkgs/clock';
 import { type ReactNode, useMemo } from 'react';
 
 import type { GameClientDefinition, GameDefinition } from '../../shared/game';
@@ -25,9 +26,10 @@ export function GamesBootstrapFromPlugins({
   clients,
   children,
 }: GamesBootstrapFromPluginsProps): ReactNode {
+  const clock = useClock();
   const module = useMemo(
-    (): SpaceRoomModule => composeSpaceRoomModule(games),
-    [games]
+    (): SpaceRoomModule => composeSpaceRoomModule(games, clock.now),
+    [clock, games]
   );
   const eventLogRouter = useMemo(
     () => createSpaceEventLogRouter(games),

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 
 import { newCommandId } from '../../protocol/ids';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
@@ -7,6 +8,9 @@ import { ROOM_ERROR_TYPE } from '../../types';
 import { InMemoryRoomStorage } from '../adapters/memory';
 import { RoomServer } from './room-server';
 
+const io = wallIo();
+const now = io.clock.now;
+
 describe('RoomServer message envelope', () => {
   it('rejects command payload that is not a wire-valid Message envelope', async () => {
     const storage = new InMemoryRoomStorage();
@@ -14,6 +18,7 @@ describe('RoomServer message envelope', () => {
       topic: 't-env',
       module: TestCounterModule,
       storage,
+      clock: io.clock,
     });
     await server.hydrateFromStorage();
     const out: unknown[] = [];
@@ -24,12 +29,12 @@ describe('RoomServer message envelope', () => {
       },
       { id: 'user', clientId: 'c1-client' }
     );
-    const commandId = newCommandId();
+    const commandId = newCommandId(io.createId);
     await server.handleClientMessage('c1', 'user', {
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,
       id: commandId,
-      ts: Date.now(),
+      ts: now(),
       payload: { foo: 1 },
     });
     const rejected = out.filter(

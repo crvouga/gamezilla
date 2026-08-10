@@ -10,7 +10,7 @@ import { EventLogBar, EventLogSurface } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import { RoomMetaAttr, useNamedRoomLog } from '@pkgs/room';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
@@ -42,7 +42,13 @@ export function SpaceEventLogChrome({
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const entries = useNamedRoomLog(SPACE_ROOM_NAME);
-  const disconnected = !useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
+  const connected = useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
+  const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const disconnected = !connected;
+  const everSyncedRef = useRef(false);
+  useEffect(() => {
+    if (synced) everSyncedRef.current = true;
+  }, [synced]);
   const { colorForParticipant } = useSpaceParticipantColors(spaceId);
   const router = useSpaceEventLogRouter();
 
@@ -58,8 +64,10 @@ export function SpaceEventLogChrome({
       <EventLogBar
         latest={latest}
         disconnected={disconnected}
+        everSynced={everSyncedRef.current}
         copy={{
           empty: asLocalized(t`No activity yet`),
+          connecting: asLocalized(t`Connecting…`),
           reconnecting: asLocalized(t`Reconnecting…`),
           unreadLabel: (n) => asLocalized(t`${n} new`),
         }}

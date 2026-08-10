@@ -17,6 +17,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/collab": "workspace:*",
     "@pkgs/collab-ui": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/ui": "workspace:*",

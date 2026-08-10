@@ -31,7 +31,7 @@ describe('tombstone membership wakes removed user topic', () => {
               id: 'room-1:bob',
               space_id: 'room-1',
               user_id: 'bob',
-              _deleted_at: '2026-01-01T00:00:00.000Z',
+              deleted_at: '2026-01-01T00:00:00.000Z',
             },
           ],
         },

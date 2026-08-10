@@ -15,9 +15,15 @@ export {
   type MutationRegistry,
 } from '../mutations/core/types';
 export {
+  type ManagedInsertColumns,
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '../mutations/shared/managed-columns';
+export {
   LIVE_ROW_SQL,
   softDeleteById,
 } from '../mutations/shared/soft-delete';
+export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 /** Frozen wire protocol (shapes + bounds). */
 export {
   MAX_FANOUT_BYTES,
@@ -62,6 +68,7 @@ export {
   FRAMEWORK_TOPIC_MAP,
   withFrameworkTopicMap,
 } from './framework-topic-map';
+export { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
 export {
   defineTopicMap,
   type TopicMap,

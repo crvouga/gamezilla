@@ -26,6 +26,12 @@ export type SecretConfig = {
   readonly pushToApiWorker?: boolean;
   /** When provisioning under `prd`, mirror this value into secrets env `dev`. */
   readonly mirrorToDev?: boolean;
+  /**
+   * When true, `seed` runs independently in every {@link SECRETS_ENVS} env if
+   * the secret is missing there (setup + provision). Prefer over `mirrorToDev`
+   * when each env should have its own value (e.g. signing secrets).
+   */
+  readonly seedInAllEnvs?: boolean;
   validate(input: SecretInput): Promise<void>;
   seed?(input: SecretSeedInput): Promise<string>;
 };
@@ -36,6 +42,7 @@ export class Secret {
   readonly optional: boolean;
   readonly pushToApiWorker: boolean;
   readonly mirrorToDev: boolean;
+  readonly seedInAllEnvs: boolean;
   readonly validate: (input: SecretInput) => Promise<void>;
   readonly seed?: (input: SecretSeedInput) => Promise<string>;
 
@@ -45,6 +52,7 @@ export class Secret {
     this.optional = config.optional === true;
     this.pushToApiWorker = config.pushToApiWorker === true;
     this.mirrorToDev = config.mirrorToDev === true;
+    this.seedInAllEnvs = config.seedInAllEnvs === true;
     this.validate = config.validate.bind(config);
     if (config.seed !== undefined) {
       this.seed = config.seed.bind(config);

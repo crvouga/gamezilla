@@ -7,7 +7,7 @@
  */
 export type RoomNamespace = {
   idFromName(name: string): object;
-  get(id: object): { fetch(request: Request): Promise<Response> };
+  get(id: object): { fetch: (request: Request) => Promise<Response> };
 };
 
 export type ApiWorkerEnv = {
@@ -19,8 +19,9 @@ export type ApiWorkerEnv = {
    */
   API_URL?: string;
   DATABASE_URL?: string;
-  AUTH_PUBLISHABLE_KEY?: string;
-  AUTH_SECRET_KEY?: string;
+  BETTER_AUTH_SECRET?: string;
+  WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
+  WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;

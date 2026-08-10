@@ -1,10 +1,20 @@
+// @io-wall-ok
 import { Database } from 'bun:sqlite';
 
-import { sqlite as reconcileSqlite } from '@pkgs/db-schema/sqlite';
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { wallIo } from '@pkgs/io';
+import { createLogger } from '@pkgs/logger';
 import { raw, type Sql, sql } from '@pkgs/sql';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+
+const domainMigrateIo = wallIo();
+const domainMigrateLogger = createLogger({
+  name: 'in-memory-sync-engine',
+  level: 'silent',
+  now: domainMigrateIo.clock.now,
+});
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import {
@@ -57,9 +67,9 @@ async function migrateTables(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  await reconcileSqlite(schema.domainSchema, db, {
+  await new SqliteSchemaDatabaseMigration(schema.domainSchema, {
     ownership: 'declared-only',
-  }).reconcile();
+  }).migrate({ sqlClient: db, logger: domainMigrateLogger });
 }
 
 /**

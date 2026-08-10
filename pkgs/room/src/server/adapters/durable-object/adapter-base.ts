@@ -137,7 +137,7 @@ export class RoomDurableObjectAdapterBase<
   private resolveClientId(request: Request): string {
     const header =
       request.headers.get(this.config.clientIdHeader)?.trim() ?? '';
-    return header.length > 0 ? header : crypto.randomUUID();
+    return header.length > 0 ? header : this.config.createId();
   }
 
   async webSocketMessage(
@@ -242,7 +242,12 @@ export class RoomDurableObjectAdapterBase<
       { moduleName }
     );
     const storage = this.config.createStorage(this.ctx, this._env, moduleName);
-    const server = new RoomServer({ topic, module: moduleImpl, storage });
+    const server = new RoomServer({
+      topic,
+      module: moduleImpl,
+      storage,
+      clock: this.config.clock,
+    });
     await server.hydrateFromStorage();
     this.servers.set(moduleName, server);
     return server;
@@ -261,7 +266,7 @@ export class RoomDurableObjectAdapterBase<
     const { server, identity, identityRaw, clientId, moduleName, topic } = args;
     this.supersedeActorSession(server, identityRaw, clientId);
     const [client, serverWs] = newWebSocketPair();
-    const connId = crypto.randomUUID();
+    const connId = this.config.createId();
     this.wsMeta.set(serverWs, { id: connId, identity, clientId, moduleName });
     writeRoomSocketAttachment(serverWs, {
       connId,

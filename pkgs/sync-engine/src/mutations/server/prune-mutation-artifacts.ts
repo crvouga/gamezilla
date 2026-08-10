@@ -8,7 +8,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 export async function pruneMutationArtifacts(
   db: Pick<SqlClient, 'run'>,
   olderThanMs: number,
-  now: Date = new Date()
+  now: Date
 ): Promise<void> {
   const cutoff = new Date(now.getTime() - olderThanMs).toISOString();
   await db.run(sql`

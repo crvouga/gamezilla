@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { globalHttpFetch } from '@pkgs/http-client';
 import type { ReconcileFail, ReconcileLog } from './ci-reconcile-types';
 
 function trimEnv(name: string): string {
@@ -18,11 +19,17 @@ async function loginUniversalAuth(
   clientSecret: string,
   fail: ReconcileFail
 ): Promise<string> {
-  const res = await fetch(`${domain}/api/v1/auth/universal-auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ clientId, clientSecret }),
-  });
+  const res = await globalHttpFetch(
+    `${domain}/api/v1/auth/universal-auth/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ clientId, clientSecret }),
+    }
+  );
   if (!res.ok) {
     fail(`Infisical universal-auth login failed: HTTP ${res.status}`);
   }

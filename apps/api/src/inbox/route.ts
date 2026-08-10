@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
-import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
+import { BackfillFriendRequestInboxUseCase } from '@libs/friends/server/backfill-friend-request-inbox-use-case';
+import { HandleFriendsInboxActionUseCase } from '@libs/friends/server/handle-friends-inbox-action-use-case';
 import { assert } from '@pkgs/assert';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
@@ -34,8 +34,12 @@ function ensureInboxHandlers(): void {
     }
     const actor = inboxActorStorage.getStore();
     assert.defined(actor, 'friends inbox: actor missing');
-    const result = await handleFriendsInboxAction({
-      sql: ctx.sql,
+    const store = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(store, 'friends inbox: request store missing');
+    const result = await new HandleFriendsInboxActionUseCase(
+      store.sqlClient,
+      store.io
+    ).execute({
       actorId: ctx.actorId,
       deviceId: actor.deviceId,
       actionId: ctx.actionId,
@@ -124,8 +128,13 @@ export function createInboxSubApp() {
   });
 
   app.post('/backfill', async (c) => {
-    const { sql, actorId } = lazyRequestContext();
-    const count = await backfillFriendRequestInboxInteractions(sql, actorId);
+    const store = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(store, 'inbox backfill: request store missing');
+    const { actorId } = lazyRequestContext();
+    const count = await new BackfillFriendRequestInboxUseCase(
+      store.sqlClient,
+      store.io
+    ).execute(actorId);
     return c.json({ backfilled: count });
   });
 

@@ -1,3 +1,4 @@
+import { useIo } from '@pkgs/io';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useEffect, useMemo, useState } from 'react';
 import type { Interaction, InteractionFilter } from '../shared/interaction';
@@ -14,6 +15,7 @@ export function useInbox(options?: { readonly filter?: InteractionFilter }): {
   readonly setFilter: (filter: InteractionFilter) => void;
 } {
   const { userId } = useInboxShell();
+  const io = useIo();
   const [filter, setFilter] = useState<InteractionFilter>(
     options?.filter ?? 'all'
   );
@@ -30,8 +32,8 @@ export function useInbox(options?: { readonly filter?: InteractionFilter }): {
     [rows]
   );
   const sections = useMemo(
-    () => buildInteractionSections(interactions),
-    [interactions]
+    () => buildInteractionSections(interactions, io.clock.now),
+    [interactions, io.clock.now]
   );
   return { interactions, sections, isLoading, filter, setFilter };
 }

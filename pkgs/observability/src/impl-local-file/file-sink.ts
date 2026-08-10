@@ -14,9 +14,10 @@ export type FileSinkOptions = {
   readonly maxFiles: number;
   readonly maxTotalBytes: number;
   readonly maxAgeMs: number;
+  readonly now: () => number;
 };
 
-export const DEFAULT_FILE_SINK_OPTIONS: FileSinkOptions = {
+export const DEFAULT_FILE_SINK_OPTIONS: Omit<FileSinkOptions, 'now'> = {
   rootDir: join(process.cwd(), '.observability'),
   maxFileBytes: 5 * 1024 * 1024,
   maxFiles: 50,
@@ -40,14 +41,15 @@ export class ObservabilityFileSink {
   private ingestCount = 0;
   private activeByService = new Map<string, ActiveFile>();
 
-  constructor(options: Partial<FileSinkOptions> = {}) {
-    this.options = { ...DEFAULT_FILE_SINK_OPTIONS, ...options };
+  constructor(options: FileSinkOptions) {
+    this.options = options;
   }
 
   write(record: ExportedSpanRecord): void {
     const line = `${JSON.stringify(record)}\n`;
     const bytes = Buffer.byteLength(line, 'utf8');
-    const now = new Date();
+    const nowMs = this.options.now();
+    const now = new Date(nowMs);
     const service = record.serviceName;
     let active = this.activeByService.get(service);
     const targetPath = hourPath(this.options.rootDir, service, now);
@@ -58,7 +60,7 @@ export class ObservabilityFileSink {
     }
 
     if (active.bytes + bytes > this.options.maxFileBytes) {
-      const rotated = `${targetPath}.${Date.now()}.ndjson`;
+      const rotated = `${targetPath}.${String(nowMs)}.ndjson`;
       active = { path: rotated, bytes: 0 };
       this.activeByService.set(service, active);
     }
@@ -92,7 +94,7 @@ export class ObservabilityFileSink {
   cleanup(serviceName?: string): void {
     const services =
       serviceName !== undefined ? [serviceName] : this.listServices();
-    const now = Date.now();
+    const now = this.options.now();
     for (const service of services) {
       const files = this.listServiceFiles(service)
         .map((path) => ({ path, stat: statSync(path) }))

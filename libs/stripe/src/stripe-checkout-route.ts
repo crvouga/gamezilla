@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
-import { readExternalAccountId } from '@libs/auth/server/external-accounts-sql';
+import { ExternalAccountRepository } from '@libs/auth/server/external-account-repository';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
+import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
@@ -10,7 +11,10 @@ import type Stripe from 'stripe';
 import { z } from 'zod';
 import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
 
-const log = createLogger({ name: 'stripe:checkout' });
+const log = createLogger({
+  name: 'stripe:checkout',
+  now: () => getIo().clock.now(),
+});
 
 export type StripeAuthContext = {
   readonly accountId: string;
@@ -39,8 +43,7 @@ async function readStripeCustomerId(
   sql: SqlClient,
   accountId: string
 ): Promise<string | null> {
-  return readExternalAccountId(
-    sql,
+  return new ExternalAccountRepository(sql).readExternalAccountId(
     accountId,
     EXTERNAL_ACCOUNT_PROVIDER_STRIPE
   );
@@ -106,35 +109,43 @@ async function handleStripePortal(
   return c.json({ url: portal.url }, 200);
 }
 
-export function createStripeCheckoutRoutes(args: {
-  readonly getSqlClient: () => SqlClient;
-  readonly stripe: Stripe | null;
-  readonly requireAuth: StripeRequireAuth;
-}) {
-  const { getSqlClient, stripe, requireAuth } = args;
+export class StripeCheckoutRoutes {
+  constructor(
+    private readonly getSqlClient: () => SqlClient,
+    private readonly stripe: Stripe | null,
+    private readonly requireAuth: StripeRequireAuth
+  ) {}
 
-  return new Hono()
-    .post(
-      '/stripe/checkout',
-      zValidator('json', checkoutBodySchema),
-      async (c) => {
-        if (stripe === null) {
-          return c.json({ error: 'Stripe is not configured' }, 503);
+  build(): Hono {
+    const { getSqlClient, stripe, requireAuth } = this;
+
+    return new Hono()
+      .post(
+        '/stripe/checkout',
+        zValidator('json', checkoutBodySchema),
+        async (c) => {
+          if (stripe === null) {
+            return c.json({ error: 'Stripe is not configured' }, 503);
+          }
+          const body = c.req.valid('json');
+          const sql = getSqlClient();
+          return handleStripeCheckout(c, body, {
+            sql,
+            requireAuth,
+          });
         }
-        const body = c.req.valid('json');
-        const sql = getSqlClient();
-        return handleStripeCheckout(c, body, {
-          sql,
-          requireAuth,
-        });
-      }
-    )
-    .post('/stripe/portal', zValidator('json', portalBodySchema), async (c) => {
-      if (stripe === null) {
-        return c.json({ error: 'Stripe is not configured' }, 503);
-      }
-      const body = c.req.valid('json');
-      const sql = getSqlClient();
-      return handleStripePortal(c, body, { sql, stripe, requireAuth });
-    });
+      )
+      .post(
+        '/stripe/portal',
+        zValidator('json', portalBodySchema),
+        async (c) => {
+          if (stripe === null) {
+            return c.json({ error: 'Stripe is not configured' }, 503);
+          }
+          const body = c.req.valid('json');
+          const sql = getSqlClient();
+          return handleStripePortal(c, body, { sql, stripe, requireAuth });
+        }
+      );
+  }
 }

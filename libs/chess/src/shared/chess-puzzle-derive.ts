@@ -4,6 +4,7 @@ import {
   type ChessPuzzleInteractionRow,
 } from './chess-puzzle-interaction-entities';
 import type { PuzzleRatingScore } from './chess-puzzle-rating';
+import { compareCodeUnit } from './code-unit-compare';
 
 function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
   return (
@@ -77,7 +78,7 @@ export function deriveRecentlyAttemptedPuzzleIds(
   interactions: readonly ChessPuzzleInteractionRow[],
   limit: number
 ): readonly string[] {
-  const sorted = [...interactions].sort((a, b) => b.at.localeCompare(a.at));
+  const sorted = [...interactions].sort((a, b) => compareCodeUnit(b.at, a.at));
   const seen = new Set<string>();
   const out: string[] = [];
   for (const row of sorted) {
@@ -94,7 +95,7 @@ export function deriveRecentlyAttemptedPuzzleIds(
 export function deriveCurrentStreak(
   interactions: readonly ChessPuzzleInteractionRow[]
 ): number {
-  const sorted = [...interactions].sort((a, b) => b.at.localeCompare(a.at));
+  const sorted = [...interactions].sort((a, b) => compareCodeUnit(b.at, a.at));
   let streak = 0;
   for (const row of sorted) {
     if (!isTerminalKind(row.kind)) continue;

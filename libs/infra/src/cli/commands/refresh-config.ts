@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
@@ -17,11 +18,11 @@ export class RefreshConfigCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Refresh client config');
     const ctx = readInfraContextFromEnv();
     const outputs = infraOutputs(ctx);
     await runRefreshConfigPhase(this.platform, outputs);
-    banner('Refresh client config complete', performance.now() - t0);
+    banner('Refresh client config complete', cliIo.clock.now() - t0);
   }
 }

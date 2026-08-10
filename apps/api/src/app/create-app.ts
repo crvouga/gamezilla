@@ -1,11 +1,13 @@
+// @io-wall-ok
 import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { createClientConfigApp } from '@libs/client-config/server/route';
+import { ClientConfigApp } from '@libs/client-config/server/route';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
-import { createStripeApp } from '@libs/stripe/stripe-app';
+import { StripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
+import { wallIo } from '@pkgs/io';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
@@ -13,7 +15,10 @@ import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
+import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
+import { createApiFeatures } from '../features/api-features';
+import { createFeaturesApp } from '../features/features-route';
 import { healthApp } from '../health/route';
 import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
@@ -28,7 +33,8 @@ import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
 import { createRequestDbMiddleware } from './request-db-middleware';
 
-const log = createLogger({ name: 'api:app' });
+const appIo = wallIo();
+const log = createLogger({ name: 'api:app', now: appIo.clock.now });
 
 export type { ApiHandlerConfig } from './config';
 
@@ -79,35 +85,43 @@ function createApiErrorHandler() {
 
 async function createStripeClient(
   secretStore: ApiHandlerConfig['secretStore']
-): Promise<Stripe> {
+): Promise<Stripe | null> {
   const raw = (
     await secretStore.getOptional(ApiSecretName.stripeSecretKey)
   )?.readSecretValue();
   const key =
-    typeof raw === 'string' && raw.trim().length > 0
-      ? raw.trim()
-      : assert.fail('stripe secret key is required');
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
+  if (key === null) {
+    log.warn('stripe secret key missing; Stripe routes will return 503');
+    return null;
+  }
   return new Stripe(key, {
     httpClient: Stripe.createFetchHttpClient(),
   });
 }
 
 async function createTtsAppForApi(config: ApiHandlerConfig) {
-  return await createTtsAppFromBindings({
+  const result = await createTtsAppFromBindings({
     secretStore: config.secretStore,
     objectStore: config.objectStore,
     publicPathPrefix: '/api',
+    fetch: appIo.http.fetch.bind(appIo.http),
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
+  if (!result.configured) {
+    log.warn('ELEVEN_LABS_API_KEY missing; TTS routes will return 503');
+  }
+  return result;
 }
 
 async function createLlmAppForApi(config: ApiHandlerConfig) {
-  return await createLlmAppFromBindings({
+  const result = await createLlmAppFromBindings({
     secretStore: config.secretStore,
+    http: appIo.http,
     getKv: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'llm kv: request store missing');
@@ -119,17 +133,23 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
   });
+  if (!result.configured) {
+    log.warn(
+      'OPENAI_API_KEY / OPENAI_BASE_URL missing; LLM routes will return 503'
+    );
+  }
+  return result;
 }
 
-function createStripeSubApp(stripe: Stripe) {
-  return createStripeApp({
-    getSqlClient: () => {
+function createStripeSubApp(stripe: Stripe | null) {
+  return new StripeApp(
+    () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe: request store missing');
       return s.sqlClient;
     },
     stripe,
-    requireAuth: async (_sql, req) => {
+    async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe auth: request store missing');
       const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
@@ -140,8 +160,8 @@ function createStripeSubApp(stripe: Stripe) {
         );
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
-    },
-  });
+    }
+  ).build();
 }
 
 /**
@@ -149,13 +169,27 @@ function createStripeSubApp(stripe: Stripe) {
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
  */
 export async function createApiApp(config: ApiHandlerConfig) {
-  const { secretStore, dbScope, observability, authServer, secretsEnv } =
+  const { secretStore, dbScope, observability, betterAuth, secretsEnv } =
     config;
-  const [stripe, ttsApp, llmApp] = await Promise.all([
+  const [stripe, tts, llm] = await Promise.all([
     createStripeClient(secretStore),
     createTtsAppForApi(config),
     createLlmAppForApi(config),
   ]);
+
+  if (!betterAuth.googleEnabled) {
+    log.warn(
+      'Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)'
+    );
+  }
+
+  const features = createApiFeatures({
+    googleEnabled: betterAuth.googleEnabled,
+    emailPasswordEnabled: betterAuth.enableEmailPassword,
+    stripeConfigured: stripe !== null,
+    ttsConfigured: tts.configured,
+    llmConfigured: llm.configured,
+  });
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -167,21 +201,31 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .use(
       '*',
       createRequestDbMiddleware(secretStore, dbScope, {
-        authServer,
+        betterAuth,
         apiUrlOverride: config.apiUrlOverride,
         databaseUrlOverride: config.databaseUrlOverride,
         secretsEnv,
         observability,
+        io: appIo,
       })
     )
     .use('*', apiCors)
     .route('/', healthApp)
+    .route('/', createFeaturesApp(features))
     .route(
       '/',
-      createClientConfigApp(log, {
+      createBetterAuthRoutes({
+        secretsEnv,
+        webClientOrigin: betterAuth.webClientOrigin,
+      })
+    )
+    .route(
+      '/',
+      new ClientConfigApp(log, {
         onConfigUpdated: () =>
           notifyClientConfigChannels('client-config-refresh'),
-      })
+        googleWebClientId: betterAuth.googleClientId,
+      }).build()
     )
     .route('/', createFriendsApp())
     .route(
@@ -193,8 +237,8 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .route('/', createSyncApp())
     .route('/', createPubSubTokenRoutes())
-    .route('/', ttsApp)
-    .route('/', llmApp)
+    .route('/', tts.app)
+    .route('/', llm.app)
     .route('/', createStripeSubApp(stripe))
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())

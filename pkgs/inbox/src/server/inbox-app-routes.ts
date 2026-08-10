@@ -1,3 +1,4 @@
+import { getIo } from '@pkgs/io/als';
 import type { Hono } from 'hono';
 import type { InboxRequestContext } from './inbox-context';
 import {
@@ -39,7 +40,7 @@ export function registerInboxRoutes(
 
   app.post('/interactions/read-all', async (c) => {
     const { sql, actorId } = requestContext();
-    await markAllInteractionsRead(sql, actorId);
+    await markAllInteractionsRead(sql, actorId, getIo().clock.now);
     return c.json({ ok: true });
   });
 
@@ -48,7 +49,8 @@ export function registerInboxRoutes(
     const interaction = await markInteractionRead(
       sql,
       actorId,
-      c.req.param('id')
+      c.req.param('id'),
+      getIo().clock.now
     );
     return c.json({ interaction });
   });
@@ -58,7 +60,8 @@ export function registerInboxRoutes(
     const interaction = await archiveInteraction(
       sql,
       actorId,
-      c.req.param('id')
+      c.req.param('id'),
+      getIo().clock.now
     );
     return c.json({ interaction });
   });
@@ -68,7 +71,8 @@ export function registerInboxRoutes(
     const interaction = await dismissInteraction(
       sql,
       actorId,
-      c.req.param('id')
+      c.req.param('id'),
+      getIo().clock.now
     );
     return c.json({ interaction });
   });

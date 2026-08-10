@@ -5,7 +5,7 @@ describe('isApiRequestPath', () => {
   test('matches API routes under /api', () => {
     expect(isApiRequestPath('/api/health')).toBe(true);
     expect(isApiRequestPath('/api/auth/sign-in')).toBe(true);
-    expect(isApiRequestPath('/api/auth/refresh')).toBe(true);
+    expect(isApiRequestPath('/api/identity/refresh')).toBe(true);
     expect(isApiRequestPath('/api/query')).toBe(true);
     expect(isApiRequestPath('/api/mutations')).toBe(true);
     expect(isApiRequestPath('/api/room')).toBe(true);

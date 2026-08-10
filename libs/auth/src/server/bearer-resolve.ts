@@ -4,10 +4,11 @@ import {
 } from '@libs/auth/shared/auth-context';
 import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import { findUserIdByDeviceId } from './anon-user-ensure';
+import { AnonUserService } from './anon-user-service';
+import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
 
 const ACCOUNT_CACHE_TTL_MS = 60_000;
 const ACCOUNT_CACHE_MAX = 128;
@@ -18,81 +19,89 @@ function accountCacheKey(deviceId: string, externalUserId: string): string {
   return `${deviceId}\0${externalUserId}`;
 }
 
-function readCachedAccountId(key: string): string | null {
+function readCachedAccountId(key: string, now: () => number): string | null {
   const hit = accountIdCache.get(key);
   if (hit === undefined) return null;
-  if (hit.exp <= Date.now()) {
+  if (hit.exp <= now()) {
     accountIdCache.delete(key);
     return null;
   }
   return hit.accountId;
 }
 
-function writeCachedAccountId(key: string, accountId: string): void {
+function writeCachedAccountId(
+  key: string,
+  accountId: string,
+  now: () => number
+): void {
   if (accountIdCache.size >= ACCOUNT_CACHE_MAX) {
     const oldest = accountIdCache.keys().next().value;
     if (oldest !== undefined) accountIdCache.delete(oldest);
   }
   accountIdCache.set(key, {
     accountId,
-    exp: Date.now() + ACCOUNT_CACHE_TTL_MS,
+    exp: now() + ACCOUNT_CACHE_TTL_MS,
   });
 }
 
 /**
  * Validates the bearer token via the auth server port and resolves the internal
- * account id, or `null` if verification fails.
- *
- * When the device is bound to an anon user and this external identity is new,
- * that anon row is upgraded in place.
- *
- * JWT verification always runs; only the device/account SQL lookup is cached
- * briefly (remote Postgres was ~800ms per mutations/query request).
+ * account id. JWT verification always runs; only the device/account SQL lookup
+ * is cached briefly.
  */
-export async function resolveAccountIdFromBearer(args: {
-  sql: SqlClient;
-  authServer: AuthServerPort;
-  bearerToken: string;
-  deviceId: string;
-}): Promise<string | null> {
-  const { sql, authServer, bearerToken, deviceId } = args;
-  assertUuid(deviceId, 'deviceId must be a valid UUID');
-  const trimmed = bearerToken.trim();
-  if (trimmed.length === 0) return null;
+export class BearerAuthResolver {
+  constructor(
+    private readonly sql: SqlClient,
+    private readonly authServer: AuthServerPort,
+    private readonly io: Io
+  ) {}
 
-  const session = await authServer.verifySessionToken(trimmed);
-  if (session === null) return null;
+  async resolveAccountId(
+    bearerToken: string,
+    deviceId: string
+  ): Promise<string | null> {
+    assertUuid(deviceId, 'deviceId must be a valid UUID');
+    const trimmed = bearerToken.trim();
+    if (trimmed.length === 0) return null;
 
-  const cacheKey = accountCacheKey(deviceId, session.externalUserId);
-  const cached = readCachedAccountId(cacheKey);
-  if (cached !== null) return cached;
+    const session = await this.authServer.verifySessionToken(trimmed);
+    if (session === null) return null;
 
-  const upgradeUserId = await findUserIdByDeviceId(sql, deviceId);
+    const cacheKey = accountCacheKey(deviceId, session.externalUserId);
+    const cached = readCachedAccountId(cacheKey, this.io.clock.now);
+    if (cached !== null) return cached;
 
-  const accountId = await ensureInternalAccountIdForExternalUser({
-    sql,
-    authServer,
-    externalUserId: session.externalUserId,
-    upgradeUserId,
-  });
-  if (accountId !== null) writeCachedAccountId(cacheKey, accountId);
-  return accountId;
-}
+    const upgradeUserId = await new AnonUserService(
+      this.sql,
+      this.io
+    ).findUserIdByDeviceId(deviceId);
 
-export async function buildAppAuthContextFromBearer(args: {
-  sql: SqlClient;
-  authServer: AuthServerPort;
-  bearerToken: string;
-  deviceId: string;
-}): Promise<AppAuthContext | null> {
-  const { deviceId } = args;
-  const accountId = await resolveAccountIdFromBearer(args);
-  if (accountId === null) return null;
-  assertDeviceId(deviceId);
-  return buildAppAuthContext({
-    deviceId,
-    accountId,
-    myId: accountId,
-    isAnon: false,
-  });
+    const accountId = await new EnsureInternalAccountUseCase(
+      this.sql,
+      this.io,
+      this.authServer
+    ).execute({
+      externalUserId: session.externalUserId,
+      upgradeUserId,
+    });
+    if (accountId !== null) {
+      writeCachedAccountId(cacheKey, accountId, this.io.clock.now);
+    }
+    return accountId;
+  }
+
+  async buildAppAuthContext(
+    bearerToken: string,
+    deviceId: string
+  ): Promise<AppAuthContext | null> {
+    const accountId = await this.resolveAccountId(bearerToken, deviceId);
+    if (accountId === null) return null;
+    assertDeviceId(deviceId);
+    return buildAppAuthContext({
+      deviceId,
+      accountId,
+      myId: accountId,
+      isAnon: false,
+    });
+  }
 }

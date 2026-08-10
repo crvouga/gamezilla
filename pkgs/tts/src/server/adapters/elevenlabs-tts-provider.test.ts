@@ -10,15 +10,20 @@ function okResponse(bytes: Uint8Array, contentType = 'audio/mpeg'): Response {
   });
 }
 
+const unusedFetch = async () => new Response();
+
 describe('ElevenLabsTtsProvider', () => {
   test('rejects empty apiKey', () => {
-    expect(() => new ElevenLabsTtsProvider({ apiKey: '   ' })).toThrow(
-      'apiKey must be non-empty'
-    );
+    expect(
+      () => new ElevenLabsTtsProvider({ apiKey: '   ', fetch: unusedFetch })
+    ).toThrow('apiKey must be non-empty');
   });
 
   test('exposes provider id', () => {
-    const provider = new ElevenLabsTtsProvider({ apiKey: 'k' });
+    const provider = new ElevenLabsTtsProvider({
+      apiKey: 'k',
+      fetch: unusedFetch,
+    });
     expect(provider.id).toBe('elevenlabs');
   });
 

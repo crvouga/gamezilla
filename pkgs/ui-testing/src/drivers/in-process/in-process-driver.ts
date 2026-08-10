@@ -1,3 +1,4 @@
+import type { Timers } from '@pkgs/clock';
 import type { AppHarness } from '../../bootstrap/app-harness';
 import type {
   RenderAdapter,
@@ -5,7 +6,7 @@ import type {
 } from '../../bootstrap/render-adapter';
 import { ElementNotFoundError, NotImplementedError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import { type WaitOptions, waitUntil } from '../../core/wait';
+import { type WaitPollOptions, waitUntil } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
@@ -20,6 +21,8 @@ export type InProcessDriverOptions<TContext = void> = {
   harness: AppHarness<TContext>;
   /** Defaults to the shipped react-native-web DOM renderer. */
   renderer?: RenderAdapter;
+  readonly now: () => number;
+  readonly timers: Timers;
 };
 
 /**
@@ -31,12 +34,16 @@ export class InProcessDriver<TContext = void> implements Driver {
 
   private readonly harness: AppHarness<TContext>;
   private readonly renderer: RenderAdapter;
+  private readonly now: () => number;
+  private readonly timers: Timers;
   private context: TContext | undefined;
   private app: RenderedApp | undefined;
 
   constructor(options: InProcessDriverOptions<TContext>) {
     this.harness = options.harness;
     this.renderer = options.renderer ?? createDomRenderAdapter();
+    this.now = options.now;
+    this.timers = options.timers;
   }
 
   async launch(): Promise<void> {
@@ -100,7 +107,7 @@ export class InProcessDriver<TContext = void> implements Driver {
   async waitFor(
     target: Selector,
     state: WaitState,
-    options?: WaitOptions
+    options?: WaitPollOptions
   ): Promise<void> {
     const description =
       options?.description ?? `${state} ${formatSelector(target)}`;
@@ -109,7 +116,12 @@ export class InProcessDriver<TContext = void> implements Driver {
         const visible = await this.isVisible(target);
         return state === 'visible' ? visible : !visible;
       },
-      { ...options, description }
+      {
+        ...options,
+        description,
+        now: this.now,
+        timers: this.timers,
+      }
     );
   }
 

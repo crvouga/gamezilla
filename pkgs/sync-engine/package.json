@@ -11,16 +11,22 @@
   "scripts": {
     "sim:lab": "bun ./src/sim-lab/server.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test",
+    "test:sim": "bun test src/tests/scenarios"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
     "node-sql-parser": "catalog:",
     "react": "catalog:",

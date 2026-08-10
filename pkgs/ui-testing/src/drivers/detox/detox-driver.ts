@@ -1,6 +1,6 @@
 import { NotImplementedError } from '../../core/errors';
 import type { DriverKey } from '../../core/keys';
-import type { WaitOptions } from '../../core/wait';
+import type { WaitPollOptions } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
@@ -98,7 +98,7 @@ export class DetoxDriver implements Driver {
   async waitFor(
     _target: Selector,
     _state: WaitState,
-    _options?: WaitOptions
+    _options?: WaitPollOptions
   ): Promise<void> {
     this.unsupported(
       'waitFor',

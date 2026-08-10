@@ -1,18 +1,23 @@
+import type { Timers } from '@pkgs/clock';
+
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../../protocol/wire';
 
 export type HeartbeatTimers = {
-  interval: ReturnType<typeof setInterval> | null;
-  timeout: ReturnType<typeof setTimeout> | null;
+  interval: unknown | null;
+  timeout: unknown | null;
 };
 
-export function clearHeartbeatTimers(timers: HeartbeatTimers): void {
-  if (timers.interval !== null) {
-    clearInterval(timers.interval);
-    timers.interval = null;
+export function clearHeartbeatTimers(
+  handles: HeartbeatTimers,
+  timers: Timers
+): void {
+  if (handles.interval !== null) {
+    timers.clearInterval(handles.interval);
+    handles.interval = null;
   }
-  if (timers.timeout !== null) {
-    clearTimeout(timers.timeout);
-    timers.timeout = null;
+  if (handles.timeout !== null) {
+    timers.clearTimeout(handles.timeout);
+    handles.timeout = null;
   }
 }
 
@@ -37,14 +42,16 @@ export function sendPing(socket: WebSocket): void {
  * {@link clearHeartbeatTimers}), `onMissed` runs.
  */
 export function startHeartbeat(args: {
-  timers: HeartbeatTimers;
+  handles: HeartbeatTimers;
+  timers: Timers;
   getSocket: () => WebSocket | null;
   heartbeatMs: number;
   heartbeatTimeoutMs: number;
   onMissed: () => void;
 }): void {
-  clearHeartbeatTimers(args.timers);
-  args.timers.interval = setInterval(() => {
+  const { timers } = args;
+  clearHeartbeatTimers(args.handles, timers);
+  args.handles.interval = timers.setInterval(() => {
     const s = args.getSocket();
     if (s === null || s.readyState !== WebSocket.OPEN) return;
     try {
@@ -53,9 +60,11 @@ export function startHeartbeat(args: {
       args.onMissed();
       return;
     }
-    if (args.timers.timeout !== null) clearTimeout(args.timers.timeout);
-    args.timers.timeout = setTimeout(() => {
-      args.timers.timeout = null;
+    if (args.handles.timeout !== null) {
+      timers.clearTimeout(args.handles.timeout);
+    }
+    args.handles.timeout = timers.setTimeout(() => {
+      args.handles.timeout = null;
       args.onMissed();
     }, args.heartbeatTimeoutMs);
   }, args.heartbeatMs);
@@ -64,19 +73,20 @@ export function startHeartbeat(args: {
 export function raceWithTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  label: string
+  label: string,
+  timers: Timers
 ): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => {
+    const timer = timers.setTimeout(() => {
       reject(new Error(`${label} timed out after ${timeoutMs}ms`));
     }, timeoutMs);
     promise.then(
       (v) => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         resolve(v);
       },
       (err: unknown) => {
-        clearTimeout(timer);
+        timers.clearTimeout(timer);
         reject(err);
       }
     );

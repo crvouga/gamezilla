@@ -26,6 +26,7 @@ export {
 } from './adapters/openai-llm-provider';
 export {
   type CreateLlmAppFromBindingsOptions,
+  type CreateLlmAppFromBindingsResult,
   createLlmAppFromBindings,
   LlmSecretName,
 } from './llm-from-bindings';

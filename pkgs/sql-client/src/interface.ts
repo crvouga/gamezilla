@@ -62,6 +62,14 @@ export interface SqlClient {
 }
 
 /**
+ * Query/run handle usable inside or outside a transaction.
+ * Layer C (repositories / services / publishers) takes this — never a full
+ * {@link SqlClient}. Both the request client and a `transaction` callback
+ * handle satisfy it.
+ */
+export type SqlTx = Pick<SqlClient, 'query' | 'run'>;
+
+/**
  * A {@link SqlClient} backed by Postgres whose session is pinned to a known
  * {@link PostgresDbScope}. The scope travels with the client so DDL/catalog
  * code can qualify by `dbScope.schema` instead of hardcoding `public`.

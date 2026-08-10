@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { banner, ok } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import { runDeployResourcesPhase } from '../lib/phases/deploy-resources';
@@ -23,7 +24,7 @@ export class DeployResourcesCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Deploy resources');
     const p = this.platform;
 
@@ -32,7 +33,7 @@ export class DeployResourcesCommand implements Command {
 
     const outputs = infraOutputs(ctx);
 
-    banner('Deploy resources complete', performance.now() - t0);
+    banner('Deploy resources complete', cliIo.clock.now() - t0);
     ok('client_url', outputs.client_url);
     ok('api_url', outputs.api_url);
 

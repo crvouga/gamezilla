@@ -5,6 +5,7 @@
  */
 
 import { useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import type { LocalizedString } from '@pkgs/i18n';
 import * as Clipboard from 'expo-clipboard';
 import {
@@ -99,11 +100,12 @@ function useCopiedReset(
   setCopied: (b: boolean) => void,
   copiedResetMs: number
 ): void {
+  const timers = useTimers();
   useEffect(() => {
     if (!copied) return;
-    const id = setTimeout(() => setCopied(false), copiedResetMs);
-    return () => clearTimeout(id);
-  }, [copied, copiedResetMs, setCopied]);
+    const id = timers.setTimeout(() => setCopied(false), copiedResetMs);
+    return () => timers.clearTimeout(id);
+  }, [copied, copiedResetMs, setCopied, timers]);
 }
 
 export function CopyToClipboardField({

@@ -1,6 +1,8 @@
 import { createLogger } from '@pkgs/logger/logger';
 
-const log = createLogger({ name: 'fire-and-forget' });
+export type FireAndForgetOptions = {
+  readonly now: () => number;
+};
 
 /**
  * Wraps a promise to log rejections with structured context instead of silently swallowing.
@@ -12,11 +14,14 @@ const log = createLogger({ name: 'fire-and-forget' });
  *
  * @param promise  - The promise to attach error handling to.
  * @param context  - Structured data for debugging (logged on rejection).
+ * @param options  - Injected `now` for the structured logger.
  */
 export function fireAndForget(
   promise: Promise<unknown>,
-  context: Record<string, unknown>
+  context: Record<string, unknown>,
+  options: FireAndForgetOptions
 ): void {
+  const log = createLogger({ name: 'fire-and-forget', now: options.now });
   promise.catch((err: unknown) => {
     log.error('unhandled rejection', {
       ...context,

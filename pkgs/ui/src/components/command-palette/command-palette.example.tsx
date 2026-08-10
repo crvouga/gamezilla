@@ -1,4 +1,6 @@
-import { useState } from 'react';
+// @io-wall-ok
+import { ClockProvider, useTimers, wallClock, wallTimers } from '@pkgs/clock';
+import { useCallback, useState } from 'react';
 
 import { Button } from '../button';
 import { ExampleRoot } from '../explorer/example-root';
@@ -18,16 +20,20 @@ import {
 } from './index';
 import { useCommandPalette } from './use-command-palette';
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function OpenPaletteButton() {
   const { open } = useCommandPalette();
   return <Button title="Open command palette" onPress={open} />;
 }
 
 function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
+  const timers = useTimers();
+  const sleep = useCallback(
+    (ms: number) =>
+      new Promise<void>((resolve) => {
+        timers.setTimeout(resolve, ms);
+      }),
+    [timers]
+  );
   return (
     <>
       <RegisterCommand
@@ -101,25 +107,27 @@ function DemoCommands({ onIncrement }: { onIncrement: () => void }) {
 export default function CommandPaletteExample() {
   const [count, setCount] = useState(0);
   return (
-    <CommandRegistryProvider enableDefaultShortcuts={false}>
-      <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
-      <ExampleRoot>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="Open via the button below. In the app shell use ⌘K / ⌘⇧P (global shortcuts are disabled in this isolated example)."
-        />
-        <Stack spacing={2}>
-          <Text variant="bodyBold" label={`Counter: ${count}`} />
-          <OpenPaletteButton />
-        </Stack>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="↑ ↓ navigate · Enter run · Esc close · Tab next"
-        />
-      </ExampleRoot>
-      <CommandPalette />
-    </CommandRegistryProvider>
+    <ClockProvider clock={wallClock} timers={wallTimers}>
+      <CommandRegistryProvider enableDefaultShortcuts={false}>
+        <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
+        <ExampleRoot>
+          <Text
+            variant="caption"
+            sx={{ color: 'textSecondary' }}
+            label="Open via the button below. In the app shell use ⌘K / ⌘⇧P (global shortcuts are disabled in this isolated example)."
+          />
+          <Stack spacing={2}>
+            <Text variant="bodyBold" label={`Counter: ${count}`} />
+            <OpenPaletteButton />
+          </Stack>
+          <Text
+            variant="caption"
+            sx={{ color: 'textSecondary' }}
+            label="↑ ↓ navigate · Enter run · Esc close · Tab next"
+          />
+        </ExampleRoot>
+        <CommandPalette />
+      </CommandRegistryProvider>
+    </ClockProvider>
   );
 }

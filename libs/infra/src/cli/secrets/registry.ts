@@ -6,14 +6,13 @@ import {
   LOCAL_PREVIEW_API_ORIGIN,
 } from './api-url';
 import {
-  AUTH_PUBLISHABLE_KEY,
-  AUTH_SECRET_KEY,
-  EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY,
+  BETTER_AUTH_SECRET,
+  WEB_CLIENT_GOOGLE_CLIENT_ID,
+  WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from './auth-secrets';
 import { B2_MASTER_KEY, B2_MASTER_KEY_ID } from './b2-credentials';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
-import { CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY } from './clerk-alias-secrets';
 import { DATABASE_URL } from './db-url';
 import {
   EMQX_API_KEY,
@@ -60,11 +59,9 @@ export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,
   DATABASE_URL,
-  AUTH_PUBLISHABLE_KEY,
-  AUTH_SECRET_KEY,
-  EXPO_PUBLIC_AUTH_PUBLISHABLE_KEY,
-  CLERK_PUBLISHABLE_KEY,
-  CLERK_SECRET_KEY,
+  BETTER_AUTH_SECRET,
+  WEB_CLIENT_GOOGLE_CLIENT_ID,
+  WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   STRIPE_SECRET_KEY,
   STRIPE_PUBLISHABLE_KEY,
   TURBO_TOKEN,
@@ -118,4 +115,8 @@ export function getMirrorToDevSecrets(): readonly Secret[] {
 
 export function getSeedableSecrets(): readonly Secret[] {
   return SECRETS.filter((s) => s.seed !== undefined);
+}
+
+export function getSeedInAllEnvsSecrets(): readonly Secret[] {
+  return SECRETS.filter((s) => s.seedInAllEnvs && s.seed !== undefined);
 }

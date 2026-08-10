@@ -23,19 +23,19 @@ export const COLUMN_TYPE_SET: ReadonlySet<string> = new Set(COLUMN_TYPES);
 
 /** Engine-owned implicit columns created on every table. */
 export const MANAGED_IMPLICIT_COLUMNS = {
-  _id: 'uuid',
-  _created_at: 'timestamp',
-  _updated_at: 'timestamp',
-  _deleted_at: 'timestamp',
+  id: 'text',
+  created_at: 'timestamp',
+  updated_at: 'timestamp',
+  deleted_at: 'timestamp',
 } as const satisfies Record<string, ColumnType>;
 
 export type ManagedImplicitColumn = keyof typeof MANAGED_IMPLICIT_COLUMNS;
 
 export const MANAGED_IMPLICIT_COLUMN_NAMES: readonly ManagedImplicitColumn[] = [
-  '_id',
-  '_created_at',
-  '_updated_at',
-  '_deleted_at',
+  'id',
+  'created_at',
+  'updated_at',
+  'deleted_at',
 ];
 
 export const MANAGED_IMPLICIT_SET: ReadonlySet<string> = new Set(

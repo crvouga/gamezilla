@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import {
   expectHidden,
   expectText,
@@ -9,6 +10,9 @@ import { createDriver } from '../../driver/create-driver';
 import { by } from '../../selector/selector';
 import { demoHarness } from './demo-app';
 import { InProcessDriver } from './in-process-driver';
+
+const io = wallIo();
+const clockOpts = { now: io.clock.now, timers: io.timers };
 
 describe('InProcessDriver', () => {
   let driver: InProcessDriver;
@@ -21,6 +25,7 @@ describe('InProcessDriver', () => {
     driver = createDriver({
       kind: 'in-process',
       harness: demoHarness,
+      ...clockOpts,
     }) as InProcessDriver;
 
     await driver.launch();
@@ -46,7 +51,7 @@ describe('InProcessDriver', () => {
   });
 
   it('supports tap on the counter and reports visibility', async () => {
-    driver = new InProcessDriver({ harness: demoHarness });
+    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
 
     expect(await driver.isVisible(by.testId('count'))).toBe(true);
@@ -57,13 +62,13 @@ describe('InProcessDriver', () => {
   });
 
   it('scrolls without throwing', async () => {
-    driver = new InProcessDriver({ harness: demoHarness });
+    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.scroll(by.testId('login-scroll'), 'down', 40);
   });
 
   it('throws NotImplementedError for navigateBack', async () => {
-    driver = new InProcessDriver({ harness: demoHarness });
+    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await expect(driver.navigateBack()).rejects.toBeInstanceOf(
       NotImplementedError
@@ -71,7 +76,7 @@ describe('InProcessDriver', () => {
   });
 
   it('pressKey does not throw when focus is on the document', async () => {
-    driver = new InProcessDriver({ harness: demoHarness });
+    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.tap(by.testId('email'));
     await driver.pressKey('tab');

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import type { Span as SentrySpanType } from '@sentry/core';
 import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
 import { createLoggerObservabilityWithExporter } from '../impl-logger/impl-logger';
@@ -10,6 +11,8 @@ import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
 import { InMemorySpanContextStorage } from './in-memory-context-storage';
 import type { Observability } from './observability';
+
+const io = wallIo();
 
 type Factory = { readonly name: string; create: () => Observability };
 
@@ -109,6 +112,8 @@ describe('Observability port conformance', () => {
       const exported: ExportedSpanRecord[] = [];
       return createLocalFileObservabilityWithExporter({
         serviceName: 'test-local',
+        now: io.clock.now,
+        createId: io.createId,
         exporter: (r) => exported.push(r),
         storage: new InMemorySpanContextStorage(),
       });
@@ -121,6 +126,8 @@ describe('Observability port conformance', () => {
       const exported: ExportedSpanRecord[] = [];
       return createLoggerObservabilityWithExporter({
         serviceName: 'test-logger',
+        now: io.clock.now,
+        createId: io.createId,
         exporter: (r) => exported.push(r),
         storage: new InMemorySpanContextStorage(),
       });
@@ -134,23 +141,25 @@ describe('Observability port conformance', () => {
         serviceName: 'test-sentry',
         sdk: createMockSentrySdk(),
         storage: new InMemorySpanContextStorage(),
+        now: io.clock.now,
       }),
   });
 
   test('noop startSpan/end is cheap and does not call fetch', async () => {
     let fetchCalls = 0;
-    const original = globalThis.fetch;
+    const g = globalThis as Record<string, unknown>;
+    const prev = g['fetch'];
     const mockFetch: HttpFetchFn = () => {
       fetchCalls += 1;
       return Promise.resolve(new Response('{}'));
     };
-    globalThis.fetch = mockFetch as typeof fetch;
+    g['fetch'] = mockFetch;
     try {
       const obs = createNoopObservability('noop-fetch');
       obs.startSpan({ name: 'x' }).end();
       expect(fetchCalls).toBe(0);
     } finally {
-      globalThis.fetch = original;
+      g['fetch'] = prev;
     }
   });
 });

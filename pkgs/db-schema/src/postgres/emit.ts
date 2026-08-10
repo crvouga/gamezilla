@@ -10,10 +10,13 @@ function columnDdl(
 ): Sql<void> {
   const typeSql = raw(PG_TYPE_SQL[type]);
   if (isPrimaryKey) {
-    return sql`${ident(name)} ${typeSql} primary key DEFAULT gen_random_uuid()`;
+    // No engine default — mutation wrap / writers supply `id` via createId.
+    return sql`${ident(name)} ${typeSql} primary key`;
   }
-  if (name === '_created_at' || name === '_updated_at') {
-    return sql`${ident(name)} ${typeSql} DEFAULT now()`;
+  if (name === 'created_at' || name === 'updated_at') {
+    // No engine clock default — writers supply timestamps via injected now.
+    // Nullable: schema contract requires non-PK columns nullable.
+    return sql`${ident(name)} ${typeSql}`;
   }
   return sql`${ident(name)} ${typeSql}`;
 }

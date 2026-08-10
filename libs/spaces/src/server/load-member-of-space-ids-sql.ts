@@ -1,23 +1,23 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
 /**
  * Loads space ids the member may access via space_users ACL
  * (sync upload auth / write context).
  */
-export async function loadMemberOfSpaceIdsFromSql(
-  db: SqlClient,
-  memberId: string
-): Promise<string[]> {
-  const rows = await db.query(sql<{ readonly space_id: string }>`
-    SELECT space_id
-    FROM space_users
-    WHERE user_id = ${memberId}
-  `);
-  const ids = new Set<string>();
-  for (const row of rows) {
-    if (row.space_id.length > 0) ids.add(row.space_id);
+export class MemberOfSpaceIdsLoader {
+  constructor(private readonly tx: SqlTx) {}
+
+  async load(memberId: string): Promise<string[]> {
+    const rows = await this.tx.query(sql<{ readonly space_id: string }>`
+      SELECT space_id
+      FROM space_users
+      WHERE user_id = ${memberId}
+    `);
+    const ids = new Set<string>();
+    for (const row of rows) {
+      if (row.space_id.length > 0) ids.add(row.space_id);
+    }
+    return [...ids];
   }
-  return [...ids];
 }

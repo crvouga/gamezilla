@@ -1,8 +1,9 @@
 /**
  * Public, high-level entry point for `@pkgs/matchmaking`.
  *
- * `new Matchmaking({ storage, schema, radius?, tuning? })` is the only
- * boot path embedders need. The class:
+ * `new Matchmaking({ storage, schema, tuning, radius? })` is the only
+ * boot path embedders need (`tuning.now` + `tuning.createId` required).
+ * The class:
  *   - Owns the internal `Matchmaker` (queue + pass + sweep operations).
  *   - Owns the bundled `migrate()` call via a cached `bootPromise` so
  *     every public method is "just await it" — embedders never plumb a
@@ -83,17 +84,31 @@ export type MatchmakingStorage = {
  * throttle row + `FOR UPDATE SKIP LOCKED` dance is gone.
  */
 export type MatchmakingTuning = {
+  /**
+   * Required clock (epoch ms). Bound into join/pass/sweep SQL — never
+   * omitted. Tests inject a mutable ref for simulated time.
+   */
+  readonly now: () => number;
+  /**
+   * Required id mint for waiting-row ids and match ids passed into
+   * `matchmaking_run_match_pass`.
+   */
+  readonly createId: () => string;
   readonly maxPairsPerPass?: number;
   readonly maxWaitSeconds?: number;
   readonly matchedRetentionSeconds?: number;
-  readonly now?: () => number;
 };
 
 export type MatchmakingOptions = {
   readonly storage: MatchmakingStorage;
   readonly schema: MatchmakingSchema;
   readonly radius?: RadiusOptions;
-  readonly tuning?: MatchmakingTuning;
+  /**
+   * Required. At minimum must supply {@link MatchmakingTuning.now} and
+   * {@link MatchmakingTuning.createId}; numeric pass/sweep caps are
+   * optional and fall back to package defaults.
+   */
+  readonly tuning: MatchmakingTuning;
 };
 
 export type MatchmakingAppOptions = {
@@ -145,7 +160,7 @@ type ResolvedOptions = {
   readonly partitionKeys: readonly string[];
   readonly matchmakerOptions: MatchmakerOptions;
   readonly radius: RadiusOptions | undefined;
-  readonly tuning: MatchmakingTuning | undefined;
+  readonly tuning: MatchmakingTuning;
 };
 
 export class Matchmaking {
@@ -153,6 +168,8 @@ export class Matchmaking {
   private readonly schema: MatchmakingSchema;
   private readonly matchmaker: Matchmaker;
   private readonly migrateArgs: Parameters<typeof migrate>[0];
+  private readonly now: () => number;
+  private readonly log: ReturnType<typeof createLogger>;
   /**
    * Lazily initialised on the first call to {@link ensureBooted}.
    * Held as `Promise | undefined` (not eagerly created at construction)
@@ -180,13 +197,13 @@ export class Matchmaking {
     this.sqlClient = resolved.sqlClient;
     this.schema = resolved.schema;
     this.matchmaker = new Matchmaker(resolved.matchmakerOptions);
+    this.now = resolved.tuning.now;
+    this.log = createLogger({ name: 'matchmaking', now: this.now });
     this.migrateArgs = {
       sqlClient: this.sqlClient,
       schema: this.schema,
       ...(resolved.radius !== undefined ? { radius: resolved.radius } : {}),
-      ...(resolved.tuning !== undefined
-        ? { tuning: Matchmaking.tuningForMigrate(resolved.tuning) }
-        : {}),
+      tuning: Matchmaking.tuningForMigrate(resolved.tuning),
     };
     this.bootPromise = undefined;
   }
@@ -243,6 +260,7 @@ export class Matchmaking {
     const inner = createMatchmakingApp({
       matchmaker: this.matchmaker,
       requireAuth: opts.requireAuth,
+      now: this.now,
     });
     // Wrap so we can gate every request behind the cached migrate. The
     // inner app already handles routing + validation; we just thread an
@@ -307,7 +325,7 @@ export class Matchmaking {
       // Best-effort unlock. If the session is broken (connection
       // already lost) the lock is auto-released by Postgres on the
       // next backend recycle; suppress to keep the tick error visible.
-      await Matchmaking.releaseAdvisoryLock(this.sqlClient);
+      await this.releaseAdvisoryLock();
     }
   }
 
@@ -341,12 +359,23 @@ export class Matchmaking {
     assert.defined(opts, 'Matchmaking: options required');
     assert.defined(opts.storage, 'Matchmaking: storage required');
     assert.defined(opts.schema, 'Matchmaking: schema required');
+    assert.defined(opts.tuning, 'Matchmaking: tuning required');
+    assert.ok(
+      typeof opts.tuning.now === 'function',
+      'Matchmaking: tuning.now required'
+    );
+    assert.ok(
+      typeof opts.tuning.createId === 'function',
+      'Matchmaking: tuning.createId required'
+    );
     const sqlClient = Matchmaking.resolveSqlClient(opts.storage);
     const partitionKeys = opts.schema.partitionKeys ?? [];
     const matchmakerOptions: MatchmakerOptions = {
       sqlClient,
       partitionKeys,
       schema: opts.schema,
+      now: opts.tuning.now,
+      createId: opts.tuning.createId,
       onSchemaDrift: (expected, actual): never => {
         throw new MatchmakingSchemaDriftError(expected, actual);
       },
@@ -369,8 +398,8 @@ export class Matchmaking {
   /**
    * Translate the public {@link MatchmakingTuning} into the strict
    * subset {@link migrate} bakes into the `matchmaking_tick()` PL/pgSQL
-   * function. `now` is JS-only (test clock hook) so it is intentionally
-   * dropped — the cron function reads `now()` server-side.
+   * function. `now` / `createId` are JS-only and intentionally dropped —
+   * callers of the SQL tick pass them as bind params.
    */
   private static tuningForMigrate(tuning: MatchmakingTuning): {
     readonly maxPairsPerPass?: number;
@@ -434,9 +463,8 @@ export class Matchmaking {
   }
 
   private static spreadTuning(
-    tuning: MatchmakingTuning | undefined
+    tuning: MatchmakingTuning
   ): Partial<MatchmakerOptions> {
-    if (tuning === undefined) return {};
     return {
       ...(tuning.maxPairsPerPass !== undefined
         ? { maxPairsPerPass: tuning.maxPairsPerPass }
@@ -447,7 +475,6 @@ export class Matchmaking {
       ...(tuning.matchedRetentionSeconds !== undefined
         ? { matchedRetentionSeconds: tuning.matchedRetentionSeconds }
         : {}),
-      ...(tuning.now !== undefined ? { now: tuning.now } : {}),
     };
   }
 
@@ -489,11 +516,9 @@ export class Matchmaking {
     return rows[0]?.pg_try_advisory_lock === true;
   }
 
-  private static async releaseAdvisoryLock(
-    sqlClient: SqlClient
-  ): Promise<void> {
+  private async releaseAdvisoryLock(): Promise<void> {
     try {
-      await sqlClient.run(
+      await this.sqlClient.run(
         sql<void>`
           SELECT pg_advisory_unlock(
             ${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint
@@ -502,13 +527,11 @@ export class Matchmaking {
     } catch (err) {
       // Backend might have died mid-tick; Postgres auto-releases the
       // lock on backend exit. Logging the unlock failure is enough.
-      Matchmaking.log.warn('matchmaking tick: advisory unlock failed', {
+      this.log.warn('matchmaking tick: advisory unlock failed', {
         message: err instanceof Error ? err.message : String(err),
       });
     }
   }
-
-  private static readonly log = createLogger({ name: 'matchmaking' });
 
   private static assertOptions(resolved: ResolvedOptions): void {
     // Validation of numeric tunables lives inside `Matchmaker` (so it

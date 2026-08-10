@@ -17,8 +17,17 @@ describe('old client rejected at cut', () => {
     expect(err).toEqual({ error: 'auth', reason: 'upgrade_required' });
   });
 
-  test('protocol v2 header accepted', () => {
-    expect(SYNC_PROTOCOL_VERSION).toBe(2);
+  test('protocol v2 header → upgrade_required', () => {
+    const err = assertSyncProtocol(
+      new Request('https://example.test/query', {
+        headers: { [SYNC_PROTOCOL_HEADER]: '2' },
+      })
+    );
+    expect(err).toEqual({ error: 'auth', reason: 'upgrade_required' });
+  });
+
+  test('current protocol header accepted', () => {
+    expect(SYNC_PROTOCOL_VERSION).toBe(3);
     const err = assertSyncProtocol(
       new Request('https://example.test/query', {
         headers: { [SYNC_PROTOCOL_HEADER]: String(SYNC_PROTOCOL_VERSION) },

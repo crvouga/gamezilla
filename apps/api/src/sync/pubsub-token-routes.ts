@@ -1,5 +1,6 @@
-import { loadMySpaceIdsFromSql } from '@libs/spaces/server/load-my-space-ids-sql';
+import { MySpaceIdsLoader } from '@libs/spaces/server/load-my-space-ids-sql';
 import { assert } from '@pkgs/assert';
+import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import { Hono } from 'hono';
@@ -34,14 +35,14 @@ export function createPubSubTokenRoutes() {
     if (typeof secret !== 'string' || secret.trim().length === 0) {
       return c.json({ error: 'pubsub_unavailable' }, 503);
     }
-    const spaceIds = await loadMySpaceIdsFromSql(
-      openRequestSqlClient(),
+    const spaceIds = await new MySpaceIdsLoader(openRequestSqlClient()).load(
       auth.actorId
     );
     const { token, expiresAt } = await mintPubSubToken({
       secret: secret.trim(),
       actorId: auth.actorId,
       spaceIds,
+      now: getIo().clock.now,
     });
     return c.json(
       {

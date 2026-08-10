@@ -10,23 +10,20 @@ import {
 import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store/wrap-secret';
 import type { SecretString } from '@pkgs/secret-string/secret-string';
 
+export type InfisicalFetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>;
+
 export type InfisicalSecretStoreOptions = {
   readonly domain: string;
   readonly workspaceId: string;
   readonly env: string;
   /** Service token or short-lived access token. */
   readonly token: string;
+  readonly fetchFn: InfisicalFetch;
   readonly secretPath?: string;
-  readonly fetchFn?: InfisicalFetch;
 };
-
-type InfisicalFetch = (
-  input: RequestInfo | URL,
-  init?: RequestInit
-) => Promise<Response>;
-
-const defaultFetch: InfisicalFetch = (input, init) =>
-  globalThis.fetch(input, init);
 
 type SecretRow = Record<string, string>;
 
@@ -166,7 +163,7 @@ export class InfisicalSecretStore implements SecretStore {
     this.env = options.env.trim();
     this.token = token;
     this.secretPath = trimOpt(options.secretPath) ?? '/';
-    this.fetchFn = options.fetchFn ?? defaultFetch;
+    this.fetchFn = options.fetchFn;
   }
 
   async getRequired(

@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS ${TABLE} (
   external_id text NOT NULL,
   owner_id text,
   data jsonb NOT NULL,
-  created_at timestamp with time zone DEFAULT now() NOT NULL,
-  updated_at timestamp with time zone DEFAULT now() NOT NULL,
+  created_at timestamp with time zone NOT NULL,
+  updated_at timestamp with time zone NOT NULL,
   UNIQUE (namespace, type, external_id)
 )
 `;
@@ -37,6 +37,18 @@ const CREATE_INDEXES = [
   `CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON ${TABLE} USING btree (namespace, owner_id)`,
   `CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON ${TABLE} USING btree (namespace, type)`,
 ];
+
+/** Idempotent: strip wall DEFAULT now() left by older CREATE TABLE. */
+async function dropEntityStoreWallDefaults(
+  sqlClient: SqlClient
+): Promise<void> {
+  await sqlClient.run(
+    raw(`ALTER TABLE ${TABLE} ALTER COLUMN created_at DROP DEFAULT`)
+  );
+  await sqlClient.run(
+    raw(`ALTER TABLE ${TABLE} ALTER COLUMN updated_at DROP DEFAULT`)
+  );
+}
 
 async function runEntityStoreMigrations(
   sqlClient: SqlClient,
@@ -60,6 +72,7 @@ async function runEntityStoreMigrations(
       await sqlClient.run(raw(stmt));
     }
   }
+  await dropEntityStoreWallDefaults(sqlClient);
 }
 
 function parseData(value: unknown): Record<string, unknown> | null {
@@ -108,14 +121,18 @@ function toRow(r: Row): EntityStoreRow | null {
 }
 
 export class EntityStoreImplPostgres implements EntityStore {
-  constructor(private readonly sqlClient: SqlClient) {}
+  constructor(
+    private readonly sqlClient: SqlClient,
+    private readonly now: () => number
+  ) {}
 
   static async open(args: {
     sqlClient: SqlClient;
     logger: Logger;
+    now: () => number;
   }): Promise<EntityStoreImplPostgres> {
     await EntityStoreImplPostgres.migrateUp(args);
-    return new EntityStoreImplPostgres(args.sqlClient);
+    return new EntityStoreImplPostgres(args.sqlClient, args.now);
   }
 
   /** Idempotent Postgres DDL for the `entity_store` table. */
@@ -140,6 +157,7 @@ export class EntityStoreImplPostgres implements EntityStore {
     const id = entityStoreId(args.namespace, args.type, args.externalId);
     const ownerId = args.ownerId ?? null;
     const dataJson = JSON.stringify(args.data);
+    const iso = new Date(this.now()).toISOString();
     await this.sqlClient.run(sql<void>`
       INSERT INTO entity_store (
         id, namespace, type, external_id, owner_id, data, created_at, updated_at
@@ -151,8 +169,8 @@ export class EntityStoreImplPostgres implements EntityStore {
         ${args.externalId},
         ${ownerId},
         ${dataJson}::text::jsonb,
-        now(),
-        now()
+        ${iso},
+        ${iso}
       )
       ON CONFLICT (namespace, type, external_id) DO UPDATE SET
         owner_id = COALESCE(excluded.owner_id, entity_store.owner_id),

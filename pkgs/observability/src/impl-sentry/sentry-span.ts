@@ -19,7 +19,8 @@ export class PortSentrySpan implements Span {
   readonly spanContext: Span['spanContext'];
   private readonly sentrySpan: SentrySpanType;
   private readonly spanName: string;
-  private readonly startedAt = performance.now();
+  private readonly now: () => number;
+  private readonly startedAt: number;
   private readonly onEnd: (() => void) | undefined;
   private ended = false;
 
@@ -28,10 +29,13 @@ export class PortSentrySpan implements Span {
     spanName: string;
     kind: SpanKind;
     sdk: SentrySdk;
+    now: () => number;
     onEnd?: () => void;
   }) {
     this.sentrySpan = args.sentrySpan;
     this.spanName = args.spanName;
+    this.now = args.now;
+    this.startedAt = this.now();
     this.onEnd = args.onEnd;
     const ctx = args.sdk.spanContext(args.sentrySpan);
     this.spanContext = {
@@ -83,7 +87,7 @@ export class PortSentrySpan implements Span {
   end(): void {
     if (this.ended) return;
     this.ended = true;
-    const durationMs = performance.now() - this.startedAt;
+    const durationMs = this.now() - this.startedAt;
     try {
       applySlowSpanAttributes({
         spanName: this.spanName,
@@ -102,6 +106,7 @@ export function startPortSentrySpan(args: {
   sdk: SentrySdk;
   name: string;
   kind: SpanKind;
+  now: () => number;
   attributes?: SpanAttributes;
   parentSentrySpan?: SentrySpanType;
   onEnd?: () => void;
@@ -119,6 +124,7 @@ export function startPortSentrySpan(args: {
     sentrySpan,
     spanName: args.name,
     kind: args.kind,
+    now: args.now,
     ...(args.onEnd !== undefined ? { onEnd: args.onEnd } : {}),
   });
 }

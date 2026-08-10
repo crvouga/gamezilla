@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
+import { wallIo } from '@pkgs/io';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 import {
@@ -7,6 +8,11 @@ import {
   EMQX_PUBSUB_QOS,
   EMQX_SESSION_EXPIRY_SEC,
 } from './create-emqx-pubsub';
+
+const io = wallIo();
+const now = io.clock.now;
+const timers = io.timers;
+const random = io.random;
 
 class FakeMqttClient extends EventEmitter {
   connected = false;
@@ -64,10 +70,12 @@ class FakeMqttClient extends EventEmitter {
 }
 
 async function waitUntil(pred: () => boolean, ms = 2000): Promise<void> {
-  const deadline = Date.now() + ms;
-  while (Date.now() < deadline) {
+  const deadline = now() + ms;
+  while (now() < deadline) {
     if (pred()) return;
-    await new Promise((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => {
+      timers.setTimeout(() => r(), 5);
+    });
   }
   throw new Error('waitUntil timed out');
 }
@@ -86,6 +94,8 @@ async function boot(
     url: 'wss://x/mqtt',
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
+    timers,
+    random,
     connectFn: (_url: string, opts: IClientOptions) => {
       lastOpts = opts;
       return fake as unknown as MqttClient;
@@ -205,6 +215,8 @@ describe('createEmqxPubSub', () => {
       url: 'wss://x/mqtt',
       auth: async () => ({ username: 'u', password: 'p' }),
       clientIdPrefix: 'stable-id',
+      timers,
+      random,
       reconnect: { baseMs: 1, maxMs: 1 },
       connectFn: (_url, opts) => {
         optsList.push(opts);

@@ -8,7 +8,11 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { HOSTED_SIGN_IN_UNAVAILABLE_REASON } from './auth-errors';
+import { useApiFeatures } from './api-features-context';
+import {
+  HOSTED_SIGN_IN_UNAVAILABLE_REASON,
+  NO_SIGN_IN_METHODS_REASON,
+} from './auth-errors';
 import { useConfigService } from './config-service-context';
 import { SignInModal, type SignInModalProps } from './sign-in-modal';
 import { useSignInPending } from './sign-in-pending';
@@ -102,7 +106,8 @@ function useSignInModalConnection(args: {
 }): SignInModalProps {
   const { signInModalOpen, openSignInModal, closeSignInModal } = args;
   const apiUrl = useConfigService().getApiUrl();
-  const signIn = useSignIn();
+  const { signInWithGoogle, signInWithEmail } = useSignIn();
+  const { features } = useApiFeatures();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
@@ -118,18 +123,28 @@ function useSignInModalConnection(args: {
     [signInLog]
   );
 
-  const signInAvailable = apiUrl.trim().length > 0;
+  const apiReachable = apiUrl.trim().length > 0;
+  const googleAvailable = apiReachable && features.google;
+  const emailPasswordAvailable = apiReachable && features.emailPassword;
+  const anyMethod = googleAvailable || emailPasswordAvailable;
   const signInModalVisible = signInModalOpen || resumePending;
+  const signInUnavailableReason = anyMethod
+    ? null
+    : apiReachable
+      ? NO_SIGN_IN_METHODS_REASON
+      : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
   return {
     visible: signInModalVisible,
     onClose: closeSignInModal,
     resumePending,
-    signInAvailable,
-    signInUnavailableReason: signInAvailable
-      ? null
-      : HOSTED_SIGN_IN_UNAVAILABLE_REASON,
-    onSignInWithHosted: async () => {
-      await signIn();
+    googleAvailable,
+    emailPasswordAvailable,
+    signInUnavailableReason,
+    onSignInWithGoogle: async () => {
+      await signInWithGoogle();
+    },
+    onSignInWithEmail: async (credentials) => {
+      await signInWithEmail(credentials);
     },
     onError,
   };

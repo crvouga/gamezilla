@@ -3,6 +3,7 @@
  * Animates ring opacity (not border color).
  */
 
+import { useTimers } from '@pkgs/clock';
 import type { AttributionHit, ParticipantColor } from '@pkgs/collab';
 import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
 import type { ReactElement, ReactNode } from 'react';
@@ -41,6 +42,7 @@ function useAttributionPulse(hitSeq: number | null): {
   pulseSeq: number | null;
   ringOn: boolean;
 } {
+  const timers = useTimers();
   const lastSeq = useRef<number | null>(null);
   const [pulseSeq, setPulseSeq] = useState<number | null>(null);
   const [ringOn, setRingOn] = useState(false);
@@ -56,9 +58,11 @@ function useAttributionPulse(hitSeq: number | null): {
     lastSeq.current = hitSeq;
     setPulseSeq(hitSeq);
     setRingOn(true);
-    const t = setTimeout(() => setRingOn(false), PULSE_MS);
-    return () => clearTimeout(t);
-  }, [hitSeq]);
+    const t = timers.setTimeout(() => setRingOn(false), PULSE_MS);
+    return () => {
+      timers.clearTimeout(t);
+    };
+  }, [hitSeq, timers]);
 
   return { pulseSeq, ringOn };
 }

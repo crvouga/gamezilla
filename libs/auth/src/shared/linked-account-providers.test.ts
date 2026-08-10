@@ -20,7 +20,7 @@ describe('linked-account-providers', () => {
         metadata: { email: 'alice@example.com' },
         createdAt: CREATED_AT,
       },
-      authSnapshotData: { id: AUTH_USER_ID, external_accounts: [] },
+      authSnapshotData: { id: AUTH_USER_ID, accounts: [] },
       entityCreatedAt: CREATED_AT,
     });
 
@@ -46,13 +46,13 @@ describe('linked-account-providers', () => {
       },
       authSnapshotData: {
         id: AUTH_USER_ID,
-        external_accounts: [
+        email: 'alice@example.com',
+        accounts: [
           {
-            id: 'ea_oauth_1',
-            provider: 'google',
-            provider_user_id: 'google-user-1',
-            email_address: 'alice@gmail.com',
-            approved_at: '1700000000000',
+            id: 'acc_oauth_1',
+            providerId: 'google',
+            accountId: 'google-user-1',
+            createdAt: '2026-01-02T00:00:00.000Z',
           },
         ],
       },
@@ -62,7 +62,7 @@ describe('linked-account-providers', () => {
     expect(rows).toHaveLength(2);
     expect(rows[1]?.provider).toBe('google');
     expect(rows[1]?.providerUserId).toBe('google-user-1');
-    expect(rows[1]?.email).toBe('alice@gmail.com');
+    expect(rows[1]?.email).toBe('alice@example.com');
   });
 
   test('readLinkedProviderField resolves column by stable id', () => {
@@ -74,7 +74,7 @@ describe('linked-account-providers', () => {
         metadata: { email: 'a@b.c' },
         createdAt: CREATED_AT,
       },
-      authSnapshotData: { id: AUTH_USER_ID, external_accounts: [] },
+      authSnapshotData: { id: AUTH_USER_ID, accounts: [] },
       entityCreatedAt: CREATED_AT,
     };
 

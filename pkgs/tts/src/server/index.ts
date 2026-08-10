@@ -25,6 +25,7 @@ export {
 } from './ports/tts-provider';
 export {
   type CreateTtsAppFromBindingsOptions,
+  type CreateTtsAppFromBindingsResult,
   createTtsAppFromBindings,
   TtsSecretName,
 } from './tts-from-bindings';

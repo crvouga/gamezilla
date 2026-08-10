@@ -97,11 +97,11 @@ export type CreateLocalSyncEngineOptions = {
    */
   readonly push?: SyncEnginePushOptions;
   readonly lifecycle?: AppLifecycle;
-  /** Virtual clock / timers / RNG for deterministic simulation. */
-  readonly now?: () => number;
+  /** Required nondeterminism ports (wall or sim). */
+  readonly now: () => number;
+  readonly timers: Timers;
+  readonly createId: CreateId;
   readonly random?: () => number;
-  readonly timers?: Timers;
-  readonly createId?: CreateId;
   /**
    * Override local schema epoch (default {@link SCHEMA_EPOCH}).
    * Used by the deterministic sim for epoch-bump scenarios.
@@ -176,7 +176,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     ...(options.lifecycle !== undefined
       ? { lifecycle: options.lifecycle }
       : {}),
-    ...(options.timers !== undefined ? { timers: options.timers } : {}),
+    timers: options.timers,
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
     onSynced: () =>
@@ -199,8 +199,8 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       readState(stateRef).runtime.bumpGenerations();
     },
     onError: (error) => handleError(readState(stateRef), error),
-    ...(options.timers !== undefined ? { timers: options.timers } : {}),
-    ...(options.now !== undefined ? { now: options.now } : {}),
+    timers: options.timers,
+    now: options.now,
   });
   bus.subscribe((tables) => {
     if (tables.has('_mutations')) uploadQueue.wake();
@@ -266,9 +266,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
       ...(push.defaultEntryChannel !== undefined
         ? { defaultEntryChannel: push.defaultEntryChannel }
         : {}),
-      ...(state.options.timers !== undefined
-        ? { timers: state.options.timers }
-        : {}),
+      timers: state.options.timers,
       onTablesChanged: (listener) => state.bus.subscribe(listener),
     });
     flushOutboundLive(state);

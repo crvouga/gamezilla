@@ -1,3 +1,4 @@
+import { cliIo } from '../lib/cli-io';
 import { banner } from '../lib/fmt';
 import { runMigratePhase } from '../lib/phases/migrate';
 import type { CiPlatform } from '../platform/platform';
@@ -16,9 +17,9 @@ export class MigrateCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = performance.now();
+    const t0 = cliIo.clock.now();
     banner('Migrate');
     await runMigratePhase(this.platform);
-    banner('Migrate Complete', performance.now() - t0);
+    banner('Migrate Complete', cliIo.clock.now() - t0);
   }
 }

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../protocol/wire';
 import { Increment, TestCounterModule } from '../../../testkit/counter-module';
@@ -8,6 +9,9 @@ import type {
   DurableObjectKvListOptions,
   DurableObjectKvStorage,
 } from './types';
+
+const io = wallIo();
+const now = io.clock.now;
 
 type FakeSocket = WebSocket & {
   readonly sent: unknown[];
@@ -145,6 +149,8 @@ describe('Durable Object hibernation restore', () => {
     const state = createFakeDoState(createMemoryDoKv());
     const RoomDo = createDurableObjectAdapter({
       modules: [TestCounterModule],
+      clock: io.clock,
+      createId: io.createId,
     });
     const topic = 'space:hibernation-test';
     const moduleName = String(TestCounterModule.name);
@@ -163,7 +169,7 @@ describe('Durable Object hibernation restore', () => {
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,
       id: 'cmd-after-wake',
-      ts: Date.now(),
+      ts: now(),
       payload: Increment({}),
     };
     await woken.webSocketMessage!(serverA, JSON.stringify(command));

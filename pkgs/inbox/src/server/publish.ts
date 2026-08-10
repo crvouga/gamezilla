@@ -1,6 +1,7 @@
 import { sql } from '@pkgs/sql';
-
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
+import { managedUpdatedAtIso } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 
 import { InboxError } from '../shared/inbox-errors';
 import type { Interaction } from '../shared/interaction';
@@ -18,11 +19,12 @@ import type {
 } from './types';
 
 export async function publishInteraction(
-  db: SqlClient,
-  input: PublishInteractionInput
+  db: SqlTx,
+  input: PublishInteractionInput,
+  now: () => number,
+  createId: CreateId
 ): Promise<Interaction> {
-  const now = new Date().toISOString();
-  await db.run(upsertInteractionSql(input, now));
+  await db.run(upsertInteractionSql(input, now, createId));
 
   const row = await findById(
     db,
@@ -35,21 +37,26 @@ export async function publishInteraction(
 }
 
 export async function updateInteraction(
-  db: SqlClient,
-  input: UpdateInteractionInput
+  db: SqlTx,
+  input: UpdateInteractionInput,
+  now: () => number,
+  createId: CreateId
 ): Promise<Interaction> {
-  return publishInteraction(db, input);
+  return publishInteraction(db, input, now, createId);
 }
 
 export async function deactivateInteraction(
-  db: SqlClient,
-  input: DeactivateInteractionInput
+  db: SqlTx,
+  input: DeactivateInteractionInput,
+  now: () => number
 ): Promise<void> {
-  const now = new Date().toISOString();
+  const nowIso = managedUpdatedAtIso(now);
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET active = false, updated_at = ${now}
+         SET active = false,
+             updated_at = ${nowIso},
+             updated_at = ${nowIso}
        WHERE user_id = ${input.userId}
          AND source_namespace = ${input.source.namespace}
          AND source_type = ${input.source.type}
@@ -58,7 +65,7 @@ export async function deactivateInteraction(
 }
 
 export async function findInteractionById(
-  db: SqlClient,
+  db: SqlTx,
   actorId: string,
   interactionId: string
 ): Promise<Interaction | null> {
@@ -68,7 +75,7 @@ export async function findInteractionById(
 }
 
 export async function findInteractionBySource(
-  db: SqlClient,
+  db: SqlTx,
   lookup: {
     readonly userId: string;
     readonly source: PublishInteractionInput['source'];

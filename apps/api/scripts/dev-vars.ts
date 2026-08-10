@@ -25,8 +25,8 @@ export function encodeDevVarValue(value: string): string {
     .replaceAll('\n', '\\n')}"`;
 }
 
-/** Reads `DATABASE_URL` from `.dev.vars` when present (local dev / preview). */
-export function readDevVarsDatabaseUrl(): string | null {
+/** Reads a key from `.dev.vars` when present (local dev / preview). */
+export function readDevVar(name: string): string | null {
   let content: string;
   try {
     content = readFileSync(DEV_VARS_PATH, 'utf8');
@@ -39,9 +39,14 @@ export function readDevVarsDatabaseUrl(): string | null {
     const eq = trimmed.indexOf('=');
     if (eq <= 0) continue;
     const key = trimmed.slice(0, eq);
-    if (key !== 'DATABASE_URL') continue;
+    if (key !== name) continue;
     const value = decodeDevVarValue(trimmed.slice(eq + 1));
     return value.length > 0 ? value : null;
   }
   return null;
+}
+
+/** Reads `DATABASE_URL` from `.dev.vars` when present (local dev / preview). */
+export function readDevVarsDatabaseUrl(): string | null {
+  return readDevVar('DATABASE_URL');
 }

@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'bun:test';
+import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 import { Increment, TestCounterModule } from './testkit/counter-module';
 import { openLoopbackRoom } from './testkit/simulator';
 import { ROOM_ERROR_TYPE } from './types';
 
+const io = wallIo();
+const timers = io.timers;
+
 describe('server-authoritative room (loopback)', () => {
   it('converges after welcome + increment', async () => {
     const { room } = await openLoopbackRoom({
+      io,
       topic: 't-inc',
       module: TestCounterModule,
     });
@@ -14,7 +19,7 @@ describe('server-authoritative room (loopback)', () => {
     const k = asKeyword('counter/count');
     expect(room.getSnapshot()[k]).toBe(0);
     room.dispatch(Increment({}));
-    await new Promise<void>((r) => setTimeout(r, 30));
+    await new Promise<void>((r) => timers.setTimeout(r, 30));
     expect(room.getSnapshot()[k]).toBe(1);
     room.destroy();
   });
@@ -22,6 +27,7 @@ describe('server-authoritative room (loopback)', () => {
   it('local validation rejects unknown command before queue', async () => {
     const errs: unknown[] = [];
     const { room } = await openLoopbackRoom({
+      io,
       topic: 't-local-err',
       module: TestCounterModule,
       onError: (e) => {
@@ -33,7 +39,7 @@ describe('server-authoritative room (loopback)', () => {
       type: asKeyword('space-counter-cmd/bogus'),
       payload: {},
     } as never);
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => timers.setTimeout(r, 5));
     expect(errs.length).toBe(1);
     expect((errs[0] as { type: string }).type).toBe(
       ROOM_ERROR_TYPE.invalidCommand

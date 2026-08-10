@@ -3,6 +3,7 @@ import {
   assertNonProdDatabaseUrl,
   DEVELOPMENT_SECRETS_ENV,
 } from '../../shared/database-url-policy';
+import { cliIo } from '../lib/cli-io';
 import { Secret, type SecretInput } from './secret';
 import { fetchSecretFrom } from './secrets-io';
 
@@ -36,7 +37,7 @@ async function validateDatabaseUrl(input: SecretInput): Promise<void> {
 
   if (POSTGRES_URL_PREFIX.test(v)) {
     try {
-      await pingPostgres(v);
+      await pingPostgres(v, cliIo.timers);
     } catch (e) {
       throw new Error(
         `Postgres unreachable: ${e instanceof Error ? e.message : String(e)}`

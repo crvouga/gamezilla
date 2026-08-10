@@ -17,9 +17,14 @@ import { expect } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
+import { createSimIo, wallIo } from '@pkgs/io';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import type { Hono, MiddlewareHandler } from 'hono';
-import { Matchmaking, type MatchmakingOptions } from './matchmaking';
+import {
+  Matchmaking,
+  type MatchmakingOptions,
+  type MatchmakingTuning,
+} from './matchmaking';
 import type { MatchedStatus, StatusResult } from './types';
 
 /**
@@ -62,13 +67,35 @@ export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * PGlite `joined_at` defaults to `now()` on INSERT. Back-to-back joins in
- * the same event-loop turn (common on busy Linux CI runners) can share the
- * same timestamp and make FIFO-order assertions nondeterministic.
+ * Wall `Io` for tests that need real time + random ids (default boots).
+ * Prefer {@link createSimIo} when a test needs a frozen / seeded clock.
+ */
+export const testWallIo = wallIo();
+
+/**
+ * Default required tuning for `Matchmaking` construction in tests.
+ * Callers can override `now` / `createId` / numeric caps via
+ * {@link bootMatchmaking} overrides.
+ */
+export function defaultTestTuning(
+  overrides?: Partial<MatchmakingTuning>
+): MatchmakingTuning {
+  return {
+    now: () => testWallIo.clock.now(),
+    createId: testWallIo.createId,
+    ...overrides,
+  };
+}
+
+/**
+ * Joins in the same event-loop turn can share the same injected
+ * `joined_at` when the clock resolution is coarse; pause so FIFO-order
+ * assertions stay deterministic.
  */
 export async function pauseForJoinedAtOrdering(): Promise<void> {
+  const timers = testWallIo.timers;
   await new Promise<void>((resolve) => {
-    setTimeout(resolve, 50);
+    timers.setTimeout(resolve, 50);
   });
 }
 
@@ -98,10 +125,65 @@ export type MmHarness = {
   readonly mm: Matchmaking;
 };
 
+type BootOverrides = {
+  readonly schema?: MatchmakingOptions['schema'];
+  /** Partial — harness fills required `now` / `createId` from wall/`Io`. */
+  readonly tuning?: Partial<MatchmakingTuning>;
+};
+
 /**
- * Boots a fresh PGlite + Matchmaking pair. Idiomatic for one-off
- * harnesses inside a test (when the default `beforeEach` harness
- * isn't suitable, e.g. needs `partitionKeys` or a simulated clock).
+ * Migrated once, then {@link PGlite.clone}'d per default-schema boot.
+ * Fresh `PGlite.create()` + `migrate()` is ~1–3s; clones are tens of ms.
+ * Without this, `bun check` looks hung for several minutes on
+ * `@pkgs/matchmaking#test` (140× cold boots, Turbo grouped logs silent).
+ */
+let defaultTemplatePromise: Promise<PGlite> | null = null;
+
+async function defaultMigratedTemplate(): Promise<PGlite> {
+  if (defaultTemplatePromise === null) {
+    defaultTemplatePromise = (async () => {
+      const db = await PGlite.create();
+      const mm = new Matchmaking({
+        storage: { sqlClient: createPgliteSqlClient(db) },
+        schema: {},
+        tuning: defaultTestTuning(),
+      });
+      await mm.ready();
+      return db;
+    })();
+  }
+  return defaultTemplatePromise;
+}
+
+/**
+ * Default empty schema (+ client-only `tuning.now` / `createId`) can
+ * clone the template. Schema / migrate-baked tuning still need a cold boot.
+ */
+function canCloneDefaultTemplate(overrides?: BootOverrides): boolean {
+  if (overrides === undefined) return true;
+  const schema = overrides.schema;
+  if (schema !== undefined && Object.keys(schema).length > 0) return false;
+  const tuning = overrides.tuning;
+  if (tuning === undefined) return true;
+  return (
+    tuning.maxPairsPerPass === undefined &&
+    tuning.maxWaitSeconds === undefined &&
+    tuning.matchedRetentionSeconds === undefined
+  );
+}
+
+async function openBootDb(overrides?: BootOverrides): Promise<PGlite> {
+  if (canCloneDefaultTemplate(overrides)) {
+    // Upstream types `clone()` as PGliteInterface; runtime is a PGlite.
+    const cloned = await (await defaultMigratedTemplate()).clone();
+    return cloned as PGlite;
+  }
+  return PGlite.create();
+}
+
+/**
+ * Boots a PGlite + Matchmaking pair. Default-schema boots clone a
+ * migrated template; custom schema / migrate-baked tuning still cold-boot.
  *
  * The v3 schema has no SQL-side throttling — tests drive `mm.tick()`
  * explicitly. Callers are responsible for `await harness.db.close()`
@@ -109,18 +191,50 @@ export type MmHarness = {
  * exercise leak behaviour).
  */
 export async function bootMatchmaking(
-  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>
+  overrides?: BootOverrides
 ): Promise<MmHarness> {
-  const db = await PGlite.create();
+  const db = await openBootDb(overrides);
   const sqlClient = createPgliteSqlClient(db);
   const schema = overrides?.schema ?? {};
   const mm = new Matchmaking({
     storage: { sqlClient },
     schema,
-    ...(overrides?.tuning !== undefined ? { tuning: overrides.tuning } : {}),
+    tuning: defaultTestTuning(overrides?.tuning),
   });
   await mm.ready();
   return { db, mm };
+}
+
+/**
+ * Like {@link bootMatchmaking} but with a seeded {@link createSimIo}
+ * clock/id bag. Useful when a test needs deterministic ids or a frozen
+ * start time without sharing the process wall clock.
+ */
+export async function bootMatchmakingWithSimIo(
+  overrides?: BootOverrides & {
+    readonly sim?: { readonly seed?: number; readonly startMs?: number };
+  }
+): Promise<MmHarness & { readonly io: ReturnType<typeof createSimIo> }> {
+  const io = createSimIo({
+    seed: overrides?.sim?.seed ?? 1,
+    ...(overrides?.sim?.startMs !== undefined
+      ? { startMs: overrides.sim.startMs }
+      : {}),
+  });
+  const db = await openBootDb(overrides);
+  const sqlClient = createPgliteSqlClient(db);
+  const schema = overrides?.schema ?? {};
+  const mm = new Matchmaking({
+    storage: { sqlClient },
+    schema,
+    tuning: defaultTestTuning({
+      now: () => io.clock.now(),
+      createId: io.createId,
+      ...overrides?.tuning,
+    }),
+  });
+  await mm.ready();
+  return { db, mm, io };
 }
 
 export type AppHarness = MmHarness & {
@@ -139,7 +253,7 @@ export type AppHarness = MmHarness & {
  * needs to exercise an alternative auth middleware.
  */
 export async function bootMatchmakingApp(
-  overrides?: Partial<Pick<MatchmakingOptions, 'schema' | 'tuning'>>,
+  overrides?: BootOverrides,
   requireAuth: MiddlewareHandler = defaultStubAuth
 ): Promise<AppHarness> {
   const harness = await bootMatchmaking(overrides);
