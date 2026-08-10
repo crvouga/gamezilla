@@ -3,7 +3,7 @@ import { wallIo } from '@pkgs/io';
 
 import { newCommandId } from '../../protocol/ids';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { TestCounterModule } from '../../testkit/counter-module';
+import { TestCounterModule } from '../../tests/fixtures/counter-module';
 import { ROOM_ERROR_TYPE } from '../../types';
 import { InMemoryRoomStorage } from '../adapters/memory';
 import { RoomServer } from './room-server';

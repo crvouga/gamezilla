@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 
-import { TestCounterModule } from '../../../testkit/counter-module';
+import { TestCounterModule } from '../../../tests/fixtures/counter-module';
 import { createDurableObjectAdapter } from './adapter';
 import type {
   DurableObjectInstanceState,

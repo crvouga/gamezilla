@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
-import { Increment, TestCounterModule } from './testkit/counter-module';
-import { openLoopbackRoom } from './testkit/simulator';
+import { Increment, TestCounterModule } from './tests/fixtures/counter-module';
+import { openLoopbackRoom } from './tests/harness/simulator';
 import { ROOM_ERROR_TYPE } from './types';
 
 const io = wallIo();

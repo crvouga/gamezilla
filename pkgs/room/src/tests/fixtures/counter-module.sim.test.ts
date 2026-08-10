@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createSimIo } from '@pkgs/io';
-import type { RoomCommand, RoomState } from '../types';
+import type { RoomCommand, RoomState } from '../../types';
 import { Increment, TestCounterModule } from './counter-module';
 
 function reduceAll(state: RoomState, events: readonly unknown[]): RoomState {

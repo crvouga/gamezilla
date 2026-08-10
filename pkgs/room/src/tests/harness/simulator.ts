@@ -1,16 +1,16 @@
 import type { Io } from '@pkgs/io';
 
-import { InMemoryClientStorage } from '../client/adapters/storage/memory';
-import { Room } from '../client/core/room';
-import { InMemoryRoomStorage } from '../server/adapters/memory';
-import { RoomServer } from '../server/core/room-server';
+import { InMemoryClientStorage } from '../../client/adapters/storage/memory';
+import { Room } from '../../client/core/room';
+import { InMemoryRoomStorage } from '../../server/adapters/memory';
+import { RoomServer } from '../../server/core/room-server';
 import type {
   RoomCommandPayload,
   RoomError,
   RoomEvent,
   RoomModule,
   RoomState,
-} from '../types';
+} from '../../types';
 
 import { LoopbackRoomTransport } from './loopback-transport';
 

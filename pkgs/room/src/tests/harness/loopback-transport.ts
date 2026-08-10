@@ -1,9 +1,9 @@
 import type {
   ClientTransport,
   ClientTransportHandlers,
-} from '../client/core/transport';
-import type { RoomServer } from '../server/core/room-server';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
+} from '../../client/core/transport';
+import type { RoomServer } from '../../server/core/room-server';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
 
 /**
  * In-process transport: `sendJson` runs the authoritative {@link RoomServer} and

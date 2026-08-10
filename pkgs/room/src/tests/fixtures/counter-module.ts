@@ -6,7 +6,7 @@ import {
   type Message,
 } from '@pkgs/message';
 
-import { hashRoomState } from '../hash-room-state';
+import { hashRoomState } from '../../hash-room-state';
 import {
   assertRoomModuleName,
   type HandleResult,
@@ -14,7 +14,7 @@ import {
   type RoomCommand,
   type RoomModule,
   type RoomState,
-} from '../types';
+} from '../../types';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
@@ -99,3 +99,8 @@ export const TestCounterModule: RoomModule<
 };
 
 export { CounterDecremented, CounterIncremented, Decrement, Increment };
+
+/** Read counter count from flat room state (tests / DST scenarios). */
+export function counterValue(state: RoomState): number {
+  return readCount(state);
+}

@@ -15,7 +15,8 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test",
+    "test:sim": "bun test src/tests/scenarios"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

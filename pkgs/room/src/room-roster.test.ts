@@ -3,8 +3,8 @@ import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND } from './protocol/wire';
-import { Increment, TestCounterModule } from './testkit/counter-module';
-import { openLoopbackRoom } from './testkit/simulator';
+import { Increment, TestCounterModule } from './tests/fixtures/counter-module';
+import { openLoopbackRoom } from './tests/harness/simulator';
 
 const io = wallIo();
 const now = io.clock.now;

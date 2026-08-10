@@ -3,7 +3,10 @@ import { wallIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { Increment, TestCounterModule } from '../../testkit/counter-module';
+import {
+  Increment,
+  TestCounterModule,
+} from '../../tests/fixtures/counter-module';
 import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
 import { RoomMetaAttr } from './room-meta';

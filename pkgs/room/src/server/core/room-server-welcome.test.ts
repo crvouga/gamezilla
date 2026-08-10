@@ -2,7 +2,10 @@ import { describe, expect, it } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
-import { Increment, TestCounterModule } from '../../testkit/counter-module';
+import {
+  Increment,
+  TestCounterModule,
+} from '../../tests/fixtures/counter-module';
 import type { LogEntry } from '../../types';
 import { InMemoryRoomStorage } from '../adapters/memory/storage';
 import { RoomServer } from './room-server';

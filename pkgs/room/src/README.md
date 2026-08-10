@@ -29,9 +29,14 @@ pkgs/room/src/
 │   └── adapters/
 │       ├── storage/{memory,web,key-value}/ (ClientRoomStorage impls)
 │       └── transport/websocket/            (ClientTransport impl)
-└── server/
-    ├── core/                               (RoomServer, ports)
-    └── adapters/{durable-object,memory}/   (RoomStorage impls + DO host)
+├── server/
+│   ├── core/                               (RoomServer, ports)
+│   └── adapters/{durable-object,memory}/   (RoomStorage impls + DO host)
+├── sim/                                    (private DST harness)
+└── tests/
+    ├── fixtures/                           (TestCounterModule, …)
+    ├── harness/                            (openLoopbackRoom, LoopbackRoomTransport)
+    └── scenarios/                          (DST *.sim.test.ts; import sim + fixtures)
 ```
 
 A new runtime (Node HTTP server, Postgres-backed storage, WebRTC transport, etc.) is a new folder under the matching `adapters/…` slot plus one entry in `package.json#exports` — the core engines stay untouched.
@@ -63,7 +68,83 @@ Versioned JSON frames (`v` on envelopes). Each envelope `kind` is a plain string
 - **Client storage — `key-value`** (`@pkgs/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for client `Kv` from `@pkgs/kv/kv-platform` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
 - **Server storage — `memory`** (`@pkgs/room/server/adapters/memory`): `InMemoryRoomStorage` for tests and the loopback testkit.
 - **Server host — `durable-object`** (`@pkgs/room/server/adapters/durable-object`): `createDurableObjectAdapter({ modules: […] })` takes a flat array of `RoomModule` values (each carries a wire-unique `name`). WebSocket upgrades must include query `topic` and `module` (matching one module's `name`). The DO keeps a `Map` of {@link RoomServer} instances (one per module, started on first use); each socket stores `moduleName` so inbound frames route to the right server. Per-socket routing (`connId`, identity, module, topic) is also written via Hibernation WebSocket `serializeAttachment`, and rebuilt from `ctx.getWebSockets()` after DO eviction so idle rooms keep broadcasting to still-connected peers. KV persistence is namespaced per module via {@link DurableObjectRoomStorage} (one key per event / dedup outcome — not a single blob — so long-lived rooms stay under the SQLite 2 MB row cap). Bind via `class_name` in `wrangler.toml`. Host apps typically re-export the result as their `Room` DO class.
-- **Testkit** (`@pkgs/room/testkit`): `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule` for in-process convergence tests.
+- **Testkit** (`@pkgs/room/testkit`): curated re-exports of `openLoopbackRoom`, `LoopbackRoomTransport`, and `TestCounterModule` from `src/tests/harness/` + `src/tests/fixtures/` for in-process convergence tests and playgrounds.
+
+## Deterministic simulation testing (DST)
+
+TigerBeetle-style DST in `src/sim/` (private — not a public export). **One seed →
+identical timeline.** Modeled on sync-engine’s five concepts, but room-shaped:
+`RoomServer` + networked loopback transports over `createSimIo` (no
+`@pkgs/sync-engine` dependency).
+
+```text
+seed ──► SeededRng ──► SimRoomNetwork (delay / hold / drop)
+  │                         │
+  └──► createSimIo ──► clock + timers + delayed deliveries
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+         Room clients   networked loopback   RoomServer
+         (memory store)                      (memory store)
+```
+
+| Concept | API | Notes |
+|---------|-----|-------|
+| **Time** | `runFor` / `until` / `never` | Virtual clock + net delivery queue; never wall sleeps |
+| **Network** | `world.net(clientId).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack |
+| **Node** | `world.node(id).disconnect()` / `.reconnect()` | Soft session teardown / reattach; stable client id |
+| **Client** | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected` | Black-box; no private Room fields |
+| **Settle** | `assertConverged()` | Heal nets, drain, assert domain hashes match server fold |
+
+**Connectivity triad (room):**
+
+| API | Layer | Use when |
+|-----|-------|----------|
+| `client.disconnect()` / `connect()` | Transport session | Offline optimistic dispatch + flush on welcome |
+| `world.net(id).set('hold'\|'down')` | Mesh reality | Partition / hold frames without tearing the Room down |
+
+**Not simulated:** real WebSocket, Durable Object hibernation. Keep wallIo
+loopback tests (`tests/harness` via `@pkgs/room/testkit`) and DO unit tests as they are.
+
+Failures from `until` / `never` / `assertConverged` embed `seed=<hex>` and
+virtual `now=` for replay. Scenarios are `*.sim.test.ts` under
+`src/tests/scenarios/` (picked up by root `ci:sim-determinism`).
+
+```bash
+bun run --filter @pkgs/room test:sim
+```
+
+#### Quick start
+
+```ts
+import { describe, expect, test } from 'bun:test';
+import {
+  Increment,
+  TestCounterModule,
+  counterValue,
+} from '../fixtures/counter-module';
+import { openRoomSimWorld } from '../../sim/world';
+
+describe('room sim', () => {
+  test('partition then heal', async () => {
+    await using world = await openRoomSimWorld({
+      seed: 3,
+      module: TestCounterModule,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    {
+      using _hold = world.net('bob').set('hold');
+      a.dispatch(Increment({}));
+      await world.never(() => counterValue(b.snapshot()) === 1, {
+        forMs: 200,
+      });
+    }
+    await world.assertConverged();
+    expect(a.hash()).toBe(b.hash());
+  });
+});
+```
 
 ## Tiger Style (this package)
 

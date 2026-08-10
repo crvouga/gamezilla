@@ -272,6 +272,7 @@ export class Room<
         this.notify();
       },
       onClose: () => {
+        this.synced = false;
         this.notify();
       },
       onError: (err) => {

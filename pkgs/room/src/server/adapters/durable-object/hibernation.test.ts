@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../protocol/wire';
-import { Increment, TestCounterModule } from '../../../testkit/counter-module';
+import {
+  Increment,
+  TestCounterModule,
+} from '../../../tests/fixtures/counter-module';
 import { createDurableObjectAdapter } from './adapter';
 import type {
   DurableObjectInstanceState,

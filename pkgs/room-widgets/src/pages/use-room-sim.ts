@@ -13,7 +13,7 @@ import {
   Increment,
   LoopbackRoomTransport,
   TestCounterModule,
-} from '@pkgs/room/testkit';
+} from '@pkgs/room/tests';
 import { useCallback, useEffect, useState } from 'react';
 
 const TOPIC = 'playground';

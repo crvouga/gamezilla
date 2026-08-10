@@ -6,8 +6,8 @@ import {
   CounterIncremented,
   Increment,
   TestCounterModule,
-} from '../../testkit/counter-module';
-import { openLoopbackRoom } from '../../testkit/simulator';
+} from '../../tests/fixtures/counter-module';
+import { openLoopbackRoom } from '../../tests/harness/simulator';
 import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
