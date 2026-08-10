@@ -166,8 +166,8 @@ type ValidateDepEntry<T, Dep, Path extends string> = Dep extends readonly [
 ]
   ? Table extends TableNames<T>
     ? Col extends ColumnNames<T, Table>
-      ? unknown
-      : ErrorBrand<`${Path}: unknown column '${Col}' on table '${Table}'`>
+      ? ErrorBrand<`${Path}: column '${Table}.${Col}' is still declared — remove it from tables and keep only the deprecation entry`>
+      : unknown
     : ErrorBrand<`${Path}: unknown table '${Table}'`>
   : Dep extends readonly [
         infer Table extends string,

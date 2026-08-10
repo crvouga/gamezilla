@@ -11,7 +11,6 @@ const _ok = defineSchema({
   tables: {
     users: {
       email: 'text',
-      display_name: 'text',
     },
     todos: {
       user_id: 'uuid',
@@ -54,9 +53,9 @@ const _badDepTable: ExpectError<{
   tables: { users: { email: 'text' } };
   deprecations: [['nope', 'gone']];
 }> = true;
-const _badDepCol: ExpectError<{
+const _badDepColStillDeclared: ExpectError<{
   tables: { users: { email: 'text' } };
-  deprecations: [['users', 'nope', 'gone']];
+  deprecations: [['users', 'email', 'gone']];
 }> = true;
 
 void _pascal;
@@ -70,7 +69,7 @@ void _objectCol;
 void _badIndexTable;
 void _badIndexCol;
 void _badDepTable;
-void _badDepCol;
+void _badDepColStillDeclared;
 
 // ServerOperation kinds must be additive-only
 type ServerKinds = ServerOperation['kind'];

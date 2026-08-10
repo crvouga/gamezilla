@@ -85,7 +85,6 @@ export const appSchema = defineSchema({
       themes: 'json',
       game_url: 'text',
       opening_tags: 'json',
-      sync_pool: 'boolean',
     },
     chess_puzzle_load: {
       source_etag: 'text',
@@ -111,9 +110,7 @@ export const appSchema = defineSchema({
       at: 'timestamp',
     },
     client_config: {
-      enabled: 'boolean',
       value: 'json',
-      google_web_client_id: 'text',
     },
     inbox_interactions: {
       user_id: 'text',
@@ -191,11 +188,7 @@ export const appSchema = defineSchema({
   ],
   deprecations: [
     ['chess_puzzles', 'sync_pool', 'not needed anymore'],
-    [
-      'client_config',
-      'enabled',
-      'unused — use *_enabled / null scalar rows',
-    ],
+    ['client_config', 'enabled', 'unused — use *_enabled / null scalar rows'],
     [
       'client_config',
       'google_web_client_id',

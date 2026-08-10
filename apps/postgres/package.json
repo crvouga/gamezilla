@@ -8,6 +8,7 @@
     "install:deps": "bun run scripts/install-deps.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "preview": "bun run scripts/dev.ts",
+    "psql": "bun run scripts/psql.ts",
     "seed": "bun run scripts/seed.ts",
     "setup": "bun run scripts/setup.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json"

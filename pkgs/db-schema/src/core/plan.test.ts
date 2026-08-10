@@ -118,7 +118,7 @@ describe('planServer', () => {
     expect(plan.drift.some((d) => d.path === 'todos.id')).toBe(true);
   });
 
-  test('deprecated column missing from existing table is drift', () => {
+  test('deprecated leftover column is not drift', () => {
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
@@ -130,17 +130,92 @@ describe('planServer', () => {
             { name: 'deleted_at', type: 'timestamp' },
             { name: 'email', type: 'text' },
             { name: 'display_name', type: 'text' },
-            // name (deprecated) missing
+            { name: 'name', type: 'text' },
+          ]),
+        ],
+        [
+          'legacy_notes',
+          tableWithColumns('legacy_notes', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'body', type: 'text' },
           ]),
         ],
       ]),
       indexes: [],
-      allTableNames: new Set(['users']),
+      allTableNames: new Set(['users', 'legacy_notes']),
+    };
+    const plan = planServer(sampleSchema._declared, catalog);
+    expect(plan.ok).toBe(true);
+  });
+
+  test('deprecated column missing from existing table is ok', () => {
+    const catalog: IntrospectedCatalog = {
+      tables: new Map([
+        [
+          'users',
+          tableWithColumns('users', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'email', type: 'text' },
+            { name: 'display_name', type: 'text' },
+          ]),
+        ],
+        [
+          'legacy_notes',
+          tableWithColumns('legacy_notes', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'body', type: 'text' },
+          ]),
+        ],
+      ]),
+      indexes: [],
+      allTableNames: new Set(['users', 'legacy_notes']),
+    };
+    const plan = planServer(sampleSchema._declared, catalog);
+    expect(plan.ok).toBe(true);
+  });
+
+  test('undeclared non-deprecated leftover column is drift', () => {
+    const catalog: IntrospectedCatalog = {
+      tables: new Map([
+        [
+          'users',
+          tableWithColumns('users', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'email', type: 'text' },
+            { name: 'display_name', type: 'text' },
+            { name: 'mystery', type: 'text' },
+          ]),
+        ],
+        [
+          'legacy_notes',
+          tableWithColumns('legacy_notes', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'body', type: 'text' },
+          ]),
+        ],
+      ]),
+      indexes: [],
+      allTableNames: new Set(['users', 'legacy_notes']),
     };
     const plan = planServer(sampleSchema._declared, catalog);
     expect(plan.ok).toBe(false);
     if (plan.ok) return;
-    expect(plan.drift.some((d) => d.path === 'users.name')).toBe(true);
+    expect(plan.drift.some((d) => d.path === 'users.mystery')).toBe(true);
   });
 
   test('undeclared table is invisible (no drift)', () => {

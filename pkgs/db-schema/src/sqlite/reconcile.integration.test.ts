@@ -117,17 +117,29 @@ describe('sqlite reconcile integration', () => {
     ).toBe(false);
   });
 
-  test('deprecate does not require DDL when already present', async () => {
+  test('deprecate tombstone drops undeclared column on rebuild', async () => {
     const { client } = openMemoryClient();
-    const schema = defineSchema({
+    const v1 = defineSchema({
       tables: {
         notes: { body: 'text', old_field: 'text' },
       },
+    });
+    await sqlite(v1, client).reconcile();
+
+    const v2 = defineSchema({
+      tables: {
+        notes: { body: 'text' },
+      },
       deprecations: [['notes', 'old_field', 'unused']],
     });
-    await sqlite(schema, client).reconcile();
+    await sqlite(v2, client).reconcile();
+    const catalog = await readSqliteCatalog(client, v2._declared);
+    expect(
+      catalog.tables.get('notes')?.columns.some((c) => c.name === 'old_field')
+    ).toBe(false);
+
     const recording = createRecordingSqlClient(client);
-    await sqlite(schema, recording).reconcile();
+    await sqlite(v2, recording).reconcile();
     expect(recording.runCalls.length).toBe(0);
   });
 

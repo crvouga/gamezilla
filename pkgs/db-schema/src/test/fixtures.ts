@@ -14,7 +14,6 @@ export const sampleSchema = defineSchema({
     users: {
       email: 'text',
       display_name: 'text',
-      name: 'text',
     },
     todos: {
       user_id: 'uuid',

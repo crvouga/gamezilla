@@ -23,11 +23,11 @@ import {
   getOrCreateAppLocalSyncEngine,
   peekReadyAppSyncEngine,
 } from '../../sync/sync-engine-pool';
+import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
   LocalDatabaseBootErrorScreen,
   LocalDatabaseBootLoadingScreen,
 } from './boot-screens';
-import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import { SyncEmqxPushFromClientConfig } from './sync-emqx-push-from-client-config';
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 

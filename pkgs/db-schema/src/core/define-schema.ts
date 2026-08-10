@@ -159,8 +159,11 @@ function registerColumnDeprecation(args: {
       `${path}: cannot deprecate engine-owned column '${column}'`
     );
   }
-  if (!(column in tables[table]!)) {
-    throw new Error(`${path}: unknown column '${column}' on table '${table}'`);
+  assertSnakeCaseIdent(column, `${path}: column`);
+  if (column in tables[table]!) {
+    throw new Error(
+      `${path}: column '${column}' is still declared on table '${table}' — remove it from tables and keep only the deprecation entry`
+    );
   }
   deprecatedColumns.add(`${table}.${column}`);
 }

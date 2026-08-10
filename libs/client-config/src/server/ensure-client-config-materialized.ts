@@ -103,10 +103,7 @@ export class EnsureClientConfigMaterialized {
     desired: DesiredClientConfig
   ): Promise<{ readonly updated: boolean }> {
     const desiredRows = buildDesiredRows(desired);
-    const stored = await new ClientConfigRepository(
-      this.db,
-      this.io
-    ).listAll();
+    const stored = await new ClientConfigRepository(this.db, this.io).listAll();
     if (isEqual(liveStoredSnapshot(stored), snapshotForCompare(desiredRows))) {
       return { updated: false };
     }

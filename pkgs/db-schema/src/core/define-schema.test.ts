@@ -5,7 +5,7 @@ describe('defineSchema runtime validation', () => {
   test('accepts a valid schema and deep-freezes it', () => {
     const schema = defineSchema({
       tables: {
-        users: { email: 'text', name: 'text' },
+        users: { email: 'text' },
       },
       indexes: [['users', 'email']],
       deprecations: [['users', 'name', 'prefer email']],
@@ -171,18 +171,27 @@ describe('defineSchema runtime validation', () => {
       defineSchema({
         tables: { users: { email: 'text' } },
         deprecations: [
-          ['users', 'email', 'a'],
-          ['users', 'email', 'a'],
+          ['users', 'old_name', 'a'],
+          ['users', 'old_name', 'a'],
         ],
       })
     ).toThrow(/deprecations\[1\]: duplicate/);
   });
 
+  test('rejects column deprecation while column is still declared', () => {
+    expect(() =>
+      defineSchema({
+        tables: { users: { email: 'text', name: 'text' } },
+        deprecations: [['users', 'name', 'prefer email']],
+      } as never)
+    ).toThrow(/still declared/);
+  });
+
   test('snapshot is deterministic', () => {
     const schema = defineSchema({
       tables: {
-        b_table: { z_col: 'text', a_col: 'integer' },
-        a_table: { m: 'text', old: 'text' },
+        b_table: { a_col: 'integer' },
+        a_table: { m: 'text' },
       },
       indexes: [
         ['b_table', 'a_col'],
@@ -202,7 +211,6 @@ describe('defineSchema runtime validation', () => {
     ]);
     expect(Object.keys(schema.snapshot().tables['b_table']!)).toEqual([
       'a_col',
-      'z_col',
     ]);
   });
 });

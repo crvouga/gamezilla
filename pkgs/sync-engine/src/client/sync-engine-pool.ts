@@ -30,9 +30,16 @@ async function deactivatePrevious(
   nextName: string
 ): Promise<void> {
   if (pool.activeName === null || pool.activeName === nextName) return;
-  const previous = pool.ready.get(pool.activeName);
+  const previousName = pool.activeName;
+  const previous = pool.ready.get(previousName);
   pool.activeName = null;
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'A',location:'sync-engine-pool.ts:deactivatePrevious',message:'deactivating previous engine',data:{previousName,nextName,hadPrevious:previous!==undefined},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   await previous?.disconnect();
+  // #region agent log
+  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'E',location:'sync-engine-pool.ts:after-disconnect',message:'previous disconnect finished (web lock not released here)',data:{previousName,nextName},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 }
 
 export type SyncEnginePoolApi = {
@@ -53,6 +60,9 @@ export function createSyncEnginePool(
     },
     async getOrCreate(databaseName, create) {
       const pool = getOrInitPool(options.globalKey);
+      // #region agent log
+      fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'A',location:'sync-engine-pool.ts:getOrCreate',message:'getOrCreate enter',data:{databaseName,activeName:pool.activeName,readyKeys:[...pool.ready.keys()],pendingKeys:[...pool.pending.keys()]},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       await deactivatePrevious(pool, databaseName);
       const ready = pool.ready.get(databaseName);
       if (ready !== undefined) {

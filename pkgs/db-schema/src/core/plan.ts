@@ -97,15 +97,17 @@ function nullabilityOk(col: IntrospectedColumn): boolean {
 function driftExtraColumns(
   tableName: string,
   existing: IntrospectedTable,
-  desired: Map<string, ColumnType>
+  desired: Map<string, ColumnType>,
+  deprecatedColumns: ReadonlySet<string>
 ): DriftError[] {
   const drift: DriftError[] = [];
   for (const col of existing.columns) {
     if (!columnVisibleForDrift(col.name)) continue;
     if (!desired.has(col.name)) {
+      if (deprecatedColumns.has(`${tableName}.${col.name}`)) continue;
       drift.push({
         path: `${tableName}.${col.name}`,
-        message: `re-add the column and add a [${tableName}, ${col.name}, note] deprecation entry`,
+        message: `add a [${tableName}, ${col.name}, note] deprecation entry`,
       });
       continue;
     }
@@ -120,24 +122,6 @@ function driftExtraColumns(
       drift.push({
         path: `${tableName}.${col.name}`,
         message: `column nullability mismatch (non-PK columns must be nullable; id must be NOT NULL)`,
-      });
-    }
-  }
-  return drift;
-}
-
-function driftMissingDeprecatedColumns(
-  declared: ReadonlyDeclaredSchema,
-  tableName: string,
-  existing: IntrospectedTable
-): DriftError[] {
-  const drift: DriftError[] = [];
-  for (const colName of Object.keys(declared.tables[tableName]!)) {
-    if (!declared.deprecatedColumns.has(`${tableName}.${colName}`)) continue;
-    if (!findColumn(existing, colName)) {
-      drift.push({
-        path: `${tableName}.${colName}`,
-        message: `deprecated column is missing from the database (deprecation never means "may not exist")`,
       });
     }
   }
@@ -173,8 +157,14 @@ function collectServerDrift(
     const existing = catalog.tables.get(tableName);
     if (!existing) continue;
     const desired = desiredColumns(declared, tableName);
-    drift.push(...driftExtraColumns(tableName, existing, desired));
-    drift.push(...driftMissingDeprecatedColumns(declared, tableName, existing));
+    drift.push(
+      ...driftExtraColumns(
+        tableName,
+        existing,
+        desired,
+        declared.deprecatedColumns
+      )
+    );
   }
   drift.push(...driftMissingDeprecatedTables(declared, catalog));
   return drift;
