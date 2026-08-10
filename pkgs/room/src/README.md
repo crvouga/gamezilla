@@ -2,119 +2,154 @@
 
 Server-authoritative multiplayer for a **single topic** (e.g. `space:<uuid>`).
 
-The **server** is the only writer to the committed event log. The **client** is optimistic and offline-friendly: it applies commands locally, persists a durable command queue, and replays after reconnect. Convergence is `sync(fromSeq)` plus server dedup by `commandId`.
+This package is the realtime session engine used by product features (primarily
+`@libs/spaces` + game `RoomModule`s). It is **not** the app sync engine
+(`@pkgs/sync-engine`): room is a lower-level `pkgs` leaf with its own wire
+protocol, optimistic client queue, and Durable Object host.
+
+## Why it exists
+
+| Need | How room solves it |
+|------|--------------------|
+| Shared live game / lobby state | One authoritative event log per topic; clients fold the same events |
+| Snappy UX under latency / offline | Client applies commands optimistically, queues durable outbound, flushes after welcome |
+| Multi-device / multi-tab | Roster keyed by `(identity, clientId)`; session take-over on reconnect |
+| Cloudflare hosting | DO adapter multiplexes modules, hibernates sockets, persists per-key log |
+| Deterministic regression | Private DST harness (`src/sim/`) — one seed → identical timeline |
+
+**Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD, Sim Lab GUI.
+
+## Mental model
+
+```text
+┌──────────── client ────────────┐         ┌──────── server (RoomServer) ────────┐
+│ Room.open + ClientTransport    │  wire   │ authenticate / authorize            │
+│ optimistic fold + command queue│◄───────►│ append events (seq), dedup commandId│
+│ ClientRoomStorage (local cache)│         │ RoomStorage (committed log)         │
+│ display = committed ⊕ queued   │         │ broadcast welcome / committed       │
+└────────────────────────────────┘         └─────────────────────────────────────┘
+```
+
+Convergence rule: after reconnect, `sync(fromSeq)` + server dedup by `commandId`
+brings every synced client’s **domain** fold (module `hash`, meta stripped) in
+line with the server fold.
+
+**Required on every `RoomModule`:** `hash(state)` — deterministic domain hash
+(see root [`DETERMINISM.md`](../../../DETERMINISM.md)). Used by DST settle and
+by game modules in product.
+
+## Product use cases (callers)
+
+1. **Space / game sessions** — `@libs/spaces` opens a WebSocket room per space,
+   injects composed game modules, reads `useRoomSnapshot` / selectors.
+2. **Offline-first open** — `Room.open` hydrates local storage and attaches
+   transport even when connect fails; UI can dispatch while disconnected.
+3. **Playgrounds / widgets** — `@pkgs/room-widgets` and tests use
+   `@pkgs/room/tests` (`openLoopbackRoom`, `TestCounterModule`) for in-process
+   multi-client demos without a Worker.
+4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /
+   `reduce` / `hash`), register in spaces’ module list + DO `modules: […]`.
 
 ## Entrypoints
 
-Both the client and server entrypoints expose **core only** — engine + ports. Each adapter is its own subpath import so callers explicitly opt in to a runtime/backend, and swapping adapters is a one-line import change.
+Core vs adapters stay split so callers opt into a runtime explicitly.
 
-| Import                                           | Purpose                                                                                                             |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `@pkgs/room`                                     | Core client: `Room` (flat `getSnapshot()` + `RoomMetaAttr`), `useRoomSnapshot`, registry hooks, ports, wire helpers |
-| `@pkgs/room/server`                              | Core server: `RoomServer`, `RoomStorage`, `RoomAuth` (no adapters)                                                  |
-| `@pkgs/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (browser/Worker `WebSocket`)                                                               |
-| `@pkgs/room/client/adapters/storage/memory`      | `InMemoryClientStorage` (tests)                                                                                     |
-| `@pkgs/room/client/adapters/storage/web`         | `WebClientStorage` (synchronous `localStorage`)                                                                     |
-| `@pkgs/room/client/adapters/storage/key-value`   | `KeyValueClientRoomStorage` (async `Kv` — `localStorage` web, AsyncStorage native)                                  |
-| `@pkgs/room/server/adapters/durable-object`      | `createDurableObjectAdapter`, `DurableObjectRoomStorage`, DO type stubs                                             |
-| `@pkgs/room/server/adapters/memory`              | `InMemoryRoomStorage` (tests / loopback testkit)                                                                    |
-| `@pkgs/room/testkit`                             | `openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`                                                    |
+| Import | Purpose |
+|--------|---------|
+| `@pkgs/room` | Client core: `Room`, `RoomMetaAttr`, React hooks/registry, ports, wire helpers |
+| `@pkgs/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth` |
+| `@pkgs/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`) |
+| `@pkgs/room/client/adapters/storage/memory` | `InMemoryClientStorage` |
+| `@pkgs/room/client/adapters/storage/web` | `WebClientStorage` (`localStorage`) |
+| `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
+| `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
+| `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage |
+| `@pkgs/room/tests` | Curated re-exports from `src/tests/` (`openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`) |
 
-The folder layout mirrors the entrypoint layout:
+`src/sim/` is **private** (not exported). DST scenarios import it relatively.
 
-```
+## Layout
+
+```text
 pkgs/room/src/
-├── client/
-│   ├── core/                               (Room engine, hook, ports)
-│   └── adapters/
-│       ├── storage/{memory,web,key-value}/ (ClientRoomStorage impls)
-│       └── transport/websocket/            (ClientTransport impl)
-├── server/
-│   ├── core/                               (RoomServer, ports)
-│   └── adapters/{durable-object,memory}/   (RoomStorage impls + DO host)
-├── sim/                                    (private DST harness)
+├── client/core/          Room engine, fold, meta, ports
+├── client/adapters/      websocket transport; memory/web/key-value storage
+├── client/react/         snapshot + registry hooks
+├── server/core/          RoomServer, auth/storage ports
+├── server/adapters/      memory + durable-object host
+├── protocol/             wire frames + ids
+├── sim/                  private DST harness (world, net, settle, until)
 └── tests/
-    ├── fixtures/                           (TestCounterModule, …)
-    ├── harness/                            (openLoopbackRoom, LoopbackRoomTransport)
-    └── scenarios/                          (DST *.sim.test.ts; import sim + fixtures)
+    ├── fixtures/         TestCounterModule (+ module hash sim test)
+    ├── harness/          openLoopbackRoom + LoopbackRoomTransport
+    └── scenarios/        DST *.sim.test.ts (import sim + fixtures)
 ```
 
-A new runtime (Node HTTP server, Postgres-backed storage, WebRTC transport, etc.) is a new folder under the matching `adapters/…` slot plus one entry in `package.json#exports` — the core engines stay untouched.
+Facade: [`tests.ts`](./tests.ts) → package export `@pkgs/room/tests`.
 
-## Core types
+## Core types (design surface)
 
-- **`RoomModuleName`** — branded wire id for DO routing (`module` query). Validated by {@link parseRoomModuleName} / {@link assertRoomModuleName} against `^[a-z]+(?:-[a-z]+)*$`.
-- **`RoomModule<S, C, E, Identity>`** — `name` ({@link RoomModuleName}), `initialState`, `handle(state, command, identity)`, `reduce(state, event)`.
-- **`RoomCommand<C>`** — `{ id, ts, payload }` (client generates `id`; server treats it as idempotency key).
-- **`HandleResult<E>`** — `{ ok: true, events }` or `{ ok: false, error: RoomError }`.
-- **`RoomError`** — small union; `type` is a Clojure-style namespaced keyword: `room.error/invalid-command`, `room.error/unauthorized`, `room.error/conflict`, `room.error/rate-limited`, `room.error/internal`. Constants live in `ROOM_ERROR_TYPE`.
+- **`RoomModuleName`** — branded kebab id for DO routing (`module` query).
+- **`RoomModule<S, C, E, Identity>`** — `name`, `initialState`, `handle`, `reduce`, **`hash`**.
+- **`RoomCommand`** — `{ id, ts, payload }`; `id` is the server idempotency key.
+- **`HandleResult`** — `{ ok: true, events }` or `{ ok: false, error }`.
+- **`RoomError`** — `ROOM_ERROR_TYPE.*` (`invalid-command`, `unauthorized`, …).
+- **State** — flat attribute map; domain keys + `room/*` meta (`RoomMetaAttr`).
 
 ## Wire protocol
 
-Versioned JSON frames (`v` on envelopes). Each envelope `kind` is a plain string-literal discriminator (constants in `ROOM_WIRE_KIND`); the wire is a static contract, not dynamic app data, so it is a rigid TypeScript discriminated union and intentionally does not use the `Keyword`/attribute machinery reserved for room state and message types. Client → server: `command`, `sync`, `ping`. Server → client: `welcome`, `committed`, `rejected`. Each committed event has a monotonic **`seq`** per topic.
+Versioned JSON (`v`). Kinds in `ROOM_WIRE_KIND`:
 
-## Ports (inject, do not singleton)
+- Client → server: `command`, `sync`, `ping`
+- Server → client: `welcome`, `committed`, `rejected`
 
-- **`ClientTransport`** — connect, send JSON, subscribe to inbound, lifecycle hooks (`onHandlers`).
-- **`ClientRoomStorage`** — durable committed tail + queued commands (`appendQueued`, `removeQueued`, `loadQueued`, `saveCommitted`, `loadCommitted`).
-- **`RoomStorage` (server)** — append/load log, `nextSeq`, command dedup (`seenCommandId`, `recordCommandId`).
-- **`RoomAuth`** — authenticate WebSocket upgrade; optional `authorize` per command.
+Committed events carry monotonic **`seq`** per topic.
 
-## Shipped adapters
+## Ports (inject; no singletons)
 
-- **Client transport — `websocket`** (`@pkgs/room/client/adapters/transport/websocket`): `WebSocketRoomTransport` with exponential backoff reconnect, application-level `ping`/`pong` heartbeat, and `probeLiveness()` for app-foreground recovery.
-- **Client storage — `memory`** (`@pkgs/room/client/adapters/storage/memory`): `InMemoryClientStorage` for tests and the loopback testkit.
-- **Client storage — `web`** (`@pkgs/room/client/adapters/storage/web`): `WebClientStorage` for synchronous `localStorage`.
-- **Client storage — `key-value`** (`@pkgs/room/client/adapters/storage/key-value`): `KeyValueClientRoomStorage` for client `Kv` from `@pkgs/kv/kv-platform` (web `localStorage` or React Native `AsyncStorage`). Do **not** back this with `SecureStorage` / `expo-secure-store` — the 2048-byte per-value cap rejects committed-log blobs as soon as a few entries accumulate. None of this data is sensitive (it's a recovery cache).
-- **Server storage — `memory`** (`@pkgs/room/server/adapters/memory`): `InMemoryRoomStorage` for tests and the loopback testkit.
-- **Server host — `durable-object`** (`@pkgs/room/server/adapters/durable-object`): `createDurableObjectAdapter({ modules: […] })` takes a flat array of `RoomModule` values (each carries a wire-unique `name`). WebSocket upgrades must include query `topic` and `module` (matching one module's `name`). The DO keeps a `Map` of {@link RoomServer} instances (one per module, started on first use); each socket stores `moduleName` so inbound frames route to the right server. Per-socket routing (`connId`, identity, module, topic) is also written via Hibernation WebSocket `serializeAttachment`, and rebuilt from `ctx.getWebSockets()` after DO eviction so idle rooms keep broadcasting to still-connected peers. KV persistence is namespaced per module via {@link DurableObjectRoomStorage} (one key per event / dedup outcome — not a single blob — so long-lived rooms stay under the SQLite 2 MB row cap). Bind via `class_name` in `wrangler.toml`. Host apps typically re-export the result as their `Room` DO class.
-- **Testkit** (`@pkgs/room/testkit`): curated re-exports of `openLoopbackRoom`, `LoopbackRoomTransport`, and `TestCounterModule` from `src/tests/harness/` + `src/tests/fixtures/` for in-process convergence tests and playgrounds.
+| Port | Role |
+|------|------|
+| `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
+| `ClientRoomStorage` | committed tail + queued commands |
+| `RoomStorage` | append/load log, `nextSeq`, command dedup |
+| `RoomAuth` | upgrade auth; optional per-command `authorize` |
+| `Io` (`clock` / `timers` / `createId`) | all nondeterministic I/O — no bare wall clocks in product/sim |
 
-## Deterministic simulation testing (DST)
+## Testing strategy (pick the right tool)
 
-TigerBeetle-style DST in `src/sim/` (private — not a public export). **One seed →
-identical timeline.** Modeled on sync-engine’s five concepts, but room-shaped:
-`RoomServer` + networked loopback transports over `createSimIo` (no
-`@pkgs/sync-engine` dependency).
+| Tool | When to use |
+|------|-------------|
+| **`openLoopbackRoom`** (`tests/harness`, via `@pkgs/room/tests`) | Fast in-process unit/integration with `wallIo` or injected `Io`; real `Room` + `RoomServer`, no net faults |
+| **`openRoomSimWorld`** (`sim/world`, private) | Multi-client DST: partitions, delays, soft disconnect, hash converge, seed replay |
+| **DO / adapter tests** | Hibernation, session take-over, per-key storage, WS heartbeat |
 
-```text
-seed ──► SeededRng ──► SimRoomNetwork (delay / hold / drop)
-  │                         │
-  └──► createSimIo ──► clock + timers + delayed deliveries
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-         Room clients   networked loopback   RoomServer
-         (memory store)                      (memory store)
+Scripts:
+
+```bash
+bun run --filter @pkgs/room test       # all package tests
+bun run --filter @pkgs/room test:sim   # DST scenarios only
+bun run ci:sim-determinism             # every *.sim.test.ts ×2 same seed
 ```
+
+### DST five concepts (room-shaped)
 
 | Concept | API | Notes |
 |---------|-----|-------|
-| **Time** | `runFor` / `until` / `never` | Virtual clock + net delivery queue; never wall sleeps |
-| **Network** | `world.net(clientId).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack |
-| **Node** | `world.node(id).disconnect()` / `.reconnect()` | Soft session teardown / reattach; stable client id |
-| **Client** | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected` | Black-box; no private Room fields |
-| **Settle** | `assertConverged()` | Heal nets, drain, assert domain hashes match server fold |
+| Time | `runFor` / `until` / `never` | Virtual clock + net queue; no wall sleeps |
+| Network | `world.net(id).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack |
+| Node | `world.node(id).disconnect()` / `.reconnect()` | Soft session; stable client id |
+| Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected` | Black-box |
+| Settle | `assertConverged()` | Heal nets, drain, domain hash == server fold; errors include `seed=` / `now=` |
 
-**Connectivity triad (room):**
+Connectivity triad — do not conflate:
 
-| API | Layer | Use when |
-|-----|-------|----------|
-| `client.disconnect()` / `connect()` | Transport session | Offline optimistic dispatch + flush on welcome |
-| `world.net(id).set('hold'\|'down')` | Mesh reality | Partition / hold frames without tearing the Room down |
+1. `client.disconnect()` / `connect()` — transport session (offline optimistic queue)
+2. `world.net(id).set('hold'|'down')` — mesh reality (frames not delivered)
+3. Offline dispatch while disconnected — Room feature; scenarios prove flush on welcome
 
-**Not simulated:** real WebSocket, Durable Object hibernation. Keep wallIo
-loopback tests (`tests/harness` via `@pkgs/room/testkit`) and DO unit tests as they are.
+**Not simulated:** real WebSocket, DO hibernation runtime (covered by DO unit tests).
 
-Failures from `until` / `never` / `assertConverged` embed `seed=<hex>` and
-virtual `now=` for replay. Scenarios are `*.sim.test.ts` under
-`src/tests/scenarios/` (picked up by root `ci:sim-determinism`).
-
-```bash
-bun run --filter @pkgs/room test:sim
-```
-
-#### Quick start
+### Quick start (DST)
 
 ```ts
 import { describe, expect, test } from 'bun:test';
@@ -146,15 +181,74 @@ describe('room sim', () => {
 });
 ```
 
-## Tiger Style (this package)
+## Design constraints (for contributors / agents)
 
-- **Assert on hot paths** where a violation means impossible state (`Assert.crash()` from `@pkgs/assert`), especially after wire parse and seq checks.
-- **No bare `catch`**: transport and storage failures propagate to `onError` or explicit disconnect.
-- **Fail loudly on bad wire**: unknown `kind` / version mismatch → connection dropped or `rejected`, not silent ignore.
+- No `@pkgs/sync-engine` dependency (room stays a leaf).
+- No bare wall I/O in sim or product paths — inject `Io` / `createSimIo`.
+- Tiger size caps (`biome.json`) — split helpers; no size-rule ignores.
+- Domain hard-delete rules belong to sync-engine SQL; room uses event fold only.
+- Prefer extending `tests/scenarios/*.sim.test.ts` for multi-client / partition /
+  offline regressions before adding wall sleeps to loopback tests.
 
-## Security (intended posture)
+## Tiger Style
 
-- **Auth at upgrade**: reject before game frames (401/403).
-- **Authorize optional** per topic/command (e.g. space membership).
-- **Never trust client-only validation** for integrity or money; server runs `module.handle` on server-held state.
-- **Dedup by `commandId`** limits replay amplification; persist outcome where ordering matters.
+- Assert on hot paths where violation means impossible state.
+- No bare `catch` — surface via `onError` or disconnect.
+- Fail loudly on bad wire (unknown `kind` / version).
+
+## Security posture
+
+- Auth at upgrade (401/403 before game frames).
+- Optional authorize per topic/command.
+- Never trust client-only validation for integrity; server runs `module.handle`.
+- Dedup by `commandId` limits replay amplification.
+
+---
+
+## Scenario / test catalog
+
+Complete inventory of what this package currently proves. Prefer adding rows
+here when you add coverage. Paths are under `pkgs/room/src/`.
+
+### Deterministic simulation (`*.sim.test.ts` — `ci:sim-determinism`)
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `tests/scenarios/single-client-increment.sim.test.ts` | DST | One client increments; settles; domain count/hash matches server |
+| `tests/scenarios/two-client-converge.sim.test.ts` | DST | Alice+Bob mutual increments → equal hashes, count=3, roster size 2 |
+| `tests/scenarios/partition-then-heal.sim.test.ts` | DST | `net(bob).hold` during Alice write → Bob `never` sees update → heal → converge |
+| `tests/scenarios/offline-dispatch-then-sync.sim.test.ts` | DST | Soft disconnect → optimistic increment → peer `never` sees → reconnect → converge |
+| `tests/scenarios/seeded-workload-determinism.sim.test.ts` | DST | Same seed (`SIM_SEED`) → identical multi-client hash string twice (incl. mid hold) |
+| `tests/fixtures/counter-module.sim.test.ts` | Module DST | Pure `TestCounterModule` handle/reduce/hash under `createSimIo` is seed-stable |
+
+### Loopback / client core
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `room.test.ts` | Loopback | Welcome + increment converges; unknown command rejected locally |
+| `room-roster.test.ts` | Loopback | Roster grow/shrink; multi-tab same actor; actor+ts stamped on log |
+| `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `Room.open` survives connect throw; optimistic queue while disconnected |
+| `client/core/room-server-reset.test.ts` | Loopback / reset | Ignore duplicate committed ≤ tip; recover short/stale welcome; idempotent re-welcome |
+
+### Server core
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `server/core/room-server-envelope.test.ts` | Unit | Non-Message command payload → `rejected` / invalid-command |
+| `server/core/room-server-welcome.test.ts` | Unit | Welcome `lastSeq` matches log tail even if storage tip read is wrong |
+
+### Adapters (DO + client)
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `server/adapters/durable-object/storage.test.ts` | DO storage | Per-key append/load; dedup keys; v2→v3 blob migrate; reject seq gaps |
+| `server/adapters/durable-object/hibernation.test.ts` | DO host | After simulated eviction, passive peer still receives committed |
+| `server/adapters/durable-object/session-takeover.test.ts` | DO host | Same `(identity, clientId)` replaces socket; different `clientId` keeps both |
+| `client/adapters/transport/websocket/transport.test.ts` | WS transport | Heartbeat ping; reconnect on missed pong; `probeLiveness`; pong clears miss |
+| `client/adapters/storage/key-value/storage.test.ts` | KV storage | Corrupt committed/queued blobs load empty and are zapped |
+
+### Pure helpers
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `hash-room-state.test.ts` | Unit | Canonical JSON key sort; insertion-order-independent FNV hash |

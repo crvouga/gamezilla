@@ -27,6 +27,7 @@
       "@pkgs/sync-engine/test": ["./pkgs/sync-engine/src/test/index.ts"],
       "@pkgs/room": ["./pkgs/room/src/index.ts"],
       "@pkgs/room/server": ["./pkgs/room/src/server.ts"],
+      "@pkgs/room/tests": ["./pkgs/room/src/tests.ts"],
       "@pkgs/room/*": ["./pkgs/room/src/*"],
       "@pkgs/room-widgets/*": ["./pkgs/room-widgets/src/*"],
       "@pkgs/collab": ["./pkgs/collab/src/index.ts"],
