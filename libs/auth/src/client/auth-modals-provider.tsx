@@ -8,12 +8,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useApiFeatures } from './api-features-context';
 import {
   HOSTED_SIGN_IN_UNAVAILABLE_REASON,
   NO_SIGN_IN_METHODS_REASON,
 } from './auth-errors';
 import { useConfigService } from './config-service-context';
+import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInModal, type SignInModalProps } from './sign-in-modal';
 import { useSignInPending } from './sign-in-pending';
 import { useSignIn } from './use-sign-in';
@@ -107,7 +107,7 @@ function useSignInModalConnection(args: {
   const { signInModalOpen, openSignInModal, closeSignInModal } = args;
   const apiUrl = useConfigService().getApiUrl();
   const { signInWithGoogle, signInWithEmail } = useSignIn();
-  const { features } = useApiFeatures();
+  const capabilities = useSignInCapabilities();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
   const resumePending = isHydrated && pending !== null;
@@ -124,8 +124,8 @@ function useSignInModalConnection(args: {
   );
 
   const apiReachable = apiUrl.trim().length > 0;
-  const googleAvailable = apiReachable && features.google;
-  const emailPasswordAvailable = apiReachable && features.emailPassword;
+  const googleAvailable = apiReachable && capabilities.google;
+  const emailPasswordAvailable = apiReachable && capabilities.emailPassword;
   const anyMethod = googleAvailable || emailPasswordAvailable;
   const signInModalVisible = signInModalOpen || resumePending;
   const signInUnavailableReason = anyMethod

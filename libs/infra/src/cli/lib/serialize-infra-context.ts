@@ -2,8 +2,8 @@ import type { InfraContext } from '../resources/types';
 
 /**
  * `InfraContext` is built up by the `provision` phase (zoneId, nameservers)
- * and read by `deploy-resources`, `smoke`, and
- * `refresh-config`. When those phases run as separate GitHub Actions jobs,
+ * and read by `deploy-resources` and `smoke`. When those phases run as
+ * separate GitHub Actions jobs,
  * the context has to round-trip through `job.outputs` — these helpers do
  * the JSON shuttling.
  *

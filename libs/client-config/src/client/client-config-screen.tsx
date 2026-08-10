@@ -3,7 +3,6 @@ import { Box, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';
-import { ClientConfigServerRefreshCard } from './client-config-server-refresh';
 
 export function ClientConfigScreen() {
   const nav = useBreadcrumbNav();
@@ -20,7 +19,6 @@ export function ClientConfigScreen() {
       content={({ sx }) => (
         <Box style={sx} sx={{ gap: 3 }}>
           <ClientConfigEntityCard />
-          <ClientConfigServerRefreshCard />
         </Box>
       )}
     />

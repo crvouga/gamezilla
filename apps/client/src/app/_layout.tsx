@@ -1,7 +1,6 @@
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { AppIoProvider } from '@apps/client/providers/infrastructure/app-io-provider';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
-import { isClientSentryEnabled } from '@pkgs/observability/impl-sentry/init-client-sentry';
 import { useStackProps } from '@pkgs/ui';
 import * as Sentry from '@sentry/react-native';
 import { Stack } from 'expo-router';
@@ -46,4 +45,5 @@ function RootLayout() {
   );
 }
 
-export default isClientSentryEnabled() ? Sentry.wrap(RootLayout) : RootLayout;
+// Wrap always; Sentry.init runs after client_config sync (see AppObservabilityFromClientConfig).
+export default Sentry.wrap(RootLayout);

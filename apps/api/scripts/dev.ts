@@ -7,13 +7,13 @@ import { migratePostgresApp } from '../src/db/migrate';
 const io = wallIo();
 
 /**
- * Foreground entry for `@apps/api dev`. Runs migrate → client-config refresh →
- * wrangler under one Node process so turbo SIGINT/SIGTERM tear down the whole
- * tree instead of leaving a shell background job alive.
+ * Foreground entry for `@apps/api dev`. Runs migrate → wrangler under one
+ * Node process so turbo SIGINT/SIGTERM tear down the whole tree instead of
+ * leaving a shell background job alive. Client config materializes on the
+ * first non-health API request from Worker secrets.
  */
 
 const API_DIR = join(import.meta.dirname, '..');
-const REPO_ROOT = join(API_DIR, '../..');
 const API_PORT = 8788;
 /** `0` = OS-assigned free port. Fixed 9229/9231 hit EADDRNOTAVAIL on some hosts. */
 const INSPECTOR_PORT = 0;
@@ -60,13 +60,6 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 }
 
 await migratePostgresApp({ wait: true });
-
-const refresh = spawn(
-  'bun',
-  ['run', '--filter', '@libs/client-config', 'dev:refresh'],
-  { cwd: REPO_ROOT, stdio: 'inherit' }
-);
-children.push(refresh);
 
 const wrangler = spawn(
   'wrangler',

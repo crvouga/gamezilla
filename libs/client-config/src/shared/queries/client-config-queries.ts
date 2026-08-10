@@ -7,7 +7,7 @@ export const clientConfig = defineQuery({
   entryChannel: () => clientConfigChannels(),
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, google_web_client_id, deleted_at FROM client_config
+      SELECT id, value, deleted_at FROM client_config
 `);
     return { client_config: rows };
   },

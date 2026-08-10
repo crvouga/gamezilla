@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 
 /**
  * LLM context always mounts. When the API lacks OpenAI secrets, structured
- * calls return 503; screens can also gate on `useApiFeatures().features.llm`.
+ * calls return 503; screens can also gate on `useClientConfig().config.llm_enabled`.
  */
 export function AppLlm({ children }: { children: ReactNode }): ReactNode {
   const apiUrl = useConfigService().getApiUrl();

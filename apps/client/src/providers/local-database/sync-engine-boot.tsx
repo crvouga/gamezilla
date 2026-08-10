@@ -27,6 +27,8 @@ import {
   LocalDatabaseBootErrorScreen,
   LocalDatabaseBootLoadingScreen,
 } from './boot-screens';
+import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
+import { SyncEmqxPushFromClientConfig } from './sync-emqx-push-from-client-config';
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
 function useIdentitySqliteDbName(userId: string): string {
@@ -116,13 +118,17 @@ function useSyncEnginePromise(
 function renderSyncEngineTree(args: {
   readonly paintReady: boolean;
   readonly engine: SyncEngine;
+  readonly databaseName: string;
   readonly children: ReactNode;
 }): ReactNode {
   return (
     <SyncEnginePaintGateContext.Provider value={args.paintReady}>
       <SyncEngineProvider value={args.engine}>
         <SqlClientProvider value={args.engine.db}>
-          {args.children}
+          <AppObservabilityFromClientConfig>
+            <SyncEmqxPushFromClientConfig databaseName={args.databaseName} />
+            {args.children}
+          </AppObservabilityFromClientConfig>
         </SqlClientProvider>
       </SyncEngineProvider>
     </SyncEnginePaintGateContext.Provider>
@@ -183,5 +189,10 @@ function SyncEngineBootWithUser({
     return <LocalDatabaseBootErrorScreen error={boot.error} />;
   }
 
-  return renderSyncEngineTree({ paintReady, engine, children });
+  return renderSyncEngineTree({
+    paintReady,
+    engine,
+    databaseName: dbName,
+    children,
+  });
 }

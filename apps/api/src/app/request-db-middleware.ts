@@ -1,5 +1,7 @@
 import { SessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
+import type { DesiredClientConfig } from '@libs/client-config/server/ensure-client-config-materialized';
+import { EnsureClientConfigMaterialized } from '@libs/client-config/server/ensure-client-config-materialized';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
@@ -16,6 +18,7 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
 import {
@@ -26,6 +29,7 @@ import { ApiSecretName } from '../config/secret-names';
 import { openRequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
+import { notifyClientConfigChannels } from '../sync/notify-client-config-channels';
 import type { ApiHonoEnv } from './api-hono-types';
 
 /** Per-request Postgres + session auth (AsyncLocalStorage). */
@@ -62,6 +66,8 @@ export type RequestDbMiddlewareOptions = {
   readonly observability: Observability;
   /** Process-level Io from the API composition root. */
   readonly io: Io;
+  /** Public client_config rows derived from Worker secrets at boot. */
+  readonly desiredClientConfig: DesiredClientConfig;
 };
 
 type AttachRequestDatabaseArgs = {
@@ -110,6 +116,34 @@ function createRequestBetterAuth(
   return createBetterAuth(betterAuthConfigForPool(boot, pool));
 }
 
+/** Once-per-isolate latch; re-entry safe via compare-before-write inside ensure. */
+let clientConfigMaterializePromise: Promise<void> | null = null;
+
+async function materializeClientConfigIfNeeded(
+  sqlClient: SqlClient,
+  options: RequestDbMiddlewareOptions
+): Promise<void> {
+  if (clientConfigMaterializePromise !== null) {
+    await clientConfigMaterializePromise;
+    return;
+  }
+  clientConfigMaterializePromise = (async () => {
+    const result = await new EnsureClientConfigMaterialized(
+      sqlClient,
+      options.io
+    ).execute(options.desiredClientConfig);
+    if (result.updated) {
+      notifyClientConfigChannels('client-config-materialize');
+    }
+  })();
+  try {
+    await clientConfigMaterializePromise;
+  } catch (err: unknown) {
+    clientConfigMaterializePromise = null;
+    throw err;
+  }
+}
+
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
@@ -141,6 +175,7 @@ async function attachRequestDatabase(
       c.set('authServer', authServer);
       c.set('betterAuth', betterAuth);
       try {
+        await materializeClientConfigIfNeeded(sqlClient, options);
         return await next();
       } finally {
         // Await close on the request path. Deferred `waitUntil` teardown left

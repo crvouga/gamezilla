@@ -201,109 +201,6 @@ function resolveExpoPublicCommitDate(): string {
   return normalized;
 }
 
-async function resolveExpoPublicSentryDsn(
-  store: SecretStore | null
-): Promise<string | null> {
-  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_SENTRY_DSN']);
-  if (fromEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from process env (e.g. secrets-run).\n'
-    );
-    return fromEnv;
-  }
-  if (store === null) return null;
-  const fromSecrets = (
-    await store.getOptional('EXPO_PUBLIC_SENTRY_DSN')
-  )?.readSecretValue();
-  const trimmed =
-    typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
-      ? fromSecrets.trim()
-      : null;
-  if (trimmed !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_SENTRY_DSN from secret store.\n'
-    );
-    return trimmed;
-  }
-  return null;
-}
-
-const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
-
-function isLoopbackApiOrigin(origin: string): boolean {
-  try {
-    const { hostname } = new URL(origin);
-    return hostname === 'localhost' || hostname === '127.0.0.1';
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Local loopback API always uses `@apps/emqx` — Infisical / process-env cloud
- * EMQX hosts are ignored so sync pushes stay self-contained.
- */
-async function resolveExpoPublicEmqxWssUrl(
-  store: SecretStore | null,
-  apiOrigin: string
-): Promise<string | null> {
-  if (isLoopbackApiOrigin(apiOrigin)) {
-    process.stdout.write(
-      `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL → local ${LOCAL_EMQX_WSS_URL} (loopback API; Infisical ignored).\n`
-    );
-    return LOCAL_EMQX_WSS_URL;
-  }
-  const fromEnv = trimStringOrNull(process.env['EXPO_PUBLIC_EMQX_WSS_URL']);
-  if (fromEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from process env.\n'
-    );
-    return fromEnv;
-  }
-  const fromEmqxEnv = trimStringOrNull(process.env['EMQX_WSS_URL']);
-  if (fromEmqxEnv !== null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from EMQX_WSS_URL in process env.\n'
-    );
-    return fromEmqxEnv;
-  }
-  if (store !== null) {
-    const fromSecrets = (
-      await store.getOptional('EMQX_WSS_URL')
-    )?.readSecretValue();
-    const trimmed =
-      typeof fromSecrets === 'string' && fromSecrets.trim().length > 0
-        ? fromSecrets.trim()
-        : null;
-    if (trimmed !== null) {
-      process.stdout.write(
-        '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL from secret store EMQX_WSS_URL.\n'
-      );
-      return trimmed;
-    }
-  }
-  process.stdout.write(
-    `[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; using local ${LOCAL_EMQX_WSS_URL}.\n`
-  );
-  return LOCAL_EMQX_WSS_URL;
-}
-
-async function resolveExpoPublicObservabilityBackend(
-  store: SecretStore | null
-): Promise<string | null> {
-  const fromEnv = trimStringOrNull(
-    process.env['EXPO_PUBLIC_OBSERVABILITY_BACKEND']
-  );
-  if (fromEnv !== null) return fromEnv;
-  if (store === null) return null;
-  const fromSecrets = (
-    await store.getOptional('EXPO_PUBLIC_OBSERVABILITY_BACKEND')
-  )?.readSecretValue();
-  return trimStringOrNull(
-    typeof fromSecrets === 'string' ? fromSecrets : undefined
-  );
-}
-
 async function main(): Promise<void> {
   const raw = await resolveExpoPublicApiUrl();
   let origin = '';
@@ -332,42 +229,13 @@ async function main(): Promise<void> {
     monorepoRoot,
   });
 
-  let store: SecretStore | null = null;
-  try {
-    store = createSecretsStore();
-  } catch {
-    store = null;
-  }
-
-  const sentryDsn = await resolveExpoPublicSentryDsn(store);
-  const observabilityBackend =
-    await resolveExpoPublicObservabilityBackend(store);
-  const emqxWssUrl = await resolveExpoPublicEmqxWssUrl(store, origin);
-  if (sentryDsn === null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_SENTRY_DSN unset; Sentry error reporting disabled in dev.\n'
-    );
-  }
-  if (emqxWssUrl === null) {
-    process.stdout.write(
-      '[setup-env] EXPO_PUBLIC_EMQX_WSS_URL unset; sync pushes disabled (poll-only).\n'
-    );
-  }
-
+  // Runtime knobs (EMQX / Sentry / observability backend) come from synced
+  // `client_config`, not Expo env — do not write them here.
   let body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +
     `EXPO_PUBLIC_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
     `EXPO_PUBLIC_COMMIT_DATE=${JSON.stringify(commitDate)}\n` +
     `EXPO_USE_WATCHMAN=${JSON.stringify(expoUseWatchman)}\n`;
-  if (sentryDsn !== null) {
-    body += `EXPO_PUBLIC_SENTRY_DSN=${JSON.stringify(sentryDsn)}\n`;
-  }
-  if (observabilityBackend !== null) {
-    body += `EXPO_PUBLIC_OBSERVABILITY_BACKEND=${JSON.stringify(observabilityBackend)}\n`;
-  }
-  if (emqxWssUrl !== null) {
-    body += `EXPO_PUBLIC_EMQX_WSS_URL=${JSON.stringify(emqxWssUrl)}\n`;
-  }
   if (e2eFlag !== null) {
     body += `EXPO_PUBLIC_E2E=${JSON.stringify(e2eFlag)}\n`;
   }

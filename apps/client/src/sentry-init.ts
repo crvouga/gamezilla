@@ -1,3 +1,2 @@
-import { initClientSentry } from '@pkgs/observability/impl-sentry/init-client-sentry';
-
-initClientSentry();
+// Sentry initializes from synced client_config after paint
+// (see AppObservabilityFromClientConfig). No module-load env init.

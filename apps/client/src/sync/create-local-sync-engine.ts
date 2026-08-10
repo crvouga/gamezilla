@@ -21,7 +21,11 @@ import { openMainSqlClient } from '../storage/open-main-sql-client';
 import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { createAppSyncLifecycle } from './app-sync-lifecycle';
-import { tryCreateClientPubSub } from './create-client-pubsub';
+import {
+  createClientPubSub,
+  readEmqxWssUrlFromLocalDb,
+} from './create-client-pubsub';
+import { emqxUrlHolderFor } from './emqx-url-holder';
 import {
   type GetFreshAuthToken,
   postAppQueries,
@@ -103,16 +107,19 @@ function createMembershipChannels(args: {
 
 function pushOptions(
   args: CreateAppLocalSyncEngineArgs,
-  pushCtx: ReturnType<typeof createMembershipChannels>
+  pushCtx: ReturnType<typeof createMembershipChannels>,
+  emqxUrlHolder: { url: string | null }
 ) {
-  const raw = process.env['EXPO_PUBLIC_EMQX_WSS_URL']?.trim() ?? '';
-  const enabled = raw.length > 0;
-  if (!enabled) return {};
   return {
     push: {
       queryRegistry: APP_QUERIES,
       createPubSub: () => {
-        const next = tryCreateClientPubSub({
+        const url = emqxUrlHolder.url?.trim() ?? '';
+        if (url.length === 0) {
+          throw new Error('pubsub unavailable');
+        }
+        return createClientPubSub({
+          url,
           config: args.config,
           fetchFn: args.fetchFn,
           auth: args.auth,
@@ -120,10 +127,6 @@ function pushOptions(
           timers: args.timers,
           random: args.random,
         });
-        if (next === null) {
-          throw new Error('pubsub unavailable');
-        }
-        return next;
       },
       getChannelsCtx: pushCtx.getChannelsCtx,
       onBindTopicRefresh: pushCtx.onBindTopicRefresh,
@@ -144,6 +147,8 @@ export async function createAppLocalSyncEngine(
     auth: args.auth,
     userId: args.userId,
   });
+  const emqxUrlHolder = emqxUrlHolderFor(args.databaseName);
+  emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
 
   return createLocalSyncEngine({
     db,
@@ -164,6 +169,6 @@ export async function createAppLocalSyncEngine(
     now: args.clock.now,
     timers: args.timers,
     createId: args.createId,
-    ...pushOptions(args, pushCtx),
+    ...pushOptions(args, pushCtx, emqxUrlHolder),
   });
 }

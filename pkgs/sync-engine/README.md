@@ -186,8 +186,7 @@ bun run ci:channel-exhaustiveness
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
    Room DO             Stripe/etc            REST exceptions
-   (realtime play)     (external)            friends/search,
-                                             client-config/refresh
+   (realtime play)     (external)            friends/search
 ```
 
 **Wire path layering:** the package Hono app mounts `POST /query` and
@@ -196,7 +195,7 @@ bun run ci:channel-exhaustiveness
 the same routes at different layers.
 
 **Absolute REST exceptions** (do not casually grow — see `AGENTS.md`):
-`POST /friends/search`, `POST /client-config/refresh`, Stripe/external APIs.
+`POST /friends/search`, Stripe/external APIs.
 Username claims and profile bootstrap are **mutations**, not REST.
 
 ---

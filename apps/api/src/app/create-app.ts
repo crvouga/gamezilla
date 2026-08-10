@@ -3,7 +3,9 @@ import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { ClientConfigApp } from '@libs/client-config/server/route';
+import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
+import type { DesiredClientConfig } from '@libs/client-config/server/ensure-client-config-materialized';
+import type { ObservabilityBackendName } from '@libs/client-config/shared/client-config-keys';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
 import { StripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
@@ -11,20 +13,18 @@ import { wallIo } from '@pkgs/io';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
+import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import Stripe from 'stripe';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
-import { createApiFeatures } from '../features/api-features';
-import { createFeaturesApp } from '../features/features-route';
 import { healthApp } from '../health/route';
 import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
-import { notifyClientConfigChannels } from '../sync/notify-client-config-channels';
 import { notifyUserChannels } from '../sync/notify-user-channels';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
@@ -164,6 +164,82 @@ function createStripeSubApp(stripe: Stripe | null) {
   ).build();
 }
 
+const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
+
+async function readOptionalSecretValue(
+  secretStore: SecretStore,
+  name: string
+): Promise<string | null> {
+  const raw = (await secretStore.getOptional(name))?.readSecretValue();
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function parseObservabilityBackend(
+  raw: string | null
+): ObservabilityBackendName {
+  if (raw === null) return 'noop';
+  const normalized = raw.trim().toLowerCase();
+  if (
+    normalized === 'noop' ||
+    normalized === 'sentry' ||
+    normalized === 'console'
+  ) {
+    return normalized;
+  }
+  return 'noop';
+}
+
+async function resolveEmqxWssUrlForClientConfig(args: {
+  readonly secretStore: SecretStore;
+  readonly apiUrlOverride?: string | null;
+}): Promise<string | null> {
+  const apiUrl =
+    args.apiUrlOverride?.trim() ||
+    (await readOptionalSecretValue(args.secretStore, ApiSecretName.apiUrl)) ||
+    '';
+  if (apiUrl.length > 0 && isLocalApiOrigin(apiUrl)) {
+    return LOCAL_EMQX_WSS_URL;
+  }
+  return readOptionalSecretValue(args.secretStore, ApiSecretName.emqxWssUrl);
+}
+
+async function buildDesiredClientConfig(args: {
+  readonly secretStore: SecretStore;
+  readonly betterAuth: ApiHandlerConfig['betterAuth'];
+  readonly stripeConfigured: boolean;
+  readonly ttsConfigured: boolean;
+  readonly llmConfigured: boolean;
+  readonly apiUrlOverride?: string | null;
+}): Promise<DesiredClientConfig> {
+  const { betterAuth, secretStore } = args;
+  const [emqxWssUrl, sentryDsn, observabilityRaw] = await Promise.all([
+    resolveEmqxWssUrlForClientConfig({
+      secretStore,
+      ...(args.apiUrlOverride !== undefined
+        ? { apiUrlOverride: args.apiUrlOverride }
+        : {}),
+    }),
+    readOptionalSecretValue(secretStore, ApiSecretName.expoPublicSentryDsn),
+    readOptionalSecretValue(
+      secretStore,
+      ApiSecretName.expoPublicObservabilityBackend
+    ),
+  ]);
+  return {
+    google: betterAuth.googleEnabled,
+    emailPassword: betterAuth.enableEmailPassword,
+    stripe: args.stripeConfigured,
+    tts: args.ttsConfigured,
+    llm: args.llmConfigured,
+    googleWebClientId: betterAuth.googleClientId,
+    emqxWssUrl,
+    sentryDsn,
+    observabilityBackend: parseObservabilityBackend(observabilityRaw),
+  };
+}
+
 /**
  * Composes the API Worker app from mounted sub-apps (`app.route()`), per
  * [Hono best practices](https://hono.dev/docs/guides/best-practices).
@@ -183,12 +259,15 @@ export async function createApiApp(config: ApiHandlerConfig) {
     );
   }
 
-  const features = createApiFeatures({
-    googleEnabled: betterAuth.googleEnabled,
-    emailPasswordEnabled: betterAuth.enableEmailPassword,
+  const desiredClientConfig = await buildDesiredClientConfig({
+    secretStore,
+    betterAuth,
     stripeConfigured: stripe !== null,
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
+    ...(config.apiUrlOverride !== undefined
+      ? { apiUrlOverride: config.apiUrlOverride }
+      : {}),
   });
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
@@ -207,25 +286,17 @@ export async function createApiApp(config: ApiHandlerConfig) {
         secretsEnv,
         observability,
         io: appIo,
+        desiredClientConfig,
       })
     )
     .use('*', apiCors)
     .route('/', healthApp)
-    .route('/', createFeaturesApp(features))
     .route(
       '/',
       createBetterAuthRoutes({
         secretsEnv,
         webClientOrigin: betterAuth.webClientOrigin,
       })
-    )
-    .route(
-      '/',
-      new ClientConfigApp(log, {
-        onConfigUpdated: () =>
-          notifyClientConfigChannels('client-config-refresh'),
-        googleWebClientId: betterAuth.googleClientId,
-      }).build()
     )
     .route('/', createFriendsApp())
     .route(

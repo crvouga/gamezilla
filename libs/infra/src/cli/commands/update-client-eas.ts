@@ -18,8 +18,8 @@ const EAS_UPDATE_DEPS: readonly Dep[] = [new EasDep(), new BunDep()];
  *
  *   EAS_PROFILE=development bun run infra update-client-eas
  *
- * The full `infra deploy` runs this same phase automatically (after smoke +
- * refresh-config) when an EAS profile resolves. Native binaries are built
+ * The full `infra deploy` runs this same phase automatically (after smoke)
+ * when an EAS profile resolves. Native binaries are built
  * separately by `infra build-client-native`.
  */
 export class UpdateClientEasCommand implements Command {

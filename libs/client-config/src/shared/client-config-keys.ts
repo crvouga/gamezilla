@@ -1,0 +1,29 @@
+/** Known `client_config.id` keys materialized from Worker secrets. */
+export const ClientConfigKey = {
+  googleEnabled: 'google_enabled',
+  googleWebClientId: 'google_web_client_id',
+  emailPasswordEnabled: 'email_password_enabled',
+  stripeEnabled: 'stripe_enabled',
+  ttsEnabled: 'tts_enabled',
+  llmEnabled: 'llm_enabled',
+  emqxWssUrl: 'emqx_wss_url',
+  sentryDsn: 'sentry_dsn',
+  observabilityBackend: 'observability_backend',
+} as const;
+
+export type ClientConfigKeyId =
+  (typeof ClientConfigKey)[keyof typeof ClientConfigKey];
+
+export const CLIENT_CONFIG_KEYS: readonly ClientConfigKeyId[] = [
+  ClientConfigKey.googleEnabled,
+  ClientConfigKey.googleWebClientId,
+  ClientConfigKey.emailPasswordEnabled,
+  ClientConfigKey.stripeEnabled,
+  ClientConfigKey.ttsEnabled,
+  ClientConfigKey.llmEnabled,
+  ClientConfigKey.emqxWssUrl,
+  ClientConfigKey.sentryDsn,
+  ClientConfigKey.observabilityBackend,
+];
+
+export type ObservabilityBackendName = 'noop' | 'sentry' | 'console';

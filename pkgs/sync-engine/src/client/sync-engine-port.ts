@@ -117,4 +117,9 @@ export type SyncEngine = {
     args: unknown,
     capture: import('../sql-ast').WriteCaptureSnapshot
   ) => void;
+  /**
+   * Attach MQTT push if configured and not already attached (e.g. after
+   * `client_config` hydrates an EMQX URL that was missing at connect).
+   */
+  readonly ensurePush: () => void;
 };

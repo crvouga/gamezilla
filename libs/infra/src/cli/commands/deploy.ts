@@ -12,7 +12,6 @@ import { runEnsureDestroyedPhase } from '../lib/phases/ensure-destroyed';
 import { runMigratePhase } from '../lib/phases/migrate';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
-import { runRefreshConfigPhase } from '../lib/phases/refresh-config';
 import { runSmokePhase } from '../lib/phases/smoke';
 import { runStripeSyncPhase } from '../lib/phases/stripe-sync';
 import type { CiPlatform } from '../platform/platform';
@@ -25,9 +24,12 @@ import type { Command } from './types';
  * migrate does not compete with the lock connection for Neon direct
  * slots. CI also has
  * per-phase commands (`provision`, `migrate`, `deploy-resources`,
- * `stripe-sync`, `smoke`, `refresh-config`) that share these same phase
+ * `stripe-sync`, `smoke`) that share these same phase
  * functions but can run as separate jobs with the lock held externally
  * by `lock-acquire` / `lock-release`.
+ *
+ * Client config is materialized by the Worker on first DB-backed request
+ * (no HTTP refresh step).
  *
  * After the `'created'` stack is healthy the deploy converges the cloud
  * on the registry by tearing down every `routineStatus: 'destroyed'`
@@ -39,7 +41,7 @@ export class DeployCommand implements Command {
   readonly requiresLock = false;
   readonly group = 'lifecycle' as const;
   readonly summary =
-    'Provision infra, deploy apps (web + EAS OTA update), smoke test, refresh config';
+    'Provision infra, deploy apps (web + EAS OTA update), smoke test';
 
   constructor(private readonly platform: CiPlatform) {}
 
@@ -62,7 +64,6 @@ export class DeployCommand implements Command {
 
       const outputs = infraOutputs(ctx);
       await runSmokePhase(p, outputs);
-      await runRefreshConfigPhase(p, outputs);
       await runPublishClientEasUpdatePhase(p, ctx);
       await runEnsureDestroyedPhase(p);
 

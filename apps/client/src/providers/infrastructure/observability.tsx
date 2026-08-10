@@ -1,6 +1,10 @@
 import { ObservabilityProvider as BaseObservabilityProvider } from '@pkgs/observability/client/observability-provider';
 import type { ReactNode } from 'react';
 
+/**
+ * Pre-sync observability: always noop. Real backend mounts after sync via
+ * {@link AppObservabilityFromClientConfig}.
+ */
 export function AppObservability({
   children,
 }: {
@@ -9,13 +13,8 @@ export function AppObservability({
   return (
     <BaseObservabilityProvider
       serviceName={'gamezilla-client' as const}
-      backendEnv={process.env['EXPO_PUBLIC_OBSERVABILITY_BACKEND']}
-      {...(process.env['EXPO_PUBLIC_OBSERVABILITY_COLLECTOR_URL'] !== undefined
-        ? {
-            collectorUrl:
-              process.env['EXPO_PUBLIC_OBSERVABILITY_COLLECTOR_URL'],
-          }
-        : {})}
+      backendEnv="noop"
+      forceNoop
     >
       {children}
     </BaseObservabilityProvider>

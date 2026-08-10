@@ -111,6 +111,8 @@ export const appSchema = defineSchema({
       at: 'timestamp',
     },
     client_config: {
+      enabled: 'boolean',
+      value: 'json',
       google_web_client_id: 'text',
     },
     inbox_interactions: {
@@ -187,7 +189,19 @@ export const appSchema = defineSchema({
     ['chess_puzzles', 'rating', 'popularity'],
     ['inbox_interactions', 'user_id'],
   ],
-  deprecations: [['chess_puzzles', 'sync_pool', 'not needed anymore']],
+  deprecations: [
+    ['chess_puzzles', 'sync_pool', 'not needed anymore'],
+    [
+      'client_config',
+      'enabled',
+      'unused — use *_enabled / null scalar rows',
+    ],
+    [
+      'client_config',
+      'google_web_client_id',
+      'unused column — value lives in row id=google_web_client_id',
+    ],
+  ],
 });
 
 /** Domain table names present on the local SQLite client (CACHE). */

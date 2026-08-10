@@ -207,8 +207,8 @@ async function main(): Promise<void> {
   await store.setSecret(API_DSN_SECRET, dsn);
   process.stdout.write(
     `[setup-sentry-dsn] wrote ${CLIENT_DSN_SECRET} and ${API_DSN_SECRET} to secret store for ${options.org}/${options.project} (${maskDsn(dsn)}).\n` +
-      '[setup-sentry-dsn] Sentry stays dormant until OBSERVABILITY_BACKEND=sentry is set explicitly.\n' +
-      '[setup-sentry-dsn] Run `bun run --filter @apps/client setup` and restart dev to pick up changes.\n'
+      '[setup-sentry-dsn] Sentry stays dormant until EXPO_PUBLIC_OBSERVABILITY_BACKEND=sentry is set on the API Worker.\n' +
+      '[setup-sentry-dsn] Restart the API so client_config rematerializes; the client picks it up via sync.\n'
   );
 }
 

@@ -17,9 +17,8 @@
     ]
   },
   "scripts": {
-    "dev:refresh": "bun run scripts/dev-refresh-client-config.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test src"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -27,11 +26,8 @@
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
-    "@pkgs/attribute": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/io": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
@@ -39,8 +35,7 @@
     "@pkgs/ui": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
-    "react-native": "catalog:",
-    "zod": "catalog:"
+    "react-native": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

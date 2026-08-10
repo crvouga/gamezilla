@@ -8,31 +8,40 @@ function isDevBuild(): boolean {
     : process.env['NODE_ENV'] !== 'production';
 }
 
-function trimEnv(key: string): string | null {
-  const raw = process.env[key];
+export type InitClientSentryArgs = {
+  readonly backend: string | null | undefined;
+  readonly dsn: string | null | undefined;
+  readonly environment?: string | null | undefined;
+};
+
+function trimOrNull(raw: string | null | undefined): string | null {
   if (typeof raw !== 'string') return null;
   const trimmed = raw.trim();
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function isSentryBackendEnabled(): boolean {
-  return (
-    trimEnv('EXPO_PUBLIC_OBSERVABILITY_BACKEND')?.toLowerCase() === 'sentry'
-  );
+function isSentryBackend(backend: string | null | undefined): boolean {
+  return trimOrNull(backend)?.toLowerCase() === 'sentry';
 }
 
-export function initClientSentry(): boolean {
-  if (!isSentryBackendEnabled()) return false;
+let initialized = false;
 
-  const dsn = trimEnv('EXPO_PUBLIC_SENTRY_DSN');
-  if (dsn === null) return false;
+/**
+ * Initialize Sentry from synced client_config (or explicit args).
+ * No-ops when backend is not `sentry` or DSN is missing.
+ */
+export function initClientSentry(args?: InitClientSentryArgs): boolean {
+  if (initialized) return true;
+  const backend = args?.backend;
+  const dsn = trimOrNull(args?.dsn);
+  if (!isSentryBackend(backend) || dsn === null) return false;
 
   Sentry.init({
     dsn,
     debug: isDevBuild(),
     enableLogs: true,
     environment:
-      trimEnv('EXPO_PUBLIC_SENTRY_ENV') ??
+      trimOrNull(args?.environment) ??
       (isDevBuild() ? 'development' : 'production'),
     tracesSampleRate: isDevBuild() ? 1.0 : 0.2,
     integrations(integrations) {
@@ -40,9 +49,13 @@ export function initClientSentry(): boolean {
       return integrations;
     },
   });
+  initialized = true;
   return true;
 }
 
-export function isClientSentryEnabled(): boolean {
-  return isSentryBackendEnabled() && trimEnv('EXPO_PUBLIC_SENTRY_DSN') !== null;
+export function isClientSentryEnabled(args?: InitClientSentryArgs): boolean {
+  if (args !== undefined) {
+    return isSentryBackend(args.backend) && trimOrNull(args.dsn) !== null;
+  }
+  return initialized;
 }

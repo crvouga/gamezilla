@@ -5,6 +5,7 @@ import { ReconcileEndedOpenSessions } from '@libs/spaces/client/leave-space/reco
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { AppSignInCapabilities } from './auth/sign-in-capabilities';
 import { AppCommandRegistry } from './ui/command-registry';
 import { AppPortalContentBridge } from './ui/portal-bridge';
 import { AppUiPortals } from './ui/portals';
@@ -14,6 +15,7 @@ const uiProviders = [
   AppPortalContentBridge,
   EndSpaceModalProvider,
   LeaveSpaceModalProvider,
+  AppSignInCapabilities,
   AuthModalsProvider,
   AppCommandRegistry,
 ];

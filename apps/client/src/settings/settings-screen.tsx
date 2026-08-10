@@ -39,7 +39,7 @@ function useMoreRows(): readonly MoreRow[] {
     },
     {
       title: t`Client config`,
-      caption: t`Singleton clientConfig entity and server refresh`,
+      caption: t`Synced client_config key/value scalar rows`,
       href: '/more/client-config',
     },
     {

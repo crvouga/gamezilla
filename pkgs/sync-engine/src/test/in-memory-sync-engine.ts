@@ -227,5 +227,6 @@ export async function createInMemorySyncEngine(
     pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,
     notifyLocalMutation: () => undefined,
+    ensurePush: () => undefined,
   };
 }

@@ -398,6 +398,10 @@ function toEngine(state: LocalEngineState): SyncEngine {
     wakeUploads: () => state.uploadQueue.wake(),
     notifyLocalMutation: (mutation, args, capture) =>
       notifyLocalMutation(state, mutation, args, capture),
+    ensurePush: () => {
+      if (!state.connected) return;
+      attachPushIfConfigured(state);
+    },
   };
 }
 

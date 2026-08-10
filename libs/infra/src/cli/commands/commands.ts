@@ -9,7 +9,6 @@ import { LockReleaseCommand } from './lock-release';
 import { MigrateCommand } from './migrate';
 import { PipelineReportCommand } from './pipeline-report';
 import { ProvisionCommand } from './provision';
-import { RefreshConfigCommand } from './refresh-config';
 import { SetupCommand } from './setup';
 import { SmokeCommand } from './smoke';
 import { StatusCommand } from './status';
@@ -49,7 +48,6 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new UpdateClientEasCommand(platform),
     new StripeSyncCommand(platform),
     new SmokeCommand(platform),
-    new RefreshConfigCommand(platform),
     new PipelineReportCommand(platform),
   ];
 }

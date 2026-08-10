@@ -23,6 +23,11 @@ function asArray<T>(v: T | T[]): T[] {
   return Array.isArray(v) ? v : [v];
 }
 
+/**
+ * INSERT column list shapes from node-sql-parser (PostgreSQL):
+ * - `{ type: 'default', value: 'id' }` (common)
+ * - string / `{ column: 'id' }` / SELECT-style `{ expr: { type: 'column_ref', column } }`
+ */
 function columnNames(columns: unknown): string[] {
   if (columns === '*') return ['*'];
   if (!Array.isArray(columns)) return [];
@@ -32,8 +37,16 @@ function columnNames(columns: unknown): string[] {
       names.push('*');
       continue;
     }
+    if (typeof col === 'string') {
+      names.push(col);
+      continue;
+    }
     const c = asNode(col);
     if (c === undefined) continue;
+    if (typeof c['value'] === 'string') {
+      names.push(c['value']);
+      continue;
+    }
     const expr = asNode(c['expr']);
     if (expr !== undefined) {
       if (expr['type'] === 'column_ref' && typeof expr['column'] === 'string') {
