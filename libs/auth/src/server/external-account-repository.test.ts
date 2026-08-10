@@ -6,14 +6,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import {
-  findUserIdByPrimaryAuthExternalId,
-  findUserIdByProviderExternalId,
-  insertExternalAccountOrGet,
-  insertUser,
-  readExternalAccountId,
-  upsertExternalAccount,
-} from './external-accounts-sql';
+import { ExternalAccountRepository } from './external-account-repository';
 
 const io = createSimIo({ seed: 1 });
 
@@ -43,8 +36,9 @@ async function migrateTables(db: SqlClient): Promise<void> {
   `);
 }
 
-describe('external-accounts-sql', () => {
+describe('ExternalAccountRepository', () => {
   let sqlClient: SqlClient;
+  let repo: ExternalAccountRepository;
   const userId = '11111111-1111-4111-8111-111111111111';
   const primaryAuthProvider = 'better-auth';
   const externalUserId = 'user_ext_1';
@@ -53,8 +47,8 @@ describe('external-accounts-sql', () => {
     sqlClient = SqlClientImplBunSqlite.open(':memory:');
     await sqlClient.connect();
     await migrateTables(sqlClient);
-    await insertUser({
-      db: sqlClient,
+    repo = new ExternalAccountRepository(sqlClient);
+    await repo.insertUser({
       userId,
       now: io.clock.now,
       createId: io.createId,
@@ -66,7 +60,7 @@ describe('external-accounts-sql', () => {
   });
 
   test('upsertExternalAccount inserts and updates metadata', async () => {
-    await upsertExternalAccount(sqlClient, {
+    await repo.upsertExternalAccount({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -76,17 +70,16 @@ describe('external-accounts-sql', () => {
     });
 
     expect(
-      await findUserIdByProviderExternalId(
-        sqlClient,
+      await repo.findUserIdByProviderExternalId(
         primaryAuthProvider,
         externalUserId
       )
     ).toBe(userId);
-    expect(
-      await readExternalAccountId(sqlClient, userId, primaryAuthProvider)
-    ).toBe(externalUserId);
+    expect(await repo.readExternalAccountId(userId, primaryAuthProvider)).toBe(
+      externalUserId
+    );
 
-    await upsertExternalAccount(sqlClient, {
+    await repo.upsertExternalAccount({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -126,8 +119,7 @@ describe('external-accounts-sql', () => {
     `);
 
     expect(
-      await findUserIdByPrimaryAuthExternalId(
-        sqlClient,
+      await repo.findUserIdByPrimaryAuthExternalId(
         primaryAuthProvider,
         externalUserId
       )
@@ -135,7 +127,7 @@ describe('external-accounts-sql', () => {
   });
 
   test('enforces one provider row per user', async () => {
-    await upsertExternalAccount(sqlClient, {
+    await repo.upsertExternalAccount({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -144,7 +136,7 @@ describe('external-accounts-sql', () => {
     });
 
     await expect(
-      upsertExternalAccount(sqlClient, {
+      repo.upsertExternalAccount({
         userId,
         provider: primaryAuthProvider,
         externalId: 'user_ext_2',
@@ -156,13 +148,12 @@ describe('external-accounts-sql', () => {
 
   test('upsertExternalAccount never reassigns user_id on conflict', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser({
-      db: sqlClient,
+    await repo.insertUser({
       userId: otherUserId,
       now: io.clock.now,
       createId: io.createId,
     });
-    await upsertExternalAccount(sqlClient, {
+    await repo.upsertExternalAccount({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -171,7 +162,7 @@ describe('external-accounts-sql', () => {
       createId: io.createId,
     });
 
-    await upsertExternalAccount(sqlClient, {
+    await repo.upsertExternalAccount({
       userId: otherUserId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -181,8 +172,7 @@ describe('external-accounts-sql', () => {
     });
 
     expect(
-      await findUserIdByProviderExternalId(
-        sqlClient,
+      await repo.findUserIdByProviderExternalId(
         primaryAuthProvider,
         externalUserId
       )
@@ -201,13 +191,12 @@ describe('external-accounts-sql', () => {
 
   test('insertExternalAccountOrGet adopts existing owner', async () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
-    await insertUser({
-      db: sqlClient,
+    await repo.insertUser({
       userId: otherUserId,
       now: io.clock.now,
       createId: io.createId,
     });
-    await insertExternalAccountOrGet(sqlClient, {
+    await repo.insertExternalAccountOrGet({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -215,7 +204,7 @@ describe('external-accounts-sql', () => {
       createId: io.createId,
     });
 
-    const adopted = await insertExternalAccountOrGet(sqlClient, {
+    const adopted = await repo.insertExternalAccountOrGet({
       userId: otherUserId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
@@ -225,8 +214,7 @@ describe('external-accounts-sql', () => {
 
     expect(adopted).toBe(userId);
     expect(
-      await findUserIdByProviderExternalId(
-        sqlClient,
+      await repo.findUserIdByProviderExternalId(
         primaryAuthProvider,
         externalUserId
       )

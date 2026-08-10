@@ -7,6 +7,8 @@ import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import type { ApiRequestContainer } from './app/api-request-container';
+
 /**
  * Request-scoped resources populated by {@link ./app/create-app.ts} middleware.
  */
@@ -20,6 +22,8 @@ export type ApiRequestAsyncStore = {
   readonly betterAuth: BetterAuthInstance;
   /** Injectable I/O bag (also available via {@link runWithIo} / getIo). */
   readonly io: Io;
+  /** Constructor-injected product services for this request. */
+  readonly container: ApiRequestContainer;
 };
 
 export const apiRequestAsyncLocalStorage =

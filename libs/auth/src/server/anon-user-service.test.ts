@@ -4,12 +4,8 @@ import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import {
-  clearUserAnonFlag,
-  ensureAnonUserForDevice,
-  findUserIdByDeviceId,
-} from './anon-user-ensure';
+import { AccountProvisioningService } from './account-provisioning';
+import { AnonUserService } from './anon-user-service';
 
 const io = createSimIo({ seed: 1 });
 
@@ -53,13 +49,15 @@ async function migrate(db: SqlClient): Promise<void> {
   `);
 }
 
-describe('ensureAnonUserForDevice', () => {
+describe('AnonUserService', () => {
   let db: SqlClient;
+  let anonUsers: AnonUserService;
 
   beforeEach(async () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
+    anonUsers = new AnonUserService(db);
   });
 
   afterEach(async () => {
@@ -67,15 +65,14 @@ describe('ensureAnonUserForDevice', () => {
   });
 
   test('mints anon user and binds device', async () => {
-    const result = await ensureAnonUserForDevice({
-      sql: db,
+    const result = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
     expect(result.isAnon).toBe(true);
     expect(result.userId.length).toBeGreaterThan(0);
-    expect(await findUserIdByDeviceId(db, DEVICE_ID)).toBe(result.userId);
+    expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(result.userId);
 
     const rows = await db.query(sql<{ is_anon: number }>`
       SELECT is_anon FROM users WHERE id = ${result.userId}
@@ -84,14 +81,12 @@ describe('ensureAnonUserForDevice', () => {
   });
 
   test('idempotent when already bound to anon user', async () => {
-    const first = await ensureAnonUserForDevice({
-      sql: db,
+    const first = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
-    const second = await ensureAnonUserForDevice({
-      sql: db,
+    const second = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
@@ -100,33 +95,29 @@ describe('ensureAnonUserForDevice', () => {
   });
 
   test('mints new anon when device was bound to non-anon user', async () => {
-    const first = await ensureAnonUserForDevice({
-      sql: db,
+    const first = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
-    await clearUserAnonFlag(db, first.userId, io.clock.now);
+    await anonUsers.clearUserAnonFlag(first.userId, io.clock.now);
 
-    const next = await ensureAnonUserForDevice({
-      sql: db,
+    const next = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
     expect(next.userId).not.toBe(first.userId);
-    expect(await findUserIdByDeviceId(db, DEVICE_ID)).toBe(next.userId);
+    expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(next.userId);
   });
 
   test('forceNew always mints a new anon user', async () => {
-    const first = await ensureAnonUserForDevice({
-      sql: db,
+    const first = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
-    const next = await ensureAnonUserForDevice({
-      sql: db,
+    const next = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       forceNew: true,
       now: io.clock.now,
@@ -136,13 +127,15 @@ describe('ensureAnonUserForDevice', () => {
   });
 });
 
-describe('ensureInternalAccountIdForExternalUser upgrade', () => {
+describe('AccountProvisioningService upgrade', () => {
   let db: SqlClient;
+  let anonUsers: AnonUserService;
 
   beforeEach(async () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
+    anonUsers = new AnonUserService(db);
   });
 
   afterEach(async () => {
@@ -150,8 +143,7 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
   });
 
   test('upgrades anon user in place when external id is new', async () => {
-    const anon = await ensureAnonUserForDevice({
-      sql: db,
+    const anon = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
@@ -163,9 +155,10 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       getUserSnapshot: async () => ({ id: 'ext_1' }),
     };
 
-    const accountId = await ensureInternalAccountIdForExternalUser({
-      sql: db,
-      authServer,
+    const accountId = await new AccountProvisioningService(
+      db,
+      authServer
+    ).ensureInternalAccountIdForExternalUser({
       externalUserId: 'ext_1',
       upgradeUserId: anon.userId,
       now: io.clock.now,
@@ -180,19 +173,17 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
   });
 
   test('switches to existing linked account instead of upgrading', async () => {
-    const anon = await ensureAnonUserForDevice({
-      sql: db,
+    const anon = await anonUsers.ensureForDevice({
       deviceId: DEVICE_ID,
       now: io.clock.now,
       createId: io.createId,
     });
-    const other = await ensureAnonUserForDevice({
-      sql: db,
+    const other = await anonUsers.ensureForDevice({
       deviceId: DEVICE_B,
       now: io.clock.now,
       createId: io.createId,
     });
-    await clearUserAnonFlag(db, other.userId, io.clock.now);
+    await anonUsers.clearUserAnonFlag(other.userId, io.clock.now);
     const now = new Date(io.clock.now()).toISOString();
     await db.run(sql<void>`
       INSERT INTO external_accounts (id, user_id, provider, external_id, metadata, created_at)
@@ -206,9 +197,10 @@ describe('ensureInternalAccountIdForExternalUser upgrade', () => {
       getUserSnapshot: async () => ({ id: 'ext_existing' }),
     };
 
-    const accountId = await ensureInternalAccountIdForExternalUser({
-      sql: db,
-      authServer,
+    const accountId = await new AccountProvisioningService(
+      db,
+      authServer
+    ).ensureInternalAccountIdForExternalUser({
       externalUserId: 'ext_existing',
       upgradeUserId: anon.userId,
       now: io.clock.now,

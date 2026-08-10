@@ -16,7 +16,7 @@ import type { Clock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { Logger } from '@pkgs/logger';
 import { parse } from 'csv-parse';
-import { Decompress as ZstdDecompress } from 'fzstd';
+import { ZstdDecodeTransform } from './zstd-decode-transform';
 
 const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';
@@ -226,54 +226,35 @@ async function resolveLocalFileArchive(
   return { localPath, etag, isZst: localPath.endsWith('.zst') };
 }
 
-export async function ensureCachedArchive(args: {
-  source: string;
-  cacheDir: string;
-  log: Logger;
-  http: HttpClient;
-  now: Clock['now'];
-  onDownloadProgress?: (p: {
-    receivedBytes: number;
-    totalBytes: number | null;
-  }) => void;
-}): Promise<ResolvedSource> {
-  await mkdir(args.cacheDir, { recursive: true });
-  if (isHttpUrl(args.source)) {
-    return resolveHttpArchiveSource(args);
-  }
-  return resolveLocalFileArchive(args.source, args.log);
-}
+export class PuzzleArchiveCache {
+  constructor(
+    private readonly log: Logger,
+    private readonly http: HttpClient,
+    private readonly now: Clock['now']
+  ) {}
 
-class ZstdDecodeTransform extends Transform {
-  private readonly dec: ZstdDecompress;
-
-  constructor() {
-    super();
-    this.dec = new ZstdDecompress((chunk: Uint8Array) => {
-      this.push(Buffer.from(chunk));
-    });
-  }
-
-  override _transform(
-    chunk: Buffer,
-    _encoding: BufferEncoding,
-    callback: (error?: Error | null) => void
-  ): void {
-    try {
-      this.dec.push(new Uint8Array(chunk));
-      callback();
-    } catch (e) {
-      callback(e instanceof Error ? e : new Error(String(e)));
+  async ensureCachedArchive(args: {
+    source: string;
+    cacheDir: string;
+    onDownloadProgress?: (p: {
+      receivedBytes: number;
+      totalBytes: number | null;
+    }) => void;
+  }): Promise<ResolvedSource> {
+    await mkdir(args.cacheDir, { recursive: true });
+    if (isHttpUrl(args.source)) {
+      return resolveHttpArchiveSource({
+        source: args.source,
+        cacheDir: args.cacheDir,
+        log: this.log,
+        http: this.http,
+        now: this.now,
+        ...(args.onDownloadProgress !== undefined
+          ? { onDownloadProgress: args.onDownloadProgress }
+          : {}),
+      });
     }
-  }
-
-  override _flush(callback: (error?: Error | null) => void): void {
-    try {
-      this.dec.push(new Uint8Array(0), true);
-      callback();
-    } catch (e) {
-      callback(e instanceof Error ? e : new Error(String(e)));
-    }
+    return resolveLocalFileArchive(args.source, this.log);
   }
 }
 

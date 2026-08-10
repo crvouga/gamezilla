@@ -6,7 +6,7 @@ import type { Clock } from '@pkgs/clock';
 import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate';
 import type { CreateId } from '@pkgs/uuid';
 import { parse } from 'csv-parse/sync';
-import { insertPuzzleTableRows } from './fast-path';
+import { PuzzleSeedFastPath } from './fast-path';
 import { resolveChessPuzzlesLoadFilePath } from './load-file';
 import type { PuzzleTableRow } from './row';
 
@@ -96,10 +96,11 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
       if (mapped !== null) rows.push(mapped);
     }
 
+    const fastPath = new PuzzleSeedFastPath(sqlClient);
     let inserted = 0;
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
       const batch = rows.slice(i, i + BATCH_SIZE);
-      inserted += await insertPuzzleTableRows(sqlClient, batch, {
+      inserted += await fastPath.insertPuzzleTableRows(batch, {
         createId: this.#createId,
         now: this.#now,
       });

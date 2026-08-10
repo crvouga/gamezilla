@@ -5,8 +5,8 @@ import {
 import { useAuthModals } from '@libs/auth/client/auth-modals-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth/client/auth-storage-keys';
 import {
-  markSignInPending,
   readSignInPendingSync,
+  SignInPendingStore,
   signInReturnHrefFromPending,
 } from '@libs/auth/client/sign-in-pending';
 import { useLingui } from '@lingui/react/macro';
@@ -42,7 +42,7 @@ function writePendingMarker(
         });
   store.setValue(SIGN_IN_PENDING_KEY, wire);
   if (syncPending === null) {
-    void markSignInPending(store, () => nowMs);
+    void new SignInPendingStore(store).mark(() => nowMs);
   } else {
     void writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, wire);
   }

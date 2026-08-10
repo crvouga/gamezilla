@@ -148,27 +148,28 @@ export function parseSignInPending(
   }
 }
 
-export async function markSignInPending(
-  store: SecureStorageStore,
-  now: () => number,
-  options?: MarkSignInPendingOptions
-): Promise<void> {
-  const returnHref = sanitizeSignInReturnHref(options?.returnHref);
-  const wire: SignInPendingWire = {
-    startedAt: new Date(now()).toISOString(),
-    ...(returnHref !== undefined ? { returnHref } : {}),
-  };
-  await writeSecureStorageItem(
-    store,
-    SIGN_IN_PENDING_KEY,
-    JSON.stringify(wire)
-  );
-}
+export class SignInPendingStore {
+  constructor(private readonly store: SecureStorageStore) {}
 
-export async function clearSignInPending(
-  store: SecureStorageStore
-): Promise<void> {
-  await writeSecureStorageItem(store, SIGN_IN_PENDING_KEY, null);
+  async mark(
+    now: () => number,
+    options?: MarkSignInPendingOptions
+  ): Promise<void> {
+    const returnHref = sanitizeSignInReturnHref(options?.returnHref);
+    const wire: SignInPendingWire = {
+      startedAt: new Date(now()).toISOString(),
+      ...(returnHref !== undefined ? { returnHref } : {}),
+    };
+    await writeSecureStorageItem(
+      this.store,
+      SIGN_IN_PENDING_KEY,
+      JSON.stringify(wire)
+    );
+  }
+
+  async clear(): Promise<void> {
+    await writeSecureStorageItem(this.store, SIGN_IN_PENDING_KEY, null);
+  }
 }
 
 /**

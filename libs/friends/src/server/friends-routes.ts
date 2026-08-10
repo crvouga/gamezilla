@@ -1,8 +1,7 @@
 import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
-import { FriendService } from '@libs/friends/server/friend-service';
 import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-
+import { FriendSearchService } from './friend-search-service';
 import { withFriendsAuth } from './friends-route-auth';
 import { readRequiredString } from './friends-route-utils';
 
@@ -12,8 +11,8 @@ async function handleSearchUsers(c: Parameters<typeof withFriendsAuth>[0]) {
   return withFriendsAuth(c, async (auth) => {
     const body = (await c.req.json()) as SearchBody;
     const query = readRequiredString(body.query, 'query');
-    const results = await FriendService.searchUsers({
-      db: c.get('sqlClient'),
+    const searchService = new FriendSearchService(c.get('sqlClient'));
+    const results = await searchService.searchUsers({
       viewerId: auth.myId,
       rawQuery: query,
       now: getIo().clock.now,

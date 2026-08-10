@@ -1,9 +1,9 @@
 import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-import { ensureAnonUserForDevice } from './anon-user-ensure';
+import { AnonUserService } from './anon-user-service';
 import type { ApiHonoEnv } from './api-hono-env';
-import { resolveAccountIdFromBearer } from './bearer-resolve';
-import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+import { BearerAuthResolver } from './bearer-resolve';
+import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 import { ANON_ID_HEADER } from './session-middleware';
 import type { AuthContext } from './types';
 import { UnauthorizedError } from './unauthorized-error';
@@ -104,8 +104,7 @@ export function createAuthApiRoutes(deps?: {
 
       const io = getIo();
 
-      const result = await ensureAnonUserForDevice({
-        sql,
+      const result = await new AnonUserService(sql).ensureForDevice({
         deviceId,
         forceNew: body.forceNew,
         now: io.clock.now,
@@ -129,14 +128,12 @@ export function createAuthApiRoutes(deps?: {
 
       const io = getIo();
 
-      const accountId = await resolveAccountIdFromBearer({
+      const accountId = await new BearerAuthResolver(
         sql,
         authServer,
-        bearerToken,
-        deviceId,
-        now: io.clock.now,
-        createId: io.createId,
-      });
+        io.clock.now,
+        io.createId
+      ).resolveAccountId(bearerToken, deviceId);
       if (accountId === null) {
         throw new UnauthorizedError('Invalid or expired session');
       }
@@ -144,9 +141,7 @@ export function createAuthApiRoutes(deps?: {
       const rawBody: unknown = await c.req.json().catch(() => null);
       const body = readRefreshBody(rawBody);
 
-      await refreshAuthSnapshot({
-        sql,
-        authServer,
+      await new AuthSnapshotRefresher(sql, authServer).refresh({
         bearerToken,
         accountId,
         deviceId,

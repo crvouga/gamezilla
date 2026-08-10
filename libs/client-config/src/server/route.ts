@@ -129,22 +129,26 @@ async function handleClientConfigRefresh(
   return c.json(body, 200);
 }
 
-export function createClientConfigApp(
-  logger: Logger,
-  options?: {
-    readonly onConfigUpdated?: () => void;
-    /** Google OAuth web client id when configured; null disables Google in client config. */
-    readonly googleWebClientId?: string | null;
+export class ClientConfigApp {
+  constructor(
+    private readonly logger: Logger,
+    private readonly options?: {
+      readonly onConfigUpdated?: () => void;
+      readonly googleWebClientId?: string | null;
+    }
+  ) {}
+
+  /** Return type must stay inferred so Hono RPC clients see `/client-config`. */
+  build() {
+    const googleWebClientId = this.options?.googleWebClientId ?? null;
+    return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
+      handleClientConfigRefresh(c, {
+        logger: this.logger,
+        googleWebClientId,
+        ...(this.options?.onConfigUpdated !== undefined
+          ? { onConfigUpdated: this.options.onConfigUpdated }
+          : {}),
+      })
+    );
   }
-) {
-  const googleWebClientId = options?.googleWebClientId ?? null;
-  return new Hono<ApiHonoEnv>().post('/client-config/refresh', async (c) =>
-    handleClientConfigRefresh(c, {
-      logger,
-      googleWebClientId,
-      ...(options?.onConfigUpdated !== undefined
-        ? { onConfigUpdated: options.onConfigUpdated }
-        : {}),
-    })
-  );
 }

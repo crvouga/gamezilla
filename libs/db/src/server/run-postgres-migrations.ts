@@ -28,7 +28,7 @@ import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-acco
  */
 export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
-export type RunPostgresMigrationsArgs = {
+export type PostgresMigrationRunnerDeps = {
   sqlClient: SqlClient;
   /** Pinned pool for Better Auth Kysely migrations (same TCP session). */
   pool: Pool;
@@ -39,45 +39,47 @@ export type RunPostgresMigrationsArgs = {
   betterAuthSecret: string;
 };
 
-export async function runPostgresMigrations(
-  args: RunPostgresMigrationsArgs
-): Promise<void> {
-  const {
-    sqlClient,
-    pool,
-    logger,
-    dbScope,
-    betterAuthBaseURL,
-    betterAuthSecret,
-  } = args;
+export class PostgresMigrationRunner {
+  constructor(private readonly deps: PostgresMigrationRunnerDeps) {}
 
-  const locked = new ComposedDatabaseMigration()
-    .register(new SyncEngineDatabaseMigration())
-    .register(
-      new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
-        skipAdvisoryLock: true,
-        alreadyInTransaction: true,
-      })
-    )
-    .register(new KvPostgresDatabaseMigration())
-    .register(new EntityStorePostgresDatabaseMigration());
+  async run(): Promise<void> {
+    const {
+      sqlClient,
+      pool,
+      logger,
+      dbScope,
+      betterAuthBaseURL,
+      betterAuthSecret,
+    } = this.deps;
 
-  const databaseMigration = new ComposedDatabaseMigration()
-    .register(new EnsurePostgresSchemaMigration(dbScope))
-    .register(
-      new PostgresAdvisoryLockedTransactionMigration({
-        lockId: POSTGRES_MIGRATE_ADVISORY_LOCK_ID,
-        inner: locked,
-      })
-    )
-    .register(
-      new BetterAuthDatabaseMigration({
-        database: pool,
-        secret: betterAuthSecret,
-        baseURL: betterAuthBaseURL,
-      })
-    )
-    .register(new PurgeClerkExternalAccountsMigration());
+    const locked = new ComposedDatabaseMigration()
+      .register(new SyncEngineDatabaseMigration())
+      .register(
+        new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
+          skipAdvisoryLock: true,
+          alreadyInTransaction: true,
+        })
+      )
+      .register(new KvPostgresDatabaseMigration())
+      .register(new EntityStorePostgresDatabaseMigration());
 
-  await databaseMigration.migrate({ sqlClient, logger });
+    const databaseMigration = new ComposedDatabaseMigration()
+      .register(new EnsurePostgresSchemaMigration(dbScope))
+      .register(
+        new PostgresAdvisoryLockedTransactionMigration({
+          lockId: POSTGRES_MIGRATE_ADVISORY_LOCK_ID,
+          inner: locked,
+        })
+      )
+      .register(
+        new BetterAuthDatabaseMigration({
+          database: pool,
+          secret: betterAuthSecret,
+          baseURL: betterAuthBaseURL,
+        })
+      )
+      .register(new PurgeClerkExternalAccountsMigration());
+
+    await databaseMigration.migrate({ sqlClient, logger });
+  }
 }

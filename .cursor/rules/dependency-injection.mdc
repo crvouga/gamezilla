@@ -1,0 +1,25 @@
+---
+description: Dependency injection convention
+globs: ["libs/*/src/**/*.ts", "libs/*/src/**/*.tsx", "apps/api/src/**/*.ts"]
+alwaysApply: true
+---
+
+When writing code that needs SqlClient, CreateId, a logger, config, or any other
+shared dependency:
+
+- Put it behind a class, injected via the constructor.
+- Never write an exported top-level function whose parameters include a
+  dependency like this — that's what `ci:no-top-level-di-functions` catches, but
+  don't rely on the linter; default to the class from the start.
+- Suffix the class by role: XRepository for DB access, XService for
+  orchestration/business logic, XPublisher for outbound events.
+- Wire new server classes into `ApiRequestContainer` (request-scoped composition
+  root in `apps/api`).
+- Inside `sql.transaction`, construct transaction-scoped repos with
+  `new XRepository(tx, …)` — that is expected.
+- Pure functions with no injected dependency (row mappers, formatters,
+  validators) may stay top-level — don't wrap those in classes.
+- Do not convert `defineMutation` / `defineQuery` `run` handlers, React hooks,
+  or `wallIo()` composition roots.
+
+Full pattern and examples: docs/dependency-injection.md

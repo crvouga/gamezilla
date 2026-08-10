@@ -280,6 +280,16 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-top-level-di-functions": {
+      "inputs": [
+        "libs/**/src/**/*.ts",
+        "libs/**/src/**/*.tsx",
+        "tools/scripts/check-no-top-level-di-functions.ts",
+        "tools/scripts/no-top-level-di-baseline.json"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:fanout-rows-from-reads": {
       "inputs": [
         "pkgs/sync-engine/src/server/**/*.ts",

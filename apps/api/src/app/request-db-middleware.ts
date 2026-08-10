@@ -1,4 +1,4 @@
-import { createSessionAuth } from '@libs/auth/server/session-middleware';
+import { SessionAuth } from '@libs/auth/server/session-middleware';
 import type { AuthContext } from '@libs/auth/server/types';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
@@ -27,6 +27,7 @@ import { openRequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import type { ApiHonoEnv } from './api-hono-types';
+import { ApiRequestContainer } from './api-request-container';
 
 /** Per-request Postgres + session auth (AsyncLocalStorage). */
 async function resolveRequestDatabaseUrl(
@@ -124,7 +125,8 @@ async function attachRequestDatabase(
   const betterAuth = createRequestBetterAuth(boot, pool);
   const authServer = createBetterAuthServerAdapter(betterAuth);
   const kv = new KvImplPostgres(sqlClient, io.clock.now);
-  const sessionAuth = createSessionAuth({ authServer });
+  const sessionAuth = new SessionAuth(authServer);
+  const container = new ApiRequestContainer(sqlClient, io);
   const store = {
     sqlClient,
     sessionAuth,
@@ -133,6 +135,7 @@ async function attachRequestDatabase(
     secretStore,
     betterAuth,
     io,
+    container,
   };
   return await runWithIo(io, () =>
     apiRequestAsyncLocalStorage.run(store, async () => {

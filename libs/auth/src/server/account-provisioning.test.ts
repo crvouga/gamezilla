@@ -6,11 +6,8 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import {
-  findUserIdByPrimaryAuthExternalId,
-  readExternalAccountId,
-} from './external-accounts-sql';
+import { AccountProvisioningService } from './account-provisioning';
+import { ExternalAccountRepository } from './external-account-repository';
 
 const io = createSimIo({ seed: 1 });
 
@@ -54,7 +51,7 @@ async function migrateAuthTables(db: SqlClient): Promise<void> {
 const EXTERNAL_USER_ID = 'user_external_2';
 const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
-describe('ensureInternalAccountIdForExternalUser', () => {
+describe('AccountProvisioningService', () => {
   let sqlClient: SqlClient;
 
   beforeEach(async () => {
@@ -93,9 +90,10 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       )
     `);
 
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer(null),
+    const resolved = await new AccountProvisioningService(
+      sqlClient,
+      makeFakeAuthServer(null)
+    ).ensureInternalAccountIdForExternalUser({
       externalUserId: EXTERNAL_USER_ID,
       now: io.clock.now,
       createId: io.createId,
@@ -105,23 +103,27 @@ describe('ensureInternalAccountIdForExternalUser', () => {
   });
 
   test('creates user and external_account row', async () => {
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' }),
+    const externalAccounts = new ExternalAccountRepository(sqlClient);
+    const resolved = await new AccountProvisioningService(
+      sqlClient,
+      makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' })
+    ).ensureInternalAccountIdForExternalUser({
       externalUserId: EXTERNAL_USER_ID,
       now: io.clock.now,
       createId: io.createId,
     });
 
     expect(
-      await findUserIdByPrimaryAuthExternalId(
-        sqlClient,
+      await externalAccounts.findUserIdByPrimaryAuthExternalId(
         PRIMARY_AUTH_PROVIDER,
         EXTERNAL_USER_ID
       )
     ).toBe(resolved);
     expect(
-      await readExternalAccountId(sqlClient, resolved, PRIMARY_AUTH_PROVIDER)
+      await externalAccounts.readExternalAccountId(
+        resolved,
+        PRIMARY_AUTH_PROVIDER
+      )
     ).toBe(EXTERNAL_USER_ID);
   });
 
@@ -134,16 +136,13 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       id: EXTERNAL_USER_ID,
       email: 'a@b.c',
     });
-    const a = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer,
+    const provisioning = new AccountProvisioningService(sqlClient, authServer);
+    const a = await provisioning.ensureInternalAccountIdForExternalUser({
       externalUserId: EXTERNAL_USER_ID,
       now: io.clock.now,
       createId: io.createId,
     });
-    const b = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer,
+    const b = await provisioning.ensureInternalAccountIdForExternalUser({
       externalUserId: EXTERNAL_USER_ID,
       now: io.clock.now,
       createId: io.createId,
@@ -151,8 +150,9 @@ describe('ensureInternalAccountIdForExternalUser', () => {
 
     expect(a).toBe(b);
     expect(
-      await findUserIdByPrimaryAuthExternalId(
-        sqlClient,
+      await new ExternalAccountRepository(
+        sqlClient
+      ).findUserIdByPrimaryAuthExternalId(
         PRIMARY_AUTH_PROVIDER,
         EXTERNAL_USER_ID
       )
@@ -194,9 +194,10 @@ describe('ensureInternalAccountIdForExternalUser', () => {
       )
     `);
 
-    const resolved = await ensureInternalAccountIdForExternalUser({
-      sql: sqlClient,
-      authServer: makeFakeAuthServer({ id: EXTERNAL_USER_ID }),
+    const resolved = await new AccountProvisioningService(
+      sqlClient,
+      makeFakeAuthServer({ id: EXTERNAL_USER_ID })
+    ).ensureInternalAccountIdForExternalUser({
       externalUserId: EXTERNAL_USER_ID,
       now: io.clock.now,
       createId: io.createId,

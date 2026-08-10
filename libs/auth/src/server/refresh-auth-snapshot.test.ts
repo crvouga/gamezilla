@@ -6,7 +6,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { refreshAuthSnapshot } from './refresh-auth-snapshot';
+import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
 const io = createSimIo({ seed: 1 });
 
@@ -141,7 +141,7 @@ const DEVICE_ATTRS: Record<string, string | null> = {
   app_version: '1.0.0',
 };
 
-describe('refreshAuthSnapshot', () => {
+describe('AuthSnapshotRefresher', () => {
   let sqlClient: SqlClient;
 
   beforeEach(async () => {
@@ -165,9 +165,7 @@ describe('refreshAuthSnapshot', () => {
       snapshot: AUTH_SNAPSHOT,
     });
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -195,9 +193,8 @@ describe('refreshAuthSnapshot', () => {
       snapshot: AUTH_SNAPSHOT,
     });
 
+    const refresher = new AuthSnapshotRefresher(sqlClient, authServer);
     const inputs = {
-      sql: sqlClient,
-      authServer,
       bearerToken: 'token-1',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -206,8 +203,8 @@ describe('refreshAuthSnapshot', () => {
       createId: io.createId,
     };
 
-    await refreshAuthSnapshot(inputs);
-    await refreshAuthSnapshot(inputs);
+    await refresher.refresh(inputs);
+    await refresher.refresh(inputs);
 
     const rows = await sqlClient.query(sql<{ external_id: string }>`
       SELECT external_id
@@ -242,9 +239,7 @@ describe('refreshAuthSnapshot', () => {
       VALUES (${'stripe:cus_1'}, ${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
     `);
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token-new',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
@@ -282,9 +277,7 @@ describe('refreshAuthSnapshot', () => {
       snapshotThrows: true,
     });
 
-    await refreshAuthSnapshot({
-      sql: sqlClient,
-      authServer,
+    await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
       bearerToken: 'token',
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,

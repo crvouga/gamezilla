@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createStripeCheckoutRoutes } from './stripe-checkout-route';
+import { StripeCheckoutRoutes } from './stripe-checkout-route';
 
-describe('createStripeCheckoutRoutes', () => {
+describe('StripeCheckoutRoutes', () => {
   it('returns 503 when Stripe is not configured', async () => {
     const sql = {
       query: async () => [],
@@ -12,13 +12,13 @@ describe('createStripeCheckoutRoutes', () => {
       disconnect: async () => {},
     } as unknown as SqlClient;
 
-    const app = createStripeCheckoutRoutes({
-      getSqlClient: () => sql,
-      stripe: null,
-      requireAuth: async () => {
+    const app = new StripeCheckoutRoutes(
+      () => sql,
+      null,
+      async () => {
         throw new Error('should not be called');
-      },
-    });
+      }
+    ).build();
 
     const res = await app.request('/stripe/checkout', {
       method: 'POST',

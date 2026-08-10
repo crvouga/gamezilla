@@ -1,9 +1,12 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { FriendSearchService } from './friend-search-service';
 
-import { searchUsers } from './search-service';
+/** Thin facade used by friends routes (holds the search service). */
+export class FriendService {
+  constructor(private readonly searchService: FriendSearchService) {}
 
-export const FriendService = {
-  searchUsers,
-};
-
-export type { SqlClient };
+  searchUsers(
+    args: Parameters<FriendSearchService['searchUsers']>[0]
+  ): ReturnType<FriendSearchService['searchUsers']> {
+    return this.searchService.searchUsers(args);
+  }
+}

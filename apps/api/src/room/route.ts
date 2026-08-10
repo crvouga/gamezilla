@@ -1,4 +1,4 @@
-import { ANON_ID_HEADER, resolveAccountIdFromBearer } from '@libs/auth/server';
+import { ANON_ID_HEADER, BearerAuthResolver } from '@libs/auth/server';
 import { getIo } from '@pkgs/io/als';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
@@ -95,14 +95,12 @@ async function tryResolveAccount(
 ): Promise<string | null> {
   try {
     const io = getIo();
-    return await resolveAccountIdFromBearer({
-      sql: c.get('sqlClient'),
-      authServer: c.get('authServer'),
-      bearerToken,
-      deviceId,
-      now: io.clock.now,
-      createId: io.createId,
-    });
+    return await new BearerAuthResolver(
+      c.get('sqlClient'),
+      c.get('authServer'),
+      io.clock.now,
+      io.createId
+    ).resolveAccountId(bearerToken, deviceId);
   } catch {
     // Any auth resolution failure (invalid token, DB hiccup, etc.) falls back
     // to anon — never blocks the upgrade.

@@ -11,14 +11,14 @@ import {
   assertStripeSecretKey,
   createStripeClientFromSecret,
 } from '../src/script-runtime';
-import { runStripeFullSync } from '../src/sync';
+import { StripeFullSync } from '../src/sync';
 
 const SCRIPT_TAG = 'stripe sync';
 
 async function main(): Promise<void> {
   const secret = await assertStripeSecretKey(SCRIPT_TAG);
   const stripe = createStripeClientFromSecret(secret);
-  const result = await runStripeFullSync({ stripe });
+  const result = await new StripeFullSync(stripe).run();
 
   console.log(
     `[${SCRIPT_TAG}] done`,

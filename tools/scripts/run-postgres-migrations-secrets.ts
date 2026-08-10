@@ -7,7 +7,7 @@
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
+import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
@@ -84,14 +84,14 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
     max: 1,
   });
   try {
-    await runPostgresMigrations({
+    await new PostgresMigrationRunner({
       sqlClient,
       pool,
       logger,
       dbScope,
       betterAuthSecret: requireEnv('BETTER_AUTH_SECRET'),
       betterAuthBaseURL: requireEnv('API_URL').replace(/\/$/, ''),
-    });
+    }).run();
     process.stdout.write(
       '[postgres:migrate-secrets] schema + sync publication OK\n'
     );

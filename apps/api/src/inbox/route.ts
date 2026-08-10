@@ -1,12 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { handleFriendsInboxAction } from '@libs/friends/server/friends-inbox-actions';
-import { backfillFriendRequestInboxInteractions } from '@libs/friends/server/request-service';
 import { assert } from '@pkgs/assert';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
-import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 
@@ -35,15 +32,13 @@ function ensureInboxHandlers(): void {
     }
     const actor = inboxActorStorage.getStore();
     assert.defined(actor, 'friends inbox: actor missing');
-    const io = getIo();
-    const result = await handleFriendsInboxAction({
-      sql: ctx.sql,
+    const store = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(store, 'friends inbox: request store missing');
+    const result = await store.container.friendsInboxActionHandler.handle({
       actorId: ctx.actorId,
       deviceId: actor.deviceId,
       actionId: ctx.actionId,
       requestId,
-      now: io.clock.now,
-      createId: io.createId,
     });
     notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
   });
@@ -128,8 +123,13 @@ export function createInboxSubApp() {
   });
 
   app.post('/backfill', async (c) => {
-    const { sql, actorId } = lazyRequestContext();
-    const count = await backfillFriendRequestInboxInteractions(sql, actorId);
+    const store = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(store, 'inbox backfill: request store missing');
+    const { actorId } = lazyRequestContext();
+    const count =
+      await store.container.friendshipStatusService.backfillFriendRequestInboxInteractions(
+        actorId
+      );
     return c.json({ backfilled: count });
   });
 

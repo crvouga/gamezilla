@@ -22,7 +22,7 @@ import {
 import { useSpaceModule } from '../module/space-module-context';
 import {
   type CreateSpaceRoomResult,
-  createSpaceRoom,
+  SpaceRoomFactory,
 } from './create-space-room';
 import { useCreateRoomTransport } from './room-transport-factory';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
@@ -126,7 +126,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
     try {
       // Local hydrate first; WS may still be connecting. Commit as soon as
       // createSpaceRoom resolves so Games/Chess dispatch is not a no-op.
-      opened = await createSpaceRoom({
+      opened = await new SpaceRoomFactory(args.io).create({
         spaceId: args.bootstrap.spaceId,
         apiUrl: args.configService.getApiUrl(),
         module: args.module,
@@ -136,7 +136,6 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         clientId: args.bootstrap.clientId,
         getSessionToken: args.getSessionToken,
         createTransport: args.createTransport,
-        io: args.io,
       });
     } catch {
       // Room.open is hardened to avoid this; if it still throws, clear the

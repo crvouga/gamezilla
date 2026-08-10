@@ -2,16 +2,13 @@ import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { useClock } from '@pkgs/clock';
 import { useCreateId } from '@pkgs/uuid';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import type {
   ChessPuzzleInteractionKind,
   ChessPuzzleInteractionRow,
 } from '../../shared/chess-puzzle-interaction-entities';
-import {
-  appendPuzzleInteractionRow,
-  finalizePuzzlePlayWithProfile,
-} from './chess-puzzle-interaction-db';
+import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 type AppendExtra = {
@@ -38,31 +35,31 @@ export function useChessPuzzleInteractionWrites(args: {
   const createId = useCreateId();
   const clock = useClock();
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
+  const interactionDb = useMemo(
+    () => new ChessPuzzleInteractionDb(mutationClient, createId),
+    [mutationClient, createId]
+  );
 
   const appendInteraction = useCallback(
     async (kind: ChessPuzzleInteractionKind, extra?: AppendExtra) => {
       if (myId.length === 0) return;
-      await appendPuzzleInteractionRow(
-        mutationClient,
-        {
-          ownerId: myId,
-          puzzleId,
-          puzzleRating,
-          kind,
-          solveIdx: extra?.solveIdx ?? solveIdx,
-          uci: extra?.uci ?? null,
-          correct: extra?.correct ?? null,
-        },
-        createId
-      );
+      await interactionDb.appendRow({
+        ownerId: myId,
+        puzzleId,
+        puzzleRating,
+        kind,
+        solveIdx: extra?.solveIdx ?? solveIdx,
+        uci: extra?.uci ?? null,
+        correct: extra?.correct ?? null,
+      });
     },
-    [mutationClient, myId, puzzleId, puzzleRating, solveIdx, createId]
+    [interactionDb, myId, puzzleId, puzzleRating, solveIdx]
   );
 
   const finalizePlay = useCallback(
     async (terminalKind: 'solved' | 'abandoned') => {
       if (myId.length === 0) return;
-      await finalizePuzzlePlayWithProfile(mutationClient, {
+      await interactionDb.finalizePlayWithProfile({
         ownerId: myId,
         puzzleId,
         puzzleRating,
@@ -71,20 +68,18 @@ export function useChessPuzzleInteractionWrites(args: {
         terminalKind,
         profileRating,
         profileRd,
-        createId,
         clock,
       });
     },
     [
+      interactionDb,
       interactions,
-      mutationClient,
       myId,
       profileRating,
       profileRd,
       puzzleId,
       puzzleRating,
       solveIdx,
-      createId,
       clock,
     ]
   );

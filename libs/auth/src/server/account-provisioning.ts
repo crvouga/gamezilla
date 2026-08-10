@@ -4,12 +4,8 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
-import { clearUserAnonFlag, readUserAnonState } from './anon-user-ensure';
-import {
-  findUserIdByPrimaryAuthExternalId,
-  insertExternalAccountOrGet,
-  insertUser,
-} from './external-accounts-sql';
+import { AnonUserService } from './anon-user-service';
+import { ExternalAccountRepository } from './external-account-repository';
 
 /**
  * Best-effort Postgres advisory lock. No-ops on SQLite (unit tests) where
@@ -34,95 +30,95 @@ async function acquireExternalUserAdvisoryLock(
   }
 }
 
-/**
- * Resolves the immutable internal `users.id` for a primary-auth external user.
- *
- * 1. Existing `external_accounts` link → that `users.id` (switch).
- * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
- * 3. Else mint a new non-anon `users` row.
- */
-export async function ensureInternalAccountIdForExternalUser(args: {
-  sql: SqlClient;
-  authServer: AuthServerPort;
-  externalUserId: string;
-  /** Device-bound anon user to upgrade when this external id is new. */
-  upgradeUserId?: string | null;
-  now: () => number;
-  createId: CreateId;
-}): Promise<string> {
-  const {
-    sql: db,
-    authServer,
-    externalUserId,
-    upgradeUserId,
-    now,
-    createId,
-  } = args;
-  const provider = authServer.providerLabel;
-  const lockKey = `${provider}:${externalUserId}`;
+export class AccountProvisioningService {
+  constructor(
+    private readonly db: SqlClient,
+    private readonly authServer: AuthServerPort
+  ) {}
 
-  return db.transaction(async (tx) => {
-    await acquireExternalUserAdvisoryLock(tx, lockKey);
+  /**
+   * Resolves the immutable internal `users.id` for a primary-auth external user.
+   *
+   * 1. Existing `external_accounts` link → that `users.id` (switch).
+   * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
+   * 3. Else mint a new non-anon `users` row.
+   */
+  async ensureInternalAccountIdForExternalUser(args: {
+    externalUserId: string;
+    /** Device-bound anon user to upgrade when this external id is new. */
+    upgradeUserId?: string | null;
+    now: () => number;
+    createId: CreateId;
+  }): Promise<string> {
+    const { externalUserId, upgradeUserId, now, createId } = args;
+    const provider = this.authServer.providerLabel;
+    const lockKey = `${provider}:${externalUserId}`;
 
-    const existingUserId = await findUserIdByPrimaryAuthExternalId(
-      tx,
-      provider,
-      externalUserId
-    );
-    if (existingUserId !== null) {
-      assertUuid(existingUserId, 'userId must be UUID');
-      return existingUserId;
-    }
+    return this.db.transaction(async (tx) => {
+      await acquireExternalUserAdvisoryLock(tx, lockKey);
 
-    const candidateUserId = await resolveCandidateUserId(
-      tx,
-      upgradeUserId,
-      createId
-    );
-    const nowIso = new Date(now()).toISOString();
-    if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
-      await clearUserAnonFlag(tx, candidateUserId, now);
-    } else {
-      await insertUser({
-        db: tx,
+      const externalAccounts = new ExternalAccountRepository(tx);
+      const anonUsers = new AnonUserService(tx);
+
+      const existingUserId =
+        await externalAccounts.findUserIdByPrimaryAuthExternalId(
+          provider,
+          externalUserId
+        );
+      if (existingUserId !== null) {
+        assertUuid(existingUserId, 'userId must be UUID');
+        return existingUserId;
+      }
+
+      const candidateUserId = await this.resolveCandidateUserId(
+        anonUsers,
+        upgradeUserId,
+        createId
+      );
+      const nowIso = new Date(now()).toISOString();
+      if (candidateUserId === upgradeUserId && upgradeUserId !== null) {
+        await anonUsers.clearUserAnonFlag(candidateUserId, now);
+      } else {
+        await externalAccounts.insertUser({
+          userId: candidateUserId,
+          now,
+          createId,
+          createdAt: nowIso,
+          isAnon: false,
+        });
+      }
+
+      const ownerId = await externalAccounts.insertExternalAccountOrGet({
         userId: candidateUserId,
+        provider,
+        externalId: externalUserId,
+        metadata: {},
         now,
         createId,
-        createdAt: nowIso,
-        isAnon: false,
       });
-    }
+      assertUuid(ownerId, 'userId must be UUID');
 
-    const ownerId = await insertExternalAccountOrGet(tx, {
-      userId: candidateUserId,
-      provider,
-      externalId: externalUserId,
-      metadata: {},
-      now,
-      createId,
+      // Race: another txn linked the external id to a different user.
+      if (ownerId !== candidateUserId && candidateUserId === upgradeUserId) {
+        // Leave the anon row upgraded but unlinked; canonical owner wins.
+      }
+
+      return ownerId;
     });
-    assertUuid(ownerId, 'userId must be UUID');
-
-    // Race: another txn linked the external id to a different user.
-    if (ownerId !== candidateUserId && candidateUserId === upgradeUserId) {
-      // Leave the anon row upgraded but unlinked; canonical owner wins.
-    }
-
-    return ownerId;
-  });
-}
-
-async function resolveCandidateUserId(
-  tx: SqlClient,
-  upgradeUserId: string | null | undefined,
-  createId: CreateId
-): Promise<string> {
-  if (typeof upgradeUserId === 'string' && upgradeUserId.length > 0) {
-    assertUuid(upgradeUserId, 'upgradeUserId must be UUID');
-    const state = await readUserAnonState(tx, upgradeUserId);
-    if (state.exists && state.isAnon) {
-      return upgradeUserId;
-    }
   }
-  return createId();
+
+  private async resolveCandidateUserId(
+    anonUsers: AnonUserService,
+    upgradeUserId: string | null | undefined,
+    createId: CreateId
+  ): Promise<string> {
+    if (typeof upgradeUserId === 'string' && upgradeUserId.length > 0) {
+      assertUuid(upgradeUserId, 'upgradeUserId must be UUID');
+      const state = await anonUsers.readUserAnonState(upgradeUserId);
+      if (state.exists && state.isAnon) {
+        return upgradeUserId;
+      }
+    }
+    return createId();
+  }
 }

@@ -6,7 +6,7 @@
  */
 
 import { join } from 'node:path';
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
+import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -130,14 +130,14 @@ async function main(): Promise<void> {
     const betterAuthBaseURL = (
       process.env['API_URL']?.trim() || 'https://migrate.local'
     ).replace(/\/$/, '');
-    await runPostgresMigrations({
+    await new PostgresMigrationRunner({
       sqlClient,
       pool,
       logger: log,
       dbScope,
       betterAuthSecret,
       betterAuthBaseURL,
-    });
+    }).run();
     log.info('wipe + remigrate finished');
     process.stdout.write(
       '[api:wipe-dev] completed (schema empty + remigrated)\n'

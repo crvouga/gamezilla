@@ -11,16 +11,17 @@ import type { CreateId } from '@pkgs/uuid';
 
 const clientIdBySpaceId = new Map<string, string>();
 
-/** Stable per-tab client id for this space while it remains open. */
-export function getOrCreateSpaceClientId(
-  spaceId: string,
-  createId: CreateId
-): string {
-  const existing = clientIdBySpaceId.get(spaceId);
-  if (existing !== undefined) return existing;
-  const next = createId();
-  clientIdBySpaceId.set(spaceId, next);
-  return next;
+export class SpaceOpenSessionStore {
+  constructor(private readonly createId: CreateId) {}
+
+  /** Stable per-tab client id for this space while it remains open. */
+  getOrCreate(spaceId: string): string {
+    const existing = clientIdBySpaceId.get(spaceId);
+    if (existing !== undefined) return existing;
+    const next = this.createId();
+    clientIdBySpaceId.set(spaceId, next);
+    return next;
+  }
 }
 
 export function readSpaceClientId(spaceId: string): string | null {

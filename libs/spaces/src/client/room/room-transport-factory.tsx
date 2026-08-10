@@ -24,24 +24,39 @@ export type CreateRoomTransport = (
   args: CreateRoomTransportArgs
 ) => ClientTransport;
 
-export function createWebSocketRoomTransport(
+export class WebSocketRoomTransportFactory {
+  constructor(
+    private readonly timers: Timers,
+    private readonly random: Random
+  ) {}
+
+  create(
+    args: Omit<CreateRoomTransportArgs, 'timers' | 'random'>
+  ): ClientTransport {
+    const topic = `space:${args.spaceId}`;
+    return new WebSocketRoomTransport({
+      timers: this.timers,
+      random: this.random,
+      url: async () => {
+        const token = await Promise.resolve(args.getSessionToken());
+        return apiUrlToRoomWebSocketUrl({
+          apiUrl: args.apiUrl,
+          topic,
+          sessionToken: token,
+          installId: args.installId,
+          clientId: args.clientId,
+        });
+      },
+    });
+  }
+}
+
+function defaultCreateTransport(
   args: CreateRoomTransportArgs
 ): ClientTransport {
-  const topic = `space:${args.spaceId}`;
-  return new WebSocketRoomTransport({
-    timers: args.timers,
-    random: args.random,
-    url: async () => {
-      const token = await Promise.resolve(args.getSessionToken());
-      return apiUrlToRoomWebSocketUrl({
-        apiUrl: args.apiUrl,
-        topic,
-        sessionToken: token,
-        installId: args.installId,
-        clientId: args.clientId,
-      });
-    },
-  });
+  return new WebSocketRoomTransportFactory(args.timers, args.random).create(
+    args
+  );
 }
 
 const Ctx = createContext<CreateRoomTransport | null>(null);
@@ -54,7 +69,7 @@ export function RoomTransportFactoryProvider({
   readonly createTransport?: CreateRoomTransport;
 }): ReactNode {
   const value = useMemo(
-    () => createTransport ?? createWebSocketRoomTransport,
+    () => createTransport ?? defaultCreateTransport,
     [createTransport]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -62,5 +77,5 @@ export function RoomTransportFactoryProvider({
 
 export function useCreateRoomTransport(): CreateRoomTransport {
   const v = useContext(Ctx);
-  return v ?? createWebSocketRoomTransport;
+  return v ?? defaultCreateTransport;
 }

@@ -20,77 +20,33 @@ function nowIso(clock: Clock): string {
   return new Date(clock.now()).toISOString();
 }
 
-export async function appendPuzzleInteractionRow(
-  mutationClient: MutationClient,
-  args: AppendPuzzleInteractionInput,
-  createId: CreateId
-): Promise<void> {
-  const result = await mutationClient.mutate(appendPuzzleInteractionMutation, {
-    interactionId: createId(),
-    ...args,
-  });
-  if (!result.ok) throw new Error(result.failures[0]?.message);
-}
+export class ChessPuzzleInteractionDb {
+  constructor(
+    private readonly mutationClient: MutationClient,
+    private readonly createId: CreateId
+  ) {}
 
-async function upsertPuzzleProfile(
-  mutationClient: MutationClient,
-  args: UpsertPuzzleProfileInput
-): Promise<void> {
-  const result = await mutationClient.mutate(upsertPuzzleProfileMutation, args);
-  if (!result.ok) throw new Error(result.failures[0]?.message);
-}
+  async appendRow(args: AppendPuzzleInteractionInput): Promise<void> {
+    const result = await this.mutationClient.mutate(
+      appendPuzzleInteractionMutation,
+      {
+        interactionId: this.createId(),
+        ...args,
+      }
+    );
+    if (!result.ok) throw new Error(result.failures[0]?.message);
+  }
 
-function computeFinalizeRatings(args: {
-  puzzleId: string;
-  puzzleRating: number;
-  solveIdx: number;
-  interactions: readonly ChessPuzzleInteractionRow[];
-  terminalKind: 'solved' | 'abandoned';
-  profileRating: number;
-  profileRd: number;
-  clock: Clock;
-}): {
-  ratingBefore: number;
-  ratingAfter: number;
-  ratingDeviation: number;
-  at: string;
-} {
-  const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-  const at = nowIso(args.clock);
-  const closed = [
-    ...play,
-    {
-      puzzleId: args.puzzleId,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-      uci: null,
-      correct: null,
-      puzzleRating: args.puzzleRating,
-      ratingBefore: 0,
-      ratingAfter: 0,
-      at,
-    },
-  ];
-  const ratingBefore = args.profileRating > 0 ? args.profileRating : 1200;
-  const rdBefore = args.profileRd > 0 ? args.profileRd : 350;
-  const updated = updatePuzzleRating({
-    playerRating: ratingBefore,
-    playerRd: rdBefore,
-    puzzleRating: args.puzzleRating,
-    score: deriveOutcomeScore(closed),
-  });
-  return {
-    ratingBefore,
-    ratingAfter: updated.rating,
-    ratingDeviation: updated.ratingDeviation,
-    at,
-  };
-}
+  async #upsertPuzzleProfile(args: UpsertPuzzleProfileInput): Promise<void> {
+    const result = await this.mutationClient.mutate(
+      upsertPuzzleProfileMutation,
+      args
+    );
+    if (!result.ok) throw new Error(result.failures[0]?.message);
+  }
 
-/** Client orchestration: append terminal interaction, then upsert profile. */
-export async function finalizePuzzlePlayWithProfile(
-  mutationClient: MutationClient,
-  args: {
+  /** Client orchestration: append terminal interaction, then upsert profile. */
+  async finalizePlayWithProfile(args: {
     ownerId: string;
     puzzleId: string;
     puzzleRating: number;
@@ -99,15 +55,11 @@ export async function finalizePuzzlePlayWithProfile(
     terminalKind: 'solved' | 'abandoned';
     profileRating: number;
     profileRd: number;
-    createId: CreateId;
     clock: Clock;
-  }
-): Promise<void> {
-  if (isPlayClosed(args.interactions, args.puzzleId)) return;
-  const ratings = computeFinalizeRatings(args);
-  await appendPuzzleInteractionRow(
-    mutationClient,
-    {
+  }): Promise<void> {
+    if (isPlayClosed(args.interactions, args.puzzleId)) return;
+    const ratings = this.#computeFinalizeRatings(args);
+    await this.appendRow({
       ownerId: args.ownerId,
       puzzleId: args.puzzleId,
       puzzleRating: args.puzzleRating,
@@ -115,13 +67,59 @@ export async function finalizePuzzlePlayWithProfile(
       solveIdx: args.solveIdx,
       ratingBefore: ratings.ratingBefore,
       ratingAfter: ratings.ratingAfter,
-    },
-    args.createId
-  );
-  await upsertPuzzleProfile(mutationClient, {
-    ownerId: args.ownerId,
-    rating: ratings.ratingAfter,
-    ratingDeviation: ratings.ratingDeviation,
-    lastInteractionAt: ratings.at,
-  });
+    });
+    await this.#upsertPuzzleProfile({
+      ownerId: args.ownerId,
+      rating: ratings.ratingAfter,
+      ratingDeviation: ratings.ratingDeviation,
+      lastInteractionAt: ratings.at,
+    });
+  }
+
+  #computeFinalizeRatings(args: {
+    puzzleId: string;
+    puzzleRating: number;
+    solveIdx: number;
+    interactions: readonly ChessPuzzleInteractionRow[];
+    terminalKind: 'solved' | 'abandoned';
+    profileRating: number;
+    profileRd: number;
+    clock: Clock;
+  }): {
+    ratingBefore: number;
+    ratingAfter: number;
+    ratingDeviation: number;
+    at: string;
+  } {
+    const play = sliceCurrentPlay(args.interactions, args.puzzleId);
+    const at = nowIso(args.clock);
+    const closed = [
+      ...play,
+      {
+        puzzleId: args.puzzleId,
+        kind: args.terminalKind,
+        solveIdx: args.solveIdx,
+        uci: null,
+        correct: null,
+        puzzleRating: args.puzzleRating,
+        ratingBefore: 0,
+        ratingAfter: 0,
+        at,
+      },
+    ];
+    const ratingBefore = args.profileRating > 0 ? args.profileRating : 1200;
+    const rdBefore = args.profileRd > 0 ? args.profileRd : 350;
+    const updated = updatePuzzleRating({
+      playerRating: ratingBefore,
+      playerRd: rdBefore,
+      puzzleRating: args.puzzleRating,
+      score: deriveOutcomeScore(closed),
+    });
+    return {
+      ratingBefore,
+      ratingAfter: updated.rating,
+      ratingDeviation: updated.ratingDeviation,
+      at,
+    };
+  }
 }

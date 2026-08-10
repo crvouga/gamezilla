@@ -18,46 +18,49 @@ export type AppendPuzzleInteractionInput = {
   readonly ratingAfter?: number;
 };
 
-export async function appendPuzzleInteractionRowSql(
-  db: SqlClient,
-  input: AppendPuzzleInteractionInput,
-  createId: CreateId,
-  now: Clock['now']
-): Promise<void> {
-  const id = createId();
-  const at = new Date(now()).toISOString();
-  const correct =
-    input.correct === null || input.correct === undefined
-      ? null
-      : input.correct
-        ? 1
-        : 0;
-  await db.run(sql<void>`
-    INSERT INTO chess_puzzle_interactions (
-      id,
-      owner_id,
-      puzzle_id,
-      puzzle_rating,
-      kind,
-      solve_idx,
-      uci,
-      correct,
-      rating_before,
-      rating_after,
-      at
-    )
-    VALUES (
-      ${id},
-      ${input.ownerId},
-      ${input.puzzleId},
-      ${input.puzzleRating},
-      ${input.kind},
-      ${input.solveIdx},
-      ${input.uci ?? null},
-      ${correct},
-      ${input.ratingBefore ?? 0},
-      ${input.ratingAfter ?? 0},
-      ${at}
-    )
-  `);
+export class AppendPuzzleInteractionWrite {
+  constructor(private readonly db: SqlClient) {}
+
+  async appendRow(
+    input: AppendPuzzleInteractionInput,
+    createId: CreateId,
+    now: Clock['now']
+  ): Promise<void> {
+    const id = createId();
+    const at = new Date(now()).toISOString();
+    const correct =
+      input.correct === null || input.correct === undefined
+        ? null
+        : input.correct
+          ? 1
+          : 0;
+    await this.db.run(sql<void>`
+      INSERT INTO chess_puzzle_interactions (
+        id,
+        owner_id,
+        puzzle_id,
+        puzzle_rating,
+        kind,
+        solve_idx,
+        uci,
+        correct,
+        rating_before,
+        rating_after,
+        at
+      )
+      VALUES (
+        ${id},
+        ${input.ownerId},
+        ${input.puzzleId},
+        ${input.puzzleRating},
+        ${input.kind},
+        ${input.solveIdx},
+        ${input.uci ?? null},
+        ${correct},
+        ${input.ratingBefore ?? 0},
+        ${input.ratingAfter ?? 0},
+        ${at}
+      )
+    `);
+  }
 }

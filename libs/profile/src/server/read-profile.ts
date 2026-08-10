@@ -23,32 +23,32 @@ function readProfileCard(row: Record<string, unknown>): ProfileCard | null {
   };
 }
 
-export async function readProfileCardById(
-  db: SqlClient,
-  profileId: string
-): Promise<ProfileCard | null> {
-  const rows = await db.query(sql<Record<string, unknown>>`
-    SELECT id, username, avatar_config
-    FROM profiles
-    WHERE id = ${profileId}
-    LIMIT 1
-  `);
-  const row = rows[0];
-  if (row === undefined) return null;
-  return readProfileCard(row);
-}
+export class ProfileReadRepository {
+  constructor(private readonly db: SqlClient) {}
 
-export async function readProfileCardsByIds(
-  db: SqlClient,
-  profileIds: readonly string[]
-): Promise<readonly ProfileCard[]> {
-  if (profileIds.length === 0) return [];
-  const rows = await db.query(sql<Record<string, unknown>>`
-    SELECT id, username, avatar_config
-    FROM profiles
-    WHERE id IN (${join([...profileIds])})
-  `);
-  return rows
-    .map((row) => readProfileCard(row))
-    .filter((card): card is ProfileCard => card !== null);
+  async readCardById(profileId: string): Promise<ProfileCard | null> {
+    const rows = await this.db.query(sql<Record<string, unknown>>`
+      SELECT id, username, avatar_config
+      FROM profiles
+      WHERE id = ${profileId}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (row === undefined) return null;
+    return readProfileCard(row);
+  }
+
+  async readCardsByIds(
+    profileIds: readonly string[]
+  ): Promise<readonly ProfileCard[]> {
+    if (profileIds.length === 0) return [];
+    const rows = await this.db.query(sql<Record<string, unknown>>`
+      SELECT id, username, avatar_config
+      FROM profiles
+      WHERE id IN (${join([...profileIds])})
+    `);
+    return rows
+      .map((row) => readProfileCard(row))
+      .filter((card): card is ProfileCard => card !== null);
+  }
 }

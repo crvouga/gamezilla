@@ -27,7 +27,7 @@ import {
   shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
 } from './resolve-client-identity';
-import { resolveSessionBearerToken } from './resolve-session-bearer-token';
+import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
@@ -156,7 +156,9 @@ function useRefreshOnAppForeground(args: {
     const onChange = (state: AppStateStatus): void => {
       if (state !== 'active') return;
       void (async () => {
-        const token = await resolveSessionBearerToken(deps.timers, port);
+        const token = await new SessionBearerTokenResolver(deps.timers).resolve(
+          port
+        );
         if (token === null) return;
         tokenRef.current = token;
         await runRefresh({
@@ -233,7 +235,7 @@ async function handleSignedIn(args: {
   expiresAt: string | null;
 }): Promise<void> {
   const { deps, port, expiresAt } = args;
-  const token = await resolveSessionBearerToken(deps.timers, port);
+  const token = await new SessionBearerTokenResolver(deps.timers).resolve(port);
   if (token === null) {
     // Cookie session shows email while product chrome stays on "Sign in".
     deps.log.warn('signed in but bearer token unavailable');

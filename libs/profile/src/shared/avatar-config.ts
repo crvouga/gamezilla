@@ -39,13 +39,17 @@ export function createDefaultAvatarConfig(
 const RANDOM_SEED_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 /** Short alphanumeric seed for DiceBear randomize (not a UUID). */
-export function generateRandomAvatarSeed(random: Random, length = 12): string {
-  let out = '';
-  for (let i = 0; i < length; i++) {
-    const idx = Math.floor(random() * RANDOM_SEED_CHARS.length);
-    out += RANDOM_SEED_CHARS[idx]!;
+export class AvatarSeedGenerator {
+  constructor(private readonly random: Random) {}
+
+  generate(length = 12): string {
+    let out = '';
+    for (let i = 0; i < length; i++) {
+      const idx = Math.floor(this.random() * RANDOM_SEED_CHARS.length);
+      out += RANDOM_SEED_CHARS[idx]!;
+    }
+    return out;
   }
-  return out;
 }
 
 function tryParseJsonObject(raw: string): Record<string, unknown> | null {

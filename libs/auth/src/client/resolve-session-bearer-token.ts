@@ -19,18 +19,21 @@ export type ResolveSessionBearerTokenOptions = {
  * Prefer the cached bearer, then force a get-session mint, with short retries
  * so AuthBridge does not permanently skip writing product `sessionToken`.
  */
-export async function resolveSessionBearerToken(
-  timers: Timers,
-  port: Pick<AuthClientPort, 'getFreshToken'>,
-  options?: ResolveSessionBearerTokenOptions
-): Promise<string | null> {
-  const delays = options?.delaysMs ?? BEARER_RETRY_DELAYS_MS;
-  for (const delay of delays) {
-    if (delay > 0) await sleepMs(delay, timers);
-    const cached = await port.getFreshToken();
-    if (cached !== null) return cached;
-    const minted = await port.getFreshToken({ skipCache: true });
-    if (minted !== null) return minted;
+export class SessionBearerTokenResolver {
+  constructor(private readonly timers: Timers) {}
+
+  async resolve(
+    port: Pick<AuthClientPort, 'getFreshToken'>,
+    options?: ResolveSessionBearerTokenOptions
+  ): Promise<string | null> {
+    const delays = options?.delaysMs ?? BEARER_RETRY_DELAYS_MS;
+    for (const delay of delays) {
+      if (delay > 0) await sleepMs(delay, this.timers);
+      const cached = await port.getFreshToken();
+      if (cached !== null) return cached;
+      const minted = await port.getFreshToken({ skipCache: true });
+      if (minted !== null) return minted;
+    }
+    return null;
   }
-  return null;
 }

@@ -100,65 +100,65 @@ function buildDeviceUpdates(
   return updates;
 }
 
-async function insertDeviceRow(args: {
-  readonly db: SqlClient;
-  readonly deviceId: string;
-  readonly now: string;
-  readonly snapshot: DeviceSnapshot;
-  readonly createId: CreateId;
-}): Promise<void> {
-  const { db, deviceId, now, snapshot, createId } = args;
-  const { cols, vals } = buildInsertArgs(deviceId, now, snapshot, createId);
-  await db.run(sql<void>`
-    INSERT INTO devices (${raw(cols.join(', '))})
-    VALUES ${join(vals as Value[], ', ', '(', ')')}
-  `);
-}
-
-async function updateDeviceRow(
-  db: SqlClient,
-  deviceId: string,
-  updates: Record<string, string>
-): Promise<void> {
-  const entries = Object.entries(updates);
-  if (entries.length === 0) return;
-  const sets = join(
-    entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
-  );
-  await db.run(sql<void>`
-    UPDATE devices
-    SET ${sets}
-    WHERE id = ${deviceId}
-  `);
-}
-
 /**
  * Ensures a `devices` row exists and refreshes last-seen + changed metadata.
  * Snapshot values are collected on the client (expo/platform); shared stays pure.
  */
-export async function ensureDeviceRow(args: {
-  readonly db: SqlClient;
-  readonly deviceId: string;
-  readonly snapshot: DeviceSnapshot;
-  readonly now: () => number;
-  readonly createId: CreateId;
-}): Promise<void> {
-  const { db, deviceId, snapshot, now, createId } = args;
-  const rows = await db.query(sql<DeviceRow>`
-    SELECT *
-    FROM devices
-    WHERE id = ${deviceId}
-    LIMIT 1
-  `);
-  const row = rows[0];
-  const nowIso = new Date(now()).toISOString();
-  if (!isDeviceRowComplete(row, deviceId)) {
-    await insertDeviceRow({ db, deviceId, now: nowIso, snapshot, createId });
-    return;
+export class DeviceWriteRepository {
+  constructor(private readonly db: SqlClient) {}
+
+  async ensureRow(args: {
+    readonly deviceId: string;
+    readonly snapshot: DeviceSnapshot;
+    readonly now: () => number;
+    readonly createId: CreateId;
+  }): Promise<void> {
+    const { deviceId, snapshot, now, createId } = args;
+    const rows = await this.db.query(sql<DeviceRow>`
+      SELECT *
+      FROM devices
+      WHERE id = ${deviceId}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    const nowIso = new Date(now()).toISOString();
+    if (!isDeviceRowComplete(row, deviceId)) {
+      await this.insertDeviceRow({ deviceId, now: nowIso, snapshot, createId });
+      return;
+    }
+    await this.updateDeviceRow(
+      deviceId,
+      buildDeviceUpdates(row as DeviceRow, snapshot, nowIso)
+    );
   }
-  await updateDeviceRow(
-    db,
-    deviceId,
-    buildDeviceUpdates(row as DeviceRow, snapshot, nowIso)
-  );
+
+  private async insertDeviceRow(args: {
+    readonly deviceId: string;
+    readonly now: string;
+    readonly snapshot: DeviceSnapshot;
+    readonly createId: CreateId;
+  }): Promise<void> {
+    const { deviceId, now, snapshot, createId } = args;
+    const { cols, vals } = buildInsertArgs(deviceId, now, snapshot, createId);
+    await this.db.run(sql<void>`
+      INSERT INTO devices (${raw(cols.join(', '))})
+      VALUES ${join(vals as Value[], ', ', '(', ')')}
+    `);
+  }
+
+  private async updateDeviceRow(
+    deviceId: string,
+    updates: Record<string, string>
+  ): Promise<void> {
+    const entries = Object.entries(updates);
+    if (entries.length === 0) return;
+    const sets = join(
+      entries.map(([column, value]) => sql<void>`${raw(column)} = ${value}`)
+    );
+    await this.db.run(sql<void>`
+      UPDATE devices
+      SET ${sets}
+      WHERE id = ${deviceId}
+    `);
+  }
 }

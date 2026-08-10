@@ -8,7 +8,7 @@ import {
   USER_SEARCH_MIN_LENGTH,
   type UserSearchResult,
 } from '../shared/user-search-types';
-import { searchUsers } from './search-users';
+import { UserSearchClient } from './search-users';
 import { useUserSearchClientDeps } from './use-user-search-deps';
 
 export function useDebouncedUserSearchEffect(
@@ -34,7 +34,8 @@ export function useDebouncedUserSearchEffect(
     setSearching(true);
     let cancelled = false;
     const handle = timers.setTimeout(() => {
-      void searchUsers(deps, trimmed)
+      void new UserSearchClient(deps)
+        .search(trimmed)
         .then((next) => {
           if (cancelled) return;
           setResults(next);

@@ -67,28 +67,23 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
-import { dropPuzzleSnapshotIndexes } from './defer-indexes';
+import { PuzzleSnapshotIndexDeferral } from './defer-indexes';
 import {
-  applySessionTuning,
   createSeedStats,
-  flushPuzzleBatchFast,
-  runFinalMaintenance,
-  runInterimMaintenance,
+  PuzzleSeedFastPath,
   type SeedStats,
-  sleep,
-  writeLoadProgressFast,
 } from './fast-path';
 import {
   formatProfileLabel,
   type ResolvedSeedProfile,
   resolveSeedProfile,
 } from './profile';
-import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
+import { PuzzleSeedReporter } from './reporter';
 import { rowToPuzzleBatchEntry } from './row';
 import {
-  ensureCachedArchive,
   type IteratePuzzleRowsOptions,
   iteratePuzzleRows,
+  PuzzleArchiveCache,
   type ResolvedSource,
 } from './streaming';
 
@@ -99,6 +94,7 @@ type StreamContext = {
   profile: ResolvedSeedProfile;
   resolved: ResolvedSource;
   db: SqlClient;
+  fastPath: PuzzleSeedFastPath;
   reporter: PuzzleSeedReporter;
   log: Logger;
   resumeCursor: string | null;
@@ -133,12 +129,17 @@ export class ChessPuzzleSeeder {
       name: 'db:seed-puzzles',
       now: this.#io.clock.now,
     });
-    const reporter = createPuzzleSeedReporter({
+    const reporter = new PuzzleSeedReporter({
       pretty: this.#cli.prettyOutput,
       logger: log,
       now: this.#io.clock.now,
     });
-    const resolved = await this.#resolveArchive(log, reporter);
+    const archiveCache = new PuzzleArchiveCache(
+      log,
+      this.#io.http,
+      this.#io.clock.now
+    );
+    const resolved = await this.#resolveArchive(archiveCache, reporter);
     if (this.#cli.dryRun) {
       await this.#runDryRun(resolved, reporter);
       return;
@@ -221,14 +222,13 @@ export class ChessPuzzleSeeder {
   }
 
   async #persistResumeCursor(args: {
-    db: SqlClient;
+    fastPath: PuzzleSeedFastPath;
     state: SeedStats;
     sourceEtag: string;
   }): Promise<void> {
-    const { db, state, sourceEtag } = args;
+    const { fastPath, state, sourceEtag } = args;
     if (state.lastPuzzleId === null) return;
-    await writeLoadProgressFast({
-      db,
+    await fastPath.writeLoadProgressFast({
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag,
       cursor: state.lastPuzzleId,
@@ -239,7 +239,7 @@ export class ChessPuzzleSeeder {
   }
 
   async #resolveArchive(
-    log: Logger,
+    archiveCache: PuzzleArchiveCache,
     reporter: PuzzleSeedReporter
   ): Promise<ResolvedSource> {
     const cli = this.#cli;
@@ -254,12 +254,9 @@ export class ChessPuzzleSeeder {
     reporter.phase('Resolve puzzle archive (HEAD / cache / download)', {
       cacheDir: cli.cacheDir,
     });
-    const resolved = await ensureCachedArchive({
+    const resolved = await archiveCache.ensureCachedArchive({
       source: cli.source,
       cacheDir: cli.cacheDir,
-      log,
-      http: this.#io.http,
-      now: this.#io.clock.now,
       onDownloadProgress: (p) => reporter.downloadProgress(p),
     });
     reporter.endDownloadProgressLine();
@@ -314,8 +311,7 @@ export class ChessPuzzleSeeder {
   }): Promise<void> {
     const { ctx, rowState } = args;
     if (rowState.state.batch.length < ctx.profile.batchSize) return;
-    await flushPuzzleBatchFast({
-      db: ctx.db,
+    await ctx.fastPath.flushPuzzleBatchFast({
       reporter: ctx.reporter,
       state: rowState.state,
       createId: this.#io.createId,
@@ -326,7 +322,7 @@ export class ChessPuzzleSeeder {
       ctx.profile.progressEvery
     ) {
       await this.#persistResumeCursor({
-        db: ctx.db,
+        fastPath: ctx.fastPath,
         state: rowState.state,
         sourceEtag: ctx.resolved.etag,
       });
@@ -336,16 +332,14 @@ export class ChessPuzzleSeeder {
       ctx.profile.checkpointEvery > 0 &&
       rowState.state.batchesFlushed % ctx.profile.checkpointEvery === 0
     ) {
-      await runInterimMaintenance({
-        db: ctx.db,
+      await ctx.fastPath.runInterimMaintenance({
         reporter: ctx.reporter,
-        log: ctx.log,
         state: rowState.state,
         deferIndexes: ctx.profile.deferIndexes,
         checkpointEvery: ctx.profile.checkpointEvery,
       });
     }
-    await sleep(ctx.profile.paceMs, this.#io.timers);
+    await ctx.fastPath.sleep(ctx.profile.paceMs);
   }
 
   async #processPuzzleRow(args: {
@@ -386,15 +380,14 @@ export class ChessPuzzleSeeder {
     } finally {
       ctx.reporter.endParseProgressLine();
     }
-    await flushPuzzleBatchFast({
-      db: ctx.db,
+    await ctx.fastPath.flushPuzzleBatchFast({
       reporter: ctx.reporter,
       state: rowState.state,
       createId: this.#io.createId,
       now: this.#io.clock.now,
     });
     await this.#persistResumeCursor({
-      db: ctx.db,
+      fastPath: ctx.fastPath,
       state: rowState.state,
       sourceEtag: ctx.resolved.etag,
     });
@@ -443,9 +436,10 @@ export class ChessPuzzleSeeder {
     reporter: PuzzleSeedReporter;
     log: Logger;
     db: SqlClient;
+    fastPath: PuzzleSeedFastPath;
     prior: PuzzleLoadPriorState;
   }): Promise<void> {
-    const { cli, profile, resolved, reporter, log, db, prior } = args;
+    const { cli, profile, resolved, reporter, db, fastPath, prior } = args;
     const resumeCursor = this.#resolveResumeCursor({
       cli,
       resolved,
@@ -457,12 +451,12 @@ export class ChessPuzzleSeeder {
       profile,
       resolved,
       db,
+      fastPath,
       reporter,
-      log,
+      log: args.log,
       resumeCursor,
     });
-    await writeLoadProgressFast({
-      db,
+    await fastPath.writeLoadProgressFast({
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag: resolved.etag,
       cursor: stats.lastPuzzleId,
@@ -470,10 +464,8 @@ export class ChessPuzzleSeeder {
       createId: this.#io.createId,
       now: this.#io.clock.now,
     });
-    await runFinalMaintenance({
-      db,
+    await fastPath.runFinalMaintenance({
       reporter,
-      log,
       rebuildIndexes: profile.rebuildIndexes,
     });
     reporter.phase('seed:puzzles: done', {
@@ -514,8 +506,12 @@ export class ChessPuzzleSeeder {
       }
     );
     const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
+    const fastPath = new PuzzleSeedFastPath(sqlClient, {
+      timers: this.#io.timers,
+      log,
+    });
     try {
-      const managed = await applySessionTuning(sqlClient, log);
+      const managed = await fastPath.applySessionTuning();
       const profile = resolveSeedProfile({ cli, managed });
       reporter.phase('Seed profile resolved', {
         profile: formatProfileLabel(cli, profile),
@@ -534,7 +530,7 @@ export class ChessPuzzleSeeder {
         return;
       }
       if (profile.deferIndexes) {
-        await dropPuzzleSnapshotIndexes({ db: sqlClient, log });
+        await new PuzzleSnapshotIndexDeferral(sqlClient, log).dropIndexes();
       }
       await this.#runSeedInner({
         cli,
@@ -543,6 +539,7 @@ export class ChessPuzzleSeeder {
         reporter,
         log,
         db: sqlClient,
+        fastPath,
         prior,
       });
     } finally {

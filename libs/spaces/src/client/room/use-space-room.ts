@@ -15,7 +15,7 @@ import type {
 import { RoomMetaAttr, useRoomSnapshot } from '@pkgs/room';
 import { useCreateId } from '@pkgs/uuid';
 import { useMemo } from 'react';
-import { getOrCreateSpaceClientId } from './space-open-session-store';
+import { SpaceOpenSessionStore } from './space-open-session-store';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceRoomConnection } from './use-space-room-connection';
@@ -45,7 +45,9 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const getFreshToken = useGetFreshAuthToken();
   const createId = useCreateId();
   const clientId =
-    spaceId.length > 0 ? getOrCreateSpaceClientId(spaceId, createId) : '';
+    spaceId.length > 0
+      ? new SpaceOpenSessionStore(createId).getOrCreate(spaceId)
+      : '';
 
   // Lifetime is owned by SpaceOpenRoomSlot (open-session row). Do not gate on
   // presence/paintReady — those flap and were destroying the single WS.

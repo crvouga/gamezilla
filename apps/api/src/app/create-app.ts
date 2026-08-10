@@ -3,9 +3,9 @@ import { createAuthApiRoutes } from '@libs/auth/server/auth-routes';
 import type { AuthContext } from '@libs/auth/server/types';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
-import { createClientConfigApp } from '@libs/client-config/server/route';
+import { ClientConfigApp } from '@libs/client-config/server/route';
 import { createFriendsApp } from '@libs/friends/server/friends-routes';
-import { createStripeApp } from '@libs/stripe/stripe-app';
+import { StripeApp } from '@libs/stripe/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
@@ -142,14 +142,14 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
 }
 
 function createStripeSubApp(stripe: Stripe | null) {
-  return createStripeApp({
-    getSqlClient: () => {
+  return new StripeApp(
+    () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe: request store missing');
       return s.sqlClient;
     },
     stripe,
-    requireAuth: async (_sql, req) => {
+    async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'stripe auth: request store missing');
       const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
@@ -160,8 +160,8 @@ function createStripeSubApp(stripe: Stripe | null) {
         );
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
-    },
-  });
+    }
+  ).build();
 }
 
 /**
@@ -221,11 +221,11 @@ export async function createApiApp(config: ApiHandlerConfig) {
     )
     .route(
       '/',
-      createClientConfigApp(log, {
+      new ClientConfigApp(log, {
         onConfigUpdated: () =>
           notifyClientConfigChannels('client-config-refresh'),
         googleWebClientId: betterAuth.googleClientId,
-      })
+      }).build()
     )
     .route('/', createFriendsApp())
     .route(

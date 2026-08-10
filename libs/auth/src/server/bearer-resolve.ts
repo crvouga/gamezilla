@@ -7,8 +7,8 @@ import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
-import { ensureInternalAccountIdForExternalUser } from './account-provisioning';
-import { findUserIdByDeviceId } from './anon-user-ensure';
+import { AccountProvisioningService } from './account-provisioning';
+import { AnonUserService } from './anon-user-service';
 
 const ACCOUNT_CACHE_TTL_MS = 60_000;
 const ACCOUNT_CACHE_MAX = 128;
@@ -46,64 +46,63 @@ function writeCachedAccountId(
 
 /**
  * Validates the bearer token via the auth server port and resolves the internal
- * account id, or `null` if verification fails.
- *
- * When the device is bound to an anon user and this external identity is new,
- * that anon row is upgraded in place.
- *
- * JWT verification always runs; only the device/account SQL lookup is cached
- * briefly (remote Postgres was ~800ms per mutations/query request).
+ * account id. JWT verification always runs; only the device/account SQL lookup
+ * is cached briefly.
  */
-export async function resolveAccountIdFromBearer(args: {
-  sql: SqlClient;
-  authServer: AuthServerPort;
-  bearerToken: string;
-  deviceId: string;
-  now: () => number;
-  createId: CreateId;
-}): Promise<string | null> {
-  const { sql, authServer, bearerToken, deviceId, now, createId } = args;
-  assertUuid(deviceId, 'deviceId must be a valid UUID');
-  const trimmed = bearerToken.trim();
-  if (trimmed.length === 0) return null;
+export class BearerAuthResolver {
+  constructor(
+    private readonly sql: SqlClient,
+    private readonly authServer: AuthServerPort,
+    private readonly now: () => number,
+    private readonly createId: CreateId
+  ) {}
 
-  const session = await authServer.verifySessionToken(trimmed);
-  if (session === null) return null;
+  async resolveAccountId(
+    bearerToken: string,
+    deviceId: string
+  ): Promise<string | null> {
+    assertUuid(deviceId, 'deviceId must be a valid UUID');
+    const trimmed = bearerToken.trim();
+    if (trimmed.length === 0) return null;
 
-  const cacheKey = accountCacheKey(deviceId, session.externalUserId);
-  const cached = readCachedAccountId(cacheKey, now);
-  if (cached !== null) return cached;
+    const session = await this.authServer.verifySessionToken(trimmed);
+    if (session === null) return null;
 
-  const upgradeUserId = await findUserIdByDeviceId(sql, deviceId);
+    const cacheKey = accountCacheKey(deviceId, session.externalUserId);
+    const cached = readCachedAccountId(cacheKey, this.now);
+    if (cached !== null) return cached;
 
-  const accountId = await ensureInternalAccountIdForExternalUser({
-    sql,
-    authServer,
-    externalUserId: session.externalUserId,
-    upgradeUserId,
-    now,
-    createId,
-  });
-  if (accountId !== null) writeCachedAccountId(cacheKey, accountId, now);
-  return accountId;
-}
+    const upgradeUserId = await new AnonUserService(
+      this.sql
+    ).findUserIdByDeviceId(deviceId);
 
-export async function buildAppAuthContextFromBearer(args: {
-  sql: SqlClient;
-  authServer: AuthServerPort;
-  bearerToken: string;
-  deviceId: string;
-  now: () => number;
-  createId: CreateId;
-}): Promise<AppAuthContext | null> {
-  const { deviceId } = args;
-  const accountId = await resolveAccountIdFromBearer(args);
-  if (accountId === null) return null;
-  assertDeviceId(deviceId);
-  return buildAppAuthContext({
-    deviceId,
-    accountId,
-    myId: accountId,
-    isAnon: false,
-  });
+    const accountId = await new AccountProvisioningService(
+      this.sql,
+      this.authServer
+    ).ensureInternalAccountIdForExternalUser({
+      externalUserId: session.externalUserId,
+      upgradeUserId,
+      now: this.now,
+      createId: this.createId,
+    });
+    if (accountId !== null) {
+      writeCachedAccountId(cacheKey, accountId, this.now);
+    }
+    return accountId;
+  }
+
+  async buildAppAuthContext(
+    bearerToken: string,
+    deviceId: string
+  ): Promise<AppAuthContext | null> {
+    const accountId = await this.resolveAccountId(bearerToken, deviceId);
+    if (accountId === null) return null;
+    assertDeviceId(deviceId);
+    return buildAppAuthContext({
+      deviceId,
+      accountId,
+      myId: accountId,
+      isAnon: false,
+    });
+  }
 }

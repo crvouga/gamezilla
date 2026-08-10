@@ -65,15 +65,6 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
 
 const SEEDED_TABLES: readonly string[] = ['chess_puzzles'];
 
-export async function detectManagedPostgres(db: SqlClient): Promise<boolean> {
-  try {
-    await db.run(raw('CHECKPOINT'));
-    return false;
-  } catch {
-    return true;
-  }
-}
-
 const SESSION_TUNING_SELF_HOSTED: readonly string[] = [
   "SET synchronous_commit = 'off'",
   "SET maintenance_work_mem = '256MB'",
@@ -89,30 +80,6 @@ const SESSION_TUNING_MANAGED: readonly string[] = [
   'SET statement_timeout = 0',
   'SET idle_in_transaction_session_timeout = 0',
 ];
-
-export async function applySessionTuning(
-  db: SqlClient,
-  log: Logger
-): Promise<boolean> {
-  const managed = await detectManagedPostgres(db);
-  const stmts = managed ? SESSION_TUNING_MANAGED : SESSION_TUNING_SELF_HOSTED;
-  if (managed) {
-    log.info(
-      'seed:puzzles: managed Postgres detected (CHECKPOINT denied) — conservative session tuning'
-    );
-  }
-  for (const stmt of stmts) {
-    try {
-      await db.run(raw(stmt));
-    } catch (err) {
-      log.warn('seed:puzzles: session tuning failed (continuing)', {
-        stmt,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }
-  return managed;
-}
 
 export type SeedStats = {
   processed: number;
@@ -137,167 +104,210 @@ export function createSeedStats(
   };
 }
 
-export function sleep(ms: number, timers: Timers): Promise<void> {
-  if (ms <= 0) return Promise.resolve();
-  return new Promise((res) => timers.setTimeout(res, ms));
-}
-
 export type InsertPuzzleTableRowsIo = {
   readonly createId: CreateId;
   readonly now: Clock['now'];
 };
 
-/** Bulk insert puzzle rows; returns accepted row count (`ON CONFLICT DO NOTHING`). */
-export async function insertPuzzleTableRows(
-  db: SqlClient,
-  rows: readonly PuzzleTableRow[],
-  io: InsertPuzzleTableRowsIo
-): Promise<number> {
-  if (rows.length === 0) return 0;
-  const nowIso = new Date(io.now()).toISOString();
-  const insertRows: PuzzleInsertRow[] = rows.map((row) => ({
-    ...row,
-    created_at: nowIso,
-    updated_at: nowIso,
-  }));
-  let rowChanges = 0;
-  await db.transaction(async (tx) => {
-    const res = await tx.run(
-      insertPuzzlesBatchQuery(JSON.stringify(insertRows))
+type PuzzleSeedFastPathDeps = {
+  readonly timers: Timers;
+  readonly log: Logger;
+};
+
+export class PuzzleSeedFastPath {
+  constructor(
+    private readonly db: SqlClient,
+    private readonly deps?: PuzzleSeedFastPathDeps
+  ) {}
+
+  async detectManagedPostgres(): Promise<boolean> {
+    try {
+      await this.db.run(raw('CHECKPOINT'));
+      return false;
+    } catch {
+      return true;
+    }
+  }
+
+  async applySessionTuning(): Promise<boolean> {
+    const log = this.#requireLog();
+    const managed = await this.detectManagedPostgres();
+    const stmts = managed ? SESSION_TUNING_MANAGED : SESSION_TUNING_SELF_HOSTED;
+    if (managed) {
+      log.info(
+        'seed:puzzles: managed Postgres detected (CHECKPOINT denied) — conservative session tuning'
+      );
+    }
+    for (const stmt of stmts) {
+      try {
+        await this.db.run(raw(stmt));
+      } catch (err) {
+        log.warn('seed:puzzles: session tuning failed (continuing)', {
+          stmt,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+    return managed;
+  }
+
+  sleep(ms: number): Promise<void> {
+    if (ms <= 0) return Promise.resolve();
+    const timers = this.#requireTimers();
+    return new Promise((res) => timers.setTimeout(res, ms));
+  }
+
+  /** Bulk insert puzzle rows; returns accepted row count (`ON CONFLICT DO NOTHING`). */
+  async insertPuzzleTableRows(
+    rows: readonly PuzzleTableRow[],
+    io: InsertPuzzleTableRowsIo
+  ): Promise<number> {
+    if (rows.length === 0) return 0;
+    const nowIso = new Date(io.now()).toISOString();
+    const insertRows: PuzzleInsertRow[] = rows.map((row) => ({
+      ...row,
+      created_at: nowIso,
+      updated_at: nowIso,
+    }));
+    let rowChanges = 0;
+    await this.db.transaction(async (tx) => {
+      const res = await tx.run(
+        insertPuzzlesBatchQuery(JSON.stringify(insertRows))
+      );
+      rowChanges = res.changes;
+    });
+    return rowChanges;
+  }
+
+  async flushPuzzleBatchFast(args: {
+    reporter: PuzzleSeedReporter;
+    state: SeedStats;
+    createId: CreateId;
+    now: Clock['now'];
+  }): Promise<void> {
+    const { reporter, state, createId, now } = args;
+    if (state.batch.length === 0) return;
+    const chunkStart = now();
+    const rowChanges = await this.insertPuzzleTableRows(
+      state.batch.map((b) => b.row),
+      { createId, now }
     );
-    rowChanges = res.changes;
-  });
-  return rowChanges;
-}
-
-export async function flushPuzzleBatchFast(args: {
-  db: SqlClient;
-  reporter: PuzzleSeedReporter;
-  state: SeedStats;
-  createId: CreateId;
-  now: Clock['now'];
-}): Promise<void> {
-  const { db, reporter, state, createId, now } = args;
-  if (state.batch.length === 0) return;
-  const chunkStart = now();
-  const rowChanges = await insertPuzzleTableRows(
-    db,
-    state.batch.map((b) => b.row),
-    { createId, now }
-  );
-  state.rowsInserted += rowChanges;
-  state.batchesFlushed += 1;
-  state.batch.length = 0;
-  reporter.batchSummary('seed:puzzles: batch', {
-    processed: state.processed,
-    rowsInserted: state.rowsInserted,
-    batchRowsAccepted: rowChanges,
-    batchMs: Math.round(now() - chunkStart),
-    lastPuzzleId: state.lastPuzzleId,
-  });
-}
-
-async function tryRun(args: {
-  db: SqlClient;
-  log: Logger;
-  stmt: string;
-  message: string;
-  detail?: Record<string, unknown>;
-}): Promise<void> {
-  const { db, log, stmt, message, detail } = args;
-  try {
-    await db.run(raw(stmt));
-  } catch (err) {
-    log.warn(message, {
-      ...(detail ?? {}),
-      stmt,
-      error: err instanceof Error ? err.message : String(err),
+    state.rowsInserted += rowChanges;
+    state.batchesFlushed += 1;
+    state.batch.length = 0;
+    reporter.batchSummary('seed:puzzles: batch', {
+      processed: state.processed,
+      rowsInserted: state.rowsInserted,
+      batchRowsAccepted: rowChanges,
+      batchMs: Math.round(now() - chunkStart),
+      lastPuzzleId: state.lastPuzzleId,
     });
   }
-}
 
-export async function writeLoadProgressFast(args: {
-  db: SqlClient;
-  loadId: string;
-  sourceEtag: string;
-  cursor: string | null;
-  finishedAt: string | null;
-  createId: CreateId;
-  now: Clock['now'];
-}): Promise<void> {
-  const { db, loadId, sourceEtag, cursor, finishedAt, now } = args;
-  const nowIso = new Date(now()).toISOString();
-  await db.run(sql<void>`
-    INSERT INTO chess_puzzle_load (
-      id,
-      created_at,
-      updated_at,
-      source_etag,
-      cursor,
-      finished_at
-    )
-    VALUES (
-      ${loadId},
-      ${nowIso}::timestamptz,
-      ${nowIso}::timestamptz,
-      ${sourceEtag},
-      ${cursor},
-      ${finishedAt}
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      source_etag = excluded.source_etag,
-      cursor = excluded.cursor,
-      finished_at = excluded.finished_at,
-      updated_at = excluded.updated_at
-  `);
-}
-
-export async function runInterimMaintenance(args: {
-  db: SqlClient;
-  reporter: PuzzleSeedReporter;
-  log: Logger;
-  state: SeedStats;
-  deferIndexes: boolean;
-  checkpointEvery: number;
-}): Promise<void> {
-  const { db, reporter, log, state, deferIndexes, checkpointEvery } = args;
-  if (deferIndexes || checkpointEvery <= 0) return;
-  reporter.phase('Interim maintenance (CHECKPOINT + VACUUM ANALYZE)', {
-    batchesFlushedSoFar: state.batchesFlushed,
-    processedSoFar: state.processed,
-  });
-  await tryRun({
-    db,
-    log,
-    stmt: 'CHECKPOINT',
-    message: 'seed:puzzles: CHECKPOINT skipped (insufficient privilege?)',
-  });
-  for (const table of SEEDED_TABLES) {
-    await tryRun({
-      db,
-      log,
-      stmt: `VACUUM (ANALYZE, INDEX_CLEANUP off) ${table}`,
-      message: 'seed:puzzles: interim VACUUM failed (continuing)',
-      detail: { table },
-    });
+  async writeLoadProgressFast(args: {
+    loadId: string;
+    sourceEtag: string;
+    cursor: string | null;
+    finishedAt: string | null;
+    createId: CreateId;
+    now: Clock['now'];
+  }): Promise<void> {
+    const { loadId, sourceEtag, cursor, finishedAt, now } = args;
+    const nowIso = new Date(now()).toISOString();
+    await this.db.run(sql<void>`
+      INSERT INTO chess_puzzle_load (
+        id,
+        created_at,
+        updated_at,
+        source_etag,
+        cursor,
+        finished_at
+      )
+      VALUES (
+        ${loadId},
+        ${nowIso}::timestamptz,
+        ${nowIso}::timestamptz,
+        ${sourceEtag},
+        ${cursor},
+        ${finishedAt}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        source_etag = excluded.source_etag,
+        cursor = excluded.cursor,
+        finished_at = excluded.finished_at,
+        updated_at = excluded.updated_at
+    `);
   }
-}
 
-export async function runFinalMaintenance(args: {
-  db: SqlClient;
-  reporter: PuzzleSeedReporter;
-  log: Logger;
-  rebuildIndexes: boolean;
-}): Promise<void> {
-  const { db, reporter, log } = args;
-  reporter.phase('Final maintenance (VACUUM ANALYZE)');
-  for (const table of SEEDED_TABLES) {
-    await tryRun({
-      db,
-      log,
-      stmt: `VACUUM (ANALYZE) ${table}`,
-      message: 'seed:puzzles: final VACUUM failed (continuing)',
-      detail: { table },
+  async runInterimMaintenance(args: {
+    reporter: PuzzleSeedReporter;
+    state: SeedStats;
+    deferIndexes: boolean;
+    checkpointEvery: number;
+  }): Promise<void> {
+    const { reporter, state, deferIndexes, checkpointEvery } = args;
+    if (deferIndexes || checkpointEvery <= 0) return;
+    reporter.phase('Interim maintenance (CHECKPOINT + VACUUM ANALYZE)', {
+      batchesFlushedSoFar: state.batchesFlushed,
+      processedSoFar: state.processed,
     });
+    await this.#tryRun({
+      stmt: 'CHECKPOINT',
+      message: 'seed:puzzles: CHECKPOINT skipped (insufficient privilege?)',
+    });
+    for (const table of SEEDED_TABLES) {
+      await this.#tryRun({
+        stmt: `VACUUM (ANALYZE, INDEX_CLEANUP off) ${table}`,
+        message: 'seed:puzzles: interim VACUUM failed (continuing)',
+        detail: { table },
+      });
+    }
+  }
+
+  async runFinalMaintenance(args: {
+    reporter: PuzzleSeedReporter;
+    rebuildIndexes: boolean;
+  }): Promise<void> {
+    const { reporter } = args;
+    reporter.phase('Final maintenance (VACUUM ANALYZE)');
+    for (const table of SEEDED_TABLES) {
+      await this.#tryRun({
+        stmt: `VACUUM (ANALYZE) ${table}`,
+        message: 'seed:puzzles: final VACUUM failed (continuing)',
+        detail: { table },
+      });
+    }
+  }
+
+  async #tryRun(args: {
+    stmt: string;
+    message: string;
+    detail?: Record<string, unknown>;
+  }): Promise<void> {
+    const log = this.#requireLog();
+    const { stmt, message, detail } = args;
+    try {
+      await this.db.run(raw(stmt));
+    } catch (err) {
+      log.warn(message, {
+        ...(detail ?? {}),
+        stmt,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  #requireTimers(): Timers {
+    if (this.deps === undefined) {
+      throw new Error('PuzzleSeedFastPath: timers dependency required');
+    }
+    return this.deps.timers;
+  }
+
+  #requireLog(): Logger {
+    if (this.deps === undefined) {
+      throw new Error('PuzzleSeedFastPath: log dependency required');
+    }
+    return this.deps.log;
   }
 }

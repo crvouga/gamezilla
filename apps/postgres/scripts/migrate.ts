@@ -3,7 +3,7 @@
  * Run definitive `@libs/db` Postgres migrations against the local embedded
  * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
  */
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
+import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
@@ -62,14 +62,14 @@ export async function runLocalMigrate(): Promise<void> {
     max: 1,
   });
   try {
-    await runPostgresMigrations({
+    await new PostgresMigrationRunner({
       sqlClient,
       pool,
       logger,
       dbScope,
       betterAuthSecret,
       betterAuthBaseURL: BETTER_AUTH_MIGRATE_BASE_URL,
-    });
+    }).run();
   } finally {
     await pool.end();
   }

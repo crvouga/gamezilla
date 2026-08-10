@@ -8,11 +8,8 @@ import {
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../canonical-pair';
-import {
-  friendshipExists as friendshipExistsSql,
-  softDeleteBlock,
-  softDeleteFriendship,
-} from '../friends-sql/friendship-block-sql';
+import { FriendshipRepository } from '../friends-sql/friendship-repository';
+import { UserBlockRepository } from '../friends-sql/user-block-repository';
 import { pairId } from '../pair-id';
 import {
   FRIEND_REQUEST_RESEND_COOLDOWN_MS,
@@ -98,7 +95,7 @@ async function friendshipExists(
   userA: string,
   userB: string
 ): Promise<boolean> {
-  return friendshipExistsSql(tx, userA, userB);
+  return new FriendshipRepository(tx).exists(userA, userB);
 }
 
 async function requireRequestParty(
@@ -355,7 +352,11 @@ export const removeFriendMutation = defineMutation({
     if (!(await friendshipExists(tx, actor, userId))) {
       throw new MutationError(FRIENDS_NOT_FOUND, 'Friendship not found.');
     }
-    await softDeleteFriendship(tx, actor, userId, env.now().toISOString());
+    await new FriendshipRepository(tx).softDelete(
+      actor,
+      userId,
+      env.now().toISOString()
+    );
   },
 });
 
@@ -365,7 +366,7 @@ export const blockUserMutation = defineMutation({
   async run({ tx, env }, { userId, blockId }) {
     const actor = otherUserId(env, userId, 'block');
     const now = env.now().toISOString();
-    await softDeleteFriendship(tx, actor, userId, now);
+    await new FriendshipRepository(tx).softDelete(actor, userId, now);
     await cancelPendingRequests(tx, actor, userId, now);
     await tx.run(sql`
       INSERT INTO user_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
@@ -382,7 +383,11 @@ export const unblockUserMutation = defineMutation({
   args: userIdArgs,
   async run({ tx, env }, { userId }) {
     const actor = otherUserId(env, userId, 'unblock');
-    await softDeleteBlock(tx, actor, userId, env.now().toISOString());
+    await new UserBlockRepository(tx).softDelete(
+      actor,
+      userId,
+      env.now().toISOString()
+    );
   },
 });
 

@@ -23,11 +23,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
-import {
-  clearSignInPending,
-  markSignInPending,
-  resolveSignInReturnHref,
-} from './sign-in-pending';
+import { resolveSignInReturnHref, SignInPendingStore } from './sign-in-pending';
 
 export type SignInPhase = 'idle' | 'loading' | 'success' | 'error';
 
@@ -84,7 +80,7 @@ function useResumePendingEffect(args: {
     if (!resumePending || startInFlightRef.current) return;
     const timer = timers.setTimeout(() => {
       if (startInFlightRef.current) return;
-      void clearSignInPending(store);
+      void new SignInPendingStore(store).clear();
       setAwaitingCallback(false);
       setError(new Error('Sign-in timed out. Please try again.'));
       setPhase('error');
@@ -121,7 +117,7 @@ function resolveSignInOutcome(args: {
   const err = authSessionError(authState);
   if (err !== null) {
     setAwaitingCallback(false);
-    void clearSignInPending(store);
+    void new SignInPendingStore(store).clear();
     onError?.(err);
     setError(err);
     setPhase('error');
@@ -131,7 +127,7 @@ function resolveSignInOutcome(args: {
   // OAuth did not establish a session (cancel / handoff race). Do not hang.
   if (!authState.isHydrated) return;
   setAwaitingCallback(false);
-  void clearSignInPending(store);
+  void new SignInPendingStore(store).clear();
   setError(null);
   setPhase('error');
 }
@@ -226,13 +222,13 @@ function useSignInStart(args: {
       startInFlightRef.current = true;
       const returnHref = resolveSignInReturnHref(pathname);
       try {
-        await markSignInPending(store, now, {
+        await new SignInPendingStore(store).mark(now, {
           ...(returnHref !== undefined ? { returnHref } : {}),
         });
         await runner();
       } catch (e) {
         startInFlightRef.current = false;
-        await clearSignInPending(store);
+        await new SignInPendingStore(store).clear();
         const err = e instanceof Error ? e : new Error(String(e));
         onError?.(err);
         setError(err);
@@ -314,7 +310,7 @@ export function useSignInModalLifecycle({
   }, [startInFlightRef]);
 
   const dismiss = useCallback(() => {
-    void clearSignInPending(store);
+    void new SignInPendingStore(store).clear();
     reset();
   }, [store, reset]);
 

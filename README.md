@@ -4,6 +4,8 @@
 
 <!-- TODO: update architecture diagram -->
 
+**Dependency injection:** product `libs/` code uses constructor-injected classes for `SqlClient`, `CreateId`, and other shared deps (not exported top-level DI functions). See [docs/dependency-injection.md](docs/dependency-injection.md). CI: `bun run ci:no-top-level-di-functions`.
+
 ## Security (local data)
 
 Local SQLite databases on the Expo client are **not encrypted at rest** (Expo Go cannot ship SQLCipher). Account data is **logically isolated** by using a **separate SQLite file per `users.id`** (`user_<shortId>`), so normal app code and typical query bugs cannot read another user’s rows while a different file is open. **Do not store on-device secrets or highly sensitive data** that would be unacceptable if a device is lost or compromised with filesystem access.

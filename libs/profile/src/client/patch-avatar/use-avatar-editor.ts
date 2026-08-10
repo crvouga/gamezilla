@@ -6,9 +6,9 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AvatarConfig } from '../../shared/avatar-config';
 import {
+  AvatarSeedGenerator,
   configsEqual,
   createDefaultAvatarConfig,
-  generateRandomAvatarSeed,
   parseAvatarConfig,
   resolveAvatarSeed,
   serializeAvatarConfig,
@@ -155,7 +155,10 @@ function useDraftMutators(args: {
     [setDraft]
   );
   const shuffleSeed = useCallback(() => {
-    setDraft((d) => ({ ...d, seed: generateRandomAvatarSeed(random) }));
+    setDraft((d) => ({
+      ...d,
+      seed: new AvatarSeedGenerator(random).generate(),
+    }));
   }, [random, setDraft]);
   const setSeed = useCallback(
     (seed: string) => {

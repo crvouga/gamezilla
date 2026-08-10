@@ -7,7 +7,7 @@
  * directly (apps must not import other `@apps/*` packages).
  */
 import { join } from 'node:path';
-import { runPostgresMigrations } from '@libs/db/server/run-postgres-migrations';
+import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -166,14 +166,14 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
   });
   const log = createLogger({ name: 'api:db:migrate', now });
   try {
-    await runPostgresMigrations({
+    await new PostgresMigrationRunner({
       sqlClient,
       pool,
       logger: log,
       dbScope,
       betterAuthSecret,
       betterAuthBaseURL,
-    });
+    }).run();
     log.info(
       'postgres migrations finished (schema + kv + Better Auth; matchmaking self-migrates on first request)'
     );
