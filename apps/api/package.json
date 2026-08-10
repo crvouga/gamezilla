@@ -11,9 +11,11 @@
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
+    "db:migrate": "bun run src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
+    "migrate": "bun run src/db/migrate-cli.ts --wait",
     "preview": "bun run scripts/preview.ts",
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
