@@ -56,28 +56,7 @@ export async function openMainSqlClient(
   timers: Timers
 ): Promise<SqlClient> {
   const databaseName = getMainSqliteDbName(userId, createId);
-  // #region agent log
-  let lockSnapshot: unknown = null;
-  try {
-    if (typeof navigator !== 'undefined' && navigator.locks?.query !== undefined) {
-      lockSnapshot = await navigator.locks.query();
-    }
-  } catch {
-    lockSnapshot = { queryFailed: true };
-  }
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'A',location:'open-main-sql-client.ts:before-lock',message:'openMainSqlClient before lock',data:{userIdLen:userId.length,databaseName,lockSnapshot},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-  try {
-    await tryAcquireExpoSqliteWebSessionLock();
-  } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'A',location:'open-main-sql-client.ts:lock-fail',message:'lock acquire failed',data:{databaseName,errorName:error instanceof Error?error.name:typeof error},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-    throw error;
-  }
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'pre-fix',hypothesisId:'A',location:'open-main-sql-client.ts:after-lock',message:'lock acquired, opening sqlite',data:{databaseName},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
+  await tryAcquireExpoSqliteWebSessionLock();
   const client = await SqlClientImplExpoSqlite.open(databaseName, timers);
   await client.connect();
   return client;

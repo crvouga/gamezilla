@@ -148,9 +148,6 @@ export async function createAppLocalSyncEngine(
     userId: args.userId,
   });
   const emqxUrlHolder = emqxUrlHolderFor(args.databaseName);
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'post-fix',hypothesisId:'F',location:'create-local-sync-engine.ts:before-migrate-engine',message:'creating engine (migrate runs inside; EMQX URL read after)',data:{databaseName:args.databaseName},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   const engine = await createLocalSyncEngine({
     db,
@@ -174,12 +171,6 @@ export async function createAppLocalSyncEngine(
     ...pushOptions(args, pushCtx, emqxUrlHolder),
   });
 
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'post-fix',hypothesisId:'F',location:'create-local-sync-engine.ts:after-migrate-before-emqx-read',message:'migrate done; reading emqx url',data:{databaseName:args.databaseName},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
-  // #region agent log
-  fetch('http://127.0.0.1:7505/ingest/04ddb12b-5950-419d-86ab-fa995e703320',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c9554b'},body:JSON.stringify({sessionId:'c9554b',runId:'post-fix',hypothesisId:'F',location:'create-local-sync-engine.ts:after-emqx-read',message:'emqx url read ok',data:{databaseName:args.databaseName,hasUrl:emqxUrlHolder.url!==null&&emqxUrlHolder.url.length>0},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   return engine;
 }

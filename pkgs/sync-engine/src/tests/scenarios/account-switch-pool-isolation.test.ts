@@ -64,6 +64,51 @@ describe('account switch pool isolation', () => {
     await expectLiveNote(acctA.db, 'b-only', { body: 'from-b' });
   });
 
+  test('concurrent getOrCreate for different identities does not overlap create', async () => {
+    await using world = await openSimWorld({
+      domain: notesDomainPack,
+      seed: 960,
+      rowImageFanout: false,
+    });
+    const acctA = await world.addClient({
+      id: 'device-a-race',
+      actorId: 'user-a-race',
+    });
+    const acctB = await world.addClient({
+      id: 'device-b-race',
+      actorId: 'user-b-race',
+    });
+    const pool = createSyncEnginePool({
+      globalKey: `sim-account-pool-race-${world.seed.toString(16)}`,
+    });
+
+    let overlappingCreates = 0;
+    let inFlightCreates = 0;
+    const slowCreate = async (
+      getEngine: () => ReturnType<typeof acctA.getSyncEngine>
+    ) => {
+      inFlightCreates += 1;
+      if (inFlightCreates > 1) overlappingCreates += 1;
+      await world.runFor(50);
+      inFlightCreates -= 1;
+      return getEngine();
+    };
+
+    const [engA, engB] = await Promise.all([
+      pool.getOrCreate('user-a-race', () =>
+        slowCreate(() => acctA.getSyncEngine())
+      ),
+      pool.getOrCreate('user-b-race', () =>
+        slowCreate(() => acctB.getSyncEngine())
+      ),
+    ]);
+
+    expect(overlappingCreates).toBe(0);
+    expect(engA).toBe(acctA.getSyncEngine());
+    expect(engB).toBe(acctB.getSyncEngine());
+    expect(acctA.connection()).toBe('disconnected');
+  });
+
   test.each([951, 952, 953])(
     'seed sweep dual-client pool stand-in isolates pending (seed=%i)',
     async (seed) => {
