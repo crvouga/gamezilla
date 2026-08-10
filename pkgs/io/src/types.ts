@@ -12,6 +12,6 @@ export type Io = {
   readonly createId: CreateId;
   readonly random: Random;
   readonly http: HttpClient;
-  /** Process / simulation seed (wallIo mints once at construction). */
+  /** Process / simulation seed (wallIo mints once on first access). */
   readonly seed: bigint;
 };

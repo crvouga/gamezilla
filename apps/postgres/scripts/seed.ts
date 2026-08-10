@@ -23,7 +23,10 @@ export async function runLocalSeed(): Promise<void> {
   });
   try {
     const databaseSeeder = new ComposedDatabaseSeeder().register(
-      new ChessPuzzleLoadFileSeeder()
+      new ChessPuzzleLoadFileSeeder({
+        createId: io.createId,
+        now: io.clock.now,
+      })
     );
     await databaseSeeder.seed({ sqlClient, logger });
   } finally {

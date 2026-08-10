@@ -2,7 +2,9 @@
  * Seeds `chess_puzzles` from the committed CSV load file (local sidecar boot).
  */
 import { readFile } from 'node:fs/promises';
+import type { Clock } from '@pkgs/clock';
 import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate';
+import type { CreateId } from '@pkgs/uuid';
 import { parse } from 'csv-parse/sync';
 import { insertPuzzleTableRows } from './fast-path';
 import { resolveChessPuzzlesLoadFilePath } from './load-file';
@@ -12,6 +14,8 @@ const BATCH_SIZE = 250;
 
 export type ChessPuzzleLoadFileSeederArgs = {
   readonly loadFilePath?: string;
+  readonly createId: CreateId;
+  readonly now: Clock['now'];
 };
 
 function readNonNegativeInt(raw: unknown): number {
@@ -67,9 +71,13 @@ function csvRecordToPuzzleTableRow(
 
 export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
   readonly #loadFilePath: string;
+  readonly #createId: CreateId;
+  readonly #now: Clock['now'];
 
-  constructor(args: ChessPuzzleLoadFileSeederArgs = {}) {
+  constructor(args: ChessPuzzleLoadFileSeederArgs) {
     this.#loadFilePath = args.loadFilePath ?? resolveChessPuzzlesLoadFilePath();
+    this.#createId = args.createId;
+    this.#now = args.now;
   }
 
   async seed(ctx: DatabaseSeederContext): Promise<void> {
@@ -91,7 +99,10 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
     let inserted = 0;
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
       const batch = rows.slice(i, i + BATCH_SIZE);
-      inserted += await insertPuzzleTableRows(sqlClient, batch);
+      inserted += await insertPuzzleTableRows(sqlClient, batch, {
+        createId: this.#createId,
+        now: this.#now,
+      });
     }
 
     logger.info('chess-puzzle-load-file: seed complete', {

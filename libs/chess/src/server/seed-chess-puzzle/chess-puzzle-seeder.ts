@@ -50,7 +50,6 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
-import { join } from 'node:path';
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -65,6 +64,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { join } from 'node:path';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import { dropPuzzleSnapshotIndexes } from './defer-indexes';
@@ -87,8 +87,8 @@ import { createPuzzleSeedReporter, type PuzzleSeedReporter } from './reporter';
 import { rowToPuzzleBatchEntry } from './row';
 import {
   ensureCachedArchive,
-  type IteratePuzzleRowsOptions,
   iteratePuzzleRows,
+  type IteratePuzzleRowsOptions,
   type ResolvedSource,
 } from './streaming';
 
@@ -233,6 +233,8 @@ export class ChessPuzzleSeeder {
       sourceEtag,
       cursor: state.lastPuzzleId,
       finishedAt: null,
+      createId: this.#io.createId,
+      now: this.#io.clock.now,
     });
   }
 
@@ -316,6 +318,7 @@ export class ChessPuzzleSeeder {
       db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
+      createId: this.#io.createId,
       now: this.#io.clock.now,
     });
     if (
@@ -387,6 +390,7 @@ export class ChessPuzzleSeeder {
       db: ctx.db,
       reporter: ctx.reporter,
       state: rowState.state,
+      createId: this.#io.createId,
       now: this.#io.clock.now,
     });
     await this.#persistResumeCursor({
@@ -463,6 +467,8 @@ export class ChessPuzzleSeeder {
       sourceEtag: resolved.etag,
       cursor: stats.lastPuzzleId,
       finishedAt: new Date(this.#io.clock.now()).toISOString(),
+      createId: this.#io.createId,
+      now: this.#io.clock.now,
     });
     await runFinalMaintenance({
       db,

@@ -6,12 +6,22 @@ import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry, PuzzleTableRow } from './row';
+
+type PuzzleInsertRow = PuzzleTableRow & {
+  readonly _id: string;
+  readonly _created_at: string;
+  readonly _updated_at: string;
+};
 
 function insertPuzzlesBatchQuery(insertRowsJson: string) {
   return sql<void>`
     INSERT INTO chess_puzzles (
+      _id,
+      _created_at,
+      _updated_at,
       id,
       fen,
       moves,
@@ -24,6 +34,9 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
       opening_tags
     )
     SELECT
+      _id::uuid,
+      _created_at::timestamptz,
+      _updated_at::timestamptz,
       id,
       fen,
       moves,
@@ -36,6 +49,9 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
       opening_tags::jsonb
     FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb)
       AS batch_rows(
+        _id text,
+        _created_at text,
+        _updated_at text,
         id text,
         fen text,
         moves text,
@@ -130,19 +146,30 @@ export function sleep(ms: number, timers: Timers): Promise<void> {
   return new Promise((res) => timers.setTimeout(res, ms));
 }
 
-function buildInsertRows(state: SeedStats): readonly PuzzleTableRow[] {
-  return state.batch.map((b) => b.row);
-}
+export type InsertPuzzleTableRowsIo = {
+  readonly createId: CreateId;
+  readonly now: Clock['now'];
+};
 
 /** Bulk insert puzzle rows; returns accepted row count (`ON CONFLICT DO NOTHING`). */
 export async function insertPuzzleTableRows(
   db: SqlClient,
-  rows: readonly PuzzleTableRow[]
+  rows: readonly PuzzleTableRow[],
+  io: InsertPuzzleTableRowsIo
 ): Promise<number> {
   if (rows.length === 0) return 0;
+  const nowIso = new Date(io.now()).toISOString();
+  const insertRows: PuzzleInsertRow[] = rows.map((row) => ({
+    ...row,
+    _id: io.createId(),
+    _created_at: nowIso,
+    _updated_at: nowIso,
+  }));
   let rowChanges = 0;
   await db.transaction(async (tx) => {
-    const res = await tx.run(insertPuzzlesBatchQuery(JSON.stringify(rows)));
+    const res = await tx.run(
+      insertPuzzlesBatchQuery(JSON.stringify(insertRows))
+    );
     rowChanges = res.changes;
   });
   return rowChanges;
@@ -152,13 +179,17 @@ export async function flushPuzzleBatchFast(args: {
   db: SqlClient;
   reporter: PuzzleSeedReporter;
   state: SeedStats;
+  createId: CreateId;
   now: Clock['now'];
 }): Promise<void> {
-  const { db, reporter, state, now } = args;
+  const { db, reporter, state, createId, now } = args;
   if (state.batch.length === 0) return;
   const chunkStart = now();
-  const insertRows = buildInsertRows(state);
-  const rowChanges = await insertPuzzleTableRows(db, insertRows);
+  const rowChanges = await insertPuzzleTableRows(
+    db,
+    state.batch.map((b) => b.row),
+    { createId, now }
+  );
   state.rowsInserted += rowChanges;
   state.batchesFlushed += 1;
   state.batch.length = 0;
@@ -196,15 +227,35 @@ export async function writeLoadProgressFast(args: {
   sourceEtag: string;
   cursor: string | null;
   finishedAt: string | null;
+  createId: CreateId;
+  now: Clock['now'];
 }): Promise<void> {
-  const { db, loadId, sourceEtag, cursor, finishedAt } = args;
+  const { db, loadId, sourceEtag, cursor, finishedAt, createId, now } = args;
+  const nowIso = new Date(now()).toISOString();
   await db.run(sql<void>`
-    INSERT INTO chess_puzzle_load (id, source_etag, cursor, finished_at)
-    VALUES (${loadId}, ${sourceEtag}, ${cursor}, ${finishedAt})
+    INSERT INTO chess_puzzle_load (
+      _id,
+      _created_at,
+      _updated_at,
+      id,
+      source_etag,
+      cursor,
+      finished_at
+    )
+    VALUES (
+      ${createId()}::uuid,
+      ${nowIso}::timestamptz,
+      ${nowIso}::timestamptz,
+      ${loadId},
+      ${sourceEtag},
+      ${cursor},
+      ${finishedAt}
+    )
     ON CONFLICT (id) DO UPDATE SET
       source_etag = excluded.source_etag,
       cursor = excluded.cursor,
-      finished_at = excluded.finished_at
+      finished_at = excluded.finished_at,
+      _updated_at = excluded._updated_at
   `);
 }
 
