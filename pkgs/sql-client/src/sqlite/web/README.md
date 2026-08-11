@@ -66,8 +66,20 @@ Flattened (`fn(tx)`), matching Expo / node-pg session clients — no `SAVEPOINT`
 Open never auto-deletes OPFS. Use explicit `resetDatabase()` (owner RPC), the
 boot-screen “Reset local data” CTA, `?reset-db=1`, or
 `runWebOpfsRecoveryAndReload({ timers })` from `@pkgs/sql-client/sqlite/web`.
-Recovery asks peer tabs to disconnect, force-releases SharedWorker owners,
-wipes OPFS with retries, then reloads — there is no public reset HTML page.
+
+Chrome keeps AccessHandlePoolVFS `FileSystemSyncAccessHandle`s open until the
+document that loaded expo-sqlite is torn down — `closeAsync` alone is not enough.
+Recovery therefore:
+
+1. App navigates to `/?opfs-wipe=1&return=…` (or `index.html` handles
+   `?reset-db=1` the same way) without waiting on auth / SQLite open.
+2. `index.html` replaces itself with a wipe shell + `/sql-workers/opfs-wipe-boot.js`
+   so Expo never mounts (needed when SW/Cursor cannot navigate to a separate HTML).
+3. Boot script broadcasts `prepare-wipe`; peers park on `/?opfs-wipe=park`.
+4. Force-release SharedWorker owners, delete OPFS, broadcast `wipe-done`, return.
+
+This is infrastructure, not a product confirm screen — the boot CTA /
+`?reset-db=1` still own the user-facing entry.
 
 ## Migration (`open-main-sql-client.ts`)
 

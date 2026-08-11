@@ -98,17 +98,30 @@ function createBypassClient(owner: ExpoSqliteClient): SqlClient {
 async function recoverOwnerOpfsPool(
   databaseName: string,
   timers: Timers,
-  _cause: unknown
+  cause: unknown
 ): Promise<never> {
-  const SQLite = await import('expo-sqlite');
+  const { WEB_OPFS_RECOVERY_RELOAD_KEY } = await import('../expo-sqlite-core');
   const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
+  const causeMessage = cause instanceof Error ? cause.message : String(cause);
+  // One automatic wipe per tab session — looping wipe↔open freezes the app
+  // (seen in Cursor's browser and when open keeps failing after an empty wipe).
   try {
-    await SQLite.deleteDatabaseAsync(databaseName);
-  } catch {
-    // may not exist
+    if (sessionStorage.getItem(WEB_OPFS_RECOVERY_RELOAD_KEY) === '1') {
+      const err = new Error(
+        `SQLite could not open "${databaseName}" after OPFS pool recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
+      );
+      publishExpoSqliteWebFatalError(err);
+      throw err;
+    }
+    sessionStorage.setItem(WEB_OPFS_RECOVERY_RELOAD_KEY, '1');
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes('after OPFS pool')) {
+      throw error;
+    }
+    // sessionStorage may be unavailable
   }
-  // Always use the full peer/broker release + wipe retries path. Soft
-  // main-thread wipe races other tabs holding AccessHandlePoolVFS handles.
+  // Do not call deleteDatabaseAsync here on web — it can hang forever when the
+  // AccessHandlePoolVFS worker is wedged; the wipe document clears OPFS.
   try {
     await runWebOpfsRecoveryAndReload({ timers });
   } catch (error: unknown) {
@@ -133,6 +146,19 @@ async function openExpoSqliteForOwner(
   const opts = useNewConnection ? { useNewConnection: true } : {};
   const db = await SQLite.openDatabaseAsync(databaseName, opts);
   return new SqlClientImplExpoSqlite(db);
+}
+
+async function openOwnerClient(args: {
+  readonly databaseName: string;
+  readonly timers: Timers;
+}): Promise<ExpoSqliteClient> {
+  return await openWithWaitRetry({
+    databaseName: args.databaseName,
+    timers: args.timers,
+    // Never useNewConnection on owner retries — extra handles worsen
+    // AccessHandlePoolVFS capacity exhaustion.
+    openOnce: () => openExpoSqliteForOwner(args.databaseName, false),
+  });
 }
 
 class OwnerRuntimeImpl implements OwnerRuntime {
@@ -201,12 +227,9 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     if (this.openPromise === null) {
       this.openPromise = (async () => {
         try {
-          this.client = await openWithWaitRetry({
+          this.client = await openOwnerClient({
             databaseName: this.dbName,
             timers: this.timers,
-            // Never useNewConnection on owner retries — extra handles worsen
-            // AccessHandlePoolVFS capacity exhaustion.
-            openOnce: () => openExpoSqliteForOwner(this.dbName, false),
           });
         } catch (error: unknown) {
           this.openPromise = null;

@@ -4,9 +4,12 @@ export {
   type ExpoWebSqlClientOptions,
 } from './impl-expo-web-client';
 export {
+  buildWebOpfsWipePageUrl,
   consumeResetDbQueryParamAndRecover,
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
+  DEFAULT_OPFS_WIPE_PAGE_URL,
   forceReleaseSharedWorkerOwners,
+  OPFS_WIPE_INITIATOR_SESSION_KEY,
   OPFS_WIPE_RETRY_MS,
   prepareWipePeers,
   RESET_DB_QUERY_PARAM,

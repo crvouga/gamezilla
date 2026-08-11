@@ -17,7 +17,8 @@ const { count, size, warnings } = await generateSW({
     '**/*.{html,js,css,wasm,ttf,woff2,png,jpg,jpeg,svg,ico,webmanifest,json}',
   ],
   navigateFallback: '/index.html',
-  navigateFallbackDenylist: [/^\/api\//],
+  // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
+  navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],
   runtimeCaching: [
     {
       urlPattern: /^\/api\//,

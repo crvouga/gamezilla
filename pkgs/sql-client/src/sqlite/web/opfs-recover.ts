@@ -2,6 +2,8 @@ import type { Timers } from '@pkgs/clock';
 import type { ClearExpoSqliteWebOpfsResult } from '../clear-expo-sqlite-web-opfs';
 import { sleepMs, WEB_OPFS_RECOVERY_RELOAD_KEY } from '../expo-sqlite-core';
 import {
+  buildWebOpfsWipePageUrl,
+  OPFS_WIPE_INITIATOR_SESSION_KEY,
   RESET_DB_QUERY_PARAM,
   sanitizeWebOpfsReturnTo,
 } from './opfs-recover-url';
@@ -17,6 +19,9 @@ async function defaultWipeOpfs(): Promise<ClearExpoSqliteWebOpfsResult> {
 }
 
 export {
+  buildWebOpfsWipePageUrl,
+  DEFAULT_OPFS_WIPE_PAGE_URL,
+  OPFS_WIPE_INITIATOR_SESSION_KEY,
   RESET_DB_QUERY_PARAM,
   sanitizeWebOpfsReturnTo,
 } from './opfs-recover-url';
@@ -30,8 +35,11 @@ export const OPFS_WIPE_RETRY_MS = [
   0, 500, 1000, 2000, 3000, 5000, 8000,
 ] as const;
 
-const PREPARE_WIPE_WAIT_MS = 2000;
-const FORCE_RELEASE_WAIT_MS = 1500;
+const PREPARE_WIPE_WAIT_MS = 3000;
+/** Must exceed broker FORCE_RELEASE_OWNER_WAIT_MS so owners can closeAsync. */
+const FORCE_RELEASE_WAIT_MS = 5_000;
+/** Extra settle after force-release before touching OPFS. */
+const POST_RELEASE_SETTLE_MS = 500;
 
 const nextWipeRequestId = createRpcIdFactory('wipe');
 
@@ -153,6 +161,9 @@ export async function wipeExpoSqliteOpfsWithRetries(
     }
     await prepareWipePeers(timers);
     await forceReleaseSharedWorkerOwners(timers, sharedWorkerUrl);
+    // AccessHandlePoolVFS sync handles are released asynchronously after
+    // closeAsync; wiping immediately races Chrome's dedicated worker teardown.
+    await sleepMs(timers, POST_RELEASE_SETTLE_MS);
     last = await wipeOpfs();
     if (last.ok) {
       return last;
@@ -183,30 +194,39 @@ function navigateAfterWipe(returnTo: string | undefined): void {
 }
 
 /**
- * Full web OPFS recovery: clear recovery flag, release peers/broker, wipe with
- * retries, notify peers, then reload / replace return URL. Never navigates to
- * a public reset HTML page. Resolves only if navigation is blocked (rare).
+ * Full web OPFS recovery: close local SQL (best-effort), then navigate to the
+ * same-origin wipe document. That document asks peers to park, force-releases
+ * SharedWorker owners, and deletes OPFS — Chrome keeps AccessHandlePoolVFS
+ * sync handles until the expo-sqlite document is torn down, so in-page wipe
+ * cannot succeed. Resolves only if navigation is blocked (rare).
  */
 export async function runWebOpfsRecoveryAndReload(
   opts: RunWebOpfsRecoveryOptions
 ): Promise<void> {
-  const {
-    timers,
-    returnTo,
-    closeLocal,
-    sharedWorkerUrl = DEFAULT_DB_HOST_SHARED_WORKER_URL,
-  } = opts;
+  const { returnTo, closeLocal } = opts;
 
-  clearWebOpfsRecoverySessionFlag();
+  // Keep WEB_OPFS_RECOVERY_RELOAD_KEY set (owner-runtime sets it) so a failed
+  // post-wipe open does not loop wipe↔boot forever. Clear only on explicit
+  // user reset-db / boot CTA via clear below when absent.
   try {
     sessionStorage.removeItem('main-sqlite-tab-id');
+    sessionStorage.setItem(OPFS_WIPE_INITIATOR_SESSION_KEY, '1');
+    if (sessionStorage.getItem(WEB_OPFS_RECOVERY_RELOAD_KEY) !== '1') {
+      sessionStorage.setItem(WEB_OPFS_RECOVERY_RELOAD_KEY, '1');
+    }
   } catch {
     // ignore
   }
 
   if (closeLocal !== undefined) {
+    // Never block wipe navigation on a hung expo-sqlite Dedicated Worker —
+    // closeAsync can queue forever behind a stuck open.
+    const CLOSE_LOCAL_BUDGET_MS = 1_500;
     try {
-      await closeLocal();
+      await Promise.race([
+        closeLocal(),
+        sleepMs(opts.timers, CLOSE_LOCAL_BUDGET_MS),
+      ]);
     } catch {
       // best-effort
     }
@@ -221,19 +241,17 @@ export async function runWebOpfsRecoveryAndReload(
     return;
   }
 
-  const result = await wipeExpoSqliteOpfsWithRetries(timers, sharedWorkerUrl);
-  if (!result.ok) {
-    const message =
-      result.error instanceof Error
-        ? result.error.message
-        : String(result.error);
-    throw new Error(
-      `Could not wipe OPFS (${message}). Close every other tab of this origin, then use Reset local data again (or reload with ?reset-db=1).`
-    );
-  }
+  // Prepare / force-release / wipe run on the clean document so we do not
+  // block the React boot path (which may still be waiting on auth).
+  const wipeUrl = buildWebOpfsWipePageUrl(
+    returnTo !== undefined ? { returnTo } : {}
+  );
 
-  broadcastWipeDone();
-  navigateAfterWipe(returnTo);
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.location.replace(wipeUrl);
+  await new Promise<void>(() => {});
 }
 
 /**
@@ -243,7 +261,8 @@ export async function runWebOpfsRecoveryAndReload(
  */
 export async function consumeResetDbQueryParamAndRecover(
   timers: Timers,
-  logLabel?: string
+  logLabel?: string,
+  closeLocal?: () => Promise<void>
 ): Promise<void> {
   if (typeof window === 'undefined') {
     return;
@@ -252,6 +271,7 @@ export async function consumeResetDbQueryParamAndRecover(
   if (url.searchParams.get(RESET_DB_QUERY_PARAM) !== '1') {
     return;
   }
+  // User-initiated escape hatch — allow another wipe even after auto-recovery.
   clearWebOpfsRecoverySessionFlag();
   url.searchParams.delete(RESET_DB_QUERY_PARAM);
   const returnTo =
@@ -268,6 +288,10 @@ export async function consumeResetDbQueryParamAndRecover(
   console.warn(
     `[${label}] ?${RESET_DB_QUERY_PARAM}=1 detected — running web OPFS recovery.`
   );
-  await runWebOpfsRecoveryAndReload({ timers, returnTo: cleaned });
+  await runWebOpfsRecoveryAndReload({
+    timers,
+    returnTo: cleaned,
+    ...(closeLocal !== undefined ? { closeLocal } : {}),
+  });
   await new Promise<void>(() => {});
 }

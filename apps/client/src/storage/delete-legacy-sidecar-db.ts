@@ -1,9 +1,17 @@
 import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
-/** Best-effort cleanup of a leftover `${databaseName}.db` from prior local SDKs. */
+/**
+ * Best-effort cleanup of a leftover `${databaseName}.db` from prior local SDKs.
+ * Skipped on web: `deleteDatabaseAsync` can hang forever when AccessHandlePoolVFS
+ * is wedged; web recovery clears OPFS via `/?opfs-wipe=1` instead.
+ */
 export async function deleteLegacySidecarDb(
   databaseName: string
 ): Promise<void> {
+  if (Platform.OS === 'web') {
+    return;
+  }
   try {
     await SQLite.deleteDatabaseAsync(`${databaseName}.db`);
   } catch (error) {

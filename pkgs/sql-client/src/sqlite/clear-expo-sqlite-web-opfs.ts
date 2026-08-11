@@ -35,7 +35,7 @@ export async function clearExpoSqliteWebOpfsBestEffort(): Promise<ClearExpoSqlit
         try {
           await dir.removeEntry(entry.name, { recursive: true });
         } catch {
-          // keep trying the parent remove below
+          // Child may still be locked; parent remove will report failure.
         }
       }
     } catch (error) {
@@ -43,8 +43,15 @@ export async function clearExpoSqliteWebOpfsBestEffort(): Promise<ClearExpoSqlit
         return { ok: true, skipped: true };
       }
     }
-    await root.removeEntry('expo-sqlite', { recursive: true });
-    return { ok: true, skipped: false };
+    try {
+      await root.removeEntry('expo-sqlite', { recursive: true });
+      return { ok: true, skipped: false };
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'NotFoundError') {
+        return { ok: true, skipped: true };
+      }
+      return { ok: false, error };
+    }
   } catch (error) {
     if (error instanceof DOMException && error.name === 'NotFoundError') {
       return { ok: true, skipped: true };

@@ -75,7 +75,10 @@ export function isLikelyOpfsPoolExhaustedError(error: unknown): boolean {
   const message =
     error instanceof Error ? `${error.name} ${error.message}` : String(error);
   return (
-    /cannot create file/i.test(message) || /sqlite3_open_v2/i.test(message)
+    /cannot create file/i.test(message) ||
+    /sqlite3_open_v2/i.test(message) ||
+    // Hung AccessHandlePoolVFS / Dedicated Worker — same recovery as pool exhaust.
+    /Timed out opening SQLite database/i.test(message)
   );
 }
 

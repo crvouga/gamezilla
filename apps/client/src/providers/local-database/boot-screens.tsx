@@ -1,5 +1,6 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
+import { WEB_OPFS_RECOVERY_RELOAD_KEY } from '@pkgs/sql-client/sqlite/expo-sqlite-core';
 import { isRecoverableExpoSqliteWebRuntimeError } from '@pkgs/sql-client/sqlite/expo-web-recovery';
 import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
@@ -115,6 +116,11 @@ export function LocalDatabaseBootErrorScreen({
           onPress: () => {
             if (typeof window === 'undefined') return;
             if (canResetLocalData) {
+              try {
+                sessionStorage.removeItem(WEB_OPFS_RECOVERY_RELOAD_KEY);
+              } catch {
+                // ignore
+              }
               const url = new URL(window.location.href);
               url.searchParams.delete(RESET_DB_QUERY_PARAM);
               const returnTo =

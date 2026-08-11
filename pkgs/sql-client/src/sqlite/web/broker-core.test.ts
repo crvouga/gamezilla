@@ -186,7 +186,7 @@ describe('broker-core', () => {
     expect(become).toBeDefined();
   });
 
-  test('force-release-all asks owner to release and clears slots', async () => {
+  test('force-release-all waits for owner releaseOwner ack before clearing', async () => {
     const timers = mockTimers();
     const broker = createBrokerCore(timers);
     const ownerInbox: BrokerToTabMessage[] = [];
@@ -208,8 +208,47 @@ describe('broker-core', () => {
     });
     const release = ownerInbox.find(
       (m) => 'op' in m && m.op === 'releaseOwner'
-    );
+    ) as { id: string; op: string };
     expect(release).toBeDefined();
+    // Slots stay until the owner finishes closeAsync (ack).
+    expect(broker.getSlot('db1')).toBeDefined();
+    expect(
+      resetInbox.find((m) => 'ok' in m && m.id === 'force-release-all')
+    ).toBeUndefined();
+
+    broker.handleMessage('owner', {
+      id: release.id,
+      ok: true,
+      result: null,
+    });
+    expect(broker.getSlot('db1')).toBeUndefined();
+    const ack = resetInbox.find(
+      (m) => 'ok' in m && m.id === 'force-release-all'
+    ) as { ok: true };
+    expect(ack.ok).toBe(true);
+  });
+
+  test('force-release-all clears slots on owner-ack timeout', async () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const ownerInbox: BrokerToTabMessage[] = [];
+    const resetInbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('owner', ownerInbox));
+    broker.attachPort(mockPort('reset', resetInbox));
+    broker.handleMessage('owner', {
+      id: 'c1',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+
+    broker.handleMessage('reset', {
+      id: 'force-release-all',
+      type: 'force-release-all',
+    });
+    expect(broker.getSlot('db1')).toBeDefined();
+    timers.advance(4_000);
     expect(broker.getSlot('db1')).toBeUndefined();
     const ack = resetInbox.find(
       (m) => 'ok' in m && m.id === 'force-release-all'
@@ -337,13 +376,15 @@ describe('broker-core', () => {
       payload: { sql: 'SELECT 1', values: [] },
     });
     broker.forceReleaseAll();
-
+    // Proxies are rejected immediately; slots clear after owner ack / timeout.
     const res = proxyInbox.find((m) => 'ok' in m && m.id === 'q1') as {
       ok: false;
       error: { code?: string };
     };
     expect(res.ok).toBe(false);
     expect(res.error.code).toBe('E_LEADER_LOST');
+    timers.advance(4_000);
+    expect(broker.getSlot('db1')).toBeUndefined();
   });
 
   test('reconnect during close grace cancels releaseOwner', async () => {

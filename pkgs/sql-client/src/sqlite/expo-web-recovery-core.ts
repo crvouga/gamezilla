@@ -29,7 +29,8 @@ export function matchesRecoverableExpoSqliteWebErrorMessage(
     msg.includes('database corruption') ||
     msg.includes('sqlite_ioerr') ||
     msg.includes('automatic recovery is blocked') ||
-    msg.includes('holding the opfs handle')
+    msg.includes('holding the opfs handle') ||
+    msg.includes('timed out opening sqlite')
   );
 }
 

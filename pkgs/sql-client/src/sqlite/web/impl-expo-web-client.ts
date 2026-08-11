@@ -3,8 +3,11 @@ import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../../interface';
 import { createLeaderTransport } from './db-host-leader';
 import {
+  buildWebOpfsWipePageUrl,
   consumeResetDbQueryParamAndRecover,
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
+  OPFS_WIPE_INITIATOR_SESSION_KEY,
+  sanitizeWebOpfsReturnTo,
 } from './opfs-recover';
 import { OPFS_WIPE_CHANNEL, type OpfsWipeMessage } from './opfs-wipe-channel';
 import { createOwnerRuntime } from './owner-runtime';
@@ -76,32 +79,82 @@ function pickTransport(
   };
 }
 
+function isWipeOrParkDocumentPath(path: string): boolean {
+  return (
+    path.includes('opfs-wiping') ||
+    path.includes('opfs-wipe') ||
+    path.includes('opfs-wipe-boot')
+  );
+}
+
+function isOpfsWipeInitiator(): boolean {
+  try {
+    return sessionStorage.getItem(OPFS_WIPE_INITIATOR_SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function parkPeerOnWipeDocument(): void {
+  const returnTo = sanitizeWebOpfsReturnTo(
+    window.location.pathname + window.location.search + window.location.hash
+  );
+  window.location.replace(buildWebOpfsWipePageUrl({ returnTo, parked: true }));
+}
+
+function onPrepareWipeMessage(
+  client: ExpoWebSqlClient,
+  wipeChannel: BroadcastChannel,
+  data: Extract<OpfsWipeMessage, { type: 'prepare-wipe' }>
+): void {
+  // closeAsync alone does not drop Chrome AccessHandlePoolVFS handles —
+  // peer tabs must unload expo-sqlite (park on the wipe document).
+  // The recovery initiator skips park via sessionStorage and navigates
+  // itself to the wipe executor after prepare/force-release.
+  void client.disconnect().finally(() => {
+    wipeChannel.postMessage({
+      type: 'wipe-ready',
+      requestId: data.requestId,
+    } satisfies OpfsWipeMessage);
+    if (isOpfsWipeInitiator()) return;
+    parkPeerOnWipeDocument();
+  });
+}
+
+function onWipeDoneMessage(): void {
+  // Wipe / park documents navigate themselves; reloading them re-enters
+  // the wipe bootstrap and loops (seen in Cursor's embedded browser).
+  try {
+    const path = window.location.pathname + window.location.search;
+    if (isWipeOrParkDocumentPath(path)) return;
+  } catch {
+    // ignore
+  }
+  window.location.reload();
+}
+
+function attachWipeChannelLifecycle(client: ExpoWebSqlClient): void {
+  if (typeof BroadcastChannel === 'undefined') return;
+  const wipeChannel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+  wipeChannel.onmessage = (event: MessageEvent<OpfsWipeMessage>) => {
+    const data = event.data;
+    if (data === null || typeof data !== 'object') return;
+    if (data.type === 'prepare-wipe') {
+      onPrepareWipeMessage(client, wipeChannel, data);
+      return;
+    }
+    if (data.type === 'wipe-done') {
+      onWipeDoneMessage();
+    }
+  };
+}
+
 function attachLifecycle(client: ExpoWebSqlClient): void {
   if (typeof window !== 'undefined') {
     window.addEventListener('pagehide', () => {
       void client.disconnect();
     });
-    if (typeof BroadcastChannel !== 'undefined') {
-      const wipeChannel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
-      wipeChannel.onmessage = (event: MessageEvent<OpfsWipeMessage>) => {
-        const data = event.data;
-        if (data === null || typeof data !== 'object') return;
-        if (data.type === 'prepare-wipe') {
-          // Drop ownership / closeAsync so OPFS sync handles release; do not
-          // navigate away — wipe + reload is owned by runWebOpfsRecoveryAndReload.
-          void client.disconnect().finally(() => {
-            wipeChannel.postMessage({
-              type: 'wipe-ready',
-              requestId: data.requestId,
-            } satisfies OpfsWipeMessage);
-          });
-          return;
-        }
-        if (data.type === 'wipe-done') {
-          window.location.reload();
-        }
-      };
-    }
+    attachWipeChannelLifecycle(client);
   }
   // Metro HMR: use CommonJS `module.hot` — never `import.meta.hot`
   // (Hermes web classic script: "Cannot use 'import.meta' outside a module").
@@ -226,7 +279,8 @@ export function createExpoWebSqlClient(
       resetDbChecked = true;
       await consumeResetDbQueryParamAndRecover(
         options.timers,
-        `createExpoWebSqlClient("${dbName}")`
+        `createExpoWebSqlClient("${dbName}")`,
+        () => transport.disconnect()
       );
     }
     if (connectPromise === null) {

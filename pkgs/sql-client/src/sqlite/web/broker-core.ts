@@ -39,6 +39,17 @@ export type BrokerCore = {
   forceReleaseAll: () => void;
 };
 
+/** Wait for owners to finish closeAsync before acknowledging force-release. */
+const FORCE_RELEASE_OWNER_WAIT_MS = 4_000;
+
+type ForceReleaseWait = {
+  readonly requesterPortId: string | null;
+  readonly responseId: string | null;
+  readonly pendingOwnerIds: Set<string>;
+  readonly releaseIds: Set<string>;
+  timerId: unknown | null;
+};
+
 type BrokerState = {
   readonly ports: Map<string, BrokerPort>;
   readonly lastSeen: Map<string, number>;
@@ -48,6 +59,7 @@ type BrokerState = {
     string,
     { readonly fromPortId: string; readonly ownerPortId: string }
   >;
+  forceReleaseWait: ForceReleaseWait | null;
   readonly timers: BrokerTimers;
 };
 
@@ -228,6 +240,18 @@ function routeOwnerResponse(
   portId: string,
   response: RpcResponse
 ): void {
+  const wait = state.forceReleaseWait;
+  if (
+    wait !== null &&
+    wait.releaseIds.has(response.id) &&
+    wait.pendingOwnerIds.has(portId)
+  ) {
+    wait.pendingOwnerIds.delete(portId);
+    if (wait.pendingOwnerIds.size === 0) {
+      finishForceRelease(state);
+    }
+    return;
+  }
   const route = state.pendingRoutes.get(response.id);
   if (route === undefined || route.ownerPortId !== portId) return;
   state.pendingRoutes.delete(response.id);
@@ -244,17 +268,102 @@ function isForceReleaseAllMessage(
   );
 }
 
+function finishForceRelease(state: BrokerState): void {
+  const wait = state.forceReleaseWait;
+  if (wait === null) return;
+  if (wait.timerId !== null) {
+    state.timers.clearTimeout(wait.timerId);
+  }
+  state.forceReleaseWait = null;
+  for (const slot of state.slots.values()) {
+    if (slot.closeTimerId !== null) {
+      state.timers.clearTimeout(slot.closeTimerId);
+      slot.closeTimerId = null;
+    }
+  }
+  state.slots.clear();
+  state.connectChains.clear();
+  if (wait.requesterPortId !== null && wait.responseId !== null) {
+    post(state, wait.requesterPortId, {
+      id: wait.responseId,
+      ok: true,
+      result: null,
+    });
+  }
+}
+
+function beginForceRelease(
+  state: BrokerState,
+  requesterPortId: string | null,
+  responseId: string | null
+): void {
+  if (state.forceReleaseWait !== null) {
+    finishForceRelease(state);
+  }
+
+  const owners: { readonly portId: string; readonly dbName: string }[] = [];
+  for (const [dbName, slot] of state.slots) {
+    if (slot.closeTimerId !== null) {
+      state.timers.clearTimeout(slot.closeTimerId);
+      slot.closeTimerId = null;
+    }
+    if (slot.ownerPortId !== null) {
+      owners.push({ portId: slot.ownerPortId, dbName });
+    }
+  }
+
+  // Unblock proxies immediately; OPFS close still in flight on owners.
+  rejectPendingRoutes(state, {
+    rejectAll: true,
+    reason: 'Database ownership force-released',
+  });
+
+  if (owners.length === 0) {
+    state.forceReleaseWait = {
+      requesterPortId,
+      responseId,
+      pendingOwnerIds: new Set(),
+      releaseIds: new Set(),
+      timerId: null,
+    };
+    finishForceRelease(state);
+    return;
+  }
+
+  const pendingOwnerIds = new Set(owners.map((o) => o.portId));
+  const releaseIds = new Set(owners.map((o) => `release_${o.dbName}`));
+  const wait: ForceReleaseWait = {
+    requesterPortId,
+    responseId,
+    pendingOwnerIds,
+    releaseIds,
+    timerId: null,
+  };
+  state.forceReleaseWait = wait;
+  wait.timerId = state.timers.setTimeout(() => {
+    finishForceRelease(state);
+  }, FORCE_RELEASE_OWNER_WAIT_MS);
+
+  for (const owner of owners) {
+    post(state, owner.portId, {
+      id: `release_${owner.dbName}`,
+      dbName: owner.dbName,
+      op: 'releaseOwner',
+      payload: {},
+    });
+  }
+}
+
 function handleForceReleaseAll(
   state: BrokerState,
   portId: string,
   message: { readonly id?: string }
 ): void {
-  forceReleaseAll(state);
-  post(state, portId, {
-    id: typeof message.id === 'string' ? message.id : 'force-release-all',
-    ok: true,
-    result: null,
-  });
+  beginForceRelease(
+    state,
+    portId,
+    typeof message.id === 'string' ? message.id : 'force-release-all'
+  );
 }
 
 function handleRpcRequest(
@@ -351,30 +460,6 @@ function detachPort(state: BrokerState, portId: string): void {
   state.lastSeen.delete(portId);
 }
 
-function forceReleaseAll(state: BrokerState): void {
-  for (const [dbName, slot] of state.slots) {
-    if (slot.closeTimerId !== null) {
-      state.timers.clearTimeout(slot.closeTimerId);
-      slot.closeTimerId = null;
-    }
-    const ownerId = slot.ownerPortId;
-    if (ownerId !== null) {
-      post(state, ownerId, {
-        id: `release_${dbName}`,
-        dbName,
-        op: 'releaseOwner',
-        payload: {},
-      });
-    }
-  }
-  rejectPendingRoutes(state, {
-    rejectAll: true,
-    reason: 'Database ownership force-released',
-  });
-  state.slots.clear();
-  state.connectChains.clear();
-}
-
 /**
  * Pure SharedWorker broker: elects one owner port per dbName, refcounts
  * connects, routes proxy RPC to the owner, and reaps silent ports.
@@ -386,6 +471,7 @@ export function createBrokerCore(timers: BrokerTimers): BrokerCore {
     slots: new Map(),
     connectChains: new Map(),
     pendingRoutes: new Map(),
+    forceReleaseWait: null,
     timers,
   };
   return {
@@ -405,6 +491,6 @@ export function createBrokerCore(timers: BrokerTimers): BrokerCore {
     },
     getSlot: (dbName) => state.slots.get(dbName),
     getPortLastSeen: (portId) => state.lastSeen.get(portId),
-    forceReleaseAll: () => forceReleaseAll(state),
+    forceReleaseAll: () => beginForceRelease(state, null, null),
   };
 }
