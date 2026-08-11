@@ -1580,6 +1580,7 @@
         "react": "catalog:",
         "react-native": "catalog:",
         "react-native-reanimated": "catalog:",
+        "react-native-worklets": "catalog:",
         "react-test-renderer": "catalog:",
       },
       "devDependencies": {

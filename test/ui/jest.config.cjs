@@ -27,11 +27,21 @@ module.exports = {
   // Jest 29 does not honor package.json "exports" the way Bun/Metro do.
   moduleNameMapper: {
     // expo-router/testing-library jest.mocks reanimated → `…/mock`. Bun's
-    // nested install breaks the upstream mock entry (falls back to `{}`).
-    // Use distinct files so the jest.mock factory does not require the same
-    // module id it is replacing (empty circular exports).
-    '^react-native-reanimated$': '<rootDir>/jest-reanimated-stub.cjs',
-    '^react-native-reanimated/mock$': '<rootDir>/jest-reanimated-mock-stub.cjs',
+    // nested install can fail that subpath (factory falls back to `{}`).
+    // Bridge file ≠ `/mock` module id (avoids circular empty exports) but both
+    // load the library's compiled mock — no hand-rolled API stub.
+    '^react-native-reanimated$': '<rootDir>/jest-reanimated-bridge.cjs',
+    '^react-native-reanimated/mock$': require.resolve(
+      'react-native-reanimated/lib/module/mock',
+      { paths: [path.join(repoRoot, 'apps/client')] }
+    ),
+    '^react-native-worklets$': require.resolve('react-native-worklets', {
+      paths: [path.join(repoRoot, 'apps/client')],
+    }),
+    '^react-native-worklets/lib/module/mock$': require.resolve(
+      'react-native-worklets/lib/module/mock',
+      { paths: [path.join(repoRoot, 'apps/client')] }
+    ),
     '^@gorhom/bottom-sheet$': '<rootDir>/jest-bottom-sheet-stub.cjs',
     '^expo-audio$': '<rootDir>/jest-expo-audio-stub.cjs',
     '^expo-network$': '<rootDir>/jest-expo-network-stub.cjs',

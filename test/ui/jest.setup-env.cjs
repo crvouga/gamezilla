@@ -49,3 +49,14 @@ try {
 } catch {
   // Optional: package may not expose jestSetup in every install layout.
 }
+
+// Worklets Jest prerequisite (Reanimated testing guide). Catalog is 0.7.4 —
+// use the package mock (web resolver needs ≥0.8). JS path per Worklets docs.
+jest.mock('react-native-worklets', () => {
+  const path = require('node:path');
+  return require(
+    require.resolve('react-native-worklets/lib/module/mock', {
+      paths: [path.join(__dirname, '../..', 'apps/client')],
+    })
+  );
+});

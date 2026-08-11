@@ -4,6 +4,10 @@
  */
 jest.useRealTimers();
 
+// Official Reanimated Jest matchers (after real timers so product sims keep
+// wall async for Hono/pg-mem). Use the same `/mock` entry expo-router loads.
+require('react-native-reanimated/mock').setUpTests();
+
 // Lingui macros compile to `@lingui/core` `i18n._(...)`. Bun can nest two
 // core copies; activate `en` on the instance Jest resolves so `t` / `Trans`
 // work without a race against AppI18nProvider's side-effect import.
