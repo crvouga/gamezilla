@@ -41,20 +41,17 @@ function resolveReturnTo(params) {
 }
 
 function isParkedMode(params) {
-  return (
-    params.get('parked') === '1' ||
-    params.get('opfs-wipe') === 'park' ||
-    params.get('opfs-wiping') === 'park'
-  );
+  return params.get('parked') === '1' || params.get('opfs-wipe') === 'park';
 }
 
 function replaceWipeAddressBar(parked) {
+  // Stay on the wipe document path (not SPA /). Preserve return= for navigateHome.
   try {
-    history.replaceState(
-      null,
-      '',
-      parked ? '/?opfs-wiping=park' : '/?opfs-wiping=1'
-    );
+    const u = new URL(location.href);
+    u.searchParams.set('opfs-wipe', parked ? 'park' : '1');
+    u.searchParams.delete('opfs-wiping');
+    u.searchParams.delete('parked');
+    history.replaceState(null, '', u.pathname + u.search + u.hash);
   } catch {
     // ignore
   }
@@ -90,8 +87,7 @@ function broadcastWipeDone() {
 
 function navigateHome(returnTo) {
   const target = returnTo || '/';
-  // Cursor's embedded browser no-ops `location.replace('http://origin/')`
-  // when leaving `/?opfs-wiping=1`, but accepts a URL with a new query.
+  // Cursor's embedded browser may no-op a bare origin replace; bust with `_wr`.
   const abs = new URL(target, location.origin);
   abs.searchParams.set('_wr', String(Date.now()));
   location.assign(abs.href);
@@ -275,9 +271,8 @@ function runPark(returnTo) {
   const params = new URLSearchParams(location.search);
   const parked = isParkedMode(params);
   const returnTo = resolveReturnTo(params);
-  // Park the address bar on a wipe-only query (not the return URL). If we
-  // replaceState to "/" here, the final location.replace("/") is a no-op and
-  // the wipe shell never reloads the app.
+  // Keep the wipe HTML path in the address bar (not SPA /). If we replaceState
+  // to "/" here, navigateHome can no-op and never reload the app.
   replaceWipeAddressBar(parked);
   if (parked) {
     runPark(returnTo);

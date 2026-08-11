@@ -68,8 +68,8 @@ export function isLikelyOpfsLockError(error: unknown): boolean {
 
 /**
  * AccessHandlePoolVFS capacity exhausted (`cannot create file`) or the opaque
- * worker wrap (`sqlite3_open_v2`). Waiting does not free pool slots — needs
- * close/wipe/reload recovery.
+ * worker wrap (`sqlite3_open_v2`). Soft recovery: force-release + reload.
+ * User Reset wipes OPFS only when that fails.
  */
 export function isLikelyOpfsPoolExhaustedError(error: unknown): boolean {
   const message =
@@ -77,13 +77,19 @@ export function isLikelyOpfsPoolExhaustedError(error: unknown): boolean {
   return (
     /cannot create file/i.test(message) ||
     /sqlite3_open_v2/i.test(message) ||
-    // Hung AccessHandlePoolVFS / Dedicated Worker — same recovery as pool exhaust.
+    // Hung AccessHandlePoolVFS / Dedicated Worker — same soft recovery as pool.
     /Timed out opening SQLite database/i.test(message)
   );
 }
 
-/** Session flag shared with {@link SqlClientImplExpoSqlite} OPFS wipe+reload. */
-export const WEB_OPFS_RECOVERY_RELOAD_KEY = 'expo-sqlite.web-recovery-reloaded';
+/**
+ * One soft recover (force-release + reload) per tab session after open
+ * lock/pool failure. Cleared on explicit user Reset / `?reset-db=1`.
+ */
+export const WEB_OPFS_SOFT_RECOVERY_KEY = 'expo-sqlite.web-soft-recovered';
+
+/** @deprecated Use {@link WEB_OPFS_SOFT_RECOVERY_KEY}. */
+export const WEB_OPFS_RECOVERY_RELOAD_KEY = WEB_OPFS_SOFT_RECOVERY_KEY;
 
 export async function sleepMs(timers: Timers, ms: number): Promise<void> {
   await new Promise<void>((resolve) => {

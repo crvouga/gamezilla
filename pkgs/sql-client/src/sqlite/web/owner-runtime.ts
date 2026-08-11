@@ -100,41 +100,39 @@ async function recoverOwnerOpfsPool(
   timers: Timers,
   cause: unknown
 ): Promise<never> {
-  const { WEB_OPFS_RECOVERY_RELOAD_KEY } = await import('../expo-sqlite-core');
-  const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
+  const { WEB_OPFS_SOFT_RECOVERY_KEY } = await import('../expo-sqlite-core');
+  const { forceReleaseSharedWorkerOwners } = await import('./opfs-recover');
   const causeMessage = cause instanceof Error ? cause.message : String(cause);
-  // One automatic wipe per tab session — looping wipe↔open freezes the app
-  // (seen in Cursor's browser and when open keeps failing after an empty wipe).
+  // Soft recovery once per tab: force-release + reload (preserves OPFS).
+  // Auto-wipe caused wipe↔boot loops; user Reset owns destructive wipe.
   try {
-    if (sessionStorage.getItem(WEB_OPFS_RECOVERY_RELOAD_KEY) === '1') {
+    if (sessionStorage.getItem(WEB_OPFS_SOFT_RECOVERY_KEY) === '1') {
       const err = new Error(
-        `SQLite could not open "${databaseName}" after OPFS pool recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
+        `SQLite could not open "${databaseName}" after soft recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
       );
       publishExpoSqliteWebFatalError(err);
       throw err;
     }
-    sessionStorage.setItem(WEB_OPFS_RECOVERY_RELOAD_KEY, '1');
+    sessionStorage.setItem(WEB_OPFS_SOFT_RECOVERY_KEY, '1');
   } catch (error: unknown) {
-    if (error instanceof Error && error.message.includes('after OPFS pool')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('after soft recovery')
+    ) {
       throw error;
     }
     // sessionStorage may be unavailable
   }
-  // Do not call deleteDatabaseAsync here on web — it can hang forever when the
-  // AccessHandlePoolVFS worker is wedged; the wipe document clears OPFS.
-  try {
-    await runWebOpfsRecoveryAndReload({ timers });
-  } catch (error: unknown) {
-    const err =
-      error instanceof Error
-        ? error
-        : new Error(
-            `SQLite could not open "${databaseName}" after OPFS pool recovery. Use Reset local data or reload with ?reset-db=1.`
-          );
-    publishExpoSqliteWebFatalError(err);
-    throw err;
+  await forceReleaseSharedWorkerOwners(timers);
+  if (typeof window !== 'undefined') {
+    window.location.reload();
+    return await new Promise<never>(() => {});
   }
-  return await new Promise<never>(() => {});
+  const err = new Error(
+    `SQLite could not open "${databaseName}" after soft recovery (${causeMessage}). Use Reset local data or reload with ?reset-db=1.`
+  );
+  publishExpoSqliteWebFatalError(err);
+  throw err;
 }
 
 async function openExpoSqliteForOwner(
@@ -323,16 +321,10 @@ class OwnerRuntimeImpl implements OwnerRuntime {
       this.client = null;
       this.openPromise = null;
     }
-    const [SQLite, { clearExpoSqliteWebOpfsBestEffort }] = await Promise.all([
-      import('expo-sqlite'),
-      import('../clear-expo-sqlite-web-opfs'),
-    ]);
-    try {
-      await SQLite.deleteDatabaseAsync(this.dbName);
-    } catch {
-      // may not exist
-    }
-    await clearExpoSqliteWebOpfsBestEffort();
+    // In-page OPFS delete fails while AccessHandlePoolVFS handles are live —
+    // navigate to the wipe document (Chrome tears down the Dedicated Worker).
+    const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
+    await runWebOpfsRecoveryAndReload({ timers: this.timers });
   }
 
   hasActiveTx(): boolean {

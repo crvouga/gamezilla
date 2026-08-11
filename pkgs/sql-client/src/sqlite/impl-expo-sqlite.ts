@@ -3,13 +3,12 @@ import type { Sql, Value } from '@pkgs/sql';
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
-import { clearExpoSqliteWebOpfsBestEffort } from './clear-expo-sqlite-web-opfs';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 import {
   formatErrorChain,
   mapExpoRunResult,
   sqliteCompatSql,
-  WEB_OPFS_RECOVERY_RELOAD_KEY,
+  WEB_OPFS_SOFT_RECOVERY_KEY,
   withOpenTimeout,
 } from './expo-sqlite-core';
 import {
@@ -25,25 +24,16 @@ export {
 
 export { RESET_DB_QUERY_PARAM } from './web/opfs-recover';
 
-/**
- * Set after we clear OPFS + reload once. While set, we must not clear OPFS again from the
- * main thread: the expo-sqlite worker keeps a live VFS; a second wipe desyncs it and
- * `sqlite3_open_v2` keeps failing until a new worker (navigation) — which matches “Clear site
- * data doesn’t help” because the tab immediately poisons itself again.
- */
-const WEB_RECOVERY_RELOAD_KEY = WEB_OPFS_RECOVERY_RELOAD_KEY;
-
-/** Call before manual clear/reload so the one-time recovery reload can run again if needed. */
+/** Call before manual Reset so soft recovery can run again if needed. */
 export function clearExpoSqliteWebRecoverySessionFlag(): void {
   if (Platform.OS === 'web' && typeof sessionStorage !== 'undefined') {
-    sessionStorage.removeItem(WEB_RECOVERY_RELOAD_KEY);
+    sessionStorage.removeItem(WEB_OPFS_SOFT_RECOVERY_KEY);
   }
 }
 
 /**
  * Runs before the first open attempt. When `?reset-db=1` is present, strip the
- * param and run in-package OPFS recovery (peers + SharedWorker force-release +
- * wipe retries + reload).
+ * param and navigate to the wipe document.
  */
 async function maybeHandleResetDbQueryParam(
   databaseName: string,
@@ -55,26 +45,6 @@ async function maybeHandleResetDbQueryParam(
   await consumeResetDbQueryParamAndRecover(
     timers,
     `SqlClientImplExpoSqlite("${databaseName}")`
-  );
-}
-
-function buildLockedOpfsError(
-  databaseName: string,
-  clearError: unknown,
-  previous: unknown[]
-): Error {
-  const origin =
-    typeof window !== 'undefined' && window.location !== undefined
-      ? window.location.origin
-      : 'this site';
-  const clearMessage =
-    clearError instanceof Error ? clearError.message : String(clearError);
-  return new Error(
-    `SQLite could not open the local database "${databaseName}" and automatic recovery is blocked: ` +
-      `another tab or worker is holding the OPFS handle (${clearMessage}). ` +
-      `Fix: close every other tab of ${origin} (including Cursor IDE browser / Playwright), ` +
-      `then use Reset local data (or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
-      `Underlying open errors: ${formatErrorChain(previous)}`
   );
 }
 
@@ -106,14 +76,12 @@ async function openDatabaseOnceInner(
 }
 
 /**
- * Opens the local DB, recovering from common corruption / legacy OPFS issues.
+ * Opens the local DB, recovering from common corruption issues.
  *
  * 1. First failure → `deleteDatabaseAsync` and retry (all platforms).
- * 2. Second failure on **web** → if we have not already done an OPFS wipe+reload this
- *    session, clear the `expo-sqlite` OPFS directory (main thread), `deleteDatabaseAsync`,
- *    then **reload** so the worker/WASM re-init. If we **already** did that reload (`sessionStorage`),
- *    we do **not** wipe OPFS again (that would desync the worker); we only use worker-side
- *    `deleteDatabaseAsync` and `useNewConnection` retries, then throw with a full error chain.
+ * 2. Second failure on **web** → throw with Reset local data / `?reset-db=1`
+ *    guidance (no main-thread OPFS wipe; multi-tab web uses owner-runtime soft
+ *    recovery + wipe document instead).
  */
 export class SqlClientImplExpoSqlite implements SqlClient {
   /**
@@ -309,7 +277,7 @@ async function finishOpen(
   client: SqlClientImplExpoSqlite
 ): Promise<SqlClientImplExpoSqlite> {
   if (Platform.OS === 'web' && typeof sessionStorage !== 'undefined') {
-    sessionStorage.removeItem(WEB_RECOVERY_RELOAD_KEY);
+    sessionStorage.removeItem(WEB_OPFS_SOFT_RECOVERY_KEY);
   }
   return client;
 }
@@ -356,105 +324,11 @@ async function openAfterFirstFailure(
     );
   } catch (second: unknown) {
     if (Platform.OS !== 'web') throw second;
-    return openAfterSecondFailure({
-      databaseName,
-      first,
-      second,
-      timers,
-      ...(directory !== undefined ? { directory } : {}),
-    });
+    throw buildWebOpenFailedError(databaseName, [second, first]);
   }
 }
 
-async function openAfterSecondFailure(args: {
-  readonly databaseName: string;
-  readonly first: unknown;
-  readonly second: unknown;
-  readonly timers: Timers;
-  readonly directory?: string;
-}): Promise<SqlClientImplExpoSqlite> {
-  const { databaseName, first, second, timers, directory } = args;
-  await deleteDbFile(databaseName, directory);
-  const postOpfsReload =
-    typeof sessionStorage !== 'undefined' &&
-    Boolean(sessionStorage.getItem(WEB_RECOVERY_RELOAD_KEY));
-  if (!postOpfsReload) {
-    return openWithOpfsRecovery(databaseName, first, second, directory);
-  }
-  return openAfterOpfsRecovery({
-    databaseName,
-    first,
-    second,
-    timers,
-    ...(directory !== undefined ? { directory } : {}),
-  });
-}
-
-async function openWithOpfsRecovery(
-  databaseName: string,
-  first: unknown,
-  second: unknown,
-  directory?: string
-): Promise<SqlClientImplExpoSqlite> {
-  const clearResult = await clearExpoSqliteWebOpfsBestEffort();
-  await deleteDbFile(databaseName, directory);
-  if (!clearResult.ok) {
-    // The wipe silently failing (e.g. `NoModificationAllowedError` because another
-    // tab still holds a `FileSystemSyncAccessHandle`) used to set the session flag
-    // and reload, which permanently poisoned the tab. Fail loudly instead.
-    throw buildLockedOpfsError(databaseName, clearResult.error, [
-      second,
-      first,
-    ]);
-  }
-  console.warn(
-    `[SqlClientImplExpoSqlite] Open failed again; cleared expo-sqlite OPFS and reloading.`,
-    second
-  );
-  if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-    sessionStorage.setItem(WEB_RECOVERY_RELOAD_KEY, '1');
-    window.location.reload();
-    return await new Promise<SqlClientImplExpoSqlite>(() => {});
-  }
-  throw second;
-}
-
-async function openAfterOpfsRecovery(args: {
-  readonly databaseName: string;
-  readonly first: unknown;
-  readonly second: unknown;
-  readonly timers: Timers;
-  readonly directory?: string;
-}): Promise<SqlClientImplExpoSqlite> {
-  const { databaseName, first, second, timers, directory } = args;
-  // Already survived one OPFS wipe + reload; never wipe OPFS again in this tab — it
-  // breaks the worker VFS. Retry with fresh connections only.
-  console.warn(
-    `[SqlClientImplExpoSqlite] Open failed after OPFS recovery reload; retrying without main-thread OPFS wipe.`,
-    second
-  );
-  try {
-    return await finishOpen(
-      await openDatabaseOnce(databaseName, true, timers, directory)
-    );
-  } catch (third: unknown) {
-    await deleteDbFile(databaseName, directory);
-    try {
-      return await finishOpen(
-        await openDatabaseOnce(databaseName, true, timers, directory)
-      );
-    } catch (fourth: unknown) {
-      throw buildPostRecoveryError(databaseName, [
-        fourth,
-        third,
-        second,
-        first,
-      ]);
-    }
-  }
-}
-
-function buildPostRecoveryError(
+function buildWebOpenFailedError(
   databaseName: string,
   errors: unknown[]
 ): Error {
@@ -463,9 +337,8 @@ function buildPostRecoveryError(
       ? window.location.origin
       : 'this site';
   return new Error(
-    `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
-      `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
-      `Fix: close every other tab of ${origin}, then use Reset local data ` +
+    `SQLite could not open the local database "${databaseName}". ` +
+      `Close other tabs of ${origin}, then use Reset local data ` +
       `(or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
       `Underlying errors: ${formatErrorChain(errors)}`
   );

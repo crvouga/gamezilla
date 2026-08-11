@@ -80,11 +80,7 @@ function pickTransport(
 }
 
 function isWipeOrParkDocumentPath(path: string): boolean {
-  return (
-    path.includes('opfs-wiping') ||
-    path.includes('opfs-wipe') ||
-    path.includes('opfs-wipe-boot')
-  );
+  return path.includes('/sql-workers/opfs-wipe') || path.includes('opfs-wipe');
 }
 
 function isOpfsWipeInitiator(): boolean {

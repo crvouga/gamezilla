@@ -3,8 +3,8 @@ export const RESET_DB_QUERY_PARAM = 'reset-db';
 
 /**
  * Static wipe document (no Expo). SW navigateFallback denylists `/sql-workers/`.
- * Prefer this over `/?opfs-wipe=1` document.write so an already-loaded Expo
- * page fully unloads and Dedicated Workers can terminate before OPFS wipe.
+ * Navigating here unloads the Expo document so Dedicated Workers can terminate
+ * before OPFS wipe (in-page delete fails while AccessHandlePoolVFS holds files).
  */
 export const DEFAULT_OPFS_WIPE_PAGE_URL = '/sql-workers/opfs-wipe.html';
 
@@ -38,7 +38,7 @@ export type BuildWebOpfsWipePageUrlOptions = {
 
 /**
  * Build `/sql-workers/opfs-wipe.html?opfs-wipe=1&return=…` (or `opfs-wipe=park`).
- * `index.html` still bootstraps wipe for `/?opfs-wipe=*` as a fallback.
+ * `index.html` loads a redirect-only entry for `?reset-db=1` / `?opfs-wipe=*`.
  */
 export function buildWebOpfsWipePageUrl(
   opts: BuildWebOpfsWipePageUrlOptions = {}

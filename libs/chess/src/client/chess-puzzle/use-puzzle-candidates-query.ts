@@ -15,7 +15,10 @@ export type PuzzleCandidatesQueryArgs = {
 };
 
 export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
-  const halfWindow = args.halfWindow ?? PUZZLE_NEXT_MAX_BAND;
+  // `null` means unbounded (fallback / replay). Only omit → default band.
+  // `??` would wrongly treat null as default and empty the pool at high ratings.
+  const halfWindow =
+    args.halfWindow === undefined ? PUZZLE_NEXT_MAX_BAND : args.halfWindow;
   const pickOffset = args.pickOffset ?? 0;
   const query = useMemo(
     () =>

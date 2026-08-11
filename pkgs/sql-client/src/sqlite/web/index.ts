@@ -10,13 +10,10 @@ export {
   DEFAULT_OPFS_WIPE_PAGE_URL,
   forceReleaseSharedWorkerOwners,
   OPFS_WIPE_INITIATOR_SESSION_KEY,
-  OPFS_WIPE_RETRY_MS,
-  prepareWipePeers,
   RESET_DB_QUERY_PARAM,
   type RunWebOpfsRecoveryOptions,
   runWebOpfsRecoveryAndReload,
   sanitizeWebOpfsReturnTo,
-  wipeExpoSqliteOpfsWithRetries,
 } from './opfs-recover';
 export type { DbChangedNotify, SqlWire } from './rpc';
 export {

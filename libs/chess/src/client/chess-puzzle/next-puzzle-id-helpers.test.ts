@@ -42,6 +42,19 @@ describe('buildPuzzleCandidatesSql', () => {
     expect(query.sql).toContain('id != ?');
     expect(query.values).toContain('puzzle_99');
   });
+
+  test('halfWindow null omits rating bounds (unbounded fallback)', () => {
+    const query = buildPuzzleCandidatesSql({
+      rating: 3000,
+      halfWindow: null,
+      ownerId: '',
+      currentPuzzleId: null,
+      pickOffset: 28,
+    });
+    expect(query.sql).not.toContain('rating >=');
+    expect(query.sql).not.toContain('rating <=');
+    expect(query.values).toEqual([50, 28]);
+  });
 });
 
 describe('pickPuzzleIdFromPool', () => {
