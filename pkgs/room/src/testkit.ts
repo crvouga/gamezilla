@@ -26,6 +26,17 @@ export {
   ExpireDeadline,
   StartDeadline,
 } from './tests/fixtures/deadline-module';
+export {
+  FlagFall,
+  MatchClockFixtureModule,
+  Move as MatchClockMove,
+  matchClockBlackMs,
+  matchClockStatus,
+  matchClockTurn,
+  matchClockWhiteMs,
+  matchClockWinner,
+  StartMatch,
+} from './tests/fixtures/match-clock-module';
 export { LoopbackRoomTransport } from './tests/harness/loopback-transport';
 export type { LoopbackRoomSystem } from './tests/harness/simulator';
 export { openLoopbackRoom } from './tests/harness/simulator';

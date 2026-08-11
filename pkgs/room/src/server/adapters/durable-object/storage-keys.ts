@@ -10,10 +10,14 @@ export const DO_KV_MULTI_KEY_LIMIT = 128;
 export type RoomDoKeyNs = {
   /** Tiny `{ lastSeq }` record. */
   meta: string;
+  /** Topic string for this module (needed for alarm wake without sockets). */
+  topic: string;
   /** Prefix for `list({ prefix })` over committed events. */
   eventPrefix: string;
   /** Prefix for per-command dedup outcomes. */
   dedupPrefix: string;
+  /** Prefix for pending Schedule entries (`{ at, payload }`). */
+  schedulePrefix: string;
   /** Monolithic v2 blob (Keyword-shaped for historical continuity). */
   legacyBlob: Keyword;
 };
@@ -32,8 +36,10 @@ export function roomDoKeyNs(moduleName?: RoomModuleName): RoomDoKeyNs {
       : asKeyword('room.do/state-v2');
   return {
     meta: `${base}.meta`,
+    topic: `${base}.topic`,
     eventPrefix: `${base}.e.`,
     dedupPrefix: `${base}.d.`,
+    schedulePrefix: `${base}.s.`,
     legacyBlob: legacy,
   };
 }
@@ -44,4 +50,8 @@ export function eventKey(ns: RoomDoKeyNs, seq: number): string {
 
 export function dedupKey(ns: RoomDoKeyNs, commandId: string): string {
   return `${ns.dedupPrefix}${commandId}`;
+}
+
+export function scheduleKey(ns: RoomDoKeyNs, scheduleId: string): string {
+  return `${ns.schedulePrefix}${scheduleId}`;
 }

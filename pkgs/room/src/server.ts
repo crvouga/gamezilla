@@ -16,6 +16,16 @@
  * etc.) means dropping a new folder under `./server/adapters/` and
  * re-exporting it via `package.json` — the core engine stays untouched.
  */
+
+export {
+  CancelScheduleEffect,
+  ROOM_SCHEDULER_IDENTITY,
+  ScheduleEffect,
+} from './effects/builtin';
+export type {
+  RoomEffectContext,
+  RoomEffectHandler,
+} from './effects/handler';
 export type {
   RoomAuth,
   RoomAuthFailure,
@@ -28,4 +38,4 @@ export type {
 } from './server/core/room-server';
 export { RoomServer } from './server/core/room-server';
 export type { CommandDedupOutcome, RoomStorage } from './server/core/storage';
-export type { LogEntry, RoomActor } from './types';
+export type { LogEntry, RoomActor, RoomEffect } from './types';

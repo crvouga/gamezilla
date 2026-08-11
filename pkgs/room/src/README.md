@@ -64,7 +64,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage |
-| `@pkgs/room/tests` | Curated re-exports: `openLoopbackRoom`, `openRoomSimWorld`, kit (`runModuleConformance`, …), fixtures (`TestCounterModule`, deadline/authz) |
+| `@pkgs/room/tests` | Curated re-exports: `openLoopbackRoom`, `openRoomSimWorld`, kit (`runModuleConformance`, …), fixtures (`TestCounterModule`, deadline/authz/match-clock) |
 
 `src/sim/` is **private** (not exported). DST scenarios import it relatively.
 
@@ -78,9 +78,10 @@ pkgs/room/src/
 ├── server/core/          RoomServer, auth/storage ports
 ├── server/adapters/      memory + durable-object host
 ├── protocol/             wire frames + ids
+├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
 ├── sim/                  private DST harness (world, net, settle, until)
 └── tests/
-    ├── fixtures/         TestCounterModule, Deadline/Authz fixtures
+    ├── fixtures/         TestCounterModule, Deadline/Authz/MatchClock fixtures
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
     ├── kit/              Module-conformance API + M1–M8 DST
     └── scenarios/        Engine DST *.sim.test.ts (import sim + fixtures)
@@ -94,7 +95,16 @@ Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`
 - **`RoomModuleName`** — branded kebab id for DO routing (`module` query).
 - **`RoomModule<S, C, E, Identity>`** — `name`, `initialState`, `handle`, `reduce`, **`hash`**.
 - **`RoomCommand`** — `{ id, ts, payload }`; `id` is the server idempotency key.
-- **`HandleResult`** — `{ ok: true, events }` or `{ ok: false, error }`.
+- **`HandleResult`** — `{ ok: true, events, effects? }` or `{ ok: false, error }`.
+- **`RoomEffect`** — Message-shaped side-effect intent (not on the event log).
+- **Built-in effects** — `ScheduleEffect` / `CancelScheduleEffect` (`room-effect/*`);
+  at epoch `at`, the host injects `payload` as a command with identity
+  `room:scheduler`. Server: DO `setAlarm` + KV pending set. Client/sim:
+  `io.timers`. Unknown effects with no handler fail loudly.
+- **Anti-cheat clocks** — remaining time / deadlines live in **committed events**;
+  elapsed uses server `command.ts`. Clients may arm optimistic timers for UX;
+  only the server commit decides flag-fall / expire. See
+  `MatchClockFixtureModule` + `match-clock-schedule.sim.test.ts` (MC-01..06).
 - **`RoomError`** — `ROOM_ERROR_TYPE.*` (`invalid-command`, `unauthorized`, …).
 - **State** — flat attribute map; domain keys + `room/*` meta (`RoomMetaAttr`).
 
@@ -253,14 +263,15 @@ here when you add coverage. Paths are under `pkgs/room/src/`.
 | `tests/scenarios/two-topic-shared-storage.sim.test.ts` | DST H | Shared storage, two topics; A faults leave B alone |
 | `tests/scenarios/spectator-fanout-no-domain-perturb.sim.test.ts` | DST E1/H | Extra joiners do not change domain hash |
 | `tests/scenarios/asymmetric-link.sim.test.ts` | DST P2 | Directional `toClient` hold vs `toServer` ok |
+| `tests/scenarios/match-clock-schedule.sim.test.ts` | DST MC-01..06 | Match-clock Schedule wake; server-first flag anti-cheat |
 | `tests/fixtures/counter-module.sim.test.ts` | Module M8 | Pure `TestCounterModule` under `createSimIo` seed-stable |
 | `tests/kit/purity-and-seed.sim.test.ts` | Kit M1/M8 | `runModuleConformance` smoke on counter |
 | `tests/kit/hash-canonicality.sim.test.ts` | Kit M2 | Hash independent of key insertion order |
 | `tests/kit/totality-sweep.sim.test.ts` | Kit M3 | Handle never throws across corpus |
 | `tests/kit/fold-closure.sim.test.ts` | Kit M4 | Reduce over ordered log stays valid |
 | `tests/kit/authz-survives-reconnect.sim.test.ts` | Kit M5 | Non-owner unauthorized after soft reconnect |
-| `tests/kit/terminal-monotonicity.sim.test.ts` | Kit M6 | Act vs expire → exactly one outcome |
-| `tests/kit/deadline-vs-action.sim.test.ts` | Kit M7 | Lagging partitioned client cannot beat deadline |
+| `tests/kit/terminal-monotonicity.sim.test.ts` | Kit M6 | Schedule Expire wins; late act/expire no-ops |
+| `tests/kit/deadline-vs-action.sim.test.ts` | Kit M7 | Lagging client cannot beat engine Schedule expire |
 | `tests/kit/engine-fuzz-sequences.sim.test.ts` | Kit E1/M* | Deadline fixture fuzz via real engine |
 
 Game-layer DST (outside this package, still under `ci:sim-determinism`):

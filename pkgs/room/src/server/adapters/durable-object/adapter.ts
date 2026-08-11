@@ -2,6 +2,7 @@ import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 
+import type { RoomEffectHandler } from '../../../effects/handler';
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -68,6 +69,8 @@ export type CreateDurableObjectAdapterOptions<
   clock: Clock;
   /** Injectable id mint (required — no wall default). */
   createId: CreateId;
+  /** Extra effect handlers after the built-in DO Schedule/CancelSchedule handler. */
+  effectHandlers?: readonly RoomEffectHandler[];
 };
 
 function defaultParseIdentity<Identity>(raw: string): Identity | null {
@@ -115,6 +118,7 @@ function resolveOptions<
         new DurableObjectRoomStorage(state.storage, moduleName)),
     clock: options.clock,
     createId: options.createId,
+    effectHandlers: options.effectHandlers ?? [],
   };
 }
 

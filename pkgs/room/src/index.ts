@@ -52,6 +52,29 @@ export {
   useRoomSnapshotSelector,
 } from './client/react/use-room-snapshot';
 export {
+  CancelScheduleEffect,
+  ROOM_SCHEDULER_IDENTITY,
+  ScheduleEffect,
+  type ScheduleEffectPayload,
+} from './effects/builtin';
+export type {
+  RoomEffectContext,
+  RoomEffectHandler,
+} from './effects/handler';
+export { applyRoomEffects } from './effects/handler';
+export {
+  createScheduleEffectHandler,
+  createTimerWakePort,
+  fireDueSchedules,
+  type PendingSchedule,
+  ScheduleRuntime,
+  type ScheduleWakePort,
+} from './effects/schedule-runtime';
+export {
+  createTimerScheduleStack,
+  type TimerScheduleStack,
+} from './effects/timer-schedule-stack';
+export {
   canonicalRoomJson,
   fnv1a64Hex,
   hashRoomState,
@@ -72,6 +95,7 @@ export type {
   RoomActor,
   RoomCommand,
   RoomCommandPayload,
+  RoomEffect,
   RoomError,
   RoomEvent,
   RoomModule,

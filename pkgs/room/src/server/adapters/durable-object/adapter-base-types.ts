@@ -1,6 +1,7 @@
 import type { Clock } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 
+import type { RoomEffectHandler } from '../../../effects/handler';
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -34,4 +35,6 @@ export type ResolvedAdapterConfig<
   ) => RoomStorage;
   clock: Clock;
   createId: CreateId;
+  /** Extra effect handlers composed after the built-in DO Schedule handler. */
+  effectHandlers: readonly RoomEffectHandler[];
 };

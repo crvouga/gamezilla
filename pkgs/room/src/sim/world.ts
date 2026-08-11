@@ -1,5 +1,6 @@
 import { createSimIo } from '@pkgs/io';
 
+import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
 import { InMemoryRoomStorage } from '../server/adapters/memory';
 import { RoomServer } from '../server/core/room-server';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
@@ -64,13 +65,31 @@ async function createWorldKernel<
   });
   const topic = args.topic ?? `sim:${io.createId()}`;
   const storage = args.storage ?? new InMemoryRoomStorage();
+  const serverQueue = new SerialQueue();
+  const schedule = createTimerScheduleStack({
+    clock: io.clock,
+    timers: io.timers,
+    createId: io.createId,
+    topic,
+    enqueueWake: (work) => {
+      void serverQueue.enqueue(work);
+    },
+  });
   const server = new RoomServer<S, C, E, string>({
     topic,
     module: args.module,
     storage,
     clock: io.clock,
+    effectHandlers: [schedule.handler],
     ...(args.authorize !== undefined ? { authorize: args.authorize } : {}),
   });
+  schedule.bindInject((cmd) =>
+    server.injectCommand({
+      id: cmd.id,
+      payload: cmd.payload as C,
+      identity: cmd.identity,
+    })
+  );
   await server.hydrateFromStorage();
   const network = new SimRoomNetwork(() => io.clock.now(), io.rng.fork('net'));
   if (args.mildFaults === true) {
@@ -84,9 +103,10 @@ async function createWorldKernel<
     storage,
     server,
     network,
-    serverQueue: new SerialQueue(),
+    serverQueue,
     slots: new Map(),
     handles: new Map(),
+    scheduleDispose: schedule.dispose,
   };
 }
 
@@ -156,6 +176,7 @@ function assembleRoomSimWorld<
     }
     k.slots.clear();
     k.handles.clear();
+    k.scheduleDispose();
   };
 
   return {

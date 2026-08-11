@@ -2,6 +2,7 @@ import type { Io } from '@pkgs/io';
 
 import { InMemoryClientStorage } from '../../client/adapters/storage/memory';
 import { Room } from '../../client/core/room';
+import { createTimerScheduleStack } from '../../effects/timer-schedule-stack';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { RoomServer } from '../../server/core/room-server';
 import type {
@@ -57,12 +58,26 @@ export async function openLoopbackRoom<
   let server = args.server;
   if (server === undefined) {
     const storage = new InMemoryRoomStorage();
+    const schedule = createTimerScheduleStack({
+      clock: io.clock,
+      timers: io.timers,
+      createId: io.createId,
+      topic: args.topic,
+    });
     server = new RoomServer<S, C, E, string>({
       topic: args.topic,
       module: args.module,
       storage,
       clock: io.clock,
+      effectHandlers: [schedule.handler],
     });
+    schedule.bindInject((cmd) =>
+      server!.injectCommand({
+        id: cmd.id,
+        payload: cmd.payload as C,
+        identity: cmd.identity,
+      })
+    );
     await server.hydrateFromStorage();
   }
 
@@ -80,6 +95,12 @@ export async function openLoopbackRoom<
     { id: identity, clientId }
   );
 
+  const clientSchedule = createTimerScheduleStack({
+    clock: io.clock,
+    timers: io.timers,
+    createId: io.createId,
+    topic: args.topic,
+  });
   const clientStorage = new InMemoryClientStorage();
   const room = await Room.open<S, C, E, string>({
     topic: args.topic,
@@ -90,7 +111,11 @@ export async function openLoopbackRoom<
     clock: io.clock,
     timers: io.timers,
     createId: io.createId,
+    effectHandlers: [clientSchedule.handler],
     ...(args.onError !== undefined ? { onError: args.onError } : {}),
+  });
+  clientSchedule.bindInject((cmd) => {
+    room.dispatch(cmd.payload as C);
   });
 
   return { server, room, transport };

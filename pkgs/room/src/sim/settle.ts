@@ -26,6 +26,7 @@ export type RoomSimClientSlot<
   connectionId: string;
   identity: string;
   clientId: string;
+  scheduleDispose?: () => void;
 };
 
 function stripRoomMeta(state: RoomState): RoomState {

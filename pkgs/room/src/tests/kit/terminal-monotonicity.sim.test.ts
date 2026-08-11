@@ -10,7 +10,7 @@ import {
 } from '../fixtures/deadline-module';
 
 describe('kit: terminal monotonicity (M-F06)', () => {
-  test('concurrent act vs expire → exactly one outcome', async () => {
+  test('schedule expire wins; late act / expire are no-ops', async () => {
     await using world = await openRoomSimWorld({
       seed: process.env['SIM_SEED'] ?? '42',
       module: DeadlineFixtureModule,
@@ -25,10 +25,8 @@ describe('kit: terminal monotonicity (M-F06)', () => {
     expect(deadlineStatus(await world.serverSnapshot())).toBe('open');
     expect(deadlineStatus(a.snapshot())).toBe('open');
 
-    // Advance past deadline; race Act (should reject) vs Expire.
+    // Advance past deadline; engine Schedule injects Expire.
     await world.runFor(120);
-    a.dispatch(ActBeforeDeadline({}));
-    b.dispatch(ExpireDeadline({}));
     await world.assertConverged();
 
     const server = await world.serverSnapshot();

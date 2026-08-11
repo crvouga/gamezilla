@@ -30,6 +30,10 @@ export interface DurableObjectKvStorage {
   list<T = unknown>(
     options?: DurableObjectKvListOptions
   ): Promise<Map<string, T>>;
+  /** DO alarm APIs (optional on unit fakes that do not model alarms). */
+  setAlarm?(ms: number): Promise<void>;
+  getAlarm?(): Promise<number | null>;
+  deleteAlarm?(): Promise<void>;
 }
 
 /**
@@ -57,6 +61,8 @@ export interface DurableObjectInstance {
     code: number,
     reason: string
   ): void | Promise<void>;
+  /** DO alarm wake — fires due Schedule effects into RoomServer.injectCommand. */
+  alarm?(): void | Promise<void>;
 }
 
 /**

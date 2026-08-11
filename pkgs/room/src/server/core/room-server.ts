@@ -3,6 +3,10 @@ import type { Clock } from '@pkgs/clock';
 import { isMessageEnvelope } from '@pkgs/message';
 
 import {
+  applyRoomEffects,
+  type RoomEffectHandler,
+} from '../../effects/handler';
+import {
   type ClientToServerWire,
   parseClientToServerWire,
   ROOM_WIRE_KIND,
@@ -14,6 +18,7 @@ import {
   type RoomActor,
   type RoomCommand,
   type RoomCommandPayload,
+  type RoomEffect,
   type RoomEvent,
   type RoomModule,
   type RoomState,
@@ -38,6 +43,8 @@ export type RoomServerConfig<
   ) => Promise<{ ok: true } | { ok: false; reason: string }>;
   /** Injectable clock (required — no wall default). */
   clock: Clock;
+  /** Effect handlers (e.g. built-in Schedule). Applied after successful commit. */
+  effectHandlers?: readonly RoomEffectHandler[];
 };
 
 type Sender = (payload: unknown) => void;
@@ -62,9 +69,12 @@ export class RoomServer<
   private readonly storage: RoomStorage;
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   private readonly clock: Clock;
+  private readonly effectHandlers: readonly RoomEffectHandler[];
   private readonly connections = new Map<string, RoomConnection>();
   /** Per-connection command serial — matches typical WS single-threaded drain. */
   private readonly commandChains = new Map<string, Promise<void>>();
+  /** Serializes injected (scheduled) commands with the same single-thread model. */
+  private injectChain: Promise<void> = Promise.resolve();
   private committedState: S;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
@@ -73,6 +83,7 @@ export class RoomServer<
     this.storage = config.storage;
     this.authorize = config.authorize;
     this.clock = config.clock;
+    this.effectHandlers = config.effectHandlers ?? [];
     this.committedState = config.module.initialState();
   }
 
@@ -257,14 +268,15 @@ export class RoomServer<
     return false;
   }
 
-  private async commitCommandSuccess(
-    actor: RoomActor,
-    commandId: string,
-    lastSeqBefore: number,
-    events: E[]
-  ): Promise<void> {
-    crash.ok(events.length > 0, 'handle must produce events on success');
-    for (const event of events) {
+  private async commitCommandSuccess(args: {
+    readonly actor: RoomActor;
+    readonly commandId: string;
+    readonly lastSeqBefore: number;
+    readonly events: E[];
+    readonly effects: readonly RoomEffect[];
+  }): Promise<void> {
+    crash.ok(args.events.length > 0, 'handle must produce events on success');
+    for (const event of args.events) {
       crash.ok(
         isMessageEnvelope(event),
         'Tiger: room events must be Message envelopes with wire-valid type',
@@ -272,14 +284,14 @@ export class RoomServer<
       );
     }
     const ts = this.clock.now();
-    const entries: LogEntry<E>[] = events.map((event, i) => ({
-      seq: lastSeqBefore + i + 1,
+    const entries: LogEntry<E>[] = args.events.map((event, i) => ({
+      seq: args.lastSeqBefore + i + 1,
       event,
-      actor,
+      actor: args.actor,
       ts,
     }));
     await this.storage.appendCommittedEntries(this.topic, entries);
-    await this.storage.putDedupOutcome(this.topic, commandId, {
+    await this.storage.putDedupOutcome(this.topic, args.commandId, {
       kind: 'committed',
       entries,
     });
@@ -289,8 +301,98 @@ export class RoomServer<
     this.broadcast({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.committed,
-      commandId,
+      commandId: args.commandId,
       entries,
+    });
+    await this.applyCommittedEffects(args.effects);
+  }
+
+  private async applyCommittedEffects(
+    effects: readonly RoomEffect[]
+  ): Promise<void> {
+    if (effects.length === 0) return;
+    crash.ok(
+      this.effectHandlers.length > 0,
+      'Tiger: handle produced effects but RoomServer has no effectHandlers',
+      { count: effects.length }
+    );
+    await applyRoomEffects(effects, this.effectHandlers, {
+      topic: this.topic,
+      clock: this.clock,
+      now: this.clock.now(),
+      injectCommand: (a) =>
+        this.injectCommand({
+          id: a.id,
+          payload: a.payload as C,
+          identity: a.identity as Identity,
+        }),
+    });
+  }
+
+  /** Inject a command without a live socket (scheduled wakes). */
+  async injectCommand(args: {
+    readonly id: string;
+    readonly payload: C;
+    readonly identity: Identity;
+  }): Promise<void> {
+    const prev = this.injectChain;
+    const run = prev
+      .catch(() => undefined)
+      .then(() => this.injectCommandSerial(args));
+    this.injectChain = run.then(
+      () => undefined,
+      () => undefined
+    );
+    await run;
+  }
+
+  private async injectCommandSerial(args: {
+    readonly id: string;
+    readonly payload: C;
+    readonly identity: Identity;
+  }): Promise<void> {
+    const commandId = args.id;
+    const prior = await this.storage.getDedupOutcome(this.topic, commandId);
+    if (prior !== null) return;
+    if (!isMessageEnvelope(args.payload)) return;
+
+    const lastSeqBefore = await this.storage.getLastSeq(this.topic);
+    const command: RoomCommand<C> = {
+      id: commandId,
+      ts: this.clock.now(),
+      payload: args.payload,
+    };
+
+    if (this.authorize !== undefined) {
+      const a = await this.authorize(args.identity, this.topic, command);
+      if (!a.ok) {
+        await this.storage.putDedupOutcome(this.topic, commandId, {
+          kind: 'rejected',
+          error: { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason },
+        });
+        return;
+      }
+    }
+
+    const result = this.module.handle(
+      this.committedState,
+      command,
+      args.identity
+    );
+    if (!result.ok) {
+      await this.storage.putDedupOutcome(this.topic, commandId, {
+        kind: 'rejected',
+        error: result.error,
+      });
+      return;
+    }
+
+    await this.commitCommandSuccess({
+      actor: { id: String(args.identity), clientId: 'scheduler' },
+      commandId,
+      lastSeqBefore,
+      events: result.events,
+      effects: result.effects ?? [],
     });
   }
 
@@ -355,12 +457,13 @@ export class RoomServer<
       return;
     }
 
-    await this.commitCommandSuccess(
-      conn.actor,
+    await this.commitCommandSuccess({
+      actor: conn.actor,
       commandId,
       lastSeqBefore,
-      result.events
-    );
+      events: result.events,
+      effects: result.effects ?? [],
+    });
   }
 
   async handleClientMessage(

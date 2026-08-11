@@ -5,7 +5,6 @@ import {
   DeadlineFixtureModule,
   deadlineAt,
   deadlineOutcome,
-  ExpireDeadline,
   StartDeadline,
 } from '../fixtures/deadline-module';
 
@@ -26,12 +25,11 @@ describe('kit: deadline vs action (M-F07)', () => {
 
     {
       using _hold = world.net('bob').set('hold');
+      // Engine Schedule wake expires without client Expire dispatch.
       await world.runFor(80);
       expect(world.clock.now()).toBeGreaterThanOrEqual(dl);
       // Bob still sees old open state locally while held.
       b.dispatch(ActBeforeDeadline({}));
-      await world.drain();
-      a.dispatch(ExpireDeadline({}));
       await world.drain();
     }
 

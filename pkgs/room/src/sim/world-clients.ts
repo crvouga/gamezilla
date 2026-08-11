@@ -3,6 +3,7 @@ import type { SimIo } from '@pkgs/io';
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { Room } from '../client/core/room';
 import { RoomMetaAttr } from '../client/core/room-meta';
+import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
 import type {
@@ -38,6 +39,7 @@ export type WorldKernel<
   readonly serverQueue: SerialQueue;
   readonly slots: Map<string, RoomSimClientSlot<S, C, E>>;
   readonly handles: Map<string, RoomSimClientHandle<S, C, E>>;
+  readonly scheduleDispose: () => void;
 };
 
 function asRoomError(v: unknown): RoomError | null {
@@ -70,6 +72,12 @@ export async function attachClient<
     },
     { id: slot.identity, clientId: slot.clientId }
   );
+  const clientSchedule = createTimerScheduleStack({
+    clock: k.io.clock,
+    timers: k.io.timers,
+    createId: k.io.createId,
+    topic: k.topic,
+  });
   const room = await Room.open<S, C, E, string>({
     topic: k.topic,
     module: k.module,
@@ -79,9 +87,14 @@ export async function attachClient<
     clock: k.io.clock,
     timers: k.io.timers,
     createId: k.io.createId,
+    effectHandlers: [clientSchedule.handler],
+  });
+  clientSchedule.bindInject((cmd) => {
+    room.dispatch(cmd.payload as C);
   });
   slot.transport = transport;
   slot.room = room;
+  slot.scheduleDispose = clientSchedule.dispose;
   await drainKernel(k);
 }
 
@@ -183,6 +196,8 @@ export async function destroyClient<
   const room = slot.room;
   const transport = slot.transport;
   const connectionId = slot.connectionId;
+  slot.scheduleDispose?.();
+  delete slot.scheduleDispose;
   slot.room = null;
   slot.transport = null;
   room?.destroy();

@@ -20,6 +20,14 @@ export type RoomCommandPayload = Message;
 /** Fact emitted by the server after a successful handle: wire-valid {@link Message} envelope. */
 export type RoomEvent = Message;
 
+/**
+ * Side-effect intent from {@link RoomModule.handle}. Message envelope like
+ * commands/events; not part of the committed event log. Built-ins live under
+ * `room-effect/*` (Schedule / CancelSchedule); callers may emit custom effects
+ * handled by injected {@link RoomEffectHandler}s.
+ */
+export type RoomEffect = Message;
+
 export type RoomCommand<C extends RoomCommandPayload = RoomCommandPayload> = {
   id: string;
   ts: number;
@@ -76,7 +84,7 @@ export type RoomError =
   | { type: typeof ROOM_ERROR_TYPE.internal; reason?: string };
 
 export type HandleResult<E extends RoomEvent = RoomEvent> =
-  | { ok: true; events: E[] }
+  | { ok: true; events: E[]; effects?: readonly RoomEffect[] }
   | { ok: false; error: RoomError };
 
 /**

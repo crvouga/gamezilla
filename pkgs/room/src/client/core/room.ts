@@ -5,6 +5,7 @@ import { assertKeywordRecord, isNamespacedKeyword } from '@pkgs/keyword';
 import { isMessageEnvelope } from '@pkgs/message';
 import type { CreateId } from '@pkgs/uuid';
 
+import type { RoomEffectHandler } from '../../effects/handler';
 import { newCommandId } from '../../protocol/ids';
 import {
   parseServerToClientWire,
@@ -24,6 +25,7 @@ import type {
 } from '../../types';
 import { foldDisplay, foldEntries } from './room-fold';
 import { RoomMetaAttr, roomAttrNamespace } from './room-meta';
+import { OptimisticEffectSession } from './room-optimistic-effects';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
 import { wipeLocalRoomCache } from './wipe-local-cache';
@@ -46,6 +48,8 @@ export type RoomClientConfig<
   timers: Timers;
   /** Injectable id mint (required — no wall default). */
   createId: CreateId;
+  /** Effect handlers (e.g. built-in Schedule). Applied after optimistic ok. */
+  effectHandlers?: readonly RoomEffectHandler[];
 };
 
 /**
@@ -121,6 +125,8 @@ export class Room<
   private readonly clock: Clock;
   private readonly timers: Timers;
   private readonly createId: CreateId;
+  private readonly effectHandlers: readonly RoomEffectHandler[];
+  private readonly effectSession: OptimisticEffectSession;
 
   private committedState: S;
   private committedEntries: LogEntry<E>[] = [];
@@ -153,6 +159,15 @@ export class Room<
     this.clock = config.clock;
     this.timers = config.timers;
     this.createId = config.createId;
+    this.effectHandlers = config.effectHandlers ?? [];
+    this.effectSession = new OptimisticEffectSession(
+      config.topic,
+      config.clock,
+      this.effectHandlers,
+      (args) => {
+        this.dispatch(args.payload as C);
+      }
+    );
     this.committedState = config.module.initialState();
     this.snapshot = this.computeSnapshot();
   }
@@ -212,6 +227,8 @@ export class Room<
     this.lastSeq = 0;
     this.pendingQueue = [];
     this.optimistic.clear();
+    this.effectSession.clear();
+    void this.effectSession.refresh([]);
     this.synced = false;
     this.snapshot = this.computeSnapshot();
   }
@@ -241,6 +258,7 @@ export class Room<
 
   private rebuildOptimisticSync(): void {
     this.optimistic.clear();
+    this.effectSession.clear();
     for (let i = 0; i < this.pendingQueue.length; i++) {
       const q = this.pendingQueue[i]!;
       const cmd: RoomCommand<C> = {
@@ -258,8 +276,10 @@ export class Room<
       const res = this.module.handle(st, cmd, this.identity);
       if (res.ok) {
         this.optimistic.set(q.id, res.events);
+        this.effectSession.remember(q.id, res.effects ?? []);
       }
     }
+    void this.effectSession.refresh(this.pendingQueue.map((q) => q.id));
   }
 
   private attachTransport(): void {
@@ -419,11 +439,13 @@ export class Room<
     await this.storage.saveCommitted(this.lastSeq, this.committedEntries);
     if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {
       this.optimistic.delete(msg.commandId);
+      this.effectSession.forget(msg.commandId);
       this.pendingQueue = this.pendingQueue.filter(
         (c) => c.id !== msg.commandId
       );
       await this.storage.removeQueued(msg.commandId);
     }
+    this.rebuildOptimisticSync();
     this.notify();
   }
 
@@ -431,8 +453,10 @@ export class Room<
     msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.rejected }>
   ): Promise<void> {
     this.optimistic.delete(msg.commandId);
+    this.effectSession.forget(msg.commandId);
     this.pendingQueue = this.pendingQueue.filter((c) => c.id !== msg.commandId);
     await this.storage.removeQueued(msg.commandId);
+    this.rebuildOptimisticSync();
     this.reportError(msg.error);
     this.notify();
   }
@@ -523,6 +547,11 @@ export class Room<
       this.notify();
       return null;
     }
+    if ((res.effects?.length ?? 0) > 0 && this.effectHandlers.length === 0) {
+      throw new Error(
+        'Tiger: handle produced effects but Room has no effectHandlers'
+      );
+    }
     const row: QueuedCommand = {
       id: cmd.id,
       ts: cmd.ts,
@@ -534,6 +563,7 @@ export class Room<
     // size, and on a fresh drop with one in-flight command, redundant).
     this.pendingQueue = [...this.pendingQueue, row];
     this.optimistic.set(cmd.id, res.events);
+    void this.effectSession.applyNew(cmd.id, res.effects ?? []);
     this.notify();
     if (this.transport.isConnected && this.synced) {
       this.transport.sendJson({

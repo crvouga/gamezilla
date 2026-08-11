@@ -6,6 +6,7 @@ import {
   type Message,
 } from '@pkgs/message';
 
+import { CancelScheduleEffect, ScheduleEffect } from '../../effects/builtin';
 import { hashRoomState } from '../../hash-room-state';
 import {
   assertRoomModuleName,
@@ -15,6 +16,8 @@ import {
   type RoomModule,
   type RoomState,
 } from '../../types';
+
+const EXPIRE_SCHEDULE_ID = 'deadline:expire';
 
 const ns = createAttrNamespace('deadline');
 const statusAttr = ns.text('status', (v): string =>
@@ -86,6 +89,7 @@ function rejectInvalid(reason: string): HandleResult {
 
 /**
  * Fixture module for M6/M7: start a deadline, then race Act vs Expire.
+ * Start arms Schedule(Expire); engine wake injects Expire (no client Expire needed).
  * Time comes from `command.ts` (scenario-driven); no Io in handle.
  */
 export const DeadlineFixtureModule: RoomModule<
@@ -110,10 +114,17 @@ export const DeadlineFixtureModule: RoomModule<
 
     if (StartDeadline.is(msg)) {
       if (status !== 'idle') return rejectConflict('already started');
+      const deadlineAt = command.ts + msg.payload.durationMs;
       return {
         ok: true,
-        events: [
-          DeadlineStarted({ deadlineAt: command.ts + msg.payload.durationMs }),
+        events: [DeadlineStarted({ deadlineAt })],
+        effects: [
+          CancelScheduleEffect({ id: EXPIRE_SCHEDULE_ID }),
+          ScheduleEffect({
+            id: EXPIRE_SCHEDULE_ID,
+            at: deadlineAt,
+            payload: ExpireDeadline({}),
+          }),
         ],
       };
     }
@@ -122,14 +133,22 @@ export const DeadlineFixtureModule: RoomModule<
       if (command.ts >= readDeadlineAt(state)) {
         return rejectConflict('deadline passed');
       }
-      return { ok: true, events: [DeadlineWon({})] };
+      return {
+        ok: true,
+        events: [DeadlineWon({})],
+        effects: [CancelScheduleEffect({ id: EXPIRE_SCHEDULE_ID })],
+      };
     }
     if (ExpireDeadline.is(msg)) {
       if (status !== 'open') return rejectConflict(`status=${status}`);
       if (command.ts < readDeadlineAt(state)) {
         return rejectConflict('deadline not reached');
       }
-      return { ok: true, events: [DeadlineExpired({})] };
+      return {
+        ok: true,
+        events: [DeadlineExpired({})],
+        effects: [CancelScheduleEffect({ id: EXPIRE_SCHEDULE_ID })],
+      };
     }
     return rejectInvalid(String(msg.type));
   },

@@ -10,12 +10,14 @@ import {
 import { RoomServer } from '../../core/room-server';
 
 import type { ResolvedAdapterConfig } from './adapter-base-types';
+import { DoAlarmHub, openDoModuleSchedule } from './do-schedule';
 import {
   restoreHibernatedSockets,
   WS_CLOSE_SESSION_LOST,
   type WsMeta,
 } from './hibernation-restore';
 import { writeRoomSocketAttachment } from './socket-attachment';
+import { roomDoKeyNs } from './storage-keys';
 import {
   type DurableObjectInstance,
   type DurableObjectInstanceState,
@@ -86,6 +88,11 @@ export class RoomDurableObjectAdapterBase<
     RoomModuleName,
     RoomServer<S, C, E, Identity>
   >();
+  private readonly scheduleFire = new Map<
+    RoomModuleName,
+    () => Promise<void>
+  >();
+  private readonly alarmHub: DoAlarmHub;
   private readonly wsMeta = new WeakMap<WebSocket, WsMeta<Identity>>();
   private restored = false;
 
@@ -97,6 +104,32 @@ export class RoomDurableObjectAdapterBase<
     this.ctx = ctx;
     this._env = env;
     this.config = config;
+    this.alarmHub = new DoAlarmHub(ctx.storage);
+  }
+
+  /** Cloudflare DO alarm callback — injects due scheduled commands. */
+  async alarm(): Promise<void> {
+    await this.ensureRestored();
+    await this.ensureServersForPendingAlarms();
+    for (const fire of this.scheduleFire.values()) {
+      await fire();
+    }
+  }
+
+  /** Recreate RoomServers after eviction when an alarm fires with no sockets. */
+  private async ensureServersForPendingAlarms(): Promise<void> {
+    for (const moduleName of this.config.modulesByName.keys()) {
+      if (this.servers.has(moduleName)) continue;
+      const ns = roomDoKeyNs(moduleName);
+      const topic = await this.ctx.storage.get<string>(ns.topic);
+      if (typeof topic !== 'string' || topic.length === 0) continue;
+      const pending = await this.ctx.storage.list({
+        prefix: ns.schedulePrefix,
+        limit: 1,
+      });
+      if (pending.size === 0) continue;
+      await this.getOrCreateServer(topic, moduleName);
+    }
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -242,14 +275,32 @@ export class RoomDurableObjectAdapterBase<
       { moduleName }
     );
     const storage = this.config.createStorage(this.ctx, this._env, moduleName);
-    const server = new RoomServer({
+    let server!: RoomServer<S, C, E, Identity>;
+    const schedule = await openDoModuleSchedule({
+      storage: this.ctx.storage,
+      moduleName,
+      clock: this.config.clock,
+      createId: this.config.createId,
+      hub: this.alarmHub,
+      topic,
+      injectCommand: (cmd) =>
+        server.injectCommand({
+          id: cmd.id,
+          payload: cmd.payload as C,
+          identity: cmd.identity as Identity,
+        }),
+    });
+    server = new RoomServer({
       topic,
       module: moduleImpl,
       storage,
       clock: this.config.clock,
+      effectHandlers: [schedule.handler, ...this.config.effectHandlers],
     });
     await server.hydrateFromStorage();
+    await this.ctx.storage.put(roomDoKeyNs(moduleName).topic, topic);
     this.servers.set(moduleName, server);
+    this.scheduleFire.set(moduleName, schedule.fireDue);
     return server;
   }
 
