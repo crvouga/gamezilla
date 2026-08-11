@@ -20,7 +20,7 @@ async function runWorkload(seed: number | string): Promise<string> {
     await world.drain();
   }
   await world.assertConverged();
-  return `${a.hash()}:${b.hash()}`;
+  return `${await world.serverHash()}:${a.hash()}:${b.hash()}`;
 }
 
 describe('room sim: seeded workload determinism', () => {

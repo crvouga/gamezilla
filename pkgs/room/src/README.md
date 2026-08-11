@@ -64,7 +64,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
 | `@pkgs/room/server/adapters/memory` | `InMemoryRoomStorage` |
 | `@pkgs/room/server/adapters/durable-object` | `createDurableObjectAdapter`, DO storage |
-| `@pkgs/room/tests` | Curated re-exports from `src/tests/` (`openLoopbackRoom`, `LoopbackRoomTransport`, `TestCounterModule`) |
+| `@pkgs/room/tests` | Curated re-exports: `openLoopbackRoom`, `openRoomSimWorld`, kit (`runModuleConformance`, …), fixtures (`TestCounterModule`, deadline/authz) |
 
 `src/sim/` is **private** (not exported). DST scenarios import it relatively.
 
@@ -80,12 +80,14 @@ pkgs/room/src/
 ├── protocol/             wire frames + ids
 ├── sim/                  private DST harness (world, net, settle, until)
 └── tests/
-    ├── fixtures/         TestCounterModule (+ module hash sim test)
+    ├── fixtures/         TestCounterModule, Deadline/Authz fixtures
     ├── harness/          openLoopbackRoom + LoopbackRoomTransport
-    └── scenarios/        DST *.sim.test.ts (import sim + fixtures)
+    ├── kit/              Module-conformance API + M1–M8 DST
+    └── scenarios/        Engine DST *.sim.test.ts (import sim + fixtures)
 ```
 
-Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`.
+Facade: [`testkit.ts`](./testkit.ts) → package export `@pkgs/room/tests`
+(includes `openRoomSimWorld` + kit for game packages; `src/sim/` stays private).
 
 ## Core types (design surface)
 
@@ -139,7 +141,8 @@ bun run ci:sim-determinism             # every *.sim.test.ts ×2 same seed
 | Network | `world.net(id).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack |
 | Node | `world.node(id).disconnect()` / `.reconnect()` | Soft session; stable client id |
 | Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected` | Black-box |
-| Settle | `assertConverged()` | Heal nets, drain, domain hash == server fold; errors include `seed=` / `now=` |
+| Server | `serverSnapshot()`, `serverHash()` | Storage log fold (authority); use for domain expects |
+| Settle | `assertConverged()` | Heal nets, drain; live committed + every client hash == log fold; `seed=` / `now=` |
 
 Connectivity triad — do not conflate:
 
@@ -176,10 +179,17 @@ describe('room sim', () => {
       });
     }
     await world.assertConverged();
-    expect(a.hash()).toBe(b.hash());
+    const server = await world.serverSnapshot();
+    expect(counterValue(server)).toBe(1);
+    expect(counterValue(a.snapshot())).toBe(1);
+    expect(a.hash()).toBe(await world.serverHash());
   });
 });
 ```
+
+Domain expectations after settle must assert the **server fold**
+(`serverSnapshot` / `serverHash`) first, then clients. Mid-partition
+client-only checks (`never`, lagging peer) stay client-scoped.
 
 ## Design constraints (for contributors / agents)
 
@@ -214,12 +224,56 @@ here when you add coverage. Paths are under `pkgs/room/src/`.
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `tests/scenarios/single-client-increment.sim.test.ts` | DST | One client increments; settles; domain count/hash matches server |
-| `tests/scenarios/two-client-converge.sim.test.ts` | DST | Alice+Bob mutual increments → equal hashes, count=3, roster size 2 |
-| `tests/scenarios/partition-then-heal.sim.test.ts` | DST | `net(bob).hold` during Alice write → Bob `never` sees update → heal → converge |
-| `tests/scenarios/offline-dispatch-then-sync.sim.test.ts` | DST | Soft disconnect → optimistic increment → peer `never` sees → reconnect → converge |
-| `tests/scenarios/seeded-workload-determinism.sim.test.ts` | DST | Same seed (`SIM_SEED`) → identical multi-client hash string twice (incl. mid hold) |
-| `tests/fixtures/counter-module.sim.test.ts` | Module DST | Pure `TestCounterModule` handle/reduce/hash under `createSimIo` is seed-stable |
+| `tests/scenarios/single-client-increment.sim.test.ts` | DST E1 | One client increments; settles; domain count/hash matches server |
+| `tests/scenarios/two-client-converge.sim.test.ts` | DST E1 | Alice+Bob mutual increments → equal hashes, count=3, roster size 2 |
+| `tests/scenarios/partition-then-heal.sim.test.ts` | DST E1 | `net(bob).hold` during Alice write → Bob `never` sees update → heal → converge |
+| `tests/scenarios/offline-dispatch-then-sync.sim.test.ts` | DST E1/E6 | Soft disconnect → optimistic increment → peer `never` sees → reconnect → converge |
+| `tests/scenarios/seeded-workload-determinism.sim.test.ts` | DST E9 | Same seed (`SIM_SEED`) → identical multi-client hash string twice (incl. mid hold) |
+| `tests/scenarios/hold-during-flush.sim.test.ts` | DST E1/E6 | Offline queue + peer hold during flush → heal → converge |
+| `tests/scenarios/down-then-heal.sim.test.ts` | DST E1 | `net.down` drops frames; soft cycle + heal → converge |
+| `tests/scenarios/down-during-welcome.sim.test.ts` | DST E1/E3 | Join under down; reconnect → converge |
+| `tests/scenarios/hold-during-sync.sim.test.ts` | DST E1/E3 | Long hold then release mid catch-up → converge |
+| `tests/scenarios/triad-matrix-smoke.sim.test.ts` | DST E1/E6 | Soft disconnect ∩ hold ∩ down remain independent |
+| `tests/scenarios/lossy-profile-converge.sim.test.ts` | DST E1/E9 | Mild delay/loss/reorder/dup + soft cycle → converge |
+| `tests/scenarios/n-client-partition.sim.test.ts` | DST E1 | Selective holds across ≥4 clients → converge |
+| `tests/scenarios/concurrent-increment-burst.sim.test.ts` | DST E1/E5 | Three-client burst under mild faults → count + hashes |
+| `tests/scenarios/command-id-replay-dedup.sim.test.ts` | DST E2 | Same `commandId` across take-over storm applies once |
+| `tests/scenarios/offline-queues-interleave.sim.test.ts` | DST E5/E6 | Dual offline queues + interim peer commits → server order |
+| `tests/scenarios/inc-dec-conflict-order.sim.test.ts` | DST E5 | Inc/dec under jitter → final equals server fold |
+| `tests/scenarios/sync-after-long-partition.sim.test.ts` | DST E1/E3 | 20 commits behind hold → catch-up converge |
+| `tests/scenarios/stale-welcome-recover.sim.test.ts` | DST E3 | Stale tip welcome inject + soft storms → resync |
+| `tests/scenarios/multi-tab-same-identity.sim.test.ts` | DST E7 | Same identity, different `clientId` → equal domain hashes |
+| `tests/scenarios/session-takeover-sim.sim.test.ts` | DST E2/E7 | `node.takeOver` mid-command → no double-apply |
+| `tests/scenarios/replay-flood-dedup.sim.test.ts` | DST E2 | 50× same `commandId` → single apply |
+| `tests/scenarios/malformed-frame-reject.sim.test.ts` | DST E4 | Non-Message / unknown kind → reject or ignore; no mutate |
+| `tests/scenarios/authorize-reject.sim.test.ts` | DST E4/E7 | World `authorize` denies → unauthorized; no mutate |
+| `tests/scenarios/unknown-command-reject.sim.test.ts` | DST E4 | Unknown message type → invalid-command |
+| `tests/scenarios/byzantine-committed-inject.sim.test.ts` | DST E1/E3 | Forged committed → soft cycle restores server truth |
+| `tests/scenarios/long-chaos-determinism.sim.test.ts` | DST E1/E9 | ≥3 clients seeded chaos (hold/down/soft) → hash ×2 |
+| `tests/scenarios/two-topic-shared-storage.sim.test.ts` | DST H | Shared storage, two topics; A faults leave B alone |
+| `tests/scenarios/spectator-fanout-no-domain-perturb.sim.test.ts` | DST E1/H | Extra joiners do not change domain hash |
+| `tests/scenarios/asymmetric-link.sim.test.ts` | DST P2 | Directional `toClient` hold vs `toServer` ok |
+| `tests/fixtures/counter-module.sim.test.ts` | Module M8 | Pure `TestCounterModule` under `createSimIo` seed-stable |
+| `tests/kit/purity-and-seed.sim.test.ts` | Kit M1/M8 | `runModuleConformance` smoke on counter |
+| `tests/kit/hash-canonicality.sim.test.ts` | Kit M2 | Hash independent of key insertion order |
+| `tests/kit/totality-sweep.sim.test.ts` | Kit M3 | Handle never throws across corpus |
+| `tests/kit/fold-closure.sim.test.ts` | Kit M4 | Reduce over ordered log stays valid |
+| `tests/kit/authz-survives-reconnect.sim.test.ts` | Kit M5 | Non-owner unauthorized after soft reconnect |
+| `tests/kit/terminal-monotonicity.sim.test.ts` | Kit M6 | Act vs expire → exactly one outcome |
+| `tests/kit/deadline-vs-action.sim.test.ts` | Kit M7 | Lagging partitioned client cannot beat deadline |
+| `tests/kit/engine-fuzz-sequences.sim.test.ts` | Kit E1/M* | Deadline fixture fuzz via real engine |
+
+Game-layer DST (outside this package, still under `ci:sim-determinism`):
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `libs/chess/.../chess-puzzle.conformance.sim.test.ts` | Gp-01 | `ChessModule` via `runModuleConformance` |
+| `libs/chess/.../scenarios/host-auth-partition.sim.test.ts` | Gp-02 | Non-host reject under hold; converge |
+| `libs/chess/.../scenarios/solved-monotonic.sim.test.ts` | Gp-03 | Post-solved cmds leave terminal hash |
+| `libs/chess/.../scenarios/wrong-vs-solved-race.sim.test.ts` | Gp-04 | Two host tabs race → one status |
+| `libs/chess/.../scenarios/competition-races.template.sim.test.ts` | Gc template | Skipped stakes races until competition module exists |
+
+Curated exports for games: `@pkgs/room/tests` (`openRoomSimWorld`, kit helpers, fixtures). `src/sim/` remains private implementation.
 
 ### Loopback / client core
 
@@ -244,6 +298,7 @@ here when you add coverage. Paths are under `pkgs/room/src/`.
 | `server/adapters/durable-object/storage.test.ts` | DO storage | Per-key append/load; dedup keys; v2→v3 blob migrate; reject seq gaps |
 | `server/adapters/durable-object/hibernation.test.ts` | DO host | After simulated eviction, passive peer still receives committed |
 | `server/adapters/durable-object/session-takeover.test.ts` | DO host | Same `(identity, clientId)` replaces socket; different `clientId` keeps both |
+| `server/adapters/durable-object/auth-upgrade.test.ts` | DO host | Missing identity header on upgrade → HTTP 401 |
 | `client/adapters/transport/websocket/transport.test.ts` | WS transport | Heartbeat ping; reconnect on missed pong; `probeLiveness`; pong clears miss |
 | `client/adapters/storage/key-value/storage.test.ts` | KV storage | Corrupt committed/queued blobs load empty and are zapped |
 

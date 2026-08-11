@@ -96,7 +96,36 @@ export class SimLoopbackRoomTransport<
 
   sendJson(payload: unknown): void {
     if (!this.linkUp) return;
-    this.network.enqueue(this.clientKey, () => {
+    this.network.enqueue(
+      this.clientKey,
+      () => {
+        this.sendChain = this.sendChain
+          .catch(() => undefined)
+          .then(() =>
+            this.serverQueue.enqueue(() =>
+              this.server.handleClientMessage(
+                this.connectionId,
+                this.identity,
+                payload
+              )
+            )
+          )
+          .catch((err: unknown) => {
+            for (const h of this.handlerSets) {
+              h.onError?.(err instanceof Error ? err : new Error(String(err)));
+            }
+          });
+      },
+      'toServer'
+    );
+  }
+
+  /**
+   * Inject a client→server frame (bypasses Room.dispatch; still uses the net
+   * mesh unless `direct` is true).
+   */
+  injectToServer(payload: unknown, opts?: { readonly direct?: boolean }): void {
+    if (opts?.direct === true) {
       this.sendChain = this.sendChain
         .catch(() => undefined)
         .then(() =>
@@ -107,20 +136,26 @@ export class SimLoopbackRoomTransport<
               payload
             )
           )
-        )
-        .catch((err: unknown) => {
-          for (const h of this.handlerSets) {
-            h.onError?.(err instanceof Error ? err : new Error(String(err)));
-          }
-        });
-    });
+        );
+      return;
+    }
+    this.sendJson(payload);
   }
 
   enqueueFromServer(payload: unknown): void {
     if (!this.linkUp) return;
-    this.network.enqueue(this.clientKey, () => {
-      this.deliverToClientNow(payload);
-    });
+    this.network.enqueue(
+      this.clientKey,
+      () => {
+        this.deliverToClientNow(payload);
+      },
+      'toClient'
+    );
+  }
+
+  /** Inject a server→client frame, bypassing the net mesh. */
+  injectFromServer(payload: unknown): void {
+    this.deliverToClientNow(payload);
   }
 
   deliverToClientNow(payload: unknown): void {

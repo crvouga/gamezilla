@@ -16,6 +16,9 @@ describe('room sim: single client increment', () => {
     expect(a.isSynced()).toBe(true);
     a.dispatch(Increment({}));
     await world.assertConverged();
+    const server = await world.serverSnapshot();
+    expect(counterValue(server)).toBe(1);
     expect(counterValue(a.snapshot())).toBe(1);
+    expect(a.hash()).toBe(await world.serverHash());
   });
 });

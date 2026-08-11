@@ -1,0 +1,44 @@
+import { describe, expect, test } from 'bun:test';
+import { openRoomSimWorld } from '../../sim/world';
+import {
+  ActBeforeDeadline,
+  DeadlineFixtureModule,
+  deadlineAt,
+  deadlineOutcome,
+  ExpireDeadline,
+  StartDeadline,
+} from '../fixtures/deadline-module';
+
+describe('kit: deadline vs action (M-F07)', () => {
+  test('partitioned lagging client cannot win after deadline', async () => {
+    await using world = await openRoomSimWorld({
+      seed: process.env['SIM_SEED'] ?? '42',
+      module: DeadlineFixtureModule,
+      startMs: 5_000,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    const b = await world.addClient({ id: 'bob' });
+    await world.assertConverged();
+
+    a.dispatch(StartDeadline({ durationMs: 50 }));
+    await world.drain();
+    const dl = deadlineAt(await world.serverSnapshot());
+
+    {
+      using _hold = world.net('bob').set('hold');
+      await world.runFor(80);
+      expect(world.clock.now()).toBeGreaterThanOrEqual(dl);
+      // Bob still sees old open state locally while held.
+      b.dispatch(ActBeforeDeadline({}));
+      await world.drain();
+      a.dispatch(ExpireDeadline({}));
+      await world.drain();
+    }
+
+    await world.assertConverged();
+    expect(deadlineOutcome(await world.serverSnapshot())).toBe('expired');
+    expect(deadlineOutcome(a.snapshot())).toBe('expired');
+    expect(deadlineOutcome(b.snapshot())).toBe('expired');
+    expect(a.hash()).toBe(await world.serverHash());
+  });
+});

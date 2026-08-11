@@ -18,9 +18,11 @@ describe('room sim: two client converge', () => {
     b.dispatch(Increment({}));
     a.dispatch(Increment({}));
     await world.assertConverged();
-    expect(a.hash()).toBe(b.hash());
+    const server = await world.serverSnapshot();
+    expect(counterValue(server)).toBe(3);
     expect(counterValue(a.snapshot())).toBe(3);
     expect(counterValue(b.snapshot())).toBe(3);
+    expect(a.hash()).toBe(await world.serverHash());
     const room = a.room();
     expect(room).not.toBeNull();
     expect(room!.getRoster().length).toBe(2);

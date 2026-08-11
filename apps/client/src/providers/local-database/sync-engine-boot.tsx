@@ -139,8 +139,10 @@ function renderSyncEngineTree(args: {
  * Opens local SQLite for the active `users.id` and exposes the sync engine.
  *
  * Waits for AuthBridge anon ensure / refresh to bind `currentUserId`. After
- * the first successful open, keeps the navigation tree mounted across identity
- * changes (sticky prior engine until the next one is ready).
+ * the first successful open, keeps the navigation tree mounted while the same
+ * identity reconnects (sticky prior engine). Across identity / database-name
+ * changes the prior engine is closed (web OPFS) so the tree shows loading
+ * until the next engine is ready.
  */
 export function SyncEngineBoot({
   children,
@@ -167,6 +169,13 @@ function SyncEngineBootWithUser({
   const dbName = useIdentitySqliteDbName(userId);
   const warmEngine = peekReadyAppSyncEngine(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
+  const lastDbNameRef = useRef(dbName);
+  // Identity switch closes the prior SQLite handle (web OPFS). Never keep the
+  // old engine sticky across database names — its connection is gone.
+  if (lastDbNameRef.current !== dbName) {
+    lastDbNameRef.current = dbName;
+    lastReadyEngineRef.current = warmEngine;
+  }
   const enginePromise = useSyncEnginePromise(dbName, userId);
   const boot = useSyncEngineBootState(enginePromise, warmEngine);
 

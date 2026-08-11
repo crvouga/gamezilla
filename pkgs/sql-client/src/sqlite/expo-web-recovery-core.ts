@@ -26,7 +26,9 @@ export function matchesRecoverableExpoSqliteWebErrorMessage(
     msg.includes('database disk image is malformed') ||
     msg.includes('file is not a database') ||
     msg.includes('database corruption') ||
-    msg.includes('sqlite_ioerr')
+    msg.includes('sqlite_ioerr') ||
+    msg.includes('automatic recovery is blocked') ||
+    msg.includes('holding the opfs handle')
   );
 }
 

@@ -44,7 +44,13 @@ async function deactivatePrevious(
   const previousName = pool.activeName;
   const previous = pool.ready.get(previousName);
   pool.activeName = null;
-  await previous?.disconnect();
+  if (previous === undefined) return;
+  // Soft-stop sync first, then close SQLite. Web OPFS is single-session: leaving
+  // the prior identity's handle open makes the next open fail (and OPFS wipe
+  // recovery throws "another tab or worker is holding the OPFS handle").
+  await previous.disconnect();
+  await previous.db.disconnect();
+  pool.ready.delete(previousName);
 }
 
 export type SyncEnginePoolApi = {

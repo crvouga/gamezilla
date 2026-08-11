@@ -28,8 +28,10 @@ describe('room sim: partition then heal', () => {
     }
 
     await world.assertConverged();
+    const server = await world.serverSnapshot();
+    expect(counterValue(server)).toBe(1);
     expect(counterValue(a.snapshot())).toBe(1);
     expect(counterValue(b.snapshot())).toBe(1);
-    expect(a.hash()).toBe(b.hash());
+    expect(a.hash()).toBe(await world.serverHash());
   });
 });

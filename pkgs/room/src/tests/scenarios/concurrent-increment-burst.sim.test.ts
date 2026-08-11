@@ -1,0 +1,37 @@
+import { describe, expect, test } from 'bun:test';
+import { openRoomSimWorld } from '../../sim/world';
+import {
+  counterValue,
+  Increment,
+  TestCounterModule,
+} from '../fixtures/counter-module';
+
+describe('room sim: concurrent increment burst (E-B01)', () => {
+  test('three clients burst N each → count and hashes match', async () => {
+    await using world = await openRoomSimWorld({
+      seed: process.env['SIM_SEED'] ?? '42',
+      module: TestCounterModule,
+      mildFaults: true,
+    });
+    const clients = [
+      await world.addClient({ id: 'alice' }),
+      await world.addClient({ id: 'bob' }),
+      await world.addClient({ id: 'carol' }),
+    ];
+    await world.assertConverged();
+
+    const perClient = 5;
+    for (let i = 0; i < perClient; i += 1) {
+      for (const c of clients) c.dispatch(Increment({}));
+    }
+    await world.assertConverged();
+    const expected = perClient * clients.length;
+    const server = await world.serverSnapshot();
+    expect(counterValue(server)).toBe(expected);
+    const serverHash = await world.serverHash();
+    for (const c of clients) {
+      expect(counterValue(c.snapshot())).toBe(expected);
+      expect(c.hash()).toBe(serverHash);
+    }
+  });
+});

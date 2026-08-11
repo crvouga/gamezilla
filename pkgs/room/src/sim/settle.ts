@@ -44,6 +44,24 @@ export function clientDomainHash<
   return module.hash(stripRoomMeta(room.getSnapshot()) as S);
 }
 
+/** Fold the committed log from storage into domain state (log truth). */
+export async function foldServerDomainState<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(args: {
+  readonly module: RoomModule<S, C, E, string>;
+  readonly storage: InMemoryRoomStorage;
+  readonly topic: string;
+}): Promise<S> {
+  const entries = await args.storage.loadEventsAfter(args.topic, 0);
+  let state = args.module.initialState();
+  for (const e of entries) {
+    state = args.module.reduce(state, e.event as E);
+  }
+  return state;
+}
+
 export async function serverDomainHash<
   S extends RoomState,
   C extends RoomCommandPayload,
@@ -53,11 +71,7 @@ export async function serverDomainHash<
   readonly storage: InMemoryRoomStorage;
   readonly topic: string;
 }): Promise<string> {
-  const entries = await args.storage.loadEventsAfter(args.topic, 0);
-  let state = args.module.initialState();
-  for (const e of entries) {
-    state = args.module.reduce(state, e.event as E);
-  }
+  const state = await foldServerDomainState(args);
   return args.module.hash(state);
 }
 
@@ -138,6 +152,12 @@ export async function assertRoomConverged<
     storage: ctx.storage,
     topic: ctx.topic,
   });
+  const liveHash = ctx.module.hash(ctx.server.getCommittedState());
+  if (liveHash !== serverHash) {
+    throw new Error(
+      `assertConverged: live committed diverged from log fold live=${liveHash} log=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
+    );
+  }
 
   for (const slot of ctx.clients.values()) {
     if (slot.room === null) {

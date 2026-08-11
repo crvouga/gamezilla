@@ -17,4 +17,14 @@ describe('matchesRecoverableExpoSqliteWebErrorMessage', () => {
       )
     ).toBe(true);
   });
+
+  test('matches locked OPFS recovery failures', () => {
+    expect(
+      matchesRecoverableExpoSqliteWebErrorMessage(
+        new Error(
+          'SQLite could not open the local database "user_x" and automatic recovery is blocked: another tab or worker is holding the OPFS handle'
+        )
+      )
+    ).toBe(true);
+  });
 });

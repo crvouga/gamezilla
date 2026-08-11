@@ -3,13 +3,14 @@ import { createSyncEnginePool } from '@pkgs/sync-engine/client';
 import {
   expectLiveNote,
   expectNoteNotLive,
+  isLiveNote,
   notesDomainPack,
   setNote,
 } from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('account switch pool isolation', () => {
-  test('createSyncEnginePool switches identities without cross-DB bleed', async () => {
+  test('createSyncEnginePool closes prior identity SQLite before next open', async () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 950,
@@ -44,24 +45,39 @@ describe('account switch pool isolation', () => {
     );
     expect(engB).toBe(acctB.getSyncEngine());
     expect(acctA.connection()).toBe('disconnected');
+    // Prior identity is dropped from the ready map after SQLite close (web OPFS
+    // single-session). Switch-back must recreate via `create`.
+    expect(pool.peekReady('user-a')).toBeNull();
+    expect(pool.peekReady('user-b')).toBe(engB);
     await expectNoteNotLive(acctB.db, 'a-pending');
 
     await acctB.mutate(setNote, { id: 'b-only', body: 'from-b' });
-    await world.runFor(200);
-    await expectLiveNote(acctB.db, 'b-only', { body: 'from-b' });
-    await expectNoteNotLive(acctA.db, 'b-only');
-
-    const engA2 = await pool.getOrCreate('user-a', async () =>
-      acctA.getSyncEngine()
-    );
-    expect(engA2).toBe(acctA.getSyncEngine());
-    await expectLiveNote(acctA.db, 'a-pending', { body: 'only-on-a' });
-
-    await acctA.connect();
     await acctB.connect();
+    await world.until(() => isLiveNote(world.server.db, 'b-only'));
+    await expectLiveNote(world.server.db, 'b-only', { body: 'from-b' });
+
+    // Drop closed :memory: clients before the next pool activation.
+    await world.node('device-a').crash();
+
+    let recreated = 0;
+    const nextA = await world.addClient({
+      id: 'device-a-reopen',
+      actorId: 'user-a',
+    });
+    const engA2 = await pool.getOrCreate('user-a', async () => {
+      recreated += 1;
+      return nextA.getSyncEngine();
+    });
+    expect(recreated).toBe(1);
+    expect(engA2).toBe(nextA.getSyncEngine());
+    expect(pool.peekReady('user-b')).toBeNull();
+    // Fresh local DB for the reopened identity — prior :memory: handle is gone.
+    await expectNoteNotLive(nextA.db, 'a-pending');
+
+    await world.node('device-b').crash();
+    await nextA.connect();
     await world.assertConverged();
-    await expectLiveNote(acctB.db, 'a-pending', { body: 'only-on-a' });
-    await expectLiveNote(acctA.db, 'b-only', { body: 'from-b' });
+    await expectLiveNote(nextA.db, 'b-only', { body: 'from-b' });
   });
 
   test('concurrent getOrCreate for different identities does not overlap create', async () => {
@@ -107,6 +123,8 @@ describe('account switch pool isolation', () => {
     expect(engA).toBe(acctA.getSyncEngine());
     expect(engB).toBe(acctB.getSyncEngine());
     expect(acctA.connection()).toBe('disconnected');
+    expect(pool.peekReady('user-a-race')).toBeNull();
+    expect(pool.peekReady('user-b-race')).toBe(engB);
   });
 
   test.each([951, 952, 953])(
@@ -127,10 +145,16 @@ describe('account switch pool isolation', () => {
       await a.mutate(setNote, { id: `pend-${seed}`, body: 'a' });
       await pool.getOrCreate('ub', async () => b.getSyncEngine());
       await expectNoteNotLive(b.db, `pend-${seed}`);
-      await a.connect();
+      expect(pool.peekReady('ua')).toBeNull();
+      await world.node('a').crash();
       await b.connect();
-      await world.assertConverged();
-      await expectLiveNote(b.db, `pend-${seed}`, { body: 'a' });
+      const a2 = await world.addClient({ id: 'a2', actorId: 'ua' });
+      await pool.getOrCreate('ua', async () => a2.getSyncEngine());
+      await world.node('b').crash();
+      await a2.mutate(setNote, { id: `pend-${seed}`, body: 'a' });
+      await a2.connect();
+      await world.until(() => isLiveNote(world.server.db, `pend-${seed}`));
+      await expectLiveNote(world.server.db, `pend-${seed}`, { body: 'a' });
     }
   );
 });

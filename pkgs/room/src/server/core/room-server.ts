@@ -76,6 +76,11 @@ export class RoomServer<
     this.committedState = config.module.initialState();
   }
 
+  /** Authoritative in-memory fold (same state the next `handle` reads). */
+  getCommittedState(): S {
+    return this.committedState;
+  }
+
   /** Load log from storage and fold into committedState (call on DO wake). */
   async hydrateFromStorage(): Promise<void> {
     const entries = await this.storage.loadEventsAfter(this.topic, 0);
