@@ -1,6 +1,10 @@
 import { empty, join, type Sql, type SqlFragment, sql } from '@pkgs/sql';
 
-import { PUZZLE_RATING_BAND_SIZE } from '../../shared/chess-puzzle-feed-config';
+import {
+  type ChessPuzzleFeedHistoryFilter,
+  PUZZLE_RATING_BAND_SIZE,
+} from '../../shared/chess-puzzle-feed-config';
+import { CHESS_PUZZLE_INTERACTION_KIND } from '../../shared/chess-puzzle-interaction-entities';
 
 export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
 
@@ -22,18 +26,67 @@ export type PuzzleCandidateRow = {
   readonly rating: number;
 };
 
-export type BuildPuzzleCandidatesSqlArgs = {
+export type BuildPuzzleFilterArgs = {
   readonly rating: number;
   readonly halfWindow: number | null;
   readonly ownerId: string;
+  readonly historyFilter: ChessPuzzleFeedHistoryFilter;
+  readonly themes: readonly string[];
   readonly currentPuzzleId: string | null;
-  readonly pickOffset?: number;
 };
 
-export function buildPuzzleCandidatesSql(
-  args: BuildPuzzleCandidatesSqlArgs
-): Sql<PuzzleCandidateRow> {
-  const pickOffset = args.pickOffset ?? 0;
+function buildHistoryCondition(
+  ownerId: string,
+  historyFilter: ChessPuzzleFeedHistoryFilter
+): SqlFragment | null {
+  if (ownerId.length === 0 || historyFilter === 'any') return null;
+  if (historyFilter === 'neverSeen') {
+    return sql<void>`
+      id NOT IN (
+        SELECT puzzle_id
+        FROM chess_puzzle_interactions
+        WHERE owner_id = ${ownerId}
+      )
+    `;
+  }
+  if (historyFilter === 'seen') {
+    return sql<void>`
+      id IN (
+        SELECT puzzle_id
+        FROM chess_puzzle_interactions
+        WHERE owner_id = ${ownerId}
+      )
+    `;
+  }
+  return sql<void>`
+    id IN (
+      SELECT puzzle_id
+      FROM chess_puzzle_interactions
+      WHERE owner_id = ${ownerId}
+    )
+    AND id NOT IN (
+      SELECT puzzle_id
+      FROM chess_puzzle_interactions
+      WHERE owner_id = ${ownerId}
+        AND kind = ${CHESS_PUZZLE_INTERACTION_KIND.solved}
+    )
+  `;
+}
+
+function buildThemeCondition(themes: readonly string[]): SqlFragment | null {
+  if (themes.length === 0) return null;
+  return sql<void>`
+    EXISTS (
+      SELECT 1
+      FROM json_each(themes) AS theme_row
+      WHERE theme_row.value IN (${join([...themes])})
+    )
+  `;
+}
+
+export function buildPuzzleFilterConditions(
+  args: BuildPuzzleFilterArgs
+): SqlFragment[] {
   const conditions: SqlFragment[] = [];
   if (args.halfWindow !== null) {
     conditions.push(
@@ -41,23 +94,30 @@ export function buildPuzzleCandidatesSql(
       sql<void>`rating <= ${args.rating + args.halfWindow}`
     );
   }
-  if (args.ownerId.length > 0) {
-    conditions.push(sql<void>`
-      id NOT IN (
-        SELECT puzzle_id
-        FROM chess_puzzle_interactions
-        WHERE owner_id = ${args.ownerId}
-      )
-    `);
-  }
+  const history = buildHistoryCondition(args.ownerId, args.historyFilter);
+  if (history !== null) conditions.push(history);
+  const themes = buildThemeCondition(args.themes);
+  if (themes !== null) conditions.push(themes);
   if (args.currentPuzzleId !== null && args.currentPuzzleId.length > 0) {
     conditions.push(sql<void>`id != ${args.currentPuzzleId}`);
   }
-  const whereClause: SqlFragment =
-    conditions.length > 0
-      ? sql<void>`WHERE ${join(conditions, ' AND ')}`
-      : empty;
+  return conditions;
+}
 
+function whereFromConditions(conditions: SqlFragment[]): SqlFragment {
+  if (conditions.length === 0) return empty;
+  return sql<void>`WHERE ${join(conditions, ' AND ')}`;
+}
+
+export type BuildPuzzleCandidatesSqlArgs = BuildPuzzleFilterArgs & {
+  readonly pickOffset?: number;
+};
+
+export function buildPuzzleCandidatesSql(
+  args: BuildPuzzleCandidatesSqlArgs
+): Sql<PuzzleCandidateRow> {
+  const pickOffset = args.pickOffset ?? 0;
+  const whereClause = whereFromConditions(buildPuzzleFilterConditions(args));
   return sql<PuzzleCandidateRow>`
     SELECT id, rating
     FROM chess_puzzles
@@ -65,6 +125,26 @@ export function buildPuzzleCandidatesSql(
     ORDER BY popularity DESC
     LIMIT ${PUZZLE_CANDIDATE_LIMIT}
     OFFSET ${pickOffset}
+  `;
+}
+
+export type PuzzleCountRow = { readonly value: number };
+
+export function buildPuzzleMatchedCountSql(
+  args: BuildPuzzleFilterArgs
+): Sql<PuzzleCountRow> {
+  const whereClause = whereFromConditions(buildPuzzleFilterConditions(args));
+  return sql<PuzzleCountRow>`
+    SELECT COUNT(*) AS value
+    FROM chess_puzzles
+    ${whereClause}
+  `;
+}
+
+export function buildPuzzleTotalCountSql(): Sql<PuzzleCountRow> {
+  return sql<PuzzleCountRow>`
+    SELECT COUNT(*) AS value
+    FROM chess_puzzles
   `;
 }
 

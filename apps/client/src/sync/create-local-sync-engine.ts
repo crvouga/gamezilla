@@ -9,6 +9,7 @@ import {
 } from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import type { Clock, Timers } from '@pkgs/clock';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { ExpoWebSqlClient } from '@pkgs/sql-client/sqlite/web';
 import {
   createLocalSyncEngine,
@@ -55,6 +56,17 @@ const SESSION_QUERIES = [
   'chessPuzzleInteractions',
 ] as const;
 
+/**
+ * Opens the local SQLite client for an identity. Sims inject a Node/Bun
+ * `:memory:` client so they skip OPFS / expo-sqlite.
+ */
+export type OpenLocalSqlClient = (args: {
+  readonly userId: string;
+  readonly databaseName: string;
+  readonly createId: CreateId;
+  readonly timers: Timers;
+}) => Promise<SqlClient>;
+
 export type CreateAppLocalSyncEngineArgs = {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
@@ -67,6 +79,8 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random: Random;
+  /** Sim override; defaults to the platform OPFS / expo-sqlite client. */
+  readonly openSqlClient?: OpenLocalSqlClient;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
@@ -146,7 +160,15 @@ export async function createAppLocalSyncEngine(
   await deleteLegacySidecarDb(args.databaseName);
   const syncLease = await tryAcquireSyncOwnerLease(args.databaseName);
   try {
-    const db = await openMainSqlClient(args.userId, args.createId, args.timers);
+    const db =
+      args.openSqlClient !== undefined
+        ? await args.openSqlClient({
+            userId: args.userId,
+            databaseName: args.databaseName,
+            createId: args.createId,
+            timers: args.timers,
+          })
+        : await openMainSqlClient(args.userId, args.createId, args.timers);
     const pushCtx = createMembershipChannels({
       auth: args.auth,
       userId: args.userId,

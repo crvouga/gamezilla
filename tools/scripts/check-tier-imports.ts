@@ -2,8 +2,9 @@
 /**
  * Fail-fast guardrail: enforce the workspace tier import pyramid.
  *
- *   apps -> libs, pkgs   (never other @apps/* packages)
- *   libs -> pkgs only    (libs may not import apps)
+ *   test -> apps, libs, pkgs  (system-wide DST / UI testing)
+ *   apps -> libs, pkgs   (never other @apps/*; never @test/*)
+ *   libs -> pkgs only    (libs may not import apps or test)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
  * Why a custom script (not `dependency-cruiser` alone): depcruise's
@@ -39,9 +40,10 @@ import {
 
 /** Tiers that the key tier is forbidden to import from. */
 const FORBIDDEN_FROM: Record<Tier, ReadonlySet<Tier>> = {
-  apps: new Set<Tier>(),
-  libs: new Set<Tier>(['apps']),
-  pkgs: new Set<Tier>(['apps', 'libs']),
+  test: new Set<Tier>(),
+  apps: new Set<Tier>(['test']),
+  libs: new Set<Tier>(['apps', 'test']),
+  pkgs: new Set<Tier>(['apps', 'libs', 'test']),
 };
 
 type ImportViolation = {
@@ -66,14 +68,15 @@ type ManifestViolation = {
 /** True when the import/dep edge breaks the tier pyramid or apps-not-apps. */
 function isForbiddenEdge(
   fromTier: Tier,
-  fromPkg: PackageName,
+  fromScoped: PackageName,
   targetTier: Tier,
-  targetPkg: string
+  targetShort: string
 ): boolean {
   if (FORBIDDEN_FROM[fromTier].has(targetTier)) return true;
   // Apps may compose libs/pkgs, never another @apps/* package.
-  if (fromTier === 'apps' && targetTier === 'apps' && fromPkg !== targetPkg) {
-    return true;
+  if (fromTier === 'apps' && targetTier === 'apps') {
+    const targetScoped = `@${targetTier}/${targetShort}`;
+    if (fromScoped !== targetScoped) return true;
   }
   return false;
 }
@@ -142,7 +145,7 @@ function scanManifestDeps(
     const block = manifest[depKind];
     if (!block) continue;
     for (const [depName] of Object.entries(block)) {
-      const match = /^@(apps|libs|pkgs)\/([^/]+)$/.exec(depName);
+      const match = /^@(apps|libs|pkgs|test)\/([^/]+)$/.exec(depName);
       if (!match) continue;
       const targetTier = match[1] as Tier;
       const targetPkg = match[2]!;
@@ -162,18 +165,18 @@ function scanManifestDeps(
 }
 
 function describeImport(v: ImportViolation): string {
-  return `  ${v.fromTier}/${v.fromPkg}: ${v.fromFile} -> @${v.targetScope}/${v.targetPkg}`;
+  return `  ${v.fromPkg}: ${v.fromFile} -> @${v.targetScope}/${v.targetPkg}`;
 }
 
 function describeManifest(v: ManifestViolation): string {
-  return `  ${v.fromTier}/${v.fromPkg}: ${v.manifestPath} (${v.depKind}) -> @${v.targetScope}/${v.targetPkg}`;
+  return `  ${v.fromPkg}: ${v.manifestPath} (${v.depKind}) -> @${v.targetScope}/${v.targetPkg}`;
 }
 
 function main(): never {
   const packages = discoverPackagesWithTier();
   if (packages.size === 0) {
     console.error(
-      `check:tier-imports: no @apps|@libs|@pkgs/* packages found under ${TIER_DIRS.join(', ')}.`
+      `check:tier-imports: no @apps|@libs|@pkgs|@test/* packages found under ${TIER_DIRS.join(', ')}.`
     );
     process.exit(1);
   }
@@ -188,7 +191,7 @@ function main(): never {
   const total = importViolations.length + manifestViolations.length;
   if (total === 0) {
     console.log(
-      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (apps -> libs -> pkgs).`
+      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (test -> apps -> libs -> pkgs).`
     );
     process.exit(0);
   }
@@ -218,8 +221,13 @@ function main(): never {
   }
 
   console.error('Tier import law:');
-  console.error('  apps/  -> libs/, pkgs/   (never other @apps/* packages)');
-  console.error('  libs/  -> pkgs/ only     (no upward imports to apps)');
+  console.error(
+    '  test/  -> apps/, libs/, pkgs/  (system-wide DST / UI testing)'
+  );
+  console.error(
+    '  apps/  -> libs/, pkgs/   (never other @apps/*; never @test/*)'
+  );
+  console.error('  libs/  -> pkgs/ only     (no upward imports to apps/test)');
   console.error(
     '  pkgs/  -> pkgs/ only     (leaf tier: reusable, app-agnostic)'
   );

@@ -8,7 +8,10 @@ import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '../../shared/chess-main-menu';
-import { ChessPuzzlePlayAttr } from '../../shared/chess-puzzle-play';
+import {
+  ChessPuzzlePlayAttr,
+  ClearChessPuzzlePlay,
+} from '../../shared/chess-puzzle-play';
 import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loading-status';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 
@@ -20,6 +23,12 @@ export type PuzzlePlayScreenModel = {
   /** Bumps only when the screen intentionally places a puzzle to Start. */
   startNonce: number;
   onRequestNext: () => void;
+  /**
+   * Feed settings Done with a real config change: Clear room play then bump
+   * seed so placement re-picks from the updated candidate pool (same path as
+   * Next, without abandon recording).
+   */
+  reselectActivePuzzleFromFeed: () => void;
   e2eLoadingStatus: ChessPuzzleE2ELoadingStatusProps;
 };
 
@@ -147,6 +156,11 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     setAttemptSeed((s) => s + 1);
   }, []);
 
+  const reselectActivePuzzleFromFeed = useCallback(() => {
+    dispatch(ClearChessPuzzlePlay({}));
+    onRequestNext();
+  }, [dispatch, onRequestNext]);
+
   return {
     backToChessRoot,
     activePuzzleId,
@@ -154,6 +168,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     readyGeneration,
     startNonce,
     onRequestNext,
+    reselectActivePuzzleFromFeed,
     e2eLoadingStatus: {
       myId,
       nextId,

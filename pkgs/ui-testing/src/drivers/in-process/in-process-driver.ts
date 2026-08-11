@@ -1,6 +1,7 @@
 import type { Timers } from '@pkgs/clock';
 import type { AppHarness } from '../../bootstrap/app-harness';
 import type {
+  HostNode,
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
@@ -15,18 +16,19 @@ import type {
 } from '../../driver/driver';
 import { formatSelector } from '../../selector/format';
 import type { Selector } from '../../selector/selector';
-import { createDomRenderAdapter } from './renderer-dom';
+import { createRntlRenderAdapter } from './renderer-rntl';
 
 export type InProcessDriverOptions<TContext = void> = {
   harness: AppHarness<TContext>;
-  /** Defaults to the shipped react-native-web DOM renderer. */
+  /** Defaults to the shipped React Native Testing Library renderer. */
   renderer?: RenderAdapter;
   readonly now: () => number;
   readonly timers: Timers;
 };
 
 /**
- * Boots an application entirely in-process via a {@link RenderAdapter}.
+ * Boots an application entirely in-process via a {@link RenderAdapter}
+ * (or a harness-owned {@link AppHarness.mount}).
  * No browser, emulator, IPC, or HTTP server.
  */
 export class InProcessDriver<TContext = void> implements Driver {
@@ -41,7 +43,7 @@ export class InProcessDriver<TContext = void> implements Driver {
 
   constructor(options: InProcessDriverOptions<TContext>) {
     this.harness = options.harness;
-    this.renderer = options.renderer ?? createDomRenderAdapter();
+    this.renderer = options.renderer ?? createRntlRenderAdapter();
     this.now = options.now;
     this.timers = options.timers;
   }
@@ -51,8 +53,16 @@ export class InProcessDriver<TContext = void> implements Driver {
     this.context = this.harness.setup
       ? await this.harness.setup()
       : (undefined as TContext);
-    const root = this.harness.createRoot(this.context as TContext);
-    this.app = await this.renderer.render(root);
+    const ctx = this.context as TContext;
+    if (this.harness.mount) {
+      this.app = await this.harness.mount(ctx);
+    } else if (this.harness.createRoot) {
+      this.app = await this.renderer.render(this.harness.createRoot(ctx));
+    } else {
+      throw new Error(
+        'AppHarness must provide createRoot() or mount() for in-process launch'
+      );
+    }
   }
 
   async close(): Promise<void> {
@@ -65,22 +75,27 @@ export class InProcessDriver<TContext = void> implements Driver {
   }
 
   async tap(target: Selector): Promise<void> {
+    await this.activate();
     await this.requireApp().tap(await this.requireElement(target));
   }
 
   async tapAt(target: Selector, position: TapPosition): Promise<void> {
+    await this.activate();
     await this.requireApp().tapAt(await this.requireElement(target), position);
   }
 
   async typeText(target: Selector, text: string): Promise<void> {
+    await this.activate();
     await this.requireApp().typeText(await this.requireElement(target), text);
   }
 
   async clearText(target: Selector): Promise<void> {
+    await this.activate();
     await this.requireApp().clearText(await this.requireElement(target));
   }
 
   async pressKey(key: DriverKey): Promise<void> {
+    await this.activate();
     await this.requireApp().pressKey(DRIVER_KEY_TO_DOM[key]);
   }
 
@@ -89,6 +104,7 @@ export class InProcessDriver<TContext = void> implements Driver {
     direction: ScrollDirection,
     amount = 100
   ): Promise<void> {
+    await this.activate();
     await this.requireApp().scroll(
       await this.requireElement(target),
       direction,
@@ -146,7 +162,11 @@ export class InProcessDriver<TContext = void> implements Driver {
     return this.app;
   }
 
-  private async requireElement(target: Selector): Promise<Element> {
+  private async activate(): Promise<void> {
+    await this.requireApp().activate?.();
+  }
+
+  private async requireElement(target: Selector): Promise<HostNode> {
     const element = this.requireApp().query(target);
     if (!element) {
       throw new ElementNotFoundError(formatSelector(target));

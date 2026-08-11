@@ -1,0 +1,55 @@
+{
+  "name": "@test/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bunx jest --config ./jest.config.cjs --runInBand"
+  },
+  "dependencies": {
+    "@apps/api": "workspace:*",
+    "@apps/client": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/infra": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/io": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/simulation": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@testing-library/react-native": "catalog:",
+    "expo": "catalog:",
+    "expo-router": "catalog:",
+    "react": "catalog:",
+    "react-native": "catalog:",
+    "react-native-reanimated": "catalog:",
+    "react-test-renderer": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/runtime": "catalog:",
+    "@jest/globals": "catalog:",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@types/jest": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
+    "@typescript/native": "catalog:",
+    "babel-jest": "catalog:",
+    "jest": "catalog:",
+    "jest-expo": "catalog:",
+    "typescript": "catalog:"
+  }
+}

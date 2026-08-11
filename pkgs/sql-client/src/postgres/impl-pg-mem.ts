@@ -44,6 +44,8 @@ export type CreatePgMemSqlClientOptions = {
 export type PgMemSqlClientBundle = {
   readonly mem: IMemoryDb;
   readonly sqlClient: PostgresSqlClient;
+  /** Same adapter pool Better Auth / migrate use. */
+  readonly pool: Pool;
 };
 
 function registerPgMemTestBuiltins(mem: IMemoryDb): void {
@@ -53,6 +55,136 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
     implementation: randomUUID,
     impure: true,
   });
+  // Kysely / Better Auth introspection uses Postgres regex ops.
+  mem.public.registerOperator({
+    operator: '!~',
+    left: DataType.text,
+    right: DataType.text,
+    returns: DataType.bool,
+    implementation: (lhs: string, rhs: string) => !new RegExp(rhs).test(lhs),
+  });
+  mem.public.registerOperator({
+    operator: '~',
+    left: DataType.text,
+    right: DataType.text,
+    returns: DataType.bool,
+    implementation: (lhs: string, rhs: string) => new RegExp(rhs).test(lhs),
+  });
+  mem.public.registerFunction({
+    name: 'has_schema_privilege',
+    args: [DataType.text, DataType.text],
+    returns: DataType.bool,
+    implementation: () => true,
+  });
+  mem.public.registerFunction({
+    name: 'col_description',
+    args: [DataType.integer, DataType.integer],
+    returns: DataType.text,
+    implementation: () => null,
+  });
+  mem.public.registerFunction({
+    name: 'pg_get_serial_sequence',
+    args: [DataType.text, DataType.text],
+    returns: DataType.text,
+    implementation: () => null,
+  });
+  mem.public.registerFunction({
+    name: 'quote_ident',
+    args: [DataType.text],
+    returns: DataType.text,
+    implementation: (ident: string) => `"${String(ident).replace(/"/g, '""')}"`,
+  });
+  // Migrate mutex — no-op in single-process sims (pg-mem has no real locks).
+  for (const arg of [DataType.integer, DataType.bigint] as const) {
+    mem.public.registerFunction({
+      name: 'pg_advisory_xact_lock',
+      args: [arg],
+      returns: DataType.bool,
+      implementation: () => true,
+      impure: true,
+    });
+  }
+  // Catalog views used by kv / entity-store / db-schema migrate.
+  mem.public.none(`
+    CREATE VIEW pg_tables AS
+    SELECT
+      table_schema AS schemaname,
+      table_name AS tablename,
+      NULL::text AS tableowner,
+      NULL::text AS tablespace,
+      NULL::boolean AS hasindexes,
+      NULL::boolean AS hasrules,
+      NULL::boolean AS hastriggers,
+      NULL::boolean AS rowsecurity
+    FROM information_schema.tables
+    WHERE table_type = 'BASE TABLE'
+  `);
+  mem.public.none(`
+    CREATE VIEW pg_indexes AS
+    SELECT
+      NULL::text AS schemaname,
+      NULL::text AS tablename,
+      NULL::text AS indexname,
+      NULL::text AS tablespace,
+      NULL::text AS indexdef
+    WHERE false
+  `);
+  mem.public.interceptQueries((sqlText) => {
+    const trimmed = sqlText.trim();
+    // No-op Postgres storage knobs pg-mem cannot parse.
+    if (/\bSET\s+STORAGE\b/i.test(trimmed)) {
+      return [];
+    }
+    if (/ALTER\s+TABLE\s+\S+\s+SET\s*\(/i.test(trimmed)) {
+      return [];
+    }
+    if (/ALTER\s+TABLE\s+\S+\s+SET\s+(UN)?LOGGED\b/i.test(trimmed)) {
+      return [];
+    }
+    // kv migrate probes relpersistence via regnamespace — emulate as unlogged.
+    if (/\brelpersistence\b/i.test(trimmed) && /\bpg_class\b/i.test(trimmed)) {
+      return [{ relpersistence: 'u' }];
+    }
+    if (!/^DO\s+\$\$/i.test(trimmed)) {
+      // Strip Postgres-only table options pg-mem cannot parse.
+      if (/\bUNLOGGED\b/i.test(trimmed) || /\)\s*WITH\s*\(/i.test(trimmed)) {
+        const simplified = trimmed
+          .replace(/\bUNLOGGED\b/gi, '')
+          .replace(/\)\s*WITH\s*\([\s\S]*?\)\s*;?\s*$/i, ');');
+        mem.public.none(simplified);
+        return [];
+      }
+      return null;
+    }
+    const statements = extractDoBlockStatements(trimmed);
+    for (const statement of statements) {
+      try {
+        mem.public.none(statement);
+      } catch {
+        // ignore — mirrors EXCEPTION WHEN duplicate_* / undefined_*
+      }
+    }
+    return [];
+  });
+  mem.registerLanguage('plpgsql', () => () => null);
+}
+
+/** Pull EXECUTE '…' / bare ALTER/CREATE statements out of a DO $$ block. */
+function extractDoBlockStatements(doSql: string): string[] {
+  const out: string[] = [];
+  const executeRe = /EXECUTE\s+'((?:\\'|[^'])*)'/gi;
+  for (const match of doSql.matchAll(executeRe)) {
+    const sqlText = (match[1] ?? '').replace(/\\'/g, "'").trim();
+    if (sqlText.length > 0) out.push(sqlText);
+  }
+  if (out.length > 0) return out;
+  const body = doSql
+    .replace(/^DO\s+\$\$\s*BEGIN/i, '')
+    .replace(/EXCEPTION[\s\S]*$/i, '')
+    .replace(/END\s*\$\$\s*;?\s*$/i, '')
+    .trim();
+  if (body.length > 0) out.push(body);
+  return out;
 }
 
 async function execOn(
@@ -118,7 +250,11 @@ async function runPgMemTransaction<T>(
   try {
     return await fn(createPgMemSessionClient(mem, executor));
   } catch (err) {
-    backup.restore();
+    try {
+      backup.restore();
+    } catch {
+      // DDL inside the callback bumps schemaVersion — backup cannot restore.
+    }
     throw err;
   }
 }
@@ -190,5 +326,5 @@ export function createPgMemSqlClient(
   const { Pool: MemPool } = mem.adapters.createPg(options?.queryLatencyMs);
   const pool = new MemPool() as Pool;
   const sqlClient = new SqlClientImplPgMem(mem, pool, dbScope);
-  return { mem, sqlClient };
+  return { mem, sqlClient, pool };
 }

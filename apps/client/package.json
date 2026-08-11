@@ -2,6 +2,28 @@
   "name": "@apps/client",
   "version": "1.0.0",
   "private": true,
+  "exports": {
+    "./providers/*": [
+      "./src/providers/*.ts",
+      "./src/providers/*.tsx",
+      "./src/providers/*/index.ts"
+    ],
+    "./app/*": [
+      "./src/app/*.ts",
+      "./src/app/*.tsx",
+      "./src/app/*/index.ts"
+    ],
+    "./sync/*": [
+      "./src/sync/*.ts",
+      "./src/sync/*.tsx",
+      "./src/sync/*/index.ts"
+    ],
+    "./storage/*": [
+      "./src/storage/*.ts",
+      "./src/storage/*.tsx",
+      "./src/storage/*/index.ts"
+    ]
+  },
   "main": "index.js",
   "scripts": {
     "android": "expo run:android",
@@ -121,6 +143,7 @@
     "workbox-window": "catalog:"
   },
   "devDependencies": {
+    "@libs/infra": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",

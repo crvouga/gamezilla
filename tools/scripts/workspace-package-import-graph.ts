@@ -1,6 +1,9 @@
 /**
- * Package-level graph of @apps|@libs|@pkgs / * imports discovered from source.
+ * Package-level graph of @apps|@libs|@pkgs|@test / * imports discovered from source.
  * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.
+ *
+ * Graph keys are full scoped names (`@pkgs/ui`, `@test/ui`) so short-name
+ * collisions across tiers do not merge unrelated packages.
  */
 
 import { readFileSync } from 'node:fs';
@@ -8,22 +11,24 @@ import { join, relative } from 'node:path';
 import { Glob } from 'bun';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
-const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
-export const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
+const SCOPES = ['@apps/', '@libs/', '@pkgs/', '@test/'] as const;
+export const TIER_DIRS = ['apps', 'libs', 'pkgs', 'test'] as const;
 export type Tier = (typeof TIER_DIRS)[number];
 const MAX_IMPORTER_SAMPLES = 3;
 
+/** Full scoped workspace package name, e.g. `@pkgs/ui`. */
 export type PackageName = string;
 
 /** from -> to -> sample importer paths (relative to repo root) */
 export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
+/** Captures the full scoped import (`@apps/api`, `@test/ui`, …). */
 export const IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(?:apps|libs|pkgs)\/([^/'"\s)]+)/g;
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs|test)\/[^/'"\s)]+)/g;
 
-/** Same as {@link IMPORT_PATTERN} but also captures the tier scope. */
+/** Same as {@link IMPORT_PATTERN} but also captures the tier scope + short name. */
 export const TIER_IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs)\/([^/'"\s)]+)/g;
+  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs|test)\/([^/'"\s)]+)/g;
 
 export function stripComments(source: string): string {
   return source
@@ -51,12 +56,10 @@ export function discoverPackages(): Map<PackageName, string> {
         continue;
       }
       if (typeof pkg.name !== 'string') continue;
-      const matchedScope = SCOPES.find(
-        (s) => typeof pkg.name === 'string' && pkg.name.startsWith(s)
-      );
+      const name = pkg.name;
+      const matchedScope = SCOPES.find((s) => name.startsWith(s));
       if (matchedScope === undefined) continue;
-      const shortName = (pkg.name as string).slice(matchedScope.length);
-      packages.set(shortName, join(abs, '..'));
+      packages.set(name, join(abs, '..'));
     }
   }
   return packages;
@@ -93,8 +96,7 @@ export function discoverPackagesWithTier(): Map<PackageName, PackageInfo> {
       const scopedName = pkg.name;
       const matchedScope = SCOPES.find((s) => scopedName.startsWith(s));
       if (matchedScope === undefined) continue;
-      const shortName = scopedName.slice(matchedScope.length);
-      packages.set(shortName, {
+      packages.set(scopedName, {
         dir: join(abs, '..'),
         tier,
         scopedName,

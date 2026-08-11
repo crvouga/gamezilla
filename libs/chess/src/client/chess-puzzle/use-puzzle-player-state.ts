@@ -206,9 +206,11 @@ function frozenPlayerModel(args: {
   controls: PlayerControls;
   visual: PlayerVisual;
   completion: ReturnType<typeof useChessPuzzleCompletion>;
+  puzzleId: string;
 }) {
-  const { m, controls, visual, completion } = args;
+  const { m, controls, visual, completion, puzzleId } = args;
   return {
+    puzzleId,
     rating: m.rating,
     playerElo: m.playerElo,
     completion,
@@ -288,8 +290,8 @@ function usePuzzlePlayerUi(
     rating: m.rating,
   });
   return useMemo(
-    () => frozenPlayerModel({ m, controls, visual, completion }),
-    [m, controls, visual, completion]
+    () => frozenPlayerModel({ m, controls, visual, completion, puzzleId }),
+    [m, controls, visual, completion, puzzleId]
   );
 }
 

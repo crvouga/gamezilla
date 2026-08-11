@@ -1,4 +1,5 @@
 // @io-wall-ok
+
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
@@ -132,6 +133,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     secretStore,
     betterAuth,
     dbScope,
+    io: roomIo,
     apiUrlOverride,
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
     secretsEnv,

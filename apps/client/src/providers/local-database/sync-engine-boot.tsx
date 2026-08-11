@@ -20,9 +20,10 @@ import { type ReactNode, useMemo, useRef } from 'react';
 import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
 import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';
 import {
-  getOrCreateAppLocalSyncEngine,
-  peekReadyAppSyncEngine,
+  type AppSyncEnginePool,
+  defaultAppSyncEnginePool,
 } from '../../sync/sync-engine-pool';
+import { useAppOverrides } from '../app-overrides';
 import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
   LocalDatabaseBootErrorScreen,
@@ -61,8 +62,10 @@ function useSyncClientAuthRef(): SyncClientAuth {
 
 function useSyncEnginePromise(
   dbName: string,
-  userId: string
+  userId: string,
+  pool: AppSyncEnginePool
 ): Promise<SyncEngine> {
+  const { openSqlClient } = useAppOverrides();
   const config = useConfigService();
   const observability = useObservability();
   const io = useIo();
@@ -85,7 +88,8 @@ function useSyncEnginePromise(
   ioRef.current = io;
   return useMemo(
     () =>
-      getOrCreateAppLocalSyncEngine({
+      pool.getOrCreate({
+        ...(openSqlClient !== undefined ? { openSqlClient } : {}),
         get config() {
           return configRef.current;
         },
@@ -111,7 +115,7 @@ function useSyncEnginePromise(
         databaseName: dbName,
         userId,
       }),
-    [dbName, userId]
+    [dbName, userId, pool, openSqlClient]
   );
 }
 
@@ -167,7 +171,8 @@ function SyncEngineBootWithUser({
   readonly children: ReactNode;
 }): ReactNode {
   const dbName = useIdentitySqliteDbName(userId);
-  const warmEngine = peekReadyAppSyncEngine(dbName);
+  const pool = useAppOverrides().syncEnginePool ?? defaultAppSyncEnginePool;
+  const warmEngine = pool.peekReady(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const lastDbNameRef = useRef(dbName);
   // Identity switch closes the prior SQLite handle (web OPFS). Never keep the
@@ -176,7 +181,7 @@ function SyncEngineBootWithUser({
     lastDbNameRef.current = dbName;
     lastReadyEngineRef.current = warmEngine;
   }
-  const enginePromise = useSyncEnginePromise(dbName, userId);
+  const enginePromise = useSyncEnginePromise(dbName, userId, pool);
   const boot = useSyncEngineBootState(enginePromise, warmEngine);
 
   if (boot.phase === 'ready') {

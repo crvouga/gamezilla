@@ -149,6 +149,8 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
+        "test/**/*.ts",
+        "test/**/*.tsx",
         ".dependency-cruiser.cjs"
       ],
       "outputs": [],
@@ -165,6 +167,9 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "test/**/*.ts",
+        "test/**/*.tsx",
+        "test/*/package.json",
         "tools/scripts/check-circular-deps.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -223,6 +228,11 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "test/**/*.ts",
+        "test/**/*.tsx",
+        "test/**/*.mts",
+        "test/**/*.cts",
+        "test/*/package.json",
         "tools/scripts/check-tier-imports.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -472,7 +482,9 @@
       "inputs": [
         "tools/scripts/run-sim-determinism.ts",
         "libs/**/*.sim.test.ts",
-        "pkgs/**/*.sim.test.ts"
+        "pkgs/**/*.sim.test.ts",
+        "test/**/*.sim.test.ts",
+        "test/**/*.sim.test.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"

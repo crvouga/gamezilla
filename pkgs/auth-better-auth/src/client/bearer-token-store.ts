@@ -4,138 +4,249 @@ import { Platform } from 'react-native';
 const BEARER_STORAGE_KEY = 'gamezilla.better-auth.bearer';
 
 /**
- * `undefined` = not hydrated from disk yet; `null` = known empty / cleared.
- * Distinguishes "cleared on purpose" from "not loaded" so peek cannot
- * rehydrate a just-cleared token from localStorage mid-await.
+ * Storage backend shared by the Better Auth React client (expoClient cookie
+ * storage) and the bearer token store. Intentionally SecureStore-shaped so the
+ * production default is `expo-secure-store` verbatim; tests / multiple
+ * in-process actors inject an isolated in-memory implementation instead.
+ *
+ * `getItem` / `setItem` are the synchronous surface expoClient requires. The
+ * async `*Async` methods (SecureStore-style) back the bearer store's persisted
+ * reads/writes; when absent the store falls back to the synchronous methods.
  */
-let memoryToken: string | null | undefined = undefined;
-/** Blocks disk rehydrate after sign-out / OAuth handoff clears. */
-let explicitlyCleared = false;
-/** While true, ignore `set-auth-token` (sign-out session refetch race). */
-let suppressBearerCapture = false;
+export type AuthClientStorage = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): unknown;
+  removeItem?(key: string): unknown;
+  getItemAsync?(key: string): Promise<string | null>;
+  setItemAsync?(key: string, value: string): Promise<unknown>;
+  deleteItemAsync?(key: string): Promise<unknown>;
+};
 
-function syncReadWebLocalStorage(): string | null {
-  if (Platform.OS !== 'web') return null;
-  try {
-    const stored = globalThis.localStorage?.getItem(BEARER_STORAGE_KEY) ?? null;
-    if (stored === null || stored.trim().length === 0) return null;
-    return stored.trim();
-  } catch {
-    return null;
-  }
-}
-
-/** Synchronous peek (web also checks localStorage for E2E / reload). */
-export function peekBearerToken(): string | null {
-  if (explicitlyCleared) return null;
-  if (memoryToken !== undefined) return memoryToken;
-  const fromWeb = syncReadWebLocalStorage();
-  if (fromWeb !== null) {
-    memoryToken = fromWeb;
-    return fromWeb;
-  }
-  memoryToken = null;
-  return null;
-}
-
-async function readPersisted(): Promise<string | null> {
-  if (Platform.OS === 'web') {
-    try {
-      const stored =
-        globalThis.localStorage?.getItem(BEARER_STORAGE_KEY) ?? null;
-      if (stored === null || stored.trim().length === 0) return null;
-      return stored.trim();
-    } catch {
-      return null;
-    }
-  }
-  try {
-    const stored = await SecureStore.getItemAsync(BEARER_STORAGE_KEY);
-    if (stored === null || stored.trim().length === 0) return null;
-    return stored.trim();
-  } catch {
-    return null;
-  }
-}
-
-async function writePersisted(token: string | null): Promise<void> {
-  if (Platform.OS === 'web') {
-    try {
-      if (token === null) {
-        globalThis.localStorage?.removeItem(BEARER_STORAGE_KEY);
-      } else {
-        globalThis.localStorage?.setItem(BEARER_STORAGE_KEY, token);
-      }
-    } catch {
-      // ignore
-    }
-    return;
-  }
-  try {
-    if (token === null) {
-      await SecureStore.deleteItemAsync(BEARER_STORAGE_KEY);
-    } else {
-      await SecureStore.setItemAsync(BEARER_STORAGE_KEY, token);
-    }
-  } catch {
-    // ignore
-  }
-}
-
-export async function readStoredBearerToken(): Promise<string | null> {
-  if (explicitlyCleared) return null;
-  if (memoryToken !== undefined) return memoryToken;
-  const stored = await readPersisted();
-  // Sign-out may clear while SecureStore read is in flight.
-  if (explicitlyCleared) return null;
-  memoryToken = stored;
-  return stored;
-}
-
-export async function writeStoredBearerToken(token: string): Promise<void> {
-  const trimmed = token.trim();
-  explicitlyCleared = false;
-  memoryToken = trimmed.length > 0 ? trimmed : null;
-  await writePersisted(memoryToken);
-}
-
-export async function clearStoredBearerToken(): Promise<void> {
-  clearStoredBearerTokenSync();
-  // Web localStorage already removed synchronously; native needs SecureStore.
-  if (Platform.OS !== 'web') {
-    await writePersisted(null);
-  }
+/** Isolated in-memory {@link AuthClientStorage} (one Map per actor). */
+export function createInMemoryAuthClientStorage(): AuthClientStorage {
+  const map = new Map<string, string>();
+  return {
+    getItem: (key) => map.get(key) ?? null,
+    setItem: (key, value) => {
+      map.set(key, value);
+    },
+    removeItem: (key) => {
+      map.delete(key);
+    },
+  };
 }
 
 /**
- * Drop bearer from memory + web localStorage immediately (no await). Use on
- * OAuth return / sign-out before any get-session so a stale Authorization
- * header cannot overwrite session cookies inside Better Auth's bearer() hook.
+ * Per-actor bearer token store. Holds no module-level state so multiple
+ * clients can coexist in one process, each with isolated memory + persistence.
  */
-export function clearStoredBearerTokenSync(): void {
-  explicitlyCleared = true;
-  memoryToken = null;
-  if (Platform.OS !== 'web') return;
-  try {
-    globalThis.localStorage?.removeItem(BEARER_STORAGE_KEY);
-  } catch {
-    // ignore
+export type BearerTokenStore = {
+  /** Synchronous peek (web / injected storage also checks disk for E2E). */
+  peek(): string | null;
+  read(): Promise<string | null>;
+  write(token: string): Promise<void>;
+  clear(): Promise<void>;
+  clearSync(): void;
+  setSuppressCapture(suppress: boolean): void;
+  captureFromResponse(response: Response): void;
+};
+
+type Persistence = {
+  peekSync(): string | null;
+  read(): Promise<string | null>;
+  write(token: string | null): Promise<void>;
+  removeSync(): void;
+};
+
+function trimToken(value: string | null): string | null {
+  if (value === null) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function createDefaultPersistence(): Persistence {
+  const isWeb = Platform.OS === 'web';
+  return {
+    peekSync() {
+      if (!isWeb) return null;
+      try {
+        return trimToken(
+          globalThis.localStorage?.getItem(BEARER_STORAGE_KEY) ?? null
+        );
+      } catch {
+        return null;
+      }
+    },
+    async read() {
+      if (isWeb) return this.peekSync();
+      try {
+        return trimToken(await SecureStore.getItemAsync(BEARER_STORAGE_KEY));
+      } catch {
+        return null;
+      }
+    },
+    async write(token) {
+      if (isWeb) {
+        try {
+          if (token === null) {
+            globalThis.localStorage?.removeItem(BEARER_STORAGE_KEY);
+          } else {
+            globalThis.localStorage?.setItem(BEARER_STORAGE_KEY, token);
+          }
+        } catch {
+          // best-effort
+        }
+        return;
+      }
+      try {
+        if (token === null) {
+          await SecureStore.deleteItemAsync(BEARER_STORAGE_KEY);
+        } else {
+          await SecureStore.setItemAsync(BEARER_STORAGE_KEY, token);
+        }
+      } catch {
+        // best-effort
+      }
+    },
+    removeSync() {
+      if (!isWeb) return;
+      try {
+        globalThis.localStorage?.removeItem(BEARER_STORAGE_KEY);
+      } catch {
+        // best-effort
+      }
+    },
+  };
+}
+
+function createInjectedPersistence(storage: AuthClientStorage): Persistence {
+  return {
+    peekSync() {
+      try {
+        return trimToken(storage.getItem(BEARER_STORAGE_KEY));
+      } catch {
+        return null;
+      }
+    },
+    async read() {
+      try {
+        if (storage.getItemAsync !== undefined) {
+          return trimToken(await storage.getItemAsync(BEARER_STORAGE_KEY));
+        }
+        return trimToken(storage.getItem(BEARER_STORAGE_KEY));
+      } catch {
+        return null;
+      }
+    },
+    async write(token) {
+      try {
+        if (token === null) {
+          if (storage.deleteItemAsync !== undefined) {
+            await storage.deleteItemAsync(BEARER_STORAGE_KEY);
+          } else {
+            storage.removeItem?.(BEARER_STORAGE_KEY);
+          }
+          return;
+        }
+        if (storage.setItemAsync !== undefined) {
+          await storage.setItemAsync(BEARER_STORAGE_KEY, token);
+        } else {
+          storage.setItem(BEARER_STORAGE_KEY, token);
+        }
+      } catch {
+        // best-effort
+      }
+    },
+    removeSync() {
+      try {
+        storage.removeItem?.(BEARER_STORAGE_KEY);
+      } catch {
+        // best-effort
+      }
+    },
+  };
+}
+
+export function createBearerTokenStore(options?: {
+  readonly storage?: AuthClientStorage;
+}): BearerTokenStore {
+  const persistence =
+    options?.storage !== undefined
+      ? createInjectedPersistence(options.storage)
+      : createDefaultPersistence();
+
+  /**
+   * `undefined` = not hydrated from disk yet; `null` = known empty / cleared.
+   * Distinguishes "cleared on purpose" from "not loaded" so peek cannot
+   * rehydrate a just-cleared token from storage mid-await.
+   */
+  let memoryToken: string | null | undefined;
+  /** Blocks disk rehydrate after sign-out / OAuth handoff clears. */
+  let explicitlyCleared = false;
+  /** While true, ignore `set-auth-token` (sign-out session refetch race). */
+  let suppressCapture = false;
+
+  function peek(): string | null {
+    if (explicitlyCleared) return null;
+    if (memoryToken !== undefined) return memoryToken;
+    const fromDisk = persistence.peekSync();
+    memoryToken = fromDisk;
+    return fromDisk;
   }
-}
 
-/** Block capturing `set-auth-token` during sign-out refetch races. */
-export function setSuppressBearerCapture(suppress: boolean): void {
-  suppressBearerCapture = suppress;
-}
+  async function read(): Promise<string | null> {
+    if (explicitlyCleared) return null;
+    if (memoryToken !== undefined) return memoryToken;
+    const stored = await persistence.read();
+    // Sign-out may clear while the disk read is in flight.
+    if (explicitlyCleared) return null;
+    memoryToken = stored;
+    return stored;
+  }
 
-/** Capture `set-auth-token` from Better Auth bearer plugin responses. */
-export function captureBearerFromResponse(response: Response): void {
-  if (suppressBearerCapture) return;
-  const token = response.headers.get('set-auth-token')?.trim() ?? '';
-  if (token.length === 0) return;
-  explicitlyCleared = false;
-  memoryToken = token;
-  void writeStoredBearerToken(token);
+  async function write(token: string): Promise<void> {
+    const trimmed = trimToken(token);
+    explicitlyCleared = false;
+    memoryToken = trimmed;
+    await persistence.write(trimmed);
+  }
+
+  function clearSync(): void {
+    explicitlyCleared = true;
+    memoryToken = null;
+    persistence.removeSync();
+  }
+
+  async function clear(): Promise<void> {
+    clearSync();
+    // Web storage already removed synchronously; native needs the async delete.
+    if (Platform.OS !== 'web') {
+      await persistence.write(null);
+    }
+  }
+
+  function setSuppressCapture(suppress: boolean): void {
+    suppressCapture = suppress;
+  }
+
+  function captureFromResponse(response: Response): void {
+    if (suppressCapture) return;
+    const token = response.headers.get('set-auth-token')?.trim() ?? '';
+    if (token.length === 0) return;
+    explicitlyCleared = false;
+    memoryToken = token;
+    void persistence.write(token);
+  }
+
+  return {
+    peek,
+    read,
+    write,
+    clear,
+    clearSync,
+    setSuppressCapture,
+    captureFromResponse,
+  };
 }
 
 /** Storage key used by Playwright E2E token injection (web localStorage). */

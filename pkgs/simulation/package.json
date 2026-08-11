@@ -12,25 +12,29 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test src/tests/rng.test.ts --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-native": "catalog:",
-    "react-native-web": "catalog:"
+    "react-native": "catalog:"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "catalog:",
+    "@babel/runtime": "catalog:",
+    "@jest/globals": "catalog:",
     "@playwright/test": "catalog:",
+    "@testing-library/react-native": "catalog:",
     "@types/bun": "catalog:",
+    "@types/jest": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
+    "@types/react-test-renderer": "catalog:",
     "@typescript/native": "catalog:",
-    "happy-dom": "catalog:",
+    "expo": "catalog:",
+    "jest": "catalog:",
+    "jest-expo": "catalog:",
+    "react-test-renderer": "catalog:",
     "typescript": "catalog:"
   }
 }

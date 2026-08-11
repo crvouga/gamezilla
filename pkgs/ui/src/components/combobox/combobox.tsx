@@ -1,35 +1,26 @@
 /**
  * `Combobox` — trigger row that opens a {@link ResponsiveSurface} with a
- * searchable, filterable option list (single select).
+ * searchable, filterable option list (single or multiple select).
  */
 
 import { useLingui } from '@lingui/react/macro';
-import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { type ReactNode, useId } from 'react';
 
 import { componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ResponsiveSurface } from '../responsive-surface';
 import { ComboboxBody } from './combobox-body';
 import { ComboboxLabel, ComboboxTrigger } from './combobox-trigger';
-import { type ComboboxProps, defaultFilterOption } from './combobox-types';
+import type { ComboboxProps } from './combobox-types';
+import { useComboboxController } from './use-combobox-controller';
 
-export type { ComboboxOption, ComboboxProps } from './combobox-types';
-
-function useComboboxQuery(
-  queryProp: string | undefined,
-  onQueryChange: ((query: string) => void) | undefined
-) {
-  const [internalQuery, setInternalQuery] = useState('');
-  const controlled = onQueryChange !== undefined;
-  return {
-    query: controlled ? (queryProp ?? '') : internalQuery,
-    setQuery: controlled ? onQueryChange : setInternalQuery,
-    resetInternal: () => {
-      if (!controlled) setInternalQuery('');
-    },
-  };
-}
+export type {
+  ComboboxMultipleProps,
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSelectionMode,
+  ComboboxSingleProps,
+} from './combobox-types';
 
 function resolveSurfaceTitle(
   surfaceTitle: ReactNode | undefined,
@@ -45,50 +36,59 @@ export function Combobox<T extends string | number = string>(
   props: ComboboxProps<T>
 ) {
   const { t } = useLingui();
-  const [open, setOpen] = useState(false);
-  const { query, setQuery, resetInternal } = useComboboxQuery(
-    props.query,
-    props.onQueryChange
-  );
-  const filterOption = props.filterOption ?? defaultFilterOption;
-  const selected = props.options.find((o) => o.value === props.value);
-  const filtered = useMemo(
-    () => props.options.filter((option) => filterOption(option, query)),
-    [props.options, filterOption, query]
-  );
-  const handleClose = () => {
-    setOpen(false);
-    resetInternal();
-  };
+  const listboxId = useId();
+  const c = useComboboxController(props);
+  const activeDescendantId =
+    c.open && c.filtered.length > 0
+      ? `${listboxId}-opt-${c.highlightedIndex}`
+      : undefined;
 
   return (
     <Box {...componentDataSet('Combobox', props.dataSet)}>
       {props.label !== undefined ? <ComboboxLabel label={props.label} /> : null}
       <ComboboxTrigger
-        selected={selected}
+        selected={c.selectedSingle}
+        selectedOptions={c.selectedMulti}
+        multiple={c.multiple}
         placeholder={props.placeholder ?? t`Select…`}
         disabled={props.disabled ?? false}
+        open={c.open}
+        listboxId={listboxId}
         onPress={() => {
-          resetInternal();
-          setOpen(true);
+          c.resetInternal();
+          c.setOpen(true);
         }}
+        onClear={c.multiple ? c.handleClear : undefined}
+        onRemove={c.removeMultiValue}
       />
       <ResponsiveSurface
-        visible={open}
-        onClose={handleClose}
+        visible={c.open}
+        onClose={c.handleClose}
         title={resolveSurfaceTitle(props.surfaceTitle, props.label, t`Choose`)}
+        // Always modal: Combobox is often nested in another surface, and
+        // BottomSheetModal cannot mount from the SurfaceStack portal host
+        // (outside BottomSheetModalProvider) — that throws
+        // BottomSheetModalInternalContext null.
+        presentation="modal"
       >
         <ComboboxBody
-          query={query}
-          setQuery={setQuery}
+          query={c.query}
+          setQuery={c.setQuery}
           searchPlaceholder={props.searchPlaceholder ?? t`Search…`}
-          open={open}
-          options={filtered}
-          value={props.value ?? null}
-          onPick={(next) => {
-            props.onValueChange(next);
-            handleClose();
-          }}
+          open={c.open}
+          options={c.filtered}
+          value={
+            !c.multiple ? ((props.value as T | null | undefined) ?? null) : null
+          }
+          values={c.selectedSet}
+          highlightedIndex={c.highlightedIndex}
+          listboxId={listboxId}
+          activeDescendantId={activeDescendantId}
+          multiple={c.multiple}
+          doneLabel={t`Done`}
+          onPick={c.handlePick}
+          onDone={c.handleClose}
+          onSearchKeyDown={c.onKey}
           renderOption={props.renderOption}
           loading={props.loading ?? false}
           emptyMessage={props.emptyMessage}

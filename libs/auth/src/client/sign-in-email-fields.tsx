@@ -27,6 +27,7 @@ export function SignInEmailFields(props: {
     <Box sx={{ alignSelf: 'stretch', gap: 2 }}>
       <TextInput
         label={<Trans>Email</Trans>}
+        accessibilityLabel={t`Email`}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -37,6 +38,7 @@ export function SignInEmailFields(props: {
       />
       <TextInput
         label={<Trans>Password</Trans>}
+        accessibilityLabel={t`Password`}
         secureTextEntry
         textContentType={mode === 'sign-up' ? 'newPassword' : 'password'}
         value={password}

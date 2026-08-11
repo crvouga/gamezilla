@@ -24,6 +24,7 @@
     "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "better-auth": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",

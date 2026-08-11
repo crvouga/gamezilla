@@ -6,6 +6,7 @@ import { useIo } from '@pkgs/io';
 import { ComposeProviders } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
 
+import { useAppOverrides } from './app-overrides';
 import { AppApiClient } from './auth/api-client';
 
 function readAuthBaseURL(): string {
@@ -18,11 +19,27 @@ function readAuthBaseURL(): string {
 }
 
 function BetterAuthStack({ children }: { children: ReactNode }): ReactNode {
-  const baseURL = useMemo(() => readAuthBaseURL(), []);
+  const { authBaseURL, authClientStorage } = useAppOverrides();
+  const baseURL = useMemo(
+    () => authBaseURL ?? readAuthBaseURL(),
+    [authBaseURL]
+  );
   const io = useIo();
+  // Wire the injected transport as Better Auth's fetch so sims running with
+  // `createSimIo({ http: honoClient })` dispatch auth in-process (no sockets).
   const port = useMemo(
-    () => createBetterAuthClientAdapter({ baseURL, timers: io.timers }),
-    [baseURL, io.timers]
+    () =>
+      createBetterAuthClientAdapter({
+        baseURL,
+        timers: io.timers,
+        // Arrow keeps the injected HttpClient receiver (do not pass
+        // `io.http.fetch` unbound — Better Auth stores it as customFetchImpl).
+        fetch: (input, init) => io.http.fetch(input, init),
+        ...(authClientStorage !== undefined
+          ? { storage: authClientStorage }
+          : {}),
+      }),
+    [baseURL, io.timers, io.http, authClientStorage]
   );
   return <AuthClientProvider port={port}>{children}</AuthClientProvider>;
 }
@@ -32,6 +49,9 @@ const authProviders = [BetterAuthStack, AppApiClient, AuthBridge];
 /**
  * Auth session, API client, and auth bridge. Auth modals mount under
  * {@link AppUiProvider} (needs SurfaceStack / AppUiPortals).
+ *
+ * Better Auth `baseURL` defaults to `EXPO_PUBLIC_API_URL`; sims override it
+ * via {@link AppOverrides}`.authBaseURL` and dispatch through `io.http.fetch`.
  */
 export function AppAuthProvider({
   children,

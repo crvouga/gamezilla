@@ -18,7 +18,11 @@ export {
   expectVisible,
 } from './assertions/assertions';
 export type { AppHarness } from './bootstrap/app-harness';
-export type { RenderAdapter, RenderedApp } from './bootstrap/render-adapter';
+export type {
+  HostNode,
+  RenderAdapter,
+  RenderedApp,
+} from './bootstrap/render-adapter';
 export {
   ElementNotFoundError,
   NotImplementedError,
@@ -53,7 +57,10 @@ export {
   InProcessDriver,
   type InProcessDriverOptions,
 } from './drivers/in-process/in-process-driver';
-export { createDomRenderAdapter } from './drivers/in-process/renderer-dom';
+export {
+  createRenderedAppFromRntl,
+  createRntlRenderAdapter,
+} from './drivers/in-process/renderer-rntl';
 export {
   PlaywrightDriver,
   type PlaywrightDriverOptions,

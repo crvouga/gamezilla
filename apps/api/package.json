@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
+    ".": "./src/index.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",

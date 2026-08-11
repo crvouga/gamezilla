@@ -1,4 +1,3 @@
-import { type AudioPlayer, createAudioPlayer } from 'expo-audio';
 import { Platform } from 'react-native';
 import { getManifestVolume } from './manifest';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
@@ -24,12 +23,30 @@ const WARM_SOUND_IDS: readonly SoundId[] = [
   'social.roomLeft',
 ];
 
-type WarmablePlayer = {
+type AudioPlayerLike = {
+  volume: number;
   seekTo: (seconds: number) => Promise<void>;
+  play: () => void;
   pause?: () => void;
+  remove: () => void;
 };
 
-async function warmPlayer(player: WarmablePlayer): Promise<void> {
+type ExpoAudioModule = {
+  createAudioPlayer: (source: unknown) => AudioPlayerLike;
+};
+
+function loadExpoAudio(): ExpoAudioModule | null {
+  try {
+    // Lazy: importing `expo-audio` at module top crashes under Jest when the
+    // native AudioPlayer prototype is missing. Keep SoundId / Sounds imports safe.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-audio') as ExpoAudioModule;
+  } catch {
+    return null;
+  }
+}
+
+async function warmPlayer(player: AudioPlayerLike): Promise<void> {
   try {
     await player.seekTo(0);
     player.pause?.();
@@ -38,7 +55,7 @@ async function warmPlayer(player: WarmablePlayer): Promise<void> {
   }
 }
 
-async function playFromStart(player: AudioPlayer): Promise<void> {
+async function playFromStart(player: AudioPlayerLike): Promise<void> {
   try {
     try {
       await player.seekTo(0);
@@ -64,15 +81,30 @@ export type SoundEngine = {
   readonly dispose: () => void;
 };
 
+function createNoopSoundEngine(): SoundEngine {
+  return {
+    play: () => undefined,
+    warm: () => undefined,
+    dispose: () => undefined,
+  };
+}
+
 export function createSoundEngine(
   options: SoundEngineOptions = {}
 ): SoundEngine {
+  const expoAudio = loadExpoAudio();
+  if (expoAudio == null || typeof expoAudio.createAudioPlayer !== 'function') {
+    return createNoopSoundEngine();
+  }
+  // Capture after guard: nested fns do not keep the null narrowing.
+  const { createAudioPlayer } = expoAudio;
+
   const muted = options.muted ?? false;
   const masterVolume = options.masterVolume ?? 1;
   const respectReducedMotion = options.respectReducedMotion ?? true;
-  const players = new Map<SoundId, AudioPlayer>();
+  const players = new Map<SoundId, AudioPlayerLike>();
 
-  function getPlayer(id: SoundId): AudioPlayer {
+  function getPlayer(id: SoundId): AudioPlayerLike {
     const existing = players.get(id);
     if (existing) return existing;
     const source = soundAssetSources[id as SoundAssetSourceId];

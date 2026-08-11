@@ -17,6 +17,8 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_PREFIXES = ['pkgs/auth-better-auth/'];
 
 const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/client/src/providers/app-auth-provider.tsx',
+  // Sim DI seam: types `authClientStorage` for injected AuthClientStorage.
+  'apps/client/src/providers/app-overrides.tsx',
   'apps/api/src/api.ts',
   'apps/api/src/app/request-db-middleware.ts',
   'apps/api/src/app/create-app.ts',

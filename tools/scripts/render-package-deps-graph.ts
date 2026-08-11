@@ -20,6 +20,7 @@ const TIER_CLASS: Record<Tier, string> = {
   apps: 'tierApps',
   libs: 'tierLibs',
   pkgs: 'tierPkgs',
+  test: 'tierTest',
 };
 
 function mermaidNodeId(shortName: string): string {
@@ -94,7 +95,8 @@ function buildMermaidSource(): { source: string; omitted: number } {
     '',
     '  classDef tierApps fill:#238636,stroke:#3fb950,color:#e6edf3',
     '  classDef tierLibs fill:#1f6feb,stroke:#58a6ff,color:#e6edf3',
-    '  classDef tierPkgs fill:#8957e5,stroke:#d2a8ff,color:#e6edf3'
+    '  classDef tierPkgs fill:#8957e5,stroke:#d2a8ff,color:#e6edf3',
+    '  classDef tierTest fill:#9e6a03,stroke:#d4a72c,color:#e6edf3'
   );
 
   const byTier = new Map<Tier, string[]>();
@@ -109,7 +111,7 @@ function buildMermaidSource(): { source: string; omitted: number } {
     }
     ids.push(id);
   }
-  for (const tier of ['apps', 'libs', 'pkgs'] as const) {
+  for (const tier of ['apps', 'libs', 'pkgs', 'test'] as const) {
     const ids = byTier.get(tier);
     if (!ids?.length) continue;
     lines.push(`  class ${ids.join(',')} ${TIER_CLASS[tier]}`);

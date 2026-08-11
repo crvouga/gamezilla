@@ -1,2 +1,0 @@
-[test]
-preload = ["../ui-testing/src/drivers/in-process/bun-preload.ts"]

@@ -1,0 +1,91 @@
+/**
+ * Node.js built-in SQLite ({@link https://nodejs.org/api/sqlite.html `node:sqlite`})
+ * for Jest / Node product simulations. Bun-native tests use
+ * {@link SqlClientImplBunSqlite}; Expo apps use {@link SqlClientImplExpoSqlite}.
+ */
+
+/// <reference path="./node-sqlite.d.ts" />
+
+import { DatabaseSync } from 'node:sqlite';
+import { assert } from '@pkgs/assert';
+import type { Sql, Value } from '@pkgs/sql';
+import type { PreparedStatement, RunResult, SqlClient } from '../interface';
+import { applySqliteConnectionPragmas } from './connection-pragmas';
+
+/** Strip Postgres-only syntax so portable mutation SQL runs on SQLite. */
+function sqliteCompatSql(sql: string): string {
+  return sql.replace(/\?::jsonb/g, '?').replace(/\s+FOR UPDATE\b/gi, '');
+}
+
+export class SqlClientImplNodeSqlite implements SqlClient {
+  constructor(private readonly db: DatabaseSync) {}
+
+  static open(databasePath: string): SqlClientImplNodeSqlite {
+    return new SqlClientImplNodeSqlite(new DatabaseSync(databasePath));
+  }
+
+  async connect(): Promise<void> {
+    try {
+      this.db.prepare('SELECT 1').get();
+      await applySqliteConnectionPragmas(this);
+    } catch (err) {
+      assert.ok(false, 'Database connection failed', { error: err });
+    }
+  }
+
+  disconnect(): Promise<void> {
+    try {
+      this.db.close();
+      return Promise.resolve();
+    } catch (err) {
+      assert.ok(false, 'Database disconnection failed', { error: err });
+    }
+  }
+
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+    const rows = this.db
+      .prepare(sqliteCompatSql(query.sql))
+      .all(...query.values) as T[];
+    return Promise.resolve(rows);
+  }
+
+  run(query: Sql<unknown>): Promise<RunResult> {
+    const result = this.db
+      .prepare(sqliteCompatSql(query.sql))
+      .run(...query.values);
+    return Promise.resolve({
+      changes: Number(result.changes),
+      lastInsertRowid: Number(result.lastInsertRowid),
+    });
+  }
+
+  prepare<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): PreparedStatement<T> {
+    const stmt = this.db.prepare(sqliteCompatSql(query.sql));
+    return {
+      query: <R = Record<string, unknown>>(params?: Value[]) => {
+        return Promise.resolve(stmt.all(...(params ?? [])) as R[]);
+      },
+      run: (params?: Value[]) => {
+        const result = stmt.run(...(params ?? []));
+        return Promise.resolve({
+          changes: Number(result.changes),
+          lastInsertRowid: Number(result.lastInsertRowid),
+        });
+      },
+    };
+  }
+
+  async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    this.db.exec('BEGIN');
+    try {
+      const result = await fn(this);
+      this.db.exec('COMMIT');
+      return result;
+    } catch (e) {
+      this.db.exec('ROLLBACK');
+      throw e;
+    }
+  }
+}

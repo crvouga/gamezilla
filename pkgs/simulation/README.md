@@ -18,7 +18,8 @@ Application-agnostic **multi-actor UI simulation** for acceptance tests.
 }
 ```
 
-Package tests preload happy-dom + `react-native` → `react-native-web` via `@pkgs/ui-testing`’s bun preload (see `bunfig.toml`).
+Package UI demos run under Jest + `jest-expo` + RNTL (no Bun `mock.module`,
+no `react-native` → web remapping). Non-UI unit tests stay on Bun.
 
 ## Quick start
 
@@ -81,7 +82,7 @@ For `ui: 'playwright'`, each session must return `{ ui: 'playwright', page, base
 
 | `ui` | Meaning |
 |------|---------|
-| `in-process` (default) | React tree in Bun via `@pkgs/ui-testing` InProcessDriver |
+| `in-process` (default) | React Native tree via `@pkgs/ui-testing` InProcessDriver + RNTL |
 | `playwright` | Injected Playwright `Page` via PlaywrightDriver |
 
 Closeness to production is chosen by **which `SimulationSystem` you pass** and the `ui` kind — not by leaking lower-level APIs into tests.

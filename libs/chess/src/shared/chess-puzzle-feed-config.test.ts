@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  chessPuzzleFeedConfigFingerprint,
   chessPuzzleSyncRatingBands,
   clampPuzzleFeedAutoOffset,
   clampPuzzleFeedRating,
@@ -46,6 +47,8 @@ describe('isChessPuzzleFeedConfig / readChessPuzzleFeedConfig', () => {
         mode: 'custom',
         customRating: 800,
         autoOffset: 50,
+        themes: ['fork'],
+        historyFilter: 'seen',
       })
     ).toBe(true);
   });
@@ -60,6 +63,24 @@ describe('isChessPuzzleFeedConfig / readChessPuzzleFeedConfig', () => {
       mode: 'auto',
       customRating: 1200,
       autoOffset: 0,
+      themes: [],
+      historyFilter: 'neverSeen',
+    });
+  });
+
+  test('sanitizes themes and defaults historyFilter', () => {
+    expect(
+      readChessPuzzleFeedConfig({
+        mode: 'auto',
+        customRating: 1200,
+        themes: ['fork', 'notATheme', 'fork', 'mate'],
+      })
+    ).toEqual({
+      mode: 'auto',
+      customRating: 1200,
+      autoOffset: 0,
+      themes: ['fork', 'mate'],
+      historyFilter: 'neverSeen',
     });
   });
 
@@ -76,6 +97,20 @@ describe('isChessPuzzleFeedConfig / readChessPuzzleFeedConfig', () => {
         autoOffset: 'x',
       })
     ).toBe(false);
+    expect(
+      isChessPuzzleFeedConfig({
+        mode: 'auto',
+        customRating: 1200,
+        themes: 'fork',
+      })
+    ).toBe(false);
+    expect(
+      isChessPuzzleFeedConfig({
+        mode: 'auto',
+        customRating: 1200,
+        historyFilter: 'nope',
+      })
+    ).toBe(false);
   });
 });
 
@@ -83,7 +118,13 @@ describe('resolveEffectivePuzzleRating', () => {
   test('auto uses profile rating when positive and offset is 0', () => {
     expect(
       resolveEffectivePuzzleRating({
-        config: { mode: 'auto', customRating: 800, autoOffset: 0 },
+        config: {
+          mode: 'auto',
+          customRating: 800,
+          autoOffset: 0,
+          themes: [],
+          historyFilter: 'neverSeen',
+        },
         profileRating: 1450,
       })
     ).toBe(1450);
@@ -92,13 +133,25 @@ describe('resolveEffectivePuzzleRating', () => {
   test('auto applies signed offset to profile rating', () => {
     expect(
       resolveEffectivePuzzleRating({
-        config: { mode: 'auto', customRating: 800, autoOffset: 100 },
+        config: {
+          mode: 'auto',
+          customRating: 800,
+          autoOffset: 100,
+          themes: [],
+          historyFilter: 'neverSeen',
+        },
         profileRating: 1450,
       })
     ).toBe(1550);
     expect(
       resolveEffectivePuzzleRating({
-        config: { mode: 'auto', customRating: 800, autoOffset: -200 },
+        config: {
+          mode: 'auto',
+          customRating: 800,
+          autoOffset: -200,
+          themes: [],
+          historyFilter: 'neverSeen',
+        },
         profileRating: 1450,
       })
     ).toBe(1250);
@@ -113,7 +166,13 @@ describe('resolveEffectivePuzzleRating', () => {
     ).toBe(1200);
     expect(
       resolveEffectivePuzzleRating({
-        config: { mode: 'auto', customRating: 800, autoOffset: 50 },
+        config: {
+          mode: 'auto',
+          customRating: 800,
+          autoOffset: 50,
+          themes: [],
+          historyFilter: 'neverSeen',
+        },
         profileRating: 0,
       })
     ).toBe(1250);
@@ -122,7 +181,13 @@ describe('resolveEffectivePuzzleRating', () => {
   test('custom uses clamped custom rating', () => {
     expect(
       resolveEffectivePuzzleRating({
-        config: { mode: 'custom', customRating: 50, autoOffset: 100 },
+        config: {
+          mode: 'custom',
+          customRating: 50,
+          autoOffset: 100,
+          themes: [],
+          historyFilter: 'neverSeen',
+        },
         profileRating: 1450,
       })
     ).toBe(400);
@@ -136,5 +201,37 @@ describe('chessPuzzleSyncRatingBands', () => {
 
   test('does not emit negative bands', () => {
     expect(chessPuzzleSyncRatingBands(100)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('chessPuzzleFeedConfigFingerprint', () => {
+  test('stable for theme order', () => {
+    const a = chessPuzzleFeedConfigFingerprint({
+      ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+      themes: ['mate', 'fork'],
+    });
+    const b = chessPuzzleFeedConfigFingerprint({
+      ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+      themes: ['fork', 'mate'],
+    });
+    expect(a).toBe(b);
+  });
+
+  test('changes when history or rating fields change', () => {
+    const base = chessPuzzleFeedConfigFingerprint(
+      DEFAULT_CHESS_PUZZLE_FEED_CONFIG
+    );
+    expect(
+      chessPuzzleFeedConfigFingerprint({
+        ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+        historyFilter: 'seen',
+      })
+    ).not.toBe(base);
+    expect(
+      chessPuzzleFeedConfigFingerprint({
+        ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+        autoOffset: 50,
+      })
+    ).not.toBe(base);
   });
 });

@@ -134,7 +134,7 @@ export async function consumeResetDbQueryParamAndRecover(
   logLabel?: string,
   closeLocal?: () => Promise<void>
 ): Promise<void> {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || window.location?.href == null) {
     return;
   }
   const url = new URL(window.location.href);

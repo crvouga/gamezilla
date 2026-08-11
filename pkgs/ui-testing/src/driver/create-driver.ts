@@ -5,10 +5,7 @@ import {
   DetoxDriver,
   type DetoxDriverOptions,
 } from '../drivers/detox/detox-driver';
-import {
-  InProcessDriver,
-  type InProcessDriverOptions,
-} from '../drivers/in-process/in-process-driver';
+import type { InProcessDriverOptions } from '../drivers/in-process/in-process-driver';
 import {
   PlaywrightDriver,
   type PlaywrightDriverOptions,
@@ -46,8 +43,12 @@ export function createDriver<TContext = void>(
   config: DriverConfig<TContext>
 ): Driver {
   switch (config.kind) {
-    case 'in-process':
+    case 'in-process': {
+      // Lazy: playwright/detox bun tests must not load react-native.
+      const { InProcessDriver } =
+        require('../drivers/in-process/in-process-driver') as typeof import('../drivers/in-process/in-process-driver');
       return new InProcessDriver(config as InProcessDriverOptions<TContext>);
+    }
     case 'playwright':
       return new PlaywrightDriver(config);
     case 'detox':

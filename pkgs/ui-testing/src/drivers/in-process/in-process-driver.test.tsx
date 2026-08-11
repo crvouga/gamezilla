@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'bun:test';
+import { afterEach, describe, expect, it } from '@jest/globals';
 import { wallIo } from '@pkgs/io';
 import {
   expectHidden,
@@ -75,7 +75,7 @@ describe('InProcessDriver', () => {
     );
   });
 
-  it('pressKey does not throw when focus is on the document', async () => {
+  it('pressKey does not throw when focus is on an input', async () => {
     driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.tap(by.testId('email'));

@@ -8,23 +8,19 @@ import type {
   SignInStrategy,
 } from '@pkgs/auth/shared/sign-in-strategy';
 import type { Timers } from '@pkgs/clock';
+import type { HttpFetch } from '@pkgs/http-client';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
 import { BETTER_AUTH_PROVIDER_LABEL } from '../shared/provider-label';
-import {
-  clearStoredBearerToken,
-  clearStoredBearerTokenSync,
-  readStoredBearerToken,
-  setSuppressBearerCapture,
-  writeStoredBearerToken,
-} from './bearer-token-store';
-import { getOrCreateBetterAuthReactClient } from './create-auth-client';
+import type { AuthClientStorage, BearerTokenStore } from './bearer-token-store';
+import { createBearerTokenStore } from './bearer-token-store';
+import type { BetterAuthReactClient } from './create-auth-client';
+import { createBetterAuthReactClient } from './create-auth-client';
 import {
   BETTER_AUTH_NETWORK_ERROR,
   runEmailPasswordSignIn,
 } from './email-password-sign-in';
-import { configureAuthBaseURL, readAuthBaseURL } from './read-auth-base-url';
 import { useBetterAuthSessionState } from './use-better-auth-session-state';
 
 /** True on the web OAuth return route — clear stale bearer before first fetch. */
@@ -37,34 +33,34 @@ function isWebSsoCallbackPath(): boolean {
 export type BetterAuthClientAdapterConfig = {
   readonly baseURL: string;
   readonly timers: Timers;
+  /** Custom fetch wired as Better Auth `customFetchImpl` when provided. */
+  readonly fetch?: HttpFetch;
+  /** expoClient cookie storage; defaults to `expo-secure-store`. */
+  readonly storage?: AuthClientStorage;
+  /** Bearer store to reuse; an isolated one is created when omitted. */
+  readonly bearerStore?: BearerTokenStore;
 };
 
-/** Set by {@link createBetterAuthClientAdapter}; required for delay / sign-out. */
-let adapterTimers: Timers | undefined;
+/** Per-adapter instance state (no module singletons). */
+type AdapterContext = {
+  readonly client: BetterAuthReactClient;
+  readonly bearerStore: BearerTokenStore;
+  readonly timers: Timers;
+};
 
 export const BETTER_AUTH_SSO_CANCELLED_ERROR =
   "Sign-in was cancelled or didn't finish.";
 
 export { BETTER_AUTH_NETWORK_ERROR };
 
-function client() {
-  return getOrCreateBetterAuthReactClient({ baseURL: readAuthBaseURL() });
-}
-
 /** Never settles — keep SignInModal loading until the document unloads. */
 function waitUntilUnload(): Promise<never> {
   return new Promise(() => undefined);
 }
 
-function requireTimers(): Timers {
-  assert.defined(adapterTimers, 'Better Auth client adapter not configured');
-  return adapterTimers;
-}
-
-function delay(ms: number): Promise<void> {
-  const timers = requireTimers();
+function delay(ctx: AdapterContext, ms: number): Promise<void> {
   return new Promise((resolve) => {
-    timers.setTimeout(resolve, ms);
+    ctx.timers.setTimeout(resolve, ms);
   });
 }
 
@@ -77,17 +73,17 @@ const WEB_REDIRECT_FALLBACK_MS = 10_000;
  * True when a stored bearer still maps to a live session. Times out so a
  * wrangler/AbortController pile-up cannot strand SignInModal on "Signing in…".
  */
-async function hasUsableBearerSession(): Promise<boolean> {
-  const existing = await readStoredBearerToken();
+async function hasUsableBearerSession(ctx: AdapterContext): Promise<boolean> {
+  const existing = await ctx.bearerStore.read();
   if (existing === null) return false;
   try {
     const result = await Promise.race([
-      client().getSession({
+      ctx.client.getSession({
         fetchOptions: {
           headers: { Authorization: `Bearer ${existing}` },
         },
       }),
-      delay(EXISTING_SESSION_CHECK_MS).then(() => 'timeout' as const),
+      delay(ctx, EXISTING_SESSION_CHECK_MS).then(() => 'timeout' as const),
     ]);
     if (result === 'timeout') return false;
     return result.data !== null && result.data !== undefined;
@@ -137,24 +133,13 @@ function throwAuthClientError(error: unknown): never {
   throw new Error(message);
 }
 
-async function runGoogleOAuthSignIn(): Promise<void> {
-  const callbackURL = resolveOAuthCallbackURL();
-
-  if (await hasUsableBearerSession()) {
-    return;
-  }
-
-  // Stale bearer must not ride along on OAuth cookie establishment (see
-  // completeHostedAuthRedirect). Clear before social redirect.
-  await clearStoredBearerToken();
-
-  WebBrowser.maybeCompleteAuthSession();
-
-  let result: Awaited<
-    ReturnType<ReturnType<typeof client>['signIn']['social']>
-  >;
+async function requestSocialSignIn(
+  ctx: AdapterContext,
+  callbackURL: string
+): Promise<string> {
+  let result: Awaited<ReturnType<BetterAuthReactClient['signIn']['social']>>;
   try {
-    result = await client().signIn.social({
+    result = await ctx.client.signIn.social({
       provider: 'google',
       callbackURL,
       disableRedirect: true,
@@ -166,19 +151,34 @@ async function runGoogleOAuthSignIn(): Promise<void> {
     }
     throw error;
   }
-
   if (result.error !== null && result.error !== undefined) {
     throwAuthClientError(result.error);
   }
-
   const oauthUrl = readSocialRedirectUrl(result.data);
   assert.ok(oauthUrl !== null, 'Better Auth social sign-in returned no URL');
+  return oauthUrl;
+}
+
+async function runGoogleOAuthSignIn(ctx: AdapterContext): Promise<void> {
+  const callbackURL = resolveOAuthCallbackURL();
+
+  if (await hasUsableBearerSession(ctx)) {
+    return;
+  }
+
+  // Stale bearer must not ride along on OAuth cookie establishment (see
+  // completeHostedAuthRedirect). Clear before social redirect.
+  await ctx.bearerStore.clear();
+
+  WebBrowser.maybeCompleteAuthSession();
+
+  const oauthUrl = await requestSocialSignIn(ctx, callbackURL);
 
   if (Platform.OS === 'web') {
     window.location.assign(oauthUrl);
     await Promise.race([
       waitUntilUnload(),
-      delay(WEB_REDIRECT_FALLBACK_MS).then(() => {
+      delay(ctx, WEB_REDIRECT_FALLBACK_MS).then(() => {
         throw new Error(
           'Redirect to Google did not start. Check blockers and try again.'
         );
@@ -194,29 +194,32 @@ async function runGoogleOAuthSignIn(): Promise<void> {
   if (authSession.type !== 'success') {
     throw new Error(BETTER_AUTH_SSO_CANCELLED_ERROR);
   }
-  await completeHostedAuthRedirect();
+  await completeHostedAuthRedirect(ctx);
 }
 
 async function runSignIn(
+  ctx: AdapterContext,
   strategy: SignInStrategy,
   credentials?: SignInCredentials
 ): Promise<void> {
   if (strategy === 'email-password') {
     assert.defined(credentials, 'email/password credentials required');
     await runEmailPasswordSignIn({
+      client: ctx.client,
+      bearerStore: ctx.bearerStore,
       credentials,
-      hasUsableBearerSession,
+      hasUsableBearerSession: () => hasUsableBearerSession(ctx),
     });
     return;
   }
   assert.equals(strategy, 'oauth-google', 'Unsupported sign-in strategy', {
     strategy,
   });
-  await runGoogleOAuthSignIn();
+  await runGoogleOAuthSignIn(ctx);
 }
 
-function clearReactSessionAtom(): void {
-  const atoms = client().$store.atoms as {
+function clearReactSessionAtom(ctx: AdapterContext): void {
+  const atoms = ctx.client.$store.atoms as {
     session?: {
       get: () => {
         data: unknown;
@@ -246,29 +249,29 @@ function clearReactSessionAtom(): void {
   });
 }
 
-async function runSignOut(): Promise<void> {
+async function runSignOut(ctx: AdapterContext): Promise<void> {
   // Clear bearer BEFORE sign-out. BA notifies `$sessionSignal` which refetches
   // get-session; if Authorization still carries the old token, the bearer
   // plugin rehydrates the session cookie and the UI stays signed in.
   // Also suppress capture: that refetch can race the cookie clear and briefly
   // re-emit `set-auth-token`. Do NOT await getSession here — it races the
   // signal refetch / AbortController and can hang the Sign out modal forever.
-  setSuppressBearerCapture(true);
-  clearStoredBearerTokenSync();
-  await clearStoredBearerToken();
+  ctx.bearerStore.setSuppressCapture(true);
+  ctx.bearerStore.clearSync();
+  await ctx.bearerStore.clear();
   try {
-    await client().signOut();
+    await ctx.client.signOut();
   } finally {
-    clearStoredBearerTokenSync();
-    await clearStoredBearerToken();
+    ctx.bearerStore.clearSync();
+    await ctx.bearerStore.clear();
     // BA aborts in-flight get-session on signal; settleAbortedFetch keeps the
     // previous signed-in `data`, so the account UI stays logged in. Force-clear.
-    clearReactSessionAtom();
+    clearReactSessionAtom(ctx);
     // Allow capture again after BA's deferred session-signal refetch (~10ms).
-    requireTimers().setTimeout(() => {
-      setSuppressBearerCapture(false);
-      clearStoredBearerTokenSync();
-      void clearStoredBearerToken();
+    ctx.timers.setTimeout(() => {
+      ctx.bearerStore.setSuppressCapture(false);
+      ctx.bearerStore.clearSync();
+      void ctx.bearerStore.clear();
     }, 250);
   }
 }
@@ -278,62 +281,75 @@ async function runSignOut(): Promise<void> {
  * getSession — it reads secure-storage `sessionToken` instead.
  */
 async function readFreshToken(
+  ctx: AdapterContext,
   options?: GetFreshTokenOptions
 ): Promise<string | null> {
   if (options?.skipCache === true) {
     // Explicit refresh only — do not getSession on every empty-cache read
     // (that storms /get-session when signed out and strands isPending).
-    await client().getSession();
-    return readStoredBearerToken();
+    await ctx.client.getSession();
+    return ctx.bearerStore.read();
   }
-  return readStoredBearerToken();
+  return ctx.bearerStore.read();
 }
 
-async function ensureSessionReady(): Promise<void> {
-  await client().getSession();
+async function ensureSessionReady(ctx: AdapterContext): Promise<void> {
+  await ctx.client.getSession();
 }
 
-async function completeHostedAuthRedirect(): Promise<void> {
+async function completeHostedAuthRedirect(ctx: AdapterContext): Promise<void> {
   WebBrowser.maybeCompleteAuthSession();
   // Drop any pre-OAuth bearer first. BA's bearer() hook replaces the request
   // Cookie with Authorization when present — a stale token from localStorage
   // hides the fresh OAuth session cookie and get-session returns null.
-  await clearStoredBearerToken();
+  await ctx.bearerStore.clear();
   // Cookie session was set on the API during `/callback/google`; this call
   // hydrates the React client and captures `set-auth-token` via onSuccess.
-  await client().getSession();
-  const token = await readStoredBearerToken();
+  await ctx.client.getSession();
+  const token = await ctx.bearerStore.read();
   if (token !== null) {
-    await writeStoredBearerToken(token);
+    await ctx.bearerStore.write(token);
   }
 }
 
 /**
  * Better Auth adapter: sign-in/out + token mint. `useAuthSession` is for
  * AuthBridge reconcile only — not product chrome.
+ *
+ * Each call builds an isolated React client + bearer store (no process
+ * singletons), so multiple in-process actors can each hold their own adapter.
  */
 export function createBetterAuthClientAdapter(
   config: BetterAuthClientAdapterConfig
 ): AuthClientPort {
-  adapterTimers = config.timers;
-  configureAuthBaseURL(config.baseURL);
+  const bearerStore =
+    config.bearerStore ??
+    createBearerTokenStore(
+      config.storage !== undefined ? { storage: config.storage } : undefined
+    );
+  const client = createBetterAuthReactClient({
+    baseURL: config.baseURL,
+    ...(config.fetch !== undefined ? { fetch: config.fetch } : {}),
+    ...(config.storage !== undefined ? { storage: config.storage } : {}),
+    bearerStore,
+  });
+  const ctx: AdapterContext = { client, bearerStore, timers: config.timers };
+
   // OAuth return: browser already has the API session cookie, but a leftover
   // localStorage bearer would be attached on the first useSession get-session
   // and replace that cookie on the server. Clear synchronously first.
   if (isWebSsoCallbackPath()) {
-    clearStoredBearerTokenSync();
+    bearerStore.clearSync();
   }
-  // Eagerly create the singleton so hooks share the same client.
-  getOrCreateBetterAuthReactClient({ baseURL: readAuthBaseURL() });
-  void readStoredBearerToken();
+  void bearerStore.read();
 
   return {
     providerLabel: BETTER_AUTH_PROVIDER_LABEL,
-    useAuthSession: useBetterAuthSessionState,
-    signIn: runSignIn,
-    signOut: runSignOut,
-    getFreshToken: readFreshToken,
-    ensureSessionReady,
-    completeHostedAuthRedirect,
+    useAuthSession: () => useBetterAuthSessionState({ client, bearerStore }),
+    signIn: (strategy, credentials) => runSignIn(ctx, strategy, credentials),
+    signOut: () => runSignOut(ctx),
+    getFreshToken: (options) => readFreshToken(ctx, options),
+    ensureSessionReady: () => ensureSessionReady(ctx),
+    completeHostedAuthRedirect: () => completeHostedAuthRedirect(ctx),
   };
 }

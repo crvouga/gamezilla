@@ -12,9 +12,22 @@ export type SyncEnginePool = {
 };
 
 export type CreateSyncEnginePoolOptions = {
-  /** Distinct globalThis key so hosts don't collide. */
-  readonly globalKey: string;
+  /**
+   * Distinct globalThis key so hosts don't collide and the pool survives HMR /
+   * re-imports. Omit for an isolated in-process pool (sims/tests) that is never
+   * stored on `globalThis`.
+   */
+  readonly globalKey?: string;
 };
+
+function createPool(): SyncEnginePool {
+  return {
+    ready: new Map(),
+    pending: new Map(),
+    activeName: null,
+    opChain: Promise.resolve(),
+  };
+}
 
 function getOrInitPool(globalKey: string): SyncEnginePool {
   const global = globalThis as typeof globalThis &
@@ -26,12 +39,7 @@ function getOrInitPool(globalKey: string): SyncEnginePool {
     }
     return existing;
   }
-  const created: SyncEnginePool = {
-    ready: new Map(),
-    pending: new Map(),
-    activeName: null,
-    opChain: Promise.resolve(),
-  };
+  const created = createPool();
   global[globalKey] = created;
   return created;
 }
@@ -61,16 +69,27 @@ export type SyncEnginePoolApi = {
   ) => Promise<SyncEngine>;
 };
 
-/** Identity-keyed sync-engine pool stored on `globalThis`. */
+/**
+ * Identity-keyed sync-engine pool. Stored on `globalThis` when `globalKey` is
+ * set; otherwise isolated to this closure (sims/tests own their own pool).
+ */
 export function createSyncEnginePool(
-  options: CreateSyncEnginePoolOptions
+  options: CreateSyncEnginePoolOptions = {}
 ): SyncEnginePoolApi {
+  let ownPool: SyncEnginePool | null = null;
+  const resolvePool = (): SyncEnginePool => {
+    if (options.globalKey !== undefined) {
+      return getOrInitPool(options.globalKey);
+    }
+    ownPool ??= createPool();
+    return ownPool;
+  };
   return {
     peekReady(databaseName) {
-      return getOrInitPool(options.globalKey).ready.get(databaseName) ?? null;
+      return resolvePool().ready.get(databaseName) ?? null;
     },
     async getOrCreate(databaseName, create) {
-      const pool = getOrInitPool(options.globalKey);
+      const pool = resolvePool();
 
       const run = async (): Promise<SyncEngine> => {
         await deactivatePrevious(pool, databaseName);

@@ -11,11 +11,10 @@ export type ComboboxOption<T extends string | number = string> = {
   searchText?: string;
 };
 
-export type ComboboxProps<T extends string | number = string> = {
+export type ComboboxSelectionMode = 'single' | 'multiple';
+
+type ComboboxSharedProps<T extends string | number> = {
   options: ComboboxOption<T>[];
-  onValueChange: (value: T) => void;
-  /** Optional selected value for the trigger label. */
-  value?: T | null;
   /** Optional label above the trigger. */
   label?: ReactNode;
   /** Title in the surface; defaults to `label` when set, else `"Choose"`. */
@@ -28,6 +27,9 @@ export type ComboboxProps<T extends string | number = string> = {
   /** Controlled query for async parents (e.g. remote user search). */
   query?: string;
   onQueryChange?: (query: string) => void;
+  /** Controlled open state. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   /**
    * Default: case-insensitive includes on `searchText` / string `label`.
    * Return true for every option when the parent already filters.
@@ -43,6 +45,24 @@ export type ComboboxProps<T extends string | number = string> = {
   dataSet?: ComponentDataSet;
 };
 
+export type ComboboxSingleProps<T extends string | number = string> =
+  ComboboxSharedProps<T> & {
+    selectionMode?: 'single';
+    value?: T | null;
+    onValueChange: (value: T) => void;
+  };
+
+export type ComboboxMultipleProps<T extends string | number = string> =
+  ComboboxSharedProps<T> & {
+    selectionMode: 'multiple';
+    value?: readonly T[];
+    onValueChange: (value: T[]) => void;
+  };
+
+export type ComboboxProps<T extends string | number = string> =
+  | ComboboxSingleProps<T>
+  | ComboboxMultipleProps<T>;
+
 export function defaultFilterOption<T extends string | number>(
   option: ComboboxOption<T>,
   query: string
@@ -56,4 +76,20 @@ export function defaultFilterOption<T extends string | number>(
     return option.label.toLowerCase().includes(trimmed);
   }
   return true;
+}
+
+export function isMultipleComboboxProps<T extends string | number>(
+  props: ComboboxProps<T>
+): props is ComboboxMultipleProps<T> {
+  return props.selectionMode === 'multiple';
+}
+
+export function toggleSelectedValue<T extends string | number>(
+  current: readonly T[],
+  next: T
+): T[] {
+  if (current.includes(next)) {
+    return current.filter((v) => v !== next);
+  }
+  return [...current, next];
 }

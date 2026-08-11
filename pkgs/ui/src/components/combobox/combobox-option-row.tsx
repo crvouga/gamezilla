@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { useTheme } from '../../theme';
 import { FlatList } from '../flat-list';
@@ -10,11 +10,15 @@ import type { ComboboxOption, ComboboxProps } from './combobox-types';
 export function ComboboxOptionRow<T extends string | number>({
   item,
   isSelected,
+  isHighlighted,
+  optionId,
   onPick,
   renderOption,
 }: {
   item: ComboboxOption<T>;
   isSelected: boolean;
+  isHighlighted: boolean;
+  optionId: string;
   onPick: () => void;
   renderOption: ComboboxProps<T>['renderOption'];
 }): ReactElement {
@@ -23,16 +27,31 @@ export function ComboboxOptionRow<T extends string | number>({
     return renderOption(item, isSelected, onPick) ?? <View />;
   }
   return (
-    <ListItem
-      title={item.label}
-      leading={item.preview}
-      trailing={
-        isSelected ? (
-          <Text style={{ color: theme.colors.tint, fontSize: 16 }} label="✓" />
-        ) : undefined
+    <View
+      nativeID={optionId}
+      accessibilityRole="menuitem"
+      accessibilityState={{ selected: isSelected }}
+      style={
+        isHighlighted
+          ? { backgroundColor: theme.colors.tintHighlight }
+          : undefined
       }
-      onPress={onPick}
-    />
+      {...(Platform.OS === 'web' ? { id: optionId } : {})}
+    >
+      <ListItem
+        title={item.label}
+        leading={item.preview}
+        trailing={
+          isSelected ? (
+            <Text
+              style={{ color: theme.colors.tint, fontSize: 16 }}
+              label="✓"
+            />
+          ) : undefined
+        }
+        onPress={onPick}
+      />
+    </View>
   );
 }
 
@@ -53,14 +72,29 @@ export function ComboboxEmpty({
   );
 }
 
+function isValueSelected<T extends string | number>(
+  value: T | null | undefined,
+  values: ReadonlySet<T> | undefined,
+  itemValue: T
+): boolean {
+  if (values !== undefined) return values.has(itemValue);
+  return itemValue === value;
+}
+
 export function ComboboxOptionsList<T extends string | number>({
   options,
   value,
+  values,
+  highlightedIndex,
+  listboxId,
   onPick,
   renderOption,
 }: {
   options: ComboboxOption<T>[];
   value: T | null | undefined;
+  values: ReadonlySet<T> | undefined;
+  highlightedIndex: number;
+  listboxId: string;
   onPick: (next: T) => void;
   renderOption: ComboboxProps<T>['renderOption'];
 }): ReactElement {
@@ -70,10 +104,15 @@ export function ComboboxOptionsList<T extends string | number>({
       keyExtractor={(item) => String(item.value)}
       style={{ maxHeight: 360 }}
       keyboardShouldPersistTaps="handled"
-      renderItem={({ item }) => (
+      accessibilityRole="list"
+      nativeID={listboxId}
+      {...(Platform.OS === 'web' ? { id: listboxId } : {})}
+      renderItem={({ item, index }) => (
         <ComboboxOptionRow
           item={item}
-          isSelected={item.value === value}
+          isSelected={isValueSelected(value, values, item.value)}
+          isHighlighted={index === highlightedIndex}
+          optionId={`${listboxId}-opt-${index}`}
           onPick={() => onPick(item.value)}
           renderOption={renderOption}
         />

@@ -78,7 +78,7 @@ function scanPackageJson(absPath: string): Violation[] {
 
 function discoverPackageJsonPaths(): string[] {
   const paths = [join(REPO_ROOT, 'package.json')];
-  for (const tier of ['apps', 'libs', 'pkgs'] as const) {
+  for (const tier of ['apps', 'libs', 'pkgs', 'test'] as const) {
     const glob = new Glob(`${tier}/*/package.json`);
     for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
       paths.push(join(REPO_ROOT, rel));

@@ -26,7 +26,8 @@ export async function tryAcquireSyncOwnerLease(
     return { isOwner: true, release: () => undefined };
   }
   const locks = navigator.locks;
-  if (locks === undefined) {
+  // happy-dom / some test hosts expose `navigator.locks` as null.
+  if (locks == null) {
     return { isOwner: true, release: () => undefined };
   }
 

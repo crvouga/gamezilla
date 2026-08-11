@@ -109,10 +109,11 @@ Non-deploy contexts must never reach production Postgres. Guards live in `@libs/
 
 ## Per-feature package layout
 
-Workspace packages live under three top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
+Workspace packages live under four top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
+| Test | `test/` | `@test/` | System-wide DST / product UI simulations (may import apps+libs+pkgs). |
 | Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `api`).                       |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
@@ -193,18 +194,20 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
 
-**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`:
+**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`, `apps|libs|pkgs-not-test`:
 
 ```text
-apps  →  libs, pkgs   (never other @apps/* packages)
-libs  →  pkgs only    (libs may not import apps)
-pkgs  →  pkgs only    (leaf tier: reusable, app-agnostic)
+test  →  apps, libs, pkgs, tools  (system-wide DST / UI testing)
+apps  →  libs, pkgs (never other @apps/*; never @test/*)
+libs  →  pkgs only
+pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 ```
 
 `pkgs/` packages are the foundation: they must work in any monorepo, with no references to `gamezilla`, `apps/api`, `@libs/*`, or any product surface (in code, comments, or default config strings).
 
 **Other layering rules:**
 
+- `@test/<name>` may import `@apps/*`, `@libs/*`, `@pkgs/*`, and tools. Product apps/libs/pkgs must not import `@test/*`.
 - `@apps/<name>` must not import or depend on another `@apps/<other>` (`ci:tier-imports` apps-not-apps). Same-package deep imports and type-only `import type` are fine.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).

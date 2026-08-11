@@ -2,13 +2,8 @@ import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
 import { useEffect, useState } from 'react';
 
-import {
-  clearStoredBearerToken,
-  peekBearerToken,
-  readStoredBearerToken,
-} from './bearer-token-store';
-import { getOrCreateBetterAuthReactClient } from './create-auth-client';
-import { readAuthBaseURL } from './read-auth-base-url';
+import type { BearerTokenStore } from './bearer-token-store';
+import type { BetterAuthReactClient } from './create-auth-client';
 
 function mapSession(data: {
   user: { id: string; email: string };
@@ -30,16 +25,17 @@ function mapSession(data: {
  * Product chrome must use secure-storage session capability
  * (`useHasAuthSession` / `useFreshAuthToken`), not this hook.
  *
- * Requires {@link createBetterAuthClientAdapter} to have been constructed with
- * a baseURL (client singleton).
+ * The client + bearer store are supplied by {@link createBetterAuthClientAdapter}
+ * so this hook shares the adapter's instance rather than a module singleton.
  *
  * When a bearer token is present (e.g. E2E injection / reload) but the React
  * session cache is empty, we resolve once via `getSession` with Bearer.
  */
-export function useBetterAuthSessionState(): AuthSessionState {
-  const client = getOrCreateBetterAuthReactClient({
-    baseURL: readAuthBaseURL(),
-  });
+export function useBetterAuthSessionState(ctx: {
+  readonly client: BetterAuthReactClient;
+  readonly bearerStore: BearerTokenStore;
+}): AuthSessionState {
+  const { client, bearerStore } = ctx;
   const { data, isPending, error } = client.useSession();
   const [bearerSession, setBearerSession] = useState<VerifiedSession | null>(
     null
@@ -56,8 +52,8 @@ export function useBetterAuthSessionState(): AuthSessionState {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      await readStoredBearerToken();
-      const token = peekBearerToken();
+      await bearerStore.read();
+      const token = bearerStore.peek();
       if (token === null) {
         if (!cancelled) {
           setBearerSession(null);
@@ -75,7 +71,7 @@ export function useBetterAuthSessionState(): AuthSessionState {
         setBearerSession(mapSession(result.data));
       } else {
         // Dead bearer overrides the OAuth cookie on the next request — drop it.
-        await clearStoredBearerToken();
+        await bearerStore.clear();
         setBearerSession(null);
       }
       setBearerHydrated(true);
@@ -83,7 +79,7 @@ export function useBetterAuthSessionState(): AuthSessionState {
     return () => {
       cancelled = true;
     };
-  }, [client, data]);
+  }, [client, bearerStore, data]);
 
   if (data !== null && data !== undefined) {
     return {
@@ -103,7 +99,7 @@ export function useBetterAuthSessionState(): AuthSessionState {
   }
 
   // Signed out: no cookie session and no bearer — drop stale bearerSession.
-  if (peekBearerToken() === null) {
+  if (bearerStore.peek() === null) {
     return { session: null, isHydrated: true, error: null };
   }
 

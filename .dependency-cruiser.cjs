@@ -93,6 +93,30 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
+      name: 'apps-not-test',
+      severity: 'error',
+      comment:
+        'apps/ must not import test/ (tier boundary). System-wide DST lives under test/.',
+      from: { path: '^apps/' },
+      to: { path: '^test/' },
+    },
+    {
+      name: 'libs-not-test',
+      severity: 'error',
+      comment:
+        'libs/ must not import test/ (tier boundary). System-wide DST lives under test/.',
+      from: { path: '^libs/' },
+      to: { path: '^test/' },
+    },
+    {
+      name: 'pkgs-not-test',
+      severity: 'error',
+      comment:
+        'pkgs/ must not import test/ (tier boundary). System-wide DST lives under test/.',
+      from: { path: '^pkgs/' },
+      to: { path: '^test/' },
+    },
+    {
       name: 'shared-no-wall-io-packages',
       severity: 'error',
       comment:
@@ -117,6 +141,6 @@ module.exports = {
     // (e.g. wrangler dev stages `.wrangler/` inside a package directory).
     exclude: '(^|/)(\\.wrangler|\\.turbo|\\.expo|dist|build|coverage)/',
     tsPreCompilationDeps: true,
-    includeOnly: '^(apps|libs|pkgs)/',
+    includeOnly: '^(apps|libs|pkgs|test)/',
   },
 };

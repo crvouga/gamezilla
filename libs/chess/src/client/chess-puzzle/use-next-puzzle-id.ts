@@ -4,7 +4,10 @@ import { sql } from '@pkgs/sql';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
+import {
+  type ChessPuzzleFeedHistoryFilter,
+  resolveEffectivePuzzleRating,
+} from '../../shared/chess-puzzle-feed-config';
 import {
   hashSeed,
   PUZZLE_CANDIDATE_MAX_OFFSET,
@@ -27,25 +30,19 @@ function computeNextPuzzleLoading(args: {
   myId: string;
   banded: CandidateQueryResult;
   fallback: CandidateQueryResult;
-  replay: CandidateQueryResult;
 }): boolean {
-  const { myId, banded, fallback, replay } = args;
+  const { myId, banded, fallback } = args;
   if (myId.length === 0) return true;
   if (banded.isLoading) return true;
-  if (banded.rows.length === 0 && fallback.isLoading) return true;
-  return (
-    banded.rows.length === 0 && fallback.rows.length === 0 && replay.isLoading
-  );
+  return banded.rows.length === 0 && fallback.isLoading;
 }
 
 function selectPuzzleResult(
   banded: CandidateQueryResult,
-  fallback: CandidateQueryResult,
-  replay: CandidateQueryResult
+  fallback: CandidateQueryResult
 ): CandidateQueryResult {
   if (banded.rows.length > 0) return banded;
-  if (fallback.rows.length > 0) return fallback;
-  return replay;
+  return fallback;
 }
 
 type PuzzleRatingValueRow = { readonly value: number };
@@ -82,15 +79,18 @@ function usePuzzleCandidateQueries(args: {
   myId: string;
   currentPuzzleId: string | null;
   pickOffset: number;
+  historyFilter: ChessPuzzleFeedHistoryFilter;
+  themes: readonly string[];
 }): {
   banded: CandidateQueryResult;
   fallback: CandidateQueryResult;
-  replay: CandidateQueryResult;
 } {
   const banded = usePuzzleCandidatesQuery({
     rating: args.rating,
     ownerId: args.myId,
     currentPuzzleId: args.currentPuzzleId,
+    historyFilter: args.historyFilter,
+    themes: args.themes,
     halfWindow: PUZZLE_NEXT_MAX_BAND,
     pickOffset: args.pickOffset,
   });
@@ -98,17 +98,12 @@ function usePuzzleCandidateQueries(args: {
     rating: args.rating,
     ownerId: args.myId,
     currentPuzzleId: args.currentPuzzleId,
+    historyFilter: args.historyFilter,
+    themes: args.themes,
     halfWindow: null,
     pickOffset: args.pickOffset,
   });
-  const replay = usePuzzleCandidatesQuery({
-    rating: args.rating,
-    ownerId: '',
-    currentPuzzleId: args.currentPuzzleId,
-    halfWindow: null,
-    pickOffset: args.pickOffset,
-  });
-  return { banded, fallback, replay };
+  return { banded, fallback };
 }
 
 type PuzzleCountRow = { readonly value: number };
@@ -144,15 +139,18 @@ export function useNextPuzzleId(args: {
 } {
   const { currentPuzzleId, seed } = args;
   const myId = useMyId();
+  const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
   const pickOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
-  const { banded, fallback, replay } = usePuzzleCandidateQueries({
+  const { banded, fallback } = usePuzzleCandidateQueries({
     rating,
     myId,
     currentPuzzleId,
     pickOffset,
+    historyFilter: config.historyFilter,
+    themes: config.themes,
   });
-  const puzzleResult = selectPuzzleResult(banded, fallback, replay);
+  const puzzleResult = selectPuzzleResult(banded, fallback);
   const puzzleId = useMemo(
     () =>
       pickPuzzleIdFromPool({
@@ -163,17 +161,14 @@ export function useNextPuzzleId(args: {
       }),
     [puzzleResult.rows, rating, seed]
   );
-  const noCandidates =
-    banded.rows.length === 0 &&
-    fallback.rows.length === 0 &&
-    replay.rows.length === 0;
+  const noCandidates = banded.rows.length === 0 && fallback.rows.length === 0;
   const waitingForLocalPuzzles = useWaitingForLocalPuzzles({
     myId,
     puzzleId,
     noCandidates,
   });
   const loading =
-    computeNextPuzzleLoading({ myId, banded, fallback, replay }) ||
+    computeNextPuzzleLoading({ myId, banded, fallback }) ||
     waitingForLocalPuzzles;
 
   return {
@@ -182,7 +177,8 @@ export function useNextPuzzleId(args: {
     loading,
     bandedCount: banded.rows.length,
     fallbackCount: fallback.rows.length,
-    replayCount: replay.rows.length,
+    // Legacy field: replay path removed; filters always apply.
+    replayCount: 0,
   };
 }
 

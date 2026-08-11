@@ -96,7 +96,14 @@ export {
 // Disclosure
 export { Collapsible, type CollapsibleProps } from './collapsible';
 // Compound Inputs
-export { Combobox, type ComboboxOption, type ComboboxProps } from './combobox';
+export {
+  Combobox,
+  type ComboboxMultipleProps,
+  type ComboboxOption,
+  type ComboboxProps,
+  type ComboboxSelectionMode,
+  type ComboboxSingleProps,
+} from './combobox';
 // Command palette
 export {
   type Command,

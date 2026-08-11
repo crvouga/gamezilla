@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
+import { Text } from '../text';
 import { Combobox } from './combobox';
 
 const FRUITS = [
@@ -16,6 +17,7 @@ const FRUITS = [
 export default function ComboboxExample() {
   const { t } = useLingui();
   const [fruit, setFruit] = useState<string | null>(null);
+  const [fruits, setFruits] = useState<string[]>([]);
 
   return (
     <ExampleRoot>
@@ -28,6 +30,25 @@ export default function ComboboxExample() {
           placeholder={t`Pick a fruit…`}
           searchPlaceholder={t`Filter fruits…`}
           emptyMessage="No matching fruits"
+        />
+
+        <Combobox
+          label="Favorite fruits (multi)"
+          selectionMode="multiple"
+          options={FRUITS}
+          value={fruits}
+          onValueChange={setFruits}
+          placeholder={t`Pick fruits…`}
+          searchPlaceholder={t`Filter fruits…`}
+          emptyMessage="No matching fruits"
+        />
+        <Text
+          variant="caption"
+          label={
+            fruits.length === 0
+              ? 'No fruits selected'
+              : `Selected: ${fruits.join(', ')}`
+          }
         />
 
         <Combobox

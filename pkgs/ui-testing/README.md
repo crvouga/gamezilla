@@ -48,15 +48,21 @@ Direct driver constructors are also available under deep imports, e.g.
 ```
 Consumer (app / e2e package)
   ├── page objects (LoginPage, …)  — live in the consumer
-  ├── AppHarness                   — createRoot / setup / teardown
+  ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })
-        ├── InProcessDriver  → RenderAdapter (react-native-web + Testing Library DOM)
+        ├── InProcessDriver  → RenderAdapter (RNTL) or harness.mount
         ├── PlaywrightDriver → injected Playwright Page
         └── DetoxDriver      → stub (documented Detox mapping)
 ```
 
 Dependency direction is always **apps → pkgs**. Drivers receive their underlying
 handles (`Page`, Detox device, harness) from the consumer.
+
+**No mocking of product deps.** In-process rendering uses
+[React Native Testing Library](https://oss.callstack.com/react-native-testing-library/)
+over a real React Native host (`react-test-renderer` / `test-renderer`). Inject
+alternate implementations via DI / harness setup — never `mock.module` or
+hand-rolled module stubs in this package.
 
 ## Selectors
 
@@ -93,8 +99,8 @@ class LoginPage {
 
 ## In-process driver
 
-Boots a real React / React Native (web) tree inside one Node/Bun process —
-no browser, emulator, IPC, or HTTP server.
+Boots a real React Native tree in-process via RNTL — no browser, emulator, IPC,
+or HTTP server, and no `react-native` → `react-native-web` remapping.
 
 ### 1. Implement an `AppHarness`
 
@@ -105,48 +111,46 @@ import { AppRoot } from './app-root'; // your app
 
 export const harness: AppHarness = {
   async setup() {
-    // fakes, env, seed data — owned by the app
+    // DI seams, env, seed data — owned by the app
   },
   createRoot() {
     return createElement(AppRoot);
   },
   async teardown() {
-    // dispose fakes
+    // dispose seams
   },
 };
 ```
 
-### 2. Preload happy-dom + react-native → react-native-web
+For Expo Router trees, prefer harness `mount()` with
+`expo-router/testing-library` `renderRouter`, then wrap the result with
+`createRenderedAppFromRntl`.
 
-Add a `bunfig.toml` next to the tests that use the in-process driver:
+### 2. Run under a RN-capable test env
 
-```toml
-[test]
-preload = ["../../pkgs/ui-testing/src/drivers/in-process/bun-preload.ts"]
-```
+Product UI DST should use Jest + `jest-expo` (or an equivalent Metro/Babel
+transform). Bun cannot parse React Native's Flow entry without remapping, which
+this package forbids.
 
-Or re-export that preload from your own package. The preload:
-
-1. Registers happy-dom globals before Testing Library evaluates
-2. Aliases `react-native` → `react-native-web` via `mock.module`
-
-### 3. Write a test (any runner)
+### 3. Write a test
 
 ```ts
 import { createDriver, by, expectVisible } from '@pkgs/ui-testing';
 import { harness } from './harness';
 
-const driver = createDriver({ kind: 'in-process', harness });
+const driver = createDriver({
+  kind: 'in-process',
+  harness,
+  now: () => Date.now(),
+  timers,
+});
 await driver.launch();
 await expectVisible(driver, by.testId('home'));
 await driver.close();
 ```
 
-Native-only modules (SQLite, gestures, …) must be doubled in your harness —
-the framework does not know about them.
-
-An alternate `RenderAdapter` (e.g. React Native Testing Library under Jest)
-can be passed as `renderer` without changing the `Driver` API.
+Wire I/O and storage through your harness / composition roots — the framework
+does not stub native modules.
 
 ## Playwright driver
 
@@ -184,7 +188,7 @@ first-class text read-back — `getText` remains unsupported by design.
 | `tap`                    | yes               | yes                      | stub → `element().tap()`                   |
 | `tapAt`                  | yes               | yes                      | stub → `element().tap({ x, y })`           |
 | `typeText` / `clearText` | yes               | yes                      | stub → `typeText` / `clearText`            |
-| `pressKey`               | yes               | yes                      | stub (platform-limited)                    |
+| `pressKey`               | yes (no-op host)  | yes                      | stub (platform-limited)                    |
 | `scroll`                 | yes               | yes                      | stub → `element().scroll`                  |
 | `navigateBack`           | not implemented\* | `page.goBack()`          | stub → `device.pressBack()`                |
 | `waitFor` / `isVisible`  | yes               | yes                      | stub → `waitFor` / `toBeVisible`           |
@@ -215,7 +219,7 @@ pkgs/ui-testing/src/
   assertions/     expectVisible / expectHidden / expectText
   bootstrap/      AppHarness + RenderAdapter ports
   drivers/
-    in-process/   InProcessDriver + DOM renderer + bun preload
+    in-process/   InProcessDriver + RNTL renderer
     playwright/   PlaywrightDriver
     detox/        DetoxDriver stub
 ```

@@ -69,7 +69,18 @@ export function sanitizeSignInReturnHref(
 
 /** Current screen to restore after hosted OAuth (web prefers `window.location`). */
 export function resolveSignInReturnHref(pathname: string): string | undefined {
-  if (typeof window !== 'undefined') {
+  // Prefer `window.location` only on real web. Jest/RNTL still defines
+  // `window`, but expo-router's location shim can hang on property access.
+  // Lazy Platform: Bun unit tests of parse/sanitize must not load RN Flow.
+  let isWeb = false;
+  try {
+    const { Platform } =
+      require('react-native') as typeof import('react-native');
+    isWeb = Platform.OS === 'web';
+  } catch {
+    isWeb = false;
+  }
+  if (isWeb && typeof window !== 'undefined') {
     return sanitizeSignInReturnHref(
       `${window.location.pathname}${window.location.search}`
     );

@@ -1,5 +1,4 @@
 import { type ApplyGlobalResponse, hc } from 'hono/client';
-
 import type { createApiApp } from './app/create-app';
 
 /** Wraps a Hono app type with global 401/500 JSON bodies from `app.onError`. */

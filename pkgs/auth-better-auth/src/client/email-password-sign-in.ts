@@ -1,20 +1,11 @@
 import { assert } from '@pkgs/assert';
 import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 
-import {
-  clearStoredBearerToken,
-  readStoredBearerToken,
-  writeStoredBearerToken,
-} from './bearer-token-store';
-import { getOrCreateBetterAuthReactClient } from './create-auth-client';
-import { readAuthBaseURL } from './read-auth-base-url';
+import type { BearerTokenStore } from './bearer-token-store';
+import type { BetterAuthReactClient } from './create-auth-client';
 
 export const BETTER_AUTH_NETWORK_ERROR =
   'No internet connection. Connect and try again.';
-
-function client() {
-  return getOrCreateBetterAuthReactClient({ baseURL: readAuthBaseURL() });
-}
 
 function throwAuthClientError(error: unknown): never {
   const message =
@@ -44,12 +35,13 @@ function rethrowNetworkAware(error: unknown): never {
 }
 
 async function callEmailAuth(
+  client: BetterAuthReactClient,
   mode: 'sign-in' | 'sign-up',
   email: string,
   password: string
 ): Promise<void> {
   if (mode === 'sign-up') {
-    const result = await client().signUp.email({
+    const result = await client.signUp.email({
       email,
       password,
       name: email,
@@ -59,16 +51,19 @@ async function callEmailAuth(
     }
     return;
   }
-  const result = await client().signIn.email({ email, password });
+  const result = await client.signIn.email({ email, password });
   if (result.error !== null && result.error !== undefined) {
     throwAuthClientError(result.error);
   }
 }
 
 export async function runEmailPasswordSignIn(args: {
+  readonly client: BetterAuthReactClient;
+  readonly bearerStore: BearerTokenStore;
   readonly credentials: SignInCredentials;
   readonly hasUsableBearerSession: () => Promise<boolean>;
 }): Promise<void> {
+  const { client, bearerStore } = args;
   const email = args.credentials.email.trim();
   const password = args.credentials.password;
   assert.nonEmptyString(email, 'email is required');
@@ -77,17 +72,22 @@ export async function runEmailPasswordSignIn(args: {
   if (await args.hasUsableBearerSession()) {
     return;
   }
-  await clearStoredBearerToken();
+  await bearerStore.clear();
 
   try {
-    await callEmailAuth(args.credentials.mode ?? 'sign-in', email, password);
+    await callEmailAuth(
+      client,
+      args.credentials.mode ?? 'sign-in',
+      email,
+      password
+    );
   } catch (error) {
     rethrowNetworkAware(error);
   }
 
-  await client().getSession();
-  const token = await readStoredBearerToken();
+  await client.getSession();
+  const token = await bearerStore.read();
   if (token !== null) {
-    await writeStoredBearerToken(token);
+    await bearerStore.write(token);
   }
 }

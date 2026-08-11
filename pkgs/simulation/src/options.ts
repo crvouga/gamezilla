@@ -7,7 +7,7 @@ export type SimulationOptions = {
   /** Opaque full-system bootstrap — owns servers, DBs, fakes, shared backend. */
   readonly system: SimulationSystem;
   /**
-   * UI driver kind. Default `'in-process'` (React tree in Bun via
+   * UI driver kind. Default `'in-process'` (React Native tree via RNTL /
    * `@pkgs/ui-testing`). `'playwright'` requires each session to supply a Page.
    */
   readonly ui?: SimulationUiKind;

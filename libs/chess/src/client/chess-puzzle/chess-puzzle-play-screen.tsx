@@ -4,15 +4,12 @@ import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { Box, componentDataSet, SpeakingAvatar } from '@pkgs/ui';
 import { memo, type ReactNode, useCallback, useState } from 'react';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
-import {
-  BOARD_ELO_BAR_HEIGHT,
-  ChessPuzzleBoardEloBar,
-} from './chess-puzzle-board-elo-bar';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
 import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
 import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
@@ -34,6 +31,7 @@ type PuzzlePlayLayoutProps = {
   backToRoot: () => void;
   assistant: ReactNode;
   boardSlot: (size: number) => ReactNode;
+  puzzleId?: string;
   puzzleRating?: number;
   status: SolveStatus;
   hintStage: HintStage;
@@ -45,6 +43,7 @@ type PuzzlePlayLayoutProps = {
   onForward: () => void;
   onRetry: () => void;
   onNext: () => void;
+  onFeedConfigApplied: () => void;
   completion: PuzzlePlayerChromeModel['completion'];
   e2eHints?: ReactNode;
   e2eLoadingStatus?: ReactNode;
@@ -69,15 +68,13 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
       <DefineBackButton onPress={p.backToRoot} />
       {p.e2eLoadingStatus}
       <Box sx={{ flex: 1, minHeight: 0, gap: 4, pt: 4 }}>
+        <ChessPuzzleFeedBar
+          puzzleId={p.puzzleId}
+          rating={puzzleRating}
+          onOpenFeedSettings={openFeedSettings}
+        />
         {p.assistant}
         <ChessPuzzleBoardFrame
-          topAccessory={
-            <ChessPuzzleBoardEloBar
-              rating={puzzleRating}
-              onOpenFeedSettings={openFeedSettings}
-            />
-          }
-          topAccessoryHeight={BOARD_ELO_BAR_HEIGHT}
           overlay={
             showCelebration && p.completion !== null ? (
               <ChessPuzzleCelebrationOverlay
@@ -109,6 +106,7 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen}
         onClose={closeFeedSettings}
+        onFeedConfigApplied={p.onFeedConfigApplied}
       />
     </Box>
   );
@@ -154,10 +152,13 @@ const PuzzleBoardSlot = memo(function PuzzleBoardSlot(
   );
 });
 
-function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
+function PuzzlePlayerChrome(
+  p: PuzzlePlayerChromeModel & { onFeedConfigApplied: () => void }
+): ReactNode {
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
+      puzzleId={p.puzzleId}
       puzzleRating={p.rating}
       assistant={
         <SpeakingAvatarAssistant
@@ -191,6 +192,7 @@ function PuzzlePlayerChrome(p: PuzzlePlayerChromeModel): ReactNode {
       onForward={p.onForward}
       onRetry={p.onRetry}
       onNext={p.onNext}
+      onFeedConfigApplied={p.onFeedConfigApplied}
       completion={p.completion}
       e2eHints={
         <ChessPuzzleE2EHints
@@ -209,6 +211,7 @@ type PuzzlePlayerProps = {
   readyGeneration: number;
   startNonce: number;
   onRequestNext: () => void;
+  onFeedConfigApplied: () => void;
 };
 
 /**
@@ -225,6 +228,7 @@ function PuzzlePlayer({
   readyGeneration,
   startNonce,
   onRequestNext,
+  onFeedConfigApplied,
 }: PuzzlePlayerProps): ReactNode {
   const p = usePuzzlePlayerState({
     puzzleId,
@@ -233,12 +237,15 @@ function PuzzlePlayer({
     startNonce,
     onRequestNext,
   });
-  return <PuzzlePlayerChrome {...p} />;
+  return (
+    <PuzzlePlayerChrome {...p} onFeedConfigApplied={onFeedConfigApplied} />
+  );
 }
 
 function PuzzlePlayLoadingShell(p: {
   backToChessRoot: () => void;
   e2eLoadingStatus: ReactNode;
+  onFeedConfigApplied: () => void;
 }): ReactNode {
   return (
     <PuzzlePlayLayout
@@ -263,6 +270,7 @@ function PuzzlePlayLoadingShell(p: {
       onForward={noop}
       onRetry={noop}
       onNext={noop}
+      onFeedConfigApplied={p.onFeedConfigApplied}
       completion={null}
     />
   );
@@ -276,6 +284,7 @@ export function PuzzlePlayScreen(): ReactNode {
     readyGeneration,
     startNonce,
     onRequestNext,
+    reselectActivePuzzleFromFeed,
     e2eLoadingStatus,
   } = usePuzzlePlayScreenState();
 
@@ -290,6 +299,7 @@ export function PuzzlePlayScreen(): ReactNode {
         <PuzzlePlayLoadingShell
           backToChessRoot={backToChessRoot}
           e2eLoadingStatus={e2ePickStatus}
+          onFeedConfigApplied={reselectActivePuzzleFromFeed}
         />
       </Box>
     );
@@ -307,6 +317,7 @@ export function PuzzlePlayScreen(): ReactNode {
         readyGeneration={readyGeneration}
         startNonce={startNonce}
         onRequestNext={onRequestNext}
+        onFeedConfigApplied={reselectActivePuzzleFromFeed}
       />
     </Box>
   );

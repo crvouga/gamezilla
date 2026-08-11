@@ -11,11 +11,17 @@ export function ComboboxSearch({
   onChangeText,
   placeholder,
   autoFocus,
+  activeDescendantId,
+  onKeyDown,
 }: {
   value: string;
   onChangeText: (text: string) => void;
   placeholder: LocalizedString;
   autoFocus: boolean;
+  activeDescendantId: string | undefined;
+  onKeyDown:
+    | ((event: { key: string; preventDefault: () => void }) => void)
+    | undefined;
 }) {
   const timers = useTimers();
   const inputRef = useRef<RNTextInput>(null);
@@ -38,6 +44,21 @@ export function ComboboxSearch({
         autoCorrect={false}
         autoCapitalize="none"
         clearButtonMode="while-editing"
+        {...(activeDescendantId !== undefined
+          ? { 'aria-activedescendant': activeDescendantId }
+          : {})}
+        onKeyPress={
+          onKeyDown === undefined
+            ? undefined
+            : (e) => {
+                onKeyDown({
+                  key: e.nativeEvent.key,
+                  preventDefault: () => {
+                    e.preventDefault?.();
+                  },
+                });
+              }
+        }
       />
     </Box>
   );

@@ -1,7 +1,15 @@
 export {
+  type AuthClientStorage,
   BETTER_AUTH_BEARER_STORAGE_KEY,
-  writeStoredBearerToken,
+  type BearerTokenStore,
+  createBearerTokenStore,
+  createInMemoryAuthClientStorage,
 } from './bearer-token-store';
+export {
+  type BetterAuthReactClient,
+  type CreateBetterAuthReactClientArgs,
+  createBetterAuthReactClient,
+} from './create-auth-client';
 export {
   BETTER_AUTH_NETWORK_ERROR,
   BETTER_AUTH_SSO_CANCELLED_ERROR,

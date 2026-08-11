@@ -7,6 +7,9 @@ import type { ComboboxOption, ComboboxProps } from './combobox-types';
 export function ComboboxOptions<T extends string | number>({
   options,
   value,
+  values,
+  highlightedIndex,
+  listboxId,
   onPick,
   renderOption,
   loading,
@@ -14,6 +17,9 @@ export function ComboboxOptions<T extends string | number>({
 }: {
   options: ComboboxOption<T>[];
   value: T | null | undefined;
+  values: ReadonlySet<T> | undefined;
+  highlightedIndex: number;
+  listboxId: string;
   onPick: (next: T) => void;
   renderOption: ComboboxProps<T>['renderOption'];
   loading: boolean;
@@ -29,6 +35,9 @@ export function ComboboxOptions<T extends string | number>({
     <ComboboxOptionsList
       options={options}
       value={value}
+      values={values}
+      highlightedIndex={highlightedIndex}
+      listboxId={listboxId}
       onPick={onPick}
       renderOption={renderOption}
     />

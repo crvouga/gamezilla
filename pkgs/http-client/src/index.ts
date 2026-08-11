@@ -6,6 +6,11 @@ export {
 } from './errors';
 export { createGlobalHttpClient, globalHttpFetch } from './global';
 export {
+  type CreateHonoHttpClientArgs,
+  createHonoHttpClient,
+  type HonoFetchable,
+} from './hono-http-client';
+export {
   HttpClientProvider,
   type HttpClientProviderProps,
   useHttpClient,

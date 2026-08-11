@@ -38,6 +38,11 @@ export type PostgresMigrationRunnerDeps = {
   /** Used as Better Auth baseURL during migrate (placeholder OK). */
   betterAuthBaseURL: string;
   betterAuthSecret: string;
+  /**
+   * When true, skip `pg_advisory_xact_lock` + outer transaction (pg-mem / single-process
+   * sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
+   */
+  skipAdvisoryLock?: boolean;
 };
 
 export class PostgresMigrationRunner {
@@ -51,6 +56,7 @@ export class PostgresMigrationRunner {
       dbScope,
       betterAuthBaseURL,
       betterAuthSecret,
+      skipAdvisoryLock = false,
     } = this.deps;
 
     const locked = new ComposedDatabaseMigration()
@@ -59,7 +65,7 @@ export class PostgresMigrationRunner {
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,
-          alreadyInTransaction: true,
+          alreadyInTransaction: !skipAdvisoryLock,
         })
       )
       .register(new KvPostgresDatabaseMigration())
@@ -68,10 +74,12 @@ export class PostgresMigrationRunner {
     const databaseMigration = new ComposedDatabaseMigration()
       .register(new EnsurePostgresSchemaMigration(dbScope))
       .register(
-        new PostgresAdvisoryLockedTransactionMigration({
-          lockId: POSTGRES_MIGRATE_ADVISORY_LOCK_ID,
-          inner: locked,
-        })
+        skipAdvisoryLock
+          ? locked
+          : new PostgresAdvisoryLockedTransactionMigration({
+              lockId: POSTGRES_MIGRATE_ADVISORY_LOCK_ID,
+              inner: locked,
+            })
       )
       .register(
         new BetterAuthDatabaseMigration({

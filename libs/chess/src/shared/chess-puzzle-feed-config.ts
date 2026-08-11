@@ -1,5 +1,10 @@
 /** Device-local puzzle feed preference: which rating band(s) to sync + pick from. */
 
+import {
+  type ChessPuzzleTheme,
+  isChessPuzzleTheme,
+} from './chess-puzzle-themes';
+
 export const PUZZLE_RATING_BAND_SIZE = 400;
 export const PUZZLE_FEED_RATING_MIN = 400;
 export const PUZZLE_FEED_RATING_MAX = 3000;
@@ -14,17 +19,32 @@ export const CHESS_PUZZLE_FEED_MODES = ['auto', 'custom'] as const;
 
 export type ChessPuzzleFeedMode = (typeof CHESS_PUZZLE_FEED_MODES)[number];
 
+export const CHESS_PUZZLE_FEED_HISTORY_FILTERS = [
+  'any',
+  'neverSeen',
+  'seen',
+  'failed',
+] as const;
+
+export type ChessPuzzleFeedHistoryFilter =
+  (typeof CHESS_PUZZLE_FEED_HISTORY_FILTERS)[number];
+
 export type ChessPuzzleFeedConfig = {
   readonly mode: ChessPuzzleFeedMode;
   readonly customRating: number;
   /** Signed offset from puzzle profile rating when `mode === 'auto'`. */
   readonly autoOffset: number;
+  /** Empty = any theme. Match puzzles that include any selected theme (OR). */
+  readonly themes: readonly ChessPuzzleTheme[];
+  readonly historyFilter: ChessPuzzleFeedHistoryFilter;
 };
 
 export const DEFAULT_CHESS_PUZZLE_FEED_CONFIG: ChessPuzzleFeedConfig = {
   mode: 'auto',
   customRating: PUZZLE_FEED_RATING_DEFAULT,
   autoOffset: 0,
+  themes: [],
+  historyFilter: 'neverSeen',
 };
 
 export function clampPuzzleFeedRating(rating: number): number {
@@ -43,8 +63,35 @@ export function clampPuzzleFeedAutoOffset(offset: number): number {
   );
 }
 
+function readFeedThemes(value: unknown): readonly ChessPuzzleTheme[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) return [];
+  const out: ChessPuzzleTheme[] = [];
+  const seen = new Set<string>();
+  for (const item of value) {
+    if (typeof item !== 'string' || !isChessPuzzleTheme(item)) continue;
+    if (seen.has(item)) continue;
+    seen.add(item);
+    out.push(item);
+  }
+  return out;
+}
+
+function readHistoryFilter(value: unknown): ChessPuzzleFeedHistoryFilter {
+  if (value === undefined) return 'neverSeen';
+  if (
+    value === 'any' ||
+    value === 'neverSeen' ||
+    value === 'seen' ||
+    value === 'failed'
+  ) {
+    return value;
+  }
+  return 'neverSeen';
+}
+
 /**
- * Accepts current configs and legacy KV rows that omit `autoOffset`.
+ * Accepts current configs and legacy KV rows that omit newer fields.
  * Returns a normalized config, or `undefined` when the value is unusable.
  */
 export function readChessPuzzleFeedConfig(
@@ -66,10 +113,24 @@ export function readChessPuzzleFeedConfig(
         ? clampPuzzleFeedAutoOffset(rawOffset)
         : undefined;
   if (autoOffset === undefined) return undefined;
+  if (record['themes'] !== undefined && !Array.isArray(record['themes'])) {
+    return undefined;
+  }
+  if (
+    record['historyFilter'] !== undefined &&
+    record['historyFilter'] !== 'any' &&
+    record['historyFilter'] !== 'neverSeen' &&
+    record['historyFilter'] !== 'seen' &&
+    record['historyFilter'] !== 'failed'
+  ) {
+    return undefined;
+  }
   return {
     mode,
     customRating,
     autoOffset,
+    themes: readFeedThemes(record['themes']),
+    historyFilter: readHistoryFilter(record['historyFilter']),
   };
 }
 
@@ -105,4 +166,18 @@ export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
     if (band >= 0) bands.push(band);
   }
   return bands;
+}
+
+/** Stable string for detecting feed-config edits (modal Done apply). */
+export function chessPuzzleFeedConfigFingerprint(
+  config: ChessPuzzleFeedConfig
+): string {
+  const themes = [...config.themes].sort().join(',');
+  return [
+    config.mode,
+    String(config.customRating),
+    String(config.autoOffset),
+    themes,
+    config.historyFilter,
+  ].join('|');
 }
