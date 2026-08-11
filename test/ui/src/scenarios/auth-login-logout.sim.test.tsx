@@ -48,6 +48,7 @@ describe('auth login → logout', () => {
       // Recent fixed epoch so auth/session expiry math isn't relative to 1970.
       startMs: Date.parse('2024-06-01T00:00:00.000Z'),
       system: createClientSimulationSystem(),
+      report: true,
     });
     try {
       const alice = await sim.actor('alice');

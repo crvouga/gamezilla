@@ -75,4 +75,10 @@ export interface Driver {
    * Drivers that cannot read text throw {@link NotImplementedError}.
    */
   getText(target: Selector): Promise<string | null>;
+
+  /**
+   * Capture a readable HTML preview of the current UI for reporting.
+   * Returns `null` when the driver cannot snapshot (e.g. Detox stub).
+   */
+  snapshotHtml(): Promise<string | null>;
 }

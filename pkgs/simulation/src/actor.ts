@@ -5,7 +5,11 @@ import {
   type Driver,
   type PlaywrightDriverConfig,
 } from '@pkgs/ui-testing';
-
+import type { SimulationReporter } from './report/reporter';
+import {
+  createReportingDriver,
+  recordNavOpen,
+} from './report/reporting-driver';
 import type { SimulationSession, SimulationUiKind } from './system-port';
 
 /**
@@ -24,21 +28,38 @@ export async function createSimActor(args: {
   readonly session: SimulationSession;
   readonly uiKind: SimulationUiKind;
   readonly io: SimIo;
+  readonly reporter?: SimulationReporter;
 }): Promise<SimActor> {
-  const { id, session, uiKind, io } = args;
+  const { id, session, uiKind, io, reporter } = args;
   if (session.ui !== uiKind) {
     throw new Error(
       `SimActor(${id}): session ui '${session.ui}' does not match simulation ui '${uiKind}'`
     );
   }
 
-  const driver = createDriverForSession(session, io);
+  const rawDriver = createDriverForSession(session, io);
+  const driver =
+    reporter !== undefined
+      ? createReportingDriver(rawDriver, { actorId: id, reporter })
+      : rawDriver;
+
   await driver.launch();
 
   return {
     id,
     ui: driver,
-    open: (path) => session.open(path),
+    open: async (path) => {
+      if (reporter === undefined) {
+        await session.open(path);
+        return;
+      }
+      await recordNavOpen(reporter, {
+        actorId: id,
+        path,
+        open: () => session.open(path),
+        snapshot: () => rawDriver.snapshotHtml(),
+      });
+    },
     async dispose() {
       await driver.close();
       await session.dispose();

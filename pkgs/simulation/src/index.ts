@@ -9,7 +9,16 @@
 export type { SimActor } from './actor';
 export { createSimIo, type SimulationClock } from './clock';
 export { openSimulation, type Simulation } from './open-simulation';
-export type { SimulationOptions } from './options';
+export type {
+  SimulationOptions,
+  SimulationReportOptions,
+} from './options';
+export type {
+  SimulationReportData,
+  SimulationStep,
+  SimulationStepKind,
+  SimulationStepStatus,
+} from './report/types';
 export { createSeededRng, type SeededRng } from './rng';
 export type {
   InProcessSimulationSession,

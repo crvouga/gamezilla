@@ -94,6 +94,28 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 - Re-run the same seed + system for reproducible actor scheduling on your side
 - Prefer injecting `ctx.io` into app providers (`IoProvider` / sync factories)
 
+## Step reports (HTML timeline)
+
+Pass `report: true` (or `{ outDir }`) to write a Playwright-like HTML report on
+`dispose()`. Every Driver mutation / `waitFor` / `actor.open` is a timeline step
+with an in-process HTML preview of the RN host tree (`Driver.snapshotHtml`).
+`isVisible` / `getText` are not recorded (so wall-poll helpers do not flood).
+
+```ts
+const sim = await openSimulation({
+  seed: 1,
+  system: mySystem,
+  report: true, // → simulation-report/<seed>-<ms>/index.html
+});
+// …taps / types…
+await sim.dispose();
+// console: Simulation report: file://…/index.html
+```
+
+Artifacts: `index.html` (timeline + snapshot pane), `steps.json`, and
+`snapshots/step-NNN.html`. Optional `await sim.step('label', fn)` adds a
+human milestone. Path is also on `sim.reportPath` after flush.
+
 ## What not to do
 
 - Do not assert against sync engines, mutation clients, SQL, or HTTP from scenarios

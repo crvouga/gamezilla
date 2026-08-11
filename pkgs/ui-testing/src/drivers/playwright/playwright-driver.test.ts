@@ -42,6 +42,7 @@ function createFakePage(locator: FakeLocator): Page {
   return {
     goto: mock(() => Promise.resolve()),
     goBack: mock(() => Promise.resolve()),
+    content: mock(() => Promise.resolve('<html><body>ok</body></html>')),
     keyboard: { press: mock(() => Promise.resolve()) },
     getByTestId: mock(() => locator as unknown as Locator),
     getByText: mock(() => locator as unknown as Locator),
@@ -98,6 +99,8 @@ describe('PlaywrightDriver', () => {
 
     expect(await driver.isVisible(by.text('Hi'))).toBe(true);
     expect(await driver.getText(by.testId('email'))).toBe('typed');
+    expect(await driver.snapshotHtml()).toBe('<html><body>ok</body></html>');
+    expect(page.content).toHaveBeenCalled();
 
     await driver.close();
   });

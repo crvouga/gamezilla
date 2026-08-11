@@ -13,6 +13,7 @@ import type {
   RenderedApp,
 } from '../../bootstrap/render-adapter';
 import type { Selector } from '../../selector/selector';
+import { serializeHostTreeHtml } from './serialize-host-tree-html';
 
 type RntlUser = ReturnType<typeof userEvent.setup>;
 
@@ -69,6 +70,7 @@ export function createRenderedAppFromRntl(
     unmount: () => {
       result.unmount();
     },
+    snapshotHtml: () => serializeHostTreeHtml(result.toJSON()),
   };
   if (options.activate !== undefined) {
     app.activate = options.activate;

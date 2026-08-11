@@ -114,6 +114,10 @@ export class DetoxDriver implements Driver {
     this.unsupported('getText', 'Detox has no first-class text read-back API');
   }
 
+  async snapshotHtml(): Promise<string | null> {
+    return null;
+  }
+
   private unsupported(operation: string, mapping: string): never {
     throw new NotImplementedError(this.kind, operation, mapping);
   }

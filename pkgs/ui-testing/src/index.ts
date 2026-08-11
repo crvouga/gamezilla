@@ -61,6 +61,7 @@ export {
   createRenderedAppFromRntl,
   createRntlRenderAdapter,
 } from './drivers/in-process/renderer-rntl';
+export { serializeHostTreeHtml } from './drivers/in-process/serialize-host-tree-html';
 export {
   PlaywrightDriver,
   type PlaywrightDriverOptions,

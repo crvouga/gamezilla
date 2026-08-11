@@ -92,3 +92,4 @@ apps/client/android/
 **/playwright-report/
 **/test-results/
 **/blob-report/
+**/simulation-report/

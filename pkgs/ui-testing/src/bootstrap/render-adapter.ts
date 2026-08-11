@@ -55,6 +55,13 @@ export interface RenderedApp {
 
   /** Unmount and dispose the rendered tree. */
   unmount(): void;
+
+  /**
+   * Optional HTML preview of the current host tree for simulation reports.
+   * In-process RNTL serializes RN hosts to readable HTML; DOM adapters may
+   * return `document.documentElement.outerHTML`.
+   */
+  snapshotHtml?(): string;
 }
 
 /**

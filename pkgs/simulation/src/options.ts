@@ -1,6 +1,7 @@
+import type { SimulationReportOptions } from './report/types';
 import type { SimulationSystem, SimulationUiKind } from './system-port';
 
-export type { SimulationUiKind };
+export type { SimulationReportOptions, SimulationUiKind };
 
 export type SimulationOptions = {
   readonly seed: number | bigint | string;
@@ -13,4 +14,9 @@ export type SimulationOptions = {
   readonly ui?: SimulationUiKind;
   /** Virtual clock start (epoch ms). Default `0`. */
   readonly startMs?: number;
+  /**
+   * When set, record every Driver mutation/wait + `open` into a Playwright-like
+   * HTML timeline report with per-step UI HTML snapshots.
+   */
+  readonly report?: boolean | SimulationReportOptions;
 };

@@ -48,6 +48,10 @@ describe('InProcessDriver', () => {
     await expectVisible(driver, by.testId('home'));
     await expectHidden(driver, by.testId('email'));
     await expectText(driver, by.testId('welcome'), 'Welcome ada@example.com');
+
+    const html = await driver.snapshotHtml();
+    expect(html).toContain('data-testid="home"');
+    expect(html).toContain('Welcome ada@example.com');
   });
 
   it('supports tap on the counter and reports visibility', async () => {

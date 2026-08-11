@@ -49,5 +49,6 @@ describe('DetoxDriver stub', () => {
     await expect(driver.getText(by.testId('x'))).rejects.toBeInstanceOf(
       NotImplementedError
     );
+    expect(await driver.snapshotHtml()).toBeNull();
   });
 });

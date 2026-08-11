@@ -120,6 +120,10 @@ export class PlaywrightDriver implements Driver {
     return loc.innerText();
   }
 
+  async snapshotHtml(): Promise<string | null> {
+    return this.page.content();
+  }
+
   private locator(target: Selector): Locator {
     return toLocator(this.page, target);
   }
