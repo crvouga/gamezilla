@@ -26,8 +26,12 @@ function mapSession(data: {
 }
 
 /**
- * Reactive session snapshot. Requires {@link createBetterAuthClientAdapter}
- * to have been constructed with a baseURL (client singleton).
+ * Reactive IdP session snapshot for AuthBridge ceremony / reconcile only.
+ * Product chrome must use secure-storage session capability
+ * (`useHasAuthSession` / `useFreshAuthToken`), not this hook.
+ *
+ * Requires {@link createBetterAuthClientAdapter} to have been constructed with
+ * a baseURL (client singleton).
  *
  * When a bearer token is present (e.g. E2E injection / reload) but the React
  * session cache is empty, we resolve once via `getSession` with Bearer.

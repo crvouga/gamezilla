@@ -1,11 +1,14 @@
+import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
 
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
+import { parseMetadataEmail } from '../shared/linked-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
+import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
-import { isAuthSessionSignedIn } from './session-snapshot';
+import { resolveHasAuthSession } from './session-capability';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
@@ -25,6 +28,10 @@ type UserRow = {
 
 type StripeLinkRow = {
   readonly external_id: string | null;
+};
+
+type ExternalAccountRow = {
+  readonly metadata: unknown;
 };
 
 function readIsAnonFlag(value: unknown): boolean {
@@ -77,11 +84,16 @@ export function useIsSignedIn(): boolean {
 }
 
 /**
- * Provider session hydrated and present (sign-in / sign-out chrome).
+ * Local-first provider session: hydrated secure storage has a bearer.
+ * Does not wait on Better Auth `useSession`.
  */
 export function useHasAuthSession(): boolean {
-  const port = useAuthClientPort();
-  return isAuthSessionSignedIn(port.useAuthSession());
+  const { value, isHydrated } = useHydratedSecureStorageItem(SESSION_TOKEN_KEY);
+  const token = typeof value === 'string' && value.length > 0 ? value : null;
+  return resolveHasAuthSession({
+    storageHydrated: isHydrated,
+    sessionToken: token,
+  });
 }
 
 /**
@@ -122,4 +134,25 @@ export function useIsAnon(): boolean {
 export function useMyDeviceId(): string {
   const id = useDeviceId();
   return id ?? '';
+}
+
+/**
+ * Email for the primary auth-provider link from synced
+ * `auth_external_accounts.metadata` (written by `/identity/refresh`).
+ */
+export function useSessionAccountEmail(): string | null {
+  const hasSession = useHasAuthSession();
+  const userId = useMyId();
+  const provider = useAuthClientPort().providerLabel;
+  const watchId = hasSession && userId.length > 0 ? userId : '';
+  const { rows } = useQuery(sql<ExternalAccountRow>`
+    SELECT metadata
+    FROM auth_external_accounts
+    WHERE user_id = ${watchId}
+      AND provider = ${provider}
+    LIMIT 1
+  `);
+  const row = rows[0] ?? null;
+  if (row === null) return null;
+  return parseMetadataEmail(row.metadata);
 }

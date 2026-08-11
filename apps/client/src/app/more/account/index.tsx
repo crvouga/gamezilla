@@ -3,8 +3,10 @@
  */
 
 import { AccountScreen } from '@libs/auth/client/account-screen';
-import { useAuthClientPort } from '@libs/auth/client/auth-client-provider';
-import { useIsAnon } from '@libs/auth/client/use-current-user';
+import {
+  useIsAnon,
+  useSessionAccountEmail,
+} from '@libs/auth/client/use-current-user';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/client/use-profile-column';
@@ -44,8 +46,7 @@ function AccountIdentityBlock(): ReactNode {
   const { t } = useLingui();
   const isAnon = useIsAnon();
   const username = useReadyProfileUsername();
-  const port = useAuthClientPort();
-  const sessionEmail = port.useAuthSession().session?.email ?? null;
+  const sessionEmail = useSessionAccountEmail();
   const email = isAnon ? null : sessionEmail;
   const accountLabel = t`Account`;
 

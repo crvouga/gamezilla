@@ -273,6 +273,10 @@ async function runSignOut(): Promise<void> {
   }
 }
 
+/**
+ * Ceremony mint paths only. Steady-state product chrome must not call
+ * getSession — it reads secure-storage `sessionToken` instead.
+ */
 async function readFreshToken(
   options?: GetFreshTokenOptions
 ): Promise<string | null> {
@@ -304,6 +308,10 @@ async function completeHostedAuthRedirect(): Promise<void> {
   }
 }
 
+/**
+ * Better Auth adapter: sign-in/out + token mint. `useAuthSession` is for
+ * AuthBridge reconcile only — not product chrome.
+ */
 export function createBetterAuthClientAdapter(
   config: BetterAuthClientAdapterConfig
 ): AuthClientPort {

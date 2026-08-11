@@ -12,7 +12,6 @@ export const CHESS_SCREEN = {
   stats: 'stats',
   statsReview: 'stats-review',
   settings: 'settings',
-  settingsPuzzleFeed: 'settings-puzzle-feed',
   settingsDeveloper: 'settings-developer',
   settingsDeveloperUi: 'settings-developer-ui',
   settingsDeveloperUiDetail: 'settings-developer-ui-detail',

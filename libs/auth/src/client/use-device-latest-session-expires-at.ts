@@ -1,27 +1,22 @@
-import { useAuthClientPort } from './auth-client-provider';
-import { isAuthSessionSignedIn } from './session-snapshot';
-import { useMyDeviceId } from './use-current-user';
+import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 
-function readSessionExpiresAt(
-  raw: Date | string | null | undefined
-): string | null {
-  if (raw instanceof Date) return raw.toISOString();
-  if (typeof raw === 'string' && raw.length > 0) return raw;
-  return null;
-}
+import { SESSION_EXPIRES_AT_KEY } from './auth-storage-keys';
+import { useHasAuthSession, useMyDeviceId } from './use-current-user';
 
 /**
  * ISO expiry of the auth provider session for the current install, or `null`
- * when the device is not the active signed-in install.
+ * when the device is not the active signed-in install. Reads secure storage
+ * (local-first), not Better Auth `useSession`.
  */
 export function useDeviceLatestSessionExpiresAt(
   deviceId: string
 ): string | null {
   const currentDeviceId = useMyDeviceId();
-  const port = useAuthClientPort();
-  const authState = port.useAuthSession();
-  if (deviceId !== currentDeviceId || !isAuthSessionSignedIn(authState)) {
+  const hasSession = useHasAuthSession();
+  const { value } = useHydratedSecureStorageItem(SESSION_EXPIRES_AT_KEY);
+  if (deviceId !== currentDeviceId || !hasSession) {
     return null;
   }
-  return readSessionExpiresAt(authState.session?.expiresAt ?? null);
+  if (typeof value === 'string' && value.length > 0) return value;
+  return null;
 }

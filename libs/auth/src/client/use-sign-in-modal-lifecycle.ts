@@ -4,8 +4,8 @@
  * Unlike a plain submit mutation, sign-in hands control to an external OAuth
  * flow that unloads the web page. So the loading state has to outlive the
  * trigger: we mark a durable pending flag, then resolve the outcome from the
- * auth port session once it settles (on this mount for native flows, or on the
- * next mount after the redirect on web).
+ * local session token and/or auth port session once it settles (on this mount
+ * for native flows, or on the next mount after the redirect on web).
  *
  * The `awaitingCallback` gate is load-bearing: while we are in `loading` but
  * the OAuth handoff has not produced a session yet, the snapshot still reads
@@ -24,6 +24,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthClientPort } from './auth-client-provider';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { resolveSignInReturnHref, SignInPendingStore } from './sign-in-pending';
+import { useFreshAuthToken } from './use-fresh-auth-token';
 
 export type SignInPhase = 'idle' | 'loading' | 'success' | 'error';
 
@@ -99,17 +100,32 @@ function useResumePendingEffect(args: {
   ]);
 }
 
+function isLocalOrBaSignedIn(args: {
+  authState: AuthSessionState;
+  localToken: string | null;
+}): boolean {
+  return isAuthSessionSignedIn(args.authState) || args.localToken !== null;
+}
+
 function resolveSignInOutcome(args: {
   authState: AuthSessionState;
+  localToken: string | null;
   store: SecureStorageStore;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  const { authState, store, onError, setAwaitingCallback, setError, setPhase } =
-    args;
-  if (isAuthSessionSignedIn(authState)) {
+  const {
+    authState,
+    localToken,
+    store,
+    onError,
+    setAwaitingCallback,
+    setError,
+    setPhase,
+  } = args;
+  if (isLocalOrBaSignedIn({ authState, localToken })) {
     setAwaitingCallback(false);
     setPhase('success');
     return;
@@ -138,6 +154,7 @@ function useSignInOutcomeEffect(args: {
   resumePending: boolean;
   startInFlightRef: { current: boolean };
   authState: AuthSessionState;
+  localToken: string | null;
   store: SecureStorageStore;
   onError: ((error: Error) => void) | undefined;
   setAwaitingCallback: (value: boolean) => void;
@@ -150,6 +167,7 @@ function useSignInOutcomeEffect(args: {
     resumePending,
     startInFlightRef,
     authState,
+    localToken,
     store,
     onError,
     setAwaitingCallback,
@@ -157,14 +175,14 @@ function useSignInOutcomeEffect(args: {
     setPhase,
   } = args;
   useEffect(() => {
-    if (!authState.isHydrated) return;
+    if (!authState.isHydrated && localToken === null) return;
     // Same-page redirect handoff: keep loading until the document unloads.
     if (startInFlightRef.current) return;
 
     // OAuth return: never leave the provider picker up once the session exists.
     if (
       resumePending &&
-      isAuthSessionSignedIn(authState) &&
+      isLocalOrBaSignedIn({ authState, localToken }) &&
       phase !== 'success'
     ) {
       setAwaitingCallback(false);
@@ -175,6 +193,7 @@ function useSignInOutcomeEffect(args: {
     if (phase !== 'loading' || !awaitingCallback) return;
     resolveSignInOutcome({
       authState,
+      localToken,
       store,
       onError,
       setAwaitingCallback,
@@ -187,6 +206,7 @@ function useSignInOutcomeEffect(args: {
     resumePending,
     startInFlightRef,
     authState,
+    localToken,
     store,
     onError,
     setAwaitingCallback,
@@ -263,6 +283,7 @@ export function useSignInModalLifecycle({
   const pathname = usePathname();
   const { now } = useClock();
   const authState = port.useAuthSession();
+  const localToken = useFreshAuthToken();
   const startInFlightRef = useRef(false);
   const [phase, setPhase] = useState<SignInPhase>(() =>
     resumePending ? 'loading' : 'idle'
@@ -284,6 +305,7 @@ export function useSignInModalLifecycle({
     resumePending,
     startInFlightRef,
     authState,
+    localToken,
     store,
     onError,
     setAwaitingCallback,

@@ -1,11 +1,12 @@
 /**
- * Small read helpers over {@link AuthSessionState} from {@link AuthClientPort}.
- * Shared by {@link AuthBridge} and the sign-in modal lifecycle so both resolve
- * signed-in / error the same way.
+ * Helpers over Better Auth {@link AuthSessionState} for ceremony / reconcile
+ * (AuthBridge, sign-in modal). Steady-state chrome uses
+ * {@link resolveHasAuthSession} / secure storage instead.
  */
 
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 
+/** True when the IdP React session atom reports a live session. */
 export function isAuthSessionSignedIn(state: AuthSessionState): boolean {
   return state.isHydrated && state.error === null && state.session !== null;
 }

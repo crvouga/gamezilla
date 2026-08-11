@@ -1,16 +1,12 @@
-import { useAuthClientPort } from './auth-client-provider';
-import { isAuthSessionSignedIn } from './session-snapshot';
-import { useMyDeviceId } from './use-current-user';
+import { useHasAuthSession, useMyDeviceId } from './use-current-user';
 
 /**
- * Count of currently-active sessions for the given device. Session state is
- * owned by the auth provider and only the current install can be observed
- * from the client session port.
+ * Count of currently-active sessions for the given device. Only the current
+ * install's local session capability is observable (1 or 0).
  */
 export function useDeviceActiveSessionCount(deviceId: string): number {
   const currentDeviceId = useMyDeviceId();
-  const port = useAuthClientPort();
-  const authState = port.useAuthSession();
+  const hasSession = useHasAuthSession();
   if (deviceId !== currentDeviceId) return 0;
-  return isAuthSessionSignedIn(authState) ? 1 : 0;
+  return hasSession ? 1 : 0;
 }

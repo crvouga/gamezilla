@@ -1,12 +1,10 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
-import type { Timers } from '@pkgs/clock';
 import { useTimers } from '@pkgs/clock';
-import type { HttpFetch } from '@pkgs/http-client';
 import { useHttpClient } from '@pkgs/http-client';
 import { useLogger } from '@pkgs/logger/react';
-import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
+  useSecureStorageItem,
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
@@ -14,41 +12,31 @@ import type { PropsWithChildren } from 'react';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import {
+  AuthBridgeRefresh,
+  type AuthBridgeRefreshDeps,
+} from './auth-bridge-refresh';
 import { useAuthClientPort } from './auth-client-provider';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
+  SESSION_EXPIRES_AT_KEY,
   SESSION_TOKEN_KEY,
 } from './auth-storage-keys';
-import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
-import { ensureAnonAuth } from './ensure-anon-auth-fetch';
-import { refreshAuth } from './refresh-auth-fetch';
 import {
-  shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
+  shouldClearCapabilityOnBaSignedOut,
 } from './resolve-client-identity';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
+import { SessionCapabilityStore } from './session-capability';
 import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
-type Logger = ReturnType<typeof useLogger>;
 type TokenRef = { current: string | null };
-type FlagRef = { current: boolean };
 type ExpiresAtRef = { current: string | null };
-
-type RefreshDeps = {
-  apiUrl: string;
-  deviceId: string;
-  fetchFn: HttpFetch;
-  store: SecureStorageStore;
-  log: Logger;
-  timers: Timers;
-  lastSyncedTokenRef: TokenRef;
-  inFlightRef: FlagRef;
-  pendingTokenRef: TokenRef;
-};
+type ExternalUserIdRef = { current: string | null };
 
 function normalizeExpiresAt(raw: unknown): string | null {
   if (raw instanceof Date) return raw.toISOString();
@@ -56,15 +44,9 @@ function normalizeExpiresAt(raw: unknown): string | null {
   return null;
 }
 
-function readSessionToken(store: SecureStorageStore): string | null {
-  const raw = store.getValue(SESSION_TOKEN_KEY);
-  if (typeof raw === 'string' && raw.length > 0) return raw;
-  return null;
-}
-
 function useClearStaleAccountOnExternalUserChange(args: {
   authState: AuthSessionState;
-  deps: RefreshDeps;
+  deps: AuthBridgeRefreshDeps;
 }): void {
   const { authState, deps } = args;
   const isHydrated = authState.isHydrated;
@@ -78,7 +60,8 @@ function useClearStaleAccountOnExternalUserChange(args: {
       if (!isSignedIn) previousExternalUserIdRef.current = null;
       return;
     }
-    const previous = previousExternalUserIdRef.current;
+    const stored = new SessionCapabilityStore(deps.store).readExternalUserId();
+    const previous = previousExternalUserIdRef.current ?? stored;
     previousExternalUserIdRef.current = externalUserId;
     if (
       !shouldClearAccountOnExternalUserChange(
@@ -94,10 +77,61 @@ function useClearStaleAccountOnExternalUserChange(args: {
   }, [deps, externalUserId, isHydrated, isSignedIn]);
 }
 
+async function handleBaSignedIn(args: {
+  deps: AuthBridgeRefreshDeps;
+  port: AuthClientPort;
+  expiresAt: string | null;
+  externalUserId: string | null;
+}): Promise<void> {
+  const { deps, port, expiresAt, externalUserId } = args;
+  const token = await new SessionBearerTokenResolver(deps.timers).resolve(port);
+  if (token === null) {
+    deps.log.warn('signed in but bearer token unavailable');
+    return;
+  }
+  await new SessionCapabilityStore(deps.store).write({
+    token,
+    expiresAt,
+    externalUserId,
+  });
+  if (deps.lastSyncedTokenRef.current === token) return;
+  await new AuthBridgeRefresh(deps).runRefresh({
+    token,
+    expiresAt,
+    externalUserId,
+    force: false,
+  });
+}
+
+function useStorageFirstBoot(args: {
+  deps: AuthBridgeRefreshDeps;
+  tokenHydrated: boolean;
+}): void {
+  const { deps, tokenHydrated } = args;
+  const bootedRef = useRef(false);
+
+  useEffect(() => {
+    if (!tokenHydrated || bootedRef.current) return;
+    const session = new SessionCapabilityStore(deps.store);
+    const token = session.readToken();
+    if (token === null) return;
+    bootedRef.current = true;
+    const expiresAt = session.readExpiresAt();
+    const externalUserId = session.readExternalUserId();
+    deps.lastSyncedTokenRef.current = null;
+    void new AuthBridgeRefresh(deps).runRefresh({
+      token,
+      expiresAt,
+      externalUserId,
+      force: true,
+    });
+  }, [deps, tokenHydrated]);
+}
+
 function useReconcileAuthSession(args: {
   authState: AuthSessionState;
   port: AuthClientPort;
-  deps: RefreshDeps;
+  deps: AuthBridgeRefreshDeps;
 }): void {
   const { authState, port, deps } = args;
   const isHydrated = authState.isHydrated;
@@ -105,13 +139,14 @@ function useReconcileAuthSession(args: {
   const sessionError = authSessionError(authState);
   const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
   const externalUserId = authState.session?.externalUserId ?? null;
-  const wasSignedInRef = useRef(false);
+  const wasBaSignedInRef = useRef(false);
   const chainRef = useRef(Promise.resolve());
 
   useEffect(() => {
     if (!isHydrated) return;
     const signedIn = isSignedIn;
     const exp = expiresAt;
+    const ext = externalUserId;
     const err = sessionError;
     chainRef.current = chainRef.current
       .catch(() => undefined)
@@ -120,17 +155,24 @@ function useReconcileAuthSession(args: {
           deps.log.warn('auth session error', { error: err.message });
         }
         if (!signedIn) {
-          wasSignedInRef.current = false;
-          await handleSignedOut(deps);
+          const clear = shouldClearCapabilityOnBaSignedOut({
+            storedToken: new SessionCapabilityStore(deps.store).readToken(),
+            wasBaSignedIn: wasBaSignedInRef.current,
+          });
+          wasBaSignedInRef.current = false;
+          if (clear) await new AuthBridgeRefresh(deps).handleSignedOut();
           return;
         }
-        // Cold start / sign-in transition: never skip refresh — recovers when a
-        // stale anon ensure overwrote lastLocalAccountId after a prior refresh.
-        if (!wasSignedInRef.current) {
+        if (!wasBaSignedInRef.current) {
           deps.lastSyncedTokenRef.current = null;
-          wasSignedInRef.current = true;
+          wasBaSignedInRef.current = true;
         }
-        await handleSignedIn({ deps, port, expiresAt: exp });
+        await handleBaSignedIn({
+          deps,
+          port,
+          expiresAt: exp,
+          externalUserId: ext,
+        });
       });
   }, [
     isHydrated,
@@ -148,9 +190,11 @@ function useRefreshOnAppForeground(args: {
   port: AuthClientPort;
   tokenRef: TokenRef;
   expiresAtRef: ExpiresAtRef;
-  deps: RefreshDeps;
+  externalUserIdRef: ExternalUserIdRef;
+  deps: AuthBridgeRefreshDeps;
 }): void {
-  const { enabled, port, tokenRef, expiresAtRef, deps } = args;
+  const { enabled, port, tokenRef, expiresAtRef, externalUserIdRef, deps } =
+    args;
   useEffect(() => {
     if (!enabled) return;
     const onChange = (state: AppStateStatus): void => {
@@ -161,23 +205,23 @@ function useRefreshOnAppForeground(args: {
         );
         if (token === null) return;
         tokenRef.current = token;
-        await runRefresh({
-          deps,
+        await new AuthBridgeRefresh(deps).runRefresh({
           token,
           expiresAt: expiresAtRef.current,
+          externalUserId: externalUserIdRef.current,
           force: true,
         });
       })();
     };
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
-  }, [enabled, port, tokenRef, expiresAtRef, deps]);
+  }, [enabled, port, tokenRef, expiresAtRef, externalUserIdRef, deps]);
 }
 
 /**
- * Reconciles the auth port session with local secure-storage pointers
- * (`sessionToken`, `lastLocalAccountId`) and triggers `POST /identity/refresh`.
- * Sign-in remounts per-account SQLite via `lastLocalAccountId` changes.
+ * Reconciles local session capability (`sessionToken` + meta) with identity
+ * refresh. Better Auth `useSession` is a ceremony/reconcile trigger only —
+ * chrome reads secure storage.
  */
 export function AuthBridge(props: PropsWithChildren): ReactNode {
   const apiUrl = useConfigService().getApiUrl();
@@ -187,6 +231,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const deviceId = useDeviceId();
   const { fetch: fetchFn } = useHttpClient();
   const authToken = useFreshAuthToken();
+  const { isHydrated: tokenHydrated } = useSecureStorageItem(SESSION_TOKEN_KEY);
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const timers = useTimers();
@@ -195,13 +240,18 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const pendingTokenRef = useRef<string | null>(null);
   const tokenRef = useRef<string | null>(null);
   const expiresAtRef = useRef<string | null>(null);
+  const externalUserIdRef = useRef<string | null>(null);
 
   tokenRef.current = authToken;
-  expiresAtRef.current = normalizeExpiresAt(
-    authState.session?.expiresAt ?? null
-  );
+  const storedExpires = useSecureStorageItem(SESSION_EXPIRES_AT_KEY);
+  expiresAtRef.current =
+    normalizeExpiresAt(authState.session?.expiresAt ?? null) ??
+    (typeof storedExpires.value === 'string' ? storedExpires.value : null);
+  externalUserIdRef.current =
+    authState.session?.externalUserId ??
+    new SessionCapabilityStore(store).readExternalUserId();
 
-  const deps = useMemo<RefreshDeps>(
+  const deps = useMemo<AuthBridgeRefreshDeps>(
     () => ({
       apiUrl,
       deviceId,
@@ -216,6 +266,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     [apiUrl, deviceId, fetchFn, store, log, timers]
   );
 
+  useStorageFirstBoot({ deps, tokenHydrated });
   useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
   useRefreshOnAppForeground({
@@ -223,198 +274,9 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
     port,
     tokenRef,
     expiresAtRef,
+    externalUserIdRef,
     deps,
   });
 
   return props.children;
-}
-
-async function handleSignedIn(args: {
-  deps: RefreshDeps;
-  port: AuthClientPort;
-  expiresAt: string | null;
-}): Promise<void> {
-  const { deps, port, expiresAt } = args;
-  const token = await new SessionBearerTokenResolver(deps.timers).resolve(port);
-  if (token === null) {
-    // Cookie session shows email while product chrome stays on "Sign in".
-    deps.log.warn('signed in but bearer token unavailable');
-    return;
-  }
-  await writeSecureStorageItem(deps.store, SESSION_TOKEN_KEY, token);
-  if (deps.lastSyncedTokenRef.current === token) return;
-  await runRefresh({
-    deps,
-    token,
-    expiresAt,
-    force: false,
-  });
-}
-
-async function applyRefreshSuccess(args: {
-  readonly deps: RefreshDeps;
-  readonly token: string;
-  readonly accountId: string;
-}): Promise<void> {
-  const { deps, token, accountId } = args;
-  // Sign-out may clear the token while /identity/refresh is in flight — never
-  // re-bind lastLocalAccountId after the session is gone.
-  if (readSessionToken(deps.store) !== token) return;
-  await writeSecureStorageItem(
-    deps.store,
-    LAST_LOCAL_ACCOUNT_ID_KEY,
-    accountId
-  );
-  if (readSessionToken(deps.store) !== token) {
-    await writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
-    return;
-  }
-  deps.lastSyncedTokenRef.current = token;
-}
-
-function discardStaleRefresh(args: {
-  readonly deps: RefreshDeps;
-  readonly token: string;
-  readonly currentToken: string | null;
-  readonly accountId: string;
-}): void {
-  const { deps, currentToken } = args;
-  deps.log.info('auth/refresh discarded; session token changed during request');
-  if (currentToken !== null) {
-    deps.pendingTokenRef.current = currentToken;
-  }
-}
-
-async function retryPendingRefresh(
-  deps: RefreshDeps,
-  expiresAt: string | null
-): Promise<void> {
-  const pending = deps.pendingTokenRef.current;
-  deps.pendingTokenRef.current = null;
-  if (pending === null || pending === deps.lastSyncedTokenRef.current) {
-    return;
-  }
-  await runRefresh({
-    deps,
-    token: pending,
-    expiresAt,
-    force: true,
-  });
-}
-
-async function runRefresh(args: {
-  deps: RefreshDeps;
-  token: string;
-  expiresAt: string | null;
-  force: boolean;
-}): Promise<void> {
-  const { deps, token, force } = args;
-  if (!force && deps.lastSyncedTokenRef.current === token) return;
-  if (deps.inFlightRef.current) {
-    deps.pendingTokenRef.current = token;
-    return;
-  }
-  deps.inFlightRef.current = true;
-  deps.pendingTokenRef.current = null;
-  try {
-    await writeSecureStorageItem(deps.store, SESSION_TOKEN_KEY, token);
-    const { accountId } = await refreshAuth({
-      apiUrl: deps.apiUrl,
-      bearerToken: token,
-      deviceId: deps.deviceId,
-      fetchFn: deps.fetchFn,
-      deviceSnapshot: collectDeviceSnapshot(),
-    });
-    const currentToken = readSessionToken(deps.store);
-    if (currentToken !== token) {
-      discardStaleRefresh({ deps, token, currentToken, accountId });
-      return;
-    }
-    await applyRefreshSuccess({
-      deps,
-      token,
-      accountId,
-    });
-  } catch (e) {
-    deps.log.error('auth/refresh failed', {
-      error: e instanceof Error ? e.message : String(e),
-    });
-  } finally {
-    deps.inFlightRef.current = false;
-    await retryPendingRefresh(deps, args.expiresAt);
-  }
-}
-
-const ANON_ENSURE_RETRY_DELAYS_MS = [500, 1500, 3000] as const;
-
-async function sleepMs(ms: number, timers: Timers): Promise<void> {
-  await new Promise<void>((resolve) => {
-    timers.setTimeout(resolve, ms);
-  });
-}
-
-async function ensureAnonUserWithRetries(deps: RefreshDeps): Promise<string> {
-  let lastError: unknown;
-  for (
-    let attempt = 0;
-    attempt <= ANON_ENSURE_RETRY_DELAYS_MS.length;
-    attempt++
-  ) {
-    try {
-      const { userId } = await ensureAnonAuth({
-        apiUrl: deps.apiUrl,
-        deviceId: deps.deviceId,
-        fetchFn: deps.fetchFn,
-        // First cold start / already-anon: reuse. After sign-out from a
-        // signed-in session the device is still bound to a non-anon user on
-        // the server, so forceNew is unnecessary — ensureAnonUserForDevice
-        // mints when the bound user is non-anon.
-        forceNew: false,
-      });
-      return userId;
-    } catch (e) {
-      lastError = e;
-      const delay = ANON_ENSURE_RETRY_DELAYS_MS[attempt];
-      if (delay === undefined) break;
-      deps.log.warn('auth/anon/ensure failed; retrying', {
-        attempt: attempt + 1,
-        error: e instanceof Error ? e.message : String(e),
-      });
-      await sleepMs(delay, deps.timers);
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error(String(lastError));
-}
-
-async function handleSignedOut(deps: RefreshDeps): Promise<void> {
-  deps.lastSyncedTokenRef.current = null;
-  deps.pendingTokenRef.current = null;
-  try {
-    await writeSecureStorageItem(deps.store, SESSION_TOKEN_KEY, null);
-  } catch (e) {
-    deps.log.warn('clear session token failed', {
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
-  // Bind (or mint) an anon users row. Server mints a new anon when the device
-  // was bound to a non-anon account (post sign-out / upgrade).
-  try {
-    const hadUser =
-      typeof deps.store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY) === 'string';
-    const userId = await ensureAnonUserWithRetries(deps);
-    // Sign-in may have written a session token while ensure was in flight —
-    // never clobber the signed-in account id with this stale anon bind.
-    if (!shouldBindAnonUserAfterEnsure(readSessionToken(deps.store))) {
-      deps.log.info('anon ensure discarded; session token present');
-      return;
-    }
-    await writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, userId);
-    if (!hadUser) {
-      deps.log.info('anon user ensured', { userId });
-    }
-  } catch (e) {
-    deps.log.error('auth/anon/ensure failed', {
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
 }

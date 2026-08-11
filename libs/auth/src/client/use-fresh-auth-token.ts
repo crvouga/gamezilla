@@ -6,15 +6,11 @@ import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 
 /**
  * Reactive bearer token for the current session. Reads secure storage populated
- * by {@link AuthBridge} from {@link AuthClientPort.getFreshToken}; `null` when
- * signed out. Suspends until the product `sessionToken` key has been read so
- * chrome cannot flash "Sign in" while a persisted token is still loading.
+ * by {@link AuthBridge} from ceremony mint / refresh. Local-first: does not wait
+ * on Better Auth `useSession`. Suspends until `sessionToken` has been read.
  */
 export function useFreshAuthToken(): string | null {
-  const port = useAuthClientPort();
-  const { session, isHydrated } = port.useAuthSession();
   const { value } = useHydratedSecureStorageItem(SESSION_TOKEN_KEY);
-  if (!isHydrated || session === null) return null;
   if (typeof value === 'string' && value.length > 0) return value;
   return null;
 }

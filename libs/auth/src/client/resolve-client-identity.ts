@@ -45,3 +45,16 @@ export function shouldBindAnonUserAfterEnsure(
 ): boolean {
   return sessionToken === null;
 }
+
+/**
+ * When Better Auth reports signed-out: clear local capability only if there is
+ * no stored bearer, or we observed a signed-in → signed-out transition (real
+ * sign-out). A cold BA null with a persisted token keeps local-first chrome.
+ */
+export function shouldClearCapabilityOnBaSignedOut(args: {
+  readonly storedToken: string | null;
+  readonly wasBaSignedIn: boolean;
+}): boolean {
+  if (args.storedToken === null) return true;
+  return args.wasBaSignedIn;
+}

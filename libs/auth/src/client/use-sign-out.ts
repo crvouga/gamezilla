@@ -1,14 +1,11 @@
 import { useLogger } from '@pkgs/logger/react';
-import {
-  useSecureStorageStore,
-  writeSecureStorageItem,
-} from '@pkgs/secure-storage/use-secure-storage-item';
+import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
 import { useCallback } from 'react';
 import { useAuthClientPort } from './auth-client-provider';
-import { SESSION_TOKEN_KEY } from './auth-storage-keys';
+import { SessionCapabilityStore } from './session-capability';
 
 /**
- * Signs out via {@link AuthClientPort.signOut} and clears the session token.
+ * Signs out via {@link AuthClientPort.signOut} and clears the session capability.
  * {@link AuthBridge} then runs `POST /identity/anon/ensure` to mint/bind a fresh
  * anon `users` row into `currentUserId`.
  */
@@ -18,12 +15,12 @@ export function useSignOut(): () => Promise<void> {
   const store = useSecureStorageStore();
 
   return useCallback(async () => {
-    // Drop product sessionToken first so chrome cannot read a stale signed-in
-    // token while the auth-port sign-out / session refetch is in flight.
+    // Drop product session capability first so chrome cannot read a stale
+    // signed-in token while the auth-port sign-out / session refetch is in flight.
     try {
-      await writeSecureStorageItem(store, SESSION_TOKEN_KEY, null);
+      await new SessionCapabilityStore(store).clear();
     } catch (err) {
-      log.warn('clear session token failed', {
+      log.warn('clear session capability failed', {
         error: err instanceof Error ? err.message : String(err),
       });
     }
@@ -35,9 +32,9 @@ export function useSignOut(): () => Promise<void> {
       });
     } finally {
       try {
-        await writeSecureStorageItem(store, SESSION_TOKEN_KEY, null);
+        await new SessionCapabilityStore(store).clear();
       } catch (err) {
-        log.warn('clear session token failed', {
+        log.warn('clear session capability failed', {
           error: err instanceof Error ? err.message : String(err),
         });
       }

@@ -2,7 +2,7 @@ import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { Box, componentDataSet, SpeakingAvatar } from '@pkgs/ui';
-import { memo, type ReactNode } from 'react';
+import { memo, type ReactNode, useCallback, useState } from 'react';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import {
   BOARD_ELO_BAR_HEIGHT,
@@ -13,6 +13,7 @@ import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
 import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import type { SolveStatus } from './use-chess-puzzle-solver';
@@ -50,6 +51,9 @@ type PuzzlePlayLayoutProps = {
 };
 
 function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
+  const [feedSettingsOpen, setFeedSettingsOpen] = useState(false);
+  const openFeedSettings = useCallback(() => setFeedSettingsOpen(true), []);
+  const closeFeedSettings = useCallback(() => setFeedSettingsOpen(false), []);
   const showCelebration = p.completion !== null;
   const puzzleRating =
     p.puzzleRating !== undefined && p.puzzleRating > 0
@@ -68,9 +72,10 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
         {p.assistant}
         <ChessPuzzleBoardFrame
           topAccessory={
-            puzzleRating !== undefined ? (
-              <ChessPuzzleBoardEloBar rating={puzzleRating} />
-            ) : undefined
+            <ChessPuzzleBoardEloBar
+              rating={puzzleRating}
+              onOpenFeedSettings={openFeedSettings}
+            />
           }
           topAccessoryHeight={BOARD_ELO_BAR_HEIGHT}
           overlay={
@@ -101,6 +106,10 @@ function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): ReactNode {
         </Box>
         {p.e2eHints}
       </Box>
+      <ChessPuzzleFeedSettingsModal
+        visible={feedSettingsOpen}
+        onClose={closeFeedSettings}
+      />
     </Box>
   );
 }

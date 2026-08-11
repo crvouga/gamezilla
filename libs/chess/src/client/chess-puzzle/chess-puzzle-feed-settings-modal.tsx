@@ -1,37 +1,38 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   Box,
-  MainMenuScreenHeader,
+  ModalBody,
+  ModalButton,
+  ModalFooter,
   NumberStepper,
-  ScrollView,
+  ResponsiveSurface,
   SegmentedControl,
   Text,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback, useMemo } from 'react';
 import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '../../shared/chess-main-menu';
-import {
   type ChessPuzzleFeedConfig,
   type ChessPuzzleFeedMode,
+  clampPuzzleFeedAutoOffset,
   clampPuzzleFeedRating,
+  PUZZLE_FEED_AUTO_OFFSET_MAX,
+  PUZZLE_FEED_AUTO_OFFSET_MIN,
+  PUZZLE_FEED_AUTO_OFFSET_STEP,
   PUZZLE_FEED_RATING_MAX,
   PUZZLE_FEED_RATING_MIN,
+  resolveEffectivePuzzleRating,
 } from '../../shared/chess-puzzle-feed-config';
-import { useChessPuzzleFeedConfig } from '../chess-puzzle/use-chess-puzzle-feed-config';
-import { useChessPuzzleProfileRatings } from '../chess-puzzle/use-chess-puzzle-profile-ratings';
+import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
+import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 function feedModeCaption(
   mode: ChessPuzzleFeedMode,
   profileCaption: string
 ): string {
   if (mode === 'auto') {
-    return t`Match puzzles to your profile rating (${profileCaption}).`;
+    return t`Match puzzles to your profile rating (${profileCaption}), plus an optional offset.`;
   }
   return t`Pick a fixed target rating for the puzzle feed.`;
 }
@@ -64,14 +65,18 @@ function PuzzleFeedModeSection(props: {
   );
 }
 
-export function ChessSettingsPuzzleFeedScreen(): ReactNode {
-  const dispatch = useSpaceRoomDispatch();
+export type ChessPuzzleFeedSettingsModalProps = {
+  visible: boolean;
+  onClose: () => void;
+};
+
+export function ChessPuzzleFeedSettingsModal({
+  visible,
+  onClose,
+}: ChessPuzzleFeedSettingsModalProps): ReactNode {
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config, setConfig] = useChessPuzzleFeedConfig();
-  const backToSettings = useCallback(() => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings }));
-  }, [dispatch]);
   const onSelectMode = useCallback(
     (mode: ChessPuzzleFeedMode) => {
       setConfig((prev) => ({ ...prev, mode }));
@@ -87,27 +92,60 @@ export function ChessSettingsPuzzleFeedScreen(): ReactNode {
     },
     [setConfig]
   );
+  const onChangeAutoOffset = useCallback(
+    (autoOffset: number) => {
+      setConfig((prev) => ({
+        ...prev,
+        autoOffset: clampPuzzleFeedAutoOffset(autoOffset),
+      }));
+    },
+    [setConfig]
+  );
   const profileCaption = profileRating > 0 ? String(profileRating) : '—';
+  const targetRating = resolveEffectivePuzzleRating({ config, profileRating });
 
   return (
-    <>
-      <DefineBackButton onPress={backToSettings} />
-      <ScrollView sx={{ flex: 1, alignSelf: 'stretch' }}>
-        <Box sx={{ gap: 4, p: 4, pb: 8 }}>
-          <MainMenuScreenHeader
-            title={<Trans>Puzzle feed</Trans>}
-            subtitle={
+    <ResponsiveSurface
+      visible={visible}
+      onClose={onClose}
+      title={<Trans>Puzzle feed</Trans>}
+      presentation="modal"
+    >
+      <ModalBody>
+        <Box sx={{ gap: 4 }}>
+          <Text
+            variant="caption"
+            label={
               <Trans>
                 Choose which puzzle ratings sync and get served next.
               </Trans>
             }
           />
+          <Box sx={{ gap: 1 }}>
+            <Text variant="label" label={t`Your rating`} />
+            <Text variant="bodyBold" label={profileCaption} />
+          </Box>
           <PuzzleFeedModeSection
             config={config}
             profileCaption={profileCaption}
             onSelectMode={onSelectMode}
           />
-          {config.mode === 'custom' ? (
+          {config.mode === 'auto' ? (
+            <Box sx={{ gap: 2 }}>
+              <NumberStepper
+                label={t`Rating offset`}
+                value={config.autoOffset}
+                onChange={onChangeAutoOffset}
+                min={PUZZLE_FEED_AUTO_OFFSET_MIN}
+                max={PUZZLE_FEED_AUTO_OFFSET_MAX}
+                step={PUZZLE_FEED_AUTO_OFFSET_STEP}
+              />
+              <Text
+                variant="caption"
+                label={<Trans>Target rating: {targetRating}</Trans>}
+              />
+            </Box>
+          ) : (
             <NumberStepper
               label={t`Target rating`}
               value={config.customRating}
@@ -116,9 +154,12 @@ export function ChessSettingsPuzzleFeedScreen(): ReactNode {
               max={PUZZLE_FEED_RATING_MAX}
               step={50}
             />
-          ) : null}
+          )}
         </Box>
-      </ScrollView>
-    </>
+      </ModalBody>
+      <ModalFooter>
+        <ModalButton label={t`Done`} onPress={onClose} />
+      </ModalFooter>
+    </ResponsiveSurface>
   );
 }

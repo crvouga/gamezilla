@@ -15,6 +15,18 @@ export const DEVICE_ID_KEY = 'deviceId';
 export const SESSION_TOKEN_KEY = 'sessionToken';
 
 /**
+ * ISO expiry of the install's auth-provider session. Written when AuthBridge
+ * mints/refreshes the bearer; used for local-first chrome without BA reads.
+ */
+export const SESSION_EXPIRES_AT_KEY = 'sessionExpiresAt';
+
+/**
+ * Auth-provider external user id for the current install session. Used to
+ * detect account switches without relying on continuous BA `useSession`.
+ */
+export const SESSION_EXTERNAL_USER_ID_KEY = 'sessionExternalUserId';
+
+/**
  * Current `users.id` for this install (anon or signed-in). Written by
  * `POST /identity/anon/ensure` and `POST /identity/refresh`. Storage key kept as
  * `lastLocalAccountId` for existing installs.

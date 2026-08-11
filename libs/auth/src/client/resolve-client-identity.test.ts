@@ -5,6 +5,7 @@ import {
   resolveMyId,
   shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
+  shouldClearCapabilityOnBaSignedOut,
 } from './resolve-client-identity';
 
 describe('resolveIsSignedIn', () => {
@@ -60,5 +61,34 @@ describe('shouldBindAnonUserAfterEnsure', () => {
 
   test('discards when a session token landed during ensure', () => {
     expect(shouldBindAnonUserAfterEnsure('tok')).toBe(false);
+  });
+});
+
+describe('shouldClearCapabilityOnBaSignedOut', () => {
+  test('clears when no stored token', () => {
+    expect(
+      shouldClearCapabilityOnBaSignedOut({
+        storedToken: null,
+        wasBaSignedIn: false,
+      })
+    ).toBe(true);
+  });
+
+  test('keeps local token when BA cold-starts signed out', () => {
+    expect(
+      shouldClearCapabilityOnBaSignedOut({
+        storedToken: 'tok',
+        wasBaSignedIn: false,
+      })
+    ).toBe(false);
+  });
+
+  test('clears after a real BA signed-in to signed-out transition', () => {
+    expect(
+      shouldClearCapabilityOnBaSignedOut({
+        storedToken: 'tok',
+        wasBaSignedIn: true,
+      })
+    ).toBe(true);
   });
 });
