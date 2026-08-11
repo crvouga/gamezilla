@@ -193,52 +193,67 @@ function routeToOwner(
   post(state, ownerId, { ...request, from: fromPortId });
 }
 
-function handleBrokerMessage(
+function fanoutDbChanged(
   state: BrokerState,
-  portId: string,
-  message: unknown
+  fromPortId: string,
+  message: DbChangedNotify
 ): void {
-  state.lastSeen.set(portId, state.timers.now());
-  if (isDbChanged(message)) {
-    const slot = state.slots.get(message.dbName);
-    if (slot === undefined) return;
-    for (const id of slot.portIds) {
-      if (id === portId) continue;
-      post(state, id, message);
-    }
-    return;
+  const slot = state.slots.get(message.dbName);
+  if (slot === undefined) return;
+  for (const id of slot.portIds) {
+    if (id === fromPortId) continue;
+    post(state, id, message);
   }
-  if (
+}
+
+function isRpcResponse(message: unknown): message is RpcResponse {
+  return (
     typeof message === 'object' &&
     message !== null &&
     'ok' in message &&
     typeof (message as RpcResponse).id === 'string'
-  ) {
-    const response = message as RpcResponse;
-    const route = state.pendingRoutes.get(response.id);
-    if (route === undefined || route.ownerPortId !== portId) return;
-    state.pendingRoutes.delete(response.id);
-    post(state, route.fromPortId, response);
-    return;
-  }
-  if (!isRpcRequest(message)) {
-    if (
-      typeof message === 'object' &&
-      message !== null &&
-      (message as { type?: string }).type === 'force-release-all'
-    ) {
-      forceReleaseAll(state);
-      post(state, portId, {
-        id:
-          typeof (message as { id?: string }).id === 'string'
-            ? (message as { id: string }).id
-            : 'force-release-all',
-        ok: true,
-        result: null,
-      });
-    }
-    return;
-  }
+  );
+}
+
+function routeOwnerResponse(
+  state: BrokerState,
+  portId: string,
+  response: RpcResponse
+): void {
+  const route = state.pendingRoutes.get(response.id);
+  if (route === undefined || route.ownerPortId !== portId) return;
+  state.pendingRoutes.delete(response.id);
+  post(state, route.fromPortId, response);
+}
+
+function isForceReleaseAllMessage(
+  message: unknown
+): message is { readonly type: 'force-release-all'; readonly id?: string } {
+  return (
+    typeof message === 'object' &&
+    message !== null &&
+    (message as { type?: string }).type === 'force-release-all'
+  );
+}
+
+function handleForceReleaseAll(
+  state: BrokerState,
+  portId: string,
+  message: { readonly id?: string }
+): void {
+  forceReleaseAll(state);
+  post(state, portId, {
+    id: typeof message.id === 'string' ? message.id : 'force-release-all',
+    ok: true,
+    result: null,
+  });
+}
+
+function handleRpcRequest(
+  state: BrokerState,
+  portId: string,
+  message: RpcRequest
+): void {
   if (message.op === 'heartbeat') {
     post(state, portId, { id: message.id, ok: true, result: null });
     return;
@@ -260,6 +275,29 @@ function handleBrokerMessage(
     });
   }
   routeToOwner(state, portId, message);
+}
+
+function handleBrokerMessage(
+  state: BrokerState,
+  portId: string,
+  message: unknown
+): void {
+  state.lastSeen.set(portId, state.timers.now());
+  if (isDbChanged(message)) {
+    fanoutDbChanged(state, portId, message);
+    return;
+  }
+  if (isRpcResponse(message)) {
+    routeOwnerResponse(state, portId, message);
+    return;
+  }
+  if (!isRpcRequest(message)) {
+    if (isForceReleaseAllMessage(message)) {
+      handleForceReleaseAll(state, portId, message);
+    }
+    return;
+  }
+  handleRpcRequest(state, portId, message);
 }
 
 function detachPort(state: BrokerState, portId: string): void {

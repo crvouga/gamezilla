@@ -118,9 +118,7 @@ export type CreateLocalSyncEngineOptions = {
    * Multi-tab web: subscribe to broker `db-changed` (and similar) so this
    * tab's watches / upload queue wake when another tab committed writes.
    */
-  readonly subscribeExternalDbChanged?: (
-    listener: () => void
-  ) => () => void;
+  readonly subscribeExternalDbChanged?: (listener: () => void) => () => void;
   /**
    * When false, skip the mutation upload loop (sync-follower tabs). Default true.
    */

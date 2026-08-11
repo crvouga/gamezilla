@@ -58,9 +58,9 @@ describe('expo-sqlite-core', () => {
     expect(
       isLikelyOpfsLockError(new Error('NoModificationAllowedError: locked'))
     ).toBe(true);
-    expect(
-      isLikelyOpfsLockError(new Error('Error: Invalid VFS state'))
-    ).toBe(true);
+    expect(isLikelyOpfsLockError(new Error('Error: Invalid VFS state'))).toBe(
+      true
+    );
     expect(isLikelyOpfsLockError(new Error('sqlite3_open_v2 failed'))).toBe(
       false
     );
