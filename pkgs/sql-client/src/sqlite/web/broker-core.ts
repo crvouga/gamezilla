@@ -112,7 +112,7 @@ function promoteOwner(state: BrokerState, dbName: string, slot: DbSlot): void {
   const next = [...slot.portIds].find((id) => id !== slot.ownerPortId);
   slot.ownerPortId = next ?? null;
   if (next === undefined) return;
-  // Single becomeOwner path (assign-role + becomeOwner double-opened OPFS).
+  // Single becomeOwner path (double-open via assign-role was removed).
   post(state, next, {
     id: `become_${dbName}`,
     dbName,
@@ -128,9 +128,17 @@ function releasePortFromDb(
 ): void {
   const slot = state.slots.get(dbName);
   if (slot === undefined || !slot.portIds.has(portId)) return;
+  const wasOwner = slot.ownerPortId === portId;
   slot.portIds.delete(portId);
   slot.refCount = Math.max(0, slot.refCount - 1);
-  if (slot.ownerPortId === portId) promoteOwner(state, dbName, slot);
+  if (wasOwner) {
+    promoteOwner(state, dbName, slot);
+    // In-flight proxy RPCs targeted the old owner — fail them now.
+    rejectPendingRoutes(state, {
+      deadPortId: portId,
+      reason: 'Database owner disconnected',
+    });
+  }
   if (slot.refCount === 0) scheduleClose(state, dbName, slot);
 }
 
@@ -300,17 +308,47 @@ function handleBrokerMessage(
   handleRpcRequest(state, portId, message);
 }
 
+/**
+ * Drop pending proxy→owner routes. When the owner dies (or all ownership is
+ * force-released), answer the proxy immediately with E_LEADER_LOST so it does
+ * not hang until the RPC timeout.
+ */
+function rejectPendingRoutes(
+  state: BrokerState,
+  opts: {
+    readonly deadPortId?: string;
+    readonly rejectAll?: boolean;
+    readonly reason: string;
+  }
+): void {
+  const error = serializeError(leaderLostError(opts.reason));
+  for (const [id, route] of [...state.pendingRoutes]) {
+    const ownerDead =
+      opts.rejectAll === true || route.ownerPortId === opts.deadPortId;
+    const fromDead = route.fromPortId === opts.deadPortId;
+    if (!ownerDead && !fromDead) continue;
+    state.pendingRoutes.delete(id);
+    if (ownerDead && !fromDead) {
+      post(state, route.fromPortId, {
+        id,
+        ok: false,
+        error,
+      });
+    }
+  }
+}
+
 function detachPort(state: BrokerState, portId: string): void {
   for (const dbName of [...state.slots.keys()]) {
     releasePortFromDb(state, portId, dbName);
   }
+  // Reject before deleting the port so proxies can still receive the error.
+  rejectPendingRoutes(state, {
+    deadPortId: portId,
+    reason: 'Database owner disconnected',
+  });
   state.ports.delete(portId);
   state.lastSeen.delete(portId);
-  for (const [id, route] of state.pendingRoutes) {
-    if (route.fromPortId === portId || route.ownerPortId === portId) {
-      state.pendingRoutes.delete(id);
-    }
-  }
 }
 
 function forceReleaseAll(state: BrokerState): void {
@@ -329,6 +367,10 @@ function forceReleaseAll(state: BrokerState): void {
       });
     }
   }
+  rejectPendingRoutes(state, {
+    rejectAll: true,
+    reason: 'Database ownership force-released',
+  });
   state.slots.clear();
   state.connectChains.clear();
 }

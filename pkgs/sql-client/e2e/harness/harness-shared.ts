@@ -71,16 +71,6 @@ export async function handleHarnessPortMessage(
   if (
     typeof message === 'object' &&
     message !== null &&
-    'type' in message &&
-    message.type === 'assign-role'
-  ) {
-    if (message.role === 'owner') await args.takeOwnership();
-    else await args.dropOwnership();
-    return;
-  }
-  if (
-    typeof message === 'object' &&
-    message !== null &&
     'ok' in message &&
     typeof message.id === 'string'
   ) {

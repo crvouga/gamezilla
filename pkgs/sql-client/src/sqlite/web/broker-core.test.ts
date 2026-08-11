@@ -216,4 +216,164 @@ describe('broker-core', () => {
     ) as { ok: true };
     expect(ack.ok).toBe(true);
   });
+
+  test('fans out db-changed to peer ports only', async () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const aInbox: BrokerToTabMessage[] = [];
+    const bInbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('a', aInbox));
+    broker.attachPort(mockPort('b', bInbox));
+    broker.handleMessage('a', {
+      id: 'c1',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    broker.handleMessage('b', {
+      id: 'c2',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    aInbox.length = 0;
+    bInbox.length = 0;
+
+    broker.handleMessage('a', {
+      type: 'db-changed',
+      dbName: 'db1',
+    });
+    expect(aInbox).toHaveLength(0);
+    expect(bInbox).toEqual([{ type: 'db-changed', dbName: 'db1' }]);
+  });
+
+  test('proxy RPC with no owner returns E_LEADER_LOST', () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const inbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('proxy', inbox));
+    broker.handleMessage('proxy', {
+      id: 'q1',
+      dbName: 'missing',
+      op: 'query',
+      payload: { sql: 'SELECT 1', values: [] },
+    });
+    const res = inbox.find((m) => 'ok' in m && m.id === 'q1') as {
+      ok: false;
+      error: { code?: string };
+    };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('E_LEADER_LOST');
+  });
+
+  test('detach owner mid-proxy RPC returns E_LEADER_LOST immediately', async () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const ownerInbox: BrokerToTabMessage[] = [];
+    const proxyInbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('owner', ownerInbox));
+    broker.attachPort(mockPort('proxy', proxyInbox));
+    broker.handleMessage('owner', {
+      id: 'c1',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    broker.handleMessage('proxy', {
+      id: 'c2',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    proxyInbox.length = 0;
+
+    broker.handleMessage('proxy', {
+      id: 'q1',
+      dbName: 'db1',
+      op: 'query',
+      payload: { sql: 'SELECT 1', values: [] },
+    });
+    broker.detachPort('owner');
+
+    const res = proxyInbox.find((m) => 'ok' in m && m.id === 'q1') as {
+      ok: false;
+      error: { code?: string };
+    };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('E_LEADER_LOST');
+  });
+
+  test('force-release-all rejects in-flight proxy RPCs', async () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const ownerInbox: BrokerToTabMessage[] = [];
+    const proxyInbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('owner', ownerInbox));
+    broker.attachPort(mockPort('proxy', proxyInbox));
+    broker.handleMessage('owner', {
+      id: 'c1',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    broker.handleMessage('proxy', {
+      id: 'c2',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    proxyInbox.length = 0;
+
+    broker.handleMessage('proxy', {
+      id: 'q1',
+      dbName: 'db1',
+      op: 'query',
+      payload: { sql: 'SELECT 1', values: [] },
+    });
+    broker.forceReleaseAll();
+
+    const res = proxyInbox.find((m) => 'ok' in m && m.id === 'q1') as {
+      ok: false;
+      error: { code?: string };
+    };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('E_LEADER_LOST');
+  });
+
+  test('reconnect during close grace cancels releaseOwner', async () => {
+    const timers = mockTimers();
+    const broker = createBrokerCore(timers);
+    const inbox: BrokerToTabMessage[] = [];
+    broker.attachPort(mockPort('a', inbox));
+    broker.handleMessage('a', {
+      id: 'c1',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+    broker.handleMessage('a', {
+      id: 'd1',
+      dbName: 'db1',
+      op: 'disconnect',
+      payload: {},
+    });
+    inbox.length = 0;
+    broker.handleMessage('a', {
+      id: 'c2',
+      dbName: 'db1',
+      op: 'connect',
+      payload: {},
+    });
+    await Promise.resolve();
+    timers.advance(10_000);
+    expect(broker.getSlot('db1')?.refCount).toBe(1);
+    expect(inbox.some((m) => 'op' in m && m.op === 'releaseOwner')).toBe(false);
+  });
 });

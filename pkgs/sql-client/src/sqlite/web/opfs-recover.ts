@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock';
-import { clearExpoSqliteWebOpfsBestEffort } from '../clear-expo-sqlite-web-opfs';
+import type { ClearExpoSqliteWebOpfsResult } from '../clear-expo-sqlite-web-opfs';
 import { sleepMs, WEB_OPFS_RECOVERY_RELOAD_KEY } from '../expo-sqlite-core';
 import {
   RESET_DB_QUERY_PARAM,
@@ -7,6 +7,14 @@ import {
 } from './opfs-recover-url';
 import { OPFS_WIPE_CHANNEL, type OpfsWipeMessage } from './opfs-wipe-channel';
 import { createRpcIdFactory } from './rpc';
+
+async function defaultWipeOpfs(): Promise<ClearExpoSqliteWebOpfsResult> {
+  // Dynamic import keeps unit tests free of react-native (Platform).
+  const { clearExpoSqliteWebOpfsBestEffort } = await import(
+    '../clear-expo-sqlite-web-opfs'
+  );
+  return clearExpoSqliteWebOpfsBestEffort();
+}
 
 export {
   RESET_DB_QUERY_PARAM,
@@ -123,14 +131,18 @@ export async function forceReleaseSharedWorkerOwners(
   }
 }
 
+export type WipeOpfsFn = () => Promise<ClearExpoSqliteWebOpfsResult>;
+
 /**
  * Wipe `expo-sqlite` OPFS with peer + SharedWorker release between retries.
+ * `wipeOpfs` is injectable for unit tests.
  */
 export async function wipeExpoSqliteOpfsWithRetries(
   timers: Timers,
-  sharedWorkerUrl: string = DEFAULT_DB_HOST_SHARED_WORKER_URL
-): Promise<Awaited<ReturnType<typeof clearExpoSqliteWebOpfsBestEffort>>> {
-  let last: Awaited<ReturnType<typeof clearExpoSqliteWebOpfsBestEffort>> = {
+  sharedWorkerUrl: string = DEFAULT_DB_HOST_SHARED_WORKER_URL,
+  wipeOpfs: WipeOpfsFn = defaultWipeOpfs
+): Promise<ClearExpoSqliteWebOpfsResult> {
+  let last: ClearExpoSqliteWebOpfsResult = {
     ok: false,
     error: new Error('OPFS wipe did not run'),
   };
@@ -141,7 +153,7 @@ export async function wipeExpoSqliteOpfsWithRetries(
     }
     await prepareWipePeers(timers);
     await forceReleaseSharedWorkerOwners(timers, sharedWorkerUrl);
-    last = await clearExpoSqliteWebOpfsBestEffort();
+    last = await wipeOpfs();
     if (last.ok) {
       return last;
     }

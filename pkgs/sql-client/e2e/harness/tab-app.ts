@@ -1,6 +1,8 @@
 // @io-wall-ok — Playwright harness page entry
 import { createHarnessClient, type HarnessClient } from './harness-client';
 
+const OPFS_WIPE_CHANNEL = 'gamezilla-opfs-wipe';
+
 declare global {
   interface Window {
     __sqlHarness: {
@@ -20,12 +22,21 @@ declare global {
       isOwner: () => boolean;
       changedCount: () => number;
       forceLeader: boolean;
+      /** Broadcast prepare-wipe; resolve with wipe-ready ack count. */
+      prepareWipe: () => Promise<number>;
+      /** How many times this tab acked wipe-ready after disconnect. */
+      wipeReadySent: () => number;
+      /** How many wipe-done messages this tab observed (no reload in harness). */
+      wipeDoneCount: () => number;
+      postWipeDone: () => void;
     };
   }
 }
 
 const clients = new Map<string, HarnessClient>();
 let changed = 0;
+let wipeReadySent = 0;
+let wipeDoneCount = 0;
 const params = new URLSearchParams(location.search);
 const forceLeader = params.get('leader') === '1';
 
@@ -39,6 +50,35 @@ function getClient(dbName: string): HarnessClient {
     clients.set(dbName, client);
   }
   return client;
+}
+
+// Mirror production attachLifecycle wipe protocol (without navigating away).
+if (typeof BroadcastChannel !== 'undefined') {
+  const wipeChannel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+  wipeChannel.onmessage = (event: MessageEvent) => {
+    const data = event.data as {
+      type?: string;
+      requestId?: string;
+    };
+    if (data === null || typeof data !== 'object') return;
+    if (data.type === 'prepare-wipe' && typeof data.requestId === 'string') {
+      void (async () => {
+        for (const client of clients.values()) {
+          await client.disconnect();
+        }
+        clients.clear();
+        wipeChannel.postMessage({
+          type: 'wipe-ready',
+          requestId: data.requestId,
+        });
+        wipeReadySent += 1;
+      })();
+      return;
+    }
+    if (data.type === 'wipe-done') {
+      wipeDoneCount += 1;
+    }
+  };
 }
 
 window.__sqlHarness = {
@@ -71,4 +111,32 @@ window.__sqlHarness = {
     return false;
   },
   changedCount: () => changed,
+  prepareWipe: () =>
+    new Promise<number>((resolve) => {
+      const requestId = `wipe_${Date.now().toString(36)}`;
+      const channel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+      let ready = 0;
+      channel.onmessage = (event: MessageEvent) => {
+        const data = event.data as { type?: string; requestId?: string };
+        if (data?.type === 'wipe-ready' && data.requestId === requestId) {
+          ready += 1;
+        }
+      };
+      channel.postMessage({ type: 'prepare-wipe', requestId });
+      setTimeout(() => {
+        try {
+          channel.close();
+        } catch {
+          // ignore
+        }
+        resolve(ready);
+      }, 2000);
+    }),
+  wipeReadySent: () => wipeReadySent,
+  wipeDoneCount: () => wipeDoneCount,
+  postWipeDone: () => {
+    const channel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+    channel.postMessage({ type: 'wipe-done' });
+    channel.close();
+  },
 };

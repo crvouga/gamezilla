@@ -121,15 +121,7 @@ export type RpcResponse<O extends RpcOp = RpcOp> =
       readonly error: SerializedError;
     };
 
-export type BrokerToTabMessage =
-  | RpcRequest
-  | RpcResponse
-  | DbChangedNotify
-  | {
-      readonly type: 'assign-role';
-      readonly dbName: string;
-      readonly role: 'owner' | 'proxy';
-    };
+export type BrokerToTabMessage = RpcRequest | RpcResponse | DbChangedNotify;
 
 export function serializeSql(query: {
   readonly sql: string;

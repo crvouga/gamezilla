@@ -74,3 +74,9 @@ wipes OPFS with retries, then reloads — there is no public reset HTML page.
 Web now calls `createExpoWebSqlClient(dbName, { timers })` instead of
 `SqlClientImplExpoSqlite.open` + the old exclusive session lock / per-tab DB suffix.
 Native is unchanged. Sync upload/push is gated by `sync-owner:<dbName>`.
+
+### Legacy session lock
+
+`expo-web-session-lock*` remains in the package for older clients and boot-error
+matching, but **web open no longer acquires** that exclusive Web Lock. Multi-tab
+coordination is SharedWorker (or leader-election fallback) only.

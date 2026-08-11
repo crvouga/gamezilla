@@ -6,7 +6,6 @@ import {
   isLikelyOpfsLockError,
   isLikelyOpfsPoolExhaustedError,
   openWithWaitRetry,
-  WEB_OPFS_RECOVERY_RELOAD_KEY,
 } from '../expo-sqlite-core';
 import { publishExpoSqliteWebFatalError } from '../expo-web-recovery';
 import {
@@ -102,27 +101,14 @@ async function recoverOwnerOpfsPool(
   _cause: unknown
 ): Promise<never> {
   const SQLite = await import('expo-sqlite');
-  const { clearExpoSqliteWebOpfsBestEffort } = await import(
-    '../clear-expo-sqlite-web-opfs'
-  );
   const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
   try {
     await SQLite.deleteDatabaseAsync(databaseName);
   } catch {
     // may not exist
   }
-  const clearResult = await clearExpoSqliteWebOpfsBestEffort();
-  const alreadyRecovered =
-    typeof sessionStorage !== 'undefined' &&
-    Boolean(sessionStorage.getItem(WEB_OPFS_RECOVERY_RELOAD_KEY));
-  if (clearResult.ok && !alreadyRecovered && typeof window !== 'undefined') {
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem(WEB_OPFS_RECOVERY_RELOAD_KEY, '1');
-    }
-    window.location.reload();
-    return await new Promise<never>(() => {});
-  }
-  // Soft wipe blocked or already tried once — full peer/broker release + retries.
+  // Always use the full peer/broker release + wipe retries path. Soft
+  // main-thread wipe races other tabs holding AccessHandlePoolVFS handles.
   try {
     await runWebOpfsRecoveryAndReload({ timers });
   } catch (error: unknown) {

@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  awaitRpcResponse,
   createRpcIdFactory,
   isLeaderLostError,
   leaderLostError,
   type PendingRpc,
+  RPC_ERROR_TIMEOUT,
   rehydrateError,
   serializeError,
   serializeSql,
@@ -67,5 +69,57 @@ describe('web rpc', () => {
     const next = createRpcIdFactory('x');
     expect(next()).toBe('x_1');
     expect(next()).toBe('x_2');
+  });
+
+  test('awaitRpcResponse times out with E_TIMEOUT', async () => {
+    const pending = new Map<string, PendingRpc>();
+    const scheduled: Array<() => void> = [];
+    const timers = {
+      setTimeout: (fn: () => void, _ms: number) => {
+        scheduled.push(fn);
+        return 1;
+      },
+      clearTimeout: () => undefined,
+    };
+    const promise = awaitRpcResponse({
+      id: 't1',
+      op: 'query',
+      pending,
+      timers,
+      timeoutMs: 10,
+      send: () => undefined,
+    });
+    expect(pending.has('t1')).toBe(true);
+    expect(scheduled).toHaveLength(1);
+    scheduled[0]?.();
+    await expect(promise).rejects.toMatchObject({
+      code: RPC_ERROR_TIMEOUT,
+    });
+    expect(pending.has('t1')).toBe(false);
+  });
+
+  test('awaitRpcResponse cleans pending when send throws', async () => {
+    const pending = new Map<string, PendingRpc>();
+    let cleared = false;
+    const timers = {
+      setTimeout: (_fn: () => void) => {
+        return 1;
+      },
+      clearTimeout: () => {
+        cleared = true;
+      },
+    };
+    const promise = awaitRpcResponse({
+      id: 't2',
+      op: 'run',
+      pending,
+      timers,
+      send: () => {
+        throw new Error('port closed');
+      },
+    });
+    await expect(promise).rejects.toMatchObject({ message: 'port closed' });
+    expect(pending.has('t2')).toBe(false);
+    expect(cleared).toBe(true);
   });
 });

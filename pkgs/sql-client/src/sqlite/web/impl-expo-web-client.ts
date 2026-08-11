@@ -2,7 +2,10 @@ import type { Timers } from '@pkgs/clock';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../../interface';
 import { createLeaderTransport } from './db-host-leader';
-import { consumeResetDbQueryParamAndRecover } from './opfs-recover';
+import {
+  consumeResetDbQueryParamAndRecover,
+  DEFAULT_DB_HOST_SHARED_WORKER_URL,
+} from './opfs-recover';
 import { OPFS_WIPE_CHANNEL, type OpfsWipeMessage } from './opfs-wipe-channel';
 import { createOwnerRuntime } from './owner-runtime';
 import type { DbChangedNotify } from './rpc';
@@ -30,8 +33,6 @@ export type ExpoWebSqlClient = SqlClient & {
   onChanged: (listener: (notify: DbChangedNotify) => void) => () => void;
 };
 
-const DEFAULT_SHARED_WORKER_URL = '/sql-workers/db-host-shared-worker.js';
-
 let tabSeq = 0;
 function newTabId(): string {
   return `tab_${++tabSeq}`;
@@ -49,7 +50,7 @@ function pickTransport(
       return createSharedWorkerTransport({
         dbName,
         timers: options.timers,
-        workerUrl: options.sharedWorkerUrl ?? DEFAULT_SHARED_WORKER_URL,
+        workerUrl: options.sharedWorkerUrl ?? DEFAULT_DB_HOST_SHARED_WORKER_URL,
         createOwnerRuntimeFn,
       });
     } catch (error: unknown) {
@@ -216,13 +217,18 @@ export function createExpoWebSqlClient(
     { readonly sql: string; ready: Promise<string>; stmtId: string | null }
   >();
   let prepSeq = 0;
+  /** After first connect, skip re-parsing `?reset-db=` on every query. */
+  let resetDbChecked = false;
 
   const ensureConnected = async () => {
     disconnected = false;
-    await consumeResetDbQueryParamAndRecover(
-      options.timers,
-      `createExpoWebSqlClient("${dbName}")`
-    );
+    if (!resetDbChecked) {
+      resetDbChecked = true;
+      await consumeResetDbQueryParamAndRecover(
+        options.timers,
+        `createExpoWebSqlClient("${dbName}")`
+      );
+    }
     if (connectPromise === null) {
       connectPromise = transport.connect().then(() => undefined);
     }

@@ -108,17 +108,6 @@ class SharedWorkerTransport implements WebSqlTransport {
     if (
       typeof message === 'object' &&
       message !== null &&
-      'type' in message &&
-      message.type === 'assign-role'
-    ) {
-      if (message.dbName !== this.dbName) return;
-      if (message.role === 'owner') await this.takeOwnership();
-      else await this.dropOwnership();
-      return;
-    }
-    if (
-      typeof message === 'object' &&
-      message !== null &&
       'ok' in message &&
       typeof message.id === 'string'
     ) {

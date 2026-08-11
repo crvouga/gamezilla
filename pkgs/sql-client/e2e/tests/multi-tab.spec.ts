@@ -110,6 +110,59 @@ test.describe('multi-tab sql-client', () => {
     await context.close();
   });
 
+  test('closing owner promotes survivor (SharedWorker path)', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext();
+    const tabA = await context.newPage();
+    const tabB = await context.newPage();
+    await tabA.goto('/');
+    await tabB.goto('/');
+    await tabA.waitForFunction(() => window.__sqlHarness !== undefined);
+    await tabB.waitForFunction(() => window.__sqlHarness !== undefined);
+
+    await call(tabA, 'connect', 'db_failover_sw');
+    await call(tabB, 'connect', 'db_failover_sw');
+    await call(
+      tabA,
+      'run',
+      'db_failover_sw',
+      'CREATE TABLE IF NOT EXISTS kv (k TEXT, v TEXT)'
+    );
+
+    await call(tabA, 'disconnect');
+    await tabA.close();
+
+    await expect
+      .poll(
+        async () => {
+          try {
+            await call(
+              tabB,
+              'run',
+              'db_failover_sw',
+              'INSERT INTO kv (k, v) VALUES (?, ?)',
+              ['after', '1']
+            );
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        { timeout: 20_000 }
+      )
+      .toBe(true);
+
+    const rows = await call<Array<{ k: string }>>(
+      tabB,
+      'query',
+      'db_failover_sw',
+      'SELECT * FROM kv'
+    );
+    expect(rows.some((r) => r.k === 'after')).toBe(true);
+    await context.close();
+  });
+
   test('closing owner promotes survivor (leader path)', async ({ browser }) => {
     const context = await browser.newContext();
     const tabA = await context.newPage();
@@ -158,6 +211,34 @@ test.describe('multi-tab sql-client', () => {
       'SELECT * FROM kv'
     );
     expect(rows.some((r) => r.k === 'after')).toBe(true);
+    await context.close();
+  });
+
+  test('wipe-channel prepare-wipe disconnects peer and wipe-done notifies', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext();
+    const tabA = await context.newPage();
+    const tabB = await context.newPage();
+    await tabA.goto('/');
+    await tabB.goto('/');
+    await tabA.waitForFunction(() => window.__sqlHarness !== undefined);
+    await tabB.waitForFunction(() => window.__sqlHarness !== undefined);
+
+    await call(tabA, 'connect', 'db_wipe');
+    await call(tabB, 'connect', 'db_wipe');
+
+    const ready = await call<number>(tabA, 'prepareWipe');
+    expect(ready).toBeGreaterThanOrEqual(1);
+    await expect
+      .poll(async () => call<number>(tabB, 'wipeReadySent'))
+      .toBeGreaterThanOrEqual(1);
+
+    await call(tabA, 'postWipeDone');
+    await expect
+      .poll(async () => call<number>(tabB, 'wipeDoneCount'))
+      .toBeGreaterThanOrEqual(1);
+
     await context.close();
   });
 

@@ -17,6 +17,7 @@ export {
 } from './opfs-recover';
 export type { DbChangedNotify, SqlWire } from './rpc';
 export {
+  isLeaderLostError,
   RPC_ERROR_LEADER_LOST,
   RPC_ERROR_TX_ABORTED,
   RPC_ERROR_TX_TIMEOUT,

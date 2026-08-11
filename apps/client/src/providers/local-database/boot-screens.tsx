@@ -3,16 +3,27 @@ import { useTimers } from '@pkgs/clock';
 import { isRecoverableExpoSqliteWebRuntimeError } from '@pkgs/sql-client/sqlite/expo-web-recovery';
 import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
-import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client/sqlite/web/opfs-recover';
+import {
+  isLeaderLostError,
+  runWebOpfsRecoveryAndReload,
+} from '@pkgs/sql-client/sqlite/web';
 import { ErrorState, LoadingState, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
+function isMultiTabOwnerLostError(error: Error): boolean {
+  return (
+    isLeaderLostError(error) ||
+    error.message.includes('E_LEADER_LOST') ||
+    error.message.includes('Database owner')
+  );
+}
+
 function bootErrorBody(error: Error): ReactNode {
-  if (isExpoSqliteWebSessionLockError(error)) {
+  if (isMultiTabOwnerLostError(error)) {
     return (
       <Trans>
-        Another tab could not share the local database. Reload this tab, or
+        Another tab stopped sharing the local database. Reload this tab, or
         reset local data below (your account on the server is unchanged).
       </Trans>
     );
@@ -22,6 +33,15 @@ function bootErrorBody(error: Error): ReactNode {
       <Trans>
         Local storage hit a browser error. Reset local data below to start fresh
         — your account on the server is unchanged.
+      </Trans>
+    );
+  }
+  // Legacy exclusive session-lock path (pre multi-tab broker); keep for old builds.
+  if (isExpoSqliteWebSessionLockError(error)) {
+    return (
+      <Trans>
+        Another tab could not share the local database. Reload this tab, or
+        reset local data below (your account on the server is unchanged).
       </Trans>
     );
   }
@@ -69,15 +89,17 @@ export function LocalDatabaseBootErrorScreen({
 }): ReactNode {
   const { t } = useLingui();
   const timers = useTimers();
-  const isLockError = isExpoSqliteWebSessionLockError(error);
+  const isOwnerLost = isMultiTabOwnerLostError(error);
   const canResetLocalData =
-    isLockError || isRecoverableExpoSqliteWebRuntimeError(error);
+    isOwnerLost ||
+    isRecoverableExpoSqliteWebRuntimeError(error) ||
+    isExpoSqliteWebSessionLockError(error);
 
   return (
     <ThemedBootShell>
       <ErrorState
         title={
-          isLockError ? (
+          isOwnerLost || isExpoSqliteWebSessionLockError(error) ? (
             <Trans>Gamezilla is open in another tab</Trans>
           ) : canResetLocalData ? (
             <Trans>Local database needs a reset</Trans>
@@ -122,8 +144,9 @@ export function LocalDatabaseBootErrorScreen({
 
 export function isRecoverableLocalDatabaseBootError(error: Error): boolean {
   return (
-    isExpoSqliteWebSessionLockError(error) ||
+    isMultiTabOwnerLostError(error) ||
     isRecoverableExpoSqliteWebRuntimeError(error) ||
+    isExpoSqliteWebSessionLockError(error) ||
     errorMessage(error).includes(RESET_DB_QUERY_PARAM)
   );
 }
