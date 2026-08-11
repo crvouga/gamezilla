@@ -1,7 +1,9 @@
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useTimers } from '@pkgs/clock';
 import { isRecoverableExpoSqliteWebRuntimeError } from '@pkgs/sql-client/sqlite/expo-web-recovery';
 import { isExpoSqliteWebSessionLockError } from '@pkgs/sql-client/sqlite/expo-web-session-lock';
 import { RESET_DB_QUERY_PARAM } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
+import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client/sqlite/web/opfs-recover';
 import { ErrorState, LoadingState, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
@@ -10,10 +12,8 @@ function bootErrorBody(error: Error): ReactNode {
   if (isExpoSqliteWebSessionLockError(error)) {
     return (
       <Trans>
-        Gamezilla stores offline data in one browser tab at a time. Close every
-        other tab of this site, then reload. If you want to use this tab
-        instead, reset local data below (your account on the server is
-        unchanged).
+        Another tab could not share the local database. Reload this tab, or
+        reset local data below (your account on the server is unchanged).
       </Trans>
     );
   }
@@ -68,6 +68,7 @@ export function LocalDatabaseBootErrorScreen({
   error: Error;
 }): ReactNode {
   const { t } = useLingui();
+  const timers = useTimers();
   const isLockError = isExpoSqliteWebSessionLockError(error);
   const canResetLocalData =
     isLockError || isRecoverableExpoSqliteWebRuntimeError(error);
@@ -100,9 +101,15 @@ export function LocalDatabaseBootErrorScreen({
                   ? `?${url.searchParams.toString()}`
                   : '') +
                 url.hash;
-              window.location.replace(
-                `/reset-opfs.html?return=${encodeURIComponent(returnTo || '/')}`
-              );
+              void runWebOpfsRecoveryAndReload({
+                timers,
+                returnTo: returnTo || '/',
+              }).catch((wipeError: unknown) => {
+                console.error(
+                  '[LocalDatabaseBootErrorScreen] OPFS recovery failed',
+                  wipeError
+                );
+              });
               return;
             }
             window.location.reload();

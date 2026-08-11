@@ -8,18 +8,15 @@ function shortId(id: string): string {
 /**
  * Resolves the local SQLite database name for a `users.id`.
  *
- * - Always `user_<shortUserId>` (anon and signed-in share one naming scheme)
- * - Web: append `_<shortTabId>` so OPFS tabs do not contend
+ * Always `user_<shortUserId>` (anon and signed-in share one naming scheme).
+ * Web tabs share that name; OPFS exclusivity is handled by the sql-client broker.
  */
 export function resolveSqliteDbName(args: {
   readonly userId: string;
+  /** @deprecated Ignored — kept for call-site compatibility during migration. */
   readonly webTabSuffix?: string;
 }): string {
-  const base = `user_${shortId(args.userId)}`;
-  const name =
-    args.webTabSuffix !== undefined && args.webTabSuffix.length > 0
-      ? `${base}_${shortId(args.webTabSuffix)}`
-      : base;
+  const name = `user_${shortId(args.userId)}`;
   assertDatabaseName(name);
   return name;
 }

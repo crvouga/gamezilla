@@ -22,6 +22,7 @@ export function matchesRecoverableExpoSqliteWebErrorMessage(
   const msg = flattenErrorMessage(error);
   return (
     msg.includes('cannot create file') ||
+    msg.includes('sqlite3_open_v2') ||
     msg.includes('error finalizing statement') ||
     msg.includes('database disk image is malformed') ||
     msg.includes('file is not a database') ||

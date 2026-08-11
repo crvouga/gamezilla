@@ -18,6 +18,7 @@
       "!!**/.cache",
       "!**/*.lock",
       "!apps/client/src/i18n/locales/*/messages.ts",
+      "!apps/client/public/sql-workers/**/*.js",
       "!apps/client/expo-env.d.ts",
       "!libs/infra/src/cli/lib/railway-graphql/schema.graphql",
       "!libs/infra/src/cli/lib/railway-graphql/graphql-env.d.ts",
@@ -70,6 +71,7 @@
       "!**/babel.config.js",
       "!**/lingui.config.*",
       "!**/*.html",
+      "!apps/client/public/sql-workers/**/*.js",
       "!pkgs/babel-plugins/**"
     ],
     "rules": {

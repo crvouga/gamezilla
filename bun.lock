@@ -1358,10 +1358,12 @@
       },
       "devDependencies": {
         "@pkgs/io": "workspace:*",
+        "@playwright/test": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
+        "esbuild": "catalog:",
         "typescript": "catalog:",
       },
     },

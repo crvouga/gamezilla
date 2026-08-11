@@ -27,6 +27,22 @@ export async function clearExpoSqliteWebOpfsBestEffort(): Promise<ClearExpoSqlit
   }
   try {
     const root = await navigator.storage.getDirectory();
+    try {
+      const dir = await root.getDirectoryHandle('expo-sqlite');
+      // Prefer deleting children first — recursive removeEntry often fails while
+      // any AccessHandlePoolVFS sync handle is still open.
+      for await (const entry of dir.values()) {
+        try {
+          await dir.removeEntry(entry.name, { recursive: true });
+        } catch {
+          // keep trying the parent remove below
+        }
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'NotFoundError') {
+        return { ok: true, skipped: true };
+      }
+    }
     await root.removeEntry('expo-sqlite', { recursive: true });
     return { ok: true, skipped: false };
   } catch (error) {

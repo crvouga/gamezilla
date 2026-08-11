@@ -6,19 +6,24 @@ import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { clearExpoSqliteWebOpfsBestEffort } from './clear-expo-sqlite-web-opfs';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 import {
+  formatErrorChain,
+  mapExpoRunResult,
+  sqliteCompatSql,
+  WEB_OPFS_RECOVERY_RELOAD_KEY,
+  withOpenTimeout,
+} from './expo-sqlite-core';
+import {
   isRecoverableExpoSqliteWebRuntimeError,
   publishExpoSqliteWebFatalError,
 } from './expo-web-recovery';
-
-/** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
-function sqliteCompatSql(sqlText: string): string {
-  return sqlText.replace(/\s+FOR UPDATE\b/gi, '');
-}
+import { RESET_DB_QUERY_PARAM } from './web/opfs-recover';
 
 export {
   isRecoverableExpoSqliteWebRuntimeError,
   subscribeExpoSqliteWebFatalError,
 } from './expo-web-recovery';
+
+export { RESET_DB_QUERY_PARAM } from './web/opfs-recover';
 
 /**
  * Set after we clear OPFS + reload once. While set, we must not clear OPFS again from the
@@ -26,22 +31,7 @@ export {
  * `sqlite3_open_v2` keeps failing until a new worker (navigation) — which matches “Clear site
  * data doesn’t help” because the tab immediately poisons itself again.
  */
-const WEB_RECOVERY_RELOAD_KEY = 'expo-sqlite.web-recovery-reloaded';
-
-/** Fail fast instead of leaving Suspense on a hung OPFS / worker open. */
-const OPEN_DATABASE_TIMEOUT_MS = 25_000;
-
-/**
- * URL escape hatch. Appending `?reset-db=1` to any page of the app forces a full reset on
- * next load: clears the one-shot recovery flag, wipes OPFS, deletes the DB file, and strips
- * the query param so a subsequent reload behaves normally. Use this when a dev is stuck in
- * the "already survived one recovery reload" branch and DevTools isn't convenient.
- *
- * Exported so user-initiated "wipe local data" flows can reuse the same recovery code path
- * (otherwise the wipe runs while the live worker still holds OPFS access handles, which
- * silently leaves the SQLite file on disk).
- */
-export const RESET_DB_QUERY_PARAM = 'reset-db';
+const WEB_RECOVERY_RELOAD_KEY = WEB_OPFS_RECOVERY_RELOAD_KEY;
 
 /** Call before manual clear/reload so the one-time recovery reload can run again if needed. */
 export function clearExpoSqliteWebRecoverySessionFlag(): void {
@@ -50,43 +40,22 @@ export function clearExpoSqliteWebRecoverySessionFlag(): void {
   }
 }
 
-function formatErrorChain(parts: unknown[]): string {
-  return parts
-    .map((e) => (e instanceof Error ? e.message : String(e)))
-    .filter((s) => s.length > 0)
-    .join(' → ');
-}
-
 /**
- * Runs before the first open attempt. When `?reset-db=1` is present, bounce to
- * the static `/reset-opfs.html` page (no expo-sqlite worker) so OPFS wipe can
- * succeed. Prefer the synchronous redirect in `public/index.html`; this is the
- * fallback when the query param survives into the JS bundle.
+ * Runs before the first open attempt. When `?reset-db=1` is present, strip the
+ * param and run in-package OPFS recovery (peers + SharedWorker force-release +
+ * wipe retries + reload).
  */
 async function maybeHandleResetDbQueryParam(
-  databaseName: string
+  databaseName: string,
+  timers: Timers
 ): Promise<void> {
-  if (Platform.OS !== 'web' || typeof window === 'undefined') {
-    return;
-  }
-  const url = new URL(window.location.href);
-  if (url.searchParams.get(RESET_DB_QUERY_PARAM) !== '1') {
-    return;
-  }
-  clearExpoSqliteWebRecoverySessionFlag();
-  url.searchParams.delete(RESET_DB_QUERY_PARAM);
-  const returnTo =
-    url.pathname +
-    (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '') +
-    url.hash;
-  console.warn(
-    `[SqlClientImplExpoSqlite] ?${RESET_DB_QUERY_PARAM}=1 detected for "${databaseName}" — redirecting to /reset-opfs.html (in-app OPFS wipe races the SQLite worker).`
+  const { consumeResetDbQueryParamAndRecover } = await import(
+    './web/opfs-recover'
   );
-  window.location.replace(
-    `/reset-opfs.html?return=${encodeURIComponent(returnTo || '/')}`
+  await consumeResetDbQueryParamAndRecover(
+    timers,
+    `SqlClientImplExpoSqlite("${databaseName}")`
   );
-  // Hang this open until navigation completes so we never race a half-open DB.
-  await new Promise<void>(() => {});
 }
 
 function buildLockedOpfsError(
@@ -104,7 +73,7 @@ function buildLockedOpfsError(
     `SQLite could not open the local database "${databaseName}" and automatic recovery is blocked: ` +
       `another tab or worker is holding the OPFS handle (${clearMessage}). ` +
       `Fix: close every other tab of ${origin} (including Cursor IDE browser / Playwright), ` +
-      `then open ${origin}/reset-opfs.html (or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
+      `then use Reset local data (or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
       `Underlying open errors: ${formatErrorChain(previous)}`
   );
 }
@@ -134,28 +103,6 @@ async function openDatabaseOnceInner(
       ? await SQLite.openDatabaseAsync(databaseName, opts, directory)
       : await SQLite.openDatabaseAsync(databaseName, opts);
   return new SqlClientImplExpoSqlite(db);
-}
-
-async function withOpenTimeout<T>(
-  databaseName: string,
-  promise: Promise<T>,
-  timers: Timers
-): Promise<T> {
-  let timeoutId: unknown | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timeoutId = timers.setTimeout(() => {
-      reject(
-        new Error(
-          `Timed out opening SQLite database "${databaseName}" after ${OPEN_DATABASE_TIMEOUT_MS}ms`
-        )
-      );
-    }, OPEN_DATABASE_TIMEOUT_MS);
-  });
-  try {
-    return await Promise.race([promise, timeout]);
-  } finally {
-    if (timeoutId !== undefined) timers.clearTimeout(timeoutId);
-  }
 }
 
 /**
@@ -235,10 +182,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
           query.sql,
           query.values as SQLite.SQLiteBindValue[]
         );
-        return {
-          changes: result.changes,
-          lastInsertRowid: result.lastInsertRowId,
-        };
+        return mapExpoRunResult(result);
       },
       prepare: <T extends Record<string, unknown>>(query: Sql<T>) =>
         this.prepare(query),
@@ -257,7 +201,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
     directory?: string
   ): Promise<SqlClientImplExpoSqlite> {
     assertSecureContext();
-    await maybeHandleResetDbQueryParam(databaseName);
+    await maybeHandleResetDbQueryParam(databaseName, timers);
     const dir =
       Platform.OS === 'web' || directory === undefined || directory.length === 0
         ? undefined
@@ -314,10 +258,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
         sqliteCompatSql(query.sql),
         query.values as SQLite.SQLiteBindValue[]
       );
-      return {
-        changes: result.changes,
-        lastInsertRowid: result.lastInsertRowId,
-      };
+      return mapExpoRunResult(result);
     });
   }
 
@@ -338,10 +279,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
           const result = await stmt.executeAsync(
             (params ?? []) as SQLite.SQLiteBindParams
           );
-          return {
-            changes: result.changes,
-            lastInsertRowid: result.lastInsertRowId,
-          };
+          return mapExpoRunResult(result);
         }),
     };
   }
@@ -527,7 +465,7 @@ function buildPostRecoveryError(
   return new Error(
     `SQLite could not open the local database "${databaseName}" after a recovery reload. ` +
       `Another tab/worker of ${origin} is likely holding the OPFS handle. ` +
-      `Fix: close every other tab of ${origin}, then open ${origin}/reset-opfs.html ` +
+      `Fix: close every other tab of ${origin}, then use Reset local data ` +
       `(or reload with ?${RESET_DB_QUERY_PARAM}=1). ` +
       `Underlying errors: ${formatErrorChain(errors)}`
   );

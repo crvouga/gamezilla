@@ -1,0 +1,292 @@
+import type { Timers } from '@pkgs/clock';
+import type { createOwnerRuntime, OwnerRuntime } from './owner-runtime';
+import {
+  awaitRpcResponse,
+  type BrokerToTabMessage,
+  type ConnectResult,
+  createRpcIdFactory,
+  type DbChangedNotify,
+  HEARTBEAT_INTERVAL_MS,
+  type PendingRpc,
+  type RpcOp,
+  type RpcRequest,
+  type RpcResponse,
+  settleRpcResponse,
+} from './rpc';
+
+export type WebSqlTransport = {
+  connect: () => Promise<ConnectResult>;
+  disconnect: () => Promise<void>;
+  request: <O extends RpcOp>(
+    op: O,
+    payload: RpcRequest<O>['payload'],
+    opts?: { timeoutMs?: number }
+  ) => Promise<unknown>;
+  onChanged: (listener: (notify: DbChangedNotify) => void) => () => void;
+  isOwner: () => boolean;
+  getOwnerRuntime: () => OwnerRuntime | null;
+};
+
+class SharedWorkerTransport implements WebSqlTransport {
+  private readonly dbName: string;
+  private readonly timers: Timers;
+  private readonly workerUrl: string;
+  private readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  private readonly nextId = createRpcIdFactory('sw');
+  private readonly pending = new Map<string, PendingRpc>();
+  private readonly changeListeners = new Set<
+    (notify: DbChangedNotify) => void
+  >();
+  private worker: SharedWorker | null = null;
+  private port: MessagePort | null = null;
+  private role: 'owner' | 'proxy' | null = null;
+  private ownerRuntime: OwnerRuntime | null = null;
+  private unsubOwnerChanged: (() => void) | null = null;
+  private heartbeatTimer: unknown | null = null;
+  private connected = false;
+
+  constructor(args: {
+    readonly dbName: string;
+    readonly timers: Timers;
+    readonly workerUrl: string;
+    readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  }) {
+    this.dbName = args.dbName;
+    this.timers = args.timers;
+    this.workerUrl = args.workerUrl;
+    this.createOwnerRuntimeFn = args.createOwnerRuntimeFn;
+  }
+
+  private post(message: BrokerToTabMessage): void {
+    this.port?.postMessage(message);
+  }
+
+  private async takeOwnership(): Promise<void> {
+    if (this.ownerRuntime !== null) {
+      this.role = 'owner';
+      // Prior attempt may have left a closed/failed runtime — ensure open.
+      await this.ownerRuntime.open();
+      return;
+    }
+    this.ownerRuntime = this.createOwnerRuntimeFn({
+      dbName: this.dbName,
+      timers: this.timers,
+    });
+    try {
+      await this.ownerRuntime.open();
+      this.unsubOwnerChanged = this.ownerRuntime.onChanged((notify) => {
+        this.post(notify);
+        for (const listener of this.changeListeners) listener(notify);
+      });
+      this.role = 'owner';
+    } catch (error: unknown) {
+      await this.dropOwnership();
+      throw error;
+    }
+  }
+
+  private async dropOwnership(): Promise<void> {
+    this.unsubOwnerChanged?.();
+    this.unsubOwnerChanged = null;
+    if (this.ownerRuntime !== null) {
+      await this.ownerRuntime.close();
+      this.ownerRuntime = null;
+    }
+    if (this.role === 'owner') this.role = 'proxy';
+  }
+
+  private async onMessage(message: BrokerToTabMessage): Promise<void> {
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'db-changed'
+    ) {
+      for (const listener of this.changeListeners) listener(message);
+      return;
+    }
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'assign-role'
+    ) {
+      if (message.dbName !== this.dbName) return;
+      if (message.role === 'owner') await this.takeOwnership();
+      else await this.dropOwnership();
+      return;
+    }
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'ok' in message &&
+      typeof message.id === 'string'
+    ) {
+      settleRpcResponse(this.pending, message as RpcResponse, this.timers);
+      return;
+    }
+    await this.onRpcRequest(message);
+  }
+
+  private async onRpcRequest(message: BrokerToTabMessage): Promise<void> {
+    if (
+      typeof message !== 'object' ||
+      message === null ||
+      !('op' in message) ||
+      typeof (message as RpcRequest).id !== 'string'
+    ) {
+      return;
+    }
+    const request = message as RpcRequest;
+    if (request.dbName !== this.dbName) return;
+    if (request.op === 'becomeOwner') {
+      await this.takeOwnership();
+      this.post({ id: request.id, ok: true, result: null });
+      return;
+    }
+    if (request.op === 'releaseOwner') {
+      await this.dropOwnership();
+      this.post({ id: request.id, ok: true, result: null });
+      return;
+    }
+    if (this.role !== 'owner' || this.ownerRuntime === null) return;
+    this.post(await this.ownerRuntime.handleRequest(request));
+  }
+
+  async connect(): Promise<ConnectResult> {
+    if (this.connected && this.role !== null) return { role: this.role };
+    this.worker = new SharedWorker(this.workerUrl, {
+      name: 'sql-db-host',
+      type: 'module',
+    });
+    this.port = this.worker.port;
+    this.port.onmessage = (event: MessageEvent<BrokerToTabMessage>) => {
+      void this.onMessage(event.data);
+    };
+    this.port.start();
+    const id = this.nextId();
+    const result = (await awaitRpcResponse({
+      id,
+      op: 'connect',
+      pending: this.pending,
+      timers: this.timers,
+      send: () => {
+        this.post({ id, dbName: this.dbName, op: 'connect', payload: {} });
+      },
+    })) as ConnectResult;
+    this.role = result.role;
+    if (result.role === 'owner') await this.takeOwnership();
+    this.connected = true;
+    const beat = () => {
+      const hid = this.nextId();
+      this.post({
+        id: hid,
+        dbName: this.dbName,
+        op: 'heartbeat',
+        payload: {},
+      });
+      this.heartbeatTimer = this.timers.setTimeout(beat, HEARTBEAT_INTERVAL_MS);
+    };
+    this.heartbeatTimer = this.timers.setTimeout(beat, HEARTBEAT_INTERVAL_MS);
+    return result;
+  }
+
+  async disconnect(): Promise<void> {
+    if (!this.connected) return;
+    this.connected = false;
+    if (this.heartbeatTimer !== null) {
+      this.timers.clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+    // Close OPFS before telling the broker — otherwise promoteOwner races the
+    // next tab's open against our still-live AccessHandlePoolVFS ("Invalid VFS state").
+    await this.dropOwnership();
+    try {
+      const id = this.nextId();
+      await awaitRpcResponse({
+        id,
+        op: 'disconnect',
+        pending: this.pending,
+        timers: this.timers,
+        timeoutMs: 5_000,
+        send: () => {
+          this.post({
+            id,
+            dbName: this.dbName,
+            op: 'disconnect',
+            payload: {},
+          });
+        },
+      });
+    } catch {
+      // best-effort
+    }
+    this.port?.close();
+    this.port = null;
+    this.worker = null;
+    this.role = null;
+  }
+
+  async request<O extends RpcOp>(
+    op: O,
+    payload: RpcRequest<O>['payload'],
+    opts?: { timeoutMs?: number }
+  ): Promise<unknown> {
+    if (this.role === 'owner' && this.ownerRuntime !== null) {
+      const response = await this.ownerRuntime.handleRequest({
+        id: this.nextId(),
+        dbName: this.dbName,
+        op,
+        payload,
+      } as RpcRequest);
+      if (!response.ok) {
+        throw Object.assign(new Error(response.error.message), {
+          name: response.error.name,
+          code: response.error.code,
+          stack: response.error.stack,
+        });
+      }
+      return response.result;
+    }
+    const id = this.nextId();
+    return awaitRpcResponse({
+      id,
+      op,
+      pending: this.pending,
+      timers: this.timers,
+      ...(opts?.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
+      send: () => {
+        this.post({
+          id,
+          dbName: this.dbName,
+          op,
+          payload,
+        } as RpcRequest);
+      },
+    });
+  }
+
+  onChanged(listener: (notify: DbChangedNotify) => void): () => void {
+    this.changeListeners.add(listener);
+    return () => {
+      this.changeListeners.delete(listener);
+    };
+  }
+
+  isOwner(): boolean {
+    return this.role === 'owner';
+  }
+
+  getOwnerRuntime(): OwnerRuntime | null {
+    return this.ownerRuntime;
+  }
+}
+
+export function createSharedWorkerTransport(args: {
+  readonly dbName: string;
+  readonly timers: Timers;
+  readonly workerUrl: string;
+  readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+}): WebSqlTransport {
+  return new SharedWorkerTransport(args);
+}

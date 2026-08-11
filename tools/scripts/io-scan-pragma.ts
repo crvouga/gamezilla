@@ -50,6 +50,10 @@ export function isIoCompositionEntryPath(rel: string): boolean {
   if (rel.includes('/scripts/')) return true;
   const base = rel.split('/').pop() ?? '';
   if (ENTRY_BASENAMES.has(base)) return true;
+  // SharedWorker process roots (separate JS realm; still require `@io-wall-ok`).
+  if (base.endsWith('-shared-worker.ts')) {
+    return true;
+  }
   if (base.endsWith('.example.ts') || base.endsWith('.example.tsx')) {
     return true;
   }

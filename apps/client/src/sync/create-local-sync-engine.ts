@@ -9,12 +9,13 @@ import {
 } from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import type { Clock, Timers } from '@pkgs/clock';
+import type { ExpoWebSqlClient } from '@pkgs/sql-client/sqlite/web';
 import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
 import type { CreateId, Random } from '@pkgs/uuid';
-import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
 import { deleteLegacySidecarDb } from '../storage/delete-legacy-sidecar-db';
 import { openMainSqlClient } from '../storage/open-main-sql-client';
@@ -34,6 +35,7 @@ import {
   type SyncApiFetch,
   type SyncClientAuth,
 } from './sync-api';
+import { tryAcquireSyncOwnerLease } from './sync-owner-lock';
 
 /** Session queries held for the engine lifetime (paint gate waits on all). */
 const SESSION_QUERIES = [
@@ -142,35 +144,60 @@ export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
   await deleteLegacySidecarDb(args.databaseName);
-  const db = await openMainSqlClient(args.userId, args.createId, args.timers);
-  const pushCtx = createMembershipChannels({
-    auth: args.auth,
-    userId: args.userId,
-  });
-  const emqxUrlHolder = emqxUrlHolderFor(args.databaseName);
+  const syncLease = await tryAcquireSyncOwnerLease(args.databaseName);
+  try {
+    const db = await openMainSqlClient(args.userId, args.createId, args.timers);
+    const pushCtx = createMembershipChannels({
+      auth: args.auth,
+      userId: args.userId,
+    });
+    const emqxUrlHolder = emqxUrlHolderFor(args.databaseName);
+    const webDb = db as ExpoWebSqlClient;
+    const canBridgeWebChanges =
+      Platform.OS === 'web' && typeof webDb.onChanged === 'function';
 
-  const engine = await createLocalSyncEngine({
-    db,
-    localSchema: {
-      domainSchema: appSchema,
-      cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
-    },
-    mutationRegistry: APP_MUTATIONS,
-    getMutationEnv: () => mutationEnv(args),
-    getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
-    sessionQueries: sessionQuerySpecs(),
-    postQueries: (requests) => postAppQueries({ ...args, requests }),
-    postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
-    isAuthRevoked: (error) =>
-      error instanceof SyncApiAuthError && error.reason === 'revoked',
-    deleteDatabase: () => SQLite.deleteDatabaseAsync(args.databaseName),
-    lifecycle: createAppSyncLifecycle(),
-    now: args.clock.now,
-    timers: args.timers,
-    createId: args.createId,
-    ...pushOptions(args, pushCtx, emqxUrlHolder),
-  });
+    const engine = await createLocalSyncEngine({
+      db,
+      localSchema: {
+        domainSchema: appSchema,
+        cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
+      },
+      mutationRegistry: APP_MUTATIONS,
+      getMutationEnv: () => mutationEnv(args),
+      getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
+      sessionQueries: sessionQuerySpecs(),
+      postQueries: (requests) => postAppQueries({ ...args, requests }),
+      postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
+      isAuthRevoked: (error) =>
+        error instanceof SyncApiAuthError && error.reason === 'revoked',
+      deleteDatabase: async () => {
+        if (typeof webDb.resetDatabase === 'function') {
+          await webDb.resetDatabase();
+          return;
+        }
+        const SQLite = await import('expo-sqlite');
+        await SQLite.deleteDatabaseAsync(args.databaseName);
+      },
+      lifecycle: createAppSyncLifecycle(),
+      now: args.clock.now,
+      timers: args.timers,
+      createId: args.createId,
+      enableMutationUpload: syncLease.isOwner,
+      ...(canBridgeWebChanges
+        ? {
+            subscribeExternalDbChanged: (listener: () => void) =>
+              webDb.onChanged(() => {
+                listener();
+              }),
+          }
+        : {}),
+      ...(syncLease.isOwner ? pushOptions(args, pushCtx, emqxUrlHolder) : {}),
+    });
 
-  emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
-  return engine;
+    emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
+    return engine;
+  } catch (error: unknown) {
+    syncLease.release();
+    throw error;
+  }
 }

@@ -3,28 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <!--
-      ?reset-db=1 must wipe OPFS before the Expo/SQLite worker starts. Doing that
-      inside the app races the AccessHandlePoolVFS (NoModificationAllowedError).
-      Redirect synchronously to a static page that clears OPFS with no workers.
+      ?reset-db=1 is handled by @pkgs/sql-client (`runWebOpfsRecoveryAndReload`)
+      when the SQL client opens. Do not redirect to a static reset page and do
+      not strip the query param here — package JS needs to see it.
     -->
-    <script>
-      (function () {
-        try {
-          var url = new URL(window.location.href);
-          if (url.searchParams.get('reset-db') !== '1') return;
-          url.searchParams.delete('reset-db');
-          var ret =
-            url.pathname +
-            (url.searchParams.toString()
-              ? '?' + url.searchParams.toString()
-              : '') +
-            url.hash;
-          window.location.replace(
-            '/reset-opfs.html?return=' + encodeURIComponent(ret || '/')
-          );
-        } catch (_) {}
-      })();
-    </script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="manifest" href="/pwa/manifest.webmanifest" />
     <meta name="theme-color" content="#0A0A0A" />

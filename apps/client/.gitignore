@@ -8,6 +8,7 @@
 
 expo-env.d.ts
 public/generated/
+public/sql-workers/**/*.js
 # @end expo-cli
 
 playwright-report/

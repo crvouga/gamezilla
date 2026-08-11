@@ -9,12 +9,12 @@ describe('resolveSqliteDbName', () => {
     expect(resolveSqliteDbName({ userId })).toBe('user_222222222222');
   });
 
-  test('web tab suffix is shortened and appended', () => {
+  test('web tab suffix is ignored (tabs share one DB per user)', () => {
     expect(
       resolveSqliteDbName({
         userId,
         webTabSuffix: 'abcdef0123456789abcdef0123456789',
       })
-    ).toBe('user_222222222222_abcdef012345');
+    ).toBe('user_222222222222');
   });
 });

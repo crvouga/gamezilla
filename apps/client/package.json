@@ -22,14 +22,14 @@
     "kill-dev": "bun run scripts/kill-dev.ts",
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
-    "setup": "bun run scripts/setup-env.ts",
+    "setup": "bun run scripts/setup-env.ts && bun run --filter @pkgs/sql-client build:web-workers",
     "setup:sentry-dsn": "bun run scripts/setup-sentry-dsn.ts",
-    "prestart": "bun run bundle:skia-canvaskit-wasm",
+    "prestart": "bun run bundle:skia-canvaskit-wasm && bun run --filter @pkgs/sql-client build:web-workers",
     "start": "expo start --web",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test src/integration/",
-    "preweb": "bun run bundle:skia-canvaskit-wasm",
+    "preweb": "bun run bundle:skia-canvaskit-wasm && bun run --filter @pkgs/sql-client build:web-workers",
     "web": "expo start --web"
   },
   "dependencies": {

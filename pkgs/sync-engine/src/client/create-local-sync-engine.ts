@@ -114,6 +114,17 @@ export type CreateLocalSyncEngineOptions = {
   readonly onLocalMigratePhase?: (
     phase: LocalMigratePhase
   ) => void | Promise<void>;
+  /**
+   * Multi-tab web: subscribe to broker `db-changed` (and similar) so this
+   * tab's watches / upload queue wake when another tab committed writes.
+   */
+  readonly subscribeExternalDbChanged?: (
+    listener: () => void
+  ) => () => void;
+  /**
+   * When false, skip the mutation upload loop (sync-follower tabs). Default true.
+   */
+  readonly enableMutationUpload?: boolean;
 };
 
 type LocalEngineState = {
@@ -130,6 +141,7 @@ type LocalEngineState = {
   revokePromise: Promise<void> | null;
   disposePush: (() => void) | null;
   pushPubSub: PubSub | null;
+  disposeExternalDbChanged: (() => void) | null;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -206,6 +218,18 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     if (tables.has('sync_engine_mutations')) uploadQueue.wake();
   });
   const bufferOutbound = options.push?.bufferOutboundLive === true;
+  const externalTables = [
+    ...options.localSchema.cacheTableNames,
+    'sync_engine_mutations',
+    'sync_engine_scope_meta',
+    'sync_engine_write_rejections',
+  ] as const;
+  let disposeExternalDbChanged: (() => void) | null = null;
+  if (options.subscribeExternalDbChanged !== undefined) {
+    disposeExternalDbChanged = options.subscribeExternalDbChanged(() => {
+      bus.emit(externalTables);
+    });
+  }
   const state: LocalEngineState = {
     options,
     bus,
@@ -222,6 +246,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     revokePromise: null,
     disposePush: null,
     pushPubSub: null,
+    disposeExternalDbChanged,
   };
   stateRef.current = state;
   return state;
@@ -324,7 +349,9 @@ async function connectState(state: LocalEngineState): Promise<void> {
     online: true,
     lastError: null,
   });
-  state.uploadQueue.start();
+  if (state.options.enableMutationUpload !== false) {
+    state.uploadQueue.start();
+  }
   state.runtime.start();
   attachPushIfConfigured(state);
   state.status.patch({ connection: 'syncing' });
@@ -340,6 +367,8 @@ async function disconnectState(state: LocalEngineState): Promise<void> {
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
   state.connected = false;
+  state.disposeExternalDbChanged?.();
+  state.disposeExternalDbChanged = null;
   detachPush(state);
   state.runtime.stop();
   await state.uploadQueue.stop();
