@@ -1,10 +1,10 @@
 /**
  * Matrix contract suite: same behavioural tests on Bun SQLite and
- * PGlite Postgres (with {@link installPostgresSqliteCompat}).
+ * PGlite Postgres. Compat install is automatic (no-op on SQLite).
  */
 
-import { afterAll, describe } from 'bun:test';
 import { Database } from 'bun:sqlite';
+import { afterAll, describe } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
@@ -18,7 +18,6 @@ import {
 
 type Backend = {
   readonly name: string;
-  readonly dialect: 'sqlite' | 'postgres';
   readonly openClient: () => Promise<{
     readonly sqlClient: import('@pkgs/sql-client/interface').SqlClient;
     readonly close: () => Promise<void>;
@@ -28,7 +27,6 @@ type Backend = {
 const backends: readonly Backend[] = [
   {
     name: 'sqlite',
-    dialect: 'sqlite',
     openClient: async () => {
       const db = new Database(':memory:');
       const sqlClient = new SqlClientImplBunSqlite(db);
@@ -42,7 +40,6 @@ const backends: readonly Backend[] = [
   },
   {
     name: 'postgres',
-    dialect: 'postgres',
     openClient: async () => {
       const db = await PGlite.create();
       const sqlClient = createPgliteSqlClient(db);
@@ -66,7 +63,6 @@ for (const backend of backends) {
     const mm = new MatchmakingImplSql({
       ...config,
       sqlClient: opened.sqlClient,
-      dialect: backend.dialect,
     });
     await mm.ready();
     return mm;

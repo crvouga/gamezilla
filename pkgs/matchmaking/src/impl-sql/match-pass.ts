@@ -9,10 +9,7 @@ import { asKeywordRecord } from '@pkgs/keyword';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { FormulaWire } from '../interface/formula-wire';
 import type { RadiusOptions } from '../interface/types';
-import {
-  expandingRadius,
-  pairMatch,
-} from './matching';
+import { expandingRadius, pairMatch } from './matching';
 import {
   type ClaimedWaitingRow,
   epochMs,

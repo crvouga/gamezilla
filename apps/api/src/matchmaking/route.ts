@@ -95,7 +95,6 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
 export function createMatchmakingSubApp(): Hono {
   const matchmaking: Matchmaking = new MatchmakingImplSql({
     sqlClient: lazyRequestSqlClient(),
-    dialect: 'postgres',
     schema: MATCHMAKING_SCHEMA,
     tuning: {
       ...MATCHMAKING_TUNING,

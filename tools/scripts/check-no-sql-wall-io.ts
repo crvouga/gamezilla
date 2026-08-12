@@ -62,7 +62,6 @@ function isSqlishPath(rel: string): boolean {
     base === 'emit.ts' ||
     base === 'framework-server-ddl.ts' ||
     base === 'migrate-sql.ts' ||
-    base === 'tick-sql.ts' ||
     base === 'open-sim-sqlite.ts' ||
     base === 'impl-postgres.ts' ||
     base === 'impl-postgres-tx.ts'
@@ -71,7 +70,7 @@ function isSqlishPath(rel: string): boolean {
   }
   // Tests that assert SQL text may still embed wall defaults — scan them too.
   if (base.endsWith('.test.ts') || base.endsWith('.test.tsx')) {
-    return /migrate|emit|ddl|sql-map|schema|tick-sql|open-sim/.test(rel);
+    return /migrate|emit|ddl|sql-map|schema|open-sim/.test(rel);
   }
   return false;
 }

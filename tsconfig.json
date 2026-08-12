@@ -65,9 +65,7 @@
       "@pkgs/postgres-sqlite-compat": [
         "./pkgs/postgres-sqlite-compat/src/index.ts"
       ],
-      "@pkgs/postgres-sqlite-compat/*": [
-        "./pkgs/postgres-sqlite-compat/src/*"
-      ],
+      "@pkgs/postgres-sqlite-compat/*": ["./pkgs/postgres-sqlite-compat/src/*"],
       "@pkgs/inbox": ["./pkgs/inbox/src/index.ts"],
       "@pkgs/inbox/client": ["./pkgs/inbox/src/client/index.ts"],
       "@pkgs/inbox/server/publish": ["./pkgs/inbox/src/server/publish.ts"],

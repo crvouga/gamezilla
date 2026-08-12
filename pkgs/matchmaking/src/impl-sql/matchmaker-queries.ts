@@ -3,7 +3,7 @@
  *
  * @internal
  */
-import { type Sql, type SqlFragment, join, sql } from '@pkgs/sql';
+import { join, type Sql, type SqlFragment, sql } from '@pkgs/sql';
 
 import type {
   ClaimedWaitingRow,

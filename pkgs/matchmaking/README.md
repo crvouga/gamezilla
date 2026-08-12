@@ -28,7 +28,6 @@ const mode = ns('mode', (v) => (typeof v === 'string' ? v : 'casual'));
 
 const mm = new MatchmakingImplSql({
   sqlClient,
-  dialect: 'postgres',
   schema: {
     partitionKeys: ['chess/mode'],
     primaryNumericKey: 'chess/rating',
@@ -44,8 +43,8 @@ const { participantId } = await mm.join({
 });
 ```
 
-Hermetic tests use Bun SQLite (`dialect: 'sqlite'`) or PGlite
-(`dialect: 'postgres'`) — same code path.
+Hermetic tests use Bun SQLite or PGlite — same code path; compat install
+auto-detects Postgres and no-ops on SQLite.
 
 ---
 

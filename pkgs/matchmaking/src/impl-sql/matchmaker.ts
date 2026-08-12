@@ -22,15 +22,15 @@ import {
   resolveJoinAttrs,
 } from '../interface/join-helpers';
 import type { JoinInputRaw } from '../interface/matchmaking';
-import {
-  type _MatchPassResult,
-  type DistanceFormula,
-  type JoinInput,
-  type JoinResult,
-  type LeaveResult,
-  type RadiusOptions,
-  type StatusResult,
-  type UpdateFormulasResult,
+import type {
+  _MatchPassResult,
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
+  LeaveResult,
+  RadiusOptions,
+  StatusResult,
+  UpdateFormulasResult,
 } from '../interface/types';
 import { runClaimedMatchPass } from './match-pass';
 import {
@@ -71,9 +71,7 @@ import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
 
-export type {
-  FormulaWire,
-} from '../interface/formula-wire';
+export type { FormulaWire } from '../interface/formula-wire';
 export { MAX_FORMULAS_PER_PARTICIPANT } from '../interface/join-helpers';
 export type { JoinInputRaw };
 
@@ -406,12 +404,16 @@ export class Matchmaker {
     const results = await parallelMap(
       pairs,
       concurrency,
-      async (pair) =>
-        this.runMatchPasses(pair.partitionSignature, {
-          maxPasses: opts.maxPassesPerPartition,
+      async (pair) => {
+        const passOpts: RunMatchPassesOptions = {
           groupSize: pair.groupSize,
+          ...(opts.maxPassesPerPartition !== undefined
+            ? { maxPasses: opts.maxPassesPerPartition }
+            : {}),
           ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
-        }),
+        };
+        return this.runMatchPasses(pair.partitionSignature, passOpts);
+      },
       opts.signal
     );
     let matches = 0;
@@ -425,9 +427,7 @@ export class Matchmaker {
     return { matches, passes, partitions: pairs.length };
   }
 
-  async sweepExpired(
-    partitionSignature: string
-  ): Promise<SweepExpiredResult> {
+  async sweepExpired(partitionSignature: string): Promise<SweepExpiredResult> {
     assertPartitionSignature(partitionSignature, 'Matchmaker.sweepExpired');
     if (this.maxWaitSeconds === undefined || this.maxWaitSeconds <= 0) {
       return { removed: 0 };
@@ -444,10 +444,8 @@ export class Matchmaker {
   ): Promise<SweepExpiredAcrossPartitionsResult> {
     const pairs = await this.discoverActivePartitions(opts.maxPartitions);
     const concurrency = opts.concurrency ?? DEFAULT_DRAIN_CONCURRENCY;
-    const results = await parallelMap(
-      pairs,
-      concurrency,
-      async (pair) => this.sweepExpired(pair.partitionSignature)
+    const results = await parallelMap(pairs, concurrency, async (pair) =>
+      this.sweepExpired(pair.partitionSignature)
     );
     let removed = 0;
     for (const r of results) {

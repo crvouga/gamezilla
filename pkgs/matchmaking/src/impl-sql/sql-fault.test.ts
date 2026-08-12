@@ -2,12 +2,12 @@
  * Construction / schema-drift faults against portable SQL backends.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { MatchmakingSchemaDriftError } from '../interface/errors';
-import { registerTestCrashHandler } from '../testing/fixtures';
+import { RatingAttr, registerTestCrashHandler } from '../testing/fixtures';
 import { MatchmakingImplSql } from './matchmaking';
 
 function openSqlite() {
@@ -29,17 +29,13 @@ describe('MatchmakingImplSql - construction', () => {
     dispose();
   });
 
-  test('requires dialect', () => {
+  test('requires sqlClient / schema / tuning', () => {
     const { sqlClient, close } = openSqlite();
     try {
       expect(() => {
-        // @ts-expect-error dialect required
-        new MatchmakingImplSql({
-          sqlClient,
-          schema: {},
-          tuning: { now: () => 0, createId: () => 'x' },
-        });
-      }).toThrow(/dialect/);
+        // @ts-expect-error missing required fields
+        new MatchmakingImplSql({ sqlClient });
+      }).toThrow();
     } finally {
       close();
     }
@@ -61,7 +57,6 @@ describe('MatchmakingImplSql - schema drift', () => {
       const io = wallIo();
       const mm = new MatchmakingImplSql({
         sqlClient,
-        dialect: 'sqlite',
         schema: { partitionKeys: ['mmtest/region'] },
         tuning: { now: () => io.clock.now(), createId: () => io.createId() },
       });
@@ -69,15 +64,14 @@ describe('MatchmakingImplSql - schema drift', () => {
 
       const mm2 = new MatchmakingImplSql({
         sqlClient,
-        dialect: 'sqlite',
         schema: { partitionKeys: ['mmtest/mode'] },
         tuning: { now: () => io.clock.now(), createId: () => io.createId() },
       });
       await mm2.ready();
       await expect(
         mm.join({
-          data: { 'mmtest/region': 'us' },
-          formulas: [{ numeric: [] }],
+          data: { ...RatingAttr(1500) },
+          formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
         })
       ).rejects.toBeInstanceOf(MatchmakingSchemaDriftError);
     } finally {

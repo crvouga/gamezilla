@@ -7,7 +7,6 @@
 export {
   MatchmakingImplSql,
   type MatchmakingImplSqlOptions,
-  type MatchmakingSqlDialect,
 } from './matchmaking';
 export {
   MatchmakingDatabaseMigration,

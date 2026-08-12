@@ -1,8 +1,9 @@
 /**
  * SQL-backed {@link Matchmaking} adapter (SQLite + Postgres).
  *
- * Construct with `new MatchmakingImplSql({ sqlClient, schema, tuning, dialect })`.
- * On Postgres, boots {@link installPostgresSqliteCompat} before migrate.
+ * Construct with `new MatchmakingImplSql({ sqlClient, schema, tuning })`.
+ * Boot always runs {@link installPostgresSqliteCompat} (no-op on SQLite)
+ * then portable {@link migrate} — callers never declare a dialect.
  */
 
 import { assert } from '@pkgs/assert';
@@ -33,15 +34,8 @@ import type {
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
 import { migrate } from './migrate';
 
-export type MatchmakingSqlDialect = 'sqlite' | 'postgres';
-
 export type MatchmakingImplSqlOptions = MatchmakingConfig & {
   readonly sqlClient: import('@pkgs/sql-client/interface').SqlClient;
-  /**
-   * SQL engine dialect. Postgres boots the sqlite-compat shim layer
-   * before migrate so shared SQL can use SQLite-shaped JSON helpers.
-   */
-  readonly dialect: MatchmakingSqlDialect;
 };
 
 type ResolvedOptions = {
@@ -51,7 +45,6 @@ type ResolvedOptions = {
   readonly matchmakerOptions: MatchmakerOptions;
   readonly radius: RadiusOptions | undefined;
   readonly tuning: MatchmakingTuning;
-  readonly dialect: MatchmakingSqlDialect;
 };
 
 export class MatchmakingImplSql implements Matchmaking {
@@ -60,7 +53,6 @@ export class MatchmakingImplSql implements Matchmaking {
   private readonly matchmaker: Matchmaker;
   private readonly migrateArgs: Parameters<typeof migrate>[0];
   private readonly now: () => number;
-  private readonly dialect: MatchmakingSqlDialect;
   private bootPromise: Promise<void> | undefined;
 
   constructor(opts: MatchmakingImplSqlOptions) {
@@ -68,7 +60,6 @@ export class MatchmakingImplSql implements Matchmaking {
     MatchmakingImplSql.assertOptions(resolved);
     this.sqlClient = resolved.sqlClient;
     this.schema = resolved.schema;
-    this.dialect = resolved.dialect;
     this.matchmaker = new Matchmaker(resolved.matchmakerOptions);
     this.now = resolved.tuning.now;
     this.migrateArgs = {
@@ -170,9 +161,8 @@ export class MatchmakingImplSql implements Matchmaking {
   }
 
   private async boot(): Promise<void> {
-    if (this.dialect === 'postgres') {
-      await installPostgresSqliteCompat({ sqlClient: this.sqlClient });
-    }
+    // Compat install probes the engine and no-ops on SQLite.
+    await installPostgresSqliteCompat({ sqlClient: this.sqlClient });
     await migrate(this.migrateArgs);
   }
 
@@ -183,10 +173,6 @@ export class MatchmakingImplSql implements Matchmaking {
     assert.defined(opts.sqlClient, 'MatchmakingImplSql: sqlClient required');
     assert.defined(opts.schema, 'MatchmakingImplSql: schema required');
     assert.defined(opts.tuning, 'MatchmakingImplSql: tuning required');
-    assert.ok(
-      opts.dialect === 'sqlite' || opts.dialect === 'postgres',
-      'MatchmakingImplSql: dialect must be sqlite or postgres'
-    );
     assert.ok(
       typeof opts.tuning.now === 'function',
       'MatchmakingImplSql: tuning.now required'
@@ -219,7 +205,6 @@ export class MatchmakingImplSql implements Matchmaking {
       matchmakerOptions,
       radius: opts.radius,
       tuning: opts.tuning,
-      dialect: opts.dialect,
     };
   }
 

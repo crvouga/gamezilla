@@ -13,7 +13,7 @@ export type MatchmakingDatabaseMigrationArgs = {
   readonly tuning?: MigrateTuning;
 };
 
-/** Applies matchmaking Postgres schema (waiting partitions, tick functions, …). */
+/** Applies portable matchmaking schema (waiting / matched / fingerprint). */
 export class MatchmakingDatabaseMigration implements DatabaseMigration {
   private readonly schema: MatchmakingSchema | undefined;
   private readonly radius: RadiusOptions | undefined;

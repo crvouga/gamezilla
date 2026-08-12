@@ -11,17 +11,17 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MatchmakingSchema } from '../interface/schema';
 import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from '../interface/types';
 import {
-  ADD_CLAIMED_AT_COLUMN_SQL,
   ADD_CLAIM_TOKEN_COLUMN_SQL,
+  ADD_CLAIMED_AT_COLUMN_SQL,
   ADD_PRIMARY_BUCKET_COLUMN_SQL,
   ADD_PRIMARY_RATING_COLUMN_SQL,
   CREATE_ACTIVE_PARTITIONS_TABLE_SQL,
-  CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
   CREATE_MATCHED_MATCH_ID_INDEX_SQL,
+  CREATE_MATCHED_MATCHED_AT_INDEX_SQL,
   CREATE_MATCHED_TABLE_SQL,
   CREATE_SCHEMA_STATE_TABLE_SQL,
-  CREATE_WAITING_CLAIMED_AT_INDEX_SQL,
   CREATE_WAITING_CLAIM_TOKEN_INDEX_SQL,
+  CREATE_WAITING_CLAIMED_AT_INDEX_SQL,
   CREATE_WAITING_LOOKUP_INDEX_SQL,
   CREATE_WAITING_TABLE_SQL,
   DROP_ACTIVE_PARTITIONS_SQL,
@@ -105,7 +105,10 @@ export function fingerprintForOptions(
   return fingerprintSchema(resolveSchema(schema));
 }
 
-async function tryAlter(sqlClient: SqlClient, statement: string): Promise<void> {
+async function tryAlter(
+  sqlClient: SqlClient,
+  statement: string
+): Promise<void> {
   try {
     await sqlClient.run(raw(statement));
   } catch {

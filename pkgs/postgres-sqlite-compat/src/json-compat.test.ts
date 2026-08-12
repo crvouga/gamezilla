@@ -3,8 +3,8 @@
  * {@link installPostgresSqliteCompat}.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -131,7 +131,10 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
           ORDER BY key`
       );
       expect(
-        rows.map((r) => [String(r.key), r.atom === null ? null : String(r.atom)]),
+        rows.map((r) => [
+          String(r.key),
+          r.atom === null ? null : String(r.atom),
+        ]),
         b.name
       ).toEqual([
         ['x', '1'],
@@ -148,7 +151,10 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
           ORDER BY key`
       );
       expect(
-        rows.map((r) => [String(r.key), r.atom === null ? null : String(r.atom)]),
+        rows.map((r) => [
+          String(r.key),
+          r.atom === null ? null : String(r.atom),
+        ]),
         b.name
       ).toEqual([
         ['0', '10'],
@@ -167,6 +173,18 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
         SELECT json_extract(${'{"k":9}'}, ${'$.k'}) AS v`
     );
     expect(rows[0]?.v).toBe('9');
+  });
+
+  test('install no-ops on sqlite', async () => {
+    const sqlite = backends.find((b) => b.name === 'sqlite');
+    expect(sqlite).toBeDefined();
+    assertDefined(sqlite);
+    await installPostgresSqliteCompat({ sqlClient: sqlite.client });
+    const rows = await sqlite.client.query(
+      sql<{ v: string | number | null }>`
+        SELECT json_extract(${'{"k":9}'}, ${'$.k'}) AS v`
+    );
+    expect(String(rows[0]?.v)).toBe('9');
   });
 });
 

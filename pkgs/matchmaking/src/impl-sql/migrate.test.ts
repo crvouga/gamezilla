@@ -2,21 +2,21 @@
  * Portable schema migrate smoke + concurrency claim invariant.
  */
 
-import { afterAll, describe, expect, test } from 'bun:test';
 import { Database } from 'bun:sqlite';
+import { afterAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { wallIo } from '@pkgs/io';
+import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { sql } from '@pkgs/sql';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { RatingAttr } from '../testing/fixtures';
 import { MatchmakingImplSql } from './matchmaking';
 import { migrate } from './migrate';
-import { RatingAttr } from '../testing/fixtures';
 
 describe.each([
   {
     name: 'sqlite',
-    dialect: 'sqlite' as const,
     open: async () => {
       const db = new Database(':memory:');
       return {
@@ -29,7 +29,6 @@ describe.each([
   },
   {
     name: 'postgres',
-    dialect: 'postgres' as const,
     open: async () => {
       const db = await PGlite.create();
       return {
@@ -40,7 +39,7 @@ describe.each([
       };
     },
   },
-])('migrate ($name)', ({ name, dialect, open }) => {
+])('migrate ($name)', ({ name, open }) => {
   let close: () => Promise<void> = async () => undefined;
 
   afterAll(async () => {
@@ -50,12 +49,7 @@ describe.each([
   test('creates portable waiting / matched tables', async () => {
     const opened = await open();
     close = opened.close;
-    if (dialect === 'postgres') {
-      const { installPostgresSqliteCompat } = await import(
-        '@pkgs/postgres-sqlite-compat'
-      );
-      await installPostgresSqliteCompat({ sqlClient: opened.sqlClient });
-    }
+    await installPostgresSqliteCompat({ sqlClient: opened.sqlClient });
     await migrate({
       sqlClient: opened.sqlClient,
       schema: { primaryNumericKey: 'mmtest/rating', bucketWidth: 50 },
@@ -83,7 +77,6 @@ describe('claim concurrency', () => {
     let now = 1_700_000_000_000;
     const mm = new MatchmakingImplSql({
       sqlClient,
-      dialect: 'sqlite',
       schema: { primaryNumericKey: 'mmtest/rating', bucketWidth: 50 },
       tuning: {
         now: () => now,
