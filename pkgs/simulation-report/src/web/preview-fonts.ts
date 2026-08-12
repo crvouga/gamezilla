@@ -1,8 +1,12 @@
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
+
 import { reportFetch } from './wall';
 
 /** Same family weights as snapshot HTML; `display=block` avoids FOUT swap. */
 export const NUNITO_FONT_CSS_URL =
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=block';
+
+export { SNAPSHOT_SHELL_CSS };
 
 let fontCssPromise: Promise<string> | null = null;
 

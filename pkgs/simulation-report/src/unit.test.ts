@@ -23,6 +23,16 @@ describe('resolveLocalReportDataDir', () => {
     expect(dir.endsWith('/simulation-report-data')).toBe(true);
     expect(existsSync(join(dir, '..', 'turbo.json'))).toBe(true);
   });
+
+  test('ignores package-level turbo.json under apps/', () => {
+    const fromApp = resolveLocalReportDataDir(
+      join(import.meta.dir, '../../../apps/simulation-report')
+    );
+    const fromPkg = resolveLocalReportDataDir(import.meta.dir);
+    expect(fromApp).toBe(fromPkg);
+    expect(fromApp.endsWith('/simulation-report-data')).toBe(true);
+    expect(fromApp.includes('/apps/simulation-report/')).toBe(false);
+  });
 });
 
 describe('sanitizeTestId', () => {

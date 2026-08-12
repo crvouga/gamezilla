@@ -22,7 +22,26 @@ describe('patchPreviewHtml', () => {
     expect(out).toContain('.rn-root{height:100%}');
   });
 
-  test('no-ops font inject when CSS is empty', () => {
+  test('strips snapshot-shell.css and injects shell + font CSS', () => {
+    const html = [
+      '<head>',
+      '<link rel="stylesheet" href="../../snapshot-shell.css" />',
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=X" />',
+      '</head>',
+    ].join('');
+    const out = patchPreviewHtml(html, {
+      shellCss: 'html{height:100%}',
+      fontCss: '@font-face{font-family:Nunito}',
+    });
+    expect(out).not.toContain('snapshot-shell.css');
+    expect(out).not.toContain('fonts.googleapis.com');
+    expect(out).toContain('<style>html{height:100%}</style>');
+    expect(out).toContain(
+      '<style>@font-face{font-family:Nunito}</style></head>'
+    );
+  });
+
+  test('no-ops inject when CSS is empty', () => {
     const html =
       '<head><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=X" /></head>';
     const out = patchPreviewHtml(html, '  ');

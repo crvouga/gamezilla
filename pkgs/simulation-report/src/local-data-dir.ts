@@ -5,15 +5,17 @@ import { dirname, join, resolve } from 'node:path';
 export const LOCAL_REPORT_DATA_DIRNAME = 'simulation-report-data';
 
 /**
- * Walk up from `startDir` until a `turbo.json` is found (monorepo root).
- * Returns `null` when none exists.
+ * Walk up from `startDir` and return the outermost directory that contains
+ * `turbo.json` (true monorepo root). Package-level `turbo.json` files
+ * (`extends: ["//"]`) must not win over the workspace root.
  */
 export function findMonorepoRoot(startDir: string): string | null {
   let dir = resolve(startDir);
+  let found: string | null = null;
   for (;;) {
-    if (existsSync(join(dir, 'turbo.json'))) return dir;
+    if (existsSync(join(dir, 'turbo.json'))) found = dir;
     const parent = dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) return found;
     dir = parent;
   }
 }
