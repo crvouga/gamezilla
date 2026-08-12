@@ -16,7 +16,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
 import type { Sql } from '@pkgs/sql';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
