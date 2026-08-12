@@ -1,3 +1,5 @@
+const path = require('node:path');
+
 const {
   bunAwareTransformIgnorePatterns,
 } = require('../ui-testing/jest-transform-ignore.cjs');
@@ -11,5 +13,6 @@ module.exports = {
   ],
   testPathIgnorePatterns: ['/node_modules/'],
   transformIgnorePatterns: bunAwareTransformIgnorePatterns(),
+  cacheDirectory: path.join(__dirname, '.cache/jest'),
   forceExit: true,
 };

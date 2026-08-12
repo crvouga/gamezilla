@@ -68,7 +68,9 @@ export async function openSim(
       now: () => wallClock.now(),
       maxFramesPerStep: 1,
       frameIntervalMs: 250,
-      publishThrottleMs: 250,
+      // Mid-run report publish coalesce — lower than default to cut FS work;
+      // frame wait gate is still UiPort 50ms poll, not this value.
+      publishThrottleMs: 50,
     },
   });
 }

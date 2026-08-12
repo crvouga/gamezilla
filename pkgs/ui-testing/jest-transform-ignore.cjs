@@ -1,7 +1,16 @@
-/** Shared Jest transformIgnorePatterns that work with Bun's nested node_modules. */
+/**
+ * Shared Jest `transformIgnorePatterns` for Bun + Expo.
+ *
+ * Bun nests packages at `node_modules/.bun/<pkg@ver>/node_modules/<pkg>/…`.
+ * A naive `node_modules/(?!(pkg))` still matches the *inner* `node_modules/<pkg>`
+ * and skips transform unless `<pkg>` is allowlisted.
+ *
+ * Pattern: after any `node_modules/`, optionally skip a `.bun/<pkg@ver>/node_modules/`
+ * prefix, then require an allowlisted package name — so both classic and Bun
+ * layouts share one allowlist (and we do not babel-transform the entire Bun store).
+ */
 function bunAwareTransformIgnorePatterns(extraAllow = []) {
   const allow = [
-    '\\.bun/[^/]+/node_modules/',
     '(jest-)?react-native',
     '@react-native(-community)?',
     'expo(nent)?',
@@ -9,7 +18,8 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     '@expo-google-fonts/.*',
     'react-navigation',
     '@react-navigation/.*',
-    '@sentry/react-native',
+    '@sentry/.*',
+    '@sentry-internal/.*',
     'native-base',
     'react-native-svg',
     '@testing-library/react-native',
@@ -17,17 +27,30 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     'lucide-react-native',
     'better-auth',
     '@better-auth/.*',
+    '@better-fetch/.*',
+    'better-call',
+    'kysely',
+    'rou3',
+    'nanostores',
+    'defu',
+    'zod',
     'jose',
     'hono',
     'pg-mem',
     '@noble/.*',
+    '@dicebear/.*',
+    'mqtt',
     '@pkgs/',
     '@apps/',
     '@libs/',
     '@test/',
     ...extraAllow,
   ].join('|');
-  return [`node_modules/(?!(${allow}))`];
+  // Prefix match (same as classic jest-expo): `expo(nent)?` covers `expo-modules-core`.
+  // Optional `.bun/<pkg@ver>/node_modules/` so Bun nested layouts share the allowlist.
+  return [
+    `[/\\\\]node_modules[/\\\\](?!(?:\\.bun[/\\\\][^/]+[/\\\\]node_modules[/\\\\])?(?:${allow}))`,
+  ];
 }
 
 module.exports = { bunAwareTransformIgnorePatterns };

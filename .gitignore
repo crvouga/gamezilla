@@ -36,6 +36,12 @@ yarn-error.*
 .turbo/
 /out
 
+# Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
+**/.jest-cache/
+test/ui/.cache/
+pkgs/ui-testing/.cache/
+pkgs/simulation/.cache/
+
 # dependency-cruiser HTML (bun run deps:graph)
 tmp/package-deps-graph.html
 

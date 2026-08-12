@@ -12,7 +12,7 @@
   "scripts": {
     "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
+    "test": "bunx jest --config ./jest.config.cjs --runInBand",
     "test:debug-handles": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {

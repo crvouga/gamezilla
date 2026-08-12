@@ -22,6 +22,31 @@ product UI
   → testID={Handles.*} from @libs/dst-handles
 ```
 
+## Runner boundary (do not blur)
+
+| Suite | Runner | Where |
+|-------|--------|--------|
+| Product UI DST (`*.sim.test.tsx`) | **jest-expo** (`--runInBand`) | `@test/ui` only |
+| In-process RNTL / demo UI | **jest-expo** | `@pkgs/ui-testing`, `@pkgs/simulation` |
+| Pure logic / unit | **`bun:test`** | libs / pkgs (not this package) |
+
+`@test/ui` is DST-only: `jest.config.cjs` `testMatch` is
+`src/scenarios/**/*.sim.test.ts(x)`. Do **not** add RN component unit tests or
+Vitest here — `ClientSimulationSystem` mounts real `ExpoRoot` via RNTL and needs
+the RN Jest env + Babel pipeline (Lingui macros, `jsx-source-attr`, stubs).
+
+Why `--runInBand`: one process shares diverted `fetch`, in-memory SQLite, and the
+simulation-report `runId` marker keyed by `process.pid`. Parallel workers would
+race those globals.
+
+Jest transform cache lives at `test/ui/.cache/jest` (gitignored). CI restores it
+via `.github/actions/jest-cache` on `check-gates` / `check-verify`. Locally, warm
+reruns reuse that directory automatically.
+
+`transformIgnorePatterns` come from
+`@pkgs/ui-testing/jest-transform-ignore.cjs` (Bun-nested allowlist) — do not
+revert to “transform all of `node_modules`”.
+
 ## What changes where
 
 | Change | Touch |
@@ -43,6 +68,7 @@ suites.
 - **Scenarios** must not import `@pkgs/ui-testing` (Biome) and must not call `by.*` (`ci:dst-selector-discipline`).
 - **Drivers** (`harness/drivers/**`, `app-driver.ts`) must not use `by.text` / `by.nth` / `by.role` / `by.label`.
 - **Adapter** may use `by.testId` only. `UiPort.tap` / `input` auto-wait until visible.
+- **Package contents:** only `*.sim.test.ts(x)` under `src/scenarios/` (enforced by Jest `testMatch`; do not add other `*.test.*` here).
 
 ## Adding a scenario
 

@@ -64,7 +64,7 @@ export class ProfileFlows {
   }
 
   async expectAvatarSeed(seed: string): Promise<void> {
-    await this.ui.expectVisible(Handles.profileAvatarSeed);
+    // `expectText` waits for the handle; no separate expectVisible needed.
     await this.ui.expectText(Handles.profileAvatarSeed, seed);
   }
 }

@@ -1,5 +1,9 @@
 const path = require('node:path');
 
+const {
+  bunAwareTransformIgnorePatterns,
+} = require('../../pkgs/ui-testing/jest-transform-ignore.cjs');
+
 const repoRoot = path.join(__dirname, '../..');
 
 /** @type {import('jest').Config} */
@@ -13,9 +17,10 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   // UI waits default to 2–5s fail-fast ceilings; keep headroom for boot.
   testTimeout: 30_000,
-  // Transform all node_modules so Bun-nested ESM (.mjs / "export") loads under Jest.
-  // Skip better-sqlite3: native addon; Babel would break require of the .node binding.
-  transformIgnorePatterns: ['/node_modules/.*/better-sqlite3/'],
+  // Narrow allowlist (shared with @pkgs/ui-testing): transform RN/Expo/Bun-nested
+  // ESM that Jest cannot load as-is. Everything else — including better-sqlite3
+  // (native addon) — stays untransformed.
+  transformIgnorePatterns: bunAwareTransformIgnorePatterns(),
   transform: {
     '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': [
       require.resolve('babel-jest'),
@@ -67,5 +72,8 @@ module.exports = {
     '^@test/([^/]+)/(.*)$': `${repoRoot}/test/$1/src/$2`,
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json'],
+  // Pin under the package (not OS /tmp) so CI can persist it and so macOS
+  // tmp purge mid-run cannot ENOENT write-file-atomic renames.
+  cacheDirectory: path.join(__dirname, '.cache/jest'),
   forceExit: true,
 };

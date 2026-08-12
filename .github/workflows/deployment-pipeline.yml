@@ -7,9 +7,10 @@
 #    (root `ci:*` + `check:secrets`), `check-verify` (`tc`/`test` + root
 #    Biome `ci:lint`), `check-build` (`@apps/api|minio|postgres#build`).
 #    Each job uses per-job `actions/cache` on `.turbo`
-#    (`.github/actions/turbo-cache`) and `tools/scripts/turbo-ci-run.ts`
-#    with `--cache=local:rw,remote:rw` when Vercel Remote Cache creds
-#    are present.
+#    (`.github/actions/turbo-cache`). `check-gates` / `check-verify` also
+#    persist Jest transform caches via `.github/actions/jest-cache`.
+#    `tools/scripts/turbo-ci-run.ts` uses `--cache=local:rw,remote:rw`
+#    when Vercel Remote Cache creds are present.
 #
 # 2. Jobs that need a distinct runner shape stay separate even though the
 #    same scripts are root Turbo tasks locally (`//#check:*` in turbo.json):
@@ -71,6 +72,9 @@ jobs:
         with:
           job: check-gates
           mode: restore
+      - uses: ./.github/actions/jest-cache
+        with:
+          mode: restore
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
@@ -79,6 +83,10 @@ jobs:
           environment: dev
       - name: Turbo gates + check:secrets
         run: bun run check:ci:gates
+      - uses: ./.github/actions/jest-cache
+        if: always() && !cancelled()
+        with:
+          mode: save
       - uses: ./.github/actions/turbo-cache
         if: always() && !cancelled()
         with:
@@ -106,6 +114,9 @@ jobs:
         with:
           job: check-verify
           mode: restore
+      - uses: ./.github/actions/jest-cache
+        with:
+          mode: restore
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
@@ -114,6 +125,10 @@ jobs:
           environment: dev
       - name: Turbo tc / test + Biome lint
         run: bun run check:ci:verify
+      - uses: ./.github/actions/jest-cache
+        if: always() && !cancelled()
+        with:
+          mode: save
       - uses: ./.github/actions/turbo-cache
         if: always() && !cancelled()
         with:
