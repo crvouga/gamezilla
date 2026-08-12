@@ -341,7 +341,7 @@ footgun — prefer mutations.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
-| `openSimWorld` / Sim Lab | **true** | `!== false` |
+| `openSimWorld` | **true** | `!== false` |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -730,7 +730,6 @@ pkgs/sync-engine/src/
   server/           # createSyncApp, routes, notifyChannels
   shared/           # framework DDL, channel exhaustiveness, push types
   sim/              # deterministic multi-client simulation (not public)
-  sim-lab/          # interactive GUI over shapes domain (`bun run sim:lab`)
   test/             # in-memory engine
   tests/
     scenarios/      # black-box correctness (111 files)
@@ -761,7 +760,6 @@ mutation `onSuccess` — stay and let SQLite drive UI.
 ```bash
 bun run --filter @pkgs/sync-engine tc
 bun run --filter @pkgs/sync-engine test
-bun run --filter @pkgs/sync-engine sim:lab   # http://localhost:7788 shapes domain
 bun run ci:no-domain-hard-delete
 bun run ci:fanout-rows-from-reads
 bun run ci:channel-exhaustiveness
@@ -786,9 +784,7 @@ identical timeline.** The harness is domain-agnostic: callers inject a
 `SimDomainPack`. Scenarios compose `openSimWorld` with
 `src/domain-packs/notes-app/` (`notesDomainPack`); fuzz calls `runNotesSeed` from
 that fixture. Assert **live domain rows only** — never framework tables or
-private modules. The interactive **Sim Lab** GUI (`src/sim-lab/`) injects
-`shapesDomainPack` from `src/domain-packs/shapes-app/` — run
-`bun run --filter @pkgs/sync-engine sim:lab` (serves http://localhost:7788).
+private modules.
 
 ```text
 seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
@@ -1089,10 +1085,6 @@ src/sim/                             # domain-agnostic DST harness (not public)
 
 src/domain-packs/
   notes-app/                         # scenario domain + notesDomainPack + fuzz
-  shapes-app/                        # Sim Lab domain + shapesDomainPack
-
-src/sim-lab/                         # interactive host + web UI
-  server.ts host/ web/
 
 src/tests/
   scenarios/                         # black-box correctness suite (111 files)

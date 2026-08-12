@@ -25,12 +25,6 @@ if (!result.success) {
   throw new Error('simulation-report web build failed');
 }
 
-const css = [
-  await Bun.file(join(webDir, 'styles.css')).text(),
-  await Bun.file(join(webDir, 'styles-cmdk.css')).text(),
-].join('\n');
-await writeFile(join(distDir, 'app.css'), css, 'utf8');
-
 const indexHtml = `<!doctype html>
 <html lang="en">
   <head>
@@ -44,7 +38,6 @@ const indexHtml = `<!doctype html>
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     />
-    <link rel="stylesheet" href="/app.css" />
   </head>
   <body>
     <div id="root"></div>

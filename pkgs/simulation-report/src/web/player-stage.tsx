@@ -1,6 +1,7 @@
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
 import { SnapshotStage } from './snapshot-stage';
+import { merge, styles } from './theme';
 
 export function PlayerStage(props: {
   readonly previewFrame: FlatFrame | null;
@@ -13,25 +14,27 @@ export function PlayerStage(props: {
     : null;
 
   return (
-    <section className="detail">
-      <div className="detail-meta">
+    <section style={styles.detail}>
+      <div style={styles.detailMeta}>
         {step ? (
           <>
-            <h2 title={step.title}>{step.title}</h2>
-            <div className="meta" title={metaLine ?? undefined}>
+            <h2 style={styles.detailH2} title={step.title}>
+              {step.title}
+            </h2>
+            <div style={styles.detailMetaLine} title={metaLine ?? undefined}>
               {metaLine}
             </div>
             {step.error ? (
-              <div className="meta-error" title={step.error}>
+              <div style={styles.metaError} title={step.error}>
                 {step.error}
               </div>
             ) : null}
           </>
         ) : (
-          <div className="empty">Select a frame</div>
+          <div style={merge(styles.empty, { padding: 0 })}>Select a frame</div>
         )}
       </div>
-      <div className="preview">
+      <div style={styles.preview}>
         <SnapshotStage src={previewSrc} />
       </div>
     </section>

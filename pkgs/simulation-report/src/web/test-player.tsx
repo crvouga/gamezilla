@@ -23,6 +23,7 @@ import { playbackHoldMs } from './playback-hold';
 import { PlayerStage } from './player-stage';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
+import { badgeStyle, styles, useHoverStyle } from './theme';
 import { Transport } from './transport';
 import { useHoldCountdown } from './use-hold-countdown';
 
@@ -70,7 +71,7 @@ export function TestPlayer(props: {
   );
 
   return (
-    <div className="test-page">
+    <div style={styles.testPage}>
       <PlayerHeader
         data={data}
         testId={testId}
@@ -98,7 +99,7 @@ export function TestPlayer(props: {
           />
         }
       />
-      <div className="player-layout">
+      <div style={styles.playerLayout}>
         <FrameRail
           frames={frames}
           previewIdx={previewIdx}
@@ -128,21 +129,28 @@ function PlayerHeader(props: {
   readonly transport: ReactNode;
 }) {
   const { data, testId, frameCount, onBack, transport } = props;
+  const back = useHoverStyle(styles.back, styles.backHover);
   return (
-    <header className="test-header">
-      <button type="button" className="back" onClick={onBack}>
+    <header style={styles.testHeader}>
+      <button
+        type="button"
+        style={back.style}
+        onClick={onBack}
+        onMouseEnter={back.onMouseEnter}
+        onMouseLeave={back.onMouseLeave}
+      >
         ← Run
       </button>
-      <h1>report</h1>
-      <span className={`badge ${data.meta.status}`}>
+      <h1 style={styles.testHeaderH1}>report</h1>
+      <span style={badgeStyle(data.meta.status)}>
         {data.meta.status.toUpperCase()}
       </span>
-      <span className="meta">
+      <span style={styles.meta}>
         {testId} · seed {data.meta.seed} · {frameCount}f ·{' '}
         {formatMs(data.meta.durationMs)}
       </span>
-      <div className="header-transport">{transport}</div>
-      <span className="kbd-hint">⌘K</span>
+      <div style={styles.headerTransport}>{transport}</div>
+      <span style={styles.headerKbd}>⌘K</span>
     </header>
   );
 }

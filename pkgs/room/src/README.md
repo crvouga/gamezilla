@@ -24,7 +24,7 @@ package. Prefer scenarios + fixtures over speculation about “how room works.�
 | Cloudflare hosting | DO adapter multiplexes modules, hibernates sockets, persists per-key log + pending schedules |
 | Deterministic regression | Private DST harness (`src/sim/`) — one seed → identical timeline |
 
-**Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD, Sim Lab GUI,
+**Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD,
 bandwidth/clock-drift compensation beyond server `command.ts`, broadcasting
 effects on the wire, real chess competition UI clocks.
 

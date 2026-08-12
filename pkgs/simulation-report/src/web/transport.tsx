@@ -12,6 +12,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { FlatFrame } from './frames';
 import { formatMsStable } from './frames';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
+import { merge, styles, useHoverStyle } from './theme';
 
 function padFrame(n: number, total: number): string {
   const w = String(Math.max(total, 1)).length;
@@ -55,12 +56,16 @@ export function Transport(props: {
       ? padFrame(total, total)
       : '—'.padStart(frameDigits, '—');
 
+  const timecodeStyle: CSSProperties = merge(styles.transportTimecode, {
+    gridTemplateColumns: `calc(${frameDigits} * 1ch) 1ch calc(${frameDigits} * 1ch) 1.25ch 6ch`,
+  });
+
   return (
     <div
-      className={`transport${compact ? ' compact' : ''}`}
+      style={merge(styles.transport, compact && styles.transportCompact)}
       aria-label="Playback"
     >
-      <div className="transport-group">
+      <div style={styles.transportGroup}>
         <IconBtn
           label="Previous frame"
           size={btn ?? 'md'}
@@ -91,14 +96,14 @@ export function Transport(props: {
           <SkipForward size={compact ? 14 : 18} />
         </IconBtn>
       </div>
-      <div className="transport-group">
+      <div style={styles.transportGroup}>
         <IconBtn
           label={`Mode ${nav.mode}`}
           size="sm"
           onClick={() => onMode(nav.mode === 'realtime' ? 'fixed' : 'realtime')}
         >
           {nav.mode === 'realtime' ? <Timer size={14} /> : <Zap size={14} />}
-          <span className="transport-label transport-label-mode">
+          <span style={merge(styles.transportLabel, styles.transportLabelMode)}>
             {nav.mode}
           </span>
         </IconBtn>
@@ -108,20 +113,19 @@ export function Transport(props: {
           onClick={() => onSpeed(cycleSpeed(nav.speed))}
         >
           <Gauge size={14} />
-          <span className="transport-label transport-label-speed">
+          <span
+            style={merge(styles.transportLabel, styles.transportLabelSpeed)}
+          >
             {nav.speed}×
           </span>
         </IconBtn>
       </div>
-      <span
-        className="transport-timecode"
-        style={{ '--tc-digits': frameDigits } as CSSProperties}
-      >
-        <span className="tc-cur">{cur}</span>
-        <span className="tc-sep">/</span>
-        <span className="tc-tot">{tot}</span>
-        <span className="tc-sep">·</span>
-        <span className="tc-dur">{formatMsStable(previewDurationMs)}</span>
+      <span style={timecodeStyle}>
+        <span>{cur}</span>
+        <span style={styles.tcSep}>/</span>
+        <span>{tot}</span>
+        <span style={styles.tcSep}>·</span>
+        <span style={styles.tcDur}>{formatMsStable(previewDurationMs)}</span>
       </span>
     </div>
   );
@@ -142,14 +146,29 @@ function IconBtn(props: {
   readonly children: ReactNode;
 }) {
   const { label, size, variant, disabled, onClick, children } = props;
+  const sizeStyle =
+    size === 'sm'
+      ? styles.iconBtnSm
+      : size === 'lg'
+        ? styles.iconBtnLg
+        : styles.iconBtnMd;
+  const base = merge(
+    styles.iconBtn,
+    sizeStyle,
+    variant === 'primary' && styles.iconBtnPrimary,
+    disabled && styles.iconBtnDisabled
+  );
+  const hover = useHoverStyle(base, styles.iconBtnHover, disabled);
   return (
     <button
       type="button"
-      className={`icon-btn size-${size}${variant === 'primary' ? ' primary' : ''}`}
+      style={hover.style}
       aria-label={label}
       title={label}
       disabled={disabled}
       onClick={onClick}
+      onMouseEnter={hover.onMouseEnter}
+      onMouseLeave={hover.onMouseLeave}
     >
       {children}
     </button>

@@ -6,6 +6,7 @@ import {
   patchPreviewHtml,
   snapshotBodyHtml,
 } from './preview-html';
+import { merge, styles } from './theme';
 import { reportFetch } from './wall';
 
 const htmlCache = new Map<string, string>();
@@ -98,26 +99,27 @@ export function SnapshotStage(props: { readonly src: string | null }) {
     };
   }, [src]);
 
-  const cls = (idx: 0 | 1) =>
-    `snapshot-frame${front === idx ? ' is-front' : ' is-back'}`;
+  const frameStyle = (idx: 0 | 1) =>
+    merge(
+      styles.snapshotFrame,
+      front === idx ? styles.snapshotFront : styles.snapshotBack
+    );
 
   return (
-    <div className="snapshot-stage">
+    <div style={styles.snapshotStage}>
       <iframe
         ref={frame0Ref}
-        className={cls(0)}
+        style={frameStyle(0)}
         title="Snapshot A"
         sandbox="allow-same-origin"
       />
       <iframe
         ref={frame1Ref}
-        className={cls(1)}
+        style={frameStyle(1)}
         title="Snapshot B"
         sandbox="allow-same-origin"
       />
-      {!hasPainted ? (
-        <div className="empty preview-empty">No snapshot</div>
-      ) : null}
+      {!hasPainted ? <div style={styles.previewEmpty}>No snapshot</div> : null}
     </div>
   );
 }

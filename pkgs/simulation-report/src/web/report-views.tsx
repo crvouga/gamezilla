@@ -5,6 +5,7 @@ import { clearPlayerNav, navigateReport } from './router';
 import { RunsPage } from './runs-page';
 import { SuitePage } from './suite-page';
 import { TestPlayer } from './test-player';
+import { styles } from './theme';
 import type { ReportDataApi } from './use-report-data';
 
 export function ReportViews(props: {
@@ -57,8 +58,8 @@ export function ReportViews(props: {
   if (nav.testId) {
     if (!data.testData) {
       return (
-        <div className="suite-page">
-          <p className="empty">
+        <div style={styles.suitePage}>
+          <p style={styles.empty}>
             {data.error
               ? `Failed to load test: ${data.error}`
               : 'Loading test…'}

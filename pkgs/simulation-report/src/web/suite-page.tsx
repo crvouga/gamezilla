@@ -1,5 +1,8 @@
+import type { ReactNode } from 'react';
+
 import type { SuiteTestSummary } from '../types';
 import { formatMs } from './frames';
+import { badgeStyle, merge, styles, useHoverStyle } from './theme';
 
 export function SuitePage(props: {
   readonly bucketId: string;
@@ -10,54 +13,83 @@ export function SuitePage(props: {
 }) {
   const { bucketId, runId, tests, onBack, onOpenTest } = props;
   const passed = tests.filter((t) => t.status === 'passed').length;
+  const back = useHoverStyle(styles.back, styles.backHover);
 
   return (
-    <div className="suite-page">
-      <header>
-        <button type="button" className="back" onClick={onBack}>
+    <div style={styles.suitePage}>
+      <header style={styles.suiteHeader}>
+        <button
+          type="button"
+          style={back.style}
+          onClick={onBack}
+          onMouseEnter={back.onMouseEnter}
+          onMouseLeave={back.onMouseLeave}
+        >
           ← Runs
         </button>
-        <h1>Run {runId}</h1>
-        <span className="meta">
+        <h1 style={styles.suiteH1}>Run {runId}</h1>
+        <span style={styles.meta}>
           {bucketId} · {tests.length} test{tests.length === 1 ? '' : 's'}
           {tests.length ? ` · ${passed} passed` : ''}
         </span>
-        <span className="kbd-hint">⌘K</span>
+        <span style={styles.kbdHint}>⌘K</span>
       </header>
-      <table className="suite-table">
+      <table style={styles.suiteTable}>
         <thead>
           <tr>
-            <th>Test</th>
-            <th>Status</th>
-            <th>Duration</th>
-            <th>Steps</th>
-            <th>Frames</th>
+            <th style={styles.th}>Test</th>
+            <th style={styles.th}>Status</th>
+            <th style={styles.th}>Duration</th>
+            <th style={styles.th}>Steps</th>
+            <th style={styles.th}>Frames</th>
           </tr>
         </thead>
         <tbody>
           {tests.length === 0 ? (
             <tr>
-              <td colSpan={5} className="empty">
+              <td colSpan={5} style={styles.empty}>
                 No tests in this run yet.
               </td>
             </tr>
           ) : (
             tests.map((t) => (
-              <tr key={t.testId} onClick={() => onOpenTest(t.testId)}>
-                <td className="test-id">{t.testId}</td>
-                <td>
-                  <span className={`badge ${t.status}`}>
+              <HoverRow key={t.testId} onClick={() => onOpenTest(t.testId)}>
+                <td style={merge(styles.td, styles.testId)}>{t.testId}</td>
+                <td style={styles.td}>
+                  <span style={badgeStyle(t.status)}>
                     {t.status.toUpperCase()}
                   </span>
                 </td>
-                <td>{formatMs(t.durationMs)}</td>
-                <td>{t.stepCount}</td>
-                <td>{t.frameCount}</td>
-              </tr>
+                <td style={styles.td}>{formatMs(t.durationMs)}</td>
+                <td style={styles.td}>{t.stepCount}</td>
+                <td style={styles.td}>{t.frameCount}</td>
+              </HoverRow>
             ))
           )}
         </tbody>
       </table>
     </div>
+  );
+}
+
+export function HoverRow(props: {
+  readonly onClick?: () => void;
+  readonly children: ReactNode;
+}) {
+  const { onClick, children } = props;
+  const hover = useHoverStyle(
+    onClick ? styles.trBase : merge({ cursor: 'default' }),
+    styles.trHover,
+    !onClick
+  );
+  return (
+    <tr
+      style={hover.style}
+      onClick={onClick}
+      onMouseEnter={hover.onMouseEnter}
+      onMouseLeave={hover.onMouseLeave}
+    >
+      {children}
+    </tr>
   );
 }

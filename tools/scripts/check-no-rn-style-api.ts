@@ -47,7 +47,6 @@ const EXTRA_ALLOW = new Set([
   'pkgs/chess-board/src/chess-board-promotion.tsx',
   'pkgs/chess-board/src/chess-board-drag-preview.tsx',
   'pkgs/chess-board/src/chess-board-feedback.tsx',
-  'pkgs/sync-engine/src/sim-lab/web/app.tsx',
   'pkgs/ui-testing/src/drivers/in-process/demo-app.tsx',
 ]);
 

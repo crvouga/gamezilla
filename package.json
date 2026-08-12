@@ -81,7 +81,6 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client --filter=@apps/postgres --filter=@apps/minio",
     "psql": "bun ./apps/postgres/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
-    "sim:lab": "bun install && bun run --filter @pkgs/sync-engine sim:lab",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
     "wipe": "git clean -xfd"

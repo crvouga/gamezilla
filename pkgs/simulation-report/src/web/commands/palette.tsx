@@ -1,6 +1,8 @@
 import { Command } from 'cmdk';
 import { Search } from 'lucide-react';
+import { useState } from 'react';
 
+import { merge, styles } from '../theme';
 import { useCommands } from './registry';
 import type { Command as AppCommand, CommandSection } from './types';
 
@@ -27,49 +29,69 @@ function groupBySection(
 
 export function CommandPalette() {
   const { commands, paletteOpen, setPaletteOpen, run } = useCommands();
+  const [value, setValue] = useState('');
   if (!paletteOpen) return null;
 
   const grouped = groupBySection(commands);
 
   return (
-    <div className="cmdk-overlay" role="presentation">
+    <div style={styles.cmdkOverlay} role="presentation">
       <button
         type="button"
-        className="cmdk-backdrop"
+        style={styles.cmdkBackdrop}
         aria-label="Close command palette"
         onClick={() => setPaletteOpen(false)}
       />
       <Command
-        className="cmdk-root"
         label="Command palette"
+        value={value}
+        onValueChange={setValue}
+        style={styles.cmdkRoot}
         onKeyDown={(e) => {
           if (e.key === 'Escape') setPaletteOpen(false);
         }}
       >
-        <div className="cmdk-input-row">
+        <div style={styles.cmdkInputRow}>
           <Search size={16} aria-hidden />
-          <Command.Input placeholder="Type a command…" autoFocus />
+          <Command.Input
+            placeholder="Type a command…"
+            autoFocus
+            style={styles.cmdkInput}
+          />
         </div>
-        <Command.List>
-          <Command.Empty>No matching commands</Command.Empty>
+        <Command.List style={styles.cmdkList}>
+          <Command.Empty style={styles.cmdkEmpty}>
+            No matching commands
+          </Command.Empty>
           {[...grouped.entries()].map(([section, list]) =>
             list.length === 0 ? null : (
-              <Command.Group key={section} heading={section}>
-                {list.map((cmd) => (
-                  <Command.Item
-                    key={cmd.id}
-                    value={`${cmd.label} ${cmd.id}`}
-                    onSelect={() => {
-                      run(cmd.id);
-                      setPaletteOpen(false);
-                    }}
-                  >
-                    <span>{cmd.label}</span>
-                    {cmd.shortcut ? (
-                      <kbd className="cmdk-kbd">{cmd.shortcut}</kbd>
-                    ) : null}
-                  </Command.Item>
-                ))}
+              <Command.Group
+                key={section}
+                heading={<div style={styles.cmdkGroupHeading}>{section}</div>}
+              >
+                {list.map((cmd) => {
+                  const itemValue = `${cmd.label} ${cmd.id}`;
+                  const selected = value === itemValue;
+                  return (
+                    <Command.Item
+                      key={cmd.id}
+                      value={itemValue}
+                      style={merge(
+                        styles.cmdkItem,
+                        selected && styles.cmdkItemSelected
+                      )}
+                      onSelect={() => {
+                        run(cmd.id);
+                        setPaletteOpen(false);
+                      }}
+                    >
+                      <span>{cmd.label}</span>
+                      {cmd.shortcut ? (
+                        <kbd style={styles.cmdkKbd}>{cmd.shortcut}</kbd>
+                      ) : null}
+                    </Command.Item>
+                  );
+                })}
               </Command.Group>
             )
           )}

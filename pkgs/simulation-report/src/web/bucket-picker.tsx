@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import type { BucketInfo } from './api-client';
 import { useRegisterCommands } from './commands/registry';
 import type { Command } from './commands/types';
+import { HoverRow } from './suite-page';
+import { merge, styles } from './theme';
 
 export function BucketPicker(props: {
   readonly buckets: readonly BucketInfo[];
@@ -28,30 +30,30 @@ export function BucketPicker(props: {
   useRegisterCommands(commands);
 
   return (
-    <div className="suite-page">
-      <header>
-        <h1>simulation-report</h1>
-        <span className="meta">
+    <div style={styles.suitePage}>
+      <header style={styles.suiteHeader}>
+        <h1 style={styles.suiteH1}>simulation-report</h1>
+        <span style={styles.meta}>
           {buckets.length} bucket{buckets.length === 1 ? '' : 's'}
         </span>
-        <span className="kbd-hint">⌘K</span>
+        <span style={styles.kbdHint}>⌘K</span>
       </header>
       {buckets.length === 0 ? (
-        <p className="empty">No buckets configured.</p>
+        <p style={styles.empty}>No buckets configured.</p>
       ) : (
-        <table className="suite-table">
+        <table style={styles.suiteTable}>
           <thead>
             <tr>
-              <th>Bucket</th>
-              <th>Id</th>
+              <th style={styles.th}>Bucket</th>
+              <th style={styles.th}>Id</th>
             </tr>
           </thead>
           <tbody>
             {buckets.map((b) => (
-              <tr key={b.id} onClick={() => onOpen(b.id)}>
-                <td className="test-id">{b.label}</td>
-                <td className="meta">{b.id}</td>
-              </tr>
+              <HoverRow key={b.id} onClick={() => onOpen(b.id)}>
+                <td style={merge(styles.td, styles.testId)}>{b.label}</td>
+                <td style={merge(styles.td, styles.meta)}>{b.id}</td>
+              </HoverRow>
             ))}
           </tbody>
         </table>
