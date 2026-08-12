@@ -135,5 +135,11 @@ async function ensureSecretsFingerprint(
 
 const mode = parseMode(process.argv.slice(2));
 const main = mainTasks(mode);
+if (
+  mode === 'gates' &&
+  (process.env['TURBO_CONCURRENCY']?.trim() ?? '') === ''
+) {
+  process.env['TURBO_CONCURRENCY'] = '32';
+}
 await ensureSecretsFingerprint(main);
 process.exit(turboCiRun(main));

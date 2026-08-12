@@ -10,11 +10,18 @@
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
  *   override Vercel's default cache endpoint for local remote use.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
- *   `--filter=...[<base>]` for PR affected-package runs.
+ *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
+ *   packages but still execute named root tasks (`ci:lint`).
+ * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
+ *   `min(32, max(cpus * 2, 10))`.
  */
 import { spawnSync } from 'node:child_process';
+import { availableParallelism } from 'node:os';
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
+const MAX_CHECK_CONCURRENCY = 32;
+const MIN_CHECK_CONCURRENCY = 10;
+const CACHE_WORKERS = 16;
 
 function inCi(): boolean {
   return (
@@ -52,6 +59,15 @@ function resolveCacheFlag(env: NodeJS.ProcessEnv): string {
   return 'local:rw';
 }
 
+function resolveConcurrency(): string {
+  const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
+  if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
+  const cpus = availableParallelism();
+  return String(
+    Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus * 2, MIN_CHECK_CONCURRENCY))
+  );
+}
+
 function turboChildEnv(): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = { ...process.env };
   const orphan = env['TURBO_API'];
@@ -71,19 +87,20 @@ function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
     (a) => a.startsWith('--filter=') && a.includes('[')
   );
   if (alreadyScm) return [];
-  return [`--filter=...[${base}]`];
+  return [`--filter=...[${base}]`, '--filter=//'];
 }
 
 const env = turboChildEnv();
 const cache = resolveCacheFlag(env);
+const concurrency = resolveConcurrency();
 
 const TURBO_OUTPUT_LOGS =
   process.env['TURBO_OUTPUT_LOGS']?.trim() ||
   (inCi() ? 'hash-only' : 'new-only');
 
 const TURBO_CI_FLAGS = [
-  '--concurrency=100%',
-  '--cache-workers=4',
+  `--concurrency=${concurrency}`,
+  `--cache-workers=${String(CACHE_WORKERS)}`,
   `--cache=${cache}`,
   '--summarize',
   `--output-logs=${TURBO_OUTPUT_LOGS}`,
@@ -104,7 +121,7 @@ if (affected.length > 0) {
 }
 if (inCi()) {
   console.log(
-    `turbo-ci-run: cache=${cache}` +
+    `turbo-ci-run: cache=${cache} concurrency=${concurrency}` +
       (hasRemoteCreds(env) ? ' (remote creds present)' : ' (local only)')
   );
 }

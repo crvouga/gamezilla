@@ -22,7 +22,7 @@
     "setup": "bun run scripts/setup-dev-vars.ts",
     "stripe:check": "bun run --filter @libs/stripe check",
     "stripe:sync": "bun run --filter @libs/stripe sync",
-    "tc": "tsc --noEmit -p ../../tsconfig.json",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test src/integration/"
   },

@@ -17,7 +17,7 @@
     "check:ci:build": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-turbo.ts build",
     "check:ci:gates": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-turbo.ts gates",
     "check:ci:verify": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-turbo.ts verify",
-    "check:client": "turbo run test:integration --filter=@apps/client",
+    "check:client": "bun run tools/scripts/turbo-ci-run.ts test:integration --filter=@apps/client",
     "check:deployment-pipeline": "bun run check",
     "check:gitleaks": "gitleaks detect --redact --verbose --no-banner --log-opts=-1",
     "check:heal": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-heal.ts",
@@ -33,7 +33,7 @@
     "ci:circular-deps": "bun run tools/scripts/check-circular-deps.ts",
     "ci:component-ids": "bun run tools/scripts/check-component-ids.ts",
     "ci:database-url-policy": "bun run tools/scripts/check-database-url-policy.ts",
-    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=16384 dependency-cruise apps libs pkgs test --validate .dependency-cruiser.cjs --output-type err",
+    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs test --validate .dependency-cruiser.cjs --output-type err",
     "ci:domain-table-prefixes": "bun run tools/scripts/check-domain-table-prefixes.ts",
     "ci:fanout-rows-from-reads": "bun run tools/scripts/check-fanout-rows-from-reads.ts",
     "ci:format": "bunx biome check --error-on-warnings .",
@@ -100,12 +100,6 @@
     "shell-quote": "^1.10.0",
     "undici": "7.29.0",
     "ws": "^8.21.0"
-  },
-  "dependencies": {
-    "@pkgs/os": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*",
-    "@tools/jingle": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

@@ -1,8 +1,8 @@
 {
   "$schema": "https://v2-10-1.turborepo.dev/schema.json",
   "ui": "stream",
-  "concurrency": "10",
-  "globalDependencies": ["bun.lock", "tsconfig.json", "package.json"],
+  "concurrency": "100%",
+  "globalDependencies": ["tsconfig.json"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
@@ -52,10 +52,10 @@
       "cache": false
     },
     "tc": {
-      "dependsOn": ["^tc"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
+        "package.json",
         "tsconfig.json",
         "tsconfig.tc.json",
         "../../tsconfig.json"
@@ -64,8 +64,13 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["^tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts"],
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "package.json",
+        "jest.config.*",
+        "*.cjs"
+      ],
       "outputLogs": "new-only",
       "outputs": []
     },
@@ -97,13 +102,26 @@
       "cache": false
     },
     "test:integration": {
-      "dependsOn": ["^tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.test.ts", "**/integration/**"],
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "package.json",
+        "jest.config.*",
+        "*.cjs",
+        "**/integration/**"
+      ],
       "outputLogs": "new-only",
       "outputs": []
     },
     "//#ci:lint": {
-      "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
+      "inputs": [
+        "apps/**/*.{ts,tsx,js,jsx}",
+        "libs/**/*.{ts,tsx,js,jsx}",
+        "pkgs/**/*.{ts,tsx,js,jsx}",
+        "test/**/*.{ts,tsx,js,jsx}",
+        "biome.json",
+        "tools/biome-plugins/**"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -129,6 +147,7 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "tools/package.json",
         ".syncpackrc.cjs",
         "tools/scripts/check-catalog-deps.ts",
         "tools/scripts/check-no-patches.ts"
@@ -361,7 +380,8 @@
         "libs/**/mutations/**/*.tsx",
         "pkgs/**/mutations/**/*.ts",
         "pkgs/**/mutations/**/*.tsx",
-        "tools/scripts/check-mutation-determinism.ts"
+        "tools/scripts/check-mutation-determinism.ts",
+        "tools/scripts/check-mutation-idempotency.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -536,7 +556,10 @@
       "outputLogs": "new-only"
     },
     "//#ci:audit": {
-      "cache": false
+      "env": ["CI", "GITHUB_ACTIONS"],
+      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "//#check:static": {
       "cache": false,

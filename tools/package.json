@@ -4,5 +4,10 @@
   "private": true,
   "bin": {
     "jingle": "./jingle.ts"
+  },
+  "dependencies": {
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
   }
 }

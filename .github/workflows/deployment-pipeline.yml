@@ -87,7 +87,7 @@ jobs:
 
   # Per-package tc / test, then root Biome lint. On pull_request, turbo tasks
   # only cover packages affected since the PR base SHA (plus dependents) via
-  # TURBO_AFFECTED_BASE; Biome always scans the repo.
+  # TURBO_AFFECTED_BASE, plus root `//` so `ci:lint` always runs.
   check-verify:
     runs-on: ubuntu-latest
     env:

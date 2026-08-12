@@ -4,12 +4,6 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
-      "dependencies": {
-        "@pkgs/os": "workspace:*",
-        "@pkgs/secret-provider": "workspace:*",
-        "@pkgs/secrets-config": "workspace:*",
-        "@tools/jingle": "workspace:*",
-      },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "@lingui/cli": "catalog:",
@@ -1602,6 +1596,11 @@
       "version": "0.0.0",
       "bin": {
         "jingle": "./jingle.ts",
+      },
+      "dependencies": {
+        "@pkgs/os": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
       },
     },
   },
