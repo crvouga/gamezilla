@@ -13,18 +13,25 @@ type SerializeCtx = {
 const EXPO_FONT_RE =
   /^(.+)_(\d{3})(Regular|Medium|SemiBold|Bold|Light|Thin|Black|ExtraBold|ExtraLight)?$/;
 
+/** RN Views always contain abs children; HTML needs a positioned ancestor. */
 const VIEW_DEFAULTS =
-  'display:flex;flex-direction:column;align-items:stretch;border-width:0;border-style:solid;box-sizing:border-box';
+  'display:flex;flex-direction:column;align-items:stretch;position:relative;border-width:0;border-style:solid;box-sizing:border-box;';
 
 const BUTTON_RESET =
   'appearance:none;border:none;background:transparent;padding:0;margin:0;font:inherit;color:inherit;text-align:inherit;cursor:pointer';
+
+/** Dark app chrome (matches `@pkgs/ui` dark palette surfaces / text). */
+const SNAPSHOT_BG = 'hsla(240, 5%, 4%, 1)';
+const SNAPSHOT_FG = 'hsla(0, 0%, 98%, 1)';
+const BODY_FONT =
+  "Nunito, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
 /**
  * Serialize a React Native Testing Library / react-test-renderer `toJSON()`
  * tree into a readable HTML document for simulation reports.
  */
 export function serializeHostTreeHtml(tree: unknown): string {
-  const ctx: SerializeCtx = { fonts: new Set() };
+  const ctx: SerializeCtx = { fonts: new Set(['Nunito']) };
   const body = serializeTree(tree, ctx);
   const fontLinks = googleFontLinks([...ctx.fonts]);
   return [
@@ -33,12 +40,16 @@ export function serializeHostTreeHtml(tree: unknown): string {
     '<head>',
     '<meta charset="utf-8" />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+    '<meta name="color-scheme" content="dark" />',
     '<title>UI snapshot</title>',
     ...fontLinks,
     '<style>',
-    'html,body{margin:0;padding:0;height:100%;background:hsla(0,0%,98%,1);color:#111;}',
-    '.rn-root{display:flex;flex-direction:column;min-height:100%;height:100%;box-sizing:border-box;}',
-    'input,textarea{font:inherit;}',
+    // Mirror apps/client/public/index.html `#expo-reset` + dark shell fonts.
+    `html,body{height:100%;margin:0;padding:0;overflow:hidden;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
+    '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
+    "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
+    '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;height:100%;position:relative;box-sizing:border-box;}',
+    'input,textarea,button,span{font:inherit;color:inherit;}',
     '</style>',
     '</head>',
     `<body><div class="rn-root">${body}</div></body>`,

@@ -47,6 +47,62 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('<button');
     expect(html).toContain('<input');
     expect(html).toContain('display:flex');
+    expect(html).toContain('position:relative');
+  });
+
+  it('uses a dark expo-reset shell with consistent body fonts', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {},
+      children: null,
+    });
+    expect(html).toContain('color-scheme:dark');
+    expect(html).toContain('name="color-scheme" content="dark"');
+    expect(html).toContain('background:hsla(240, 5%, 4%, 1)');
+    expect(html).toContain('color:hsla(0, 0%, 98%, 1)');
+    expect(html).toContain('overflow:hidden');
+    expect(html).toContain('user-select:none');
+    expect(html).toContain('user-select:text');
+    expect(html).toContain('font-family:Nunito');
+    expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
+    expect(html).toContain(
+      '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;height:100%;position:relative;box-sizing:border-box;}'
+    );
+    expect(html).toContain(
+      'input,textarea,button,span{font:inherit;color:inherit;}'
+    );
+  });
+
+  it('keeps absoluteFill children inside positioned view hosts', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {
+        testID: 'button',
+        style: { overflow: 'hidden', minHeight: 40 },
+        dataSet: {
+          component: 'Button',
+          css: 'overflow:hidden;min-height:40px',
+        },
+      },
+      children: [
+        {
+          type: 'View',
+          props: {
+            dataSet: {
+              component: 'GradientBox',
+              css: 'position:absolute;top:0;right:0;bottom:0;left:0;background-image:linear-gradient(180deg,hsla(221,83%,53%,1),hsla(221,83%,53%,1))',
+            },
+          },
+          children: null,
+        },
+      ],
+    });
+    expect(html).toMatch(
+      /data-testid="button"[^>]*style="[^"]*position:relative/
+    );
+    expect(html).toContain('data-component="GradientBox"');
+    expect(html).toContain('position:absolute;top:0;right:0;bottom:0;left:0');
+    expect(html).toContain('linear-gradient');
   });
 
   it('expands RN padding/margin shorthands into real CSS', () => {

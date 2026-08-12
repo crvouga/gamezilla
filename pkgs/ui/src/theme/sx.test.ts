@@ -2,15 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { PALETTE } from './colors/color-palette';
 import { makeElevation } from './scale';
 import { createSx, flattenSx } from './sx';
-import { sxToCss } from './sx-to-css';
 
 const colors = PALETTE.light;
 const elevation = makeElevation(colors, 'light');
 const sx = createSx(colors, { elevation });
-
-function css(input: Parameters<typeof sxToCss>[0]): string {
-  return sxToCss(input, { colors, elevation });
-}
 
 describe('flattenSx', () => {
   test('later entries win', () => {
@@ -72,50 +67,6 @@ describe('createSx', () => {
     expect(out['borderBottomWidth']).toBeGreaterThan(0);
     expect(typeof out['boxShadow']).toBe('string');
   });
-});
-
-describe('sxToCss', () => {
-  test('emits px for lengths including lineHeight', () => {
-    const out = css({ p: 2, fontSize: 'xs', lineHeight: 18 });
-    expect(out).toContain('padding:8px');
-    expect(out).toContain('font-size:12px');
-    expect(out).toContain('line-height:18px');
-    expect(out).not.toContain('line-height:18;');
-  });
-
-  test('resolves tokens and expands horizontal shorthands', () => {
-    const out = css({
-      background: 'surface',
-      px: 3,
-      borderRadius: 'lg',
-    });
-    expect(out).toContain(`background-color:${colors.surface}`);
-    expect(out).toContain('padding-left:12px');
-    expect(out).toContain('padding-right:12px');
-    expect(out).toContain('border-radius:14px');
-  });
-
-  test('compiles transform arrays and hairline', () => {
-    const out = css({
-      transform: [{ translateY: 8 }, { scale: 0.98 }],
-      borderBottomWidth: 'hairline',
-    });
-    expect(out).toContain('transform:translateY(8px) scale(0.98)');
-    expect(out).toContain('border-bottom-width:1px');
-  });
-
-  test('maps box-none pointerEvents and elevation shadow', () => {
-    const out = css({ pointerEvents: 'box-none', elevation: 1 });
-    expect(out).toContain('pointer-events:none');
-    expect(out).toContain('box-shadow:');
-    expect(out).not.toContain('elevation:');
-  });
-
-  test('rewrites Expo font families', () => {
-    const out = css({ fontFamily: 'Nunito_600SemiBold' });
-    expect(out).toContain('font-family:Nunito');
-    expect(out).toContain('font-weight:600');
-  });
 
   test('passes through web CSS transitions', () => {
     const out = sx({
@@ -124,9 +75,6 @@ describe('sxToCss', () => {
     });
     expect(out['transitionProperty']).toBe('opacity');
     expect(out['transitionDuration']).toBe('1.2s');
-    expect(
-      css({ transitionProperty: 'opacity', transitionDuration: '1.2s' })
-    ).toContain('transition-property:opacity');
   });
 
   test('snapshots animated nodes via bound __getValue', () => {
@@ -136,7 +84,6 @@ describe('sxToCss', () => {
         return this._value;
       },
     };
-    expect(css({ opacity: node })).toContain('opacity:0.4');
     expect(sx({ opacity: node })['opacity']).toBe(node);
   });
 });

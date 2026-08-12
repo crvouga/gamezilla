@@ -71,13 +71,14 @@ header h1 { margin: 0; font-size: 16px; font-weight: 650; }
   color: var(--fail); font-size: 12px;
 }
 .preview {
-  flex: 1; min-height: 0; background: #e5e7eb; padding: 12px;
-  display: flex; justify-content: center;
+  flex: 1; min-height: 0; background: #0b1220; padding: 12px;
+  display: flex; justify-content: center; align-items: flex-start;
+  overflow: auto;
 }
 .preview iframe {
-  width: 390px; max-width: 100%; height: 100%;
-  border: 1px solid #9ca3af; border-radius: 8px;
-  background: #fff;
+  width: 390px; max-width: 100%; height: 844px; min-height: 844px;
+  border: 1px solid #374151; border-radius: 8px;
+  background: hsla(240, 5%, 4%, 1);
 }
 .empty { color: var(--muted); padding: 24px; }
 @media (max-width: 860px) {
@@ -99,7 +100,7 @@ header h1 { margin: 0; font-size: 16px; font-weight: 650; }
       <div class="empty">Select a step</div>
     </div>
     <div class="preview">
-      <iframe id="preview" title="UI snapshot" sandbox=""></iframe>
+      <iframe id="preview" title="UI snapshot" sandbox="allow-same-origin"></iframe>
     </div>
   </section>
 </div>

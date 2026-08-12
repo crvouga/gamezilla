@@ -1,13 +1,18 @@
 /**
  * Compile `SxProps` to a CSS declaration string for HTML reports.
+ *
+ * Hot path: walk the sparse input keys (typical sx has a handful of
+ * properties) and dispatch — never scan the full style table.
  */
 
 import type { ColorTokens } from './colors';
+import type { ElevationLevel } from './scale';
 import {
   flattenSx,
   type SxCompileOptions,
   type SxInput,
   type SxProps,
+  type SxRadius,
   type SxTransform,
 } from './sx-props';
 import {
@@ -19,342 +24,339 @@ import {
   snapshotAnimated,
 } from './sx-resolve';
 
-const UNITLESS = new Set([
-  'flex',
-  'flexGrow',
-  'flexShrink',
-  'opacity',
-  'zIndex',
-  'fontWeight',
-  'aspectRatio',
-  'animationIterationCount',
-]);
+type Ctx = {
+  d: string[];
+  colors: ColorTokens;
+  elevation: SxCompileOptions['elevation'];
+  props: SxProps;
+};
+
+type Writer = (value: unknown, ctx: Ctx) => void;
 
 const EXPO_FONT_RE =
   /^(.+)_(\d{3})(Regular|Medium|SemiBold|Bold|Light|Thin|Black|ExtraBold|ExtraLight)?$/;
 
-const SKIP_CSS = new Set([
-  'elevation',
-  'includeFontPadding',
-  'textAlignVertical',
-  'animationName',
-]);
+const TRANSFORM_PX: Record<string, 1 | undefined> = {
+  translateX: 1,
+  translateY: 1,
+  perspective: 1,
+};
 
-const SPACING_CSS: ReadonlyArray<readonly [keyof SxProps, string]> = [
-  ['p', 'padding'],
-  ['px', 'padding-left'],
-  ['py', 'padding-top'],
-  ['pt', 'padding-top'],
-  ['pb', 'padding-bottom'],
-  ['pl', 'padding-left'],
-  ['pr', 'padding-right'],
-  ['m', 'margin'],
-  ['mx', 'margin-left'],
-  ['my', 'margin-top'],
-  ['mt', 'margin-top'],
-  ['mb', 'margin-bottom'],
-  ['ml', 'margin-left'],
-  ['mr', 'margin-right'],
-  ['gap', 'gap'],
-  ['rowGap', 'row-gap'],
-  ['columnGap', 'column-gap'],
-];
-
-const PAIR_CSS: ReadonlyArray<readonly [keyof SxProps, string, string]> = [
-  ['px', 'padding-right', 'padding-left'],
-  ['py', 'padding-bottom', 'padding-top'],
-  ['mx', 'margin-right', 'margin-left'],
-  ['my', 'margin-bottom', 'margin-top'],
-  ['paddingHorizontal', 'padding-left', 'padding-right'],
-  ['paddingVertical', 'padding-top', 'padding-bottom'],
-  ['marginHorizontal', 'margin-left', 'margin-right'],
-  ['marginVertical', 'margin-top', 'margin-bottom'],
-];
-
-const DIRECT_CSS: ReadonlyArray<readonly [keyof SxProps, string]> = [
-  ['padding', 'padding'],
-  ['paddingTop', 'padding-top'],
-  ['paddingBottom', 'padding-bottom'],
-  ['paddingLeft', 'padding-left'],
-  ['paddingRight', 'padding-right'],
-  ['paddingStart', 'padding-inline-start'],
-  ['paddingEnd', 'padding-inline-end'],
-  ['margin', 'margin'],
-  ['marginTop', 'margin-top'],
-  ['marginBottom', 'margin-bottom'],
-  ['marginLeft', 'margin-left'],
-  ['marginRight', 'margin-right'],
-  ['marginStart', 'margin-inline-start'],
-  ['marginEnd', 'margin-inline-end'],
-  ['flex', 'flex'],
-  ['flexGrow', 'flex-grow'],
-  ['flexShrink', 'flex-shrink'],
-  ['flexBasis', 'flex-basis'],
-  ['flexDirection', 'flex-direction'],
-  ['flexWrap', 'flex-wrap'],
-  ['alignItems', 'align-items'],
-  ['alignSelf', 'align-self'],
-  ['alignContent', 'align-content'],
-  ['justifyContent', 'justify-content'],
-  ['display', 'display'],
-  ['borderWidth', 'border-width'],
-  ['borderTopWidth', 'border-top-width'],
-  ['borderRightWidth', 'border-right-width'],
-  ['borderLeftWidth', 'border-left-width'],
-  ['borderStyle', 'border-style'],
-  ['fontWeight', 'font-weight'],
-  ['fontStyle', 'font-style'],
-  ['fontVariant', 'font-variant'],
-  ['letterSpacing', 'letter-spacing'],
-  ['textAlign', 'text-align'],
-  ['textDecorationLine', 'text-decoration-line'],
-  ['textTransform', 'text-transform'],
-  ['userSelect', 'user-select'],
-  ['overflow', 'overflow'],
-  ['overflowX', 'overflow-x'],
-  ['overflowY', 'overflow-y'],
-  ['position', 'position'],
-  ['top', 'top'],
-  ['right', 'right'],
-  ['bottom', 'bottom'],
-  ['left', 'left'],
-  ['start', 'inset-inline-start'],
-  ['end', 'inset-inline-end'],
-  ['zIndex', 'z-index'],
-  ['width', 'width'],
-  ['height', 'height'],
-  ['minWidth', 'min-width'],
-  ['maxWidth', 'max-width'],
-  ['minHeight', 'min-height'],
-  ['maxHeight', 'max-height'],
-  ['aspectRatio', 'aspect-ratio'],
-  ['boxShadow', 'box-shadow'],
-  ['transformOrigin', 'transform-origin'],
-  ['cursor', 'cursor'],
-  ['outlineStyle', 'outline-style'],
-  ['outlineWidth', 'outline-width'],
-  ['outlineOffset', 'outline-offset'],
-  ['animationDuration', 'animation-duration'],
-  ['animationIterationCount', 'animation-iteration-count'],
-  ['transitionProperty', 'transition-property'],
-  ['transitionDuration', 'transition-duration'],
-];
-
-function cssNumber(key: string, value: number): string {
-  if (UNITLESS.has(key) || value === 0) return String(value);
-  return `${value}px`;
+function pushPx(d: string[], key: string, n: number): void {
+  d.push(key + ':' + (n === 0 ? '0' : n + 'px'));
 }
 
-function cssValue(key: string, value: unknown): string | undefined {
-  if (value == null || SKIP_CSS.has(key)) return undefined;
-  if (typeof value === 'object') {
-    const n = snapshotAnimated(value);
-    if (n === undefined) return undefined;
-    return cssNumber(key, n);
-  }
-  if (typeof value === 'number') return cssNumber(key, value);
-  return String(value);
+function toLength(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === 'number') return value === 0 ? '0' : value + 'px';
+  if (typeof value !== 'object') return value as string;
+  const n = snapshotAnimated(value);
+  if (n === undefined) return undefined;
+  return n === 0 ? '0' : n + 'px';
 }
 
-function pushDecl(decls: string[], cssKey: string, value: unknown): void {
-  const v = cssValue(cssKey, value);
-  if (v === undefined) return;
-  decls.push(`${cssKey}:${v}`);
+function toUnitless(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === 'number') return '' + value;
+  if (typeof value !== 'object') return value as string;
+  const n = snapshotAnimated(value);
+  return n === undefined ? undefined : '' + n;
 }
 
-function pushFontFamily(decls: string[], fontFamily: string): void {
-  const match = EXPO_FONT_RE.exec(fontFamily);
-  if (match?.[1] && match[2]) {
-    const family = /^[A-Za-z0-9-]+$/.test(match[1])
-      ? match[1]
-      : `"${match[1].replace(/"/g, '')}"`;
-    decls.push(`font-family:${family}`);
-    decls.push(`font-weight:${match[2]}`);
+function scaled(cssKey: string): Writer {
+  return (value, ctx) => {
+    if (typeof value === 'number') pushPx(ctx.d, cssKey, resolveSpacing(value));
+  };
+}
+
+function scaledPair(a: string, b: string): Writer {
+  return (value, ctx) => {
+    if (typeof value !== 'number') return;
+    const n = resolveSpacing(value);
+    pushPx(ctx.d, a, n);
+    pushPx(ctx.d, b, n);
+  };
+}
+
+function rawPair(a: string, b: string): Writer {
+  return (value, ctx) => {
+    if (typeof value !== 'number') return;
+    pushPx(ctx.d, a, value);
+    pushPx(ctx.d, b, value);
+  };
+}
+
+function length(cssKey: string): Writer {
+  return (value, ctx) => {
+    const v = toLength(value);
+    if (v !== undefined) ctx.d.push(cssKey + ':' + v);
+  };
+}
+
+function unitless(cssKey: string): Writer {
+  return (value, ctx) => {
+    const v = toUnitless(value);
+    if (v !== undefined) ctx.d.push(cssKey + ':' + v);
+  };
+}
+
+function keyword(cssKey: string): Writer {
+  return (value, ctx) => {
+    if (value != null) ctx.d.push(cssKey + ':' + value);
+  };
+}
+
+function color(cssKey: string): Writer {
+  return (value, ctx) => {
+    if (value == null) return;
+    const c = resolveColor(value as string, ctx.colors);
+    if (c !== undefined) ctx.d.push(cssKey + ':' + c);
+  };
+}
+
+function radius(cssKey: string): Writer {
+  return (value, ctx) => {
+    const n = resolveRadius(value as SxRadius | undefined);
+    if (n !== undefined) pushPx(ctx.d, cssKey, n);
+  };
+}
+
+const writeBg = color('background-color');
+
+function writeBackgroundColor(value: unknown, ctx: Ctx): void {
+  if (ctx.props.background !== undefined) return;
+  writeBg(value, ctx);
+}
+
+function writeAbsoluteFill(value: unknown, ctx: Ctx): void {
+  if (value !== true) return;
+  ctx.d.push('position:absolute', 'top:0', 'right:0', 'bottom:0', 'left:0');
+}
+
+function writeInset(value: unknown, ctx: Ctx): void {
+  if (typeof value !== 'number') return;
+  const v = value === 0 ? '0' : value + 'px';
+  ctx.d.push('top:' + v, 'right:' + v, 'bottom:' + v, 'left:' + v);
+}
+
+function quoteFamily(name: string): string {
+  return /^[A-Za-z0-9-]+$/.test(name)
+    ? name
+    : '"' + name.replace(/"/g, '') + '"';
+}
+
+function writeFontFamily(value: unknown, ctx: Ctx): void {
+  if (typeof value !== 'string') return;
+  const match = EXPO_FONT_RE.exec(value);
+  const family = match?.[1];
+  const weight = match?.[2];
+  if (family !== undefined && weight !== undefined) {
+    ctx.d.push('font-family:' + quoteFamily(family));
+    ctx.d.push('font-weight:' + weight);
     return;
   }
-  const family = /^[A-Za-z0-9-]+$/.test(fontFamily)
-    ? fontFamily
-    : `"${fontFamily.replace(/"/g, '')}"`;
-  decls.push(`font-family:${family}`);
+  ctx.d.push('font-family:' + quoteFamily(value));
 }
 
-const TRANSFORM_PX = new Set(['translateX', 'translateY', 'perspective']);
+function writeFontSize(value: unknown, ctx: Ctx): void {
+  const n = resolveFontSize(value as SxProps['fontSize']);
+  if (n !== undefined) pushPx(ctx.d, 'font-size', n);
+}
+
+function writeLineHeight(value: unknown, ctx: Ctx): void {
+  const n = resolveLineHeight(value as SxProps['lineHeight']);
+  if (n !== undefined) pushPx(ctx.d, 'line-height', n);
+}
+
+function writeOpacity(value: unknown, ctx: Ctx): void {
+  const n = typeof value === 'number' ? value : snapshotAnimated(value);
+  if (n !== undefined) ctx.d.push('opacity:' + n);
+}
+
+function writeBorderBottomWidth(value: unknown, ctx: Ctx): void {
+  if (value === undefined) return;
+  const v = toLength(value === 'hairline' ? 1 : value);
+  if (v !== undefined) ctx.d.push('border-bottom-width:' + v);
+}
 
 function transformPiece(t: SxTransform): string | undefined {
-  const entry = Object.entries(t)[0];
-  if (entry === undefined) return undefined;
-  const [key, value] = entry;
-  if (TRANSFORM_PX.has(key)) return `${key}(${value}px)`;
-  return `${key}(${value})`;
-}
-
-function transformToCss(list: readonly SxTransform[]): string {
-  return list
-    .map(transformPiece)
-    .filter((part): part is string => part !== undefined)
-    .join(' ');
-}
-
-function pointerEventsCss(value: SxProps['pointerEvents']): string | undefined {
-  if (value === 'none' || value === 'box-none') return 'none';
-  if (value === 'auto') return 'auto';
+  for (const key in t) {
+    const raw = (t as Record<string, unknown>)[key];
+    if (raw == null) continue;
+    return TRANSFORM_PX[key] === 1
+      ? key + '(' + raw + 'px)'
+      : key + '(' + raw + ')';
+  }
   return undefined;
 }
 
-function pushFillAndInset(props: SxProps, decls: string[]): void {
-  if (props.absoluteFill === true) {
-    decls.push('position:absolute');
-    decls.push('top:0');
-    decls.push('right:0');
-    decls.push('bottom:0');
-    decls.push('left:0');
+function transformToCss(list: readonly SxTransform[]): string {
+  let out = '';
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    if (item === undefined) continue;
+    const part = transformPiece(item);
+    if (part === undefined) continue;
+    out = out.length === 0 ? part : out + ' ' + part;
   }
-  if (typeof props.inset === 'number') {
-    const v = cssNumber('inset', props.inset);
-    decls.push(`top:${v}`, `right:${v}`, `bottom:${v}`, `left:${v}`);
-  }
+  return out;
 }
 
-function pushScaledSpacing(props: SxProps, decls: string[]): void {
-  for (const [from, cssKey] of SPACING_CSS) {
-    const v = props[from];
-    if (typeof v !== 'number') continue;
-    pushDecl(decls, cssKey, resolveSpacing(v));
-  }
-  for (const [from, a, b] of PAIR_CSS) {
-    if (from === 'px' || from === 'py' || from === 'mx' || from === 'my') {
-      const v = props[from];
-      if (typeof v !== 'number') continue;
-      pushDecl(decls, a, resolveSpacing(v));
-      continue;
-    }
-    const raw = props[from];
-    if (typeof raw !== 'number') continue;
-    pushDecl(decls, a, raw);
-    pushDecl(decls, b, raw);
-  }
+function writeTransform(value: unknown, ctx: Ctx): void {
+  if (!Array.isArray(value)) return;
+  const css = transformToCss(value as readonly SxTransform[]);
+  if (css.length > 0) ctx.d.push('transform:' + css);
 }
 
-function pushDirect(props: SxProps, decls: string[]): void {
-  for (const [from, cssKey] of DIRECT_CSS) {
-    const v = props[from];
-    if (v !== undefined) pushDecl(decls, cssKey, v);
+function writePointerEvents(value: unknown, ctx: Ctx): void {
+  if (value === 'none' || value === 'box-none') {
+    ctx.d.push('pointer-events:none');
+    return;
   }
+  if (value === 'auto') ctx.d.push('pointer-events:auto');
 }
 
-function pushColors(
-  props: SxProps,
-  decls: string[],
-  colors: ColorTokens
-): void {
-  const bg = props.background ?? props.backgroundColor;
-  if (bg !== undefined) {
-    pushDecl(decls, 'background-color', resolveColor(bg, colors));
-  }
-  if (props.color !== undefined) {
-    pushDecl(decls, 'color', resolveColor(props.color, colors));
-  }
-  if (props.borderColor !== undefined) {
-    pushDecl(decls, 'border-color', resolveColor(props.borderColor, colors));
-  }
-  if (props.outlineColor !== undefined) {
-    pushDecl(decls, 'outline-color', resolveColor(props.outlineColor, colors));
-  }
-  const sides = [
-    ['borderTopColor', 'border-top-color'],
-    ['borderRightColor', 'border-right-color'],
-    ['borderBottomColor', 'border-bottom-color'],
-    ['borderLeftColor', 'border-left-color'],
-  ] as const;
-  for (const [from, cssKey] of sides) {
-    const v = props[from];
-    if (v !== undefined) pushDecl(decls, cssKey, resolveColor(v, colors));
-  }
-}
-
-function pushRadius(props: SxProps, decls: string[]): void {
-  const keys = [
-    ['borderRadius', 'border-radius'],
-    ['borderTopLeftRadius', 'border-top-left-radius'],
-    ['borderTopRightRadius', 'border-top-right-radius'],
-    ['borderBottomLeftRadius', 'border-bottom-left-radius'],
-    ['borderBottomRightRadius', 'border-bottom-right-radius'],
-  ] as const;
-  for (const [from, cssKey] of keys) {
-    const n = resolveRadius(props[from]);
-    if (n !== undefined) pushDecl(decls, cssKey, n);
-  }
-}
-
-function hairlineOrWidth(value: number | 'hairline'): number {
-  return value === 'hairline' ? 1 : value;
-}
-
-function pushTypeAndMotion(props: SxProps, decls: string[]): void {
-  if (props.borderBottomWidth !== undefined) {
-    pushDecl(
-      decls,
-      'border-bottom-width',
-      hairlineOrWidth(props.borderBottomWidth)
-    );
-  }
-  if (props.fontSize !== undefined) {
-    pushDecl(decls, 'font-size', resolveFontSize(props.fontSize));
-  }
-  if (props.lineHeight !== undefined) {
-    pushDecl(decls, 'line-height', resolveLineHeight(props.lineHeight));
-  }
-  if (props.fontFamily !== undefined) pushFontFamily(decls, props.fontFamily);
-  if (props.opacity !== undefined) {
-    const opacity =
-      typeof props.opacity === 'number'
-        ? props.opacity
-        : snapshotAnimated(props.opacity);
-    if (opacity !== undefined) decls.push(`opacity:${opacity}`);
-  }
-  if (props.transform !== undefined) {
-    const css = transformToCss(props.transform);
-    if (css.length > 0) decls.push(`transform:${css}`);
-  }
-  const pe = pointerEventsCss(props.pointerEvents);
-  if (pe !== undefined) decls.push(`pointer-events:${pe}`);
-}
-
-function pushElevationCss(
-  props: SxProps,
-  decls: string[],
-  options: SxCompileOptions
-): void {
-  if (props.elevation === undefined) return;
-  const shadow = options.elevation(props.elevation);
+function writeElevation(value: unknown, ctx: Ctx): void {
+  if (value === undefined) return;
+  const shadow = ctx.elevation(value as ElevationLevel);
+  const { props, d } = ctx;
   if (shadow.boxShadow && props.boxShadow === undefined) {
-    decls.push(`box-shadow:${shadow.boxShadow}`);
+    d.push('box-shadow:' + shadow.boxShadow);
   }
   if (shadow.backgroundColor === undefined) return;
   if (props.background !== undefined || props.backgroundColor !== undefined) {
     return;
   }
-  decls.push(`background-color:${shadow.backgroundColor}`);
+  d.push('background-color:' + shadow.backgroundColor);
 }
 
-function pushRest(
-  props: SxProps,
-  decls: string[],
-  options: SxCompileOptions
-): void {
-  pushTypeAndMotion(props, decls);
-  pushElevationCss(props, decls, options);
-}
+const WRITERS = {
+  p: scaled('padding'),
+  px: scaledPair('padding-left', 'padding-right'),
+  py: scaledPair('padding-top', 'padding-bottom'),
+  pt: scaled('padding-top'),
+  pb: scaled('padding-bottom'),
+  pl: scaled('padding-left'),
+  pr: scaled('padding-right'),
+  m: scaled('margin'),
+  mx: scaledPair('margin-left', 'margin-right'),
+  my: scaledPair('margin-top', 'margin-bottom'),
+  mt: scaled('margin-top'),
+  mb: scaled('margin-bottom'),
+  ml: scaled('margin-left'),
+  mr: scaled('margin-right'),
+  gap: scaled('gap'),
+  rowGap: scaled('row-gap'),
+  columnGap: scaled('column-gap'),
+  padding: length('padding'),
+  paddingHorizontal: rawPair('padding-left', 'padding-right'),
+  paddingVertical: rawPair('padding-top', 'padding-bottom'),
+  paddingTop: length('padding-top'),
+  paddingBottom: length('padding-bottom'),
+  paddingLeft: length('padding-left'),
+  paddingRight: length('padding-right'),
+  paddingStart: length('padding-inline-start'),
+  paddingEnd: length('padding-inline-end'),
+  margin: length('margin'),
+  marginHorizontal: rawPair('margin-left', 'margin-right'),
+  marginVertical: rawPair('margin-top', 'margin-bottom'),
+  marginTop: length('margin-top'),
+  marginBottom: length('margin-bottom'),
+  marginLeft: length('margin-left'),
+  marginRight: length('margin-right'),
+  marginStart: length('margin-inline-start'),
+  marginEnd: length('margin-inline-end'),
+  flex: unitless('flex'),
+  flexGrow: unitless('flex-grow'),
+  flexShrink: unitless('flex-shrink'),
+  flexBasis: length('flex-basis'),
+  flexDirection: keyword('flex-direction'),
+  flexWrap: keyword('flex-wrap'),
+  alignItems: keyword('align-items'),
+  alignSelf: keyword('align-self'),
+  alignContent: keyword('align-content'),
+  justifyContent: keyword('justify-content'),
+  display: keyword('display'),
+  background: writeBg,
+  backgroundColor: writeBackgroundColor,
+  color: color('color'),
+  borderWidth: length('border-width'),
+  borderTopWidth: length('border-top-width'),
+  borderRightWidth: length('border-right-width'),
+  borderBottomWidth: writeBorderBottomWidth,
+  borderLeftWidth: length('border-left-width'),
+  borderColor: color('border-color'),
+  borderTopColor: color('border-top-color'),
+  borderRightColor: color('border-right-color'),
+  borderBottomColor: color('border-bottom-color'),
+  borderLeftColor: color('border-left-color'),
+  borderRadius: radius('border-radius'),
+  borderTopLeftRadius: radius('border-top-left-radius'),
+  borderTopRightRadius: radius('border-top-right-radius'),
+  borderBottomLeftRadius: radius('border-bottom-left-radius'),
+  borderBottomRightRadius: radius('border-bottom-right-radius'),
+  borderStyle: keyword('border-style'),
+  fontSize: writeFontSize,
+  fontWeight: unitless('font-weight'),
+  fontFamily: writeFontFamily,
+  fontStyle: keyword('font-style'),
+  fontVariant: keyword('font-variant'),
+  lineHeight: writeLineHeight,
+  letterSpacing: length('letter-spacing'),
+  textAlign: keyword('text-align'),
+  textDecorationLine: keyword('text-decoration-line'),
+  textTransform: keyword('text-transform'),
+  userSelect: keyword('user-select'),
+  opacity: writeOpacity,
+  overflow: keyword('overflow'),
+  overflowX: keyword('overflow-x'),
+  overflowY: keyword('overflow-y'),
+  position: keyword('position'),
+  top: length('top'),
+  right: length('right'),
+  bottom: length('bottom'),
+  left: length('left'),
+  start: length('inset-inline-start'),
+  end: length('inset-inline-end'),
+  inset: writeInset,
+  zIndex: unitless('z-index'),
+  width: length('width'),
+  height: length('height'),
+  minWidth: length('min-width'),
+  maxWidth: length('max-width'),
+  minHeight: length('min-height'),
+  maxHeight: length('max-height'),
+  aspectRatio: unitless('aspect-ratio'),
+  absoluteFill: writeAbsoluteFill,
+  elevation: writeElevation,
+  boxShadow: keyword('box-shadow'),
+  transform: writeTransform,
+  transformOrigin: keyword('transform-origin'),
+  pointerEvents: writePointerEvents,
+  cursor: keyword('cursor'),
+  outlineStyle: keyword('outline-style'),
+  outlineWidth: length('outline-width'),
+  outlineColor: color('outline-color'),
+  outlineOffset: length('outline-offset'),
+  animationIterationCount: unitless('animation-iteration-count'),
+  animationDuration: keyword('animation-duration'),
+  transitionProperty: keyword('transition-property'),
+  transitionDuration: keyword('transition-duration'),
+} satisfies { [K in keyof SxProps]?: Writer };
+
+const WRITE: Record<string, Writer | undefined> = WRITERS;
 
 export function sxToCss(input: SxInput, options: SxCompileOptions): string {
   const props = flattenSx(input);
   if (props === undefined) return '';
-  const decls: string[] = [];
-  pushFillAndInset(props, decls);
-  pushScaledSpacing(props, decls);
-  pushDirect(props, decls);
-  pushColors(props, decls, options.colors);
-  pushRadius(props, decls);
-  pushRest(props, decls, options);
-  return decls.join(';');
+  const ctx: Ctx = {
+    d: [],
+    colors: options.colors,
+    elevation: options.elevation,
+    props,
+  };
+  for (const key in props) {
+    WRITE[key]?.((props as Record<string, unknown>)[key], ctx);
+  }
+  return ctx.d.join(';');
 }

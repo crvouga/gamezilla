@@ -10,7 +10,24 @@ require('@pkgs/logger').setDefaultLogLevel('error');
 // Product sims unmount in `sim.dispose()`. RNTL afterEach `cleanup()` would
 // call the same async `act(unmount)` again and hang (180s hook timeout).
 process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
-const { NativeModules } = require('react-native');
+const { Appearance, Dimensions, NativeModules } = require('react-native');
+
+// Phone frame matching the simulation report iframe (390×844).
+const PHONE_WINDOW = {
+  width: 390,
+  height: 844,
+  scale: 3,
+  fontScale: 1,
+};
+Dimensions.set({ window: PHONE_WINDOW, screen: PHONE_WINDOW });
+
+// Dark theme tokens in `dataSet.css` (AppThemeRoot follows system appearance).
+if (typeof Appearance.setColorScheme === 'function') {
+  Appearance.setColorScheme('dark');
+}
+jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({
+  default: () => 'dark',
+}));
 
 if (NativeModules.SourceCode == null) {
   NativeModules.SourceCode = {};
