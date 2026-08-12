@@ -54,7 +54,7 @@ export interface RenderedApp {
   ): Promise<void>;
 
   /** Unmount and dispose the rendered tree. */
-  unmount(): void;
+  unmount(): void | Promise<void>;
 
   /**
    * Optional HTML preview of the current host tree for simulation reports.

@@ -92,9 +92,7 @@ export function createRenderedAppFromRntl(
       const x = direction === 'right' ? amount : -amount;
       await user.scrollTo(instance, { x });
     },
-    unmount: () => {
-      result.unmount();
-    },
+    unmount: () => result.unmount(),
     snapshotHtml: () => serializeHostTreeHtml(result.toJSON()),
   };
   if (options.activate !== undefined) {

@@ -16,6 +16,12 @@ export type NotifyChannelsOptions = {
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
   /** Included in warn logs when publish fails. */
   readonly label?: string;
+  /**
+   * When set, publish runs on this scheduler after allocate. Use a macrotask
+   * (`io.timers.setTimeout(run, 0)`) so in-memory pubsub does not re-enter the
+   * still-open request (overlapping pg-mem / Hono hangs under Jest).
+   */
+  readonly schedulePublish?: (run: () => void) => void;
 };
 
 /**
@@ -31,13 +37,20 @@ export async function notifyChannels(
   const label = options.label ?? 'notifyChannels';
   try {
     const pushSeqs = await allocateTopicPushSeqs(options.sql, options.topics);
-    publishPushMessages({
-      pubsub: options.pubsub,
-      pushSeqs,
-      ...(options.tables !== undefined ? { tables: options.tables } : {}),
-      ...(options.rows !== undefined ? { rows: options.rows } : {}),
-      label,
-    });
+    const publish = (): void => {
+      publishPushMessages({
+        pubsub: options.pubsub,
+        pushSeqs,
+        ...(options.tables !== undefined ? { tables: options.tables } : {}),
+        ...(options.rows !== undefined ? { rows: options.rows } : {}),
+        label,
+      });
+    };
+    if (options.schedulePublish !== undefined) {
+      options.schedulePublish(publish);
+    } else {
+      publish();
+    }
   } catch (error: unknown) {
     console.warn(`[pubsub] allocate/publish failed label=${label}`, error);
   }

@@ -2,6 +2,10 @@
  * Runs before the test module graph loads (see Jest setupFiles).
  * RN getDevServer() needs a non-null scriptURL for Expo / expo-router.
  */
+
+// Product sims unmount in `sim.dispose()`. RNTL afterEach `cleanup()` would
+// call the same async `act(unmount)` again and hang (180s hook timeout).
+process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
 const { NativeModules } = require('react-native');
 
 if (NativeModules.SourceCode == null) {

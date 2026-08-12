@@ -66,7 +66,7 @@ export class InProcessDriver<TContext = void> implements Driver {
   }
 
   async close(): Promise<void> {
-    this.app?.unmount();
+    await this.app?.unmount();
     this.app = undefined;
     if (this.harness.teardown && this.context !== undefined) {
       await this.harness.teardown(this.context);

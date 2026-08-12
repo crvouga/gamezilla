@@ -236,9 +236,9 @@ async function bootSimBackend(io: SimIo): Promise<SimBackend> {
 function wrapRenderedApp(app: RenderedApp): RenderedApp {
   return {
     ...app,
-    unmount: () => {
+    unmount: async () => {
       try {
-        app.unmount();
+        await app.unmount();
       } catch {
         // expo-router / DevMenu teardown can throw once Jest starts tearing down.
       }

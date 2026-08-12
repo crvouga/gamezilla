@@ -269,9 +269,13 @@ async function runSignOut(ctx: AdapterContext): Promise<void> {
     clearReactSessionAtom(ctx);
     // Allow capture again after BA's deferred session-signal refetch (~10ms).
     ctx.timers.setTimeout(() => {
-      ctx.bearerStore.setSuppressCapture(false);
-      ctx.bearerStore.clearSync();
-      void ctx.bearerStore.clear();
+      try {
+        ctx.bearerStore.setSuppressCapture(false);
+        ctx.bearerStore.clearSync();
+        void ctx.bearerStore.clear().catch(() => undefined);
+      } catch {
+        // Tree already unmounted (in-process sim dispose).
+      }
     }, 250);
   }
 }
