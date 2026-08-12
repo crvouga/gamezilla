@@ -1,33 +1,9 @@
 /**
- * `createMatchmakingApp` mounts the queue API on a fresh Hono instance and
- * applies the host-supplied `requireAuth` middleware to every route. The
- * library has zero opinion on how auth works — `requireAuth` is responsible
- * for rejecting unauthorized requests.
+ * Shared HTTP surface for any {@link Matchmaking} adapter.
  *
- * Body validation uses an `Assert.validation()` instance so failures throw
- * `ValidationError` and are mapped to HTTP 400. The keyword check on `data`
- * makes it physically impossible for a non-namespaced key to land in
- * Postgres via this surface. Formulas cross the HTTP wire as plain JSON
- * (no `AttributeTag` objects) — see {@link FormulaWire}.
- *
- * Routes:
- *   POST /join                   -> { data, formulas } -> { participantId }
- *   POST /leave                  -> { participantId }  -> { removed }
- *   GET  /status/:participantId  ->                    -> StatusResult | 404
- *
- * Zero-side-effect request layer (chess.com scale): `/join`, `/leave`, and
- * `/status` each issue exactly one SQL statement (status may issue a
- * second indexed SELECT to fetch peers when matched) and return. There
- * are NO opportunistic match passes, NO sweeps, and NO `waitUntil`
- * background calls. Every match-making and sweep operation lives in the
- * host-owned scheduler (cron, queue, Durable Object alarm) which drives
- * `Matchmaking.tick()`. This is the design point that lets the request
- * envelope scale near-linearly with isolate count instead of multiplying
- * each poll by 3 SQL roundtrips against the primary.
- *
- * `/status` responses carry `Cache-Control: private, max-age=1` so client
- * browsers and any cache that respects `private` collapse sub-second
- * polling bursts.
+ * Routes call port methods only — never SQL or adapter internals.
+ * Body validation uses `Assert.validation()` so failures throw
+ * `ValidationError` and map to HTTP 400.
  */
 
 import { Assert, ValidationError } from '@pkgs/assert';
@@ -38,26 +14,20 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,
   FormulaWire,
-  JoinInputRaw,
-  Matchmaker,
   NumericTermWire,
   PartitionTermWire,
-} from './matchmaker';
+} from './formula-wire';
+import type { JoinInputRaw, Matchmaking } from './matchmaking';
 import {
   MATCHMAKING_MAX_GROUP_SIZE,
   MATCHMAKING_MAX_PRIORITY,
   MATCHMAKING_MIN_GROUP_SIZE,
   MATCHMAKING_MIN_PRIORITY,
-} from './migrate-sql';
-import { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
+  MATCHMAKING_PAYLOAD_LIMITS,
+} from './payload-limits';
 
 type LeaveBody = { readonly participantId: string };
 
-/**
- * UTF-8 byte length of a string. Used by the validator to enforce
- * `maxStringBytes` against raw user input. Cached `TextEncoder` —
- * cheaper than re-allocating per call.
- */
 const UTF8 = new TextEncoder();
 function utf8Bytes(s: string): number {
   return UTF8.encode(s).length;
@@ -169,12 +139,6 @@ function parseFormula(v: Assert, raw: unknown, label: string): FormulaWire {
   return { numeric, categorical, partition };
 }
 
-/**
- * Enforces {@link MATCHMAKING_PAYLOAD_LIMITS.maxStringBytes} across
- * every string value in `data`. Numbers/booleans/null are passed
- * through (already O(1) JSONB), nested objects/arrays are rejected by
- * `assertKeywordRecord` upstream so this stays a flat traversal.
- */
 function assertDataValueCaps(v: Assert, data: Record<string, unknown>): void {
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {
@@ -189,11 +153,6 @@ type BoundedIntBounds = {
   readonly max: number;
 };
 
-/**
- * Parses + validates an optional integer field that must fall in
- * `[bounds.min, bounds.max]`. Returns the parsed integer or `undefined`
- * when the field is absent. Records validation failures on `v`.
- */
 function parseOptionalBoundedInt(
   v: Assert,
   raw: unknown,
@@ -211,11 +170,6 @@ function parseOptionalBoundedInt(
   return raw as number;
 }
 
-/**
- * Parses + size-caps an optional `metadata` field. Returns `null` for
- * an explicit JSON null, the parsed object for a valid object, or
- * `undefined` when the field is absent.
- */
 function parseOptionalMetadata(
   v: Assert,
   raw: unknown
@@ -309,14 +263,14 @@ function parseLeaveBody(raw: unknown): LeaveBody {
 }
 
 export type CreateMatchmakingAppOptions = {
-  readonly matchmaker: Matchmaker;
+  readonly matchmaking: Matchmaking;
   readonly requireAuth: MiddlewareHandler;
   /** Epoch ms — required for error logging (no wall fallback). */
   readonly now: () => number;
 };
 
 export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
-  const { matchmaker, requireAuth, now } = opts;
+  const { matchmaking, requireAuth, now } = opts;
   const log = createLogger({ name: 'matchmaking-app', now });
   const app = new Hono();
   app.use('*', requireAuth);
@@ -324,49 +278,38 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
   app.post('/join', async (c) => {
     const raw: unknown = await c.req.json();
     const body = parseJoinBody(raw);
-    const result = await matchmaker.joinRaw(body);
+    const result = await matchmaking.joinRaw(body);
     return c.json(result);
   });
 
   app.post('/leave', async (c) => {
     const raw: unknown = await c.req.json();
     const body = parseLeaveBody(raw);
-    const result = await matchmaker.leave(body.participantId);
+    const result = await matchmaking.leave(body.participantId);
     return c.json(result);
   });
 
   app.get('/status/:participantId', async (c) => {
     const participantId = c.req.param('participantId');
-    const result = await matchmaker.status(participantId);
+    const result = await matchmaking.status(participantId);
     if (result === null) return c.json({ error: 'not found' }, 404);
     c.header('Cache-Control', 'private, max-age=1');
     return c.json(result);
   });
 
-  // Post-join widen / narrow. Preserves `joined_at` so the participant
-  // keeps their queue position. 404 when the participant is no longer
-  // in matchmaking_waiting (matched, swept, or unknown id).
   app.post('/update-formulas/:participantId', async (c) => {
     const participantId = c.req.param('participantId');
     const raw: unknown = await c.req.json();
     const body = parseUpdateFormulasBody(raw);
-    const result = await matchmaker.updateFormulasRaw(participantId, body);
+    const result = await matchmaking.updateFormulasRaw(participantId, body);
     if (!result.updated) return c.json({ error: 'not found' }, 404);
     return c.json(result);
   });
 
   app.onError((err, c) => {
     if (err instanceof ValidationError) {
-      // Validation messages are deliberately consumer-visible: they're
-      // 400s that describe exactly what's wrong with the body. The
-      // validator owns the message contract.
       return c.json({ error: err.message }, 400);
     }
-    // Anything else is an internal failure. Log full detail with a
-    // route tag, return a flat opaque body — never echo the raw error
-    // message to the client (it can leak SQL fragments, stack hints,
-    // bind values, etc.). Clients that need richer signal should poll
-    // `/status` or rely on their own request-id correlation.
     const message = err instanceof Error ? err.message : String(err);
     log.error('matchmaking app: internal error', {
       message,

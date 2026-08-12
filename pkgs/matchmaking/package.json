@@ -3,13 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
-    "./storage": "./src/storage.ts",
-    "./wire": "./src/wire.ts"
+    "./interface": "./src/interface/index.ts",
+    "./impl-sql": "./src/impl-sql/index.ts",
+    "./impl-in-memory": "./src/impl-in-memory/index.ts",
+    "./wire": "./src/wire/index.ts",
+    "./client": "./src/client/index.ts",
+    "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --parallel=1 --timeout 120000"
+    "test": "bun test --parallel=1 --timeout 120000 --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:contract": "bun test --parallel=1 --timeout 120000 src/impl-sql"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

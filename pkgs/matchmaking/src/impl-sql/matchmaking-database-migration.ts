@@ -3,8 +3,9 @@ import type {
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
 
-import { type MatchmakingSchema, type MigrateTuning, migrate } from './migrate';
-import type { RadiusOptions } from './types';
+import type { MatchmakingSchema } from '../interface/schema';
+import type { RadiusOptions } from '../interface/types';
+import { type MigrateTuning, migrate } from './migrate';
 
 export type MatchmakingDatabaseMigrationArgs = {
   readonly schema?: MatchmakingSchema;

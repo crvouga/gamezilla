@@ -47,9 +47,22 @@
       "@pkgs/kv/*": ["../../pkgs/kv/src/*"],
       "@pkgs/logger": ["../../pkgs/logger/src/index.ts"],
       "@pkgs/logger/*": ["../../pkgs/logger/src/*"],
-      "@pkgs/matchmaking": ["../../pkgs/matchmaking/src/index.ts"],
-      "@pkgs/matchmaking/storage": ["../../pkgs/matchmaking/src/storage.ts"],
-      "@pkgs/matchmaking/wire": ["../../pkgs/matchmaking/src/wire.ts"],
+      "@pkgs/matchmaking/interface": [
+        "../../pkgs/matchmaking/src/interface/index.ts"
+      ],
+      "@pkgs/matchmaking/impl-sql": [
+        "../../pkgs/matchmaking/src/impl-sql/index.ts"
+      ],
+      "@pkgs/matchmaking/impl-in-memory": [
+        "../../pkgs/matchmaking/src/impl-in-memory/index.ts"
+      ],
+      "@pkgs/matchmaking/wire": ["../../pkgs/matchmaking/src/wire/index.ts"],
+      "@pkgs/matchmaking/client": [
+        "../../pkgs/matchmaking/src/client/index.ts"
+      ],
+      "@pkgs/matchmaking/testing": [
+        "../../pkgs/matchmaking/src/testing/index.ts"
+      ],
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],

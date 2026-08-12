@@ -1,3 +1,10 @@
+import {
+  isRnsvgHost,
+  isSvgGeometryTag,
+  mapRnsvgTag,
+  pushRnsvgAttrs,
+} from './serialize-rnsvg';
+
 type JsonNode =
   | string
   | {
@@ -13,9 +20,16 @@ type SerializeCtx = {
 const EXPO_FONT_RE =
   /^(.+)_(\d{3})(Regular|Medium|SemiBold|Bold|Light|Thin|Black|ExtraBold|ExtraLight)?$/;
 
-/** RN Views always contain abs children; HTML needs a positioned ancestor. */
+/**
+ * Yoga / react-native-web View defaults the browser does not apply.
+ * Mirrors RN-web `view$raw` (minus z-index / list-style noise that fight
+ * stacking and HTML semantics in reports).
+ */
 const VIEW_DEFAULTS =
-  'display:flex;flex-direction:column;align-items:stretch;position:relative;border-width:0;border-style:solid;box-sizing:border-box;';
+  'display:flex;flex-direction:column;align-content:flex-start;align-items:stretch;flex-basis:auto;flex-shrink:0;position:relative;min-height:0;min-width:0;margin:0;padding:0;border:0 solid black;box-sizing:border-box;background-color:transparent';
+
+/** SVG roots skip VIEW_DEFAULTS; keep size under column flex parents. */
+const SVG_ROOT_DEFAULTS = 'display:block;overflow:visible;flex-shrink:0';
 
 const BUTTON_RESET =
   'appearance:none;border:none;background:transparent;padding:0;margin:0;font:inherit;color:inherit;text-align:inherit;cursor:pointer';
@@ -94,7 +108,12 @@ function serializeJson(node: JsonNode, ctx: SerializeCtx): string {
   const attrs = buildAttrs(typeName, props, tag, ctx);
   const childrenHtml = serializeJsonChildren(node.children, ctx);
 
-  if (tag === 'input' || tag === 'img') {
+  if (
+    tag === 'input' ||
+    tag === 'img' ||
+    ((tag === 'path' || tag === 'circle' || tag === 'rect') &&
+      childrenHtml.length === 0)
+  ) {
     return `<${tag}${attrs} />`;
   }
   return `<${tag}${attrs}>${childrenHtml}</${tag}>`;
@@ -127,6 +146,9 @@ function hostTypeName(type: unknown): string {
 }
 
 function mapHostTag(typeName: string, props: Record<string, unknown>): string {
+  const svgTag = mapRnsvgTag(typeName);
+  if (svgTag !== null) return svgTag;
+
   const role = props['accessibilityRole'];
   if (role === 'button') return 'button';
   if (role === 'link') return 'a';
@@ -187,6 +209,9 @@ function buildAttrs(
     capturedCss: dataSet?.['css'],
     ctx,
   });
+  if (isRnsvgHost(typeName)) {
+    pushRnsvgAttrs(parts, typeName, props, escapeAttr);
+  }
   if (tag === 'input') pushInputAttrs(parts, props);
   if (tag === 'img') pushImgAttrs(parts, props);
   return parts.join('');
@@ -207,10 +232,19 @@ function pushStyleAttr(args: {
   readonly ctx: SerializeCtx;
 }): void {
   const { parts, typeName, tag, style, capturedCss, ctx } = args;
-  const styleCss =
+  let styleCss =
     capturedCss !== undefined && capturedCss.length > 0
       ? (collectFontsFromCss(capturedCss, ctx), capturedCss)
       : styleToCss(style, ctx);
+  // Animated transforms in dataSet.css stringify as `[object Object]`.
+  if (styleCss.includes('[object Object]')) {
+    styleCss = stripBrokenTransform(styleCss);
+    const fromStyle = styleToCss(style, ctx);
+    if (fromStyle.length > 0) {
+      styleCss = styleCss ? `${styleCss};${fromStyle}` : fromStyle;
+    }
+  }
+  styleCss = rewriteFlexZero(styleCss);
   const base = hostBaseCss(typeName, tag);
   let css = base;
   if (styleCss) {
@@ -222,6 +256,29 @@ function pushStyleAttr(args: {
   if (css) {
     parts.push(` style="${escapeAttr(css)}"`);
   }
+}
+
+/** RN `flex:0`/`-1` → CSS `0 1 auto` (see styleToCss / sxToCss). */
+function rewriteFlexZero(css: string): string {
+  if (!css.includes('flex:')) return css;
+  return css
+    .split(';')
+    .map((part) => {
+      const trimmed = part.trim();
+      if (/^flex:\s*(?:0|-1)$/.test(trimmed)) return 'flex:0 1 auto';
+      if (/^flex:\s*none$/.test(trimmed)) return 'flex:0 1 auto';
+      return trimmed;
+    })
+    .filter((part) => part.length > 0)
+    .join(';');
+}
+
+function stripBrokenTransform(css: string): string {
+  return css
+    .split(';')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && !part.includes('[object Object]'))
+    .join(';');
 }
 
 function isScrollHost(typeName: string): boolean {
@@ -239,6 +296,12 @@ function collectFontsFromCss(css: string, ctx: SerializeCtx): void {
 }
 
 function hostBaseCss(typeName: string, tag: string): string {
+  if (tag === 'svg') {
+    return SVG_ROOT_DEFAULTS;
+  }
+  if (isSvgGeometryTag(tag)) {
+    return '';
+  }
   if (tag === 'button') {
     return `${BUTTON_RESET};${VIEW_DEFAULTS}`;
   }
@@ -257,8 +320,7 @@ function isViewLike(typeName: string): boolean {
     typeName === 'ScrollView' ||
     typeName === 'SafeAreaView' ||
     typeName === 'Pressable' ||
-    typeName.startsWith('RNC') ||
-    typeName.startsWith('RNSVG')
+    typeName.startsWith('RNC')
   );
 }
 
@@ -295,20 +357,58 @@ function styleToCss(style: unknown, ctx: SerializeCtx): string {
   const flat = expandRnShorthands(flattenStyle(style));
   const decls: string[] = [];
   for (const [key, value] of Object.entries(flat)) {
-    if (value == null || typeof value === 'object') continue;
-    if (SKIP_RN_CSS.has(key)) continue;
-    if (key === 'fontFamily' && typeof value === 'string') {
-      pushFontDecls(decls, value, ctx);
-      continue;
-    }
-    if (key === 'pointerEvents' && value === 'box-none') {
-      decls.push('pointer-events:none');
-      continue;
-    }
-    const cssKey = camelToKebab(key);
-    decls.push(`${cssKey}:${cssValue(key, value)}`);
+    pushStyleDecl(decls, key, value, ctx);
   }
   return decls.join(';');
+}
+
+function pushStyleDecl(
+  decls: string[],
+  key: string,
+  value: unknown,
+  ctx: SerializeCtx
+): void {
+  if (value == null || SKIP_RN_CSS.has(key)) return;
+  if (key === 'transform' && Array.isArray(value)) {
+    const transformCss = rnTransformToCss(value);
+    if (transformCss) decls.push(`transform:${transformCss}`);
+    return;
+  }
+  if (typeof value === 'object') return;
+  if (key === 'fontFamily' && typeof value === 'string') {
+    pushFontDecls(decls, value, ctx);
+    return;
+  }
+  if (key === 'pointerEvents' && value === 'box-none') {
+    decls.push('pointer-events:none');
+    return;
+  }
+  if (isRnFlexZero(key, value)) {
+    decls.push('flex:0 1 auto');
+    return;
+  }
+  decls.push(`${camelToKebab(key)}:${cssValue(key, value)}`);
+}
+
+/** RN `flex: 0` / `-1` → CSS `0 1 auto` (not bare `flex:0` = `0 1 0%`). */
+function isRnFlexZero(key: string, value: unknown): boolean {
+  return (
+    key === 'flex' &&
+    (value === 0 || value === '0' || value === -1 || value === '-1')
+  );
+}
+
+function rnTransformToCss(list: unknown[]): string {
+  const parts: string[] = [];
+  for (const entry of list) {
+    if (entry == null || typeof entry !== 'object') continue;
+    for (const [op, raw] of Object.entries(entry as Record<string, unknown>)) {
+      if (typeof raw === 'string' || typeof raw === 'number') {
+        parts.push(`${op}(${raw})`);
+      }
+    }
+  }
+  return parts.join(' ');
 }
 
 function pushFontDecls(

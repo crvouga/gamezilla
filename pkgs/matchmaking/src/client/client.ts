@@ -15,15 +15,15 @@
 import type { AttributeState } from '@pkgs/attribute';
 import type { Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
-import { MatchmakingHttpError } from './client-error';
-import type { FormulaWire } from './matchmaker';
+import type { FormulaWire } from '../interface/formula-wire';
 import type {
   JoinResult,
   LeaveResult,
   MatchedStatus,
   StatusResult,
   UpdateFormulasResult,
-} from './types';
+} from '../interface/types';
+import { MatchmakingHttpError } from './client-error';
 
 const DEFAULT_POLL_INTERVAL_MS = 1000;
 

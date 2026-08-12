@@ -54,6 +54,8 @@ import { isNamespacedKeyword } from '@pkgs/keyword';
 import { raw, sql, unsafe } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { MatchmakingSchema } from '../interface/schema';
+import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from '../interface/types';
 import {
   ADD_METADATA_COLUMN_TO_MATCHED_SQL,
   buildCreateTickFunctionSql,
@@ -81,30 +83,8 @@ import {
   DROP_WAITING_TABLE_SQL,
   NUM_WAITING_PARTITIONS,
 } from './migrate-sql';
-import { DEFAULT_RADIUS_OPTIONS, type RadiusOptions } from './types';
 
-export type MatchmakingSchema = {
-  /**
-   * Hard-partitioning keys (e.g. region, mode, time-control). Two
-   * participants are never candidates unless they agree on every declared
-   * key. Empty array → one global shard. Also acts as the hash key for
-   * the `matchmaking_waiting` table partitioning.
-   */
-  readonly partitionKeys?: readonly string[];
-  /**
-   * The single numeric attribute used to bucket candidates for fast ring
-   * queries. When undefined, every row falls into bucket 0 and the
-   * bucket index degrades into a per-partition list — still safe, just
-   * loses the rating-axis speedup.
-   */
-  readonly primaryNumericKey?: string;
-  /**
-   * Bucket width on the primary numeric axis. Defaults to 50. A seeker
-   * with radius R considers candidates in `ceil(R / bucketWidth)` buckets
-   * either side.
-   */
-  readonly bucketWidth?: number;
-};
+export type { MatchmakingSchema };
 
 /**
  * Tunings that `migrate()` bakes into the `matchmaking_tick()` PL/pgSQL

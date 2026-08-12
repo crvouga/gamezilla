@@ -13,7 +13,7 @@
  * requires a re-migrate to re-bake the function.
  */
 
-import type { MatchmakingSchema } from '@pkgs/matchmaking';
+import type { MatchmakingSchema } from '@pkgs/matchmaking/interface';
 
 /**
  * Hard partition keys, bucketing axis, and bucket width. Add chess-

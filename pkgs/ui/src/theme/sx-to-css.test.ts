@@ -107,6 +107,12 @@ describe('sxToCss', () => {
     expect(out).not.toContain('font-weight:600px');
   });
 
+  test('maps RN flex:0 and flex:-1 to 0 1 auto (not CSS flex:0)', () => {
+    expect(css({ flex: 0 })).toContain('flex:0 1 auto');
+    expect(css({ flex: -1 })).toContain('flex:0 1 auto');
+    expect(css({ flex: 0 })).not.toMatch(/flex:0(?:;|$)/);
+  });
+
   test('absoluteFill and inset', () => {
     expect(css({ absoluteFill: true })).toBe(
       'position:absolute;top:0;right:0;bottom:0;left:0'

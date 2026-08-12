@@ -151,6 +151,13 @@ function selectStep(i) {
     '</div>' +
     (step.error ? '<pre>' + escapeHtml(step.error) + '</pre>' : '');
   preview.srcdoc = step.snapshotHtml || '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:16px;color:#666">No snapshot</body></html>';
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('step', String(step.index));
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+  } catch (_) {
+    // file: / opaque origins may reject URL mutation; selection still works.
+  }
 }
 
 function formatMs(ms) {
@@ -168,9 +175,23 @@ function escapeAttr(s) {
   return escapeHtml(s).replace(/'/g, '&#39;');
 }
 
-if (steps.length) {
+function initialStepIndex() {
+  try {
+    const raw = new URL(window.location.href).searchParams.get('step');
+    if (raw != null && raw !== '') {
+      const want = Number(raw);
+      if (Number.isFinite(want)) {
+        const found = steps.findIndex((s) => s.index === want);
+        if (found >= 0) return found;
+      }
+    }
+  } catch (_) {}
   const failed = steps.findIndex((s) => s.status === 'failed');
-  selectStep(failed >= 0 ? failed : 0);
+  return failed >= 0 ? failed : 0;
+}
+
+if (steps.length) {
+  selectStep(initialStepIndex());
 }
 </script>
 </body>

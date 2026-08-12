@@ -16,8 +16,8 @@ import {
   MATCHMAKING_MAX_PRIORITY,
   MATCHMAKING_MIN_GROUP_SIZE,
   MATCHMAKING_MIN_PRIORITY,
-} from './migrate-sql';
-import { MATCHMAKING_PAYLOAD_LIMITS } from './payload-limits';
+  MATCHMAKING_PAYLOAD_LIMITS,
+} from './payload-limits';
 import type { DistanceFormula } from './types';
 
 /**

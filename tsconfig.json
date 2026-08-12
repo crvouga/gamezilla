@@ -50,9 +50,18 @@
       "@pkgs/tts/*": ["./pkgs/tts/src/*"],
       "@libs/client-config/*": ["./libs/client-config/src/*"],
       "@libs/db/*": ["./libs/db/src/*"],
-      "@pkgs/matchmaking": ["./pkgs/matchmaking/src/index.ts"],
-      "@pkgs/matchmaking/storage": ["./pkgs/matchmaking/src/storage.ts"],
-      "@pkgs/matchmaking/wire": ["./pkgs/matchmaking/src/wire.ts"],
+      "@pkgs/matchmaking/interface": [
+        "./pkgs/matchmaking/src/interface/index.ts"
+      ],
+      "@pkgs/matchmaking/impl-sql": [
+        "./pkgs/matchmaking/src/impl-sql/index.ts"
+      ],
+      "@pkgs/matchmaking/impl-in-memory": [
+        "./pkgs/matchmaking/src/impl-in-memory/index.ts"
+      ],
+      "@pkgs/matchmaking/wire": ["./pkgs/matchmaking/src/wire/index.ts"],
+      "@pkgs/matchmaking/client": ["./pkgs/matchmaking/src/client/index.ts"],
+      "@pkgs/matchmaking/testing": ["./pkgs/matchmaking/src/testing/index.ts"],
       "@pkgs/inbox": ["./pkgs/inbox/src/index.ts"],
       "@pkgs/inbox/client": ["./pkgs/inbox/src/client/index.ts"],
       "@pkgs/inbox/server/publish": ["./pkgs/inbox/src/server/publish.ts"],

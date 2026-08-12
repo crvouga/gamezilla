@@ -204,12 +204,18 @@ export function Button(props: ButtonProps) {
           icon: face.foregroundColor,
         }}
       >
-        <ButtonContent
-          props={props}
-          phase={phase}
-          size={s}
-          foregroundColor={face.foregroundColor}
-        />
+        {/*
+          Above absolute GradientBox: CSS paints positioned abs above in-flow
+          text unless content establishes a higher stacking level.
+        */}
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <ButtonContent
+            props={props}
+            phase={phase}
+            size={s}
+            foregroundColor={face.foregroundColor}
+          />
+        </Box>
       </OnColorProvider>
     </Pressable>
   );

@@ -8,8 +8,8 @@
 
 import { assert } from '@pkgs/assert';
 import { asKeywordRecord } from '@pkgs/keyword';
-import type { FormulaWire } from './formula-wire';
-import type { MatchedParticipant, ParticipantStatus } from './types';
+import type { FormulaWire } from '../interface/formula-wire';
+import type { MatchedParticipant, ParticipantStatus } from '../interface/types';
 
 export type StatusRow = {
   readonly status: ParticipantStatus;

@@ -216,6 +216,26 @@ function writePointerEvents(value: unknown, ctx: Ctx): void {
   if (value === 'auto') ctx.d.push('pointer-events:auto');
 }
 
+/**
+ * RN `flex` is a Yoga number, not CSS `flex` shorthand.
+ *
+ * - `flex: N` (N > 0) → grow N, shrink 1, basis 0% (CSS `flex:N` already)
+ * - `flex: 0` → sized by width/height; may shrink to min size → `0 1 auto`
+ * - `flex: -1` (RN-web) → same as `0 1 auto`
+ *
+ * Bare CSS `flex:0` is `0 1 0%` and collapses the main axis in column
+ * flex parents (icons/SVGs paint at height 0).
+ */
+function writeFlex(value: unknown, ctx: Ctx): void {
+  if (value == null) return;
+  if (value === 0 || value === '0' || value === -1 || value === '-1') {
+    ctx.d.push('flex:0 1 auto');
+    return;
+  }
+  const v = toUnitless(value);
+  if (v !== undefined) ctx.d.push('flex:' + v);
+}
+
 function writeElevation(value: unknown, ctx: Ctx): void {
   if (value === undefined) return;
   const shadow = ctx.elevation(value as ElevationLevel);
@@ -266,7 +286,7 @@ const WRITERS = {
   marginRight: length('margin-right'),
   marginStart: length('margin-inline-start'),
   marginEnd: length('margin-inline-end'),
-  flex: unitless('flex'),
+  flex: writeFlex,
   flexGrow: unitless('flex-grow'),
   flexShrink: unitless('flex-shrink'),
   flexBasis: length('flex-basis'),

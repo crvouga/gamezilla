@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { ButtonSurfaceFill } from '../button/button-surface-fill';
 import {
   type ButtonFeedback,
@@ -252,15 +253,17 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
           icon: face.foregroundColor,
         }}
       >
-        <FabContent
-          phase={phase}
-          icon={icon}
-          foregroundColor={face.foregroundColor}
-          {...(label !== undefined ? { label } : {})}
-          {...(loadingLabel !== undefined ? { loadingLabel } : {})}
-          {...(successLabel !== undefined ? { successLabel } : {})}
-          {...(errorLabel !== undefined ? { errorLabel } : {})}
-        />
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <FabContent
+            phase={phase}
+            icon={icon}
+            foregroundColor={face.foregroundColor}
+            {...(label !== undefined ? { label } : {})}
+            {...(loadingLabel !== undefined ? { loadingLabel } : {})}
+            {...(successLabel !== undefined ? { successLabel } : {})}
+            {...(errorLabel !== undefined ? { errorLabel } : {})}
+          />
+        </Box>
       </OnColorProvider>
     </Pressable>
   );

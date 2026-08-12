@@ -112,7 +112,15 @@ function MainMenuItemBody({
         bottom={gradient.bottom}
         borderRadius={borderRadius.lg}
       />
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 3,
+        }}
+      >
         <Box sx={{ flex: 1, gap: 1 }}>
           <Text variant="bodyBold" label={title} />
           {caption !== undefined && !captionInTrailing ? (

@@ -191,4 +191,248 @@ describe('serializeHostTreeHtml', () => {
     expect(html).not.toContain('Nunito_600SemiBold');
     expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
   });
+
+  it('maps RNSVG hosts to real svg/path markup', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 24,
+        vbHeight: 24,
+        bbWidth: 16,
+        bbHeight: 16,
+        fill: null,
+      },
+      children: [
+        {
+          type: 'RNSVGGroup',
+          props: {
+            fill: null,
+            stroke: { type: 0, payload: 0xff_ff_ff_ff },
+            strokeWidth: 2,
+            strokeLinecap: 1,
+            strokeLinejoin: 1,
+          },
+          children: [
+            {
+              type: 'RNSVGPath',
+              props: {
+                d: 'M12 2L12 22',
+                fill: null,
+                stroke: { type: 0, payload: 0xff_00_80_ff },
+                strokeWidth: 2,
+              },
+              children: null,
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<svg');
+    expect(html).toContain('viewBox="0 0 24 24"');
+    expect(html).toContain('width="16"');
+    expect(html).toContain('height="16"');
+    expect(html).toContain('<g ');
+    expect(html).toContain('<path ');
+    expect(html).toContain('d="M12 2L12 22"');
+    expect(html).toContain('fill="none"');
+    expect(html).toContain('stroke="#0080ff"');
+    expect(html).toContain('stroke-linecap="round"');
+    expect(html).not.toMatch(/<div data-component="RNSVGPath"/);
+  });
+
+  it('maps RNSVGCircle to circle with decoded fill', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 24,
+        vbHeight: 24,
+        bbWidth: 24,
+        bbHeight: 24,
+      },
+      children: [
+        {
+          type: 'RNSVGCircle',
+          props: {
+            cx: 12,
+            cy: 12,
+            r: 10,
+            fill: { type: 0, payload: 0xff_80_80_80 },
+          },
+          children: null,
+        },
+      ],
+    });
+    expect(html).toContain('<circle ');
+    expect(html).toContain('cx="12"');
+    expect(html).toContain('cy="12"');
+    expect(html).toContain('r="10"');
+    expect(html).toContain('fill="#808080"');
+  });
+
+  it('maps DiceBear-like mask/rect trees without HTML divs inside svg', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 200,
+        vbHeight: 200,
+        bbWidth: 40,
+        bbHeight: 40,
+      },
+      children: [
+        {
+          type: 'RNSVGGroup',
+          props: { fill: null },
+          children: [
+            {
+              type: 'RNSVGMask',
+              props: {
+                name: 'clipA',
+                maskUnits: 0,
+                maskContentUnits: 1,
+              },
+              children: [
+                {
+                  type: 'RNSVGRect',
+                  props: {
+                    x: 0,
+                    y: 0,
+                    width: '100%',
+                    height: '100%',
+                    fill: { type: 0, payload: 0xff_ff_ff_ff },
+                  },
+                  children: null,
+                },
+              ],
+            },
+            {
+              type: 'RNSVGGroup',
+              props: {
+                mask: 'clipA',
+                fill: { type: 0, payload: 0xff_33_66_99 },
+              },
+              children: [
+                {
+                  type: 'RNSVGRect',
+                  props: {
+                    x: 0,
+                    y: 0,
+                    width: 200,
+                    height: 200,
+                    fill: { type: 0, payload: 0xff_33_66_99 },
+                  },
+                  children: null,
+                },
+                {
+                  type: 'RNSVGPath',
+                  props: {
+                    d: 'M20 28c8-13 29-13 37 0',
+                    fill: { type: 0, payload: 0xff_00_00_00 },
+                  },
+                  children: null,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<mask ');
+    expect(html).toContain('id="clipA"');
+    expect(html).toContain('maskUnits="objectBoundingBox"');
+    expect(html).toContain('<rect ');
+    expect(html).toContain('width="100%"');
+    expect(html).toContain('mask="url(#clipA)"');
+    expect(html).not.toMatch(/<div data-component="RNSVGMask"/);
+    expect(html).not.toMatch(/<div data-component="RNSVGRect"/);
+  });
+
+  it('emits stroke-dasharray for spinner arcs', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGCircle',
+      props: {
+        cx: 18,
+        cy: 18,
+        r: 16,
+        fill: null,
+        stroke: { type: 0, payload: 0xff_3c_83_f6 },
+        strokeWidth: 4,
+        strokeDasharray: ['14.1', '42.4'],
+        strokeLinecap: 1,
+      },
+      children: null,
+    });
+    expect(html).toContain('stroke-dasharray="14.1 42.4"');
+    expect(html).toContain('stroke-linecap="round"');
+  });
+
+  it('expands RN transform arrays and strips broken Animated css', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {
+        style: { width: 36, height: 36, transform: [{ rotate: '90deg' }] },
+        dataSet: {
+          component: 'Spinner',
+          css: 'width:36px;height:36px;transform:rotate([object Object])',
+        },
+      },
+      children: null,
+    });
+    expect(html).not.toContain('[object Object]');
+    expect(html).toContain('transform:rotate(90deg)');
+    expect(html).toContain('width:36px');
+  });
+
+  it('maps RN flex:0 to flex:0 1 auto so SVG width/height are kept', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 24,
+        vbHeight: 24,
+        bbWidth: 32,
+        bbHeight: 32,
+        style: { width: 32, height: 32, flex: 0 },
+      },
+      children: [
+        {
+          type: 'RNSVGPath',
+          props: {
+            d: 'M18 6 6 18',
+            fill: null,
+            stroke: { type: 0, payload: 0xff_fa_fa_fa },
+            strokeWidth: 2,
+          },
+          children: null,
+        },
+      ],
+    });
+    expect(html).toContain('flex:0 1 auto');
+    expect(html).not.toMatch(/flex:0(?:;|")/);
+    expect(html).toContain('width:32px');
+    expect(html).toContain('height:32px');
+    expect(html).toContain('display:block');
+    expect(html).toContain('flex-shrink:0');
+  });
+
+  it('applies Yoga View defaults on View hosts', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: { style: { backgroundColor: 'red' } },
+      children: null,
+    });
+    expect(html).toContain('flex-direction:column');
+    expect(html).toContain('flex-shrink:0');
+    expect(html).toContain('flex-basis:auto');
+    expect(html).toContain('align-content:flex-start');
+    expect(html).toContain('box-sizing:border-box');
+    expect(html).toContain('min-height:0');
+    expect(html).toContain('min-width:0');
+  });
 });

@@ -2,13 +2,13 @@
  * Mounts the `@pkgs/matchmaking` Hono sub-app behind the API's session
  * auth.
  *
- * {@link Matchmaking} is constructed once at app boot but delegates every
+ * {@link MatchmakingImplSql} is constructed once at app boot but delegates every
  * SQL call to a per-request Neon HTTP client via
  * {@link apiRequestAsyncLocalStorage} — this keeps a single matchmaking
  * instance while still honouring the API's one-connection-per-request
  * invariant.
  *
- * `Matchmaking` runs its own `migrate()` exactly once via a cached boot
+ * `MatchmakingImplSql` runs its own `migrate()` exactly once via a cached boot
  * promise. The boot bakes the {@link MATCHMAKING_TUNING} values into a
  * PL/pgSQL `matchmaking_tick()` function and, when `pg_cron` is enabled
  * on the database, schedules it to run every 5 seconds. The request
@@ -33,7 +33,8 @@ import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { assert } from '@pkgs/assert';
 import { getIo } from '@pkgs/io/als';
-import { Matchmaking } from '@pkgs/matchmaking';
+import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';
+import type { Matchmaking } from '@pkgs/matchmaking/interface';
 import type { Sql } from '@pkgs/sql';
 import type {
   PreparedStatement,
@@ -47,7 +48,7 @@ import { MATCHMAKING_SCHEMA, MATCHMAKING_TUNING } from './schema';
 /**
  * A {@link SqlClient} facade that resolves the per-request Postgres client
  * from {@link apiRequestAsyncLocalStorage} on every call. The single
- * long-lived {@link Matchmaking} instance delegates through this so each
+ * long-lived matchmaking instance delegates through this so each
  * request reuses its own connection without threading a separate client.
  * `connect` / `disconnect` are intentionally no-ops — the request DB
  * middleware owns that lifecycle.
@@ -98,15 +99,15 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
 };
 
 /**
- * Builds the request-layer {@link Matchmaking} instance. `tuning` is
+ * Builds the request-layer {@link MatchmakingImplSql} instance. `tuning` is
  * forwarded so {@link MATCHMAKING_TUNING} gets baked into the PL/pgSQL
  * `matchmaking_tick()` function during `migrate()`. The request path
  * itself issues one SQL statement per route and never invokes pass or
  * sweep operations — those run server-side under `pg_cron`.
  */
 export function createMatchmakingSubApp(): Hono {
-  const matchmaking = new Matchmaking({
-    storage: { sqlClient: lazyRequestSqlClient() },
+  const matchmaking: Matchmaking = new MatchmakingImplSql({
+    sqlClient: lazyRequestSqlClient(),
     schema: MATCHMAKING_SCHEMA,
     tuning: {
       ...MATCHMAKING_TUNING,

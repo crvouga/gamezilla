@@ -4,9 +4,9 @@ import { wallIo } from '@pkgs/io';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
+import { registerTestCrashHandler } from '../testing/fixtures';
 import { migrate } from './migrate';
 import { NUM_WAITING_PARTITIONS } from './migrate-sql';
-import { registerTestCrashHandler } from './test-harness';
 
 const migrateTestIo = wallIo();
 

@@ -131,16 +131,19 @@ CREATE INDEX IF NOT EXISTS matchmaking_matched_matched_at_idx
  * joins. The CHECK constraint is the hard ceiling — even if a caller
  * bypasses JS validation and INSERTs directly, Postgres rejects.
  */
-export const MATCHMAKING_MIN_GROUP_SIZE = 2;
-export const MATCHMAKING_MAX_GROUP_SIZE = 16;
+import {
+  MATCHMAKING_MAX_GROUP_SIZE,
+  MATCHMAKING_MAX_PRIORITY,
+  MATCHMAKING_MIN_GROUP_SIZE,
+  MATCHMAKING_MIN_PRIORITY,
+} from '../interface/payload-limits';
 
-/**
- * v5 priority bounds: hard-clamped to [-1000, 1000] both at the JS
- * validator AND at the SQL CHECK constraint. Lets callers surface VIPs
- * or retry attempts without unbounded queue-jumping abuse.
- */
-export const MATCHMAKING_MIN_PRIORITY = -1000;
-export const MATCHMAKING_MAX_PRIORITY = 1000;
+export {
+  MATCHMAKING_MAX_GROUP_SIZE,
+  MATCHMAKING_MAX_PRIORITY,
+  MATCHMAKING_MIN_GROUP_SIZE,
+  MATCHMAKING_MIN_PRIORITY,
+};
 
 export function buildCreateWaitingTableSql(parts: {
   readonly primaryRatingExpr: string;

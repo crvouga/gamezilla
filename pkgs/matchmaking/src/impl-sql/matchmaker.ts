@@ -70,14 +70,26 @@ import {
   assertDataMatchesFormula,
   type FormulaWire,
   serializeFormula,
-} from './formula-wire';
+} from '../interface/formula-wire';
 import {
   assertDistanceFormulasInput,
   assertWireFormulasInput,
   type InsertJoinAttrs,
   resolveGroupSize,
   resolveJoinAttrs,
-} from './join-helpers';
+} from '../interface/join-helpers';
+import type { JoinInputRaw } from '../interface/matchmaking';
+import {
+  type _MatchPassResult,
+  DEFAULT_RADIUS_OPTIONS,
+  type DistanceFormula,
+  type JoinInput,
+  type JoinResult,
+  type LeaveResult,
+  type RadiusOptions,
+  type StatusResult,
+  type UpdateFormulasResult,
+} from '../interface/types';
 import {
   type ActivePartition,
   assertMatchmakerOptionInvariants,
@@ -106,26 +118,15 @@ import {
 import { fingerprintForOptions, type MatchmakingSchema } from './migrate';
 import { MATCHMAKING_MIN_GROUP_SIZE } from './migrate-sql';
 import { parallelMap } from './parallel-map';
-import {
-  type _MatchPassResult,
-  DEFAULT_RADIUS_OPTIONS,
-  type DistanceFormula,
-  type JoinInput,
-  type JoinResult,
-  type LeaveResult,
-  type RadiusOptions,
-  type StatusResult,
-  type UpdateFormulasResult,
-} from './types';
 
 export type {
   CategoricalTermWire,
   FormulaWire,
   NumericTermWire,
   PartitionTermWire,
-} from './formula-wire';
-
-export { MAX_FORMULAS_PER_PARTICIPANT } from './join-helpers';
+} from '../interface/formula-wire';
+export { MAX_FORMULAS_PER_PARTICIPANT } from '../interface/join-helpers';
+export type { JoinInputRaw };
 
 // Bigger than v2 because the ticker DO is the sole caller — we want to
 // amortise the round-trip across as much pairing work as possible.
@@ -203,14 +204,6 @@ export type MatchmakerOptions = {
    * `MatchmakingSchemaDriftError`.
    */
   readonly onSchemaDrift?: (expected: string, actual: string) => never;
-};
-
-export type JoinInputRaw = {
-  readonly data: AttributeState;
-  readonly formulas: readonly FormulaWire[];
-  readonly groupSize?: number;
-  readonly priority?: number;
-  readonly metadata?: Record<string, unknown> | null;
 };
 
 export type {
