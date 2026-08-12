@@ -2,7 +2,7 @@
 
 Application-agnostic **multi-actor UI simulation** for acceptance tests.
 
-- **UI is the only assertion surface** — interact via `@pkgs/ui-testing` `Driver` methods (`tap`, `expectVisible`, …) and `by` selectors.
+- **UI is the only assertion surface** — interact via `@pkgs/ui-testing` `Driver` methods (`tap`, `expect.visible`, …) with plain `testId` strings.
 - **Exclusive objects and methods** — scenarios call `Simulation.open`, `sim.actor`, `alice.ui.*`. No free helpers and no route/deep-link APIs on actors.
 - **Full system is opaque** — inject a `SimulationSystem` class that boots whatever stack you need (in-process fakes, real HTTP, etc.).
 - **Default is in-process** — no browser, no real network required.
@@ -26,7 +26,6 @@ no `react-native` → web remapping). Non-UI unit tests stay on Bun.
 
 ```ts
 import { Simulation } from '@pkgs/simulation';
-import { by } from '@pkgs/ui-testing';
 
 await using sim = await Simulation.open({
   seed: 1,
@@ -37,8 +36,9 @@ await using sim = await Simulation.open({
 const alice = await sim.actor('alice');
 const bob = await sim.actor('bob');
 
-await alice.ui.tap(by.role('button', 'Create'));
-await bob.ui.expectVisible(by.text('Game night'));
+await alice.ui.tap('create');
+await bob.ui.expect.visible('shared-title');
+await bob.ui.expect.text('shared-title', 'Game night');
 ```
 
 ## Ports: plug in your system
@@ -94,8 +94,8 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 ## Step reports (HTML timeline)
 
 Pass `report: true` (or `{ store, testId, runId? }`) to write **report data** on
-`dispose()`. Every Driver mutation / `waitFor` / `expect*` is a timeline
-step. `waitFor` / `expect*` and `sim.step` also poll change-gated UI frames while they run.
+`dispose()`. Every Driver mutation / `wait` / `expect.*` is a timeline
+step. `wait` / `expect.*` and `sim.step` also poll change-gated UI frames while they run.
 `isVisible` / `getText` are not recorded.
 
 ```ts

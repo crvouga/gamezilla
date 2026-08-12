@@ -14,8 +14,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { assertKvRecord, parseKvRecordFromUnknown } from './assert-kv-record';
 import { KvImplPostgresTx } from './impl-postgres-tx';
 import type { Kv, KvRecord } from './interface';
+import { KV_CREATE_TABLE_DDL, KV_TABLE as TABLE } from './schema-ddl';
 
-const TABLE = 'kv';
 const LAST_MODIFIED_AT = 'last_modified_at';
 
 /** Per-table storage parameters applied to both fresh and existing tables. */
@@ -27,14 +27,6 @@ const STORAGE_PARAMS = `
   autovacuum_vacuum_threshold = 100,
   autovacuum_analyze_threshold = 100,
   autovacuum_vacuum_cost_delay = 0
-`;
-
-const MIGRATIONS = `
-CREATE TABLE IF NOT EXISTS ${TABLE} (
-  key        TEXT        PRIMARY KEY,
-  value      TEXT        NOT NULL,
-  ${LAST_MODIFIED_AT} TEXT NOT NULL
-);
 `;
 
 /**
@@ -113,17 +105,11 @@ async function runKvPostgresMigrations(
   const existing = await sqlClient.query(sql<{ tablename: string }>`
     SELECT tablename FROM pg_tables WHERE schemaname = current_schema() AND tablename = ${TABLE}`);
   if (existing.length === 0) {
-    const statements = MIGRATIONS.split(';')
-      .map((s) => s.trim())
-      .filter(Boolean);
     log.info('kv postgres migrate: applying ddl', {
       table: TABLE,
-      statementCount: statements.length,
+      statementCount: 1,
     });
-    for (const stmt of statements) {
-      // Full DDL (not a single identifier) — statements are already `;`-split.
-      await sqlClient.run(raw(stmt));
-    }
+    await sqlClient.run(raw(KV_CREATE_TABLE_DDL));
     log.info('kv postgres migrate: ddl applied', { table: TABLE });
   } else {
     log.info('kv postgres migrate: table exists (skipping create)', {

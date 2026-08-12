@@ -115,7 +115,7 @@ function upsertInteractionValues(
     actions: JSON.stringify(input.actions),
     payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
-    active: true,
+    active: 1,
     created_at: managed.created_at,
     updated_at: managed.updated_at,
   };

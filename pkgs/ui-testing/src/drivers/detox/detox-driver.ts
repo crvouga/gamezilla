@@ -6,9 +6,9 @@ import type {
   Driver,
   ScrollDirection,
   TapPosition,
+  UiWaitOptions,
   WaitState,
 } from '../../driver/driver';
-import type { Selector } from '../../selector/selector';
 
 /**
  * Minimal structural surface of Detox that a real implementation would use.
@@ -16,17 +16,12 @@ import type { Selector } from '../../selector/selector';
  *
  * Mapping (for a future full implementation):
  * - testId → `by.id(value)`
- * - text → `by.text(value)`
- * - label → `by.label(value)`
- * - role → not first-class in Detox; approximate via label / traits
- * - nth → `element(matcher).atIndex(n)`
- * - tap → `element(matcher).tap()`
+ * - tap → `element(matcher).tap()` (after wait-until-visible)
  * - tapAt → `element(matcher).tap({ x, y })` (absolute coords from ratios)
- * - typeText → `element(matcher).typeText(text)`
+ * - typeText → `element(matcher).typeText(text)` (after wait-until-visible)
  * - clearText → `element(matcher).clearText()`
- * - pressKey → `device.pressBack()` / platform key APIs (limited)
+ * - pressKey → platform key APIs (limited)
  * - scroll → `element(matcher).scroll(amount, direction)`
- * - navigateBack → `device.pressBack()`
  * - waitFor visible → `waitFor(element(matcher)).toBeVisible()`
  * - waitFor hidden → `waitFor(element(matcher)).not.toBeVisible()`
  * - getText → **unsupported** in classic Detox (no text read-back API)
@@ -51,6 +46,13 @@ export type DetoxDriverOptions = {
 export class DetoxDriver implements Driver {
   readonly kind = 'detox';
 
+  readonly expect: Driver['expect'] = {
+    visible: (testId, options) => this.expectVisible(testId, options),
+    hidden: (testId, options) => this.expectHidden(testId, options),
+    text: (testId, expected, options) =>
+      this.expectText(testId, expected, options),
+  };
+
   // Reserved for the future implementation that will call into Detox.
   constructor(_options: DetoxDriverOptions) {
     void _options;
@@ -64,40 +66,40 @@ export class DetoxDriver implements Driver {
     this.unsupported('close', 'device.terminateApp()');
   }
 
-  async tap(_target: Selector): Promise<void> {
+  async tap(_testId: string, _options?: UiWaitOptions): Promise<void> {
     this.unsupported('tap', 'element(matcher).tap()');
   }
 
-  async tapAt(_target: Selector, _position: TapPosition): Promise<void> {
+  async tapAt(_testId: string, _position: TapPosition): Promise<void> {
     this.unsupported('tapAt', 'element(matcher).tap({ x, y })');
   }
 
-  async input(_target: Selector, _text: string): Promise<void> {
+  async input(
+    _testId: string,
+    _text: string,
+    _options?: UiWaitOptions
+  ): Promise<void> {
     this.unsupported('typeText', 'element(matcher).typeText(text)');
   }
 
-  async clear(_target: Selector): Promise<void> {
+  async clear(_testId: string): Promise<void> {
     this.unsupported('clearText', 'element(matcher).clearText()');
   }
 
   async key(_key: DriverKey): Promise<void> {
-    this.unsupported('pressKey', 'platform key APIs / device.pressBack()');
+    this.unsupported('pressKey', 'platform key APIs');
   }
 
   async scroll(
-    _target: Selector,
+    _testId: string,
     _direction: ScrollDirection,
     _amount?: number
   ): Promise<void> {
     this.unsupported('scroll', 'element(matcher).scroll(amount, direction)');
   }
 
-  async back(): Promise<void> {
-    this.unsupported('navigateBack', 'device.pressBack()');
-  }
-
   async wait(
-    _target: Selector,
+    _testId: string,
     _state: WaitState,
     _options?: WaitPollOptions
   ): Promise<void> {
@@ -107,47 +109,47 @@ export class DetoxDriver implements Driver {
     );
   }
 
-  async expectVisible(
-    _target: Selector,
-    _options?: AssertionOptions
-  ): Promise<void> {
-    this.unsupported(
-      'expectVisible',
-      'waitFor(element(matcher)).toBeVisible()'
-    );
-  }
-
-  async expectHidden(
-    _target: Selector,
-    _options?: AssertionOptions
-  ): Promise<void> {
-    this.unsupported(
-      'expectHidden',
-      'waitFor(element(matcher)).not.toBeVisible()'
-    );
-  }
-
-  async expectText(
-    _target: Selector,
-    _expected: string,
-    _options?: AssertionOptions & { exact?: boolean }
-  ): Promise<void> {
-    this.unsupported(
-      'expectText',
-      'Detox has no first-class text read-back API'
-    );
-  }
-
-  async isVisible(_target: Selector): Promise<boolean> {
+  async isVisible(_testId: string): Promise<boolean> {
     this.unsupported('isVisible', 'expect(element(matcher)).toBeVisible()');
   }
 
-  async getText(_target: Selector): Promise<string | null> {
+  async getText(_testId: string): Promise<string | null> {
     this.unsupported('getText', 'Detox has no first-class text read-back API');
   }
 
   async snapshotHtml(): Promise<string | null> {
     return null;
+  }
+
+  private async expectVisible(
+    _testId: string,
+    _options?: AssertionOptions
+  ): Promise<void> {
+    this.unsupported(
+      'expect.visible',
+      'waitFor(element(matcher)).toBeVisible()'
+    );
+  }
+
+  private async expectHidden(
+    _testId: string,
+    _options?: AssertionOptions
+  ): Promise<void> {
+    this.unsupported(
+      'expect.hidden',
+      'waitFor(element(matcher)).not.toBeVisible()'
+    );
+  }
+
+  private async expectText(
+    _testId: string,
+    _expected: string,
+    _options?: AssertionOptions & { exact?: boolean }
+  ): Promise<void> {
+    this.unsupported(
+      'expect.text',
+      'Detox has no first-class text read-back API'
+    );
   }
 
   private unsupported(operation: string, mapping: string): never {

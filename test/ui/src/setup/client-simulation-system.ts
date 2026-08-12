@@ -5,37 +5,32 @@
  */
 
 import path from 'node:path';
-import { createApiApp } from '@apps/api/app/create-app';
-import { loadBetterAuthBootConfig } from '@apps/api/config/better-auth-boot';
+import { createSimApiApp } from '@apps/api/app/create-sim-api-app';
 import { setApiPubSubOverride } from '@apps/api/sync/api-pubsub';
-import {
-  ClientRootLayout,
-  clientUnstableSettings,
-} from '@apps/client/providers/client-root-layout';
+import { clientUnstableSettings } from '@apps/client/providers/client-root-layout';
+import { createClientApp } from '@apps/client/providers/create-client-app';
 import { jest } from '@jest/globals';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import type { Clock, Timers } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { createHonoHttpClient, type HttpClient } from '@pkgs/http-client';
 import type { Io, SimIo } from '@pkgs/io';
-import { InMemoryLlmProvider } from '@pkgs/llm/server';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
-import {
-  createInMemoryBus,
-  createInMemoryPublishOnlyPubSub,
-} from '@pkgs/pubsub/testing/in-memory';
-import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
+import { createInMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import type {
   InProcessSimulationSession,
+  SimTiming,
+  SimulationSqliteNodeSnapshot,
   SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
 } from '@pkgs/simulation';
-import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import {
+  createSerializedHttp,
+  createSimTiming,
+  installSimGlobalFetch,
+} from '@pkgs/simulation';
 import { createRenderedAppFromRntl, type RenderedApp } from '@pkgs/ui-testing';
 import { act, render } from '@testing-library/react-native';
+import type BetterSqlite3 from 'better-sqlite3';
 import { ExpoRoot } from 'expo-router';
 // Side-effect: jest mocks / expect matchers used by expo-router tests.
 import 'expo-router/testing-library';
@@ -59,7 +54,6 @@ import {
   createActorIo,
   simNodeTimers,
 } from './sim-actor-overrides';
-import { createSimTiming, type SimTiming } from './sim-timing';
 
 /** Absolute path to the real Expo Router `app/` tree. */
 const CLIENT_APP_DIR = path.resolve(
@@ -79,70 +73,8 @@ const simWallClock: Clock = {
   now: () => wallClock.now(),
 };
 
-function resolveRequestUrl(input: RequestInfo | URL): string {
-  if (typeof input === 'string') return input;
-  if (input instanceof URL) return input.href;
-  return input.url;
-}
-
 function isSimApiUrl(url: string): boolean {
   return url.startsWith(SIM_API_URL) || url.includes('://sim.local');
-}
-
-/**
- * Serialize in-process Hono fetches. Overlapping SQLite work under the
- * React/Jest zone hangs; sequential requests succeed.
- *
- * Re-entrant fetch (a handler/plugin calling fetch while one is already
- * in-flight on this client) must NOT wait on `chain` — that deadlocks
- * sign-up (signUp.email → nested getSession) and leaves SignInModal on
- * "Signing in…".
- */
-function createSerializedHttp(rawHttp: HttpClient): HttpClient {
-  let chain: Promise<unknown> = Promise.resolve();
-  let active = 0;
-  return {
-    fetch(input, init) {
-      if (active > 0) {
-        active += 1;
-        return rawHttp.fetch(input, init).finally(() => {
-          active -= 1;
-        });
-      }
-      const next = chain.then(async () => {
-        active += 1;
-        try {
-          return await rawHttp.fetch(input, init);
-        } finally {
-          active -= 1;
-        }
-      });
-      chain = next.then(
-        () => undefined,
-        () => undefined
-      );
-      return next;
-    },
-  };
-}
-
-/**
- * Better Auth / better-fetch may still reach `globalThis.fetch` (default
- * `customFetchImpl` or plugin paths). Divert sim API URLs into the in-process
- * Hono client so sign-up never opens real sockets to `sim.local`.
- */
-function installSimGlobalFetch(http: HttpClient): () => void {
-  const previous = globalThis.fetch.bind(globalThis);
-  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = resolveRequestUrl(input);
-    if (isSimApiUrl(url)) {
-      return http.fetch(input, init);
-    }
-    return previous(input, init);
-  }) as typeof fetch;
-  return () => {
-    globalThis.fetch = previous;
-  };
 }
 
 /**
@@ -187,34 +119,14 @@ async function bootSimBackend(
   }
 
   try {
-    const secretStore = createRecordSecretStore({
-      BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
-      DATABASE_URL: SIM_SQLITE_DATABASE_URL,
-      API_URL: SIM_API_URL,
-    });
-    const betterAuth = await timing.time('boot.betterAuth', () =>
-      loadBetterAuthBootConfig({
-        secretStore,
-        apiUrlOverride: SIM_API_URL,
-        secretsEnv: 'dev',
-      })
-    );
     const app = await timing.time('boot.createApi', () =>
-      createApiApp({
+      createSimApiApp({
         io: apiIo,
-        secretStore,
-        betterAuth,
-        dbScope: appPostgresDbScope(),
-        databaseUrlOverride: SIM_SQLITE_DATABASE_URL,
-        apiUrlOverride: SIM_API_URL,
         openRequestDb: db.openRequestDb,
-        secretsEnv: 'dev',
-        objectStore: new ObjectStoreImplInMemory(),
-        observability: createNoopObservability('sim-api'),
-        stripe: createInMemoryStripe({ baseUrl: SIM_API_URL }),
-        llmProvider: new InMemoryLlmProvider(),
-        ttsProvider: new InMemoryTtsProvider(),
-        pubSub: createInMemoryPublishOnlyPubSub(pubSubBus),
+        pubSubBus,
+        betterAuthSecret: SIM_BETTER_AUTH_SECRET,
+        databaseUrl: SIM_SQLITE_DATABASE_URL,
+        apiUrl: SIM_API_URL,
       })
     );
     const rawHttp = createHonoHttpClient({ app, origin: SIM_API_URL });
@@ -241,7 +153,14 @@ async function bootSimBackend(
       await warm.text();
     });
     const http = createSerializedHttp(rawHttp);
-    const restoreGlobalFetch = installSimGlobalFetch(http);
+    const restoreGlobalFetch = installSimGlobalFetch({
+      http,
+      isSimUrl: isSimApiUrl,
+      getFetch: () => globalThis.fetch,
+      setFetch: (next) => {
+        globalThis.fetch = next;
+      },
+    });
     return {
       http,
       db,
@@ -312,16 +231,34 @@ function neuterJestFakeTimers(): void {
   jest.useRealTimers();
 }
 
+type CreateActorSessionArgs = {
+  readonly io: SimIo;
+  readonly http: HttpClient;
+  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+  readonly timing: SimTiming;
+  readonly actorSqliteRegistry: Map<string, BetterSqlite3.Database>;
+  readonly actorId: string;
+};
+
 function createActorSession(
-  io: SimIo,
-  http: HttpClient,
-  pubSubBus: ReturnType<typeof createInMemoryBus>,
-  timing: SimTiming
+  args: CreateActorSessionArgs
 ): InProcessSimulationSession {
+  const { io, http, pubSubBus, timing, actorSqliteRegistry, actorId } = args;
   const actorIo = createActorIo(io, http);
-  const { overrides } = createActorClientSeams({
+  const seams = createActorClientSeams({
     apiUrl: SIM_API_URL,
     pubSubBus,
+    onSqlite: (sqlite) => {
+      if (sqlite === undefined) {
+        actorSqliteRegistry.delete(actorId);
+        return;
+      }
+      actorSqliteRegistry.set(actorId, sqlite);
+    },
+  });
+  const clientApp = createClientApp({
+    io: actorIo,
+    overrides: seams.overrides,
   });
   return {
     ui: 'in-process',
@@ -334,11 +271,7 @@ function createActorSession(
           // replaced for sim Io / AppOverrides. Never stub individual screens.
           process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
           const context = createClientAppRouterContext(CLIENT_APP_DIR, {
-            default: () =>
-              createElement(ClientRootLayout, {
-                io: actorIo,
-                overrides,
-              }),
+            default: clientApp.RootLayout,
             unstable_settings: clientUnstableSettings,
           });
           const result = render(
@@ -365,7 +298,8 @@ function createActorSession(
       },
     },
     async dispose() {
-      // Actor client state lives in the discarded React tree + memory SQLite.
+      actorSqliteRegistry.delete(actorId);
+      seams.disposeSqlite();
     },
   };
 }
@@ -381,21 +315,42 @@ export class ClientSimulationSystem implements SimulationSystem {
         'ClientSimulationSystem: only ui: in-process is supported'
       );
     }
-    const timing = createSimTiming();
+    const timing = createSimTiming({ now: () => wallClock.now() });
     const backend = await bootSimBackend(ctx.io, timing);
+    const actorSqliteRegistry = new Map<string, BetterSqlite3.Database>();
     return {
-      async createSession(_actorId: string) {
-        return createActorSession(
-          ctx.io,
-          backend.http,
-          backend.pubSubBus,
-          timing
-        );
+      async createSession(actorId: string) {
+        return createActorSession({
+          io: ctx.io,
+          http: backend.http,
+          pubSubBus: backend.pubSubBus,
+          timing,
+          actorSqliteRegistry,
+          actorId,
+        });
+      },
+      async snapshotDatabases(): Promise<
+        readonly SimulationSqliteNodeSnapshot[]
+      > {
+        const nodes: SimulationSqliteNodeSnapshot[] = [
+          {
+            nodeId: 'server',
+            bytes: new Uint8Array(backend.db.sqlite.serialize()),
+          },
+        ];
+        for (const [actorId, sqlite] of actorSqliteRegistry) {
+          nodes.push({
+            nodeId: actorId,
+            bytes: new Uint8Array(sqlite.serialize()),
+          });
+        }
+        return nodes;
       },
       async dispose() {
         timing.finish('client-sim');
         backend.restoreGlobalFetch();
         setApiPubSubOverride(undefined);
+        actorSqliteRegistry.clear();
         await backend.db.stop();
       },
     };

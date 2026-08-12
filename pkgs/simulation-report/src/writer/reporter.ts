@@ -5,6 +5,7 @@ import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serializ
 import type {
   RunSummary,
   SimulationFrame,
+  SimulationFrameView,
   SimulationReportData,
   SimulationReportMeta,
   SimulationStep,
@@ -20,11 +21,28 @@ import {
   sanitizeTestId,
 } from '../types';
 import {
+  type SnapshotDatabaseNode,
+  writeFrameDatabaseBlobs,
+} from './frame-databases';
+import {
+  pickPrimaryViewFile,
+  type SnapshotViewNode,
+  writeFrameViewBlobs,
+} from './frame-views';
+import {
   RUNS_INDEX_KEY,
   snapshotShellKey,
   testFrameKey,
   testStepsKey,
 } from './keys';
+import {
+  assignFrameDurations,
+  type FrameCaptureState,
+  hashString,
+  padFrame,
+  shouldPollKind,
+  stripSnapshots,
+} from './reporter-helpers';
 import {
   bumpGeneration,
   loadRunManifest,
@@ -40,6 +58,9 @@ import {
   mergeFrameHtmlAttribution,
 } from './ui-attribution';
 
+export type { FrameCaptureState } from './reporter-helpers';
+export { hashString } from './reporter-helpers';
+
 export type SimulationReporterOptions = {
   readonly seed: string;
   readonly ui: string;
@@ -51,6 +72,16 @@ export type SimulationReporterOptions = {
   readonly maxFramesPerStep?: number;
   readonly publishThrottleMs?: number;
   readonly sourceFile?: string;
+  /**
+   * When set, every kept UI frame also dumps these SQLite nodes
+   * (gzip + content-hash under `frames/db/`).
+   */
+  readonly snapshotDatabases?: () => Promise<readonly SnapshotDatabaseNode[]>;
+  /**
+   * When set, every kept UI frame also dumps per-actor HTML under
+   * `frames/f-NNNNN.<actorId>.html`.
+   */
+  readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
 };
 
 type RecordArgs = {
@@ -108,6 +139,16 @@ export class SimulationReporter {
   private reportPath: string | undefined;
   private lastPublishAtMs = 0;
   private shellCssWritten = false;
+  private readonly snapshotDatabases:
+    | (() => Promise<readonly SnapshotDatabaseNode[]>)
+    | undefined;
+  private readonly snapshotViews:
+    | (() => Promise<readonly SnapshotViewNode[]>)
+    | undefined;
+  /** SHA-256 → relative file already written for this test. */
+  private readonly writtenDbBlobs = new Map<string, string>();
+  /** Acting actor for the in-flight `record` (used to pick primary HTML file). */
+  private currentActorId: string | undefined;
 
   constructor(options: SimulationReporterOptions) {
     this.seed = options.seed;
@@ -122,6 +163,8 @@ export class SimulationReporter {
     this.publishThrottleMs =
       options.publishThrottleMs ?? DEFAULT_PUBLISH_THROTTLE_MS;
     this.sourceFile = options.sourceFile;
+    this.snapshotDatabases = options.snapshotDatabases;
+    this.snapshotViews = options.snapshotViews;
     this.startedAtMs = options.now();
   }
 
@@ -140,8 +183,10 @@ export class SimulationReporter {
 
   async record(args: RecordArgs): Promise<void> {
     this.actorIds.add(args.actorId);
+    this.currentActorId = args.actorId;
     const startedAtMs = this.now();
     const outcome = await this.runRecorded(args);
+    this.currentActorId = undefined;
     this.pushStep(args, startedAtMs, this.now(), outcome);
     if (outcome.cause !== undefined) {
       await this.publishProgress();
@@ -364,11 +409,43 @@ export class SimulationReporter {
 
   private async writeFrame(html: string): Promise<SimulationFrame> {
     this.frameSeq += 1;
-    const file = `frames/f-${padFrame(this.frameSeq)}.html`;
-    const key = testFrameKey(this.runId, this.testId, file);
-    await storePutText(this.store, key, html, 'text/html; charset=utf-8');
-    mergeFrameHtmlAttribution(this.attribution, html);
-    return { file, capturedAtMs: this.now() };
+    const views = await writeFrameViewBlobs({
+      store: this.store,
+      runId: this.runId,
+      testId: this.testId,
+      frameSeq: this.frameSeq,
+      padFrame,
+      ...(this.snapshotViews !== undefined
+        ? { snapshotViews: this.snapshotViews }
+        : {}),
+      onHtml: (viewHtml) =>
+        mergeFrameHtmlAttribution(this.attribution, viewHtml),
+    });
+    const primaryFromViews = pickPrimaryViewFile(
+      views as SimulationFrameView[] | undefined,
+      this.currentActorId
+    );
+    const file = primaryFromViews ?? `frames/f-${padFrame(this.frameSeq)}.html`;
+    if (primaryFromViews === undefined) {
+      const key = testFrameKey(this.runId, this.testId, file);
+      await storePutText(this.store, key, html, 'text/html; charset=utf-8');
+      mergeFrameHtmlAttribution(this.attribution, html);
+    }
+    const databases = await writeFrameDatabaseBlobs({
+      store: this.store,
+      runId: this.runId,
+      testId: this.testId,
+      writtenDbBlobs: this.writtenDbBlobs,
+      ...(this.snapshotDatabases !== undefined
+        ? { snapshotDatabases: this.snapshotDatabases }
+        : {}),
+    });
+    return {
+      file,
+      capturedAtMs: this.now(),
+      ...(databases !== undefined ? { databases } : {}),
+      ...(views !== undefined ? { views } : {}),
+    };
   }
 
   private pushStep(
@@ -458,55 +535,4 @@ export class SimulationReporter {
     };
     return { meta, steps: [...steps] };
   }
-}
-
-export type FrameCaptureState = {
-  frames: SimulationFrame[];
-  lastHash: string;
-};
-
-function shouldPollKind(kind: SimulationStepKind): boolean {
-  return kind === 'waitFor' || kind === 'step';
-}
-
-function assignFrameDurations(
-  steps: readonly SimulationStep[]
-): SimulationStep[] {
-  return steps.map((step) => {
-    const frames = step.frames ?? [];
-    if (frames.length === 0) return step;
-    const withDurations = frames.map((frame, i) => {
-      const next = frames[i + 1];
-      const end = next?.capturedAtMs ?? step.endedAtMs;
-      return {
-        ...frame,
-        durationMs: Math.max(0, end - frame.capturedAtMs),
-      };
-    });
-    return { ...step, frames: withDurations };
-  });
-}
-
-function padFrame(index: number): string {
-  return String(index).padStart(5, '0');
-}
-
-/** Fast non-crypto content hash for change-gating identical frames. */
-export function hashString(value: string): string {
-  let h = 2166136261;
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-}
-
-function stripSnapshots(data: SimulationReportData): unknown {
-  return {
-    meta: data.meta,
-    steps: data.steps.map((step) => {
-      const { snapshotHtml: _html, ...rest } = step;
-      return rest;
-    }),
-  };
 }

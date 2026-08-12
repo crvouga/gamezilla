@@ -14,13 +14,15 @@ rewrite scenarios.
 
 ```text
 scenarios/*.sim.test.tsx
-  → AppDriver / AuthFlows / ProfileFlows   (intent journeys)
-    → UiPort                               (handle-keyed actions)
-      → ui-testing-adapter                 (by.testId only)
-        → @pkgs/ui-testing Driver
+  → AppDriver / AuthFlows / ProfileFlows   (intent journeys under src/drivers/)
+    → @pkgs/ui-testing Driver              (testId-only; ui.expect.*)
 product UI
   → testID={Handles.*} from @libs/dst-handles
 ```
+
+Agnostic boot helpers live in `@pkgs/simulation` (seeded SQLite, timing, serialized
+HTTP). Store DDL lives in `@pkgs/kv` / `@pkgs/entity-store`. Instance factories
+live in `@apps/api` (`createSimApiApp`) and `@apps/client` (`createClientApp`).
 
 ## Runner boundary (do not blur)
 
@@ -53,7 +55,7 @@ revert to “transform all of `node_modules`”.
 |--------|--------|
 | Button copy / a11y label / layout | Product UI only (scenarios stay green if handles stay put) |
 | New control must be addressed | Add `Handles.*` in `@libs/dst-handles`, pass `testID={Handles.*}` in product UI, use it from a flow |
-| New multi-step journey | Add / extend a flow under `harness/drivers/` |
+| New multi-step journey | Add / extend a flow under `src/drivers/` |
 | New behavior under test | Add a scenario that calls `AppDriver` only |
 
 ## Simulation report
@@ -63,18 +65,27 @@ all tests from `bun run --filter @test/ui test` appear under a single run in
 `@apps/simulation-report`. Override with `SIM_REPORT_RUN_ID` for cross-process
 suites.
 
+Each kept UI frame dumps **every live actor’s HTML** (`views[]`) plus
+**server + every actor** SQLite (`serialize()` → gzip, content-hash dedup).
+
+In the report player:
+
+- Bottom **timeline** + transport scrub frames.
+- **Node tabs** (`?node=`) split HTML | SQLite per actor/server.
+- SQLite pane defaults to **Diff** (prev↔current); switch to **Query** for Monaco.
+- Acting-actor HTML highlights the step’s `testId("…")` target.
+
 ## Rules (CI)
 
 - **Scenarios** must not import `@pkgs/ui-testing` (Biome) and must not call `by.*` (`ci:dst-selector-discipline`).
-- **Drivers** (`harness/drivers/**`, `app-driver.ts`) must not use `by.text` / `by.nth` / `by.role` / `by.label`.
-- **Adapter** may use `by.testId` only. `UiPort.tap` / `input` auto-wait until visible.
+- **Drivers** (`src/drivers/**`) must not use `by.text` / `by.nth` / `by.role` / `by.label` — only `Handles` + `Driver` testIds.
 - **Package contents:** only `*.sim.test.ts(x)` under `src/scenarios/` (enforced by Jest `testMatch`; do not add other `*.test.*` here).
 
 ## Adding a scenario
 
 1. Copy [`new-sim-test.template.ts`](./new-sim-test.template.ts).
 2. Prefer existing `app.auth.*` / `app.profile.*` flows.
-3. If a step is missing, add a flow method that uses `Handles` + `UiPort` — do not reach for `by.*` in the scenario.
+3. If a step is missing, add a flow method that uses `Handles` + `Driver` — do not reach for `by.*` in the scenario.
 
 ## Adding a handle
 

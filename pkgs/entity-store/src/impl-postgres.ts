@@ -16,27 +16,11 @@ import type {
   EntityStoreRow,
   EntityStoreUpsertArgs,
 } from './interface';
-
-const TABLE = 'entity_store';
-
-const CREATE_TABLE = `
-CREATE TABLE IF NOT EXISTS ${TABLE} (
-  id text NOT NULL PRIMARY KEY,
-  namespace text NOT NULL,
-  type text NOT NULL,
-  external_id text NOT NULL,
-  owner_id text,
-  data text NOT NULL,
-  created_at text NOT NULL,
-  updated_at text NOT NULL,
-  UNIQUE (namespace, type, external_id)
-)
-`;
-
-const CREATE_INDEXES = [
-  `CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON ${TABLE} (namespace, owner_id)`,
-  `CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON ${TABLE} (namespace, type)`,
-];
+import {
+  ENTITY_STORE_CREATE_INDEX_DDL as CREATE_INDEXES,
+  ENTITY_STORE_CREATE_TABLE_DDL as CREATE_TABLE,
+  ENTITY_STORE_TABLE as TABLE,
+} from './schema-ddl';
 
 /** Idempotent: strip wall DEFAULT now() left by older CREATE TABLE. */
 async function dropEntityStoreWallDefaults(
@@ -59,7 +43,7 @@ async function runEntityStoreMigrations(
      WHERE schemaname = current_schema() AND tablename = ${TABLE}`);
   if (existing.length === 0) {
     log.info('entity_store postgres migrate: applying ddl', { table: TABLE });
-    await sqlClient.run(raw(CREATE_TABLE.trim()));
+    await sqlClient.run(raw(CREATE_TABLE));
     for (const stmt of CREATE_INDEXES) {
       await sqlClient.run(raw(stmt));
     }

@@ -3,8 +3,8 @@ import type { HttpFetch } from '@pkgs/http-client';
 
 import {
   isUnauthorizedRefreshError,
-  refreshAuth,
   RefreshAuthError,
+  refreshAuth,
 } from './refresh-auth-fetch';
 
 describe('isUnauthorizedRefreshError', () => {

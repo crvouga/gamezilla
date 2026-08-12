@@ -1,24 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SimulationReportData } from '../types';
-import { testFrameUrl } from './api-client';
 import { buildPlayerCommands } from './commands/player-commands';
 import { useRegisterCommands } from './commands/registry';
-import { CopyLlmPromptButton } from './copy-llm-prompt-button';
-import { FrameRail, LONG_HOLD_PULSE_MS } from './frame-rail';
+import { FrameTimeline, LONG_HOLD_PULSE_MS } from './frame-timeline';
 import {
   type FlatFrame,
   flattenFrames,
-  formatMs,
   playheadFrameIndex,
   resolveSelectedFrameIndex,
 } from './frames';
+import { listReportNodes, NodeWorkspace } from './node-workspace';
 import { playbackHoldMs } from './playback-hold';
-import { PlayerStage } from './player-stage';
-import { ReportHeader } from './report-header';
+import { PlayerChrome } from './player-chrome';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
-import { badgeStyle, styles } from './theme';
+import { styles } from './theme';
 import { Transport } from './transport';
 import { useHoldCountdown } from './use-hold-countdown';
 
@@ -44,11 +41,13 @@ export function TestPlayer(props: {
       playheadIdx={model.playheadIdx}
       previewIdx={model.previewIdx}
       previewFrame={model.previewFrame}
+      prevFrame={model.prevFrame}
       holdRemainingMs={model.holdRemainingMs}
-      previewSrc={model.previewSrc}
+      nodeId={model.nodeId}
       registerCopyAction={model.registerCopyAction}
       onBack={model.onBack}
       onHover={model.onHover}
+      onSelectNode={model.selectNode}
     />
   );
 }
@@ -60,7 +59,7 @@ function useTestPlayerModel(props: {
   readonly runId: string;
   readonly onNav: (nav: ReportNavState) => void;
 }) {
-  const { data, nav, bucketId, runId, onNav } = props;
+  const { data, nav, onNav } = props;
   const testId = data.meta.testId;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
   const selectedFrameIdx = resolveSelectedFrameIndex(frames, data.steps, nav);
@@ -72,6 +71,10 @@ function useTestPlayerModel(props: {
     previewIdx >= 0 && previewIdx < frames.length
       ? (frames[previewIdx] ?? null)
       : null;
+  const prevFrame =
+    previewIdx > 0 && previewIdx < frames.length
+      ? (frames[previewIdx - 1] ?? null)
+      : null;
   const holdRemainingMs = useHoldCountdown({
     nav,
     activeFrameIdx: playheadIdx,
@@ -79,9 +82,6 @@ function useTestPlayerModel(props: {
     minHoldMs: LONG_HOLD_PULSE_MS,
   });
   usePlayback({ nav, frames, activeFrameIdx: playheadIdx, testId, onNav });
-  const previewSrc = previewFrame
-    ? testFrameUrl(bucketId, runId, testId, previewFrame.file)
-    : null;
   const actions = usePlayerActions({
     nav,
     onNav,
@@ -90,6 +90,13 @@ function useTestPlayerModel(props: {
     selectedFrameIdx,
     playheadIdx,
   });
+  const nodeId = resolveNodeId(data, previewFrame, nav.node);
+  const selectNode = useCallback(
+    (next: string) => {
+      onNav(navigateReport(nav, { node: next }, 'replace'));
+    },
+    [nav, onNav]
+  );
   const copyActionRef = useRef<() => void>(() => undefined);
   const registerCopyAction = useCallback((run: () => void) => {
     copyActionRef.current = run;
@@ -116,15 +123,27 @@ function useTestPlayerModel(props: {
     hoverFrameIdx: !nav.play ? hoverFrameIdx : null,
     previewIdx,
     previewFrame,
+    prevFrame,
     holdRemainingMs,
-    previewSrc,
+    nodeId,
     actions,
     registerCopyAction,
+    selectNode,
     onBack: () => onNav(navigateReport(nav, clearPlayerNav())),
     onHover: (idx: number | null) => {
       if (!nav.play) setHoverFrameIdx(idx);
     },
   };
+}
+
+function resolveNodeId(
+  data: SimulationReportData,
+  frame: FlatFrame | null,
+  navNode: string | null
+): string {
+  const nodes = listReportNodes(data, frame);
+  if (navNode && nodes.includes(navNode)) return navNode;
+  return nodes[0] ?? 'server';
 }
 
 function PlayerShell(props: {
@@ -140,11 +159,13 @@ function PlayerShell(props: {
   readonly playheadIdx: number;
   readonly previewIdx: number;
   readonly previewFrame: FlatFrame | null;
+  readonly prevFrame: FlatFrame | null;
   readonly holdRemainingMs: number | null;
-  readonly previewSrc: string | null;
+  readonly nodeId: string;
   readonly registerCopyAction: (run: () => void) => void;
   readonly onBack: () => void;
   readonly onHover: (idx: number | null) => void;
+  readonly onSelectNode: (nodeId: string) => void;
 }) {
   const {
     data,
@@ -159,34 +180,40 @@ function PlayerShell(props: {
     playheadIdx,
     previewIdx,
     previewFrame,
+    prevFrame,
     holdRemainingMs,
-    previewSrc,
+    nodeId,
     registerCopyAction,
     onBack,
     onHover,
+    onSelectNode,
   } = props;
   return (
     <div style={styles.appShell}>
-      <ReportHeader
-        back={{ label: '← Run', onClick: onBack }}
-        title={testId}
-        badge={
-          <span style={badgeStyle(data.meta.status)}>
-            {data.meta.status.toUpperCase()}
-          </span>
-        }
-        meta={`seed ${data.meta.seed} · ${frames.length}f · ${formatMs(data.meta.durationMs)}`}
-        end={
-          <>
-            <CopyLlmPromptButton
-              data={data}
-              bucketId={bucketId}
-              runId={runId}
-              selectedFrameIdx={selectedFrameIdx}
-              playheadIdx={playheadIdx}
-              previewIdx={previewIdx}
-              registerCopyAction={registerCopyAction}
-            />
+      <PlayerChrome
+        data={data}
+        testId={testId}
+        bucketId={bucketId}
+        runId={runId}
+        frames={frames}
+        selectedFrameIdx={selectedFrameIdx}
+        playheadIdx={playheadIdx}
+        previewIdx={previewIdx}
+        registerCopyAction={registerCopyAction}
+        onBack={onBack}
+      >
+        <div style={styles.playerEditorLayout}>
+          <NodeWorkspace
+            data={data}
+            bucketId={bucketId}
+            runId={runId}
+            testId={testId}
+            frame={previewFrame}
+            prevFrame={prevFrame}
+            nodeId={nodeId}
+            onSelectNode={onSelectNode}
+          />
+          <div style={styles.bottomStrip}>
             <Transport
               compact
               nav={nav}
@@ -206,21 +233,18 @@ function PlayerShell(props: {
               onMode={actions.setMode}
               onSpeed={actions.setSpeed}
             />
-          </>
-        }
-      />
-      <div style={styles.playerLayout}>
-        <FrameRail
-          frames={frames}
-          selectedIdx={selectedFrameIdx}
-          hoverIdx={hoverFrameIdx}
-          playheadIdx={playheadIdx}
-          holdRemainingMs={holdRemainingMs}
-          onHover={onHover}
-          onSelect={actions.toggleFrame}
-        />
-        <PlayerStage previewFrame={previewFrame} previewSrc={previewSrc} />
-      </div>
+            <FrameTimeline
+              frames={frames}
+              selectedIdx={selectedFrameIdx}
+              hoverIdx={hoverFrameIdx}
+              playheadIdx={playheadIdx}
+              holdRemainingMs={holdRemainingMs}
+              onHover={onHover}
+              onSelect={actions.toggleFrame}
+            />
+          </div>
+        </div>
+      </PlayerChrome>
     </div>
   );
 }
@@ -342,7 +366,14 @@ function usePlayerCommands(args: {
 }) {
   const { nav, frames, previewIdx, actions, onNav } = args;
   const commands = useMemo(
-    () => buildPlayerCommands({ nav, frames, previewIdx, actions, onNav }),
+    () =>
+      buildPlayerCommands({
+        nav,
+        frames,
+        previewIdx,
+        actions,
+        onNav,
+      }),
     [nav, frames, previewIdx, actions, onNav]
   );
   useRegisterCommands(commands);

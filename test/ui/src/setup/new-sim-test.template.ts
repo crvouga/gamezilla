@@ -7,9 +7,9 @@
 
 import { describe, test } from '@jest/globals';
 
-import { AppDriver } from '../harness/app-driver';
-import { aliceCreds } from '../harness/fixtures';
-import { openSim } from '../harness/open-sim';
+import { AppDriver } from '../drivers/app-driver';
+import { aliceCreds } from '../fixtures/fixtures';
+import { openSim } from '../setup/open-sim';
 
 describe('example journey', () => {
   test('sign up then assert signed-out after logout', async () => {

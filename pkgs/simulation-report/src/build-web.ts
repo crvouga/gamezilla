@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { cp, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const webDir = join(here, 'web');
 const distDir = join(here, '..', 'dist');
+const pkgRoot = join(here, '..');
 
 await mkdir(distDir, { recursive: true });
 
@@ -24,6 +25,8 @@ if (!result.success) {
   console.error(result.logs);
   throw new Error('simulation-report web build failed');
 }
+
+await copySqliteWasmAssets(distDir, pkgRoot);
 
 const indexHtml = `<!doctype html>
 <html lang="en">
@@ -48,3 +51,24 @@ const indexHtml = `<!doctype html>
 
 await writeFile(join(distDir, 'index.html'), indexHtml, 'utf8');
 process.stdout.write(`Built simulation-report SPA → ${distDir}\n`);
+
+async function copySqliteWasmAssets(
+  outDir: string,
+  packageRoot: string
+): Promise<void> {
+  const resolved = Bun.resolveSync('@sqlite.org/sqlite-wasm', packageRoot);
+  // resolved → …/dist/index.mjs; wasm must sit next to bundled app.js because
+  // the module loads via `new URL("sqlite3.wasm", import.meta.url)`.
+  const wasmDist = dirname(resolved);
+  await cp(join(wasmDist, 'sqlite3.wasm'), join(outDir, 'sqlite3.wasm'));
+  // Also keep worker helpers under /sqlite-wasm/ for optional worker use.
+  const helperDir = join(outDir, 'sqlite-wasm');
+  await mkdir(helperDir, { recursive: true });
+  for (const name of [
+    'sqlite3.wasm',
+    'sqlite3-worker1.mjs',
+    'sqlite3-opfs-async-proxy.js',
+  ]) {
+    await cp(join(wasmDist, name), join(helperDir, name));
+  }
+}

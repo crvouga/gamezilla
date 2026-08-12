@@ -1,6 +1,6 @@
 /**
  * Semantic DST / E2E handles shared by product UI (`testID={Handles.*}`) and
- * `@test/ui` drivers (`UiPort` / `by.testId`). Add a handle here when a control
+ * `@test/ui` drivers (`Driver` testIds). Add a handle here when a control
  * must be uniquely addressable without copy or index hacks.
  */
 export const Handles = {

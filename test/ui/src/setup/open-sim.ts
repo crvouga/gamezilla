@@ -69,7 +69,7 @@ export async function openSim(
       maxFramesPerStep: 1,
       frameIntervalMs: 250,
       // Mid-run report publish coalesce — lower than default to cut FS work;
-      // frame wait gate is still UiPort 50ms poll, not this value.
+      // driver wait polls stay on the Driver wait interval, not this value.
       publishThrottleMs: 50,
     },
   });

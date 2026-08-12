@@ -12,8 +12,8 @@ import {
   computeSimSeedFingerprint,
   ensureSimSeedBuffer,
   SIM_SEED_SQLITE_PATH,
-} from '../src/harness/boot-sim-sqlite';
-import { migrateSimSqlite } from '../src/harness/migrate-sim-sqlite';
+} from '../src/setup/boot-sim-sqlite';
+import { migrateSimSqlite } from '../src/setup/migrate-sim-sqlite';
 
 async function main(): Promise<void> {
   const io = wallIo();

@@ -16,6 +16,25 @@ export type SimulationStepKind =
   | 'nav.open'
   | 'step';
 
+/** Per-node SQLite dump attached to a UI frame (content-addressed blob). */
+export type SimulationFrameDatabase = {
+  /** `'server'` or actor id. */
+  readonly nodeId: string;
+  /** Path relative to the test report dir, e.g. `frames/db/<sha>.sqlite.gz`. */
+  readonly file: string;
+  /** SHA-256 of the uncompressed SQLite bytes. */
+  readonly sha256: string;
+  /** Uncompressed byte length. */
+  readonly byteLength: number;
+};
+
+/** Per-actor HTML snapshot for a frame (server has no UI). */
+export type SimulationFrameView = {
+  readonly nodeId: string;
+  /** Path relative to the test report dir, e.g. `frames/f-00001.alice.html`. */
+  readonly file: string;
+};
+
 export type SimulationFrame = {
   /** Path relative to the test report directory (e.g. `frames/f-00001.html`). */
   readonly file: string;
@@ -25,6 +44,10 @@ export type SimulationFrame = {
    * Filled on flush for realtime playback.
    */
   readonly durationMs?: number;
+  /** Live SQLite dumps for server + actors at this frame (optional on legacy). */
+  readonly databases?: readonly SimulationFrameDatabase[];
+  /** Per-actor HTML views (optional on legacy). */
+  readonly views?: readonly SimulationFrameView[];
 };
 
 export type SimulationStep = {

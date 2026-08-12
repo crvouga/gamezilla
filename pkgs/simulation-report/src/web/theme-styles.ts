@@ -1,6 +1,8 @@
+import { editorStyles } from './theme-editor-styles';
 import { merge, t } from './theme-tokens';
 
 export const styles = {
+  ...editorStyles,
   /** Full-viewport shell: shared chrome row + body. */
   appShell: merge({
     height: '100%',
@@ -146,8 +148,26 @@ export const styles = {
   playerLayout: merge({
     display: 'grid',
     gridTemplateColumns: `${t.railW}px 1fr`,
+    gridTemplateRows: '1fr',
     minHeight: 0,
     minWidth: 0,
+  }),
+  playerLayoutWithSql: merge({
+    display: 'grid',
+    gridTemplateColumns: `${t.railW}px 1fr`,
+    gridTemplateRows: '1fr minmax(220px, 40%)',
+    minHeight: 0,
+    minWidth: 0,
+  }),
+  playerMain: merge({
+    display: 'contents',
+  }),
+  sqlDockCell: merge({
+    gridColumn: '1 / -1',
+    minHeight: 0,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
   }),
   frameRail: merge({
     overflow: 'auto',

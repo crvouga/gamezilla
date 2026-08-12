@@ -59,8 +59,35 @@ export class Simulation {
     // Derive from parent Io seed — never an independent createSeededRng(seed).
     const rng = io.rng.fork('simulation');
     const handle = await options.system.start({ io, rng, ui });
-    const reporter = createReporter(options, io, ui);
-    return new Simulation({ io, ui, handle, reporter });
+    const viewsHolder: {
+      snapshot: () => Promise<
+        readonly { readonly nodeId: string; readonly html: string }[]
+      >;
+    } = {
+      snapshot: async () => [],
+    };
+    const reporter = createReporter(options, io, ui, handle, viewsHolder);
+    const sim = new Simulation({ io, ui, handle, reporter });
+    viewsHolder.snapshot = () => sim.collectActorViews();
+    return sim;
+  }
+
+  /** Snapshot every mounted actor's UI HTML for report frame views. */
+  private async collectActorViews(): Promise<
+    readonly { readonly nodeId: string; readonly html: string }[]
+  > {
+    const out: { nodeId: string; html: string }[] = [];
+    for (const [id, actor] of this.actors) {
+      try {
+        const html = await actor.ui.snapshotHtml({
+          stylesheetHref: '../../snapshot-shell.css',
+        });
+        if (html != null) out.push({ nodeId: id, html });
+      } catch {
+        // Actor may be mid-dispose / unmounted — skip.
+      }
+    }
+    return out;
   }
 
   /** Object-store key for this test's `steps.json` after dispose flush, if reporting. */
@@ -144,7 +171,13 @@ export class Simulation {
 function createReporter(
   options: SimulationOptions,
   io: SimIo,
-  ui: SimulationUiKind
+  ui: SimulationUiKind,
+  handle: SimulationSystemHandle,
+  viewsHolder: {
+    snapshot: () => Promise<
+      readonly { readonly nodeId: string; readonly html: string }[]
+    >;
+  }
 ): SimulationReporter | undefined {
   const reportOpts = resolveReportOptions(options.report);
   if (reportOpts === null) return undefined;
@@ -175,6 +208,10 @@ function createReporter(
       ? { publishThrottleMs: reportOpts.publishThrottleMs }
       : {}),
     ...(sourceFile !== undefined ? { sourceFile } : {}),
+    ...(handle.snapshotDatabases !== undefined
+      ? { snapshotDatabases: handle.snapshotDatabases }
+      : {}),
+    snapshotViews: () => viewsHolder.snapshot(),
   });
 }
 

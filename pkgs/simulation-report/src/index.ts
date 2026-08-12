@@ -22,6 +22,8 @@ export {
   type RunsIndex,
   resolveReportOptions,
   type SimulationFrame,
+  type SimulationFrameDatabase,
+  type SimulationFrameView,
   type SimulationReportData,
   type SimulationReportMeta,
   type SimulationReportOptions,

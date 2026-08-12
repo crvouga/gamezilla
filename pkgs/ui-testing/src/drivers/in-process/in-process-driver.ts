@@ -11,17 +11,17 @@ import type {
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
-import { ElementNotFoundError, NotImplementedError } from '../../core/errors';
+import { ElementNotFoundError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
 import { type WaitPollOptions, waitUntil } from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
   TapPosition,
+  UiWaitOptions,
   WaitState,
 } from '../../driver/driver';
-import { formatSelector } from '../../selector/format';
-import type { Selector } from '../../selector/selector';
+import { formatTestId } from '../../selector/format';
 import { createRntlRenderAdapter } from './renderer-rntl';
 
 export type InProcessDriverOptions<TContext = void> = {
@@ -46,6 +46,13 @@ export class InProcessDriver<TContext = void> implements Driver {
   readonly timers: Timers;
   private context: TContext | undefined;
   private app: RenderedApp | undefined;
+
+  readonly expect: Driver['expect'] = {
+    visible: (testId, options) => this.expectVisible(testId, options),
+    hidden: (testId, options) => this.expectHidden(testId, options),
+    text: (testId, expected, options) =>
+      this.expectText(testId, expected, options),
+  };
 
   constructor(options: InProcessDriverOptions<TContext>) {
     this.harness = options.harness;
@@ -80,24 +87,31 @@ export class InProcessDriver<TContext = void> implements Driver {
     this.context = undefined;
   }
 
-  async tap(target: Selector): Promise<void> {
+  async tap(testId: string, options?: UiWaitOptions): Promise<void> {
+    await this.waitVisible(testId, options);
     await this.activate();
-    await this.requireApp().tap(await this.requireElement(target));
+    await this.requireApp().tap(await this.requireElement(testId));
   }
 
-  async tapAt(target: Selector, position: TapPosition): Promise<void> {
+  async tapAt(testId: string, position: TapPosition): Promise<void> {
+    await this.waitVisible(testId);
     await this.activate();
-    await this.requireApp().tapAt(await this.requireElement(target), position);
+    await this.requireApp().tapAt(await this.requireElement(testId), position);
   }
 
-  async input(target: Selector, text: string): Promise<void> {
+  async input(
+    testId: string,
+    text: string,
+    options?: UiWaitOptions
+  ): Promise<void> {
+    await this.waitVisible(testId, options);
     await this.activate();
-    await this.requireApp().typeText(await this.requireElement(target), text);
+    await this.requireApp().typeText(await this.requireElement(testId), text);
   }
 
-  async clear(target: Selector): Promise<void> {
+  async clear(testId: string): Promise<void> {
     await this.activate();
-    await this.requireApp().clearText(await this.requireElement(target));
+    await this.requireApp().clearText(await this.requireElement(testId));
   }
 
   async key(key: DriverKey): Promise<void> {
@@ -106,38 +120,30 @@ export class InProcessDriver<TContext = void> implements Driver {
   }
 
   async scroll(
-    target: Selector,
+    testId: string,
     direction: ScrollDirection,
     amount = 100
   ): Promise<void> {
     await this.activate();
     await this.requireApp().scroll(
-      await this.requireElement(target),
+      await this.requireElement(testId),
       direction,
       amount
     );
   }
 
-  async back(): Promise<void> {
-    throw new NotImplementedError(
-      this.kind,
-      'navigateBack',
-      'Provide app-level back handling via a page object or harness helper'
-    );
-  }
-
   async wait(
-    target: Selector,
+    testId: string,
     state: WaitState,
     options?: WaitPollOptions
   ): Promise<void> {
     const description =
-      options?.description ?? `${state} ${formatSelector(target)}`;
+      options?.description ?? `${state} ${formatTestId(testId)}`;
     await waitUntil(
       async () => {
         // Flush pending React updates before each poll (AuthBridge / sync).
         await this.activate();
-        const visible = await this.isVisible(target);
+        const visible = await this.isVisible(testId);
         return state === 'visible' ? visible : !visible;
       },
       {
@@ -149,40 +155,18 @@ export class InProcessDriver<TContext = void> implements Driver {
     );
   }
 
-  async expectVisible(
-    target: Selector,
-    options?: AssertionOptions
-  ): Promise<void> {
-    await runExpectVisible(this, target, options);
-  }
-
-  async expectHidden(
-    target: Selector,
-    options?: AssertionOptions
-  ): Promise<void> {
-    await runExpectHidden(this, target, options);
-  }
-
-  async expectText(
-    target: Selector,
-    expected: string,
-    options?: AssertionOptions & { exact?: boolean }
-  ): Promise<void> {
-    await runExpectText(this, target, expected, options);
-  }
-
-  async isVisible(target: Selector): Promise<boolean> {
+  async isVisible(testId: string): Promise<boolean> {
     const app = this.requireApp();
-    const element = app.query(target);
+    const element = app.query(testId);
     if (!element) {
       return false;
     }
     return app.isVisible(element);
   }
 
-  async getText(target: Selector): Promise<string | null> {
+  async getText(testId: string): Promise<string | null> {
     const app = this.requireApp();
-    return app.getText(await this.requireElement(target));
+    return app.getText(await this.requireElement(testId));
   }
 
   async snapshotHtml(options?: {
@@ -193,6 +177,41 @@ export class InProcessDriver<TContext = void> implements Driver {
     return app.snapshotHtml(
       options?.stylesheetHref !== undefined
         ? { stylesheetHref: options.stylesheetHref }
+        : undefined
+    );
+  }
+
+  private async expectVisible(
+    testId: string,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectVisible(this, testId, options);
+  }
+
+  private async expectHidden(
+    testId: string,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectHidden(this, testId, options);
+  }
+
+  private async expectText(
+    testId: string,
+    expected: string,
+    options?: AssertionOptions & { exact?: boolean }
+  ): Promise<void> {
+    await runExpectText(this, testId, expected, options);
+  }
+
+  private async waitVisible(
+    testId: string,
+    options?: UiWaitOptions
+  ): Promise<void> {
+    await this.wait(
+      testId,
+      'visible',
+      options?.timeoutMs !== undefined
+        ? { timeoutMs: options.timeoutMs }
         : undefined
     );
   }
@@ -208,10 +227,10 @@ export class InProcessDriver<TContext = void> implements Driver {
     await this.requireApp().activate?.();
   }
 
-  private async requireElement(target: Selector): Promise<HostNode> {
-    const element = this.requireApp().query(target);
+  private async requireElement(testId: string): Promise<HostNode> {
+    const element = this.requireApp().query(testId);
     if (!element) {
-      throw new ElementNotFoundError(formatSelector(target));
+      throw new ElementNotFoundError(formatTestId(testId));
     }
     return element;
   }

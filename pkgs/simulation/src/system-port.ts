@@ -25,10 +25,23 @@ export type SimulationSystem = {
   start(ctx: SimulationStartContext): Promise<SimulationSystemHandle>;
 };
 
+/** One live SQLite node dump for report frame capture. */
+export type SimulationSqliteNodeSnapshot = {
+  /** Stable id — `'server'` for the shared backend, else actor id. */
+  readonly nodeId: string;
+  /** Raw `better-sqlite3` `serialize()` bytes (uncompressed). */
+  readonly bytes: Uint8Array;
+};
+
 export type SimulationSystemHandle = {
   /** Create an isolated user session (own client stack + UI root). */
   createSession(actorId: string): Promise<SimulationSession>;
   dispose(): Promise<void>;
+  /**
+   * When set, the reporter dumps these buffers on every kept UI frame
+   * (gzip + content-hash dedup under `frames/db/`).
+   */
+  snapshotDatabases?: () => Promise<readonly SimulationSqliteNodeSnapshot[]>;
 };
 
 type SimulationSessionBase = {

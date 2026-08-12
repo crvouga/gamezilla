@@ -17,11 +17,14 @@
     "test": "bun test src --pass-with-no-tests"
   },
   "dependencies": {
+    "@monaco-editor/react": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "catalog:",
     "cmdk": "catalog:",
     "lucide-react": "catalog:",
+    "monaco-editor": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

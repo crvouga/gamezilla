@@ -1,5 +1,10 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
+import type { SimulationStep } from '../types';
+import {
+  applyInteractionOverlay,
+  clearInteractionOverlay,
+} from './interaction-overlay';
 import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
 import {
   isBlankSnapshotBody,
@@ -35,6 +40,18 @@ type PaintRefs = {
   readonly hasPaintedRef: RefObject<boolean>;
   readonly genRef: RefObject<number>;
 };
+
+type InteractionStep = Pick<SimulationStep, 'kind' | 'selector' | 'detail'>;
+
+function applyOverlayToFrame(
+  frame: HTMLIFrameElement | null,
+  step: InteractionStep | null
+): void {
+  const doc = frame?.contentDocument;
+  if (!doc) return;
+  if (step) applyInteractionOverlay(doc, step);
+  else clearInteractionOverlay(doc);
+}
 
 function useSnapshotPaint(
   src: string | null,
@@ -126,12 +143,30 @@ function useSnapshotPaint(
   ]);
 }
 
+function useInteractionOverlay(args: {
+  readonly front: 0 | 1;
+  readonly hasPainted: boolean;
+  readonly interactionStep: InteractionStep | null;
+  readonly frame0Ref: RefObject<HTMLIFrameElement | null>;
+  readonly frame1Ref: RefObject<HTMLIFrameElement | null>;
+}): void {
+  const { front, hasPainted, interactionStep, frame0Ref, frame1Ref } = args;
+  useEffect(() => {
+    if (!hasPainted) return;
+    const frontFrame = front === 0 ? frame0Ref.current : frame1Ref.current;
+    applyOverlayToFrame(frontFrame, interactionStep);
+  }, [front, hasPainted, interactionStep, frame0Ref, frame1Ref]);
+}
+
 /**
  * Double-buffered iframe srcdoc stage. Never assigns srcdoc on the visible
  * iframe; blank / identical bodies hold the last good front frame.
  */
-export function SnapshotStage(props: { readonly src: string | null }) {
-  const { src } = props;
+export function SnapshotStage(props: {
+  readonly src: string | null;
+  readonly interactionStep?: InteractionStep | null;
+}) {
+  const { src, interactionStep = null } = props;
   const frame0Ref = useRef<HTMLIFrameElement>(null);
   const frame1Ref = useRef<HTMLIFrameElement>(null);
   const frontRef = useRef<0 | 1>(0);
@@ -156,6 +191,13 @@ export function SnapshotStage(props: { readonly src: string | null }) {
     setFront,
     setHasPainted
   );
+  useInteractionOverlay({
+    front,
+    hasPainted,
+    interactionStep,
+    frame0Ref,
+    frame1Ref,
+  });
 
   const frameStyle = (idx: 0 | 1) =>
     merge(

@@ -23,6 +23,7 @@ export const t = {
   headerH: 48,
   detailMetaH: 52,
   railW: 240,
+  timelineH: 140,
   radius: 4,
   mono: '"IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
 } as const;

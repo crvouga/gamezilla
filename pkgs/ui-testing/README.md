@@ -23,20 +23,18 @@ The package is a workspace member. Depend on it from a consuming package:
 ```ts
 import {
   createDriver,
-  by,
   type Driver,
   type AppHarness,
 } from '@pkgs/ui-testing';
 ```
 
-| Surface                                          | Purpose                                       |
-| ------------------------------------------------ | --------------------------------------------- |
-| `Driver`                                         | Portable user-intent ops + expect* methods    |
-| `createDriver(config)`                           | Factory over a discriminated `DriverConfig`   |
-| `by.testId` / `by.text` / `by.label` / `by.role` | Selector builders                             |
-| `by.first` / `by.nth`                            | Match-index combinators                       |
-| `driver.expectVisible` / `expectHidden` / `expectText` | Assertions (methods on Driver)           |
-| `AppHarness`                                     | App-supplied bootstrap port (in-process only) |
+| Surface | Purpose |
+| --- | --- |
+| `Driver` | Portable user-intent ops + nested `expect.*` |
+| `createDriver(config)` | Factory over a discriminated `DriverConfig` |
+| `driver.tap` / `input` / … | Actions take plain `testId` strings |
+| `driver.expect.visible` / `hidden` / `text` | Nested assertions |
+| `AppHarness` | App-supplied bootstrap port (in-process only) |
 
 Direct driver constructors are also available under deep imports, e.g.
 `@pkgs/ui-testing/drivers/in-process/in-process-driver`.
@@ -62,35 +60,36 @@ over a real React Native host (`react-test-renderer` / `test-renderer`). Inject
 alternate implementations via DI / harness setup — never `mock.module` or
 hand-rolled module stubs in this package.
 
-## Selectors
+## Targeting elements
+
+Every action and assertion takes a **`testId` string** (mapped to
+`testID` / `data-testid` / Detox `by.id`). There is no public
+`by.text` / `by.role` / `by.label` selection API.
 
 ```ts
-by.testId('email');
-by.text('Sign in');
-by.label('Password');
-by.role('button', 'Submit');
-by.first(by.role('heading', 'Spaces'));
-by.nth(by.testId('row'), 2);
+await driver.tap('submit');
+await driver.input('email', 'ada@example.com');
+await driver.expect.visible('home');
+await driver.expect.text('welcome', 'Welcome ada@example.com');
 ```
 
-Drivers translate these into native queries (`getByTestId`, Detox `by.id`, …).
-Never pass CSS / XPath / framework matchers into the public API.
-Use `by.first` / `by.nth` when multiple elements match.
+`tap` and `input` auto-wait until the target is visible before acting
+(optional `timeoutMs` via `UiWaitOptions`).
 
 ## Page objects (consumer-owned)
 
 The framework ships **no** page objects. Build them in your app:
 
 ```ts
-import { by, type Driver } from '@pkgs/ui-testing';
+import type { Driver } from '@pkgs/ui-testing';
 
 class LoginPage {
   constructor(private driver: Driver) {}
 
   async login(email: string, password: string) {
-    await this.driver.typeText(by.testId('email'), email);
-    await this.driver.typeText(by.testId('password'), password);
-    await this.driver.tap(by.role('button', 'Submit'));
+    await this.driver.input('email', email);
+    await this.driver.input('password', password);
+    await this.driver.tap('submit');
   }
 }
 ```
@@ -133,7 +132,7 @@ this package forbids.
 ### 3. Write a test
 
 ```ts
-import { createDriver, by } from '@pkgs/ui-testing';
+import { createDriver } from '@pkgs/ui-testing';
 import { harness } from './harness';
 
 const driver = createDriver({
@@ -143,7 +142,7 @@ const driver = createDriver({
   timers,
 });
 await driver.launch();
-await driver.expectVisible(by.testId('home'));
+await driver.expect.visible('home');
 await driver.close();
 ```
 
@@ -158,7 +157,7 @@ extra at runtime beyond their own install.
 
 ```ts
 import { test } from '@playwright/test';
-import { createDriver, by } from '@pkgs/ui-testing';
+import { createDriver } from '@pkgs/ui-testing';
 
 test('home loads', async ({ page }) => {
   const driver = createDriver({
@@ -167,7 +166,7 @@ test('home loads', async ({ page }) => {
     baseUrl: 'http://localhost:5173',
   });
   await driver.launch();
-  await driver.expectVisible(by.testId('app-root'));
+  await driver.expect.visible('app-root');
 });
 ```
 
@@ -180,20 +179,18 @@ first-class text read-back — `getText` remains unsupported by design.
 
 ## Driver capability matrix
 
-| Operation                | In-process        | Playwright               | Detox (stub)                               |
-| ------------------------ | ----------------- | ------------------------ | ------------------------------------------ |
-| `launch` / `close`       | yes               | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
-| `tap`                    | yes               | yes                      | stub → `element().tap()`                   |
-| `tapAt`                  | yes               | yes                      | stub → `element().tap({ x, y })`           |
-| `typeText` / `clearText` | yes               | yes                      | stub → `typeText` / `clearText`            |
-| `pressKey`               | yes (no-op host)  | yes                      | stub (platform-limited)                    |
-| `scroll`                 | yes               | yes                      | stub → `element().scroll`                  |
-| `navigateBack`           | not implemented\* | `page.goBack()`          | stub → `device.pressBack()`                |
-| `waitFor` / `isVisible`  | yes               | yes                      | stub → `waitFor` / `toBeVisible`           |
-| `getText`                | yes               | yes                      | unsupported in Detox                       |
-| `snapshotHtml`           | RN host → HTML    | `page.content()`         | returns `null`                             |
-
-\*In-process `navigateBack` needs app-level back handling (router / page object).
+| Operation | In-process | Playwright | Detox (stub) |
+| --- | --- | --- | --- |
+| `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
+| `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
+| `tapAt` | yes | yes | stub → `element().tap({ x, y })` |
+| `clear` | yes | yes | stub → `clearText` |
+| `key` | yes (no-op host) | yes | stub (platform-limited) |
+| `scroll` | yes | yes | stub → `element().scroll` |
+| `wait` / `isVisible` | yes | yes | stub → `waitFor` / `toBeVisible` |
+| `expect.visible` / `hidden` / `text` | yes | yes | stub |
+| `getText` | yes | yes | unsupported in Detox |
+| `snapshotHtml` | RN host → HTML | `page.content()` | returns `null` |
 
 ### UI snapshots for reports
 
@@ -210,7 +207,7 @@ logic.
 1. Implement `Driver` in `src/drivers/<name>/`
 2. Add a member to `DriverConfig` in `create-driver.ts`
 3. Export from `src/index.ts`
-4. No change to selectors, assertions, or page-object patterns
+4. No change to assertions or page-object patterns
 
 ## Test runner independence
 
@@ -223,7 +220,7 @@ Bun's `expect` — use whatever runner you prefer.
 ```text
 pkgs/ui-testing/src/
   core/           errors, waitUntil, DriverKey
-  selector/       Selector union + by.* builders
+  selector/       formatTestId + thin internal testId helper
   driver/         Driver interface + createDriver
   assertions/     shared expect* helpers for Driver implementations
   bootstrap/      AppHarness + RenderAdapter ports

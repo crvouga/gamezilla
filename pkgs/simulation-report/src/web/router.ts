@@ -7,6 +7,7 @@ export type ReportNavState = {
   readonly testId: string | null;
   readonly step: number | null;
   readonly frame: number | null;
+  readonly node: string | null;
   readonly play: boolean;
   readonly mode: PlayMode;
   readonly speed: PlaySpeed;
@@ -18,6 +19,7 @@ const DEFAULT_NAV: ReportNavState = {
   testId: null,
   step: null,
   frame: null,
+  node: null,
   play: false,
   mode: 'realtime',
   speed: 1,
@@ -28,7 +30,7 @@ const DEFAULT_NAV: ReportNavState = {
  * - `/`
  * - `/b/:bucketId`
  * - `/b/:bucketId/r/:runId` (`runId` may be the sticky alias `latest`)
- * - `/b/:bucketId/r/:runId/t/:testId?step=&frame=&play=&mode=&speed=`
+ * - `/b/:bucketId/r/:runId/t/:testId?step=&frame=&node=&play=&mode=&speed=`
  */
 export function parseReportNav(
   pathname: string,
@@ -47,12 +49,14 @@ export function parseReportNav(
   const modeRaw = params.get('mode');
   const speed: PlaySpeed = speedRaw === 0.5 || speedRaw === 2 ? speedRaw : 1;
   const mode: PlayMode = modeRaw === 'fixed' ? 'fixed' : 'realtime';
+  const nodeRaw = params.get('node');
   return {
     bucketId,
     runId,
     testId,
     step: parsePositiveInt(params.get('step')),
     frame: parsePositiveInt(params.get('frame')),
+    node: nodeRaw && nodeRaw.length > 0 ? nodeRaw : null,
     play: params.get('play') === '1',
     mode,
     speed,
@@ -87,6 +91,7 @@ function buildPlayerSearch(
   const params = new URLSearchParams();
   if (next.step != null) params.set('step', String(next.step));
   if (next.frame != null) params.set('frame', String(next.frame));
+  if (next.node != null) params.set('node', next.node);
   if (next.play) params.set('play', '1');
   if (next.mode !== 'realtime' || opts?.replacePlayDefaults) {
     params.set('mode', next.mode);
@@ -136,6 +141,7 @@ export function clearPlayerNav(patch: NavPatch = {}): NavPatch {
     testId: null,
     step: null,
     frame: null,
+    node: null,
     play: false,
     ...patch,
   };

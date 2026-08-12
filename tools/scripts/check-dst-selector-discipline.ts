@@ -2,8 +2,7 @@
 /**
  * DST selector discipline:
  * - scenarios: no `@pkgs/ui-testing`, no `by.`
- * - harness drivers + app-driver: no `by.(text|nth|role|label)(`
- * - ui-testing-adapter: `by.testId` only (no other `by.` kinds)
+ * - drivers: no `by.(text|nth|role|label)(` — Handles + Driver testIds only
  * - `@test/ui` package: only `*.sim.test.ts(x)` under `src/scenarios/`
  *   (no RN component / Vitest / bun unit tests in this package)
  */
@@ -13,9 +12,7 @@ import { join, relative } from 'node:path';
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const UI_SRC_DIR = join(REPO_ROOT, 'test/ui/src');
 const SCENARIOS_DIR = join(REPO_ROOT, 'test/ui/src/scenarios');
-const DRIVERS_DIR = join(REPO_ROOT, 'test/ui/src/harness/drivers');
-const APP_DRIVER = join(REPO_ROOT, 'test/ui/src/harness/app-driver.ts');
-const ADAPTER = join(REPO_ROOT, 'test/ui/src/harness/ui-testing-adapter.ts');
+const DRIVERS_DIR = join(REPO_ROOT, 'test/ui/src/drivers');
 
 type Violation = { file: string; detail: string };
 
@@ -75,8 +72,7 @@ for (const file of walk(SCENARIOS_DIR)) {
   }
 }
 
-const driverFiles = [...walk(DRIVERS_DIR), APP_DRIVER];
-for (const file of driverFiles) {
+for (const file of walk(DRIVERS_DIR)) {
   for (const [i, line] of linesOf(file).entries()) {
     if (/\bby\.(text|nth|role|label)\(/.test(line)) {
       violations.push({
@@ -84,15 +80,6 @@ for (const file of driverFiles) {
         detail: `L${i + 1}: drivers must not use by.text/nth/role/label (handles only)`,
       });
     }
-  }
-}
-
-for (const [i, line] of linesOf(ADAPTER).entries()) {
-  if (/\bby\.(text|nth|role|label)\(/.test(line)) {
-    violations.push({
-      file: rel(ADAPTER),
-      detail: `L${i + 1}: adapter may use by.testId only`,
-    });
   }
 }
 

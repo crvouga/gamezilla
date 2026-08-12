@@ -3,8 +3,7 @@
  *
  * Primary surface:
  * - {@link Driver} / {@link createDriver}
- * - {@link by} selectors
- * - Driver assertion methods (`expectVisible` / `expectHidden` / `expectText`)
+ * - Nested `driver.expect.visible` / `hidden` / `text` (testId strings)
  * - {@link AppHarness} bootstrap port
  *
  * Drivers live under `@pkgs/ui-testing/drivers/...` for direct construction
@@ -41,6 +40,7 @@ export type {
   Driver,
   ScrollDirection,
   TapPosition,
+  UiWaitOptions,
   WaitState,
 } from './driver/driver';
 export {
@@ -65,5 +65,8 @@ export {
   PlaywrightDriver,
   type PlaywrightDriverOptions,
 } from './drivers/playwright/playwright-driver';
-export { formatSelector } from './selector/format';
-export { by, type Selector, type SelectorRole } from './selector/selector';
+export { formatTestId } from './selector/format';
+export {
+  type TestIdSelector,
+  testIdSelector,
+} from './selector/selector';

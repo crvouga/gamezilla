@@ -6,12 +6,21 @@ import { merge, styles } from './theme';
 export function PlayerStage(props: {
   readonly previewFrame: FlatFrame | null;
   readonly previewSrc: string | null;
+  readonly showInteractionOverlay?: boolean;
 }) {
-  const { previewFrame, previewSrc } = props;
+  const { previewFrame, previewSrc, showInteractionOverlay = false } = props;
   const step = previewFrame?.step;
-  const metaLine = step
-    ? `${step.actorId} · ${step.kind} · ${step.status} · ${formatMs(previewFrame?.durationMs)}`
+  const metaParts = step
+    ? [
+        step.actorId,
+        step.kind,
+        step.status,
+        formatMs(previewFrame?.durationMs),
+        step.selector,
+        step.detail,
+      ].filter(Boolean)
     : null;
+  const metaLine = metaParts ? metaParts.join(' · ') : null;
 
   return (
     <section style={styles.detail}>
@@ -29,7 +38,20 @@ export function PlayerStage(props: {
         )}
       </div>
       <div style={styles.preview}>
-        <SnapshotStage src={previewSrc} />
+        <SnapshotStage
+          src={previewSrc}
+          interactionStep={
+            showInteractionOverlay && step
+              ? {
+                  kind: step.kind,
+                  ...(step.selector !== undefined
+                    ? { selector: step.selector }
+                    : {}),
+                  ...(step.detail !== undefined ? { detail: step.detail } : {}),
+                }
+              : null
+          }
+        />
       </div>
     </section>
   );

@@ -10,10 +10,7 @@ import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { ensureAnonAuth } from './ensure-anon-auth-fetch';
-import {
-  isUnauthorizedRefreshError,
-  refreshAuth,
-} from './refresh-auth-fetch';
+import { isUnauthorizedRefreshError, refreshAuth } from './refresh-auth-fetch';
 import { shouldBindAnonUserAfterEnsure } from './resolve-client-identity';
 import { SessionCapabilityStore } from './session-capability';
 

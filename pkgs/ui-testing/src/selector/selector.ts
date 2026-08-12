@@ -1,68 +1,14 @@
 /**
- * Portable, application-agnostic selector. Drivers translate these into their
- * native query APIs. Never expose CSS / XPath / Detox matcher objects here.
+ * Internal testId handle for query adapters that still prefer an object.
+ * Public Driver APIs take plain `string` test ids — do not re-export multi-kind
+ * selectors (`text` / `role` / `label`) from the package surface.
  */
-export type SelectorRole =
-  | 'button'
-  | 'link'
-  | 'textbox'
-  | 'checkbox'
-  | 'radio'
-  | 'heading'
-  | 'img'
-  | 'list'
-  | 'listitem'
-  | 'navigation'
-  | 'dialog'
-  | 'alert'
-  | 'switch'
-  | 'tab'
-  | 'tablist'
-  | 'searchbox'
-  | 'combobox'
-  | 'option'
-  | 'menu'
-  | 'menuitem';
-
-type SelectorModifiers = {
-  /** Zero-based match index when multiple elements match. */
-  nth?: number;
+export type TestIdSelector = {
+  readonly kind: 'testId';
+  readonly value: string;
 };
 
-export type Selector = (
-  | { kind: 'testId'; value: string }
-  | { kind: 'text'; value: string; exact?: boolean }
-  | { kind: 'label'; value: string }
-  | { kind: 'role'; role: SelectorRole; name?: string }
-) &
-  SelectorModifiers;
-
-/** Fluent builders for {@link Selector}. Prefer these over object literals. */
-export const by = {
-  testId(value: string): Selector {
-    return { kind: 'testId', value };
-  },
-  text(value: string, options?: { exact?: boolean }): Selector {
-    if (options?.exact !== undefined) {
-      return { kind: 'text', value, exact: options.exact };
-    }
-    return { kind: 'text', value };
-  },
-  label(value: string): Selector {
-    return { kind: 'label', value };
-  },
-  role(role: SelectorRole, name?: string): Selector {
-    if (name !== undefined) {
-      return { kind: 'role', role, name };
-    }
-    return { kind: 'role', role };
-  },
-  /** Select the first match when multiple elements match. */
-  first(selector: Selector): Selector {
-    return { ...selector, nth: 0 };
-  },
-  /** Select the match at a zero-based index. */
-  nth(selector: Selector, index: number): Selector {
-    return { ...selector, nth: index };
-  },
-} as const;
+/** Build a testId selector object for internal query helpers. */
+export function testIdSelector(value: string): TestIdSelector {
+  return { kind: 'testId', value };
+}

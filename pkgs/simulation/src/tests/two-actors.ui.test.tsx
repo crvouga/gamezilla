@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import { describe, expect, test } from '@jest/globals';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
-import { by } from '@pkgs/ui-testing';
 
 import { Simulation } from '../open-simulation';
 import { DemoSimulationSystem } from './fixtures/demo-system';
@@ -19,20 +18,17 @@ describe('Simulation (demo system)', () => {
       expect(sim.seed).toBe(1n);
 
       const alice = await sim.actor('alice');
-      await alice.ui.expectVisible(by.testId('demo-root'));
-      await alice.ui.expectText(by.testId('actor-id'), 'alice');
-      await alice.ui.expectText(by.testId('shared-title'), '(empty)');
+      await alice.ui.expect.visible('demo-root');
+      await alice.ui.expect.text('actor-id', 'alice');
+      await alice.ui.expect.text('shared-title', '(empty)');
 
-      await alice.ui.tap(by.testId('create'));
-      await alice.ui.expectText(
-        by.testId('shared-title'),
-        'Game night (alice)'
-      );
+      await alice.ui.tap('create');
+      await alice.ui.expect.text('shared-title', 'Game night (alice)');
 
       const bob = await sim.actor('bob');
-      await bob.ui.expectVisible(by.testId('demo-root'));
-      await bob.ui.expectText(by.testId('actor-id'), 'bob');
-      await bob.ui.expectText(by.testId('shared-title'), 'Game night (alice)');
+      await bob.ui.expect.visible('demo-root');
+      await bob.ui.expect.text('actor-id', 'bob');
+      await bob.ui.expect.text('shared-title', 'Game night (alice)');
     } finally {
       await sim.dispose();
     }
@@ -79,11 +75,8 @@ describe('Simulation (demo system)', () => {
     });
     try {
       const alice = await sim.actor('alice');
-      await alice.ui.tap(by.testId('create'));
-      await alice.ui.expectText(
-        by.testId('shared-title'),
-        'Game night (alice)'
-      );
+      await alice.ui.tap('create');
+      await alice.ui.expect.text('shared-title', 'Game night (alice)');
     } finally {
       await sim.dispose();
     }
@@ -118,7 +111,7 @@ describe('Simulation (demo system)', () => {
     expect(stepsJson.steps.some((s) => s.kind === 'launch')).toBe(true);
     expect(stepsJson.steps.some((s) => s.kind === 'tap')).toBe(true);
     const tapStep = stepsJson.steps.find((s) => s.kind === 'tap');
-    expect(tapStep?.snapshotFile).toMatch(/^frames\/f-\d+\.html$/);
+    expect(tapStep?.snapshotFile).toMatch(/^frames\/f-\d+\.[^/]+\.html$/);
     expect(tapStep?.frames?.length).toBeGreaterThan(0);
     const snap = readFileSync(
       join(runDir, 'tests', testId, tapStep!.snapshotFile!),

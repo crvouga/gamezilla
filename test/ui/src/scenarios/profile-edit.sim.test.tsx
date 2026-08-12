@@ -1,9 +1,9 @@
 import { describe, test } from '@jest/globals';
 import { Handles } from '@libs/dst-handles';
 
-import { AppDriver } from '../harness/app-driver';
-import { aliceAvatarCreds, aliceUserCreds } from '../harness/fixtures';
-import { openSim } from '../harness/open-sim';
+import { AppDriver } from '../drivers/app-driver';
+import { aliceAvatarCreds, aliceUserCreds } from '../fixtures/fixtures';
+import { openSim } from '../setup/open-sim';
 
 describe('profile edit', () => {
   test('guest updates username', async () => {

@@ -36,6 +36,7 @@ import {
 } from '@pkgs/secure-storage/secure-storage-store';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
+import BetterSqlite3 from 'better-sqlite3';
 
 /**
  * Jest-immune wall timers for sim API + actor Io.
@@ -73,20 +74,30 @@ export type ActorClientSeams = {
   readonly overrides: AppOverrides;
   readonly secureStorageStore: SecureStorageStore;
   readonly syncEnginePool: AppSyncEnginePool;
+  /** Live better-sqlite3 handle once the client opens local SQLite. */
+  readonly getSqlite: () => BetterSqlite3.Database | undefined;
+  /** Close and drop the retained actor SQLite handle (if any). */
+  readonly disposeSqlite: () => void;
 };
 
 export type CreateActorClientSeamsArgs = {
   readonly apiUrl: string;
   readonly pubSubBus: InMemoryBus;
+  /** Called when the actor's `:memory:` SQLite is opened (or closed). */
+  readonly onSqlite?: (sqlite: BetterSqlite3.Database | undefined) => void;
 };
 
 /** Fresh, isolated client seams for one actor session. */
 export function createActorClientSeams(
   args: CreateActorClientSeamsArgs
 ): ActorClientSeams {
-  const { apiUrl, pubSubBus } = args;
+  const { apiUrl, pubSubBus, onSqlite } = args;
+  let actorSqlite: BetterSqlite3.Database | undefined;
   const openMemorySqlClient: OpenLocalSqlClient = async () => {
-    const client = SqlClientImplBetterSqlite.open(':memory:');
+    const sqlite = new BetterSqlite3(':memory:');
+    actorSqlite = sqlite;
+    onSqlite?.(sqlite);
+    const client = new SqlClientImplBetterSqlite(sqlite);
     await client.connect();
     return client;
   };
@@ -104,6 +115,17 @@ export function createActorClientSeams(
   return {
     secureStorageStore,
     syncEnginePool,
+    getSqlite: () => actorSqlite,
+    disposeSqlite: () => {
+      if (actorSqlite === undefined) return;
+      try {
+        actorSqlite.close();
+      } catch {
+        // Already closed during sync-engine teardown.
+      }
+      actorSqlite = undefined;
+      onSqlite?.(undefined);
+    },
     overrides: {
       apiUrl,
       authBaseURL: apiUrl,

@@ -45,6 +45,15 @@ export async function storePutText(
   await store.put(key, TEXT_ENCODER.encode(text), contentType);
 }
 
+export async function storePutBytes(
+  store: ObjectStore,
+  key: string,
+  bytes: Uint8Array,
+  contentType: string
+): Promise<void> {
+  await store.put(key, bytes, contentType);
+}
+
 export async function storePutJson(
   store: ObjectStore,
   key: string,

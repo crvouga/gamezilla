@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import { NotImplementedError } from '../../core/errors';
 import { createDriver } from '../../driver/create-driver';
-import { by } from '../../selector/selector';
 import type { DetoxLike } from './detox-driver';
 
 const stubDetox: DetoxLike = {
@@ -19,41 +18,36 @@ describe('DetoxDriver stub', () => {
 
     await expect(driver.launch()).rejects.toBeInstanceOf(NotImplementedError);
     await expect(driver.close()).rejects.toBeInstanceOf(NotImplementedError);
-    await expect(driver.tap(by.testId('x'))).rejects.toBeInstanceOf(
-      NotImplementedError
-    );
+    await expect(driver.tap('x')).rejects.toBeInstanceOf(NotImplementedError);
     await expect(
-      driver.tapAt(by.testId('x'), { xRatio: 0.5, yRatio: 0.5 })
+      driver.tapAt('x', { xRatio: 0.5, yRatio: 0.5 })
     ).rejects.toBeInstanceOf(NotImplementedError);
-    await expect(driver.input(by.testId('x'), 'a')).rejects.toBeInstanceOf(
+    await expect(driver.input('x', 'a')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.clear(by.testId('x'))).rejects.toBeInstanceOf(
-      NotImplementedError
-    );
+    await expect(driver.clear('x')).rejects.toBeInstanceOf(NotImplementedError);
     await expect(driver.key('enter')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.scroll(by.testId('x'), 'down')).rejects.toBeInstanceOf(
+    await expect(driver.scroll('x', 'down')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.back()).rejects.toBeInstanceOf(NotImplementedError);
-    await expect(driver.wait(by.testId('x'), 'visible')).rejects.toBeInstanceOf(
+    await expect(driver.wait('x', 'visible')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.expectVisible(by.testId('x'))).rejects.toBeInstanceOf(
+    await expect(driver.expect.visible('x')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.expectHidden(by.testId('x'))).rejects.toBeInstanceOf(
+    await expect(driver.expect.hidden('x')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(
-      driver.expectText(by.testId('x'), 'hi')
-    ).rejects.toBeInstanceOf(NotImplementedError);
-    await expect(driver.isVisible(by.testId('x'))).rejects.toBeInstanceOf(
+    await expect(driver.expect.text('x', 'hi')).rejects.toBeInstanceOf(
       NotImplementedError
     );
-    await expect(driver.getText(by.testId('x'))).rejects.toBeInstanceOf(
+    await expect(driver.isVisible('x')).rejects.toBeInstanceOf(
+      NotImplementedError
+    );
+    await expect(driver.getText('x')).rejects.toBeInstanceOf(
       NotImplementedError
     );
     expect(await driver.snapshotHtml()).toBeNull();

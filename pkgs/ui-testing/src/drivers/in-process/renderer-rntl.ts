@@ -13,7 +13,6 @@ import type {
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
-import type { Selector } from '../../selector/selector';
 import { serializeHostTreeHtml } from './serialize-host-tree-html';
 
 type RntlUser = ReturnType<typeof userEvent.setup>;
@@ -40,7 +39,7 @@ export function createRenderedAppFromRntl(
 ): RenderedApp {
   const user = options.user ?? userEvent.setup({ delay: 0 });
   const app: RenderedApp = {
-    query: (selector) => queryNode(result, selector),
+    query: (testId) => queryNode(result, testId),
     isVisible: (element) => {
       try {
         return isHostVisible(asInstance(element));
@@ -172,30 +171,8 @@ function findHostTextInput(instance: ReactTestInstance): ReactTestInstance {
   throw new Error('typeText: no onChangeText host under matched element');
 }
 
-function queryNode(scope: RenderResult, selector: Selector): HostNode | null {
-  const matches = queryAll(scope, selector);
-  const index = selector.nth ?? 0;
-  return matches[index] ?? null;
-}
-
-function queryAll(
-  scope: RenderResult,
-  selector: Selector
-): ReactTestInstance[] {
-  switch (selector.kind) {
-    case 'testId':
-      return scope.queryAllByTestId(selector.value);
-    case 'text':
-      return scope.queryAllByText(selector.value, {
-        exact: selector.exact !== false,
-      });
-    case 'label':
-      return scope.queryAllByLabelText(selector.value);
-    case 'role':
-      return selector.name !== undefined
-        ? scope.queryAllByRole(selector.role, { name: selector.name })
-        : scope.queryAllByRole(selector.role);
-  }
+function queryNode(scope: RenderResult, testId: string): HostNode | null {
+  return scope.queryByTestId(testId);
 }
 
 function isHostVisible(element: ReactTestInstance): boolean {

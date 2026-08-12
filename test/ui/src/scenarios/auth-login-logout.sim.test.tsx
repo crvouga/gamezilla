@@ -1,8 +1,8 @@
 import { describe, test } from '@jest/globals';
 
-import { AppDriver } from '../harness/app-driver';
-import { aliceCreds } from '../harness/fixtures';
-import { openSim } from '../harness/open-sim';
+import { AppDriver } from '../drivers/app-driver';
+import { aliceCreds } from '../fixtures/fixtures';
+import { openSim } from '../setup/open-sim';
 
 describe('auth login → logout', () => {
   test('first login → logout on the account screen', async () => {

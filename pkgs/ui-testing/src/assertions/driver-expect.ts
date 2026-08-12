@@ -2,20 +2,19 @@ import type { Timers } from '@pkgs/clock';
 
 import { UiTestError } from '../core/errors';
 import { type WaitPollOptions, waitUntil } from '../core/wait';
-import { formatSelector } from '../selector/format';
-import type { Selector } from '../selector/selector';
+import { formatTestId } from '../selector/format';
 
 export type AssertionOptions = WaitPollOptions;
 
 /** wait + getText only — do not import {@link Driver} (circular). */
 type ExpectHost = {
   wait(
-    target: Selector,
+    testId: string,
     state: 'visible' | 'hidden',
     options?: WaitPollOptions
   ): Promise<void>;
-  getText(target: Selector): Promise<string | null>;
-  /** When set with `timers`, `expectText` polls until the value matches. */
+  getText(testId: string): Promise<string | null>;
+  /** When set with `timers`, `expect.text` polls until the value matches. */
   now?: () => number;
   timers?: Timers;
 };
@@ -31,45 +30,45 @@ function textMatches(
 /** Shared expect implementations for concrete {@link Driver} classes. */
 export async function runExpectVisible(
   driver: ExpectHost,
-  target: Selector,
+  testId: string,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.wait(target, 'visible', {
+  await driver.wait(testId, 'visible', {
     ...options,
-    description: options?.description ?? `visible ${formatSelector(target)}`,
+    description: options?.description ?? `visible ${formatTestId(testId)}`,
   });
 }
 
 export async function runExpectHidden(
   driver: ExpectHost,
-  target: Selector,
+  testId: string,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.wait(target, 'hidden', {
+  await driver.wait(testId, 'hidden', {
     ...options,
-    description: options?.description ?? `hidden ${formatSelector(target)}`,
+    description: options?.description ?? `hidden ${formatTestId(testId)}`,
   });
 }
 
 export async function runExpectText(
   driver: ExpectHost,
-  target: Selector,
+  testId: string,
   expected: string,
   options?: AssertionOptions & { exact?: boolean }
 ): Promise<void> {
   const exact = options?.exact !== false;
   const description =
     options?.description ??
-    `text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}`;
+    `text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatTestId(testId)}`;
 
-  await driver.wait(target, 'visible', { ...options, description });
+  await driver.wait(testId, 'visible', { ...options, description });
 
   const { now, timers } = driver;
   if (now === undefined || timers === undefined) {
-    const actual = await driver.getText(target);
+    const actual = await driver.getText(testId);
     if (!textMatches(actual, expected, exact)) {
       throw new UiTestError(
-        `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}, got ${JSON.stringify(actual)}`
+        `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatTestId(testId)}, got ${JSON.stringify(actual)}`
       );
     }
     return;
@@ -79,7 +78,7 @@ export async function runExpectText(
   try {
     await waitUntil(
       async () => {
-        lastActual = await driver.getText(target);
+        lastActual = await driver.getText(testId);
         return textMatches(lastActual, expected, exact) ? true : null;
       },
       {
@@ -91,7 +90,7 @@ export async function runExpectText(
     );
   } catch (error) {
     throw new UiTestError(
-      `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}, got ${JSON.stringify(lastActual)}`,
+      `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatTestId(testId)}, got ${JSON.stringify(lastActual)}`,
       { cause: error }
     );
   }

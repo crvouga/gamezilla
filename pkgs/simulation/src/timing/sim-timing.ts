@@ -1,10 +1,9 @@
 /**
- * Lightweight wall-clock phase timing for DST harness diagnostics.
+ * Lightweight wall-clock phase timing for simulation harness diagnostics.
  *
  * Summary always prints on `finish()`. Per-phase lines only when `SIM_TIMING=1`.
+ * Callers inject `now` (e.g. wall clock at a test composition root).
  */
-
-import { wallClock } from '@pkgs/clock';
 
 export type SimTiming = {
   /** Record elapsed ms for a named phase (overwrites prior value for the name). */
@@ -15,7 +14,9 @@ export type SimTiming = {
   finish(label?: string): void;
 };
 
-export function createSimTiming(): SimTiming {
+export function createSimTiming(args: {
+  readonly now: () => number;
+}): SimTiming {
   const phases = new Map<string, number>();
   let finished = false;
   const verbose = process.env['SIM_TIMING'] === '1';
@@ -30,11 +31,11 @@ export function createSimTiming(): SimTiming {
       }
     },
     async time(name, run) {
-      const start = wallClock.now();
+      const start = args.now();
       try {
         return await run();
       } finally {
-        this.mark(name, wallClock.now() - start);
+        this.mark(name, args.now() - start);
       }
     },
     finish(label = 'sim') {

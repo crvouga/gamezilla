@@ -72,6 +72,7 @@ describe('parseReportNav', () => {
       testId: null,
       step: null,
       frame: null,
+      node: null,
       play: false,
       mode: 'realtime',
       speed: 1,
@@ -81,7 +82,7 @@ describe('parseReportNav', () => {
     expect(
       parseReportNav(
         '/b/local/r/20240601T120000/t/auth-login-logout',
-        '?step=2&frame=5&play=1&mode=fixed&speed=2'
+        '?step=2&frame=5&node=alice&play=1&mode=fixed&speed=2'
       )
     ).toEqual({
       bucketId: 'local',
@@ -89,6 +90,7 @@ describe('parseReportNav', () => {
       testId: 'auth-login-logout',
       step: 2,
       frame: 5,
+      node: 'alice',
       play: true,
       mode: 'fixed',
       speed: 2,
@@ -105,6 +107,7 @@ describe('buildReportUrl', () => {
         testId: null,
         step: null,
         frame: null,
+        node: null,
         play: false,
         mode: 'realtime',
         speed: 1,
@@ -115,11 +118,13 @@ describe('buildReportUrl', () => {
         testId: 'demo',
         frame: 3,
         step: 1,
+        node: 'bob',
       }
     );
     expect(url.pathname).toBe('/b/local/r/run1/t/demo');
     expect(url.search).toContain('frame=3');
     expect(url.search).toContain('step=1');
+    expect(url.search).toContain('node=bob');
   });
 });
 
@@ -205,6 +210,112 @@ describe('SimulationReporter + ObjectStore', () => {
     expect(index.runs).toHaveLength(1);
     expect(index.runs[0]?.id).toBe('run-a');
     expect(index.runs[0]?.testCount).toBe(2);
+  });
+
+  test('attaches gzip SQLite dumps with content-hash reuse', async () => {
+    const store = new ObjectStoreImplInMemory();
+    const payload = new Uint8Array([0x53, 0x51, 0x4c, 0x69, 0x74, 0x65]);
+    let calls = 0;
+    const reporter = new SimulationReporter({
+      seed: '1',
+      ui: 'in-process',
+      store,
+      runId: 'run-db',
+      testId: 'db-test',
+      now: (() => {
+        let t = 1000;
+        return () => {
+          t += 1;
+          return t;
+        };
+      })(),
+      snapshotDatabases: async () => {
+        calls += 1;
+        return [
+          { nodeId: 'server', bytes: payload },
+          { nodeId: 'alice', bytes: payload },
+        ];
+      },
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'tap',
+      title: 'first',
+      run: async () => undefined,
+      snapshot: async () => '<html>one</html>',
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'tap',
+      title: 'second',
+      run: async () => undefined,
+      snapshot: async () => '<html>two</html>',
+    });
+    const data = await reporter.flush();
+    expect(calls).toBe(2);
+    const frame0 = data.steps[0]?.frames?.[0];
+    const frame1 = data.steps[1]?.frames?.[0];
+    expect(frame0?.databases?.map((d) => d.nodeId).sort()).toEqual([
+      'alice',
+      'server',
+    ]);
+    expect(frame0?.databases?.[0]?.file).toMatch(
+      /^frames\/db\/[a-f0-9]{64}\.sqlite\.gz$/
+    );
+    // Identical bytes → same content-addressed blob across frames/nodes.
+    const files = new Set(
+      [...(frame0?.databases ?? []), ...(frame1?.databases ?? [])].map(
+        (d) => d.file
+      )
+    );
+    expect(files.size).toBe(1);
+    const rel = frame0!.databases![0]!.file;
+    const obj = await store.get(`runs/run-db/tests/db-test/${rel}`);
+    expect(obj).not.toBeNull();
+    expect(obj?.contentType).toBe('application/gzip');
+  });
+
+  test('writes per-actor HTML views and primary file', async () => {
+    const store = new ObjectStoreImplInMemory();
+    const reporter = new SimulationReporter({
+      seed: '1',
+      ui: 'in-process',
+      store,
+      runId: 'run-views',
+      testId: 'views-test',
+      now: (() => {
+        let t = 1000;
+        return () => {
+          t += 1;
+          return t;
+        };
+      })(),
+      snapshotViews: async () => [
+        { nodeId: 'alice', html: '<html>alice</html>' },
+        { nodeId: 'bob', html: '<html>bob</html>' },
+      ],
+    });
+    await reporter.record({
+      actorId: 'bob',
+      kind: 'tap',
+      title: 'tap bob',
+      run: async () => undefined,
+      snapshot: async () => '<html>legacy</html>',
+    });
+    const data = await reporter.flush();
+    const frame = data.steps[0]?.frames?.[0];
+    expect(frame?.views?.map((v) => v.nodeId).sort()).toEqual(['alice', 'bob']);
+    expect(frame?.file).toBe('frames/f-00001.bob.html');
+    const bob = await store.get(
+      'runs/run-views/tests/views-test/frames/f-00001.bob.html'
+    );
+    const alice = await store.get(
+      'runs/run-views/tests/views-test/frames/f-00001.alice.html'
+    );
+    expect(bob).not.toBeNull();
+    expect(alice).not.toBeNull();
+    expect(await new Response(bob!.body).text()).toContain('bob');
+    expect(await new Response(alice!.body).text()).toContain('alice');
   });
 });
 

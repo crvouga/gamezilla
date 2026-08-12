@@ -1,6 +1,5 @@
 import { Handles } from '@libs/dst-handles';
-
-import type { UiPort } from '../ui-port';
+import type { Driver } from '@pkgs/ui-testing';
 
 export type EmailCredentials = {
   readonly email: string;
@@ -8,7 +7,7 @@ export type EmailCredentials = {
 };
 
 export class AuthFlows {
-  constructor(private readonly ui: UiPort) {}
+  constructor(private readonly ui: Driver) {}
 
   async signUpWithEmail(creds: EmailCredentials): Promise<void> {
     await this.ui.tap(Handles.statusCurrentUser);
@@ -31,16 +30,16 @@ export class AuthFlows {
   async signOut(): Promise<void> {
     await this.ui.tap(Handles.accountSignOut);
     await this.ui.tap(Handles.authSignOutConfirm);
-    await this.ui.expectVisible(Handles.authSignedOut);
+    await this.ui.expect.visible(Handles.authSignedOut);
   }
 
   async expectSignedOut(): Promise<void> {
-    await this.ui.expectVisible(Handles.authSignedOut);
+    await this.ui.expect.visible(Handles.authSignedOut);
   }
 
   /** Leave Account stack for the tab shell (Profile tab visible again). */
   async returnToTabs(): Promise<void> {
     await this.ui.tap(Handles.navBack);
-    await this.ui.expectVisible(Handles.tabProfile);
+    await this.ui.expect.visible(Handles.tabProfile);
   }
 }

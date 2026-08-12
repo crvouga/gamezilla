@@ -15,19 +15,36 @@ export type {
 } from '@pkgs/simulation-report';
 export type { SimActor } from './actor';
 export { createSimIo, type SimulationClock } from './clock';
+export {
+  createSerializedHttp,
+  installSimGlobalFetch,
+} from './http/sim-http';
 export { Simulation } from './open-simulation';
 export type {
   SimulationOptions,
   SimulationReportOptions,
 } from './options';
 export { createSeededRng, type SeededRng } from './rng';
+export {
+  type BootMigratedSimSqliteArgs,
+  bootMigratedSimSqlite,
+  computeSimSqliteSeedFingerprint,
+  createSerialSqlClient,
+  ensureSimSqliteSeedBuffer,
+  SIM_SQLITE_SEED_VERSION,
+  type SimSqliteHandle,
+  type SimSqliteLiveRefs,
+  type SimSqliteMigrateHandle,
+} from './sqlite/boot-sim-sqlite';
 export type {
   InProcessSimulationSession,
   PlaywrightSimulationSession,
   SimulationDriverWait,
   SimulationSession,
+  SimulationSqliteNodeSnapshot,
   SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
   SimulationUiKind,
 } from './system-port';
+export { createSimTiming, type SimTiming } from './timing/sim-timing';

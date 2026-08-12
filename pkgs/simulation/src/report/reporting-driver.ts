@@ -7,20 +7,27 @@ import type {
   Driver,
   DriverKey,
   ScrollDirection,
-  Selector,
+  UiWaitOptions,
   WaitPollOptions,
   WaitState,
 } from '@pkgs/ui-testing';
-import { formatSelector } from '@pkgs/ui-testing';
+import { formatTestId } from '@pkgs/ui-testing';
 
 type RecordMeta = {
-  readonly selector?: Selector;
+  readonly testId?: string;
   readonly detail?: string;
   readonly snapshotBefore?: boolean;
   /** Skip HTML snapshot (typing floods reports and is slow under load). */
   readonly skipSnapshot?: boolean;
   readonly pollFrames?: boolean;
 };
+
+type Recorder = (
+  kind: SimulationStepKind,
+  title: string,
+  run: () => Promise<void>,
+  meta?: RecordMeta
+) => Promise<void>;
 
 /**
  * Proxy that records mutating / wait driver ops into a {@link SimulationReporter}.
@@ -39,89 +46,93 @@ export function createReportingDriver(
     launch: () => record('launch', 'launch', () => driver.launch()),
     close: () =>
       record('close', 'close', () => driver.close(), { snapshotBefore: true }),
-    tap: (target) =>
-      record('tap', `tap ${formatSelector(target)}`, () => driver.tap(target), {
-        selector: target,
-      }),
-    tapAt: (target, position) =>
+    tap: (testId, options?: UiWaitOptions) =>
+      record(
+        'tap',
+        `tap ${formatTestId(testId)}`,
+        () => driver.tap(testId, options),
+        { testId }
+      ),
+    tapAt: (testId, position) =>
       record(
         'tapAt',
-        `tapAt ${formatSelector(target)}`,
-        () => driver.tapAt(target, position),
+        `tapAt ${formatTestId(testId)}`,
+        () => driver.tapAt(testId, position),
         {
-          selector: target,
+          testId,
           detail: `xRatio=${position.xRatio}, yRatio=${position.yRatio}`,
         }
       ),
-    input: (target, text) =>
+    input: (testId, text, options?: UiWaitOptions) =>
       record(
         'typeText',
-        `typeText ${formatSelector(target)}`,
-        () => driver.input(target, text),
+        `typeText ${formatTestId(testId)}`,
+        () => driver.input(testId, text, options),
         {
-          selector: target,
+          testId,
           detail: `text=${JSON.stringify(text)}`,
           skipSnapshot: true,
         }
       ),
-    clear: (target) =>
+    clear: (testId) =>
       record(
         'clearText',
-        `clearText ${formatSelector(target)}`,
-        () => driver.clear(target),
-        { selector: target, skipSnapshot: true }
+        `clearText ${formatTestId(testId)}`,
+        () => driver.clear(testId),
+        { testId, skipSnapshot: true }
       ),
     key: (key: DriverKey) =>
       record('pressKey', `pressKey ${key}`, () => driver.key(key), {
         detail: key,
       }),
-    scroll: (target, direction: ScrollDirection, amount?) =>
-      recordScroll({ record, driver, target, direction, amount }),
-    back: () => record('navigateBack', 'navigateBack', () => driver.back()),
-    wait: (target, state: WaitState, options?: WaitPollOptions) =>
+    scroll: (testId, direction: ScrollDirection, amount?) =>
+      recordScroll({ record, driver, testId, direction, amount }),
+    wait: (testId, state: WaitState, options?: WaitPollOptions) =>
       record(
         'waitFor',
-        `waitFor ${state} ${formatSelector(target)}`,
-        () => driver.wait(target, state, options),
-        { selector: target, detail: state, pollFrames: true }
+        `waitFor ${state} ${formatTestId(testId)}`,
+        () => driver.wait(testId, state, options),
+        { testId, detail: state, pollFrames: true }
       ),
-    expectVisible: (target, options?: AssertionOptions) =>
-      record(
-        'waitFor',
-        `expectVisible ${formatSelector(target)}`,
-        () => driver.expectVisible(target, options),
-        { selector: target, detail: 'visible', pollFrames: true }
-      ),
-    expectHidden: (target, options?: AssertionOptions) =>
-      record(
-        'waitFor',
-        `expectHidden ${formatSelector(target)}`,
-        () => driver.expectHidden(target, options),
-        { selector: target, detail: 'hidden', pollFrames: true }
-      ),
-    expectText: (target, expected, options?) =>
-      record(
-        'waitFor',
-        `expectText ${formatSelector(target)}`,
-        () => driver.expectText(target, expected, options),
-        {
-          selector: target,
-          detail: `text=${JSON.stringify(expected)}`,
-          pollFrames: true,
-        }
-      ),
-    isVisible: (target) => driver.isVisible(target),
-    getText: (target) => driver.getText(target),
+    expect: createExpectRecorder(driver, record),
+    isVisible: (testId) => driver.isVisible(testId),
+    getText: (testId) => driver.getText(testId),
     snapshotHtml: (options) => driver.snapshotHtml(options),
   };
 }
 
-type Recorder = (
-  kind: SimulationStepKind,
-  title: string,
-  run: () => Promise<void>,
-  meta?: RecordMeta
-) => Promise<void>;
+function createExpectRecorder(
+  driver: Driver,
+  record: Recorder
+): Driver['expect'] {
+  return {
+    visible: (testId, options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expect.visible ${formatTestId(testId)}`,
+        () => driver.expect.visible(testId, options),
+        { testId, detail: 'visible', pollFrames: true }
+      ),
+    hidden: (testId, options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expect.hidden ${formatTestId(testId)}`,
+        () => driver.expect.hidden(testId, options),
+        { testId, detail: 'hidden', pollFrames: true }
+      ),
+    text: (testId, expected, options?) =>
+      record(
+        'waitFor',
+        `expect.text ${formatTestId(testId)}`,
+        () => driver.expect.text(testId, expected, options),
+        {
+          testId,
+          detail: `text=${JSON.stringify(expected)}`,
+          pollFrames: true,
+        }
+      ),
+  };
+}
 
 function makeRecorder(
   driver: Driver,
@@ -133,8 +144,8 @@ function makeRecorder(
       actorId,
       kind,
       title,
-      ...(meta?.selector !== undefined
-        ? { selector: formatSelector(meta.selector) }
+      ...(meta?.testId !== undefined
+        ? { selector: formatTestId(meta.testId) }
         : {}),
       ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
       ...(meta?.snapshotBefore === true ? { snapshotBefore: true } : {}),
@@ -151,19 +162,19 @@ function makeRecorder(
 function recordScroll(args: {
   readonly record: Recorder;
   readonly driver: Driver;
-  readonly target: Selector;
+  readonly testId: string;
   readonly direction: ScrollDirection;
   readonly amount: number | undefined;
 }): Promise<void> {
-  const { record, driver, target, direction, amount } = args;
+  const { record, driver, testId, direction, amount } = args;
   const detail =
     amount !== undefined
       ? `direction=${direction}, amount=${amount}`
       : `direction=${direction}`;
   return record(
     'scroll',
-    `scroll ${formatSelector(target)} ${direction}`,
-    () => driver.scroll(target, direction, amount),
-    { selector: target, detail }
+    `scroll ${formatTestId(testId)} ${direction}`,
+    () => driver.scroll(testId, direction, amount),
+    { testId, detail }
   );
 }

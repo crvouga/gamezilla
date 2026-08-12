@@ -13,8 +13,18 @@ runs/<runId>/manifest.json
 runs/<runId>/snapshot-shell.css
 runs/<runId>/tests/<testId>/steps.json
 runs/<runId>/tests/<testId>/frames/f-….html
+runs/<runId>/tests/<testId>/frames/f-….alice.html
+runs/<runId>/tests/<testId>/frames/db/<sha256>.sqlite.gz
 runs/generation
 ```
+
+Each kept UI frame may list:
+
+- `views[]` — HTML snapshot per live actor (`frames/f-NNNNN.<actorId>.html`);
+  legacy `file` points at the acting actor’s view.
+- `databases[]` — server + actors. Blobs are gzip SQLite dumps, content-addressed
+  by SHA-256 of the uncompressed bytes so identical dumps across frames share one
+  file.
 
 ## Writer
 
@@ -78,10 +88,25 @@ HTTP (bucket-scoped):
 | Bucket picker | `/` |
 | Runs | `/b/:bucketId` |
 | Suite | `/b/:bucketId/r/:runId` |
-| Player | `/b/:bucketId/r/:runId/t/:testId?…` |
+| Player | `/b/:bucketId/r/:runId/t/:testId?step=&frame=&node=&…` |
 
 Keyboard: `⌘K` / `Ctrl+K` opens the command palette (primary control surface).
 Player shortcuts include Space (play/pause), ←/→ (frames), M (mode), ] (speed).
+
+### Player layout
+
+Video-editor shell:
+
+1. **Header** — test title, status, copy-LLM prompt (no transport).
+2. **Node tabs** — one tab per actor + `server` (`?node=` in the URL). Acting
+   actor is accented. Each tab splits **HTML | SQLite**.
+3. **HTML** — per-actor frame views (`frames/f-NNNNN.<actorId>.html`). Server
+   shows “No UI”. When viewing the acting actor, interacted `testId("…")`
+   targets are outlined; `tapAt` draws a crosshair from `xRatio` / `yRatio`.
+4. **SQLite** — Diff (prev↔current frame for that node) or Query (Monaco +
+   schema browser). Same gzip content-hash dumps as before.
+5. **Bottom strip** — Transport (play/pause, prev/next, mode, speed) +
+   horizontal frame timeline (segment width ∝ `durationMs`, heat color).
 
 ```bash
 bun run --filter @pkgs/simulation-report build

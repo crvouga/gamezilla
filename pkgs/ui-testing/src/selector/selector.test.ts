@@ -1,44 +1,16 @@
 import { describe, expect, it } from 'bun:test';
-import { formatSelector } from './format';
-import { by } from './selector';
+import { formatTestId } from './format';
+import { testIdSelector } from './selector';
 
-describe('by selectors', () => {
-  it('builds portable selector objects', () => {
-    expect(by.testId('email')).toEqual({ kind: 'testId', value: 'email' });
-    expect(by.text('Hello', { exact: false })).toEqual({
-      kind: 'text',
-      value: 'Hello',
-      exact: false,
-    });
-    expect(by.label('Email')).toEqual({ kind: 'label', value: 'Email' });
-    expect(by.role('button', 'Submit')).toEqual({
-      kind: 'role',
-      role: 'button',
-      name: 'Submit',
-    });
-  });
-
-  it('applies first/nth modifiers', () => {
-    expect(by.first(by.role('heading', 'Spaces'))).toEqual({
-      kind: 'role',
-      role: 'heading',
-      name: 'Spaces',
-      nth: 0,
-    });
-    expect(by.nth(by.testId('row'), 2)).toEqual({
+describe('testId helpers', () => {
+  it('builds a testId selector object', () => {
+    expect(testIdSelector('email')).toEqual({
       kind: 'testId',
-      value: 'row',
-      nth: 2,
+      value: 'email',
     });
   });
 
-  it('formats selectors for errors', () => {
-    expect(formatSelector(by.testId('x'))).toBe('testId("x")');
-    expect(formatSelector(by.role('button', 'Go'))).toBe(
-      'role("button", name: "Go")'
-    );
-    expect(formatSelector(by.first(by.testId('x')))).toBe(
-      'testId("x", nth: 0)'
-    );
+  it('formats testIds for errors', () => {
+    expect(formatTestId('x')).toBe('testId("x")');
   });
 });

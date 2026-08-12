@@ -450,7 +450,7 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "message": "Scenarios must use AppDriver / openSim (see test/ui/src/harness/TESTING.md). Do not import @pkgs/ui-testing."
+                    "message": "Scenarios must use AppDriver / openSim (see test/ui/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
                   }
                 }
               }

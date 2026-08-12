@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import type { Selector } from '../selector/selector';
 
 /**
  * Host-agnostic node handle returned by a {@link RenderAdapter}.
@@ -19,8 +18,8 @@ export interface RenderedApp {
    */
   activate?(): void | Promise<void>;
 
-  /** Resolve `selector` to a host element, or `null` if none match. */
-  query(selector: Selector): HostNode | null;
+  /** Resolve `testId` to a host element, or `null` if none match. */
+  query(testId: string): HostNode | null;
 
   /** True when the element is considered visible to a user. */
   isVisible(element: HostNode): boolean;
