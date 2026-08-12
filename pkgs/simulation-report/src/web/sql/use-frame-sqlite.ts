@@ -48,6 +48,7 @@ export function useFrameSqlite(args: {
     }
 
     const sha = node.sha256;
+    const file = node.file;
     activeShaRef.current = sha;
     const cached = cacheRef.current.get(sha);
     if (cached) {
@@ -61,7 +62,7 @@ export function useFrameSqlite(args: {
     let cancelled = false;
     setStatus('loading');
     setError(null);
-    const url = testFrameUrl(bucketId, runId, testId, node.file);
+    const url = testFrameUrl(bucketId, runId, testId, file);
     void fetchAndOpenFrameDb({ url, sha256: sha })
       .then((opened) => {
         if (cancelled || activeShaRef.current !== sha) {
@@ -92,7 +93,7 @@ export function useFrameSqlite(args: {
     return () => {
       cancelled = true;
     };
-  }, [bucketId, runId, testId, node]);
+  }, [bucketId, runId, testId, node?.sha256, node?.file]);
 
   return { status, error, handle, schema };
 }

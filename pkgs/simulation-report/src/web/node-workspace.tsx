@@ -21,6 +21,14 @@ export function listReportNodes(
   return [...actors, ...extras, 'server'];
 }
 
+/** Nodes that can render an HTML snapshot pane (actors). Server is SQL-only. */
+export function nodeHasUiPane(
+  data: SimulationReportData,
+  nodeId: string
+): boolean {
+  return data.meta.actorIds.includes(nodeId);
+}
+
 export function NodeWorkspace(props: {
   readonly data: SimulationReportData;
   readonly bucketId: string;
@@ -33,12 +41,12 @@ export function NodeWorkspace(props: {
 }) {
   const nodes = listReportNodes(props.data, props.frame);
   const acting = props.frame?.step.actorId;
-  const isServer = props.nodeId === 'server';
+  const showUiPane = nodeHasUiPane(props.data, props.nodeId);
   const viewFile =
     props.frame?.views?.find((v) => v.nodeId === props.nodeId)?.file ??
     (acting === props.nodeId ? props.frame?.file : undefined);
   const previewSrc =
-    !isServer && viewFile
+    showUiPane && viewFile
       ? testFrameUrl(props.bucketId, props.runId, props.testId, viewFile)
       : null;
 
@@ -68,18 +76,16 @@ export function NodeWorkspace(props: {
           );
         })}
       </div>
-      <div style={styles.nodeSplit}>
-        <div style={styles.nodePane}>
-          {isServer ? (
-            <div style={styles.mutedEmpty}>No UI for server</div>
-          ) : (
+      <div style={showUiPane ? styles.nodeSplit : styles.nodeSplitSqlOnly}>
+        {showUiPane ? (
+          <div style={styles.nodePane}>
             <PlayerStage
               previewFrame={props.frame}
               previewSrc={previewSrc}
               showInteractionOverlay={acting === props.nodeId}
             />
-          )}
-        </div>
+          </div>
+        ) : null}
         <div style={styles.nodePaneSql}>
           <NodeSqlitePane
             bucketId={props.bucketId}

@@ -1,6 +1,7 @@
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import { deleteRunApi, pruneBucket } from './api-client';
 import { BucketPicker } from './bucket-picker';
+import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
@@ -14,16 +15,19 @@ export function ReportViews(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
   readonly generation: number;
-  readonly bucketLabel: string;
   readonly onNav: (nav: ReportNavState) => void;
 }) {
-  const { nav, data, generation, bucketLabel, onNav } = props;
+  const { nav, data, generation, onNav } = props;
   const concreteRunId = data.resolvedRunId;
 
   if (!nav.bucketId) {
     return (
       <BucketPicker
+        nav={nav}
         buckets={data.buckets}
+        runs={data.runs}
+        tests={data.tests}
+        onNav={onNav}
         onOpen={(bucketId) => {
           onNav(navigateReport(nav, clearPlayerNav({ bucketId, runId: null })));
         }}
@@ -37,7 +41,6 @@ export function ReportViews(props: {
         nav={nav}
         data={data}
         generation={generation}
-        bucketLabel={bucketLabel}
         onNav={onNav}
       />
     );
@@ -62,12 +65,13 @@ export function ReportViews(props: {
 
   return (
     <SuitePage
+      nav={nav}
+      buckets={data.buckets}
+      runs={data.runs}
       bucketId={nav.bucketId}
       runId={runLabel}
       tests={data.tests}
-      onBack={() => {
-        onNav(navigateReport(nav, clearPlayerNav({ runId: null })));
-      }}
+      onNav={onNav}
       onOpenTest={(testId) => {
         onNav(navigateReport(nav, clearPlayerNav({ testId })));
       }}
@@ -79,16 +83,18 @@ function RunsListView(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
   readonly generation: number;
-  readonly bucketLabel: string;
   readonly onNav: (nav: ReportNavState) => void;
 }) {
-  const { nav, data, generation, bucketLabel, onNav } = props;
+  const { nav, data, generation, onNav } = props;
   return (
     <RunsPage
+      nav={nav}
+      buckets={data.buckets}
+      tests={data.tests}
       bucketId={nav.bucketId!}
-      bucketLabel={bucketLabel}
       runs={data.runs}
       generation={generation}
+      onNav={onNav}
       onBack={() => {
         onNav(
           navigateReport(nav, clearPlayerNav({ bucketId: null, runId: null }))
@@ -117,16 +123,19 @@ function TestOrLoading(props: {
   readonly onNav: (nav: ReportNavState) => void;
 }) {
   const { nav, data, concreteRunId, onNav } = props;
+  const crumb = (
+    <NavBreadcrumb
+      nav={nav}
+      buckets={data.buckets}
+      runs={data.runs}
+      tests={data.tests}
+      onNav={onNav}
+    />
+  );
   if (!concreteRunId) {
     return (
       <div style={styles.appShell}>
-        <ReportHeader
-          back={{
-            label: '← Run',
-            onClick: () => onNav(navigateReport(nav, clearPlayerNav())),
-          }}
-          title={nav.testId ?? 'test'}
-        />
+        <ReportHeader breadcrumb={crumb} />
         <div style={styles.appBody}>
           <p style={styles.empty}>
             {isLatestRunId(nav.runId)
@@ -142,13 +151,7 @@ function TestOrLoading(props: {
   if (!data.testData) {
     return (
       <div style={styles.appShell}>
-        <ReportHeader
-          back={{
-            label: '← Run',
-            onClick: () => onNav(navigateReport(nav, clearPlayerNav())),
-          }}
-          title={nav.testId ?? 'test'}
-        />
+        <ReportHeader breadcrumb={crumb} />
         <div style={styles.appBody}>
           <p style={styles.empty}>
             {data.error
@@ -165,6 +168,9 @@ function TestOrLoading(props: {
       nav={nav}
       bucketId={nav.bucketId!}
       runId={concreteRunId}
+      buckets={data.buckets}
+      runs={data.runs}
+      tests={data.tests}
       onNav={onNav}
     />
   );

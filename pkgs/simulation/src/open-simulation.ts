@@ -66,7 +66,7 @@ export class Simulation {
     } = {
       snapshot: async () => [],
     };
-    const reporter = createReporter(options, io, ui, handle, viewsHolder);
+    const reporter = createReporter({ options, io, ui, handle, viewsHolder });
     const sim = new Simulation({ io, ui, handle, reporter });
     viewsHolder.snapshot = () => sim.collectActorViews();
     return sim;
@@ -168,21 +168,21 @@ export class Simulation {
   }
 }
 
-function createReporter(
-  options: SimulationOptions,
-  io: SimIo,
-  ui: SimulationUiKind,
-  handle: SimulationSystemHandle,
-  viewsHolder: {
+function createReporter(args: {
+  readonly options: SimulationOptions;
+  readonly io: SimIo;
+  readonly ui: SimulationUiKind;
+  readonly handle: SimulationSystemHandle;
+  readonly viewsHolder: {
     snapshot: () => Promise<
       readonly { readonly nodeId: string; readonly html: string }[]
     >;
-  }
-): SimulationReporter | undefined {
-  const reportOpts = resolveReportOptions(options.report);
+  };
+}): SimulationReporter | undefined {
+  const reportOpts = resolveReportOptions(args.options.report);
   if (reportOpts === null) return undefined;
-  const now = reportOpts.now ?? (() => io.clock.now());
-  const seed = String(io.seed);
+  const now = reportOpts.now ?? (() => args.io.clock.now());
+  const seed = String(args.io.seed);
   const store =
     reportOpts.store ??
     createNodeFsObjectStore({
@@ -193,7 +193,7 @@ function createReporter(
     reportOpts.sourceFile ?? resolveJestSourceFile() ?? undefined;
   return new SimulationReporter({
     seed,
-    ui,
+    ui: args.ui,
     store,
     runId,
     testId: reportOpts.testId ?? sanitizeTestId(seed),
@@ -208,10 +208,10 @@ function createReporter(
       ? { publishThrottleMs: reportOpts.publishThrottleMs }
       : {}),
     ...(sourceFile !== undefined ? { sourceFile } : {}),
-    ...(handle.snapshotDatabases !== undefined
-      ? { snapshotDatabases: handle.snapshotDatabases }
+    ...(args.handle.snapshotDatabases !== undefined
+      ? { snapshotDatabases: args.handle.snapshotDatabases }
       : {}),
-    snapshotViews: () => viewsHolder.snapshot(),
+    snapshotViews: () => args.viewsHolder.snapshot(),
   });
 }
 

@@ -13,7 +13,6 @@ export const t = {
   accentSoft: '#1a2333',
   control: '#1c222d',
   controlHover: '#262e3c',
-  heatTrack: '#1a1f28',
   previewBg: '#070809',
   passBorder: '#1f6b4a',
   passBg: '#0d2a1c',
@@ -21,9 +20,6 @@ export const t = {
   failBg: '#2a1215',
   primaryBorder: '#3a547a',
   headerH: 48,
-  detailMetaH: 52,
-  railW: 240,
-  timelineH: 140,
   radius: 4,
   mono: '"IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
 } as const;

@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
-import type { RunSummary } from '../types';
+import type { RunSummary, SuiteTestSummary } from '../types';
+import type { BucketInfo } from './api-client';
 import { useRegisterCommands } from './commands/registry';
 import type { Command } from './commands/types';
+import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
+import type { ReportNavState } from './router';
 import { HoverRow } from './suite-page';
 import { badgeStyle, merge, styles, useHoverStyle } from './theme';
 
@@ -20,22 +23,28 @@ function formatUpdated(ms: number): string {
 }
 
 export function RunsPage(props: {
+  readonly nav: ReportNavState;
+  readonly buckets: readonly BucketInfo[];
+  readonly tests: readonly SuiteTestSummary[];
   readonly bucketId: string;
-  readonly bucketLabel: string;
   readonly runs: readonly RunSummary[];
   readonly generation: number;
   readonly onBack: () => void;
+  readonly onNav: (nav: ReportNavState) => void;
   readonly onOpenRun: (runId: string) => void;
   readonly onOpenLatest: () => void;
   readonly onDeleteRun: (runId: string) => Promise<void>;
   readonly onKeepLast: (n: number) => Promise<void>;
 }) {
   const {
+    nav,
+    buckets,
+    tests,
     bucketId,
-    bucketLabel,
     runs,
     generation,
     onBack,
+    onNav,
     onOpenRun,
     onOpenLatest,
     onDeleteRun,
@@ -57,8 +66,15 @@ export function RunsPage(props: {
   return (
     <div style={styles.appShell}>
       <ReportHeader
-        back={{ label: '← Buckets', onClick: onBack }}
-        title={bucketLabel}
+        breadcrumb={
+          <NavBreadcrumb
+            nav={nav}
+            buckets={buckets}
+            runs={runs}
+            tests={tests}
+            onNav={onNav}
+          />
+        }
         meta={`${bucketId} · ${runs.length} run${runs.length === 1 ? '' : 's'} · gen ${generation}`}
       />
       <div style={styles.appBody}>

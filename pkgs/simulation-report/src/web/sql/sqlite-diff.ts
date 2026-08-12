@@ -29,25 +29,33 @@ export type SqliteFrameDiff = {
 
 const MAX_ROWS_PER_TABLE = 80;
 
+const EMPTY_SCHEMA: SqliteSchemaDiff = {
+  addedTables: [],
+  removedTables: [],
+};
+
+/** Shared fast-path results — stable refs so React effects don't loop. */
+const DIFF_IDENTICAL: SqliteFrameDiff = {
+  identical: true,
+  schema: EMPTY_SCHEMA,
+  tables: [],
+};
+
+const DIFF_MISSING: SqliteFrameDiff = {
+  identical: false,
+  schema: EMPTY_SCHEMA,
+  tables: [],
+};
+
 /** Fast path when content hashes match or either side is missing. */
 export function diffBySha(
   prevSha: string | undefined,
   nextSha: string | undefined
 ): SqliteFrameDiff | null {
   if (prevSha === undefined || nextSha === undefined) {
-    return {
-      identical: prevSha === nextSha,
-      schema: { addedTables: [], removedTables: [] },
-      tables: [],
-    };
+    return prevSha === nextSha ? DIFF_IDENTICAL : DIFF_MISSING;
   }
-  if (prevSha === nextSha) {
-    return {
-      identical: true,
-      schema: { addedTables: [], removedTables: [] },
-      tables: [],
-    };
-  }
+  if (prevSha === nextSha) return DIFF_IDENTICAL;
   return null;
 }
 

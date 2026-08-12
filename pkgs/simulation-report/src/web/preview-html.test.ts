@@ -84,7 +84,7 @@ describe('patchPreviewHtml', () => {
 });
 
 describe('durationHeat', () => {
-  test('keeps sub-100ms flat cool; warms near 1s; hot by a few seconds', () => {
+  test('keeps sub-100ms neutral; warms near 1s; hot by a few seconds', () => {
     const instant = durationHeat(0);
     const fast = durationHeat(13);
     const stillCool = durationHeat(100);
@@ -100,7 +100,7 @@ describe('durationHeat', () => {
   });
 
   test('does not scale relative to other frames', () => {
-    // Fast steps stay cool even when they are the slowest in a tiny suite.
+    // Fast steps stay neutral even when they are the slowest in a tiny suite.
     expect(durationHeat(13).t).toBe(0);
   });
 });

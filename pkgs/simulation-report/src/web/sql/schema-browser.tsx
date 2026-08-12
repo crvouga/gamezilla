@@ -3,11 +3,17 @@ import type { CSSProperties } from 'react';
 import type { SchemaObject } from './frame-sqlite';
 import { sqlPanelStyles as s } from './sql-panel-styles';
 
+export type SchemaInspectTarget = {
+  readonly type: SchemaObject['type'];
+  readonly name: string;
+};
+
 export function SchemaBrowser(props: {
   readonly objects: readonly SchemaObject[];
-  readonly onInsertSql: (sql: string) => void;
+  readonly activeName?: string | null;
+  readonly onInspect: (target: SchemaInspectTarget) => void;
 }) {
-  const { objects, onInsertSql } = props;
+  const { objects, activeName = null, onInspect } = props;
   const tables = objects.filter((o) => o.type === 'table');
   const views = objects.filter((o) => o.type === 'view');
   const indexes = objects.filter((o) => o.type === 'index');
@@ -18,21 +24,20 @@ export function SchemaBrowser(props: {
       <SchemaGroup
         title="Tables"
         items={tables}
-        onPick={(name) => onInsertSql(`SELECT * FROM "${name}" LIMIT 100;`)}
+        activeName={activeName}
+        onPick={(name) => onInspect({ type: 'table', name })}
       />
       <SchemaGroup
         title="Views"
         items={views}
-        onPick={(name) => onInsertSql(`SELECT * FROM "${name}" LIMIT 100;`)}
+        activeName={activeName}
+        onPick={(name) => onInspect({ type: 'view', name })}
       />
       <SchemaGroup
         title="Indexes"
         items={indexes}
-        onPick={(name) =>
-          onInsertSql(
-            `SELECT * FROM sqlite_master WHERE type='index' AND name='${name}';`
-          )
-        }
+        activeName={activeName}
+        onPick={(name) => onInspect({ type: 'index', name })}
       />
       {empty ? <div style={s.muted}>No user schema objects</div> : null}
     </div>
@@ -42,23 +47,29 @@ export function SchemaBrowser(props: {
 function SchemaGroup(args: {
   readonly title: string;
   readonly items: readonly SchemaObject[];
+  readonly activeName: string | null;
   readonly onPick: (name: string) => void;
 }) {
   if (args.items.length === 0) return null;
   return (
     <div style={s.schemaGroup}>
       <div style={s.schemaGroupTitle}>{args.title}</div>
-      {args.items.map((item) => (
-        <button
-          key={`${item.type}:${item.name}`}
-          type="button"
-          title={item.sql ?? item.name}
-          style={s.schemaItem as CSSProperties}
-          onClick={() => args.onPick(item.name)}
-        >
-          {item.name}
-        </button>
-      ))}
+      {args.items.map((item) => {
+        const active = item.name === args.activeName;
+        return (
+          <button
+            key={`${item.type}:${item.name}`}
+            type="button"
+            title={item.sql ?? item.name}
+            style={
+              (active ? s.schemaItemActive : s.schemaItem) as CSSProperties
+            }
+            onClick={() => args.onPick(item.name)}
+          >
+            {item.name}
+          </button>
+        );
+      })}
     </div>
   );
 }

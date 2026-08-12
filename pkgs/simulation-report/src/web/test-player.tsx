@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { SimulationReportData } from '../types';
+import type {
+  RunSummary,
+  SimulationReportData,
+  SuiteTestSummary,
+} from '../types';
+import type { BucketInfo } from './api-client';
 import { buildPlayerCommands } from './commands/player-commands';
 import { useRegisterCommands } from './commands/registry';
-import { FrameTimeline, LONG_HOLD_PULSE_MS } from './frame-timeline';
+import { LONG_HOLD_PULSE_MS } from './frame-timeline';
 import {
   type FlatFrame,
   flattenFrames,
@@ -12,11 +17,11 @@ import {
 } from './frames';
 import { listReportNodes, NodeWorkspace } from './node-workspace';
 import { playbackHoldMs } from './playback-hold';
+import { PlayerBottomStrip } from './player-bottom-strip';
 import { PlayerChrome } from './player-chrome';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
-import { clearPlayerNav, navigateReport } from './router';
+import { navigateReport } from './router';
 import { styles } from './theme';
-import { Transport } from './transport';
 import { useHoldCountdown } from './use-hold-countdown';
 
 export function TestPlayer(props: {
@@ -24,6 +29,9 @@ export function TestPlayer(props: {
   readonly nav: ReportNavState;
   readonly bucketId: string;
   readonly runId: string;
+  readonly buckets: readonly BucketInfo[];
+  readonly runs: readonly RunSummary[];
+  readonly tests: readonly SuiteTestSummary[];
   readonly onNav: (nav: ReportNavState) => void;
 }) {
   const model = useTestPlayerModel(props);
@@ -33,6 +41,9 @@ export function TestPlayer(props: {
       testId={model.testId}
       bucketId={props.bucketId}
       runId={props.runId}
+      buckets={props.buckets}
+      runs={props.runs}
+      tests={props.tests}
       frames={model.frames}
       nav={props.nav}
       actions={model.actions}
@@ -45,7 +56,7 @@ export function TestPlayer(props: {
       holdRemainingMs={model.holdRemainingMs}
       nodeId={model.nodeId}
       registerCopyAction={model.registerCopyAction}
-      onBack={model.onBack}
+      onNav={props.onNav}
       onHover={model.onHover}
       onSelectNode={model.selectNode}
     />
@@ -129,7 +140,6 @@ function useTestPlayerModel(props: {
     actions,
     registerCopyAction,
     selectNode,
-    onBack: () => onNav(navigateReport(nav, clearPlayerNav())),
     onHover: (idx: number | null) => {
       if (!nav.play) setHoverFrameIdx(idx);
     },
@@ -151,6 +161,9 @@ function PlayerShell(props: {
   readonly testId: string;
   readonly bucketId: string;
   readonly runId: string;
+  readonly buckets: readonly BucketInfo[];
+  readonly runs: readonly RunSummary[];
+  readonly tests: readonly SuiteTestSummary[];
   readonly frames: readonly FlatFrame[];
   readonly nav: ReportNavState;
   readonly actions: PlayerActions;
@@ -163,7 +176,7 @@ function PlayerShell(props: {
   readonly holdRemainingMs: number | null;
   readonly nodeId: string;
   readonly registerCopyAction: (run: () => void) => void;
-  readonly onBack: () => void;
+  readonly onNav: (nav: ReportNavState) => void;
   readonly onHover: (idx: number | null) => void;
   readonly onSelectNode: (nodeId: string) => void;
 }) {
@@ -172,6 +185,9 @@ function PlayerShell(props: {
     testId,
     bucketId,
     runId,
+    buckets,
+    runs,
+    tests,
     frames,
     nav,
     actions,
@@ -184,7 +200,7 @@ function PlayerShell(props: {
     holdRemainingMs,
     nodeId,
     registerCopyAction,
-    onBack,
+    onNav,
     onHover,
     onSelectNode,
   } = props;
@@ -192,15 +208,18 @@ function PlayerShell(props: {
     <div style={styles.appShell}>
       <PlayerChrome
         data={data}
-        testId={testId}
         bucketId={bucketId}
         runId={runId}
+        nav={nav}
+        buckets={buckets}
+        runs={runs}
+        tests={tests}
         frames={frames}
         selectedFrameIdx={selectedFrameIdx}
         playheadIdx={playheadIdx}
         previewIdx={previewIdx}
         registerCopyAction={registerCopyAction}
-        onBack={onBack}
+        onNav={onNav}
       >
         <div style={styles.playerEditorLayout}>
           <NodeWorkspace
@@ -213,36 +232,18 @@ function PlayerShell(props: {
             nodeId={nodeId}
             onSelectNode={onSelectNode}
           />
-          <div style={styles.bottomStrip}>
-            <Transport
-              compact
-              nav={nav}
-              frames={frames}
-              previewIdx={previewIdx}
-              previewDurationMs={previewFrame?.durationMs}
-              onTogglePlay={() => actions.setPlay(!nav.play)}
-              onPrev={() =>
-                actions.selectFrame(Math.max(0, previewIdx - 1), 'push')
-              }
-              onNext={() =>
-                actions.selectFrame(
-                  Math.min(frames.length - 1, previewIdx + 1),
-                  'push'
-                )
-              }
-              onMode={actions.setMode}
-              onSpeed={actions.setSpeed}
-            />
-            <FrameTimeline
-              frames={frames}
-              selectedIdx={selectedFrameIdx}
-              hoverIdx={hoverFrameIdx}
-              playheadIdx={playheadIdx}
-              holdRemainingMs={holdRemainingMs}
-              onHover={onHover}
-              onSelect={actions.toggleFrame}
-            />
-          </div>
+          <PlayerBottomStrip
+            nav={nav}
+            frames={frames}
+            selectedFrameIdx={selectedFrameIdx}
+            hoverFrameIdx={hoverFrameIdx}
+            playheadIdx={playheadIdx}
+            previewIdx={previewIdx}
+            previewFrame={previewFrame}
+            holdRemainingMs={holdRemainingMs}
+            actions={actions}
+            onHover={onHover}
+          />
         </div>
       </PlayerChrome>
     </div>

@@ -1,43 +1,63 @@
 import type { ReactNode } from 'react';
 
-import type { SimulationReportData } from '../types';
+import type {
+  RunSummary,
+  SimulationReportData,
+  SuiteTestSummary,
+} from '../types';
+import type { BucketInfo } from './api-client';
 import { CopyLlmPromptButton } from './copy-llm-prompt-button';
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
+import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
+import type { ReportNavState } from './router';
 import { badgeStyle } from './theme';
 
 export function PlayerChrome(props: {
   readonly data: SimulationReportData;
-  readonly testId: string;
   readonly bucketId: string;
   readonly runId: string;
+  readonly nav: ReportNavState;
+  readonly buckets: readonly BucketInfo[];
+  readonly runs: readonly RunSummary[];
+  readonly tests: readonly SuiteTestSummary[];
   readonly frames: readonly FlatFrame[];
   readonly selectedFrameIdx: number | null;
   readonly playheadIdx: number;
   readonly previewIdx: number;
   readonly registerCopyAction: (run: () => void) => void;
-  readonly onBack: () => void;
+  readonly onNav: (nav: ReportNavState) => void;
   readonly children: ReactNode;
 }) {
   const {
     data,
-    testId,
     bucketId,
     runId,
+    nav,
+    buckets,
+    runs,
+    tests,
     frames,
     selectedFrameIdx,
     playheadIdx,
     previewIdx,
     registerCopyAction,
-    onBack,
+    onNav,
     children,
   } = props;
   return (
     <>
       <ReportHeader
-        back={{ label: '← Run', onClick: onBack }}
-        title={testId}
+        breadcrumb={
+          <NavBreadcrumb
+            nav={nav}
+            buckets={buckets}
+            runs={runs}
+            tests={tests}
+            onNav={onNav}
+          />
+        }
         badge={
           <span style={badgeStyle(data.meta.status)}>
             {data.meta.status.toUpperCase()}

@@ -24,11 +24,6 @@ function AppShell() {
   const data = useReportData(nav, onNav);
   useCommandShortcuts();
 
-  const bucketLabel =
-    data.buckets.find((b) => b.id === nav.bucketId)?.label ??
-    nav.bucketId ??
-    '';
-
   useEffect(() => {
     const onPop = () => setNav(readWindowNav());
     window.addEventListener('popstate', onPop);
@@ -41,7 +36,6 @@ function AppShell() {
         nav={nav}
         data={data}
         generation={data.generation}
-        bucketLabel={bucketLabel}
         onNav={onNav}
       />
       <CommandPalette />

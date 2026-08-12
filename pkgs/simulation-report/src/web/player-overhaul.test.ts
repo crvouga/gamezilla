@@ -80,10 +80,12 @@ describe('diffBySha', () => {
   test('identical hashes → no changes', () => {
     const d = diffBySha('abc', 'abc');
     expect(d?.identical).toBe(true);
+    expect(diffBySha('xyz', 'xyz')).toBe(d);
   });
   test('missing prev → empty identical false when only next', () => {
     const d = diffBySha(undefined, 'abc');
     expect(d?.identical).toBe(false);
+    expect(diffBySha(undefined, 'xyz')).toBe(d);
   });
   test('different hashes → null (compute full diff)', () => {
     expect(diffBySha('a', 'b')).toBeNull();

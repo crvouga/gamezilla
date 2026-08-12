@@ -1,26 +1,40 @@
 import type { ReactNode } from 'react';
 
-import type { SuiteTestSummary } from '../types';
+import type { RunSummary, SuiteTestSummary } from '../types';
+import type { BucketInfo } from './api-client';
 import { formatMs } from './frames';
+import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
+import type { ReportNavState } from './router';
 import { badgeStyle, merge, styles, useHoverStyle } from './theme';
 
 export function SuitePage(props: {
+  readonly nav: ReportNavState;
+  readonly buckets: readonly BucketInfo[];
+  readonly runs: readonly RunSummary[];
   readonly bucketId: string;
   readonly runId: string;
   readonly tests: readonly SuiteTestSummary[];
-  readonly onBack: () => void;
+  readonly onNav: (nav: ReportNavState) => void;
   readonly onOpenTest: (testId: string) => void;
 }) {
-  const { bucketId, runId, tests, onBack, onOpenTest } = props;
+  const { nav, buckets, runs, bucketId, runId, tests, onNav, onOpenTest } =
+    props;
   const passed = tests.filter((t) => t.status === 'passed').length;
 
   return (
     <div style={styles.appShell}>
       <ReportHeader
-        back={{ label: '← Runs', onClick: onBack }}
-        title={`Run ${runId}`}
-        meta={`${bucketId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
+        breadcrumb={
+          <NavBreadcrumb
+            nav={nav}
+            buckets={buckets}
+            runs={runs}
+            tests={tests}
+            onNav={onNav}
+          />
+        }
+        meta={`${bucketId} · ${runId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
       />
       <div style={styles.appBody}>
         <table style={styles.suiteTable}>

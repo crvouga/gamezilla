@@ -24,7 +24,6 @@ export function Transport(props: {
   readonly frames: readonly FlatFrame[];
   readonly previewIdx: number;
   readonly previewDurationMs: number | undefined;
-  readonly compact?: boolean;
   readonly onTogglePlay: () => void;
   readonly onPrev: () => void;
   readonly onNext: () => void;
@@ -36,7 +35,6 @@ export function Transport(props: {
     frames,
     previewIdx,
     previewDurationMs,
-    compact = false,
     onTogglePlay,
     onPrev,
     onNext,
@@ -44,7 +42,6 @@ export function Transport(props: {
     onSpeed,
   } = props;
   const disabled = frames.length === 0;
-  const btn = compact ? 'sm' : undefined;
   const total = frames.length;
   const frameDigits = String(Math.max(total, 1)).length;
   const cur =
@@ -61,39 +58,32 @@ export function Transport(props: {
   });
 
   return (
-    <div
-      style={merge(styles.transport, compact && styles.transportCompact)}
-      aria-label="Playback"
-    >
+    <div style={styles.transport} aria-label="Playback">
       <div style={styles.transportGroup}>
         <IconBtn
           label="Previous frame"
-          size={btn ?? 'md'}
+          size="md"
           disabled={disabled}
           onClick={onPrev}
         >
-          <SkipBack size={compact ? 14 : 18} />
+          <SkipBack size={16} />
         </IconBtn>
         <IconBtn
           label={nav.play ? 'Pause' : 'Play'}
-          size={btn ?? 'lg'}
+          size="lg"
           variant="primary"
           disabled={disabled}
           onClick={onTogglePlay}
         >
-          {nav.play ? (
-            <Pause size={compact ? 14 : 22} />
-          ) : (
-            <Play size={compact ? 14 : 22} />
-          )}
+          {nav.play ? <Pause size={22} /> : <Play size={22} />}
         </IconBtn>
         <IconBtn
           label="Next frame"
-          size={btn ?? 'md'}
+          size="md"
           disabled={disabled}
           onClick={onNext}
         >
-          <SkipForward size={compact ? 14 : 18} />
+          <SkipForward size={16} />
         </IconBtn>
       </div>
       <div style={styles.transportGroup}>

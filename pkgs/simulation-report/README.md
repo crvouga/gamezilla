@@ -97,16 +97,21 @@ Player shortcuts include Space (play/pause), ←/→ (frames), M (mode), ] (spee
 
 Video-editor shell:
 
-1. **Header** — test title, status, copy-LLM prompt (no transport).
+1. **Header** — breadcrumb selects (bucket → run → test), status, copy-LLM
+   prompt (no transport). Each crumb is a `<select>` that jumps while clearing
+   deeper nav.
 2. **Node tabs** — one tab per actor + `server` (`?node=` in the URL). Acting
-   actor is accented. Each tab splits **HTML | SQLite**.
-3. **HTML** — per-actor frame views (`frames/f-NNNNN.<actorId>.html`). Server
-   shows “No UI”. When viewing the acting actor, interacted `testId("…")`
+   actor is accented. Actor tabs split **HTML | SQLite**; `server` is SQLite-only
+   (no empty HTML pane).
+3. **HTML** — per-actor frame views (`frames/f-NNNNN.<actorId>.html`). When
+   viewing the acting actor, interacted `testId("…")`
    targets are outlined; `tapAt` draws a crosshair from `xRatio` / `yRatio`.
 4. **SQLite** — Diff (prev↔current frame for that node) or Query (Monaco +
    schema browser). Same gzip content-hash dumps as before.
-5. **Bottom strip** — Transport (play/pause, prev/next, mode, speed) +
-   horizontal frame timeline (segment width ∝ `durationMs`, heat color).
+5. **Bottom strip** — Transport + step meta on the top row; full-width frame
+   timeline below (segments fill the track, wheel/pinch zoom, DB-change
+   markers, heat only on slow frames). Play is a large circular control; other
+   buttons are rounded pills.
 
 ```bash
 bun run --filter @pkgs/simulation-report build

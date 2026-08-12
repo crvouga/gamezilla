@@ -3,14 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { SimulationFrameDatabase } from '../../types';
 import type { FlatFrame } from '../frames';
-import { wallNowMs } from '../wall';
-import { runSql, type SqlQueryResult } from './frame-sqlite';
-import { SchemaBrowser } from './schema-browser';
-import { SqlEditor } from './sql-editor';
-import { SqlEditorToolbar } from './sql-editor-toolbar';
-import { listSqlHistory, pushSqlHistory } from './sql-history';
 import { sqlPanelStyles as s } from './sql-panel-styles';
-import { SqlResults } from './sql-results';
+import { SqliteQueryView } from './sql-query-view';
 import {
   diffBySha,
   diffSqliteDatabases,
@@ -41,14 +35,6 @@ export function NodeSqlitePane(props: {
   );
   const [mode, setMode] = useState<SqlPaneMode>('diff');
 
-  if (!node) {
-    return (
-      <div style={s.muted}>
-        No SQLite dump for `{props.nodeId}` on this frame.
-      </div>
-    );
-  }
-
   return (
     <div style={s.nodeSqlRoot}>
       <div style={s.modeTabs}>
@@ -60,13 +46,19 @@ export function NodeSqlitePane(props: {
         </ModeBtn>
       </div>
       {mode === 'diff' ? (
-        <SqliteDiffView
-          bucketId={props.bucketId}
-          runId={props.runId}
-          testId={props.testId}
-          node={node}
-          prevNode={prevNode}
-        />
+        node == null ? (
+          <div style={s.muted}>
+            No SQLite dump for `{props.nodeId}` on this frame.
+          </div>
+        ) : (
+          <SqliteDiffView
+            bucketId={props.bucketId}
+            runId={props.runId}
+            testId={props.testId}
+            node={node}
+            prevNode={prevNode}
+          />
+        )
       ) : (
         <SqliteQueryView
           bucketId={props.bucketId}
@@ -125,7 +117,15 @@ function SqliteDiffView(props: {
     if (prev.status !== 'ready' || next.status !== 'ready') return;
     if (!prev.handle || !next.handle) return;
     setDiff(diffSqliteDatabases(prev.handle.db, next.handle.db));
-  }, [fast, prev.status, next.status, prev.handle, next.handle]);
+  }, [
+    fast,
+    props.prevNode?.sha256,
+    props.node.sha256,
+    prev.status,
+    next.status,
+    prev.handle,
+    next.handle,
+  ]);
 
   if (!props.prevNode) {
     return <div style={s.muted}>No previous frame to diff against.</div>;
@@ -181,84 +181,6 @@ function SqliteDiffView(props: {
           ))}
         </div>
       ))}
-    </div>
-  );
-}
-
-function SqliteQueryView(props: {
-  readonly bucketId: string;
-  readonly runId: string;
-  readonly testId: string;
-  readonly node: SimulationFrameDatabase;
-}) {
-  const sqlite = useFrameSqlite({
-    bucketId: props.bucketId,
-    runId: props.runId,
-    testId: props.testId,
-    node: props.node,
-  });
-  const nodeId = props.node.nodeId;
-  const [sql, setSql] = useState(
-    "SELECT name, type FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name;"
-  );
-  const [result, setResult] = useState<SqlQueryResult | null>(null);
-  const [queryError, setQueryError] = useState<string | null>(null);
-  const [historyTick, setHistoryTick] = useState(0);
-  const history = listSqlHistory(nodeId);
-  void historyTick;
-
-  useEffect(() => {
-    setResult(null);
-    setQueryError(null);
-  }, [props.node.sha256]);
-
-  const run = () => {
-    if (!sqlite.handle) return;
-    try {
-      const next = runSql(sqlite.handle.db, sql);
-      setResult(next);
-      setQueryError(null);
-      pushSqlHistory(nodeId, sql, wallNowMs());
-      setHistoryTick((n) => n + 1);
-    } catch (err) {
-      setResult(null);
-      setQueryError(err instanceof Error ? err.message : String(err));
-    }
-  };
-
-  const statusLabel =
-    sqlite.status === 'loading'
-      ? 'Loading dump…'
-      : sqlite.status === 'error'
-        ? (sqlite.error ?? 'error')
-        : `${props.node.byteLength} B`;
-
-  return (
-    <div style={s.body}>
-      <SchemaBrowser objects={sqlite.schema} onInsertSql={setSql} />
-      <div style={s.work}>
-        <div style={s.editorColumn}>
-          <SqlEditorToolbar
-            ready={sqlite.status === 'ready'}
-            statusLabel={statusLabel}
-            history={history}
-            onRun={run}
-            onPickHistory={setSql}
-          />
-          <SqlEditor
-            value={sql}
-            onChange={setSql}
-            onRun={run}
-            disabled={sqlite.status !== 'ready'}
-          />
-        </div>
-        <SqlResults
-          result={result}
-          error={
-            queryError ?? (sqlite.status === 'error' ? sqlite.error : null)
-          }
-        />
-      </div>
     </div>
   );
 }

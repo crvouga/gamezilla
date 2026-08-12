@@ -1,17 +1,24 @@
 import { useMemo } from 'react';
 
+import type { RunSummary, SuiteTestSummary } from '../types';
 import type { BucketInfo } from './api-client';
 import { useRegisterCommands } from './commands/registry';
 import type { Command } from './commands/types';
+import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
+import type { ReportNavState } from './router';
 import { HoverRow } from './suite-page';
 import { merge, styles } from './theme';
 
 export function BucketPicker(props: {
+  readonly nav: ReportNavState;
   readonly buckets: readonly BucketInfo[];
+  readonly runs: readonly RunSummary[];
+  readonly tests: readonly SuiteTestSummary[];
+  readonly onNav: (nav: ReportNavState) => void;
   readonly onOpen: (bucketId: string) => void;
 }) {
-  const { buckets, onOpen } = props;
+  const { nav, buckets, runs, tests, onNav, onOpen } = props;
   const commands = useMemo((): Command[] => {
     return buckets.map((b, i) => {
       const base = {
@@ -33,7 +40,15 @@ export function BucketPicker(props: {
   return (
     <div style={styles.appShell}>
       <ReportHeader
-        title="simulation-report"
+        breadcrumb={
+          <NavBreadcrumb
+            nav={nav}
+            buckets={buckets}
+            runs={runs}
+            tests={tests}
+            onNav={onNav}
+          />
+        }
         meta={`${buckets.length} bucket${buckets.length === 1 ? '' : 's'}`}
       />
       <div style={styles.appBody}>
