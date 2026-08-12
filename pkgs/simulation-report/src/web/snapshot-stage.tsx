@@ -11,6 +11,11 @@ import { reportFetch } from './wall';
 
 const htmlCache = new Map<string, string>();
 
+/** Peek cached raw frame HTML (pre-patch) for Copy prompt. */
+export function peekFrameHtmlCache(url: string): string | undefined {
+  return htmlCache.get(url);
+}
+
 async function loadFrameHtml(url: string): Promise<string | null> {
   const cached = htmlCache.get(url);
   if (cached !== undefined) return cached;

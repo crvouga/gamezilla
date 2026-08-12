@@ -32,6 +32,12 @@ import {
   storePutText,
   upsertTestSummary,
 } from './store-io';
+import {
+  createMutableUiAttribution,
+  freezeUiAttribution,
+  type MutableUiAttribution,
+  mergeFrameHtmlAttribution,
+} from './ui-attribution';
 
 export type SimulationReporterOptions = {
   readonly seed: string;
@@ -42,6 +48,7 @@ export type SimulationReporterOptions = {
   readonly now: () => number;
   readonly frameIntervalMs?: number;
   readonly maxFramesPerStep?: number;
+  readonly sourceFile?: string;
 };
 
 type RecordArgs = {
@@ -88,8 +95,11 @@ export class SimulationReporter {
   private readonly frameIntervalMs: number;
   private readonly maxFramesPerStep: number;
   private readonly startedAtMs: number;
+  private readonly sourceFile: string | undefined;
   private readonly steps: SimulationStep[] = [];
   private readonly actorIds = new Set<string>();
+  private readonly attribution: MutableUiAttribution =
+    createMutableUiAttribution();
   private frameSeq = 0;
   private flushed = false;
   private reportPath: string | undefined;
@@ -104,6 +114,7 @@ export class SimulationReporter {
     this.frameIntervalMs = options.frameIntervalMs ?? DEFAULT_FRAME_INTERVAL_MS;
     this.maxFramesPerStep =
       options.maxFramesPerStep ?? DEFAULT_MAX_FRAMES_PER_STEP;
+    this.sourceFile = options.sourceFile;
     this.startedAtMs = options.now();
   }
 
@@ -125,6 +136,7 @@ export class SimulationReporter {
     const startedAtMs = this.now();
     const outcome = await this.runRecorded(args);
     this.pushStep(args, startedAtMs, this.now(), outcome);
+    await this.publishProgress();
     if (outcome.cause !== undefined) {
       throw outcome.cause;
     }
@@ -155,6 +167,16 @@ export class SimulationReporter {
       return this.toData(this.now());
     }
     this.flushed = true;
+    return this.publishProgress({ final: true });
+  }
+
+  /**
+   * Write partial (or final) steps/manifest/index + bump generation so SSE
+   * watchers update the SPA mid-run.
+   */
+  private async publishProgress(opts?: {
+    readonly final?: boolean;
+  }): Promise<SimulationReportData> {
     const endedAtMs = this.now();
     const steps = assignFrameDurations(this.steps);
     const data = this.toData(endedAtMs, steps);
@@ -200,6 +222,7 @@ export class SimulationReporter {
     await bumpGeneration(this.store);
 
     this.reportPath = stepsKey;
+    if (opts?.final) this.flushed = true;
     return finalData;
   }
 
@@ -321,6 +344,7 @@ export class SimulationReporter {
     const file = `frames/f-${padFrame(this.frameSeq)}.html`;
     const key = testFrameKey(this.runId, this.testId, file);
     await storePutText(this.store, key, html, 'text/html; charset=utf-8');
+    mergeFrameHtmlAttribution(this.attribution, html);
     return { file, capturedAtMs: this.now() };
   }
 
@@ -392,6 +416,7 @@ export class SimulationReporter {
     )
       ? 'failed'
       : 'passed';
+    const attribution = freezeUiAttribution(this.attribution);
     const meta: SimulationReportMeta = {
       seed: this.seed,
       ui: this.ui,
@@ -402,6 +427,11 @@ export class SimulationReporter {
       actorIds: [...this.actorIds],
       runId: this.runId,
       testId: this.testId,
+      ...(this.sourceFile !== undefined ? { sourceFile: this.sourceFile } : {}),
+      ...(Object.keys(attribution.components).length > 0 ||
+      Object.keys(attribution.sources).length > 0
+        ? { uiAttribution: attribution }
+        : {}),
     };
     return { meta, steps: [...steps] };
   }

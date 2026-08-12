@@ -25,3 +25,8 @@ export function wallRequestAnimationFrame(
 export function wallCancelAnimationFrame(handle: number): void {
   cancelAnimationFrame(handle);
 }
+
+/** Wall clipboard for Copy prompt (viewer only). */
+export async function wallClipboardWriteText(text: string): Promise<void> {
+  await navigator.clipboard.writeText(text);
+}

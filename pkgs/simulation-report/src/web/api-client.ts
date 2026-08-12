@@ -1,8 +1,6 @@
 import type {
   RunSummary,
-  RunsIndex,
   SimulationReportData,
-  SuiteManifest,
   SuiteTestSummary,
 } from '../types';
 import { reportFetch } from './wall';
@@ -12,50 +10,95 @@ export type BucketInfo = {
   readonly label: string;
 };
 
-export async function fetchBuckets(): Promise<readonly BucketInfo[]> {
-  const res = await reportFetch('/api/buckets');
-  if (!res.ok) throw new Error(`buckets ${res.status}`);
-  return res.json() as Promise<readonly BucketInfo[]>;
+export type RunsEvent = {
+  readonly generation: number;
+  readonly runs: readonly RunSummary[];
+};
+
+export type ManifestEvent = {
+  readonly resolvedRunId: string | null;
+  readonly tests: readonly SuiteTestSummary[];
+  readonly updatedAtMs: number;
+  readonly missing: boolean;
+};
+
+export type TestEvent = {
+  readonly resolvedRunId: string | null;
+  readonly missing: boolean;
+  readonly data: SimulationReportData | null;
+};
+
+export type BucketEventsHandlers = {
+  readonly onRuns?: (event: RunsEvent) => void;
+  readonly onManifest?: (event: ManifestEvent) => void;
+  readonly onTest?: (event: TestEvent) => void;
+  readonly onError?: (err: Event) => void;
+};
+
+export type EventSourceHandle = {
+  readonly close: () => void;
+};
+
+/** Global SSE: bucket registry. */
+export function openBucketsEvents(args: {
+  readonly onBuckets: (buckets: readonly BucketInfo[]) => void;
+  readonly onError?: (err: Event) => void;
+}): EventSourceHandle {
+  const es = new EventSource('/api/events');
+  es.addEventListener('buckets', (ev) => {
+    try {
+      const data = JSON.parse((ev as MessageEvent).data) as BucketInfo[];
+      args.onBuckets(data);
+    } catch {
+      /* ignore bad payload */
+    }
+  });
+  es.onerror = (err) => args.onError?.(err);
+  return { close: () => es.close() };
 }
 
-export async function fetchRuns(bucketId: string): Promise<RunsIndex> {
-  const res = await reportFetch(
-    `/api/buckets/${encodeURIComponent(bucketId)}/runs`
-  );
-  if (!res.ok) throw new Error(`runs ${res.status}`);
-  return res.json() as Promise<RunsIndex>;
-}
+/** Per-bucket SSE: runs (+ optional manifest/test). */
+export function openBucketEvents(args: {
+  readonly bucketId: string;
+  readonly runId?: string | null;
+  readonly testId?: string | null;
+  readonly handlers: BucketEventsHandlers;
+}): EventSourceHandle {
+  const params = new URLSearchParams();
+  if (args.runId) params.set('run', args.runId);
+  if (args.testId) params.set('test', args.testId);
+  const qs = params.toString();
+  const url = `/api/buckets/${encodeURIComponent(args.bucketId)}/events${
+    qs ? `?${qs}` : ''
+  }`;
+  const es = new EventSource(url);
+  const { handlers } = args;
 
-export async function fetchGeneration(bucketId: string): Promise<number> {
-  const res = await reportFetch(
-    `/api/buckets/${encodeURIComponent(bucketId)}/generation`
-  );
-  if (!res.ok) throw new Error(`generation ${res.status}`);
-  const data = (await res.json()) as { generation: number };
-  return data.generation;
-}
-
-export async function fetchManifest(
-  bucketId: string,
-  runId: string
-): Promise<SuiteManifest> {
-  const res = await reportFetch(
-    `/api/buckets/${encodeURIComponent(bucketId)}/runs/${encodeURIComponent(runId)}/manifest`
-  );
-  if (!res.ok) throw new Error(`manifest ${res.status}`);
-  return res.json() as Promise<SuiteManifest>;
-}
-
-export async function fetchTest(
-  bucketId: string,
-  runId: string,
-  testId: string
-): Promise<SimulationReportData> {
-  const res = await reportFetch(
-    `/api/buckets/${encodeURIComponent(bucketId)}/runs/${encodeURIComponent(runId)}/tests/${encodeURIComponent(testId)}`
-  );
-  if (!res.ok) throw new Error(`test ${testId} ${res.status}`);
-  return res.json() as Promise<SimulationReportData>;
+  es.addEventListener('runs', (ev) => {
+    try {
+      handlers.onRuns?.(JSON.parse((ev as MessageEvent).data) as RunsEvent);
+    } catch {
+      /* ignore */
+    }
+  });
+  es.addEventListener('manifest', (ev) => {
+    try {
+      handlers.onManifest?.(
+        JSON.parse((ev as MessageEvent).data) as ManifestEvent
+      );
+    } catch {
+      /* ignore */
+    }
+  });
+  es.addEventListener('test', (ev) => {
+    try {
+      handlers.onTest?.(JSON.parse((ev as MessageEvent).data) as TestEvent);
+    } catch {
+      /* ignore */
+    }
+  });
+  es.onerror = (err) => handlers.onError?.(err);
+  return { close: () => es.close() };
 }
 
 export async function deleteRunApi(

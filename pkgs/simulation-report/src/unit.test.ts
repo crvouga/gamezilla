@@ -1,12 +1,19 @@
 import { describe, expect, test } from 'bun:test';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { wallTimers } from '@pkgs/clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
 import { resolveLocalReportDataDir } from './local-data-dir';
 import { createSimulationReportServer } from './server/create-server';
 import type { SimulationReportData } from './types';
-import { mintRunId, sanitizeTestId } from './types';
+import {
+  isLatestRunId,
+  LATEST_RUN_ID,
+  mintRunId,
+  sanitizeRunId,
+  sanitizeTestId,
+} from './types';
 import { buildReportUrl, parseReportNav } from './web/router';
 import { testStepsKey } from './writer/keys';
 import { deleteRun, pruneRuns } from './writer/prune';
@@ -235,7 +242,7 @@ describe('prune', () => {
 });
 
 describe('createSimulationReportServer', () => {
-  test('lists buckets and serves run APIs', async () => {
+  test('health + SSE events stream runs/manifest/test', async () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
@@ -257,23 +264,48 @@ describe('createSimulationReportServer', () => {
     const server = createSimulationReportServer({
       buckets: [{ id: 'local', label: 'Local', store }],
       distDir: '/tmp/simulation-report-missing-dist',
+      timers: wallTimers,
       now: () => 999,
     });
 
-    const bucketsRes = await server.fetch(new Request('http://x/api/buckets'));
-    expect(bucketsRes.status).toBe(200);
-    expect(await bucketsRes.json()).toEqual([{ id: 'local', label: 'Local' }]);
+    const health = await server.fetch(new Request('http://x/api/health'));
+    expect(health.status).toBe(200);
+    expect(await health.json()).toEqual({ ok: true, bucketCount: 1 });
 
-    const runsRes = await server.fetch(
-      new Request('http://x/api/buckets/local/runs')
+    const eventsRes = await server.fetch(
+      new Request('http://x/api/buckets/local/events?run=latest&test=demo')
     );
-    expect(((await runsRes.json()) as { runs: unknown[] }).runs).toHaveLength(
-      1
+    expect(eventsRes.status).toBe(200);
+    expect(eventsRes.headers.get('content-type') ?? '').toContain(
+      'text/event-stream'
     );
+    const reader = eventsRes.body!.getReader();
+    const decoder = new TextDecoder();
+    let text = '';
+    for (let i = 0; i < 20; i++) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      text += decoder.decode(value, { stream: true });
+      if (text.includes('event: test')) break;
+    }
+    await reader.cancel();
+    expect(text).toContain('event: runs');
+    expect(text).toContain('run1');
+    expect(text).toContain('event: manifest');
+    expect(text).toContain('event: test');
+    server.stop();
+  });
+});
 
-    const testRes = await server.fetch(
-      new Request('http://x/api/buckets/local/runs/run1/tests/demo')
-    );
-    expect(testRes.status).toBe(200);
+describe('LATEST_RUN_ID', () => {
+  test('sanitizeRunId remaps reserved latest', () => {
+    expect(isLatestRunId(LATEST_RUN_ID)).toBe(true);
+    expect(sanitizeRunId('latest')).toBe('latest_run');
+  });
+  test('parses /r/latest', () => {
+    expect(parseReportNav('/b/local/r/latest', '')).toMatchObject({
+      bucketId: 'local',
+      runId: 'latest',
+    });
   });
 });

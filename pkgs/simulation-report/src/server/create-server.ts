@@ -1,13 +1,18 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Timers } from '@pkgs/clock';
 
 import { handleApi } from './api-routes';
+import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
+import { SseHub } from './sse-hub';
 import type { ReportBucket } from './types';
 
 export type { ReportBucket } from './types';
 
 export type CreateSimulationReportServerOptions = {
   readonly buckets: readonly ReportBucket[];
+  /** Injected timers for SSE heartbeat + bucket watch debounce/poll. */
+  readonly timers: Timers;
   /** Prebuilt SPA dir (default: package `dist/`). */
   readonly distDir?: string;
   /** Clock for prune `olderThanMs` (inject from composition root). */
@@ -16,6 +21,7 @@ export type CreateSimulationReportServerOptions = {
 
 export type SimulationReportServer = {
   readonly fetch: (req: Request) => Promise<Response>;
+  readonly stop: () => void;
 };
 
 function contentTypeForPath(path: string): string {
@@ -27,7 +33,7 @@ function contentTypeForPath(path: string): string {
 }
 
 /**
- * Library entry: multi-bucket report API + SPA static files.
+ * Library entry: multi-bucket report API + SPA static files + SSE watchers.
  */
 export function createSimulationReportServer(
   options: CreateSimulationReportServerOptions
@@ -43,28 +49,57 @@ export function createSimulationReportServer(
 
   const distDir = options.distDir;
   const now = options.now;
+  const timers = options.timers;
+  const hub = new SseHub();
+  const watchers = new Map<string, BucketWatcher>();
+  for (const bucket of buckets) {
+    watchers.set(bucket.id, startBucketWatcher(bucket, hub, timers));
+  }
 
   return {
-    fetch: (req) => handleFetch(req, buckets, distDir, now),
+    fetch: (req) =>
+      handleFetch(req, {
+        buckets,
+        hub,
+        watchers,
+        distDir,
+        now,
+        timers,
+      }),
+    stop: () => {
+      for (const w of watchers.values()) w.stop();
+      watchers.clear();
+    },
   };
 }
 
 async function handleFetch(
   req: Request,
-  buckets: readonly ReportBucket[],
-  distDir: string | undefined,
-  now: (() => number) | undefined
+  ctx: {
+    readonly buckets: readonly ReportBucket[];
+    readonly hub: SseHub;
+    readonly watchers: ReadonlyMap<string, BucketWatcher>;
+    readonly distDir: string | undefined;
+    readonly now: (() => number) | undefined;
+    readonly timers: Timers;
+  }
 ): Promise<Response> {
   const url = new URL(req.url);
-  const api = await handleApi(req, url, buckets, now);
+  const api = await handleApi(req, url, {
+    buckets: ctx.buckets,
+    hub: ctx.hub,
+    watchers: ctx.watchers,
+    now: ctx.now,
+    timers: ctx.timers,
+  });
   if (api) return api;
 
-  if (distDir) {
-    const staticFile = serveDist(url.pathname, distDir);
+  if (ctx.distDir) {
+    const staticFile = serveDist(url.pathname, ctx.distDir);
     if (staticFile) return staticFile;
 
     if (!url.pathname.startsWith('/api/')) {
-      const index = join(distDir, 'index.html');
+      const index = join(ctx.distDir, 'index.html');
       if (existsSync(index)) {
         return new Response(Bun.file(index), {
           headers: {

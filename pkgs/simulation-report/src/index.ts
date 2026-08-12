@@ -8,11 +8,14 @@ export {
   findMonorepoRoot,
   LOCAL_REPORT_DATA_DIRNAME,
   resolveLocalReportDataDir,
+  toRepoRelativePath,
 } from './local-data-dir';
 export {
   DEFAULT_FRAME_INTERVAL_MS,
   DEFAULT_MAX_FRAMES_PER_STEP,
   DEFAULT_REPORT_SERVER_PORT,
+  isLatestRunId,
+  LATEST_RUN_ID,
   mintRunId,
   type RunSummary,
   type RunsIndex,
@@ -28,6 +31,7 @@ export {
   type SuiteTestSummary,
   sanitizeRunId,
   sanitizeTestId,
+  type UiAttribution,
 } from './types';
 export { deleteRun, type PruneOptions, pruneRuns } from './writer/prune';
 export {

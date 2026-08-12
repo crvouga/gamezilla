@@ -69,12 +69,21 @@ module.exports = function jsxSourceAttrPlugin(api) {
   const platform = api.caller((caller) =>
     caller && typeof caller.platform === 'string' ? caller.platform : null
   );
+  const callerName = api.caller((caller) =>
+    caller && typeof caller.name === 'string' ? caller.name : null
+  );
+  const callerBundler = api.caller((caller) =>
+    caller && typeof caller.bundler === 'string' ? caller.bundler : null
+  );
 
   const enabled =
     process.env.NODE_ENV !== 'production' ||
     process.env.EXPO_PUBLIC_E2E === '1';
 
-  if (platform !== 'web' || !enabled) {
+  const jestCaller = callerName === 'babel-jest' || callerBundler === 'jest';
+  const platformOk = platform === 'web' || jestCaller;
+
+  if (!platformOk || !enabled) {
     return { name: 'jsx-source-attr', visitor: {} };
   }
 

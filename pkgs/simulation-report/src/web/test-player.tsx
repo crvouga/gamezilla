@@ -11,6 +11,7 @@ import type { SimulationReportData } from '../types';
 import { testFrameUrl } from './api-client';
 import { buildPlayerCommands } from './commands/player-commands';
 import { useRegisterCommands } from './commands/registry';
+import { CopyLlmPromptButton } from './copy-llm-prompt-button';
 import { FrameRail, LONG_HOLD_PULSE_MS } from './frame-rail';
 import {
   type FlatFrame,
@@ -29,6 +30,38 @@ import { Transport } from './transport';
 import { useHoldCountdown } from './use-hold-countdown';
 
 export function TestPlayer(props: {
+  readonly data: SimulationReportData;
+  readonly nav: ReportNavState;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly onNav: (nav: ReportNavState) => void;
+}) {
+  const model = useTestPlayerModel(props);
+  return (
+    <PlayerShell
+      data={props.data}
+      testId={model.testId}
+      bucketId={props.bucketId}
+      runId={props.runId}
+      frames={model.frames}
+      nav={props.nav}
+      actions={model.actions}
+      selectedFrameIdx={model.selectedFrameIdx}
+      hoverFrameIdx={model.hoverFrameIdx}
+      playheadIdx={model.playheadIdx}
+      previewIdx={model.previewIdx}
+      previewFrame={model.previewFrame}
+      maxDurationMs={model.maxDurationMs}
+      holdRemainingMs={model.holdRemainingMs}
+      previewSrc={model.previewSrc}
+      registerCopyAction={model.registerCopyAction}
+      onBack={model.onBack}
+      onHover={model.onHover}
+    />
+  );
+}
+
+function useTestPlayerModel(props: {
   readonly data: SimulationReportData;
   readonly nav: ReportNavState;
   readonly bucketId: string;
@@ -54,8 +87,10 @@ export function TestPlayer(props: {
     previewFrame,
     minHoldMs: LONG_HOLD_PULSE_MS,
   });
-
   usePlayback({ nav, frames, activeFrameIdx: playheadIdx, testId, onNav });
+  const previewSrc = previewFrame
+    ? testFrameUrl(bucketId, runId, testId, previewFrame.file)
+    : null;
   const actions = usePlayerActions({
     nav,
     onNav,
@@ -64,38 +99,45 @@ export function TestPlayer(props: {
     selectedFrameIdx,
     playheadIdx,
   });
-  usePlayerCommands({ nav, frames, previewIdx, actions, onNav });
-
-  return (
-    <PlayerShell
-      data={data}
-      testId={testId}
-      frames={frames}
-      nav={nav}
-      actions={actions}
-      selectedFrameIdx={selectedFrameIdx}
-      hoverFrameIdx={!nav.play ? hoverFrameIdx : null}
-      playheadIdx={playheadIdx}
-      previewIdx={previewIdx}
-      previewFrame={previewFrame}
-      maxDurationMs={maxDurationMs}
-      holdRemainingMs={holdRemainingMs}
-      previewSrc={
-        previewFrame
-          ? testFrameUrl(bucketId, runId, testId, previewFrame.file)
-          : null
-      }
-      onBack={() => onNav(navigateReport(nav, clearPlayerNav()))}
-      onHover={(idx) => {
-        if (!nav.play) setHoverFrameIdx(idx);
-      }}
-    />
-  );
+  const copyActionRef = useRef<() => void>(() => undefined);
+  const registerCopyAction = useCallback((run: () => void) => {
+    copyActionRef.current = run;
+  }, []);
+  const copyLlmPrompt = useCallback(() => {
+    copyActionRef.current();
+  }, []);
+  usePlayerCommands({
+    nav,
+    frames,
+    previewIdx,
+    actions: { ...actions, copyLlmPrompt },
+    onNav,
+  });
+  return {
+    testId,
+    frames,
+    maxDurationMs,
+    selectedFrameIdx,
+    playheadIdx,
+    hoverFrameIdx: !nav.play ? hoverFrameIdx : null,
+    previewIdx,
+    previewFrame,
+    holdRemainingMs,
+    previewSrc,
+    actions,
+    registerCopyAction,
+    onBack: () => onNav(navigateReport(nav, clearPlayerNav())),
+    onHover: (idx: number | null) => {
+      if (!nav.play) setHoverFrameIdx(idx);
+    },
+  };
 }
 
 function PlayerShell(props: {
   readonly data: SimulationReportData;
   readonly testId: string;
+  readonly bucketId: string;
+  readonly runId: string;
   readonly frames: readonly FlatFrame[];
   readonly nav: ReportNavState;
   readonly actions: PlayerActions;
@@ -107,12 +149,15 @@ function PlayerShell(props: {
   readonly maxDurationMs: number;
   readonly holdRemainingMs: number | null;
   readonly previewSrc: string | null;
+  readonly registerCopyAction: (run: () => void) => void;
   readonly onBack: () => void;
   readonly onHover: (idx: number | null) => void;
 }) {
   const {
     data,
     testId,
+    bucketId,
+    runId,
     frames,
     nav,
     actions,
@@ -124,6 +169,7 @@ function PlayerShell(props: {
     maxDurationMs,
     holdRemainingMs,
     previewSrc,
+    registerCopyAction,
     onBack,
     onHover,
   } = props;
@@ -134,6 +180,17 @@ function PlayerShell(props: {
         testId={testId}
         frameCount={frames.length}
         onBack={onBack}
+        copyPrompt={
+          <CopyLlmPromptButton
+            data={data}
+            bucketId={bucketId}
+            runId={runId}
+            selectedFrameIdx={selectedFrameIdx}
+            playheadIdx={playheadIdx}
+            previewIdx={previewIdx}
+            registerCopyAction={registerCopyAction}
+          />
+        }
         transport={
           <Transport
             compact
@@ -179,8 +236,9 @@ function PlayerHeader(props: {
   readonly frameCount: number;
   readonly onBack: () => void;
   readonly transport: ReactNode;
+  readonly copyPrompt: ReactNode;
 }) {
-  const { data, testId, frameCount, onBack, transport } = props;
+  const { data, testId, frameCount, onBack, transport, copyPrompt } = props;
   const back = useHoverStyle(styles.back, styles.backHover);
   return (
     <header style={styles.testHeader}>
@@ -201,6 +259,7 @@ function PlayerHeader(props: {
         {testId} · seed {data.meta.seed} · {frameCount}f ·{' '}
         {formatMs(data.meta.durationMs)}
       </span>
+      {copyPrompt}
       <div style={styles.headerTransport}>{transport}</div>
       <span style={styles.headerKbd}>⌘K</span>
     </header>
@@ -319,7 +378,7 @@ function usePlayerCommands(args: {
   readonly nav: ReportNavState;
   readonly frames: readonly FlatFrame[];
   readonly previewIdx: number;
-  readonly actions: PlayerActions;
+  readonly actions: PlayerActions & { readonly copyLlmPrompt: () => void };
   readonly onNav: (nav: ReportNavState) => void;
 }) {
   const { nav, frames, previewIdx, actions, onNav } = args;

@@ -1,7 +1,9 @@
 // @io-wall-ok — simulation-report viewer process entry (Bun.serve + env).
+
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { wallTimers } from '@pkgs/clock';
 
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
@@ -95,6 +97,7 @@ function buildBuckets(
     id: 'local',
     label: 'Local',
     store: createNodeFsObjectStore({ rootDir: localRootDir }),
+    watchRoot: localRootDir,
   };
   return {
     buckets: [local, ...parseOptionalS3Buckets(env)],
@@ -115,6 +118,7 @@ const { buckets, localRootDir } = buildBuckets(process.env, cwd);
 const { fetch } = createSimulationReportServer({
   buckets,
   distDir,
+  timers: wallTimers,
   now: () => Date.now(),
 });
 

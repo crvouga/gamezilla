@@ -1,237 +1,139 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type {
   RunSummary,
   SimulationReportData,
   SuiteTestSummary,
 } from '../types';
+import { isLatestRunId } from '../types';
 import {
   type BucketInfo,
-  fetchBuckets,
-  fetchGeneration,
-  fetchManifest,
-  fetchRuns,
-  fetchTest,
+  openBucketEvents,
+  openBucketsEvents,
 } from './api-client';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport, readWindowNav } from './router';
-
-const GENERATION_POLL_MS = 2000;
 
 export type ReportDataApi = {
   readonly buckets: readonly BucketInfo[];
   readonly runs: readonly RunSummary[];
   readonly tests: readonly SuiteTestSummary[];
   readonly generation: number;
+  /** Concrete run id when following `latest`, else nav.runId. */
+  readonly resolvedRunId: string | null;
   readonly testData: SimulationReportData | null;
   readonly error: string | null;
-  readonly refreshRuns: (
-    bucketId: string
-  ) => Promise<readonly RunSummary[] | null>;
-  readonly refreshManifest: (
-    bucketId: string,
-    runId: string
-  ) => Promise<readonly SuiteTestSummary[] | null>;
-  readonly refreshTest: (
-    bucketId: string,
-    runId: string,
-    testId: string
-  ) => Promise<void>;
 };
 
-export function useReportData(nav: ReportNavState): ReportDataApi {
+/**
+ * Reactive report data over SSE. Opens `/api/events` for buckets and
+ * `/api/buckets/:id/events` for runs/manifest/test keyed off nav.
+ */
+export function useReportData(
+  nav: ReportNavState,
+  setNav: (nav: ReportNavState) => void
+): ReportDataApi {
   const [buckets, setBuckets] = useState<readonly BucketInfo[]>([]);
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
   const [tests, setTests] = useState<readonly SuiteTestSummary[]>([]);
   const [generation, setGeneration] = useState(0);
+  const [resolvedRunId, setResolvedRunId] = useState<string | null>(null);
   const [testData, setTestData] = useState<SimulationReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshBuckets = useCallback(async () => {
-    try {
-      setBuckets(await fetchBuckets());
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    }
-  }, []);
-
-  const refreshRuns = useCallback(async (bucketId: string) => {
-    try {
-      const [index, gen] = await Promise.all([
-        fetchRuns(bucketId),
-        fetchGeneration(bucketId),
-      ]);
-      setRuns(index.runs);
-      setGeneration(gen);
-      setError(null);
-      return index.runs;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      return null;
-    }
-  }, []);
-
-  const refreshManifest = useCallback(
-    async (bucketId: string, runId: string) => {
-      try {
-        const manifest = await fetchManifest(bucketId, runId);
-        setTests(manifest.tests);
-        setError(null);
-        return manifest.tests;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
-        return null;
-      }
-    },
-    []
-  );
-
-  const refreshTest = useCallback(
-    async (bucketId: string, runId: string, testId: string) => {
-      try {
-        setTestData(await fetchTest(bucketId, runId, testId));
-        setError(null);
-      } catch (err) {
-        setTestData(null);
-        setError(err instanceof Error ? err.message : String(err));
-      }
-    },
-    []
-  );
-
   useEffect(() => {
-    void refreshBuckets();
-  }, [refreshBuckets]);
+    const handle = openBucketsEvents({
+      onBuckets: (list) => {
+        setBuckets(list);
+        setError(null);
+      },
+      onError: () => setError('buckets stream error'),
+    });
+    return () => handle.close();
+  }, []);
 
   useEffect(() => {
     if (!nav.bucketId) {
       setRuns([]);
-      return;
-    }
-    void refreshRuns(nav.bucketId);
-  }, [nav.bucketId, refreshRuns]);
-
-  useEffect(() => {
-    if (!nav.bucketId || !nav.runId) {
+      setGeneration(0);
       setTests([]);
-      return;
-    }
-    void refreshManifest(nav.bucketId, nav.runId);
-  }, [nav.bucketId, nav.runId, refreshManifest]);
-
-  useEffect(() => {
-    if (!nav.bucketId || !nav.runId || !nav.testId) {
       setTestData(null);
+      setResolvedRunId(null);
       return;
     }
-    void refreshTest(nav.bucketId, nav.runId, nav.testId);
-  }, [nav.bucketId, nav.runId, nav.testId, refreshTest]);
+
+    const bucketId = nav.bucketId;
+    const handle = openBucketEvents({
+      bucketId,
+      runId: nav.runId,
+      testId: nav.testId,
+      handlers: {
+        onRuns: (ev) => {
+          setRuns(ev.runs);
+          setGeneration(ev.generation);
+          setError(null);
+          applyRunsNavGuards({
+            bucketId,
+            runs: ev.runs,
+            setNav,
+            clearTest: () => setTestData(null),
+          });
+        },
+        onManifest: (ev) => {
+          setResolvedRunId(ev.resolvedRunId);
+          setTests(ev.tests);
+          if (ev.missing && nav.runId && !isLatestRunId(nav.runId)) {
+            setNav(
+              navigateReport(readWindowNav(), clearPlayerNav({ runId: null }))
+            );
+            setTestData(null);
+          }
+        },
+        onTest: (ev) => {
+          if (ev.resolvedRunId != null) setResolvedRunId(ev.resolvedRunId);
+          if (ev.missing || !ev.data) {
+            setTestData(null);
+            if (nav.testId && !ev.missing) return;
+            if (nav.testId && ev.missing) {
+              setNav(navigateReport(readWindowNav(), clearPlayerNav()));
+            }
+            return;
+          }
+          setTestData(ev.data);
+          setError(null);
+        },
+        onError: () => setError('bucket stream error'),
+      },
+    });
+
+    return () => handle.close();
+  }, [nav.bucketId, nav.runId, nav.testId, setNav]);
 
   return {
     buckets,
     runs,
     tests,
     generation,
+    resolvedRunId:
+      resolvedRunId ??
+      (nav.runId && !isLatestRunId(nav.runId) ? nav.runId : null),
     testData,
     error,
-    refreshRuns,
-    refreshManifest,
-    refreshTest,
   };
 }
 
-type PollDeps = {
-  readonly refreshRuns: ReportDataApi['refreshRuns'];
-  readonly refreshManifest: ReportDataApi['refreshManifest'];
-  readonly refreshTest: ReportDataApi['refreshTest'];
+function applyRunsNavGuards(args: {
+  readonly bucketId: string;
+  readonly runs: readonly RunSummary[];
   readonly setNav: (nav: ReportNavState) => void;
-  readonly setGeneration: (gen: number) => void;
-  readonly clearTestData: () => void;
-};
-
-async function applyGenerationChange(
-  bucketId: string,
-  deps: PollDeps
-): Promise<void> {
-  const list = await deps.refreshRuns(bucketId);
+  readonly clearTest: () => void;
+}): void {
   const current = readWindowNav();
-  if (current.bucketId !== bucketId || !current.runId) return;
-
-  const stillThere = list?.some((r) => r.id === current.runId);
+  if (current.bucketId !== args.bucketId || !current.runId) return;
+  if (isLatestRunId(current.runId)) return;
+  const stillThere = args.runs.some((r) => r.id === current.runId);
   if (!stillThere) {
-    deps.setNav(navigateReport(current, clearPlayerNav({ runId: null })));
-    deps.clearTestData();
-    return;
+    args.setNav(navigateReport(current, clearPlayerNav({ runId: null })));
+    args.clearTest();
   }
-
-  const testsList = await deps.refreshManifest(bucketId, current.runId);
-  if (!current.testId) return;
-  const testOk = testsList?.some((t) => t.testId === current.testId);
-  if (!testOk) {
-    deps.setNav(navigateReport(current, clearPlayerNav()));
-    deps.clearTestData();
-    return;
-  }
-  await deps.refreshTest(bucketId, current.runId, current.testId);
-}
-
-export function useGenerationPoll(
-  bucketId: string | null,
-  deps: Omit<PollDeps, 'setGeneration'> & {
-    readonly onGeneration: (gen: number) => void;
-  }
-): void {
-  const {
-    refreshRuns,
-    refreshManifest,
-    refreshTest,
-    setNav,
-    clearTestData,
-    onGeneration,
-  } = deps;
-
-  useEffect(() => {
-    if (!bucketId) return;
-    let cancelled = false;
-    let lastGen = -1;
-
-    const tick = async () => {
-      try {
-        const gen = await fetchGeneration(bucketId);
-        if (cancelled || gen === lastGen) return;
-        const first = lastGen < 0;
-        lastGen = gen;
-        onGeneration(gen);
-        if (first) return;
-        await applyGenerationChange(bucketId, {
-          refreshRuns,
-          refreshManifest,
-          refreshTest,
-          setNav,
-          setGeneration: onGeneration,
-          clearTestData,
-        });
-      } catch {
-        /* ignore poll errors */
-      }
-    };
-
-    void tick();
-    const id = window.setInterval(() => {
-      void tick();
-    }, GENERATION_POLL_MS);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [
-    bucketId,
-    refreshRuns,
-    refreshManifest,
-    refreshTest,
-    setNav,
-    clearTestData,
-    onGeneration,
-  ]);
 }

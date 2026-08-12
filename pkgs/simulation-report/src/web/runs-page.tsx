@@ -25,6 +25,7 @@ export function RunsPage(props: {
   readonly generation: number;
   readonly onBack: () => void;
   readonly onOpenRun: (runId: string) => void;
+  readonly onOpenLatest: () => void;
   readonly onDeleteRun: (runId: string) => Promise<void>;
   readonly onKeepLast: (n: number) => Promise<void>;
 }) {
@@ -35,12 +36,22 @@ export function RunsPage(props: {
     generation,
     onBack,
     onOpenRun,
+    onOpenLatest,
     onDeleteRun,
     onKeepLast,
   } = props;
   const [keepLast, setKeepLast] = useState(5);
   const [busy, setBusy] = useState(false);
-  useRunsCommands({ keepLast, runs, onBack, onKeepLast, onOpenRun, setBusy });
+  useRunsCommands({
+    keepLast,
+    runs,
+    onBack,
+    onKeepLast,
+    onOpenRun,
+    onOpenLatest,
+    setBusy,
+  });
+  const latest = useHoverStyle(styles.btn, styles.btnHover);
 
   return (
     <div style={styles.suitePage}>
@@ -51,6 +62,21 @@ export function RunsPage(props: {
         generation={generation}
         onBack={onBack}
       />
+      <div style={styles.pruneBar}>
+        <button
+          type="button"
+          style={merge(latest.style, styles.btn, {
+            borderColor: '#3a547a',
+            background: '#1a2333',
+            color: '#82aaff',
+          })}
+          onMouseEnter={latest.onMouseEnter}
+          onMouseLeave={latest.onMouseLeave}
+          onClick={onOpenLatest}
+        >
+          Open latest run
+        </button>
+      </div>
       <PruneBar
         keepLast={keepLast}
         busy={busy}
@@ -79,9 +105,18 @@ function useRunsCommands(args: {
   readonly onBack: () => void;
   readonly onKeepLast: (n: number) => Promise<void>;
   readonly onOpenRun: (runId: string) => void;
+  readonly onOpenLatest: () => void;
   readonly setBusy: (busy: boolean) => void;
 }) {
-  const { keepLast, runs, onBack, onKeepLast, onOpenRun, setBusy } = args;
+  const {
+    keepLast,
+    runs,
+    onBack,
+    onKeepLast,
+    onOpenRun,
+    onOpenLatest,
+    setBusy,
+  } = args;
   const commands = useMemo((): Command[] => {
     const list: Command[] = [
       {
@@ -91,6 +126,14 @@ function useRunsCommands(args: {
         shortcut: 'Backspace',
         match: (e) => e.key === 'Backspace',
         run: onBack,
+      },
+      {
+        id: 'run.open.latest',
+        label: 'Open latest run',
+        section: 'Runs',
+        shortcut: 'L',
+        match: (e) => e.key === 'l' && !e.metaKey && !e.ctrlKey,
+        run: onOpenLatest,
       },
       {
         id: 'runs.prune',
@@ -111,7 +154,7 @@ function useRunsCommands(args: {
       });
     }
     return list;
-  }, [keepLast, onBack, onKeepLast, onOpenRun, runs, setBusy]);
+  }, [keepLast, onBack, onKeepLast, onOpenLatest, onOpenRun, runs, setBusy]);
   useRegisterCommands(commands);
 }
 

@@ -239,6 +239,7 @@
       "name": "@apps/simulation-report",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@pkgs/simulation-report": "workspace:*",
@@ -1317,6 +1318,7 @@
       "name": "@pkgs/simulation-report",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "cmdk": "catalog:",
@@ -1444,13 +1446,11 @@
         "hono": "catalog:",
         "node-sql-parser": "catalog:",
         "react": "catalog:",
-        "react-dom": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },

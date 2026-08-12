@@ -7,6 +7,7 @@ import {
   type SimulationReportData,
   SimulationReporter,
   sanitizeTestId,
+  toRepoRelativePath,
 } from '@pkgs/simulation-report';
 
 import { createSimActor, type SimActor } from './actor';
@@ -66,6 +67,8 @@ function createReporter(
       rootDir: resolveLocalReportDataDir(),
     });
   const runId = reportOpts.runId ?? mintRunId(now());
+  const sourceFile =
+    reportOpts.sourceFile ?? resolveJestSourceFile() ?? undefined;
   return new SimulationReporter({
     seed,
     ui,
@@ -79,7 +82,22 @@ function createReporter(
     ...(reportOpts.maxFramesPerStep !== undefined
       ? { maxFramesPerStep: reportOpts.maxFramesPerStep }
       : {}),
+    ...(sourceFile !== undefined ? { sourceFile } : {}),
   });
+}
+
+function resolveJestSourceFile(): string | null {
+  try {
+    // Jest globals — optional so non-Jest callers stay clean.
+    const expectFn = (globalThis as { expect?: { getState?: () => unknown } })
+      .expect;
+    const state = expectFn?.getState?.() as { testPath?: string } | undefined;
+    const testPath = state?.testPath;
+    if (typeof testPath !== 'string' || testPath.length === 0) return null;
+    return toRepoRelativePath(testPath);
+  } catch {
+    return null;
+  }
 }
 
 function buildSimulation(args: {

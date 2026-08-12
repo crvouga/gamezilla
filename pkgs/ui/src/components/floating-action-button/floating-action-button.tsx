@@ -22,7 +22,8 @@ import { Text } from '../text';
 const FAB_SIZE = 56;
 const FAB_ICON_SIZE = 24;
 const FAB_HORIZONTAL_PADDING = 16;
-const FAB_CONTENT_GAP = 8;
+/** Spacing-scale steps (1 = 4px): icon/label gap 8px. */
+const FAB_CONTENT_GAP = 2;
 const SURFACE_ANDROID_ELEVATION = 2;
 
 export type FloatingActionButtonProps = {
@@ -197,7 +198,6 @@ function fabContainerSx(args: {
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: FAB_CONTENT_GAP / 4,
     overflow: 'hidden',
     ...(args.extended
       ? { paddingHorizontal: FAB_HORIZONTAL_PADDING }
@@ -253,7 +253,15 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
           icon: face.foregroundColor,
         }}
       >
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: FAB_CONTENT_GAP,
+          }}
+        >
           <FabContent
             phase={phase}
             icon={icon}

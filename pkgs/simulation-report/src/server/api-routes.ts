@@ -1,14 +1,19 @@
+import type { Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-import type { SimulationReportData, SuiteManifest } from '../types';
-import { runManifestKey, runPrefix, testStepsKey } from '../writer/keys';
+import { runPrefix } from '../writer/keys';
 import { deleteRun, pruneRuns } from '../writer/prune';
+import { readAllBytes } from '../writer/store-io';
 import {
-  loadRunsIndex,
-  readAllBytes,
-  readGeneration,
-  storeGetJson,
-} from '../writer/store-io';
+  type BucketWatcher,
+  publishBucketToSubscribers,
+} from './bucket-watcher';
+import {
+  type BucketSubscription,
+  type GlobalSubscription,
+  openSseStream,
+  type SseHub,
+} from './sse-hub';
 import type { ReportBucket } from './types';
 
 function json(data: unknown, status = 200): Response {
@@ -37,30 +42,14 @@ async function requireBucket(
   return bucket;
 }
 
-async function handleGenerationGet(
-  buckets: readonly ReportBucket[],
-  bucketId: string
-): Promise<Response> {
-  const bucket = await requireBucket(buckets, bucketId);
-  if (bucket instanceof Response) return bucket;
-  return json({ generation: await readGeneration(bucket.store) });
-}
-
-async function handleRunsListGet(
-  buckets: readonly ReportBucket[],
-  bucketId: string
-): Promise<Response> {
-  const bucket = await requireBucket(buckets, bucketId);
-  if (bucket instanceof Response) return bucket;
-  return json(await loadRunsIndex(bucket.store));
-}
-
-async function handlePrunePost(
-  req: Request,
-  buckets: readonly ReportBucket[],
-  bucketId: string,
-  now: (() => number) | undefined
-): Promise<Response> {
+async function handlePrunePost(args: {
+  readonly req: Request;
+  readonly buckets: readonly ReportBucket[];
+  readonly bucketId: string;
+  readonly now: (() => number) | undefined;
+  readonly watchers: ReadonlyMap<string, BucketWatcher>;
+}): Promise<Response> {
+  const { req, buckets, bucketId, now, watchers } = args;
   const bucket = await requireBucket(buckets, bucketId);
   if (bucket instanceof Response) return bucket;
   let body: { keepLast?: number; olderThanMs?: number } = {};
@@ -82,38 +71,19 @@ async function handlePrunePost(
       ? { olderThanMs: body.olderThanMs }
       : {}),
   });
+  void watchers.get(bucketId)?.publishNow();
   return json({ deleted });
 }
 
 async function handleRunDelete(
   store: ObjectStore,
-  runId: string
+  runId: string,
+  bucketId: string,
+  watchers: ReadonlyMap<string, BucketWatcher>
 ): Promise<Response> {
   await deleteRun(store, runId);
+  void watchers.get(bucketId)?.publishNow();
   return json({ ok: true, runId });
-}
-
-async function handleManifestGet(
-  store: ObjectStore,
-  runId: string
-): Promise<Response> {
-  const manifest =
-    (await storeGetJson<SuiteManifest>(store, runManifestKey(runId))) ??
-    ({ tests: [], updatedAtMs: 0 } satisfies SuiteManifest);
-  return json(manifest);
-}
-
-async function handleTestGet(
-  store: ObjectStore,
-  runId: string,
-  testId: string
-): Promise<Response> {
-  const data = await storeGetJson<SimulationReportData>(
-    store,
-    testStepsKey(runId, testId)
-  );
-  if (!data) return json({ error: 'test not found', testId }, 404);
-  return json(data);
 }
 
 async function handleRunDataGet(
@@ -143,29 +113,17 @@ async function handleRunScoped(args: {
   readonly bucketId: string;
   readonly runId: string;
   readonly rest: string;
+  readonly watchers: ReadonlyMap<string, BucketWatcher>;
 }): Promise<Response> {
-  const { req, buckets, bucketId, runId, rest } = args;
+  const { req, buckets, bucketId, runId, rest, watchers } = args;
   const bucket = await requireBucket(buckets, bucketId);
   if (bucket instanceof Response) return bucket;
 
   if (rest === '' || rest === '/') {
     if (req.method === 'DELETE') {
-      return handleRunDelete(bucket.store, runId);
+      return handleRunDelete(bucket.store, runId, bucketId, watchers);
     }
     return json({ error: 'method not allowed' }, 405);
-  }
-
-  if ((rest === '/manifest' || rest === '/manifest/') && req.method === 'GET') {
-    return handleManifestGet(bucket.store, runId);
-  }
-
-  const testMatch = /^\/tests\/([^/]+)\/?$/.exec(rest);
-  if (testMatch && req.method === 'GET') {
-    return handleTestGet(
-      bucket.store,
-      runId,
-      decodeURIComponent(testMatch[1]!)
-    );
   }
 
   const dataMatch = /^\/data\/(.+)$/.exec(rest);
@@ -180,41 +138,100 @@ async function handleRunScoped(args: {
   return json({ error: 'not found' }, 404);
 }
 
+function handleGlobalEvents(
+  buckets: readonly ReportBucket[],
+  hub: SseHub,
+  timers: Timers
+): Response {
+  let sub: GlobalSubscription | null = null;
+  const { response } = openSseStream({
+    timers,
+    onStart: (send) => {
+      sub = hub.subscribeGlobal(send);
+      hub.broadcastBuckets(buckets);
+    },
+    onCancel: () => {
+      if (sub) hub.unsubscribeGlobal(sub);
+    },
+  });
+  return response;
+}
+
+function handleBucketEvents(args: {
+  readonly buckets: readonly ReportBucket[];
+  readonly hub: SseHub;
+  readonly bucketId: string;
+  readonly runId: string | null;
+  readonly testId: string | null;
+  readonly timers: Timers;
+}): Response | Promise<Response> {
+  const { buckets, hub, bucketId, runId, testId, timers } = args;
+  const bucket = findBucket(buckets, bucketId);
+  if (!bucket) return json({ error: 'bucket not found' }, 404);
+
+  let sub: BucketSubscription | null = null;
+  const { response } = openSseStream({
+    timers,
+    onStart: (send) => {
+      sub = hub.subscribeBucket(bucketId, { runId, testId, send });
+      void publishBucketToSubscribers(bucket, hub);
+    },
+    onCancel: () => {
+      if (sub) hub.unsubscribeBucket(sub);
+    },
+  });
+  return response;
+}
+
+export type HandleApiContext = {
+  readonly buckets: readonly ReportBucket[];
+  readonly hub: SseHub;
+  readonly watchers: ReadonlyMap<string, BucketWatcher>;
+  readonly now: (() => number) | undefined;
+  readonly timers: Timers;
+};
+
 /** Route `/api/*` for the report server. Returns `null` for non-API paths. */
 export async function handleApi(
   req: Request,
   url: URL,
-  buckets: readonly ReportBucket[],
-  now: (() => number) | undefined
+  ctx: HandleApiContext
 ): Promise<Response | null> {
   const { pathname } = url;
+  const { buckets, hub, watchers, now, timers } = ctx;
 
   if (pathname === '/api/health') {
     return json({ ok: true, bucketCount: buckets.length });
   }
 
-  if (pathname === '/api/buckets' && req.method === 'GET') {
-    return json(buckets.map((b) => ({ id: b.id, label: b.label })));
+  if (pathname === '/api/events' && req.method === 'GET') {
+    return handleGlobalEvents(buckets, hub, timers);
   }
 
-  const genMatch = /^\/api\/buckets\/([^/]+)\/generation\/?$/.exec(pathname);
-  if (genMatch && req.method === 'GET') {
-    return handleGenerationGet(buckets, decodeURIComponent(genMatch[1]!));
-  }
-
-  const runsMatch = /^\/api\/buckets\/([^/]+)\/runs\/?$/.exec(pathname);
-  if (runsMatch && req.method === 'GET') {
-    return handleRunsListGet(buckets, decodeURIComponent(runsMatch[1]!));
+  const bucketEvents = /^\/api\/buckets\/([^/]+)\/events\/?$/.exec(pathname);
+  if (bucketEvents && req.method === 'GET') {
+    const runRaw = url.searchParams.get('run') ?? url.searchParams.get('runId');
+    const testRaw =
+      url.searchParams.get('test') ?? url.searchParams.get('testId');
+    return handleBucketEvents({
+      buckets,
+      hub,
+      bucketId: decodeURIComponent(bucketEvents[1]!),
+      runId: runRaw && runRaw.length > 0 ? runRaw : null,
+      testId: testRaw && testRaw.length > 0 ? testRaw : null,
+      timers,
+    });
   }
 
   const pruneMatch = /^\/api\/buckets\/([^/]+)\/prune\/?$/.exec(pathname);
   if (pruneMatch && req.method === 'POST') {
-    return handlePrunePost(
+    return handlePrunePost({
       req,
       buckets,
-      decodeURIComponent(pruneMatch[1]!),
-      now
-    );
+      bucketId: decodeURIComponent(pruneMatch[1]!),
+      now,
+      watchers,
+    });
   }
 
   const runMatch = /^\/api\/buckets\/([^/]+)\/runs\/([^/]+)(\/.*)?$/.exec(
@@ -227,6 +244,7 @@ export async function handleApi(
       bucketId: decodeURIComponent(runMatch[1]!),
       runId: decodeURIComponent(runMatch[2]!),
       rest: runMatch[3] ?? '',
+      watchers,
     });
   }
 

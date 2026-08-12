@@ -18,16 +18,10 @@ export function PlayerStage(props: {
       <div style={styles.detailMeta}>
         {step ? (
           <>
-            <h2 style={styles.detailH2} title={step.title}>
-              {step.title}
-            </h2>
-            <div style={styles.detailMetaLine} title={metaLine ?? undefined}>
-              {metaLine}
-            </div>
+            <h2 style={styles.detailH2}>{step.title}</h2>
+            <div style={styles.detailMetaLine}>{metaLine}</div>
             {step.error ? (
-              <div style={styles.metaError} title={step.error}>
-                {step.error}
-              </div>
+              <div style={styles.metaError}>{step.error}</div>
             ) : null}
           </>
         ) : (

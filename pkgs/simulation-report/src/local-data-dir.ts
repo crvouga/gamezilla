@@ -30,3 +30,16 @@ export function resolveLocalReportDataDir(
   const root = findMonorepoRoot(startDir) ?? resolve(startDir);
   return join(root, LOCAL_REPORT_DATA_DIRNAME);
 }
+
+/** Repo-relative POSIX path, or null when outside the monorepo / invalid. */
+export function toRepoRelativePath(
+  absolutePath: string,
+  startDir: string = process.cwd()
+): string | null {
+  const root = findMonorepoRoot(startDir);
+  if (!root) return null;
+  const abs = resolve(absolutePath);
+  if (!abs.startsWith(root)) return null;
+  const rel = abs.slice(root.length).replace(/^[/\\]+/, '');
+  return rel.split('\\').join('/');
+}

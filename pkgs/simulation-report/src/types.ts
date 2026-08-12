@@ -46,6 +46,13 @@ export type SimulationStep = {
   readonly frames?: readonly SimulationFrame[];
 };
 
+export type UiAttribution = {
+  readonly components: Readonly<Record<string, number>>;
+  readonly sources: Readonly<
+    Record<string, { readonly count: number; readonly components: string[] }>
+  >;
+};
+
 export type SimulationReportMeta = {
   readonly seed: string;
   readonly ui: string;
@@ -56,6 +63,10 @@ export type SimulationReportMeta = {
   readonly actorIds: readonly string[];
   readonly runId: string;
   readonly testId: string;
+  /** Repo-relative test file path when known (e.g. Jest testPath). */
+  readonly sourceFile?: string;
+  /** Aggregated data-component / data-src from written frame HTML. */
+  readonly uiAttribution?: UiAttribution;
 };
 
 export type SimulationReportData = {
@@ -120,6 +131,11 @@ export type SimulationReportOptions = {
    * Max frames kept per step (change-gated). Default 50.
    */
   readonly maxFramesPerStep?: number;
+  /**
+   * Repo-relative path to the test source file. Default: Jest `testPath`
+   * when available.
+   */
+  readonly sourceFile?: string;
 };
 
 export const DEFAULT_FRAME_INTERVAL_MS = 100;
@@ -144,6 +160,9 @@ export function resolveReportOptions(
     ...(report.maxFramesPerStep !== undefined
       ? { maxFramesPerStep: report.maxFramesPerStep }
       : {}),
+    ...(report.sourceFile !== undefined
+      ? { sourceFile: report.sourceFile }
+      : {}),
   };
 }
 
@@ -152,8 +171,16 @@ export function sanitizeTestId(raw: string): string {
   return cleaned.length > 0 ? cleaned : 'test';
 }
 
+/** Reserved SPA alias for “follow newest run”; never mint this as a real run id. */
+export const LATEST_RUN_ID = 'latest';
+
+export function isLatestRunId(id: string | null | undefined): boolean {
+  return id === LATEST_RUN_ID;
+}
+
 export function sanitizeRunId(raw: string): string {
   const cleaned = raw.replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '');
+  if (cleaned === LATEST_RUN_ID) return 'latest_run';
   return cleaned.length > 0 ? cleaned : 'run';
 }
 

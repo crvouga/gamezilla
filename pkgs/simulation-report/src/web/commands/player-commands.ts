@@ -11,6 +11,7 @@ type PlayerCommandActions = {
   readonly setPlay: (play: boolean) => void;
   readonly setMode: (mode: 'realtime' | 'fixed') => void;
   readonly setSpeed: (speed: PlaySpeed) => void;
+  readonly copyLlmPrompt: () => void;
 };
 
 type BuildArgs = {
@@ -22,7 +23,11 @@ type BuildArgs = {
 };
 
 export function buildPlayerCommands(args: BuildArgs): Command[] {
-  return [...playbackCommands(args), ...navCommands(args)];
+  return [
+    ...playbackCommands(args),
+    ...navCommands(args),
+    ...generalCommands(args),
+  ];
 }
 
 function playbackCommands(args: BuildArgs): Command[] {
@@ -118,6 +123,23 @@ function navCommands(args: BuildArgs): Command[] {
       shortcut: 'Backspace',
       match: (e) => e.key === 'Backspace',
       run: () => onNav(navigateReport(nav, clearPlayerNav())),
+    },
+  ];
+}
+
+function generalCommands(args: BuildArgs): Command[] {
+  return [
+    {
+      id: 'copy.llm-prompt',
+      label: 'Copy LLM prompt',
+      section: 'General',
+      shortcut: '⌘C',
+      match: (e) =>
+        (e.metaKey || e.ctrlKey) &&
+        !e.shiftKey &&
+        !e.altKey &&
+        e.key.toLowerCase() === 'c',
+      run: () => args.actions.copyLlmPrompt(),
     },
   ];
 }

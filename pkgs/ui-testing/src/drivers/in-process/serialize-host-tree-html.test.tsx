@@ -76,6 +76,23 @@ describe('serializeHostTreeHtml', () => {
     );
   });
 
+  it('emits data-src from dataSet.src', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {
+        dataSet: {
+          component: 'Button',
+          src: 'pkgs/ui/src/components/button/button.tsx:42',
+        },
+      },
+      children: null,
+    });
+    expect(html).toContain('data-component="Button"');
+    expect(html).toContain(
+      'data-src="pkgs/ui/src/components/button/button.tsx:42"'
+    );
+  });
+
   it('keeps absoluteFill children inside positioned view hosts', () => {
     const html = serializeHostTreeHtml({
       type: 'View',

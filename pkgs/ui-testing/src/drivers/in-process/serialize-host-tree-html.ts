@@ -211,6 +211,7 @@ function buildAttrs(
   const dataSet = readDataSet(props);
   const component = dataSet?.['component'] ?? typeName;
   const parts: string[] = [` data-component="${escapeAttr(component)}"`];
+  pushStringAttr(parts, 'data-src', dataSet?.['src']);
   pushStringAttr(parts, 'data-testid', props['testID']);
   pushStringAttr(parts, 'aria-label', props['accessibilityLabel']);
   const role = props['accessibilityRole'];

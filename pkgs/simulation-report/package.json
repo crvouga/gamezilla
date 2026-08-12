@@ -17,6 +17,7 @@
     "test": "bun test src --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "cmdk": "catalog:",

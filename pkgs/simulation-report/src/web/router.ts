@@ -27,7 +27,7 @@ const DEFAULT_NAV: ReportNavState = {
  * Paths:
  * - `/`
  * - `/b/:bucketId`
- * - `/b/:bucketId/r/:runId`
+ * - `/b/:bucketId/r/:runId` (`runId` may be the sticky alias `latest`)
  * - `/b/:bucketId/r/:runId/t/:testId?step=&frame=&play=&mode=&speed=`
  */
 export function parseReportNav(
