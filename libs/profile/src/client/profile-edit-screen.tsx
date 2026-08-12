@@ -16,7 +16,7 @@ export function ProfileEditScreen() {
         { name: <Trans>Edit profile</Trans> },
       ]}
       content={({ sx }) => (
-        <MenuList style={sx}>
+        <MenuList sx={sx}>
           <MenuRow
             title={t`Username`}
             caption={t`Unique handle for search and invites`}

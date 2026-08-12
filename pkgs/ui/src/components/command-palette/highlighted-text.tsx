@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Text as RNText } from 'react-native';
 import type { TextVariant } from '../text';
 import { Text } from '../text';
 
@@ -62,5 +61,5 @@ export function HighlightedText({
     );
   }
 
-  return <RNText style={{ flexShrink: 1 }}>{nodes}</RNText>;
+  return <Text sx={{ flexShrink: 1 }}>{nodes}</Text>;
 }

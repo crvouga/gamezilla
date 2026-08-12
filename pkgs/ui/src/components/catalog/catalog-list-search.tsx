@@ -24,7 +24,7 @@ export function CatalogListSearch({
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
       <SearchIcon size={18} color={theme.colors.icon} />
-      <Box style={{ flex: 1 }}>
+      <Box sx={{ flex: 1 }}>
         <TextInput
           value={value}
           onChangeText={onChangeText}

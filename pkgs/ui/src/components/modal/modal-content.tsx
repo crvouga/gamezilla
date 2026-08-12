@@ -48,7 +48,6 @@ export function ModalContent({
   dataSet,
 }: ModalContentProps) {
   const theme = useTheme();
-  const lift = theme.elevation(4);
   const marginPx = spacing[MODAL_CONTENT_MARGIN_STEP];
   const widthPx = resolveModalLayoutWidth(size, theme.layout.width, marginPx);
   const body = padded ? (
@@ -71,14 +70,11 @@ export function ModalContent({
         borderRadius: borderRadius.xl,
         width: widthPx,
         alignSelf: 'center',
-      }}
-      style={{
-        backgroundColor: theme.colors.surfaceOverlay,
+        backgroundColor: 'surfaceOverlay',
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
+        elevation: 4,
         ...(maxHeight === undefined ? {} : { maxHeight }),
-        ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-        ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     >
       {body}

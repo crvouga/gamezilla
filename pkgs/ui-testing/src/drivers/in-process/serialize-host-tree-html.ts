@@ -145,20 +145,37 @@ function mapHostTag(typeName: string, props: Record<string, unknown>): string {
   }
 }
 
+function readDataSet(
+  props: Record<string, unknown>
+): Record<string, string> | undefined {
+  const ds = props['dataSet'];
+  if (ds == null || typeof ds !== 'object') return undefined;
+  return ds as Record<string, string>;
+}
+
 function buildAttrs(
   typeName: string,
   props: Record<string, unknown>,
   tag: string,
   ctx: SerializeCtx
 ): string {
-  const parts: string[] = [` data-component="${escapeAttr(typeName)}"`];
+  const dataSet = readDataSet(props);
+  const component = dataSet?.['component'] ?? typeName;
+  const parts: string[] = [` data-component="${escapeAttr(component)}"`];
   pushStringAttr(parts, 'data-testid', props['testID']);
   pushStringAttr(parts, 'aria-label', props['accessibilityLabel']);
   const role = props['accessibilityRole'];
   if (typeof role === 'string' && role.length > 0 && tag !== 'button') {
     parts.push(` role="${escapeAttr(role)}"`);
   }
-  pushStyleAttr({ parts, typeName, tag, style: props['style'], ctx });
+  pushStyleAttr({
+    parts,
+    typeName,
+    tag,
+    style: props['style'],
+    capturedCss: dataSet?.['css'],
+    ctx,
+  });
   if (tag === 'input') pushInputAttrs(parts, props);
   if (tag === 'img') pushImgAttrs(parts, props);
   return parts.join('');
@@ -175,20 +192,38 @@ function pushStyleAttr(args: {
   readonly typeName: string;
   readonly tag: string;
   readonly style: unknown;
+  readonly capturedCss: string | undefined;
   readonly ctx: SerializeCtx;
 }): void {
-  const { parts, typeName, tag, style, ctx } = args;
-  const styleCss = styleToCss(style, ctx);
+  const { parts, typeName, tag, style, capturedCss, ctx } = args;
+  const styleCss =
+    capturedCss !== undefined && capturedCss.length > 0
+      ? (collectFontsFromCss(capturedCss, ctx), capturedCss)
+      : styleToCss(style, ctx);
   const base = hostBaseCss(typeName, tag);
   let css = base;
   if (styleCss) {
     css = css ? `${css};${styleCss}` : styleCss;
   }
-  if (typeName === 'ScrollView') {
+  if (isScrollHost(typeName)) {
     css = css ? `${css};overflow:auto` : 'overflow:auto';
   }
   if (css) {
     parts.push(` style="${escapeAttr(css)}"`);
+  }
+}
+
+function isScrollHost(typeName: string): boolean {
+  return typeName === 'ScrollView' || typeName === 'RCTScrollView';
+}
+
+function collectFontsFromCss(css: string, ctx: SerializeCtx): void {
+  const re = /font-family:\s*([^;]+)/g;
+  let match = re.exec(css);
+  while (match) {
+    const raw = match[1]?.trim().replace(/^["']|["']$/g, '');
+    if (raw) ctx.fonts.add(raw);
+    match = re.exec(css);
   }
 }
 
@@ -234,14 +269,29 @@ function pushImgAttrs(parts: string[], props: Record<string, unknown>): void {
   }
 }
 
+const SKIP_RN_CSS = new Set([
+  'includeFontPadding',
+  'textAlignVertical',
+  'elevation',
+  'shadowOpacity',
+  'shadowRadius',
+  'shadowColor',
+  'shadowOffset',
+]);
+
 function styleToCss(style: unknown, ctx: SerializeCtx): string {
   if (style == null) return '';
   const flat = expandRnShorthands(flattenStyle(style));
   const decls: string[] = [];
   for (const [key, value] of Object.entries(flat)) {
     if (value == null || typeof value === 'object') continue;
+    if (SKIP_RN_CSS.has(key)) continue;
     if (key === 'fontFamily' && typeof value === 'string') {
       pushFontDecls(decls, value, ctx);
+      continue;
+    }
+    if (key === 'pointerEvents' && value === 'box-none') {
+      decls.push('pointer-events:none');
       continue;
     }
     const cssKey = camelToKebab(key);
@@ -322,10 +372,7 @@ const UNITLESS = new Set([
   'opacity',
   'zIndex',
   'fontWeight',
-  'lineHeight',
   'aspectRatio',
-  'elevation',
-  'shadowOpacity',
 ]);
 
 function cssValue(key: string, value: unknown): string {

@@ -26,7 +26,7 @@ export function AccountScreen({ identity }: AccountScreenProps) {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 3 }}>
+        <Box sx={[sx, { gap: 3 }]}>
           {identity}
           <MenuList>
             <MenuRow

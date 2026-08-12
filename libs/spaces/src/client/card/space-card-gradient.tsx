@@ -1,6 +1,5 @@
-import { GradientBox, type SxProps, useTheme } from '@pkgs/ui';
+import { GradientBox, type SxInput, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
 
 export const SPACE_CARD_BORDER_RADIUS = 16;
 
@@ -20,14 +19,12 @@ export function useSpaceCardGradientColors(): readonly [string, string] {
 
 export type SpaceCardGradientBoxProps = {
   children: ReactNode;
-  sx?: SxProps;
-  style?: StyleProp<ViewStyle>;
+  sx?: SxInput;
 };
 
 export function SpaceCardGradientBox({
   children,
   sx,
-  style,
 }: SpaceCardGradientBoxProps): ReactNode {
   const colors = useSpaceCardGradientColors();
 
@@ -37,7 +34,6 @@ export function SpaceCardGradientBox({
       start={SPACE_CARD_GRADIENT_START}
       end={SPACE_CARD_GRADIENT_END}
       {...(sx !== undefined ? { sx } : {})}
-      style={style}
     >
       {children}
     </GradientBox>

@@ -12,9 +12,7 @@
  */
 
 import { type PropsWithChildren, type ReactNode, useState } from 'react';
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -30,11 +28,10 @@ export type CollapsibleProps = PropsWithChildren<{
 }>;
 
 function DefaultIcon({ isOpen }: { isOpen: boolean }) {
-  const theme = useTheme();
   return (
     <Text
-      style={{
-        color: theme.colors.icon,
+      sx={{
+        color: 'icon',
         fontSize: 16,
         transform: [{ rotate: isOpen ? '90deg' : '0deg' }],
       }}
@@ -53,7 +50,7 @@ export function Collapsible({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <View {...componentDataSet('Collapsible', dataSet)}>
+    <Box dataSet={{ component: 'Collapsible', ...dataSet }}>
       <Pressable
         onPress={() => setIsOpen((v) => !v)}
         sx={{
@@ -67,6 +64,6 @@ export function Collapsible({
         <Text variant="bodyBold" label={title} />
       </Pressable>
       {isOpen && <Box sx={{ ml: 6, mb: 2 }}>{children}</Box>}
-    </View>
+    </Box>
   );
 }

@@ -50,8 +50,7 @@ export function LoadingState({
       {caption !== undefined && caption !== null ? (
         <Text
           variant="caption"
-          sx={{ color: 'textSecondary' }}
-          style={{ textAlign: 'center' }}
+          sx={{ color: 'textSecondary', textAlign: 'center' }}
           label={caption}
         />
       ) : null}

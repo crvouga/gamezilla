@@ -11,7 +11,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand"
+    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@apps/api": "workspace:*",

@@ -6,7 +6,6 @@
 
 import type { ReactNode } from 'react';
 import { useContext } from 'react';
-import { StyleSheet, View } from 'react-native';
 import {
   GestureDetector,
   ScrollView as GHScrollView,
@@ -18,6 +17,7 @@ import Animated, {
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { borderRadius, useTheme } from '../../theme';
+import { Box } from '../box';
 import { CloseIconButton } from '../close-icon-button';
 import { statusBarGrabCursor } from './status-bar-cursor';
 import { StatusBarFrostBackdrop } from './status-bar-frost-backdrop';
@@ -60,17 +60,30 @@ function StatusBarBottomGrabber({
 }): ReactNode {
   return (
     <GestureDetector gesture={handlePan}>
-      <View
+      <Box
         accessibilityRole="adjustable"
         accessibilityLabel="Swipe up to close"
-        style={[
-          styles.grabberBar,
-          { paddingBottom: Math.max(bottomInset, 12) },
+        sx={[
+          {
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: GRABBER_HIT_HEIGHT,
+            paddingTop: 14,
+            alignSelf: 'stretch',
+            paddingBottom: Math.max(bottomInset, 12),
+          },
           statusBarGrabCursor(isGrabbing),
         ]}
       >
-        <View style={[styles.grabber, { backgroundColor: themeBorder }]} />
-      </View>
+        <Box
+          sx={{
+            width: GRABBER_WIDTH,
+            height: GRABBER_HEIGHT,
+            borderRadius: borderRadius.full,
+            backgroundColor: themeBorder,
+          }}
+        />
+      </Box>
     </GestureDetector>
   );
 }
@@ -107,25 +120,37 @@ export function StatusBarOverlay({
         }
       }}
       pointerEvents={interactive ? 'auto' : 'none'}
-      style={[styles.root, surfaceStyle]}
+      style={[
+        {
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 1,
+        },
+        surfaceStyle,
+      ]}
     >
       <StatusBarFrostBackdrop colorScheme={theme.colorScheme} />
-      <Animated.View style={[styles.content, contentStyle]}>
-        <View
+      <Animated.View style={[{ flex: 1 }, contentStyle]}>
+        <Box
           pointerEvents="box-none"
-          style={[
-            styles.closeWrap,
-            { top: insets.top + CLOSE_INSET, right: CLOSE_INSET },
-          ]}
+          sx={{
+            position: 'absolute',
+            zIndex: 2,
+            top: insets.top + CLOSE_INSET,
+            right: CLOSE_INSET,
+          }}
         >
           <CloseIconButton
             onPress={onRequestClose}
             size={CLOSE_SIZE}
             background="surfaceMuted"
           />
-        </View>
+        </Box>
         <GHScrollView
-          style={styles.scroll}
+          style={{ flex: 1 }}
           contentContainerStyle={{
             paddingTop: insets.top + CLOSE_SIZE + CLOSE_INSET,
             paddingBottom: 12,
@@ -136,9 +161,15 @@ export function StatusBarOverlay({
           bounces
           showsVerticalScrollIndicator={false}
         >
-          <View style={[styles.panelWrap, { maxWidth: PANEL_MAX_WIDTH }]}>
+          <Box
+            sx={{
+              width: '100%',
+              alignSelf: 'center',
+              maxWidth: PANEL_MAX_WIDTH,
+            }}
+          >
             <StatusBarPanel items={items} />
-          </View>
+          </Box>
         </GHScrollView>
         <StatusBarBottomGrabber
           handlePan={handlePan}
@@ -150,36 +181,3 @@ export function StatusBarOverlay({
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  closeWrap: {
-    position: 'absolute',
-    zIndex: 2,
-  },
-  scroll: {
-    flex: 1,
-  },
-  panelWrap: {
-    width: '100%',
-    alignSelf: 'center',
-  },
-  grabberBar: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: GRABBER_HIT_HEIGHT,
-    paddingTop: 14,
-    alignSelf: 'stretch',
-  },
-  grabber: {
-    width: GRABBER_WIDTH,
-    height: GRABBER_HEIGHT,
-    borderRadius: borderRadius.full,
-  },
-});

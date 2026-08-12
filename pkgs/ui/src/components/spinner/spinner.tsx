@@ -24,8 +24,9 @@ import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
+import { AnimatedBox } from '../animated-box';
 import { SPIN_DURATION_MS, useSharedSpinnerRotation } from './spinner-context';
 
 export type SpinnerSize = 'small' | 'medium' | 'large' | number;
@@ -117,10 +118,10 @@ export function Spinner({
   });
 
   return (
-    <Animated.View
+    <AnimatedBox
       accessibilityRole="progressbar"
-      {...componentDataSet('Spinner', dataSet)}
-      style={{
+      dataSet={{ component: 'Spinner', ...dataSet }}
+      sx={{
         width: diameter,
         height: diameter,
         transform: [{ rotate: spin }],
@@ -151,6 +152,6 @@ export function Spinner({
           fill="none"
         />
       </Svg>
-    </Animated.View>
+    </AnimatedBox>
   );
 }

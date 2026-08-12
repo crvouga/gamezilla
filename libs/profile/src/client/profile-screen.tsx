@@ -27,11 +27,11 @@ export function ProfileScreen({
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
       content={({ sx }) => (
         <ScreenBodyScrollView
-          style={sx}
-          contentContainerStyle={{
-            flexGrow: 1,
-            ...(bottomInset > 0 ? { paddingBottom: bottomInset } : {}),
-          }}
+          frameSx={sx}
+          sx={[
+            { flexGrow: 1 },
+            bottomInset > 0 ? { paddingBottom: bottomInset } : false,
+          ]}
           onRefresh={() => refreshQueries()}
         >
           <ProfileScreenContent

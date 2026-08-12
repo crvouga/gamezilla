@@ -19,6 +19,8 @@ export {
   partitionActionBarItems,
   screenBaseActionToActionBarItem,
 } from './action-bar';
+// Foundation
+export { AnimatedBox, type AnimatedBoxProps } from './animated-box';
 // Brand
 export { AppLogo, type AppLogoProps } from './app-logo';
 export { AVATAR_BORDER_WIDTH, Avatar, type AvatarProps } from './avatar';
@@ -42,7 +44,6 @@ export {
   type BottomActionBarItem,
   type BottomActionBarProps,
 } from './bottom-action-bar';
-// Foundation
 export { Box, type BoxProps } from './box';
 export {
   BrandIcon,

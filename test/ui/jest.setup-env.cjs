@@ -3,6 +3,10 @@
  * RN getDevServer() needs a non-null scriptURL for Expo / expo-router.
  */
 
+// Drop debug/info/warn JSON from `@pkgs/logger` so Jest does not wrap every
+// line with a stack dump. Error still prints when a sim actually fails.
+require('@pkgs/logger').setDefaultLogLevel('error');
+
 // Product sims unmount in `sim.dispose()`. RNTL afterEach `cleanup()` would
 // call the same async `act(unmount)` again and hang (180s hook timeout).
 process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';

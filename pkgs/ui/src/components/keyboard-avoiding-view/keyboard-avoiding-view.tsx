@@ -9,12 +9,14 @@ import {
   KeyboardAvoidingView as RNKeyboardAvoidingView,
   type KeyboardAvoidingViewProps as RNKeyboardAvoidingViewProps,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { type SxInput, useHostSx } from '../../theme';
 
-export type KeyboardAvoidingViewProps = RNKeyboardAvoidingViewProps & {
-  sx?: SxProps;
+export type KeyboardAvoidingViewProps = Omit<
+  RNKeyboardAvoidingViewProps,
+  'style'
+> & {
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -23,22 +25,20 @@ export const KeyboardAvoidingView = forwardRef<
   RNKeyboardAvoidingView,
   KeyboardAvoidingViewProps
 >(function KeyboardAvoidingView(
-  { sx: sxProp, style, behavior: behaviorProp, dataSet, ...rest },
+  { sx, behavior: behaviorProp, dataSet, ...rest },
   ref
 ) {
-  const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
+  const host = useHostSx('KeyboardAvoidingView', sx, dataSet);
   const behavior =
     behaviorProp ?? (Platform.OS === 'ios' ? 'padding' : 'height');
-  const idProps = componentDataSet('KeyboardAvoidingView', dataSet);
 
   return (
     <RNKeyboardAvoidingView
       ref={ref}
-      style={[sxStyle, style]}
+      style={host.style}
       behavior={behavior}
       {...rest}
-      {...idProps}
+      {...host.dataSet}
     />
   );
 });

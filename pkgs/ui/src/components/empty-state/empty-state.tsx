@@ -64,15 +64,13 @@ export function EmptyState({
       ) : null}
       <Text
         variant="bodyBold"
-        sx={{ color: 'text' }}
-        style={{ textAlign: 'center' }}
+        sx={{ color: 'text', textAlign: 'center' }}
         label={title}
       />
       {body !== undefined && body !== null ? (
         <Text
           variant="caption"
-          sx={{ color: 'textSecondary' }}
-          style={{ textAlign: 'center' }}
+          sx={{ color: 'textSecondary', textAlign: 'center' }}
           label={body}
         />
       ) : null}

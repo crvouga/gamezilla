@@ -7,15 +7,14 @@
  */
 
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
 import { useFadeMachine } from './use-fade-machine';
 
-const styles = StyleSheet.create({
-  root: { flex: 1, minHeight: 0 },
-});
+const ROOT_SX = { flex: 1, minHeight: 0 } as const;
 
 export type FadeSwitchProps = {
   stateKey: string;
@@ -31,9 +30,9 @@ export function FadeSwitch({
 }: FadeSwitchProps): ReactNode {
   if (Platform.OS === 'web') {
     return (
-      <View style={styles.root} {...componentDataSet('FadeSwitch', dataSet)}>
+      <Box sx={ROOT_SX} dataSet={{ component: 'FadeSwitch', ...dataSet }}>
         {children}
-      </View>
+      </Box>
     );
   }
   return (
@@ -52,11 +51,10 @@ function NativeFadeSwitch({
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <Animated.View
-      style={[styles.root, style]}
-      {...componentDataSet('FadeSwitch', dataSet)}
-    >
-      {content}
-    </Animated.View>
+    <Box sx={ROOT_SX} dataSet={{ component: 'FadeSwitch', ...dataSet }}>
+      <Animated.View style={[{ flex: 1, minHeight: 0 }, style]}>
+        {content}
+      </Animated.View>
+    </Box>
   );
 }

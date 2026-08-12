@@ -16,7 +16,6 @@
 
 import { type ReactElement, type ReactNode, useContext, useMemo } from 'react';
 import type { RefreshControlProps } from 'react-native';
-import { StyleSheet } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { componentDataSet } from '../../component-id';
 import { Box } from '../box';
@@ -107,11 +106,9 @@ function PinnedFooter({ children }: { children: ReactNode }) {
       sx={{
         background: 'surface',
         borderColor: 'border',
+        borderTopWidth: 1,
         px: SCREEN_BODY_PADDING_STEP,
         pt: BODY_GAP_STEP,
-      }}
-      style={{
-        borderTopWidth: StyleSheet.hairlineWidth,
         paddingBottom: bottomInset + SCROLL_BOTTOM_PADDING / 2,
       }}
     >
@@ -130,7 +127,7 @@ function FloatingActionHost({
   const bottom = FLOATING_ACTION_MARGIN + extraBottomInset;
   return (
     <Box
-      style={{
+      sx={{
         position: 'absolute',
         right: FLOATING_ACTION_MARGIN,
         bottom,
@@ -343,8 +340,8 @@ function renderScrollableBody(args: {
   if (args.scroll) {
     return (
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
+        frameSx={{ flex: 1 }}
+        sx={{
           flexGrow: 1,
           paddingBottom: args.paddingBottom,
         }}
@@ -406,8 +403,9 @@ function ScreenBody({
 
   const bodyWithFooter = (
     <Box
-      sx={{ flex: 1, minHeight: 0 }}
-      style={{
+      sx={{
+        flex: 1,
+        minHeight: 0,
         position: 'relative',
         ...(hasFooter || scroll ? {} : { paddingBottom: bottomInset }),
       }}

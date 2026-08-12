@@ -16,9 +16,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
 
-import { componentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { BottomActionBarAction } from './bottom-action-bar-action';
 import { BottomActionBarButton } from './bottom-action-bar-button';
@@ -43,18 +41,21 @@ export function BottomActionBar({
 }: BottomActionBarProps): ReactNode {
   return (
     <Box
-      {...componentDataSet('BottomActionBar', dataSet)}
+      dataSet={{ component: 'BottomActionBar', ...dataSet }}
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'stretch',
         gap: 2,
         px: 3,
-        ...(elevated ? { background: 'surface', borderColor: 'border' } : {}),
-      }}
-      style={{
         minHeight: MIN_HEIGHT,
-        ...(elevated ? { borderTopWidth: StyleSheet.hairlineWidth } : {}),
+        ...(elevated
+          ? {
+              background: 'surface',
+              borderColor: 'border',
+              borderTopWidth: 1,
+            }
+          : {}),
       }}
     >
       {items.map(renderItem)}

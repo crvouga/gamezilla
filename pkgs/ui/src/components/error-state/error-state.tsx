@@ -103,15 +103,13 @@ function ErrorStateFill({
       <Icon size={ICON_SIZE_FILL} color={theme.colors.destructive} />
       <Text
         variant="bodyBold"
-        sx={{ color: 'destructive' }}
-        style={{ textAlign: 'center' }}
+        sx={{ color: 'destructive', textAlign: 'center' }}
         label={title}
       />
       {body !== undefined && body !== null ? (
         <Text
           variant="caption"
-          sx={{ color: 'textSecondary' }}
-          style={{ textAlign: 'center' }}
+          sx={{ color: 'textSecondary', textAlign: 'center' }}
           label={body}
         />
       ) : null}

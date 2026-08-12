@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { HorizontalPicker } from './horizontal-picker';
@@ -38,8 +38,8 @@ export default function HorizontalPickerExample() {
         itemWidth={ITEM_WIDTH}
         keyExtractor={(item) => item.id}
         renderItem={(item) => (
-          <View
-            style={{
+          <Box
+            sx={{
               width: CARD_SIZE,
               height: CARD_SIZE,
               borderRadius: 12,
@@ -50,10 +50,10 @@ export default function HorizontalPickerExample() {
           >
             <Text
               variant="caption"
-              style={{ color: '#fff', fontWeight: '700' }}
+              sx={{ color: '#fff', fontWeight: '700' }}
               label={item.label}
             />
-          </View>
+          </Box>
         )}
       />
       <Text

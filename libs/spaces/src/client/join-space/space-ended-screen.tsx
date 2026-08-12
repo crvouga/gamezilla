@@ -25,7 +25,7 @@ export function SpaceEndedScreen({
         },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <SpaceJoinEndedState spaceId={spaceId} />
         </Box>
       )}

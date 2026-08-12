@@ -1,19 +1,11 @@
-import { Text as RNText } from 'react-native';
-import { useTheme } from '../../theme';
 import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text/text';
 import { GradientBox } from './gradient-box';
 
 export default function GradientBoxExample() {
-  const theme = useTheme();
-
   return (
     <ExampleRoot>
-      <RNText
-        style={theme.sx({ color: 'text', fontSize: 'lg', fontWeight: 'bold' })}
-      >
-        GradientBox
-      </RNText>
+      <Text variant="heading" sx={{ fontSize: 'lg' }} label="GradientBox" />
 
       <Text
         variant="caption"

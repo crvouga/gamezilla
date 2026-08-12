@@ -15,14 +15,17 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Animated, Pressable, View, type ViewStyle } from 'react-native';
+import { Animated } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxInput } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 import { CircleCheckIcon, CopyIcon } from '../icons';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 
 const DEFAULT_COPIED_RESET_MS = 2000;
@@ -41,7 +44,7 @@ export type CopyToClipboardFieldProps = {
   copiedResetMs?: number;
   /** When true, the value is user-selectable as well as copy-on-press. */
   selectable?: boolean;
-  sx?: SxProps;
+  sx?: SxInput;
   testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
@@ -121,8 +124,6 @@ export function CopyToClipboardField({
 }: CopyToClipboardFieldProps) {
   const { t } = useLingui();
   const copiedLabelResolved = copiedLabel ?? t`Copied to clipboard`;
-  const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const [copied, setCopied] = useState(false);
   const iconScale = useRef(new Animated.Value(1)).current;
   const rowScale = useRef(new Animated.Value(1)).current;
@@ -140,10 +141,10 @@ export function CopyToClipboardField({
   }, [iconScale, rowScale, value]);
 
   return (
-    <View
-      style={[{ gap: 4 }, sxStyle]}
+    <Box
+      sx={[{ gap: 1 }, sxProp]}
       testID={testID}
-      {...componentDataSet('CopyToClipboardField', dataSet)}
+      dataSet={{ component: 'CopyToClipboardField', ...dataSet }}
     >
       {label !== undefined ? <Text variant="label" label={label} /> : null}
       <CopyRow
@@ -163,7 +164,7 @@ export function CopyToClipboardField({
         helperText={helperText}
         opacity={feedbackOpacity}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -186,31 +187,32 @@ function CopyRow({
 }) {
   const { t } = useLingui();
   const theme = useTheme();
-  const fieldStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.outline,
-    borderRadius: borderRadius.md,
-    backgroundColor: theme.colors.surfaceMuted,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  };
   const iconColor = copied ? theme.colors.tint : theme.colors.icon;
   return (
-    <Animated.View style={{ transform: [{ scale: rowScale }] }}>
+    <AnimatedBox sx={{ transform: [{ scale: rowScale }] }}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={copied ? copiedLabel : t`Copy to clipboard`}
         onPress={onPress}
-        style={({ pressed }) => [fieldStyle, pressed && { opacity: 0.92 }]}
+        feedback="none"
+        sx={({ pressed }) => ({
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2,
+          borderWidth: 1,
+          borderColor: 'outline',
+          borderRadius: borderRadius.md,
+          backgroundColor: 'surfaceMuted',
+          paddingVertical: 10,
+          paddingHorizontal: 12,
+          opacity: pressed ? 0.92 : 1,
+        })}
       >
-        <View style={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Text variant="body" selectable={selectable} label={value} />
-        </View>
-        <Animated.View
-          style={{
+        </Box>
+        <AnimatedBox
+          sx={{
             transform: [{ scale: iconScale }],
             alignItems: 'center',
             justifyContent: 'center',
@@ -220,9 +222,9 @@ function CopyRow({
             const Icon = copied ? CircleCheckIcon : CopyIcon;
             return <Icon size={ICON_SIZE} color={iconColor} />;
           })()}
-        </Animated.View>
+        </AnimatedBox>
       </Pressable>
-    </Animated.View>
+    </AnimatedBox>
   );
 }
 
@@ -238,9 +240,9 @@ function FeedbackLine({
   opacity: Animated.Value;
 }) {
   return copied ? (
-    <Animated.View style={{ opacity }}>
+    <AnimatedBox sx={{ opacity }}>
       <Text variant="caption" label={copiedLabel} />
-    </Animated.View>
+    </AnimatedBox>
   ) : helperText !== undefined ? (
     <Text variant="caption" label={helperText} />
   ) : (

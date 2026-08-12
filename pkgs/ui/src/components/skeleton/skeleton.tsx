@@ -13,11 +13,13 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, type LayoutChangeEvent, Platform, View } from 'react-native';
+import { Animated, type LayoutChangeEvent, Platform } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 
 export type SkeletonProps = {
   width?: number | `${number}%`;
@@ -87,20 +89,20 @@ export function Skeleton({
   });
 
   return (
-    <View
-      {...componentDataSet('Skeleton', dataSet)}
+    <Box
+      dataSet={{ component: 'Skeleton', ...dataSet }}
       onLayout={onLayout}
-      style={{
+      sx={{
         width,
         height,
         borderRadius,
         overflow: 'hidden',
-        backgroundColor: theme.colors.surfaceMuted,
+        backgroundColor: 'surfaceMuted',
       }}
     >
       {reducedMotion || measuredWidth === 0 ? null : (
-        <Animated.View
-          style={{
+        <AnimatedBox
+          sx={{
             position: 'absolute',
             top: 0,
             bottom: 0,
@@ -119,8 +121,8 @@ export function Skeleton({
             end={{ x: 1, y: 0.5 }}
             style={{ flex: 1, opacity: 0.6 }}
           />
-        </Animated.View>
+        </AnimatedBox>
       )}
-    </View>
+    </Box>
   );
 }

@@ -14,7 +14,7 @@ export default function SuccessStateExample() {
         label="Fill (post-step confirmation)"
       />
       <SchemePreview>
-        <Box style={{ height: 280 }}>
+        <Box sx={{ height: 280 }}>
           <SuccessState
             title="Profile updated"
             body="Your changes will be visible to teammates after the next sync."

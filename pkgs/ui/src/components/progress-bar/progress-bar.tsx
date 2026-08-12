@@ -13,11 +13,13 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 
 export type ProgressBarProps = {
   /** Value between 0 and 1. Ignored when `indeterminate` is true. */
@@ -85,18 +87,18 @@ export function ProgressBar({
   });
 
   return (
-    <View
-      {...componentDataSet('ProgressBar', dataSet)}
-      style={{
+    <Box
+      dataSet={{ component: 'ProgressBar', ...dataSet }}
+      sx={{
         height,
         borderRadius: height / 2,
-        backgroundColor: theme.colors.outline,
+        backgroundColor: 'outline',
         overflow: 'hidden',
       }}
     >
       {indeterminate ? (
-        <Animated.View
-          style={{
+        <AnimatedBox
+          sx={{
             height,
             width: '30%',
             borderRadius: height / 2,
@@ -112,8 +114,8 @@ export function ProgressBar({
           }}
         />
       ) : (
-        <Animated.View
-          style={{
+        <AnimatedBox
+          sx={{
             height,
             width: widthInterpolation,
             borderRadius: height / 2,
@@ -121,6 +123,6 @@ export function ProgressBar({
           }}
         />
       )}
-    </View>
+    </Box>
   );
 }

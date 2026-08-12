@@ -1,11 +1,11 @@
 import { useLingui } from '@lingui/react/macro';
 import {
+  Box,
   StatusBar,
   StatusBarRegistryPortalBridge,
   StatusBarRegistryProvider,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
 import { AppStatusBarItems } from '../../ui/status-bar/app-status-bar-items';
 
@@ -27,13 +27,13 @@ export function AppStatusBarRegistry({
     <StatusBarRegistryProvider>
       <StatusBarRegistryPortalBridge>
         <AppStatusBarItems />
-        <View style={{ flex: 1 }}>
+        <Box sx={{ flex: 1 }}>
           <StatusBar
             accessibilityLabel={t`Status bar`}
             panelTitle={t`Status`}
           />
-          <View style={{ flex: 1 }}>{children}</View>
-        </View>
+          <Box sx={{ flex: 1 }}>{children}</Box>
+        </Box>
       </StatusBarRegistryPortalBridge>
     </StatusBarRegistryProvider>
   );

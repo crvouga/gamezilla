@@ -117,7 +117,7 @@ export function EventLogSurface({
           data={[...rows]}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) => renderRow(item, rowProps)}
-          style={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}
+          frameSx={{ maxHeight: EVENT_LOG_LIST_MAX_HEIGHT }}
         />
       )}
     </ResponsiveSurface>

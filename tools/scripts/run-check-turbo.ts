@@ -51,6 +51,7 @@ const CI_GATE_TASKS = [
   'ci:circular-deps',
   'ci:tier-imports',
   'ci:component-ids',
+  'ci:no-rn-style-api',
   'ci:no-size-limit-overrides',
   'ci:audit',
 ] as const;

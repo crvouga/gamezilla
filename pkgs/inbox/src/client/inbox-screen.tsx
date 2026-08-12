@@ -92,7 +92,7 @@ export function InboxScreen({ initialFilter }: InboxScreenProps): ReactNode {
       screenId="inbox"
       breadcrumbs={[{ name: t`Inbox` }]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <InboxSignedInGate>
             <InboxScreenBody
               {...(initialFilter !== undefined ? { initialFilter } : {})}

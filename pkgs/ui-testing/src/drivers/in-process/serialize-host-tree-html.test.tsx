@@ -74,6 +74,52 @@ describe('serializeHostTreeHtml', () => {
     expect(html).not.toContain('margin-horizontal');
   });
 
+  it('prefers captured dataSet.css and dataSet.component over RN style', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {
+        testID: 'box',
+        style: { padding: 8, backgroundColor: 'red' },
+        dataSet: {
+          component: 'Box',
+          css: 'padding:8px;line-height:18px;background-color:hsla(0,0%,98%,1)',
+        },
+      },
+      children: null,
+    });
+    expect(html).toContain('data-component="Box"');
+    expect(html).toContain('line-height:18px');
+    expect(html).toContain('background-color:hsla(0,0%,98%,1)');
+    expect(html).not.toContain('background-color:red');
+    expect(html).not.toContain('data-component="View"');
+  });
+
+  it('emits lineHeight as px in the RN fallback path', () => {
+    const result = render(
+      createElement(Text, { style: { fontSize: 12, lineHeight: 18 } }, 'Hi')
+    );
+    const html = serializeHostTreeHtml(result.toJSON());
+    expect(html).toContain('line-height:18px');
+    expect(html).not.toMatch(/line-height:18;/);
+  });
+
+  it('maps RCTScrollView to overflow:auto', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RCTScrollView',
+      props: { style: { flex: 1 } },
+      children: [
+        {
+          type: 'View',
+          props: { style: { padding: 8 } },
+          children: null,
+        },
+      ],
+    });
+    expect(html).toContain('overflow:auto');
+    expect(html).toContain('data-component="RCTScrollView"');
+    expect(html).toContain('padding:8px');
+  });
+
   it('rewrites Expo font families and injects Google Fonts', () => {
     const result = render(
       createElement(

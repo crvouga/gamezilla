@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { Pressable, type ViewStyle } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
   type SharedValue,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+
+import { Pressable } from '../pressable';
 
 const UNSELECTED_SCALE = 0.85;
 const UNSELECTED_OPACITY = 0.5;
@@ -48,15 +49,25 @@ export function HorizontalPickerCell({
     };
   });
 
-  const cellStyle: ViewStyle = {
-    width: itemWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
   return (
-    <Pressable onPress={onPress} style={cellStyle}>
-      <Animated.View style={[cellStyle, animatedStyle]}>
+    <Pressable
+      onPress={onPress}
+      sx={{
+        width: itemWidth,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Animated.View
+        style={[
+          {
+            width: itemWidth,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          animatedStyle,
+        ]}
+      >
         {children}
       </Animated.View>
     </Pressable>

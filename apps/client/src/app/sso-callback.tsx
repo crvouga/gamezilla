@@ -16,11 +16,10 @@ import {
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
-import { LoadingState, useTheme } from '@pkgs/ui';
+import { Center, LoadingState } from '@pkgs/ui';
 import { type Href, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { type ReactNode, useEffect, useRef } from 'react';
-import { View } from 'react-native';
 
 /** Cap wait for bearer capture so the blank callback route never sticks. */
 const SSO_HANDOFF_NAVIGATE_MS = 800;
@@ -92,7 +91,6 @@ async function completeSsoCallbackAndNavigate(args: {
  */
 export default function SsoCallbackScreen(): ReactNode {
   const { t } = useLingui();
-  const theme = useTheme();
   const router = useRouter();
   const store = useSecureStorageStore();
   const port = useAuthClientPort();
@@ -122,15 +120,8 @@ export default function SsoCallbackScreen(): ReactNode {
   }, [clock, openSignInModal, port, router, store, timers]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
+    <Center sx={{ flex: 1, background: 'background' }}>
       <LoadingState size="large" caption={t`Signing in…`} />
-    </View>
+    </Center>
   );
 }

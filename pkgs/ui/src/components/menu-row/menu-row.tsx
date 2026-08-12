@@ -18,7 +18,7 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { releaseWebFocus } from '../../web/release-web-focus';
@@ -109,12 +109,11 @@ export function MenuRow({
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      sx={{ borderRadius: borderRadius.md }}
-      style={{
+      sx={{
         borderRadius: borderRadius.md,
-        backgroundColor: selected ? theme.colors.tintSubtle : undefined,
+        ...(selected ? { backgroundColor: 'tintSubtle' } : {}),
       }}
-      {...componentDataSet('MenuRow', dataSet)}
+      dataSet={{ component: 'MenuRow', ...dataSet }}
     >
       <Box
         sx={{

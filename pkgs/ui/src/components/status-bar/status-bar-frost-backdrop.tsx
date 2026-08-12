@@ -6,9 +6,10 @@
 
 import { BlurView } from 'expo-blur';
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, UIManager, View } from 'react-native';
+import { Platform, UIManager } from 'react-native';
 
 import type { ColorScheme } from '../../theme';
+import { Box } from '../box';
 
 /** Medium Control Center–style frost (1–100). */
 const BLUR_INTENSITY = 55;
@@ -44,37 +45,35 @@ export function StatusBarFrostBackdrop({
 
   if (!blurOk) {
     return (
-      <View
+      <Box
         pointerEvents="none"
-        style={[
-          styles.frost,
-          { backgroundColor: GLASS_TINT_FALLBACK[colorScheme] },
-        ]}
+        sx={{
+          absoluteFill: true,
+          backgroundColor: GLASS_TINT_FALLBACK[colorScheme],
+        }}
       />
     );
   }
 
   return (
     <>
-      <BlurView
+      <Box pointerEvents="none" sx={{ absoluteFill: true }}>
+        <BlurView
+          intensity={BLUR_INTENSITY}
+          tint={colorScheme === 'dark' ? 'dark' : 'light'}
+          {...(Platform.OS === 'android'
+            ? { blurMethod: 'dimezisBlurView' as const }
+            : {})}
+          style={{ flex: 1 }}
+        />
+      </Box>
+      <Box
         pointerEvents="none"
-        intensity={BLUR_INTENSITY}
-        tint={colorScheme === 'dark' ? 'dark' : 'light'}
-        {...(Platform.OS === 'android'
-          ? { blurMethod: 'dimezisBlurView' as const }
-          : {})}
-        style={styles.frost}
-      />
-      <View
-        pointerEvents="none"
-        style={[styles.frost, { backgroundColor: GLASS_TINT[colorScheme] }]}
+        sx={{
+          absoluteFill: true,
+          backgroundColor: GLASS_TINT[colorScheme],
+        }}
       />
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  frost: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});

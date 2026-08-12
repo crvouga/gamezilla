@@ -61,5 +61,6 @@ module.exports = {
     '^@test/([^/]+)/(.*)$': `${repoRoot}/test/$1/src/$2`,
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json'],
+  detectOpenHandles: true,
   forceExit: true,
 };

@@ -44,7 +44,7 @@ export function UiExplorerDetailScreen() {
         { name: name || t`Component` },
       ]}
       content={({ sx, titleScroll }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <ExplorerDetail
             screenBodyBleed
             largeTitle

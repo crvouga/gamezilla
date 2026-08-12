@@ -57,13 +57,13 @@ export function ChessPuzzleBoardFrame({
       onLayout={onLayout}
     >
       {size > 0 ? (
-        <Box style={{ width: size }}>
+        <Box sx={{ width: size }}>
           {reserveTop > 0 ? (
-            <Box style={{ height: reserveTop }}>{topAccessory}</Box>
+            <Box sx={{ height: reserveTop }}>{topAccessory}</Box>
           ) : (
             topAccessory
           )}
-          <Box style={{ width: size, height: size, position: 'relative' }}>
+          <Box sx={{ width: size, height: size, position: 'relative' }}>
             {children(size)}
             {overlay}
           </Box>

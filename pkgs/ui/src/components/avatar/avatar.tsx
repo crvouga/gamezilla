@@ -22,11 +22,13 @@
  * ```
  */
 
-import { Image, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { Image } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { bestOnColor, useTheme } from '../../theme';
+import { Box } from '../box';
 import type { IconComponent } from '../icons';
 import { Text } from '../text';
 
@@ -62,6 +64,37 @@ function isNonEmpty(value: string | null | undefined): value is string {
   return typeof value === 'string' && value.length > 0;
 }
 
+function AvatarPlate({
+  size,
+  backgroundColor,
+  dataSet,
+  children,
+}: {
+  size: number;
+  backgroundColor: string;
+  dataSet?: ComponentDataSet;
+  children?: ReactNode;
+}) {
+  return (
+    <Box
+      dataSet={{ component: 'Avatar', ...dataSet }}
+      sx={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        borderWidth: AVATAR_BORDER_WIDTH,
+        borderColor: 'border',
+        overflow: 'hidden',
+        backgroundColor,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function Avatar({
   size = 40,
   background = 'tint',
@@ -73,7 +106,6 @@ export function Avatar({
   dataSet,
 }: AvatarProps) {
   const theme = useTheme();
-  const idProps = componentDataSet('Avatar', dataSet);
   const bg =
     theme.colors[background as keyof typeof theme.colors] ?? background;
   const fg =
@@ -81,47 +113,47 @@ export function Avatar({
       ? (theme.colors[foreground as keyof typeof theme.colors] ?? foreground)
       : bestOnColor(bg).fg;
 
-  const containerStyle = {
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-    borderWidth: AVATAR_BORDER_WIDTH,
-    borderColor: theme.colors.border,
-    overflow: 'hidden' as const,
-    backgroundColor: bg,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-  };
-
   if (isNonEmpty(svg)) {
     return (
-      <View style={containerStyle} {...idProps}>
+      <AvatarPlate
+        size={size}
+        backgroundColor={bg}
+        {...(dataSet !== undefined ? { dataSet } : {})}
+      >
         <SvgXml xml={svg} width={size} height={size} />
-      </View>
+      </AvatarPlate>
     );
   }
 
   if (isNonEmpty(uri)) {
     return (
-      <View style={containerStyle} {...idProps}>
+      <AvatarPlate
+        size={size}
+        backgroundColor={bg}
+        {...(dataSet !== undefined ? { dataSet } : {})}
+      >
         <Image
           source={{ uri }}
           style={{ width: size, height: size }}
           resizeMode="cover"
         />
-      </View>
+      </AvatarPlate>
     );
   }
 
   if (isNonEmpty(initials)) {
     const fontSize = Math.round(size * 0.4);
     return (
-      <View style={containerStyle} {...idProps}>
+      <AvatarPlate
+        size={size}
+        backgroundColor={bg}
+        {...(dataSet !== undefined ? { dataSet } : {})}
+      >
         <Text
-          style={{ color: fg, fontSize, fontWeight: 'bold' }}
+          sx={{ color: fg, fontSize, fontWeight: 'bold' }}
           label={initials.slice(0, 2)}
         />
-      </View>
+      </AvatarPlate>
     );
   }
 
@@ -129,11 +161,21 @@ export function Avatar({
     const iconSize = Math.max(12, Math.round(size * 0.48));
     const Icon = icon;
     return (
-      <View style={containerStyle} {...idProps}>
+      <AvatarPlate
+        size={size}
+        backgroundColor={bg}
+        {...(dataSet !== undefined ? { dataSet } : {})}
+      >
         <Icon size={iconSize} color={fg} />
-      </View>
+      </AvatarPlate>
     );
   }
 
-  return <View style={containerStyle} {...idProps} />;
+  return (
+    <AvatarPlate
+      size={size}
+      backgroundColor={bg}
+      {...(dataSet !== undefined ? { dataSet } : {})}
+    />
+  );
 }

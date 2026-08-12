@@ -5,7 +5,7 @@
 import { type ReactNode, useContext } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
   FLOATING_MENU_DEFAULT_WIDTH,
@@ -89,26 +89,26 @@ function ActionBarRow(p: {
 }): ReactNode {
   return (
     <Box
-      {...componentDataSet('ActionBar', p.dataSet)}
+      dataSet={{ component: 'ActionBar', ...p.dataSet }}
       collapsable={false}
       sx={{
         ...(p.measuresWidth
-          ? { flex: 1, minWidth: 0, alignSelf: 'stretch' as const }
+          ? { flex: 1, minWidth: 0, alignSelf: 'stretch', width: '100%' }
           : {}),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: p.align === 'start' ? 'flex-start' : 'flex-end',
-        gap: 2,
-      }}
-      style={{
-        gap: p.gap,
-        ...(p.measuresWidth ? { width: '100%' } : {}),
+        gap: p.gap / 4,
       }}
       onLayout={p.measuresWidth ? p.layout.onContainerLayout : undefined}
     >
       <Box
-        sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 0 }}
-        style={{ gap: p.gap }}
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: p.gap / 4,
+          minWidth: 0,
+        }}
       >
         <ActionBarTextItems actions={p.layout.inlineTextActions} />
         <ActionBarIconItems

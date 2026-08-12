@@ -7,22 +7,18 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  Animated,
-  Platform,
-  type FlatList as RNFlatList,
-  Pressable as RNPressable,
-  View,
-} from 'react-native';
+import { Animated, Platform, type FlatList as RNFlatList } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { duration as motionDuration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
+import { AnimatedBox } from '../animated-box';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
 import { ModalRoot } from '../modal/modal-root';
+import { Pressable } from '../pressable';
 import { ProgressBar } from '../progress-bar';
 import { Text } from '../text';
 import { buildPaletteRows, type PaletteRow } from './build-palette-rows';
@@ -297,7 +293,7 @@ function PaletteList({
     <FlatList
       ref={flatListRef}
       keyboardShouldPersistTaps="handled"
-      style={{ maxHeight: LIST_MAX_HEIGHT }}
+      frameSx={{ maxHeight: LIST_MAX_HEIGHT }}
       data={rows}
       keyExtractor={(item) => item.key}
       onScrollToIndexFailed={({ index }) => {
@@ -348,17 +344,14 @@ function PaletteCard({
         borderWidth: 1,
         borderColor: 'border',
         overflow: 'hidden',
-      }}
-      style={{
+        elevation: 5,
         backgroundColor: bg,
-        ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-        ...(lift.elevation !== undefined ? { elevation: lift.elevation } : {}),
       }}
     >
       {runningId !== null ? (
         <ProgressBar indeterminate height={2} color="tint" />
       ) : (
-        <View style={{ height: 2 }} />
+        <Box sx={{ height: 2 }} />
       )}
       <Box sx={{ px: 3, pt: 2, pb: 2 }}>
         <CommandPaletteInput
@@ -395,17 +388,17 @@ function PaletteOverlay({
   children: ReactNode;
   dataSet: ComponentDataSet | undefined;
 }) {
-  const theme = useTheme();
   return (
-    <View style={{ flex: 1 }} {...componentDataSet('CommandPalette', dataSet)}>
-      <RNPressable
+    <Box sx={{ flex: 1 }} dataSet={{ component: 'CommandPalette', ...dataSet }}>
+      <Pressable
         accessibilityLabel="Dismiss command palette"
         onPress={close}
-        style={{ flex: 1, backgroundColor: theme.colors.scrim }}
+        feedback="none"
+        sx={{ flex: 1, backgroundColor: 'scrim' }}
       />
-      <View
+      <Box
         pointerEvents="box-none"
-        style={{
+        sx={{
           position: 'absolute',
           top: TOP_INSET + 48,
           left: 0,
@@ -414,17 +407,17 @@ function PaletteOverlay({
           paddingHorizontal: 16,
         }}
       >
-        <Animated.View
-          style={{
+        <AnimatedBox
+          sx={{
             width: '100%',
             opacity,
             transform: [{ translateY }],
           }}
         >
           {children}
-        </Animated.View>
-      </View>
-    </View>
+        </AnimatedBox>
+      </Box>
+    </Box>
   );
 }
 

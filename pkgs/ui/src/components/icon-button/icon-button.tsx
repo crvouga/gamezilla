@@ -26,8 +26,8 @@ import { useTimers } from '@pkgs/clock';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import type { PressableProps as RNPressableProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { OnColorProvider, useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { OnColorProvider, type SxProps, useTheme } from '../../theme';
 import { Pressable } from '../pressable';
 import { Tooltip, useTooltipTrigger } from '../tooltip';
 
@@ -87,13 +87,13 @@ function resolveBackgroundColor(
   return colors[background] ?? background;
 }
 
-function iconButtonFaceStyle(args: {
+function iconButtonFaceSx(args: {
   size: number;
   bg: string;
   isAvatar: boolean;
   disabled: boolean | undefined;
   borderColor: string;
-}): Record<string, unknown> {
+}): SxProps {
   const { size, bg, isAvatar, disabled, borderColor } = args;
   const radius = size / 2;
   // Avatar ring uses padding (not borderWidth) so the outer box stays exactly
@@ -106,10 +106,10 @@ function iconButtonFaceStyle(args: {
       padding: ICON_BUTTON_AVATAR_BORDER_WIDTH,
       borderRadius: radius,
       backgroundColor: borderColor,
-      alignItems: 'center' as const,
-      justifyContent: 'center' as const,
+      alignItems: 'center',
+      justifyContent: 'center',
       opacity: disabled === true ? 0.5 : 1,
-      overflow: 'hidden' as const,
+      overflow: 'hidden',
     };
   }
   return {
@@ -117,8 +117,8 @@ function iconButtonFaceStyle(args: {
     width: size,
     borderRadius: radius,
     backgroundColor: bg,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
     opacity: disabled === true ? 0.5 : 1,
   };
 }
@@ -173,7 +173,7 @@ function IconButtonFace({
       testID={testID}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={accessibilityRole ?? 'button'}
-      {...componentDataSet('IconButton', dataSet)}
+      dataSet={{ component: 'IconButton', ...dataSet }}
       {...(longPressTooltip
         ? {
             onLongPress: () => {
@@ -184,14 +184,16 @@ function IconButtonFace({
             },
           }
         : {})}
-      sx={{ borderRadius: radius }}
-      style={iconButtonFaceStyle({
-        size: size!,
-        bg,
-        isAvatar,
-        disabled,
-        borderColor: theme.colors.border,
-      })}
+      sx={[
+        { borderRadius: radius },
+        iconButtonFaceSx({
+          size: size!,
+          bg,
+          isAvatar,
+          disabled,
+          borderColor: theme.colors.border,
+        }),
+      ]}
     >
       {hasBackground && !isAvatar ? (
         <OnColorProvider background={bg}>{children}</OnColorProvider>

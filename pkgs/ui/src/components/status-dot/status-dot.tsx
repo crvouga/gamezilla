@@ -8,9 +8,8 @@
  * ```
  */
 
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning';
 
@@ -22,23 +21,21 @@ export type StatusDotProps = {
   dataSet?: ComponentDataSet;
 };
 
+const STATUS_COLOR = {
+  online: 'success',
+  offline: 'destructive',
+  warning: 'warning',
+} as const;
+
 export function StatusDot({ status, size = 10, dataSet }: StatusDotProps) {
-  const theme = useTheme();
-
-  const colorMap: Record<StatusDotStatus, string> = {
-    online: theme.colors.success,
-    offline: theme.colors.destructive,
-    warning: theme.colors.warning,
-  };
-
   return (
-    <View
-      {...componentDataSet('StatusDot', dataSet)}
-      style={{
+    <Box
+      dataSet={{ component: 'StatusDot', ...dataSet }}
+      sx={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colorMap[status],
+        backgroundColor: STATUS_COLOR[status],
       }}
     />
   );

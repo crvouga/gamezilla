@@ -37,7 +37,7 @@ export function AboutScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 3 }}>
+        <Box sx={[sx, { gap: 3 }]}>
           <Card elevation={1} sx={{ p: 4, gap: 2 }}>
             <Text variant="bodyBold" label={<Trans>App</Trans>} />
             <Text variant="body" label={t`Name: ${appName}`} />

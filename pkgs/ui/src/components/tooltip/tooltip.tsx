@@ -15,10 +15,11 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { View } from 'react-native';
+import type { View } from 'react-native';
 
 import type { ComponentDataSet } from '../../component-id';
 import { useHoverCapable } from '../../theme';
+import { Box } from '../box';
 import { useOverlayPortalSlot } from '../overlay-portal/overlay-portal';
 import { TooltipBubble } from './tooltip-bubble';
 import type { TooltipPlacement } from './tooltip-layout';
@@ -93,14 +94,14 @@ export function Tooltip({
 
   return (
     <TooltipContext.Provider value={controller}>
-      <View
+      <Box
         ref={anchorRef}
         collapsable={false}
-        style={{ alignSelf: 'center' }}
+        sx={{ alignSelf: 'center' }}
         {...webHoverProps(hoverCapable, show, hide)}
       >
         {children}
-      </View>
+      </Box>
     </TooltipContext.Provider>
   );
 }

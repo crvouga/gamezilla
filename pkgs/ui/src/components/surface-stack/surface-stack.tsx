@@ -14,7 +14,7 @@ import {
   useMemo,
   useSyncExternalStore,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Box } from '../box';
 import { SURFACE_STACK_BASE } from './constants';
 import {
   createSurfaceStackStore,
@@ -38,18 +38,22 @@ function SurfaceStackHost({ store }: { store: SurfaceStackStore }) {
     store.getSnapshot
   );
   return (
-    <View pointerEvents="box-none" style={styles.host} collapsable={false}>
+    <Box
+      pointerEvents="box-none"
+      collapsable={false}
+      sx={{ absoluteFill: true, zIndex: SURFACE_STACK_BASE }}
+    >
       {entries.map((entry) => (
-        <View
+        <Box
           key={entry.id}
           pointerEvents="box-none"
           collapsable={false}
-          style={[styles.layer, { zIndex: entry.zIndex }]}
+          sx={{ absoluteFill: true, zIndex: entry.zIndex }}
         >
           {entry.node}
-        </View>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -74,10 +78,10 @@ export function SurfaceStackProvider({
   return (
     <SurfaceStackStoreContext.Provider value={store}>
       <SurfaceStackContext.Provider value={api}>
-        <View style={styles.root} collapsable={false}>
+        <Box sx={{ flex: 1 }} collapsable={false}>
           {children}
           <SurfaceStackHost store={store} />
-        </View>
+        </Box>
       </SurfaceStackContext.Provider>
     </SurfaceStackStoreContext.Provider>
   );
@@ -145,17 +149,3 @@ export function useSurfaceStackSlot(
   const isTop = useIsTopSurface(id);
   return { isTop: visible && isTop };
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  host: {
-    ...StyleSheet.absoluteFillObject,
-    // Above app chrome (top bar z≈3); individual layers add BASE+n.
-    zIndex: SURFACE_STACK_BASE,
-  },
-  layer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});

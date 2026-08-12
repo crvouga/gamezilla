@@ -34,7 +34,7 @@ export function SpaceShareSheet({
       title={<Trans>Share space</Trans>}
       size="medium"
     >
-      <ScrollView style={{ maxHeight: 480 }} sx={{ px: 0, gap: 3 }}>
+      <ScrollView frameSx={{ maxHeight: 480 }} sx={{ px: 0, gap: 3 }}>
         <SpaceShareLinkSection spaceId={spaceId} />
         {isHost ? (
           <SpaceShareAddPeople spaceId={spaceId} listedIds={listedIds} />

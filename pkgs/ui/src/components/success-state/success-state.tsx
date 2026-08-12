@@ -99,15 +99,13 @@ function SuccessStateFill({
       <Icon size={ICON_SIZE_FILL} color={theme.colors.success} />
       <Text
         variant="bodyBold"
-        sx={{ color: 'success' }}
-        style={{ textAlign: 'center' }}
+        sx={{ color: 'success', textAlign: 'center' }}
         label={title}
       />
       {body !== undefined && body !== null ? (
         <Text
           variant="caption"
-          sx={{ color: 'textSecondary' }}
-          style={{ textAlign: 'center' }}
+          sx={{ color: 'textSecondary', textAlign: 'center' }}
           label={body}
         />
       ) : null}

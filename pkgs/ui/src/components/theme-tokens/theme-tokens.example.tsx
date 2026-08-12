@@ -5,8 +5,6 @@
  * Used in the explorer to make token drift instantly visible.
  */
 
-import { View } from 'react-native';
-
 import { type ColorTokens, useTheme } from '../../theme';
 import { duration, easing } from '../../theme/motion';
 import {
@@ -126,22 +124,22 @@ function SectionTitle({ title }: { title: string }) {
 
 function ColorGroups() {
   return (
-    <View style={{ gap: 16 }}>
+    <Box sx={{ gap: 4 }}>
       {COLOR_GROUPS.map((group) => (
-        <View key={group.title} style={{ gap: 6 }}>
+        <Box key={group.title} sx={{ gap: 1.5 }}>
           <Text
             variant="label"
             sx={{ color: 'textSecondary' }}
             label={group.title}
           />
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
             {group.tokens.map((tok) => (
               <ColorSwatch key={tok} token={tok} />
             ))}
-          </View>
-        </View>
+          </Box>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -149,17 +147,17 @@ function ColorSwatch({ token }: { token: keyof ColorTokens }) {
   const theme = useTheme();
   const value = theme.colors[token];
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         width: 132,
         borderRadius: borderRadius.md,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
         overflow: 'hidden',
       }}
     >
-      <View
-        style={{
+      <Box
+        sx={{
           height: 56,
           backgroundColor: value,
         }}
@@ -180,35 +178,34 @@ function ColorSwatch({ token }: { token: keyof ColorTokens }) {
           label={value}
         />
       </Box>
-    </View>
+    </Box>
   );
 }
 
 function RadiusRow() {
   const keys = Object.keys(borderRadius) as BorderRadiusKey[];
   return (
-    <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+    <Box sx={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap' }}>
       {keys.map((k) => (
         <RadiusSample key={k} radiusKey={k} />
       ))}
-    </View>
+    </Box>
   );
 }
 
 function RadiusSample({ radiusKey }: { radiusKey: BorderRadiusKey }) {
-  const theme = useTheme();
   const value = borderRadius[radiusKey];
   const display = value === 9999 ? 'full' : `${value}px`;
   return (
-    <View style={{ alignItems: 'center', gap: 4 }}>
-      <View
-        style={{
+    <Box sx={{ alignItems: 'center', gap: 1 }}>
+      <Box
+        sx={{
           width: 64,
           height: 64,
           borderRadius: value,
-          backgroundColor: theme.colors.tintSubtle,
+          backgroundColor: 'tintSubtle',
           borderWidth: 1,
-          borderColor: theme.colors.tint,
+          borderColor: 'tint',
         }}
       />
       <Text
@@ -217,7 +214,7 @@ function RadiusSample({ radiusKey }: { radiusKey: BorderRadiusKey }) {
         label={radiusKey}
       />
       <Text variant="caption" sx={{ color: 'textSecondary' }} label={display} />
-    </View>
+    </Box>
   );
 }
 
@@ -227,16 +224,15 @@ function SpacingRow() {
     value: v as number,
   }));
   return (
-    <View style={{ gap: 6 }}>
+    <Box sx={{ gap: 1.5 }}>
       {entries.map(({ key, value }) => (
-        <View
+        <Box
           key={key}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}
         >
           <Text
             variant="caption"
-            sx={{ color: 'textSecondary' }}
-            style={{ width: 32 }}
+            sx={{ color: 'textSecondary', width: 32 }}
             label={key}
           />
           <SpacingBar width={value} />
@@ -245,20 +241,19 @@ function SpacingRow() {
             sx={{ color: 'textSecondary' }}
             label={`${value}px`}
           />
-        </View>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }
 
 function SpacingBar({ width }: { width: number }) {
-  const theme = useTheme();
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         height: 10,
         width: Math.max(width, 1),
-        backgroundColor: theme.colors.tint,
+        backgroundColor: 'tint',
         borderRadius: borderRadius.xs,
       }}
     />
@@ -267,11 +262,11 @@ function SpacingBar({ width }: { width: number }) {
 
 function ElevationRow() {
   return (
-    <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+    <Box sx={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap' }}>
       {ELEVATION_LEVELS.map((level) => (
         <ElevationSample key={level} level={level} />
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -280,17 +275,15 @@ function ElevationSample({ level }: { level: ElevationLevel }) {
   const lift = theme.elevation(level);
   const bg = lift.backgroundColor ?? theme.colors.surfaceElevated;
   return (
-    <View style={{ alignItems: 'center', gap: 4 }}>
-      <View
-        style={{
+    <Box sx={{ alignItems: 'center', gap: 1 }}>
+      <Box
+        sx={{
           width: 88,
           height: 64,
           backgroundColor: bg,
           borderRadius: borderRadius.md,
+          elevation: level,
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined
-            ? { elevation: lift.elevation }
-            : {}),
         }}
       />
       <Text
@@ -298,7 +291,7 @@ function ElevationSample({ level }: { level: ElevationLevel }) {
         sx={{ color: 'textSecondary' }}
         label={`level ${level}`}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -306,25 +299,20 @@ function MotionRow() {
   const durations = Object.entries(duration);
   const easings = Object.entries(easing);
   return (
-    <View style={{ gap: 8 }}>
+    <Box sx={{ gap: 2 }}>
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Durations" />
       {durations.map(([k, v]) => (
-        <View
+        <Box
           key={k}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}
         >
-          <Text
-            variant="caption"
-            sx={{ color: 'text' }}
-            style={{ width: 80 }}
-            label={k}
-          />
+          <Text variant="caption" sx={{ color: 'text', width: 80 }} label={k} />
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}
             label={`${v}ms`}
           />
-        </View>
+        </Box>
       ))}
       <Text
         variant="label"
@@ -332,13 +320,8 @@ function MotionRow() {
         label="Easings"
       />
       {easings.map(([k, v]) => (
-        <View key={k} style={{ flexDirection: 'row', gap: 8 }}>
-          <Text
-            variant="caption"
-            sx={{ color: 'text' }}
-            style={{ width: 80 }}
-            label={k}
-          />
+        <Box key={k} sx={{ flexDirection: 'row', gap: 2 }}>
+          <Text variant="caption" sx={{ color: 'text', width: 80 }} label={k} />
           <Text
             variant="caption"
             numberOfLines={1}
@@ -346,8 +329,8 @@ function MotionRow() {
             sx={{ color: 'textSecondary' }}
             label={v}
           />
-        </View>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }

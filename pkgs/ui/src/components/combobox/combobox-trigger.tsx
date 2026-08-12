@@ -1,21 +1,19 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
-import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { Chip } from '../chip';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 import type { ComboboxOption } from './combobox-types';
 
 export function ComboboxLabel({ label }: { label: ReactNode }) {
-  const theme = useTheme();
   return (
     <Text
       variant="caption"
-      sx={{ mb: 0.5 }}
-      style={{ color: theme.colors.textSecondary }}
+      sx={{ mb: 0.5, color: 'textSecondary' }}
       label={label}
     />
   );
@@ -30,23 +28,22 @@ function ComboboxMultiSummary<T extends string | number>({
   placeholder: LocalizedString;
   onRemove: (value: T) => void;
 }) {
-  const theme = useTheme();
   if (selected.length === 0) {
     return (
       <Text
         variant="label"
-        style={{ flex: 1, color: theme.colors.textSecondary }}
+        sx={{ flex: 1, color: 'textSecondary' }}
         label={placeholder}
       />
     );
   }
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         flex: 1,
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 6,
+        gap: 1.5,
         alignItems: 'center',
       }}
     >
@@ -58,7 +55,7 @@ function ComboboxMultiSummary<T extends string | number>({
           onPress={() => onRemove(option.value)}
         />
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -99,7 +96,6 @@ export function ComboboxTrigger<T extends string | number>({
   onClear: (() => void) | undefined;
   onRemove: (value: T) => void;
 }) {
-  const theme = useTheme();
   const showClear =
     onClear !== undefined &&
     (multiple ? selectedOptions.length > 0 : selected !== undefined);
@@ -111,17 +107,16 @@ export function ComboboxTrigger<T extends string | number>({
       accessibilityRole="combobox"
       accessibilityState={{ disabled, expanded: open }}
       {...webAriaProps({ open, listboxId, multiple })}
-      sx={{ borderRadius: borderRadius.md }}
-      style={{
+      sx={{
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 10,
         borderRadius: borderRadius.md,
         borderWidth: 1,
-        borderColor: theme.colors.outline,
-        backgroundColor: theme.colors.surfaceMuted,
-        gap: 10,
+        borderColor: 'outline',
+        background: 'surfaceMuted',
+        gap: 2.5,
         opacity: disabled ? 0.4 : 1,
       }}
     >
@@ -134,16 +129,13 @@ export function ComboboxTrigger<T extends string | number>({
       ) : (
         <>
           {selected?.preview !== undefined ? (
-            <View style={{ flexShrink: 0 }}>{selected.preview}</View>
+            <Box sx={{ flexShrink: 0 }}>{selected.preview}</Box>
           ) : null}
           <Text
             variant="label"
-            style={{
+            sx={{
               flex: 1,
-              color:
-                selected !== undefined
-                  ? theme.colors.text
-                  : theme.colors.textSecondary,
+              color: selected !== undefined ? 'text' : 'textSecondary',
             }}
             label={selected?.label ?? placeholder}
           />
@@ -154,18 +146,12 @@ export function ComboboxTrigger<T extends string | number>({
           onPress={onClear}
           accessibilityRole="button"
           accessibilityLabel="Clear"
-          style={{ paddingHorizontal: 4, paddingVertical: 2 }}
+          sx={{ paddingHorizontal: 4, paddingVertical: 2 }}
         >
-          <Text
-            style={{ color: theme.colors.textSecondary, fontSize: 14 }}
-            label="✕"
-          />
+          <Text sx={{ color: 'textSecondary', fontSize: 14 }} label="✕" />
         </Pressable>
       ) : null}
-      <Text
-        style={{ color: theme.colors.textSecondary, fontSize: 10 }}
-        label="▼"
-      />
+      <Text sx={{ color: 'textSecondary', fontSize: 10 }} label="▼" />
     </Pressable>
   );
 }

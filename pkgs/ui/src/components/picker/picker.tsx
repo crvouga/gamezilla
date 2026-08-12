@@ -7,9 +7,7 @@ import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
@@ -96,12 +94,10 @@ export function Picker<T extends string | number = string>({
 }
 
 function PickerLabel({ label }: { label: ReactNode }) {
-  const theme = useTheme();
   return (
     <Text
       variant="caption"
-      sx={{ mb: 0.5 }}
-      style={{ color: theme.colors.textSecondary }}
+      sx={{ mb: 0.5, color: 'textSecondary' }}
       label={label}
     />
   );
@@ -118,43 +114,35 @@ function PickerTrigger<T extends string | number>({
   disabled: boolean;
   onPress: () => void;
 }) {
-  const theme = useTheme();
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      sx={{ borderRadius: borderRadius.md }}
-      style={{
+      sx={{
+        borderRadius: borderRadius.md,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 10,
-        borderRadius: borderRadius.md,
         borderWidth: 1,
-        borderColor: theme.colors.outline,
-        backgroundColor: theme.colors.surfaceMuted,
-        gap: 10,
+        borderColor: 'outline',
+        backgroundColor: 'surfaceMuted',
+        gap: 2.5,
         opacity: disabled ? 0.4 : 1,
       }}
     >
       {selected?.preview !== undefined ? (
-        <View style={{ flexShrink: 0 }}>{selected.preview}</View>
+        <Box sx={{ flexShrink: 0 }}>{selected.preview}</Box>
       ) : null}
       <Text
         variant="label"
-        style={{
+        sx={{
           flex: 1,
-          color:
-            selected !== undefined
-              ? theme.colors.text
-              : theme.colors.textSecondary,
+          color: selected !== undefined ? 'text' : 'textSecondary',
         }}
         label={selected?.label ?? placeholder}
       />
-      <Text
-        style={{ color: theme.colors.textSecondary, fontSize: 10 }}
-        label="▼"
-      />
+      <Text sx={{ color: 'textSecondary', fontSize: 10 }} label="▼" />
     </Pressable>
   );
 }
@@ -170,7 +158,6 @@ function PickerOptions<T extends string | number>({
   onPick: (next: T) => void;
   renderOption: PickerProps<T>['renderOption'];
 }) {
-  const theme = useTheme();
   const defaultRender = useMemo(
     () =>
       function DefaultRender(
@@ -184,17 +171,14 @@ function PickerOptions<T extends string | number>({
             leading={item.preview}
             trailing={
               isSelected ? (
-                <Text
-                  style={{ color: theme.colors.tint, fontSize: 16 }}
-                  label="✓"
-                />
+                <Text sx={{ color: 'tint', fontSize: 16 }} label="✓" />
               ) : undefined
             }
             onPress={onPickItem}
           />
         );
       },
-    [theme.colors.tint]
+    []
   );
 
   if (renderOption !== undefined) {
@@ -202,12 +186,12 @@ function PickerOptions<T extends string | number>({
       <FlatList
         data={options}
         keyExtractor={(_item, index) => String(index)}
-        style={{ maxHeight: 360 }}
+        frameSx={{ maxHeight: 360 }}
         renderItem={({ item }) => {
           const row = renderOption(item, item.value === value, () =>
             onPick(item.value)
           );
-          return row ?? <View />;
+          return row ?? <Box />;
         }}
       />
     );
@@ -215,9 +199,9 @@ function PickerOptions<T extends string | number>({
   return (
     <List separator>
       {options.map((item, index) => (
-        <View key={String(item.value) + String(index)}>
+        <Box key={String(item.value) + String(index)}>
           {defaultRender(item, item.value === value, () => onPick(item.value))}
-        </View>
+        </Box>
       ))}
     </List>
   );

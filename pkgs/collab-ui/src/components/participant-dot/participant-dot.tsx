@@ -2,8 +2,7 @@
  * Small filled circle in a participant's color (e.g. log-bar leading mark).
  */
 
-import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
-import { View } from 'react-native';
+import { Box, type ComponentDataSet, componentDataSet } from '@pkgs/ui';
 
 export type ParticipantDotProps = {
   color: string;
@@ -18,9 +17,9 @@ export function ParticipantDot({
   dataSet,
 }: ParticipantDotProps) {
   return (
-    <View
+    <Box
       {...componentDataSet('ParticipantDot', dataSet)}
-      style={{
+      sx={{
         width: size,
         height: size,
         borderRadius: size / 2,

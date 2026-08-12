@@ -26,12 +26,12 @@ export function ChessPuzzleE2EHints({
     <>
       <Text
         testID="chess-puzzle-board-orientation"
-        style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
+        sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
         label={orientation}
       />
       <Text
         testID="chess-puzzle-expected-uci"
-        style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
+        sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
         label={uci ?? ''}
       />
     </>

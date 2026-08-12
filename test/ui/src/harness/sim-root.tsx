@@ -13,16 +13,15 @@ import { AppProviders } from '@apps/client/providers/app-providers';
 import { AppIoProvider } from '@apps/client/providers/infrastructure/app-io-provider';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import type { Io } from '@pkgs/io';
-import { Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
 function SpacesPlaceholder(): ReactNode {
   return (
-    <View testID="sim-spaces-home">
+    <Box testID="sim-spaces-home">
       <Text label="Spaces" />
-    </View>
+    </Box>
   );
 }
 

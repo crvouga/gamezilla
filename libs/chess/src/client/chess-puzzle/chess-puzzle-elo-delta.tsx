@@ -1,6 +1,5 @@
 import { Text, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { Animated } from 'react-native';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;
@@ -31,16 +30,14 @@ export function ChessPuzzleEloDelta({
     <>
       <Text
         variant="heading"
-        style={{ color: theme.colors.text, textAlign: 'center' }}
+        sx={{ color: 'text', textAlign: 'center' }}
         label={String(displayRating)}
       />
-      <Animated.View>
-        <Text
-          variant="bodyBold"
-          style={{ color: deltaColor, textAlign: 'center' }}
-          label={formatSignedDelta(delta)}
-        />
-      </Animated.View>
+      <Text
+        variant="bodyBold"
+        sx={{ color: deltaColor, textAlign: 'center' }}
+        label={formatSignedDelta(delta)}
+      />
     </>
   );
 }

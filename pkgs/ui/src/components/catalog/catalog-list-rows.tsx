@@ -3,10 +3,10 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
 import { borderRadius } from '../../theme/scale';
 import { releaseWebFocus } from '../../web/release-web-focus';
+import { Box } from '../box';
 import { EmptyState } from '../empty-state';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -51,7 +51,7 @@ function CatalogGroupBlock({
   onSelect: (id: string) => void;
 }): ReactNode {
   return (
-    <View style={{ gap: 4, marginBottom: 16 }}>
+    <Box sx={{ gap: 1, mb: 4 }}>
       {category !== null ? (
         <Text
           variant="label"
@@ -62,7 +62,7 @@ function CatalogGroupBlock({
       {items.map((item) => (
         <CatalogRow key={item.id} item={item} onSelect={onSelect} />
       ))}
-    </View>
+    </Box>
   );
 }
 

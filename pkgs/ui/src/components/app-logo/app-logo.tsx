@@ -15,10 +15,10 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { type ColorTokens, useTheme } from '../../theme';
+import { Box } from '../box';
 import { Text } from '../text';
 
 export type AppLogoProps = {
@@ -50,28 +50,27 @@ export function AppLogo({
   const fill = resolveColor(color, theme.colors);
   const wordmarkFontSize = Math.round(size * WORDMARK_HEIGHT_RATIO);
   return (
-    <View
-      {...componentDataSet('AppLogo', dataSet)}
-      style={{
+    <Box
+      dataSet={{ component: 'AppLogo', ...dataSet }}
+      sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: Math.max(4, Math.round(size * 0.25)),
+        gap: Math.max(1, Math.round(size * 0.25) / 4),
       }}
     >
       <Text
         accessibilityRole="header"
         aria-level={1}
-        style={{
+        sx={{
           color: fill,
           fontFamily: theme.fonts.rounded,
           fontSize: wordmarkFontSize,
           fontWeight: '800',
           letterSpacing: -0.5,
           lineHeight: Math.round(wordmarkFontSize * 1.1),
-          includeFontPadding: false,
         }}
         label="gamezilla"
       />
-    </View>
+    </Box>
   );
 }

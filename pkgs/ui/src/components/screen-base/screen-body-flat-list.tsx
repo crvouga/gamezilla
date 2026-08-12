@@ -39,7 +39,7 @@ export const ScreenBodyFlatList = forwardRef<
   // biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
   ScreenBodyFlatListProps<any>
 >(function ScreenBodyFlatList(
-  { style, onRefresh, refreshing, refreshControl, ...rest },
+  { frameSx, onRefresh, refreshing, refreshControl, ...rest },
   ref
 ) {
   const resolved = useResolvedRefreshControl({
@@ -51,7 +51,7 @@ export const ScreenBodyFlatList = forwardRef<
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <FlatList
         ref={ref}
-        style={[{ flex: 1 }, style]}
+        frameSx={[{ flex: 1 }, frameSx]}
         refreshControl={resolved}
         {...rest}
       />

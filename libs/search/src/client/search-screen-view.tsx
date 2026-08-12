@@ -72,7 +72,7 @@ export function SearchScreen(): ReactNode {
       screenId="search"
       breadcrumbs={[{ name: t`Search` }]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <SearchScreenBody />
         </Box>
       )}

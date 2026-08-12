@@ -50,10 +50,9 @@ import { useKvState } from '@pkgs/kv/use-kv-state';
 import { useSpeak } from '@pkgs/tts/client/use-speak';
 import type { Voice } from '@pkgs/tts/shared/tts-voice';
 import { type ReactNode, useCallback, useMemo } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { type SxInput, useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { SoundIndicator, type SoundIndicatorState } from '../sound-indicator';
@@ -103,7 +102,7 @@ export type SpeakingAvatarProps = {
    * Defaults to `2`. Bump for callers with longer copy.
    */
   numberOfLines?: number;
-  style?: StyleProp<ViewStyle>;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -113,7 +112,7 @@ export function SpeakingAvatar({
   header,
   bubbleResolving = false,
   numberOfLines,
-  style,
+  sx,
   dataSet,
 }: SpeakingAvatarProps): ReactNode {
   const theme = useTheme();
@@ -142,15 +141,14 @@ export function SpeakingAvatar({
   return (
     <Box
       {...componentDataSet('SpeakingAvatar', dataSet)}
-      sx={{ flexDirection: 'row', alignItems: 'center', px: 4, gap: 1 }}
-      style={style}
+      sx={[{ flexDirection: 'row', alignItems: 'center', px: 4, gap: 1 }, sx]}
     >
       <Pressable
         onPress={toggleMuted}
         accessibilityRole="button"
         accessibilityLabel={muted ? 'Unmute coach' : 'Mute coach'}
         feedback="none"
-        style={{ position: 'relative' }}
+        sx={{ position: 'relative' }}
       >
         <SvgXml xml={svg} />
         <Box

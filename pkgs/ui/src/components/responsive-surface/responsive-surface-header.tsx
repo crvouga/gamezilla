@@ -33,7 +33,7 @@ export function ResponsiveSurfaceHeader({
           variant="subtitle"
           label={title}
           numberOfLines={1}
-          style={{ flex: 1, marginRight: 8 }}
+          sx={{ flex: 1, mr: 2 }}
         />
       ) : null}
       <CloseIconButton onPress={onClose} />

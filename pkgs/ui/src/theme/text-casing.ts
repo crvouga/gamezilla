@@ -8,7 +8,7 @@
  * `Https://Api.Example.Com`).
  */
 
-import type { TextStyle } from 'react-native';
+import type { SxProps } from './sx-props';
 
 export type TextCasing = 'none' | 'lowercase' | 'uppercase' | 'capitalize';
 
@@ -20,9 +20,7 @@ export type TextCasing = 'none' | 'lowercase' | 'uppercase' | 'capitalize';
  */
 export const defaultTextCasing: TextCasing = 'none';
 
-export function textCasingToStyle(
-  casing: TextCasing
-): Pick<TextStyle, 'textTransform'> {
+export function textCasingToStyle(casing: TextCasing): SxProps {
   return {
     textTransform: casing === 'none' ? 'none' : casing,
   };

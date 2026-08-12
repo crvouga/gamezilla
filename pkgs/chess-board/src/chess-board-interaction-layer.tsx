@@ -1,5 +1,5 @@
+import { Box } from '@pkgs/ui';
 import { memo, type ReactNode, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
   runOnJS,
@@ -192,29 +192,23 @@ function useBoardGestures(args: ChessBoardInteractionLayerProps) {
 function ChessBoardInteractionLayerImpl(
   p: ChessBoardInteractionLayerProps
 ): ReactNode {
-  const boardStyle = useMemo(
-    () => ({ width: p.size, height: p.size }),
-    [p.size]
-  );
   const gesture = useBoardGestures(p);
   return (
-    <View style={[styles.board, boardStyle]} pointerEvents="box-none">
+    <Box
+      pointerEvents="box-none"
+      sx={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: p.size,
+        height: p.size,
+      }}
+    >
       <GestureDetector gesture={gesture}>
-        <View style={styles.surface} />
+        <Box sx={{ absoluteFill: true }} />
       </GestureDetector>
-    </View>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  board: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  surface: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});
 
 export const ChessBoardInteractionLayer = memo(ChessBoardInteractionLayerImpl);

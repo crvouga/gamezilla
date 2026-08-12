@@ -5,14 +5,16 @@ import {
   type LayoutChangeEvent,
   type LayoutRectangle,
   Platform,
-  View,
 } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 import { Text } from '../text';
 import {
   resolveTooltipPosition,
@@ -50,13 +52,10 @@ function useTooltipEnterAnim(
   return progress;
 }
 
-function bubbleMotionStyle(
+function bubbleMotionSx(
   placement: TooltipPlacement,
   progress: Animated.Value
-): {
-  opacity: Animated.Value;
-  transform: Array<{ translateY: Animated.AnimatedInterpolation<number> }>;
-} {
+): SxProps {
   const offset =
     placement === 'top'
       ? progress.interpolate({
@@ -73,17 +72,9 @@ function bubbleMotionStyle(
   };
 }
 
-function fixedPositionStyle(top: number, left: number): View['props']['style'] {
-  if (Platform.OS === 'web') {
-    return {
-      position: 'fixed',
-      top,
-      left,
-      zIndex: 1_000_001,
-    } as unknown as View['props']['style'];
-  }
+function fixedPositionSx(top: number, left: number): SxProps {
   return {
-    position: 'absolute',
+    position: Platform.OS === 'web' ? 'fixed' : 'absolute',
     top,
     left,
     zIndex: 1_000_001,
@@ -117,7 +108,7 @@ export function TooltipBubble({
         );
   const progress = useTooltipEnterAnim(position !== null, enterKey);
   const motion =
-    position === null ? null : bubbleMotionStyle(position.placement, progress);
+    position === null ? null : bubbleMotionSx(position.placement, progress);
 
   const handleLayout = (event: LayoutChangeEvent): void => {
     const { width, height } = event.nativeEvent.layout;
@@ -127,29 +118,29 @@ export function TooltipBubble({
     });
   };
 
-  const shellStyle =
+  const shellSx =
     position === null
-      ? fixedPositionStyle(anchor.y, anchor.x)
-      : fixedPositionStyle(position.top, position.left);
+      ? fixedPositionSx(anchor.y, anchor.x)
+      : fixedPositionSx(position.top, position.left);
+  const lift = theme.elevation(3);
 
   return (
-    <Animated.View
+    <AnimatedBox
       pointerEvents="none"
-      style={[shellStyle, motion === null ? { opacity: 0 } : motion]}
+      sx={[shellSx, motion === null ? { opacity: 0 } : motion]}
     >
-      <View
-        {...componentDataSet('Tooltip', dataSet)}
+      <Box
+        dataSet={{ component: 'Tooltip', ...dataSet }}
         onLayout={handleLayout}
-        style={{
-          backgroundColor: theme.colors.surfaceElevated,
+        sx={{
+          backgroundColor: 'surfaceElevated',
           borderRadius: borderRadius.sm,
           paddingHorizontal: 8,
           paddingVertical: 4,
           maxWidth: TOOLTIP_MAX_WIDTH,
           alignSelf: 'flex-start',
-          ...(theme.elevation(3).boxShadow
-            ? { boxShadow: theme.elevation(3).boxShadow }
-            : {}),
+          elevation: 3,
+          ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
         }}
       >
         <Text
@@ -158,7 +149,7 @@ export function TooltipBubble({
           numberOfLines={2}
           sx={{ color: 'text', textAlign: 'center' }}
         />
-      </View>
-    </Animated.View>
+      </Box>
+    </AnimatedBox>
   );
 }

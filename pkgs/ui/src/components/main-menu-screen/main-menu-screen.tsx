@@ -100,12 +100,10 @@ function MainMenuItemBody({
         minHeight: MENU_ITEM_MIN_HEIGHT,
         justifyContent: 'center',
         opacity: disabled ? 0.5 : 1,
-      }}
-      style={{
         borderRadius: borderRadius.lg,
         borderWidth: 1,
-        borderColor: theme.colors.border,
-        backgroundColor: theme.colors.surfaceElevated,
+        borderColor: 'border',
+        backgroundColor: 'surfaceElevated',
         overflow: 'hidden',
       }}
     >
@@ -196,8 +194,15 @@ export function MainMenuScreen({
         ...dataSet,
         ...(screenId !== undefined ? { screen: screenId } : {}),
       })}
-      sx={{ px: 4, pb: 8, pt: 4, gap: 4, alignSelf: 'center' }}
-      style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
+      sx={{
+        px: 4,
+        pb: 8,
+        pt: 4,
+        gap: 4,
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH,
+      }}
     >
       <MainMenuScreenHeader title={title} subtitle={subtitle} />
       {helper ? (

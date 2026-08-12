@@ -49,10 +49,7 @@ export function SpaceDetailInitialLoading({
   );
 
   return (
-    <Box
-      sx={{ flex: 1, background: 'background' }}
-      style={{ paddingBottom: bottomInset }}
-    >
+    <Box sx={{ flex: 1, background: 'background', paddingBottom: bottomInset }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <SpaceSessionUiProvider value={sessionUi}>
           <DefineBackButton onPress={onPressBack} />

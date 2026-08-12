@@ -14,65 +14,64 @@
  */
 
 import { forwardRef } from 'react';
-import { View, type ViewProps, type ViewStyle } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { spacing as spacingScale, useTheme } from '../../theme';
+import type { View } from 'react-native';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxAlign, SxInput, SxJustify, SxProps } from '../../theme';
+import { Box, type BoxProps } from '../box';
 
-export type StackProps = ViewProps & {
+export type StackProps = Omit<BoxProps, 'sx'> & {
   /** Layout axis. Defaults to `"vertical"`. */
   direction?: 'horizontal' | 'vertical';
   /** Gap between children in spacing-scale units. */
   spacing?: number;
   /** Cross-axis alignment. */
-  align?: ViewStyle['alignItems'];
+  align?: SxAlign;
   /** Main-axis alignment. */
-  justify?: ViewStyle['justifyContent'];
+  justify?: SxJustify;
   /** Whether children should wrap. */
   wrap?: boolean;
   /** Utility-first style shorthand. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
-function resolveGap(n: number): number {
-  return (spacingScale as Record<number, number>)[n] ?? n * 4;
+function layoutSx(args: {
+  direction: 'horizontal' | 'vertical';
+  spacing: number | undefined;
+  align: SxAlign | undefined;
+  justify: SxJustify | undefined;
+  wrap: boolean | undefined;
+}): SxProps {
+  const sx: SxProps = {
+    flexDirection: args.direction === 'horizontal' ? 'row' : 'column',
+  };
+  if (args.spacing !== undefined) sx.gap = args.spacing;
+  if (args.align) sx.alignItems = args.align;
+  if (args.justify) sx.justifyContent = args.justify;
+  if (args.wrap) sx.flexWrap = 'wrap';
+  return sx;
 }
 
 export const Stack = forwardRef<View, StackProps>(function Stack(
   {
     direction = 'vertical',
-    spacing: gap,
+    spacing,
     align,
     justify,
     wrap,
-    sx: sxProp,
-    style,
+    sx,
     dataSet,
     ...rest
   },
   ref
 ) {
-  const theme = useTheme();
-
-  const layoutStyle: ViewStyle = {
-    flexDirection: direction === 'horizontal' ? 'row' : 'column',
-  };
-  if (gap !== undefined) layoutStyle.gap = resolveGap(gap);
-  if (align) layoutStyle.alignItems = align;
-  if (justify) layoutStyle.justifyContent = justify;
-  if (wrap) layoutStyle.flexWrap = 'wrap';
-
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const idProps = componentDataSet('Stack', dataSet);
-
   return (
-    <View
+    <Box
       ref={ref}
-      style={[layoutStyle, sxStyle, style]}
+      sx={[layoutSx({ direction, spacing, align, justify, wrap }), sx]}
+      dataSet={{ component: 'Stack', ...dataSet }}
       {...rest}
-      {...idProps}
     />
   );
 });

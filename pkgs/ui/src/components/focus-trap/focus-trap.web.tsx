@@ -7,7 +7,8 @@
 
 import { forwardRef, type ReactNode, useEffect } from 'react';
 import FocusLock from 'react-focus-lock';
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import type { View } from 'react-native';
+import { Box, type BoxProps } from '../box';
 import { pushEscapeDismissHandler } from './escape-dismiss-stack';
 import type { FocusTrapProps } from './focus-trap-types';
 
@@ -18,20 +19,20 @@ export type { FocusTrapProps } from './focus-trap-types';
  * collapses to content height on RN Web (short backdrop, dialog stuck at top).
  * Do not use inside bottom sheets — absolute fill hides in-flow content.
  */
-const COVER_HOST_STYLE = {
-  ...StyleSheet.absoluteFill,
+const COVER_HOST_SX = {
+  absoluteFill: true,
   flex: 1,
 } as const;
 
 /** In-flow host for bottom sheets so content height and children stay visible. */
-const SHEET_HOST_STYLE = {
+const SHEET_HOST_SX = {
   width: '100%' as const,
   flexGrow: 1,
 } as const;
 
-const FocusTrapHost = forwardRef<View, ViewProps>(
+const FocusTrapHost = forwardRef<View, BoxProps>(
   function FocusTrapHost(props, ref) {
-    return <View ref={ref} {...props} />;
+    return <Box ref={ref} {...props} />;
   }
 );
 
@@ -42,7 +43,7 @@ export function FocusTrap({
   onEscape,
   accessibilityLabel,
   layout = 'cover',
-  style,
+  sx,
   children,
 }: FocusTrapProps): ReactNode {
   useEffect(() => {
@@ -50,7 +51,7 @@ export function FocusTrap({
     return pushEscapeDismissHandler(onEscape);
   }, [active, onEscape]);
 
-  const layoutStyle = layout === 'sheet' ? SHEET_HOST_STYLE : COVER_HOST_STYLE;
+  const layoutSx = layout === 'sheet' ? SHEET_HOST_SX : COVER_HOST_SX;
 
   return (
     <FocusLock
@@ -59,7 +60,7 @@ export function FocusTrap({
       returnFocus={returnFocus}
       as={FocusTrapHost}
       lockProps={{
-        style: style !== undefined ? [layoutStyle, style] : layoutStyle,
+        sx: [layoutSx, sx],
         accessibilityRole: 'dialog',
         accessibilityViewIsModal: true,
         ...(accessibilityLabel !== undefined ? { accessibilityLabel } : {}),

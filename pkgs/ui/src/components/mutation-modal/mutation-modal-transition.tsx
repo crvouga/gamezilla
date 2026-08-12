@@ -8,13 +8,14 @@
  */
 
 import { type ReactNode, useEffect, useRef } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { Box } from '../box';
 
 const HEIGHT_DURATION_MS = 240;
 const FADE_DURATION_MS = 200;
@@ -69,7 +70,7 @@ export function MutationStateTransition({
   return (
     <Animated.View style={[containerStyle, { overflow: 'hidden' }]}>
       <Animated.View style={contentStyle}>
-        <View onLayout={onContentLayout}>{children}</View>
+        <Box onLayout={onContentLayout}>{children}</Box>
       </Animated.View>
     </Animated.View>
   );

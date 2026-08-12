@@ -27,7 +27,7 @@ export default function CatalogExample() {
         label="Index (search + grouped list)"
       />
       <Card elevation={0}>
-        <Box style={{ height: 320 }}>
+        <Box sx={{ height: 320 }}>
           <CatalogList items={DEMO_ITEMS} onSelect={setSelectedId} />
         </Box>
       </Card>
@@ -40,7 +40,7 @@ export default function CatalogExample() {
         label="Detail (prev / next bottom bar)"
       />
       <Card elevation={0}>
-        <Box style={{ height: 240 }}>
+        <Box sx={{ height: 240 }}>
           <CatalogDetail
             items={DEMO_ITEMS}
             currentId={selectedId ?? 'box'}

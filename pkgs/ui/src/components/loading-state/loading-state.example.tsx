@@ -15,7 +15,7 @@ export default function LoadingStateExample() {
         label="Fill (default)"
       />
       <SchemePreview>
-        <Box style={{ height: 240 }}>
+        <Box sx={{ height: 240 }}>
           <LoadingState size="large" />
         </Box>
       </SchemePreview>
@@ -28,7 +28,7 @@ export default function LoadingStateExample() {
         label="With caption"
       />
       <SchemePreview>
-        <Box style={{ height: 240 }}>
+        <Box sx={{ height: 240 }}>
           <LoadingState caption="Loading workspace…" />
         </Box>
       </SchemePreview>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import { Text } from '../text';
 import { Picker, type PickerOption } from './picker';
@@ -9,8 +9,8 @@ const OPTIONS: PickerOption<string>[] = [
     value: 'a',
     label: 'Alpha',
     preview: (
-      <View
-        style={{
+      <Box
+        sx={{
           width: 28,
           height: 28,
           borderRadius: 14,
@@ -23,8 +23,8 @@ const OPTIONS: PickerOption<string>[] = [
     value: 'b',
     label: 'Bravo',
     preview: (
-      <View
-        style={{
+      <Box
+        sx={{
           width: 28,
           height: 28,
           borderRadius: 14,
@@ -37,8 +37,8 @@ const OPTIONS: PickerOption<string>[] = [
     value: 'c',
     label: 'Charlie',
     preview: (
-      <View
-        style={{
+      <Box
+        sx={{
           width: 28,
           height: 28,
           borderRadius: 14,

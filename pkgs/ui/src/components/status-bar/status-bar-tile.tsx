@@ -4,10 +4,10 @@
  */
 
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { borderRadius, OnColorProvider, useTheme } from '../../theme';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -43,41 +43,43 @@ export function StatusBarTile({
   const wellFill = active ? 'hsla(0, 0%, 100%, 0.22)' : glass;
 
   const body = (
-    <View
-      style={[
-        styles.tile,
-        {
-          backgroundColor,
-          borderRadius: borderRadius.xl,
-          minHeight: TILE_MIN_HEIGHT,
-        },
-      ]}
-      {...componentDataSet('StatusBarTile', dataSet)}
+    <Box
+      sx={{
+        flex: 1,
+        paddingHorizontal: 14,
+        paddingVertical: 14,
+        justifyContent: 'space-between',
+        gap: 2.5,
+        backgroundColor,
+        borderRadius: borderRadius.xl,
+        minHeight: TILE_MIN_HEIGHT,
+      }}
+      dataSet={{ component: 'StatusBarTile', ...dataSet }}
     >
       <OnColorProvider background={backgroundColor}>
         {leading !== undefined ? (
-          <View
-            style={[
-              styles.iconWell,
-              {
-                width: ICON_WELL_SIZE,
-                height: ICON_WELL_SIZE,
-                borderRadius: borderRadius.full,
-                backgroundColor: wellFill,
-              },
-            ]}
+          <Box
+            sx={{
+              width: ICON_WELL_SIZE,
+              height: ICON_WELL_SIZE,
+              borderRadius: borderRadius.full,
+              backgroundColor: wellFill,
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
           >
             {leading}
-          </View>
+          </Box>
         ) : null}
-        <View style={styles.labels}>
+        <Box sx={{ gap: 0.5 }}>
           <Text variant="label" numberOfLines={1} label={title} />
           {caption !== undefined ? (
             <Text variant="caption" numberOfLines={2} label={caption} />
           ) : null}
-        </View>
+        </Box>
       </OnColorProvider>
-    </View>
+    </Box>
   );
 
   if (!pressable) {
@@ -91,30 +93,9 @@ export function StatusBarTile({
       accessibilityState={{ selected: active }}
       onPress={onPress}
       feedback="opacity"
-      style={styles.pressable}
+      sx={{ flex: 1 }}
     >
       {body}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  pressable: {
-    flex: 1,
-  },
-  tile: {
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  iconWell: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  labels: {
-    gap: 2,
-  },
-});

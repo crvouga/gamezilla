@@ -1,7 +1,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
 import { Platform } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { OnColorProvider, useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { ButtonSurfaceFill } from '../button/button-surface-fill';
@@ -74,7 +74,7 @@ function FabLabelText({
   return (
     <Text
       variant="bodyBold"
-      style={{
+      sx={{
         color: foregroundColor,
         fontSize: 15,
         lineHeight: 20,
@@ -180,11 +180,11 @@ function resolveFabShadow(
   return themeElevation;
 }
 
-function fabContainerStyle(args: {
+function fabContainerSx(args: {
   extended: boolean;
   face: MutationPressableFace;
   shadow: { boxShadow?: string; elevation?: number } | undefined;
-}) {
+}): import('../../theme').SxProps {
   const hasGradient = args.face.gradient !== undefined;
   return {
     height: FAB_SIZE,
@@ -193,18 +193,15 @@ function fabContainerStyle(args: {
     backgroundColor: hasGradient ? 'transparent' : args.face.backgroundColor,
     borderColor: args.face.borderColor,
     borderWidth: args.face.borderWidth,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    flexDirection: 'row' as const,
-    gap: FAB_CONTENT_GAP,
-    overflow: 'hidden' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: FAB_CONTENT_GAP / 4,
+    overflow: 'hidden',
     ...(args.extended
       ? { paddingHorizontal: FAB_HORIZONTAL_PADDING }
       : { width: FAB_SIZE }),
     ...(args.shadow?.boxShadow ? { boxShadow: args.shadow.boxShadow } : {}),
-    ...(args.shadow?.elevation !== undefined
-      ? { elevation: args.shadow.elevation }
-      : undefined),
   };
 }
 
@@ -235,9 +232,11 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
       disabled={nonInteractive}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
-      {...componentDataSet('FloatingActionButton', dataSet)}
-      sx={{ borderRadius: borderRadius.full, overflow: 'hidden' }}
-      style={fabContainerStyle({ extended, face, shadow })}
+      dataSet={{ component: 'FloatingActionButton', ...dataSet }}
+      sx={[
+        { borderRadius: borderRadius.full, overflow: 'hidden' },
+        fabContainerSx({ extended, face, shadow }),
+      ]}
     >
       {face.gradient !== undefined ? (
         <ButtonSurfaceFill

@@ -1,8 +1,6 @@
 /**
  * `SafeAreaView` -- themed safe-area container with `sx` prop.
  *
- * Wraps React Native `SafeAreaView` to respect device insets.
- *
  * @example
  * ```tsx
  * <SafeAreaView sx={{ flex: 1, background: 'surface' }}>
@@ -17,28 +15,25 @@ import {
   type View,
   type ViewProps,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { type SxInput, useHostSx } from '../../theme';
 
-export type SafeAreaViewProps = ViewProps & {
+export type SafeAreaViewProps = Omit<ViewProps, 'style'> & {
   /** Utility-first style shorthand. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
 export const SafeAreaView = forwardRef<View, SafeAreaViewProps>(
-  function SafeAreaView({ sx: sxProp, style, dataSet, ...rest }, ref) {
-    const theme = useTheme();
-    const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-    const idProps = componentDataSet('SafeAreaView', dataSet);
+  function SafeAreaView({ sx, dataSet, ...rest }, ref) {
+    const host = useHostSx('SafeAreaView', sx, dataSet);
     return (
       <RNSafeAreaView
         ref={ref}
-        style={[sxStyle, style]}
+        style={host.style}
         {...rest}
-        {...idProps}
+        {...host.dataSet}
       />
     );
   }

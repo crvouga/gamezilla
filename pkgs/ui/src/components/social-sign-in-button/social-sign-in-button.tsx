@@ -22,16 +22,13 @@ import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { asLocalized } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import {
-  Platform,
-  Pressable,
-  type StyleProp,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { Platform } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxProps } from '../../theme';
+import { Box } from '../box';
 import { BrandIcon } from '../brand-icon';
+import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
 import { Text } from '../text';
 import {
@@ -118,7 +115,7 @@ function shapeRadius(shape: SocialSignInButtonShape): number {
   return shape === 'pill' ? PILL_RADIUS : RECTANGULAR_RADIUS;
 }
 
-function buildPressableStyle({
+function buildPressableSx({
   palette,
   shape,
   isDisabled,
@@ -128,7 +125,7 @@ function buildPressableStyle({
   shape: SocialSignInButtonShape;
   isDisabled: boolean;
   pressed: boolean;
-}): StyleProp<ViewStyle> {
+}): SxProps {
   return {
     height: BUTTON_HEIGHT,
     borderRadius: shapeRadius(shape),
@@ -154,8 +151,8 @@ function SocialSignInLeadingSlot({
   loading: boolean;
 }) {
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         width: ICON_SIZE,
         height: ICON_SIZE,
         marginRight: ICON_GAP,
@@ -168,7 +165,7 @@ function SocialSignInLeadingSlot({
       ) : (
         <BrandIcon name={spec.brandIcon} size={ICON_SIZE} />
       )}
-    </View>
+    </Box>
   );
 }
 
@@ -204,9 +201,10 @@ export function SocialSignInButton({
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
-      {...componentDataSet('SocialSignInButton', dataSet)}
-      style={({ pressed }) =>
-        buildPressableStyle({ palette, shape, isDisabled, pressed })
+      dataSet={{ component: 'SocialSignInButton', ...dataSet }}
+      feedback="none"
+      sx={({ pressed }) =>
+        buildPressableSx({ palette, shape, isDisabled, pressed })
       }
     >
       <SocialSignInLeadingSlot
@@ -215,8 +213,8 @@ export function SocialSignInButton({
         loading={loading}
       />
       <Text
-        style={{
-          fontFamily: FONT_FAMILY,
+        sx={{
+          ...(FONT_FAMILY !== undefined ? { fontFamily: FONT_FAMILY } : {}),
           fontSize: FONT_SIZE,
           lineHeight: LINE_HEIGHT,
           fontWeight: FONT_WEIGHT,

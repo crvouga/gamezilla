@@ -14,9 +14,10 @@
  */
 
 import { type PropsWithChildren, type ReactNode, useId, useMemo } from 'react';
-import { Animated, StyleSheet } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { Animated } from 'react-native';
+import type { ComponentDataSet } from '../../component-id';
 import { OnColorReset } from '../../theme';
+import { AnimatedBox } from '../animated-box';
 import { FocusTrap } from '../focus-trap';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { useIsTopSurface, useSurfaceStackSlot } from '../surface-stack';
@@ -54,17 +55,17 @@ function ModalLayer({
 }: ModalLayerProps): ReactNode {
   const isTop = useIsTopSurface(surfaceId);
   return (
-    <Animated.View
+    <AnimatedBox
       accessibilityViewIsModal
-      style={[styles.layer, { opacity }]}
-      {...componentDataSet('ModalRoot', dataSet)}
+      sx={{ absoluteFill: true, flex: 1, opacity }}
+      dataSet={{ component: 'ModalRoot', ...dataSet }}
     >
       <OnColorReset>
         <FocusTrap active={visible && isTop} onEscape={onRequestClose}>
           {children}
         </FocusTrap>
       </OnColorReset>
-    </Animated.View>
+    </AnimatedBox>
   );
 }
 
@@ -109,10 +110,3 @@ export function ModalRoot({
 
   return null;
 }
-
-const styles = StyleSheet.create({
-  layer: {
-    ...StyleSheet.absoluteFillObject,
-    flex: 1,
-  },
-});

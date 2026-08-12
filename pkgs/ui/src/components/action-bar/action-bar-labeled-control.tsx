@@ -19,8 +19,7 @@ export function ActionBarInlineCaption(p: { caption: ReactNode }): ReactNode {
       variant="caption"
       numberOfLines={1}
       ellipsizeMode="tail"
-      sx={{ color: 'textSecondary', textAlign: 'center' }}
-      style={{ width: '100%' }}
+      sx={{ color: 'textSecondary', textAlign: 'center', width: '100%' }}
       label={p.caption}
     />
   );
@@ -66,17 +65,15 @@ export function ActionBarLabeledControl(
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 0,
-      }}
-      style={{
         width: p.slotWidth,
         maxWidth: p.slotWidth,
         opacity: p.disabled === true ? 0.5 : 1,
         paddingVertical: 2,
-        gap: 2,
+        gap: 0.5,
       }}
     >
       <Box
-        style={{
+        sx={{
           height: p.buttonSize,
           width: '100%',
           alignItems: 'center',

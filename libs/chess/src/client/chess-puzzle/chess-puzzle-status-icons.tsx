@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/react/macro';
-import { Spinner, type Theme, useTheme } from '@pkgs/ui';
+import { Box, Spinner, type SxProps, type Theme, useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
 export type ChessPuzzleStatusKind =
@@ -18,32 +17,33 @@ const SIZE = 22;
 const PIECE_WHITE = '#ffffff';
 const PIECE_BLACK = '#1a1a1a';
 
-const styles = StyleSheet.create({
-  root: {
-    width: SIZE,
-    height: SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  whiteSquare: {
-    width: 14,
-    height: 14,
-    borderWidth: 1.5,
-    borderColor: PIECE_WHITE,
-  },
-  blackSquare: {
-    width: 14,
-    height: 14,
-    backgroundColor: PIECE_BLACK,
-  },
-  centerDot: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: PIECE_BLACK,
-  },
-});
+const ROOT_SX: SxProps = {
+  width: SIZE,
+  height: SIZE,
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const WHITE_SQUARE_SX: SxProps = {
+  width: 14,
+  height: 14,
+  borderWidth: 1.5,
+  borderColor: PIECE_WHITE,
+};
+
+const BLACK_SQUARE_SX: SxProps = {
+  width: 14,
+  height: 14,
+  backgroundColor: PIECE_BLACK,
+};
+
+const CENTER_DOT_SX: SxProps = {
+  position: 'absolute',
+  width: 6,
+  height: 6,
+  borderRadius: 3,
+  backgroundColor: PIECE_BLACK,
+};
 
 /** Semantic outcome badge tokens (fill + contrast-safe mark) by kind. */
 function outcomeColors(
@@ -74,30 +74,30 @@ export function ChessPuzzleStatusIcon({
   const theme = useTheme();
   if (kind === 'loading') {
     return (
-      <View style={styles.root}>
+      <Box sx={ROOT_SX}>
         <Spinner size="small" />
-      </View>
+      </Box>
     );
   }
   if (kind === 'whiteToMove') {
     return (
-      <View style={styles.root}>
-        <View style={styles.whiteSquare} />
-        <View style={styles.centerDot} />
-      </View>
+      <Box sx={ROOT_SX}>
+        <Box sx={WHITE_SQUARE_SX} />
+        <Box sx={CENTER_DOT_SX} />
+      </Box>
     );
   }
   if (kind === 'blackToMove') {
     return (
-      <View style={styles.root}>
-        <View style={styles.blackSquare} />
-      </View>
+      <Box sx={ROOT_SX}>
+        <Box sx={BLACK_SQUARE_SX} />
+      </Box>
     );
   }
   const { bg, fg } = outcomeColors(theme, kind);
   return (
-    <View style={styles.root}>
+    <Box sx={ROOT_SX}>
       <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={outcomeMark(kind)} />
-    </View>
+    </Box>
   );
 }

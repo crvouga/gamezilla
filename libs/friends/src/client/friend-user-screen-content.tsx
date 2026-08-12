@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { Box, type SxInput } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import type { FriendProfile, FriendshipStatus } from '../shared/friends-types';
 import { FriendActionPills } from './friend-action-pills/friend-action-pills';
@@ -20,7 +20,7 @@ export function FriendUserScreenContent({
   onRemove,
   onBlock,
 }: {
-  sx: Record<string, unknown>;
+  sx: SxInput;
   profile: FriendProfile;
   userId: string;
   status: FriendshipStatus;
@@ -35,7 +35,7 @@ export function FriendUserScreenContent({
   onBlock: () => Promise<void>;
 }): ReactNode {
   return (
-    <Box style={{ ...sx, alignItems: 'center', gap: 16, paddingTop: 8 }}>
+    <Box sx={[sx, { alignItems: 'center', gap: 4, paddingTop: 8 }]}>
       <FriendProfileHeader profile={profile} />
       <Box sx={{ alignSelf: 'stretch' }}>
         <FriendActionPills

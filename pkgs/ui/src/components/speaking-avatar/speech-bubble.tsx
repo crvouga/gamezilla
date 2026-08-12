@@ -27,11 +27,13 @@
  */
 
 import { type ReactNode, useEffect, useRef } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import { useTheme } from '../../theme';
 import { duration } from '../../theme/motion';
 import { borderRadius } from '../../theme/scale';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 import { Text } from '../text';
 import { TypingDots } from './typing-dots';
 
@@ -115,7 +117,7 @@ function SpeechBubbleMessage(props: {
       variant="bodyBold"
       numberOfLines={numberOfLines}
       ellipsizeMode="tail"
-      style={{ color: textColor, lineHeight: BUBBLE_LINE_HEIGHT }}
+      sx={{ color: textColor, lineHeight: BUBBLE_LINE_HEIGHT }}
     >
       {text}
     </Text>
@@ -141,8 +143,8 @@ export function SpeechBubble({
   const { opacity, translateX } = useBubbleEnterAnim(text);
 
   return (
-    <Animated.View
-      style={{
+    <AnimatedBox
+      sx={{
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
@@ -150,8 +152,8 @@ export function SpeechBubble({
         transform: [{ translateX }],
       }}
     >
-      <View
-        style={{
+      <Box
+        sx={{
           width: TAIL_SIZE,
           height: TAIL_SIZE,
           backgroundColor: bubbleSurface,
@@ -159,8 +161,8 @@ export function SpeechBubble({
           marginRight: -TAIL_SIZE / 2,
         }}
       />
-      <View
-        style={{
+      <Box
+        sx={{
           flex: 1,
           backgroundColor: bubbleSurface,
           borderRadius: borderRadius.md,
@@ -168,10 +170,8 @@ export function SpeechBubble({
           paddingHorizontal: BUBBLE_PADDING_HORIZONTAL,
           height: bubbleHeight,
           justifyContent: 'center',
+          elevation: 2,
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined
-            ? { elevation: lift.elevation }
-            : {}),
         }}
       >
         {header !== undefined ? header : null}
@@ -182,7 +182,7 @@ export function SpeechBubble({
           textColor={theme.colors.text}
           secondaryColor={theme.colors.textSecondary}
         />
-      </View>
-    </Animated.View>
+      </Box>
+    </AnimatedBox>
   );
 }

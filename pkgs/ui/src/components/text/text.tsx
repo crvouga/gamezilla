@@ -16,12 +16,14 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import {
   type OnColorSet,
+  type SxInput,
   type SxProps,
   type Theme,
   textCasingToStyle,
+  useHostSx,
   useOnColor,
   useTheme,
 } from '../../theme';
@@ -44,7 +46,7 @@ export type TextVariant =
  * Variants that represent UI chrome (headers, titles, labels) and should
  * pick up the theme's global `textCasing`. Content variants (`body`,
  * `bodyBold`, `caption`, `link`, `mono`) opt out so user-supplied copy --
- * URLs, identifiers, code, proper nouns -- renders verbatim.
+ * URLs, identifiers, code, proper nouns -- render verbatim.
  */
 const CASING_VARIANTS = new Set<TextVariant>([
   'title',
@@ -97,10 +99,7 @@ const ROUNDED_VARIANTS = new Set<TextVariant>([
   'caption',
 ]);
 
-function variantFontFamily(
-  variant: TextVariant,
-  theme: Theme
-): { fontFamily?: string } {
+function variantFontFamily(variant: TextVariant, theme: Theme): SxProps {
   if (variant === 'mono') return { fontFamily: theme.fonts.mono };
   if (ROUNDED_VARIANTS.has(variant)) return { fontFamily: theme.fonts.rounded };
   if (variant === 'bodyBold') {
@@ -128,11 +127,11 @@ function defaultColorForVariant(
   return onColor.fg;
 }
 
-export type TextProps = RNTextProps & {
+export type TextProps = Omit<RNTextProps, 'style'> & {
   /** Typographic variant preset. Defaults to `"body"`. */
   variant?: TextVariant;
   /** Utility-first style shorthand resolved against the current theme. */
-  sx?: SxProps;
+  sx?: SxInput;
   /**
    * Primary text content. Prefer this over `children` outside the design-system
    * package so copy is not embedded as JSX text nodes.
@@ -143,29 +142,28 @@ export type TextProps = RNTextProps & {
 };
 
 export const Text = forwardRef<RNText, TextProps>(function Text(
-  { variant = 'body', sx: sxProp, style, label, children, dataSet, ...rest },
+  { variant = 'body', sx: sxProp, label, children, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
   const onColor = useOnColor();
-  const base = theme.sx(variantStyles[variant]);
-  const variantFont = variantFontFamily(variant, theme);
-  const casingStyle = CASING_VARIANTS.has(variant)
-    ? textCasingToStyle(theme.textCasing)
-    : undefined;
   const defaultColor = defaultColorForVariant(variant, onColor);
-  const colorStyle =
-    defaultColor !== undefined ? { color: defaultColor } : undefined;
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
+  const host = useHostSx(
+    'Text',
+    [
+      variantStyles[variant],
+      variantFontFamily(variant, theme),
+      CASING_VARIANTS.has(variant)
+        ? textCasingToStyle(theme.textCasing)
+        : false,
+      defaultColor !== undefined ? { color: defaultColor } : false,
+      sxProp,
+    ],
+    dataSet
+  );
   const content = preserveEmptyTextLayout(label ?? children);
-  const idProps = componentDataSet('Text', dataSet);
   return (
-    <RNText
-      ref={ref}
-      style={[base, variantFont, casingStyle, colorStyle, sxStyle, style]}
-      {...rest}
-      {...idProps}
-    >
+    <RNText ref={ref} style={host.style} {...rest} {...host.dataSet}>
       {content}
     </RNText>
   );

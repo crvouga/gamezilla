@@ -47,7 +47,7 @@ export function SpaceJoinPrompt({ spaceId }: SpaceJoinPromptProps): ReactNode {
         ) : undefined
       }
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <JoinPromptBody spaceId={spaceId} snapshot={snapshot} />
         </Box>
       )}

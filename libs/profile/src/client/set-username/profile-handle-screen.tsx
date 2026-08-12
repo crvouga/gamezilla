@@ -53,7 +53,7 @@ function ProfileHandleScreenBody({
 }): ReactNode {
   const { t } = useLingui();
   return (
-    <Box style={sx}>
+    <Box sx={sx}>
       <TextInput
         label={<Trans>Username</Trans>}
         value={value}

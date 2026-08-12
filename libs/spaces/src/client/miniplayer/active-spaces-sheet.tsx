@@ -36,7 +36,7 @@ export function ActiveSpacesSheet({
       title={<Trans>Your live spaces</Trans>}
       stackId="active-spaces-sheet"
     >
-      <ScrollView style={{ maxHeight: 420 }} sx={{ px: 0 }}>
+      <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
         {spaceIds.map((spaceId) => (
           <ActiveSpaceSheetRow
             key={spaceId}

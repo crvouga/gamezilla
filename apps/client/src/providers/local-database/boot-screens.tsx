@@ -8,9 +8,8 @@ import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
 } from '@pkgs/sql-client/sqlite/web';
-import { ErrorState, LoadingState, useTheme } from '@pkgs/ui';
+import { Center, ErrorState, LoadingState } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
 function isMultiTabOwnerLostError(error: Error): boolean {
   return (
@@ -55,19 +54,7 @@ function errorMessage(error: Error): string {
 
 /** Full-bleed themed shell so boot screens never flash the default canvas. */
 function ThemedBootShell({ children }: { children: ReactNode }): ReactNode {
-  const theme = useTheme();
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      {children}
-    </View>
-  );
+  return <Center sx={{ flex: 1, background: 'background' }}>{children}</Center>;
 }
 
 export function LocalDatabaseBootLoadingScreen(props: {

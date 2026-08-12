@@ -59,8 +59,9 @@ export default function ActionBarExample(): ReactNode {
           borderColor: 'border',
           p: 2,
           alignItems: 'flex-end',
+          borderWidth: 1,
+          width,
         }}
-        style={{ borderWidth: 1, width }}
       >
         <ActionBar
           items={items}

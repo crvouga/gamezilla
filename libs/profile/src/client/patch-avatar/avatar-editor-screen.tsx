@@ -302,7 +302,7 @@ export function AvatarEditorScreen() {
           />
         }
         content={({ sx }) => (
-          <Box style={sx}>
+          <Box sx={sx}>
             <EditorContent editor={editor} />
           </Box>
         )}

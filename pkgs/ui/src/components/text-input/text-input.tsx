@@ -4,21 +4,6 @@
  * Flat surface field with a real focus ring on every platform: web uses
  * the `outline*` CSS properties, native renders a 2px ring as an extra
  * border layer so the focused state reads the same in light and dark.
- *
- * Error state swaps the border to `destructive` and tints the surface
- * with the matching subtle surface so the field still reads as a
- * coherent input rather than a stripped one.
- *
- * @example
- * ```tsx
- * <TextInput
- *   label="Email"
- *   placeholder="you@example.com"
- *   value={email}
- *   onChangeText={setEmail}
- *   error={!valid ? 'Invalid email' : undefined}
- * />
- * ```
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
@@ -27,12 +12,11 @@ import {
   Platform,
   TextInput as RNTextInput,
   type TextInputProps as RNTextInputProps,
-  View,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps, Theme } from '../../theme';
-import { useTheme } from '../../theme';
-import { borderRadius } from '../../theme/scale';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxInput, SxProps, Theme } from '../../theme';
+import { useHostSx, useTheme } from '../../theme';
+import { Box } from '../box';
 import { Text } from '../text';
 
 export type TextInputProps = Omit<
@@ -48,7 +32,7 @@ export type TextInputProps = Omit<
   placeholder?: LocalizedString;
   accessibilityLabel?: LocalizedString;
   /** Utility-first style shorthand for the outer wrapper. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -65,35 +49,39 @@ function resolveBorderColor(args: {
   return args.outline;
 }
 
-function resolveSurfaceBg(theme: Theme, hasError: boolean): string {
-  return hasError ? theme.colors.destructiveSurface : theme.colors.surface;
-}
-
-function resolveFocusRingColor(theme: Theme, hasError: boolean): string {
-  return hasError ? theme.colors.destructive : theme.colors.focusRing;
-}
-
-function resolveWebFocusRingStyle(
-  theme: Theme,
-  hasError: boolean,
-  focused: boolean
-) {
-  if (!focused || Platform.OS !== 'web') return undefined;
+function fieldSx(args: {
+  theme: Theme;
+  hasError: boolean;
+  focused: boolean;
+  borderColor: string;
+}): SxProps {
+  const { theme, hasError, focused, borderColor } = args;
+  const webRing =
+    focused && Platform.OS === 'web'
+      ? {
+          outlineStyle: 'solid' as const,
+          outlineWidth: 2,
+          outlineColor: hasError
+            ? theme.colors.destructive
+            : theme.colors.focusRing,
+          outlineOffset: 2,
+        }
+      : {};
+  const nativeRing =
+    focused && Platform.OS !== 'web' ? { borderWidth: 2, margin: -1 } : {};
   return {
-    outlineStyle: 'solid' as const,
-    outlineWidth: 2,
-    outlineColor: resolveFocusRingColor(theme, hasError),
-    outlineOffset: 2,
-  };
-}
-
-function resolveNativeFocusRingStyle(focused: boolean) {
-  if (!focused || Platform.OS === 'web') return undefined;
-  return {
-    borderWidth: 2,
-    // Compensate so the padded content keeps its position when the
-    // border width grows by 1px on focus.
-    margin: -1,
+    py: 2.5,
+    px: 4,
+    fontSize: 'base',
+    borderRadius: 'md',
+    borderWidth: 1,
+    color: theme.colors.text,
+    borderColor,
+    backgroundColor: hasError
+      ? theme.colors.destructiveSurface
+      : theme.colors.surface,
+    ...webRing,
+    ...nativeRing,
   };
 }
 
@@ -130,47 +118,34 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       tint: theme.colors.tint,
       outline: theme.colors.outline,
     });
-
-    const handleFocus: NonNullable<RNTextInputProps['onFocus']> = (e) => {
-      setFocused(true);
-      onFocus?.(e);
-    };
-    const handleBlur: NonNullable<RNTextInputProps['onBlur']> = (e) => {
-      setFocused(false);
-      onBlur?.(e);
-    };
+    const field = useHostSx(
+      'TextInputField',
+      fieldSx({ theme, hasError, focused, borderColor })
+    );
 
     return (
-      <View
-        {...componentDataSet('TextInput', dataSet)}
-        style={[{ gap: 4 }, sxProp ? theme.sx(sxProp) : undefined]}
+      <Box
+        sx={[{ gap: 1 }, sxProp]}
+        dataSet={{ component: 'TextInput', ...dataSet }}
       >
-        {label && <Text variant="label" label={label} />}
+        {label ? <Text variant="label" label={label} /> : null}
         <RNTextInput
           ref={ref}
           placeholderTextColor={theme.colors.textSecondary}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          style={[
-            theme.sx({
-              py: 2.5,
-              px: 4,
-              fontSize: 'base',
-              borderRadius: borderRadius.md,
-              borderWidth: 1,
-            }),
-            {
-              color: theme.colors.text,
-              borderColor,
-              backgroundColor: resolveSurfaceBg(theme, hasError),
-            },
-            resolveWebFocusRingStyle(theme, hasError, focused),
-            resolveNativeFocusRingStyle(focused),
-          ]}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
+          style={field.style}
           {...rest}
+          {...field.dataSet}
         />
         <FieldFooter error={error} helperText={helperText} />
-      </View>
+      </Box>
     );
   }
 );

@@ -18,7 +18,7 @@ export default function ScreenBaseExample() {
         ]}
         scroll
         content={({ sx }) => (
-          <Box style={sx}>
+          <Box sx={sx}>
             <Text
               variant="body"
               label="Body content uses fixed padding and max width from ScreenBase."

@@ -8,7 +8,6 @@ import {
   MainMenuScreenHeader,
   ScrollView,
   Text,
-  useTheme,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
@@ -25,7 +24,6 @@ import { ChessPuzzleStatsCards } from './chess-puzzle-stats-cards';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
 export function ChessStatsScreen(): ReactNode {
-  const theme = useTheme();
   const dispatch = useSpaceRoomDispatch();
   const { stats, gameLog } = useChessPuzzleHistory();
 
@@ -59,8 +57,9 @@ export function ChessStatsScreen(): ReactNode {
             p: 4,
             pb: 8,
             alignSelf: 'center',
+            width: '100%',
+            maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH,
           }}
-          style={{ width: '100%', maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH }}
         >
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
           <Box sx={{ alignItems: 'center', gap: 2 }}>
@@ -77,7 +76,7 @@ export function ChessStatsScreen(): ReactNode {
           <ChessPuzzleStatsCards stats={stats} />
           <Text
             variant="heading"
-            style={{ color: theme.colors.text }}
+            sx={{ color: 'text' }}
             label={<Trans>Game log</Trans>}
           />
           <ChessGameLog entries={gameLog} onSelectEntry={openReview} />

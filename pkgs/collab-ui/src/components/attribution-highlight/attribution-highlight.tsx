@@ -5,10 +5,15 @@
 
 import { useTimers } from '@pkgs/clock';
 import type { AttributionHit, ParticipantColor } from '@pkgs/collab';
-import { type ComponentDataSet, componentDataSet } from '@pkgs/ui';
+import {
+  Box,
+  type ComponentDataSet,
+  componentDataSet,
+  type SxProps,
+} from '@pkgs/ui';
 import type { ReactElement, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Platform } from 'react-native';
 
 export type AttributionHighlightProps = {
   /** Current attribution for this surface; null = no ring. */
@@ -30,12 +35,12 @@ function resolveColor(
 
 const PULSE_MS = 1200;
 
-function webOpacityTransition(): ViewStyle | undefined {
+function webOpacityTransition(): SxProps | undefined {
   if (Platform.OS !== 'web') return undefined;
   return {
     transitionProperty: 'opacity',
     transitionDuration: '1.2s',
-  } as ViewStyle;
+  };
 }
 
 function useAttributionPulse(hitSeq: number | null): {
@@ -75,11 +80,11 @@ function AttributionRing(props: {
 }): ReactElement {
   const { color, ringOn, borderRadius, borderWidth } = props;
   return (
-    <View
+    <Box
       pointerEvents="none"
-      style={[
-        StyleSheet.absoluteFillObject,
+      sx={[
         {
+          absoluteFill: true,
           borderRadius,
           borderWidth,
           borderColor: color,
@@ -119,9 +124,9 @@ export function AttributionHighlight({
   const ringColor = resolveRingColor({ actorId, pulseSeq, colorForActor });
 
   return (
-    <View
+    <Box
       {...componentDataSet('AttributionHighlight', dataSet)}
-      style={styles.root}
+      sx={{ position: 'relative' }}
     >
       {children}
       {ringColor !== null ? (
@@ -132,12 +137,6 @@ export function AttributionHighlight({
           borderWidth={borderWidth}
         />
       ) : null}
-    </View>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    position: 'relative',
-  },
-});

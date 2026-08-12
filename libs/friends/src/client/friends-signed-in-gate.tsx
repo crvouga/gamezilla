@@ -21,12 +21,14 @@ export function FriendsSignedInGate({
       breadcrumbs={[{ name: <Trans>Friends</Trans> }]}
       content={({ sx }) => (
         <Box
-          style={{
-            ...sx,
-            gap: 16,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          sx={[
+            sx,
+            {
+              gap: 4,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}
         >
           <Text variant="body" label={t`Sign in to use friends`} />
           <Button title={t`Sign in`} onPress={openSignInModal} />

@@ -6,7 +6,7 @@
 
 import { assert } from '@pkgs/assert';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
-import { useColorScheme, useWindowDimensions } from 'react-native';
+import { StyleSheet, useColorScheme, useWindowDimensions } from 'react-native';
 import { type BreakpointName, getBreakpoint } from './breakpoints';
 import type { ColorScheme, ColorTokens } from './colors';
 import { COLOR_PALETTE } from './colors';
@@ -18,6 +18,8 @@ import {
   makeElevation,
 } from './scale';
 import { createSx } from './sx';
+import type { SxInput } from './sx-props';
+import { sxToCss } from './sx-to-css';
 import { defaultTextCasing, type TextCasing } from './text-casing';
 
 export type ThemeLayout = {
@@ -28,7 +30,10 @@ export type ThemeLayout = {
 };
 
 export type Theme = {
+  /** RN host compiler — only host adapters and tests should call this. */
   sx: ReturnType<typeof createSx>;
+  /** CSS compiler for HTML reports / `dataSet.css` capture. */
+  css: (input: SxInput) => string;
   colors: ColorTokens;
   colorScheme: ColorScheme;
   fonts: FontStacks;
@@ -97,9 +102,14 @@ export function ThemeProvider({
       ? { ...fonts, ...fontsProp }
       : fonts;
     const textCasing = textCasingProp ?? defaultTextCasing;
+    const elevation = makeElevation(colors, resolvedScheme);
 
     return {
-      sx: createSx(colors),
+      sx: createSx(colors, {
+        elevation,
+        hairlineWidth: StyleSheet.hairlineWidth,
+      }),
+      css: (input: SxInput) => sxToCss(input, { colors, elevation }),
       colors,
       colorScheme: resolvedScheme,
       fonts: mergedFonts,
@@ -112,7 +122,7 @@ export function ThemeProvider({
       },
       breakpoint: getBreakpoint(layout.width),
       motion,
-      elevation: makeElevation(colors, resolvedScheme),
+      elevation,
     };
   }, [resolvedScheme, colorOverrides, fontsProp, textCasingProp, layout]);
 

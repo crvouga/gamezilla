@@ -47,7 +47,7 @@ function DefaultOverflowPill({
 }) {
   return (
     <Box
-      style={{
+      sx={{
         width: size,
         height: size,
         borderRadius: size / 2,
@@ -56,8 +56,8 @@ function DefaultOverflowPill({
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
+        background: 'outline',
       }}
-      sx={{ background: 'outline' }}
     >
       <Text
         variant="caption"
@@ -88,7 +88,7 @@ function AvatarGroupSlotList({
       {visibleItems.map((child, index) => (
         <Box
           key={`avatar-group-slot-${String(index)}`}
-          style={{
+          sx={{
             marginLeft: index === 0 ? 0 : -overlap,
             zIndex: index + 1,
             width: size,
@@ -145,7 +145,7 @@ function AvatarGroupOverflow({
 
   return (
     <Box
-      style={{
+      sx={{
         marginLeft: visibleCount === 0 ? 0 : -overlap,
         zIndex: visibleCount + 2,
       }}

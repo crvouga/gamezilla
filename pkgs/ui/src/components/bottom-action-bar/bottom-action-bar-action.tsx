@@ -47,16 +47,23 @@ export function BottomActionBarAction(
         justifyContent: 'center',
         minWidth: 0,
         opacity: disabled ? 0.5 : 1,
+        paddingVertical: 4,
+        gap: 0.5,
       }}
-      style={{ paddingVertical: 4, gap: 2 }}
     >
       <Icon size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} color={color} />
       <Text
         variant="caption"
         numberOfLines={1}
         ellipsizeMode="tail"
-        sx={{ color: captionToken, textAlign: 'center', fontWeight: '700' }}
-        style={{ width: '100%', fontSize: 13, lineHeight: 18 }}
+        sx={{
+          color: captionToken,
+          textAlign: 'center',
+          fontWeight: '700',
+          width: '100%',
+          fontSize: 13,
+          lineHeight: 18,
+        }}
         label={item.label}
       />
     </Pressable>

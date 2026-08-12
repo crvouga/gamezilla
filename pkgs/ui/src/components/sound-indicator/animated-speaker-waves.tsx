@@ -24,11 +24,12 @@
  */
 
 import { type ReactNode, useEffect, useRef } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import type { SxInput } from '../../theme';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 
 const VIEW_BOX = '0 0 640 512';
 
@@ -52,7 +53,7 @@ const FADE_MS = 50;
 const MIN_OPACITY = 0.12;
 
 export type AnimatedSpeakerWavesProps = {
-  style?: StyleProp<ViewStyle>;
+  sx?: SxInput;
   size: number;
   color: string;
 };
@@ -92,7 +93,7 @@ function crossfadeStep(
 }
 
 export function AnimatedSpeakerWaves({
-  style,
+  sx,
   size,
   color,
 }: AnimatedSpeakerWavesProps): ReactNode {
@@ -119,21 +120,21 @@ export function AnimatedSpeakerWaves({
   }, [innerOpacity, middleOpacity, outerOpacity]);
 
   return (
-    <View style={[style, { width: size, height: size }]}>
-      <View style={{ position: 'absolute', top: 0, left: 0 }}>
+    <Box sx={[sx, { width: size, height: size }]}>
+      <Box sx={{ position: 'absolute', top: 0, left: 0 }}>
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <Path d={CONE_PATH} fill={color} />
         </Svg>
-      </View>
-      <Animated.View
-        style={{ position: 'absolute', top: 0, left: 0, opacity: innerOpacity }}
+      </Box>
+      <AnimatedBox
+        sx={{ position: 'absolute', top: 0, left: 0, opacity: innerOpacity }}
       >
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <Path d={INNER_WAVE_PATH} fill={color} />
         </Svg>
-      </Animated.View>
-      <Animated.View
-        style={{
+      </AnimatedBox>
+      <AnimatedBox
+        sx={{
           position: 'absolute',
           top: 0,
           left: 0,
@@ -143,14 +144,14 @@ export function AnimatedSpeakerWaves({
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <Path d={MIDDLE_WAVE_PATH} fill={color} />
         </Svg>
-      </Animated.View>
-      <Animated.View
-        style={{ position: 'absolute', top: 0, left: 0, opacity: outerOpacity }}
+      </AnimatedBox>
+      <AnimatedBox
+        sx={{ position: 'absolute', top: 0, left: 0, opacity: outerOpacity }}
       >
         <Svg width={size} height={size} viewBox={VIEW_BOX}>
           <Path d={OUTER_WAVE_PATH} fill={color} />
         </Svg>
-      </Animated.View>
-    </View>
+      </AnimatedBox>
+    </Box>
   );
 }

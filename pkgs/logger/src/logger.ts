@@ -30,8 +30,25 @@ export interface CreateLoggerOptions {
   now: () => number;
 }
 
+let defaultLogLevel: LogLevel = 'debug';
+
+/** Process-wide fallback when `createLogger` is called without `level`. */
+export function setDefaultLogLevel(level: LogLevel): void {
+  defaultLogLevel = level;
+}
+
 export function createLogger(options: CreateLoggerOptions): Logger {
-  return buildLogger(options.name, options.level ?? 'debug', {}, options.now);
+  return buildLogger(
+    options.name,
+    options.level ?? defaultLogLevel,
+    {},
+    options.now
+  );
+}
+
+/** Silent logger for harnesses that need an explicit no-op instance. */
+export function createNoopLogger(): Logger {
+  return createLogger({ name: 'noop', level: 'silent', now: () => 0 });
 }
 
 function buildLogger(

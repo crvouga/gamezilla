@@ -1,164 +1,36 @@
 /**
- * Tailwind-like sx() style builder.
- * Maps shorthand props to React Native styles.
+ * Compile `SxProps` to a React Native host style object.
+ * Only host adapters and tests should call `theme.sx` / `createSx`.
  */
 
-import type { TextStyle, ViewStyle } from 'react-native';
-import { StyleSheet } from 'react-native';
 import type { ColorTokens } from './colors';
-import { fontSize, spacing, spacingScale } from './scale';
+import {
+  flattenSx,
+  type SxCompileOptions,
+  type SxInput,
+  type SxProps,
+} from './sx-props';
+import {
+  resolveColor,
+  resolveFontSize,
+  resolveLineHeight,
+  resolveRadius,
+  resolveSpacing,
+} from './sx-resolve';
 
-export type ColorTokenName = keyof ColorTokens;
+export type { SxInput, SxProps } from './sx-props';
+export { flattenSx } from './sx-props';
 
-const HAIRLINE = StyleSheet.hairlineWidth;
+/** Opaque RN-compatible style bag. Hosts pass this to the native `style` prop. */
+export type ResolvedRnStyle = Record<string, unknown>;
 
-/** Shorthand props for theme.sx() */
-export type SxProps = {
-  // Padding
-  p?: number;
-  px?: number;
-  py?: number;
-  pt?: number;
-  pb?: number;
-  pl?: number;
-  pr?: number;
-  // Margin
-  m?: number;
-  mx?: number;
-  my?: number;
-  mt?: number;
-  mb?: number;
-  ml?: number;
-  mr?: number;
-  // Layout
-  flex?: number;
-  flexDirection?: ViewStyle['flexDirection'];
-  alignItems?: ViewStyle['alignItems'];
-  alignSelf?: ViewStyle['alignSelf'];
-  justifyContent?: ViewStyle['justifyContent'];
-  gap?: number;
-  flexWrap?: ViewStyle['flexWrap'];
-  // Background / color
-  background?: ColorTokenName | (string & {});
-  color?: ColorTokenName | (string & {});
-  backgroundColor?: ColorTokenName | string;
-  // Border
-  borderWidth?: number;
-  borderBottomWidth?: number | 'hairline';
-  borderColor?: ColorTokenName | string;
-  borderRadius?: number;
-  // Typography
-  fontSize?: number | keyof typeof fontSize;
-  fontWeight?: TextStyle['fontWeight'];
-  fontFamily?: string;
-  lineHeight?: number;
-  textDecorationLine?: TextStyle['textDecorationLine'];
-  fontStyle?: TextStyle['fontStyle'];
-  // Other
-  opacity?: number;
-  position?: ViewStyle['position'];
-  overflow?: ViewStyle['overflow'];
-  bottom?: number;
-  left?: number;
-  right?: number;
-  top?: number;
-  width?: number;
-  height?: number;
-  minWidth?: number;
-  maxWidth?: number;
-  minHeight?: number;
-  maxHeight?: number;
-  transform?: ViewStyle['transform'];
-  animationName?: unknown;
-  animationIterationCount?: number;
-  animationDuration?: string;
-  userSelect?: TextStyle['userSelect'];
-} & Partial<
-  Omit<
-    ViewStyle & TextStyle,
-    'backgroundColor' | 'color' | 'borderBottomWidth' | 'fontSize'
-  >
->;
-
-type ResolvedStyle = ViewStyle & TextStyle;
-
-const SHORTHAND_KEYS = new Set([
-  'p',
-  'px',
-  'py',
-  'pt',
-  'pb',
-  'pl',
-  'pr',
-  'm',
-  'mx',
-  'my',
-  'mt',
-  'mb',
-  'ml',
-  'mr',
-  'flex',
-  'flexDirection',
-  'alignItems',
-  'alignSelf',
-  'justifyContent',
-  'gap',
-  'flexWrap',
-  'background',
-  'color',
-  'backgroundColor',
-  'borderWidth',
-  'borderBottomWidth',
-  'borderColor',
-  'borderRadius',
-  'fontSize',
-  'fontWeight',
-  'fontFamily',
-  'lineHeight',
-  'textDecorationLine',
-  'fontStyle',
-  'opacity',
-  'position',
-  'overflow',
-  'bottom',
-  'left',
-  'right',
-  'top',
-  'width',
-  'height',
-  'minWidth',
-  'maxWidth',
-  'minHeight',
-  'maxHeight',
-  'transform',
-]);
-
-function resolveSpacing(n: number): number {
-  return spacing[n as keyof typeof spacing] ?? spacingScale(n);
+function set(result: ResolvedRnStyle, key: string, value: unknown): void {
+  result[key] = value;
 }
 
-function resolveColor(
-  value: ColorTokenName | string | undefined,
-  colors: ColorTokens
-): string | undefined {
-  if (!value) return undefined;
-  if (value === 'hairline') return undefined; // special case for border width
-  if (value in colors) return colors[value as ColorTokenName];
-  return value; // hex or rgba
-}
+const DEFAULT_HAIRLINE = 1;
 
-function resolveFontSize(
-  value: number | keyof typeof fontSize | undefined
-): number | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value === 'number') return value;
-  return fontSize[value];
-}
-
-/** Pairs of (input shorthand key) → (output style key) for theme spacing. */
-const SPACING_MAP: ReadonlyArray<
-  readonly [keyof SxProps, keyof ResolvedStyle]
-> = [
+const SPACING_MAP: ReadonlyArray<readonly [keyof SxProps, string]> = [
   ['p', 'padding'],
   ['px', 'paddingHorizontal'],
   ['py', 'paddingVertical'],
@@ -174,103 +46,227 @@ const SPACING_MAP: ReadonlyArray<
   ['ml', 'marginLeft'],
   ['mr', 'marginRight'],
   ['gap', 'gap'],
+  ['rowGap', 'rowGap'],
+  ['columnGap', 'columnGap'],
 ];
 
-/** Direct passthrough keys that share the same name on input and style. */
 const PASSTHROUGH_KEYS: ReadonlyArray<keyof SxProps> = [
+  'padding',
+  'paddingHorizontal',
+  'paddingVertical',
+  'paddingTop',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingRight',
+  'paddingStart',
+  'paddingEnd',
+  'margin',
+  'marginHorizontal',
+  'marginVertical',
+  'marginTop',
+  'marginBottom',
+  'marginLeft',
+  'marginRight',
+  'marginStart',
+  'marginEnd',
   'flex',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
   'flexDirection',
+  'flexWrap',
   'alignItems',
   'alignSelf',
+  'alignContent',
   'justifyContent',
-  'flexWrap',
+  'display',
   'borderWidth',
-  'borderRadius',
+  'borderStyle',
   'fontWeight',
   'fontFamily',
-  'lineHeight',
-  'textDecorationLine',
   'fontStyle',
+  'fontVariant',
+  'letterSpacing',
+  'textAlign',
+  'textDecorationLine',
+  'textTransform',
+  'userSelect',
   'opacity',
-  'position',
   'overflow',
+  'overflowX',
+  'overflowY',
+  'position',
+  'top',
+  'right',
   'bottom',
   'left',
-  'right',
-  'top',
+  'start',
+  'end',
+  'zIndex',
   'width',
   'height',
   'minWidth',
   'maxWidth',
   'minHeight',
   'maxHeight',
+  'aspectRatio',
+  'boxShadow',
   'transform',
+  'transformOrigin',
+  'pointerEvents',
+  'cursor',
+  'outlineStyle',
+  'outlineWidth',
+  'outlineOffset',
+  'animationName',
+  'animationIterationCount',
+  'animationDuration',
+  'transitionProperty',
+  'transitionDuration',
 ];
 
-function applySpacing(props: SxProps, result: ResolvedStyle): void {
+function applyAbsoluteFill(props: SxProps, result: ResolvedRnStyle): void {
+  if (props.absoluteFill !== true) return;
+  set(result, 'position', 'absolute');
+  set(result, 'top', 0);
+  set(result, 'right', 0);
+  set(result, 'bottom', 0);
+  set(result, 'left', 0);
+}
+
+function applyInset(props: SxProps, result: ResolvedRnStyle): void {
+  if (typeof props.inset !== 'number') return;
+  set(result, 'top', props.inset);
+  set(result, 'right', props.inset);
+  set(result, 'bottom', props.inset);
+  set(result, 'left', props.inset);
+}
+
+function applySpacing(props: SxProps, result: ResolvedRnStyle): void {
   for (const [from, to] of SPACING_MAP) {
     const v = props[from];
-    if (typeof v === 'number') {
-      (result as Record<string, unknown>)[to] = resolveSpacing(v);
-    }
+    if (typeof v === 'number') result[to] = resolveSpacing(v);
   }
 }
 
-function applyPassthrough(props: SxProps, result: ResolvedStyle): void {
+function applyPassthrough(props: SxProps, result: ResolvedRnStyle): void {
   for (const key of PASSTHROUGH_KEYS) {
     const v = props[key];
-    if (v !== undefined) {
-      (result as Record<string, unknown>)[key] = v;
-    }
+    if (v !== undefined) result[key] = v;
   }
 }
 
 function applyColors(
   props: SxProps,
-  result: ResolvedStyle,
+  result: ResolvedRnStyle,
   colors: ColorTokens
 ): void {
   const bg = props.background ?? props.backgroundColor;
-  if (bg !== undefined) result.backgroundColor = resolveColor(bg, colors);
+  if (bg !== undefined)
+    set(result, 'backgroundColor', resolveColor(bg, colors));
   if (props.color !== undefined) {
-    result.color = resolveColor(props.color, colors);
+    set(result, 'color', resolveColor(props.color, colors));
   }
   if (props.borderColor !== undefined) {
-    result.borderColor = resolveColor(props.borderColor, colors);
+    set(result, 'borderColor', resolveColor(props.borderColor, colors));
+  }
+  if (props.outlineColor !== undefined) {
+    set(result, 'outlineColor', resolveColor(props.outlineColor, colors));
+  }
+  const sides = [
+    ['borderTopColor', 'borderTopColor'],
+    ['borderRightColor', 'borderRightColor'],
+    ['borderBottomColor', 'borderBottomColor'],
+    ['borderLeftColor', 'borderLeftColor'],
+  ] as const;
+  for (const [from, to] of sides) {
+    const v = props[from];
+    if (v !== undefined) result[to] = resolveColor(v, colors);
   }
 }
 
-function applyBorderBottom(props: SxProps, result: ResolvedStyle): void {
-  if (props.borderBottomWidth === undefined) return;
-  result.borderBottomWidth =
-    props.borderBottomWidth === 'hairline' ? HAIRLINE : props.borderBottomWidth;
+function applyRadius(props: SxProps, result: ResolvedRnStyle): void {
+  const keys = [
+    'borderRadius',
+    'borderTopLeftRadius',
+    'borderTopRightRadius',
+    'borderBottomLeftRadius',
+    'borderBottomRightRadius',
+  ] as const;
+  for (const key of keys) {
+    const n = resolveRadius(props[key]);
+    if (n !== undefined) result[key] = n;
+  }
 }
 
-function applyTypography(props: SxProps, result: ResolvedStyle): void {
+function applyBorderWidths(
+  props: SxProps,
+  result: ResolvedRnStyle,
+  hairlineWidth: number
+): void {
+  const sides = [
+    'borderTopWidth',
+    'borderRightWidth',
+    'borderBottomWidth',
+    'borderLeftWidth',
+  ] as const;
+  for (const key of sides) {
+    const v = props[key];
+    if (v === undefined) continue;
+    result[key] = v === 'hairline' ? hairlineWidth : v;
+  }
+}
+
+function applyTypography(props: SxProps, result: ResolvedRnStyle): void {
   if (props.fontSize !== undefined) {
-    result.fontSize = resolveFontSize(props.fontSize);
+    set(result, 'fontSize', resolveFontSize(props.fontSize));
+  }
+  if (props.lineHeight !== undefined) {
+    set(result, 'lineHeight', resolveLineHeight(props.lineHeight));
   }
 }
 
-function applyOverflow(props: SxProps, result: ResolvedStyle): void {
-  for (const key of Object.keys(props)) {
-    if (SHORTHAND_KEYS.has(key)) continue;
-    const val = (props as Record<string, unknown>)[key];
-    if (val !== undefined) {
-      (result as Record<string, unknown>)[key] = val;
-    }
+function applyElevation(
+  props: SxProps,
+  result: ResolvedRnStyle,
+  options: SxCompileOptions
+): void {
+  if (props.elevation === undefined) return;
+  const shadow = options.elevation(props.elevation);
+  if (shadow.boxShadow && result['boxShadow'] === undefined) {
+    set(result, 'boxShadow', shadow.boxShadow);
+  }
+  if (shadow.elevation !== undefined) {
+    set(result, 'elevation', shadow.elevation);
+  }
+  if (shadow.backgroundColor && result['backgroundColor'] === undefined) {
+    set(result, 'backgroundColor', shadow.backgroundColor);
   }
 }
 
-export function createSx(colors: ColorTokens) {
-  return function sx(props: SxProps): ResolvedStyle {
-    const result: ResolvedStyle = {};
+export function createSx(
+  colors: ColorTokens,
+  options?: Pick<SxCompileOptions, 'elevation' | 'hairlineWidth'>
+) {
+  const ctx: SxCompileOptions = {
+    colors,
+    elevation: options?.elevation ?? (() => ({})),
+    hairlineWidth: options?.hairlineWidth ?? DEFAULT_HAIRLINE,
+  };
+  const hairline = ctx.hairlineWidth ?? DEFAULT_HAIRLINE;
+  return function sx(input: SxInput): ResolvedRnStyle {
+    const props = flattenSx(input);
+    if (props === undefined) return {};
+    const result: ResolvedRnStyle = {};
+    applyAbsoluteFill(props, result);
+    applyInset(props, result);
     applySpacing(props, result);
     applyPassthrough(props, result);
-    applyColors(props, result, colors);
-    applyBorderBottom(props, result);
+    applyColors(props, result, ctx.colors);
+    applyRadius(props, result);
+    applyBorderWidths(props, result, hairline);
     applyTypography(props, result);
-    applyOverflow(props, result);
+    applyElevation(props, result, ctx);
     return result;
   };
 }

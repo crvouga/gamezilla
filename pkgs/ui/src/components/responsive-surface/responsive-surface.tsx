@@ -19,7 +19,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { OnColorReset, useTheme } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
@@ -106,10 +106,10 @@ function SurfaceBody({
   children: ReactNode;
 }) {
   if (bodyHeight === undefined) return <>{children}</>;
-  const style = fillParent
+  const sx = fillParent
     ? { flex: 1, minHeight: bodyHeight, overflow: 'hidden' as const }
     : { height: bodyHeight, overflow: 'hidden' as const };
-  return <View style={style}>{children}</View>;
+  return <Box sx={sx}>{children}</Box>;
 }
 
 function SurfaceChrome({

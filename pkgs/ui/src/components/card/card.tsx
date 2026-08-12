@@ -2,10 +2,6 @@
  * `Card` -- a surface container with scheme-aware elevation.
  *
  * Defaults to elevation level 1 with the active theme's `surface` token.
- * In dark mode `theme.elevation()` returns a recommended lift -- the card
- * picks up `surfaceElevated` / `surfaceOverlay` at higher levels so it
- * stays legible even when shadows are faint.
- *
  * Pass `interactive` to opt into a hover-lift on web (one elevation step up,
  * via {@link Pressable}'s tint feedback). Use this for cards that respond
  * to clicks; static cards should leave it off.
@@ -20,52 +16,42 @@
  */
 
 import { forwardRef } from 'react';
-import { View, type ViewProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { type SxProps, useTheme } from '../../theme';
-import { borderRadius, type ElevationLevel } from '../../theme/scale';
+import type { View } from 'react-native';
+import type { ComponentDataSet } from '../../component-id';
+import { type ElevationLevel, type SxInput, useTheme } from '../../theme';
+import { Box, type BoxProps } from '../box';
 
-export type CardProps = ViewProps & {
+export type CardProps = Omit<BoxProps, 'sx'> & {
   /** Shadow depth 0-5. Defaults to 1. */
   elevation?: ElevationLevel;
   /** Utility-first style shorthand. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
 export const Card = forwardRef<View, CardProps>(function Card(
-  { elevation: level = 1, sx: sxProp, style, dataSet, ...rest },
+  { elevation: level = 1, sx, dataSet, ...rest },
   ref
 ) {
   const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
   const shadow = theme.elevation(level);
   const lifted = shadow.backgroundColor ?? theme.colors.surface;
-  const idProps = componentDataSet('Card', dataSet);
-
   return (
-    <View
+    <Box
       ref={ref}
-      style={[
-        sxStyle,
-        style,
+      sx={[
+        sx,
         {
           backgroundColor: lifted,
-          borderRadius: borderRadius.lg,
-          // Always render a hairline border so the card has definition
-          // even when the elevation shadow is faint (light mode) or when
-          // the surface lift sits very close to its neighbor (dark mode).
+          borderRadius: 'lg',
           borderWidth: 1,
-          borderColor: theme.colors.border,
-          ...(shadow.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
-          ...(shadow.elevation !== undefined
-            ? { elevation: shadow.elevation }
-            : {}),
+          borderColor: 'border',
+          elevation: level,
         },
       ]}
+      dataSet={{ component: 'Card', ...dataSet }}
       {...rest}
-      {...idProps}
     />
   );
 });

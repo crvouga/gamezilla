@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text, useTheme } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
@@ -14,12 +14,11 @@ export function ChessGameLog({
   entries,
   onSelectEntry,
 }: ChessGameLogProps): ReactNode {
-  const theme = useTheme();
   if (entries.length === 0) {
     return (
       <Text
         variant="body"
-        style={{ color: theme.colors.textSecondary }}
+        sx={{ color: 'textSecondary' }}
         label={<Trans>No puzzles played yet.</Trans>}
       />
     );

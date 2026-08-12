@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { SxInput } from '../../theme';
 
 export type FocusTrapProps = PropsWithChildren<{
   /** When true, trap Tab focus inside the subtree (web only). */
@@ -21,6 +21,6 @@ export type FocusTrapProps = PropsWithChildren<{
    * - `sheet`: in-flow stretch for bottom sheets (absolute-fill hides content).
    */
   layout?: 'cover' | 'sheet';
-  /** Extra style on the web host (merged after layout defaults). */
-  style?: StyleProp<ViewStyle>;
+  /** Extra `sx` on the web host (merged after layout defaults). */
+  sx?: SxInput;
 }>;

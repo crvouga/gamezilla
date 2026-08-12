@@ -247,8 +247,8 @@ export function TopBar({
           px: 3,
           height: contentHeight,
           minHeight: contentHeight,
+          width: '100%',
         }}
-        style={{ width: '100%' }}
       >
         <TopBarContentRow
           leading={leading}

@@ -3,7 +3,6 @@
  */
 
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
@@ -30,7 +29,6 @@ export function NumberStepper({
   disabled = false,
   dataSet,
 }: NumberStepperProps) {
-  const theme = useTheme();
   const dec = () => {
     const next = Math.max(min, value - step);
     if (next !== value) onChange(next);
@@ -60,11 +58,11 @@ export function NumberStepper({
         />
         <Text
           variant="body"
-          style={{
+          sx={{
             fontVariant: ['tabular-nums'],
             minWidth: 48,
             textAlign: 'center',
-            color: theme.colors.text,
+            color: 'text',
           }}
           label={String(value)}
         />

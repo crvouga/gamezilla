@@ -2,39 +2,35 @@
  * `GradientBox` — themed linear gradient surface using `expo-linear-gradient`.
  *
  * Use `sx` for layout (padding, radius, flex). Gradient stops default to
- * two close shades of the active brand `tint` (`tintHover` -> `tintActive`)
- * so callers get a subtle brand-colored gradient out of the box. Override
- * `colors` to render any other gradient (success, destructive, neutral,
- * custom hex pairs, etc).
- *
- * Children are wrapped in an {@link OnColorProvider} that always uses the
- * theme's `onPrimary` foreground (white in both schemes). Luminance heuristics
- * mis-fire on lighter dark-mode blues and pick near-black labels; brand
- * gradient chrome is always light-on-blue. Pass `onColor` to derive from a
- * different reference (custom gradients).
+ * two close shades of the active brand `tint`. Children are wrapped in an
+ * {@link OnColorProvider} that uses `onPrimary` unless `onColor` is set.
  */
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo } from 'react';
-import type { ColorValue, ViewProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ViewProps } from 'react-native';
+import {
+  COMPONENT_IDS_ENABLED,
+  type ComponentDataSet,
+} from '../../component-id';
 import {
   bestOnColor,
   ON_DARK,
   OnColorProvider,
   type OnColorSet,
-  type SxProps,
+  type SxInput,
+  useHostSx,
   useTheme,
 } from '../../theme';
+import { linearGradientCss, mergeCss } from './gradient-css';
 
-export type GradientBoxProps = ViewProps & {
+export type GradientBoxProps = Omit<ViewProps, 'style'> & {
   /** Utility-first style shorthand (padding, radius, flex — not solid fills). */
-  sx?: SxProps;
+  sx?: SxInput;
   /**
    * At least two colors. Defaults to the theme primary gradient.
-   * Pass inline or `as const` so TypeScript accepts the tuple.
    */
-  colors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  colors?: readonly [string, string, ...string[]];
   /** Normalized 0–1; default horizontal left → right. */
   start?: { x: number; y: number } | null;
   end?: { x: number; y: number } | null;
@@ -57,7 +53,6 @@ function defaultGradientOnColor(onPrimary: string): OnColorSet {
 
 export function GradientBox({
   sx: sxProp,
-  style,
   colors: colorsProp,
   start = { x: 0, y: 0.5 },
   end = { x: 1, y: 0.5 },
@@ -67,9 +62,13 @@ export function GradientBox({
   ...rest
 }: GradientBoxProps) {
   const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const colors: readonly [ColorValue, ColorValue, ...ColorValue[]] =
-    colorsProp ?? [theme.colors.tintHover, theme.colors.tintActive];
+  const colors: readonly [string, string, ...string[]] = colorsProp ?? [
+    theme.colors.tintHover,
+    theme.colors.tintActive,
+  ];
+  const origin = start ?? { x: 0, y: 0.5 };
+  const dest = end ?? { x: 1, y: 0.5 };
+  const host = useHostSx('GradientBox', sxProp, dataSet);
   const onColorValue = useMemo(
     (): OnColorSet =>
       onColor !== undefined
@@ -77,14 +76,21 @@ export function GradientBox({
         : defaultGradientOnColor(theme.colors.onPrimary),
     [onColor, theme.colors.onPrimary]
   );
-  const idProps = componentDataSet('GradientBox', dataSet);
+  const captured = host.dataSet.dataSet;
+  const css = COMPONENT_IDS_ENABLED
+    ? mergeCss(captured?.['css'], linearGradientCss(colors, origin, dest))
+    : undefined;
+  const idProps =
+    captured === undefined && css === undefined
+      ? {}
+      : { dataSet: { ...captured, ...(css !== undefined ? { css } : {}) } };
 
   return (
     <LinearGradient
       colors={colors}
-      start={start}
-      end={end}
-      style={[sxStyle, style]}
+      start={origin}
+      end={dest}
+      style={host.style}
       {...rest}
       {...idProps}
     >

@@ -33,7 +33,7 @@ export const ScreenBodyScrollView = forwardRef<
   RNScrollView,
   ScreenBodyScrollViewProps
 >(function ScreenBodyScrollView(
-  { style, onRefresh, refreshing, refreshControl, ...rest },
+  { frameSx, onRefresh, refreshing, refreshControl, ...rest },
   ref
 ) {
   const resolved = useResolvedRefreshControl({
@@ -45,7 +45,7 @@ export const ScreenBodyScrollView = forwardRef<
     <Box sx={{ flex: 1, minHeight: 0 }}>
       <ScrollView
         ref={ref}
-        style={[{ flex: 1 }, style]}
+        frameSx={[{ flex: 1 }, frameSx]}
         refreshControl={resolved}
         {...rest}
       />

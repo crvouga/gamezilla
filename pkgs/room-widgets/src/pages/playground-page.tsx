@@ -98,14 +98,13 @@ function SimPanel(props: {
 }
 
 function LinkLine() {
-  const theme = useTheme();
   return (
     <Box sx={{ alignItems: 'center', py: 1 }}>
       <Box
-        style={{
+        sx={{
           width: 2,
           height: 28,
-          backgroundColor: theme.colors.border,
+          background: 'border',
         }}
       />
     </Box>

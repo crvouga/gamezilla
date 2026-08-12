@@ -46,10 +46,7 @@ export function ActiveSpace({ spaceId }: ActiveSpaceProps): ReactNode {
   }, [requestLeaveSpace, spaceId]);
 
   return (
-    <Box
-      sx={{ flex: 1, background: 'background' }}
-      style={{ paddingBottom: bottomInset }}
-    >
+    <Box sx={{ flex: 1, background: 'background', paddingBottom: bottomInset }}>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <ActiveSpaceBody
           spaceId={spaceId}

@@ -1,4 +1,3 @@
-import { useTheme } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceGuestSection } from '../members/space-guest-section';
 import { useIsSpaceOpenLocally } from '../open-space/use-open-space-session-ids';
@@ -16,7 +15,6 @@ export type SpaceCardProps = {
 
 /** Live lobby card — ended spaces are omitted so they disappear immediately. */
 export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
-  const theme = useTheme();
   const current = useIsSpaceOpenLocally(spaceId);
   const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
   if (endedAt !== null) {
@@ -29,9 +27,9 @@ export function SpaceCard({ spaceId }: SpaceCardProps): ReactNode {
           borderRadius: SPACE_CARD_BORDER_RADIUS,
           p: 4,
           borderWidth: current ? 2 : 0,
+          elevation: 1,
           ...(current ? { borderColor: 'onPrimary' as const } : {}),
         }}
-        style={theme.elevation(1)}
       >
         <SpaceSummaryHeader spaceId={spaceId} />
         <SpaceGuestSection spaceId={spaceId} />

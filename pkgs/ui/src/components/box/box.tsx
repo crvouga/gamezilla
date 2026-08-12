@@ -14,23 +14,20 @@
 
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { type SxInput, useHostSx } from '../../theme';
 
-export type BoxProps = ViewProps & {
+export type BoxProps = Omit<ViewProps, 'style'> & {
   /** Utility-first style shorthand resolved against the current theme. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
 export const Box = forwardRef<View, BoxProps>(function Box(
-  { sx: sxProp, style, dataSet, ...rest },
+  { sx, dataSet, ...rest },
   ref
 ) {
-  const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const idProps = componentDataSet('Box', dataSet);
-  return <View ref={ref} style={[sxStyle, style]} {...rest} {...idProps} />;
+  const host = useHostSx('Box', sx, dataSet);
+  return <View ref={ref} style={host.style} {...rest} {...host.dataSet} />;
 });

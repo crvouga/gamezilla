@@ -32,10 +32,16 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { Platform, View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { OnColorProvider, type Theme, useTheme } from '../../theme';
+import { Platform } from 'react-native';
+import type { ComponentDataSet } from '../../component-id';
+import {
+  OnColorProvider,
+  type SxProps,
+  type Theme,
+  useTheme,
+} from '../../theme';
 import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { type IconComponent, type IconProps, XIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { Spinner } from '../spinner';
@@ -119,22 +125,42 @@ function scaleButtonIcon(node: ReactNode, size: SizeSpec): ReactNode {
   });
 }
 
-const SURFACE_ANDROID_ELEVATION = 2;
-
-function resolveButtonShadow(face: MutationPressableFace, theme: Theme) {
+function resolveButtonShadow(
+  face: MutationPressableFace,
+  theme: Theme
+): Pick<SxProps, 'boxShadow'> {
   if (face.surfaceShadow !== undefined) {
-    return {
-      boxShadow: face.surfaceShadow,
-      ...(Platform.OS === 'android'
-        ? { elevation: SURFACE_ANDROID_ELEVATION }
-        : {}),
-    };
+    return { boxShadow: face.surfaceShadow };
   }
   if (!face.withElevation) return {};
   const shadow = theme.elevation(1);
+  return shadow.boxShadow ? { boxShadow: shadow.boxShadow } : {};
+}
+
+function buttonSx(args: {
+  flex: number | undefined;
+  s: SizeSpec;
+  face: MutationPressableFace;
+  hasGradient: boolean;
+  shadow: Pick<SxProps, 'boxShadow'>;
+}): SxProps {
+  const { flex, s, face, hasGradient, shadow } = args;
   return {
-    ...(shadow.boxShadow ? { boxShadow: shadow.boxShadow } : {}),
-    ...(shadow.elevation !== undefined ? { elevation: shadow.elevation } : {}),
+    userSelect: 'none',
+    ...(flex !== undefined ? { flex } : {}),
+    backgroundColor: hasGradient ? 'transparent' : face.backgroundColor,
+    borderColor: face.borderColor,
+    borderWidth: face.borderWidth,
+    borderRadius: s.borderRadius,
+    px: s.px,
+    py: s.py,
+    minHeight: s.minHeight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: s.iconGap,
+    overflow: 'hidden',
+    ...shadow,
   };
 }
 
@@ -161,25 +187,8 @@ export function Button(props: ButtonProps) {
       accessibilityRole="button"
       onPress={handlePress}
       disabled={nonInteractive}
-      sx={{ borderRadius: s.borderRadius, overflow: 'hidden' }}
-      style={() => ({
-        userSelect: 'none',
-        ...(flex !== undefined ? { flex } : {}),
-        backgroundColor: hasGradient ? 'transparent' : face.backgroundColor,
-        borderColor: face.borderColor,
-        borderWidth: face.borderWidth,
-        borderRadius: s.borderRadius,
-        paddingHorizontal: s.px * 4,
-        paddingVertical: s.py * 4,
-        minHeight: s.minHeight,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: s.iconGap * 4,
-        overflow: 'hidden',
-        ...shadow,
-      })}
-      {...componentDataSet('Button', dataSet)}
+      sx={buttonSx({ flex, s, face, hasGradient, shadow })}
+      dataSet={{ component: 'Button', ...dataSet }}
     >
       {face.gradient !== undefined ? (
         <ButtonSurfaceFill
@@ -261,13 +270,11 @@ function ButtonLabelText({
   return (
     <Text
       variant="bodyBold"
-      style={{
+      sx={{
         color: foregroundColor,
         fontSize: size.text.fontSize,
         lineHeight: size.text.lineHeight,
         fontWeight: size.text.fontWeight,
-        includeFontPadding: false,
-        textAlignVertical: 'center',
         ...(Platform.OS === 'web' ? { letterSpacing: 0.1 } : {}),
       }}
       label={label}
@@ -328,15 +335,15 @@ function ButtonIdleContent({
   startIcon: ReactNode;
   endIcon: ReactNode;
 }) {
-  const iconBoxStyle = {
-    alignItems: 'center',
-    justifyContent: 'center',
+  const iconBoxSx = {
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
     height: size.iconSize,
-  } as const;
+  };
   return (
     <>
       {startIcon !== undefined ? (
-        <View style={iconBoxStyle}>{scaleButtonIcon(startIcon, size)}</View>
+        <Box sx={iconBoxSx}>{scaleButtonIcon(startIcon, size)}</Box>
       ) : null}
       <ButtonLabelText
         label={title}
@@ -344,7 +351,7 @@ function ButtonIdleContent({
         foregroundColor={foregroundColor}
       />
       {endIcon !== undefined ? (
-        <View style={iconBoxStyle}>{scaleButtonIcon(endIcon, size)}</View>
+        <Box sx={iconBoxSx}>{scaleButtonIcon(endIcon, size)}</Box>
       ) : null}
     </>
   );

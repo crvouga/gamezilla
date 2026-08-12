@@ -14,7 +14,7 @@ export default function ErrorStateExample() {
         label="Fill (full-screen failure)"
       />
       <SchemePreview>
-        <Box style={{ height: 280 }}>
+        <Box sx={{ height: 280 }}>
           <ErrorState
             title="Playground failed to start"
             body="UnknownDatabaseError: cannot open snapshot at /tmp/db.sqlite"

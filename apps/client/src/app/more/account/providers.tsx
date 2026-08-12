@@ -20,7 +20,7 @@ export default function AccountProvidersStubScreen() {
         { name: <Trans>Sign-in providers</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 2, p: 3 }}>
+        <Box sx={[sx, { gap: 2, p: 3 }]}>
           <Text
             label={t`Sign-in provider details are temporarily unavailable.`}
           />

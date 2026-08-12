@@ -12,9 +12,8 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 
-import { ThemeProvider, useTheme } from '../../theme';
+import { ThemeProvider } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { Text } from '../text';
@@ -25,14 +24,14 @@ export type SchemePreviewProps = {
 
 export function SchemePreview({ children }: SchemePreviewProps): ReactNode {
   return (
-    <View style={{ flexDirection: 'column', gap: 16 }}>
+    <Box sx={{ flexDirection: 'column', gap: 4 }}>
       <SchemePane label="Light" scheme="light">
         {children}
       </SchemePane>
       <SchemePane label="Dark" scheme="dark">
         {children}
       </SchemePane>
-    </View>
+    </Box>
   );
 }
 
@@ -59,7 +58,6 @@ function SchemePaneBody({
   label: string;
   children: ReactNode;
 }): ReactNode {
-  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -67,10 +65,8 @@ function SchemePaneBody({
         p: 4,
         gap: 3,
         background: 'background',
-      }}
-      style={{
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
         borderRadius: borderRadius.lg,
       }}
     >

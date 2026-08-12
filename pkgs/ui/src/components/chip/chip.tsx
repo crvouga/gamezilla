@@ -18,10 +18,8 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
-import { borderRadius } from '../../theme/scale';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -44,45 +42,42 @@ export function Chip({
   startIcon,
   dataSet,
 }: ChipProps) {
-  const theme = useTheme();
-
-  const bg = selected ? theme.colors.tintHighlight : theme.colors.surface;
-  const border = selected ? theme.colors.tint : theme.colors.border;
-  const textColor = selected ? theme.colors.tint : theme.colors.text;
-
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      {...componentDataSet('Chip', dataSet)}
-      sx={{ borderRadius: borderRadius.full }}
-      style={{
-        alignSelf: 'flex-start' as const,
+      dataSet={{ component: 'Chip', ...dataSet }}
+      sx={{
+        alignSelf: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: borderRadius.full,
+        gap: 1.5,
+        px: 3,
+        py: 1.5,
+        borderRadius: 'full',
         borderWidth: 1,
-        borderColor: border,
-        backgroundColor: bg,
+        borderColor: selected ? 'tint' : 'border',
+        backgroundColor: selected ? 'tintHighlight' : 'surface',
         opacity: disabled ? 0.5 : 1,
       }}
     >
       {startIcon !== undefined ? (
-        <View
-          style={{
+        <Box
+          sx={{
             alignItems: 'center',
             justifyContent: 'center',
             height: 16,
           }}
         >
           {startIcon}
-        </View>
+        </Box>
       ) : null}
       <Text
-        style={{ color: textColor, fontSize: 13, fontWeight: '600' }}
+        sx={{
+          color: selected ? 'tint' : 'text',
+          fontSize: 13,
+          fontWeight: '600',
+        }}
         label={label}
       />
     </Pressable>

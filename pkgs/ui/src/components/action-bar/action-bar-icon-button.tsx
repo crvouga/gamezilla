@@ -7,10 +7,10 @@ import {
   useState,
 } from 'react';
 import { Animated } from 'react-native';
-
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ColorTokens } from '../../theme';
 import { useTheme } from '../../theme';
+import { AnimatedBox } from '../animated-box';
 import { IconButton } from '../icon-button';
 import { CircleCheckIcon, type IconComponent } from '../icons';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
@@ -101,9 +101,9 @@ function ActionBarIconFace(p: {
   const caption = p.item.shortLabel ?? p.item.label;
   const disabled = p.item.disabled === true || p.item.loading === true;
   const iconNode = (
-    <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+    <AnimatedBox sx={{ transform: [{ scale: iconScale }] }}>
       <Icon size={Math.round(p.buttonSize * 0.55)} color={iconColor} />
-    </Animated.View>
+    </AnimatedBox>
   );
 
   if (p.showInlineLabel) {

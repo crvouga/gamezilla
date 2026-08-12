@@ -1,8 +1,8 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 import type { ComponentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { useOverlayPortalSlot } from '../overlay-portal';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { StatusBarOverlay } from './status-bar-overlay';
@@ -147,7 +147,6 @@ export function StatusBar({
   panelTitle = 'Status',
   dataSet,
 }: StatusBarProps): ReactNode {
-  const theme = useTheme();
   const registry = useStatusBarRegistry();
   const pushHeight = useStatusBarPushHeight();
   const overlayLabel = panelTitleToLabel(panelTitle);
@@ -163,11 +162,11 @@ export function StatusBar({
   return (
     <>
       {reserveSpace && pushHeight > 0 ? (
-        <View
+        <Box
           pointerEvents="none"
-          style={{
+          sx={{
             height: pushHeight,
-            backgroundColor: theme.colors.surface,
+            backgroundColor: 'surface',
           }}
         />
       ) : null}

@@ -21,10 +21,9 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { bestOnColor, type ColorTokens, useTheme } from '../../theme';
-import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { Text } from '../text';
 
 export type BadgeIntent =
@@ -105,22 +104,21 @@ export function Badge({
   const fg = color !== undefined ? bestOnColor(bg).fg : theme.colors[tokens.fg];
 
   const isSmall = size === 'sm';
-  const px = isSmall ? 6 : 8;
-  const py = isSmall ? 1 : 2;
-  const fontSize = isSmall ? 11 : 12;
-
   return (
-    <View
-      {...componentDataSet('Badge', dataSet)}
-      style={{
+    <Box
+      dataSet={{ component: 'Badge', ...dataSet }}
+      sx={{
         alignSelf: 'flex-start',
         backgroundColor: bg,
-        borderRadius: borderRadius.full,
-        paddingHorizontal: px,
-        paddingVertical: py,
+        borderRadius: 'full',
+        paddingHorizontal: isSmall ? 6 : 8,
+        paddingVertical: isSmall ? 1 : 2,
       }}
     >
-      <Text style={{ color: fg, fontSize, fontWeight: '600' }} label={label} />
-    </View>
+      <Text
+        sx={{ color: fg, fontSize: isSmall ? 11 : 12, fontWeight: '600' }}
+        label={label}
+      />
+    </Box>
   );
 }

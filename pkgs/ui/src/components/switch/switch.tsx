@@ -15,10 +15,10 @@ import type { ReactNode } from 'react';
 import {
   Switch as RNSwitch,
   type SwitchProps as RNSwitchProps,
-  View,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { Text } from '../text';
 
 export type SwitchProps = Omit<RNSwitchProps, 'trackColor' | 'thumbColor'> & {
@@ -37,9 +37,9 @@ export function Switch({ label, dataSet, ...rest }: SwitchProps) {
   };
 
   return (
-    <View
-      {...componentDataSet('Switch', dataSet)}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+    <Box
+      dataSet={{ component: 'Switch', ...dataSet }}
+      sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}
     >
       <RNSwitch
         trackColor={track}
@@ -48,6 +48,6 @@ export function Switch({ label, dataSet, ...rest }: SwitchProps) {
         {...rest}
       />
       {label && <Text variant="body" label={label} />}
-    </View>
+    </Box>
   );
 }

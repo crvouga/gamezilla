@@ -1,7 +1,7 @@
 import { useClock } from '@pkgs/clock';
-import { useTheme } from '@pkgs/ui';
+import { AnimatedBox, useTheme } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import type { Animated } from 'react-native';
 
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
 import { shouldPlayEloTick } from './throttle-elo-tick';
@@ -17,26 +17,18 @@ function CelebrationScrim(p: {
 }): ReactNode {
   return (
     <>
-      <Animated.View
+      <AnimatedBox
         pointerEvents="none"
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+        sx={{
+          absoluteFill: true,
           backgroundColor: 'rgba(0,0,0,0.55)',
           opacity: p.scrimOpacity,
         }}
       />
-      <Animated.View
+      <AnimatedBox
         pointerEvents="none"
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+        sx={{
+          absoluteFill: true,
           backgroundColor: p.vignetteColor,
           opacity: p.vignetteOpacity,
         }}
@@ -129,14 +121,10 @@ export function ChessPuzzleCelebrationOverlay(
   });
 
   return (
-    <Animated.View
+    <AnimatedBox
       pointerEvents="box-none"
-      style={{
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+      sx={{
+        absoluteFill: true,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 12,
@@ -147,9 +135,9 @@ export function ChessPuzzleCelebrationOverlay(
         vignetteOpacity={overlayAnim.vignetteOpacity}
         vignetteColor={theme.colors.successSurface}
       />
-      <Animated.View
+      <AnimatedBox
         testID="chess-puzzle-summary"
-        style={{
+        sx={{
           alignSelf: 'stretch',
           opacity: overlayAnim.cardOpacity,
           transform: [{ scale: overlayAnim.cardScale }],
@@ -160,7 +148,7 @@ export function ChessPuzzleCelebrationOverlay(
           displayRating={eloAnim.displayRating}
           deltaPulse={eloAnim.completePulse}
         />
-      </Animated.View>
-    </Animated.View>
+      </AnimatedBox>
+    </AnimatedBox>
   );
 }

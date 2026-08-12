@@ -28,7 +28,7 @@ export function ThemeSettingsScreen() {
         { name: <Trans>Appearance</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <Text
             variant="body"
             label={

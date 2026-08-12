@@ -7,6 +7,7 @@ import type {
   NativeSyntheticEvent,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { Box } from '../box';
 
 function sidePadding(listWidth: number, itemWidth: number): number {
   return Math.max(0, (listWidth - itemWidth) / 2);
@@ -54,32 +55,34 @@ export function HorizontalPickerList<T>({
   const pad = listWidth > 0 ? sidePadding(listWidth, itemWidth) : 0;
 
   return (
-    <Animated.FlatList
-      ref={listRef}
-      horizontal
-      data={items as T[]}
-      keyExtractor={keyExtractor}
-      renderItem={renderListItem}
-      extraData={extraData}
-      getItemLayout={getItemLayout}
-      initialScrollIndex={clampedIndex}
-      showsHorizontalScrollIndicator={false}
-      onLayout={onListLayout}
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-      onMomentumScrollEnd={onScrollEnd}
-      onScrollEndDrag={onScrollEndDrag}
-      snapToInterval={itemWidth}
-      snapToAlignment="start"
-      decelerationRate="fast"
-      disableIntervalMomentum
-      windowSize={5}
-      maxToRenderPerBatch={6}
-      updateCellsBatchingPeriod={50}
-      initialNumToRender={7}
-      removeClippedSubviews
-      contentContainerStyle={{ paddingHorizontal: pad }}
-      style={{ flex: 1 }}
-    />
+    <Box sx={{ flex: 1 }}>
+      <Animated.FlatList
+        ref={listRef}
+        horizontal
+        data={items as T[]}
+        keyExtractor={keyExtractor}
+        renderItem={renderListItem}
+        extraData={extraData}
+        getItemLayout={getItemLayout}
+        initialScrollIndex={clampedIndex}
+        showsHorizontalScrollIndicator={false}
+        onLayout={onListLayout}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        onMomentumScrollEnd={onScrollEnd}
+        onScrollEndDrag={onScrollEndDrag}
+        snapToInterval={itemWidth}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        disableIntervalMomentum
+        windowSize={5}
+        maxToRenderPerBatch={6}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={7}
+        removeClippedSubviews
+        contentContainerStyle={{ paddingHorizontal: pad }}
+        style={{ flex: 1 }}
+      />
+    </Box>
   );
 }

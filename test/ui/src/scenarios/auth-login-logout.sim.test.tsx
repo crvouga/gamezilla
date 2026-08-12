@@ -86,7 +86,11 @@ describe('auth login → logout', () => {
       // Open sign-in modal → email → create account.
       await tapWhenVisible(sim, alice.ui, by.role('button', 'Sign in'));
       await tapWhenVisible(sim, alice.ui, by.text('Sign in with email'));
-      await tapWhenVisible(sim, alice.ui, by.text('Need an account? Create one'));
+      await tapWhenVisible(
+        sim,
+        alice.ui,
+        by.text('Need an account? Create one')
+      );
 
       await waitVisible(sim, alice.ui, by.label('Email'));
       await alice.ui.typeText(by.label('Email'), 'alice@sim.local');
@@ -98,7 +102,11 @@ describe('auth login → logout', () => {
 
       // Account row opens the confirm modal; modal submit is the 2nd Sign out button.
       await tapWhenVisible(sim, alice.ui, by.role('button', 'Sign out'));
-      await tapWhenVisible(sim, alice.ui, nth(by.role('button', 'Sign out'), 1));
+      await tapWhenVisible(
+        sim,
+        alice.ui,
+        nth(by.role('button', 'Sign out'), 1)
+      );
 
       await waitVisible(sim, alice.ui, by.text('Signed out'));
       expect(await alice.ui.isVisible(by.text('Signed out'))).toBe(true);

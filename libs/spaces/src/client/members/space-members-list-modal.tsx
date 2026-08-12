@@ -66,7 +66,7 @@ export function SpaceMembersListModal({
       onClose={onClose}
       title={<Trans>People in this space</Trans>}
     >
-      <ScrollView style={{ maxHeight: 420 }} sx={{ px: 0 }}>
+      <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
         {rows.length === 0 ? (
           <Trans>No one connected yet</Trans>
         ) : (

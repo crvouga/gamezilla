@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Pressable, XIcon } from '@pkgs/ui';
+import { Box, Pressable, XIcon } from '@pkgs/ui';
 import {
   Canvas,
   FilterMode,
@@ -9,7 +9,6 @@ import {
   type SkImage,
 } from '@shopify/react-native-skia';
 import { type ReactNode, useMemo } from 'react';
-import { View } from 'react-native';
 import { squareToXY } from './chess-board-geometry';
 import type {
   BoardOrientation,
@@ -89,9 +88,9 @@ function PromotionStack({
   onPick,
 }: PromotionStackProps): ReactNode {
   return (
-    <View
+    <Box
       pointerEvents="box-none"
-      style={{
+      sx={{
         position: 'absolute',
         left: destX,
         top: stackTopY,
@@ -136,7 +135,7 @@ function PromotionStack({
           key={`pinline-tap-${tile.kind}`}
           onPress={() => onPick(tile.kind)}
           accessibilityRole="button"
-          style={{
+          sx={{
             position: 'absolute',
             left: 0,
             top: idx * cell,
@@ -145,7 +144,7 @@ function PromotionStack({
           }}
         />
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -162,7 +161,7 @@ function PromotionBackdrop({
     <Pressable
       onPress={onCancel}
       accessibilityRole="button"
-      style={{
+      sx={{
         position: 'absolute',
         left: 0,
         top: 0,
@@ -207,9 +206,9 @@ export function ChessBoardPromotionInline(
   );
 
   return (
-    <View
+    <Box
       pointerEvents="box-none"
-      style={{
+      sx={{
         position: 'absolute',
         left: 0,
         top: 0,
@@ -235,7 +234,7 @@ export function ChessBoardPromotionInline(
         theme={theme}
         onPress={onCancel}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -257,7 +256,7 @@ function CancelChip({
     <Pressable
       onPress={onPress}
       accessibilityLabel={t`Cancel promotion`}
-      style={{
+      sx={{
         position: 'absolute',
         left: x,
         top: y,

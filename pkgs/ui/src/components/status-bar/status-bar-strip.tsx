@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
 import { useContext, useEffect, useState } from 'react';
-import { Pressable as RNPressable, StyleSheet, View } from 'react-native';
 import {
   GestureDetector,
   type GestureType,
 } from 'react-native-gesture-handler';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useHoverCapable, useTheme } from '../../theme';
 import { Box } from '../box';
+import { Pressable } from '../pressable';
 import { statusBarGrabCursor } from './status-bar-cursor';
 import type { RegisteredStatusBarItem } from './types';
 
@@ -65,8 +65,8 @@ export function StatusBarStrip({
 
   return (
     <GestureDetector gesture={openPan}>
-      <RNPressable
-        {...componentDataSet('StatusBar', dataSet)}
+      <Pressable
+        dataSet={{ component: 'StatusBar', ...dataSet }}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
         accessibilityHint="Swipe down to open"
@@ -80,7 +80,8 @@ export function StatusBarStrip({
           if (hoverCapable) setHovered(true);
         }}
         onHoverOut={() => setHovered(false)}
-        style={[
+        feedback="none"
+        sx={[
           {
             position: 'absolute',
             top: 0,
@@ -89,19 +90,19 @@ export function StatusBarStrip({
             zIndex: STATUS_BAR_Z_INDEX,
             height: totalHeight,
             paddingTop: topInset,
-            backgroundColor: theme.colors.surface,
+            backgroundColor: 'surface',
           },
           statusBarGrabCursor(isGrabbing),
         ]}
       >
-        <View
-          style={{
+        <Box
+          sx={{
             flex: 1,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'flex-end',
             paddingHorizontal: 10,
-            gap: 8,
+            gap: 2,
           }}
         >
           {items.map((item) => (
@@ -117,14 +118,14 @@ export function StatusBarStrip({
               {item.indicator}
             </Box>
           ))}
-        </View>
+        </Box>
         {tintColor ? (
-          <View
+          <Box
             pointerEvents="none"
-            style={[styles.tint, { backgroundColor: tintColor }]}
+            sx={{ absoluteFill: true, backgroundColor: tintColor }}
           />
         ) : null}
-      </RNPressable>
+      </Pressable>
     </GestureDetector>
   );
 }
@@ -137,9 +138,3 @@ export function StatusBarStrip({
 export function useStatusBarPushHeight(): number {
   return STATUS_BAR_BODY_HEIGHT;
 }
-
-const styles = StyleSheet.create({
-  tint: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});

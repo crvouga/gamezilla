@@ -13,9 +13,11 @@
  */
 
 import { type ReactNode, useEffect, useRef } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing } from 'react-native';
 
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 
 /** Total length of one loop cycle. ~1200ms feels close to iMessage. */
 const DOTS_CYCLE_MS = 1200;
@@ -64,11 +66,11 @@ export function TypingDots({
   }, [progress]);
 
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: DOT_GAP,
+        gap: DOT_GAP / 4,
         height,
       }}
     >
@@ -91,9 +93,9 @@ export function TypingDots({
           extrapolate: 'clamp',
         });
         return (
-          <Animated.View
+          <AnimatedBox
             key={i}
-            style={{
+            sx={{
               width: DOT_SIZE,
               height: DOT_SIZE,
               borderRadius: DOT_SIZE / 2,
@@ -103,6 +105,6 @@ export function TypingDots({
           />
         );
       })}
-    </View>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { Box, Text, useTheme } from '@pkgs/ui';
+import { AnimatedBox, Box, Text } from '@pkgs/ui';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
 import { motion } from '@pkgs/ui/theme/motion';
 import { type ReactNode, useEffect, useRef } from 'react';
@@ -17,7 +17,6 @@ export function ChessPuzzleEloChip({
   testID,
   pulseNonce = 0,
 }: ChessPuzzleEloChipProps): ReactNode {
-  const theme = useTheme();
   const isPrimary = variant === 'primary';
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -39,24 +38,22 @@ export function ChessPuzzleEloChip({
   }, [pulseNonce, scale]);
 
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
+    <AnimatedBox sx={{ transform: [{ scale }] }}>
       <Box
         testID={testID}
-        sx={{ px: 2, py: 1, borderRadius: 6 }}
-        style={{
-          backgroundColor: isPrimary
-            ? theme.colors.tintMuted
-            : theme.colors.surfaceMuted,
+        sx={{
+          px: 2,
+          py: 1,
+          borderRadius: 6,
+          background: isPrimary ? 'tintMuted' : 'surfaceMuted',
         }}
       >
         <Text
           variant={isPrimary ? 'bodyBold' : 'caption'}
-          style={{
-            color: isPrimary ? theme.colors.tint : theme.colors.textSecondary,
-          }}
+          sx={{ color: isPrimary ? 'tint' : 'textSecondary' }}
           label={String(elo)}
         />
       </Box>
-    </Animated.View>
+    </AnimatedBox>
   );
 }

@@ -29,7 +29,8 @@ const SKIP_FOLDERS = new Set([
   'use-breadcrumb-nav',
 ]);
 
-const COMPONENT_DATA_SET_RE = /componentDataSet\s*\(\s*['"]([A-Za-z0-9_]+)['"]/;
+const COMPONENT_ID_RE =
+  /(?:componentDataSet|useHostSx)\s*\(\s*['"]([A-Za-z0-9_]+)['"]|component:\s*['"]([A-Za-z0-9_]+)['"]/;
 
 function listComponentFolders(): string[] {
   return readdirSync(COMPONENTS_DIR).filter((name) => {
@@ -47,7 +48,7 @@ function folderHasComponentDataSet(folder: string): boolean {
     if (!rel.endsWith('.tsx') && !rel.endsWith('.ts')) continue;
     if (rel.includes('.example.') || rel.includes('.test.')) continue;
     const source = readFileSync(join(dir, rel), 'utf8');
-    if (COMPONENT_DATA_SET_RE.test(source)) return true;
+    if (COMPONENT_ID_RE.test(source)) return true;
   }
   return false;
 }
@@ -64,8 +65,9 @@ if (missing.length > 0) {
   console.error(
     'Missing componentDataSet(...) in @pkgs/ui component folders:\n' +
       missing.map((m) => `  - ${m}`).join('\n') +
-      "\n\nAdd `{...componentDataSet('<Name>', dataSet)}` on the root host " +
-      '(see pkgs/ui/src/component-id/). Non-visual folders belong in SKIP_FOLDERS.'
+      "\n\nCall `useHostSx('<Name>', sx, dataSet)` on host adapters or " +
+      "`dataSet={{ component: '<Name>' }}` when composing Box. " +
+      'Non-visual folders belong in SKIP_FOLDERS.'
   );
   process.exit(1);
 }

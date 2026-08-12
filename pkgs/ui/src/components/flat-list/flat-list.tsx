@@ -1,35 +1,32 @@
 /**
  * Themed `FlatList` with `sx` applied to `contentContainerStyle`.
  *
- * Inside a {@link ContentEdgePaddingProvider} shell, horizontal and bottom
- * padding are cancelled on the list and re-applied on `contentContainerStyle`
- * so the scrollbar sits flush with the parent surface edge. Pass
- * `flushEdge={false}` to opt out.
- *
- * When `style` includes `flex: 1`, the flush wrapper also fills so nested
- * screen-body lists stay height-bounded and actually scroll.
+ * `frameSx` styles the list host. Inside a {@link ContentEdgePaddingProvider}
+ * shell, horizontal and bottom padding are cancelled on the list and
+ * re-applied on the content container.
  */
 
 import { forwardRef } from 'react';
 import {
   FlatList as RNFlatList,
   type FlatListProps as RNFlatListProps,
-  type StyleProp,
-  StyleSheet,
-  type ViewStyle,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { flattenSx, type SxInput, useHostSx } from '../../theme';
 import { Box } from '../box';
 import {
   resolveFlushEdgeStyles,
   useContentEdgePadding,
 } from '../content-edge-padding';
 
-export type FlatListProps<ItemT> = RNFlatListProps<ItemT> & {
-  /** Utility-first style shorthand applied to `contentContainerStyle`. */
-  sx?: SxProps;
+export type FlatListProps<ItemT> = Omit<
+  RNFlatListProps<ItemT>,
+  'style' | 'contentContainerStyle'
+> & {
+  /** Utility-first style shorthand applied to the content container. */
+  sx?: SxInput;
+  /** Style the list frame (flex, maxHeight, …). */
+  frameSx?: SxInput;
   /**
    * When inside a padded shell, cancel edge padding so the scrollbar is flush.
    * Default `true`.
@@ -39,43 +36,32 @@ export type FlatListProps<ItemT> = RNFlatListProps<ItemT> & {
   dataSet?: ComponentDataSet;
 };
 
-function styleRequestsFlexFill(
-  style: StyleProp<ViewStyle> | undefined
-): boolean {
-  const flat = StyleSheet.flatten(style);
+function requestsFlexFill(frameSx: SxInput): boolean {
+  const flat = flattenSx(frameSx);
   return flat?.flex === 1 || flat?.flexGrow === 1;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
 export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
   function FlatList(
-    {
-      sx: sxProp,
-      contentContainerStyle,
-      dataSet,
-      flushEdge = true,
-      style,
-      ...rest
-    },
+    { sx: sxProp, frameSx, dataSet, flushEdge = true, ...rest },
     ref
   ) {
-    const theme = useTheme();
     const edge = useContentEdgePadding();
     const { contentSx, wrapperSx } = resolveFlushEdgeStyles(edge, flushEdge);
-    const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-    const flushStyle = contentSx ? theme.sx(contentSx) : undefined;
-    const idProps = componentDataSet('FlatList', dataSet);
+    const content = useHostSx('FlatList', [contentSx, sxProp], dataSet);
+    const frame = useHostSx('FlatListFrame', frameSx);
     const list = (
       <RNFlatList
         ref={ref}
-        style={style}
-        contentContainerStyle={[flushStyle, sxStyle, contentContainerStyle]}
+        style={frame.style}
+        contentContainerStyle={content.style}
         {...rest}
-        {...idProps}
+        {...content.dataSet}
       />
     );
     if (wrapperSx === undefined) return list;
-    const fill = styleRequestsFlexFill(style);
+    const fill = requestsFlexFill(frameSx);
     return <Box sx={fill ? { ...wrapperSx, flex: 1 } : wrapperSx}>{list}</Box>;
   }
 );

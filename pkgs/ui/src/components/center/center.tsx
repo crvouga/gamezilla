@@ -10,35 +10,28 @@
  */
 
 import { forwardRef } from 'react';
-import { View, type ViewProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useTheme } from '../../theme';
+import type { View } from 'react-native';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxInput } from '../../theme';
+import { Box, type BoxProps } from '../box';
 
-export type CenterProps = ViewProps & {
+export type CenterProps = Omit<BoxProps, 'sx'> & {
   /** Utility-first style shorthand. */
-  sx?: SxProps;
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
 export const Center = forwardRef<View, CenterProps>(function Center(
-  { sx: sxProp, style, dataSet, ...rest },
+  { sx, dataSet, ...rest },
   ref
 ) {
-  const theme = useTheme();
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const idProps = componentDataSet('Center', dataSet);
   return (
-    <View
+    <Box
       ref={ref}
-      style={[
-        { alignItems: 'center', justifyContent: 'center' },
-        sxStyle,
-        style,
-      ]}
+      sx={[{ alignItems: 'center', justifyContent: 'center' }, sx]}
+      dataSet={{ component: 'Center', ...dataSet }}
       {...rest}
-      {...idProps}
     />
   );
 });

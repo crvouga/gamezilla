@@ -16,18 +16,15 @@
  */
 
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { Center, type CenterProps } from '../center';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxInput } from '../../theme';
+import { Center } from '../center';
 import { Spinner, type SpinnerProps } from './spinner';
 
 export type SpinnerBoxProps = {
   /** Utility-first style shorthand applied to the centering wrapper. */
-  sx?: SxProps;
-  /** Raw style merged after `sx` (matches `Center`'s precedence). */
-  style?: StyleProp<ViewStyle>;
+  sx?: SxInput;
   /** Spinner size; defaults to `"medium"` (matches `Spinner`). */
   size?: SpinnerProps['size'];
   /** Spinner color token or raw color; defaults to `"tint"`. */
@@ -42,26 +39,19 @@ export type SpinnerBoxProps = {
 
 export function SpinnerBox({
   sx,
-  style,
   size,
   color,
   strokeWidth,
   children,
   dataSet,
 }: SpinnerBoxProps) {
-  // `exactOptionalPropertyTypes` forbids passing explicit `undefined` to
-  // optional props, so build prop objects that only include defined keys.
-  const centerProps: CenterProps = {};
-  if (sx !== undefined) centerProps.sx = sx;
-  if (style !== undefined) centerProps.style = style;
-
   const spinnerProps: SpinnerProps = {};
   if (size !== undefined) spinnerProps.size = size;
   if (color !== undefined) spinnerProps.color = color;
   if (strokeWidth !== undefined) spinnerProps.strokeWidth = strokeWidth;
 
   return (
-    <Center {...centerProps} {...componentDataSet('SpinnerBox', dataSet)}>
+    <Center sx={sx} dataSet={{ component: 'SpinnerBox', ...dataSet }}>
       <Spinner {...spinnerProps} />
       {children}
     </Center>

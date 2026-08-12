@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth/client/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import { Box, Pressable, Text, useTheme } from '@pkgs/ui';
+import { Box, Pressable, Text } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
 
 import {
@@ -45,14 +45,7 @@ function themesSummary(themes: readonly string[]): string {
 }
 
 function FeedBarSep(): ReactNode {
-  const theme = useTheme();
-  return (
-    <Text
-      variant="caption"
-      style={{ color: theme.colors.textSecondary }}
-      label="·"
-    />
-  );
+  return <Text variant="caption" sx={{ color: 'textSecondary' }} label="·" />;
 }
 
 export function ChessPuzzleFeedBar({
@@ -60,7 +53,6 @@ export function ChessPuzzleFeedBar({
   rating,
   onOpenFeedSettings,
 }: ChessPuzzleFeedBarProps): ReactNode {
-  const theme = useTheme();
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config] = useChessPuzzleFeedConfig();
@@ -79,14 +71,14 @@ export function ChessPuzzleFeedBar({
   const puzzleElo = showPuzzleRating ? rating : 0;
   const idLabel =
     puzzleId !== undefined && puzzleId.length > 0 ? puzzleId : '—';
-  const muted = { color: theme.colors.textSecondary } as const;
+  const muted = { color: 'textSecondary' } as const;
 
   return (
     <Pressable
       onPress={onOpenFeedSettings}
       accessibilityRole="button"
       testID="chess-puzzle-feed-summary"
-      style={{ alignSelf: 'stretch' }}
+      sx={{ alignSelf: 'stretch' }}
     >
       <Box
         testID="chess-puzzle-board-elo-bar"
@@ -101,7 +93,7 @@ export function ChessPuzzleFeedBar({
           flexWrap: 'wrap',
         }}
       >
-        <Text variant="caption" style={muted} label={idLabel} />
+        <Text variant="caption" sx={muted} label={idLabel} />
         {showPuzzleRating ? (
           <>
             <FeedBarSep />
@@ -113,23 +105,23 @@ export function ChessPuzzleFeedBar({
           </>
         ) : null}
         <FeedBarSep />
-        <Text variant="caption" style={muted} label={feedLabel} />
+        <Text variant="caption" sx={muted} label={feedLabel} />
         <FeedBarSep />
         <Text
           variant="caption"
-          style={muted}
+          sx={muted}
           label={historyFilterLabel(config.historyFilter)}
         />
         <FeedBarSep />
         <Text
           variant="caption"
-          style={muted}
+          sx={muted}
           label={themesSummary(config.themes)}
         />
         <FeedBarSep />
         <Text
           variant="caption"
-          style={muted}
+          sx={muted}
           label={
             <Trans>
               {pool.matched} / {pool.total}

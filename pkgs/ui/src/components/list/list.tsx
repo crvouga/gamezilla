@@ -15,9 +15,8 @@
  */
 
 import { Children, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -30,30 +29,28 @@ export type ListProps = {
 };
 
 export function List({ children, separator = true, dataSet }: ListProps) {
-  const theme = useTheme();
-
   if (!separator) {
-    return <View {...componentDataSet('List', dataSet)}>{children}</View>;
+    return <Box dataSet={{ component: 'List', ...dataSet }}>{children}</Box>;
   }
 
   const items = Children.toArray(children);
   return (
-    <View {...componentDataSet('List', dataSet)}>
+    <Box dataSet={{ component: 'List', ...dataSet }}>
       {items.map((child, i) => (
-        <View key={i}>
+        <Box key={i}>
           {child}
           {i < items.length - 1 && (
-            <View
-              style={{
-                height: StyleSheet.hairlineWidth,
-                backgroundColor: theme.colors.border,
+            <Box
+              sx={{
+                borderBottomWidth: 'hairline',
+                borderColor: 'border',
                 marginLeft: 16,
               }}
             />
           )}
-        </View>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -76,32 +73,29 @@ function ListItemContent({
   subtitle,
   leading,
   trailing,
-  selected,
 }: {
   title: ReactNode;
   subtitle: ReactNode | undefined;
   leading: ReactNode | undefined;
   trailing: ReactNode | undefined;
-  selected: boolean;
 }) {
   return (
-    <View
-      style={{
+    <Box
+      sx={{
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 16,
-        gap: 12,
+        gap: 3,
       }}
     >
       {leading}
-      <View style={{ flex: 1 }}>
+      <Box sx={{ flex: 1 }}>
         <Text variant="body" label={title} />
         {subtitle && <Text variant="caption" label={subtitle} />}
-      </View>
+      </Box>
       {trailing}
-      {selected ? null : null}
-    </View>
+    </Box>
   );
 }
 
@@ -114,25 +108,24 @@ export function ListItem({
   onPress,
   dataSet,
 }: ListItemProps) {
-  const theme = useTheme();
   const content = (
     <ListItemContent
       title={title}
       subtitle={subtitle}
       leading={leading}
       trailing={trailing}
-      selected={selected}
     />
   );
+  const selectedSx = selected
+    ? { backgroundColor: 'tintSubtle' as const }
+    : false;
 
   if (onPress) {
     return (
       <Pressable
         onPress={onPress}
-        style={{
-          backgroundColor: selected ? theme.colors.tintSubtle : undefined,
-        }}
-        {...componentDataSet('ListItem', dataSet)}
+        sx={selectedSx}
+        dataSet={{ component: 'ListItem', ...dataSet }}
       >
         {content}
       </Pressable>
@@ -140,13 +133,8 @@ export function ListItem({
   }
 
   return (
-    <View
-      style={{
-        backgroundColor: selected ? theme.colors.tintSubtle : undefined,
-      }}
-      {...componentDataSet('ListItem', dataSet)}
-    >
+    <Box sx={selectedSx} dataSet={{ component: 'ListItem', ...dataSet }}>
       {content}
-    </View>
+    </Box>
   );
 }

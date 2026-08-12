@@ -42,7 +42,7 @@ export function ChessSettingsDeveloperUiComponentsScreen(): ReactNode {
   );
 
   return (
-    <Box sx={{ alignSelf: 'stretch' }} style={{ flex: 1 }}>
+    <Box sx={{ alignSelf: 'stretch', flex: 1 }}>
       <DefineBackButton onPress={back} />
       <ExplorerList onSelect={onSelect} entries={CHESS_COMPONENT_ENTRIES} />
     </Box>

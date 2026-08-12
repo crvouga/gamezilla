@@ -14,7 +14,7 @@ export function ProfileFriendsStats(): ReactNode {
   return (
     <Pressable
       onPress={() => navigate(FriendsProfileRoute.Friends)}
-      style={{ alignSelf: 'stretch' }}
+      sx={{ alignSelf: 'stretch' }}
     >
       <Box sx={{ alignItems: 'center', py: 1 }}>
         <Text variant="title" label={String(friends.length)} />

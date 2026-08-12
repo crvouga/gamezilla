@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text, useTheme } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import {
@@ -37,8 +37,6 @@ export type ChessPuzzleStatusHeaderProps = {
 export function ChessPuzzleStatusHeader({
   kind,
 }: ChessPuzzleStatusHeaderProps): ReactNode {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{
@@ -52,7 +50,7 @@ export function ChessPuzzleStatusHeader({
       <ChessPuzzleStatusIcon kind={kind} />
       <Text
         variant="bodyBold"
-        style={{ flex: 1, color: theme.colors.text }}
+        sx={{ flex: 1, color: 'text' }}
         label={statusLabel(kind)}
       />
     </Box>

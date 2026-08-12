@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
-import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { FlatList } from '../flat-list';
 import { ListItem } from '../list';
 import { Text } from '../text';
@@ -22,20 +22,15 @@ export function ComboboxOptionRow<T extends string | number>({
   onPick: () => void;
   renderOption: ComboboxProps<T>['renderOption'];
 }): ReactElement {
-  const theme = useTheme();
   if (renderOption !== undefined) {
-    return renderOption(item, isSelected, onPick) ?? <View />;
+    return renderOption(item, isSelected, onPick) ?? <Box />;
   }
   return (
-    <View
+    <Box
       nativeID={optionId}
       accessibilityRole="menuitem"
       accessibilityState={{ selected: isSelected }}
-      style={
-        isHighlighted
-          ? { backgroundColor: theme.colors.tintHighlight }
-          : undefined
-      }
+      sx={isHighlighted ? { background: 'tintHighlight' } : undefined}
       {...(Platform.OS === 'web' ? { id: optionId } : {})}
     >
       <ListItem
@@ -43,15 +38,12 @@ export function ComboboxOptionRow<T extends string | number>({
         leading={item.preview}
         trailing={
           isSelected ? (
-            <Text
-              style={{ color: theme.colors.tint, fontSize: 16 }}
-              label="✓"
-            />
+            <Text sx={{ color: 'tint', fontSize: 16 }} label="✓" />
           ) : undefined
         }
         onPress={onPick}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -62,13 +54,13 @@ export function ComboboxEmpty({
 }): ReactElement | null {
   if (emptyMessage === undefined) return null;
   return (
-    <View style={{ paddingVertical: 8 }}>
+    <Box sx={{ paddingVertical: 8 }}>
       <Text
         variant="caption"
         sx={{ color: 'textSecondary', textAlign: 'center' }}
         label={emptyMessage}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -102,7 +94,7 @@ export function ComboboxOptionsList<T extends string | number>({
     <FlatList
       data={options}
       keyExtractor={(item) => String(item.value)}
-      style={{ maxHeight: 360 }}
+      frameSx={{ maxHeight: 360 }}
       keyboardShouldPersistTaps="handled"
       accessibilityRole="list"
       nativeID={listboxId}

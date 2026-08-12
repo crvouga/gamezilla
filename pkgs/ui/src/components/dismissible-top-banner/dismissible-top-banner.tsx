@@ -22,18 +22,13 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import {
-  Animated,
-  Platform,
-  type StyleProp,
-  StyleSheet,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { Animated, Platform } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
+import { AnimatedBox } from '../animated-box';
 import { Box } from '../box';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -148,23 +143,17 @@ export type DismissibleBannerPortalApi = {
 const DismissibleBannerPortalContext =
   createContext<DismissibleBannerPortalApi | null>(null);
 
-/** Full-screen overlay; web uses fixed + fill (RN Web types omit `position: 'fixed'`). */
-const DISMISSIBLE_BANNER_PORTAL_HOST_STYLE: StyleProp<ViewStyle> =
+/** Full-screen overlay; web uses fixed + fill. */
+const DISMISSIBLE_BANNER_PORTAL_HOST_SX: SxProps =
   Platform.OS === 'web'
-    ? [
-        StyleSheet.absoluteFill,
-        { zIndex: 999_999 },
-        {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-        } as unknown as ViewStyle,
-      ]
-    : [StyleSheet.absoluteFill, { zIndex: 999_999 }];
+    ? {
+        absoluteFill: true,
+        zIndex: 999_999,
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+      }
+    : { absoluteFill: true, zIndex: 999_999 };
 
 function DismissibleBannerPortalHost({ store }: { store: PortalStore }) {
   const entries = useSyncExternalStore(
@@ -173,15 +162,15 @@ function DismissibleBannerPortalHost({ store }: { store: PortalStore }) {
     store.getSnapshot
   );
   return (
-    <View
+    <Box
       pointerEvents="box-none"
-      style={DISMISSIBLE_BANNER_PORTAL_HOST_STYLE}
+      sx={DISMISSIBLE_BANNER_PORTAL_HOST_SX}
       collapsable={false}
     >
       {entries.map(([key, value]) => (
         <Fragment key={key}>{value}</Fragment>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -203,10 +192,10 @@ export function DismissibleBannerPortalProvider({
 
   return (
     <DismissibleBannerPortalContext.Provider value={api}>
-      <View style={{ flex: 1 }} collapsable={false}>
+      <Box sx={{ flex: 1 }} collapsable={false}>
         {children}
         <DismissibleBannerPortalHost store={store} />
-      </View>
+      </Box>
     </DismissibleBannerPortalContext.Provider>
   );
 }
@@ -377,10 +366,10 @@ function dismissibleBannerPortalNode({
   dataSet: ComponentDataSet | undefined;
 }) {
   return (
-    <Animated.View
+    <AnimatedBox
       pointerEvents="box-none"
-      {...componentDataSet('DismissibleBanner', dataSet)}
-      style={[
+      dataSet={{ component: 'DismissibleBanner', ...dataSet }}
+      sx={[
         {
           position: 'absolute',
           zIndex: 9999,
@@ -404,7 +393,7 @@ function dismissibleBannerPortalNode({
         theme={theme}
         dismissButtonTestID={dismissButtonTestID}
       />
-    </Animated.View>
+    </AnimatedBox>
   );
 }
 

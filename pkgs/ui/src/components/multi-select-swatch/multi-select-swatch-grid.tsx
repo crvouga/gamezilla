@@ -6,10 +6,10 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 import { TextInput } from '../text-input';
 import { arraysEqualAsSets } from './arrays-equal-as-sets';
@@ -185,24 +185,23 @@ function RandomChip({
   isRandom: boolean;
   onPress: () => void;
 }) {
-  const theme = useTheme();
   return (
     <Pressable
       onPress={onPress}
-      style={{
+      sx={{
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: isRandom ? theme.colors.tint : theme.colors.border,
-        backgroundColor: theme.colors.surface,
+        borderColor: isRandom ? 'tint' : 'border',
+        backgroundColor: 'surface',
       }}
     >
       <Text
         variant="caption"
-        style={{
+        sx={{
           fontWeight: isRandom ? '600' : '400',
-          color: theme.colors.text,
+          color: 'text',
         }}
         label="Random"
       />
@@ -253,12 +252,12 @@ function DefaultSwatch({
     <Pressable
       onPress={onPress}
       accessibilityLabel={isTrans ? 'Transparent' : `Color ${hex}`}
-      style={{
+      sx={{
         width: 36,
         height: 36,
         borderRadius: 18,
         borderWidth: 2,
-        borderColor: active ? theme.colors.tint : theme.colors.border,
+        borderColor: active ? 'tint' : 'border',
         backgroundColor: isTrans ? 'transparent' : `#${hex}`,
         overflow: 'hidden',
       }}
@@ -286,7 +285,6 @@ function CustomHexInput({
   validateCustom: (token: string) => boolean;
 }) {
   const { t } = useLingui();
-  const theme = useTheme();
   const [hexDraft, setHexDraft] = useState('');
   const addHex = useCallback(() => {
     const t = hexDraft.trim().toLowerCase();
@@ -319,11 +317,11 @@ function CustomHexInput({
         </Box>
         <Pressable
           onPress={addHex}
-          style={{ paddingVertical: 8, paddingHorizontal: 12 }}
+          sx={{ paddingVertical: 8, paddingHorizontal: 12 }}
         >
           <Text
             variant="label"
-            style={{ color: theme.colors.tint }}
+            sx={{ color: 'tint' }}
             label={<Trans>Add</Trans>}
           />
         </Pressable>

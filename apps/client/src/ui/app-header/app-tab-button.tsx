@@ -53,8 +53,10 @@ export function AppTabButton({
         variant="caption"
         numberOfLines={1}
         ellipsizeMode="tail"
-        style={{ fontSize: TAB_LABEL_FONT_SIZE }}
-        sx={{ color: focused ? 'tint' : 'tabIconDefault' }}
+        sx={{
+          fontSize: TAB_LABEL_FONT_SIZE,
+          color: focused ? 'tint' : 'tabIconDefault',
+        }}
         label={label}
       />
     </Pressable>

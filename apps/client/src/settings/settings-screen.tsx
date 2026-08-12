@@ -63,7 +63,7 @@ export function SettingsScreen() {
         { name: <Trans>Settings</Trans> },
       ]}
       content={({ sx }) => (
-        <MenuList style={sx}>
+        <MenuList sx={sx}>
           {rows.map((row) => (
             <MenuRow
               key={row.title}

@@ -11,9 +11,8 @@
  */
 
 import type { ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
@@ -62,7 +61,7 @@ export function CatalogDetail({
 
   if (!known) {
     return (
-      <Box {...componentDataSet('CatalogDetail', dataSet)}>
+      <Box dataSet={{ component: 'CatalogDetail', ...dataSet }}>
         <EmptyState
           title="Item not found"
           body={`No catalog entry for "${currentId}".`}
@@ -107,8 +106,8 @@ function CatalogDetailKnown({
 }): ReactNode {
   return (
     <Box
-      style={{ flex: 1, minHeight: 0 }}
-      {...componentDataSet('CatalogDetail', dataSet)}
+      sx={{ flex: 1, minHeight: 0 }}
+      dataSet={{ component: 'CatalogDetail', ...dataSet }}
     >
       {renderDetailBody(
         children,
@@ -151,11 +150,11 @@ function CatalogDetailBottomBar({
       sx={{
         background: 'surface',
         borderColor: 'border',
+        borderTopWidth: 'hairline',
         px: step,
         py: 1,
         ...(flush ? { mx: -step } : {}),
       }}
-      style={{ borderTopWidth: StyleSheet.hairlineWidth }}
     >
       <CatalogDetailNav
         items={items}
@@ -191,7 +190,7 @@ function renderDetailBody(
   }
   return (
     <ScrollView
-      style={{ flex: 1 }}
+      frameSx={{ flex: 1 }}
       sx={{
         px: 4,
         pb: 16,

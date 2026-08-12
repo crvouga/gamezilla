@@ -262,8 +262,10 @@ function ChessBoardImpl(props: ChessBoardProps): ReactNode {
     <Box
       testID={testID}
       onLayout={onLayout}
-      sx={{ alignSelf: 'center' }}
-      style={size !== undefined ? explicitSizeStyle(size) : MEASURED_STYLE}
+      sx={[
+        { alignSelf: 'center' },
+        size !== undefined ? explicitSizeStyle(size) : MEASURED_STYLE,
+      ]}
     >
       {canvasReady ? (
         // see hook call above

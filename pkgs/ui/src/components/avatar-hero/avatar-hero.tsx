@@ -4,9 +4,8 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import { Box } from '../box';
 import { Center } from '../center';
 import { IconButton } from '../icon-button';
 
@@ -35,26 +34,25 @@ export function AvatarHero({
   action,
   dataSet,
 }: AvatarHeroProps) {
-  const theme = useTheme();
   const slotSize = size + ACTION_INSET * 2;
 
   return (
     <Center
-      {...componentDataSet('AvatarHero', dataSet)}
+      dataSet={{ component: 'AvatarHero', ...dataSet }}
       sx={{ py: 2, minHeight: slotSize + 16 }}
     >
-      <View style={{ width: slotSize, height: slotSize }}>
+      <Box sx={{ width: slotSize, height: slotSize }}>
         <Center sx={{ width: size, height: size, alignSelf: 'center' }}>
           {children}
         </Center>
         {action !== undefined ? (
-          <View
-            style={{
+          <Box
+            sx={{
               position: 'absolute',
               right: 0,
               bottom: 0,
               borderWidth: 1,
-              borderColor: theme.colors.border,
+              borderColor: 'border',
               borderRadius: ACTION_SIZE / 2,
             }}
           >
@@ -68,9 +66,9 @@ export function AvatarHero({
             >
               {action.icon}
             </IconButton>
-          </View>
+          </Box>
         ) : null}
-      </View>
+      </Box>
     </Center>
   );
 }

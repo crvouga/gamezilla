@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Pressable, type PressableProps } from '@pkgs/ui';
+import { Pressable } from '@pkgs/ui';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
@@ -11,14 +11,12 @@ export type SpaceCardOpenLinkProps = {
   spaceId: string;
   children: ReactNode;
   accessibilityLabelOverride?: string;
-  style?: PressableProps['style'];
 };
 
 export function SpaceCardOpenLink({
   spaceId,
   children,
   accessibilityLabelOverride,
-  style,
 }: SpaceCardOpenLinkProps): ReactNode {
   const router = useRouter();
   const { t } = useLingui();
@@ -34,7 +32,6 @@ export function SpaceCardOpenLink({
       onPress={() => openSpaceDetail(router, spaceId)}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={style}
     >
       {children}
     </Pressable>

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text, useTheme } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import type { ChessPuzzleStats } from '../../shared/chess-puzzle-stats';
@@ -10,22 +10,18 @@ type StatTileProps = {
 };
 
 function StatTile({ label, value }: StatTileProps): ReactNode {
-  const theme = useTheme();
   return (
     <Box
-      sx={{ flex: 1, gap: 1, p: 3, borderRadius: 8 }}
-      style={{ backgroundColor: theme.colors.surfaceMuted }}
+      sx={{
+        flex: 1,
+        gap: 1,
+        p: 3,
+        borderRadius: 8,
+        background: 'surfaceMuted',
+      }}
     >
-      <Text
-        variant="caption"
-        style={{ color: theme.colors.textSecondary }}
-        label={label}
-      />
-      <Text
-        variant="bodyBold"
-        style={{ color: theme.colors.text }}
-        label={value}
-      />
+      <Text variant="caption" sx={{ color: 'textSecondary' }} label={label} />
+      <Text variant="bodyBold" sx={{ color: 'text' }} label={value} />
     </Box>
   );
 }

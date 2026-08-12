@@ -23,13 +23,9 @@ import {
   useMemo,
   useSyncExternalStore,
 } from 'react';
-import {
-  Platform,
-  type StyleProp,
-  StyleSheet,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { Platform } from 'react-native';
+import type { SxProps } from '../../theme';
+import { Box } from '../box';
 
 type PortalEntry = readonly [string, ReactNode];
 type PortalSnapshot = ReadonlyArray<PortalEntry>;
@@ -88,22 +84,16 @@ const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
  * Sits above {@link DismissibleBannerPortalProvider} (which uses `999_999`)
  * so drag previews float above banners as well.
  */
-const OVERLAY_PORTAL_HOST_STYLE: StyleProp<ViewStyle> =
+const OVERLAY_PORTAL_HOST_SX: SxProps =
   Platform.OS === 'web'
-    ? [
-        StyleSheet.absoluteFill,
-        { zIndex: 1_000_000 },
-        {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%',
-        } as unknown as ViewStyle,
-      ]
-    : [StyleSheet.absoluteFill, { zIndex: 1_000_000 }];
+    ? {
+        absoluteFill: true,
+        zIndex: 1_000_000,
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+      }
+    : { absoluteFill: true, zIndex: 1_000_000 };
 
 function OverlayPortalHost({ store }: { store: PortalStore }) {
   const entries = useSyncExternalStore(
@@ -112,15 +102,15 @@ function OverlayPortalHost({ store }: { store: PortalStore }) {
     store.getSnapshot
   );
   return (
-    <View
+    <Box
       pointerEvents="box-none"
-      style={OVERLAY_PORTAL_HOST_STYLE}
+      sx={OVERLAY_PORTAL_HOST_SX}
       collapsable={false}
     >
       {entries.map(([key, value]) => (
         <Fragment key={key}>{value}</Fragment>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -142,10 +132,10 @@ export function OverlayPortalProvider({
 
   return (
     <OverlayPortalContext.Provider value={api}>
-      <View style={{ flex: 1 }} collapsable={false}>
+      <Box sx={{ flex: 1 }} collapsable={false}>
         {children}
         <OverlayPortalHost store={store} />
-      </View>
+      </Box>
     </OverlayPortalContext.Provider>
   );
 }

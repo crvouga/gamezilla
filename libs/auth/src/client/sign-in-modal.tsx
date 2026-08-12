@@ -234,10 +234,7 @@ function SignInErrorContent({
 
 function StateArea({ children }: { children: ReactNode }): ReactNode {
   return (
-    <Box
-      sx={{ justifyContent: 'center' }}
-      style={{ minHeight: STATE_AREA_MIN_HEIGHT }}
-    >
+    <Box sx={{ justifyContent: 'center', minHeight: STATE_AREA_MIN_HEIGHT }}>
       {children}
     </Box>
   );

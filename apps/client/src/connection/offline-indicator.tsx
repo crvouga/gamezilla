@@ -1,8 +1,8 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, borderRadius, Text } from '@pkgs/ui';
+import { Box, borderRadius, Pressable, Text } from '@pkgs/ui';
 import { type ReactNode, useEffect, useState } from 'react';
-import { Platform, Pressable } from 'react-native';
+import { Platform } from 'react-native';
 
 /**
  * Shows when the browser is offline or API sync has failed.

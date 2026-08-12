@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
-import { Box, ModalBody, Text } from '@pkgs/ui';
+import { Box, ModalBody, Pressable, Text } from '@pkgs/ui';
 import { useState } from 'react';
-import { Pressable } from 'react-native';
 import { SignInEmailFields } from './sign-in-email-fields';
 
 export function SignInEmailSignUpBody(props: {

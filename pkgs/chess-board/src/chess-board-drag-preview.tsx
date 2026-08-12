@@ -1,6 +1,6 @@
-import { useOverlayPortal, useOverlayPortalSlot } from '@pkgs/ui';
+import { Box, useOverlayPortal, useOverlayPortalSlot } from '@pkgs/ui';
 import { memo, type ReactNode, useId } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform } from 'react-native';
 import Animated, {
   type SharedValue,
   useAnimatedStyle,
@@ -63,7 +63,17 @@ function DragGhostVisual(props: GhostVisualProps): ReactNode {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[styles.ghost, { width: pieceSize, height: pieceSize }, style]}
+      style={[
+        {
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          zIndex: 1,
+          width: pieceSize,
+          height: pieceSize,
+        },
+        style,
+      ]}
     >
       <SvgXml
         xml={PIECE_SVGS[pieceCode]}
@@ -86,9 +96,9 @@ function IosDragPreview(props: {
 }): ReactNode {
   return (
     <FullWindowOverlay>
-      <View
+      <Box
         pointerEvents="box-none"
-        style={StyleSheet.absoluteFill}
+        sx={{ absoluteFill: true }}
         collapsable={false}
       >
         <DragGhostVisual
@@ -96,7 +106,7 @@ function IosDragPreview(props: {
           pieceSize={props.pieceSize}
           style={props.style}
         />
-      </View>
+      </Box>
     </FullWindowOverlay>
   );
 }
@@ -157,15 +167,6 @@ function ChessBoardDragPreviewImpl(
   }
   return null;
 }
-
-const styles = StyleSheet.create({
-  ghost: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    zIndex: 1,
-  },
-});
 
 export const ChessBoardDragPreview = memo(ChessBoardDragPreviewImpl);
 

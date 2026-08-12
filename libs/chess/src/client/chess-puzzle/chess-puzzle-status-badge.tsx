@@ -1,21 +1,5 @@
-import { Text } from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
-
-const styles = StyleSheet.create({
-  badge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mark: {
-    fontSize: 12,
-    fontWeight: '700',
-    lineHeight: 14,
-  },
-});
 
 /** Circular outcome badge: semantic fill + contrast-safe mark. */
 export function ChessPuzzleStatusBadge({
@@ -28,8 +12,20 @@ export function ChessPuzzleStatusBadge({
   mark: ReactNode;
 }): ReactNode {
   return (
-    <View style={[styles.badge, { backgroundColor: bg }]}>
-      <Text style={[styles.mark, { color: fg }]} label={mark} />
-    </View>
+    <Box
+      sx={{
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: bg,
+      }}
+    >
+      <Text
+        sx={{ fontSize: 12, fontWeight: '700', lineHeight: 14, color: fg }}
+        label={mark}
+      />
+    </Box>
   );
 }

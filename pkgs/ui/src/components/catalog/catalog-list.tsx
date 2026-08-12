@@ -10,7 +10,7 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type ReactNode, useMemo, useState } from 'react';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 import { ScreenBodyScrollView } from '../screen-base/screen-body-scroll-view';
 import { ScrollView } from '../scroll-view';
@@ -58,9 +58,8 @@ export function CatalogList({
   if (screenBodyBleed) {
     return (
       <Box
-        style={{ flex: 1, minHeight: 0 }}
-        sx={{ gap: 3 }}
-        {...componentDataSet('CatalogList', dataSet)}
+        sx={{ flex: 1, minHeight: 0, gap: 3 }}
+        dataSet={{ component: 'CatalogList', ...dataSet }}
       >
         {search}
         <ScreenBodyScrollView sx={{ gap: 6, pb: 16 }}>
@@ -72,12 +71,15 @@ export function CatalogList({
 
   return (
     <Box
-      style={{ flex: 1, minHeight: 0 }}
-      sx={{ p: 4, gap: 3 }}
-      {...componentDataSet('CatalogList', dataSet)}
+      sx={{ flex: 1, minHeight: 0, p: 4, gap: 3 }}
+      dataSet={{ component: 'CatalogList', ...dataSet }}
     >
       {search}
-      <ScrollView style={{ flex: 1 }} flushEdge={false} sx={{ gap: 6, pb: 16 }}>
+      <ScrollView
+        frameSx={{ flex: 1 }}
+        flushEdge={false}
+        sx={{ gap: 6, pb: 16 }}
+      >
         {rows}
       </ScrollView>
     </Box>

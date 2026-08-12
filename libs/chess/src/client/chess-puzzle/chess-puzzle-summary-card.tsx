@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/react/macro';
-import { Box, Text, useTheme } from '@pkgs/ui';
+import { AnimatedBox, Box, Text } from '@pkgs/ui';
 import { USE_NATIVE_DRIVER } from '@pkgs/ui/animation/use-native-driver';
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
@@ -8,7 +8,6 @@ import { ChessPuzzleEloDelta } from './chess-puzzle-elo-delta';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 
 function StreakBadge({ streak }: { streak: number }): ReactNode {
-  const theme = useTheme();
   const scale = useRef(new Animated.Value(0.85)).current;
   const glow = useRef(new Animated.Value(0)).current;
 
@@ -38,8 +37,8 @@ function StreakBadge({ streak }: { streak: number }): ReactNode {
   }, [glow, scale, streak]);
 
   return (
-    <Animated.View
-      style={{
+    <AnimatedBox
+      sx={{
         transform: [{ scale }],
         opacity: glow.interpolate({
           inputRange: [0, 1],
@@ -48,16 +47,15 @@ function StreakBadge({ streak }: { streak: number }): ReactNode {
       }}
     >
       <Box
-        sx={{ px: 3, py: 1, borderRadius: 999 }}
-        style={{ backgroundColor: theme.colors.successSurface }}
+        sx={{ px: 3, py: 1, borderRadius: 999, background: 'successSurface' }}
       >
         <Text
           variant="bodyBold"
-          style={{ color: theme.colors.success }}
+          sx={{ color: 'success' }}
           label={<Trans>{streak} puzzle streak</Trans>}
         />
       </Box>
-    </Animated.View>
+    </AnimatedBox>
   );
 }
 
@@ -66,7 +64,6 @@ function SummaryMeta({
 }: {
   completion: PuzzleCompletion;
 }): ReactNode {
-  const theme = useTheme();
   const streak = completion.streak;
   const puzzleRating = completion.puzzleRating;
   return (
@@ -74,7 +71,7 @@ function SummaryMeta({
       {streak > 1 ? <StreakBadge streak={streak} /> : null}
       <Text
         variant="caption"
-        style={{ color: theme.colors.textSecondary }}
+        sx={{ color: 'textSecondary' }}
         label={<Trans>Puzzle rating {puzzleRating}</Trans>}
       />
     </Box>
@@ -97,28 +94,30 @@ export function ChessPuzzleSummaryCard({
   displayRating,
   deltaPulse,
 }: ChessPuzzleSummaryCardProps): ReactNode {
-  const theme = useTheme();
   const isSolved = completion.outcome === 'solved';
 
   return (
     <Box
-      sx={{ gap: 3, p: 4, borderRadius: 8, alignSelf: 'stretch' }}
-      style={{
-        backgroundColor: theme.colors.surfaceElevated,
+      sx={{
+        gap: 3,
+        p: 4,
+        borderRadius: 8,
+        alignSelf: 'stretch',
+        background: 'surfaceElevated',
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
       }}
     >
       <Text
         variant="heading"
-        style={{
-          color: isSolved ? theme.colors.success : theme.colors.text,
+        sx={{
+          color: isSolved ? 'success' : 'text',
           textAlign: 'center',
         }}
         label={outcomeLabel(completion.outcome)}
       />
-      <Animated.View
-        style={
+      <AnimatedBox
+        sx={
           deltaPulse !== undefined
             ? { transform: [{ scale: deltaPulse }] }
             : undefined
@@ -130,7 +129,7 @@ export function ChessPuzzleSummaryCard({
           delta={completion.delta}
           displayRating={displayRating}
         />
-      </Animated.View>
+      </AnimatedBox>
       <SummaryMeta completion={completion} />
     </Box>
   );

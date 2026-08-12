@@ -49,12 +49,12 @@ function FriendsListBody(): ReactNode {
         { name: <Trans>Friends</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <ScreenBodyFlatList
             data={friends}
             keyExtractor={(item) => item.userId}
             onRefresh={() => refreshQueries()}
-            contentContainerStyle={{ flexGrow: 1 }}
+            sx={{ flexGrow: 1 }}
             ListEmptyComponent={isLoading ? null : <FriendsEmptyState />}
             renderItem={({ item }) => (
               <FriendUserRow

@@ -61,10 +61,7 @@ function SpacesList() {
   return (
     <Box sx={{ flex: 1, gap: 2 }}>
       <ScreenBodyScrollView
-        contentContainerStyle={{
-          paddingBottom: 24,
-          gap: 8,
-        }}
+        sx={{ paddingBottom: 24, gap: 2 }}
         onRefresh={() => refreshQueries()}
       >
         <SpacesListBody />
@@ -104,7 +101,7 @@ export function SpacesScreen() {
       breadcrumbs={[{ name: t`Spaces` }]}
       primaryAction={primaryAction}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <SpacesList />
         </Box>
       )}

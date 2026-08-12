@@ -1,21 +1,14 @@
-import { Text } from 'react-native';
-import { useTheme } from '../../theme';
 import { ExampleRoot } from '../explorer/example-root';
+import { Text } from '../text';
 import { Box } from './box';
 
 export default function BoxExample() {
-  const theme = useTheme();
-
   return (
     <ExampleRoot>
-      <Text
-        style={theme.sx({ color: 'text', fontSize: 'lg', fontWeight: 'bold' })}
-      >
-        Box
-      </Text>
+      <Text variant="heading" sx={{ fontSize: 'lg' }} label="Box" />
 
       <Box sx={{ p: 4, background: 'surface', borderRadius: 8 }}>
-        <Text style={theme.sx({ color: 'text' })}>Surface background</Text>
+        <Text sx={{ color: 'text' }} label="Surface background" />
       </Box>
 
       <Box
@@ -27,7 +20,7 @@ export default function BoxExample() {
           borderRadius: 12,
         }}
       >
-        <Text style={theme.sx({ color: 'text' })}>With border</Text>
+        <Text sx={{ color: 'text' }} label="With border" />
       </Box>
 
       <Box
@@ -37,21 +30,18 @@ export default function BoxExample() {
           borderRadius: 8,
         }}
       >
-        <Text style={theme.sx({ color: 'onPrimary', fontWeight: '600' })}>
-          Tint background
-        </Text>
+        <Text
+          sx={{ color: 'onPrimary', fontWeight: '600' }}
+          label="Tint background"
+        />
       </Box>
 
       <Box sx={{ flexDirection: 'row', gap: 2 }}>
         <Box sx={{ flex: 1, p: 3, background: 'surface', borderRadius: 8 }}>
-          <Text style={theme.sx({ color: 'text', fontSize: 'sm' as const })}>
-            Flex 1
-          </Text>
+          <Text sx={{ color: 'text', fontSize: 'sm' }} label="Flex 1" />
         </Box>
         <Box sx={{ flex: 2, p: 3, background: 'surface', borderRadius: 8 }}>
-          <Text style={theme.sx({ color: 'text', fontSize: 'sm' as const })}>
-            Flex 2
-          </Text>
+          <Text sx={{ color: 'text', fontSize: 'sm' }} label="Flex 2" />
         </Box>
       </Box>
     </ExampleRoot>

@@ -29,7 +29,7 @@ export function ChessPuzzleE2ELoadingStatus(
   return (
     <Text
       testID="chess-puzzle-pick-status"
-      style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
+      sx={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
       label={label}
     />
   );

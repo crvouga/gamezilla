@@ -17,7 +17,7 @@ export function ClientConfigScreen() {
       ]}
       scroll
       content={({ sx }) => (
-        <Box style={sx} sx={{ gap: 3 }}>
+        <Box sx={[sx, { gap: 3 }]}>
           <ClientConfigEntityCard />
         </Box>
       )}

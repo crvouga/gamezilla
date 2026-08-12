@@ -5,19 +5,7 @@
  * theme's `interactiveHover` / `interactivePress` tokens) on top of the
  * children when the user hovers (desktop web only) or presses. Hover is gated
  * behind {@link useHoverCapable} so touch devices never keep a sticky tint
- * after tap. This reads as a real interactive surface lift -- the same idiom
- * Discord / Linear / Notion use -- instead of the old flat `opacity: 0.7` drop.
- *
- * Pass `feedback="opacity"` to fall back to the legacy opacity press, or
- * `feedback="none"` for a Pressable that ships no built-in visual feedback
- * (callers handle press state themselves via the `pressed` callback child).
- *
- * @example
- * ```tsx
- * <Pressable sx={{ p: 3, background: 'surface', borderRadius: 8 }} onPress={handlePress}>
- *   <Text>Tap me</Text>
- * </Pressable>
- * ```
+ * after tap.
  */
 
 import { forwardRef, type ReactNode, useEffect, useState } from 'react';
@@ -26,21 +14,26 @@ import {
   Pressable as RNPressable,
   type PressableProps as RNPressableProps,
   type View as RNView,
-  View,
 } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { useHoverCapable, useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import {
+  flattenSx,
+  type SxInput,
+  useHostSx,
+  useHoverCapable,
+  useTheme,
+} from '../../theme';
+import { Box } from '../box';
 
 export type PressableFeedback = 'tint' | 'opacity' | 'none';
 
-export type PressableProps = RNPressableProps & {
+export type PressableSx = SxInput | ((state: { pressed: boolean }) => SxInput);
+
+export type PressableProps = Omit<RNPressableProps, 'style'> & {
   /** Utility-first style shorthand resolved against the current theme. */
-  sx?: SxProps;
+  sx?: PressableSx;
   /**
-   * Visual press feedback. Defaults to `'tint'` -- the modern overlay-tint
-   * style. Use `'opacity'` for the legacy flat dim, or `'none'` when the
-   * caller renders its own feedback (e.g. `Button` paints its own face).
+   * Visual press feedback. Defaults to `'tint'`.
    */
   feedback?: PressableFeedback;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -59,10 +52,14 @@ function resolveOverlayColor(
   return null;
 }
 
+function restSx(sx: PressableSx | undefined): SxInput {
+  if (typeof sx === 'function') return sx({ pressed: false });
+  return sx;
+}
+
 export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   {
     sx: sxProp,
-    style,
     feedback = 'tint',
     children,
     onHoverIn,
@@ -75,10 +72,8 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   const theme = useTheme();
   const hoverCapable = useHoverCapable();
   const [hovered, setHovered] = useState(false);
-  const sxStyle = sxProp ? theme.sx(sxProp) : undefined;
-  const overlayRadius =
-    typeof sxProp?.borderRadius === 'number' ? sxProp.borderRadius : undefined;
-  const idProps = componentDataSet('Pressable', dataSet);
+  const host = useHostSx('Pressable', restSx(sxProp), dataSet);
+  const overlayRadius = flattenSx(restSx(sxProp))?.borderRadius;
 
   useEffect(() => {
     if (!hoverCapable) setHovered(false);
@@ -96,17 +91,15 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
         onHoverOut?.(e);
       }}
       style={(state) => {
-        const resolved = typeof style === 'function' ? style(state) : style;
-        if (feedback === 'opacity') {
-          const pressedStyle = state.pressed
+        const resolved = typeof sxProp === 'function' ? sxProp(state) : sxProp;
+        const pressed =
+          feedback === 'opacity' && state.pressed
             ? { opacity: PRESSED_OPACITY }
-            : undefined;
-          return [sxStyle, resolved, pressedStyle];
-        }
-        return [sxStyle, resolved];
+            : false;
+        return theme.sx([resolved, pressed]);
       }}
       {...rest}
-      {...idProps}
+      {...host.dataSet}
     >
       {(state) => (
         <>
@@ -134,21 +127,18 @@ function PressableTintOverlay({
   state: PressableStateCallbackType;
   hovered: boolean;
   colors: { interactiveHover: string; interactivePress: string };
-  radius: number | undefined;
+  radius: number | string | undefined;
 }): ReactNode {
   const color = resolveOverlayColor(state, hovered, colors);
   if (!color) return null;
   return (
-    <View
+    <Box
       pointerEvents="none"
-      style={{
+      sx={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        inset: 0,
         backgroundColor: color,
-        ...(radius !== undefined ? { borderRadius: radius } : {}),
+        ...(typeof radius === 'number' ? { borderRadius: radius } : {}),
       }}
     />
   );

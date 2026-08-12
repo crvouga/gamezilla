@@ -14,7 +14,6 @@ import {
   Pressable,
   Stack,
   Text,
-  useTheme,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
@@ -204,7 +203,6 @@ export function EventLogBar({
   onPress,
   dataSet,
 }: EventLogBarProps): ReactNode {
-  const theme = useTheme();
   const showIdentity = !disconnected && latest !== null;
   const actor = showIdentity ? latest.actor : null;
   const color = showIdentity ? resolveColor(colorForActor, actor) : null;
@@ -217,10 +215,10 @@ export function EventLogBar({
       {...componentDataSet('EventLogBar', dataSet)}
       onPress={onPress}
       disabled={onPress === undefined}
-      style={{
+      sx={{
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-        backgroundColor: theme.colors.surface,
+        borderBottomColor: 'border',
+        background: 'surface',
       }}
     >
       <Box sx={{ px: 2, py: 1 }}>

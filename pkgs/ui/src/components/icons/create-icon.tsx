@@ -1,14 +1,14 @@
 import type { ComponentType } from 'react';
-import { type StyleProp, View, type ViewStyle } from 'react-native';
 
-import { useOnColor } from '../../theme';
+import { type SxInput, useOnColor } from '../../theme';
+import { Box } from '../box';
 
 export type IconProps = {
   size?: number;
   /** When omitted, inherits on-color context or theme `icon` token. */
   color?: string;
   strokeWidth?: number;
-  style?: StyleProp<ViewStyle>;
+  sx?: SxInput;
   accessibilityLabel?: string;
   testID?: string;
 };
@@ -29,15 +29,15 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
     size = DEFAULT_SIZE,
     color,
     strokeWidth = DEFAULT_STROKE_WIDTH,
-    style,
+    sx,
     accessibilityLabel,
     testID,
   }: IconProps) {
     const onColor = useOnColor();
     const resolvedColor = color ?? onColor.icon;
     return (
-      <View
-        style={[{ alignItems: 'center', justifyContent: 'center' }, style]}
+      <Box
+        sx={[{ alignItems: 'center', justifyContent: 'center' }, sx]}
         accessibilityLabel={accessibilityLabel}
         testID={testID}
       >
@@ -46,7 +46,7 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
           color={resolvedColor}
           strokeWidth={strokeWidth}
         />
-      </View>
+      </Box>
     );
   }
   return Icon;

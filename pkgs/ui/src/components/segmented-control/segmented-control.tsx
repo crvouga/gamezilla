@@ -19,11 +19,12 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated } from 'react-native';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { type Theme, useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
+import { AnimatedBox } from '../animated-box';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -84,7 +85,6 @@ export function SegmentedControl<K extends string = string>({
   disabled = false,
   dataSet,
 }: SegmentedControlProps<K>) {
-  const theme = useTheme();
   const [containerWidth, setContainerWidth] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
 
@@ -97,26 +97,22 @@ export function SegmentedControl<K extends string = string>({
   useSegmentIndicator(translateX, targetX, segmentWidth);
 
   return (
-    <View
-      {...componentDataSet('SegmentedControl', dataSet)}
+    <Box
+      dataSet={{ component: 'SegmentedControl', ...dataSet }}
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
-      style={{
+      sx={{
         flexDirection: 'row',
-        backgroundColor: theme.colors.surfaceMuted,
+        backgroundColor: 'surfaceMuted',
         borderRadius: borderRadius.md,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
         padding: CONTAINER_PADDING,
-        gap: SEGMENT_GAP,
+        gap: SEGMENT_GAP / 4,
         position: 'relative',
       }}
     >
       {segmentWidth > 0 ? (
-        <SegmentIndicator
-          width={segmentWidth}
-          translateX={translateX}
-          theme={theme}
-        />
+        <SegmentIndicator width={segmentWidth} translateX={translateX} />
       ) : null}
       {segments.map((seg) => (
         <SegmentButton
@@ -127,32 +123,30 @@ export function SegmentedControl<K extends string = string>({
           onSelect={onSelect}
         />
       ))}
-    </View>
+    </Box>
   );
 }
 
 function SegmentIndicator({
   width,
   translateX,
-  theme,
 }: {
   width: number;
   translateX: Animated.Value;
-  theme: Theme;
 }) {
   return (
-    <Animated.View
+    <AnimatedBox
       pointerEvents="none"
-      style={{
+      sx={{
         position: 'absolute',
         top: CONTAINER_PADDING,
         bottom: CONTAINER_PADDING,
         left: CONTAINER_PADDING,
         width,
         borderRadius: borderRadius.sm,
-        backgroundColor: theme.colors.surfaceElevated,
+        backgroundColor: 'surfaceElevated',
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'border',
         transform: [{ translateX }],
       }}
     />
@@ -170,26 +164,24 @@ function SegmentButton<K extends string>({
   disabled: boolean;
   onSelect: (key: K) => void;
 }) {
-  const theme = useTheme();
   return (
     <Pressable
       onPress={() => onSelect(segment.key)}
       disabled={disabled || isActive}
       feedback={isActive ? 'none' : 'tint'}
-      sx={{ borderRadius: borderRadius.sm }}
-      style={{
+      sx={{
+        borderRadius: borderRadius.sm,
         flex: 1,
-        alignItems: 'center' as const,
+        alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 14,
-        borderRadius: borderRadius.sm,
         backgroundColor: 'transparent',
       }}
     >
       <Text
         variant="label"
-        style={{
-          color: isActive ? theme.colors.text : theme.colors.textSecondary,
+        sx={{
+          color: isActive ? 'text' : 'textSecondary',
           fontWeight: isActive ? '600' : '500',
         }}
         label={segment.label}

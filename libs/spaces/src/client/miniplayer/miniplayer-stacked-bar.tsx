@@ -30,8 +30,8 @@ function StackPeek({ index }: { index: number }): ReactNode {
         height: FRONT_HEIGHT,
         borderRadius: 0,
         opacity: 0.55 - index * 0.15,
+        pointerEvents: 'none',
       }}
-      style={{ pointerEvents: 'none' }}
     >
       {null}
     </SpaceCardGradientBox>
@@ -72,8 +72,8 @@ export function MiniplayerStackedBar({
   const stackPad = peekCount * PEEK_OFFSET;
 
   return (
-    <Box style={{ paddingTop: stackPad }}>
-      <Box style={{ position: 'relative', minHeight: FRONT_HEIGHT }}>
+    <Box sx={{ paddingTop: stackPad }}>
+      <Box sx={{ position: 'relative', minHeight: FRONT_HEIGHT }}>
         {Array.from({ length: peekCount }, (_, i) => (
           <StackPeek key={i} index={peekCount - 1 - i} />
         ))}

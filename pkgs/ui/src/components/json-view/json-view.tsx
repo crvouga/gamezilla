@@ -14,13 +14,13 @@
 
 import * as Clipboard from 'expo-clipboard';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import type { SxProps } from '../../theme';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ChevronRightIcon, CopyIcon, type IconComponent } from '../icons';
+import { Pressable } from '../pressable';
 import { ScrollView } from '../scroll-view';
 import { Text } from '../text';
 import {
@@ -175,17 +175,16 @@ function JsonViewBody({
   isExpanded: ExpansionApi['isExpanded'];
   toggle: ExpansionApi['toggle'];
 }) {
-  const theme = useTheme();
-  const outerStyle =
+  const outerSx =
     maxHeight !== undefined
-      ? { maxHeight, backgroundColor: theme.colors.surface }
-      : { backgroundColor: theme.colors.surface };
-  const innerStyle = maxHeight !== undefined ? { maxHeight } : undefined;
+      ? { maxHeight, background: 'surface' as const }
+      : { background: 'surface' as const };
+  const innerSx = maxHeight !== undefined ? { maxHeight } : undefined;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator style={outerStyle}>
+    <ScrollView horizontal showsHorizontalScrollIndicator frameSx={outerSx}>
       <ScrollView
         showsVerticalScrollIndicator
-        style={innerStyle}
+        frameSx={innerSx}
         sx={{ paddingVertical: 2, paddingHorizontal: 3 }}
       >
         <JsonViewNode
@@ -304,7 +303,7 @@ function JsonViewToolbar({
         onPress={onReset}
         disabled={!rootIsContainer}
       />
-      <Box style={{ flex: 1 }} />
+      <Box sx={{ flex: 1 }} />
       <ToolbarButton label="Copy" icon={CopyIcon} onPress={onCopy} />
     </Box>
   );
@@ -330,10 +329,10 @@ function ToolbarButton({
       accessibilityRole="button"
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => ({
+      sx={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 1,
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 6,
@@ -342,12 +341,11 @@ function ToolbarButton({
     >
       {Icon ? (
         <Box
-          style={{
-            transform:
-              iconRotateDeg !== undefined
-                ? [{ rotate: `${iconRotateDeg}deg` }]
-                : undefined,
-          }}
+          sx={
+            iconRotateDeg !== undefined
+              ? { transform: [{ rotate: `${iconRotateDeg}deg` }] }
+              : undefined
+          }
         >
           <Icon size={10} color={theme.colors.icon} />
         </Box>

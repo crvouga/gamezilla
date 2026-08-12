@@ -72,9 +72,11 @@ header h1 { margin: 0; font-size: 16px; font-weight: 650; }
 }
 .preview {
   flex: 1; min-height: 0; background: #e5e7eb; padding: 12px;
+  display: flex; justify-content: center;
 }
 .preview iframe {
-  width: 100%; height: 100%; border: 1px solid #9ca3af; border-radius: 8px;
+  width: 390px; max-width: 100%; height: 100%;
+  border: 1px solid #9ca3af; border-radius: 8px;
   background: #fff;
 }
 .empty { color: var(--muted); padding: 24px; }

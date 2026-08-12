@@ -13,38 +13,34 @@
  * ```
  */
 
-import { StyleSheet, View, type ViewProps } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
-import { useTheme } from '../../theme';
+import type { ComponentDataSet } from '../../component-id';
+import type { SxInput } from '../../theme';
+import { Box, type BoxProps } from '../box';
 
-export type DividerProps = ViewProps & {
+export type DividerProps = Omit<BoxProps, 'sx'> & {
   /** Orientation. Defaults to `"horizontal"`. */
   orientation?: 'horizontal' | 'vertical';
+  /** Utility-first style shorthand. */
+  sx?: SxInput;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
 
 export function Divider({
   orientation = 'horizontal',
-  style,
+  sx,
   dataSet,
   ...rest
 }: DividerProps) {
-  const theme = useTheme();
-  const idProps = componentDataSet('Divider', dataSet);
-
-  const dividerStyle =
+  const lineSx =
     orientation === 'horizontal'
-      ? {
-          height: StyleSheet.hairlineWidth,
-          width: '100%' as const,
-          backgroundColor: theme.colors.border,
-        }
-      : {
-          width: StyleSheet.hairlineWidth,
-          height: '100%' as const,
-          backgroundColor: theme.colors.border,
-        };
-
-  return <View style={[dividerStyle, style]} {...rest} {...idProps} />;
+      ? { width: '100%' as const, borderBottomWidth: 'hairline' as const }
+      : { height: '100%' as const, borderLeftWidth: 1 };
+  return (
+    <Box
+      sx={[lineSx, { borderColor: 'border' }, sx]}
+      dataSet={{ component: 'Divider', ...dataSet }}
+      {...rest}
+    />
+  );
 }

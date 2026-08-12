@@ -15,7 +15,7 @@ export default function ScreenTitleExample() {
         ]}
         scroll
         content={({ sx }) => (
-          <Box style={sx} sx={{ gap: 3 }}>
+          <Box sx={[sx, { gap: 3 }]}>
             <Text
               variant="caption"
               label="Scroll down — the TopBar title appears after the large title leaves the top."

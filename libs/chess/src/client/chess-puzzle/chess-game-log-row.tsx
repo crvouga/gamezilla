@@ -77,8 +77,8 @@ export function ChessGameLogRow({
           gap: 2,
           p: 3,
           borderRadius: 8,
+          background: 'surfaceMuted',
         }}
-        style={{ backgroundColor: theme.colors.surfaceMuted }}
       >
         <Icon
           size={18}
@@ -87,12 +87,12 @@ export function ChessGameLogRow({
         <Box sx={{ flex: 1, gap: 1 }}>
           <Text
             variant="bodyBold"
-            style={{ color: theme.colors.text }}
+            sx={{ color: 'text' }}
             label={<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
           />
           <Text
             variant="caption"
-            style={{ color: theme.colors.textSecondary }}
+            sx={{ color: 'textSecondary' }}
             label={
               <GameLogCaption puzzleId={entry.puzzleId} timeLabel={timeLabel} />
             }
@@ -100,7 +100,7 @@ export function ChessGameLogRow({
         </Box>
         <Text
           variant="bodyBold"
-          style={{ color: deltaColor }}
+          sx={{ color: deltaColor }}
           label={formatSignedDelta(entry.delta)}
         />
         <ChevronRightIcon size={20} color={theme.colors.icon} />

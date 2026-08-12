@@ -13,19 +13,21 @@ export type ChessPuzzleBoardLoadingStateProps = {
 export function ChessPuzzleBoardLoadingState({
   size,
 }: ChessPuzzleBoardLoadingStateProps = {}): ReactNode {
-  const dimensionStyle =
+  const dimensionSx =
     size !== undefined
       ? { width: size, height: size }
       : { width: '100%' as const, aspectRatio: 1 };
   return (
     <Box
-      sx={{
-        alignSelf: 'center',
-        background: 'surface',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-      style={dimensionStyle}
+      sx={[
+        {
+          alignSelf: 'center',
+          background: 'surface',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        dimensionSx,
+      ]}
     >
       <Spinner size="large" />
     </Box>

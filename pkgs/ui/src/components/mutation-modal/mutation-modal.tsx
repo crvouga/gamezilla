@@ -179,8 +179,11 @@ function MutationModalBody({
 function StateArea({ children }: { children: ReactNode }): ReactNode {
   return (
     <Box
-      sx={{ justifyContent: 'center' }}
-      style={{ height: STATE_AREA_HEIGHT, overflow: 'hidden' }}
+      sx={{
+        justifyContent: 'center',
+        height: STATE_AREA_HEIGHT,
+        overflow: 'hidden',
+      }}
     >
       {children}
     </Box>
@@ -191,7 +194,7 @@ function StateArea({ children }: { children: ReactNode }): ReactNode {
 function FooterSlot({ children }: { children?: ReactNode }): ReactNode {
   return (
     <ModalFooter>
-      {children ?? <Box style={{ minHeight: FOOTER_ACTION_MIN_HEIGHT }} />}
+      {children ?? <Box sx={{ minHeight: FOOTER_ACTION_MIN_HEIGHT }} />}
     </ModalFooter>
   );
 }

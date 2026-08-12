@@ -45,9 +45,9 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
+import { Box } from '../box';
 import { Volume2Icon, VolumeXIcon } from '../icons';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
 
@@ -89,9 +89,9 @@ export function SoundIndicator({
   const padding = Math.round(size * PADDING_RATIO);
   const StaticIcon = muted ? VolumeXIcon : Volume2Icon;
   return (
-    <View
-      {...componentDataSet('SoundIndicator', dataSet)}
-      style={{
+    <Box
+      dataSet={{ component: 'SoundIndicator', ...dataSet }}
+      sx={{
         backgroundColor: bg,
         borderRadius: 999,
         padding,
@@ -104,6 +104,6 @@ export function SoundIndicator({
       ) : (
         <StaticIcon size={size} color={iconColor} />
       )}
-    </View>
+    </Box>
   );
 }

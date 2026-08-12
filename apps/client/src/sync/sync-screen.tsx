@@ -54,7 +54,7 @@ export function SyncScreen() {
         { name: <Trans>Sync status</Trans> },
       ]}
       content={({ sx }) => (
-        <Box style={sx}>
+        <Box sx={sx}>
           <StatusRow label={t`Connection`} value={connectionLabel} />
           <StatusRow label={t`Online`} value={status.online ? t`Yes` : t`No`} />
           <StatusRow

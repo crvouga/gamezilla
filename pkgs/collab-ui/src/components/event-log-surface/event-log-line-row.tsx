@@ -56,7 +56,7 @@ export function EventLogLineRow({
       ) : (
         renderAvatar(line.actor, 32)
       )}
-      <Stack spacing={0.5} style={{ flex: 1, minWidth: 0 }}>
+      <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
         <EventLogLineBody
           line={line}
           {...(renderActorLabel !== undefined ? { renderActorLabel } : {})}

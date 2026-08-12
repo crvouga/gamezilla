@@ -12,11 +12,10 @@
  */
 
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
-import { borderRadius } from '../../theme/scale';
+import { Box } from '../box';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 
@@ -40,30 +39,27 @@ export function Checkbox({
 }: CheckboxProps) {
   const theme = useTheme();
 
-  const boxBg = checked ? theme.colors.tint : theme.colors.surface;
-  const boxBorder = checked ? theme.colors.tint : theme.colors.outline;
-
   return (
     <Pressable
       onPress={() => !disabled && onToggle(!checked)}
       disabled={disabled}
-      {...componentDataSet('Checkbox', dataSet)}
-      sx={{ borderRadius: borderRadius.xs }}
-      style={{
+      dataSet={{ component: 'Checkbox', ...dataSet }}
+      sx={{
+        borderRadius: 'xs',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 2,
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <View
-        style={{
+      <Box
+        sx={{
           width: BOX_SIZE,
           height: BOX_SIZE,
-          borderRadius: borderRadius.xs,
+          borderRadius: 'xs',
           borderWidth: 1.5,
-          borderColor: boxBorder,
-          backgroundColor: boxBg,
+          borderColor: checked ? 'tint' : 'outline',
+          backgroundColor: checked ? 'tint' : 'surface',
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -80,7 +76,7 @@ export function Checkbox({
             />
           </Svg>
         ) : null}
-      </View>
+      </Box>
       {label && <Text variant="body" label={label} />}
     </Pressable>
   );

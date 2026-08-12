@@ -3,17 +3,14 @@
  * Content is **prop-driven** via {@link FloatingMenuContent}; subcomponents are internal.
  */
 
-import {
-  type LayoutRectangle,
-  Pressable as RNPressable,
-  View,
-} from 'react-native';
+import type { LayoutRectangle } from 'react-native';
 
-import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ModalRoot } from '../modal/modal-root';
+import { Pressable } from '../pressable';
 import type { FloatingMenuContent } from './floating-menu-content';
 import { FloatingMenuDivider } from './floating-menu-divider';
 import { estimateFloatingMenuHeight } from './floating-menu-estimate-height';
@@ -69,7 +66,7 @@ export function FloatingMenu({
 
   return (
     <ModalRoot visible={visible} onRequestClose={onClose}>
-      <View style={{ flex: 1 }} {...componentDataSet('FloatingMenu', dataSet)}>
+      <Box sx={{ flex: 1 }} dataSet={{ component: 'FloatingMenu', ...dataSet }}>
         <FloatingMenuBackdrop onClose={onClose} />
         {anchor !== null ? (
           <FloatingMenuPanel
@@ -79,18 +76,18 @@ export function FloatingMenu({
             content={content}
           />
         ) : null}
-      </View>
+      </Box>
     </ModalRoot>
   );
 }
 
 function FloatingMenuBackdrop({ onClose }: { onClose: () => void }) {
-  const theme = useTheme();
   return (
-    <RNPressable
+    <Pressable
       accessibilityLabel="Dismiss menu"
       onPress={onClose}
-      style={{ flex: 1, backgroundColor: theme.colors.scrim }}
+      feedback="none"
+      sx={{ flex: 1, backgroundColor: 'scrim' }}
     />
   );
 }
@@ -110,9 +107,9 @@ function FloatingMenuPanel({
   const lift = theme.elevation(3);
   const bg = lift.backgroundColor ?? theme.colors.surfaceOverlay;
   return (
-    <View
+    <Box
       pointerEvents="box-none"
-      style={{
+      sx={{
         position: 'absolute',
         top,
         left,
@@ -126,13 +123,9 @@ function FloatingMenuPanel({
           borderWidth: 1,
           borderColor: 'border',
           py: 2,
-        }}
-        style={{
           backgroundColor: bg,
+          elevation: 3,
           ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
-          ...(lift.elevation !== undefined
-            ? { elevation: lift.elevation }
-            : {}),
         }}
       >
         {content.header !== undefined ? (
@@ -148,7 +141,7 @@ function FloatingMenuPanel({
         ) : null}
         {content.rows.map(renderFloatingMenuRow)}
       </Box>
-    </View>
+    </Box>
   );
 }
 

@@ -12,7 +12,7 @@ export default function EmptyStateExample() {
     <ExampleRoot>
       <Text variant="label" sx={{ color: 'textSecondary' }} label="Fill" />
       <SchemePreview>
-        <Box style={{ height: 280 }}>
+        <Box sx={{ height: 280 }}>
           <EmptyState
             icon={HouseIcon}
             title="No live spaces"

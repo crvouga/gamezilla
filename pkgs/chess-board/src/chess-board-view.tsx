@@ -1,5 +1,6 @@
+import { Box } from '@pkgs/ui';
 import { memo, type ReactNode, useCallback, useEffect, useRef } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import type { LayoutChangeEvent, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
@@ -133,13 +134,13 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
 
   const sqStyle = { width: size, height: size, overflow: 'visible' as const };
   return (
-    <View
+    <Box
       ref={setContainerRef}
-      style={sqStyle}
+      sx={sqStyle}
       onLayout={onLayout}
       {...p.userArrowsWebHandlers}
     >
-      <View style={sqStyle}>
+      <Box sx={sqStyle}>
         <ChessBoardCanvasContent {...contentProps} />
         <ChessBoardInteractionLayer {...p.interactionProps} />
         {inlinePromotion({
@@ -151,7 +152,7 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
           onCancel: p.onPromotionCancel,
           onPick: p.onPromotionPick,
         })}
-      </View>
+      </Box>
       <ChessBoardDragPreview
         drag={p.contentProps.drag}
         boardOriginX={originX}
@@ -160,7 +161,7 @@ function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
         pieceSize={p.pieceDraw}
         enabled={hideDraggingPiece}
       />
-    </View>
+    </Box>
   );
 }
 

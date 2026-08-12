@@ -8,11 +8,11 @@
  */
 
 import * as Clipboard from 'expo-clipboard';
-import { Pressable } from 'react-native';
 import type { ColorTokens } from '../../theme';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import { ChevronRightIcon, CopyIcon } from '../icons';
+import { Pressable } from '../pressable';
 import { Text } from '../text';
 import {
   classifyValue,
@@ -124,12 +124,12 @@ function NodeRow({
   return (
     <Pressable
       onPress={expandable ? onToggle : undefined}
-      style={{
+      sx={{
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingVertical: ROW_PAD_Y,
         paddingLeft: depth * INDENT_PX,
-        gap: 4,
+        gap: 1,
       }}
     >
       <Chevron expandable={expandable} expanded={expanded} />
@@ -182,7 +182,7 @@ function NodeChildren({
         );
       })}
       <Box
-        style={{
+        sx={{
           paddingLeft: (depth + 1) * INDENT_PX,
           paddingVertical: ROW_PAD_Y,
         }}
@@ -202,11 +202,11 @@ function Chevron({
 }) {
   const theme = useTheme();
   if (!expandable) {
-    return <Box style={{ width: 14 }} />;
+    return <Box sx={{ width: 14 }} />;
   }
   return (
     <Box
-      style={{
+      sx={{
         width: 14,
         height: 18,
         alignItems: 'center',
@@ -294,7 +294,7 @@ function CopyValueButton({ value }: { value: unknown }) {
         const text = stringifyForCopy(value);
         void Clipboard.setStringAsync(text);
       }}
-      style={({ pressed }) => ({
+      sx={({ pressed }) => ({
         width: 22,
         height: 22,
         alignItems: 'center',

@@ -3,8 +3,7 @@
  * Copy-paste src/@shared/theme into any React Native app.
  *
  * Usage:
- *   const theme = useTheme();
- *   <View style={theme.sx({ px: 2, py: 1, background: "surface" })} />
+ *   <Box sx={{ px: 2, py: 1, background: 'surface' }} />
  */
 
 export { AppStatusBar, type AppStatusBarProps } from './app-status-bar';
@@ -65,7 +64,21 @@ export {
   makeElevation,
   spacing,
 } from './scale';
-export { createSx, type SxProps } from './sx';
+export {
+  createSx,
+  flattenSx,
+  type ResolvedRnStyle,
+  type SxInput,
+  type SxProps,
+} from './sx';
+export type {
+  SxAlign,
+  SxCompileOptions,
+  SxFlexDirection,
+  SxJustify,
+  SxRadius,
+} from './sx-props';
+export { sxToCss } from './sx-to-css';
 export {
   defaultTextCasing,
   type TextCasing,
@@ -87,5 +100,6 @@ export {
   useActionBarChrome,
 } from './use-action-bar-chrome';
 export { useBreakpoint } from './use-breakpoint';
+export { type HostSx, useHostSx } from './use-host-sx';
 export { useHoverCapable } from './use-hover-capable';
 export { WebScrollbarTheme } from './web-scrollbar-theme';
