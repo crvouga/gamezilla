@@ -1,9 +1,9 @@
 import { useServerStatus } from '@apps/client/connection/use-server-status';
+import { NetworkStateType } from '@apps/client/device/ports';
 import { useBreadcrumbNav } from '@apps/client/ui/use-breadcrumb-nav';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
 import { Box, Button, Card, ScreenBase, StatusDot, Text } from '@pkgs/ui';
-import { NetworkStateType } from 'expo-network';
 import { useCallback, useEffect } from 'react';
 
 const REFRESH_INTERVAL_MS = 15_000;

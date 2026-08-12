@@ -1,8 +1,8 @@
+import { useNetworkState } from '@apps/client/device/device-ports-provider';
 import { useConfigService } from '@libs/auth/client/config-service-context';
 import { type Timers, useClock, useTimers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
 import { useHttpClient } from '@pkgs/http-client';
-import { useNetworkState } from 'expo-network';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type HealthCheckPhase = 'idle' | 'loading' | 'success' | 'error';

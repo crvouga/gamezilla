@@ -18,6 +18,10 @@ export type {
   LlmStructuredRequest,
   LlmStructuredResult,
 } from '../shared/llm-types';
+export {
+  InMemoryLlmProvider,
+  type InMemoryLlmProviderOptions,
+} from './adapters/in-memory-llm-provider';
 export { createLlmInMemoryKv } from './adapters/kv-cache-in-memory';
 export { createLlmPostgresKv } from './adapters/kv-cache-postgres';
 export {

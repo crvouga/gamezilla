@@ -19,26 +19,28 @@ export type NotifyChannelsOptions = {
 };
 
 /**
- * Fire-and-forget invalidation publishes. Allocates pushSeqs via `sql`, then
- * publishes. Failures are logged, never retried, and never thrown — callers
- * must not await for correctness.
+ * Allocate pushSeqs via `sql`, then fire-and-forget the pubsub publish.
+ *
+ * Await this while `sql` is still connected (request-scoped clients are
+ * disconnected when the handler returns). Publish stays best-effort: failures
+ * are logged, never retried, and never thrown.
  */
-export function notifyChannels(options: NotifyChannelsOptions): void {
+export async function notifyChannels(
+  options: NotifyChannelsOptions
+): Promise<void> {
   const label = options.label ?? 'notifyChannels';
-  void (async () => {
-    try {
-      const pushSeqs = await allocateTopicPushSeqs(options.sql, options.topics);
-      publishPushMessages({
-        pubsub: options.pubsub,
-        pushSeqs,
-        ...(options.tables !== undefined ? { tables: options.tables } : {}),
-        ...(options.rows !== undefined ? { rows: options.rows } : {}),
-        label,
-      });
-    } catch (error: unknown) {
-      console.warn(`[pubsub] allocate/publish failed label=${label}`, error);
-    }
-  })();
+  try {
+    const pushSeqs = await allocateTopicPushSeqs(options.sql, options.topics);
+    publishPushMessages({
+      pubsub: options.pubsub,
+      pushSeqs,
+      ...(options.tables !== undefined ? { tables: options.tables } : {}),
+      ...(options.rows !== undefined ? { rows: options.rows } : {}),
+      label,
+    });
+  } catch (error: unknown) {
+    console.warn(`[pubsub] allocate/publish failed label=${label}`, error);
+  }
 }
 
 /** Publish with pre-allocated pushSeqs (mutation replay txn / sim internals). */

@@ -3,6 +3,7 @@ import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import type { SecretStore } from '@pkgs/secret-store';
 import { Hono } from 'hono';
 import { ElevenLabsTtsProvider } from './adapters/elevenlabs-tts-provider';
+import type { TtsProvider } from './ports/tts-provider';
 import { createTtsApp, type TtsRequireAuth } from './tts-routes';
 
 export const TtsSecretName = {
@@ -18,6 +19,8 @@ export type CreateTtsAppFromBindingsOptions = {
     init?: RequestInit
   ) => Promise<Response>;
   readonly publicPathPrefix?: string;
+  /** When set, skips secret lookup and mounts a configured app. */
+  readonly provider?: TtsProvider;
 };
 
 export type CreateTtsAppFromBindingsResult = {
@@ -38,20 +41,16 @@ function createUnconfiguredTtsApp(): Hono {
 /**
  * Pre-wired Hono sub-app: loads ElevenLabs credentials from the secret store.
  * When the key is missing, mounts a degraded surface that returns 503.
+ * Pass {@link CreateTtsAppFromBindingsOptions.provider} to skip secrets.
  */
 export async function createTtsAppFromBindings(
   options: CreateTtsAppFromBindingsOptions
 ): Promise<CreateTtsAppFromBindingsResult> {
-  const raw = (
-    await options.secretStore.getOptional(TtsSecretName.elevenLabsApiKey)
-  )?.readSecretValue();
-  const apiKey =
-    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
-  if (apiKey === null) {
+  const provider =
+    options.provider ?? (await resolveElevenLabsProvider(options));
+  if (provider === null) {
     return { app: createUnconfiguredTtsApp(), configured: false };
   }
-
-  const provider = new ElevenLabsTtsProvider({ apiKey, fetch: options.fetch });
 
   return {
     configured: true,
@@ -64,4 +63,16 @@ export async function createTtsAppFromBindings(
         : {}),
     }),
   };
+}
+
+async function resolveElevenLabsProvider(
+  options: CreateTtsAppFromBindingsOptions
+): Promise<TtsProvider | null> {
+  const raw = (
+    await options.secretStore.getOptional(TtsSecretName.elevenLabsApiKey)
+  )?.readSecretValue();
+  const apiKey =
+    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
+  if (apiKey === null) return null;
+  return new ElevenLabsTtsProvider({ apiKey, fetch: options.fetch });
 }

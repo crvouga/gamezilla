@@ -27,6 +27,8 @@ type RecordArgs = {
   readonly snapshot: () => Promise<string | null>;
   /** Capture snapshot before `run` (e.g. before close unmounts). */
   readonly snapshotBefore?: boolean;
+  /** Skip HTML snapshot capture for this step. */
+  readonly skipSnapshot?: boolean;
 };
 
 type StepOutcome = {
@@ -181,12 +183,13 @@ export class SimulationReporter {
 
 async function runRecorded(args: RecordArgs): Promise<StepOutcome> {
   let snapshotHtml: string | undefined;
+  const wantSnapshot = args.skipSnapshot !== true;
   try {
-    if (args.snapshotBefore) {
+    if (wantSnapshot && args.snapshotBefore) {
       snapshotHtml = (await args.snapshot()) ?? undefined;
     }
     await args.run();
-    if (!args.snapshotBefore) {
+    if (wantSnapshot && !args.snapshotBefore) {
       snapshotHtml = (await args.snapshot()) ?? undefined;
     }
     return snapshotHtml !== undefined
@@ -194,7 +197,7 @@ async function runRecorded(args: RecordArgs): Promise<StepOutcome> {
       : { status: 'passed' };
   } catch (cause) {
     const errorMessage = cause instanceof Error ? cause.message : String(cause);
-    if (snapshotHtml === undefined) {
+    if (wantSnapshot && snapshotHtml === undefined) {
       snapshotHtml = (await args.snapshot().catch(() => null)) ?? undefined;
     }
     return snapshotHtml !== undefined

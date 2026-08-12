@@ -7,6 +7,14 @@
  * clock / timers / ids / rng but swaps in the in-process Hono HTTP client.
  */
 
+import {
+  clearInterval as nodeClearInterval,
+  clearTimeout as nodeClearTimeout,
+  setInterval as nodeSetInterval,
+  setTimeout as nodeSetTimeout,
+} from 'node:timers';
+import { createInMemoryDevMenuPort } from '@apps/client/device/in-memory-dev-menu-port';
+import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-network-state-port';
 import type { AppOverrides } from '@apps/client/providers/app-overrides';
 import type { OpenLocalSqlClient } from '@apps/client/sync/create-local-sync-engine';
 import {
@@ -14,25 +22,42 @@ import {
   createAppSyncEnginePool,
 } from '@apps/client/sync/sync-engine-pool';
 import { createInMemoryAuthClientStorage } from '@pkgs/auth-better-auth/client';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import type { Timers } from '@pkgs/clock';
+import { wallClock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { Io, SimIo } from '@pkgs/io';
+import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
+import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
+import { createInMemoryPubSub } from '@pkgs/pubsub/testing/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import {
   createSecureStorageStore,
   type SecureStorageStore,
 } from '@pkgs/secure-storage/secure-storage-store';
+import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { SqlClientImplNodeSqlite } from '@pkgs/sql-client/sqlite/impl-node-sqlite';
+
+/** Jest-immune timers (see create-client-simulation-system `simNodeTimers`). */
+const actorNodeTimers: Timers = {
+  setTimeout: (fn, ms) => nodeSetTimeout(fn, ms),
+  clearTimeout: (handle) => {
+    nodeClearTimeout(handle as ReturnType<typeof nodeSetTimeout>);
+  },
+  setInterval: (fn, ms) => nodeSetInterval(fn, ms),
+  clearInterval: (handle) => {
+    nodeClearInterval(handle as ReturnType<typeof nodeSetInterval>);
+  },
+};
 
 /** Builds an actor `Io` sharing sim nondeterminism but with in-process HTTP. */
 export function createActorIo(base: SimIo, http: HttpClient): Io {
   return {
-    // Wall clock/timers: product UI async (BA session, AuthBridge, sync) must
-    // progress without the scenario pumping SimClock.advance.
+    // Wall clock + Node timers: product UI async must progress without
+    // SimClock.advance and must ignore Jest fake timers from expo-router/RNTL.
     clock: {
       now: () => wallClock.now(),
     },
-    timers: wallTimers,
+    timers: actorNodeTimers,
     createId: base.createId,
     random: base.random,
     http,
@@ -46,8 +71,16 @@ export type ActorClientSeams = {
   readonly syncEnginePool: AppSyncEnginePool;
 };
 
+export type CreateActorClientSeamsArgs = {
+  readonly apiUrl: string;
+  readonly pubSubBus: InMemoryBus;
+};
+
 /** Fresh, isolated client seams for one actor session. */
-export function createActorClientSeams(apiUrl: string): ActorClientSeams {
+export function createActorClientSeams(
+  args: CreateActorClientSeamsArgs
+): ActorClientSeams {
+  const { apiUrl, pubSubBus } = args;
   const openMemorySqlClient: OpenLocalSqlClient = async () => {
     const client = SqlClientImplNodeSqlite.open(':memory:');
     await client.connect();
@@ -60,6 +93,10 @@ export function createActorClientSeams(apiUrl: string): ActorClientSeams {
   secureStorageStore.setValue('signInPending', null);
   const authClientStorage = createInMemoryAuthClientStorage();
   const syncEnginePool = createAppSyncEnginePool();
+  const kv = new KvImplInMemory();
+  const network = createInMemoryNetworkStatePort();
+  const devMenu = createInMemoryDevMenuPort();
+  const audio = createInMemoryAudioPlaybackPort();
   return {
     secureStorageStore,
     syncEnginePool,
@@ -70,6 +107,11 @@ export function createActorClientSeams(apiUrl: string): ActorClientSeams {
       secureStorageStore,
       syncEnginePool,
       openSqlClient: openMemorySqlClient,
+      createPubSub: () => createInMemoryPubSub({ bus: pubSubBus }),
+      kv,
+      network,
+      devMenu,
+      audio,
     },
   };
 }

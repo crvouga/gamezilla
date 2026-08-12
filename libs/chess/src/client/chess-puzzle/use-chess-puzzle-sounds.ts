@@ -1,9 +1,9 @@
+import { useAudioPlayer } from '@pkgs/sounds/audio-playback/audio-playback-context';
 import { chessSoundSources } from '@pkgs/sounds/chess-sound-sources';
 import {
   usePlayFromStartHandles,
   useWarmAudioPlayers,
 } from '@pkgs/sounds/play-from-start';
-import { useAudioPlayer } from 'expo-audio';
 import { useMemo, useRef } from 'react';
 
 const PUZZLE_SOUND_KEYS = [

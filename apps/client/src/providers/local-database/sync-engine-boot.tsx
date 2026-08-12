@@ -65,7 +65,7 @@ function useSyncEnginePromise(
   userId: string,
   pool: AppSyncEnginePool
 ): Promise<SyncEngine> {
-  const { openSqlClient } = useAppOverrides();
+  const { openSqlClient, createPubSub } = useAppOverrides();
   const config = useConfigService();
   const observability = useObservability();
   const io = useIo();
@@ -81,15 +81,28 @@ function useSyncEnginePromise(
   const getFreshAuthTokenRef = useRef(getFreshAuthToken);
   const authRef = useRef(auth);
   const ioRef = useRef(io);
+  const createPubSubRef = useRef(createPubSub);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   getFreshAuthTokenRef.current = getFreshAuthToken;
   authRef.current = auth;
   ioRef.current = io;
+  createPubSubRef.current = createPubSub;
   return useMemo(
     () =>
       pool.getOrCreate({
         ...(openSqlClient !== undefined ? { openSqlClient } : {}),
+        ...(createPubSub !== undefined
+          ? {
+              createPubSub: () => {
+                const factory = createPubSubRef.current;
+                if (factory === undefined) {
+                  throw new Error('createPubSub override missing');
+                }
+                return factory();
+              },
+            }
+          : {}),
         get config() {
           return configRef.current;
         },
@@ -115,7 +128,7 @@ function useSyncEnginePromise(
         databaseName: dbName,
         userId,
       }),
-    [dbName, userId, pool, openSqlClient]
+    [dbName, userId, pool, openSqlClient, createPubSub]
   );
 }
 

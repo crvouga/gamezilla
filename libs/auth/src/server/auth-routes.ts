@@ -92,7 +92,7 @@ function requireBearerToken(header: string | null): string {
  * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
  */
 export function createAuthApiRoutes(deps?: {
-  readonly onUserDomainWrite?: (userId: string) => void;
+  readonly onUserDomainWrite?: (userId: string) => void | Promise<void>;
 }) {
   return new Hono<ApiHonoEnv<AuthContext>>()
     .post('/identity/anon/ensure', async (c) => {
@@ -109,7 +109,7 @@ export function createAuthApiRoutes(deps?: {
         forceNew: body.forceNew,
       });
 
-      deps?.onUserDomainWrite?.(result.userId);
+      await deps?.onUserDomainWrite?.(result.userId);
 
       return c.json(
         { userId: result.userId, accountId: result.userId, isAnon: true },
@@ -147,7 +147,7 @@ export function createAuthApiRoutes(deps?: {
         createId: io.createId,
       });
 
-      deps?.onUserDomainWrite?.(accountId);
+      await deps?.onUserDomainWrite?.(accountId);
 
       return c.json({ accountId, userId: accountId, isAnon: false }, 200);
     });

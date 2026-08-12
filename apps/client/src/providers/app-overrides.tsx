@@ -1,7 +1,11 @@
 import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
+import type { Kv } from '@pkgs/kv/interface';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
+import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
 import { createContext, type ReactNode, useContext } from 'react';
 
+import type { DevMenuPort, NetworkStatePort } from '../device/ports';
 import type { OpenLocalSqlClient } from '../sync/create-local-sync-engine';
 import type { AppSyncEnginePool } from '../sync/sync-engine-pool';
 
@@ -27,6 +31,19 @@ export type AppOverrides = {
   readonly openSqlClient?: OpenLocalSqlClient;
   /** Isolated sync-engine pool (default process-wide global pool). */
   readonly syncEnginePool?: AppSyncEnginePool;
+  /**
+   * Sync push PubSub factory (default EMQX from client_config). Sims inject a
+   * shared in-memory bus peer so notifyChannels reaches actors without EMQX.
+   */
+  readonly createPubSub?: () => PubSub;
+  /** Per-actor Kv (default platform AsyncStorage / localStorage). */
+  readonly kv?: Kv;
+  /** Network reachability port (default expo-network). */
+  readonly network?: NetworkStatePort;
+  /** Expo Dev Menu registration (default expo-dev-client). */
+  readonly devMenu?: DevMenuPort;
+  /** Audio playback port (default expo-audio via @pkgs/sounds). */
+  readonly audio?: AudioPlaybackPort;
 };
 
 const EMPTY_OVERRIDES: AppOverrides = {};

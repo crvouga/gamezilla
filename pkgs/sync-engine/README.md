@@ -125,8 +125,9 @@ checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
 `listRejections` / `pendingMutationCount`. Optional create opts `schemaEpoch` /
 `onLocalMigratePhase` for sim (constants live on `/test`).
 
-**server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (allocates
-pushSeqs internally), `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
+**server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (await
+while `sql` is connected; allocates pushSeqs then fire-and-forgets publish),
+`isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
 
 **shared:** `defineQuery`, `defineMutation`, registries, `MutationError`,
 `LIVE_ROW_SQL`, `softDeleteById`, `applyFrameworkServerDdl` (opaque),

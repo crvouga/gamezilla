@@ -4,14 +4,28 @@
  * isolated client stack rendered through Expo Router's testing library + RNTL.
  */
 
+import {
+  clearInterval as nodeClearInterval,
+  clearTimeout as nodeClearTimeout,
+  setInterval as nodeSetInterval,
+  setTimeout as nodeSetTimeout,
+} from 'node:timers';
 import { createApiApp } from '@apps/api/app/create-app';
 import { loadBetterAuthBootConfig } from '@apps/api/config/better-auth-boot';
+import { setApiPubSubOverride } from '@apps/api/sync/api-pubsub';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { wallTimers } from '@pkgs/clock';
+import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
+import type { Clock, Timers } from '@pkgs/clock';
+import { wallClock } from '@pkgs/clock';
 import { createHonoHttpClient, type HttpClient } from '@pkgs/http-client';
-import type { SimIo } from '@pkgs/io';
+import type { Io, SimIo } from '@pkgs/io';
+import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
+import {
+  createInMemoryBus,
+  createInMemoryPublishOnlyPubSub,
+} from '@pkgs/pubsub/testing/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import type {
   InProcessSimulationSession,
@@ -19,6 +33,7 @@ import type {
   SimulationSystem,
   SimulationSystemHandle,
 } from '@pkgs/simulation';
+import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createRenderedAppFromRntl, type RenderedApp } from '@pkgs/ui-testing';
 import { act } from '@testing-library/react-native';
 import { type Href, router } from 'expo-router';
@@ -42,6 +57,28 @@ type SimBackend = {
   readonly http: HttpClient;
   readonly pgMem: PgMemHandle;
   readonly restoreGlobalFetch: () => void;
+  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+};
+
+/**
+ * Jest-immune wall timers for the sim harness. `wallTimers` uses
+ * `globalThis.setTimeout`, which Jest fakes after `renderRouter` — that
+ * strands Better Auth session races (`EXISTING_SESSION_CHECK_MS`) and leaves
+ * SignInModal on "Signing in…".
+ */
+const simNodeTimers: Timers = {
+  setTimeout: (fn, ms) => nodeSetTimeout(fn, ms),
+  clearTimeout: (handle) => {
+    nodeClearTimeout(handle as ReturnType<typeof nodeSetTimeout>);
+  },
+  setInterval: (fn, ms) => nodeSetInterval(fn, ms),
+  clearInterval: (handle) => {
+    nodeClearInterval(handle as ReturnType<typeof nodeSetInterval>);
+  },
+};
+
+const simWallClock: Clock = {
+  now: () => wallClock.now(),
 };
 
 function resolveRequestUrl(input: RequestInfo | URL): string {
@@ -57,12 +94,31 @@ function isSimApiUrl(url: string): boolean {
 /**
  * Serialize in-process Hono fetches. Overlapping pg-mem work under the
  * React/Jest zone hangs; sequential requests succeed.
+ *
+ * Re-entrant fetch (a handler/plugin calling fetch while one is already
+ * in-flight on this client) must NOT wait on `chain` — that deadlocks
+ * sign-up (signUp.email → nested getSession) and leaves SignInModal on
+ * "Signing in…".
  */
 function createSerializedHttp(rawHttp: HttpClient): HttpClient {
   let chain: Promise<unknown> = Promise.resolve();
+  let active = 0;
   return {
     fetch(input, init) {
-      const next = chain.then(() => rawHttp.fetch(input, init));
+      if (active > 0) {
+        active += 1;
+        return rawHttp.fetch(input, init).finally(() => {
+          active -= 1;
+        });
+      }
+      const next = chain.then(async () => {
+        active += 1;
+        try {
+          return await rawHttp.fetch(input, init);
+        } finally {
+          active -= 1;
+        }
+      });
       chain = next.then(
         () => undefined,
         () => undefined
@@ -91,15 +147,30 @@ function installSimGlobalFetch(http: HttpClient): () => void {
   };
 }
 
+/**
+ * API Io shares sim ids/rng but uses wall clock/timers so Better Auth session
+ * expiry lines up with the actor client (also wall). A frozen sim clock at
+ * `startMs` (2024) against a 2026 wall client marks sessions expired.
+ */
+function createSimApiIo(base: SimIo): Io {
+  return {
+    ...base,
+    clock: simWallClock,
+    timers: simNodeTimers,
+  };
+}
+
 /** Boots pg-mem + migrates + mounts the in-process API, returning its HTTP. */
 async function bootSimBackend(io: SimIo): Promise<SimBackend> {
   const pgMem = await bootPgMem();
+  const pubSubBus = createInMemoryBus();
+  const apiIo = createSimApiIo(io);
 
   try {
     await migrateSimDb({
       sqlClient: pgMem.sqlClient,
       pool: pgMem.pool,
-      io,
+      io: apiIo,
     });
     const secretStore = createRecordSecretStore({
       BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
@@ -112,7 +183,7 @@ async function bootSimBackend(io: SimIo): Promise<SimBackend> {
       secretsEnv: 'dev',
     });
     const app = await createApiApp({
-      io,
+      io: apiIo,
       secretStore,
       betterAuth,
       dbScope: appPostgresDbScope(),
@@ -122,6 +193,10 @@ async function bootSimBackend(io: SimIo): Promise<SimBackend> {
       secretsEnv: 'dev',
       objectStore: new ObjectStoreImplInMemory(),
       observability: createNoopObservability('sim-api'),
+      stripe: createInMemoryStripe({ baseUrl: SIM_API_URL }),
+      llmProvider: new InMemoryLlmProvider(),
+      ttsProvider: new InMemoryTtsProvider(),
+      pubSub: createInMemoryPublishOnlyPubSub(pubSubBus),
     });
     const rawHttp = createHonoHttpClient({ app, origin: SIM_API_URL });
     // Warm client_config materialize outside React so the first AuthBridge
@@ -150,6 +225,7 @@ async function bootSimBackend(io: SimIo): Promise<SimBackend> {
       http,
       pgMem,
       restoreGlobalFetch,
+      pubSubBus,
     };
   } catch (error) {
     await pgMem.stop();
@@ -173,10 +249,14 @@ function wrapRenderedApp(app: RenderedApp): RenderedApp {
 function createActorSession(
   io: SimIo,
   http: HttpClient,
+  pubSubBus: ReturnType<typeof createInMemoryBus>,
   initialPath: string
 ): InProcessSimulationSession {
   const actorIo = createActorIo(io, http);
-  const { overrides } = createActorClientSeams(SIM_API_URL);
+  const { overrides } = createActorClientSeams({
+    apiUrl: SIM_API_URL,
+    pubSubBus,
+  });
   let path = initialPath;
   return {
     ui: 'in-process',
@@ -184,33 +264,27 @@ function createActorSession(
       async mount() {
         // expo-router's renderRouter always calls jest.useFakeTimers(). That
         // breaks in-process Hono + pg-mem (query completions / AuthBridge
-        // ensureAnon hang once timers are faked). Keep real timers for sims.
-        const useFakeTimers = jest.useFakeTimers.bind(jest);
+        // ensureAnon hang once timers are faked). Keep the noop for the
+        // actor lifetime — product Io uses node:timers anyway.
         jest.useFakeTimers = ((..._args: unknown[]) =>
           jest) as typeof jest.useFakeTimers;
-        let result: ReturnType<typeof renderRouter>;
-        try {
-          result = renderRouter(
-            {
-              _layout: () =>
-                createElement(SimLayout, { io: actorIo, overrides }),
-              index: () => createElement(SimSpacesHome),
-              'more/account': () => createElement(SimAccountScreen),
-            },
-            { initialUrl: path }
-          );
-        } finally {
-          jest.useFakeTimers = useFakeTimers;
-        }
+        jest.useRealTimers();
+        const result = renderRouter(
+          {
+            _layout: () => createElement(SimLayout, { io: actorIo, overrides }),
+            index: () => createElement(SimSpacesHome),
+            'more/account': () => createElement(SimAccountScreen),
+          },
+          { initialUrl: path }
+        );
         jest.useRealTimers();
         // Let AuthBridge / sync microtasks and macrotasks land before the
-        // scenario starts polling (fake timers may have been left on by
-        // nested expo-router helpers).
+        // scenario starts polling.
         await act(async () => {
           await Promise.resolve();
         });
         await new Promise<void>((resolve) => {
-          wallTimers.setTimeout(resolve, 0);
+          simNodeTimers.setTimeout(resolve, 0);
         });
         jest.useRealTimers();
         return wrapRenderedApp(createRenderedAppFromRntl(result));
@@ -242,10 +316,16 @@ export function createClientSimulationSystem(): SimulationSystem {
       const backend = await bootSimBackend(ctx.io);
       return {
         async createSession(_actorId: string) {
-          return createActorSession(ctx.io, backend.http, '/more/account');
+          return createActorSession(
+            ctx.io,
+            backend.http,
+            backend.pubSubBus,
+            '/more/account'
+          );
         },
         async dispose() {
           backend.restoreGlobalFetch();
+          setApiPubSubOverride(undefined);
           await backend.pgMem.stop();
         },
       };

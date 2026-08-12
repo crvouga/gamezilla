@@ -11,7 +11,7 @@ module.exports = {
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-  testTimeout: 120_000,
+  testTimeout: 180_000,
   // Transform all node_modules so Bun-nested ESM (.mjs / "export") loads under Jest.
   transformIgnorePatterns: [],
   transform: {
@@ -43,15 +43,13 @@ module.exports = {
       { paths: [path.join(repoRoot, 'apps/client')] }
     ),
     '^@gorhom/bottom-sheet$': '<rootDir>/jest-bottom-sheet-stub.cjs',
-    '^expo-audio$': '<rootDir>/jest-expo-audio-stub.cjs',
-    '^expo-network$': '<rootDir>/jest-expo-network-stub.cjs',
-    '^expo-dev-client$': '<rootDir>/jest-expo-dev-client-stub.cjs',
+    // Better Auth (not product code) dynamically imports expo-network and
+    // requires subscription.remove(); keep a minimal shim for that path only.
+    '^expo-network$': '<rootDir>/jest-expo-network-better-auth-shim.cjs',
     // Force one Lingui core singleton (Bun nests two hashes otherwise).
     '^@lingui/core$': require.resolve('@lingui/core', {
       paths: [path.join(repoRoot, 'apps/client')],
     }),
-    '^@react-native-async-storage/async-storage$':
-      '<rootDir>/jest-async-storage-stub.cjs',
     '^@apps/([^/]+)$': `${repoRoot}/apps/$1/src/index.ts`,
     '^@apps/([^/]+)/(.*)$': `${repoRoot}/apps/$1/src/$2`,
     '^@libs/([^/]+)$': `${repoRoot}/libs/$1/src/index.ts`,

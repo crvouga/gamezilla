@@ -154,7 +154,7 @@ export async function openSimServer(
     pruneArtifacts: (olderThanMs) =>
       pruneMutationArtifacts(db, olderThanMs, new Date(args.now())),
     notifyFanout: async ({ topics, tables, label }) => {
-      notifyChannels({
+      await notifyChannels({
         pubsub: args.pubsub,
         sql: db,
         topics: [...topics],

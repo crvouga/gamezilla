@@ -15,6 +15,8 @@ type RecordMeta = {
   readonly selector?: Selector;
   readonly detail?: string;
   readonly snapshotBefore?: boolean;
+  /** Skip HTML snapshot (typing floods reports and is slow under load). */
+  readonly skipSnapshot?: boolean;
 };
 
 /**
@@ -53,14 +55,18 @@ export function createReportingDriver(
         'typeText',
         `typeText ${formatSelector(target)}`,
         () => driver.typeText(target, text),
-        { selector: target, detail: `text=${JSON.stringify(text)}` }
+        {
+          selector: target,
+          detail: `text=${JSON.stringify(text)}`,
+          skipSnapshot: true,
+        }
       ),
     clearText: (target) =>
       record(
         'clearText',
         `clearText ${formatSelector(target)}`,
         () => driver.clearText(target),
-        { selector: target }
+        { selector: target, skipSnapshot: true }
       ),
     pressKey: (key: DriverKey) =>
       record('pressKey', `pressKey ${key}`, () => driver.pressKey(key), {
@@ -105,6 +111,7 @@ function makeRecorder(
         : {}),
       ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
       ...(meta?.snapshotBefore === true ? { snapshotBefore: true } : {}),
+      ...(meta?.skipSnapshot === true ? { skipSnapshot: true } : {}),
       run,
       snapshot: () => driver.snapshotHtml(),
     });

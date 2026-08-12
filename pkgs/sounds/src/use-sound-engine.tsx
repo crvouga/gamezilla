@@ -6,6 +6,7 @@ import {
   useMemo,
 } from 'react';
 
+import { useAudioPlaybackPort } from './audio-playback/audio-playback-context';
 import {
   createSoundEngine,
   type PlaySoundOptions,
@@ -24,9 +25,10 @@ export function SoundEngineProvider({
   children,
 }: SoundEngineProviderProps): ReactNode {
   const { muted, masterVolume } = useSoundsPreference();
+  const audio = useAudioPlaybackPort();
   const engine = useMemo(
-    () => createSoundEngine({ muted, masterVolume }),
-    [masterVolume, muted]
+    () => createSoundEngine({ muted, masterVolume, audio }),
+    [audio, masterVolume, muted]
   );
 
   useEffect(() => () => engine.dispose(), [engine]);

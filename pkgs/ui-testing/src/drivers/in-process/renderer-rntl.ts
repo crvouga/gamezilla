@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   type RenderResult,
   render,
@@ -49,10 +50,34 @@ export function createRenderedAppFromRntl(
       fireEvent.press(asInstance(element));
     },
     typeText: async (element, text) => {
-      await user.type(asInstance(element), text);
+      // Paste-shaped event sequence without user.paste's timer wait (can stall
+      // ~15s under Jest). Includes `change` + `changeText` like RNTL paste.
+      const target = findHostTextInput(asInstance(element));
+      await act(async () => {
+        fireEvent(target, 'focus');
+        fireEvent(target, 'change', {
+          nativeEvent: { text, target: 0 },
+        });
+        fireEvent.changeText(target, text);
+        fireEvent(target, 'endEditing', {
+          nativeEvent: { text, target: 0 },
+        });
+        fireEvent(target, 'blur');
+      });
     },
     clearText: async (element) => {
-      await user.clear(asInstance(element));
+      const target = findHostTextInput(asInstance(element));
+      await act(async () => {
+        fireEvent(target, 'focus');
+        fireEvent(target, 'change', {
+          nativeEvent: { text: '', target: 0 },
+        });
+        fireEvent.changeText(target, '');
+        fireEvent(target, 'endEditing', {
+          nativeEvent: { text: '', target: 0 },
+        });
+        fireEvent(target, 'blur');
+      });
     },
     pressKey: async () => {
       // Keyboard keys are DOM-oriented; no-op under RNTL host trees.
@@ -101,6 +126,22 @@ export function createRntlRenderAdapter(): RenderAdapter {
 
 function asInstance(node: HostNode): ReactTestInstance {
   return node as ReactTestInstance;
+}
+
+/** Walk to a host that implements `onChangeText` (label hits the wrapper). */
+function findHostTextInput(instance: ReactTestInstance): ReactTestInstance {
+  if (typeof instance.props['onChangeText'] === 'function') {
+    return instance;
+  }
+  for (const child of instance.children) {
+    if (typeof child === 'string') continue;
+    try {
+      return findHostTextInput(child as ReactTestInstance);
+    } catch {
+      // keep searching siblings
+    }
+  }
+  throw new Error('typeText: no onChangeText host under matched element');
 }
 
 function queryNode(scope: RenderResult, selector: Selector): HostNode | null {

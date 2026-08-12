@@ -1,5 +1,4 @@
 import { join } from 'node:path';
-import { wallClock } from '@pkgs/clock';
 import { createSimIo, type SimClock, type SimIo } from '@pkgs/io';
 
 import { createSimActor, type SimActor } from './actor';
@@ -54,7 +53,7 @@ function createReporter(
 ): SimulationReporter | undefined {
   const reportOpts = resolveReportOptions(options.report);
   if (reportOpts === null) return undefined;
-  const now = () => wallClock.now();
+  const now = () => io.clock.now();
   return new SimulationReporter({
     seed: String(io.seed),
     ui,

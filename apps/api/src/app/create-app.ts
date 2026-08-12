@@ -24,6 +24,7 @@ import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
+import { setApiPubSubOverride } from '../sync/api-pubsub';
 import { notifyUserChannels } from '../sync/notify-user-channels';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
@@ -84,11 +85,14 @@ function createApiErrorHandler(log: ReturnType<typeof createAppLogger>) {
 }
 
 async function createStripeClient(
-  secretStore: ApiHandlerConfig['secretStore'],
+  config: ApiHandlerConfig,
   log: ReturnType<typeof createAppLogger>
 ): Promise<Stripe | null> {
+  if (config.stripe !== undefined) {
+    return config.stripe;
+  }
   const raw = (
-    await secretStore.getOptional(ApiSecretName.stripeSecretKey)
+    await config.secretStore.getOptional(ApiSecretName.stripeSecretKey)
   )?.readSecretValue();
   const key =
     typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
@@ -113,6 +117,9 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
       assert.defined(s, 'tts auth: request store missing');
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
+    ...(config.ttsProvider !== undefined
+      ? { provider: config.ttsProvider }
+      : {}),
   });
   if (!result.configured) {
     log.warn('ELEVEN_LABS_API_KEY missing; TTS routes will return 503');
@@ -135,6 +142,9 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
       assert.defined(s, 'llm auth: request store missing');
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
+    ...(config.llmProvider !== undefined
+      ? { provider: config.llmProvider }
+      : {}),
   });
   if (!result.configured) {
     log.warn(
@@ -251,8 +261,13 @@ export async function createApiApp(config: ApiHandlerConfig) {
   const { secretStore, dbScope, observability, betterAuth, secretsEnv, io } =
     config;
   const log = createAppLogger(io);
+
+  if (config.pubSub !== undefined) {
+    setApiPubSubOverride(config.pubSub);
+  }
+
   const [stripe, tts, llm] = await Promise.all([
-    createStripeClient(secretStore, log),
+    createStripeClient(config, log),
     createTtsAppForApi(config),
     createLlmAppForApi(config),
   ]);

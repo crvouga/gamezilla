@@ -5,26 +5,24 @@ import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
 
 /** Best-effort user-topic push after a non-replay DOMAIN write. */
-export function notifyUserChannels(
+export async function notifyUserChannels(
   userIds: readonly string[],
   label: string,
   tables?: readonly string[]
-): void {
+): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
   const topics = userIds
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return;
-  void (async () => {
-    const pubsub = await getApiPubSub(store.secretStore);
-    if (pubsub === undefined) return;
-    notifyChannels({
-      pubsub,
-      sql: store.sqlClient,
-      topics,
-      ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
-      label,
-    });
-  })();
+  const pubsub = await getApiPubSub(store.secretStore);
+  if (pubsub === undefined) return;
+  await notifyChannels({
+    pubsub,
+    sql: store.sqlClient,
+    topics,
+    ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
+    label,
+  });
 }

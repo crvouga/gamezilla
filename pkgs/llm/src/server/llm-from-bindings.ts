@@ -1,6 +1,7 @@
 import type { HttpClient } from '@pkgs/http-client';
 import type { SecretStore } from '@pkgs/secret-store';
 import { Hono } from 'hono';
+import type { LlmProvider } from '../shared/llm-provider';
 import { OpenAiLlmProvider } from './adapters/openai-llm-provider';
 import {
   type CreateLlmAppOptions,
@@ -23,6 +24,8 @@ export type CreateLlmAppFromBindingsOptions = {
   readonly getKv: LlmGetKv;
   readonly requireAuth: LlmRequireAuth;
   readonly http: HttpClient;
+  /** When set, skips secret lookup and mounts a configured app. */
+  readonly provider?: LlmProvider;
 };
 
 export type CreateLlmAppFromBindingsResult = {
@@ -45,10 +48,23 @@ function trimOrNull(raw: string | undefined | null): string | null {
 /**
  * Pre-wired Hono sub-app: loads OpenAI credentials from the secret store.
  * When either secret is missing, mounts a degraded surface that returns 503.
+ * Pass {@link CreateLlmAppFromBindingsOptions.provider} to skip secrets
+ * (sims / tests).
  */
 export async function createLlmAppFromBindings(
   options: CreateLlmAppFromBindingsOptions
 ): Promise<CreateLlmAppFromBindingsResult> {
+  if (options.provider !== undefined) {
+    return {
+      configured: true,
+      app: createLlmApp({
+        provider: options.provider,
+        getKv: options.getKv,
+        requireAuth: options.requireAuth,
+      }),
+    };
+  }
+
   const apiKey = trimOrNull(
     (
       await options.secretStore.getOptional(LlmSecretName.openAiApiKey)

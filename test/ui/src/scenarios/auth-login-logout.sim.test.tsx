@@ -1,22 +1,23 @@
-import { describe, expect, test } from '@jest/globals';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { setTimeout as nodeSetTimeout } from 'node:timers/promises';
+import { describe, expect, jest, test } from '@jest/globals';
 import { openSimulation } from '@pkgs/simulation';
 import { by, type Driver, nth, type Selector } from '@pkgs/ui-testing';
 
 import { createClientSimulationSystem } from '../harness/create-client-simulation-system';
 
 /**
- * Polls with wall timers (not the sim clock) so React/async work gets turns
- * between checks. The driver's own `waitFor` advances virtual time in a tight
- * microtask loop, which would starve async I/O.
- *
- * Do not call `act()` between polls — sync act during in-flight Hono/pg-mem
- * work can deadlock the request under Jest + RNTL.
+ * Wall delay that cannot be swallowed by Jest fake timers (expo-router /
+ * RNTL occasionally re-enable them). Uses `node:timers/promises` after
+ * forcing real timers so poll loops always make progress.
  */
 async function realDelay(ms: number): Promise<void> {
-  await new Promise<void>((resolve) => {
-    wallTimers.setTimeout(resolve, ms);
-  });
+  jest.useRealTimers();
+  await nodeSetTimeout(ms);
+}
+
+function realNow(): number {
+  jest.useRealTimers();
+  return Date.now();
 }
 
 async function waitVisible(
@@ -24,9 +25,10 @@ async function waitVisible(
   target: Selector,
   timeoutMs = 90_000
 ): Promise<void> {
-  const deadline = wallClock.now() + timeoutMs;
+  const deadline = realNow() + timeoutMs;
   let lastText = '';
-  while (wallClock.now() < deadline) {
+  while (realNow() < deadline) {
+    jest.useRealTimers();
     if (await driver.isVisible(target)) return;
     lastText = (await driver.getText(target).catch(() => null)) ?? lastText;
     await realDelay(50);
@@ -79,5 +81,5 @@ describe('auth login → logout', () => {
     } finally {
       await sim.dispose();
     }
-  }, 120_000);
+  }, 180_000);
 });

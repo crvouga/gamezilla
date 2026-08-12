@@ -1,29 +1,38 @@
-import type { KeyValueStorage } from './key-value-storage';
+import { asKeyword, type Keyword } from '@pkgs/keyword/keyword';
+import type { Kv } from '@pkgs/kv/interface';
+import { jsonKvCodec } from '@pkgs/kv/kv-state-codec';
 
-const DEFAULT_KEY = '@app/command-history';
+const DEFAULT_KEY = asKeyword('ui.prefs/command-history');
+const VALUE_ATTR = asKeyword('ui.prefs/value');
 const DEFAULT_LIMIT = 20;
 
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === 'string');
+}
+
+const IDS_CODEC = jsonKvCodec<string[]>(VALUE_ATTR, isStringArray);
+
 export type HistoryStoreOptions = {
-  storage?: KeyValueStorage | undefined;
-  storageKey?: string;
+  kv?: Kv | null;
+  storageKey?: Keyword;
   limit?: number;
 };
 
 export type HistoryListener = () => void;
 
 /**
- * MRU list of command ids with optional AsyncStorage persistence.
+ * MRU list of command ids with optional {@link Kv} persistence.
  */
 export class HistoryStore {
-  private readonly storage: KeyValueStorage | undefined;
-  private readonly storageKey: string;
+  private readonly kv: Kv | null;
+  private readonly storageKey: Keyword;
   private readonly limit: number;
   private ids: string[] = [];
   private hydrated = false;
   private readonly listeners = new Set<HistoryListener>();
 
   constructor(options: HistoryStoreOptions = {}) {
-    this.storage = options.storage ?? undefined;
+    this.kv = options.kv ?? null;
     this.storageKey = options.storageKey ?? DEFAULT_KEY;
     this.limit = options.limit ?? DEFAULT_LIMIT;
   }
@@ -46,24 +55,14 @@ export class HistoryStore {
   }
 
   async hydrate(): Promise<void> {
-    if (this.storage === undefined || this.hydrated) {
+    if (this.kv === null || this.hydrated) {
       this.hydrated = true;
       return;
     }
     try {
-      const raw = await this.storage.getItem(this.storageKey);
-      if (raw === null || raw === '') {
-        this.ids = [];
-      } else {
-        const parsed = JSON.parse(raw) as unknown;
-        if (Array.isArray(parsed)) {
-          this.ids = parsed
-            .filter((x) => typeof x === 'string')
-            .slice(0, this.limit);
-        } else {
-          this.ids = [];
-        }
-      }
+      const record = await this.kv.get(this.storageKey);
+      const decoded = record === null ? undefined : IDS_CODEC.decode(record);
+      this.ids = decoded === undefined ? [] : decoded.slice(0, this.limit);
     } catch {
       this.ids = [];
     }
@@ -79,11 +78,11 @@ export class HistoryStore {
   }
 
   private async persist(): Promise<void> {
-    if (this.storage === undefined) {
+    if (this.kv === null) {
       return;
     }
     try {
-      await this.storage.setItem(this.storageKey, JSON.stringify(this.ids));
+      await this.kv.put(this.storageKey, IDS_CODEC.encode(this.ids));
     } catch {
       // ignore persistence failures
     }

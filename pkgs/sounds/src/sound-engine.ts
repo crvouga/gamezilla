@@ -1,4 +1,6 @@
 import { Platform } from 'react-native';
+import { resolveAudioPlaybackPort } from './audio-playback/audio-playback-context';
+import type { AudioPlaybackPort } from './audio-playback/ports';
 import { getManifestVolume } from './manifest';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import type { SoundId } from './sound-id';
@@ -8,6 +10,8 @@ export type SoundEngineOptions = {
   readonly muted?: boolean;
   readonly masterVolume?: number;
   readonly respectReducedMotion?: boolean;
+  /** Inject for sims; defaults to Expo wall audio port. */
+  readonly audio?: AudioPlaybackPort;
 };
 
 export type PlaySoundOptions = {
@@ -30,21 +34,6 @@ type AudioPlayerLike = {
   pause?: () => void;
   remove: () => void;
 };
-
-type ExpoAudioModule = {
-  createAudioPlayer: (source: unknown) => AudioPlayerLike;
-};
-
-function loadExpoAudio(): ExpoAudioModule | null {
-  try {
-    // Lazy: importing `expo-audio` at module top crashes under Jest when the
-    // native AudioPlayer prototype is missing. Keep SoundId / Sounds imports safe.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('expo-audio') as ExpoAudioModule;
-  } catch {
-    return null;
-  }
-}
 
 async function warmPlayer(player: AudioPlayerLike): Promise<void> {
   try {
@@ -92,12 +81,15 @@ function createNoopSoundEngine(): SoundEngine {
 export function createSoundEngine(
   options: SoundEngineOptions = {}
 ): SoundEngine {
-  const expoAudio = loadExpoAudio();
-  if (expoAudio == null || typeof expoAudio.createAudioPlayer !== 'function') {
+  let audio: AudioPlaybackPort;
+  try {
+    audio = resolveAudioPlaybackPort(options.audio);
+  } catch {
     return createNoopSoundEngine();
   }
-  // Capture after guard: nested fns do not keep the null narrowing.
-  const { createAudioPlayer } = expoAudio;
+  if (typeof audio.createPlayer !== 'function') {
+    return createNoopSoundEngine();
+  }
 
   const muted = options.muted ?? false;
   const masterVolume = options.masterVolume ?? 1;
@@ -108,7 +100,7 @@ export function createSoundEngine(
     const existing = players.get(id);
     if (existing) return existing;
     const source = soundAssetSources[id as SoundAssetSourceId];
-    const player = createAudioPlayer(source);
+    const player = audio.createPlayer(source);
     players.set(id, player);
     return player;
   }

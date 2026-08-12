@@ -29,7 +29,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "expo-audio": "catalog:",
+    "@pkgs/sounds": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

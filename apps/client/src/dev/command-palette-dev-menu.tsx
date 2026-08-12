@@ -1,6 +1,7 @@
 import { useCommandPalette } from '@pkgs/ui';
-import { registerDevMenuItems } from 'expo-dev-client';
 import { useEffect } from 'react';
+
+import { useDevMenuPort } from '../device/device-ports-provider';
 
 declare const __DEV__: boolean;
 
@@ -11,19 +12,20 @@ declare const __DEV__: boolean;
  */
 export function CommandPaletteDevMenu(): null {
   const { open } = useCommandPalette();
+  const devMenu = useDevMenuPort();
 
   useEffect(() => {
     if (!__DEV__) {
       return;
     }
-    void registerDevMenuItems([
+    void devMenu.registerItems([
       {
         name: 'Open Command Palette',
         callback: open,
         shouldCollapse: true,
       },
     ]);
-  }, [open]);
+  }, [open, devMenu]);
 
   return null;
 }

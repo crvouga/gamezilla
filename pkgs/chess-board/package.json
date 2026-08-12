@@ -23,7 +23,6 @@
     "@pkgs/ui": "workspace:*",
     "@shopify/react-native-skia": "catalog:",
     "chess.js": "catalog:",
-    "expo-audio": "catalog:",
     "expo-haptics": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",

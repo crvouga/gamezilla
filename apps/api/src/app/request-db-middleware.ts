@@ -143,7 +143,7 @@ async function materializeClientConfigIfNeeded(
       options.io
     ).execute(options.desiredClientConfig);
     if (result.updated) {
-      notifyClientConfigChannels('client-config-materialize');
+      await notifyClientConfigChannels('client-config-materialize');
     }
   })();
   try {

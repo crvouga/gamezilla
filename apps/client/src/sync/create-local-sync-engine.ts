@@ -9,6 +9,7 @@ import {
 } from '@libs/db/shared/app-topic-map';
 import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
 import type { Clock, Timers } from '@pkgs/clock';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { ExpoWebSqlClient } from '@pkgs/sql-client/sqlite/web';
 import {
@@ -81,6 +82,8 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly random: Random;
   /** Sim override; defaults to the platform OPFS / expo-sqlite client. */
   readonly openSqlClient?: OpenLocalSqlClient;
+  /** Sim override; defaults to EMQX from client_config URL. */
+  readonly createPubSub?: () => PubSub;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
@@ -130,6 +133,9 @@ function pushOptions(
     push: {
       queryRegistry: APP_QUERIES,
       createPubSub: () => {
+        if (args.createPubSub !== undefined) {
+          return args.createPubSub();
+        }
         const url = emqxUrlHolder.url?.trim() ?? '';
         if (url.length === 0) {
           throw new Error('pubsub unavailable');

@@ -1,6 +1,6 @@
-import { describe, expect, test } from '@jest/globals';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { describe, expect, test } from '@jest/globals';
 import { by, expectText, expectVisible } from '@pkgs/ui-testing';
 
 import { openSimulation } from '../open-simulation';
@@ -69,11 +69,7 @@ describe('openSimulation (demo system)', () => {
   });
 
   test('report: true writes HTML timeline with UI snapshots', async () => {
-    const outDir = join(
-      process.cwd(),
-      'simulation-report',
-      'demo-report-test'
-    );
+    const outDir = join(process.cwd(), 'simulation-report', 'demo-report-test');
     const sim = await openSimulation({
       seed: 7,
       system: createDemoSimulationSystem(),

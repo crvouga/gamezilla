@@ -45,7 +45,7 @@ function ensureInboxHandlers(): void {
       actionId: ctx.actionId,
       requestId,
     });
-    notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
+    await notifyUserChannels(result.userIds, `friends-inbox:${ctx.actionId}`);
   });
 }
 

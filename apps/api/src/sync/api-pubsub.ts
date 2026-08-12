@@ -5,6 +5,8 @@ import type { SecretStore } from '@pkgs/secret-store';
 import { ApiSecretName } from '../config/secret-names';
 
 let cached: PubSub | null | undefined;
+/** Composition-root override (sims); wins over secret-based EMQX HTTP. */
+let injected: PubSub | undefined;
 
 type EmqxHttpCreds = {
   readonly apiBaseUrl: string;
@@ -35,12 +37,25 @@ async function loadEmqxHttpCreds(
 }
 
 /**
+ * Inject a process-scoped PubSub (e.g. in-memory bus for sims).
+ * Clears the EMQX HTTP cache. Pass `undefined` to clear the override.
+ */
+export function setApiPubSubOverride(pubsub: PubSub | undefined): void {
+  injected = pubsub;
+  cached = undefined;
+}
+
+/**
  * Lazy Worker-scoped EMQX HTTP publish-only client. Returns undefined when
  * EMQX secrets are unset (pushes disabled; uploads still correct).
+ * Prefer {@link setApiPubSubOverride} in sims.
  */
 export async function getApiPubSub(
   secretStore: SecretStore
 ): Promise<PubSub | undefined> {
+  if (injected !== undefined) {
+    return injected;
+  }
   if (cached !== undefined) {
     return cached === null ? undefined : cached;
   }
@@ -56,4 +71,5 @@ export async function getApiPubSub(
 /** Test / reset hook. */
 export function resetApiPubSubForTests(): void {
   cached = undefined;
+  injected = undefined;
 }

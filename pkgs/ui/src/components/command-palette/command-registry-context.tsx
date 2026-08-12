@@ -1,3 +1,6 @@
+import { asKeyword, type Keyword } from '@pkgs/keyword/keyword';
+import type { Kv } from '@pkgs/kv/interface';
+import { useKvOptional } from '@pkgs/kv/kv-context';
 import {
   createContext,
   type Dispatch,
@@ -14,7 +17,6 @@ import { Platform } from 'react-native';
 
 import { CommandRegistryStore } from './command-registry-store';
 import { HistoryStore } from './history-store';
-import type { KeyValueStorage } from './key-value-storage';
 import {
   matchesWebShortcut,
   type WebKeyboardEventLike,
@@ -23,12 +25,13 @@ import type { CommandId } from './types';
 import { isCommandEnabled, isCommandVisible, normalizeShortcut } from './types';
 
 const DEFAULT_OPEN_SHORTCUTS = ['mod+k', 'mod+shift+p'];
-const DEFAULT_STORAGE_KEY = '@app/command-history';
+const DEFAULT_STORAGE_KEY = asKeyword('ui.prefs/command-history');
 
 export type CommandRegistryProviderProps = {
   children: ReactNode;
-  storage?: KeyValueStorage;
-  storageKey?: string;
+  /** Optional override; defaults to ambient {@link useKvOptional}. */
+  kv?: Kv | null;
+  storageKey?: Keyword;
   historyLimit?: number;
   openShortcuts?: string[];
   /** When false, global open shortcuts are not registered (web). */
@@ -64,14 +67,14 @@ function useStableStore(): CommandRegistryStore {
 }
 
 function useStableHistoryStore(
-  storage: KeyValueStorage | undefined,
-  storageKey: string,
+  kv: Kv | null,
+  storageKey: Keyword,
   historyLimit: number
 ): HistoryStore {
   const ref = useRef<HistoryStore | null>(null);
   if (ref.current === null) {
     ref.current = new HistoryStore({
-      ...(storage !== undefined ? { storage } : {}),
+      kv,
       storageKey,
       limit: historyLimit,
     });
@@ -279,14 +282,16 @@ function useGlobalShortcuts({
 
 export function CommandRegistryProvider({
   children,
-  storage,
+  kv: kvProp,
   storageKey = DEFAULT_STORAGE_KEY,
   historyLimit = 20,
   openShortcuts = DEFAULT_OPEN_SHORTCUTS,
   enableDefaultShortcuts = true,
 }: CommandRegistryProviderProps) {
+  const ambientKv = useKvOptional();
+  const kv = kvProp !== undefined ? kvProp : ambientKv;
   const store = useStableStore();
-  const historyStore = useStableHistoryStore(storage, storageKey, historyLimit);
+  const historyStore = useStableHistoryStore(kv, storageKey, historyLimit);
   const state = useProviderState();
 
   useEffect(() => {

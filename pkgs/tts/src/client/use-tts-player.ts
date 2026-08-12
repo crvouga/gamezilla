@@ -1,4 +1,7 @@
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import {
+  useAudioPlayer,
+  useAudioPlayerStatus,
+} from '@pkgs/sounds/audio-playback/audio-playback-context';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function isAutoplayBlockedError(error: unknown): boolean {

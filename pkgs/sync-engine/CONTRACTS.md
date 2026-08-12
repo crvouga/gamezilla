@@ -143,7 +143,7 @@ export function notifyChannels(options: {
   tables?: readonly string[];
   rows?: Readonly<Record<string, readonly QueryRow[]>>;
   label?: string;
-}): void;
+}): Promise<void>; // await while sql is connected; publish is fire-and-forget
 export function isAuthErrorBody(body: unknown): body is AuthErrorBody;
 export function pruneMutationArtifacts(db, olderThanMs, now?): Promise<void>;
 export type SyncAppAuth = { actorId; deviceId; accountId; isAnon };
