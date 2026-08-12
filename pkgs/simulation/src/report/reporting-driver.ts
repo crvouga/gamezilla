@@ -3,6 +3,7 @@ import type {
   SimulationStepKind,
 } from '@pkgs/simulation-report';
 import type {
+  AssertionOptions,
   Driver,
   DriverKey,
   ScrollDirection,
@@ -85,6 +86,31 @@ export function createReportingDriver(
         () => driver.waitFor(target, state, options),
         { selector: target, detail: state, pollFrames: true }
       ),
+    expectVisible: (target, options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expectVisible ${formatSelector(target)}`,
+        () => driver.expectVisible(target, options),
+        { selector: target, detail: 'visible', pollFrames: true }
+      ),
+    expectHidden: (target, options?: AssertionOptions) =>
+      record(
+        'waitFor',
+        `expectHidden ${formatSelector(target)}`,
+        () => driver.expectHidden(target, options),
+        { selector: target, detail: 'hidden', pollFrames: true }
+      ),
+    expectText: (target, expected, options?) =>
+      record(
+        'waitFor',
+        `expectText ${formatSelector(target)}`,
+        () => driver.expectText(target, expected, options),
+        {
+          selector: target,
+          detail: `text=${JSON.stringify(expected)}`,
+          pollFrames: true,
+        }
+      ),
     isVisible: (target) => driver.isVisible(target),
     getText: (target) => driver.getText(target),
     snapshotHtml: (options) => driver.snapshotHtml(options),
@@ -141,25 +167,4 @@ function recordScroll(args: {
     () => driver.scroll(target, direction, amount),
     { selector: target, detail }
   );
-}
-
-export async function recordNavOpen(
-  reporter: SimulationReporter,
-  args: {
-    readonly actorId: string;
-    readonly path: string;
-    readonly open: () => Promise<void>;
-    readonly snapshot: (options?: {
-      readonly stylesheetHref?: string;
-    }) => Promise<string | null>;
-  }
-): Promise<void> {
-  await reporter.record({
-    actorId: args.actorId,
-    kind: 'nav.open',
-    title: `open ${args.path}`,
-    detail: args.path,
-    run: args.open,
-    snapshot: args.snapshot,
-  });
 }

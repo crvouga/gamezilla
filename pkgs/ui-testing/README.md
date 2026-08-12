@@ -24,9 +24,6 @@ The package is a workspace member. Depend on it from a consuming package:
 import {
   createDriver,
   by,
-  expectVisible,
-  expectHidden,
-  expectText,
   type Driver,
   type AppHarness,
 } from '@pkgs/ui-testing';
@@ -34,10 +31,11 @@ import {
 
 | Surface                                          | Purpose                                       |
 | ------------------------------------------------ | --------------------------------------------- |
-| `Driver`                                         | Portable user-intent operations               |
+| `Driver`                                         | Portable user-intent ops + expect* methods    |
 | `createDriver(config)`                           | Factory over a discriminated `DriverConfig`   |
 | `by.testId` / `by.text` / `by.label` / `by.role` | Selector builders                             |
-| `expectVisible` / `expectHidden` / `expectText`  | Runner-agnostic assertions                    |
+| `by.first` / `by.nth`                            | Match-index combinators                       |
+| `driver.expectVisible` / `expectHidden` / `expectText` | Assertions (methods on Driver)           |
 | `AppHarness`                                     | App-supplied bootstrap port (in-process only) |
 
 Direct driver constructors are also available under deep imports, e.g.
@@ -71,13 +69,13 @@ by.testId('email');
 by.text('Sign in');
 by.label('Password');
 by.role('button', 'Submit');
-first(by.role('heading', 'Spaces'));
-nth(by.testId('row'), 2);
+by.first(by.role('heading', 'Spaces'));
+by.nth(by.testId('row'), 2);
 ```
 
 Drivers translate these into native queries (`getByTestId`, Detox `by.id`, …).
 Never pass CSS / XPath / framework matchers into the public API.
-Use `first` / `nth` when multiple elements match.
+Use `by.first` / `by.nth` when multiple elements match.
 
 ## Page objects (consumer-owned)
 
@@ -135,7 +133,7 @@ this package forbids.
 ### 3. Write a test
 
 ```ts
-import { createDriver, by, expectVisible } from '@pkgs/ui-testing';
+import { createDriver, by } from '@pkgs/ui-testing';
 import { harness } from './harness';
 
 const driver = createDriver({
@@ -145,7 +143,7 @@ const driver = createDriver({
   timers,
 });
 await driver.launch();
-await expectVisible(driver, by.testId('home'));
+await driver.expectVisible(by.testId('home'));
 await driver.close();
 ```
 
@@ -160,7 +158,7 @@ extra at runtime beyond their own install.
 
 ```ts
 import { test } from '@playwright/test';
-import { createDriver, by, expectVisible } from '@pkgs/ui-testing';
+import { createDriver, by } from '@pkgs/ui-testing';
 
 test('home loads', async ({ page }) => {
   const driver = createDriver({
@@ -169,7 +167,7 @@ test('home loads', async ({ page }) => {
     baseUrl: 'http://localhost:5173',
   });
   await driver.launch();
-  await expectVisible(driver, by.testId('app-root'));
+  await driver.expectVisible(by.testId('app-root'));
 });
 ```
 
@@ -227,7 +225,7 @@ pkgs/ui-testing/src/
   core/           errors, waitUntil, DriverKey
   selector/       Selector union + by.* builders
   driver/         Driver interface + createDriver
-  assertions/     expectVisible / expectHidden / expectText
+  assertions/     shared expect* helpers for Driver implementations
   bootstrap/      AppHarness + RenderAdapter ports
   drivers/
     in-process/   InProcessDriver + RNTL renderer

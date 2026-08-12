@@ -3,6 +3,7 @@ import { Trans } from '@lingui/react/macro';
 import {
   Box,
   Button,
+  LoadingState,
   MailIcon,
   ModalBody,
   SocialSignInButton,
@@ -10,6 +11,7 @@ import {
 } from '@pkgs/ui';
 
 export function SignInModalBody(props: {
+  methodsLoading?: boolean;
   googleAvailable: boolean;
   emailPasswordAvailable: boolean;
   signInUnavailableReason: string | null;
@@ -17,6 +19,7 @@ export function SignInModalBody(props: {
   onPressEmail: () => void;
 }) {
   const {
+    methodsLoading = false,
     googleAvailable,
     emailPasswordAvailable,
     signInUnavailableReason,
@@ -28,7 +31,11 @@ export function SignInModalBody(props: {
   return (
     <ModalBody>
       <Box sx={{ marginTop: 3, alignSelf: 'stretch', gap: 2 }}>
-        {anyMethod ? (
+        {methodsLoading ? (
+          <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
+        ) : null}
+
+        {!methodsLoading && anyMethod ? (
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}
@@ -36,7 +43,7 @@ export function SignInModalBody(props: {
           />
         ) : null}
 
-        {googleAvailable ? (
+        {!methodsLoading && googleAvailable ? (
           <SocialSignInButton
             provider="google"
             action="signIn"
@@ -45,7 +52,7 @@ export function SignInModalBody(props: {
           />
         ) : null}
 
-        {emailPasswordAvailable ? (
+        {!methodsLoading && emailPasswordAvailable ? (
           <Button
             title={<Trans>Sign in with email</Trans>}
             intent="neutral"
@@ -55,7 +62,7 @@ export function SignInModalBody(props: {
           />
         ) : null}
 
-        {!anyMethod ? (
+        {!methodsLoading && !anyMethod ? (
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}

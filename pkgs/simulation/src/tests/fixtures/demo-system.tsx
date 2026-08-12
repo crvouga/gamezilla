@@ -8,6 +8,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import type {
   InProcessSimulationSession,
+  SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
 } from '../../system-port';
@@ -73,42 +74,35 @@ function DemoApp(props: {
 }
 
 /** In-process demo system with a shared title string across actors. */
-export function createDemoSimulationSystem(): SimulationSystem {
-  return {
-    async start(ctx): Promise<SimulationSystemHandle> {
-      if (ctx.ui !== 'in-process') {
-        throw new Error('demo system only supports ui: in-process');
-      }
-      void ctx.io;
-      const store = createDemoStore();
-      const sessions = new Set<InProcessSimulationSession>();
+export class DemoSimulationSystem implements SimulationSystem {
+  async start(ctx: SimulationStartContext): Promise<SimulationSystemHandle> {
+    if (ctx.ui !== 'in-process') {
+      throw new Error('demo system only supports ui: in-process');
+    }
+    void ctx.io;
+    const store = createDemoStore();
+    const sessions = new Set<InProcessSimulationSession>();
 
-      return {
-        async createSession(actorId: string) {
-          let path = '/';
-          const session: InProcessSimulationSession = {
-            ui: 'in-process',
-            harness: {
-              createRoot: () => createElement(DemoApp, { actorId, store }),
-            },
-            async open(nextPath: string) {
-              path = nextPath;
-              void path;
-            },
-            async dispose() {
-              sessions.delete(session);
-            },
-          };
-          sessions.add(session);
-          return session;
-        },
-        async dispose() {
-          for (const s of [...sessions]) {
-            await s.dispose();
-          }
-          sessions.clear();
-        },
-      };
-    },
-  };
+    return {
+      async createSession(actorId: string) {
+        const session: InProcessSimulationSession = {
+          ui: 'in-process',
+          harness: {
+            createRoot: () => createElement(DemoApp, { actorId, store }),
+          },
+          async dispose() {
+            sessions.delete(session);
+          },
+        };
+        sessions.add(session);
+        return session;
+      },
+      async dispose() {
+        for (const s of [...sessions]) {
+          await s.dispose();
+        }
+        sessions.clear();
+      },
+    };
+  }
 }

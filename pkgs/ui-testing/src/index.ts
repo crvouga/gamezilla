@@ -4,19 +4,14 @@
  * Primary surface:
  * - {@link Driver} / {@link createDriver}
  * - {@link by} selectors
- * - {@link expectVisible} / {@link expectHidden} / {@link expectText}
+ * - Driver assertion methods (`expectVisible` / `expectHidden` / `expectText`)
  * - {@link AppHarness} bootstrap port
  *
  * Drivers live under `@pkgs/ui-testing/drivers/...` for direct construction
  * when the factory is too coarse.
  */
 
-export {
-  type AssertionOptions,
-  expectHidden,
-  expectText,
-  expectVisible,
-} from './assertions/assertions';
+export type { AssertionOptions } from './assertions/driver-expect';
 export type { AppHarness } from './bootstrap/app-harness';
 export type {
   HostNode,
@@ -71,10 +66,4 @@ export {
   type PlaywrightDriverOptions,
 } from './drivers/playwright/playwright-driver';
 export { formatSelector } from './selector/format';
-export {
-  by,
-  first,
-  nth,
-  type Selector,
-  type SelectorRole,
-} from './selector/selector';
+export { by, type Selector, type SelectorRole } from './selector/selector';

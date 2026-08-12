@@ -41,13 +41,28 @@ export function createRenderedAppFromRntl(
   const user = options.user ?? userEvent.setup({ delay: 0 });
   const app: RenderedApp = {
     query: (selector) => queryNode(result, selector),
-    isVisible: (element) => isHostVisible(asInstance(element)),
+    isVisible: (element) => {
+      try {
+        return isHostVisible(asInstance(element));
+      } catch {
+        // RN Animated / style proxies can throw during opacity reads (e.g.
+        // `flatten` on an unset node). Treat as not visible and keep polling.
+        return false;
+      }
+    },
     getText: (element) => readHostText(asInstance(element)),
     tap: async (element) => {
-      fireEvent.press(asInstance(element));
+      // `act` flushes pending useSyncExternalStore updates (e.g. client_config
+      // SQL watch) before/with the press — otherwise SignInCapabilities can
+      // stay stale and the modal opens with “no methods configured”.
+      await act(async () => {
+        fireEvent.press(asInstance(element));
+      });
     },
     tapAt: async (element) => {
-      fireEvent.press(asInstance(element));
+      await act(async () => {
+        fireEvent.press(asInstance(element));
+      });
     },
     typeText: async (element, text) => {
       // Paste-shaped event sequence without user.paste's timer wait (can stall
@@ -99,10 +114,20 @@ export function createRenderedAppFromRntl(
           ? { stylesheetHref: options.stylesheetHref }
           : {}),
       }),
+    /**
+     * Flush pending React updates (AuthBridge / sync / stores). Required
+     * between wait polls — without this, async setState stays invisible
+     * to queries until some other `act` (historically `router.push`).
+     */
+    activate: async () => {
+      if (options.activate !== undefined) {
+        await options.activate();
+      }
+      await act(async () => {
+        await Promise.resolve();
+      });
+    },
   };
-  if (options.activate !== undefined) {
-    app.activate = options.activate;
-  }
   return app;
 }
 
@@ -193,7 +218,7 @@ function isHostVisible(element: ReactTestInstance): boolean {
 
 function styleHides(style: unknown): boolean {
   if (style == null) return false;
-  const list = Array.isArray(style) ? style.flat(4) : [style];
+  const list = flattenStyleList(style);
   for (const entry of list) {
     if (entry == null || typeof entry !== 'object') continue;
     const record = entry as Record<string, unknown>;
@@ -204,13 +229,35 @@ function styleHides(style: unknown): boolean {
   return false;
 }
 
+/** Flatten RN style arrays without assuming `Array.prototype.flat` on proxies. */
+function flattenStyleList(style: unknown): unknown[] {
+  if (!Array.isArray(style)) return [style];
+  const out: unknown[] = [];
+  const stack: unknown[] = [...style];
+  while (stack.length > 0) {
+    const next = stack.pop();
+    if (Array.isArray(next)) {
+      for (let i = next.length - 1; i >= 0; i -= 1) {
+        stack.push(next[i]);
+      }
+      continue;
+    }
+    out.push(next);
+  }
+  return out;
+}
+
 /** Resolve RN `Animated` nodes so opacity:0 is detected during fades. */
 function styleOpacity(value: unknown): number | undefined {
   if (typeof value === 'number') return value;
   if (value == null || typeof value !== 'object') return undefined;
   if (!('__getValue' in value)) return undefined;
-  const raw = (value as { __getValue?: () => unknown }).__getValue?.();
-  return typeof raw === 'number' ? raw : undefined;
+  try {
+    const raw = (value as { __getValue?: () => unknown }).__getValue?.();
+    return typeof raw === 'number' ? raw : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function readHostText(element: ReactTestInstance): string | null {

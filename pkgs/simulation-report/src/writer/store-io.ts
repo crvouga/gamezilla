@@ -26,7 +26,14 @@ export async function storeGetJson<T>(
 ): Promise<T | null> {
   const text = await storeGetText(store, key);
   if (text === null) return null;
-  return JSON.parse(text) as T;
+  const trimmed = text.trim();
+  if (trimmed.length === 0) return null;
+  try {
+    return JSON.parse(trimmed) as T;
+  } catch {
+    // Truncated / mid-write files from a shared FS bucket.
+    return null;
+  }
 }
 
 export async function storePutText(

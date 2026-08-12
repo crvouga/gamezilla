@@ -169,13 +169,13 @@ export function SnapshotStage(props: { readonly src: string | null }) {
         ref={frame0Ref}
         style={frameStyle(0)}
         title="Snapshot A"
-        sandbox="allow-scripts allow-same-origin"
+        sandbox=""
       />
       <iframe
         ref={frame1Ref}
         style={frameStyle(1)}
         title="Snapshot B"
-        sandbox="allow-scripts allow-same-origin"
+        sandbox=""
       />
       {!hasPainted ? <div style={styles.previewEmpty}>No snapshot</div> : null}
     </div>

@@ -7,7 +7,6 @@ export default function ProfileStackLayout() {
   return (
     <Stack {...props}>
       <Stack.Screen name="edit" />
-      <Stack.Screen name="username" />
       <Stack.Screen name="handle" />
       <Stack.Screen name="avatar" />
       <Stack.Screen name="friends/index" />

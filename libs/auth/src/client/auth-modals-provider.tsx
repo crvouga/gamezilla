@@ -124,19 +124,24 @@ function useSignInModalConnection(args: {
   );
 
   const apiReachable = apiUrl.trim().length > 0;
-  const googleAvailable = apiReachable && capabilities.google;
-  const emailPasswordAvailable = apiReachable && capabilities.emailPassword;
+  const methodsLoading = !capabilities.ready;
+  const googleAvailable =
+    !methodsLoading && apiReachable && capabilities.google;
+  const emailPasswordAvailable =
+    !methodsLoading && apiReachable && capabilities.emailPassword;
   const anyMethod = googleAvailable || emailPasswordAvailable;
   const signInModalVisible = signInModalOpen || resumePending;
-  const signInUnavailableReason = anyMethod
-    ? null
-    : apiReachable
-      ? NO_SIGN_IN_METHODS_REASON
-      : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
+  const signInUnavailableReason =
+    methodsLoading || anyMethod
+      ? null
+      : apiReachable
+        ? NO_SIGN_IN_METHODS_REASON
+        : HOSTED_SIGN_IN_UNAVAILABLE_REASON;
   return {
     visible: signInModalVisible,
     onClose: closeSignInModal,
     resumePending,
+    methodsLoading,
     googleAvailable,
     emailPasswordAvailable,
     signInUnavailableReason,

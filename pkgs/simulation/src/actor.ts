@@ -7,10 +7,7 @@ import {
   type PlaywrightDriverConfig,
 } from '@pkgs/ui-testing';
 
-import {
-  createReportingDriver,
-  recordNavOpen,
-} from './report/reporting-driver';
+import { createReportingDriver } from './report/reporting-driver';
 import type { SimulationSession, SimulationUiKind } from './system-port';
 
 /**
@@ -20,7 +17,6 @@ export type SimActor = {
   readonly id: string;
   /** Portable UI driver — assert and interact only through this. */
   readonly ui: Driver;
-  open(path: string): Promise<void>;
   dispose(): Promise<void>;
 };
 
@@ -49,18 +45,6 @@ export async function createSimActor(args: {
   return {
     id,
     ui: driver,
-    open: async (path) => {
-      if (reporter === undefined) {
-        await session.open(path);
-        return;
-      }
-      await recordNavOpen(reporter, {
-        actorId: id,
-        path,
-        open: () => session.open(path),
-        snapshot: (options) => rawDriver.snapshotHtml(options),
-      });
-    },
     async dispose() {
       await driver.close();
       await session.dispose();
@@ -93,11 +77,12 @@ function driverTimers(io: SimIo): Timers {
 
 function createDriverForSession(session: SimulationSession, io: SimIo): Driver {
   if (session.ui === 'in-process') {
+    const wait = session.driverWait;
     return createDriver({
       kind: 'in-process',
       harness: session.harness,
-      now: io.clock.now,
-      timers: driverTimers(io),
+      now: wait?.now ?? io.clock.now,
+      timers: wait?.timers ?? driverTimers(io),
     });
   }
   const config: PlaywrightDriverConfig = {

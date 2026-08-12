@@ -42,6 +42,8 @@ export type SignInModalProps = {
   onClose: () => void;
   /** True when resuming a sign-in that began before an OAuth redirect. */
   resumePending: boolean;
+  /** True while synced sign-in method flags are still loading. */
+  methodsLoading?: boolean;
   googleAvailable: boolean;
   emailPasswordAvailable: boolean;
   signInUnavailableReason: string | null;
@@ -80,6 +82,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
     visible,
     onClose,
     resumePending,
+    methodsLoading = false,
     googleAvailable,
     emailPasswordAvailable,
     onError,
@@ -128,6 +131,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
           idleBody={
             <SignInIdleBody
               idleStep={idleStep}
+              methodsLoading={methodsLoading}
               googleAvailable={googleAvailable}
               emailPasswordAvailable={emailPasswordAvailable}
               signInUnavailableReason={props.signInUnavailableReason}

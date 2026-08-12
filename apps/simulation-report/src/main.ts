@@ -122,7 +122,12 @@ const { fetch } = createSimulationReportServer({
   now: () => Date.now(),
 });
 
-const server = Bun.serve({ port, fetch });
+const server = Bun.serve({
+  port,
+  fetch,
+  // SSE watch streams must outlive Bun's default 10s idle timeout.
+  idleTimeout: 0,
+});
 
 const reportDirEnv =
   process.env['REPORT_DIR']?.trim() ||

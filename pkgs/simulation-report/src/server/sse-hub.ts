@@ -104,7 +104,7 @@ export function openSseStream(args: {
   readonly timers: Timers;
   readonly heartbeatMs?: number;
 }): SseStreamHandles {
-  const heartbeatMs = args.heartbeatMs ?? 15_000;
+  const heartbeatMs = args.heartbeatMs ?? 5_000;
   const { timers } = args;
   let controller: ReadableStreamDefaultController<Uint8Array> | null = null;
   let heartbeat: unknown = null;
@@ -156,6 +156,7 @@ export function openSseStream(args: {
       'content-type': 'text/event-stream; charset=utf-8',
       'cache-control': 'no-cache, no-transform',
       connection: 'keep-alive',
+      'x-accel-buffering': 'no',
     },
   });
 

@@ -1,15 +1,21 @@
-import { continueTrace, spanToTraceHeader } from '@sentry/core';
-import * as Sentry from '@sentry/react-native';
+import {
+  captureException,
+  continueTrace,
+  flush,
+  spanToTraceHeader,
+  startInactiveSpan,
+  withActiveSpan,
+} from '@sentry/core';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
 import type { Observability, SpanContextStorage } from '../port/observability';
 import { formatTraceparent } from '../shared/trace-context';
 import { createSentryObservability } from './sentry-observability';
 import type { SentrySdk } from './sentry-sdk';
 
-function createReactNativeSentrySdk(): SentrySdk {
+function createClientSentrySdk(): SentrySdk {
   return {
-    startInactiveSpan: (options) => Sentry.startInactiveSpan(options),
-    withActiveSpan: (span, callback) => Sentry.withActiveSpan(span, callback),
+    startInactiveSpan: (options) => startInactiveSpan(options),
+    withActiveSpan: (span, callback) => withActiveSpan(span, callback),
     spanToTraceparentHeader: (span) => {
       const ctx = span.spanContext();
       return formatTraceparent({
@@ -29,9 +35,9 @@ function createReactNativeSentrySdk(): SentrySdk {
         callback
       ),
     captureException: (error) => {
-      Sentry.captureException(error);
+      captureException(error);
     },
-    flush: () => Sentry.flush(),
+    flush: () => flush(),
   };
 }
 
@@ -42,7 +48,7 @@ export function createClientSentryObservability(args: {
 }): Observability {
   return createSentryObservability({
     serviceName: args.serviceName,
-    sdk: createReactNativeSentrySdk(),
+    sdk: createClientSentrySdk(),
     storage: args.storage ?? new InMemorySpanContextStorage(),
     now: args.now,
   });

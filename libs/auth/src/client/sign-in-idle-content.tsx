@@ -18,6 +18,7 @@ export function titleForSignInIdleStep(
 
 export function SignInIdleBody(props: {
   idleStep: SignInIdleStep;
+  methodsLoading?: boolean;
   googleAvailable: boolean;
   emailPasswordAvailable: boolean;
   signInUnavailableReason: string | null;
@@ -29,6 +30,7 @@ export function SignInIdleBody(props: {
 }): ReactNode {
   const {
     idleStep,
+    methodsLoading = false,
     googleAvailable,
     emailPasswordAvailable,
     signInUnavailableReason,
@@ -57,6 +59,7 @@ export function SignInIdleBody(props: {
   }
   return (
     <SignInModalBody
+      methodsLoading={methodsLoading}
       googleAvailable={googleAvailable}
       emailPasswordAvailable={emailPasswordAvailable}
       signInUnavailableReason={signInUnavailableReason}

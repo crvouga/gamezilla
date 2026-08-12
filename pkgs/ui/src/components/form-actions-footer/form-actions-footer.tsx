@@ -26,6 +26,7 @@
 
 import type { ReactNode } from 'react';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { Box } from '../box';
 import { Button, type ButtonIntent } from '../button';
 import { useMutationButton } from '../button/use-mutation-button';
@@ -92,7 +93,10 @@ export function FormActionsFooter({
           title={cancel.label}
           intent="neutral"
           variant="outline"
-          onPress={cancel.onPress}
+          onPress={() => {
+            releaseWebFocus();
+            cancel.onPress();
+          }}
           disabled={cancel.disabled ?? false}
           flex={1}
         />

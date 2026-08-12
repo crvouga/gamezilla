@@ -1,3 +1,4 @@
+import { releaseWebFocus } from '@pkgs/ui';
 import type { Href, Router } from 'expo-router';
 import { useLocalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -46,21 +47,14 @@ export function useSpaceRouteId(): string {
   return lastRef.current;
 }
 
-/** Drop focus on web so the previous screen can be aria-hidden without a11y warnings. */
-function releaseWebFocusBeforeNavigation(): void {
-  if (typeof document === 'undefined') return;
-  const active = document.activeElement;
-  if (active instanceof HTMLElement) active.blur();
-}
-
 export function openSpaceDetail(router: Router, spaceId: string): void {
-  releaseWebFocusBeforeNavigation();
+  releaseWebFocus();
   router.push(spaceDetailHref(spaceId));
 }
 
 /** Leave `/space/:id` — pop the modal stack on iOS, fall back to lobby on deep links. */
 export function closeSpaceDetail(router: Router): void {
-  releaseWebFocusBeforeNavigation();
+  releaseWebFocus();
   if (router.canGoBack()) {
     router.back();
     return;

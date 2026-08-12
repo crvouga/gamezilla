@@ -20,7 +20,6 @@ import {
   playheadFrameIndex,
   resolveSelectedFrameIndex,
 } from './frames';
-import { maxFrameDuration } from './heat';
 import { playbackHoldMs } from './playback-hold';
 import { PlayerStage } from './player-stage';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
@@ -51,7 +50,6 @@ export function TestPlayer(props: {
       playheadIdx={model.playheadIdx}
       previewIdx={model.previewIdx}
       previewFrame={model.previewFrame}
-      maxDurationMs={model.maxDurationMs}
       holdRemainingMs={model.holdRemainingMs}
       previewSrc={model.previewSrc}
       registerCopyAction={model.registerCopyAction}
@@ -71,7 +69,6 @@ function useTestPlayerModel(props: {
   const { data, nav, bucketId, runId, onNav } = props;
   const testId = data.meta.testId;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
-  const maxDurationMs = useMemo(() => maxFrameDuration(frames), [frames]);
   const selectedFrameIdx = resolveSelectedFrameIndex(frames, data.steps, nav);
   const playheadIdx = playheadFrameIndex(selectedFrameIdx, frames.length);
   const [hoverFrameIdx, setHoverFrameIdx] = useState<number | null>(null);
@@ -106,17 +103,20 @@ function useTestPlayerModel(props: {
   const copyLlmPrompt = useCallback(() => {
     copyActionRef.current();
   }, []);
+  const commandActions = useMemo(
+    () => ({ ...actions, copyLlmPrompt }),
+    [actions, copyLlmPrompt]
+  );
   usePlayerCommands({
     nav,
     frames,
     previewIdx,
-    actions: { ...actions, copyLlmPrompt },
+    actions: commandActions,
     onNav,
   });
   return {
     testId,
     frames,
-    maxDurationMs,
     selectedFrameIdx,
     playheadIdx,
     hoverFrameIdx: !nav.play ? hoverFrameIdx : null,
@@ -146,7 +146,6 @@ function PlayerShell(props: {
   readonly playheadIdx: number;
   readonly previewIdx: number;
   readonly previewFrame: FlatFrame | null;
-  readonly maxDurationMs: number;
   readonly holdRemainingMs: number | null;
   readonly previewSrc: string | null;
   readonly registerCopyAction: (run: () => void) => void;
@@ -166,7 +165,6 @@ function PlayerShell(props: {
     playheadIdx,
     previewIdx,
     previewFrame,
-    maxDurationMs,
     holdRemainingMs,
     previewSrc,
     registerCopyAction,
@@ -219,7 +217,6 @@ function PlayerShell(props: {
           selectedIdx={selectedFrameIdx}
           hoverIdx={hoverFrameIdx}
           playheadIdx={playheadIdx}
-          maxDurationMs={maxDurationMs}
           holdRemainingMs={holdRemainingMs}
           onHover={onHover}
           onSelect={actions.toggleFrame}

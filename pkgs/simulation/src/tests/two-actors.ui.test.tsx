@@ -3,46 +3,45 @@ import { join } from 'node:path';
 import { describe, expect, test } from '@jest/globals';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
-import { by, expectText, expectVisible } from '@pkgs/ui-testing';
+import { by } from '@pkgs/ui-testing';
 
-import { openSimulation } from '../open-simulation';
-import { createDemoSimulationSystem } from './fixtures/demo-system';
+import { Simulation } from '../open-simulation';
+import { DemoSimulationSystem } from './fixtures/demo-system';
 
-describe('openSimulation (demo system)', () => {
+describe('Simulation (demo system)', () => {
   test('two actors share state and assert only via UI', async () => {
-    const sim = await openSimulation({
+    const sim = await Simulation.open({
       seed: 1,
-      system: createDemoSimulationSystem(),
+      system: new DemoSimulationSystem(),
     });
     try {
       expect(sim.ui).toBe('in-process');
       expect(sim.seed).toBe(1n);
 
       const alice = await sim.actor('alice');
-      await expectVisible(alice.ui, by.testId('demo-root'));
-      await expectText(alice.ui, by.testId('actor-id'), 'alice');
-      await expectText(alice.ui, by.testId('shared-title'), '(empty)');
+      await alice.ui.expectVisible(by.testId('demo-root'));
+      await alice.ui.expectText(by.testId('actor-id'), 'alice');
+      await alice.ui.expectText(by.testId('shared-title'), '(empty)');
 
       await alice.ui.tap(by.testId('create'));
-      await expectText(
-        alice.ui,
+      await alice.ui.expectText(
         by.testId('shared-title'),
         'Game night (alice)'
       );
 
       const bob = await sim.actor('bob');
-      await expectVisible(bob.ui, by.testId('demo-root'));
-      await expectText(bob.ui, by.testId('actor-id'), 'bob');
-      await expectText(bob.ui, by.testId('shared-title'), 'Game night (alice)');
+      await bob.ui.expectVisible(by.testId('demo-root'));
+      await bob.ui.expectText(by.testId('actor-id'), 'bob');
+      await bob.ui.expectText(by.testId('shared-title'), 'Game night (alice)');
     } finally {
       await sim.dispose();
     }
   });
 
   test('actor() returns the same instance for the same id', async () => {
-    const sim = await openSimulation({
+    const sim = await Simulation.open({
       seed: 'demo',
-      system: createDemoSimulationSystem(),
+      system: new DemoSimulationSystem(),
     });
     try {
       const a1 = await sim.actor('alice');
@@ -54,10 +53,10 @@ describe('openSimulation (demo system)', () => {
   });
 
   test('clock advances deterministically', async () => {
-    const sim = await openSimulation({
+    const sim = await Simulation.open({
       seed: 42,
       startMs: 1000,
-      system: createDemoSimulationSystem(),
+      system: new DemoSimulationSystem(),
     });
     try {
       expect(sim.clock.now()).toBe(1000);
@@ -73,16 +72,15 @@ describe('openSimulation (demo system)', () => {
     const runId = 'demo-run';
     const testId = 'demo-report';
     const store = createNodeFsObjectStore({ rootDir });
-    const sim = await openSimulation({
+    const sim = await Simulation.open({
       seed: 7,
-      system: createDemoSimulationSystem(),
+      system: new DemoSimulationSystem(),
       report: { store, runId, testId },
     });
     try {
       const alice = await sim.actor('alice');
       await alice.ui.tap(by.testId('create'));
-      await expectText(
-        alice.ui,
+      await alice.ui.expectText(
         by.testId('shared-title'),
         'Game night (alice)'
       );

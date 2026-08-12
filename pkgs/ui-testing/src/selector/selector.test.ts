@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import { formatSelector } from './format';
-import { by, first, nth } from './selector';
+import { by } from './selector';
 
 describe('by selectors', () => {
   it('builds portable selector objects', () => {
@@ -19,13 +19,13 @@ describe('by selectors', () => {
   });
 
   it('applies first/nth modifiers', () => {
-    expect(first(by.role('heading', 'Spaces'))).toEqual({
+    expect(by.first(by.role('heading', 'Spaces'))).toEqual({
       kind: 'role',
       role: 'heading',
       name: 'Spaces',
       nth: 0,
     });
-    expect(nth(by.testId('row'), 2)).toEqual({
+    expect(by.nth(by.testId('row'), 2)).toEqual({
       kind: 'testId',
       value: 'row',
       nth: 2,
@@ -37,6 +37,8 @@ describe('by selectors', () => {
     expect(formatSelector(by.role('button', 'Go'))).toBe(
       'role("button", name: "Go")'
     );
-    expect(formatSelector(first(by.testId('x')))).toBe('testId("x", nth: 0)');
+    expect(formatSelector(by.first(by.testId('x')))).toBe(
+      'testId("x", nth: 0)'
+    );
   });
 });

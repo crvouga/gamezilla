@@ -1,3 +1,4 @@
+import type { Timers } from '@pkgs/clock';
 import type { SimIo } from '@pkgs/io';
 import type { AppHarness } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
@@ -31,15 +32,24 @@ export type SimulationSystemHandle = {
 };
 
 type SimulationSessionBase = {
-  /** Navigate / deep-link within this session. */
-  open(path: string): Promise<void>;
   dispose(): Promise<void>;
+};
+
+/** Optional wall-clock wait knobs for driver polling (product I/O). */
+export type SimulationDriverWait = {
+  readonly now: () => number;
+  readonly timers: Timers;
 };
 
 /** In-process session — feeds `@pkgs/ui-testing` InProcessDriver. */
 export type InProcessSimulationSession = SimulationSessionBase & {
   readonly ui: 'in-process';
   readonly harness: AppHarness;
+  /**
+   * When set, UI waits poll on this clock/timers instead of the simulation
+   * virtual clock (needed when real HTTP / Node work must complete).
+   */
+  readonly driverWait?: SimulationDriverWait;
 };
 
 /** Playwright session — feeds `@pkgs/ui-testing` PlaywrightDriver. */

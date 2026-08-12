@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { wallIo } from '@pkgs/io';
-import {
-  expectHidden,
-  expectText,
-  expectVisible,
-} from '../../assertions/assertions';
 import { NotImplementedError } from '../../core/errors';
 import { createDriver } from '../../driver/create-driver';
 import { by } from '../../selector/selector';
@@ -30,24 +25,24 @@ describe('InProcessDriver', () => {
 
     await driver.launch();
 
-    await expectVisible(driver, by.testId('email'));
-    await expectVisible(driver, by.label('Email'));
-    await expectVisible(driver, by.role('button', 'Submit'));
-    await expectVisible(driver, by.text('Sign in'));
+    await driver.expectVisible(by.testId('email'));
+    await driver.expectVisible(by.label('Email'));
+    await driver.expectVisible(by.role('button', 'Submit'));
+    await driver.expectVisible(by.text('Sign in'));
 
     await driver.typeText(by.testId('email'), 'ada@example.com');
     await driver.typeText(by.label('Password'), 'secret');
-    await expectText(driver, by.testId('email'), 'ada@example.com');
+    await driver.expectText(by.testId('email'), 'ada@example.com');
 
     await driver.clearText(by.testId('email'));
-    await expectText(driver, by.testId('email'), '');
+    await driver.expectText(by.testId('email'), '');
 
     await driver.typeText(by.testId('email'), 'ada@example.com');
     await driver.tap(by.testId('submit'));
 
-    await expectVisible(driver, by.testId('home'));
-    await expectHidden(driver, by.testId('email'));
-    await expectText(driver, by.testId('welcome'), 'Welcome ada@example.com');
+    await driver.expectVisible(by.testId('home'));
+    await driver.expectHidden(by.testId('email'));
+    await driver.expectText(by.testId('welcome'), 'Welcome ada@example.com');
 
     const html = await driver.snapshotHtml();
     expect(html).toContain('data-testid="home"');
@@ -62,7 +57,7 @@ describe('InProcessDriver', () => {
     expect(await driver.isVisible(by.testId('missing'))).toBe(false);
 
     await driver.tap(by.testId('inc'));
-    await expectText(driver, by.testId('count'), '1');
+    await driver.expectText(by.testId('count'), '1');
   });
 
   it('scrolls without throwing', async () => {

@@ -1,3 +1,4 @@
+import type { AssertionOptions } from '../assertions/driver-expect';
 import type { DriverKey } from '../core/keys';
 import type { WaitPollOptions } from '../core/wait';
 import type { Selector } from '../selector/selector';
@@ -15,6 +16,9 @@ export type TapPosition = {
 /**
  * User-intent driver. Models what a person does with an app, not Playwright /
  * Detox / DOM primitives. Every concrete driver must satisfy this interface.
+ *
+ * Assertions are methods on the driver — scenarios call `driver.expectVisible`
+ * rather than free assertion helpers.
  */
 export interface Driver {
   /** Stable identifier for logs and capability errors (`"in-process"`, …). */
@@ -65,6 +69,22 @@ export interface Driver {
     target: Selector,
     state: WaitState,
     options?: WaitPollOptions
+  ): Promise<void>;
+
+  /** Poll until `target` is visible. */
+  expectVisible(target: Selector, options?: AssertionOptions): Promise<void>;
+
+  /** Poll until `target` is hidden (or absent). */
+  expectHidden(target: Selector, options?: AssertionOptions): Promise<void>;
+
+  /**
+   * Poll until `target` is visible and its text equals (or contains)
+   * `expected`.
+   */
+  expectText(
+    target: Selector,
+    expected: string,
+    options?: AssertionOptions & { exact?: boolean }
   ): Promise<void>;
 
   /** Snapshot whether `target` is currently visible (no polling). */

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { formatMsStable } from './frames';
-import { durationHeat, maxFrameDuration } from './heat';
+import { durationHeat } from './heat';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
@@ -84,17 +84,25 @@ describe('patchPreviewHtml', () => {
 });
 
 describe('durationHeat', () => {
-  test('maps low duration toward green and high toward red', () => {
-    const low = durationHeat(10, 100);
-    const high = durationHeat(100, 100);
-    expect(low.t).toBeLessThan(high.t);
-    expect(low.cssColor).toContain('hsl(');
-    expect(high.cssColor).toContain('hsl(');
+  test('maps absolute durations: cool under 500ms, warm near 1s, hot by a few seconds', () => {
+    const cool = durationHeat(17);
+    const midCool = durationHeat(500);
+    const warm = durationHeat(1000);
+    const hot = durationHeat(3000);
+    expect(cool.t).toBeLessThan(midCool.t);
+    expect(midCool.t).toBeLessThan(warm.t);
+    expect(warm.t).toBeLessThan(hot.t);
+    expect(cool.t).toBeLessThan(0.25);
+    expect(midCool.t).toBeLessThanOrEqual(0.25);
+    expect(warm.t).toBeGreaterThan(0.4);
+    expect(hot.t).toBe(1);
+    expect(cool.cssColor).toContain('hsl(');
+    expect(hot.cssColor).toContain('hsl(');
   });
 
-  test('maxFrameDuration picks the max', () => {
-    expect(maxFrameDuration([{ durationMs: 1 }, { durationMs: 9 }])).toBe(9);
-    expect(maxFrameDuration([])).toBe(0);
+  test('does not scale relative to other frames', () => {
+    // Fast steps stay cool even when they are the slowest in a tiny suite.
+    expect(durationHeat(13).t).toBeLessThan(0.1);
   });
 });
 

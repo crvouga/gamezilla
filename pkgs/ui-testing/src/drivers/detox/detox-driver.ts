@@ -1,3 +1,4 @@
+import type { AssertionOptions } from '../../assertions/driver-expect';
 import { NotImplementedError } from '../../core/errors';
 import type { DriverKey } from '../../core/keys';
 import type { WaitPollOptions } from '../../core/wait';
@@ -103,6 +104,37 @@ export class DetoxDriver implements Driver {
     this.unsupported(
       'waitFor',
       'waitFor(element(matcher)).toBeVisible() / not.toBeVisible()'
+    );
+  }
+
+  async expectVisible(
+    _target: Selector,
+    _options?: AssertionOptions
+  ): Promise<void> {
+    this.unsupported(
+      'expectVisible',
+      'waitFor(element(matcher)).toBeVisible()'
+    );
+  }
+
+  async expectHidden(
+    _target: Selector,
+    _options?: AssertionOptions
+  ): Promise<void> {
+    this.unsupported(
+      'expectHidden',
+      'waitFor(element(matcher)).not.toBeVisible()'
+    );
+  }
+
+  async expectText(
+    _target: Selector,
+    _expected: string,
+    _options?: AssertionOptions & { exact?: boolean }
+  ): Promise<void> {
+    this.unsupported(
+      'expectText',
+      'Detox has no first-class text read-back API'
     );
   }
 

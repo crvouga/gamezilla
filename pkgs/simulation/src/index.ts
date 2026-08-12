@@ -15,7 +15,7 @@ export type {
 } from '@pkgs/simulation-report';
 export type { SimActor } from './actor';
 export { createSimIo, type SimulationClock } from './clock';
-export { openSimulation, type Simulation } from './open-simulation';
+export { Simulation } from './open-simulation';
 export type {
   SimulationOptions,
   SimulationReportOptions,
@@ -24,6 +24,7 @@ export { createSeededRng, type SeededRng } from './rng';
 export type {
   InProcessSimulationSession,
   PlaywrightSimulationSession,
+  SimulationDriverWait,
   SimulationSession,
   SimulationStartContext,
   SimulationSystem,

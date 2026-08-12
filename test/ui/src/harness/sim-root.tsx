@@ -1,32 +1,51 @@
 /**
- * Full production provider tree for a single actor session.
+ * Sim-safe root layout for the full `@apps/client` Expo Router tree.
  *
- * Avoids the real `apps/client/src/app/_layout.tsx` (Sentry.wrap + wallIo
- * polyfill entry). Expo Router context comes from
- * `expo-router/testing-library` `renderRouter` in the harness mount path.
+ * Uses the real `app/` filesystem via `renderRouter({ appDir, overrides })`
+ * and only replaces `_layout` so we can inject {@link Io} + {@link AppOverrides}
+ * without Sentry.wrap / polyfill-entry wallIo.
  */
 
 import '@apps/client/i18n/i18n';
-import AccountRoute from '@apps/client/app/more/account/index';
 import type { AppOverrides } from '@apps/client/providers/app-overrides';
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { AppIoProvider } from '@apps/client/providers/infrastructure/app-io-provider';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import type { Io } from '@pkgs/io';
-import { Box, Text } from '@pkgs/ui';
+import { useStackProps } from '@pkgs/ui';
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
 
-function SpacesPlaceholder(): ReactNode {
+/** Matches production `app/_layout.tsx` `unstable_settings`. */
+export const simUnstableSettings = {
+  anchor: '(tabs)',
+} as const;
+
+function AppStack(): ReactNode {
+  const props = useStackProps();
   return (
-    <Box testID="sim-spaces-home">
-      <Text label="Spaces" />
-    </Box>
+    <Stack {...props}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="space"
+        options={{ presentation: 'fullScreenModal' as const }}
+      />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="more" />
+      <Stack.Screen name="ui" />
+      <Stack.Screen
+        name="sso-callback"
+        options={{ headerShown: false, animation: 'fade' as const }}
+      />
+    </Stack>
   );
 }
 
-/** Expo Router layout wrapping the real app provider stack. */
-export function SimLayout(props: {
+/**
+ * Production-shaped root layout with sim composition seams.
+ * Loaded as the `./_layout.tsx` override over the real app directory.
+ */
+export function SimRootLayout(props: {
   readonly io: Io;
   readonly overrides: AppOverrides;
 }): ReactNode {
@@ -34,17 +53,9 @@ export function SimLayout(props: {
     <AppIoProvider io={props.io}>
       <RootErrorBoundary>
         <AppProviders overrides={props.overrides}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <AppStack />
         </AppProviders>
       </RootErrorBoundary>
     </AppIoProvider>
   );
-}
-
-export function SimSpacesHome(): ReactNode {
-  return <SpacesPlaceholder />;
-}
-
-export function SimAccountScreen(): ReactNode {
-  return <AccountRoute />;
 }

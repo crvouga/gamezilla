@@ -1,4 +1,10 @@
 import type { Locator, Page } from '@playwright/test';
+import {
+  type AssertionOptions,
+  runExpectHidden,
+  runExpectText,
+  runExpectVisible,
+} from '../../assertions/driver-expect';
 import { ElementNotFoundError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
 import type { WaitPollOptions } from '../../core/wait';
@@ -102,6 +108,28 @@ export class PlaywrightDriver implements Driver {
       return;
     }
     await this.locator(target).waitFor({ state: waitState });
+  }
+
+  async expectVisible(
+    target: Selector,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectVisible(this, target, options);
+  }
+
+  async expectHidden(
+    target: Selector,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectHidden(this, target, options);
+  }
+
+  async expectText(
+    target: Selector,
+    expected: string,
+    options?: AssertionOptions & { exact?: boolean }
+  ): Promise<void> {
+    await runExpectText(this, target, expected, options);
   }
 
   async isVisible(target: Selector): Promise<boolean> {

@@ -33,10 +33,103 @@ export type StatusBarStripProps = {
   dataSet?: ComponentDataSet;
 };
 
+function StatusBarOpenTarget({
+  accessibilityLabel,
+  hoverCapable,
+  onOpen,
+  setHovered,
+}: {
+  accessibilityLabel: string;
+  hoverCapable: boolean;
+  onOpen: () => void;
+  setHovered: (hovered: boolean) => void;
+}): ReactNode {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Swipe down to open"
+      accessibilityActions={[{ name: 'activate' }]}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'activate') {
+          onOpen();
+        }
+      }}
+      onPress={onOpen}
+      onHoverIn={() => {
+        if (hoverCapable) setHovered(true);
+      }}
+      onHoverOut={() => setHovered(false)}
+      feedback="none"
+      sx={{ absoluteFill: true }}
+    />
+  );
+}
+
+function StatusBarIndicatorItem({
+  item,
+}: {
+  item: RegisteredStatusBarItem;
+}): ReactNode {
+  const indicator = (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {item.indicator}
+    </Box>
+  );
+  if (item.onPress === undefined) {
+    return (
+      <Box pointerEvents="none" accessibilityLabel={item.accessibilityLabel}>
+        {indicator}
+      </Box>
+    );
+  }
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={item.accessibilityLabel}
+      onPress={item.onPress}
+      feedback="none"
+    >
+      {indicator}
+    </Pressable>
+  );
+}
+
+function StatusBarIndicatorRow({
+  items,
+}: {
+  items: readonly RegisteredStatusBarItem[];
+}): ReactNode {
+  return (
+    <Box
+      pointerEvents="box-none"
+      sx={{
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        paddingHorizontal: 10,
+        gap: 2,
+        zIndex: 1,
+      }}
+    >
+      {items.map((item) => (
+        <StatusBarIndicatorItem key={item.id} item={item} />
+      ))}
+    </Box>
+  );
+}
+
 /**
  * Thin smartphone-style strip. Extends a themed fill through the system
  * safe-area, then lays indicator icons in a {@link STATUS_BAR_BODY_HEIGHT}
- * row. Swipe down drives reveal progress (tap does not open).
+ * row. Swipe down drives reveal progress; press / activate also opens.
  * Hover / grab use the same interactive tint as {@link Pressable}.
  */
 export function StatusBarStrip({
@@ -65,22 +158,8 @@ export function StatusBarStrip({
 
   return (
     <GestureDetector gesture={openPan}>
-      <Pressable
+      <Box
         dataSet={{ component: 'StatusBar', ...dataSet }}
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityHint="Swipe down to open"
-        accessibilityActions={[{ name: 'activate' }]}
-        onAccessibilityAction={(event) => {
-          if (event.nativeEvent.actionName === 'activate') {
-            onOpen();
-          }
-        }}
-        onHoverIn={() => {
-          if (hoverCapable) setHovered(true);
-        }}
-        onHoverOut={() => setHovered(false)}
-        feedback="none"
         sx={[
           {
             position: 'absolute',
@@ -95,37 +174,21 @@ export function StatusBarStrip({
           statusBarGrabCursor(isGrabbing),
         ]}
       >
-        <Box
-          sx={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            paddingHorizontal: 10,
-            gap: 2,
-          }}
-        >
-          {items.map((item) => (
-            <Box
-              key={item.id}
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              accessibilityLabel={item.accessibilityLabel}
-            >
-              {item.indicator}
-            </Box>
-          ))}
-        </Box>
+        {/* Full-strip open target sits behind indicators (no nested Pressable). */}
+        <StatusBarOpenTarget
+          accessibilityLabel={accessibilityLabel}
+          hoverCapable={hoverCapable}
+          onOpen={onOpen}
+          setHovered={setHovered}
+        />
+        <StatusBarIndicatorRow items={items} />
         {tintColor ? (
           <Box
             pointerEvents="none"
             sx={{ absoluteFill: true, backgroundColor: tintColor }}
           />
         ) : null}
-      </Pressable>
+      </Box>
     </GestureDetector>
   );
 }

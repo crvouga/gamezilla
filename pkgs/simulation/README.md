@@ -2,8 +2,9 @@
 
 Application-agnostic **multi-actor UI simulation** for acceptance tests.
 
-- **UI is the only assertion surface** — interact via `@pkgs/ui-testing` (`Driver`, `by`, `expectVisible`, …).
-- **Full system is opaque** — inject a `SimulationSystem` that boots whatever stack you need (in-process fakes, real HTTP, etc.).
+- **UI is the only assertion surface** — interact via `@pkgs/ui-testing` `Driver` methods (`tap`, `expectVisible`, …) and `by` selectors.
+- **Exclusive objects and methods** — scenarios call `Simulation.open`, `sim.actor`, `alice.ui.*`. No free helpers and no route/deep-link APIs on actors.
+- **Full system is opaque** — inject a `SimulationSystem` class that boots whatever stack you need (in-process fakes, real HTTP, etc.).
 - **Default is in-process** — no browser, no real network required.
 - **No product or sync-engine coupling** — this package never imports `@libs/*`, `@apps/*`, or `@pkgs/sync-engine`.
 
@@ -24,45 +25,41 @@ no `react-native` → web remapping). Non-UI unit tests stay on Bun.
 ## Quick start
 
 ```ts
-import { openSimulation } from '@pkgs/simulation';
-import { by, expectVisible } from '@pkgs/ui-testing';
+import { Simulation } from '@pkgs/simulation';
+import { by } from '@pkgs/ui-testing';
 
-await using sim = await openSimulation({
+await using sim = await Simulation.open({
   seed: 1,
-  system: mySystem, // you implement SimulationSystem
+  system: new MySimulationSystem(), // you implement SimulationSystem
   // ui: 'in-process' (default) | 'playwright'
 });
 
 const alice = await sim.actor('alice');
 const bob = await sim.actor('bob');
 
-await alice.open('/');
 await alice.ui.tap(by.role('button', 'Create'));
-await expectVisible(bob.ui, by.text('Game night'));
+await bob.ui.expectVisible(by.text('Game night'));
 ```
 
 ## Ports: plug in your system
 
 ```ts
-import type { SimulationSystem } from '@pkgs/simulation';
+import type { SimulationSystem, SimulationStartContext } from '@pkgs/simulation';
 import type { AppHarness } from '@pkgs/ui-testing';
 
-const mySystem: SimulationSystem = {
-  async start(ctx) {
+class MySimulationSystem implements SimulationSystem {
+  async start(ctx: SimulationStartContext) {
     // ctx.io (createSimIo bag: clock/timers/createId/random/http)
     // ctx.rng / ctx.ui
     // Boot shared backend here (DBs, in-proc servers, fakes, …).
     return {
-      async createSession(actorId) {
+      async createSession(actorId: string) {
         const harness: AppHarness = {
           createRoot: () => /* your app root for this actor */,
         };
         return {
           ui: 'in-process' as const,
           harness,
-          open: async (path) => {
-            /* deep-link / router */
-          },
           dispose: async () => {
             /* tear down session */
           },
@@ -72,11 +69,11 @@ const mySystem: SimulationSystem = {
         /* tear down shared backend */
       },
     };
-  },
-};
+  }
+}
 ```
 
-For `ui: 'playwright'`, each session must return `{ ui: 'playwright', page, baseUrl?, open, dispose }` instead of a harness. Scenarios still only see `actor.ui: Driver`.
+For `ui: 'playwright'`, each session must return `{ ui: 'playwright', page, baseUrl?, dispose }` instead of a harness. Scenarios still only see `actor.ui: Driver`.
 
 ## Driver matrix
 
@@ -97,21 +94,22 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 ## Step reports (HTML timeline)
 
 Pass `report: true` (or `{ store, testId, runId? }`) to write **report data** on
-`dispose()`. Every Driver mutation / `waitFor` / `actor.open` is a timeline
-step. `waitFor` and `sim.step` also poll change-gated UI frames while they run.
+`dispose()`. Every Driver mutation / `waitFor` / `expect*` is a timeline
+step. `waitFor` / `expect*` and `sim.step` also poll change-gated UI frames while they run.
 `isVisible` / `getText` are not recorded.
 
 ```ts
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { Simulation } from '@pkgs/simulation';
 import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
 
 const store = createNodeFsObjectStore({
   rootDir: resolveLocalReportDataDir(), // <repo>/simulation-report-data
 });
 
-const sim = await openSimulation({
+const sim = await Simulation.open({
   seed: 1,
-  system: mySystem,
+  system: new MySimulationSystem(),
   report: {
     store,
     runId: process.env.SIM_REPORT_RUN_ID, // optional; default UTC stamp
@@ -148,9 +146,10 @@ Re-run tests to refresh data; the SPA does not need a rebuild. Optional
 ## What not to do
 
 - Do not assert against sync engines, mutation clients, SQL, or HTTP from scenarios
+- Do not deep-link / open routes from scenarios (`actor.open` does not exist)
 - Do not put product DSLs (spaces, chess, …) in this package — build them on `Driver` in your app/test package
 - Do not import `@pkgs/sync-engine` here
 
-## Product consumer (follow-up)
+## Product consumer
 
-Wire a product `SimulationSystem` in a feature or test package that boots the real app stack in-process. Keep acceptance scenarios asserting only through `actor.ui`.
+Wire a product `SimulationSystem` class in a feature or test package that boots the real app stack in-process. Keep acceptance scenarios asserting only through `actor.ui`.

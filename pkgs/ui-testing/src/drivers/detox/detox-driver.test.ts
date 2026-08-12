@@ -43,6 +43,15 @@ describe('DetoxDriver stub', () => {
     await expect(
       driver.waitFor(by.testId('x'), 'visible')
     ).rejects.toBeInstanceOf(NotImplementedError);
+    await expect(driver.expectVisible(by.testId('x'))).rejects.toBeInstanceOf(
+      NotImplementedError
+    );
+    await expect(driver.expectHidden(by.testId('x'))).rejects.toBeInstanceOf(
+      NotImplementedError
+    );
+    await expect(
+      driver.expectText(by.testId('x'), 'hi')
+    ).rejects.toBeInstanceOf(NotImplementedError);
     await expect(driver.isVisible(by.testId('x'))).rejects.toBeInstanceOf(
       NotImplementedError
     );

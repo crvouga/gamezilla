@@ -123,6 +123,29 @@ describe('buildReportUrl', () => {
   });
 });
 
+describe('storeGetJson', () => {
+  test('returns null for missing, empty, or invalid JSON', async () => {
+    const store = new ObjectStoreImplInMemory();
+    expect(await storeGetJson(store, 'missing.json')).toBeNull();
+    await store.put('empty.json', new Uint8Array(), 'application/json');
+    expect(await storeGetJson(store, 'empty.json')).toBeNull();
+    await store.put(
+      'bad.json',
+      new TextEncoder().encode('{'),
+      'application/json'
+    );
+    expect(await storeGetJson(store, 'bad.json')).toBeNull();
+    await store.put(
+      'ok.json',
+      new TextEncoder().encode('{"runs":[]}'),
+      'application/json'
+    );
+    expect(
+      await storeGetJson<{ runs: readonly unknown[] }>(store, 'ok.json')
+    ).toEqual({ runs: [] });
+  });
+});
+
 describe('SimulationReporter + ObjectStore', () => {
   test('writes steps, run manifest, and runs index', async () => {
     const store = new ObjectStoreImplInMemory();

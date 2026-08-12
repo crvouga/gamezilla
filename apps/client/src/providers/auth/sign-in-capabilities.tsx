@@ -8,12 +8,13 @@ export function AppSignInCapabilities({
 }: {
   children: ReactNode;
 }): ReactNode {
-  const { config } = useClientConfig();
+  const { config, isLoading } = useClientConfig();
   return (
     <SignInCapabilitiesProvider
       value={{
         google: config.google_enabled,
         emailPassword: config.email_password_enabled,
+        ready: !isLoading,
       }}
     >
       {children}

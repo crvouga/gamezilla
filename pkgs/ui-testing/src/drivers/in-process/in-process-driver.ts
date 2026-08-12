@@ -1,4 +1,10 @@
 import type { Timers } from '@pkgs/clock';
+import {
+  type AssertionOptions,
+  runExpectHidden,
+  runExpectText,
+  runExpectVisible,
+} from '../../assertions/driver-expect';
 import type { AppHarness } from '../../bootstrap/app-harness';
 import type {
   HostNode,
@@ -129,6 +135,8 @@ export class InProcessDriver<TContext = void> implements Driver {
       options?.description ?? `${state} ${formatSelector(target)}`;
     await waitUntil(
       async () => {
+        // Flush pending React updates before each poll (AuthBridge / sync).
+        await this.activate();
         const visible = await this.isVisible(target);
         return state === 'visible' ? visible : !visible;
       },
@@ -139,6 +147,28 @@ export class InProcessDriver<TContext = void> implements Driver {
         timers: this.timers,
       }
     );
+  }
+
+  async expectVisible(
+    target: Selector,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectVisible(this, target, options);
+  }
+
+  async expectHidden(
+    target: Selector,
+    options?: AssertionOptions
+  ): Promise<void> {
+    await runExpectHidden(this, target, options);
+  }
+
+  async expectText(
+    target: Selector,
+    expected: string,
+    options?: AssertionOptions & { exact?: boolean }
+  ): Promise<void> {
+    await runExpectText(this, target, expected, options);
   }
 
   async isVisible(target: Selector): Promise<boolean> {

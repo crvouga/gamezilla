@@ -3,11 +3,17 @@ import { createContext, type ReactNode, useContext } from 'react';
 export type SignInCapabilities = {
   readonly google: boolean;
   readonly emailPassword: boolean;
+  /**
+   * False while synced `client_config` is still loading. Callers must not
+   * treat missing methods as “server has none configured” until ready.
+   */
+  readonly ready: boolean;
 };
 
 const DEFAULT_SIGN_IN_CAPABILITIES: SignInCapabilities = {
   google: false,
   emailPassword: false,
+  ready: true,
 };
 
 const Ctx = createContext<SignInCapabilities>(DEFAULT_SIGN_IN_CAPABILITIES);

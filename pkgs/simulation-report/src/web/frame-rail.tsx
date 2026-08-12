@@ -17,7 +17,6 @@ export function FrameRail(props: {
   readonly hoverIdx: number | null;
   /** Playback / default playhead (0 when none selected). */
   readonly playheadIdx: number;
-  readonly maxDurationMs: number;
   /** Remaining hold ms for the playhead row while playing a long wait. */
   readonly holdRemainingMs?: number | null;
   readonly onHover: (idx: number | null) => void;
@@ -28,7 +27,6 @@ export function FrameRail(props: {
     selectedIdx,
     hoverIdx,
     playheadIdx,
-    maxDurationMs,
     holdRemainingMs = null,
     onHover,
     onSelect,
@@ -52,7 +50,7 @@ export function FrameRail(props: {
         const prev = i > 0 ? frames[i - 1] : undefined;
         const showStep =
           prev === undefined || prev.stepIndex !== frame.stepIndex;
-        const heat = durationHeat(frame.durationMs, maxDurationMs);
+        const heat = durationHeat(frame.durationMs);
         const selected = selectedIdx === i;
         const hovered = hoverIdx === i;
         const playhead = playheadIdx === i;

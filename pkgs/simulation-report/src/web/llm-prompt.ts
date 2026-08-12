@@ -56,7 +56,7 @@ function roleSection(): string {
   return [
     '# Simulation report debug context',
     '',
-    'You are helping fix bugs and slow steps in a Gamezilla UI simulation test.',
+    'You are helping fix failing tests, bugs, or slow steps in a Gamezilla UI simulation.',
     'Open the listed frame HTML path(s) for `data-component` / `data-src` context.',
     'Prefer editing the listed source files.',
   ].join('\n');

@@ -206,9 +206,19 @@ export function Button(props: ButtonProps) {
       >
         {/*
           Above absolute GradientBox: CSS paints positioned abs above in-flow
-          text unless content establishes a higher stacking level.
+          text unless content establishes a higher stacking level. Row layout
+          lives here (not only on Pressable) so icon + label share one line.
         */}
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: s.iconGap,
+          }}
+        >
           <ButtonContent
             props={props}
             phase={phase}

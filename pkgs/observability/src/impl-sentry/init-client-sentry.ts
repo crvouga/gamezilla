@@ -1,6 +1,10 @@
-import * as Sentry from '@sentry/react-native';
-
 declare const __DEV__: boolean | undefined;
+
+function loadReactNativeSentry(): typeof import('@sentry/react-native') {
+  // Lazy: sims/Jest must not load @sentry/react-native (module-level setInterval).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require('@sentry/react-native') as typeof import('@sentry/react-native');
+}
 
 function isDevBuild(): boolean {
   return typeof __DEV__ !== 'undefined'
@@ -36,6 +40,7 @@ export function initClientSentry(args?: InitClientSentryArgs): boolean {
   const dsn = trimOrNull(args?.dsn);
   if (!isSentryBackend(backend) || dsn === null) return false;
 
+  const Sentry = loadReactNativeSentry();
   Sentry.init({
     dsn,
     debug: isDevBuild(),

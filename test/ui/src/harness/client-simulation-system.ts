@@ -4,6 +4,7 @@
  * isolated client stack rendered through Expo Router's testing library + RNTL.
  */
 
+import path from 'node:path';
 import {
   clearInterval as nodeClearInterval,
   clearTimeout as nodeClearTimeout,
@@ -35,9 +36,10 @@ import type {
 } from '@pkgs/simulation';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createRenderedAppFromRntl, type RenderedApp } from '@pkgs/ui-testing';
-import { act } from '@testing-library/react-native';
-import { type Href, router } from 'expo-router';
-import { renderRouter } from 'expo-router/testing-library';
+import { act, render } from '@testing-library/react-native';
+import { ExpoRoot } from 'expo-router';
+// Side-effect: jest mocks / expect matchers used by expo-router tests.
+import 'expo-router/testing-library';
 import { createElement } from 'react';
 
 import {
@@ -45,13 +47,20 @@ import {
   PG_MEM_DATABASE_URL,
   type PgMemHandle,
 } from './boot-pg-mem';
+import { createClientAppRouterContext } from './build-client-app-router-context';
 import {
   migrateSimDb,
   SIM_API_URL,
   SIM_BETTER_AUTH_SECRET,
 } from './migrate-sim-db';
 import { createActorClientSeams, createActorIo } from './sim-actor-overrides';
-import { SimAccountScreen, SimLayout, SimSpacesHome } from './sim-root';
+import { SimRootLayout, simUnstableSettings } from './sim-root';
+
+/** Absolute path to the real Expo Router `app/` tree. */
+const CLIENT_APP_DIR = path.resolve(
+  __dirname,
+  '../../../../apps/client/src/app'
+);
 
 type SimBackend = {
   readonly http: HttpClient;
@@ -246,20 +255,53 @@ function wrapRenderedApp(app: RenderedApp): RenderedApp {
   };
 }
 
+/**
+ * Driver wait polling must use wall Node timers (not SimClock) so real HTTP /
+ * AuthBridge work can complete. Also force Jest real timers — expo-router /
+ * RNTL occasionally re-enable fakes mid-scenario.
+ */
+const driverWait: {
+  readonly now: () => number;
+  readonly timers: Timers;
+} = {
+  now: () => {
+    jest.useRealTimers();
+    return wallClock.now();
+  },
+  timers: {
+    setTimeout: (fn, ms) => {
+      jest.useRealTimers();
+      return simNodeTimers.setTimeout(fn, ms);
+    },
+    clearTimeout: (handle) => {
+      simNodeTimers.clearTimeout(handle);
+    },
+    setInterval: (fn, ms) => {
+      jest.useRealTimers();
+      return simNodeTimers.setInterval(fn, ms);
+    },
+    clearInterval: (handle) => {
+      simNodeTimers.clearInterval(handle);
+    },
+  },
+};
+
+/** Home surface — Account is reached via Status bar (user-visible). */
+const INITIAL_PATH = '/';
+
 function createActorSession(
   io: SimIo,
   http: HttpClient,
-  pubSubBus: ReturnType<typeof createInMemoryBus>,
-  initialPath: string
+  pubSubBus: ReturnType<typeof createInMemoryBus>
 ): InProcessSimulationSession {
   const actorIo = createActorIo(io, http);
   const { overrides } = createActorClientSeams({
     apiUrl: SIM_API_URL,
     pubSubBus,
   });
-  let path = initialPath;
   return {
     ui: 'in-process',
+    driverWait,
     harness: {
       async mount() {
         // expo-router's renderRouter always calls jest.useFakeTimers(). That
@@ -269,34 +311,39 @@ function createActorSession(
         jest.useFakeTimers = ((..._args: unknown[]) =>
           jest) as typeof jest.useFakeTimers;
         jest.useRealTimers();
-        const result = renderRouter(
-          {
-            _layout: () => createElement(SimLayout, { io: actorIo, overrides }),
-            index: () => createElement(SimSpacesHome),
-            'more/account': () => createElement(SimAccountScreen),
-          },
-          { initialUrl: path }
+        // Full product `app/` filesystem context; only root `_layout` is
+        // replaced for sim Io / AppOverrides. Never stub individual screens.
+        process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
+        const context = createClientAppRouterContext(CLIENT_APP_DIR, {
+          default: () =>
+            createElement(SimRootLayout, {
+              io: actorIo,
+              overrides,
+            }),
+          unstable_settings: simUnstableSettings,
+        });
+        const result = render(
+          createElement(ExpoRoot, {
+            context,
+            location: INITIAL_PATH,
+          })
         );
         jest.useRealTimers();
-        // Let AuthBridge / sync microtasks and macrotasks land before the
-        // scenario starts polling.
+        // Let AuthBridge / sync microtasks and macrotasks land, then flush
+        // RNTL so local SQL watches (e.g. client_config → email sign-in)
+        // commit before the scenario starts polling.
         await act(async () => {
           await Promise.resolve();
         });
         await new Promise<void>((resolve) => {
           simNodeTimers.setTimeout(resolve, 0);
         });
+        await act(async () => {
+          await Promise.resolve();
+        });
         jest.useRealTimers();
         return wrapRenderedApp(createRenderedAppFromRntl(result));
       },
-    },
-    async open(nextPath: string) {
-      path = nextPath;
-      jest.useRealTimers();
-      act(() => {
-        router.push(nextPath as Href);
-      });
-      jest.useRealTimers();
     },
     async dispose() {
       // Actor client state lives in the discarded React tree + memory SQLite.
@@ -304,31 +351,27 @@ function createActorSession(
   };
 }
 
-/** In-process product simulation system for the client login/logout scenario. */
-export function createClientSimulationSystem(): SimulationSystem {
-  return {
-    async start(ctx: SimulationStartContext): Promise<SimulationSystemHandle> {
-      if (ctx.ui !== 'in-process') {
-        throw new Error(
-          'createClientSimulationSystem: only ui: in-process is supported'
-        );
-      }
-      const backend = await bootSimBackend(ctx.io);
-      return {
-        async createSession(_actorId: string) {
-          return createActorSession(
-            ctx.io,
-            backend.http,
-            backend.pubSubBus,
-            '/more/account'
-          );
-        },
-        async dispose() {
-          backend.restoreGlobalFetch();
-          setApiPubSubOverride(undefined);
-          await backend.pgMem.stop();
-        },
-      };
-    },
-  };
+/**
+ * In-process product simulation system for `@apps/client`.
+ * GIVEN: fresh anon install on the home surface (Status bar → Account).
+ */
+export class ClientSimulationSystem implements SimulationSystem {
+  async start(ctx: SimulationStartContext): Promise<SimulationSystemHandle> {
+    if (ctx.ui !== 'in-process') {
+      throw new Error(
+        'ClientSimulationSystem: only ui: in-process is supported'
+      );
+    }
+    const backend = await bootSimBackend(ctx.io);
+    return {
+      async createSession(_actorId: string) {
+        return createActorSession(ctx.io, backend.http, backend.pubSubBus);
+      },
+      async dispose() {
+        backend.restoreGlobalFetch();
+        setApiPubSubOverride(undefined);
+        await backend.pgMem.stop();
+      },
+    };
+  }
 }

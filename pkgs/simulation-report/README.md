@@ -32,7 +32,7 @@ const reporter = new SimulationReporter({
   seed: '1',
   ui: 'in-process',
   store,
-  runId: '20240601T120000', // optional; openSimulation mints UTC stamp
+  runId: '20240601T120000', // optional; Simulation.open mints UTC stamp
   testId: 'my-scenario',
   now: () => clock.now(),
 });

@@ -57,14 +57,12 @@ export const by = {
     }
     return { kind: 'role', role };
   },
+  /** Select the first match when multiple elements match. */
+  first(selector: Selector): Selector {
+    return { ...selector, nth: 0 };
+  },
+  /** Select the match at a zero-based index. */
+  nth(selector: Selector, index: number): Selector {
+    return { ...selector, nth: index };
+  },
 } as const;
-
-/** Select the first match when multiple elements match. */
-export function first(selector: Selector): Selector {
-  return { ...selector, nth: 0 };
-}
-
-/** Select the match at a zero-based index. */
-export function nth(selector: Selector, index: number): Selector {
-  return { ...selector, nth: index };
-}

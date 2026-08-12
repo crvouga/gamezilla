@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -7,6 +7,37 @@ import type { ObjectStore, StoredObject } from './interface';
 import { assertLogicalObjectKey } from './namespace-guard';
 
 const META_SUFFIX = '.meta.json';
+
+/** Same-directory tmp names so `rename` is atomic on POSIX. */
+let tmpSeq = 0;
+
+function nextTmpPath(dest: string): string {
+  tmpSeq += 1;
+  return `${dest}.${String(process.pid)}.${String(tmpSeq)}.tmp`;
+}
+
+async function replaceFile(from: string, to: string): Promise<void> {
+  try {
+    await rename(from, to);
+  } catch {
+    await rm(to, { force: true });
+    await rename(from, to);
+  }
+}
+
+/** Write via tmp + rename so readers never see a truncated dest. */
+async function writeFileAtomic(
+  dest: string,
+  contents: Uint8Array | string
+): Promise<void> {
+  const tmp = nextTmpPath(dest);
+  try {
+    await writeFile(tmp, contents);
+    await replaceFile(tmp, dest);
+  } finally {
+    await rm(tmp, { force: true });
+  }
+}
 
 export type NodeFsObjectStoreOptions = {
   /** Absolute or relative directory root for all keys. */
@@ -73,9 +104,9 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
   ): Promise<void> {
     const { dataPath, metaPath } = this.pathsFor(key);
     await mkdir(dirname(dataPath), { recursive: true });
-    await writeFile(dataPath, bytes);
     const meta: Meta = { contentType };
-    await writeFile(metaPath, JSON.stringify(meta), 'utf8');
+    await writeFileAtomic(dataPath, bytes);
+    await writeFileAtomic(metaPath, JSON.stringify(meta));
   }
 
   async head(key: string): Promise<boolean> {

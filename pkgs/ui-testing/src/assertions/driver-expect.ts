@@ -1,14 +1,23 @@
 import { UiTestError } from '../core/errors';
 import type { WaitPollOptions } from '../core/wait';
-import type { Driver } from '../driver/driver';
 import { formatSelector } from '../selector/format';
 import type { Selector } from '../selector/selector';
 
 export type AssertionOptions = WaitPollOptions;
 
-/** Poll until `target` is visible, then return. Throws on timeout. */
-export async function expectVisible(
-  driver: Driver,
+/** waitFor + getText only — do not import {@link Driver} (circular). */
+type ExpectHost = {
+  waitFor(
+    target: Selector,
+    state: 'visible' | 'hidden',
+    options?: WaitPollOptions
+  ): Promise<void>;
+  getText(target: Selector): Promise<string | null>;
+};
+
+/** Shared expect implementations for concrete {@link Driver} classes. */
+export async function runExpectVisible(
+  driver: ExpectHost,
   target: Selector,
   options?: AssertionOptions
 ): Promise<void> {
@@ -18,9 +27,8 @@ export async function expectVisible(
   });
 }
 
-/** Poll until `target` is hidden (or absent), then return. Throws on timeout. */
-export async function expectHidden(
-  driver: Driver,
+export async function runExpectHidden(
+  driver: ExpectHost,
   target: Selector,
   options?: AssertionOptions
 ): Promise<void> {
@@ -30,12 +38,8 @@ export async function expectHidden(
   });
 }
 
-/**
- * Poll until `target` is visible and its text equals (or contains) `expected`.
- * Throws {@link UiTestError} with the last observed text on mismatch timeout.
- */
-export async function expectText(
-  driver: Driver,
+export async function runExpectText(
+  driver: ExpectHost,
   target: Selector,
   expected: string,
   options?: AssertionOptions & { exact?: boolean }

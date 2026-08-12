@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test';
 import type { Locator, Page } from '@playwright/test';
 import { createDriver } from '../../driver/create-driver';
-import { by, first } from '../../selector/selector';
+import { by } from '../../selector/selector';
 import type { PlaywrightDriver } from './playwright-driver';
 
 type FakeLocator = {
@@ -74,7 +74,7 @@ describe('PlaywrightDriver', () => {
       position: { x: 50, y: 25 },
     });
 
-    await driver.tap(first(by.role('heading', 'Spaces')));
+    await driver.tap(by.first(by.role('heading', 'Spaces')));
     expect(locator.nth).toHaveBeenCalledWith(0);
 
     await driver.typeText(by.label('Email'), 'a@b.c');
