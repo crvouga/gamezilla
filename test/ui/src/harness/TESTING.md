@@ -1,5 +1,14 @@
 # DST / UI simulation testing
 
+In-process API DB is **SQLite** (`boot-sim-sqlite`). Prod still uses Postgres;
+the same portable app SQL runs on both.
+
+Migrated schema is cached at `test/ui/.cache/sim-backend-seed.sqlite` (gitignored).
+A fingerprint of [`migrate-sim-sqlite.ts`](./migrate-sim-sqlite.ts) decides when to
+rebuild. Each `Simulation.open` clones that seed into `:memory:` (or restores the
+shared process handle) instead of re-migrating — warm with
+`bun run --filter @test/ui seed:sim-db` if desired.
+
 Three layers. Keep them separate so copy renames and layout tweaks do not
 rewrite scenarios.
 

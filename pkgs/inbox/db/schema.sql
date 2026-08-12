@@ -1,4 +1,5 @@
 -- @pkgs/inbox canonical DDL (owned by the Interaction Center package).
+-- Portable SQLite-shaped types (also applied on Postgres).
 -- Applied via inbox migrate() at API boot — not via libs/db schema.sql.
 
 CREATE TABLE IF NOT EXISTS inbox_schema_state (
@@ -22,16 +23,16 @@ CREATE TABLE IF NOT EXISTS inbox_interactions (
   avatar_fallback_label TEXT,
   avatar_config TEXT,
   deep_link_path TEXT,
-  deep_link_params JSONB NOT NULL DEFAULT '{}'::jsonb,
-  actions JSONB NOT NULL DEFAULT '[]'::jsonb,
-  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-  expires_at TIMESTAMPTZ,
-  read_at TIMESTAMPTZ,
-  archived_at TIMESTAMPTZ,
-  dismissed_at TIMESTAMPTZ,
-  active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  deep_link_params TEXT NOT NULL DEFAULT '{}',
+  actions TEXT NOT NULL DEFAULT '[]',
+  payload TEXT NOT NULL DEFAULT '{}',
+  expires_at TEXT,
+  read_at TEXT,
+  archived_at TEXT,
+  dismissed_at TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   CONSTRAINT inbox_interactions_category_check CHECK (
     category IN ('action_required', 'informational', 'system')
   )
@@ -45,6 +46,6 @@ CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx
 
 CREATE TABLE IF NOT EXISTS inbox_preferences (
   user_id TEXT PRIMARY KEY,
-  preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
-  updated_at TIMESTAMPTZ NOT NULL
+  preferences TEXT NOT NULL DEFAULT '{}',
+  updated_at TEXT NOT NULL
 );

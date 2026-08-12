@@ -64,6 +64,8 @@ export type ListItemProps = {
   /** Render with a `tintSubtle` background to indicate current selection. */
   selected?: boolean;
   onPress?: () => void;
+  /** DST / E2E handle on the press target when `onPress` is set. */
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -106,6 +108,7 @@ export function ListItem({
   trailing,
   selected = false,
   onPress,
+  testID,
   dataSet,
 }: ListItemProps) {
   const content = (
@@ -124,6 +127,7 @@ export function ListItem({
     return (
       <Pressable
         onPress={onPress}
+        {...(testID !== undefined ? { testID } : {})}
         sx={selectedSx}
         dataSet={{ component: 'ListItem', ...dataSet }}
       >
@@ -133,7 +137,11 @@ export function ListItem({
   }
 
   return (
-    <Box sx={selectedSx} dataSet={{ component: 'ListItem', ...dataSet }}>
+    <Box
+      {...(testID !== undefined ? { testID } : {})}
+      sx={selectedSx}
+      dataSet={{ component: 'ListItem', ...dataSet }}
+    >
       {content}
     </Box>
   );

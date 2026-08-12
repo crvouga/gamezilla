@@ -5,5 +5,10 @@
     "rootDir": "../..",
     "types": ["jest"]
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.d.ts"]
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.d.ts",
+    "./scripts/**/*.ts"
+  ]
 }

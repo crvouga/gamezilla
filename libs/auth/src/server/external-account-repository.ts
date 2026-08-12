@@ -115,7 +115,7 @@ export class ExternalAccountRepository {
         ${args.userId},
         ${args.provider},
         ${args.externalId},
-        ${metadataJson}::jsonb
+        ${metadataJson}
       )
       ON CONFLICT (provider, external_id) DO UPDATE SET
         metadata = excluded.metadata,
@@ -155,7 +155,7 @@ export class ExternalAccountRepository {
         ${args.userId},
         ${args.provider},
         ${args.externalId},
-        ${metadataJson}::jsonb
+        ${metadataJson}
       )
       ON CONFLICT (provider, external_id) DO NOTHING
     `);

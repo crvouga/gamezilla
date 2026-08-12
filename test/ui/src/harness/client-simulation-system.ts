@@ -1,6 +1,6 @@
 /**
  * Product {@link SimulationSystem} for `@apps/client`: boots in-process
- * pg-mem, migrates it, mounts the real API via Hono, and hands each actor an
+ * SQLite, migrates it, mounts the real API via Hono, and hands each actor an
  * isolated client stack rendered through Expo Router's testing library + RNTL.
  */
 
@@ -44,16 +44,16 @@ import { createElement } from 'react';
 import '@apps/client/i18n/i18n';
 
 import {
-  bootMigratedPgMem,
-  PG_MEM_DATABASE_URL,
-  type PgMemHandle,
-} from './boot-pg-mem';
+  bootMigratedSimSqlite,
+  SIM_SQLITE_DATABASE_URL,
+  type SimSqliteHandle,
+} from './boot-sim-sqlite';
 import { createClientAppRouterContext } from './build-client-app-router-context';
 import {
-  migrateSimDb,
+  migrateSimSqlite,
   SIM_API_URL,
   SIM_BETTER_AUTH_SECRET,
-} from './migrate-sim-db';
+} from './migrate-sim-sqlite';
 import {
   createActorClientSeams,
   createActorIo,
@@ -69,7 +69,7 @@ const CLIENT_APP_DIR = path.resolve(
 
 type SimBackend = {
   readonly http: HttpClient;
-  readonly pgMem: PgMemHandle;
+  readonly db: SimSqliteHandle;
   readonly restoreGlobalFetch: () => void;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   readonly timing: SimTiming;
@@ -90,7 +90,7 @@ function isSimApiUrl(url: string): boolean {
 }
 
 /**
- * Serialize in-process Hono fetches. Overlapping pg-mem work under the
+ * Serialize in-process Hono fetches. Overlapping SQLite work under the
  * React/Jest zone hangs; sequential requests succeed.
  *
  * Re-entrant fetch (a handler/plugin calling fetch while one is already
@@ -158,7 +158,7 @@ function createSimApiIo(base: SimIo): Io {
   };
 }
 
-/** Boots pg-mem + migrates + mounts the in-process API, returning its HTTP. */
+/** Boots SQLite + migrates + mounts the in-process API, returning its HTTP. */
 async function bootSimBackend(
   io: SimIo,
   timing: SimTiming
@@ -166,30 +166,30 @@ async function bootSimBackend(
   const apiIo = createSimApiIo(io);
   const pubSubBus = createInMemoryBus();
 
-  const pgMemStarted = wallClock.now();
-  const { handle: pgMem, didMigrate } = await bootMigratedPgMem(
-    async (handle) => {
+  const dbStarted = wallClock.now();
+  const { handle: db, didMigrate } = await bootMigratedSimSqlite({
+    migrate: async (handle) => {
       await timing.time('boot.migrate', () =>
-        migrateSimDb({
+        migrateSimSqlite({
           sqlClient: handle.sqlClient,
-          pool: handle.pool,
+          sqlite: handle.sqlite,
           io: apiIo,
         })
       );
-    }
-  );
+    },
+  });
   if (!didMigrate) {
     timing.mark('boot.migrate', 0);
-    timing.mark('boot.pgMem', wallClock.now() - pgMemStarted);
+    timing.mark('boot.sqlite', wallClock.now() - dbStarted);
   } else {
-    // Migrate owns first-boot DB cost; pgMem is connect/open only.
-    timing.mark('boot.pgMem', 1);
+    // Migrate owns first-boot DB cost; sqlite open is connect-only.
+    timing.mark('boot.sqlite', 1);
   }
 
   try {
     const secretStore = createRecordSecretStore({
       BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
-      DATABASE_URL: PG_MEM_DATABASE_URL,
+      DATABASE_URL: SIM_SQLITE_DATABASE_URL,
       API_URL: SIM_API_URL,
     });
     const betterAuth = await timing.time('boot.betterAuth', () =>
@@ -205,9 +205,9 @@ async function bootSimBackend(
         secretStore,
         betterAuth,
         dbScope: appPostgresDbScope(),
-        databaseUrlOverride: PG_MEM_DATABASE_URL,
+        databaseUrlOverride: SIM_SQLITE_DATABASE_URL,
         apiUrlOverride: SIM_API_URL,
-        openRequestDb: pgMem.openRequestDb,
+        openRequestDb: db.openRequestDb,
         secretsEnv: 'dev',
         objectStore: new ObjectStoreImplInMemory(),
         observability: createNoopObservability('sim-api'),
@@ -244,13 +244,13 @@ async function bootSimBackend(
     const restoreGlobalFetch = installSimGlobalFetch(http);
     return {
       http,
-      pgMem,
+      db,
       restoreGlobalFetch,
       pubSubBus,
       timing,
     };
   } catch (error) {
-    await pgMem.stop();
+    await db.stop();
     throw error;
   }
 }
@@ -304,7 +304,7 @@ const INITIAL_PATH = '/';
 
 /**
  * Neutered once for the process: expo-router's renderRouter always calls
- * jest.useFakeTimers(), which strands in-process Hono + pg-mem.
+ * jest.useFakeTimers(), which strands in-process Hono + SQLite.
  */
 function neuterJestFakeTimers(): void {
   jest.useFakeTimers = ((..._args: unknown[]) =>
@@ -396,7 +396,7 @@ export class ClientSimulationSystem implements SimulationSystem {
         timing.finish('client-sim');
         backend.restoreGlobalFetch();
         setApiPubSubOverride(undefined);
-        await backend.pgMem.stop();
+        await backend.db.stop();
       },
     };
   }

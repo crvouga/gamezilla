@@ -569,6 +569,24 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-vendor-sql": {
+      "inputs": [
+        "tools/scripts/check-no-vendor-sql.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "pkgs/sql-client/src/agnostic-sql.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "apps/**/*.sql",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "libs/**/*.sql",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.sql"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:pubsub-emqx-imports": {
       "inputs": [
         "tools/scripts/check-pubsub-emqx-imports.ts",

@@ -1,4 +1,5 @@
 import { describe, test } from '@jest/globals';
+import { Handles } from '@libs/dst-handles';
 
 import { AppDriver } from '../harness/app-driver';
 import { aliceAvatarCreds, aliceUserCreds } from '../harness/fixtures';
@@ -17,8 +18,16 @@ describe('profile edit', () => {
     await using sim = await openSim('profile-guest-avatar');
     const app = await AppDriver.forActor(sim, 'alice');
     await app.profile.openEdit();
+    await app.profile.openAvatarEditor();
     await app.profile.setAvatarSeed('sim-seed-guest');
+    await app.profile.setAvatarStyle(Handles.profileAvatarStyleBottts);
+    await app.profile.expectAvatarStyleLabel('Bottts');
+    await app.profile.expectAvatarTraitVisible();
+    await app.profile.saveAvatar();
+    await app.profile.leaveAvatarEditor();
+    await app.profile.openAvatarEditor();
     await app.profile.expectAvatarSeed('sim-seed-guest');
+    await app.profile.expectAvatarStyleLabel('Bottts');
   });
 
   test('signed-in updates username', async () => {
@@ -37,7 +46,15 @@ describe('profile edit', () => {
     await app.auth.signUpWithEmail(aliceAvatarCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();
+    await app.profile.openAvatarEditor();
     await app.profile.setAvatarSeed('sim-seed-signed');
+    await app.profile.setAvatarStyle(Handles.profileAvatarStyleBottts);
+    await app.profile.expectAvatarStyleLabel('Bottts');
+    await app.profile.expectAvatarTraitVisible();
+    await app.profile.saveAvatar();
+    await app.profile.leaveAvatarEditor();
+    await app.profile.openAvatarEditor();
     await app.profile.expectAvatarSeed('sim-seed-signed');
+    await app.profile.expectAvatarStyleLabel('Bottts');
   });
 });

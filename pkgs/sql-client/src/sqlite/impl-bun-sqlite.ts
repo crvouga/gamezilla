@@ -3,12 +3,6 @@ import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
-
-/** Strip Postgres-only syntax so the same SQL works in bun:sqlite tests. */
-function sqliteCompatSql(sql: string): string {
-  return sql.replace(/\?::jsonb/g, '?').replace(/\s+FOR UPDATE\b/gi, '');
-}
-
 export class SqlClientImplBunSqlite implements SqlClient {
   constructor(private db: Database) {}
 
@@ -38,15 +32,13 @@ export class SqlClientImplBunSqlite implements SqlClient {
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const bindings = query.values as SQLQueryBindings[];
-    const rows = this.db
-      .query(sqliteCompatSql(query.sql))
-      .all(...bindings) as T[];
+    const rows = this.db.query(query.sql).all(...bindings) as T[];
     return Promise.resolve(rows);
   }
 
   async run(query: Sql<unknown>): Promise<RunResult> {
     const bindings = query.values as SQLQueryBindings[];
-    const result = this.db.query(sqliteCompatSql(query.sql)).run(...bindings);
+    const result = this.db.query(query.sql).run(...bindings);
     return {
       changes: result.changes,
       lastInsertRowid: Number(result.lastInsertRowid),
@@ -56,7 +48,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
   prepare<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
-    const stmt = this.db.query(sqliteCompatSql(query.sql));
+    const stmt = this.db.query(query.sql);
     return {
       query: <T = Record<string, unknown>>(params?: Value[]) => {
         const bindings = (params ?? []) as SQLQueryBindings[];

@@ -1,17 +1,27 @@
-import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
+import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import {
   adaptPgClientAsPool,
   openPgClient,
 } from '@pkgs/sql-client/postgres/connect';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
 
-export type RequestDb = {
+export type RequestDbPostgres = {
+  readonly kind: 'postgres';
   readonly sqlClient: PostgresSqlClient;
   readonly pool: Pool;
 };
 
-/** Opens a per-request DB handle. Sims inject pg-mem / in-process openers. */
+export type RequestDbSqlite = {
+  readonly kind: 'sqlite';
+  readonly sqlClient: SqlClient;
+  readonly sqlite: BetterSqliteDatabase;
+};
+
+export type RequestDb = RequestDbPostgres | RequestDbSqlite;
+
+/** Opens a per-request DB handle. Sims inject SQLite / in-process openers. */
 export type OpenRequestDb = (
   connectionString: string,
   dbScope: PostgresDbScope
@@ -37,5 +47,5 @@ export async function openRequestDb(
     dbScope,
   });
   const pool = adaptPgClientAsPool(client, dbScope, connectionString);
-  return { sqlClient, pool };
+  return { kind: 'postgres', sqlClient, pool };
 }

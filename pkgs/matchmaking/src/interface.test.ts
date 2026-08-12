@@ -6,6 +6,7 @@
 import { Database } from 'bun:sqlite';
 import { afterAll, describe } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
+import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { MatchmakingImplSql } from './impl-sql';
@@ -29,7 +30,9 @@ const backends: readonly Backend[] = [
     name: 'sqlite',
     openClient: async () => {
       const db = new Database(':memory:');
-      const sqlClient = new SqlClientImplBunSqlite(db);
+      const sqlClient = new SqlClientImplAgnostic(
+        new SqlClientImplBunSqlite(db)
+      );
       return {
         sqlClient,
         close: async () => {
@@ -42,7 +45,7 @@ const backends: readonly Backend[] = [
     name: 'postgres',
     openClient: async () => {
       const db = await PGlite.create();
-      const sqlClient = createPgliteSqlClient(db);
+      const sqlClient = new SqlClientImplAgnostic(createPgliteSqlClient(db));
       return {
         sqlClient,
         close: async () => {

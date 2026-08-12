@@ -1,3 +1,4 @@
+// @sql-vendor-ok — local SQLite client uses PRAGMA table_info for merge.
 import { assert } from '@pkgs/assert';
 import { ident, join, sql, unsafe, type Value } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';

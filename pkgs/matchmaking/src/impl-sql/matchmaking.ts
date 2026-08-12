@@ -8,6 +8,7 @@
 
 import { assert } from '@pkgs/assert';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
+import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
 import { Hono } from 'hono';
 import { createMatchmakingApp } from '../interface/app';
 import { MatchmakingSchemaDriftError } from '../interface/errors';
@@ -161,8 +162,10 @@ export class MatchmakingImplSql implements Matchmaking {
   }
 
   private async boot(): Promise<void> {
-    // Compat install probes the engine and no-ops on SQLite.
-    await installPostgresSqliteCompat({ sqlClient: this.sqlClient });
+    // Compat shim DDL is vendor SQL — install on the raw engine client.
+    await installPostgresSqliteCompat({
+      sqlClient: getUnderlyingSqlClient(this.sqlClient),
+    });
     await migrate(this.migrateArgs);
   }
 

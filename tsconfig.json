@@ -292,6 +292,7 @@
     "pkgs/simulation/src/**/*.tsx",
     "pkgs/simulation-report/src/**/*.ts",
     "pkgs/simulation-report/src/**/*.tsx",
+    "test/ui/scripts/**/*.ts",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]

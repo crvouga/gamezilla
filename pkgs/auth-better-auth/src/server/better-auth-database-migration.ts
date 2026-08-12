@@ -2,22 +2,22 @@ import type {
   DatabaseMigration,
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
-import type { Pool } from 'pg';
 
+import type { BetterAuthDatabase } from './create-better-auth';
 import {
   type RunBetterAuthMigrationsArgs,
   runBetterAuthMigrations,
 } from './run-better-auth-migrations';
 
 /**
- * Applies Better Auth Kysely DDL via its own pool connection (must not share
+ * Applies Better Auth Kysely DDL via its own database handle (must not share
  * an open domain migrate transaction).
  */
 export class BetterAuthDatabaseMigration implements DatabaseMigration {
   private readonly args: RunBetterAuthMigrationsArgs;
 
   constructor(args: {
-    readonly database: Pool;
+    readonly database: BetterAuthDatabase;
     readonly secret: string;
     readonly baseURL: string;
   }) {

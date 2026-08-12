@@ -114,6 +114,39 @@ export function splitSqlStatements(sql: string): string[] {
   return statements;
 }
 
+/**
+ * Postgres-only: existing installs may still have wall `DEFAULT now()`.
+ * Fresh portable DDL has no defaults; SQLite rejects `DO $$`.
+ */
+async function dropLegacyPostgresWallDefaults(
+  sqlClient: SqlClient
+): Promise<void> {
+  // @sql-vendor-ok — Postgres DO blocks for legacy DEFAULT cleanup only
+  const statements = [
+    `
+DO $$ BEGIN
+  ALTER TABLE IF EXISTS public.sync_engine_mutations_applied
+    ALTER COLUMN applied_at DROP DEFAULT;
+EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
+END $$;
+`,
+    `
+DO $$ BEGIN
+  ALTER TABLE IF EXISTS public.sync_engine_write_rejections
+    ALTER COLUMN created_at DROP DEFAULT;
+EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
+END $$;
+`,
+  ] as const;
+  for (const statement of statements) {
+    try {
+      await sqlClient.run(unsafeSql(statement));
+    } catch {
+      // SQLite / engines without DO — portable DDL has no wall defaults.
+    }
+  }
+}
+
 /** Apply sync-engine framework tables (`sync_engine_mutations`, …). */
 export async function applyFrameworkServerDdl(args: {
   sqlClient: SqlClient;
@@ -124,25 +157,7 @@ export async function applyFrameworkServerDdl(args: {
   for (const statement of statements) {
     await sqlClient.run(unsafeSql(statement));
   }
-  // Existing installs may still have wall DEFAULT now() — drop them.
-  await sqlClient.run(
-    unsafeSql(`
-DO $$ BEGIN
-  ALTER TABLE IF EXISTS public.sync_engine_mutations_applied
-    ALTER COLUMN applied_at DROP DEFAULT;
-EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
-END $$;
-`)
-  );
-  await sqlClient.run(
-    unsafeSql(`
-DO $$ BEGIN
-  ALTER TABLE IF EXISTS public.sync_engine_write_rejections
-    ALTER COLUMN created_at DROP DEFAULT;
-EXCEPTION WHEN undefined_table OR undefined_column THEN NULL;
-END $$;
-`)
-  );
+  await dropLegacyPostgresWallDefaults(sqlClient);
   logger.info('framework server DDL applied', {
     statements: statements.length,
   });

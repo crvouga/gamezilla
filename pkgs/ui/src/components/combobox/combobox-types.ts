@@ -9,6 +9,8 @@ export type ComboboxOption<T extends string | number = string> = {
   preview?: ReactNode;
   /** Used for default filter when `label` is not a string. */
   searchText?: string;
+  /** DST / E2E handle on the option row press target. */
+  testID?: string;
 };
 
 export type ComboboxSelectionMode = 'single' | 'multiple';
@@ -43,6 +45,8 @@ type ComboboxSharedProps<T extends string | number> = {
   ) => ReactElement | null;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
+  /** DST / E2E handle on the trigger press target. */
+  testID?: string;
 };
 
 export type ComboboxSingleProps<T extends string | number = string> =

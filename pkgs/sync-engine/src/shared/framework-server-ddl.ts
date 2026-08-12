@@ -1,10 +1,11 @@
 /**
- * Postgres DDL for sync-engine framework tables.
+ * Portable DDL for sync-engine framework tables (SQLite + Postgres).
  * Applied via {@link applyFrameworkServerDdl} at migrate time — not owned by
  * domain `defineSchema` / `@pkgs/db-schema`.
  *
  * Server keeps only idempotency + rejection audit. The client mutation queue
- * lives in local SQLite (`sync_engine_mutations`); it is never written to Postgres.
+ * lives in local SQLite (`sync_engine_mutations`); it is never written to the
+ * server DB.
  *
  * All framework tables use the `sync_engine_` prefix.
  */
@@ -16,72 +17,47 @@ export const SYNC_ENGINE_SCOPE_META = 'sync_engine_scope_meta';
 export const SYNC_ENGINE_PUSH_APPLIED = 'sync_engine_push_applied';
 export const SYNC_ENGINE_TOPIC_SEQ = 'sync_engine_topic_seq';
 
+/**
+ * Single portable DDL for prod Postgres and sim SQLite.
+ * Types are SQLite-shaped (TEXT / INTEGER); Postgres accepts them.
+ */
 export const FRAMEWORK_SERVER_DDL = `
--- Legacy client-insert log (never written by current upload path).
-DROP TABLE IF EXISTS public.sync_engine_mutations;
-DROP TABLE IF EXISTS public._mutations;
+DROP TABLE IF EXISTS sync_engine_mutations;
+DROP TABLE IF EXISTS _mutations;
 
--- Mutators framework: server-only idempotency + audit (never synced).
-CREATE TABLE IF NOT EXISTS public.sync_engine_mutations_applied (
-    mutation_id text NOT NULL,
-    client_id text NOT NULL,
-    seq bigint NOT NULL,
-    status text NOT NULL,
-    applied_at timestamp with time zone NOT NULL,
-    CONSTRAINT sync_engine_mutations_applied_status_check CHECK ((status = ANY (ARRAY['applied'::text, 'rejected'::text])))
+CREATE TABLE IF NOT EXISTS sync_engine_mutations_applied (
+  mutation_id TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  seq INTEGER NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('applied', 'rejected')),
+  applied_at TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS sync_engine_mutations_applied_client_id_seq_idx
+  ON sync_engine_mutations_applied (client_id, seq);
 
--- Mutators framework: permanent failures synced down by client_id (= device_id).
-CREATE TABLE IF NOT EXISTS public.sync_engine_write_rejections (
-    id text NOT NULL,
-    mutation_id text NOT NULL,
-    client_id text NOT NULL,
-    code text NOT NULL,
-    message text NOT NULL,
-    meta jsonb,
-    created_at timestamp with time zone NOT NULL,
-    acknowledged boolean DEFAULT false NOT NULL
+CREATE TABLE IF NOT EXISTS sync_engine_write_rejections (
+  id TEXT PRIMARY KEY,
+  mutation_id TEXT NOT NULL,
+  client_id TEXT NOT NULL,
+  code TEXT NOT NULL,
+  message TEXT NOT NULL,
+  meta TEXT,
+  created_at TEXT NOT NULL,
+  acknowledged INTEGER NOT NULL DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx
+  ON sync_engine_write_rejections (client_id);
+CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
+  ON sync_engine_write_rejections (mutation_id);
 
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.sync_engine_mutations_applied
-    ADD CONSTRAINT sync_engine_mutations_applied_pkey PRIMARY KEY (mutation_id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.sync_engine_write_rejections
-    ADD CONSTRAINT sync_engine_write_rejections_pkey PRIMARY KEY (id)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
-
-CREATE INDEX IF NOT EXISTS sync_engine_mutations_applied_client_id_seq_idx ON public.sync_engine_mutations_applied USING btree (client_id, seq);
-
-CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx ON public.sync_engine_write_rejections USING btree (client_id);
-
-CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx ON public.sync_engine_write_rejections USING btree (mutation_id);
-
--- Per-topic monotonic push sequences (replay serialization order).
-CREATE TABLE IF NOT EXISTS public.sync_engine_topic_seq (
-    topic text NOT NULL,
-    n bigint NOT NULL
+CREATE TABLE IF NOT EXISTS sync_engine_topic_seq (
+  topic TEXT PRIMARY KEY,
+  n INTEGER NOT NULL
 );
-
-DO $$ BEGIN
-  EXECUTE 'ALTER TABLE ONLY public.sync_engine_topic_seq
-    ADD CONSTRAINT sync_engine_topic_seq_pkey PRIMARY KEY (topic)';
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN duplicate_table THEN NULL;
-  WHEN invalid_table_definition THEN NULL;
-END $$;
 `;
+
+/** @deprecated Alias — sim uses the same portable DDL as production. */
+export const FRAMEWORK_SIM_SERVER_DDL = FRAMEWORK_SERVER_DDL;
 
 /** Table names owned by framework DDL (server + local). */
 export const FRAMEWORK_TABLE_NAMES = [

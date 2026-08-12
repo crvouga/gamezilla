@@ -1,10 +1,12 @@
 import { getMigrations } from 'better-auth/db/migration';
-import type { Pool } from 'pg';
 
-import { createBetterAuth } from './create-better-auth';
+import {
+  type BetterAuthDatabase,
+  createBetterAuth,
+} from './create-better-auth';
 
 export type RunBetterAuthMigrationsArgs = {
-  readonly database: Pool;
+  readonly database: BetterAuthDatabase;
   readonly secret: string;
   readonly baseURL: string;
 };

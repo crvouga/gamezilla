@@ -65,6 +65,7 @@
     "@pkgs/tts": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@sentry/cloudflare": "catalog:",
+    "better-sqlite3": "catalog:",
     "hono": "catalog:",
     "jose": "catalog:",
     "pg": "catalog:",
@@ -73,6 +74,7 @@
   },
   "devDependencies": {
     "@pkgs/os": "workspace:*",
+    "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

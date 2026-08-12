@@ -7,7 +7,6 @@ import { applySqliteConnectionPragmas } from './connection-pragmas';
 import {
   formatErrorChain,
   mapExpoRunResult,
-  sqliteCompatSql,
   WEB_OPFS_SOFT_RECOVERY_KEY,
   withOpenTimeout,
 } from './expo-sqlite-core';
@@ -214,7 +213,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     return this.runSerialized(() =>
       this.db.getAllAsync<T>(
-        sqliteCompatSql(query.sql),
+        query.sql,
         query.values as SQLite.SQLiteBindValue[]
       )
     );
@@ -223,7 +222,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   async run(query: Sql<unknown>): Promise<RunResult> {
     return this.runSerialized(async () => {
       const result = await this.db.runAsync(
-        sqliteCompatSql(query.sql),
+        query.sql,
         query.values as SQLite.SQLiteBindValue[]
       );
       return mapExpoRunResult(result);
@@ -233,7 +232,7 @@ export class SqlClientImplExpoSqlite implements SqlClient {
   prepare<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
-    const stmt = this.db.prepareSync(sqliteCompatSql(query.sql));
+    const stmt = this.db.prepareSync(query.sql);
     return {
       query: async (params?: Value[]) =>
         this.runSerialized(async () => {

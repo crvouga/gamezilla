@@ -1,35 +1,11 @@
 import { assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Io } from '@pkgs/io';
-import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import { AnonUserService } from './anon-user-service';
 import { ExternalAccountRepository } from './external-account-repository';
-
-/**
- * Best-effort Postgres advisory lock. No-ops on SQLite (unit tests) where
- * `pg_advisory_xact_lock` / `hashtext` are unavailable.
- */
-async function acquireExternalUserAdvisoryLock(
-  tx: SqlTx,
-  lockKey: string
-): Promise<void> {
-  try {
-    await tx.run(sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`);
-  } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
-    if (
-      message.includes('no such function') ||
-      message.includes('pg_advisory_xact_lock') ||
-      message.includes('hashtext')
-    ) {
-      return;
-    }
-    throw e;
-  }
-}
 
 /** Transaction-scoped account provisioning. Open a transaction in a use case. */
 export class AccountProvisioningService {
@@ -46,6 +22,10 @@ export class AccountProvisioningService {
    * 1. Existing `auth_external_accounts` link → that `users.id` (switch).
    * 2. Else if `upgradeUserId` is an anon user → upgrade in place.
    * 3. Else mint a new non-anon `users` row.
+   *
+   * Concurrent callers race on unique `(provider, external_id)`;
+   * {@link ExternalAccountRepository.insertExternalAccountOrGet} resolves the
+   * winner via `ON CONFLICT`.
    */
   async ensureInternalAccountIdForExternalUser(args: {
     externalUserId: string;
@@ -58,9 +38,6 @@ export class AccountProvisioningService {
     const now = args.now ?? this.io.clock.now;
     const createId = args.createId ?? this.io.createId;
     const provider = this.authServer.providerLabel;
-    const lockKey = `${provider}:${externalUserId}`;
-
-    await acquireExternalUserAdvisoryLock(this.tx, lockKey);
 
     const externalAccounts = new ExternalAccountRepository(this.tx);
     const anonUsers = new AnonUserService(this.tx, this.io);

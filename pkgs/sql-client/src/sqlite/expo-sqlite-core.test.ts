@@ -4,15 +4,10 @@ import {
   isLikelyOpfsPoolExhaustedError,
   mapExpoRunResult,
   openWithWaitRetry,
-  sqliteCompatSql,
   WEB_OPEN_RETRY_DELAYS_MS,
 } from './expo-sqlite-core';
 
 describe('expo-sqlite-core', () => {
-  test('sqliteCompatSql strips FOR UPDATE', () => {
-    expect(sqliteCompatSql('SELECT 1 FOR UPDATE')).toBe('SELECT 1');
-  });
-
   test('mapExpoRunResult renames lastInsertRowId', () => {
     expect(mapExpoRunResult({ changes: 2, lastInsertRowId: 9 })).toEqual({
       changes: 2,

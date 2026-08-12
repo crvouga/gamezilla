@@ -4,6 +4,7 @@ export {
   type BetterAuthTableName,
 } from './better-auth-table-names';
 export {
+  type BetterAuthDatabase,
   type BetterAuthInstance,
   type CreateBetterAuthConfig,
   createBetterAuth,

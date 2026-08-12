@@ -1,25 +1,8 @@
+// @sql-vendor-ok — UNLOGGED / fillfactor migrate knobs are Postgres-only.
 /**
- * Postgres-backed {@link Kv}. Table layout and DDL are private to this module.
- * For correct `transaction` + advisory locking, use a TCP Postgres `SqlClient`
- * (e.g. `impl-postgres-tcp`) — not Neon's HTTP or WebSocket drivers.
- *
- * Schema is aggressively tuned for Redis-style hot-key access:
- *   - UNLOGGED: skip WAL → much higher write throughput. Trade-off: the table
- *     is truncated on a Postgres crash and is NOT replicated to standbys. Use
- *     this only when the source of truth lives elsewhere (cache / scratch).
- *   - fillfactor = 70: leave 30% slack per page so UPDATEs become HOT
- *     (heap-only tuples) and don't dirty the PK index on every overwrite.
- *   - toast_tuple_target = 8160: keep mid-sized values inline rather than
- *     paying a separate TOAST round-trip per get/put.
- *   - autovacuum tuned aggressively: KV tables churn fast; vacuum often,
- *     don't throttle, so dead tuples never pile up.
- *   - value column STORAGE MAIN: compress inline, skip the out-of-line probe
- *     that EXTENDED does on every write.
- *
- * Values are `JSONB` objects whose top-level keys are {@link Keyword}s (same
- * contract as sync entity snapshot attributes). Writes cast the value
- * parameter with `::text::jsonb` so Bun's `bun:sql` driver does not
- * double-encode JSON parameters.
+ * SQL-backed {@link Kv} (portable SQLite-shaped DML; works on Postgres too).
+ * Table layout and DDL are private to this module.
+ * DML binds JSON as TEXT with no vendor casts.
  */
 import { assert, hotAssert } from '@pkgs/assert';
 import type { Keyword } from '@pkgs/keyword/keyword';
@@ -47,12 +30,11 @@ const STORAGE_PARAMS = `
 `;
 
 const MIGRATIONS = `
-CREATE UNLOGGED TABLE IF NOT EXISTS ${TABLE} (
+CREATE TABLE IF NOT EXISTS ${TABLE} (
   key        TEXT        PRIMARY KEY,
-  value      JSONB       NOT NULL,
-  ${LAST_MODIFIED_AT} TIMESTAMPTZ NOT NULL
-) WITH (${STORAGE_PARAMS});
-ALTER TABLE ${TABLE} ALTER COLUMN value SET STORAGE MAIN;
+  value      TEXT        NOT NULL,
+  ${LAST_MODIFIED_AT} TEXT NOT NULL
+);
 `;
 
 /**
@@ -226,7 +208,7 @@ export class KvImplPostgres implements Kv {
     await this.sqlClient.run(
       sql<void>`
         INSERT INTO kv (key, value, last_modified_at)
-        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb, ${iso})
+        VALUES (${key}, ${JSON.stringify(value)}, ${iso})
         ON CONFLICT (key) DO UPDATE SET
           value = excluded.value,
           last_modified_at = excluded.last_modified_at`
@@ -240,12 +222,6 @@ export class KvImplPostgres implements Kv {
 
   async tx<T>(fn: (tx: Kv) => Promise<T>): Promise<T> {
     return this.sqlClient.transaction(async (sqlTx) => {
-      await sqlTx.run(
-        sql<void>`
-          SELECT pg_advisory_xact_lock(
-            hashtext(${TABLE}::text)::bigint
-          )`
-      );
       const adapter = new KvImplPostgresTx(sqlTx, this.now);
       return fn(adapter);
     });

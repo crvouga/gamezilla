@@ -1,5 +1,4 @@
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
-import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { Hono } from 'hono';
@@ -52,21 +51,12 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
   };
 }
 
-async function acquireLock(tx: SqlClient, lockUserId: string): Promise<void> {
-  try {
-    await tx.run(
-      sql<void>`SELECT pg_advisory_xact_lock(hashtext(${lockUserId}))`
-    );
-  } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
-    if (
-      message.includes('no such function') ||
-      message.includes('pg_advisory_xact_lock')
-    ) {
-      return;
-    }
-    throw e;
-  }
+/**
+ * Per-user serialization relies on the outer request transaction + unique
+ * mutation idempotency keys. No pg_advisory_* (not portable).
+ */
+async function acquireLock(_tx: SqlClient, _lockUserId: string): Promise<void> {
+  // Portable path: no-op.
 }
 
 function mergeCaptures(

@@ -1,11 +1,6 @@
 import type { Timers } from '@pkgs/clock';
 import type { RunResult } from '../interface';
 
-/** Strip Postgres-only lock clauses so portable mutation SQL runs on SQLite. */
-export function sqliteCompatSql(sqlText: string): string {
-  return sqlText.replace(/\s+FOR UPDATE\b/gi, '');
-}
-
 /** Map expo-sqlite run result fields onto {@link RunResult}. */
 export function mapExpoRunResult(result: {
   readonly changes: number;

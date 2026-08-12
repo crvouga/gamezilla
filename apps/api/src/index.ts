@@ -1,6 +1,7 @@
 export { type ApiHandlerConfig, createApiApp } from './app/create-app';
 export {
   type BetterAuthBootConfig,
+  betterAuthConfigForDatabase,
   betterAuthConfigForPool,
   loadBetterAuthBootConfig,
 } from './config/better-auth-boot';
@@ -12,4 +13,6 @@ export {
   type OpenRequestDb,
   openRequestDb,
   type RequestDb,
+  type RequestDbPostgres,
+  type RequestDbSqlite,
 } from './db/open-request-db';

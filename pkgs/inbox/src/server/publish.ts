@@ -54,8 +54,7 @@ export async function deactivateInteraction(
   await db.run(
     sql<void>`
       UPDATE inbox_interactions
-         SET active = false,
-             updated_at = ${nowIso},
+         SET active = 0,
              updated_at = ${nowIso}
        WHERE user_id = ${input.userId}
          AND source_namespace = ${input.source.namespace}

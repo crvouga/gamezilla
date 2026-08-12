@@ -26,16 +26,16 @@ CREATE TABLE IF NOT EXISTS ${TABLE} (
   type text NOT NULL,
   external_id text NOT NULL,
   owner_id text,
-  data jsonb NOT NULL,
-  created_at timestamp with time zone NOT NULL,
-  updated_at timestamp with time zone NOT NULL,
+  data text NOT NULL,
+  created_at text NOT NULL,
+  updated_at text NOT NULL,
   UNIQUE (namespace, type, external_id)
 )
 `;
 
 const CREATE_INDEXES = [
-  `CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON ${TABLE} USING btree (namespace, owner_id)`,
-  `CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON ${TABLE} USING btree (namespace, type)`,
+  `CREATE INDEX IF NOT EXISTS entity_store_namespace_owner_idx ON ${TABLE} (namespace, owner_id)`,
+  `CREATE INDEX IF NOT EXISTS entity_store_namespace_type_idx ON ${TABLE} (namespace, type)`,
 ];
 
 /** Idempotent: strip wall DEFAULT now() left by older CREATE TABLE. */
@@ -168,7 +168,7 @@ export class EntityStoreImplPostgres implements EntityStore {
         ${args.type},
         ${args.externalId},
         ${ownerId},
-        ${dataJson}::text::jsonb,
+        ${dataJson},
         ${iso},
         ${iso}
       )

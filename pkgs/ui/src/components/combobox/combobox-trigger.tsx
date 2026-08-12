@@ -84,6 +84,7 @@ export function ComboboxTrigger<T extends string | number>({
   onPress,
   onClear,
   onRemove,
+  testID,
 }: {
   selected: ComboboxOption<T> | undefined;
   selectedOptions: ComboboxOption<T>[];
@@ -95,6 +96,7 @@ export function ComboboxTrigger<T extends string | number>({
   onPress: () => void;
   onClear: (() => void) | undefined;
   onRemove: (value: T) => void;
+  testID?: string;
 }) {
   const showClear =
     onClear !== undefined &&
@@ -106,6 +108,7 @@ export function ComboboxTrigger<T extends string | number>({
       disabled={disabled}
       accessibilityRole="combobox"
       accessibilityState={{ disabled, expanded: open }}
+      {...(testID !== undefined ? { testID } : {})}
       {...webAriaProps({ open, listboxId, multiple })}
       sx={{
         flexDirection: 'row',

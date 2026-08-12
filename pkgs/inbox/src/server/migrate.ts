@@ -35,7 +35,11 @@ export async function migrateInbox(db: SqlClient): Promise<void> {
     await db.run(raw(statement));
   }
   for (const statement of DROP_WALL_DEFAULT_STATEMENTS) {
-    await db.run(raw(statement));
+    try {
+      await db.run(raw(statement));
+    } catch {
+      // SQLite / fresh portable installs have no DEFAULT to drop.
+    }
   }
 
   const rows = await db.query(

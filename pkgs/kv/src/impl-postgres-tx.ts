@@ -38,7 +38,7 @@ export class KvImplPostgresTx implements Kv {
     await this.db.run(
       sql<void>`
         INSERT INTO kv (key, value, last_modified_at)
-        VALUES (${key}, ${JSON.stringify(value)}::text::jsonb, ${iso})
+        VALUES (${key}, ${JSON.stringify(value)}, ${iso})
         ON CONFLICT (key) DO UPDATE SET
           value = excluded.value,
           last_modified_at = excluded.last_modified_at`

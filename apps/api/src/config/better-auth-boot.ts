@@ -1,4 +1,5 @@
 import {
+  type BetterAuthDatabase,
   buildBetterAuthTrustedOrigins,
   type CreateBetterAuthConfig,
 } from '@pkgs/auth-better-auth/server';
@@ -71,9 +72,9 @@ export async function loadBetterAuthBootConfig(args: {
   };
 }
 
-export function betterAuthConfigForPool(
+export function betterAuthConfigForDatabase(
   boot: BetterAuthBootConfig,
-  database: Pool
+  database: BetterAuthDatabase
 ): CreateBetterAuthConfig {
   return {
     database,
@@ -84,4 +85,15 @@ export function betterAuthConfigForPool(
     trustedOrigins: boot.trustedOrigins,
     enableEmailPassword: boot.enableEmailPassword,
   };
+}
+
+/** @deprecated Prefer {@link betterAuthConfigForDatabase}. */
+export function betterAuthConfigForPool(
+  boot: BetterAuthBootConfig,
+  database: Pool
+): CreateBetterAuthConfig {
+  return betterAuthConfigForDatabase(boot, {
+    kind: 'postgres',
+    pool: database,
+  });
 }

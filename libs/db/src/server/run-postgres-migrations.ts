@@ -83,7 +83,7 @@ export class PostgresMigrationRunner {
       )
       .register(
         new BetterAuthDatabaseMigration({
-          database: pool,
+          database: { kind: 'postgres', pool },
           secret: betterAuthSecret,
           baseURL: betterAuthBaseURL,
         })

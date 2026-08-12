@@ -1,6 +1,7 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v3:managed-cols-no-underscore';
+/** Portable SQLite-shaped inbox DDL (also runs on Postgres). */
+export const INBOX_SCHEMA_FINGERPRINT = 'inbox-v4:portable-text-json';
 
 export const CREATE_SCHEMA_STATE_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_schema_state (
@@ -12,9 +13,9 @@ CREATE TABLE IF NOT EXISTS inbox_schema_state (
 export const CREATE_INTERACTIONS_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_interactions (
   id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ,
-  updated_at TIMESTAMPTZ,
-  deleted_at TIMESTAMPTZ,
+  created_at TEXT,
+  updated_at TEXT,
+  deleted_at TEXT,
   user_id TEXT NOT NULL,
   source_namespace TEXT NOT NULL,
   source_type TEXT NOT NULL,
@@ -29,14 +30,14 @@ CREATE TABLE IF NOT EXISTS inbox_interactions (
   avatar_fallback_label TEXT,
   avatar_config TEXT,
   deep_link_path TEXT,
-  deep_link_params JSONB NOT NULL DEFAULT '{}'::jsonb,
-  actions JSONB NOT NULL DEFAULT '[]'::jsonb,
-  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-  expires_at TIMESTAMPTZ,
-  read_at TIMESTAMPTZ,
-  archived_at TIMESTAMPTZ,
-  dismissed_at TIMESTAMPTZ,
-  active BOOLEAN NOT NULL DEFAULT true,
+  deep_link_params TEXT NOT NULL DEFAULT '{}',
+  actions TEXT NOT NULL DEFAULT '[]',
+  payload TEXT NOT NULL DEFAULT '{}',
+  expires_at TEXT,
+  read_at TEXT,
+  archived_at TEXT,
+  dismissed_at TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
   CONSTRAINT inbox_interactions_category_check CHECK (
     category IN ('action_required', 'informational', 'system')
   )
@@ -56,15 +57,15 @@ CREATE INDEX IF NOT EXISTS inbox_interactions_list_idx
 export const CREATE_PREFERENCES_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS inbox_preferences (
   id TEXT PRIMARY KEY,
-  created_at TIMESTAMPTZ,
-  updated_at TIMESTAMPTZ,
-  deleted_at TIMESTAMPTZ,
+  created_at TEXT,
+  updated_at TEXT,
+  deleted_at TEXT,
   user_id TEXT NOT NULL,
-  preferences JSONB NOT NULL DEFAULT '{}'::jsonb
+  preferences TEXT NOT NULL DEFAULT '{}'
 )
 `.trim();
 
-/** Strip wall DEFAULT now() from older installs (CREATE IF NOT EXISTS is a no-op). */
+/** Best-effort: older Postgres installs may still have wall DEFAULTs. */
 export const DROP_INTERACTIONS_CREATED_AT_DEFAULT_SQL = `
 ALTER TABLE inbox_interactions ALTER COLUMN created_at DROP DEFAULT
 `.trim();

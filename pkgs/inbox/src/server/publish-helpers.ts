@@ -83,7 +83,7 @@ type InteractionInsertValues = {
   readonly actions: string;
   readonly payload: string;
   readonly expires_at: string | null;
-  readonly active: boolean;
+  readonly active: number;
   readonly created_at: string;
   readonly updated_at: string;
 };
@@ -115,7 +115,7 @@ function upsertInteractionValues(
     actions: JSON.stringify(input.actions),
     payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
-    active: true,
+    active: 1,
     created_at: managed.created_at,
     updated_at: managed.updated_at,
   };
@@ -140,8 +140,8 @@ function upsertInteractionSql(
       ${values.priority}, ${values.group_key}, ${values.title}, ${values.subtitle},
       ${values.body}, ${values.icon_key}, ${values.avatar_fallback_label},
       ${values.avatar_config}, ${values.deep_link_path},
-      ${values.deep_link_params}::jsonb, ${values.actions}::jsonb,
-      ${values.payload}::jsonb, ${values.expires_at}, ${values.active},
+      ${values.deep_link_params}, ${values.actions},
+      ${values.payload}, ${values.expires_at}, ${values.active},
       ${values.created_at}, ${values.updated_at}
     )
     ON CONFLICT (id) DO UPDATE SET
@@ -159,7 +159,7 @@ function upsertInteractionSql(
       actions = excluded.actions,
       payload = excluded.payload,
       expires_at = excluded.expires_at,
-      active = true,
+      active = 1,
       updated_at = excluded.updated_at`;
 }
 

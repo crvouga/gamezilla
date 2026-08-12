@@ -68,6 +68,22 @@ export function isEnumRandom(
   return arraysEqualAsSets(value as string[], field.default);
 }
 
+/** Derive selectedVariant for a field from draft options. */
+export function selectedVariantForField(
+  field: Extract<SchemaField, { kind: 'enum' }>,
+  current: unknown
+): string | null {
+  if (isEnumRandom(field, current)) return null;
+  if (
+    Array.isArray(current) &&
+    current.length === 1 &&
+    typeof current[0] === 'string'
+  ) {
+    return current[0];
+  }
+  return null;
+}
+
 export function getProbabilityMode(
   value: unknown
 ): 'off' | 'random' | 'always' {

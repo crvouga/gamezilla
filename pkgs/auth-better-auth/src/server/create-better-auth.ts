@@ -1,6 +1,7 @@
 import { expo } from '@better-auth/expo';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
+import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
 import type { Pool } from 'pg';
 
 import { BETTER_AUTH_TABLE_NAMES } from './better-auth-table-names';
@@ -8,8 +9,13 @@ import { exposeBearerFromSessionCookie } from './expose-bearer-from-session-cook
 
 export type BetterAuthInstance = ReturnType<typeof createBetterAuth>;
 
+/** Composition-root database handle for Better Auth (Postgres pool or SQLite). */
+export type BetterAuthDatabase =
+  | { readonly kind: 'postgres'; readonly pool: Pool }
+  | { readonly kind: 'sqlite'; readonly db: BetterSqliteDatabase };
+
 export type CreateBetterAuthConfig = {
-  readonly database: Pool;
+  readonly database: BetterAuthDatabase;
   readonly secret: string;
   readonly baseURL: string;
   /** When both id and secret are non-null, Google OAuth is registered. */
@@ -26,8 +32,15 @@ function trimOrNull(value: string | null | undefined): string | null {
   return t.length > 0 ? t : null;
 }
 
+function resolveBetterAuthDatabase(
+  database: BetterAuthDatabase
+): Pool | BetterSqliteDatabase {
+  return database.kind === 'postgres' ? database.pool : database.db;
+}
+
 /**
- * Per-request Better Auth instance bound to the Worker’s pinned Postgres pool.
+ * Per-request Better Auth instance bound to the request DB (Postgres pool or
+ * better-sqlite3). Branch only at composition roots.
  */
 export function createBetterAuth(config: CreateBetterAuthConfig) {
   const googleClientId = trimOrNull(config.googleClientId);
@@ -36,7 +49,7 @@ export function createBetterAuth(config: CreateBetterAuthConfig) {
     googleClientId !== null && googleClientSecret !== null;
 
   return betterAuth({
-    database: config.database,
+    database: resolveBetterAuthDatabase(config.database),
     secret: config.secret,
     baseURL: config.baseURL,
     trustedOrigins: [...config.trustedOrigins],

@@ -9,11 +9,6 @@ import BetterSqlite3 from 'better-sqlite3';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
-/** Strip Postgres-only syntax so portable mutation SQL runs on SQLite. */
-function sqliteCompatSql(sql: string): string {
-  return sql.replace(/\?::jsonb/g, '?').replace(/\s+FOR UPDATE\b/gi, '');
-}
-
 export class SqlClientImplBetterSqlite implements SqlClient {
   constructor(private readonly db: BetterSqlite3.Database) {}
 
@@ -40,16 +35,12 @@ export class SqlClientImplBetterSqlite implements SqlClient {
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
-    const rows = this.db
-      .prepare(sqliteCompatSql(query.sql))
-      .all(...query.values) as T[];
+    const rows = this.db.prepare(query.sql).all(...query.values) as T[];
     return Promise.resolve(rows);
   }
 
   run(query: Sql<unknown>): Promise<RunResult> {
-    const result = this.db
-      .prepare(sqliteCompatSql(query.sql))
-      .run(...query.values);
+    const result = this.db.prepare(query.sql).run(...query.values);
     return Promise.resolve({
       changes: Number(result.changes),
       lastInsertRowid: Number(result.lastInsertRowid),
@@ -59,7 +50,7 @@ export class SqlClientImplBetterSqlite implements SqlClient {
   prepare<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
-    const stmt = this.db.prepare(sqliteCompatSql(query.sql));
+    const stmt = this.db.prepare(query.sql);
     return {
       query: <R = Record<string, unknown>>(params?: Value[]) => {
         return Promise.resolve(stmt.all(...(params ?? [])) as R[]);

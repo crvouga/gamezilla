@@ -26,11 +26,13 @@
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "better-auth": "catalog:",
+    "better-sqlite3": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

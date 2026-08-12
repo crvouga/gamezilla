@@ -38,10 +38,10 @@ export class ClientConfigRepository {
       )
       VALUES (
         ${args.id},
-        ${nowIso}::timestamptz,
-        ${nowIso}::timestamptz,
+        ${nowIso},
+        ${nowIso},
         NULL,
-        ${valueJson}::jsonb
+        ${valueJson}
       )
       ON CONFLICT (id) DO UPDATE SET
         value = EXCLUDED.value,
@@ -54,8 +54,8 @@ export class ClientConfigRepository {
     const nowIso = new Date(this.io.clock.now()).toISOString();
     await this.tx.run(sql<void>`
       UPDATE client_config
-      SET deleted_at = ${nowIso}::timestamptz,
-          updated_at = ${nowIso}::timestamptz
+      SET deleted_at = ${nowIso},
+          updated_at = ${nowIso}
       WHERE id = ${id}
         AND deleted_at IS NULL
     `);

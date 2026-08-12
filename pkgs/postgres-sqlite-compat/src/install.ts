@@ -3,6 +3,10 @@
  * one dialect on both engines.
  *
  * No-ops on non-Postgres engines (e.g. SQLite already has JSON1).
+ *
+ * Call with a raw engine client (not SqlClientImplAgnostic): install DDL is
+ * Postgres-vendor by nature. Application DML should use an agnostic wrapper
+ * afterward.
  */
 
 import { assert } from '@pkgs/assert';
@@ -15,19 +19,18 @@ export type InstallPostgresSqliteCompatOptions = {
 };
 
 /**
- * True when the client talks to Postgres (pg_catalog present).
- * SQLite and other engines return false.
+ * True when the client is not SQLite.
+ * Uses portable `sqlite_version()` — succeeds only on SQLite; failure ⇒ Postgres
+ * (or other). Avoids `pg_catalog` so probes work under agnostic SQL bans.
  */
 export async function isPostgresSqlClient(
   sqlClient: SqlClient
 ): Promise<boolean> {
   try {
-    await sqlClient.query(
-      sql<{ n: number }>`SELECT 1 AS n FROM pg_catalog.pg_class LIMIT 1`
-    );
-    return true;
-  } catch {
+    await sqlClient.query(sql<{ v: string }>`SELECT sqlite_version() AS v`);
     return false;
+  } catch {
+    return true;
   }
 }
 

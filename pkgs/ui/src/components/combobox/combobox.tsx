@@ -54,6 +54,7 @@ export function Combobox<T extends string | number = string>(
         disabled={props.disabled ?? false}
         open={c.open}
         listboxId={listboxId}
+        {...(props.testID !== undefined ? { testID: props.testID } : {})}
         onPress={() => {
           c.resetInternal();
           c.setOpen(true);

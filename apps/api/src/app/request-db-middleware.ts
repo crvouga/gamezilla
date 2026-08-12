@@ -23,7 +23,7 @@ import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { MiddlewareHandler } from 'hono';
 import {
   type BetterAuthBootConfig,
-  betterAuthConfigForPool,
+  betterAuthConfigForDatabase,
 } from '../config/better-auth-boot';
 import { ApiSecretName } from '../config/secret-names';
 import {
@@ -74,7 +74,7 @@ export type RequestDbMiddlewareOptions = {
   readonly io: Io;
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
-  /** Sims inject pg-mem; default is TCP {@link defaultOpenRequestDb}. */
+  /** Sims inject SQLite; default is TCP {@link defaultOpenRequestDb}. */
   readonly openRequestDb?: OpenRequestDb;
 };
 
@@ -123,9 +123,13 @@ async function openObservedRequestDb(
 
 function createRequestBetterAuth(
   boot: BetterAuthBootConfig,
-  pool: RequestDb['pool']
+  opened: RequestDb
 ): BetterAuthInstance {
-  return createBetterAuth(betterAuthConfigForPool(boot, pool));
+  const database =
+    opened.kind === 'postgres'
+      ? ({ kind: 'postgres', pool: opened.pool } as const)
+      : ({ kind: 'sqlite', db: opened.sqlite } as const);
+  return createBetterAuth(betterAuthConfigForDatabase(boot, database));
 }
 
 async function materializeClientConfigIfNeeded(
@@ -171,8 +175,7 @@ async function attachRequestDatabase(
     observability,
     opened.sqlClient
   );
-  const { pool } = opened;
-  const betterAuth = createRequestBetterAuth(boot, pool);
+  const betterAuth = createRequestBetterAuth(boot, opened);
   const authServer = createBetterAuthServerAdapter(betterAuth);
   const kv = new KvImplPostgres(sqlClient, io.clock.now);
   const sessionAuth = new SessionAuth(authServer);
@@ -199,11 +202,12 @@ async function attachRequestDatabase(
         );
         return await next();
       } finally {
-        // Await close on the request path. Deferred `waitUntil` teardown left
-        // thousands of CLOSE_WAIT/TIME_WAIT sockets under wrangler local boot
-        // fan-out (ephemeral-port exhaustion → "proxy request failed").
         try {
-          await Promise.all([sqlClient.disconnect(), pool.end()]);
+          if (opened.kind === 'postgres') {
+            await Promise.all([sqlClient.disconnect(), opened.pool.end()]);
+          } else {
+            await sqlClient.disconnect();
+          }
         } catch (error: unknown) {
           observability.recordException(error, {
             operation: 'request-db-cleanup',

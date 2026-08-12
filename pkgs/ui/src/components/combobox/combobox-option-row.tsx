@@ -42,6 +42,7 @@ export function ComboboxOptionRow<T extends string | number>({
           ) : undefined
         }
         onPress={onPick}
+        {...(item.testID !== undefined ? { testID: item.testID } : {})}
       />
     </Box>
   );

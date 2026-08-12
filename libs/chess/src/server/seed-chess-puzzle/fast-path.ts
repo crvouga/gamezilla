@@ -3,7 +3,7 @@
  */
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
-import { raw, sql } from '@pkgs/sql';
+import { bulk, raw, sql } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -15,7 +15,7 @@ type PuzzleInsertRow = PuzzleTableRow & {
   readonly updated_at: string;
 };
 
-function insertPuzzlesBatchQuery(insertRowsJson: string) {
+function insertPuzzlesBatchQuery(rows: readonly PuzzleInsertRow[]) {
   return sql<void>`
     INSERT INTO chess_puzzles (
       id,
@@ -31,34 +31,22 @@ function insertPuzzlesBatchQuery(insertRowsJson: string) {
       game_url,
       opening_tags
     )
-    SELECT
-      id,
-      created_at::timestamptz,
-      updated_at::timestamptz,
-      fen,
-      moves,
-      rating,
-      rating_deviation,
-      popularity,
-      nb_plays,
-      themes::jsonb,
-      game_url,
-      opening_tags::jsonb
-    FROM jsonb_to_recordset(${insertRowsJson}::text::jsonb)
-      AS batch_rows(
-        id text,
-        created_at text,
-        updated_at text,
-        fen text,
-        moves text,
-        rating integer,
-        rating_deviation integer,
-        popularity integer,
-        nb_plays integer,
-        themes text,
-        game_url text,
-        opening_tags text
-      )
+    VALUES ${bulk(
+      rows.map((row) => [
+        row.id,
+        row.created_at,
+        row.updated_at,
+        row.fen,
+        row.moves,
+        row.rating,
+        row.rating_deviation,
+        row.popularity,
+        row.nb_plays,
+        row.themes,
+        row.game_url,
+        row.opening_tags,
+      ])
+    )}
     ON CONFLICT (id) DO NOTHING
   `;
 }
@@ -171,9 +159,7 @@ export class PuzzleSeedFastPath {
     }));
     let rowChanges = 0;
     await this.db.transaction(async (tx) => {
-      const res = await tx.run(
-        insertPuzzlesBatchQuery(JSON.stringify(insertRows))
-      );
+      const res = await tx.run(insertPuzzlesBatchQuery(insertRows));
       rowChanges = res.changes;
     });
     return rowChanges;
@@ -225,8 +211,8 @@ export class PuzzleSeedFastPath {
       )
       VALUES (
         ${loadId},
-        ${nowIso}::timestamptz,
-        ${nowIso}::timestamptz,
+        ${nowIso},
+        ${nowIso},
         ${sourceEtag},
         ${cursor},
         ${finishedAt}

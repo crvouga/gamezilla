@@ -37,6 +37,9 @@ export const Handles = {
   profileAvatarSeed: 'profile-avatar-seed',
   profileAvatarSave: 'profile-avatar-save',
   profileAvatarCancel: 'profile-avatar-cancel',
+  profileAvatarStyle: 'profile-avatar-style',
+  profileAvatarStyleBottts: 'profile-avatar-style-bottts',
+  profileAvatarTrait: 'profile-avatar-trait',
 } as const;
 
 export type Handle = (typeof Handles)[keyof typeof Handles];

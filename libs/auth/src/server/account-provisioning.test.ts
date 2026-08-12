@@ -129,7 +129,7 @@ describe('AccountProvisioningService', () => {
     // Bun SQLite shares one connection — overlapping BEGIN fails — so this
     // asserts idempotency + single link. Race adoption is covered by
     // insertExternalAccountOrGet + the adopt-existing test below; Postgres
-    // serializes concurrent callers via pg_advisory_xact_lock.
+    // serializes concurrent callers via unique (provider, external_id).
     const authServer = makeFakeAuthServer({
       id: EXTERNAL_USER_ID,
       email: 'a@b.c',
