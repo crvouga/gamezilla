@@ -1,10 +1,4 @@
-import {
-  type CSSProperties,
-  type RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type CSSProperties, type RefObject, useEffect, useRef } from 'react';
 
 import type { FlatFrame } from './frames';
 import { formatMsStable } from './frames';
@@ -17,28 +11,36 @@ export const LONG_HOLD_PULSE_MS = 1000;
 
 export function FrameRail(props: {
   readonly frames: readonly FlatFrame[];
-  readonly previewIdx: number;
+  /** Explicit click selection; null when none selected. */
+  readonly selectedIdx: number | null;
+  /** Hover preview index; null when not hovering. */
+  readonly hoverIdx: number | null;
+  /** Playback / default playhead (0 when none selected). */
+  readonly playheadIdx: number;
   readonly maxDurationMs: number;
-  /** Remaining hold ms for the active row while playing a long wait. */
+  /** Remaining hold ms for the playhead row while playing a long wait. */
   readonly holdRemainingMs?: number | null;
   readonly onHover: (idx: number | null) => void;
   readonly onSelect: (idx: number) => void;
 }) {
   const {
     frames,
-    previewIdx,
+    selectedIdx,
+    hoverIdx,
+    playheadIdx,
     maxDurationMs,
     holdRemainingMs = null,
     onHover,
     onSelect,
   } = props;
   const holdingLong = holdRemainingMs != null;
-  const activeRef = useRef<HTMLButtonElement | null>(null);
+  const scrollRef = useRef<HTMLButtonElement | null>(null);
   const pulse = holdingLong ? holdPulseOpacity(wallNowMs()) : undefined;
+  const scrollKey = selectedIdx ?? playheadIdx;
 
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [previewIdx]);
+    scrollRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [scrollKey]);
 
   return (
     <nav
@@ -51,17 +53,25 @@ export function FrameRail(props: {
         const showStep =
           prev === undefined || prev.stepIndex !== frame.stepIndex;
         const heat = durationHeat(frame.durationMs, maxDurationMs);
-        const active = i === previewIdx;
-        const holding = active && holdingLong;
+        const selected = selectedIdx === i;
+        const hovered = hoverIdx === i;
+        const playhead = playheadIdx === i;
+        const holding = playhead && holdingLong;
         return (
           <RailFrameButton
             key={`${frame.file}-${i}`}
-            activeRef={active ? activeRef : undefined}
+            scrollRef={
+              selected || (selectedIdx == null && playhead)
+                ? scrollRef
+                : undefined
+            }
             frame={frame}
             index={i}
             showStep={showStep}
             heatCss={heat.cssColor}
-            active={active}
+            selected={selected}
+            hovered={hovered}
+            playhead={playhead}
             holding={holding}
             holdRemainingMs={holdRemainingMs}
             pulseOpacity={holding ? pulse : undefined}
@@ -75,12 +85,14 @@ export function FrameRail(props: {
 }
 
 function RailFrameButton(props: {
-  readonly activeRef: RefObject<HTMLButtonElement | null> | undefined;
+  readonly scrollRef: RefObject<HTMLButtonElement | null> | undefined;
   readonly frame: FlatFrame;
   readonly index: number;
   readonly showStep: boolean;
   readonly heatCss: string;
-  readonly active: boolean;
+  readonly selected: boolean;
+  readonly hovered: boolean;
+  readonly playhead: boolean;
   readonly holding: boolean;
   readonly holdRemainingMs: number | null;
   readonly pulseOpacity: number | undefined;
@@ -88,25 +100,27 @@ function RailFrameButton(props: {
   readonly onSelect: (idx: number) => void;
 }) {
   const {
-    activeRef,
+    scrollRef,
     frame,
     index,
     showStep,
     heatCss,
-    active,
+    selected,
+    hovered,
+    playhead,
     holding,
     holdRemainingMs,
     pulseOpacity,
     onHover,
     onSelect,
   } = props;
-  const [hovered, setHovered] = useState(false);
   const failed = frame.step.status === 'failed';
   const btnStyle = merge(
     styles.railFrame,
     showStep && styles.railFrameHasStep,
-    hovered && !active && styles.railFrameHover,
-    active && styles.railFrameActive
+    selected && styles.railFrameSelected,
+    !selected && hovered && styles.railFrameHover,
+    !selected && !hovered && playhead && styles.railFramePlayhead
   );
   const heatStyle: CSSProperties = merge(styles.railHeat, {
     background: heatCss,
@@ -130,15 +144,12 @@ function RailFrameButton(props: {
 
   return (
     <button
-      ref={activeRef}
+      ref={scrollRef}
       type="button"
       style={btnStyle}
+      aria-pressed={selected}
       title={`${frame.step.title} · ${formatMsStable(frame.durationMs).trim()}`}
-      onMouseEnter={() => {
-        setHovered(true);
-        onHover(index);
-      }}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => onHover(index)}
       onClick={() => onSelect(index)}
     >
       <span style={heatStyle} aria-hidden />

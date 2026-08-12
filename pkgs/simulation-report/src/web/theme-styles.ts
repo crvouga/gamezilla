@@ -180,10 +180,19 @@ export const styles = {
     font: 'inherit',
   }),
   railFrameHasStep: merge({ paddingTop: 8, paddingBottom: 5 }),
-  railFrameHover: merge({ background: t.control }),
-  railFrameActive: merge({
+  /** Hover: muted wash, no accent bar — distinct from selection. */
+  railFrameHover: merge({
+    background: t.control,
+    boxShadow: `inset 2px 0 0 ${t.border}`,
+  }),
+  /** Selected: accent wash + accent bar. */
+  railFrameSelected: merge({
     background: t.accentSoft,
     boxShadow: `inset 2px 0 0 ${t.accent}`,
+  }),
+  /** Playhead with no selection (timeline start / playing): thin muted marker. */
+  railFramePlayhead: merge({
+    boxShadow: `inset 2px 0 0 ${t.muted}`,
   }),
   railHeat: merge({
     width: 3,

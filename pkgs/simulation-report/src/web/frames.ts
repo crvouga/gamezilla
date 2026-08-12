@@ -64,11 +64,12 @@ export function firstFrameForStep(
   return -1;
 }
 
-export function resolveFrameIndex(
+/** Explicit selection from URL only; null when nothing is selected. */
+export function resolveSelectedFrameIndex(
   frames: readonly FlatFrame[],
   steps: readonly SimulationStep[],
   nav: { step: number | null; frame: number | null }
-): number {
+): number | null {
   if (nav.frame != null && nav.frame >= 1 && nav.frame <= frames.length) {
     return nav.frame - 1;
   }
@@ -79,10 +80,17 @@ export function resolveFrameIndex(
       if (fi >= 0) return fi;
     }
   }
-  const failed = steps.findIndex((s) => s.status === 'failed');
-  if (failed >= 0) {
-    const fi = firstFrameForStep(frames, failed);
-    if (fi >= 0) return fi;
+  return null;
+}
+
+/** Playhead when nothing is selected: start of timeline (0). */
+export function playheadFrameIndex(
+  selectedIdx: number | null,
+  frameCount: number
+): number {
+  if (frameCount <= 0) return -1;
+  if (selectedIdx != null && selectedIdx >= 0 && selectedIdx < frameCount) {
+    return selectedIdx;
   }
-  return frames.length > 0 ? 0 : -1;
+  return 0;
 }

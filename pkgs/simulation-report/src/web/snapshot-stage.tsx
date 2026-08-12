@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
 import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
 import {
@@ -21,21 +21,31 @@ async function loadFrameHtml(url: string): Promise<string | null> {
   return html;
 }
 
-/**
- * Double-buffered iframe srcdoc stage. Never assigns srcdoc on the visible
- * iframe; blank / identical bodies hold the last good front frame.
- */
-export function SnapshotStage(props: { readonly src: string | null }) {
-  const { src } = props;
-  const frame0Ref = useRef<HTMLIFrameElement>(null);
-  const frame1Ref = useRef<HTMLIFrameElement>(null);
-  const frontRef = useRef<0 | 1>(0);
-  const paintedSrcRef = useRef<string | null>(null);
-  const paintedBodyRef = useRef<string | null>(null);
-  const hasPaintedRef = useRef(false);
-  const genRef = useRef(0);
-  const [front, setFront] = useState<0 | 1>(0);
-  const [hasPainted, setHasPainted] = useState(false);
+type PaintRefs = {
+  readonly frame0Ref: RefObject<HTMLIFrameElement | null>;
+  readonly frame1Ref: RefObject<HTMLIFrameElement | null>;
+  readonly frontRef: RefObject<0 | 1>;
+  readonly paintedSrcRef: RefObject<string | null>;
+  readonly paintedBodyRef: RefObject<string | null>;
+  readonly hasPaintedRef: RefObject<boolean>;
+  readonly genRef: RefObject<number>;
+};
+
+function useSnapshotPaint(
+  src: string | null,
+  refs: PaintRefs,
+  setFront: (front: 0 | 1) => void,
+  setHasPainted: (painted: boolean) => void
+): void {
+  const {
+    frame0Ref,
+    frame1Ref,
+    frontRef,
+    paintedSrcRef,
+    paintedBodyRef,
+    hasPaintedRef,
+    genRef,
+  } = refs;
 
   useEffect(() => {
     if (src === null) {
@@ -97,7 +107,50 @@ export function SnapshotStage(props: { readonly src: string | null }) {
       cancelled = true;
       backFrame.removeEventListener('load', onLoad);
     };
-  }, [src]);
+  }, [
+    src,
+    frame0Ref,
+    frame1Ref,
+    frontRef,
+    paintedSrcRef,
+    paintedBodyRef,
+    hasPaintedRef,
+    genRef,
+    setFront,
+    setHasPainted,
+  ]);
+}
+
+/**
+ * Double-buffered iframe srcdoc stage. Never assigns srcdoc on the visible
+ * iframe; blank / identical bodies hold the last good front frame.
+ */
+export function SnapshotStage(props: { readonly src: string | null }) {
+  const { src } = props;
+  const frame0Ref = useRef<HTMLIFrameElement>(null);
+  const frame1Ref = useRef<HTMLIFrameElement>(null);
+  const frontRef = useRef<0 | 1>(0);
+  const paintedSrcRef = useRef<string | null>(null);
+  const paintedBodyRef = useRef<string | null>(null);
+  const hasPaintedRef = useRef(false);
+  const genRef = useRef(0);
+  const [front, setFront] = useState<0 | 1>(0);
+  const [hasPainted, setHasPainted] = useState(false);
+
+  useSnapshotPaint(
+    src,
+    {
+      frame0Ref,
+      frame1Ref,
+      frontRef,
+      paintedSrcRef,
+      paintedBodyRef,
+      hasPaintedRef,
+      genRef,
+    },
+    setFront,
+    setHasPainted
+  );
 
   const frameStyle = (idx: 0 | 1) =>
     merge(
@@ -111,13 +164,13 @@ export function SnapshotStage(props: { readonly src: string | null }) {
         ref={frame0Ref}
         style={frameStyle(0)}
         title="Snapshot A"
-        sandbox="allow-same-origin"
+        sandbox="allow-scripts allow-same-origin"
       />
       <iframe
         ref={frame1Ref}
         style={frameStyle(1)}
         title="Snapshot B"
-        sandbox="allow-same-origin"
+        sandbox="allow-scripts allow-same-origin"
       />
       {!hasPainted ? <div style={styles.previewEmpty}>No snapshot</div> : null}
     </div>
