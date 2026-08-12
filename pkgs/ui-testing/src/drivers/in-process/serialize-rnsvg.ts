@@ -24,6 +24,14 @@ export function mapRnsvgTag(typeName: string): string | null {
       return 'circle';
     case 'RNSVGRect':
       return 'rect';
+    case 'RNSVGLine':
+      return 'line';
+    case 'RNSVGEllipse':
+      return 'ellipse';
+    case 'RNSVGPolyline':
+      return 'polyline';
+    case 'RNSVGPolygon':
+      return 'polygon';
     case 'RNSVGMask':
       return 'mask';
     case 'RNSVGDefs':
@@ -31,6 +39,19 @@ export function mapRnsvgTag(typeName: string): string | null {
     default:
       return null;
   }
+}
+
+/** Leaf SVG tags that must not emit View flex defaults or wrap children. */
+export function isSvgVoidTag(tag: string): boolean {
+  return (
+    tag === 'path' ||
+    tag === 'circle' ||
+    tag === 'rect' ||
+    tag === 'line' ||
+    tag === 'ellipse' ||
+    tag === 'polyline' ||
+    tag === 'polygon'
+  );
 }
 
 export function isSvgGeometryTag(tag: string): boolean {
@@ -80,6 +101,21 @@ export function pushRnsvgAttrs(
     pushLengthAttr(parts, 'height', props['height'], escapeAttr);
     pushLengthAttr(parts, 'rx', props['rx'], escapeAttr);
     pushLengthAttr(parts, 'ry', props['ry'], escapeAttr);
+  }
+  if (tag === 'line') {
+    pushNumericAttr(parts, 'x1', props['x1'], escapeAttr);
+    pushNumericAttr(parts, 'y1', props['y1'], escapeAttr);
+    pushNumericAttr(parts, 'x2', props['x2'], escapeAttr);
+    pushNumericAttr(parts, 'y2', props['y2'], escapeAttr);
+  }
+  if (tag === 'ellipse') {
+    pushNumericAttr(parts, 'cx', props['cx'], escapeAttr);
+    pushNumericAttr(parts, 'cy', props['cy'], escapeAttr);
+    pushNumericAttr(parts, 'rx', props['rx'], escapeAttr);
+    pushNumericAttr(parts, 'ry', props['ry'], escapeAttr);
+  }
+  if (tag === 'polyline' || tag === 'polygon') {
+    pushAttr(parts, 'points', props['points'], escapeAttr);
   }
   if (tag === 'mask') {
     const name = props['name'];

@@ -7,6 +7,7 @@ import {
 import {
   isRnsvgHost,
   isSvgGeometryTag,
+  isSvgVoidTag,
   mapRnsvgTag,
   pushRnsvgAttrs,
 } from './serialize-rnsvg';
@@ -152,8 +153,7 @@ function serializeJson(
   if (
     tag === 'input' ||
     tag === 'img' ||
-    ((tag === 'path' || tag === 'circle' || tag === 'rect') &&
-      childrenHtml.length === 0)
+    (isSvgVoidTag(tag) && childrenHtml.length === 0)
   ) {
     return `<${tag}${attrs} />`;
   }

@@ -293,6 +293,67 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('fill="#808080"');
   });
 
+  it('maps RNSVGLine to line (not div) so Lucide icons stay valid SVG', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSVGSvgView',
+      props: {
+        minX: 0,
+        minY: 0,
+        vbWidth: 24,
+        vbHeight: 24,
+        bbWidth: 24,
+        bbHeight: 24,
+        fill: null,
+        stroke: { type: 0, payload: 0xff_3c_83_f6 },
+        strokeWidth: 2,
+      },
+      children: [
+        {
+          type: 'RNSVGGroup',
+          props: {
+            fill: null,
+            stroke: { type: 0, payload: 0xff_3c_83_f6 },
+            strokeWidth: 2,
+          },
+          children: [
+            {
+              type: 'RNSVGLine',
+              props: {
+                x1: 6,
+                y1: 12,
+                x2: 10,
+                y2: 12,
+                fill: null,
+                stroke: { type: 0, payload: 0xff_3c_83_f6 },
+                strokeWidth: 2,
+              },
+              children: null,
+            },
+            {
+              type: 'RNSVGPath',
+              props: {
+                d: 'M17.32 5H6.68a4 4 0 0 0-3.978 3.59',
+                fill: null,
+                stroke: { type: 0, payload: 0xff_3c_83_f6 },
+                strokeWidth: 2,
+              },
+              children: null,
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('<line ');
+    expect(html).toContain('x1="6"');
+    expect(html).toContain('y1="12"');
+    expect(html).toContain('x2="10"');
+    expect(html).toContain('y2="12"');
+    expect(html).toContain('stroke="#3c83f6"');
+    expect(html).toContain('<line data-component="RNSVGLine"');
+    expect(html).not.toMatch(/<div data-component="RNSVGLine"/);
+    expect(html).not.toMatch(/<svg[^>]*>[\s\S]*<div/);
+  });
+
   it('maps DiceBear-like mask/rect trees without HTML divs inside svg', () => {
     const html = serializeHostTreeHtml({
       type: 'RNSVGSvgView',
