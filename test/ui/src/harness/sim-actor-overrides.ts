@@ -37,8 +37,12 @@ import {
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
 
-/** Jest-immune timers (see create-client-simulation-system `simNodeTimers`). */
-const actorNodeTimers: Timers = {
+/**
+ * Jest-immune wall timers for sim API + actor Io.
+ * `wallTimers` / `globalThis.setTimeout` get faked after expo-router render;
+ * product async must keep progressing on real Node timers.
+ */
+export const simNodeTimers: Timers = {
   setTimeout: (fn, ms) => nodeSetTimeout(fn, ms),
   clearTimeout: (handle) => {
     nodeClearTimeout(handle as ReturnType<typeof nodeSetTimeout>);
@@ -57,7 +61,7 @@ export function createActorIo(base: SimIo, http: HttpClient): Io {
     clock: {
       now: () => wallClock.now(),
     },
-    timers: actorNodeTimers,
+    timers: simNodeTimers,
     createId: base.createId,
     random: base.random,
     http,

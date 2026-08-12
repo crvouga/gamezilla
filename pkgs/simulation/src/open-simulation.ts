@@ -171,6 +171,9 @@ function createReporter(
     ...(reportOpts.maxFramesPerStep !== undefined
       ? { maxFramesPerStep: reportOpts.maxFramesPerStep }
       : {}),
+    ...(reportOpts.publishThrottleMs !== undefined
+      ? { publishThrottleMs: reportOpts.publishThrottleMs }
+      : {}),
     ...(sourceFile !== undefined ? { sourceFile } : {}),
   });
 }

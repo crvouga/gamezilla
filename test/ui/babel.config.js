@@ -16,6 +16,10 @@ module.exports = function (api) {
     ],
     plugins: [
       '@lingui/babel-plugin-lingui-macro',
+      // `await using` / `using` → try/finally + babelHelpers.usingCtx().
+      require.resolve(
+        '@babel/plugin-transform-explicit-resource-management'
+      ),
       // better-auth (and other ESM) use `await import()`; Node Jest needs require().
       require('./babel-plugin-dynamic-import-to-require.cjs'),
       // Inject dataSet.src for in-process snapshot HTML (data-src in frames).

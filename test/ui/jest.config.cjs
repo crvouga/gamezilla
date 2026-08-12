@@ -11,8 +11,8 @@ module.exports = {
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-  // UI waits default to 10s (auth I/O up to 30s); keep headroom for boot.
-  testTimeout: 60_000,
+  // UI waits default to 2–5s fail-fast ceilings; keep headroom for boot.
+  testTimeout: 30_000,
   // Transform all node_modules so Bun-nested ESM (.mjs / "export") loads under Jest.
   // Skip better-sqlite3: native addon; Babel would break require of the .node binding.
   transformIgnorePatterns: ['/node_modules/.*/better-sqlite3/'],
@@ -45,6 +45,7 @@ module.exports = {
       { paths: [path.join(repoRoot, 'apps/client')] }
     ),
     '^@gorhom/bottom-sheet$': '<rootDir>/jest-bottom-sheet-stub.cjs',
+    '^react-native-gesture-handler$': '<rootDir>/jest-gesture-handler-stub.cjs',
     // Expo.fx requires `./async-require/messageSocket` (resolves .native).
     // Map every copy so Metro HMR never opens ws://localhost:8081/message.
     'async-require[/\\\\]messageSocket(\\.native)?$':
@@ -66,6 +67,5 @@ module.exports = {
     '^@test/([^/]+)/(.*)$': `${repoRoot}/test/$1/src/$2`,
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json'],
-  detectOpenHandles: true,
   forceExit: true,
 };

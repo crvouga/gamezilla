@@ -1,9 +1,21 @@
 import {
+  isRnScreenStackHost,
+  shouldHideRnScreen,
+  topRnScreenIndex,
+  withRnScreenHiddenCss,
+} from './serialize-rn-screen';
+import {
   isRnsvgHost,
   isSvgGeometryTag,
   mapRnsvgTag,
   pushRnsvgAttrs,
 } from './serialize-rnsvg';
+import {
+  collectFontsFromCss,
+  rewriteFlexZero,
+  stripBrokenTransform,
+  styleToCss,
+} from './serialize-style-css';
 
 type JsonNode =
   | string
@@ -17,8 +29,10 @@ type SerializeCtx = {
   readonly fonts: Set<string>;
 };
 
-const EXPO_FONT_RE =
-  /^(.+)_(\d{3})(Regular|Medium|SemiBold|Bold|Light|Thin|Black|ExtraBold|ExtraLight)?$/;
+type SerializeNodeOpts = {
+  /** Covered by a later RNSScreen in the same RNSScreenStack. */
+  readonly coveredByStack?: boolean;
+};
 
 /**
  * Yoga / react-native-web View defaults the browser does not apply.
@@ -109,7 +123,11 @@ function serializeTree(tree: unknown, ctx: SerializeCtx): string {
   return serializeJson(tree as JsonNode, ctx);
 }
 
-function serializeJson(node: JsonNode, ctx: SerializeCtx): string {
+function serializeJson(
+  node: JsonNode,
+  ctx: SerializeCtx,
+  opts: SerializeNodeOpts = {}
+): string {
   if (typeof node === 'string') {
     return escapeHtml(node);
   }
@@ -121,8 +139,15 @@ function serializeJson(node: JsonNode, ctx: SerializeCtx): string {
 
   const props = node.props ?? {};
   const tag = mapHostTag(typeName, props);
-  const attrs = buildAttrs(typeName, props, tag, ctx);
-  const childrenHtml = serializeJsonChildren(node.children, ctx);
+  const hideScreen = shouldHideRnScreen(
+    typeName,
+    props,
+    opts.coveredByStack === true
+  );
+  const attrs = buildAttrs(typeName, props, tag, ctx, hideScreen);
+  const childrenHtml = isRnScreenStackHost(typeName)
+    ? serializeScreenStackChildren(node.children, ctx)
+    : serializeJsonChildren(node.children, ctx);
 
   if (
     tag === 'input' ||
@@ -141,6 +166,25 @@ function serializeJsonChildren(
 ): string {
   if (!children || children.length === 0) return '';
   return children.map((child) => serializeJson(child, ctx)).join('');
+}
+
+function serializeScreenStackChildren(
+  children: JsonNode[] | null,
+  ctx: SerializeCtx
+): string {
+  if (!children || children.length === 0) return '';
+  const top = topRnScreenIndex(children);
+  return children
+    .map((child, index) =>
+      serializeJson(child, ctx, {
+        coveredByStack:
+          top !== null &&
+          typeof child !== 'string' &&
+          child.type === 'RNSScreen' &&
+          index !== top,
+      })
+    )
+    .join('');
 }
 
 function hostTypeName(type: unknown): string {
@@ -206,7 +250,8 @@ function buildAttrs(
   typeName: string,
   props: Record<string, unknown>,
   tag: string,
-  ctx: SerializeCtx
+  ctx: SerializeCtx,
+  hideScreen: boolean
 ): string {
   const dataSet = readDataSet(props);
   const component = dataSet?.['component'] ?? typeName;
@@ -214,6 +259,9 @@ function buildAttrs(
   pushStringAttr(parts, 'data-src', dataSet?.['src']);
   pushStringAttr(parts, 'data-testid', props['testID']);
   pushStringAttr(parts, 'aria-label', props['accessibilityLabel']);
+  if (hideScreen) {
+    parts.push(' aria-hidden="true"');
+  }
   const role = props['accessibilityRole'];
   if (typeof role === 'string' && role.length > 0 && tag !== 'button') {
     parts.push(` role="${escapeAttr(role)}"`);
@@ -225,6 +273,7 @@ function buildAttrs(
     style: props['style'],
     capturedCss: dataSet?.['css'],
     ctx,
+    hideScreen,
   });
   if (isRnsvgHost(typeName)) {
     pushRnsvgAttrs(parts, typeName, props, escapeAttr);
@@ -247,8 +296,9 @@ function pushStyleAttr(args: {
   readonly style: unknown;
   readonly capturedCss: string | undefined;
   readonly ctx: SerializeCtx;
+  readonly hideScreen: boolean;
 }): void {
-  const { parts, typeName, tag, style, capturedCss, ctx } = args;
+  const { parts, typeName, tag, style, capturedCss, ctx, hideScreen } = args;
   let styleCss =
     capturedCss !== undefined && capturedCss.length > 0
       ? (collectFontsFromCss(capturedCss, ctx), capturedCss)
@@ -270,46 +320,14 @@ function pushStyleAttr(args: {
   if (isScrollHost(typeName)) {
     css = css ? `${css};overflow:auto` : 'overflow:auto';
   }
+  css = withRnScreenHiddenCss(css, hideScreen);
   if (css) {
     parts.push(` style="${escapeAttr(css)}"`);
   }
 }
 
-/** RN `flex:0`/`-1` → CSS `0 1 auto` (see styleToCss / sxToCss). */
-function rewriteFlexZero(css: string): string {
-  if (!css.includes('flex:')) return css;
-  return css
-    .split(';')
-    .map((part) => {
-      const trimmed = part.trim();
-      if (/^flex:\s*(?:0|-1)$/.test(trimmed)) return 'flex:0 1 auto';
-      if (/^flex:\s*none$/.test(trimmed)) return 'flex:0 1 auto';
-      return trimmed;
-    })
-    .filter((part) => part.length > 0)
-    .join(';');
-}
-
-function stripBrokenTransform(css: string): string {
-  return css
-    .split(';')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0 && !part.includes('[object Object]'))
-    .join(';');
-}
-
 function isScrollHost(typeName: string): boolean {
   return typeName === 'ScrollView' || typeName === 'RCTScrollView';
-}
-
-function collectFontsFromCss(css: string, ctx: SerializeCtx): void {
-  const re = /font-family:\s*([^;]+)/g;
-  let match = re.exec(css);
-  while (match) {
-    const raw = match[1]?.trim().replace(/^["']|["']$/g, '');
-    if (raw) ctx.fonts.add(raw);
-    match = re.exec(css);
-  }
 }
 
 function hostBaseCss(typeName: string, tag: string): string {
@@ -357,162 +375,6 @@ function pushImgAttrs(parts: string[], props: Record<string, unknown>): void {
   } else {
     parts.push(' alt=""');
   }
-}
-
-const SKIP_RN_CSS = new Set([
-  'includeFontPadding',
-  'textAlignVertical',
-  'elevation',
-  'shadowOpacity',
-  'shadowRadius',
-  'shadowColor',
-  'shadowOffset',
-]);
-
-function styleToCss(style: unknown, ctx: SerializeCtx): string {
-  if (style == null) return '';
-  const flat = expandRnShorthands(flattenStyle(style));
-  const decls: string[] = [];
-  for (const [key, value] of Object.entries(flat)) {
-    pushStyleDecl(decls, key, value, ctx);
-  }
-  return decls.join(';');
-}
-
-function pushStyleDecl(
-  decls: string[],
-  key: string,
-  value: unknown,
-  ctx: SerializeCtx
-): void {
-  if (value == null || SKIP_RN_CSS.has(key)) return;
-  if (key === 'transform' && Array.isArray(value)) {
-    const transformCss = rnTransformToCss(value);
-    if (transformCss) decls.push(`transform:${transformCss}`);
-    return;
-  }
-  if (typeof value === 'object') return;
-  if (key === 'fontFamily' && typeof value === 'string') {
-    pushFontDecls(decls, value, ctx);
-    return;
-  }
-  if (key === 'pointerEvents' && value === 'box-none') {
-    decls.push('pointer-events:none');
-    return;
-  }
-  if (isRnFlexZero(key, value)) {
-    decls.push('flex:0 1 auto');
-    return;
-  }
-  decls.push(`${camelToKebab(key)}:${cssValue(key, value)}`);
-}
-
-/** RN `flex: 0` / `-1` → CSS `0 1 auto` (not bare `flex:0` = `0 1 0%`). */
-function isRnFlexZero(key: string, value: unknown): boolean {
-  return (
-    key === 'flex' &&
-    (value === 0 || value === '0' || value === -1 || value === '-1')
-  );
-}
-
-function rnTransformToCss(list: unknown[]): string {
-  const parts: string[] = [];
-  for (const entry of list) {
-    if (entry == null || typeof entry !== 'object') continue;
-    for (const [op, raw] of Object.entries(entry as Record<string, unknown>)) {
-      if (typeof raw === 'string' || typeof raw === 'number') {
-        parts.push(`${op}(${raw})`);
-      }
-    }
-  }
-  return parts.join(' ');
-}
-
-function pushFontDecls(
-  decls: string[],
-  fontFamily: string,
-  ctx: SerializeCtx
-): void {
-  const parsed = parseExpoFont(fontFamily);
-  if (parsed) {
-    ctx.fonts.add(parsed.family);
-    decls.push(`font-family:${cssFontFamily(parsed.family)}`);
-    decls.push(`font-weight:${parsed.weight}`);
-    return;
-  }
-  decls.push(`font-family:${cssFontFamily(fontFamily)}`);
-}
-
-function cssFontFamily(name: string): string {
-  if (/^[A-Za-z0-9-]+$/.test(name)) return name;
-  return `"${name.replace(/"/g, '')}"`;
-}
-
-function parseExpoFont(
-  fontFamily: string
-): { family: string; weight: string } | null {
-  const match = EXPO_FONT_RE.exec(fontFamily);
-  if (!match) return null;
-  const family = match[1];
-  const weight = match[2];
-  if (!family || !weight) return null;
-  return { family, weight };
-}
-
-function expandRnShorthands(
-  style: Record<string, unknown>
-): Record<string, unknown> {
-  const out: Record<string, unknown> = { ...style };
-  expandPair(out, 'paddingHorizontal', 'paddingLeft', 'paddingRight');
-  expandPair(out, 'paddingVertical', 'paddingTop', 'paddingBottom');
-  expandPair(out, 'marginHorizontal', 'marginLeft', 'marginRight');
-  expandPair(out, 'marginVertical', 'marginTop', 'marginBottom');
-  return out;
-}
-
-function expandPair(
-  style: Record<string, unknown>,
-  shorthand: string,
-  a: string,
-  b: string
-): void {
-  if (!(shorthand in style)) return;
-  const value = style[shorthand];
-  delete style[shorthand];
-  if (!(a in style)) style[a] = value;
-  if (!(b in style)) style[b] = value;
-}
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  const list = Array.isArray(style) ? style.flat(8) : [style];
-  for (const entry of list) {
-    if (entry == null || typeof entry !== 'object') continue;
-    Object.assign(out, entry as Record<string, unknown>);
-  }
-  return out;
-}
-
-const UNITLESS = new Set([
-  'flex',
-  'flexGrow',
-  'flexShrink',
-  'opacity',
-  'zIndex',
-  'fontWeight',
-  'aspectRatio',
-]);
-
-function cssValue(key: string, value: unknown): string {
-  if (typeof value === 'number') {
-    if (UNITLESS.has(key) || value === 0) return String(value);
-    return `${value}px`;
-  }
-  return String(value);
-}
-
-function camelToKebab(key: string): string {
-  return key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
 }
 
 function escapeHtml(value: string): string {

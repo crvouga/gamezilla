@@ -53,37 +53,36 @@ export function createReportingDriver(
           detail: `xRatio=${position.xRatio}, yRatio=${position.yRatio}`,
         }
       ),
-    typeText: (target, text) =>
+    input: (target, text) =>
       record(
         'typeText',
         `typeText ${formatSelector(target)}`,
-        () => driver.typeText(target, text),
+        () => driver.input(target, text),
         {
           selector: target,
           detail: `text=${JSON.stringify(text)}`,
           skipSnapshot: true,
         }
       ),
-    clearText: (target) =>
+    clear: (target) =>
       record(
         'clearText',
         `clearText ${formatSelector(target)}`,
-        () => driver.clearText(target),
+        () => driver.clear(target),
         { selector: target, skipSnapshot: true }
       ),
-    pressKey: (key: DriverKey) =>
-      record('pressKey', `pressKey ${key}`, () => driver.pressKey(key), {
+    key: (key: DriverKey) =>
+      record('pressKey', `pressKey ${key}`, () => driver.key(key), {
         detail: key,
       }),
     scroll: (target, direction: ScrollDirection, amount?) =>
       recordScroll({ record, driver, target, direction, amount }),
-    navigateBack: () =>
-      record('navigateBack', 'navigateBack', () => driver.navigateBack()),
-    waitFor: (target, state: WaitState, options?: WaitPollOptions) =>
+    back: () => record('navigateBack', 'navigateBack', () => driver.back()),
+    wait: (target, state: WaitState, options?: WaitPollOptions) =>
       record(
         'waitFor',
         `waitFor ${state} ${formatSelector(target)}`,
-        () => driver.waitFor(target, state, options),
+        () => driver.wait(target, state, options),
         { selector: target, detail: state, pollFrames: true }
       ),
     expectVisible: (target, options?: AssertionOptions) =>

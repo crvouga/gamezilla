@@ -470,4 +470,72 @@ describe('serializeHostTreeHtml', () => {
     );
     expect(html).not.toContain('<style>');
   });
+
+  it('hides covered RNSScreen siblings in a stack (native keeps them mounted)', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSScreenStack',
+      props: {},
+      children: [
+        {
+          type: 'RNSScreen',
+          props: {
+            activityState: 2,
+            testID: 'screen-spaces',
+            style: { position: 'absolute' },
+          },
+          children: [
+            {
+              type: 'View',
+              props: {},
+              children: ['Spaces', 'New space'],
+            },
+          ],
+        },
+        {
+          type: 'RNSScreen',
+          props: {
+            activityState: 2,
+            testID: 'screen-account',
+            style: { position: 'absolute' },
+          },
+          children: [
+            {
+              type: 'View',
+              props: {},
+              children: ['Account'],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toMatch(
+      /data-testid="screen-spaces"[^>]*aria-hidden="true"/
+    );
+    expect(html).toMatch(
+      /data-testid="screen-spaces"[^>]*style="[^"]*display:none/
+    );
+    expect(html).toMatch(/data-testid="screen-account"[^>]*style="/);
+    expect(html).not.toMatch(
+      /data-testid="screen-account"[^>]*display:none/
+    );
+    expect(html).not.toMatch(
+      /data-testid="screen-account"[^>]*aria-hidden="true"/
+    );
+  });
+
+  it('hides RNSScreen when activityState is 0 (inactive tab)', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSScreen',
+      props: {
+        activityState: 0,
+        testID: 'tab-spaces',
+        style: { flex: 1 },
+      },
+      children: [{ type: 'View', props: {}, children: ['Spaces'] }],
+    });
+    expect(html).toMatch(/data-testid="tab-spaces"[^>]*aria-hidden="true"/);
+    expect(html).toMatch(
+      /data-testid="tab-spaces"[^>]*style="[^"]*display:none/
+    );
+  });
 });

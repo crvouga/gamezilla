@@ -5,15 +5,13 @@
  */
 
 import path from 'node:path';
-import {
-  clearInterval as nodeClearInterval,
-  clearTimeout as nodeClearTimeout,
-  setInterval as nodeSetInterval,
-  setTimeout as nodeSetTimeout,
-} from 'node:timers';
 import { createApiApp } from '@apps/api/app/create-app';
 import { loadBetterAuthBootConfig } from '@apps/api/config/better-auth-boot';
 import { setApiPubSubOverride } from '@apps/api/sync/api-pubsub';
+import {
+  ClientRootLayout,
+  clientUnstableSettings,
+} from '@apps/client/providers/client-root-layout';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import type { Clock, Timers } from '@pkgs/clock';
@@ -42,8 +40,10 @@ import { ExpoRoot } from 'expo-router';
 import 'expo-router/testing-library';
 import { createElement } from 'react';
 
+import '@apps/client/i18n/i18n';
+
 import {
-  bootPgMem,
+  bootMigratedPgMem,
   PG_MEM_DATABASE_URL,
   type PgMemHandle,
 } from './boot-pg-mem';
@@ -53,8 +53,12 @@ import {
   SIM_API_URL,
   SIM_BETTER_AUTH_SECRET,
 } from './migrate-sim-db';
-import { createActorClientSeams, createActorIo } from './sim-actor-overrides';
-import { SimRootLayout, simUnstableSettings } from './sim-root';
+import {
+  createActorClientSeams,
+  createActorIo,
+  simNodeTimers,
+} from './sim-actor-overrides';
+import { createSimTiming, type SimTiming } from './sim-timing';
 
 /** Absolute path to the real Expo Router `app/` tree. */
 const CLIENT_APP_DIR = path.resolve(
@@ -67,23 +71,7 @@ type SimBackend = {
   readonly pgMem: PgMemHandle;
   readonly restoreGlobalFetch: () => void;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-};
-
-/**
- * Jest-immune wall timers for the sim harness. `wallTimers` uses
- * `globalThis.setTimeout`, which Jest fakes after `renderRouter` — that
- * strands Better Auth session races (`EXISTING_SESSION_CHECK_MS`) and leaves
- * SignInModal on "Signing in…".
- */
-const simNodeTimers: Timers = {
-  setTimeout: (fn, ms) => nodeSetTimeout(fn, ms),
-  clearTimeout: (handle) => {
-    nodeClearTimeout(handle as ReturnType<typeof nodeSetTimeout>);
-  },
-  setInterval: (fn, ms) => nodeSetInterval(fn, ms),
-  clearInterval: (handle) => {
-    nodeClearInterval(handle as ReturnType<typeof nodeSetInterval>);
-  },
+  readonly timing: SimTiming;
 };
 
 const simWallClock: Clock = {
@@ -170,64 +158,87 @@ function createSimApiIo(base: SimIo): Io {
 }
 
 /** Boots pg-mem + migrates + mounts the in-process API, returning its HTTP. */
-async function bootSimBackend(io: SimIo): Promise<SimBackend> {
-  const pgMem = await bootPgMem();
-  const pubSubBus = createInMemoryBus();
+async function bootSimBackend(
+  io: SimIo,
+  timing: SimTiming
+): Promise<SimBackend> {
   const apiIo = createSimApiIo(io);
+  const pubSubBus = createInMemoryBus();
+
+  const pgMemStarted = wallClock.now();
+  const { handle: pgMem, didMigrate } = await bootMigratedPgMem(
+    async (handle) => {
+      await timing.time('boot.migrate', () =>
+        migrateSimDb({
+          sqlClient: handle.sqlClient,
+          pool: handle.pool,
+          io: apiIo,
+        })
+      );
+    }
+  );
+  if (!didMigrate) {
+    timing.mark('boot.migrate', 0);
+    timing.mark('boot.pgMem', wallClock.now() - pgMemStarted);
+  } else {
+    // Migrate owns first-boot DB cost; pgMem is connect/open only.
+    timing.mark('boot.pgMem', 1);
+  }
 
   try {
-    await migrateSimDb({
-      sqlClient: pgMem.sqlClient,
-      pool: pgMem.pool,
-      io: apiIo,
-    });
     const secretStore = createRecordSecretStore({
       BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
       DATABASE_URL: PG_MEM_DATABASE_URL,
       API_URL: SIM_API_URL,
     });
-    const betterAuth = await loadBetterAuthBootConfig({
-      secretStore,
-      apiUrlOverride: SIM_API_URL,
-      secretsEnv: 'dev',
-    });
-    const app = await createApiApp({
-      io: apiIo,
-      secretStore,
-      betterAuth,
-      dbScope: appPostgresDbScope(),
-      databaseUrlOverride: PG_MEM_DATABASE_URL,
-      apiUrlOverride: SIM_API_URL,
-      openRequestDb: pgMem.openRequestDb,
-      secretsEnv: 'dev',
-      objectStore: new ObjectStoreImplInMemory(),
-      observability: createNoopObservability('sim-api'),
-      stripe: createInMemoryStripe({ baseUrl: SIM_API_URL }),
-      llmProvider: new InMemoryLlmProvider(),
-      ttsProvider: new InMemoryTtsProvider(),
-      pubSub: createInMemoryPublishOnlyPubSub(pubSubBus),
-    });
+    const betterAuth = await timing.time('boot.betterAuth', () =>
+      loadBetterAuthBootConfig({
+        secretStore,
+        apiUrlOverride: SIM_API_URL,
+        secretsEnv: 'dev',
+      })
+    );
+    const app = await timing.time('boot.createApi', () =>
+      createApiApp({
+        io: apiIo,
+        secretStore,
+        betterAuth,
+        dbScope: appPostgresDbScope(),
+        databaseUrlOverride: PG_MEM_DATABASE_URL,
+        apiUrlOverride: SIM_API_URL,
+        openRequestDb: pgMem.openRequestDb,
+        secretsEnv: 'dev',
+        objectStore: new ObjectStoreImplInMemory(),
+        observability: createNoopObservability('sim-api'),
+        stripe: createInMemoryStripe({ baseUrl: SIM_API_URL }),
+        llmProvider: new InMemoryLlmProvider(),
+        ttsProvider: new InMemoryTtsProvider(),
+        pubSub: createInMemoryPublishOnlyPubSub(pubSubBus),
+      })
+    );
     const rawHttp = createHonoHttpClient({ app, origin: SIM_API_URL });
     // Warm client_config materialize outside React so the first AuthBridge
     // request does not enter the upsert transaction (hangs under Jest+RNTL).
-    const warm = await rawHttp.fetch(
-      `${SIM_API_URL}/api/identity/anon/ensure`,
-      {
-        method: 'POST',
-        headers: {
-          'x-anon-id': '00000000-0000-4000-8000-0000000000aa',
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ forceNew: false }),
-      }
-    );
-    if (!warm.ok) {
-      throw new Error(
-        `sim warm anon/ensure failed: ${warm.status} ${await warm.text()}`
+    await timing.time('boot.warm', async () => {
+      const warm = await rawHttp.fetch(
+        `${SIM_API_URL}/api/identity/anon/ensure`,
+        {
+          method: 'POST',
+          headers: {
+            'x-anon-id': '00000000-0000-4000-8000-0000000000aa',
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ forceNew: false }),
+        }
       );
-    }
-    await warm.text();
+      if (!warm.ok) {
+        throw new Error(
+          `sim warm anon/ensure failed: ${warm.status} ${await warm.text()}`
+        );
+      }
+      await warm.text();
+    });
     const http = createSerializedHttp(rawHttp);
     const restoreGlobalFetch = installSimGlobalFetch(http);
     return {
@@ -235,6 +246,7 @@ async function bootSimBackend(io: SimIo): Promise<SimBackend> {
       pgMem,
       restoreGlobalFetch,
       pubSubBus,
+      timing,
     };
   } catch (error) {
     await pgMem.stop();
@@ -289,10 +301,21 @@ const driverWait: {
 /** Home surface — Account is reached via Status bar (user-visible). */
 const INITIAL_PATH = '/';
 
+/**
+ * Neutered once for the process: expo-router's renderRouter always calls
+ * jest.useFakeTimers(), which strands in-process Hono + pg-mem.
+ */
+function neuterJestFakeTimers(): void {
+  jest.useFakeTimers = ((..._args: unknown[]) =>
+    jest) as typeof jest.useFakeTimers;
+  jest.useRealTimers();
+}
+
 function createActorSession(
   io: SimIo,
   http: HttpClient,
-  pubSubBus: ReturnType<typeof createInMemoryBus>
+  pubSubBus: ReturnType<typeof createInMemoryBus>,
+  timing: SimTiming
 ): InProcessSimulationSession {
   const actorIo = createActorIo(io, http);
   const { overrides } = createActorClientSeams({
@@ -304,45 +327,40 @@ function createActorSession(
     driverWait,
     harness: {
       async mount() {
-        // expo-router's renderRouter always calls jest.useFakeTimers(). That
-        // breaks in-process Hono + pg-mem (query completions / AuthBridge
-        // ensureAnon hang once timers are faked). Keep the noop for the
-        // actor lifetime — product Io uses node:timers anyway.
-        jest.useFakeTimers = ((..._args: unknown[]) =>
-          jest) as typeof jest.useFakeTimers;
-        jest.useRealTimers();
-        // Full product `app/` filesystem context; only root `_layout` is
-        // replaced for sim Io / AppOverrides. Never stub individual screens.
-        process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
-        const context = createClientAppRouterContext(CLIENT_APP_DIR, {
-          default: () =>
-            createElement(SimRootLayout, {
-              io: actorIo,
-              overrides,
-            }),
-          unstable_settings: simUnstableSettings,
+        return timing.time('mount', async () => {
+          neuterJestFakeTimers();
+          // Full product `app/` filesystem context; only root `_layout` is
+          // replaced for sim Io / AppOverrides. Never stub individual screens.
+          process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
+          const context = createClientAppRouterContext(CLIENT_APP_DIR, {
+            default: () =>
+              createElement(ClientRootLayout, {
+                io: actorIo,
+                overrides,
+              }),
+            unstable_settings: clientUnstableSettings,
+          });
+          const result = render(
+            createElement(ExpoRoot, {
+              context,
+              location: INITIAL_PATH,
+            })
+          );
+          jest.useRealTimers();
+          // Let AuthBridge / sync microtasks land, then flush RNTL so local
+          // SQL watches (e.g. client_config → email sign-in) commit.
+          await act(async () => {
+            await Promise.resolve();
+          });
+          await new Promise<void>((resolve) => {
+            simNodeTimers.setTimeout(resolve, 0);
+          });
+          await act(async () => {
+            await Promise.resolve();
+          });
+          jest.useRealTimers();
+          return wrapRenderedApp(createRenderedAppFromRntl(result));
         });
-        const result = render(
-          createElement(ExpoRoot, {
-            context,
-            location: INITIAL_PATH,
-          })
-        );
-        jest.useRealTimers();
-        // Let AuthBridge / sync microtasks and macrotasks land, then flush
-        // RNTL so local SQL watches (e.g. client_config → email sign-in)
-        // commit before the scenario starts polling.
-        await act(async () => {
-          await Promise.resolve();
-        });
-        await new Promise<void>((resolve) => {
-          simNodeTimers.setTimeout(resolve, 0);
-        });
-        await act(async () => {
-          await Promise.resolve();
-        });
-        jest.useRealTimers();
-        return wrapRenderedApp(createRenderedAppFromRntl(result));
       },
     },
     async dispose() {
@@ -362,12 +380,19 @@ export class ClientSimulationSystem implements SimulationSystem {
         'ClientSimulationSystem: only ui: in-process is supported'
       );
     }
-    const backend = await bootSimBackend(ctx.io);
+    const timing = createSimTiming();
+    const backend = await bootSimBackend(ctx.io, timing);
     return {
       async createSession(_actorId: string) {
-        return createActorSession(ctx.io, backend.http, backend.pubSubBus);
+        return createActorSession(
+          ctx.io,
+          backend.http,
+          backend.pubSubBus,
+          timing
+        );
       },
       async dispose() {
+        timing.finish('client-sim');
         backend.restoreGlobalFetch();
         setApiPubSubOverride(undefined);
         await backend.pgMem.stop();

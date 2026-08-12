@@ -30,14 +30,14 @@ describe('InProcessDriver', () => {
     await driver.expectVisible(by.role('button', 'Submit'));
     await driver.expectVisible(by.text('Sign in'));
 
-    await driver.typeText(by.testId('email'), 'ada@example.com');
-    await driver.typeText(by.label('Password'), 'secret');
+    await driver.input(by.testId('email'), 'ada@example.com');
+    await driver.input(by.label('Password'), 'secret');
     await driver.expectText(by.testId('email'), 'ada@example.com');
 
-    await driver.clearText(by.testId('email'));
+    await driver.clear(by.testId('email'));
     await driver.expectText(by.testId('email'), '');
 
-    await driver.typeText(by.testId('email'), 'ada@example.com');
+    await driver.input(by.testId('email'), 'ada@example.com');
     await driver.tap(by.testId('submit'));
 
     await driver.expectVisible(by.testId('home'));
@@ -69,15 +69,13 @@ describe('InProcessDriver', () => {
   it('throws NotImplementedError for navigateBack', async () => {
     driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
-    await expect(driver.navigateBack()).rejects.toBeInstanceOf(
-      NotImplementedError
-    );
+    await expect(driver.back()).rejects.toBeInstanceOf(NotImplementedError);
   });
 
   it('pressKey does not throw when focus is on an input', async () => {
     driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.tap(by.testId('email'));
-    await driver.pressKey('tab');
+    await driver.key('tab');
   });
 });

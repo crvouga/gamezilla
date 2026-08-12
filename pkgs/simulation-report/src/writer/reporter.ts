@@ -15,6 +15,7 @@ import type {
 import {
   DEFAULT_FRAME_INTERVAL_MS,
   DEFAULT_MAX_FRAMES_PER_STEP,
+  DEFAULT_PUBLISH_THROTTLE_MS,
   sanitizeRunId,
   sanitizeTestId,
 } from '../types';
@@ -48,6 +49,7 @@ export type SimulationReporterOptions = {
   readonly now: () => number;
   readonly frameIntervalMs?: number;
   readonly maxFramesPerStep?: number;
+  readonly publishThrottleMs?: number;
   readonly sourceFile?: string;
 };
 
@@ -94,6 +96,7 @@ export class SimulationReporter {
   private readonly now: () => number;
   private readonly frameIntervalMs: number;
   private readonly maxFramesPerStep: number;
+  private readonly publishThrottleMs: number;
   private readonly startedAtMs: number;
   private readonly sourceFile: string | undefined;
   private readonly steps: SimulationStep[] = [];
@@ -103,6 +106,8 @@ export class SimulationReporter {
   private frameSeq = 0;
   private flushed = false;
   private reportPath: string | undefined;
+  private lastPublishAtMs = 0;
+  private shellCssWritten = false;
 
   constructor(options: SimulationReporterOptions) {
     this.seed = options.seed;
@@ -114,6 +119,8 @@ export class SimulationReporter {
     this.frameIntervalMs = options.frameIntervalMs ?? DEFAULT_FRAME_INTERVAL_MS;
     this.maxFramesPerStep =
       options.maxFramesPerStep ?? DEFAULT_MAX_FRAMES_PER_STEP;
+    this.publishThrottleMs =
+      options.publishThrottleMs ?? DEFAULT_PUBLISH_THROTTLE_MS;
     this.sourceFile = options.sourceFile;
     this.startedAtMs = options.now();
   }
@@ -136,10 +143,11 @@ export class SimulationReporter {
     const startedAtMs = this.now();
     const outcome = await this.runRecorded(args);
     this.pushStep(args, startedAtMs, this.now(), outcome);
-    await this.publishProgress();
     if (outcome.cause !== undefined) {
+      await this.publishProgress();
       throw outcome.cause;
     }
+    await this.maybePublishProgress();
   }
 
   /**
@@ -174,19 +182,34 @@ export class SimulationReporter {
    * Write partial (or final) steps/manifest/index + bump generation so SSE
    * watchers update the SPA mid-run.
    */
+  private async maybePublishProgress(): Promise<void> {
+    const now = this.now();
+    if (
+      this.lastPublishAtMs > 0 &&
+      now - this.lastPublishAtMs < this.publishThrottleMs
+    ) {
+      return;
+    }
+    await this.publishProgress();
+  }
+
   private async publishProgress(opts?: {
     readonly final?: boolean;
   }): Promise<SimulationReportData> {
     const endedAtMs = this.now();
+    this.lastPublishAtMs = endedAtMs;
     const steps = assignFrameDurations(this.steps);
     const data = this.toData(endedAtMs, steps);
 
-    await storePutText(
-      this.store,
-      snapshotShellKey(this.runId),
-      SNAPSHOT_SHELL_CSS,
-      'text/css; charset=utf-8'
-    );
+    if (!this.shellCssWritten || opts?.final) {
+      await storePutText(
+        this.store,
+        snapshotShellKey(this.runId),
+        SNAPSHOT_SHELL_CSS,
+        'text/css; charset=utf-8'
+      );
+      this.shellCssWritten = true;
+    }
 
     const finalData: SimulationReportData = {
       meta: data.meta,

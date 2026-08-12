@@ -5,9 +5,9 @@ import type { Selector } from '../selector/selector';
 
 export type AssertionOptions = WaitPollOptions;
 
-/** waitFor + getText only — do not import {@link Driver} (circular). */
+/** wait + getText only — do not import {@link Driver} (circular). */
 type ExpectHost = {
-  waitFor(
+  wait(
     target: Selector,
     state: 'visible' | 'hidden',
     options?: WaitPollOptions
@@ -21,7 +21,7 @@ export async function runExpectVisible(
   target: Selector,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.waitFor(target, 'visible', {
+  await driver.wait(target, 'visible', {
     ...options,
     description: options?.description ?? `visible ${formatSelector(target)}`,
   });
@@ -32,7 +32,7 @@ export async function runExpectHidden(
   target: Selector,
   options?: AssertionOptions
 ): Promise<void> {
-  await driver.waitFor(target, 'hidden', {
+  await driver.wait(target, 'hidden', {
     ...options,
     description: options?.description ?? `hidden ${formatSelector(target)}`,
   });
@@ -49,7 +49,7 @@ export async function runExpectText(
     options?.description ??
     `text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}`;
 
-  await driver.waitFor(target, 'visible', { ...options, description });
+  await driver.wait(target, 'visible', { ...options, description });
 
   const actual = await driver.getText(target);
   const matches = exact

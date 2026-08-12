@@ -90,17 +90,17 @@ export class InProcessDriver<TContext = void> implements Driver {
     await this.requireApp().tapAt(await this.requireElement(target), position);
   }
 
-  async typeText(target: Selector, text: string): Promise<void> {
+  async input(target: Selector, text: string): Promise<void> {
     await this.activate();
     await this.requireApp().typeText(await this.requireElement(target), text);
   }
 
-  async clearText(target: Selector): Promise<void> {
+  async clear(target: Selector): Promise<void> {
     await this.activate();
     await this.requireApp().clearText(await this.requireElement(target));
   }
 
-  async pressKey(key: DriverKey): Promise<void> {
+  async key(key: DriverKey): Promise<void> {
     await this.activate();
     await this.requireApp().pressKey(DRIVER_KEY_TO_DOM[key]);
   }
@@ -118,7 +118,7 @@ export class InProcessDriver<TContext = void> implements Driver {
     );
   }
 
-  async navigateBack(): Promise<void> {
+  async back(): Promise<void> {
     throw new NotImplementedError(
       this.kind,
       'navigateBack',
@@ -126,7 +126,7 @@ export class InProcessDriver<TContext = void> implements Driver {
     );
   }
 
-  async waitFor(
+  async wait(
     target: Selector,
     state: WaitState,
     options?: WaitPollOptions

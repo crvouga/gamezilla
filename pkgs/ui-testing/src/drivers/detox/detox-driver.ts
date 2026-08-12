@@ -72,15 +72,15 @@ export class DetoxDriver implements Driver {
     this.unsupported('tapAt', 'element(matcher).tap({ x, y })');
   }
 
-  async typeText(_target: Selector, _text: string): Promise<void> {
+  async input(_target: Selector, _text: string): Promise<void> {
     this.unsupported('typeText', 'element(matcher).typeText(text)');
   }
 
-  async clearText(_target: Selector): Promise<void> {
+  async clear(_target: Selector): Promise<void> {
     this.unsupported('clearText', 'element(matcher).clearText()');
   }
 
-  async pressKey(_key: DriverKey): Promise<void> {
+  async key(_key: DriverKey): Promise<void> {
     this.unsupported('pressKey', 'platform key APIs / device.pressBack()');
   }
 
@@ -92,11 +92,11 @@ export class DetoxDriver implements Driver {
     this.unsupported('scroll', 'element(matcher).scroll(amount, direction)');
   }
 
-  async navigateBack(): Promise<void> {
+  async back(): Promise<void> {
     this.unsupported('navigateBack', 'device.pressBack()');
   }
 
-  async waitFor(
+  async wait(
     _target: Selector,
     _state: WaitState,
     _options?: WaitPollOptions

@@ -124,13 +124,18 @@ export type SimulationReportOptions = {
   readonly now?: () => number;
   /**
    * Interval for change-gated frame polling during `waitFor` / `step`.
-   * Default 100.
+   * Default 250.
    */
   readonly frameIntervalMs?: number;
   /**
-   * Max frames kept per step (change-gated). Default 50.
+   * Max frames kept per step (change-gated). Default 1.
    */
   readonly maxFramesPerStep?: number;
+  /**
+   * Min gap between mid-run `publishProgress` writes. Default 250.
+   * Flush / failure always publish immediately.
+   */
+  readonly publishThrottleMs?: number;
   /**
    * Repo-relative path to the test source file. Default: Jest `testPath`
    * when available.
@@ -138,8 +143,10 @@ export type SimulationReportOptions = {
   readonly sourceFile?: string;
 };
 
-export const DEFAULT_FRAME_INTERVAL_MS = 100;
-export const DEFAULT_MAX_FRAMES_PER_STEP = 50;
+export const DEFAULT_FRAME_INTERVAL_MS = 250;
+export const DEFAULT_MAX_FRAMES_PER_STEP = 1;
+/** Coalesce mid-run steps/manifest rewrites so SSE stays live without FS spam. */
+export const DEFAULT_PUBLISH_THROTTLE_MS = 250;
 export const DEFAULT_REPORT_SERVER_PORT = 7789;
 
 export function resolveReportOptions(
@@ -159,6 +166,9 @@ export function resolveReportOptions(
       : {}),
     ...(report.maxFramesPerStep !== undefined
       ? { maxFramesPerStep: report.maxFramesPerStep }
+      : {}),
+    ...(report.publishThrottleMs !== undefined
+      ? { publishThrottleMs: report.publishThrottleMs }
       : {}),
     ...(report.sourceFile !== undefined
       ? { sourceFile: report.sourceFile }

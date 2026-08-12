@@ -77,23 +77,23 @@ describe('PlaywrightDriver', () => {
     await driver.tap(by.first(by.role('heading', 'Spaces')));
     expect(locator.nth).toHaveBeenCalledWith(0);
 
-    await driver.typeText(by.label('Email'), 'a@b.c');
+    await driver.input(by.label('Email'), 'a@b.c');
     expect(page.getByLabel).toHaveBeenCalledWith('Email');
     expect(locator.pressSequentially).toHaveBeenCalledWith('a@b.c');
 
-    await driver.clearText(by.testId('email'));
+    await driver.clear(by.testId('email'));
     expect(locator.fill).toHaveBeenCalledWith('');
 
-    await driver.pressKey('enter');
+    await driver.key('enter');
     expect(page.keyboard.press).toHaveBeenCalledWith('Enter');
 
     await driver.scroll(by.testId('list'), 'down', 50);
     expect(locator.evaluate).toHaveBeenCalled();
 
-    await driver.navigateBack();
+    await driver.back();
     expect(page.goBack).toHaveBeenCalled();
 
-    await driver.waitFor(by.role('button', 'Go'), 'visible');
+    await driver.wait(by.role('button', 'Go'), 'visible');
     expect(page.getByRole).toHaveBeenCalledWith('button', { name: 'Go' });
     expect(locator.waitFor).toHaveBeenCalledWith({ state: 'visible' });
 

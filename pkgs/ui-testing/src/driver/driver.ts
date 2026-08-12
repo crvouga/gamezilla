@@ -40,13 +40,13 @@ export interface Driver {
   tapAt(target: Selector, position: TapPosition): Promise<void>;
 
   /** Type `text` into the element matching `target` (appends by default). */
-  typeText(target: Selector, text: string): Promise<void>;
+  input(target: Selector, text: string): Promise<void>;
 
   /** Clear the current value of the element matching `target`. */
-  clearText(target: Selector): Promise<void>;
+  clear(target: Selector): Promise<void>;
 
   /** Press a portable key (enter, escape, …). */
-  pressKey(key: DriverKey): Promise<void>;
+  key(key: DriverKey): Promise<void>;
 
   /**
    * Scroll within (or toward) the element matching `target`.
@@ -62,10 +62,10 @@ export interface Driver {
    * Navigate back. Web drivers use history; native drivers use the platform
    * back gesture / button. In-process drivers may require harness cooperation.
    */
-  navigateBack(): Promise<void>;
+  back(): Promise<void>;
 
   /** Poll until `target` reaches `state`, or throw {@link TimeoutError}. */
-  waitFor(
+  wait(
     target: Selector,
     state: WaitState,
     options?: WaitPollOptions

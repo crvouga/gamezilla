@@ -1,12 +1,10 @@
 /**
- * Sim-safe root layout for the full `@apps/client` Expo Router tree.
+ * Shared Expo Router root composition for production and DST harness.
  *
- * Uses the real `app/` filesystem via `renderRouter({ appDir, overrides })`
- * and only replaces `_layout` so we can inject {@link Io} + {@link AppOverrides}
- * without Sentry.wrap / polyfill-entry wallIo.
+ * Production `app/_layout.tsx` wraps this with polyfill / Sentry.
+ * Sims inject {@link Io} + {@link AppOverrides} and never load polyfill-entry.
  */
 
-import '@apps/client/i18n/i18n';
 import type { AppOverrides } from '@apps/client/providers/app-overrides';
 import { AppProviders } from '@apps/client/providers/app-providers';
 import { AppIoProvider } from '@apps/client/providers/infrastructure/app-io-provider';
@@ -16,12 +14,12 @@ import { useStackProps } from '@pkgs/ui';
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
 
-/** Matches production `app/_layout.tsx` `unstable_settings`. */
-export const simUnstableSettings = {
+/** Matches Expo Router `unstable_settings` on the root layout. */
+export const clientUnstableSettings = {
   anchor: '(tabs)',
 } as const;
 
-function AppStack(): ReactNode {
+export function AppStack(): ReactNode {
   const props = useStackProps();
   return (
     <Stack {...props}>
@@ -42,12 +40,12 @@ function AppStack(): ReactNode {
 }
 
 /**
- * Production-shaped root layout with sim composition seams.
- * Loaded as the `./_layout.tsx` override over the real app directory.
+ * Provider + stack shell. Pass `io` / `overrides` from simulations; omit for
+ * production (defaults to wall Io and empty overrides).
  */
-export function SimRootLayout(props: {
-  readonly io: Io;
-  readonly overrides: AppOverrides;
+export function ClientRootLayout(props: {
+  readonly io?: Io;
+  readonly overrides?: AppOverrides;
 }): ReactNode {
   return (
     <AppIoProvider io={props.io}>

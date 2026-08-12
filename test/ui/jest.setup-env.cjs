@@ -3,6 +3,26 @@
  * RN getDevServer() needs a non-null scriptURL for Expo / expo-router.
  */
 
+// jest-expo / RN env often lacks ERM well-known symbols. Without these,
+// `async [Symbol.asyncDispose]()` keys under `undefined` while Babel's
+// `usingCtx` looks up `Symbol.for('Symbol.asyncDispose')` → not disposable.
+if (typeof Symbol.dispose !== 'symbol') {
+  Object.defineProperty(Symbol, 'dispose', {
+    value: Symbol.for('Symbol.dispose'),
+    configurable: true,
+    enumerable: false,
+    writable: false,
+  });
+}
+if (typeof Symbol.asyncDispose !== 'symbol') {
+  Object.defineProperty(Symbol, 'asyncDispose', {
+    value: Symbol.for('Symbol.asyncDispose'),
+    configurable: true,
+    enumerable: false,
+    writable: false,
+  });
+}
+
 // Drop debug/info/warn JSON from `@pkgs/logger` so Jest does not wrap every
 // line with a stack dump. Error still prints when a sim actually fails.
 require('@pkgs/logger').setDefaultLogLevel('error');
@@ -73,6 +93,13 @@ try {
   require('react-native-gesture-handler/jestSetup');
 } catch {
   // Optional: package may not expose jestSetup in every install layout.
+}
+
+// Fabric detection makes RNGH call native `install()` during RootView render.
+try {
+  delete global.nativeFabricUIManager;
+} catch {
+  // ignore
 }
 
 // Worklets Jest prerequisite (Reanimated testing guide). Catalog is 0.7.4 —

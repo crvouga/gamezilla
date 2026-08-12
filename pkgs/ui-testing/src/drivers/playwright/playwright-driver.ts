@@ -67,15 +67,15 @@ export class PlaywrightDriver implements Driver {
     });
   }
 
-  async typeText(target: Selector, text: string): Promise<void> {
+  async input(target: Selector, text: string): Promise<void> {
     await this.locator(target).pressSequentially(text);
   }
 
-  async clearText(target: Selector): Promise<void> {
+  async clear(target: Selector): Promise<void> {
     await this.locator(target).fill('');
   }
 
-  async pressKey(key: DriverKey): Promise<void> {
+  async key(key: DriverKey): Promise<void> {
     await this.page.keyboard.press(DRIVER_KEY_TO_DOM[key]);
   }
 
@@ -90,11 +90,11 @@ export class PlaywrightDriver implements Driver {
     }, delta);
   }
 
-  async navigateBack(): Promise<void> {
+  async back(): Promise<void> {
     await this.page.goBack();
   }
 
-  async waitFor(
+  async wait(
     target: Selector,
     state: WaitState,
     options?: WaitPollOptions
