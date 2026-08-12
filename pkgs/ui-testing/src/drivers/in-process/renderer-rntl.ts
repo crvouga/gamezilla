@@ -198,10 +198,19 @@ function styleHides(style: unknown): boolean {
     if (entry == null || typeof entry !== 'object') continue;
     const record = entry as Record<string, unknown>;
     if (record['display'] === 'none') return true;
-    if (record['opacity'] === 0) return true;
+    if (styleOpacity(record['opacity']) === 0) return true;
     if (record['width'] === 0 && record['height'] === 0) return true;
   }
   return false;
+}
+
+/** Resolve RN `Animated` nodes so opacity:0 is detected during fades. */
+function styleOpacity(value: unknown): number | undefined {
+  if (typeof value === 'number') return value;
+  if (value == null || typeof value !== 'object') return undefined;
+  if (!('__getValue' in value)) return undefined;
+  const raw = (value as { __getValue?: () => unknown }).__getValue?.();
+  return typeof raw === 'number' ? raw : undefined;
 }
 
 function readHostText(element: ReactTestInstance): string | null {

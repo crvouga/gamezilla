@@ -1,5 +1,10 @@
 /**
  * Keep modal chrome mounted through a short fade-out after `visible` goes false.
+ *
+ * Open is synchronous (opacity jumps to 1). Enter fades stall under Jest/RNTL
+ * when `requestAnimationFrame` / timer faking races with real async I/O — the
+ * surface stays at opacity 0, so role queries never see modal actions. Exit
+ * fade still softens dismiss.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -17,22 +22,17 @@ export function useModalPresence(visible: boolean): ModalPresence {
   const opacity = useRef(new Animated.Value(visible ? 1 : 0)).current;
   const [mounted, setMounted] = useState(visible);
 
-  // Open synchronously so the surface registers before paint.
+  // Open synchronously so the surface registers before paint at full opacity.
   if (visible && !mounted) {
     setMounted(true);
+    opacity.setValue(1);
   }
 
   useEffect(() => {
     if (visible) {
-      const anim = Animated.timing(opacity, {
-        toValue: 1,
-        duration: FADE_MS,
-        useNativeDriver: false,
-      });
-      anim.start();
-      return () => {
-        anim.stop();
-      };
+      // Re-open during an in-flight exit: cancel fade-out and show immediately.
+      opacity.setValue(1);
+      return;
     }
     const anim = Animated.timing(opacity, {
       toValue: 0,

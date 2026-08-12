@@ -11,7 +11,8 @@ module.exports = {
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-  testTimeout: 180_000,
+  // UI waits default to 10s (auth I/O up to 30s); keep headroom for boot.
+  testTimeout: 60_000,
   // Transform all node_modules so Bun-nested ESM (.mjs / "export") loads under Jest.
   // Skip better-sqlite3: native addon; Babel would break require of the .node binding.
   transformIgnorePatterns: ['/node_modules/.*/better-sqlite3/'],

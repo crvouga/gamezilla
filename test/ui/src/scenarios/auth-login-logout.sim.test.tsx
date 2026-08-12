@@ -33,11 +33,16 @@ function realNow(): number {
   return Date.now();
 }
 
+/** Default UI presence budget — fail fast; override only for slow I/O. */
+const UI_WAIT_MS = 10_000;
+/** Create-account / session round-trip can exceed the UI budget. */
+const AUTH_WAIT_MS = 30_000;
+
 async function waitVisible(
   sim: Simulation,
   driver: Driver,
   target: Selector,
-  timeoutMs = 90_000
+  timeoutMs = UI_WAIT_MS
 ): Promise<void> {
   await sim.step(`wait ${formatSelector(target)}`, async () => {
     const deadline = realNow() + timeoutMs;
@@ -57,9 +62,10 @@ async function waitVisible(
 async function tapWhenVisible(
   sim: Simulation,
   driver: Driver,
-  target: Selector
+  target: Selector,
+  timeoutMs = UI_WAIT_MS
 ): Promise<void> {
-  await waitVisible(sim, driver, target);
+  await waitVisible(sim, driver, target, timeoutMs);
   await driver.tap(target);
 }
 
@@ -100,21 +106,22 @@ describe('auth login → logout', () => {
       await alice.ui.typeText(by.label('Password'), 'sim-password-123');
       await tapWhenVisible(sim, alice.ui, by.role('button', 'Create account'));
 
-      await waitVisible(sim, alice.ui, by.text('Signed in'));
+      await waitVisible(sim, alice.ui, by.text('Signed in'), AUTH_WAIT_MS);
       await tapWhenVisible(sim, alice.ui, by.text('Done'));
 
       // Account row opens the confirm modal; modal submit is the 2nd Sign out button.
       await tapWhenVisible(sim, alice.ui, by.role('button', 'Sign out'));
+      await waitVisible(sim, alice.ui, by.text('Sign out?'));
       await tapWhenVisible(
         sim,
         alice.ui,
         nth(by.role('button', 'Sign out'), 1)
       );
 
-      await waitVisible(sim, alice.ui, by.text('Signed out'));
+      await waitVisible(sim, alice.ui, by.text('Signed out'), AUTH_WAIT_MS);
       expect(await alice.ui.isVisible(by.text('Signed out'))).toBe(true);
     } finally {
       await sim.dispose();
     }
-  }, 180_000);
+  }, 60_000);
 });
