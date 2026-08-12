@@ -1,22 +1,53 @@
 import { merge, t } from './theme-tokens';
 
 export const styles = {
-  suitePage: merge({
-    minHeight: '100%',
-    padding: '24px 28px 40px',
+  /** Full-viewport shell: shared chrome row + body. */
+  appShell: merge({
+    height: '100%',
+    display: 'grid',
+    gridTemplateRows: `${t.headerH}px 1fr`,
+    minHeight: 0,
   }),
-  suiteHeader: merge({
+  /** Fixed top bar — identical on buckets / runs / suite / player. */
+  appHeader: merge({
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: '10px 16px',
-    alignItems: 'baseline',
-    marginBottom: 20,
+    alignItems: 'center',
+    gap: 10,
+    padding: '0 12px',
+    borderBottom: `1px solid ${t.border}`,
+    background: t.panel,
+    minWidth: 0,
   }),
-  suiteH1: merge({
+  appHeaderTitle: merge({
     margin: 0,
-    fontSize: 18,
+    fontSize: 13,
     fontWeight: 600,
-    letterSpacing: '-0.02em',
+    letterSpacing: '-0.01em',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  }),
+  appHeaderTrailing: merge({
+    marginLeft: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    minWidth: 0,
+    flex: '0 0 auto',
+  }),
+  appHeaderKbd: merge({
+    flex: '0 0 auto',
+    color: t.muted,
+    border: `1px solid ${t.border}`,
+    padding: '2px 6px',
+    borderRadius: 2,
+    fontSize: 11,
+  }),
+  /** Scrollable body under the chrome (list / table screens). */
+  appBody: merge({
+    minHeight: 0,
+    overflow: 'auto',
+    padding: '24px 28px 40px',
   }),
   suiteTable: merge({
     width: '100%',
@@ -40,17 +71,16 @@ export const styles = {
   }),
   trHover: merge({ background: t.panel2, cursor: 'pointer' }),
   trBase: merge({ cursor: 'pointer' }),
-  meta: merge({ color: t.muted, fontSize: 12 }),
+  meta: merge({
+    color: t.muted,
+    fontSize: 12,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    minWidth: 0,
+  }),
   empty: merge({ color: t.muted, padding: 24 }),
   testId: merge({ fontWeight: 600, color: t.accent }),
-  kbdHint: merge({
-    marginLeft: 'auto',
-    color: t.muted,
-    border: `1px solid ${t.border}`,
-    padding: '2px 6px',
-    borderRadius: 2,
-    fontSize: 11,
-  }),
   badge: merge({
     display: 'inline-flex',
     alignItems: 'center',
@@ -61,6 +91,7 @@ export const styles = {
     letterSpacing: '0.04em',
     border: `1px solid ${t.border}`,
     background: t.panel,
+    flex: '0 0 auto',
   }),
   badgePassed: merge({
     color: t.pass,
@@ -81,6 +112,7 @@ export const styles = {
     borderRadius: t.radius,
     cursor: 'pointer',
     font: 'inherit',
+    flex: '0 0 auto',
   }),
   backHover: merge({ background: t.controlHover }),
   btn: merge({
@@ -110,43 +142,6 @@ export const styles = {
     font: 'inherit',
     color: 'inherit',
     marginLeft: 8,
-  }),
-  testPage: merge({
-    height: '100%',
-    display: 'grid',
-    gridTemplateRows: `${t.headerH}px 1fr`,
-    minHeight: 0,
-  }),
-  testHeader: merge({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '0 12px',
-    borderBottom: `1px solid ${t.border}`,
-    background: t.panel,
-    minWidth: 0,
-  }),
-  testHeaderH1: merge({
-    margin: 0,
-    fontSize: 13,
-    fontWeight: 600,
-    textTransform: 'lowercase',
-    letterSpacing: '0.08em',
-    color: t.muted,
-  }),
-  headerTransport: merge({
-    marginLeft: 'auto',
-    minWidth: 0,
-    flex: '0 0 auto',
-  }),
-  headerKbd: merge({
-    marginLeft: 0,
-    flex: '0 0 auto',
-    color: t.muted,
-    border: `1px solid ${t.border}`,
-    padding: '2px 6px',
-    borderRadius: 2,
-    fontSize: 11,
   }),
   playerLayout: merge({
     display: 'grid',

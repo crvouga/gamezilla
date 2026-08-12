@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { RunSummary } from '../types';
 import { useRegisterCommands } from './commands/registry';
 import type { Command } from './commands/types';
+import { ReportHeader } from './report-header';
 import { HoverRow } from './suite-page';
 import { badgeStyle, merge, styles, useHoverStyle } from './theme';
 
@@ -54,47 +55,47 @@ export function RunsPage(props: {
   const latest = useHoverStyle(styles.btn, styles.btnHover);
 
   return (
-    <div style={styles.suitePage}>
-      <RunsHeader
-        bucketId={bucketId}
-        bucketLabel={bucketLabel}
-        runCount={runs.length}
-        generation={generation}
-        onBack={onBack}
+    <div style={styles.appShell}>
+      <ReportHeader
+        back={{ label: '← Buckets', onClick: onBack }}
+        title={bucketLabel}
+        meta={`${bucketId} · ${runs.length} run${runs.length === 1 ? '' : 's'} · gen ${generation}`}
       />
-      <div style={styles.pruneBar}>
-        <button
-          type="button"
-          style={merge(latest.style, styles.btn, {
-            borderColor: '#3a547a',
-            background: '#1a2333',
-            color: '#82aaff',
-          })}
-          onMouseEnter={latest.onMouseEnter}
-          onMouseLeave={latest.onMouseLeave}
-          onClick={onOpenLatest}
-        >
-          Open latest run
-        </button>
+      <div style={styles.appBody}>
+        <div style={styles.pruneBar}>
+          <button
+            type="button"
+            style={merge(latest.style, styles.btn, {
+              borderColor: '#3a547a',
+              background: '#1a2333',
+              color: '#82aaff',
+            })}
+            onMouseEnter={latest.onMouseEnter}
+            onMouseLeave={latest.onMouseLeave}
+            onClick={onOpenLatest}
+          >
+            Open latest run
+          </button>
+        </div>
+        <PruneBar
+          keepLast={keepLast}
+          busy={busy}
+          onKeepLastChange={setKeepLast}
+          onPrune={() => {
+            setBusy(true);
+            void onKeepLast(keepLast).finally(() => setBusy(false));
+          }}
+        />
+        <RunsTable
+          runs={runs}
+          busy={busy}
+          onOpenRun={onOpenRun}
+          onDeleteRun={(runId) => {
+            setBusy(true);
+            void onDeleteRun(runId).finally(() => setBusy(false));
+          }}
+        />
       </div>
-      <PruneBar
-        keepLast={keepLast}
-        busy={busy}
-        onKeepLastChange={setKeepLast}
-        onPrune={() => {
-          setBusy(true);
-          void onKeepLast(keepLast).finally(() => setBusy(false));
-        }}
-      />
-      <RunsTable
-        runs={runs}
-        busy={busy}
-        onOpenRun={onOpenRun}
-        onDeleteRun={(runId) => {
-          setBusy(true);
-          void onDeleteRun(runId).finally(() => setBusy(false));
-        }}
-      />
     </div>
   );
 }
@@ -156,36 +157,6 @@ function useRunsCommands(args: {
     return list;
   }, [keepLast, onBack, onKeepLast, onOpenLatest, onOpenRun, runs, setBusy]);
   useRegisterCommands(commands);
-}
-
-function RunsHeader(props: {
-  readonly bucketId: string;
-  readonly bucketLabel: string;
-  readonly runCount: number;
-  readonly generation: number;
-  readonly onBack: () => void;
-}) {
-  const { bucketId, bucketLabel, runCount, generation, onBack } = props;
-  const back = useHoverStyle(styles.back, styles.backHover);
-  return (
-    <header style={styles.suiteHeader}>
-      <button
-        type="button"
-        style={back.style}
-        onClick={onBack}
-        onMouseEnter={back.onMouseEnter}
-        onMouseLeave={back.onMouseLeave}
-      >
-        ← Buckets
-      </button>
-      <h1 style={styles.suiteH1}>{bucketLabel}</h1>
-      <span style={styles.meta}>
-        {bucketId} · {runCount} run{runCount === 1 ? '' : 's'} · gen{' '}
-        {generation}
-      </span>
-      <span style={styles.kbdHint}>⌘K</span>
-    </header>
-  );
 }
 
 function PruneBar(props: {

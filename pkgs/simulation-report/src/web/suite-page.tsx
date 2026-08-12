@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import type { SuiteTestSummary } from '../types';
 import { formatMs } from './frames';
+import { ReportHeader } from './report-header';
 import { badgeStyle, merge, styles, useHoverStyle } from './theme';
 
 export function SuitePage(props: {
@@ -13,61 +14,50 @@ export function SuitePage(props: {
 }) {
   const { bucketId, runId, tests, onBack, onOpenTest } = props;
   const passed = tests.filter((t) => t.status === 'passed').length;
-  const back = useHoverStyle(styles.back, styles.backHover);
 
   return (
-    <div style={styles.suitePage}>
-      <header style={styles.suiteHeader}>
-        <button
-          type="button"
-          style={back.style}
-          onClick={onBack}
-          onMouseEnter={back.onMouseEnter}
-          onMouseLeave={back.onMouseLeave}
-        >
-          ← Runs
-        </button>
-        <h1 style={styles.suiteH1}>Run {runId}</h1>
-        <span style={styles.meta}>
-          {bucketId} · {tests.length} test{tests.length === 1 ? '' : 's'}
-          {tests.length ? ` · ${passed} passed` : ''}
-        </span>
-        <span style={styles.kbdHint}>⌘K</span>
-      </header>
-      <table style={styles.suiteTable}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Test</th>
-            <th style={styles.th}>Status</th>
-            <th style={styles.th}>Duration</th>
-            <th style={styles.th}>Steps</th>
-            <th style={styles.th}>Frames</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tests.length === 0 ? (
+    <div style={styles.appShell}>
+      <ReportHeader
+        back={{ label: '← Runs', onClick: onBack }}
+        title={`Run ${runId}`}
+        meta={`${bucketId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
+      />
+      <div style={styles.appBody}>
+        <table style={styles.suiteTable}>
+          <thead>
             <tr>
-              <td colSpan={5} style={styles.empty}>
-                No tests in this run yet.
-              </td>
+              <th style={styles.th}>Test</th>
+              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Duration</th>
+              <th style={styles.th}>Steps</th>
+              <th style={styles.th}>Frames</th>
             </tr>
-          ) : (
-            tests.map((t) => (
-              <HoverRow key={t.testId} onClick={() => onOpenTest(t.testId)}>
-                <td style={merge(styles.td, styles.testId)}>{t.testId}</td>
-                <td style={styles.td}>
-                  <span style={badgeStyle(t.status)}>
-                    {t.status.toUpperCase()}
-                  </span>
+          </thead>
+          <tbody>
+            {tests.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={styles.empty}>
+                  No tests in this run yet.
                 </td>
-                <td style={styles.td}>{formatMs(t.durationMs)}</td>
-                <td style={styles.td}>{t.stepCount}</td>
-                <td style={styles.td}>{t.frameCount}</td>
-              </HoverRow>
-            ))
-          )}
-        </tbody>
-      </table>
+              </tr>
+            ) : (
+              tests.map((t) => (
+                <HoverRow key={t.testId} onClick={() => onOpenTest(t.testId)}>
+                  <td style={merge(styles.td, styles.testId)}>{t.testId}</td>
+                  <td style={styles.td}>
+                    <span style={badgeStyle(t.status)}>
+                      {t.status.toUpperCase()}
+                    </span>
+                  </td>
+                  <td style={styles.td}>{formatMs(t.durationMs)}</td>
+                  <td style={styles.td}>{t.stepCount}</td>
+                  <td style={styles.td}>{t.frameCount}</td>
+                </HoverRow>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

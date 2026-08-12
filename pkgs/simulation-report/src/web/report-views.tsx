@@ -1,6 +1,7 @@
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import { deleteRunApi, pruneBucket } from './api-client';
 import { BucketPicker } from './bucket-picker';
+import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
 import { RunsPage } from './runs-page';
@@ -118,23 +119,43 @@ function TestOrLoading(props: {
   const { nav, data, concreteRunId, onNav } = props;
   if (!concreteRunId) {
     return (
-      <div style={styles.suitePage}>
-        <p style={styles.empty}>
-          {isLatestRunId(nav.runId)
-            ? 'Waiting for the latest run…'
-            : data.error
-              ? `Failed to resolve run: ${data.error}`
-              : 'Loading run…'}
-        </p>
+      <div style={styles.appShell}>
+        <ReportHeader
+          back={{
+            label: '← Run',
+            onClick: () => onNav(navigateReport(nav, clearPlayerNav())),
+          }}
+          title={nav.testId ?? 'test'}
+        />
+        <div style={styles.appBody}>
+          <p style={styles.empty}>
+            {isLatestRunId(nav.runId)
+              ? 'Waiting for the latest run…'
+              : data.error
+                ? `Failed to resolve run: ${data.error}`
+                : 'Loading run…'}
+          </p>
+        </div>
       </div>
     );
   }
   if (!data.testData) {
     return (
-      <div style={styles.suitePage}>
-        <p style={styles.empty}>
-          {data.error ? `Failed to load test: ${data.error}` : 'Loading test…'}
-        </p>
+      <div style={styles.appShell}>
+        <ReportHeader
+          back={{
+            label: '← Run',
+            onClick: () => onNav(navigateReport(nav, clearPlayerNav())),
+          }}
+          title={nav.testId ?? 'test'}
+        />
+        <div style={styles.appBody}>
+          <p style={styles.empty}>
+            {data.error
+              ? `Failed to load test: ${data.error}`
+              : 'Loading test…'}
+          </p>
+        </div>
       </div>
     );
   }

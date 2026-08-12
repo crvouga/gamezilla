@@ -1,11 +1,4 @@
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SimulationReportData } from '../types';
 import { testFrameUrl } from './api-client';
@@ -22,9 +15,10 @@ import {
 } from './frames';
 import { playbackHoldMs } from './playback-hold';
 import { PlayerStage } from './player-stage';
+import { ReportHeader } from './report-header';
 import type { PlayMode, PlaySpeed, ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
-import { badgeStyle, styles, useHoverStyle } from './theme';
+import { badgeStyle, styles } from './theme';
 import { Transport } from './transport';
 import { useHoldCountdown } from './use-hold-countdown';
 
@@ -172,43 +166,47 @@ function PlayerShell(props: {
     onHover,
   } = props;
   return (
-    <div style={styles.testPage}>
-      <PlayerHeader
-        data={data}
-        testId={testId}
-        frameCount={frames.length}
-        onBack={onBack}
-        copyPrompt={
-          <CopyLlmPromptButton
-            data={data}
-            bucketId={bucketId}
-            runId={runId}
-            selectedFrameIdx={selectedFrameIdx}
-            playheadIdx={playheadIdx}
-            previewIdx={previewIdx}
-            registerCopyAction={registerCopyAction}
-          />
+    <div style={styles.appShell}>
+      <ReportHeader
+        back={{ label: '← Run', onClick: onBack }}
+        title={testId}
+        badge={
+          <span style={badgeStyle(data.meta.status)}>
+            {data.meta.status.toUpperCase()}
+          </span>
         }
-        transport={
-          <Transport
-            compact
-            nav={nav}
-            frames={frames}
-            previewIdx={previewIdx}
-            previewDurationMs={previewFrame?.durationMs}
-            onTogglePlay={() => actions.setPlay(!nav.play)}
-            onPrev={() =>
-              actions.selectFrame(Math.max(0, previewIdx - 1), 'push')
-            }
-            onNext={() =>
-              actions.selectFrame(
-                Math.min(frames.length - 1, previewIdx + 1),
-                'push'
-              )
-            }
-            onMode={actions.setMode}
-            onSpeed={actions.setSpeed}
-          />
+        meta={`seed ${data.meta.seed} · ${frames.length}f · ${formatMs(data.meta.durationMs)}`}
+        end={
+          <>
+            <CopyLlmPromptButton
+              data={data}
+              bucketId={bucketId}
+              runId={runId}
+              selectedFrameIdx={selectedFrameIdx}
+              playheadIdx={playheadIdx}
+              previewIdx={previewIdx}
+              registerCopyAction={registerCopyAction}
+            />
+            <Transport
+              compact
+              nav={nav}
+              frames={frames}
+              previewIdx={previewIdx}
+              previewDurationMs={previewFrame?.durationMs}
+              onTogglePlay={() => actions.setPlay(!nav.play)}
+              onPrev={() =>
+                actions.selectFrame(Math.max(0, previewIdx - 1), 'push')
+              }
+              onNext={() =>
+                actions.selectFrame(
+                  Math.min(frames.length - 1, previewIdx + 1),
+                  'push'
+                )
+              }
+              onMode={actions.setMode}
+              onSpeed={actions.setSpeed}
+            />
+          </>
         }
       />
       <div style={styles.playerLayout}>
@@ -224,42 +222,6 @@ function PlayerShell(props: {
         <PlayerStage previewFrame={previewFrame} previewSrc={previewSrc} />
       </div>
     </div>
-  );
-}
-
-function PlayerHeader(props: {
-  readonly data: SimulationReportData;
-  readonly testId: string;
-  readonly frameCount: number;
-  readonly onBack: () => void;
-  readonly transport: ReactNode;
-  readonly copyPrompt: ReactNode;
-}) {
-  const { data, testId, frameCount, onBack, transport, copyPrompt } = props;
-  const back = useHoverStyle(styles.back, styles.backHover);
-  return (
-    <header style={styles.testHeader}>
-      <button
-        type="button"
-        style={back.style}
-        onClick={onBack}
-        onMouseEnter={back.onMouseEnter}
-        onMouseLeave={back.onMouseLeave}
-      >
-        ← Run
-      </button>
-      <h1 style={styles.testHeaderH1}>report</h1>
-      <span style={badgeStyle(data.meta.status)}>
-        {data.meta.status.toUpperCase()}
-      </span>
-      <span style={styles.meta}>
-        {testId} · seed {data.meta.seed} · {frameCount}f ·{' '}
-        {formatMs(data.meta.durationMs)}
-      </span>
-      {copyPrompt}
-      <div style={styles.headerTransport}>{transport}</div>
-      <span style={styles.headerKbd}>⌘K</span>
-    </header>
   );
 }
 
