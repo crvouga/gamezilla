@@ -84,25 +84,24 @@ describe('patchPreviewHtml', () => {
 });
 
 describe('durationHeat', () => {
-  test('maps absolute durations: cool under 500ms, warm near 1s, hot by a few seconds', () => {
-    const cool = durationHeat(17);
-    const midCool = durationHeat(500);
+  test('keeps sub-100ms flat cool; warms near 1s; hot by a few seconds', () => {
+    const instant = durationHeat(0);
+    const fast = durationHeat(13);
+    const stillCool = durationHeat(100);
     const warm = durationHeat(1000);
     const hot = durationHeat(3000);
-    expect(cool.t).toBeLessThan(midCool.t);
-    expect(midCool.t).toBeLessThan(warm.t);
-    expect(warm.t).toBeLessThan(hot.t);
-    expect(cool.t).toBeLessThan(0.25);
-    expect(midCool.t).toBeLessThanOrEqual(0.25);
+    expect(instant.t).toBe(0);
+    expect(fast.t).toBe(0);
+    expect(stillCool.t).toBe(0);
     expect(warm.t).toBeGreaterThan(0.4);
     expect(hot.t).toBe(1);
-    expect(cool.cssColor).toContain('hsl(');
+    expect(fast.cssColor).toBe(instant.cssColor);
     expect(hot.cssColor).toContain('hsl(');
   });
 
   test('does not scale relative to other frames', () => {
     // Fast steps stay cool even when they are the slowest in a tiny suite.
-    expect(durationHeat(13).t).toBeLessThan(0.1);
+    expect(durationHeat(13).t).toBe(0);
   });
 });
 
