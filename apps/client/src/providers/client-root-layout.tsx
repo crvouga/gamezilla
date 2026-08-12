@@ -48,9 +48,13 @@ export function ClientRootLayout(props: {
   readonly overrides?: AppOverrides;
 }): ReactNode {
   return (
-    <AppIoProvider io={props.io}>
+    <AppIoProvider {...(props.io !== undefined ? { io: props.io } : {})}>
       <RootErrorBoundary>
-        <AppProviders overrides={props.overrides}>
+        <AppProviders
+          {...(props.overrides !== undefined
+            ? { overrides: props.overrides }
+            : {})}
+        >
           <AppStack />
         </AppProviders>
       </RootErrorBoundary>

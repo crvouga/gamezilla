@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { Simulation } from '@pkgs/simulation';

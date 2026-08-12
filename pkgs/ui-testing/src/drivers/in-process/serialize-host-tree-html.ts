@@ -144,7 +144,7 @@ function serializeJson(
     props,
     opts.coveredByStack === true
   );
-  const attrs = buildAttrs(typeName, props, tag, ctx, hideScreen);
+  const attrs = buildAttrs({ typeName, props, tag, ctx, hideScreen });
   const childrenHtml = isRnScreenStackHost(typeName)
     ? serializeScreenStackChildren(node.children, ctx)
     : serializeJsonChildren(node.children, ctx);
@@ -246,13 +246,14 @@ function readDataSet(
   return ds as Record<string, string>;
 }
 
-function buildAttrs(
-  typeName: string,
-  props: Record<string, unknown>,
-  tag: string,
-  ctx: SerializeCtx,
-  hideScreen: boolean
-): string {
+function buildAttrs(args: {
+  readonly typeName: string;
+  readonly props: Record<string, unknown>;
+  readonly tag: string;
+  readonly ctx: SerializeCtx;
+  readonly hideScreen: boolean;
+}): string {
+  const { typeName, props, tag, ctx, hideScreen } = args;
   const dataSet = readDataSet(props);
   const component = dataSet?.['component'] ?? typeName;
   const parts: string[] = [` data-component="${escapeAttr(component)}"`];

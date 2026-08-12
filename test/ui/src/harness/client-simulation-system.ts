@@ -12,6 +12,7 @@ import {
   ClientRootLayout,
   clientUnstableSettings,
 } from '@apps/client/providers/client-root-layout';
+import { jest } from '@jest/globals';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import type { Clock, Timers } from '@pkgs/clock';

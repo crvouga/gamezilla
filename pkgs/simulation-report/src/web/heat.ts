@@ -39,6 +39,7 @@ function absoluteHeatT(durationMs: number): number {
   }
   // 1s..3s → 0.55..1 (warm to hot); clamp above
   return (
-    0.55 + Math.min(1, (ms - HEAT_WARM_MS) / (HEAT_HOT_MS - HEAT_WARM_MS)) * 0.45
+    0.55 +
+    Math.min(1, (ms - HEAT_WARM_MS) / (HEAT_HOT_MS - HEAT_WARM_MS)) * 0.45
   );
 }

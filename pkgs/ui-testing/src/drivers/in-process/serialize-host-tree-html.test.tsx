@@ -508,16 +508,12 @@ describe('serializeHostTreeHtml', () => {
         },
       ],
     });
-    expect(html).toMatch(
-      /data-testid="screen-spaces"[^>]*aria-hidden="true"/
-    );
+    expect(html).toMatch(/data-testid="screen-spaces"[^>]*aria-hidden="true"/);
     expect(html).toMatch(
       /data-testid="screen-spaces"[^>]*style="[^"]*display:none/
     );
     expect(html).toMatch(/data-testid="screen-account"[^>]*style="/);
-    expect(html).not.toMatch(
-      /data-testid="screen-account"[^>]*display:none/
-    );
+    expect(html).not.toMatch(/data-testid="screen-account"[^>]*display:none/);
     expect(html).not.toMatch(
       /data-testid="screen-account"[^>]*aria-hidden="true"/
     );
