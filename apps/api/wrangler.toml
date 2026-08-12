@@ -23,8 +23,9 @@ class_name = "Room"
 # new SQLite-backed `Room` class (new DO storage); binding key becomes `ROOM`.
 # `v4-matchmaking-ticker` introduced the singleton ticker DO that owned the
 # alarm-driven `Matchmaking.tick()` loop. Superseded by
-# `v5-drop-matchmaking-ticker` which removes that class; pass + sweep now run
-# server-side under `pg_cron`.
+# `v5-drop-matchmaking-ticker` which removes that class. Pass + sweep are
+# host-driven again via `POST /matchmaking/tick` (app-layer transactional
+# claims; no pg_cron / PL/pgSQL).
 [[migrations]]
 tag = "v1-room-sqlite"
 new_sqlite_classes = ["Room"]

@@ -20,13 +20,13 @@ const FORBIDDEN_SPECIFIERS = [
   '@pkgs/matchmaking/index',
   '@pkgs/matchmaking/impl-sql/migrate',
   '@pkgs/matchmaking/impl-sql/matchmaker',
+  '@pkgs/matchmaking/impl-in-memory',
   '@pkgs/matchmaking/interface/app',
 ] as const;
 
 const ALLOWED_SUBPATHS = [
   '@pkgs/matchmaking/interface',
   '@pkgs/matchmaking/impl-sql',
-  '@pkgs/matchmaking/impl-in-memory',
   '@pkgs/matchmaking/wire',
   '@pkgs/matchmaking/client',
   '@pkgs/matchmaking/testing',

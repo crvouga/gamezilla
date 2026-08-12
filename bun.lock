@@ -1051,6 +1051,7 @@
         "@pkgs/http-client": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/postgres-sqlite-compat": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "hono": "catalog:",
@@ -1150,6 +1151,21 @@
         "expo-crypto": "catalog:",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/postgres-sqlite-compat": {
+      "name": "@pkgs/postgres-sqlite-compat",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+      },
+      "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2813,6 +2829,8 @@
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
+
+    "@pkgs/postgres-sqlite-compat": ["@pkgs/postgres-sqlite-compat@workspace:pkgs/postgres-sqlite-compat"],
 
     "@pkgs/pubsub": ["@pkgs/pubsub@workspace:pkgs/pubsub"],
 

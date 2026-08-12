@@ -306,6 +306,15 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
     return c.json(result);
   });
 
+  /**
+   * Host-driven match pass + sweep. Stateless workers may call this
+   * concurrently; correctness uses transactional row claims.
+   */
+  app.post('/tick', async (c) => {
+    const result = await matchmaking.tick();
+    return c.json(result);
+  });
+
   app.onError((err, c) => {
     if (err instanceof ValidationError) {
       return c.json({ error: err.message }, 400);

@@ -8,25 +8,15 @@
  * instance while still honouring the API's one-connection-per-request
  * invariant.
  *
- * `MatchmakingImplSql` runs its own `migrate()` exactly once via a cached boot
- * promise. The boot bakes the {@link MATCHMAKING_TUNING} values into a
- * PL/pgSQL `matchmaking_tick()` function and, when `pg_cron` is enabled
- * on the database, schedules it to run every 5 seconds. The request
- * layer never advances the queue itself; every route is a single SQL
- * statement.
+ * `MatchmakingImplSql` runs `installPostgresSqliteCompat` + `migrate()` once
+ * via a cached boot promise. Matching is app-layer + transactional row
+ * claims (horizontally scalable). The host advances the queue by calling
+ * `POST /matchmaking/tick` (or `Matchmaking.tick()`); there is no pg_cron
+ * / PL/pgSQL tick.
  *
  * Schema drift between migrate and runtime is impossible by construction —
  * both come from the [./schema.ts](./schema.ts) constants imported by
  * this file.
- *
- * The API has no opinion on attributes, formulas, or partitioning — each
- * caller declares its own attribute schema in `data` and its own
- * acceptance criteria in `formulas` at join time. Completed matches are
- * surfaced via `GET /status/:participantId`, which returns a `matchId`
- * callers can use as a downstream handle (e.g. a Durable Object name).
- *
- * Request-layer side effects: NONE. Every route is a single SQL
- * statement; pass + sweep operations run server-side in `pg_cron`.
  */
 
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
@@ -99,15 +89,13 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
 };
 
 /**
- * Builds the request-layer {@link MatchmakingImplSql} instance. `tuning` is
- * forwarded so {@link MATCHMAKING_TUNING} gets baked into the PL/pgSQL
- * `matchmaking_tick()` function during `migrate()`. The request path
- * itself issues one SQL statement per route and never invokes pass or
- * sweep operations — those run server-side under `pg_cron`.
+ * Builds the request-layer {@link MatchmakingImplSql} instance.
+ * Hosts advance the queue via `POST /matchmaking/tick`.
  */
 export function createMatchmakingSubApp(): Hono {
   const matchmaking: Matchmaking = new MatchmakingImplSql({
     sqlClient: lazyRequestSqlClient(),
+    dialect: 'postgres',
     schema: MATCHMAKING_SCHEMA,
     tuning: {
       ...MATCHMAKING_TUNING,

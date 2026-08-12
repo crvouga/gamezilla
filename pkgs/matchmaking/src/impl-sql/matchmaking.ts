@@ -1,15 +1,12 @@
 /**
- * Postgres-backed {@link Matchmaking} adapter.
+ * SQL-backed {@link Matchmaking} adapter (SQLite + Postgres).
  *
- * Construct with `new MatchmakingImplSql({ sqlClient, schema, tuning, radius? })`.
- * Embedders never plumb a separate migration step — `ready()` / first
- * public method runs `migrate()` once via a cached boot promise.
+ * Construct with `new MatchmakingImplSql({ sqlClient, schema, tuning, dialect })`.
+ * On Postgres, boots {@link installPostgresSqliteCompat} before migrate.
  */
 
 import { assert } from '@pkgs/assert';
-import { createLogger } from '@pkgs/logger';
-import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { Hono } from 'hono';
 import { createMatchmakingApp } from '../interface/app';
 import { MatchmakingSchemaDriftError } from '../interface/errors';
@@ -35,28 +32,35 @@ import type {
 } from '../interface/types';
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
 import { migrate } from './migrate';
-import { MATCHMAKING_TICK_ADVISORY_LOCK_ID } from './migrate-sql';
+
+export type MatchmakingSqlDialect = 'sqlite' | 'postgres';
 
 export type MatchmakingImplSqlOptions = MatchmakingConfig & {
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: import('@pkgs/sql-client/interface').SqlClient;
+  /**
+   * SQL engine dialect. Postgres boots the sqlite-compat shim layer
+   * before migrate so shared SQL can use SQLite-shaped JSON helpers.
+   */
+  readonly dialect: MatchmakingSqlDialect;
 };
 
 type ResolvedOptions = {
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: MatchmakingImplSqlOptions['sqlClient'];
   readonly schema: MatchmakingSchema;
   readonly partitionKeys: readonly string[];
   readonly matchmakerOptions: MatchmakerOptions;
   readonly radius: RadiusOptions | undefined;
   readonly tuning: MatchmakingTuning;
+  readonly dialect: MatchmakingSqlDialect;
 };
 
 export class MatchmakingImplSql implements Matchmaking {
-  private readonly sqlClient: SqlClient;
+  private readonly sqlClient: MatchmakingImplSqlOptions['sqlClient'];
   private readonly schema: MatchmakingSchema;
   private readonly matchmaker: Matchmaker;
   private readonly migrateArgs: Parameters<typeof migrate>[0];
   private readonly now: () => number;
-  private readonly log: ReturnType<typeof createLogger>;
+  private readonly dialect: MatchmakingSqlDialect;
   private bootPromise: Promise<void> | undefined;
 
   constructor(opts: MatchmakingImplSqlOptions) {
@@ -64,9 +68,9 @@ export class MatchmakingImplSql implements Matchmaking {
     MatchmakingImplSql.assertOptions(resolved);
     this.sqlClient = resolved.sqlClient;
     this.schema = resolved.schema;
+    this.dialect = resolved.dialect;
     this.matchmaker = new Matchmaker(resolved.matchmakerOptions);
     this.now = resolved.tuning.now;
-    this.log = createLogger({ name: 'matchmaking', now: this.now });
     this.migrateArgs = {
       sqlClient: this.sqlClient,
       schema: this.schema,
@@ -133,39 +137,28 @@ export class MatchmakingImplSql implements Matchmaking {
 
   async tick(opts?: TickOptions): Promise<TickResult> {
     await this.ensureBooted();
-    const acquired = await MatchmakingImplSql.tryAdvisoryLock(this.sqlClient);
-    if (!acquired) {
-      return {
-        matches: 0,
-        passes: 0,
-        partitions: 0,
-        expiredRemoved: 0,
-        matchedRemoved: 0,
-      };
-    }
-    try {
-      const drained = await this.matchmaker.runMatchPassesAcrossPartitions(
-        MatchmakingImplSql.buildFanOpts(opts)
-      );
-      const expired = await this.matchmaker.sweepExpiredAcrossPartitions(
-        MatchmakingImplSql.buildSweepOpts(opts)
-      );
-      const matched = await this.matchmaker.sweepMatched();
-      return {
-        matches: drained.matches,
-        passes: drained.passes,
-        partitions: drained.partitions,
-        expiredRemoved: expired.removed,
-        matchedRemoved: matched.removed,
-      };
-    } finally {
-      await this.releaseAdvisoryLock();
-    }
+    // Correctness is row-claim based — concurrent ticks are safe. No
+    // process-local or advisory lock; workers stay horizontally scalable.
+    await this.matchmaker.releaseStaleClaims();
+    const drained = await this.matchmaker.runMatchPassesAcrossPartitions(
+      MatchmakingImplSql.buildFanOpts(opts)
+    );
+    const expired = await this.matchmaker.sweepExpiredAcrossPartitions(
+      MatchmakingImplSql.buildSweepOpts(opts)
+    );
+    const matched = await this.matchmaker.sweepMatched();
+    return {
+      matches: drained.matches,
+      passes: drained.passes,
+      partitions: drained.partitions,
+      expiredRemoved: expired.removed,
+      matchedRemoved: matched.removed,
+    };
   }
 
   private async ensureBooted(): Promise<void> {
     if (this.bootPromise === undefined) {
-      const p = migrate(this.migrateArgs);
+      const p = this.boot();
       this.bootPromise = p;
       p.catch((): void => {
         if (this.bootPromise === p) {
@@ -176,6 +169,13 @@ export class MatchmakingImplSql implements Matchmaking {
     await this.bootPromise;
   }
 
+  private async boot(): Promise<void> {
+    if (this.dialect === 'postgres') {
+      await installPostgresSqliteCompat({ sqlClient: this.sqlClient });
+    }
+    await migrate(this.migrateArgs);
+  }
+
   private static resolveOptions(
     opts: MatchmakingImplSqlOptions
   ): ResolvedOptions {
@@ -183,6 +183,10 @@ export class MatchmakingImplSql implements Matchmaking {
     assert.defined(opts.sqlClient, 'MatchmakingImplSql: sqlClient required');
     assert.defined(opts.schema, 'MatchmakingImplSql: schema required');
     assert.defined(opts.tuning, 'MatchmakingImplSql: tuning required');
+    assert.ok(
+      opts.dialect === 'sqlite' || opts.dialect === 'postgres',
+      'MatchmakingImplSql: dialect must be sqlite or postgres'
+    );
     assert.ok(
       typeof opts.tuning.now === 'function',
       'MatchmakingImplSql: tuning.now required'
@@ -215,6 +219,7 @@ export class MatchmakingImplSql implements Matchmaking {
       matchmakerOptions,
       radius: opts.radius,
       tuning: opts.tuning,
+      dialect: opts.dialect,
     };
   }
 
@@ -286,31 +291,6 @@ export class MatchmakingImplSql implements Matchmaking {
         ? { matchedRetentionSeconds: tuning.matchedRetentionSeconds }
         : {}),
     };
-  }
-
-  private static async tryAdvisoryLock(sqlClient: SqlClient): Promise<boolean> {
-    const rows = await sqlClient.query(
-      sql<{ pg_try_advisory_lock: boolean }>`
-        SELECT pg_try_advisory_lock(
-          ${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint
-        ) AS pg_try_advisory_lock`
-    );
-    return rows[0]?.pg_try_advisory_lock === true;
-  }
-
-  private async releaseAdvisoryLock(): Promise<void> {
-    try {
-      await this.sqlClient.run(
-        sql<void>`
-          SELECT pg_advisory_unlock(
-            ${MATCHMAKING_TICK_ADVISORY_LOCK_ID}::bigint
-          )`
-      );
-    } catch (err) {
-      this.log.warn('matchmaking tick: advisory unlock failed', {
-        message: err instanceof Error ? err.message : String(err),
-      });
-    }
   }
 
   private static assertOptions(resolved: ResolvedOptions): void {

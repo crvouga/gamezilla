@@ -1,6 +1,6 @@
 /**
- * Guards that interface / testing / in-memory sources never import the
- * SQL adapter or Postgres clients.
+ * Guards that interface / testing / client / wire never import the SQL
+ * adapter or engine clients.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -14,6 +14,7 @@ const FORBIDDEN = [
   /@electric-sql\/pglite/,
   /createPgliteSqlClient/,
   /@pkgs\/sql-client/,
+  /impl-in-memory/,
 ];
 
 function walk(dir: string): string[] {
@@ -30,14 +31,8 @@ function walk(dir: string): string[] {
 }
 
 describe('import hygiene', () => {
-  for (const folder of [
-    'interface',
-    'impl-in-memory',
-    'testing',
-    'client',
-    'wire',
-  ]) {
-    test(`${folder} does not import SQL / PGlite`, () => {
+  for (const folder of ['interface', 'testing', 'client', 'wire']) {
+    test(`${folder} does not import SQL / PGlite / in-memory`, () => {
       const files = walk(join(ROOT, folder));
       const offenders: string[] = [];
       for (const file of files) {

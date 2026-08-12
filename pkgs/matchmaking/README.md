@@ -1,12 +1,16 @@
 # @pkgs/matchmaking
 
-Storage-agnostic matchmaking queue. One port (`Matchmaking`), multiple
-adapters (`impl-sql`, `impl-in-memory`). Contract tests couple only to
-the interface so backends can be swapped without rewriting tests.
+Storage-agnostic matchmaking queue. One port (`Matchmaking`), one SQL
+adapter (`impl-sql`) that runs the same portable SQL on SQLite and
+Postgres. Matching runs in the app layer inside DB transactions with
+row claims so workers stay horizontally scalable and nearly stateless.
+
+On Postgres, boot installs `@pkgs/postgres-sqlite-compat` so SQLite-shaped
+JSON helpers (`json_extract`, `json_each`, …) are available.
 
 ---
 
-## Quick start (production — SQL)
+## Quick start
 
 ```ts
 import { createAttrNamespace } from '@pkgs/matchmaking/interface';
@@ -24,6 +28,7 @@ const mode = ns('mode', (v) => (typeof v === 'string' ? v : 'casual'));
 
 const mm = new MatchmakingImplSql({
   sqlClient,
+  dialect: 'postgres',
   schema: {
     partitionKeys: ['chess/mode'],
     primaryNumericKey: 'chess/rating',
@@ -39,16 +44,8 @@ const { participantId } = await mm.join({
 });
 ```
 
-Hermetic tests use the in-memory adapter (no Postgres):
-
-```ts
-import { MatchmakingImplInMemory } from '@pkgs/matchmaking/impl-in-memory';
-
-const mm = new MatchmakingImplInMemory({
-  schema: {},
-  tuning: { now: () => io.clock.now(), createId: io.createId },
-});
-```
+Hermetic tests use Bun SQLite (`dialect: 'sqlite'`) or PGlite
+(`dialect: 'postgres'`) — same code path.
 
 ---
 
@@ -58,36 +55,21 @@ const mm = new MatchmakingImplInMemory({
 |---------|----------|
 | `@pkgs/matchmaking/interface` | `Matchmaking` port, domain types, `createMatchmakingApp`, limits |
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
-| `@pkgs/matchmaking/impl-in-memory` | `MatchmakingImplInMemory` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
 | `@pkgs/matchmaking/testing` | Contract runners + fixtures |
 
 Anything outside these subpaths is internal.
 
-```ts
-import type {
-  Matchmaking,
-  DistanceFormula,
-  JoinInput,
-  MatchmakingSchema,
-} from '@pkgs/matchmaking/interface';
-import { MATCHMAKING_PAYLOAD_LIMITS, createAttrNamespace } from '@pkgs/matchmaking/interface';
-import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';
-import type { FormulaWire } from '@pkgs/matchmaking/wire';
-import { MatchmakingClient } from '@pkgs/matchmaking/client';
-```
-
 ## Contract tests
 
 Behavioral suites live in `@pkgs/matchmaking/testing` and take a factory
-that returns a `Matchmaking`. Default `bun test` runs them against
-`MatchmakingImplInMemory`. SQL conformance is opt-in:
+that returns a `Matchmaking`. Default `bun test` runs them as a matrix
+against Bun SQLite and PGlite (+ compat):
 
 ```bash
-bun run --filter @pkgs/matchmaking test           # in-memory + lockdown
-bun run --filter @pkgs/matchmaking test:contract  # PGlite / SQL adapter
+bun run --filter @pkgs/matchmaking test
 ```
 
-Production deployments rely on `pg_cron` to drive `matchmaking_tick()`
-every few seconds. Tests call `await mm.tick()` directly instead.
+Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent
+ticks are safe: each pass claims waiting rows inside a transaction.

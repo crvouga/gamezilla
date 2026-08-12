@@ -1,7 +1,5 @@
 /**
  * Internal types and tiny helpers for the {@link Matchmaker} engine.
- * Split out of `matchmaker.ts` purely to keep that file under the
- * per-file line cap. Nothing here is part of the public API.
  *
  * @internal
  */
@@ -13,24 +11,27 @@ import type { MatchedParticipant, ParticipantStatus } from '../interface/types';
 
 export type StatusRow = {
   readonly status: ParticipantStatus;
-  readonly data: Record<string, unknown>;
-  readonly metadata: Record<string, unknown> | null;
+  readonly data: unknown;
+  readonly metadata: unknown;
   readonly match_id: string | null;
+  readonly joined_at: number | string;
 };
 
 export type ParticipantRow = {
   readonly id: string;
-  readonly joined_at: Date;
-  readonly data: Record<string, unknown>;
-  readonly metadata: Record<string, unknown> | null;
+  readonly joined_at: number | string;
+  readonly data: unknown;
+  readonly metadata: unknown;
 };
 
-export type MatchPassRow = {
-  readonly match_id: string;
-  readonly participant_id: string;
-  readonly joined_at: Date;
-  readonly data: Record<string, unknown>;
-  readonly metadata: Record<string, unknown> | null;
+export type ClaimedWaitingRow = {
+  readonly id: string;
+  readonly joined_at: number | string;
+  readonly data: unknown;
+  readonly formulas: unknown;
+  readonly metadata: unknown;
+  readonly primary_bucket: number | string;
+  readonly priority: number | string;
 };
 
 export type RunMatchPassesOptions = {
@@ -39,13 +40,6 @@ export type RunMatchPassesOptions = {
   readonly signal?: AbortSignal;
 };
 
-/**
- * A (signature, group_size) pair pulled from
- * `matchmaking_active_partitions`. The drain fans out one task per
- * pair because different group sizes never cross-match (the SQL
- * `matchmaking_run_match_pass` filters on `group_size` as part of
- * its candidate snapshot).
- */
 export type ActivePartition = {
   readonly partitionSignature: string;
   readonly groupSize: number;
@@ -67,7 +61,6 @@ export type SweepMatchedResult = {
 export type RunMatchPassesAcrossPartitionsOptions = {
   readonly maxPartitions?: number;
   readonly maxPassesPerPartition?: number;
-  /** Bounded JS-side concurrency for partition drains. Default 8. */
   readonly concurrency?: number;
   readonly signal?: AbortSignal;
 };
@@ -80,7 +73,6 @@ export type RunMatchPassesAcrossPartitionsResult = {
 
 export type SweepExpiredAcrossPartitionsOptions = {
   readonly maxPartitions?: number;
-  /** Bounded JS-side concurrency for partition sweeps. Default 8. */
   readonly concurrency?: number;
 };
 
@@ -89,20 +81,55 @@ export type SweepExpiredAcrossPartitionsResult = {
   readonly partitions: number;
 };
 
-/**
- * Wire-shaped formulas-only payload for {@link Matchmaker.updateFormulasRaw}.
- */
 export type UpdateFormulasInputRaw = {
   readonly formulas: readonly FormulaWire[];
 };
 
+export function epochMs(value: number | string): number {
+  if (typeof value === 'number') return value;
+  const n = Number(value);
+  assert.ok(Number.isFinite(n), 'matchmaking: invalid epoch ms', { value });
+  return n;
+}
+
+export function parseJsonObject(
+  value: unknown,
+  label: string
+): Record<string, unknown> {
+  if (typeof value === 'string') {
+    const parsed: unknown = JSON.parse(value);
+    assert.record(parsed, `${label} must be a JSON object`);
+    return parsed;
+  }
+  assert.record(value, `${label} must be an object`);
+  return value;
+}
+
+export function parseJsonValue(value: unknown): unknown {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as unknown;
+    } catch {
+      return value;
+    }
+  }
+  return value;
+}
+
 export function rowToParticipant(row: ParticipantRow): MatchedParticipant {
-  const data = asKeywordRecord(row.data, 'matchmaking peer data');
+  const dataRaw = parseJsonObject(row.data, 'matchmaking peer data');
+  const data = asKeywordRecord(dataRaw, 'matchmaking peer data');
+  const metadataRaw = parseJsonValue(row.metadata);
+  let metadata: Record<string, unknown> | null = null;
+  if (metadataRaw !== null && metadataRaw !== undefined) {
+    assert.record(metadataRaw, 'matchmaking peer metadata');
+    metadata = metadataRaw;
+  }
   return {
     participantId: row.id,
-    joinedAt: row.joined_at,
+    joinedAt: new Date(epochMs(row.joined_at)),
     data,
-    metadata: row.metadata,
+    metadata,
   };
 }
 
@@ -117,15 +144,11 @@ export function assertPartitionSignature(
   );
 }
 
-/**
- * Validates the numeric invariants on options passed to the
- * Matchmaker constructor. Centralised so the constructor body stays
- * within the per-function line cap.
- */
 export function assertMatchmakerOptionInvariants(opts: {
   readonly maxPairsPerPass: number;
   readonly bucketWidth: number;
   readonly matchedRetentionSeconds: number;
+  readonly claimTtlMs: number;
 }): void {
   assert.ok(
     Number.isFinite(opts.maxPairsPerPass) && opts.maxPairsPerPass > 0,
@@ -142,5 +165,10 @@ export function assertMatchmakerOptionInvariants(opts: {
       opts.matchedRetentionSeconds >= 0,
     'Matchmaker: matchedRetentionSeconds must be a non-negative finite number',
     { matchedRetentionSeconds: opts.matchedRetentionSeconds }
+  );
+  assert.ok(
+    Number.isFinite(opts.claimTtlMs) && opts.claimTtlMs > 0,
+    'Matchmaker: claimTtlMs must be a positive finite number',
+    { claimTtlMs: opts.claimTtlMs }
   );
 }

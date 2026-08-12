@@ -2,7 +2,7 @@
  * Public port of `@pkgs/matchmaking`.
  *
  * Import via `@pkgs/matchmaking/interface`. Adapters live at
- * `@pkgs/matchmaking/impl-sql` and `@pkgs/matchmaking/impl-in-memory`.
+ * `@pkgs/matchmaking/impl-sql`.
  * Contract tests import only this surface (+ `@pkgs/matchmaking/testing`).
  */
 

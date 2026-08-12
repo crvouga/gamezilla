@@ -53,9 +53,6 @@
       "@pkgs/matchmaking/impl-sql": [
         "../../pkgs/matchmaking/src/impl-sql/index.ts"
       ],
-      "@pkgs/matchmaking/impl-in-memory": [
-        "../../pkgs/matchmaking/src/impl-in-memory/index.ts"
-      ],
       "@pkgs/matchmaking/wire": ["../../pkgs/matchmaking/src/wire/index.ts"],
       "@pkgs/matchmaking/client": [
         "../../pkgs/matchmaking/src/client/index.ts"

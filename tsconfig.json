@@ -59,12 +59,15 @@
       "@pkgs/matchmaking/impl-sql": [
         "./pkgs/matchmaking/src/impl-sql/index.ts"
       ],
-      "@pkgs/matchmaking/impl-in-memory": [
-        "./pkgs/matchmaking/src/impl-in-memory/index.ts"
-      ],
       "@pkgs/matchmaking/wire": ["./pkgs/matchmaking/src/wire/index.ts"],
       "@pkgs/matchmaking/client": ["./pkgs/matchmaking/src/client/index.ts"],
       "@pkgs/matchmaking/testing": ["./pkgs/matchmaking/src/testing/index.ts"],
+      "@pkgs/postgres-sqlite-compat": [
+        "./pkgs/postgres-sqlite-compat/src/index.ts"
+      ],
+      "@pkgs/postgres-sqlite-compat/*": [
+        "./pkgs/postgres-sqlite-compat/src/*"
+      ],
       "@pkgs/inbox": ["./pkgs/inbox/src/index.ts"],
       "@pkgs/inbox/client": ["./pkgs/inbox/src/client/index.ts"],
       "@pkgs/inbox/server/publish": ["./pkgs/inbox/src/server/publish.ts"],
@@ -218,6 +221,7 @@
     "libs/client-config/scripts/**/*.ts",
     "libs/db/src/**/*.ts",
     "pkgs/matchmaking/src/**/*.ts",
+    "pkgs/postgres-sqlite-compat/src/**/*.ts",
     "pkgs/inbox/src/**/*.ts",
     "pkgs/inbox/src/**/*.tsx",
     "pkgs/inbox/sync/**/*.ts",

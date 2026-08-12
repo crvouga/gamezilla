@@ -1,7 +1,7 @@
 /**
  * Port types for `@pkgs/matchmaking`.
  *
- * Adapters (`impl-sql`, `impl-in-memory`, …) implement {@link Matchmaking}.
+ * Adapters (`impl-sql`, …) implement {@link Matchmaking}.
  * Composition roots construct a concrete adapter; app code and contract
  * tests depend only on this port.
  */

@@ -1,14 +1,13 @@
 /**
- * Postgres adapter for `@pkgs/matchmaking`.
+ * SQL adapter for `@pkgs/matchmaking` (SQLite + Postgres via portable SQL).
  *
- * Import via `@pkgs/matchmaking/impl-sql`. Composition roots construct
- * {@link MatchmakingImplSql}; contract tests never import this module
- * directly except via an adapter factory.
+ * Import via `@pkgs/matchmaking/impl-sql`.
  */
 
 export {
   MatchmakingImplSql,
   type MatchmakingImplSqlOptions,
+  type MatchmakingSqlDialect,
 } from './matchmaking';
 export {
   MatchmakingDatabaseMigration,

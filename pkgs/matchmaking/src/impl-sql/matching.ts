@@ -1,6 +1,5 @@
 /**
- * Pure matching primitives shared by the in-memory adapter.
- * Mirrors `matchmaking_pair_distance` / `matchmaking_pair_match` SQL.
+ * Pure matching primitives for the SQL adapter's app-layer match pass.
  */
 
 import type { AttributeState } from '@pkgs/attribute';
