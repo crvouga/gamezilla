@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import type { RunSummary } from '../types';
+import { useRegisterCommands } from './commands/registry';
+import type { Command } from './commands/types';
 
 function formatUpdated(ms: number): string {
   try {
@@ -36,6 +38,38 @@ export function RunsPage(props: {
   const [keepLast, setKeepLast] = useState(5);
   const [busy, setBusy] = useState(false);
 
+  const commands = useMemo((): Command[] => {
+    const list: Command[] = [
+      {
+        id: 'nav.buckets',
+        label: 'Back to buckets',
+        section: 'Navigation',
+        shortcut: 'Backspace',
+        match: (e) => e.key === 'Backspace',
+        run: onBack,
+      },
+      {
+        id: 'runs.prune',
+        label: `Prune keep last ${keepLast}`,
+        section: 'Runs',
+        run: () => {
+          setBusy(true);
+          void onKeepLast(keepLast).finally(() => setBusy(false));
+        },
+      },
+    ];
+    for (const r of runs.slice(0, 9)) {
+      list.push({
+        id: `run.open.${r.id}`,
+        label: `Open run ${r.id}`,
+        section: 'Runs',
+        run: () => onOpenRun(r.id),
+      });
+    }
+    return list;
+  }, [keepLast, onBack, onKeepLast, onOpenRun, runs]);
+  useRegisterCommands(commands);
+
   return (
     <div className="suite-page">
       <header>
@@ -47,6 +81,7 @@ export function RunsPage(props: {
           {bucketId} · {runs.length} run{runs.length === 1 ? '' : 's'} · gen{' '}
           {generation}
         </span>
+        <span className="kbd-hint">⌘K</span>
       </header>
       <div className="prune-bar">
         <label>

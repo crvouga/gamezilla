@@ -22,6 +22,7 @@ export function SuitePage(props: {
           {bucketId} · {tests.length} test{tests.length === 1 ? '' : 's'}
           {tests.length ? ` · ${passed} passed` : ''}
         </span>
+        <span className="kbd-hint">⌘K</span>
       </header>
       <table className="suite-table">
         <thead>

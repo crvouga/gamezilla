@@ -10,3 +10,18 @@ export function reportFetch(
 ): Promise<Response> {
   return globalThis.fetch(input, init);
 }
+
+/** Wall monotonic clock for long-hold countdown (viewer only). */
+export function wallNowMs(): number {
+  return performance.now();
+}
+
+export function wallRequestAnimationFrame(
+  callback: FrameRequestCallback
+): number {
+  return requestAnimationFrame(callback);
+}
+
+export function wallCancelAnimationFrame(handle: number): void {
+  cancelAnimationFrame(handle);
+}

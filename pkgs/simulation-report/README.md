@@ -80,6 +80,9 @@ HTTP (bucket-scoped):
 | Suite | `/b/:bucketId/r/:runId` |
 | Player | `/b/:bucketId/r/:runId/t/:testId?…` |
 
+Keyboard: `⌘K` / `Ctrl+K` opens the command palette (primary control surface).
+Player shortcuts include Space (play/pause), ←/→ (frames), M (mode), ] (speed).
+
 ```bash
 bun run --filter @pkgs/simulation-report build
 bun run --filter @apps/simulation-report dev

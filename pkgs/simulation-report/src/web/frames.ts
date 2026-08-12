@@ -44,6 +44,16 @@ export function formatMs(ms: number | null | undefined): string {
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
+/**
+ * Fixed-width duration for transport / rail so "6ms" and "13.35s" don't
+ * shift layout. Uses tabular figures; pad to the longest common form.
+ */
+export function formatMsStable(ms: number | null | undefined): string {
+  if (ms == null || !Number.isFinite(ms)) return '—.——s';
+  if (ms < 1000) return `${Math.round(ms)}ms`.padStart(6, '\u2007');
+  return `${(ms / 1000).toFixed(2)}s`.padStart(6, '\u2007');
+}
+
 export function firstFrameForStep(
   frames: readonly FlatFrame[],
   stepIndex: number
