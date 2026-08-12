@@ -82,7 +82,7 @@ async function openSession(
   tx: MutationDb,
   env: MutationEnv,
   spaceId: string,
-  joinAnnounced: 0 | 1 = 0
+  joinAnnounced = false
 ): Promise<void> {
   const id = spaceOpenSessionEntityId(env.deviceId, spaceId);
   const now = env.now().toISOString();
@@ -184,7 +184,7 @@ export const createSpaceMutation = defineMutation({
         created_at = excluded.created_at,
         created_by_account_id = excluded.created_by_account_id
     `);
-    await openSession(tx, env, spaceId, 1);
+    await openSession(tx, env, spaceId, true);
   },
 });
 
@@ -361,9 +361,9 @@ export const markSpaceJoinAnnouncedMutation = defineMutation({
   async run({ tx, env }, { spaceId }) {
     await tx.run(sql`
       UPDATE spaces_open_sessions
-      SET join_announced = ${1}
+      SET join_announced = ${true}
       WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
-        AND join_announced = ${0}
+        AND join_announced = ${false}
         AND deleted_at IS NULL
     `);
   },

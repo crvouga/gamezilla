@@ -10,7 +10,10 @@ import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { ensureAnonAuth } from './ensure-anon-auth-fetch';
-import { refreshAuth } from './refresh-auth-fetch';
+import {
+  isUnauthorizedRefreshError,
+  refreshAuth,
+} from './refresh-auth-fetch';
 import { shouldBindAnonUserAfterEnsure } from './resolve-client-identity';
 import { SessionCapabilityStore } from './session-capability';
 
@@ -112,6 +115,13 @@ export class AuthBridgeRefresh {
       this.deps.log.error('auth/refresh failed', {
         error: e instanceof Error ? e.message : String(e),
       });
+      // Dead bearer + cold BA null skips signed-out clear
+      // (`shouldClearCapabilityOnBaSignedOut`). Without this fallthrough,
+      // `lastLocalAccountId` never binds and SyncEngineBoot spins forever.
+      if (isUnauthorizedRefreshError(e)) {
+        await this.handleSignedOut();
+        return;
+      }
     } finally {
       this.deps.inFlightRef.current = false;
       await this.retryPendingRefresh({ expiresAt, externalUserId });

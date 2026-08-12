@@ -15,7 +15,7 @@ export function inboxListSql(
     SELECT *
       FROM inbox_interactions
      WHERE user_id = ${userId}
-       AND active = 1
+       AND active = true
        AND (
          ${filter} = 'archived'
          AND archived_at IS NOT NULL
@@ -36,7 +36,7 @@ export function inboxUnreadCountSql(userId: string): Sql<InboxUnreadCountRow> {
     SELECT COUNT(*) AS count
       FROM inbox_interactions
      WHERE user_id = ${userId}
-       AND active = 1
+       AND active = true
        AND read_at IS NULL
        AND archived_at IS NULL
        AND dismissed_at IS NULL`;

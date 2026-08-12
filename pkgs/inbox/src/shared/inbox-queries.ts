@@ -14,7 +14,7 @@ export const inboxActive = defineQuery({
         expires_at, read_at, archived_at, dismissed_at,
         active, created_at, updated_at, deleted_at
       FROM inbox_interactions
-      WHERE user_id = ${ctx.env.actorId} AND active = 1
+      WHERE user_id = ${ctx.env.actorId} AND active = true
 `);
     return { inbox_interactions: rows };
   },

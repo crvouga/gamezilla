@@ -21,6 +21,25 @@ export type RefreshAuthResult = {
   accountId: string;
 };
 
+/** Non-OK `POST /identity/refresh` — carries HTTP status for recovery branching. */
+export class RefreshAuthError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'RefreshAuthError';
+    this.status = status;
+  }
+}
+
+/** Dead / expired bearer — clear local capability and fall through to anon. */
+export function isUnauthorizedRefreshError(err: unknown): boolean {
+  return (
+    err instanceof RefreshAuthError &&
+    (err.status === 401 || err.status === 403)
+  );
+}
+
 /**
  * `POST /identity/refresh` — idempotent server upsert of the auth-related sync
  * entities (auth user snapshot, device binding) for the current bearer +
@@ -49,14 +68,16 @@ export async function refreshAuth(
   try {
     json = text.length > 0 ? (JSON.parse(text) as unknown) : null;
   } catch {
-    throw new Error(
+    throw new RefreshAuthError(
+      res.status,
       `auth/refresh response was not JSON (status ${String(res.status)}): ${text}`
     );
   }
   if (!res.ok) {
     assert.record(json, 'auth/refresh error body');
     const err = json['error'];
-    throw new Error(
+    throw new RefreshAuthError(
+      res.status,
       typeof err === 'string'
         ? err
         : `auth/refresh failed (${String(res.status)}): ${text}`

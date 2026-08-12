@@ -115,7 +115,7 @@ function upsertInteractionValues(
     actions: JSON.stringify(input.actions),
     payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
-    active: 1,
+    active: true,
     created_at: managed.created_at,
     updated_at: managed.updated_at,
   };
@@ -159,7 +159,7 @@ function upsertInteractionSql(
       actions = excluded.actions,
       payload = excluded.payload,
       expires_at = excluded.expires_at,
-      active = 1,
+      active = true,
       updated_at = excluded.updated_at`;
 }
 

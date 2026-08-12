@@ -10,7 +10,7 @@ type SessionIdRow = {
 type SessionRow = {
   readonly space_id: string;
   readonly device_id: string | null;
-  readonly join_announced: number | null;
+  readonly join_announced: number | boolean | null;
 };
 
 const EMPTY_IDS: readonly string[] = [];
@@ -109,7 +109,7 @@ export function useSpaceOpenSession(spaceId: string): {
     };
   }
   return {
-    joinAnnounced: row?.join_announced === 1,
+    joinAnnounced: Boolean(row?.join_announced),
     isOpen: row !== null,
     isLoading,
   };

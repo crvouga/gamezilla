@@ -34,12 +34,12 @@ export async function listInteractions(
            AND archived_at IS NOT NULL
            AND dismissed_at IS NULL
            OR ${filter} = 'action_required'
-           AND active = 1
+           AND active = true
            AND archived_at IS NULL
            AND dismissed_at IS NULL
            AND category = 'action_required'
            OR ${filter} NOT IN ('archived', 'action_required')
-           AND active = 1
+           AND active = true
            AND archived_at IS NULL
            AND dismissed_at IS NULL
          )
@@ -102,7 +102,7 @@ export async function markAllInteractionsRead(
          SET read_at = ${nowIso}, updated_at = ${nowIso}
        WHERE user_id = ${actorId}
          AND read_at IS NULL
-         AND active = 1
+         AND active = true
          AND archived_at IS NULL
          AND dismissed_at IS NULL`
   );
@@ -192,7 +192,7 @@ export async function countUnreadInteractions(
       SELECT COUNT(*) AS count
         FROM inbox_interactions
        WHERE user_id = ${userId}
-         AND active = 1
+         AND active = true
          AND read_at IS NULL
          AND archived_at IS NULL
          AND dismissed_at IS NULL`
