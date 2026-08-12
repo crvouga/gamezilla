@@ -28,6 +28,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/simulation": "workspace:*",
+    "@pkgs/simulation-report": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",

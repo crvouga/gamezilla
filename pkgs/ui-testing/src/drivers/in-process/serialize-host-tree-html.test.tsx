@@ -66,7 +66,10 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('font-family:Nunito');
     expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
     expect(html).toContain(
-      '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;height:100%;position:relative;box-sizing:border-box;}'
+      'html,body,.rn-root{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:relative;'
+    );
+    expect(html).toContain(
+      '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;}'
     );
     expect(html).toContain(
       'input,textarea,button,span{font:inherit;color:inherit;}'
@@ -434,5 +437,20 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('box-sizing:border-box');
     expect(html).toContain('min-height:0');
     expect(html).toContain('min-width:0');
+  });
+
+  it('links external shell CSS when stylesheetHref is set', () => {
+    const html = serializeHostTreeHtml(
+      {
+        type: 'View',
+        props: { testID: 'root' },
+        children: null,
+      },
+      { stylesheetHref: '../../snapshot-shell.css' }
+    );
+    expect(html).toContain(
+      '<link rel="stylesheet" href="../../snapshot-shell.css" />'
+    );
+    expect(html).not.toContain('<style>');
   });
 });

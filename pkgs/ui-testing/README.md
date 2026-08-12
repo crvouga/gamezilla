@@ -199,11 +199,13 @@ first-class text read-back — `getText` remains unsupported by design.
 
 ### UI snapshots for reports
 
-`Driver.snapshotHtml()` / optional `RenderedApp.snapshotHtml()` produce a
-readable HTML preview of the current UI. In-process serializes the
+`Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
+produce a readable HTML preview of the current UI. In-process serializes the
 `react-test-renderer` host tree (component tags + inline styles from `style`
-props) — not a browser DOM. `@pkgs/simulation` uses this for per-step report
-attachments when `report: true`.
+props) — not a browser DOM. Pass `stylesheetHref` to link shared shell CSS
+instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
+`WaitPollOptions.onPoll` lets callers snapshot mid-wait without forking wait
+logic.
 
 ## Adding a future driver (Maestro, Appium, Cypress, …)
 

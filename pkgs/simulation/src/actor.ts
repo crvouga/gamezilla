@@ -1,11 +1,12 @@
 import type { Timers } from '@pkgs/clock';
 import type { SimIo } from '@pkgs/io';
+import type { SimulationReporter } from '@pkgs/simulation-report';
 import {
   createDriver,
   type Driver,
   type PlaywrightDriverConfig,
 } from '@pkgs/ui-testing';
-import type { SimulationReporter } from './report/reporter';
+
 import {
   createReportingDriver,
   recordNavOpen,
@@ -57,7 +58,7 @@ export async function createSimActor(args: {
         actorId: id,
         path,
         open: () => session.open(path),
-        snapshot: () => rawDriver.snapshotHtml(),
+        snapshot: (options) => rawDriver.snapshotHtml(options),
       });
     },
     async dispose() {

@@ -10,6 +10,11 @@ export type WaitPollOptions = {
   intervalMs?: number;
   /** Human-readable description used in the timeout error. */
   description?: string;
+  /**
+   * Invoked after each unsuccessful poll attempt (before the sleep).
+   * Used by simulation reports to capture mid-wait UI frames.
+   */
+  onPoll?: () => void | Promise<void>;
 };
 
 export type WaitOptions = WaitPollOptions & {
@@ -46,6 +51,9 @@ export async function waitUntil<T>(
       }
     } catch (error) {
       lastError = error;
+    }
+    if (options.onPoll) {
+      await options.onPoll();
     }
     await sleep(intervalMs, timers);
   }

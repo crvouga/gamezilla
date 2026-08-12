@@ -6,6 +6,13 @@
  * Deterministic I/O comes from `@pkgs/io` (`createSimIo`).
  */
 
+export type {
+  SimulationFrame,
+  SimulationReportData,
+  SimulationStep,
+  SimulationStepKind,
+  SimulationStepStatus,
+} from '@pkgs/simulation-report';
 export type { SimActor } from './actor';
 export { createSimIo, type SimulationClock } from './clock';
 export { openSimulation, type Simulation } from './open-simulation';
@@ -13,12 +20,6 @@ export type {
   SimulationOptions,
   SimulationReportOptions,
 } from './options';
-export type {
-  SimulationReportData,
-  SimulationStep,
-  SimulationStepKind,
-  SimulationStepStatus,
-} from './report/types';
 export { createSeededRng, type SeededRng } from './rng';
 export type {
   InProcessSimulationSession,

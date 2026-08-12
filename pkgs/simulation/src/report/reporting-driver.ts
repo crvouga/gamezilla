@@ -1,4 +1,8 @@
 import type {
+  SimulationReporter,
+  SimulationStepKind,
+} from '@pkgs/simulation-report';
+import type {
   Driver,
   DriverKey,
   ScrollDirection,
@@ -8,15 +12,13 @@ import type {
 } from '@pkgs/ui-testing';
 import { formatSelector } from '@pkgs/ui-testing';
 
-import type { SimulationReporter } from './reporter';
-import type { SimulationStepKind } from './types';
-
 type RecordMeta = {
   readonly selector?: Selector;
   readonly detail?: string;
   readonly snapshotBefore?: boolean;
   /** Skip HTML snapshot (typing floods reports and is slow under load). */
   readonly skipSnapshot?: boolean;
+  readonly pollFrames?: boolean;
 };
 
 /**
@@ -81,11 +83,11 @@ export function createReportingDriver(
         'waitFor',
         `waitFor ${state} ${formatSelector(target)}`,
         () => driver.waitFor(target, state, options),
-        { selector: target, detail: state }
+        { selector: target, detail: state, pollFrames: true }
       ),
     isVisible: (target) => driver.isVisible(target),
     getText: (target) => driver.getText(target),
-    snapshotHtml: () => driver.snapshotHtml(),
+    snapshotHtml: (options) => driver.snapshotHtml(options),
   };
 }
 
@@ -112,8 +114,11 @@ function makeRecorder(
       ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
       ...(meta?.snapshotBefore === true ? { snapshotBefore: true } : {}),
       ...(meta?.skipSnapshot === true ? { skipSnapshot: true } : {}),
+      ...(meta?.pollFrames !== undefined
+        ? { pollFrames: meta.pollFrames }
+        : {}),
       run,
-      snapshot: () => driver.snapshotHtml(),
+      snapshot: (options) => driver.snapshotHtml(options),
     });
   };
 }
@@ -144,7 +149,9 @@ export async function recordNavOpen(
     readonly actorId: string;
     readonly path: string;
     readonly open: () => Promise<void>;
-    readonly snapshot: () => Promise<string | null>;
+    readonly snapshot: (options?: {
+      readonly stylesheetHref?: string;
+    }) => Promise<string | null>;
   }
 ): Promise<void> {
   await reporter.record({

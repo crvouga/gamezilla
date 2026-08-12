@@ -93,7 +93,12 @@ export function createRenderedAppFromRntl(
       await user.scrollTo(instance, { x });
     },
     unmount: () => result.unmount(),
-    snapshotHtml: () => serializeHostTreeHtml(result.toJSON()),
+    snapshotHtml: (options) =>
+      serializeHostTreeHtml(result.toJSON(), {
+        ...(options?.stylesheetHref !== undefined
+          ? { stylesheetHref: options.stylesheetHref }
+          : {}),
+      }),
   };
   if (options.activate !== undefined) {
     app.activate = options.activate;

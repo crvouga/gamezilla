@@ -1,11 +1,16 @@
-import { join } from 'node:path';
 import { createSimIo, type SimClock, type SimIo } from '@pkgs/io';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import {
+  mintRunId,
+  resolveLocalReportDataDir,
+  resolveReportOptions,
+  type SimulationReportData,
+  SimulationReporter,
+  sanitizeTestId,
+} from '@pkgs/simulation-report';
 
 import { createSimActor, type SimActor } from './actor';
 import type { SimulationOptions } from './options';
-import { defaultReportOutDir, SimulationReporter } from './report/reporter';
-import type { SimulationReportData } from './report/types';
-import { resolveReportOptions } from './report/types';
 import type { SimulationSystemHandle, SimulationUiKind } from './system-port';
 
 export type Simulation = {
@@ -13,7 +18,7 @@ export type Simulation = {
   readonly io: SimIo;
   readonly clock: SimClock;
   readonly ui: SimulationUiKind;
-  /** Absolute path to `index.html` after dispose flush, if reporting enabled. */
+  /** Object-store key for this test's `steps.json` after dispose flush, if reporting. */
   readonly reportPath: string | undefined;
   /** Create (or return cached) actor session with a live UI driver. */
   actor(id: string): Promise<SimActor>;
@@ -54,11 +59,26 @@ function createReporter(
   const reportOpts = resolveReportOptions(options.report);
   if (reportOpts === null) return undefined;
   const now = reportOpts.now ?? (() => io.clock.now());
+  const seed = String(io.seed);
+  const store =
+    reportOpts.store ??
+    createNodeFsObjectStore({
+      rootDir: resolveLocalReportDataDir(),
+    });
+  const runId = reportOpts.runId ?? mintRunId(now());
   return new SimulationReporter({
-    seed: String(io.seed),
+    seed,
     ui,
-    outDir: reportOpts.outDir ?? defaultReportOutDir(String(io.seed), now()),
+    store,
+    runId,
+    testId: reportOpts.testId ?? sanitizeTestId(seed),
     now,
+    ...(reportOpts.frameIntervalMs !== undefined
+      ? { frameIntervalMs: reportOpts.frameIntervalMs }
+      : {}),
+    ...(reportOpts.maxFramesPerStep !== undefined
+      ? { maxFramesPerStep: reportOpts.maxFramesPerStep }
+      : {}),
   });
 }
 
@@ -90,9 +110,11 @@ function buildSimulation(args: {
     }
     await handle.dispose();
     const data = await flushReport();
-    if (data?.meta.outDir) {
+    if (data) {
       process.stdout.write(
-        `Simulation report: file://${join(data.meta.outDir, 'index.html')}\n`
+        `Simulation report: run=${data.meta.runId} test=${data.meta.testId}\n` +
+          `  View: bun run --filter @apps/simulation-report dev\n` +
+          `  Open: http://127.0.0.1:7789/b/local/r/${data.meta.runId}/t/${data.meta.testId}\n`
       );
     }
   };
@@ -156,11 +178,12 @@ async function runNamedStep(
     actorId,
     kind: 'step',
     title: label,
+    pollFrames: true,
     run: fn,
-    snapshot: async () => {
+    snapshot: async (options) => {
       const first = actors.values().next().value;
       if (!first) return null;
-      return first.ui.snapshotHtml();
+      return first.ui.snapshotHtml(options);
     },
   });
 }

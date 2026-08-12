@@ -92,4 +92,6 @@ apps/client/android/
 **/playwright-report/
 **/test-results/
 **/blob-report/
-**/simulation-report/
+# Simulation report local ObjectStore data (repo root)
+/simulation-report-data/
+**/simulation-report-data/

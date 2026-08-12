@@ -96,25 +96,54 @@ Closeness to production is chosen by **which `SimulationSystem` you pass** and t
 
 ## Step reports (HTML timeline)
 
-Pass `report: true` (or `{ outDir }`) to write a Playwright-like HTML report on
-`dispose()`. Every Driver mutation / `waitFor` / `actor.open` is a timeline step
-with an in-process HTML preview of the RN host tree (`Driver.snapshotHtml`).
-`isVisible` / `getText` are not recorded (so wall-poll helpers do not flood).
+Pass `report: true` (or `{ store, testId, runId? }`) to write **report data** on
+`dispose()`. Every Driver mutation / `waitFor` / `actor.open` is a timeline
+step. `waitFor` and `sim.step` also poll change-gated UI frames while they run.
+`isVisible` / `getText` are not recorded.
 
 ```ts
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
+
+const store = createNodeFsObjectStore({
+  rootDir: resolveLocalReportDataDir(), // <repo>/simulation-report-data
+});
+
 const sim = await openSimulation({
   seed: 1,
   system: mySystem,
-  report: true, // → simulation-report/<seed>-<ms>/index.html
+  report: {
+    store,
+    runId: process.env.SIM_REPORT_RUN_ID, // optional; default UTC stamp
+    testId: 'my-scenario',
+  },
 });
 // …taps / types…
 await sim.dispose();
-// console: Simulation report: file://…/index.html
 ```
 
-Artifacts: `index.html` (timeline + snapshot pane), `steps.json`, and
-`snapshots/step-NNN.html`. Optional `await sim.step('label', fn)` adds a
-human milestone. Path is also on `sim.reportPath` after flush.
+Artifacts (data only — viewer is separate):
+
+```text
+simulation-report-data/   # repo root, gitignored
+  runs/index.json
+  runs/<runId>/manifest.json
+  runs/<runId>/snapshot-shell.css
+  runs/<runId>/tests/<testId>/steps.json
+  runs/<runId>/tests/<testId>/frames/f-….html
+```
+
+View with `@apps/simulation-report`:
+
+```bash
+bun run --filter @pkgs/simulation-report build
+bun run --filter @apps/simulation-report dev
+# http://127.0.0.1:7789/b/local/r/<runId>/t/my-scenario
+```
+
+Re-run tests to refresh data; the SPA does not need a rebuild. Optional
+`await sim.step('label', fn)` adds a human milestone (with frame polling).
+`sim.reportPath` is the object-store key for the per-test `steps.json` after flush.
 
 ## What not to do
 

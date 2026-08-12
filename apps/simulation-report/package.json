@@ -1,0 +1,22 @@
+{
+  "name": "@apps/simulation-report",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bun run --filter @pkgs/simulation-report build",
+    "dev": "bun ./src/main.ts",
+    "kill": "bun run scripts/kill-dev.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/simulation-report": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

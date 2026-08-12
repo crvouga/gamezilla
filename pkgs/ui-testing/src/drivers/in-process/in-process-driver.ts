@@ -155,10 +155,16 @@ export class InProcessDriver<TContext = void> implements Driver {
     return app.getText(await this.requireElement(target));
   }
 
-  async snapshotHtml(): Promise<string | null> {
+  async snapshotHtml(options?: {
+    readonly stylesheetHref?: string;
+  }): Promise<string | null> {
     const app = this.app;
     if (!app?.snapshotHtml) return null;
-    return app.snapshotHtml();
+    return app.snapshotHtml(
+      options?.stylesheetHref !== undefined
+        ? { stylesheetHref: options.stylesheetHref }
+        : undefined
+    );
   }
 
   private requireApp(): RenderedApp {

@@ -1,4 +1,5 @@
-import type { SimulationReportOptions } from './report/types';
+import type { SimulationReportOptions } from '@pkgs/simulation-report';
+
 import type { SimulationSystem, SimulationUiKind } from './system-port';
 
 export type { SimulationReportOptions, SimulationUiKind };
@@ -15,8 +16,8 @@ export type SimulationOptions = {
   /** Virtual clock start (epoch ms). Default `0`. */
   readonly startMs?: number;
   /**
-   * When set, record every Driver mutation/wait + `open` into a Playwright-like
-   * HTML timeline report with per-step UI HTML snapshots.
+   * When set, record every Driver mutation/wait + `open` into a report
+   * timeline with per-step UI HTML frames (view via `@apps/simulation-report`).
    */
   readonly report?: boolean | SimulationReportOptions;
 };

@@ -44,10 +44,33 @@ const BODY_FONT =
  * Serialize a React Native Testing Library / react-test-renderer `toJSON()`
  * tree into a readable HTML document for simulation reports.
  */
-export function serializeHostTreeHtml(tree: unknown): string {
+export type SerializeHostTreeHtmlOptions = {
+  /**
+   * When set, shell chrome CSS is linked instead of inlined (smaller frames
+   * in multi-snapshot reports). Standalone callers omit this.
+   */
+  readonly stylesheetHref?: string;
+};
+
+/** Shell CSS shared by report frames when using `stylesheetHref`. */
+export const SNAPSHOT_SHELL_CSS = [
+  `html,body,.rn-root{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:relative;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
+  '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
+  "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
+  '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;}',
+  'input,textarea,button,span{font:inherit;color:inherit;}',
+].join('');
+export function serializeHostTreeHtml(
+  tree: unknown,
+  options: SerializeHostTreeHtmlOptions = {}
+): string {
   const ctx: SerializeCtx = { fonts: new Set(['Nunito']) };
   const body = serializeTree(tree, ctx);
   const fontLinks = googleFontLinks([...ctx.fonts]);
+  const styleBlock =
+    options.stylesheetHref !== undefined
+      ? `<link rel="stylesheet" href="${escapeHtml(options.stylesheetHref)}" />`
+      : `<style>${SNAPSHOT_SHELL_CSS}</style>`;
   return [
     '<!DOCTYPE html>',
     '<html lang="en">',
@@ -57,14 +80,7 @@ export function serializeHostTreeHtml(tree: unknown): string {
     '<meta name="color-scheme" content="dark" />',
     '<title>UI snapshot</title>',
     ...fontLinks,
-    '<style>',
-    // Mirror apps/client/public/index.html `#expo-reset` + dark shell fonts.
-    `html,body{height:100%;margin:0;padding:0;overflow:hidden;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
-    '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
-    "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
-    '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;height:100%;position:relative;box-sizing:border-box;}',
-    'input,textarea,button,span{font:inherit;color:inherit;}',
-    '</style>',
+    styleBlock,
     '</head>',
     `<body><div class="rn-root">${body}</div></body>`,
     '</html>',

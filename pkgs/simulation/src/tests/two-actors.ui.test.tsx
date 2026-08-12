@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, test } from '@jest/globals';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
 import { by, expectText, expectVisible } from '@pkgs/ui-testing';
 
 import { openSimulation } from '../open-simulation';
@@ -16,8 +18,6 @@ describe('openSimulation (demo system)', () => {
       expect(sim.ui).toBe('in-process');
       expect(sim.seed).toBe(1n);
 
-      // RNTL delivers pointer events to the most recently mounted root, so
-      // interact with alice before launching bob, then assert both trees.
       const alice = await sim.actor('alice');
       await expectVisible(alice.ui, by.testId('demo-root'));
       await expectText(alice.ui, by.testId('actor-id'), 'alice');
@@ -68,12 +68,15 @@ describe('openSimulation (demo system)', () => {
     }
   });
 
-  test('report: true writes HTML timeline with UI snapshots', async () => {
-    const outDir = join(process.cwd(), 'simulation-report', 'demo-report-test');
+  test('report writes suite data artifacts (no SPA copy)', async () => {
+    const rootDir = join(resolveLocalReportDataDir(), 'demo-report-test');
+    const runId = 'demo-run';
+    const testId = 'demo-report';
+    const store = createNodeFsObjectStore({ rootDir });
     const sim = await openSimulation({
       seed: 7,
       system: createDemoSimulationSystem(),
-      report: { outDir },
+      report: { store, runId, testId },
     });
     try {
       const alice = await sim.actor('alice');
@@ -87,22 +90,43 @@ describe('openSimulation (demo system)', () => {
       await sim.dispose();
     }
 
-    expect(sim.reportPath).toBe(join(outDir, 'index.html'));
-    expect(existsSync(sim.reportPath!)).toBe(true);
-    const index = readFileSync(sim.reportPath!, 'utf8');
-    expect(index).toContain('Simulation report');
-    expect(index).toContain('tap');
+    const stepsKey = `runs/${runId}/tests/${testId}/steps.json`;
+    expect(sim.reportPath).toBe(stepsKey);
+    const stepsPath = join(rootDir, ...stepsKey.split('/'));
+    const runDir = join(rootDir, 'runs', runId);
+    expect(existsSync(stepsPath)).toBe(true);
+    expect(existsSync(join(rootDir, 'runs', 'index.json'))).toBe(true);
+    expect(existsSync(join(runDir, 'manifest.json'))).toBe(true);
+    expect(existsSync(join(runDir, 'snapshot-shell.css'))).toBe(true);
 
-    const stepsJson = JSON.parse(
-      readFileSync(join(outDir, 'steps.json'), 'utf8')
-    ) as {
-      steps: Array<{ kind: string; snapshotFile?: string }>;
+    const manifest = JSON.parse(
+      readFileSync(join(runDir, 'manifest.json'), 'utf8')
+    ) as { tests: Array<{ testId: string; path: string }> };
+    expect(manifest.tests.some((t) => t.testId === testId)).toBe(true);
+    expect(manifest.tests.find((t) => t.testId === testId)?.path).toBe(
+      `/t/${testId}`
+    );
+
+    const stepsJson = JSON.parse(readFileSync(stepsPath, 'utf8')) as {
+      meta: { testId: string; runId: string };
+      steps: Array<{
+        kind: string;
+        snapshotFile?: string;
+        frames?: Array<{ file: string }>;
+      }>;
     };
+    expect(stepsJson.meta.testId).toBe(testId);
+    expect(stepsJson.meta.runId).toBe(runId);
     expect(stepsJson.steps.some((s) => s.kind === 'launch')).toBe(true);
     expect(stepsJson.steps.some((s) => s.kind === 'tap')).toBe(true);
     const tapStep = stepsJson.steps.find((s) => s.kind === 'tap');
-    expect(tapStep?.snapshotFile).toMatch(/^snapshots\/step-\d+\.html$/);
-    const snap = readFileSync(join(outDir, tapStep!.snapshotFile!), 'utf8');
+    expect(tapStep?.snapshotFile).toMatch(/^frames\/f-\d+\.html$/);
+    expect(tapStep?.frames?.length).toBeGreaterThan(0);
+    const snap = readFileSync(
+      join(runDir, 'tests', testId, tapStep!.snapshotFile!),
+      'utf8'
+    );
     expect(snap).toContain('Game night (alice)');
+    expect(snap).toContain('snapshot-shell.css');
   });
 });

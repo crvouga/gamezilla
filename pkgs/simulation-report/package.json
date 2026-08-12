@@ -1,0 +1,32 @@
+{
+  "name": "@pkgs/simulation-report",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "build": "bun ./src/build-web.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test src --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

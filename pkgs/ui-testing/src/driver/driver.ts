@@ -80,5 +80,7 @@ export interface Driver {
    * Capture a readable HTML preview of the current UI for reporting.
    * Returns `null` when the driver cannot snapshot (e.g. Detox stub).
    */
-  snapshotHtml(): Promise<string | null>;
+  snapshotHtml(options?: {
+    readonly stylesheetHref?: string;
+  }): Promise<string | null>;
 }

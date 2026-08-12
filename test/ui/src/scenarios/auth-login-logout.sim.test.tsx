@@ -1,8 +1,9 @@
-import { join } from 'node:path';
 import { setTimeout as nodeSetTimeout } from 'node:timers/promises';
 import { describe, expect, jest, test } from '@jest/globals';
 import { wallClock } from '@pkgs/clock';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { openSimulation, type Simulation } from '@pkgs/simulation';
+import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
 import {
   by,
   type Driver,
@@ -13,11 +14,9 @@ import {
 
 import { createClientSimulationSystem } from '../harness/create-client-simulation-system';
 
-const REPORT_OUT_DIR = join(
-  process.cwd(),
-  'simulation-report',
-  'auth-login-logout'
-);
+const reportStore = createNodeFsObjectStore({
+  rootDir: resolveLocalReportDataDir(),
+});
 
 /**
  * Wall delay that cannot be swallowed by Jest fake timers (expo-router /
@@ -72,7 +71,11 @@ describe('auth login → logout', () => {
       startMs: Date.parse('2024-06-01T00:00:00.000Z'),
       system: createClientSimulationSystem(),
       report: {
-        outDir: REPORT_OUT_DIR,
+        store: reportStore,
+        ...(process.env['SIM_REPORT_RUN_ID'] !== undefined
+          ? { runId: process.env['SIM_REPORT_RUN_ID'] }
+          : {}),
+        testId: 'auth-login-logout',
         now: () => wallClock.now(),
       },
     });

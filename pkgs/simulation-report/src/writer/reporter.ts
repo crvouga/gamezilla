@@ -1,0 +1,459 @@
+import { setTimeout as delay } from 'node:timers/promises';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
+
+import type {
+  RunSummary,
+  SimulationFrame,
+  SimulationReportData,
+  SimulationReportMeta,
+  SimulationStep,
+  SimulationStepKind,
+  SimulationStepStatus,
+  SuiteTestSummary,
+} from '../types';
+import {
+  DEFAULT_FRAME_INTERVAL_MS,
+  DEFAULT_MAX_FRAMES_PER_STEP,
+  sanitizeRunId,
+  sanitizeTestId,
+} from '../types';
+import {
+  RUNS_INDEX_KEY,
+  snapshotShellKey,
+  testFrameKey,
+  testStepsKey,
+} from './keys';
+import {
+  bumpGeneration,
+  loadRunManifest,
+  loadRunsIndex,
+  storePutJson,
+  storePutText,
+  upsertTestSummary,
+} from './store-io';
+
+export type SimulationReporterOptions = {
+  readonly seed: string;
+  readonly ui: string;
+  readonly store: ObjectStore;
+  readonly runId: string;
+  readonly testId: string;
+  readonly now: () => number;
+  readonly frameIntervalMs?: number;
+  readonly maxFramesPerStep?: number;
+};
+
+type RecordArgs = {
+  readonly actorId: string;
+  readonly kind: SimulationStepKind;
+  readonly title: string;
+  readonly selector?: string;
+  readonly detail?: string;
+  readonly run: () => Promise<void>;
+  readonly snapshot: (options?: {
+    readonly stylesheetHref?: string;
+  }) => Promise<string | null>;
+  /** Capture snapshot before `run` (e.g. before close unmounts). */
+  readonly snapshotBefore?: boolean;
+  /** Skip HTML snapshot capture for this step. */
+  readonly skipSnapshot?: boolean;
+  /**
+   * Poll for change-gated frames while `run` executes (waitFor / step).
+   * Default: true for `waitFor` and `step`.
+   */
+  readonly pollFrames?: boolean;
+};
+
+type StepOutcome = {
+  readonly status: SimulationStepStatus;
+  readonly errorMessage?: string;
+  readonly cause?: unknown;
+  readonly frames: SimulationFrame[];
+};
+
+/** Relative to `tests/<id>/frames/` → run `snapshot-shell.css`. */
+const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
+
+/**
+ * Collects per-step UI frames and writes them through an {@link ObjectStore}.
+ */
+export class SimulationReporter {
+  private readonly seed: string;
+  private readonly ui: string;
+  private readonly store: ObjectStore;
+  private readonly runId: string;
+  private readonly testId: string;
+  private readonly now: () => number;
+  private readonly frameIntervalMs: number;
+  private readonly maxFramesPerStep: number;
+  private readonly startedAtMs: number;
+  private readonly steps: SimulationStep[] = [];
+  private readonly actorIds = new Set<string>();
+  private frameSeq = 0;
+  private flushed = false;
+  private reportPath: string | undefined;
+
+  constructor(options: SimulationReporterOptions) {
+    this.seed = options.seed;
+    this.ui = options.ui;
+    this.store = options.store;
+    this.runId = sanitizeRunId(options.runId);
+    this.testId = sanitizeTestId(options.testId);
+    this.now = options.now;
+    this.frameIntervalMs = options.frameIntervalMs ?? DEFAULT_FRAME_INTERVAL_MS;
+    this.maxFramesPerStep =
+      options.maxFramesPerStep ?? DEFAULT_MAX_FRAMES_PER_STEP;
+    this.startedAtMs = options.now();
+  }
+
+  /** Object-store key for this test's `steps.json` after flush. */
+  get path(): string | undefined {
+    return this.reportPath;
+  }
+
+  get runKey(): string {
+    return this.runId;
+  }
+
+  get testKey(): string {
+    return this.testId;
+  }
+
+  async record(args: RecordArgs): Promise<void> {
+    this.actorIds.add(args.actorId);
+    const startedAtMs = this.now();
+    const outcome = await this.runRecorded(args);
+    this.pushStep(args, startedAtMs, this.now(), outcome);
+    if (outcome.cause !== undefined) {
+      throw outcome.cause;
+    }
+  }
+
+  /**
+   * Capture a single change-gated frame into the current open step context.
+   * Prefer `pollFrames` on `record`; this is for custom wait loops.
+   */
+  async captureFrame(
+    snapshot: (options?: {
+      readonly stylesheetHref?: string;
+    }) => Promise<string | null>,
+    state: FrameCaptureState
+  ): Promise<void> {
+    if (state.frames.length >= this.maxFramesPerStep) return;
+    const html = await snapshot({ stylesheetHref: FRAME_STYLESHEET_HREF });
+    if (html == null) return;
+    const hash = hashString(html);
+    if (hash === state.lastHash) return;
+    state.lastHash = hash;
+    const frame = await this.writeFrame(html);
+    state.frames.push(frame);
+  }
+
+  async flush(): Promise<SimulationReportData> {
+    if (this.flushed && this.reportPath) {
+      return this.toData(this.now());
+    }
+    this.flushed = true;
+    const endedAtMs = this.now();
+    const steps = assignFrameDurations(this.steps);
+    const data = this.toData(endedAtMs, steps);
+
+    await storePutText(
+      this.store,
+      snapshotShellKey(this.runId),
+      SNAPSHOT_SHELL_CSS,
+      'text/css; charset=utf-8'
+    );
+
+    const finalData: SimulationReportData = {
+      meta: data.meta,
+      steps,
+    };
+
+    const stepsKey = testStepsKey(this.runId, this.testId);
+    await storePutJson(this.store, stepsKey, stripSnapshots(finalData));
+
+    const frameCount = steps.reduce(
+      (n, s) => n + (s.frames?.length ?? (s.snapshotFile ? 1 : 0)),
+      0
+    );
+    const summary: SuiteTestSummary = {
+      testId: this.testId,
+      seed: this.seed,
+      ui: this.ui,
+      status: data.meta.status,
+      durationMs: data.meta.durationMs,
+      stepCount: steps.length,
+      frameCount,
+      path: `/t/${this.testId}`,
+    };
+
+    const manifest = await loadRunManifest(this.store, this.runId);
+    const tests = upsertTestSummary(manifest.tests, summary);
+    await storePutJson(this.store, `runs/${this.runId}/manifest.json`, {
+      tests,
+      updatedAtMs: endedAtMs,
+    });
+
+    await this.rewriteRunsIndex(tests, endedAtMs);
+    await bumpGeneration(this.store);
+
+    this.reportPath = stepsKey;
+    return finalData;
+  }
+
+  private async rewriteRunsIndex(
+    tests: readonly SuiteTestSummary[],
+    updatedAtMs: number
+  ): Promise<void> {
+    const index = await loadRunsIndex(this.store);
+    const status: SimulationStepStatus = tests.some(
+      (t) => t.status === 'failed'
+    )
+      ? 'failed'
+      : 'passed';
+    const summary: RunSummary = {
+      id: this.runId,
+      updatedAtMs,
+      status,
+      testCount: tests.length,
+      frameCount: tests.reduce((n, t) => n + t.frameCount, 0),
+    };
+    const runs = index.runs.filter((r) => r.id !== this.runId);
+    runs.push(summary);
+    runs.sort((a, b) => b.updatedAtMs - a.updatedAtMs);
+    await storePutJson(this.store, RUNS_INDEX_KEY, { runs });
+  }
+
+  private async runRecorded(args: RecordArgs): Promise<StepOutcome> {
+    const wantSnapshot = args.skipSnapshot !== true;
+    const pollFrames =
+      wantSnapshot &&
+      (args.pollFrames === true ||
+        (args.pollFrames !== false && shouldPollKind(args.kind)));
+    const state: FrameCaptureState = { frames: [], lastHash: '' };
+    const stop = { value: false };
+
+    try {
+      await this.runWithOptionalPolling(args, {
+        wantSnapshot,
+        pollFrames,
+        state,
+        stop,
+      });
+      await this.ensureMinimumFrame(args, wantSnapshot, state);
+      return { status: 'passed', frames: state.frames };
+    } catch (cause) {
+      stop.value = true;
+      const errorMessage =
+        cause instanceof Error ? cause.message : String(cause);
+      if (wantSnapshot && state.frames.length === 0) {
+        await this.captureFrame(args.snapshot, state).catch(() => undefined);
+      }
+      return {
+        status: 'failed',
+        errorMessage,
+        cause,
+        frames: state.frames,
+      };
+    }
+  }
+
+  private async runWithOptionalPolling(
+    args: RecordArgs,
+    opts: {
+      readonly wantSnapshot: boolean;
+      readonly pollFrames: boolean;
+      readonly state: FrameCaptureState;
+      readonly stop: { value: boolean };
+    }
+  ): Promise<void> {
+    if (opts.wantSnapshot && args.snapshotBefore) {
+      await this.captureFrame(args.snapshot, opts.state);
+    }
+    const pollPromise = this.pollFramesWhile(args, opts);
+    try {
+      await args.run();
+    } finally {
+      opts.stop.value = true;
+      await pollPromise;
+    }
+    if (opts.wantSnapshot && !args.snapshotBefore) {
+      await this.captureFrame(args.snapshot, opts.state);
+    }
+  }
+
+  private async pollFramesWhile(
+    args: RecordArgs,
+    opts: {
+      readonly pollFrames: boolean;
+      readonly state: FrameCaptureState;
+      readonly stop: { value: boolean };
+    }
+  ): Promise<void> {
+    if (!opts.pollFrames) return;
+    while (
+      !opts.stop.value &&
+      opts.state.frames.length < this.maxFramesPerStep
+    ) {
+      await this.captureFrame(args.snapshot, opts.state);
+      if (opts.stop.value) break;
+      await delay(this.frameIntervalMs);
+    }
+  }
+
+  private async ensureMinimumFrame(
+    args: RecordArgs,
+    wantSnapshot: boolean,
+    state: FrameCaptureState
+  ): Promise<void> {
+    if (!wantSnapshot || state.frames.length > 0) return;
+    const html = await args.snapshot({
+      stylesheetHref: FRAME_STYLESHEET_HREF,
+    });
+    if (html == null) return;
+    state.frames.push(await this.writeFrame(html));
+  }
+
+  private async writeFrame(html: string): Promise<SimulationFrame> {
+    this.frameSeq += 1;
+    const file = `frames/f-${padFrame(this.frameSeq)}.html`;
+    const key = testFrameKey(this.runId, this.testId, file);
+    await storePutText(this.store, key, html, 'text/html; charset=utf-8');
+    return { file, capturedAtMs: this.now() };
+  }
+
+  private pushStep(
+    args: RecordArgs,
+    startedAtMs: number,
+    endedAtMs: number,
+    outcome: StepOutcome
+  ): void {
+    const last = outcome.frames[outcome.frames.length - 1];
+    this.steps.push(
+      this.buildStep({
+        actorId: args.actorId,
+        kind: args.kind,
+        title: args.title,
+        status: outcome.status,
+        startedAtMs,
+        endedAtMs,
+        frames: outcome.frames,
+        ...(args.selector !== undefined ? { selector: args.selector } : {}),
+        ...(args.detail !== undefined ? { detail: args.detail } : {}),
+        ...(outcome.errorMessage !== undefined
+          ? { error: outcome.errorMessage }
+          : {}),
+        ...(last !== undefined ? { snapshotFile: last.file } : {}),
+      })
+    );
+  }
+
+  private buildStep(args: {
+    readonly actorId: string;
+    readonly kind: SimulationStepKind;
+    readonly title: string;
+    readonly selector?: string;
+    readonly detail?: string;
+    readonly status: SimulationStepStatus;
+    readonly startedAtMs: number;
+    readonly endedAtMs: number;
+    readonly error?: string;
+    readonly snapshotFile?: string;
+    readonly frames: readonly SimulationFrame[];
+  }): SimulationStep {
+    const index = this.steps.length + 1;
+    return {
+      index,
+      actorId: args.actorId,
+      kind: args.kind,
+      title: args.title,
+      ...(args.selector !== undefined ? { selector: args.selector } : {}),
+      ...(args.detail !== undefined ? { detail: args.detail } : {}),
+      status: args.status,
+      startedAtMs: args.startedAtMs,
+      endedAtMs: args.endedAtMs,
+      durationMs: Math.max(0, args.endedAtMs - args.startedAtMs),
+      ...(args.error !== undefined ? { error: args.error } : {}),
+      ...(args.snapshotFile !== undefined
+        ? { snapshotFile: args.snapshotFile }
+        : {}),
+      frames: args.frames,
+    };
+  }
+
+  private toData(
+    endedAtMs: number,
+    steps: readonly SimulationStep[] = this.steps
+  ): SimulationReportData {
+    const status: SimulationStepStatus = steps.some(
+      (s) => s.status === 'failed'
+    )
+      ? 'failed'
+      : 'passed';
+    const meta: SimulationReportMeta = {
+      seed: this.seed,
+      ui: this.ui,
+      startedAtMs: this.startedAtMs,
+      endedAtMs,
+      durationMs: Math.max(0, endedAtMs - this.startedAtMs),
+      status,
+      actorIds: [...this.actorIds],
+      runId: this.runId,
+      testId: this.testId,
+    };
+    return { meta, steps: [...steps] };
+  }
+}
+
+export type FrameCaptureState = {
+  frames: SimulationFrame[];
+  lastHash: string;
+};
+
+function shouldPollKind(kind: SimulationStepKind): boolean {
+  return kind === 'waitFor' || kind === 'step';
+}
+
+function assignFrameDurations(
+  steps: readonly SimulationStep[]
+): SimulationStep[] {
+  return steps.map((step) => {
+    const frames = step.frames ?? [];
+    if (frames.length === 0) return step;
+    const withDurations = frames.map((frame, i) => {
+      const next = frames[i + 1];
+      const end = next?.capturedAtMs ?? step.endedAtMs;
+      return {
+        ...frame,
+        durationMs: Math.max(0, end - frame.capturedAtMs),
+      };
+    });
+    return { ...step, frames: withDurations };
+  });
+}
+
+function padFrame(index: number): string {
+  return String(index).padStart(5, '0');
+}
+
+/** Fast non-crypto content hash for change-gating identical frames. */
+export function hashString(value: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+function stripSnapshots(data: SimulationReportData): unknown {
+  return {
+    meta: data.meta,
+    steps: data.steps.map((step) => {
+      const { snapshotHtml: _html, ...rest } = step;
+      return rest;
+    }),
+  };
+}

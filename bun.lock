@@ -235,6 +235,21 @@
         "typescript": "catalog:",
       },
     },
+    "apps/simulation-report": {
+      "name": "@apps/simulation-report",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/simulation-report": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/auth": {
       "name": "@libs/auth",
       "version": "0.0.0",
@@ -1275,6 +1290,8 @@
       "dependencies": {
         "@pkgs/clock": "workspace:*",
         "@pkgs/io": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/simulation-report": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "react": "catalog:",
         "react-native": "catalog:",
@@ -1293,6 +1310,23 @@
         "jest": "catalog:",
         "jest-expo": "catalog:",
         "react-test-renderer": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/simulation-report": {
+      "name": "@pkgs/simulation-report",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1565,6 +1599,7 @@
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/simulation": "workspace:*",
+        "@pkgs/simulation-report": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
@@ -1776,6 +1811,8 @@
     "@apps/minio": ["@apps/minio@workspace:apps/minio"],
 
     "@apps/postgres": ["@apps/postgres@workspace:apps/postgres"],
+
+    "@apps/simulation-report": ["@apps/simulation-report@workspace:apps/simulation-report"],
 
     "@aws-crypto/crc32": ["@aws-crypto/crc32@5.2.0", "", { "dependencies": { "@aws-crypto/util": "^5.2.0", "@aws-sdk/types": "^3.222.0", "tslib": "^2.6.2" } }, "sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg=="],
 
@@ -2776,6 +2813,8 @@
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
 
     "@pkgs/simulation": ["@pkgs/simulation@workspace:pkgs/simulation"],
+
+    "@pkgs/simulation-report": ["@pkgs/simulation-report@workspace:pkgs/simulation-report"],
 
     "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 

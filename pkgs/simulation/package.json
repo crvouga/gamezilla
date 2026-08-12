@@ -17,6 +17,8 @@
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/io": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/simulation-report": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "react": "catalog:",
     "react-native": "catalog:"
