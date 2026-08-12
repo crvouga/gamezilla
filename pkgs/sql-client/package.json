@@ -27,6 +27,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
+    "better-sqlite3": "catalog:",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",
     "pg-mem": "catalog:",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@pkgs/io": "workspace:*",
     "@playwright/test": "catalog:",
+    "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",

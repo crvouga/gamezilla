@@ -1,14 +1,11 @@
 /**
- * Node.js built-in SQLite ({@link https://nodejs.org/api/sqlite.html `node:sqlite`})
- * for Jest / Node product simulations. Bun-native tests use
+ * better-sqlite3 for Jest / Node product simulations. Bun-native tests use
  * {@link SqlClientImplBunSqlite}; Expo apps use {@link SqlClientImplExpoSqlite}.
  */
 
-/// <reference path="./node-sqlite.d.ts" />
-
-import { DatabaseSync } from 'node:sqlite';
 import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
+import BetterSqlite3 from 'better-sqlite3';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
@@ -17,11 +14,11 @@ function sqliteCompatSql(sql: string): string {
   return sql.replace(/\?::jsonb/g, '?').replace(/\s+FOR UPDATE\b/gi, '');
 }
 
-export class SqlClientImplNodeSqlite implements SqlClient {
-  constructor(private readonly db: DatabaseSync) {}
+export class SqlClientImplBetterSqlite implements SqlClient {
+  constructor(private readonly db: BetterSqlite3.Database) {}
 
-  static open(databasePath: string): SqlClientImplNodeSqlite {
-    return new SqlClientImplNodeSqlite(new DatabaseSync(databasePath));
+  static open(databasePath: string): SqlClientImplBetterSqlite {
+    return new SqlClientImplBetterSqlite(new BetterSqlite3(databasePath));
   }
 
   async connect(): Promise<void> {

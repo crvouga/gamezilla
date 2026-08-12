@@ -219,10 +219,9 @@ export function createBearerTokenStore(options?: {
 
   async function clear(): Promise<void> {
     clearSync();
-    // Web storage already removed synchronously; native needs the async delete.
-    if (Platform.OS !== 'web') {
-      await persistence.write(null);
-    }
+    // Persistence captured Platform at construction; do not read Platform here
+    // (Jest teardown makes react-native's Platform getter throw).
+    await persistence.write(null);
   }
 
   function setSuppressCapture(suppress: boolean): void {

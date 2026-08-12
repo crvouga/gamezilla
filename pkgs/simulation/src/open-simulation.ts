@@ -53,7 +53,7 @@ function createReporter(
 ): SimulationReporter | undefined {
   const reportOpts = resolveReportOptions(options.report);
   if (reportOpts === null) return undefined;
-  const now = () => io.clock.now();
+  const now = reportOpts.now ?? (() => io.clock.now());
   return new SimulationReporter({
     seed: String(io.seed),
     ui,

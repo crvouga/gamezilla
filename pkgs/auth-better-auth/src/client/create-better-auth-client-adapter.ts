@@ -268,14 +268,10 @@ async function runSignOut(ctx: AdapterContext): Promise<void> {
     // previous signed-in `data`, so the account UI stays logged in. Force-clear.
     clearReactSessionAtom(ctx);
     // Allow capture again after BA's deferred session-signal refetch (~10ms).
+    // Sync-only: async clear() after unmount hits a torn-down RN Platform.
     ctx.timers.setTimeout(() => {
-      try {
-        ctx.bearerStore.setSuppressCapture(false);
-        ctx.bearerStore.clearSync();
-        void ctx.bearerStore.clear().catch(() => undefined);
-      } catch {
-        // Tree already unmounted (in-process sim dispose).
-      }
+      ctx.bearerStore.setSuppressCapture(false);
+      ctx.bearerStore.clearSync();
     }, 250);
   }
 }

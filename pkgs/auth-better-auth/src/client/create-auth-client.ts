@@ -1,10 +1,10 @@
-import { expoClient } from '@better-auth/expo/client';
 import type { HttpFetch } from '@pkgs/http-client';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 
 import type { AuthClientStorage, BearerTokenStore } from './bearer-token-store';
 import { createBearerTokenStore } from './bearer-token-store';
+import type { createExpoAuthPlugin } from './create-expo-auth-plugin';
 
 export type BetterAuthReactClient = ReturnType<typeof createAuthClient>;
 
@@ -41,22 +41,22 @@ export function createBetterAuthReactClient(
       : undefined;
 
   // Injected storage ⇒ isolated actor / test harness. Skip `@better-auth/expo`
-  // (it calls `expo-linking` createURL which needs a Constants manifest that
-  // Jest does not provide). Bearer capture via `onSuccess` still works.
+  // (top-level import installs ExpoOnlineManager, which import()s expo-network
+  // after Jest teardown). Bearer capture via `onSuccess` still works.
   const plugins =
-    args.storage !== undefined
-      ? []
-      : [
-          expoClient({
-            scheme: 'gamezilla',
-            storagePrefix: 'gamezilla',
-            storage,
-          }),
-        ];
+    args.storage !== undefined ? [] : [loadExpoAuthPlugin(storage)];
 
   return createAuthClient({
     baseURL,
     plugins,
+    ...(args.storage !== undefined
+      ? {
+          sessionOptions: {
+            refetchOnWindowFocus: false,
+            refetchInterval: 0,
+          },
+        }
+      : {}),
     fetchOptions: {
       ...(customFetchImpl !== undefined ? { customFetchImpl } : {}),
       onSuccess: (ctx) => {
@@ -70,4 +70,16 @@ export function createBetterAuthReactClient(
       },
     },
   });
+}
+
+function loadExpoAuthPlugin(
+  storage: AuthClientStorage
+): ReturnType<typeof createExpoAuthPlugin> {
+  // Lazy: sims always pass `storage` and must not load `@better-auth/expo`.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createExpoAuthPlugin: createPlugin } =
+    require('./create-expo-auth-plugin') as {
+      createExpoAuthPlugin: typeof createExpoAuthPlugin;
+    };
+  return createPlugin(storage);
 }

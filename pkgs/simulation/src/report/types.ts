@@ -54,6 +54,11 @@ export type SimulationReportOptions = {
    * `simulation-report/<runId>` under `process.cwd()`.
    */
   readonly outDir?: string;
+  /**
+   * Epoch-ms clock for step timestamps. Default: simulation `io.clock`.
+   * Wall-clock UI sims should pass a moving clock so durations are not zero.
+   */
+  readonly now?: () => number;
 };
 
 export function resolveReportOptions(
@@ -65,5 +70,6 @@ export function resolveReportOptions(
   return {
     enabled: true,
     ...(report.outDir !== undefined ? { outDir: report.outDir } : {}),
+    ...(report.now !== undefined ? { now: report.now } : {}),
   };
 }

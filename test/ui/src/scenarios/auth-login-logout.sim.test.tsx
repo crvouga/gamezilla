@@ -1,9 +1,23 @@
+import { join } from 'node:path';
 import { setTimeout as nodeSetTimeout } from 'node:timers/promises';
 import { describe, expect, jest, test } from '@jest/globals';
-import { openSimulation } from '@pkgs/simulation';
-import { by, type Driver, nth, type Selector } from '@pkgs/ui-testing';
+import { wallClock } from '@pkgs/clock';
+import { openSimulation, type Simulation } from '@pkgs/simulation';
+import {
+  by,
+  type Driver,
+  formatSelector,
+  nth,
+  type Selector,
+} from '@pkgs/ui-testing';
 
 import { createClientSimulationSystem } from '../harness/create-client-simulation-system';
+
+const REPORT_OUT_DIR = join(
+  process.cwd(),
+  'simulation-report',
+  'auth-login-logout'
+);
 
 /**
  * Wall delay that cannot be swallowed by Jest fake timers (expo-router /
@@ -21,25 +35,32 @@ function realNow(): number {
 }
 
 async function waitVisible(
+  sim: Simulation,
   driver: Driver,
   target: Selector,
   timeoutMs = 90_000
 ): Promise<void> {
-  const deadline = realNow() + timeoutMs;
-  let lastText = '';
-  while (realNow() < deadline) {
-    jest.useRealTimers();
-    if (await driver.isVisible(target)) return;
-    lastText = (await driver.getText(target).catch(() => null)) ?? lastText;
-    await realDelay(50);
-  }
-  throw new Error(
-    `Timed out waiting for ${JSON.stringify(target)} (${lastText})`
-  );
+  await sim.step(`wait ${formatSelector(target)}`, async () => {
+    const deadline = realNow() + timeoutMs;
+    let lastText = '';
+    while (realNow() < deadline) {
+      jest.useRealTimers();
+      if (await driver.isVisible(target)) return;
+      lastText = (await driver.getText(target).catch(() => null)) ?? lastText;
+      await realDelay(50);
+    }
+    throw new Error(
+      `Timed out waiting for ${JSON.stringify(target)} (${lastText})`
+    );
+  });
 }
 
-async function tapWhenVisible(driver: Driver, target: Selector): Promise<void> {
-  await waitVisible(driver, target);
+async function tapWhenVisible(
+  sim: Simulation,
+  driver: Driver,
+  target: Selector
+): Promise<void> {
+  await waitVisible(sim, driver, target);
   await driver.tap(target);
 }
 
@@ -50,33 +71,36 @@ describe('auth login → logout', () => {
       // Recent fixed epoch so auth/session expiry math isn't relative to 1970.
       startMs: Date.parse('2024-06-01T00:00:00.000Z'),
       system: createClientSimulationSystem(),
-      report: true,
+      report: {
+        outDir: REPORT_OUT_DIR,
+        now: () => wallClock.now(),
+      },
     });
     try {
       const alice = await sim.actor('alice');
       await alice.open('/more/account');
 
       // Anon boot + sync hydration lands the account screen (fresh install).
-      await waitVisible(alice.ui, by.role('button', 'Sign in'));
+      await waitVisible(sim, alice.ui, by.role('button', 'Sign in'));
 
       // Open sign-in modal → email → create account.
-      await tapWhenVisible(alice.ui, by.role('button', 'Sign in'));
-      await tapWhenVisible(alice.ui, by.text('Sign in with email'));
-      await tapWhenVisible(alice.ui, by.text('Need an account? Create one'));
+      await tapWhenVisible(sim, alice.ui, by.role('button', 'Sign in'));
+      await tapWhenVisible(sim, alice.ui, by.text('Sign in with email'));
+      await tapWhenVisible(sim, alice.ui, by.text('Need an account? Create one'));
 
-      await waitVisible(alice.ui, by.label('Email'));
+      await waitVisible(sim, alice.ui, by.label('Email'));
       await alice.ui.typeText(by.label('Email'), 'alice@sim.local');
       await alice.ui.typeText(by.label('Password'), 'sim-password-123');
-      await tapWhenVisible(alice.ui, by.role('button', 'Create account'));
+      await tapWhenVisible(sim, alice.ui, by.role('button', 'Create account'));
 
-      await waitVisible(alice.ui, by.text('Signed in'));
-      await tapWhenVisible(alice.ui, by.text('Done'));
+      await waitVisible(sim, alice.ui, by.text('Signed in'));
+      await tapWhenVisible(sim, alice.ui, by.text('Done'));
 
       // Account row opens the confirm modal; modal submit is the 2nd Sign out button.
-      await tapWhenVisible(alice.ui, by.role('button', 'Sign out'));
-      await tapWhenVisible(alice.ui, nth(by.role('button', 'Sign out'), 1));
+      await tapWhenVisible(sim, alice.ui, by.role('button', 'Sign out'));
+      await tapWhenVisible(sim, alice.ui, nth(by.role('button', 'Sign out'), 1));
 
-      await waitVisible(alice.ui, by.text('Signed out'));
+      await waitVisible(sim, alice.ui, by.text('Signed out'));
       expect(await alice.ui.isVisible(by.text('Signed out'))).toBe(true);
     } finally {
       await sim.dispose();

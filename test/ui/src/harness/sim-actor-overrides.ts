@@ -35,7 +35,7 @@ import {
   type SecureStorageStore,
 } from '@pkgs/secure-storage/secure-storage-store';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
-import { SqlClientImplNodeSqlite } from '@pkgs/sql-client/sqlite/impl-node-sqlite';
+import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
 
 /** Jest-immune timers (see create-client-simulation-system `simNodeTimers`). */
 const actorNodeTimers: Timers = {
@@ -82,7 +82,7 @@ export function createActorClientSeams(
 ): ActorClientSeams {
   const { apiUrl, pubSubBus } = args;
   const openMemorySqlClient: OpenLocalSqlClient = async () => {
-    const client = SqlClientImplNodeSqlite.open(':memory:');
+    const client = SqlClientImplBetterSqlite.open(':memory:');
     await client.connect();
     return client;
   };

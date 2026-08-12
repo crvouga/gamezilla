@@ -13,7 +13,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   testTimeout: 180_000,
   // Transform all node_modules so Bun-nested ESM (.mjs / "export") loads under Jest.
-  transformIgnorePatterns: [],
+  // Skip better-sqlite3: native addon; Babel would break require of the .node binding.
+  transformIgnorePatterns: ['/node_modules/.*/better-sqlite3/'],
   transform: {
     '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': [
       require.resolve('babel-jest'),
