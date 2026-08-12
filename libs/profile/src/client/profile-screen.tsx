@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import { Box, Button, ScreenBase, ScreenBodyScrollView } from '@pkgs/ui';
@@ -76,6 +77,7 @@ function ProfileScreenContent({
           variant="outline"
           flex={1}
           onPress={() => router.push('/profile/edit')}
+          testID={Handles.profileEdit}
         />
         {friendsActions}
       </Box>

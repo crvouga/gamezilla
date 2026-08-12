@@ -26,6 +26,7 @@ const CI_GATE_TASKS = [
   'ci:local-dev-self-contained',
   'ci:no-local-tables',
   'ci:domain-table-prefixes',
+  'ci:dst-selector-discipline',
   'ci:no-legacy-writes',
   'ci:no-domain-hard-delete',
   'ci:no-top-level-di-functions',

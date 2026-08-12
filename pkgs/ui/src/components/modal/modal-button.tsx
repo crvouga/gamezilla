@@ -20,6 +20,7 @@ export type ModalButtonProps = {
   variant?: 'default' | 'cancel' | 'destructive';
   onPress: () => void;
   disabled?: boolean;
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -29,6 +30,7 @@ export function ModalButton({
   variant = 'default',
   onPress,
   disabled = false,
+  testID,
   dataSet,
 }: ModalButtonProps) {
   if (variant === 'destructive') {
@@ -39,6 +41,7 @@ export function ModalButton({
         size="md"
         onPress={onPress}
         disabled={disabled}
+        {...(testID !== undefined ? { testID } : {})}
         {...componentDataSet('ModalButton', dataSet)}
       />
     );
@@ -52,6 +55,7 @@ export function ModalButton({
         size="md"
         onPress={onPress}
         disabled={disabled}
+        {...(testID !== undefined ? { testID } : {})}
         {...componentDataSet('ModalButton', dataSet)}
       />
     );
@@ -63,6 +67,7 @@ export function ModalButton({
       size="md"
       onPress={onPress}
       disabled={disabled}
+      {...(testID !== undefined ? { testID } : {})}
       {...componentDataSet('ModalButton', dataSet)}
     />
   );

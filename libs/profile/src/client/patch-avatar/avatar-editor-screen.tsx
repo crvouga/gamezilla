@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans } from '@lingui/react/macro';
 import {
   AvatarHero,
@@ -290,7 +291,11 @@ export function AvatarEditorScreen() {
         scroll
         footer={
           <FormActionsFooter
-            cancel={{ label: <Trans>Cancel</Trans>, onPress: onBack }}
+            cancel={{
+              label: <Trans>Cancel</Trans>,
+              onPress: onBack,
+              testID: Handles.profileAvatarCancel,
+            }}
             submit={{
               label: <Trans>Save</Trans>,
               loadingLabel: <Trans>Saving…</Trans>,
@@ -298,6 +303,7 @@ export function AvatarEditorScreen() {
               errorLabel: <Trans>Couldn't save</Trans>,
               operation: save,
               disabled: !dirty || profileId === null,
+              testID: Handles.profileAvatarSave,
             }}
           />
         }

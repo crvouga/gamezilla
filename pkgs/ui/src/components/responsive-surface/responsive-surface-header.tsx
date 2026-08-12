@@ -11,11 +11,14 @@ export type ResponsiveSurfaceHeaderProps = {
   /** When omitted, the row is close-only (X top-right). */
   title?: ReactNode;
   onClose: () => void;
+  /** `testID` for the header close control. */
+  closeTestID?: string;
 };
 
 export function ResponsiveSurfaceHeader({
   title,
   onClose,
+  closeTestID,
 }: ResponsiveSurfaceHeaderProps) {
   const hasTitle = title !== undefined && title !== null && title !== '';
   return (
@@ -36,7 +39,10 @@ export function ResponsiveSurfaceHeader({
           sx={{ flex: 1, mr: 2 }}
         />
       ) : null}
-      <CloseIconButton onPress={onClose} />
+      <CloseIconButton
+        onPress={onClose}
+        {...(closeTestID !== undefined ? { testID: closeTestID } : {})}
+      />
     </Box>
   );
 }

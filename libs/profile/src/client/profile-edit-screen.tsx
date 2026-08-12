@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
@@ -21,11 +22,13 @@ export function ProfileEditScreen() {
             title={t`Username`}
             caption={t`Unique handle for search and invites`}
             onPress={() => router.push('/profile/handle')}
+            testID={Handles.profileEditUsername}
           />
           <MenuRow
             title={t`Avatar`}
             caption={t`Pick a fun emoji look`}
             onPress={() => router.push('/profile/avatar')}
+            testID={Handles.profileEditAvatar}
           />
         </MenuList>
       )}

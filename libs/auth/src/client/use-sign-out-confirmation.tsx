@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans } from '@lingui/react/macro';
 import { useLogger } from '@pkgs/logger/react';
 import { MutationModal } from '@pkgs/ui';
@@ -54,6 +55,8 @@ export function useSignOutConfirmationModal(args: {
         successBody={<Trans>You're signed out on this device.</Trans>}
         errorTitle={<Trans>Sign-out failed</Trans>}
         onError={onError}
+        submitTestID={Handles.authSignOutConfirm}
+        successTestID={Handles.authSignedOut}
       />
     ),
     [signOutConfirmOpen, closeSignOutConfirmBase, operation, onError]

@@ -12,6 +12,7 @@ export type UserUsernameProps = {
   numberOfLines?: number;
   /** When true, prefix with `@`. Default true. */
   withAt?: boolean;
+  testID?: string;
 };
 
 /**
@@ -25,13 +26,14 @@ export function UserUsername({
   sx,
   numberOfLines,
   withAt = true,
+  testID,
 }: UserUsernameProps): ReactNode {
   if (profileId === null) return null;
   return (
     <UserUsernameInner
       profileId={profileId}
       withAt={withAt}
-      {...optionalProps({ variant, sx, numberOfLines })}
+      {...optionalProps({ variant, sx, numberOfLines, testID })}
     />
   );
 }
@@ -42,12 +44,14 @@ function UserUsernameInner({
   sx,
   numberOfLines,
   withAt,
+  testID,
 }: {
   profileId: string;
   variant?: TextVariant;
   sx?: SxProps;
   numberOfLines?: number;
   withAt: boolean;
+  testID?: string;
 }): ReactNode {
   const username = useProfileColumn(profileId, 'username');
   const label =
@@ -57,6 +61,9 @@ function UserUsernameInner({
         ? `@${username}`
         : username;
   return (
-    <Text {...optionalProps({ variant, sx, numberOfLines })} label={label} />
+    <Text
+      {...optionalProps({ variant, sx, numberOfLines, testID })}
+      label={label}
+    />
   );
 }

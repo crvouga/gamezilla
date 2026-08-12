@@ -263,26 +263,27 @@ function styleOpacity(value: unknown): number | undefined {
 function readHostText(element: ReactTestInstance): string | null {
   const props = element.props as {
     value?: unknown;
-    children?: unknown;
     accessibilityLabel?: unknown;
   };
   if (typeof props.value === 'string') return props.value;
   if (typeof props.value === 'number') return String(props.value);
-  const fromChildren = collectText(props.children);
-  if (fromChildren.length > 0) return fromChildren;
+  const fromTree = collectInstanceText(element);
+  if (fromTree.length > 0) return fromTree;
   if (typeof props.accessibilityLabel === 'string') {
     return props.accessibilityLabel;
   }
   return null;
 }
 
-function collectText(children: unknown): string {
-  if (children == null || typeof children === 'boolean') return '';
-  if (typeof children === 'string' || typeof children === 'number') {
-    return String(children);
+/** Walk the RNTL host tree (nested Text nodes under Pressable, etc.). */
+function collectInstanceText(element: ReactTestInstance): string {
+  let out = '';
+  for (const child of element.children) {
+    if (typeof child === 'string') {
+      out += child;
+    } else {
+      out += collectInstanceText(child);
+    }
   }
-  if (Array.isArray(children)) {
-    return children.map(collectText).join('');
-  }
-  return '';
+  return out;
 }

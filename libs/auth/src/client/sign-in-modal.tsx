@@ -7,6 +7,7 @@
  * email/password completes in-place via the same phase machine.
  */
 
+import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
 import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import {
@@ -120,6 +121,7 @@ export function SignInModal(props: SignInModalProps): ReactNode {
       onClose={surfaceClose}
       title={titleForSignInIdleStep(idleStep, t)}
       presentation="modal"
+      closeTestID={Handles.authModalClose}
     >
       <MutationStateTransition stateKey={phase} active={visible}>
         <SignInPhaseContent
@@ -192,7 +194,11 @@ function SignInPhaseContent({
             />
           </StateArea>
           <ModalFooter>
-            <ModalButton label={t`Done`} onPress={onDismiss} />
+            <ModalButton
+              label={t`Done`}
+              onPress={onDismiss}
+              testID={Handles.authSignedInDone}
+            />
           </ModalFooter>
         </>
       );

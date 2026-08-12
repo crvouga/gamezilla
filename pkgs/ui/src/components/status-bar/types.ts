@@ -17,6 +17,8 @@ export type StatusBarItem = {
   indicator: ReactNode;
   /** Accessibility label for the indicator cluster entry. */
   accessibilityLabel?: string;
+  /** Stable `testID` for strip indicator + Control Center tile pressables. */
+  testID?: string;
   /** Primary label on the Control Center tile. */
   title: ReactNode;
   /** Optional supporting line under the title. */

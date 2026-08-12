@@ -48,12 +48,14 @@ export type FormSubmitAction = {
   disabled?: boolean | undefined;
   /** Submit color role. Defaults to `'primary'`; use `'danger'` for deletes. */
   intent?: ButtonIntent | undefined;
+  testID?: string | undefined;
 };
 
 export type FormCancelAction = {
   label: ReactNode;
   onPress: () => void;
   disabled?: boolean | undefined;
+  testID?: string | undefined;
 };
 
 export type FormActionsFooterProps = {
@@ -99,12 +101,14 @@ export function FormActionsFooter({
           }}
           disabled={cancel.disabled ?? false}
           flex={1}
+          {...(cancel.testID !== undefined ? { testID: cancel.testID } : {})}
         />
       ) : null}
       <Button
         {...mutation.buttonProps}
         intent={submit.intent ?? 'primary'}
         flex={1}
+        {...(submit.testID !== undefined ? { testID: submit.testID } : {})}
       />
     </Box>
   );

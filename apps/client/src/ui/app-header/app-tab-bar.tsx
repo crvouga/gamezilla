@@ -3,6 +3,7 @@
  * expo-router `Tabs` navigator.
  */
 
+import { Handles } from '@libs/dst-handles';
 import { Box, getTopBarContentHeight, useTheme } from '@pkgs/ui';
 import type {
   BottomTabBarProps,
@@ -13,6 +14,11 @@ import { type ReactNode, useMemo } from 'react';
 import { APP_TAB_ICON_SIZE, AppTabButton } from './app-tab-button';
 
 type TabRoute = BottomTabBarProps['state']['routes'][number];
+
+function tabTestID(routeName: string): string | undefined {
+  if (routeName === 'profile') return Handles.tabProfile;
+  return undefined;
+}
 
 function resolveTabLabel(
   options: BottomTabNavigationOptions,
@@ -95,6 +101,7 @@ function AppTabBarRow({ props }: { props: BottomTabBarProps }): ReactNode {
           route,
           focused
         );
+        const tabId = tabTestID(route.name);
         return (
           <AppTabButton
             key={route.key}
@@ -103,6 +110,7 @@ function AppTabBarRow({ props }: { props: BottomTabBarProps }): ReactNode {
             focused={focused}
             onPress={onPress}
             onLongPress={onLongPress}
+            {...(tabId !== undefined ? { testID: tabId } : {})}
           />
         );
       })}

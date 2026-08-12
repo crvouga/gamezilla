@@ -1,5 +1,7 @@
+import type { Timers } from '@pkgs/clock';
+
 import { UiTestError } from '../core/errors';
-import type { WaitPollOptions } from '../core/wait';
+import { type WaitPollOptions, waitUntil } from '../core/wait';
 import { formatSelector } from '../selector/format';
 import type { Selector } from '../selector/selector';
 
@@ -13,7 +15,18 @@ type ExpectHost = {
     options?: WaitPollOptions
   ): Promise<void>;
   getText(target: Selector): Promise<string | null>;
+  /** When set with `timers`, `expectText` polls until the value matches. */
+  now?: () => number;
+  timers?: Timers;
 };
+
+function textMatches(
+  actual: string | null,
+  expected: string,
+  exact: boolean
+): boolean {
+  return exact ? actual === expected : (actual?.includes(expected) ?? false);
+}
 
 /** Shared expect implementations for concrete {@link Driver} classes. */
 export async function runExpectVisible(
@@ -51,14 +64,35 @@ export async function runExpectText(
 
   await driver.wait(target, 'visible', { ...options, description });
 
-  const actual = await driver.getText(target);
-  const matches = exact
-    ? actual === expected
-    : (actual?.includes(expected) ?? false);
+  const { now, timers } = driver;
+  if (now === undefined || timers === undefined) {
+    const actual = await driver.getText(target);
+    if (!textMatches(actual, expected, exact)) {
+      throw new UiTestError(
+        `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}, got ${JSON.stringify(actual)}`
+      );
+    }
+    return;
+  }
 
-  if (!matches) {
+  let lastActual: string | null = null;
+  try {
+    await waitUntil(
+      async () => {
+        lastActual = await driver.getText(target);
+        return textMatches(lastActual, expected, exact) ? true : null;
+      },
+      {
+        ...options,
+        description,
+        now,
+        timers,
+      }
+    );
+  } catch (error) {
     throw new UiTestError(
-      `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}, got ${JSON.stringify(actual)}`
+      `Expected text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatSelector(target)}, got ${JSON.stringify(lastActual)}`,
+      { cause: error }
     );
   }
 }

@@ -59,6 +59,9 @@ export function StatusBarPanel({ items }: StatusBarPanelProps): ReactNode {
                   {...(item.accessibilityLabel !== undefined
                     ? { accessibilityLabel: item.accessibilityLabel }
                     : {})}
+                  {...(item.testID !== undefined
+                    ? { testID: item.testID }
+                    : {})}
                 />
               </Box>
             ))}

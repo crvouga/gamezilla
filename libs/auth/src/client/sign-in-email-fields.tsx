@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Box, Button, TextInput } from '@pkgs/ui';
@@ -35,6 +36,7 @@ export function SignInEmailFields(props: {
         value={email}
         onChangeText={onEmailChange}
         placeholder={t`you@example.com`}
+        testID={Handles.authEmailInput}
       />
       <TextInput
         label={<Trans>Password</Trans>}
@@ -44,8 +46,14 @@ export function SignInEmailFields(props: {
         value={password}
         onChangeText={onPasswordChange}
         placeholder={t`Password`}
+        testID={Handles.authPasswordInput}
       />
-      <Button title={submitTitle} onPress={onSubmit} disabled={!canSubmit} />
+      <Button
+        title={submitTitle}
+        onPress={onSubmit}
+        disabled={!canSubmit}
+        {...(mode === 'sign-up' ? { testID: Handles.authSubmitCreate } : {})}
+      />
     </Box>
   );
 }

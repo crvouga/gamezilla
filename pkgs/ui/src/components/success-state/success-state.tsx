@@ -41,6 +41,7 @@ export type SuccessStateProps = {
   action?: SuccessStateAction;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant;
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -55,6 +56,7 @@ export function SuccessState({
   body,
   action,
   variant = 'fill',
+  testID,
   dataSet,
 }: SuccessStateProps): ReactNode {
   if (variant === 'compact') {
@@ -64,6 +66,7 @@ export function SuccessState({
         title={title}
         body={body}
         action={action}
+        testID={testID}
         dataSet={dataSet}
       />
     );
@@ -74,6 +77,7 @@ export function SuccessState({
       title={title}
       body={body}
       action={action}
+      testID={testID}
       dataSet={dataSet}
     />
   );
@@ -84,18 +88,24 @@ function SuccessStateFill({
   title,
   body,
   action,
+  testID,
   dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
+  testID: string | undefined;
   dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
   const Icon = icon;
   return (
-    <StateBlock variant="fill" {...componentDataSet('SuccessState', dataSet)}>
+    <StateBlock
+      variant="fill"
+      {...componentDataSet('SuccessState', dataSet)}
+      {...(testID !== undefined ? { testID } : {})}
+    >
       <Icon size={ICON_SIZE_FILL} color={theme.colors.success} />
       <Text
         variant="bodyBold"
@@ -126,12 +136,14 @@ function SuccessStateCompact({
   title,
   body,
   action,
+  testID,
   dataSet,
 }: {
   icon: IconComponent;
   title: ReactNode;
   body: ReactNode;
   action: SuccessStateAction | undefined;
+  testID: string | undefined;
   dataSet: ComponentDataSet | undefined;
 }) {
   const theme = useTheme();
@@ -139,6 +151,7 @@ function SuccessStateCompact({
   return (
     <Box
       {...componentDataSet('SuccessState', dataSet)}
+      {...(testID !== undefined ? { testID } : {})}
       sx={{
         flexDirection: 'row',
         alignItems: 'flex-start',

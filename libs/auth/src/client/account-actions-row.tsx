@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
 import { Box, Button } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
@@ -26,9 +27,14 @@ export function AccountActionsRow(): ReactNode {
           title={t`Sign out`}
           intent="danger"
           onPress={onRequestSignOut}
+          testID={Handles.accountSignOut}
         />
       ) : (
-        <Button title={t`Sign in`} onPress={onSignIn} />
+        <Button
+          title={t`Sign in`}
+          onPress={onSignIn}
+          testID={Handles.accountSignIn}
+        />
       )}
     </Box>
   );

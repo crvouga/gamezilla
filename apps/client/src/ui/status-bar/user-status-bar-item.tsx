@@ -2,6 +2,7 @@ import {
   useHasAuthSession,
   useIsAnon,
 } from '@libs/auth/client/use-current-user';
+import { Handles } from '@libs/dst-handles';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useLingui } from '@lingui/react/macro';
 import { RegisterStatusBarItem, useStatusBar } from '@pkgs/ui';
@@ -31,6 +32,7 @@ export function UserStatusBarItem(): ReactNode {
       title={t`Account`}
       caption={caption}
       accessibilityLabel={t`Current user`}
+      testID={Handles.statusCurrentUser}
       active={signedIn && !isAnon}
       indicator={<MyProfileAvatar size={14} />}
       leading={<MyProfileAvatar size={28} />}

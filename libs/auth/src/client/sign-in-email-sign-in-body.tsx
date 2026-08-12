@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans } from '@lingui/react/macro';
 import type { SignInCredentials } from '@pkgs/auth/shared/sign-in-strategy';
 import { Box, ModalBody, Pressable, Text } from '@pkgs/ui';
@@ -26,7 +27,7 @@ export function SignInEmailSignInBody(props: {
           }}
           submitTitle={<Trans>Sign in</Trans>}
         />
-        <Pressable onPress={onGoToSignUp}>
+        <Pressable onPress={onGoToSignUp} testID={Handles.authGoToSignUp}>
           <Text
             variant="caption"
             sx={{ color: 'textSecondary' }}

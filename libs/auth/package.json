@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@libs/db": "workspace:*",
+    "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",

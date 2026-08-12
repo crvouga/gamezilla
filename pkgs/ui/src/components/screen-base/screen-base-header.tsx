@@ -130,7 +130,11 @@ export function ScreenBaseHeader({
     <>
       {leadingProp}
       {showBack ? (
-        <BackIconButton size={chrome.buttonSize} onPress={onBack} />
+        <BackIconButton
+          size={chrome.buttonSize}
+          onPress={onBack}
+          testID="nav-back"
+        />
       ) : null}
     </>
   );

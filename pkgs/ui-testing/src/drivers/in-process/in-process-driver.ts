@@ -42,8 +42,8 @@ export class InProcessDriver<TContext = void> implements Driver {
 
   private readonly harness: AppHarness<TContext>;
   private readonly renderer: RenderAdapter;
-  private readonly now: () => number;
-  private readonly timers: Timers;
+  readonly now: () => number;
+  readonly timers: Timers;
   private context: TContext | undefined;
   private app: RenderedApp | undefined;
 

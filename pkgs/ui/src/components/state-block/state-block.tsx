@@ -24,6 +24,7 @@ export type StateBlockVariant = 'fill' | 'compact';
 export type StateBlockProps = {
   variant?: StateBlockVariant;
   children: ReactNode;
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -31,12 +32,14 @@ export type StateBlockProps = {
 export function StateBlock({
   variant = 'fill',
   children,
+  testID,
   dataSet,
 }: StateBlockProps): ReactNode {
   const isFill = variant === 'fill';
   return (
     <Box
       {...componentDataSet('StateBlock', dataSet)}
+      {...(testID !== undefined ? { testID } : {})}
       sx={{
         ...(isFill ? { flex: 1 } : {}),
         alignItems: 'center',

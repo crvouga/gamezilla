@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
 import {
@@ -45,9 +46,11 @@ export function AvatarEditorSeedField({
           <TextInput
             value={seed}
             onChangeText={onSeedChange}
+            accessibilityLabel={t`Seed`}
             autoCapitalize="none"
             autoCorrect={false}
             editable={disabled !== true}
+            testID={Handles.profileAvatarSeed}
           />
         </Box>
         <IconButton

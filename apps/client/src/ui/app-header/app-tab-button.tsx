@@ -17,6 +17,7 @@ export type AppTabButtonProps = {
   onPress: () => void;
   onLongPress?: () => void;
   accessibilityLabel?: string;
+  testID?: string;
 };
 
 export function AppTabButton({
@@ -26,6 +27,7 @@ export function AppTabButton({
   onPress,
   onLongPress,
   accessibilityLabel,
+  testID,
 }: AppTabButtonProps): ReactNode {
   const { breakpoint } = useTheme();
   const tabBarHeight = getTopBarContentHeight(breakpoint);
@@ -37,6 +39,7 @@ export function AppTabButton({
       accessibilityRole="button"
       accessibilityState={{ selected: focused }}
       accessibilityLabel={accessibilityLabel ?? label}
+      {...(testID !== undefined ? { testID } : {})}
       sx={{
         flex: 1,
         minWidth: 0,

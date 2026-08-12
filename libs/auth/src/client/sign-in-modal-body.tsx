@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
@@ -59,6 +60,7 @@ export function SignInModalBody(props: {
             variant="outline"
             startIcon={<MailIcon />}
             onPress={onPressEmail}
+            testID={Handles.authMethodEmail}
           />
         ) : null}
 

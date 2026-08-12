@@ -84,7 +84,11 @@ function StatusBarIndicatorItem({
   );
   if (item.onPress === undefined) {
     return (
-      <Box pointerEvents="none" accessibilityLabel={item.accessibilityLabel}>
+      <Box
+        pointerEvents="none"
+        accessibilityLabel={item.accessibilityLabel}
+        {...(item.testID !== undefined ? { testID: item.testID } : {})}
+      >
         {indicator}
       </Box>
     );
@@ -95,6 +99,7 @@ function StatusBarIndicatorItem({
       accessibilityLabel={item.accessibilityLabel}
       onPress={item.onPress}
       feedback="none"
+      {...(item.testID !== undefined ? { testID: item.testID } : {})}
     >
       {indicator}
     </Pressable>

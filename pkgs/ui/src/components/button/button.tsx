@@ -75,6 +75,7 @@ export type ButtonProps = {
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   flex?: number;
+  testID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -174,7 +175,7 @@ export function buttonForegroundColor(
 }
 
 export function Button(props: ButtonProps) {
-  const { size = 'md', flex, dataSet } = props;
+  const { size = 'md', flex, dataSet, testID } = props;
   const theme = useTheme();
   const s = sizeMap[size];
   const { phase, face, nonInteractive, handlePress } =
@@ -189,6 +190,7 @@ export function Button(props: ButtonProps) {
       disabled={nonInteractive}
       sx={buttonSx({ flex, s, face, hasGradient, shadow })}
       dataSet={{ component: 'Button', ...dataSet }}
+      {...(testID !== undefined ? { testID } : {})}
     >
       {face.gradient !== undefined ? (
         <ButtonSurfaceFill

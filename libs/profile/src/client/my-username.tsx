@@ -1,10 +1,11 @@
+import { Handles } from '@libs/dst-handles';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
 
 import { useMyProfileId } from './use-my-profile-id';
 import { UserUsername, type UserUsernameProps } from './user-username';
 
-export type MyUsernameProps = Omit<UserUsernameProps, 'profileId'>;
+export type MyUsernameProps = Omit<UserUsernameProps, 'profileId' | 'testID'>;
 
 /**
  * Sugar: `<UserUsername profileId={useMyProfileId()} … />` (SQLite only).
@@ -23,6 +24,7 @@ export function MyUsername({
   return (
     <UserUsername
       profileId={profileId}
+      testID={Handles.profileDisplayUsername}
       {...(variant !== undefined ? { variant } : {})}
       {...(sx !== undefined ? { sx } : {})}
       {...(numberOfLines !== undefined ? { numberOfLines } : {})}

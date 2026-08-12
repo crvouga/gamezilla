@@ -78,6 +78,8 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
    * the overlay instead of stealing the top slot.
    */
   stackId?: string;
+  /** `testID` for the header close control. */
+  closeTestID?: string;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 }>;
@@ -117,12 +119,14 @@ function SurfaceChrome({
   bodyHeight,
   fillParent,
   onClose,
+  closeTestID,
   children,
 }: {
   title: ReactNode | undefined;
   bodyHeight: number | undefined;
   fillParent: boolean;
   onClose: () => void;
+  closeTestID: string | undefined;
   children: ReactNode;
 }) {
   return (
@@ -134,6 +138,7 @@ function SurfaceChrome({
         <ResponsiveSurfaceHeader
           {...(title !== undefined ? { title } : {})}
           onClose={onClose}
+          {...(closeTestID !== undefined ? { closeTestID } : {})}
         />
         <SurfaceBody bodyHeight={bodyHeight} fillParent={fillParent}>
           {children}
@@ -201,6 +206,7 @@ type MobileSheetBodyProps = {
   dynamicSizing: boolean;
   edgePadPx: number;
   dataSet: ComponentDataSet | undefined;
+  closeTestID: string | undefined;
   onDismissSheet: () => void;
   children: ReactNode;
 };
@@ -212,6 +218,7 @@ function MobileSheetBody({
   dynamicSizing,
   edgePadPx,
   dataSet,
+  closeTestID,
   onDismissSheet,
   children,
 }: MobileSheetBodyProps) {
@@ -232,6 +239,7 @@ function MobileSheetBody({
           bodyHeight={bodyHeight}
           fillParent={!dynamicSizing}
           onClose={onDismissSheet}
+          closeTestID={closeTestID}
         >
           {children}
         </SurfaceChrome>
@@ -247,6 +255,7 @@ function MobileSheet({
   snapPoints: snapPointsProp,
   bodyHeight,
   children,
+  closeTestID,
   dataSet,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
@@ -301,6 +310,7 @@ function MobileSheet({
         dynamicSizing={dynamicSizing}
         edgePadPx={spacing[CONTENT_EDGE_PADDING_STEP]}
         dataSet={dataSet}
+        closeTestID={closeTestID}
         onDismissSheet={dismissSheet}
       >
         {children}
@@ -318,6 +328,7 @@ function DesktopModal({
   bodyHeight,
   children,
   stackId,
+  closeTestID,
   dataSet,
 }: ResponsiveSurfaceProps) {
   return (
@@ -347,6 +358,7 @@ function DesktopModal({
               bodyHeight={bodyHeight}
               fillParent={false}
               onClose={onClose}
+              closeTestID={closeTestID}
             >
               {children}
             </SurfaceChrome>

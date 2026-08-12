@@ -25,6 +25,7 @@
     "@dicebear/core": "catalog:",
     "@libs/auth": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/attribute": "workspace:*",

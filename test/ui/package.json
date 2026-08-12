@@ -18,6 +18,7 @@
     "@apps/api": "workspace:*",
     "@apps/client": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/dst-handles": "workspace:*",
     "@libs/infra": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/clock": "workspace:*",

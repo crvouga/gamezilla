@@ -303,6 +303,18 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:dst-selector-discipline": {
+      "inputs": [
+        "test/ui/src/scenarios/**/*.ts",
+        "test/ui/src/scenarios/**/*.tsx",
+        "test/ui/src/harness/drivers/**/*.ts",
+        "test/ui/src/harness/app-driver.ts",
+        "test/ui/src/harness/ui-testing-adapter.ts",
+        "tools/scripts/check-dst-selector-discipline.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-legacy-writes": {
       "inputs": [
         "apps/**/*.ts",

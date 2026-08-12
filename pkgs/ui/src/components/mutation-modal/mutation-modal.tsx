@@ -80,6 +80,10 @@ export type MutationModalProps = {
    * underlays when the mutation phase updates chrome.
    */
   stackId?: string | undefined;
+  /** `testID` for the idle-phase confirm/submit button. */
+  submitTestID?: string | undefined;
+  /** `testID` for the success-state block (title region). */
+  successTestID?: string | undefined;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -226,7 +230,13 @@ function MutationSuccess({
   return (
     <>
       <StateArea>
-        <SuccessState title={props.successTitle} body={props.successBody} />
+        <SuccessState
+          title={props.successTitle}
+          body={props.successBody}
+          {...(props.successTestID !== undefined
+            ? { testID: props.successTestID }
+            : {})}
+        />
       </StateArea>
       <FooterSlot>
         <ModalButton
@@ -291,6 +301,9 @@ function MutationIdle({
           variant={submitVariant}
           disabled={props.submitDisabled ?? false}
           onPress={onRun}
+          {...(props.submitTestID !== undefined
+            ? { testID: props.submitTestID }
+            : {})}
         />
         <ModalButton
           label={props.cancelLabel ?? t`Cancel`}

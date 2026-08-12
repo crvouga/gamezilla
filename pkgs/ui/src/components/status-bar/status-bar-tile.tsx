@@ -21,6 +21,7 @@ export type StatusBarTileProps = {
   active?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
+  testID?: string;
   dataSet?: ComponentDataSet;
 };
 
@@ -31,6 +32,7 @@ export function StatusBarTile({
   active = false,
   onPress,
   accessibilityLabel,
+  testID,
   dataSet,
 }: StatusBarTileProps): ReactNode {
   const theme = useTheme();
@@ -94,6 +96,7 @@ export function StatusBarTile({
       onPress={onPress}
       feedback="opacity"
       sx={{ flex: 1 }}
+      {...(testID !== undefined ? { testID } : {})}
     >
       {body}
     </Pressable>

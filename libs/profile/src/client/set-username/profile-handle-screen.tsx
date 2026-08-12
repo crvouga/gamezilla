@@ -1,4 +1,5 @@
 import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   type BodyContentProps,
@@ -56,11 +57,13 @@ function ProfileHandleScreenBody({
     <Box sx={sx}>
       <TextInput
         label={<Trans>Username</Trans>}
+        accessibilityLabel={t`Username`}
         value={value}
         onChangeText={setValue}
         placeholder={t`your_handle`}
         autoCapitalize="none"
         autoCorrect={false}
+        testID={Handles.profileUsernameInput}
       />
     </Box>
   );
@@ -131,6 +134,7 @@ export function ProfileHandleScreen() {
           cancel={{
             label: <Trans>Cancel</Trans>,
             onPress: () => router.back(),
+            testID: Handles.profileUsernameCancel,
           }}
           submit={{
             label: <Trans>Save</Trans>,
@@ -139,6 +143,7 @@ export function ProfileHandleScreen() {
             errorLabel: usernameErrorLabel(lastError),
             operation: save,
             disabled: profileId === null,
+            testID: Handles.profileUsernameSave,
           }}
         />
       }

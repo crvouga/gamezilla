@@ -439,6 +439,25 @@
           }
         }
       }
+    },
+    {
+      "includes": ["test/ui/src/scenarios/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@pkgs/ui-testing": {
+                    "message": "Scenarios must use AppDriver / openSim (see test/ui/src/harness/TESTING.md). Do not import @pkgs/ui-testing."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

@@ -22,6 +22,7 @@ function toRegisteredItem(
     ...(props.accessibilityLabel !== undefined
       ? { accessibilityLabel: props.accessibilityLabel }
       : {}),
+    ...(props.testID !== undefined ? { testID: props.testID } : {}),
     title: props.title,
     ...(props.caption !== undefined ? { caption: props.caption } : {}),
     ...(props.leading !== undefined ? { leading: props.leading } : {}),

@@ -90,6 +90,7 @@
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/dst-handles": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -256,6 +257,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/db": "workspace:*",
+        "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -389,6 +391,14 @@
         "typescript": "catalog:",
       },
     },
+    "libs/dst-handles": {
+      "name": "@libs/dst-handles",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/friends": {
       "name": "@libs/friends",
       "version": "0.0.0",
@@ -472,6 +482,7 @@
         "@dicebear/core": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",
@@ -1590,6 +1601,7 @@
         "@apps/api": "workspace:*",
         "@apps/client": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/dst-handles": "workspace:*",
         "@libs/infra": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/clock": "workspace:*",
@@ -2545,6 +2557,8 @@
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
 
     "@libs/db": ["@libs/db@workspace:libs/db"],
+
+    "@libs/dst-handles": ["@libs/dst-handles@workspace:libs/dst-handles"],
 
     "@libs/friends": ["@libs/friends@workspace:libs/friends"],
 
