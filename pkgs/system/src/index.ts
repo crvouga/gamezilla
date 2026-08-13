@@ -14,11 +14,11 @@ export type {
 } from './system';
 export {
   collectAllResources,
-  defineResource,
   defineSystem,
   getResourceDeps,
   getResourceFactory,
   isResourceKeyed,
   keyed,
+  resource,
   serveFetch,
 } from './system';

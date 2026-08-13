@@ -2,7 +2,7 @@ import type { Kv } from '@pkgs/kv/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { defineResource, defineSystem, type Fetch, keyed } from '@pkgs/system';
+import { defineSystem, type Fetch, keyed, resource } from '@pkgs/system';
 import type { Driver } from '@pkgs/ui-testing';
 
 import type {
@@ -13,31 +13,31 @@ import type {
   TtsProvider,
 } from './ports';
 
-export const db = defineResource<SqlClient>();
-export const events = defineResource<PubSub>();
+export const db = resource<SqlClient>();
+export const events = resource<PubSub>();
 
 export const room = keyed(
-  defineResource<Fetch>()({
-    storage: defineResource<Kv>(),
+  resource<Fetch>()({
+    storage: resource<Kv>(),
   })
 );
 
-export const api = defineResource<Fetch>()({
+export const api = resource<Fetch>()({
   db,
   events,
   room,
-  kv: defineResource<Kv>(),
-  media: defineResource<ObjectStore>(),
-  payments: defineResource<PaymentGateway>(),
-  tts: defineResource<TtsProvider>(),
-  llm: defineResource<LlmProvider>(),
-  google: defineResource<GoogleAuth>(),
+  kv: resource<Kv>(),
+  media: resource<ObjectStore>(),
+  payments: resource<PaymentGateway>(),
+  tts: resource<TtsProvider>(),
+  llm: resource<LlmProvider>(),
+  google: resource<GoogleAuth>(),
 });
 
-export const client = defineResource<Driver>()({
-  db: defineResource<SqlClient>(),
-  kv: defineResource<Kv>(),
-  observability: defineResource<Observability>(),
+export const client = resource<Driver>()({
+  db: resource<SqlClient>(),
+  kv: resource<Kv>(),
+  sentry: resource<Observability>(),
   events,
   api,
   room,

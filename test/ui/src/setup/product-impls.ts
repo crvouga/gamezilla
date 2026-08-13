@@ -33,8 +33,6 @@ const CLIENT_APP_DIR = path.resolve(
   '../../../../apps/client/src/app'
 );
 
-const INITIAL_PATH = '/';
-
 function neuterJestFakeTimers(): void {
   jest.useFakeTimers = ((..._args: unknown[]) =>
     jest) as typeof jest.useFakeTimers;
@@ -105,10 +103,7 @@ export function createProductClientResource(args: {
               unstable_settings: clientUnstableSettings,
             });
             const result = render(
-              createElement(ExpoRoot, {
-                context,
-                location: INITIAL_PATH,
-              })
+              createElement(ExpoRoot, { context, location: '/' })
             );
             jest.useRealTimers();
             await act(async () => {
