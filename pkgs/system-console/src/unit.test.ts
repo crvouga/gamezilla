@@ -70,32 +70,22 @@ describe('parseReportNav', () => {
       bucketId: null,
       runId: null,
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
-      mode: 'realtime',
-      speed: 1,
     });
   });
   test('parses bucket / run / test', () => {
     expect(
       parseReportNav(
         '/b/local/r/20240601T120000/t/auth-login-logout',
-        '?step=2&frame=5&node=alice&play=1&mode=fixed&speed=2'
+        '?frame=5&node=alice'
       )
     ).toEqual({
       bucketId: 'local',
       runId: '20240601T120000',
       testId: 'auth-login-logout',
-      step: 2,
       frame: 5,
       node: 'alice',
-      attr: null,
-      play: true,
-      mode: 'fixed',
-      speed: 2,
     });
   });
 });
@@ -107,27 +97,21 @@ describe('buildReportUrl', () => {
         bucketId: null,
         runId: null,
         testId: null,
-        step: null,
         frame: null,
         node: null,
-        attr: null,
-        play: false,
-        mode: 'realtime',
-        speed: 1,
       },
       {
         bucketId: 'local',
         runId: 'run1',
         testId: 'demo',
         frame: 3,
-        step: 1,
         node: 'bob',
       }
     );
     expect(url.pathname).toBe('/b/local/r/run1/t/demo');
     expect(url.search).toContain('frame=3');
-    expect(url.search).toContain('step=1');
     expect(url.search).toContain('node=bob');
+    expect(url.search).not.toContain('step=');
   });
 });
 
@@ -235,7 +219,7 @@ describe('SimulationReporter + ObjectStore', () => {
       snapshotDatabases: async () => {
         calls += 1;
         return [
-          { nodeId: 'server', bytes: payload },
+          { nodeId: 'api', bytes: payload },
           { nodeId: 'alice', bytes: payload },
         ];
       },
@@ -260,7 +244,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const frame1 = data.steps[1]?.frames?.[0];
     expect(frame0?.databases?.map((d) => d.nodeId).sort()).toEqual([
       'alice',
-      'server',
+      'api',
     ]);
     expect(frame0?.databases?.[0]?.file).toMatch(
       /^frames\/db\/[a-f0-9]{64}\.sqlite\.gz$/

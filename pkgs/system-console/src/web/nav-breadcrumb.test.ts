@@ -12,11 +12,8 @@ describe('breadcrumb nav patches', () => {
       bucketId: 'local',
       runId: null,
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 
@@ -25,11 +22,8 @@ describe('breadcrumb nav patches', () => {
       bucketId: null,
       runId: null,
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 
@@ -37,11 +31,8 @@ describe('breadcrumb nav patches', () => {
     expect(breadcrumbPatchForRun('20260812T120000')).toEqual({
       runId: '20260812T120000',
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 
@@ -49,33 +40,24 @@ describe('breadcrumb nav patches', () => {
     expect(breadcrumbPatchForRun(null)).toEqual({
       runId: null,
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 
-  test('test change clears frame/step/play', () => {
+  test('test change clears frame/node', () => {
     expect(breadcrumbPatchForTest('profile-guest-avatar')).toEqual({
       testId: 'profile-guest-avatar',
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 
   test('test clear returns to suite', () => {
     expect(breadcrumbPatchForTest(null)).toEqual({
       testId: null,
-      step: null,
       frame: null,
       node: null,
-      attr: null,
-      play: false,
     });
   });
 });

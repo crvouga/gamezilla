@@ -83,18 +83,11 @@ export function firstFrameForStep(
 /** Explicit selection from URL only; null when nothing is selected. */
 export function resolveSelectedFrameIndex(
   frames: readonly FlatFrame[],
-  steps: readonly SimulationStep[],
-  nav: { step: number | null; frame: number | null }
+  _steps: readonly SimulationStep[],
+  nav: { frame: number | null }
 ): number | null {
   if (nav.frame != null && nav.frame >= 1 && nav.frame <= frames.length) {
     return nav.frame - 1;
-  }
-  if (nav.step != null) {
-    const stepIdx = steps.findIndex((s) => s.index === nav.step);
-    if (stepIdx >= 0) {
-      const fi = firstFrameForStep(frames, stepIdx);
-      if (fi >= 0) return fi;
-    }
   }
   return null;
 }

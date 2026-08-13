@@ -200,9 +200,13 @@ describe('@pkgs/system smoke', () => {
   test('partition drops expected calls', async () => {
     const world = openWorld(9);
     const ui = await world.spawn<AppUi>('client', 'carol');
+    expect(world.instances.has('client:carol')).toBe(true);
+    expect(world.instances.has('api')).toBe(true);
     world.faults.partition('client:carol', 'api');
+    expect(world.partitions.has('api|client:carol')).toBe(true);
     await expect(ui.ping()).rejects.toThrow(/partitioned/);
     world.faults.heal('client:carol', 'api');
+    expect(world.partitions.size).toBe(0);
     expect(await ui.ping()).toBe('ok');
     world.dispose();
   });

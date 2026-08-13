@@ -1,28 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { CommandPalette } from './commands/palette';
-import { CommandsProvider } from './commands/registry';
-import { useCommandShortcuts } from './commands/shortcuts';
 import { ReportViews } from './report-views';
 import type { ReportNavState } from './router';
 import { readWindowNav } from './router';
 import { useReportData } from './use-report-data';
 
 export function App() {
-  return (
-    <CommandsProvider>
-      <AppShell />
-    </CommandsProvider>
-  );
-}
-
-function AppShell() {
   const [nav, setNav] = useState<ReportNavState>(() => readWindowNav());
   const onNav = useCallback((next: ReportNavState) => {
     setNav(next);
   }, []);
   const data = useReportData(nav, onNav);
-  useCommandShortcuts();
 
   useEffect(() => {
     const onPop = () => setNav(readWindowNav());
@@ -31,14 +19,11 @@ function AppShell() {
   }, []);
 
   return (
-    <>
-      <ReportViews
-        nav={nav}
-        data={data}
-        generation={data.generation}
-        onNav={onNav}
-      />
-      <CommandPalette />
-    </>
+    <ReportViews
+      nav={nav}
+      data={data}
+      generation={data.generation}
+      onNav={onNav}
+    />
   );
 }

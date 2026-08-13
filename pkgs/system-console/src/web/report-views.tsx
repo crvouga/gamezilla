@@ -1,15 +1,18 @@
+import { useEffect } from 'react';
+
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import { deleteRunApi, pruneBucket } from './api-client';
-import { BucketPicker } from './bucket-picker';
 import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
 import { RunsPage } from './runs-page';
 import { SuitePage } from './suite-page';
-import { TestPlayer } from './test-player';
+import { TestPage } from './test-page';
 import { styles } from './theme';
 import type { ReportDataApi } from './use-report-data';
+
+const LOCAL_BUCKET = 'local';
 
 export function ReportViews(props: {
   readonly nav: ReportNavState;
@@ -20,18 +23,26 @@ export function ReportViews(props: {
   const { nav, data, generation, onNav } = props;
   const concreteRunId = data.resolvedRunId;
 
+  useEffect(() => {
+    if (nav.bucketId) return;
+    if (!data.buckets.some((b) => b.id === LOCAL_BUCKET)) return;
+    onNav(
+      navigateReport(nav, clearPlayerNav({ bucketId: LOCAL_BUCKET }), 'replace')
+    );
+  }, [data.buckets, nav, onNav]);
+
   if (!nav.bucketId) {
     return (
-      <BucketPicker
-        nav={nav}
-        buckets={data.buckets}
-        runs={data.runs}
-        tests={data.tests}
-        onNav={onNav}
-        onOpen={(bucketId) => {
-          onNav(navigateReport(nav, clearPlayerNav({ bucketId, runId: null })));
-        }}
-      />
+      <div style={styles.appShell}>
+        <ReportHeader breadcrumb={<span>Reports</span>} />
+        <div style={styles.appBody}>
+          <p style={styles.empty}>
+            {data.buckets.length === 0
+              ? 'Waiting for report bucket…'
+              : 'Opening local bucket…'}
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -163,7 +174,7 @@ function TestOrLoading(props: {
     );
   }
   return (
-    <TestPlayer
+    <TestPage
       data={data.testData}
       nav={nav}
       bucketId={nav.bucketId!}

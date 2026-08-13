@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+
 import { formatMsStable } from './frames';
-import { durationHeat } from './heat';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
@@ -80,28 +80,6 @@ describe('patchPreviewHtml', () => {
     expect(out).toContain('html{height:100%}');
     expect(out).toContain('@font-face{font-family:Nunito}');
     expect(out).not.toContain('.snapshot-host');
-  });
-});
-
-describe('durationHeat', () => {
-  test('keeps sub-100ms neutral; warms near 1s; hot by a few seconds', () => {
-    const instant = durationHeat(0);
-    const fast = durationHeat(13);
-    const stillCool = durationHeat(100);
-    const warm = durationHeat(1000);
-    const hot = durationHeat(3000);
-    expect(instant.t).toBe(0);
-    expect(fast.t).toBe(0);
-    expect(stillCool.t).toBe(0);
-    expect(warm.t).toBeGreaterThan(0.4);
-    expect(hot.t).toBe(1);
-    expect(fast.cssColor).toBe(instant.cssColor);
-    expect(hot.cssColor).toContain('hsl(');
-  });
-
-  test('does not scale relative to other frames', () => {
-    // Fast steps stay neutral even when they are the slowest in a tiny suite.
-    expect(durationHeat(13).t).toBe(0);
   });
 });
 

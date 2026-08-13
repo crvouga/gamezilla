@@ -8,7 +8,7 @@ import { system } from '@libs/runtime/shared/system';
 import { wallClock } from '@pkgs/clock';
 import { createSimIo } from '@pkgs/io';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { createWorld } from '@pkgs/system';
+import { createWorld, instanceAddress, type World } from '@pkgs/system';
 import {
   createReportingDriver,
   mintRunId,
@@ -17,11 +17,12 @@ import {
 } from '@pkgs/system-console';
 import type { Driver } from '@pkgs/ui-testing';
 
-import { bootMigratedSimSqlite } from './boot-sim-sqlite';
+import { bootMigratedSimSqlite, type SimSqliteHandle } from './boot-sim-sqlite';
 import { migrateSimSqlite } from './migrate-sim-sqlite';
 import { createProductImpls } from './product-impls';
 import { createInMemoryBus, createProductProvide } from './product-provide';
 import { simNodeTimers } from './sim-actor-overrides';
+import { projectReportTopology } from './sim-topology';
 
 const reportStore = createNodeFsObjectStore({
   rootDir: resolveLocalReportDataDir(),
@@ -60,37 +61,25 @@ function resolveProcessRunId(): string {
   return runId;
 }
 
-/** Map scenario node ids onto system graph addresses. */
-function toAddress(id: string): string {
-  if (id === 'server' || id === 'api') return 'api';
-  if (id === 'pubsub' || id === 'events') return 'events';
-  if (id.startsWith('client:')) return id;
-  return `client:${id}`;
-}
-
 export type SimActorHandle = {
   readonly id: string;
   readonly ui: Driver;
 };
 
-export type SimEdgeHandle = {
-  partition(): Promise<void>;
-  heal(): Promise<void>;
-};
-
-export type TopologySnapshot = {
-  readonly nodes: ReadonlyArray<{ readonly id: string }>;
-};
-
 export type OpenSimHandle = {
+  readonly world: World;
   actor(id: string): Promise<SimActorHandle>;
-  edge(from: string, to: string): SimEdgeHandle;
-  topology(): TopologySnapshot;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
 
-export async function openSim(testId: string): Promise<OpenSimHandle> {
+type BootedSim = {
+  readonly world: World;
+  readonly db: SimSqliteHandle;
+  readonly reporter: SimulationReporter;
+};
+
+async function bootSim(testId: string): Promise<BootedSim> {
   const io = createSimIo({
     seed: 1,
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
@@ -109,7 +98,6 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
       });
     },
   });
-
   const world = createWorld(system, {
     seed: 1,
     timers: simNodeTimers,
@@ -117,10 +105,6 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
     provide: createProductProvide({ db, pubSubBus }),
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
   });
-
-  const actors = new Map<string, SimActorHandle>();
-  const nodes = new Set<string>(['server', 'pubsub']);
-
   const reporter = new SimulationReporter({
     seed: '1',
     store: reportStore,
@@ -131,36 +115,34 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
     frameIntervalMs: 250,
     publishThrottleMs: 50,
     ui: 'in-process',
+    snapshotTopology: () => projectReportTopology(world, system, '1'),
+    snapshotDatabases: async () => [
+      { nodeId: 'api', bytes: new Uint8Array(db.sqlite.serialize()) },
+    ],
   });
+  return { world, db, reporter };
+}
 
+function buildOpenSimHandle(boot: BootedSim): OpenSimHandle {
+  const { world, db, reporter } = boot;
+  const actors = new Map<string, SimActorHandle>();
   let disposed = false;
 
   const handle: OpenSimHandle = {
+    world,
     async actor(id: string) {
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
       if (existing) return existing;
+      const address = instanceAddress('client', id);
       const raw = await world.spawn<Driver>('client', id);
-      const ui = createReportingDriver(raw, { actorId: id, reporter });
+      const ui = createReportingDriver(raw, {
+        actorId: address,
+        reporter,
+      });
       const actor = { id, ui };
       actors.set(id, actor);
-      nodes.add(id);
       return actor;
-    },
-    edge(from: string, to: string) {
-      return {
-        async partition() {
-          world.faults.partition(toAddress(from), toAddress(to));
-        },
-        async heal() {
-          world.faults.heal(toAddress(from), toAddress(to));
-        },
-      };
-    },
-    topology() {
-      return {
-        nodes: [...nodes].map((id) => ({ id })),
-      };
     },
     async dispose() {
       if (disposed) return;
@@ -185,9 +167,12 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
       await handle.dispose();
     },
   };
+  return handle;
+}
 
-  await world.spawn('api');
-  nodes.add('server');
-
+export async function openSim(testId: string): Promise<OpenSimHandle> {
+  const boot = await bootSim(testId);
+  const handle = buildOpenSimHandle(boot);
+  await boot.world.spawn('api');
   return handle;
 }

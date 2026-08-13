@@ -1,8 +1,6 @@
-import { editorStyles } from './theme-editor-styles';
 import { merge, t } from './theme-tokens';
 
 export const styles = {
-  ...editorStyles,
   /** Full-viewport shell: shared chrome row + body. */
   appShell: merge({
     height: '100%',
@@ -258,82 +256,4 @@ export const styles = {
   iconBtnSm: merge({ height: 30, minWidth: 30, padding: '0 10px' }),
   iconBtnMd: merge({ width: 34, height: 34 }),
   iconBtnLg: merge({ width: 44, height: 44 }),
-  cmdkOverlay: merge({
-    position: 'fixed',
-    inset: 0,
-    zIndex: 1000,
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    paddingTop: '12vh',
-  }),
-  cmdkBackdrop: merge({
-    position: 'absolute',
-    inset: 0,
-    border: 0,
-    background: 'rgba(0, 0, 0, 0.55)',
-    cursor: 'default',
-  }),
-  cmdkRoot: merge({
-    position: 'relative',
-    width: 'min(560px, calc(100vw - 32px))',
-    background: t.panel,
-    border: `1px solid ${t.border}`,
-    borderRadius: 6,
-    boxShadow: '0 16px 48px rgba(0, 0, 0, 0.45)',
-    overflow: 'hidden',
-  }),
-  cmdkInputRow: merge({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '12px 14px',
-    borderBottom: `1px solid ${t.border}`,
-    color: t.muted,
-  }),
-  cmdkInput: merge({
-    flex: 1,
-    border: 0,
-    outline: 'none',
-    background: 'transparent',
-    color: t.text,
-    font: 'inherit',
-  }),
-  cmdkList: merge({
-    maxHeight: 360,
-    overflow: 'auto',
-    padding: 6,
-  }),
-  cmdkGroupHeading: merge({
-    padding: '8px 10px 4px',
-    color: t.muted,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-  }),
-  cmdkItem: merge({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '8px 10px',
-    borderRadius: t.radius,
-    cursor: 'pointer',
-  }),
-  cmdkItemSelected: merge({
-    background: t.accentSoft,
-    color: t.accent,
-  }),
-  cmdkEmpty: merge({
-    padding: 20,
-    color: t.muted,
-    textAlign: 'center',
-  }),
-  cmdkKbd: merge({
-    marginLeft: 'auto',
-    color: t.muted,
-    border: `1px solid ${t.border}`,
-    padding: '1px 6px',
-    borderRadius: 2,
-    fontSize: 10,
-  }),
 } as const;

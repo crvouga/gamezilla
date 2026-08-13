@@ -50,7 +50,7 @@ function rootsOf(addr: string): string {
 }
 
 export function isPartitioned(
-  partitions: Set<string>,
+  partitions: ReadonlySet<string>,
   a: string,
   b: string
 ): boolean {

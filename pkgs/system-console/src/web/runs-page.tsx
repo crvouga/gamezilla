@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import type { RunSummary, SuiteTestSummary } from '../types';
 import type { BucketInfo } from './api-client';
-import { useRegisterCommands } from './commands/registry';
-import type { Command } from './commands/types';
 import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
@@ -43,7 +41,6 @@ export function RunsPage(props: {
     bucketId,
     runs,
     generation,
-    onBack,
     onNav,
     onOpenRun,
     onOpenLatest,
@@ -52,15 +49,6 @@ export function RunsPage(props: {
   } = props;
   const [keepLast, setKeepLast] = useState(5);
   const [busy, setBusy] = useState(false);
-  useRunsCommands({
-    keepLast,
-    runs,
-    onBack,
-    onKeepLast,
-    onOpenRun,
-    onOpenLatest,
-    setBusy,
-  });
   const latest = useHoverStyle(styles.btn, styles.btnHover);
 
   return (
@@ -114,65 +102,6 @@ export function RunsPage(props: {
       </div>
     </div>
   );
-}
-
-function useRunsCommands(args: {
-  readonly keepLast: number;
-  readonly runs: readonly RunSummary[];
-  readonly onBack: () => void;
-  readonly onKeepLast: (n: number) => Promise<void>;
-  readonly onOpenRun: (runId: string) => void;
-  readonly onOpenLatest: () => void;
-  readonly setBusy: (busy: boolean) => void;
-}) {
-  const {
-    keepLast,
-    runs,
-    onBack,
-    onKeepLast,
-    onOpenRun,
-    onOpenLatest,
-    setBusy,
-  } = args;
-  const commands = useMemo((): Command[] => {
-    const list: Command[] = [
-      {
-        id: 'nav.buckets',
-        label: 'Back to buckets',
-        section: 'Navigation',
-        shortcut: 'Backspace',
-        match: (e) => e.key === 'Backspace',
-        run: onBack,
-      },
-      {
-        id: 'run.open.latest',
-        label: 'Open latest run',
-        section: 'Runs',
-        shortcut: 'L',
-        match: (e) => e.key === 'l' && !e.metaKey && !e.ctrlKey,
-        run: onOpenLatest,
-      },
-      {
-        id: 'runs.prune',
-        label: `Prune keep last ${keepLast}`,
-        section: 'Runs',
-        run: () => {
-          setBusy(true);
-          void onKeepLast(keepLast).finally(() => setBusy(false));
-        },
-      },
-    ];
-    for (const r of runs.slice(0, 9)) {
-      list.push({
-        id: `run.open.${r.id}`,
-        label: `Open run ${r.id}`,
-        section: 'Runs',
-        run: () => onOpenRun(r.id),
-      });
-    }
-    return list;
-  }, [keepLast, onBack, onKeepLast, onOpenLatest, onOpenRun, runs, setBusy]);
-  useRegisterCommands(commands);
 }
 
 function PruneBar(props: {

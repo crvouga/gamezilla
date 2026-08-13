@@ -18,7 +18,7 @@ export type SimulationStepKind =
 
 /** Per-node SQLite dump attached to a UI frame (content-addressed blob). */
 export type SimulationFrameDatabase = {
-  /** `'server'` or actor id. */
+  /** System address (`api`, `client:alice`). */
   readonly nodeId: string;
   /** Path relative to the test report dir, e.g. `frames/db/<sha>.sqlite.gz`. */
   readonly file: string;

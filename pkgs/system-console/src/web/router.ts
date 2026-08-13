@@ -1,30 +1,17 @@
-export type PlayMode = 'realtime' | 'fixed';
-export type PlaySpeed = 0.5 | 1 | 2;
-
 export type ReportNavState = {
   readonly bucketId: string | null;
   readonly runId: string | null;
   readonly testId: string | null;
-  readonly step: number | null;
   readonly frame: number | null;
   readonly node: string | null;
-  readonly attr: string | null;
-  readonly play: boolean;
-  readonly mode: PlayMode;
-  readonly speed: PlaySpeed;
 };
 
 const DEFAULT_NAV: ReportNavState = {
   bucketId: null,
   runId: null,
   testId: null,
-  step: null,
   frame: null,
   node: null,
-  attr: null,
-  play: false,
-  mode: 'realtime',
-  speed: 1,
 };
 
 /**
@@ -32,7 +19,7 @@ const DEFAULT_NAV: ReportNavState = {
  * - `/`
  * - `/b/:bucketId`
  * - `/b/:bucketId/r/:runId` (`runId` may be the sticky alias `latest`)
- * - `/b/:bucketId/r/:runId/t/:testId?step=&frame=&node=&play=&mode=&speed=`
+ * - `/b/:bucketId/r/:runId/t/:testId?frame=&node=`
  */
 export function parseReportNav(
   pathname: string,
@@ -47,23 +34,13 @@ export function parseReportNav(
   const bucketId = match ? decodeURIComponent(match[1]!) : null;
   const runId = match?.[2] ? decodeURIComponent(match[2]) : null;
   const testId = match?.[3] ? decodeURIComponent(match[3]) : null;
-  const speedRaw = Number(params.get('speed') ?? '1');
-  const modeRaw = params.get('mode');
-  const speed: PlaySpeed = speedRaw === 0.5 || speedRaw === 2 ? speedRaw : 1;
-  const mode: PlayMode = modeRaw === 'fixed' ? 'fixed' : 'realtime';
   const nodeRaw = params.get('node');
-  const attrRaw = params.get('attr');
   return {
     bucketId,
     runId,
     testId,
-    step: parsePositiveInt(params.get('step')),
     frame: parsePositiveInt(params.get('frame')),
     node: nodeRaw && nodeRaw.length > 0 ? nodeRaw : null,
-    attr: attrRaw && attrRaw.length > 0 ? attrRaw : null,
-    play: params.get('play') === '1',
-    mode,
-    speed,
   };
 }
 
@@ -87,36 +64,23 @@ function buildPathname(next: ReportNavState): string {
   return pathname;
 }
 
-function buildPlayerSearch(
-  next: ReportNavState,
-  opts?: { readonly replacePlayDefaults?: boolean }
-): string {
+function buildPlayerSearch(next: ReportNavState): string {
   if (!next.bucketId || !next.runId || !next.testId) return '';
   const params = new URLSearchParams();
-  if (next.step != null) params.set('step', String(next.step));
   if (next.frame != null) params.set('frame', String(next.frame));
   if (next.node != null) params.set('node', next.node);
-  if (next.attr != null) params.set('attr', next.attr);
-  if (next.play) params.set('play', '1');
-  if (next.mode !== 'realtime' || opts?.replacePlayDefaults) {
-    params.set('mode', next.mode);
-  }
-  if (next.speed !== 1 || opts?.replacePlayDefaults) {
-    params.set('speed', String(next.speed));
-  }
   const qs = params.toString();
   return qs ? `?${qs}` : '';
 }
 
 export function buildReportUrl(
   current: ReportNavState,
-  patch: NavPatch,
-  opts?: { readonly replacePlayDefaults?: boolean }
+  patch: NavPatch
 ): { pathname: string; search: string } {
   const next: ReportNavState = { ...current, ...patch };
   return {
     pathname: buildPathname(next),
-    search: buildPlayerSearch(next, opts),
+    search: buildPlayerSearch(next),
   };
 }
 
@@ -144,11 +108,8 @@ export function readWindowNav(): ReportNavState {
 export function clearPlayerNav(patch: NavPatch = {}): NavPatch {
   return {
     testId: null,
-    step: null,
     frame: null,
     node: null,
-    attr: null,
-    play: false,
     ...patch,
   };
 }

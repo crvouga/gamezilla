@@ -37,6 +37,10 @@ export type CreateWorldOptions = {
 export type World = {
   spawn: <T = unknown>(name: string, instanceId?: string) => Promise<T>;
   faults: ReturnType<typeof makeFaults>;
+  /** Live resource instances keyed by system address (`api`, `client:alice`). */
+  readonly instances: ReadonlyMap<string, InstanceState>;
+  /** Active undirected partition keys (`a|b` via `partitionKey`). */
+  readonly partitions: ReadonlySet<string>;
   trace: Trace;
   traceString: () => string;
   dispose: () => void;
@@ -159,6 +163,8 @@ function makeWorldApi(args: {
       provide: options.provide,
       ensureInstance,
     }),
+    instances,
+    partitions,
     trace,
     traceString: () => trace.toString(),
     dispose() {
