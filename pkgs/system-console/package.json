@@ -1,0 +1,41 @@
+{
+  "name": "@pkgs/system-console",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "build": "bun ./src/build-web.ts",
+    "dev": "bun ./scripts/dev-server.ts",
+    "kill": "bun ./scripts/kill-dev.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test src --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "catalog:",
+    "cmdk": "catalog:",
+    "lucide-react": "catalog:",
+    "monaco-editor": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

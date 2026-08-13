@@ -9,7 +9,6 @@ describe('auth login → logout', () => {
     await using sim = await openSim('auth-login-logout');
     const app = await AppDriver.forActor(sim, 'alice');
     await app.auth.signUpWithEmail(aliceCreds);
-    // `signOut` already asserts `authSignedOut`.
     await app.auth.signOut();
   });
 });

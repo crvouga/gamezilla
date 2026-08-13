@@ -5,62 +5,17 @@ compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolut
 workers_dev = false
 preview_urls = false
 
+# Room DO class lives on @apps/room (gamezilla-room). API binds cross-script.
 [[durable_objects.bindings]]
 name = "ROOM"
 class_name = "Room"
-
-# Cloudflare DO migrations are append-only and identified by tag; never edit a
-# tag that has already been applied in production. Free-plan Workers require
-# SQLite-backed DOs (`new_sqlite_classes`); `new_classes` is paid-plan only.
-# `v1-room-sqlite` provisioned the original `Room` class. We do not need to
-# preserve any of its state, so `v2-replace-room-with-space` deletes `Room`
-# (destroying any existing DO storage) and creates the new SQLite-backed
-# `Space` class in a single deploy. If `v1-room-sqlite` was never actually
-# applied, both migrations run in order on the next deploy: `Room` is
-# created and immediately deleted, then `Space` is created — net result is
-# the same.
-# `v3-rename-space-do-class-to-room` deletes the `Space` class and introduces a
-# new SQLite-backed `Room` class (new DO storage); binding key becomes `ROOM`.
-# `v4-matchmaking-ticker` introduced the singleton ticker DO that owned the
-# alarm-driven `Matchmaking.tick()` loop. Superseded by
-# `v5-drop-matchmaking-ticker` which removes that class. Pass + sweep are
-# host-driven again via `POST /matchmaking/tick` (app-layer transactional
-# claims; no pg_cron / PL/pgSQL).
-[[migrations]]
-tag = "v1-room-sqlite"
-new_sqlite_classes = ["Room"]
-
-[[migrations]]
-tag = "v2-replace-room-with-space"
-deleted_classes = ["Room"]
-new_sqlite_classes = ["Space"]
-
-[[migrations]]
-tag = "v3-rename-space-do-class-to-room"
-deleted_classes = ["Space"]
-new_sqlite_classes = ["Room"]
-
-[[migrations]]
-tag = "v4-matchmaking-ticker"
-new_sqlite_classes = ["MatchmakingTicker"]
-
-[[migrations]]
-tag = "v5-drop-matchmaking-ticker"
-deleted_classes = ["MatchmakingTicker"]
+script_name = "gamezilla-room"
 
 [observability]
 [observability.logs]
 enabled = true
 invocation_logs = true
 
-# Production deploy (`wrangler deploy --env production`) binds only the API
-# custom domain. The Expo web SPA is a separate assets-only Worker
-# (`gamezilla-client-production` on www / apex) — see `apps/client/wrangler.toml`.
-#
-# No `name` under `[env.production]` → wrangler publishes as
-# `gamezilla-api-production` (must match `PROJECT_CONFIG.cloudflare.apiWorker`).
-# `durable_objects` / `migrations` are not inherited by named environments —
-# duplicate them here so production deploy keeps ROOM bindings + DO migrations.
 [env.production]
 routes = [
   { pattern = "api.gamezilla.app", custom_domain = true },
@@ -69,10 +24,4 @@ routes = [
 [[env.production.durable_objects.bindings]]
 name = "ROOM"
 class_name = "Room"
-
-# Production uses a single migration — the historical v1–v5 chain only exists at
-# the top level for local `wrangler dev`. DO state is not preserved across deploys
-# (see comments on `[[migrations]]` above).
-[[env.production.migrations]]
-tag = "v1-unified-worker-room"
-new_sqlite_classes = ["Room"]
+script_name = "gamezilla-room-production"

@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/system",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

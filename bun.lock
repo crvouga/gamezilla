@@ -31,9 +31,9 @@
         "@libs/client-config": "workspace:*",
         "@libs/db": "workspace:*",
         "@libs/friends": "workspace:*",
-        "@libs/games": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/profile": "workspace:*",
+        "@libs/runtime": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/stripe": "workspace:*",
         "@pkgs/assert": "workspace:*",
@@ -56,7 +56,6 @@
         "@pkgs/observability": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
-        "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -96,6 +95,7 @@
         "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/profile": "workspace:*",
+        "@libs/runtime": "workspace:*",
         "@libs/search": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/user-search": "workspace:*",
@@ -127,8 +127,10 @@
         "@pkgs/sql-cli": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/system": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "@react-native-async-storage/async-storage": "catalog:",
         "@react-native/virtualized-lists": "catalog:",
@@ -238,20 +240,23 @@
         "typescript": "catalog:",
       },
     },
-    "apps/simulation-report": {
-      "name": "@apps/simulation-report",
+    "apps/room": {
+      "name": "@apps/room",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/simulation-report": "workspace:*",
+        "@libs/games": "workspace:*",
+        "@libs/runtime": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@pkgs/io": "workspace:*",
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/system": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@types/node": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "libs/auth": {
@@ -504,6 +509,26 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/runtime": {
+      "name": "@libs/runtime",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/pubsub": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/system": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1317,64 +1342,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/simulation": {
-      "name": "@pkgs/simulation",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/io": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/pubsub": "workspace:*",
-        "@pkgs/simulation-report": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/ui-testing": "workspace:*",
-        "better-sqlite3": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-      },
-      "devDependencies": {
-        "@babel/runtime": "catalog:",
-        "@jest/globals": "catalog:",
-        "@playwright/test": "catalog:",
-        "@testing-library/react-native": "catalog:",
-        "@types/better-sqlite3": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/jest": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-test-renderer": "catalog:",
-        "@typescript/native": "catalog:",
-        "expo": "catalog:",
-        "jest": "catalog:",
-        "jest-expo": "catalog:",
-        "react-test-renderer": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/simulation-report": {
-      "name": "@pkgs/simulation-report",
-      "version": "0.0.0",
-      "dependencies": {
-        "@monaco-editor/react": "catalog:",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/ui-testing": "workspace:*",
-        "@sqlite.org/sqlite-wasm": "catalog:",
-        "cmdk": "catalog:",
-        "lucide-react": "catalog:",
-        "monaco-editor": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/sounds": {
       "name": "@pkgs/sounds",
       "version": "0.0.0",
@@ -1492,6 +1459,47 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/system": {
+      "name": "@pkgs/system",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/pubsub": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/system-console": {
+      "name": "@pkgs/system-console",
+      "version": "0.0.0",
+      "dependencies": {
+        "@monaco-editor/react": "catalog:",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
+        "@sqlite.org/sqlite-wasm": "catalog:",
+        "cmdk": "catalog:",
+        "lucide-react": "catalog:",
+        "monaco-editor": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1633,6 +1641,7 @@
         "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/runtime": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/auth-better-auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -1648,12 +1657,12 @@
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
-        "@pkgs/simulation": "workspace:*",
-        "@pkgs/simulation-report": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/system": "workspace:*",
+        "@pkgs/system-console": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "@testing-library/react-native": "catalog:",
@@ -1874,7 +1883,7 @@
 
     "@apps/postgres": ["@apps/postgres@workspace:apps/postgres"],
 
-    "@apps/simulation-report": ["@apps/simulation-report@workspace:apps/simulation-report"],
+    "@apps/room": ["@apps/room@workspace:apps/room"],
 
     "@aws-crypto/crc32": ["@aws-crypto/crc32@5.2.0", "", { "dependencies": { "@aws-crypto/util": "^5.2.0", "@aws-sdk/types": "^3.222.0", "tslib": "^2.6.2" } }, "sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg=="],
 
@@ -2612,6 +2621,8 @@
 
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
+    "@libs/runtime": ["@libs/runtime@workspace:libs/runtime"],
+
     "@libs/search": ["@libs/search@workspace:libs/search"],
 
     "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
@@ -2882,10 +2893,6 @@
 
     "@pkgs/secure-storage": ["@pkgs/secure-storage@workspace:pkgs/secure-storage"],
 
-    "@pkgs/simulation": ["@pkgs/simulation@workspace:pkgs/simulation"],
-
-    "@pkgs/simulation-report": ["@pkgs/simulation-report@workspace:pkgs/simulation-report"],
-
     "@pkgs/sounds": ["@pkgs/sounds@workspace:pkgs/sounds"],
 
     "@pkgs/sql": ["@pkgs/sql@workspace:pkgs/sql"],
@@ -2899,6 +2906,10 @@
     "@pkgs/static-file-server": ["@pkgs/static-file-server@workspace:pkgs/static-file-server"],
 
     "@pkgs/sync-engine": ["@pkgs/sync-engine@workspace:pkgs/sync-engine"],
+
+    "@pkgs/system": ["@pkgs/system@workspace:pkgs/system"],
+
+    "@pkgs/system-console": ["@pkgs/system-console@workspace:pkgs/system-console"],
 
     "@pkgs/task-dag": ["@pkgs/task-dag@workspace:pkgs/task-dag"],
 
@@ -4134,7 +4145,7 @@
 
     "jest-config": ["jest-config@29.7.0", "", { "dependencies": { "@babel/core": "^7.11.6", "@jest/test-sequencer": "^29.7.0", "@jest/types": "^29.6.3", "babel-jest": "^29.7.0", "chalk": "^4.0.0", "ci-info": "^3.2.0", "deepmerge": "^4.2.2", "glob": "^7.1.3", "graceful-fs": "^4.2.9", "jest-circus": "^29.7.0", "jest-environment-node": "^29.7.0", "jest-get-type": "^29.6.3", "jest-regex-util": "^29.6.3", "jest-resolve": "^29.7.0", "jest-runner": "^29.7.0", "jest-util": "^29.7.0", "jest-validate": "^29.7.0", "micromatch": "^4.0.4", "parse-json": "^5.2.0", "pretty-format": "^29.7.0", "slash": "^3.0.0", "strip-json-comments": "^3.1.1" }, "peerDependencies": { "@types/node": "*", "ts-node": ">=9.0.0" }, "optionalPeers": ["@types/node", "ts-node"] }, "sha512-uXbpfeQ7R6TZBqI3/TxCU4q4ttk3u0PJeC+E0zbfSoSjq6bJ7buBPxzQPL0ifrkY4DNu4JUdk0ImlBUYi840eQ=="],
 
-    "jest-diff": ["jest-diff@30.4.1", "", { "dependencies": { "@jest/diff-sequences": "30.4.0", "@jest/get-type": "30.1.0", "chalk": "^4.1.2", "pretty-format": "30.4.1" } }, "sha512-CRpFK0RtLriVDGcPPAnR6HMVI8bSR2jnUIgralhauzYQZIb4RH9AtEInTuQr65LmmGggGcRT6HIASxwqsVsmlA=="],
+    "jest-diff": ["jest-diff@29.7.0", "", { "dependencies": { "chalk": "^4.0.0", "diff-sequences": "^29.6.3", "jest-get-type": "^29.6.3", "pretty-format": "^29.7.0" } }, "sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw=="],
 
     "jest-docblock": ["jest-docblock@29.7.0", "", { "dependencies": { "detect-newline": "^3.0.0" } }, "sha512-q617Auw3A612guyaFgsbFeYpNP5t2aoUNLwBUbc/0kD1R4t9ixDbyFTHd1nok4epoVFpr7PmeWHrhvuV3XaJ4g=="],
 
@@ -5514,11 +5525,11 @@
 
     "jest-config/strip-json-comments": ["strip-json-comments@3.1.1", "", {}, "sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig=="],
 
-    "jest-diff/pretty-format": ["pretty-format@30.4.1", "", { "dependencies": { "@jest/schemas": "30.4.1", "ansi-styles": "^5.2.0", "react-is-18": "npm:react-is@^18.3.1", "react-is-19": "npm:react-is@^19.2.5" } }, "sha512-K6KiKMHTL4jjX4u3Kir2EW07nRfcqVTXIImx50wbjHQTcZPgg+gjVeNTIT3l3L1Rd4UefxfogquC9J37SoFyyw=="],
-
     "jest-docblock/detect-newline": ["detect-newline@3.1.0", "", {}, "sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA=="],
 
     "jest-expo/@expo/config": ["@expo/config@55.0.19", "", { "dependencies": { "@expo/config-plugins": "~55.0.11", "@expo/config-types": "^55.0.6", "@expo/json-file": "^10.0.15", "@expo/require-utils": "^55.0.6", "deepmerge": "^4.3.1", "getenv": "^2.0.0", "glob": "^13.0.0", "resolve-workspace-root": "^2.0.0", "semver": "^7.6.0", "slugify": "^1.3.4" } }, "sha512-MahrCR6LsElK/1r/C/zfEZ5Pdgmo88Gtd4CCnASv/rC2pUIB+ENt2oKRHAPIWi7McTeoqDPb9KwCkQBpNMOjrg=="],
+
+    "jest-matcher-utils/jest-diff": ["jest-diff@30.4.1", "", { "dependencies": { "@jest/diff-sequences": "30.4.0", "@jest/get-type": "30.1.0", "chalk": "^4.1.2", "pretty-format": "30.4.1" } }, "sha512-CRpFK0RtLriVDGcPPAnR6HMVI8bSR2jnUIgralhauzYQZIb4RH9AtEInTuQr65LmmGggGcRT6HIASxwqsVsmlA=="],
 
     "jest-matcher-utils/pretty-format": ["pretty-format@30.4.1", "", { "dependencies": { "@jest/schemas": "30.4.1", "ansi-styles": "^5.2.0", "react-is-18": "npm:react-is@^18.3.1", "react-is-19": "npm:react-is@^19.2.5" } }, "sha512-K6KiKMHTL4jjX4u3Kir2EW07nRfcqVTXIImx50wbjHQTcZPgg+gjVeNTIT3l3L1Rd4UefxfogquC9J37SoFyyw=="],
 
@@ -5535,8 +5546,6 @@
     "jest-runtime/slash": ["slash@3.0.0", "", {}, "sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q=="],
 
     "jest-runtime/strip-bom": ["strip-bom@4.0.0", "", {}, "sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w=="],
-
-    "jest-snapshot/jest-diff": ["jest-diff@29.7.0", "", { "dependencies": { "chalk": "^4.0.0", "diff-sequences": "^29.6.3", "jest-get-type": "^29.6.3", "pretty-format": "^29.7.0" } }, "sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw=="],
 
     "jest-snapshot/jest-matcher-utils": ["jest-matcher-utils@29.7.0", "", { "dependencies": { "chalk": "^4.0.0", "jest-diff": "^29.7.0", "jest-get-type": "^29.6.3", "pretty-format": "^29.7.0" } }, "sha512-sBkD+Xi9DtcChsI3L3u0+N0opgPYnCRPtGcQYrgXmR+hmt/fYfWAL0xRXYU8eWOdfuLgBe0YCW3AFtnRLagq/g=="],
 
@@ -5822,15 +5831,9 @@
 
     "eslint/find-up/locate-path": ["locate-path@6.0.0", "", { "dependencies": { "p-locate": "^5.0.0" } }, "sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw=="],
 
-    "expect/jest-matcher-utils/jest-diff": ["jest-diff@29.7.0", "", { "dependencies": { "chalk": "^4.0.0", "diff-sequences": "^29.6.3", "jest-get-type": "^29.6.3", "pretty-format": "^29.7.0" } }, "sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw=="],
-
     "finalhandler/debug/ms": ["ms@2.0.0", "", {}, "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A=="],
 
     "form-data/mime-types/mime-db": ["mime-db@1.52.0", "", {}, "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="],
-
-    "jest-circus/jest-matcher-utils/jest-diff": ["jest-diff@29.7.0", "", { "dependencies": { "chalk": "^4.0.0", "diff-sequences": "^29.6.3", "jest-get-type": "^29.6.3", "pretty-format": "^29.7.0" } }, "sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw=="],
-
-    "jest-diff/pretty-format/@jest/schemas": ["@jest/schemas@30.4.1", "", { "dependencies": { "@sinclair/typebox": "^0.34.0" } }, "sha512-i6b4qw5qnP8c5FEeBJg/uZQ4ddrkN6Ca8qISJh0pr7a5hfn3h3v5x60BEbOC7OYAGZNMs1LfFLwnW2CuK8F57Q=="],
 
     "jest-expo/@expo/config/@expo/config-plugins": ["@expo/config-plugins@55.0.11", "", { "dependencies": { "@expo/config-types": "^55.0.6", "@expo/json-file": "~10.0.15", "@expo/plist": "^0.5.4", "@expo/sdk-runtime-versions": "^1.0.0", "chalk": "^4.1.2", "debug": "^4.3.5", "getenv": "^2.0.0", "glob": "^13.0.0", "resolve-from": "^5.0.0", "semver": "^7.5.4", "slugify": "^1.6.6", "xcode": "^3.0.1", "xml2js": "0.6.0" } }, "sha512-85ZSmIK8rMfvYbG/2IHtwnykVdb6LI0ZavduM3ZwUMThyyVegYjVsO5Zek2ec8xzPhCmYX0ar5onnFEcwUDUlw=="],
 
@@ -5967,8 +5970,6 @@
     "chromium-edge-launcher/lighthouse-logger/debug/ms": ["ms@2.0.0", "", {}, "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A=="],
 
     "eslint/find-up/locate-path/p-locate": ["p-locate@5.0.0", "", { "dependencies": { "p-limit": "^3.0.2" } }, "sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw=="],
-
-    "jest-diff/pretty-format/@jest/schemas/@sinclair/typebox": ["@sinclair/typebox@0.34.52", "", {}, "sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw=="],
 
     "jest-expo/@expo/config/@expo/config-plugins/@expo/json-file": ["@expo/json-file@10.0.16", "", { "dependencies": { "@babel/code-frame": "~7.10.4", "json5": "^2.2.3" } }, "sha512-fcVkWEj+hLuP2yt5W0aw6LmDRqSPWDLUSxOMcmFeV+algmIF59sQVKCwB9btjQLd4V6x9N0pISkQEkBubUHrCw=="],
 

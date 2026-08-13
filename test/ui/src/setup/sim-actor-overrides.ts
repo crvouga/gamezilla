@@ -27,7 +27,6 @@ import { wallClock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { Io, SimIo } from '@pkgs/io';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import type { PubSub } from '@pkgs/pubsub/interface';
 import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import { createInMemoryPubSub } from '@pkgs/pubsub/testing/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
@@ -35,7 +34,6 @@ import {
   createSecureStorageStore,
   type SecureStorageStore,
 } from '@pkgs/secure-storage/secure-storage-store';
-import type { SimPubSubBus } from '@pkgs/simulation';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
 import BetterSqlite3 from 'better-sqlite3';
@@ -63,9 +61,6 @@ export function createActorIo(
   getClockSkewMs: () => number = () => 0
 ): Io {
   return {
-    // Wall clock + Node timers: product UI async must progress without
-    // SimClock.advance and must ignore Jest fake timers from expo-router/RNTL.
-    // Optional per-node skew offsets token / expiry checks without unifying clocks.
     clock: {
       now: () => wallClock.now() + getClockSkewMs(),
     },
@@ -91,7 +86,6 @@ export type CreateActorClientSeamsArgs = {
   readonly apiUrl: string;
   readonly pubSubBus: InMemoryBus;
   readonly nodeId?: string;
-  readonly simPubSub?: SimPubSubBus;
   /** Called when the actor's `:memory:` SQLite is opened (or closed). */
   readonly onSqlite?: (sqlite: BetterSqlite3.Database | undefined) => void;
 };
@@ -100,7 +94,7 @@ export type CreateActorClientSeamsArgs = {
 export function createActorClientSeams(
   args: CreateActorClientSeamsArgs
 ): ActorClientSeams {
-  const { apiUrl, pubSubBus, onSqlite, nodeId, simPubSub } = args;
+  const { apiUrl, pubSubBus, onSqlite, nodeId } = args;
   let actorSqlite: BetterSqlite3.Database | undefined;
   const openMemorySqlClient: OpenLocalSqlClient = async () => {
     const sqlite = new BetterSqlite3(':memory:');
@@ -113,7 +107,6 @@ export function createActorClientSeams(
   const secureStorageStore = createSecureStorageStore(
     createInMemorySecureStorage()
   );
-  // Fresh installs must not resume a phantom OAuth pending marker.
   secureStorageStore.setValue('signInPending', null);
   const authClientStorage = createInMemoryAuthClientStorage();
   const syncEnginePool = createAppSyncEnginePool();
@@ -121,6 +114,7 @@ export function createActorClientSeams(
   const network = createInMemoryNetworkStatePort();
   const devMenu = createInMemoryDevMenuPort();
   const audio = createInMemoryAudioPlaybackPort();
+  void nodeId;
   return {
     secureStorageStore,
     syncEnginePool,
@@ -142,57 +136,11 @@ export function createActorClientSeams(
       secureStorageStore,
       syncEnginePool,
       openSqlClient: openMemorySqlClient,
-      createPubSub: () =>
-        createTaggedPubSub({
-          bus: pubSubBus,
-          ...(nodeId !== undefined ? { nodeId } : {}),
-          ...(simPubSub !== undefined ? { simPubSub } : {}),
-        }),
+      createPubSub: () => createInMemoryPubSub({ bus: pubSubBus }),
       kv,
       network,
       devMenu,
       audio,
-    },
-  };
-}
-
-function createTaggedPubSub(args: {
-  readonly bus: InMemoryBus;
-  readonly nodeId?: string;
-  readonly simPubSub?: SimPubSubBus;
-}): PubSub {
-  const duplex = createInMemoryPubSub({ bus: args.bus });
-  if (!args.nodeId || !args.simPubSub) return duplex;
-
-  const nodeId = args.nodeId;
-  const simPubSub = args.simPubSub;
-  simPubSub.register({
-    nodeId,
-    receive: (topic, data) => {
-      // Deliver into the in-memory instance as if it came from the bus.
-      duplex as { deliverRawForTest?: (t: string, raw: string) => void };
-      void topic;
-      void data;
-    },
-  });
-
-  return {
-    async publish(topic, data) {
-      await simPubSub.publish({ from: nodeId, topic, data });
-      await duplex.publish(topic, data);
-    },
-    subscribe(topic, handler) {
-      if (simPubSub.isSilentDropped(nodeId)) {
-        // Still appear connected; subscription is silently dead.
-        return () => undefined;
-      }
-      return duplex.subscribe(topic, handler);
-    },
-    status: () => duplex.status(),
-    onStatus: (cb) => duplex.onStatus(cb),
-    close: () => {
-      simPubSub.unregister(nodeId);
-      duplex.close();
     },
   };
 }

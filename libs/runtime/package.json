@@ -1,0 +1,39 @@
+{
+  "name": "@libs/runtime",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared/*": [
+      "./src/shared/*.ts",
+      "./src/shared/*.tsx"
+    ],
+    "./dst/*": [
+      "./src/dst/*.ts",
+      "./src/dst/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/system": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

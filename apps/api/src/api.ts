@@ -1,13 +1,10 @@
 // @io-wall-ok
 
-import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
-import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import * as Sentry from '@sentry/cloudflare';
 import { createApiApp } from './app/create-app';
@@ -26,14 +23,7 @@ import { resolveWebClientOrigin } from './config/web-client-origin';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
-/** Room DO composition root — wall I/O (no request ALS in the DO isolate). */
 const roomIo = wallIo();
-
-export const Room = createDurableObjectAdapter({
-  modules: composeRoomModules(GAME_DEFINITIONS, roomIo.clock.now),
-  clock: roomIo.clock,
-  createId: roomIo.createId,
-});
 
 const log = createLogger({ name: 'api', now: roomIo.clock.now });
 

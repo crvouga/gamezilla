@@ -101,3 +101,5 @@ apps/client/android/
 # Simulation report local ObjectStore data (repo root)
 /simulation-report-data/
 **/simulation-report-data/
+/system-console-data/
+**/system-console-data/

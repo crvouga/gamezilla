@@ -11,6 +11,12 @@ export const PROJECT_CONFIG = {
      */
     apiWorker: 'gamezilla-api-production',
     /**
+     * Room Durable Object Worker. Top-level `name` in `apps/room/wrangler.toml`
+     * is `gamezilla-room`; production publishes as this. API binds ROOM via
+     * `script_name`.
+     */
+    roomWorker: 'gamezilla-room-production',
+    /**
      * Assets-only production Worker. Top-level `name` in `apps/client/wrangler.toml`
      * is `gamezilla-client`; `wrangler deploy --env production` publishes as this.
      */

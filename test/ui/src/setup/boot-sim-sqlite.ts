@@ -1,19 +1,19 @@
 /**
- * Product UI-sim SQLite boot: wraps `@pkgs/simulation` seeded SQLite with the
+ * Product UI-sim SQLite boot: wraps `@pkgs/sql-client` seeded SQLite with the
  * API `OpenRequestDb` façade and this package's cache/fingerprint paths.
  */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   type SimSqliteHandle as AgnosticSimSqliteHandle,
   bootMigratedSimSqlite as bootAgnostic,
   computeSimSqliteSeedFingerprint,
   ensureSimSqliteSeedBuffer as ensureAgnostic,
   type SimSqliteMigrateHandle,
-} from '@pkgs/simulation';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+} from '@pkgs/sql-client/sqlite/boot-sim-sqlite';
 import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
 
 /** Placeholder URL for secret-store / config (SQLite has no TCP listener). */
@@ -91,7 +91,7 @@ export async function ensureSimSeedBuffer(args: {
 
 /**
  * Boots shared in-memory SQLite from the seed file (rebuilds seed when stale).
- * `stop()` restores the post-migrate snapshot for the next Simulation.open.
+ * `stop()` restores the post-migrate snapshot for the next openSim.
  */
 export async function bootMigratedSimSqlite(args: {
   readonly migrate: (handle: {

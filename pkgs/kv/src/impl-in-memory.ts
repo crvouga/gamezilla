@@ -32,6 +32,11 @@ export class KvImplInMemory implements Kv {
     this.armedFault = error;
   }
 
+  /** Drop all keys (DST wipe). */
+  clearForTest(): void {
+    this.map.clear();
+  }
+
   private maybeThrow(): void {
     if (this.armedFault !== null) {
       const err = this.armedFault;
