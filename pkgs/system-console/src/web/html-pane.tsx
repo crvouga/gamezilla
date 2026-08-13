@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useState } from 'react';
 
 import { testFrameUrl } from './api-client';
 import type { FlatFrame } from './frames';
+import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
 import { patchPreviewHtml } from './preview-html';
 import { styles, t } from './theme';
 import { reportFetch } from './wall';
@@ -26,11 +27,19 @@ export function HtmlPane(props: {
     const url = testFrameUrl(props.bucketId, props.runId, props.testId, file);
     void (async () => {
       try {
-        const res = await reportFetch(url);
+        const [res, fontCss] = await Promise.all([
+          reportFetch(url),
+          loadPreviewFontCss(),
+        ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         if (cancelled) return;
-        setSrcdoc(patchPreviewHtml(html));
+        setSrcdoc(
+          patchPreviewHtml(html, {
+            shellCss: SNAPSHOT_SHELL_CSS,
+            fontCss,
+          })
+        );
         setError(null);
       } catch (err) {
         if (cancelled) return;
@@ -82,5 +91,5 @@ const iframe: CSSProperties = {
   flex: 1,
   width: '100%',
   border: 0,
-  background: '#fff',
+  background: 'hsla(240, 5%, 4%, 1)',
 };
