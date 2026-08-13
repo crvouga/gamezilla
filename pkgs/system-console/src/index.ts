@@ -45,3 +45,4 @@ export {
   SimulationReporter,
   type SimulationReporterOptions,
 } from './writer/reporter';
+export { createReportingDriver } from './writer/reporting-driver';

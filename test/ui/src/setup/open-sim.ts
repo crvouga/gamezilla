@@ -10,6 +10,7 @@ import { createSimIo } from '@pkgs/io';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { createWorld } from '@pkgs/system';
 import {
+  createReportingDriver,
   mintRunId,
   resolveLocalReportDataDir,
   SimulationReporter,
@@ -120,7 +121,7 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
   const actors = new Map<string, SimActorHandle>();
   const nodes = new Set<string>(['server', 'pubsub']);
 
-  void new SimulationReporter({
+  const reporter = new SimulationReporter({
     seed: '1',
     store: reportStore,
     runId: resolveProcessRunId(),
@@ -139,7 +140,8 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
       if (existing) return existing;
-      const ui = await world.spawn<Driver>('client', id);
+      const raw = await world.spawn<Driver>('client', id);
+      const ui = createReportingDriver(raw, { actorId: id, reporter });
       const actor = { id, ui };
       actors.set(id, actor);
       nodes.add(id);
@@ -171,6 +173,11 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
         }
       }
       actors.clear();
+      try {
+        await reporter.flush();
+      } catch {
+        // report flush should not mask sim teardown
+      }
       world.dispose();
       await db.stop();
     },
