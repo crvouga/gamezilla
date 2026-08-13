@@ -8,6 +8,7 @@ export type ReportNavState = {
   readonly step: number | null;
   readonly frame: number | null;
   readonly node: string | null;
+  readonly attr: string | null;
   readonly play: boolean;
   readonly mode: PlayMode;
   readonly speed: PlaySpeed;
@@ -20,6 +21,7 @@ const DEFAULT_NAV: ReportNavState = {
   step: null,
   frame: null,
   node: null,
+  attr: null,
   play: false,
   mode: 'realtime',
   speed: 1,
@@ -50,6 +52,7 @@ export function parseReportNav(
   const speed: PlaySpeed = speedRaw === 0.5 || speedRaw === 2 ? speedRaw : 1;
   const mode: PlayMode = modeRaw === 'fixed' ? 'fixed' : 'realtime';
   const nodeRaw = params.get('node');
+  const attrRaw = params.get('attr');
   return {
     bucketId,
     runId,
@@ -57,6 +60,7 @@ export function parseReportNav(
     step: parsePositiveInt(params.get('step')),
     frame: parsePositiveInt(params.get('frame')),
     node: nodeRaw && nodeRaw.length > 0 ? nodeRaw : null,
+    attr: attrRaw && attrRaw.length > 0 ? attrRaw : null,
     play: params.get('play') === '1',
     mode,
     speed,
@@ -92,6 +96,7 @@ function buildPlayerSearch(
   if (next.step != null) params.set('step', String(next.step));
   if (next.frame != null) params.set('frame', String(next.frame));
   if (next.node != null) params.set('node', next.node);
+  if (next.attr != null) params.set('attr', next.attr);
   if (next.play) params.set('play', '1');
   if (next.mode !== 'realtime' || opts?.replacePlayDefaults) {
     params.set('mode', next.mode);
@@ -142,6 +147,7 @@ export function clearPlayerNav(patch: NavPatch = {}): NavPatch {
     step: null,
     frame: null,
     node: null,
+    attr: null,
     play: false,
     ...patch,
   };

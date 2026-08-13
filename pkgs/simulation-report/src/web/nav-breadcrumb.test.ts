@@ -15,6 +15,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });
@@ -27,6 +28,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });
@@ -38,6 +40,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });
@@ -49,6 +52,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });
@@ -59,6 +63,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });
@@ -69,6 +74,7 @@ describe('breadcrumb nav patches', () => {
       step: null,
       frame: null,
       node: null,
+      attr: null,
       play: false,
     });
   });

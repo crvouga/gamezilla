@@ -19,6 +19,14 @@ export function testStepsKey(runId: string, testId: string): string {
   return `${runPrefix(runId)}/tests/${testId}/steps.json`;
 }
 
+export function testEventsKey(runId: string, testId: string): string {
+  return `${runPrefix(runId)}/tests/${testId}/events.json`;
+}
+
+export function testTopologyKey(runId: string, testId: string): string {
+  return `${runPrefix(runId)}/tests/${testId}/topology.json`;
+}
+
 export function testFrameKey(
   runId: string,
   testId: string,

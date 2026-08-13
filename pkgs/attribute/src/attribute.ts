@@ -148,9 +148,9 @@ export interface AttributeTag<
   from(state: AttributeState): T;
   /**
    * Returns a tag with the same identity / parser / data type, but marked
-   * with an {@link AttributeIndexSpec}. Engines downstream (sync entity store Postgres)
+   * with an {@link AttributeIndexSpec}. Engines downstream (sync entity store)
    * use this to provision a typed generated column + native btree so range
-   * / equality / ORDER BY queries hit the index instead of `::cast` on JSONB.
+   * / equality / ORDER BY queries hit the index instead of casting JSON TEXT.
    *
    * Calling {@link indexed} on a `json`, `array`, or `binary` tag crashes —
    * those data types have no scalar column form.

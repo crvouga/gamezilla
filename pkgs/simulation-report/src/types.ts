@@ -35,6 +35,19 @@ export type SimulationFrameView = {
   readonly file: string;
 };
 
+/** Per-node attribute bag attached to a UI frame. */
+export type SimulationFrameAttribute = {
+  readonly nodeId: string;
+  readonly kind: 'html' | 'sqlite' | 'ingress' | 'egress' | (string & {});
+  /** Path relative to the test report dir (html / sqlite blob). */
+  readonly file?: string;
+  /** SHA-256 of uncompressed sqlite bytes. */
+  readonly sha256?: string;
+  readonly byteLength?: number;
+  /** Event ids for ingress/egress slices (payloads live in events.json). */
+  readonly eventIds?: readonly string[];
+};
+
 export type SimulationFrame = {
   /** Path relative to the test report directory (e.g. `frames/f-00001.html`). */
   readonly file: string;
@@ -48,6 +61,72 @@ export type SimulationFrame = {
   readonly databases?: readonly SimulationFrameDatabase[];
   /** Per-actor HTML views (optional on legacy). */
   readonly views?: readonly SimulationFrameView[];
+  /** Topology-aware attribute bags (preferred over views/databases). */
+  readonly attributes?: readonly SimulationFrameAttribute[];
+};
+
+/** Fine-grained timeline event persisted in events.json. */
+export type SimulationReportEvent = {
+  readonly id: string;
+  readonly kind: string;
+  readonly atMs: number;
+  readonly nodeId?: string;
+  readonly from?: string;
+  readonly to?: string;
+  readonly title?: string;
+  readonly detail?: string;
+  readonly status?: string;
+  readonly meta?: Readonly<Record<string, unknown>>;
+};
+
+/** Topology + seed/fuzz snapshot persisted as topology.json. */
+export type SimulationReportTopology = {
+  readonly seed: string;
+  readonly fuzz: {
+    readonly enabled: boolean;
+    readonly intensity: number;
+    readonly streamId: string;
+  } | null;
+  readonly definition: {
+    readonly kinds: Readonly<
+      Record<string, { readonly attributes: readonly string[] }>
+    >;
+    readonly nodes: readonly { readonly id: string; readonly kind: string }[];
+    readonly edges: readonly {
+      readonly from: string;
+      readonly to: string;
+      readonly kind: string;
+    }[];
+    readonly spawn: Readonly<
+      Record<
+        string,
+        {
+          readonly edges: readonly {
+            readonly to: string;
+            readonly kind: string;
+          }[];
+        }
+      >
+    >;
+  };
+  readonly nodes: readonly {
+    readonly id: string;
+    readonly kind: string;
+    readonly status: string;
+    readonly attributes: readonly string[];
+    readonly clockSkewMs: number;
+  }[];
+  readonly edges: readonly {
+    readonly from: string;
+    readonly to: string;
+    readonly kind: string;
+    readonly state: string;
+    readonly latencyMs: number;
+    readonly jitterMs: number;
+    readonly dropRate: number;
+    readonly duplicateRate: number;
+    readonly failWithRemaining: number;
+  }[];
 };
 
 export type SimulationStep = {
@@ -90,6 +169,12 @@ export type SimulationReportMeta = {
   readonly sourceFile?: string;
   /** Aggregated data-component / data-src from written frame HTML. */
   readonly uiAttribution?: UiAttribution;
+  /** Fuzz config when the run used fuzz mode. */
+  readonly fuzz?: {
+    readonly enabled: boolean;
+    readonly intensity: number;
+    readonly streamId: string;
+  } | null;
 };
 
 export type SimulationReportData = {

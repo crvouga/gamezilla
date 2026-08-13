@@ -1,8 +1,7 @@
 /*
-select distinct theme
-from snapshots,
-     jsonb_array_elements_text(attributes->'chess.puzzle/themes') as theme
-where entity_type = 'chess.puzzle';
+select distinct theme_row.value as theme
+from chess_puzzle,
+     json_each(themes) as theme_row
 */
 export const CHESS_PUZZLE_THEMES = [
   'advancedPawn',

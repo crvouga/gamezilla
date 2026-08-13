@@ -1,7 +1,7 @@
 /**
  * Canonical Postgres migration order: compose {@link DatabaseMigration}
- * units (ensure schema → advisory-locked hard-cutover drop + framework/domain/kv/entity_store →
- * Better Auth → purge Clerk links).
+ * units (ensure schema → postgres-sqlite-compat → advisory-locked hard-cutover
+ * drop + framework/domain/kv/entity_store → Better Auth → purge Clerk links).
  */
 
 import { appSchema } from '@libs/db/shared/app-schema';
@@ -20,6 +20,7 @@ import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
+import { PostgresSqliteCompatMigration } from './postgres-sqlite-compat-migration';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
 
 /**
@@ -73,6 +74,8 @@ export class PostgresMigrationRunner {
 
     const databaseMigration = new ComposedDatabaseMigration()
       .register(new EnsurePostgresSchemaMigration(dbScope))
+      // JSON1 shims so app SQL stays SQLite-shaped on Postgres.
+      .register(new PostgresSqliteCompatMigration())
       .register(
         skipAdvisoryLock
           ? locked

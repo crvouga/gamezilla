@@ -7,6 +7,8 @@ import {
   type PlaywrightDriverConfig,
 } from '@pkgs/ui-testing';
 
+import { runWithSimNode } from './context/sim-node-als';
+import type { EventLog } from './events';
 import { createReportingDriver } from './report/reporting-driver';
 import type { SimulationSession, SimulationUiKind } from './system-port';
 
@@ -26,8 +28,10 @@ export async function createSimActor(args: {
   readonly uiKind: SimulationUiKind;
   readonly io: SimIo;
   readonly reporter?: SimulationReporter;
+  readonly events?: EventLog;
+  readonly onDriverOp?: () => void | Promise<void>;
 }): Promise<SimActor> {
-  const { id, session, uiKind, io, reporter } = args;
+  const { id, session, uiKind, io, reporter, events, onDriverOp } = args;
   if (session.ui !== uiKind) {
     throw new Error(
       `SimActor(${id}): session ui '${session.ui}' does not match simulation ui '${uiKind}'`
@@ -35,10 +39,15 @@ export async function createSimActor(args: {
   }
 
   const rawDriver = createDriverForSession(session, io);
+  const attributed = wrapDriverWithNodeContext(rawDriver, id, onDriverOp);
   const driver =
     reporter !== undefined
-      ? createReportingDriver(rawDriver, { actorId: id, reporter })
-      : rawDriver;
+      ? createReportingDriver(attributed, {
+          actorId: id,
+          reporter,
+          ...(events !== undefined ? { events } : {}),
+        })
+      : attributed;
 
   await driver.launch();
 
@@ -49,6 +58,41 @@ export async function createSimActor(args: {
       await driver.close();
       await session.dispose();
     },
+  };
+}
+
+function wrapDriverWithNodeContext(
+  driver: Driver,
+  nodeId: string,
+  onDriverOp?: () => void | Promise<void>
+): Driver {
+  const wrap =
+    <A extends unknown[]>(fn: (...a: A) => Promise<void>) =>
+    async (...a: A) => {
+      await runWithSimNode(nodeId, () => fn(...a));
+      await onDriverOp?.();
+    };
+  return {
+    kind: driver.kind,
+    launch: () => runWithSimNode(nodeId, () => driver.launch()),
+    close: () => runWithSimNode(nodeId, () => driver.close()),
+    tap: wrap(driver.tap.bind(driver)),
+    tapAt: wrap(driver.tapAt.bind(driver)),
+    input: wrap(driver.input.bind(driver)),
+    clear: wrap(driver.clear.bind(driver)),
+    key: wrap(driver.key.bind(driver)),
+    scroll: wrap(driver.scroll.bind(driver)),
+    wait: wrap(driver.wait.bind(driver)),
+    expect: {
+      visible: wrap(driver.expect.visible.bind(driver.expect)),
+      hidden: wrap(driver.expect.hidden.bind(driver.expect)),
+      text: wrap(driver.expect.text.bind(driver.expect)),
+    },
+    isVisible: (testId) =>
+      runWithSimNode(nodeId, () => driver.isVisible(testId)),
+    getText: (testId) => runWithSimNode(nodeId, () => driver.getText(testId)),
+    snapshotHtml: (options) =>
+      runWithSimNode(nodeId, () => driver.snapshotHtml(options)),
   };
 }
 

@@ -4,6 +4,11 @@ import type { SimulationSystem, SimulationUiKind } from './system-port';
 
 export type { SimulationReportOptions, SimulationUiKind };
 
+export type SimulationFuzzOptions = {
+  /** Fault injection intensity in [0, 1]. */
+  readonly intensity: number;
+};
+
 export type SimulationOptions = {
   readonly seed: number | bigint | string;
   /** Opaque full-system bootstrap — owns servers, DBs, fakes, shared backend. */
@@ -20,4 +25,9 @@ export type SimulationOptions = {
    * timeline with per-step UI HTML frames (view via `@apps/simulation-report`).
    */
   readonly report?: boolean | SimulationReportOptions;
+  /**
+   * Opt-in fuzz mode: inject seeded faults while scenarios run.
+   * Off by default so scripted product tests stay deterministic-by-script.
+   */
+  readonly fuzz?: SimulationFuzzOptions;
 };

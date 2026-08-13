@@ -83,7 +83,7 @@ In the report player:
 
 ## Adding a scenario
 
-1. Copy [`new-sim-test.template.ts`](./new-sim-test.template.ts).
+1. Copy [`new-sim-test.template.ts`](../fixtures/new-sim-test.template.ts) into `src/scenarios/<name>.sim.test.tsx`.
 2. Prefer existing `app.auth.*` / `app.profile.*` flows.
 3. If a step is missing, add a flow method that uses `Handles` + `Driver` — do not reach for `by.*` in the scenario.
 

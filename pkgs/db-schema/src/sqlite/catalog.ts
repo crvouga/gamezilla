@@ -1,3 +1,4 @@
+// @sql-vendor-ok — SQLite schema reconcile uses PRAGMA table_info / index_*.
 import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { normalizeSqliteType } from '../core/type-map';

@@ -1,6 +1,8 @@
 import type {
   RunSummary,
   SimulationReportData,
+  SimulationReportEvent,
+  SimulationReportTopology,
   SuiteTestSummary,
 } from '../types';
 import { reportFetch } from './wall';
@@ -141,6 +143,41 @@ export function testFrameUrl(
     .map(encodeURIComponent)
     .join('/');
   return `/api/buckets/${encodeURIComponent(bucketId)}/runs/${encodeURIComponent(runId)}/data/${parts}`;
+}
+
+function testDataUrl(
+  bucketId: string,
+  runId: string,
+  testId: string,
+  file: string
+): string {
+  return testFrameUrl(bucketId, runId, testId, file);
+}
+
+export async function fetchTestTopology(
+  bucketId: string,
+  runId: string,
+  testId: string
+): Promise<SimulationReportTopology | null> {
+  const res = await reportFetch(
+    testDataUrl(bucketId, runId, testId, 'topology.json')
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`topology ${res.status}`);
+  return (await res.json()) as SimulationReportTopology;
+}
+
+export async function fetchTestEvents(
+  bucketId: string,
+  runId: string,
+  testId: string
+): Promise<readonly SimulationReportEvent[]> {
+  const res = await reportFetch(
+    testDataUrl(bucketId, runId, testId, 'events.json')
+  );
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`events ${res.status}`);
+  return (await res.json()) as SimulationReportEvent[];
 }
 
 export type { RunSummary, SuiteTestSummary };

@@ -63,7 +63,7 @@ export function PlayerChrome(props: {
             {data.meta.status.toUpperCase()}
           </span>
         }
-        meta={`seed ${data.meta.seed} · ${frames.length}f · ${formatMs(data.meta.durationMs)}`}
+        meta={chromeMeta(data, frames.length)}
         end={
           <CopyLlmPromptButton
             data={data}
@@ -79,4 +79,12 @@ export function PlayerChrome(props: {
       {children}
     </>
   );
+}
+
+function chromeMeta(data: SimulationReportData, frameCount: number): string {
+  const fuzz =
+    data.meta.fuzz?.enabled === true
+      ? ` · fuzz ${data.meta.fuzz.intensity}`
+      : '';
+  return `replay with seed ${data.meta.seed}${fuzz} · ${frameCount}f · ${formatMs(data.meta.durationMs)}`;
 }

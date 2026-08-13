@@ -1,28 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
 import type {
   RunSummary,
   SimulationReportData,
+  SimulationReportEvent,
+  SimulationReportTopology,
   SuiteTestSummary,
 } from '../types';
 import type { BucketInfo } from './api-client';
-import { buildPlayerCommands } from './commands/player-commands';
-import { useRegisterCommands } from './commands/registry';
-import { LONG_HOLD_PULSE_MS } from './frame-timeline';
-import {
-  type FlatFrame,
-  flattenFrames,
-  playheadFrameIndex,
-  resolveSelectedFrameIndex,
-} from './frames';
-import { listReportNodes, NodeWorkspace } from './node-workspace';
-import { playbackHoldMs } from './playback-hold';
+import { EventStrip, type EventStripFilter } from './event-strip';
+import type { FlatFrame } from './frames';
+import { NodeWorkspace } from './node-workspace';
 import { PlayerBottomStrip } from './player-bottom-strip';
 import { PlayerChrome } from './player-chrome';
-import type { PlayMode, PlaySpeed, ReportNavState } from './router';
-import { navigateReport } from './router';
+import type { ReportNavState } from './router';
+import type { PlayerActions } from './test-player-hooks';
+import { useTestPlayerModel } from './test-player-model';
 import { styles } from './theme';
-import { useHoldCountdown } from './use-hold-countdown';
 
 export function TestPlayer(props: {
   readonly data: SimulationReportData;
@@ -55,105 +47,19 @@ export function TestPlayer(props: {
       prevFrame={model.prevFrame}
       holdRemainingMs={model.holdRemainingMs}
       nodeId={model.nodeId}
+      topology={model.topology}
+      events={model.events}
+      eventFilter={model.eventFilter}
+      selectedEventId={model.selectedEventId}
       registerCopyAction={model.registerCopyAction}
       onNav={props.onNav}
       onHover={model.onHover}
       onSelectNode={model.selectNode}
+      onSelectAttr={model.selectAttr}
+      onEventFilter={model.setEventFilter}
+      onSelectEvent={model.selectEvent}
     />
   );
-}
-
-function useTestPlayerModel(props: {
-  readonly data: SimulationReportData;
-  readonly nav: ReportNavState;
-  readonly bucketId: string;
-  readonly runId: string;
-  readonly onNav: (nav: ReportNavState) => void;
-}) {
-  const { data, nav, onNav } = props;
-  const testId = data.meta.testId;
-  const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
-  const selectedFrameIdx = resolveSelectedFrameIndex(frames, data.steps, nav);
-  const playheadIdx = playheadFrameIndex(selectedFrameIdx, frames.length);
-  const [hoverFrameIdx, setHoverFrameIdx] = useState<number | null>(null);
-  const previewIdx =
-    !nav.play && hoverFrameIdx != null ? hoverFrameIdx : playheadIdx;
-  const previewFrame =
-    previewIdx >= 0 && previewIdx < frames.length
-      ? (frames[previewIdx] ?? null)
-      : null;
-  const prevFrame =
-    previewIdx > 0 && previewIdx < frames.length
-      ? (frames[previewIdx - 1] ?? null)
-      : null;
-  const holdRemainingMs = useHoldCountdown({
-    nav,
-    activeFrameIdx: playheadIdx,
-    previewFrame,
-    minHoldMs: LONG_HOLD_PULSE_MS,
-  });
-  usePlayback({ nav, frames, activeFrameIdx: playheadIdx, testId, onNav });
-  const actions = usePlayerActions({
-    nav,
-    onNav,
-    testId,
-    frames,
-    selectedFrameIdx,
-    playheadIdx,
-  });
-  const nodeId = resolveNodeId(data, previewFrame, nav.node);
-  const selectNode = useCallback(
-    (next: string) => {
-      onNav(navigateReport(nav, { node: next }, 'replace'));
-    },
-    [nav, onNav]
-  );
-  const copyActionRef = useRef<() => void>(() => undefined);
-  const registerCopyAction = useCallback((run: () => void) => {
-    copyActionRef.current = run;
-  }, []);
-  const copyLlmPrompt = useCallback(() => {
-    copyActionRef.current();
-  }, []);
-  const commandActions = useMemo(
-    () => ({ ...actions, copyLlmPrompt }),
-    [actions, copyLlmPrompt]
-  );
-  usePlayerCommands({
-    nav,
-    frames,
-    previewIdx,
-    actions: commandActions,
-    onNav,
-  });
-  return {
-    testId,
-    frames,
-    selectedFrameIdx,
-    playheadIdx,
-    hoverFrameIdx: !nav.play ? hoverFrameIdx : null,
-    previewIdx,
-    previewFrame,
-    prevFrame,
-    holdRemainingMs,
-    nodeId,
-    actions,
-    registerCopyAction,
-    selectNode,
-    onHover: (idx: number | null) => {
-      if (!nav.play) setHoverFrameIdx(idx);
-    },
-  };
-}
-
-function resolveNodeId(
-  data: SimulationReportData,
-  frame: FlatFrame | null,
-  navNode: string | null
-): string {
-  const nodes = listReportNodes(data, frame);
-  if (navNode && nodes.includes(navNode)) return navNode;
-  return nodes[0] ?? 'server';
 }
 
 function PlayerShell(props: {
@@ -174,257 +80,73 @@ function PlayerShell(props: {
   readonly previewFrame: FlatFrame | null;
   readonly prevFrame: FlatFrame | null;
   readonly holdRemainingMs: number | null;
-  readonly nodeId: string;
+  readonly nodeId: string | null;
+  readonly topology: SimulationReportTopology | null;
+  readonly events: readonly SimulationReportEvent[];
+  readonly eventFilter: EventStripFilter;
+  readonly selectedEventId: string | null;
   readonly registerCopyAction: (run: () => void) => void;
   readonly onNav: (nav: ReportNavState) => void;
   readonly onHover: (idx: number | null) => void;
-  readonly onSelectNode: (nodeId: string) => void;
+  readonly onSelectNode: (nodeId: string | null) => void;
+  readonly onSelectAttr: (attr: string) => void;
+  readonly onEventFilter: (filter: EventStripFilter) => void;
+  readonly onSelectEvent: (event: SimulationReportEvent) => void;
 }) {
-  const {
-    data,
-    testId,
-    bucketId,
-    runId,
-    buckets,
-    runs,
-    tests,
-    frames,
-    nav,
-    actions,
-    selectedFrameIdx,
-    hoverFrameIdx,
-    playheadIdx,
-    previewIdx,
-    previewFrame,
-    prevFrame,
-    holdRemainingMs,
-    nodeId,
-    registerCopyAction,
-    onNav,
-    onHover,
-    onSelectNode,
-  } = props;
   return (
     <div style={styles.appShell}>
       <PlayerChrome
-        data={data}
-        bucketId={bucketId}
-        runId={runId}
-        nav={nav}
-        buckets={buckets}
-        runs={runs}
-        tests={tests}
-        frames={frames}
-        selectedFrameIdx={selectedFrameIdx}
-        playheadIdx={playheadIdx}
-        previewIdx={previewIdx}
-        registerCopyAction={registerCopyAction}
-        onNav={onNav}
+        data={props.data}
+        bucketId={props.bucketId}
+        runId={props.runId}
+        nav={props.nav}
+        buckets={props.buckets}
+        runs={props.runs}
+        tests={props.tests}
+        frames={props.frames}
+        selectedFrameIdx={props.selectedFrameIdx}
+        playheadIdx={props.playheadIdx}
+        previewIdx={props.previewIdx}
+        registerCopyAction={props.registerCopyAction}
+        onNav={props.onNav}
       >
         <div style={styles.playerEditorLayout}>
           <NodeWorkspace
-            data={data}
-            bucketId={bucketId}
-            runId={runId}
-            testId={testId}
-            frame={previewFrame}
-            prevFrame={prevFrame}
-            nodeId={nodeId}
-            onSelectNode={onSelectNode}
+            data={props.data}
+            bucketId={props.bucketId}
+            runId={props.runId}
+            testId={props.testId}
+            frame={props.previewFrame}
+            prevFrame={props.prevFrame}
+            nodeId={props.nodeId}
+            attr={props.nav.attr}
+            topology={props.topology}
+            events={props.events}
+            onSelectNode={props.onSelectNode}
+            onSelectAttr={props.onSelectAttr}
+            onSelectEvent={props.onSelectEvent}
+          />
+          <EventStrip
+            events={props.events}
+            filter={props.eventFilter}
+            onFilter={props.onEventFilter}
+            selectedId={props.selectedEventId}
+            onSelect={props.onSelectEvent}
           />
           <PlayerBottomStrip
-            nav={nav}
-            frames={frames}
-            selectedFrameIdx={selectedFrameIdx}
-            hoverFrameIdx={hoverFrameIdx}
-            playheadIdx={playheadIdx}
-            previewIdx={previewIdx}
-            previewFrame={previewFrame}
-            holdRemainingMs={holdRemainingMs}
-            actions={actions}
-            onHover={onHover}
+            nav={props.nav}
+            frames={props.frames}
+            selectedFrameIdx={props.selectedFrameIdx}
+            hoverFrameIdx={props.hoverFrameIdx}
+            playheadIdx={props.playheadIdx}
+            previewIdx={props.previewIdx}
+            previewFrame={props.previewFrame}
+            holdRemainingMs={props.holdRemainingMs}
+            actions={props.actions}
+            onHover={props.onHover}
           />
         </div>
       </PlayerChrome>
     </div>
   );
-}
-
-type PlayerActions = {
-  readonly selectFrame: (
-    frameIdx: number,
-    historyMode: 'push' | 'replace'
-  ) => void;
-  readonly toggleFrame: (frameIdx: number) => void;
-  readonly clearFrame: () => void;
-  readonly setPlay: (play: boolean) => void;
-  readonly setMode: (mode: PlayMode) => void;
-  readonly setSpeed: (speed: PlaySpeed) => void;
-};
-
-function usePlayerActions(args: {
-  readonly nav: ReportNavState;
-  readonly onNav: (nav: ReportNavState) => void;
-  readonly testId: string;
-  readonly frames: readonly FlatFrame[];
-  readonly selectedFrameIdx: number | null;
-  readonly playheadIdx: number;
-}): PlayerActions {
-  const { nav, onNav, testId, frames, selectedFrameIdx, playheadIdx } = args;
-
-  const selectFrame = useCallback(
-    (frameIdx: number, historyMode: 'push' | 'replace') => {
-      if (frameIdx < 0 || frameIdx >= frames.length) return;
-      const frame = frames[frameIdx]!;
-      onNav(
-        navigateReport(
-          nav,
-          {
-            testId,
-            frame: frameIdx + 1,
-            step: frame.step.index,
-            play: false,
-          },
-          historyMode
-        )
-      );
-    },
-    [frames, nav, onNav, testId]
-  );
-
-  const clearFrame = useCallback(() => {
-    onNav(
-      navigateReport(nav, { frame: null, step: null, play: false }, 'push')
-    );
-  }, [nav, onNav]);
-
-  const toggleFrame = useCallback(
-    (frameIdx: number) => {
-      if (selectedFrameIdx === frameIdx) {
-        clearFrame();
-        return;
-      }
-      selectFrame(frameIdx, 'push');
-    },
-    [clearFrame, selectFrame, selectedFrameIdx]
-  );
-
-  const setPlay = useCallback(
-    (play: boolean) => {
-      let frameIdx = playheadIdx;
-      if (play && (frameIdx < 0 || frameIdx >= frames.length - 1)) frameIdx = 0;
-      const frame = frames[frameIdx];
-      onNav(
-        navigateReport(
-          nav,
-          {
-            testId,
-            play,
-            ...(play && frame
-              ? { frame: frameIdx + 1, step: frame.step.index }
-              : {}),
-          },
-          'replace'
-        )
-      );
-    },
-    [frames, nav, onNav, playheadIdx, testId]
-  );
-
-  const setMode = useCallback(
-    (mode: PlayMode) => {
-      onNav(navigateReport(nav, { mode, play: false }, 'replace'));
-    },
-    [nav, onNav]
-  );
-
-  const setSpeed = useCallback(
-    (speed: PlaySpeed) => {
-      onNav(navigateReport(nav, { speed, play: false }, 'replace'));
-    },
-    [nav, onNav]
-  );
-
-  return useMemo(
-    () => ({
-      selectFrame,
-      toggleFrame,
-      clearFrame,
-      setPlay,
-      setMode,
-      setSpeed,
-    }),
-    [selectFrame, toggleFrame, clearFrame, setPlay, setMode, setSpeed]
-  );
-}
-
-function usePlayerCommands(args: {
-  readonly nav: ReportNavState;
-  readonly frames: readonly FlatFrame[];
-  readonly previewIdx: number;
-  readonly actions: PlayerActions & { readonly copyLlmPrompt: () => void };
-  readonly onNav: (nav: ReportNavState) => void;
-}) {
-  const { nav, frames, previewIdx, actions, onNav } = args;
-  const commands = useMemo(
-    () =>
-      buildPlayerCommands({
-        nav,
-        frames,
-        previewIdx,
-        actions,
-        onNav,
-      }),
-    [nav, frames, previewIdx, actions, onNav]
-  );
-  useRegisterCommands(commands);
-}
-
-function usePlayback(args: {
-  readonly nav: ReportNavState;
-  readonly frames: readonly FlatFrame[];
-  readonly activeFrameIdx: number;
-  readonly testId: string;
-  readonly onNav: (nav: ReportNavState) => void;
-}) {
-  const { nav, frames, activeFrameIdx, testId, onNav } = args;
-  const navRef = useRef(nav);
-  navRef.current = nav;
-
-  useEffect(() => {
-    if (!nav.play || frames.length === 0) return;
-    if (activeFrameIdx < 0 || activeFrameIdx >= frames.length) return;
-
-    const frame = frames[activeFrameIdx]!;
-    const delayMs = playbackHoldMs({
-      frame,
-      mode: nav.mode,
-      speed: nav.speed,
-    });
-
-    const timer = window.setTimeout(() => {
-      const current = navRef.current;
-      if (!current.play) return;
-      const nextIdx = activeFrameIdx + 1;
-      if (nextIdx >= frames.length) {
-        onNav(navigateReport(current, { play: false }, 'replace'));
-        return;
-      }
-      const nextFrame = frames[nextIdx]!;
-      onNav(
-        navigateReport(
-          current,
-          {
-            testId,
-            frame: nextIdx + 1,
-            step: nextFrame.step.index,
-            play: true,
-          },
-          'replace'
-        )
-      );
-    }, delayMs);
-
-    return () => window.clearTimeout(timer);
-  }, [nav.play, nav.mode, nav.speed, activeFrameIdx, frames, testId, onNav]);
 }

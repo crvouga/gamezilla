@@ -8,10 +8,12 @@ import { Pressable, Text, View } from 'react-native';
 
 import type {
   InProcessSimulationSession,
+  LiveNodeAdapter,
   SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
 } from '../../system-port';
+import { defineTopology } from '../../topology';
 
 type DemoStore = {
   title: string;
@@ -73,35 +75,91 @@ function DemoApp(props: {
   );
 }
 
+export const demoTopology = defineTopology({
+  kinds: {
+    client: { attributes: ['html', 'ingress', 'egress'] },
+    server: { attributes: ['ingress', 'egress'] },
+  },
+  nodes: [{ id: 'server', kind: 'server' }],
+  edges: [],
+  spawn: {
+    client: {
+      edges: [{ to: 'server', kind: 'http' }],
+    },
+  },
+});
+
 /** In-process demo system with a shared title string across actors. */
 export class DemoSimulationSystem implements SimulationSystem {
+  readonly topology = demoTopology;
+
   async start(ctx: SimulationStartContext): Promise<SimulationSystemHandle> {
     if (ctx.ui !== 'in-process') {
       throw new Error('demo system only supports ui: in-process');
     }
     void ctx.io;
     const store = createDemoStore();
-    const sessions = new Set<InProcessSimulationSession>();
+    const adapters = new Map<string, LiveNodeAdapter>();
 
     return {
-      async createSession(actorId: string) {
+      async spawn(node) {
+        const existing = adapters.get(node.id);
+        if (existing) return existing;
+
+        if (node.kind === 'server') {
+          const adapter: LiveNodeAdapter = {
+            snapshot: async () => null,
+            crash: async () => undefined,
+            restart: async () => undefined,
+            dispose: async () => {
+              adapters.delete(node.id);
+            },
+          };
+          adapters.set(node.id, adapter);
+          return adapter;
+        }
+
+        if (node.kind !== 'client') {
+          throw new Error(`DemoSimulationSystem: unknown kind ${node.kind}`);
+        }
+
         const session: InProcessSimulationSession = {
           ui: 'in-process',
           harness: {
-            createRoot: () => createElement(DemoApp, { actorId, store }),
+            createRoot: () =>
+              createElement(DemoApp, { actorId: node.id, store }),
           },
           async dispose() {
-            sessions.delete(session);
+            /* session closed by actor */
           },
         };
-        sessions.add(session);
-        return session;
+        let crashed = false;
+        const adapter: LiveNodeAdapter = {
+          session,
+          snapshot: async (attr) => {
+            if (attr === 'html') return null;
+            return null;
+          },
+          async crash() {
+            crashed = true;
+          },
+          async restart() {
+            crashed = false;
+          },
+          async dispose() {
+            adapters.delete(node.id);
+            await session.dispose();
+          },
+        };
+        void crashed;
+        adapters.set(node.id, adapter);
+        return adapter;
       },
       async dispose() {
-        for (const s of [...sessions]) {
-          await s.dispose();
+        for (const a of [...adapters.values()]) {
+          await a.dispose();
         }
-        sessions.clear();
+        adapters.clear();
       },
     };
   }

@@ -14,25 +14,30 @@ import type { Clock, Timers } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { createHonoHttpClient, type HttpClient } from '@pkgs/http-client';
 import type { Io, SimIo } from '@pkgs/io';
-import { createInMemoryBus } from '@pkgs/pubsub/testing/in-memory';
+import {
+  createInMemoryBus,
+  type InMemoryBus,
+} from '@pkgs/pubsub/testing/in-memory';
 import type {
   InProcessSimulationSession,
+  LiveNodeAdapter,
   SimTiming,
-  SimulationSqliteNodeSnapshot,
   SimulationStartContext,
   SimulationSystem,
   SimulationSystemHandle,
+  TopologyDefinition,
 } from '@pkgs/simulation';
 import {
+  createMeshedHttp,
   createSerializedHttp,
   createSimTiming,
+  getCurrentSimNodeId,
   installSimGlobalFetch,
 } from '@pkgs/simulation';
 import { createRenderedAppFromRntl, type RenderedApp } from '@pkgs/ui-testing';
 import { act, render } from '@testing-library/react-native';
 import type BetterSqlite3 from 'better-sqlite3';
 import { ExpoRoot } from 'expo-router';
-// Side-effect: jest mocks / expect matchers used by expo-router tests.
 import 'expo-router/testing-library';
 import { createElement } from 'react';
 
@@ -44,6 +49,7 @@ import {
   type SimSqliteHandle,
 } from './boot-sim-sqlite';
 import { createClientAppRouterContext } from './build-client-app-router-context';
+import { clientSimTopology } from './client-sim-topology';
 import {
   migrateSimSqlite,
   SIM_API_URL,
@@ -55,7 +61,6 @@ import {
   simNodeTimers,
 } from './sim-actor-overrides';
 
-/** Absolute path to the real Expo Router `app/` tree. */
 const CLIENT_APP_DIR = path.resolve(
   __dirname,
   '../../../../apps/client/src/app'
@@ -65,8 +70,9 @@ type SimBackend = {
   readonly http: HttpClient;
   readonly db: SimSqliteHandle;
   readonly restoreGlobalFetch: () => void;
-  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+  readonly pubSubBus: InMemoryBus;
   readonly timing: SimTiming;
+  readonly httpByNode: Map<string, HttpClient>;
 };
 
 const simWallClock: Clock = {
@@ -77,11 +83,6 @@ function isSimApiUrl(url: string): boolean {
   return url.startsWith(SIM_API_URL) || url.includes('://sim.local');
 }
 
-/**
- * API Io shares sim ids/rng but uses wall clock/timers so Better Auth session
- * expiry lines up with the actor client (also wall). A frozen sim clock at
- * `startMs` (2024) against a 2026 wall client marks sessions expired.
- */
 function createSimApiIo(base: SimIo): Io {
   return {
     ...base,
@@ -90,13 +91,13 @@ function createSimApiIo(base: SimIo): Io {
   };
 }
 
-/** Boots SQLite + migrates + mounts the in-process API, returning its HTTP. */
 async function bootSimBackend(
   io: SimIo,
   timing: SimTiming
 ): Promise<SimBackend> {
   const apiIo = createSimApiIo(io);
   const pubSubBus = createInMemoryBus();
+  const httpByNode = new Map<string, HttpClient>();
 
   const dbStarted = wallClock.now();
   const { handle: db, didMigrate } = await bootMigratedSimSqlite({
@@ -114,7 +115,6 @@ async function bootSimBackend(
     timing.mark('boot.migrate', 0);
     timing.mark('boot.sqlite', wallClock.now() - dbStarted);
   } else {
-    // Migrate owns first-boot DB cost; sqlite open is connect-only.
     timing.mark('boot.sqlite', 1);
   }
 
@@ -130,8 +130,6 @@ async function bootSimBackend(
       })
     );
     const rawHttp = createHonoHttpClient({ app, origin: SIM_API_URL });
-    // Warm client_config materialize outside React so the first AuthBridge
-    // request does not enter the upsert transaction (hangs under Jest+RNTL).
     await timing.time('boot.warm', async () => {
       const warm = await rawHttp.fetch(
         `${SIM_API_URL}/api/identity/anon/ensure`,
@@ -152,9 +150,18 @@ async function bootSimBackend(
       }
       await warm.text();
     });
-    const http = createSerializedHttp(rawHttp);
+    const serialized = createSerializedHttp(rawHttp);
+    const routerHttp: HttpClient = {
+      fetch(input, init) {
+        const nodeId = getCurrentSimNodeId();
+        const client =
+          (nodeId !== undefined ? httpByNode.get(nodeId) : undefined) ??
+          serialized;
+        return client.fetch(input, init);
+      },
+    };
     const restoreGlobalFetch = installSimGlobalFetch({
-      http,
+      http: routerHttp,
       isSimUrl: isSimApiUrl,
       getFetch: () => globalThis.fetch,
       setFetch: (next) => {
@@ -162,11 +169,12 @@ async function bootSimBackend(
       },
     });
     return {
-      http,
+      http: serialized,
       db,
       restoreGlobalFetch,
       pubSubBus,
       timing,
+      httpByNode,
     };
   } catch (error) {
     await db.stop();
@@ -187,11 +195,6 @@ function wrapRenderedApp(app: RenderedApp): RenderedApp {
   };
 }
 
-/**
- * Driver wait polling must use wall Node timers (not SimClock) so real HTTP /
- * AuthBridge work can complete. Also force Jest real timers — expo-router /
- * RNTL occasionally re-enable fakes mid-scenario.
- */
 const driverWait: {
   readonly now: () => number;
   readonly timers: Timers;
@@ -218,88 +221,207 @@ const driverWait: {
   },
 };
 
-/** Home surface — Account is reached via Status bar (user-visible). */
 const INITIAL_PATH = '/';
 
-/**
- * Neutered once for the process: expo-router's renderRouter always calls
- * jest.useFakeTimers(), which strands in-process Hono + SQLite.
- */
 function neuterJestFakeTimers(): void {
   jest.useFakeTimers = ((..._args: unknown[]) =>
     jest) as typeof jest.useFakeTimers;
   jest.useRealTimers();
 }
 
-type CreateActorSessionArgs = {
-  readonly io: SimIo;
-  readonly http: HttpClient;
-  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-  readonly timing: SimTiming;
+type SpawnClientArgs = {
+  readonly ctx: SimulationStartContext;
+  readonly backend: SimBackend;
   readonly actorSqliteRegistry: Map<string, BetterSqlite3.Database>;
-  readonly actorId: string;
+  readonly nodeId: string;
 };
 
-function createActorSession(
-  args: CreateActorSessionArgs
-): InProcessSimulationSession {
-  const { io, http, pubSubBus, timing, actorSqliteRegistry, actorId } = args;
-  const actorIo = createActorIo(io, http);
+function spawnClientAdapter(args: SpawnClientArgs): LiveNodeAdapter {
+  const { ctx, backend, actorSqliteRegistry, nodeId } = args;
+  const meshed = createMeshedHttp({
+    from: nodeId,
+    to: 'server',
+    raw: backend.http,
+    mesh: ctx.mesh,
+    events: ctx.events,
+  });
+  backend.httpByNode.set(nodeId, meshed);
+
+  let clockSkewMs = 0;
+  const actorIo = createActorIo(ctx.io, meshed, () => clockSkewMs);
   const seams = createActorClientSeams({
     apiUrl: SIM_API_URL,
-    pubSubBus,
+    pubSubBus: backend.pubSubBus,
+    nodeId,
+    ...(ctx.pubsub !== undefined ? { simPubSub: ctx.pubsub } : {}),
     onSqlite: (sqlite) => {
       if (sqlite === undefined) {
-        actorSqliteRegistry.delete(actorId);
+        actorSqliteRegistry.delete(nodeId);
         return;
       }
-      actorSqliteRegistry.set(actorId, sqlite);
+      actorSqliteRegistry.set(nodeId, sqlite);
     },
   });
   const clientApp = createClientApp({
     io: actorIo,
     overrides: seams.overrides,
   });
-  return {
+
+  const session: InProcessSimulationSession = {
     ui: 'in-process',
     driverWait,
     harness: {
-      async mount() {
-        return timing.time('mount', async () => {
-          neuterJestFakeTimers();
-          // Full product `app/` filesystem context; only root `_layout` is
-          // replaced for sim Io / AppOverrides. Never stub individual screens.
-          process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
-          const context = createClientAppRouterContext(CLIENT_APP_DIR, {
-            default: clientApp.RootLayout,
-            unstable_settings: clientUnstableSettings,
-          });
-          const result = render(
-            createElement(ExpoRoot, {
-              context,
-              location: INITIAL_PATH,
-            })
-          );
-          jest.useRealTimers();
-          // Let AuthBridge / sync microtasks land, then flush RNTL so local
-          // SQL watches (e.g. client_config → email sign-in) commit.
-          await act(async () => {
-            await Promise.resolve();
-          });
-          await new Promise<void>((resolve) => {
-            simNodeTimers.setTimeout(resolve, 0);
-          });
-          await act(async () => {
-            await Promise.resolve();
-          });
-          jest.useRealTimers();
-          return wrapRenderedApp(createRenderedAppFromRntl(result));
-        });
-      },
+      mount: () => mountClientApp({ backend, clientApp }),
     },
     async dispose() {
-      actorSqliteRegistry.delete(actorId);
+      actorSqliteRegistry.delete(nodeId);
       seams.disposeSqlite();
+      backend.httpByNode.delete(nodeId);
+    },
+  };
+
+  return buildClientNodeAdapter({
+    session,
+    nodeId,
+    actorSqliteRegistry,
+    seams,
+    setClockSkewMs: (ms) => {
+      clockSkewMs = ms;
+    },
+  });
+}
+
+async function mountClientApp(args: {
+  readonly backend: SimBackend;
+  readonly clientApp: ReturnType<typeof createClientApp>;
+}): Promise<RenderedApp> {
+  return args.backend.timing.time('mount', async () => {
+    neuterJestFakeTimers();
+    process.env['EXPO_ROUTER_IMPORT_MODE'] = 'sync';
+    const context = createClientAppRouterContext(CLIENT_APP_DIR, {
+      default: args.clientApp.RootLayout,
+      unstable_settings: clientUnstableSettings,
+    });
+    const result = render(
+      createElement(ExpoRoot, {
+        context,
+        location: INITIAL_PATH,
+      })
+    );
+    jest.useRealTimers();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await new Promise<void>((resolve) => {
+      simNodeTimers.setTimeout(resolve, 0);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    jest.useRealTimers();
+    return wrapRenderedApp(createRenderedAppFromRntl(result));
+  });
+}
+
+function buildClientNodeAdapter(args: {
+  readonly session: InProcessSimulationSession;
+  readonly nodeId: string;
+  readonly actorSqliteRegistry: Map<string, BetterSqlite3.Database>;
+  readonly seams: ReturnType<typeof createActorClientSeams>;
+  readonly setClockSkewMs: (ms: number) => void;
+}): LiveNodeAdapter {
+  const { session, nodeId, actorSqliteRegistry, seams } = args;
+  return {
+    session,
+    async snapshot(attr) {
+      if (attr === 'sqlite') {
+        const sqlite = actorSqliteRegistry.get(nodeId);
+        if (!sqlite) return null;
+        return {
+          kind: 'sqlite',
+          bytes: new Uint8Array(sqlite.serialize()),
+        };
+      }
+      return null;
+    },
+    async crash() {
+      await session.dispose();
+    },
+    async restart() {
+      // Remount happens via a fresh spawn in scenarios; keep sqlite.
+    },
+    async dispose() {
+      await session.dispose();
+    },
+    async corrupt(attr) {
+      if (attr !== 'sqlite') return;
+      const sqlite = actorSqliteRegistry.get(nodeId);
+      if (!sqlite) return;
+      sqlite.exec('PRAGMA user_version = 2147483647;');
+    },
+    async wipe(attr) {
+      if (attr !== 'sqlite') return;
+      seams.disposeSqlite();
+      actorSqliteRegistry.delete(nodeId);
+    },
+    setClockSkewMs: args.setClockSkewMs,
+  };
+}
+
+function spawnServerAdapter(args: {
+  readonly backend: SimBackend;
+}): LiveNodeAdapter {
+  const { backend } = args;
+  return {
+    async snapshot(attr) {
+      if (attr !== 'sqlite') return null;
+      return {
+        kind: 'sqlite',
+        bytes: new Uint8Array(backend.db.sqlite.serialize()),
+      };
+    },
+    async crash() {
+      /* mesh partitions reject traffic */
+    },
+    async restart() {
+      /* no-op */
+    },
+    async dispose() {
+      /* backend stopped in system dispose */
+    },
+    async corrupt(attr) {
+      if (attr !== 'sqlite') return;
+      backend.db.sqlite.exec('PRAGMA user_version = 2147483647;');
+    },
+  };
+}
+
+function spawnBrokerAdapter(args: {
+  readonly ctx: SimulationStartContext;
+}): LiveNodeAdapter {
+  const { ctx } = args;
+  return {
+    async snapshot() {
+      return null;
+    },
+    async crash() {
+      // Mesh edges to pubsub fail when scenarios partition; mark via events.
+      ctx.events.append({ kind: 'node.crash', nodeId: 'pubsub' });
+    },
+    async restart() {
+      ctx.events.append({ kind: 'node.restart', nodeId: 'pubsub' });
+    },
+    async dispose() {
+      /* no-op */
+    },
+    silentDropSubscription(peerNodeId) {
+      ctx.pubsub?.silentDrop(peerNodeId);
+    },
+    clearSilentDrop(peerNodeId) {
+      ctx.pubsub?.clearSilentDrop(peerNodeId);
+    },
+    async redeliver(toNodeId) {
+      await ctx.pubsub?.redeliver(toNodeId);
     },
   };
 }
@@ -309,6 +431,8 @@ function createActorSession(
  * GIVEN: fresh anon install on the home surface (Status bar → Account).
  */
 export class ClientSimulationSystem implements SimulationSystem {
+  readonly topology: TopologyDefinition = clientSimTopology;
+
   async start(ctx: SimulationStartContext): Promise<SimulationSystemHandle> {
     if (ctx.ui !== 'in-process') {
       throw new Error(
@@ -318,36 +442,39 @@ export class ClientSimulationSystem implements SimulationSystem {
     const timing = createSimTiming({ now: () => wallClock.now() });
     const backend = await bootSimBackend(ctx.io, timing);
     const actorSqliteRegistry = new Map<string, BetterSqlite3.Database>();
+    const adapters = new Map<string, LiveNodeAdapter>();
+
     return {
-      async createSession(actorId: string) {
-        return createActorSession({
-          io: ctx.io,
-          http: backend.http,
-          pubSubBus: backend.pubSubBus,
-          timing,
-          actorSqliteRegistry,
-          actorId,
-        });
-      },
-      async snapshotDatabases(): Promise<
-        readonly SimulationSqliteNodeSnapshot[]
-      > {
-        const nodes: SimulationSqliteNodeSnapshot[] = [
-          {
-            nodeId: 'server',
-            bytes: new Uint8Array(backend.db.sqlite.serialize()),
-          },
-        ];
-        for (const [actorId, sqlite] of actorSqliteRegistry) {
-          nodes.push({
-            nodeId: actorId,
-            bytes: new Uint8Array(sqlite.serialize()),
+      async spawn(node) {
+        const existing = adapters.get(node.id);
+        if (existing) return existing;
+
+        let adapter: LiveNodeAdapter;
+        if (node.kind === 'server') {
+          adapter = spawnServerAdapter({ backend });
+        } else if (node.kind === 'broker') {
+          adapter = spawnBrokerAdapter({ ctx });
+        } else if (node.kind === 'client') {
+          adapter = spawnClientAdapter({
+            ctx,
+            backend,
+            actorSqliteRegistry,
+            nodeId: node.id,
           });
+        } else {
+          throw new Error(
+            `ClientSimulationSystem: unknown kind '${node.kind}'`
+          );
         }
-        return nodes;
+        adapters.set(node.id, adapter);
+        return adapter;
       },
       async dispose() {
         timing.finish('client-sim');
+        for (const a of [...adapters.values()].reverse()) {
+          await a.dispose();
+        }
+        adapters.clear();
         backend.restoreGlobalFetch();
         setApiPubSubOverride(undefined);
         actorSqliteRegistry.clear();

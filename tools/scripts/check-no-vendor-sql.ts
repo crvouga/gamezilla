@@ -55,22 +55,29 @@ function isSqlishPath(rel: string): boolean {
     base === 'open-sim-sqlite.ts' ||
     base === 'impl-postgres.ts' ||
     base === 'impl-postgres-tx.ts' ||
+    base === 'catalog.ts' ||
     base.endsWith('-repository.ts') ||
     base.endsWith('-queries.ts') ||
+    // "migration".includes("migrate") is false — match both stems.
     base.includes('migrate') ||
+    base.includes('migration') ||
     base.includes('seed') ||
     base.includes('ddl')
   ) {
     return true;
   }
   if (base.endsWith('.test.ts') || base.endsWith('.test.tsx')) {
-    return /migrate|emit|ddl|sql-map|schema|open-sim|agnostic|compat/.test(rel);
+    return /migrate|migration|emit|ddl|sql-map|schema|open-sim|agnostic|compat/.test(
+      rel
+    );
   }
-  // Matchmaking / sync SQL modules.
+  // Matchmaking / sync SQL modules; chess (and other) seed helpers.
   if (
     rel.includes('/impl-sql/') ||
     rel.includes('/matchmaker') ||
-    rel.includes('/sync-engine/')
+    rel.includes('/sync-engine/') ||
+    rel.includes('/seed-') ||
+    (rel.includes('/db-schema/') && base === 'catalog.ts')
   ) {
     return true;
   }

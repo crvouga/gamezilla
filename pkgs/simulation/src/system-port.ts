@@ -3,7 +3,15 @@ import type { SimIo } from '@pkgs/io';
 import type { AppHarness } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 
+import type { EventLog } from './events';
+import type { SimMesh, SimPubSubBus } from './network';
 import type { SeededRng } from './rng';
+import type {
+  AttributeKind,
+  AttributeSnapshot,
+  TopologyDefinition,
+  TopologyNodeDef,
+} from './topology';
 
 /** UI backend for each actor session. Default: in-process. */
 export type SimulationUiKind = 'in-process' | 'playwright';
@@ -15,6 +23,15 @@ export type SimulationStartContext = {
   /** Extra RNG stream (same seed family) for system-side forks. */
   readonly rng: SeededRng;
   readonly ui: SimulationUiKind;
+  /** Point-to-point mesh owned by the simulation runtime. */
+  readonly mesh: SimMesh;
+  /** Fine-grained event log owned by the simulation runtime. */
+  readonly events: EventLog;
+  /**
+   * Mesh-aware pubsub bus when the topology declares a broker node.
+   * Product systems should register peers and publish through this.
+   */
+  readonly pubsub?: SimPubSubBus;
 };
 
 /**
@@ -22,26 +39,37 @@ export type SimulationStartContext = {
  * backend. Implemented by the consumer (or a demo fixture in this package).
  */
 export type SimulationSystem = {
+  /** Declarative topology — static nodes spawn at open; others via actor/node. */
+  readonly topology: TopologyDefinition;
   start(ctx: SimulationStartContext): Promise<SimulationSystemHandle>;
 };
 
-/** One live SQLite node dump for report frame capture. */
+/** @deprecated Prefer topology node sqlite attributes. Kept for one revision. */
 export type SimulationSqliteNodeSnapshot = {
-  /** Stable id — `'server'` for the shared backend, else actor id. */
   readonly nodeId: string;
-  /** Raw `better-sqlite3` `serialize()` bytes (uncompressed). */
   readonly bytes: Uint8Array;
 };
 
-export type SimulationSystemHandle = {
-  /** Create an isolated user session (own client stack + UI root). */
-  createSession(actorId: string): Promise<SimulationSession>;
+export type LiveNodeAdapter = {
+  snapshot(attr: AttributeKind): Promise<AttributeSnapshot | null>;
+  crash(): Promise<void>;
+  restart(): Promise<void>;
   dispose(): Promise<void>;
-  /**
-   * When set, the reporter dumps these buffers on every kept UI frame
-   * (gzip + content-hash dedup under `frames/db/`).
-   */
-  snapshotDatabases?: () => Promise<readonly SimulationSqliteNodeSnapshot[]>;
+  corrupt?(attr: 'sqlite'): Promise<void>;
+  wipe?(attr: 'sqlite'): Promise<void>;
+  /** HTML nodes only — drives UI via `@pkgs/ui-testing`. */
+  session?: SimulationSession;
+  /** Optional broker helpers. */
+  silentDropSubscription?(peerNodeId: string): void;
+  clearSilentDrop?(peerNodeId: string): void;
+  redeliver?(toNodeId: string): Promise<void>;
+  /** Optional clock skew applied inside the adapter's Io. */
+  setClockSkewMs?(ms: number): void;
+};
+
+export type SimulationSystemHandle = {
+  spawn(node: TopologyNodeDef): Promise<LiveNodeAdapter>;
+  dispose(): Promise<void>;
 };
 
 type SimulationSessionBase = {

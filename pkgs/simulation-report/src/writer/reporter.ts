@@ -3,11 +3,10 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
 
 import type {
-  RunSummary,
   SimulationFrame,
-  SimulationFrameView,
   SimulationReportData,
-  SimulationReportMeta,
+  SimulationReportEvent,
+  SimulationReportTopology,
   SimulationStep,
   SimulationStepKind,
   SimulationStepStatus,
@@ -20,42 +19,32 @@ import {
   sanitizeRunId,
   sanitizeTestId,
 } from '../types';
+import type { SnapshotDatabaseNode } from './frame-databases';
+import type { SnapshotViewNode } from './frame-views';
+import { snapshotShellKey, testStepsKey } from './keys';
 import {
-  type SnapshotDatabaseNode,
-  writeFrameDatabaseBlobs,
-} from './frame-databases';
-import {
-  pickPrimaryViewFile,
-  type SnapshotViewNode,
-  writeFrameViewBlobs,
-} from './frame-views';
-import {
-  RUNS_INDEX_KEY,
-  snapshotShellKey,
-  testFrameKey,
-  testStepsKey,
-} from './keys';
+  buildReporterData,
+  buildReporterStep,
+  writeReporterFrame,
+} from './reporter-frames';
 import {
   assignFrameDurations,
   type FrameCaptureState,
   hashString,
-  padFrame,
   shouldPollKind,
   stripSnapshots,
 } from './reporter-helpers';
+import { publishTopologyAndEvents, rewriteRunsIndex } from './reporter-publish';
 import {
   bumpGeneration,
   loadRunManifest,
-  loadRunsIndex,
   storePutJson,
   storePutText,
   upsertTestSummary,
 } from './store-io';
 import {
   createMutableUiAttribution,
-  freezeUiAttribution,
   type MutableUiAttribution,
-  mergeFrameHtmlAttribution,
 } from './ui-attribution';
 
 export type { FrameCaptureState } from './reporter-helpers';
@@ -82,6 +71,10 @@ export type SimulationReporterOptions = {
    * `frames/f-NNNNN.<actorId>.html`.
    */
   readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
+  /** Fine-grained event log snapshot (written to events.json). */
+  readonly snapshotEvents?: () => readonly SimulationReportEvent[];
+  /** Topology + seed/fuzz snapshot (written to topology.json). */
+  readonly snapshotTopology?: () => SimulationReportTopology;
 };
 
 type RecordArgs = {
@@ -145,6 +138,12 @@ export class SimulationReporter {
   private readonly snapshotViews:
     | (() => Promise<readonly SnapshotViewNode[]>)
     | undefined;
+  private readonly snapshotEvents:
+    | (() => readonly SimulationReportEvent[])
+    | undefined;
+  private readonly snapshotTopology:
+    | (() => SimulationReportTopology)
+    | undefined;
   /** SHA-256 → relative file already written for this test. */
   private readonly writtenDbBlobs = new Map<string, string>();
   /** Acting actor for the in-flight `record` (used to pick primary HTML file). */
@@ -165,6 +164,8 @@ export class SimulationReporter {
     this.sourceFile = options.sourceFile;
     this.snapshotDatabases = options.snapshotDatabases;
     this.snapshotViews = options.snapshotViews;
+    this.snapshotEvents = options.snapshotEvents;
+    this.snapshotTopology = options.snapshotTopology;
     this.startedAtMs = options.now();
   }
 
@@ -263,6 +264,17 @@ export class SimulationReporter {
 
     const stepsKey = testStepsKey(this.runId, this.testId);
     await storePutJson(this.store, stepsKey, stripSnapshots(finalData));
+    await publishTopologyAndEvents({
+      store: this.store,
+      runId: this.runId,
+      testId: this.testId,
+      ...(this.snapshotEvents !== undefined
+        ? { snapshotEvents: this.snapshotEvents }
+        : {}),
+      ...(this.snapshotTopology !== undefined
+        ? { snapshotTopology: this.snapshotTopology }
+        : {}),
+    });
 
     const frameCount = steps.reduce(
       (n, s) => n + (s.frames?.length ?? (s.snapshotFile ? 1 : 0)),
@@ -286,35 +298,17 @@ export class SimulationReporter {
       updatedAtMs: endedAtMs,
     });
 
-    await this.rewriteRunsIndex(tests, endedAtMs);
+    await rewriteRunsIndex({
+      store: this.store,
+      runId: this.runId,
+      tests,
+      updatedAtMs: endedAtMs,
+    });
     await bumpGeneration(this.store);
 
     this.reportPath = stepsKey;
     if (opts?.final) this.flushed = true;
     return finalData;
-  }
-
-  private async rewriteRunsIndex(
-    tests: readonly SuiteTestSummary[],
-    updatedAtMs: number
-  ): Promise<void> {
-    const index = await loadRunsIndex(this.store);
-    const status: SimulationStepStatus = tests.some(
-      (t) => t.status === 'failed'
-    )
-      ? 'failed'
-      : 'passed';
-    const summary: RunSummary = {
-      id: this.runId,
-      updatedAtMs,
-      status,
-      testCount: tests.length,
-      frameCount: tests.reduce((n, t) => n + t.frameCount, 0),
-    };
-    const runs = index.runs.filter((r) => r.id !== this.runId);
-    runs.push(summary);
-    runs.sort((a, b) => b.updatedAtMs - a.updatedAtMs);
-    await storePutJson(this.store, RUNS_INDEX_KEY, { runs });
   }
 
   private async runRecorded(args: RecordArgs): Promise<StepOutcome> {
@@ -409,43 +403,26 @@ export class SimulationReporter {
 
   private async writeFrame(html: string): Promise<SimulationFrame> {
     this.frameSeq += 1;
-    const views = await writeFrameViewBlobs({
+    return writeReporterFrame({
       store: this.store,
       runId: this.runId,
       testId: this.testId,
       frameSeq: this.frameSeq,
-      padFrame,
+      html,
+      currentActorId: this.currentActorId,
+      now: this.now,
+      attribution: this.attribution,
+      writtenDbBlobs: this.writtenDbBlobs,
       ...(this.snapshotViews !== undefined
         ? { snapshotViews: this.snapshotViews }
         : {}),
-      onHtml: (viewHtml) =>
-        mergeFrameHtmlAttribution(this.attribution, viewHtml),
-    });
-    const primaryFromViews = pickPrimaryViewFile(
-      views as SimulationFrameView[] | undefined,
-      this.currentActorId
-    );
-    const file = primaryFromViews ?? `frames/f-${padFrame(this.frameSeq)}.html`;
-    if (primaryFromViews === undefined) {
-      const key = testFrameKey(this.runId, this.testId, file);
-      await storePutText(this.store, key, html, 'text/html; charset=utf-8');
-      mergeFrameHtmlAttribution(this.attribution, html);
-    }
-    const databases = await writeFrameDatabaseBlobs({
-      store: this.store,
-      runId: this.runId,
-      testId: this.testId,
-      writtenDbBlobs: this.writtenDbBlobs,
       ...(this.snapshotDatabases !== undefined
         ? { snapshotDatabases: this.snapshotDatabases }
         : {}),
+      ...(this.snapshotEvents !== undefined
+        ? { snapshotEvents: this.snapshotEvents }
+        : {}),
     });
-    return {
-      file,
-      capturedAtMs: this.now(),
-      ...(databases !== undefined ? { databases } : {}),
-      ...(views !== undefined ? { views } : {}),
-    };
   }
 
   private pushStep(
@@ -456,7 +433,8 @@ export class SimulationReporter {
   ): void {
     const last = outcome.frames[outcome.frames.length - 1];
     this.steps.push(
-      this.buildStep({
+      buildReporterStep({
+        index: this.steps.length + 1,
         actorId: args.actorId,
         kind: args.kind,
         title: args.title,
@@ -474,65 +452,24 @@ export class SimulationReporter {
     );
   }
 
-  private buildStep(args: {
-    readonly actorId: string;
-    readonly kind: SimulationStepKind;
-    readonly title: string;
-    readonly selector?: string;
-    readonly detail?: string;
-    readonly status: SimulationStepStatus;
-    readonly startedAtMs: number;
-    readonly endedAtMs: number;
-    readonly error?: string;
-    readonly snapshotFile?: string;
-    readonly frames: readonly SimulationFrame[];
-  }): SimulationStep {
-    const index = this.steps.length + 1;
-    return {
-      index,
-      actorId: args.actorId,
-      kind: args.kind,
-      title: args.title,
-      ...(args.selector !== undefined ? { selector: args.selector } : {}),
-      ...(args.detail !== undefined ? { detail: args.detail } : {}),
-      status: args.status,
-      startedAtMs: args.startedAtMs,
-      endedAtMs: args.endedAtMs,
-      durationMs: Math.max(0, args.endedAtMs - args.startedAtMs),
-      ...(args.error !== undefined ? { error: args.error } : {}),
-      ...(args.snapshotFile !== undefined
-        ? { snapshotFile: args.snapshotFile }
-        : {}),
-      frames: args.frames,
-    };
-  }
-
   private toData(
     endedAtMs: number,
     steps: readonly SimulationStep[] = this.steps
   ): SimulationReportData {
-    const status: SimulationStepStatus = steps.some(
-      (s) => s.status === 'failed'
-    )
-      ? 'failed'
-      : 'passed';
-    const attribution = freezeUiAttribution(this.attribution);
-    const meta: SimulationReportMeta = {
+    return buildReporterData({
       seed: this.seed,
       ui: this.ui,
       startedAtMs: this.startedAtMs,
       endedAtMs,
-      durationMs: Math.max(0, endedAtMs - this.startedAtMs),
-      status,
-      actorIds: [...this.actorIds],
+      actorIds: this.actorIds,
       runId: this.runId,
       testId: this.testId,
-      ...(this.sourceFile !== undefined ? { sourceFile: this.sourceFile } : {}),
-      ...(Object.keys(attribution.components).length > 0 ||
-      Object.keys(attribution.sources).length > 0
-        ? { uiAttribution: attribution }
+      sourceFile: this.sourceFile,
+      attribution: this.attribution,
+      steps,
+      ...(this.snapshotTopology !== undefined
+        ? { snapshotTopology: this.snapshotTopology }
         : {}),
-    };
-    return { meta, steps: [...steps] };
+    });
   }
 }

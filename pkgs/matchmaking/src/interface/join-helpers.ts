@@ -23,7 +23,7 @@ import type { DistanceFormula } from './types';
 /**
  * Hard cap on `JoinInput.formulas.length`. Bounds the SQL cost of
  * `matchmaking_pair_match` (cartesian over `a.formulas x b.formulas`)
- * and the per-row JSONB width on `matchmaking_waiting`. Kept in step
+ * and the per-row JSON TEXT width on `matchmaking_waiting`. Kept in step
  * with `MATCHMAKING_PAYLOAD_LIMITS.maxFormulas` deliberately — both
  * are the same cap surfaced at different layers.
  */
@@ -92,7 +92,7 @@ const METADATA_UTF8 = new TextEncoder();
 
 /**
  * Normalises and validates a caller-supplied `metadata` blob. Returns
- * either the original object (passed straight to JSONB) or `null` when
+ * either the original object (passed straight to JSON TEXT) or `null` when
  * unset / explicitly nulled.
  *
  * @internal

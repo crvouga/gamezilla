@@ -16,9 +16,9 @@
  * For a fresh seed every puzzle is its own root patch (`parent_id = null`),
  * the snapshot value equals that patch's user attributes, and the patch id
  * is content-addressed → we can write `patches` and `snapshots` in a
- * single transaction with two batched `jsonb_to_recordset` inserts using
- * `ON CONFLICT DO NOTHING` on both tables. The patch row is still written
- * so sync semantics remain intact for downstream clients.
+ * single transaction with two batched portable `INSERT … VALUES` bulk writes
+ * using `ON CONFLICT DO NOTHING` on both tables. The patch row is still
+ * written so sync semantics remain intact for downstream clients.
  *
  * The seed assumes the `patches` and `snapshots` tables and the
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the

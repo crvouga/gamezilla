@@ -70,7 +70,7 @@ export const ChessPuzzleAttr = {
   /** Space-separated UCI moves from the export. */
   moves: chessPuzzleNs.text('moves', readString),
   /** Indexed + sortable: the puzzle picker walks puzzles in a rating window
-   * (`WHERE rating BETWEEN ? AND ?`), which is unworkable as a JSONB scan. */
+   * (`WHERE rating BETWEEN ? AND ?`), which is unworkable as a JSON TEXT scan. */
   rating: chessPuzzleNs.integer('rating', readNonNegativeInteger).indexed({
     sortable: true,
   }),

@@ -3,7 +3,7 @@
  * boundary cannot carry `AttributeTag` (which holds parser functions), so
  * wire-shaped formulas reference attribute keys as plain strings. The
  * SQL-side matching helpers consume exactly this shape; everything in JS
- * that needs to cross a network or be stored as JSONB goes through here.
+ * that needs to cross a network or be stored as JSON TEXT goes through here.
  */
 
 import { assert } from '@pkgs/assert';

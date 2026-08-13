@@ -1,3 +1,4 @@
+// @sql-vendor-ok — Postgres migrate mutex uses pg_advisory_xact_lock / SET LOCAL.
 import { raw, sql } from '@pkgs/sql';
 
 import type {

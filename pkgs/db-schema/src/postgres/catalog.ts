@@ -1,3 +1,4 @@
+// @sql-vendor-ok — Postgres schema reconcile uses information_schema / pg_advisory_*.
 import type { Sql } from '@pkgs/sql';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';

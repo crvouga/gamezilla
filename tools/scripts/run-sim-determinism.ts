@@ -16,12 +16,14 @@ for await (const file of new Glob('{libs,pkgs}/**/*.sim.test.ts').scan({
   cwd: REPO_ROOT,
   absolute: true,
 })) {
+  if (!isRunnableSimTest(file)) continue;
   files.push(file);
 }
 for await (const file of new Glob('test/**/*.sim.test.{ts,tsx}').scan({
   cwd: REPO_ROOT,
   absolute: true,
 })) {
+  if (!isRunnableSimTest(file)) continue;
   files.push(file);
 }
 files.sort();
@@ -53,6 +55,11 @@ for (const file of files) {
 
 if (failed) process.exit(1);
 console.log(`ci:sim-determinism OK (${String(files.length)} files ×2)`);
+
+/** Scaffold / aspirational templates are not executable determinism targets. */
+function isRunnableSimTest(absFile: string): boolean {
+  return !absFile.includes('.template.');
+}
 
 function runSimTest(
   rel: string,

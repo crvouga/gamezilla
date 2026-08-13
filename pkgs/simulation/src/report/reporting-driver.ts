@@ -13,6 +13,8 @@ import type {
 } from '@pkgs/ui-testing';
 import { formatTestId } from '@pkgs/ui-testing';
 
+import type { EventLog, SimulationEventKind } from '../events';
+
 type RecordMeta = {
   readonly testId?: string;
   readonly detail?: string;
@@ -38,9 +40,10 @@ export function createReportingDriver(
   args: {
     readonly actorId: string;
     readonly reporter: SimulationReporter;
+    readonly events?: EventLog;
   }
 ): Driver {
-  const record = makeRecorder(driver, args.actorId, args.reporter);
+  const record = makeRecorder(driver, args.actorId, args.reporter, args.events);
   return {
     kind: driver.kind,
     launch: () => record('launch', 'launch', () => driver.launch()),
@@ -137,9 +140,16 @@ function createExpectRecorder(
 function makeRecorder(
   driver: Driver,
   actorId: string,
-  reporter: SimulationReporter
+  reporter: SimulationReporter,
+  events?: EventLog
 ): Recorder {
   return async (kind, title, run, meta) => {
+    events?.append({
+      kind: stepKindToEvent(kind),
+      nodeId: actorId,
+      title,
+      ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
+    });
     await reporter.record({
       actorId,
       kind,
@@ -157,6 +167,37 @@ function makeRecorder(
       snapshot: (options) => driver.snapshotHtml(options),
     });
   };
+}
+
+function stepKindToEvent(kind: SimulationStepKind): SimulationEventKind {
+  switch (kind) {
+    case 'tap':
+      return 'ui.tap';
+    case 'tapAt':
+      return 'ui.tapAt';
+    case 'typeText':
+      return 'ui.typeText';
+    case 'clearText':
+      return 'ui.clearText';
+    case 'pressKey':
+      return 'ui.pressKey';
+    case 'scroll':
+      return 'ui.scroll';
+    case 'waitFor':
+      return 'ui.waitFor';
+    case 'launch':
+      return 'ui.launch';
+    case 'close':
+      return 'ui.close';
+    case 'step':
+      return 'ui.step';
+    case 'navigateBack':
+      return 'ui.navigateBack';
+    case 'nav.open':
+      return 'ui.nav.open';
+    default:
+      return 'ui.step';
+  }
 }
 
 function recordScroll(args: {

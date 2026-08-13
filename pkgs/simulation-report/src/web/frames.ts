@@ -1,5 +1,6 @@
 import type {
   SimulationFrame,
+  SimulationFrameAttribute,
   SimulationFrameDatabase,
   SimulationFrameView,
   SimulationStep,
@@ -14,6 +15,7 @@ export type FlatFrame = {
   readonly globalIndex: number;
   readonly databases?: readonly SimulationFrameDatabase[];
   readonly views?: readonly SimulationFrameView[];
+  readonly attributes?: readonly SimulationFrameAttribute[];
 };
 
 export function flattenFrames(steps: readonly SimulationStep[]): FlatFrame[] {
@@ -43,6 +45,9 @@ export function flattenFrames(steps: readonly SimulationStep[]): FlatFrame[] {
           ? { databases: frame.databases }
           : {}),
         ...(frame.views !== undefined ? { views: frame.views } : {}),
+        ...(frame.attributes !== undefined
+          ? { attributes: frame.attributes }
+          : {}),
       });
     }
   });

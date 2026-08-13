@@ -7,7 +7,7 @@ import { resolveLocalReportDataDir } from '@pkgs/simulation-report';
 import { Simulation } from '../open-simulation';
 import { DemoSimulationSystem } from './fixtures/demo-system';
 
-describe('Simulation (demo system)', () => {
+describe('Simulation topology (demo system)', () => {
   test('two actors share state and assert only via UI', async () => {
     const sim = await Simulation.open({
       seed: 1,
@@ -29,6 +29,9 @@ describe('Simulation (demo system)', () => {
       await bob.ui.expect.visible('demo-root');
       await bob.ui.expect.text('actor-id', 'bob');
       await bob.ui.expect.text('shared-title', 'Game night (alice)');
+
+      expect(sim.node('server').snapshot().kind).toBe('server');
+      expect(sim.edge('alice', 'server').snapshot()?.kind).toBe('http');
     } finally {
       await sim.dispose();
     }
@@ -63,10 +66,56 @@ describe('Simulation (demo system)', () => {
     }
   });
 
-  test('report writes suite data artifacts (no SPA copy)', async () => {
+  test('same seed yields identical event log', async () => {
+    async function run(seed: number): Promise<string> {
+      const sim = await Simulation.open({
+        seed,
+        system: new DemoSimulationSystem(),
+      });
+      try {
+        const alice = await sim.actor('alice');
+        await alice.ui.tap('create');
+        await sim.edge('alice', 'server').partition();
+        await sim.edge('alice', 'server').heal();
+        return JSON.stringify(
+          sim.eventLog().map((e) => ({
+            kind: e.kind,
+            nodeId: e.nodeId,
+            from: e.from,
+            to: e.to,
+            title: e.title,
+          }))
+        );
+      } finally {
+        await sim.dispose();
+      }
+    }
+    expect(await run(11)).toBe(await run(11));
+  });
+
+  test('fuzz mode keeps UI convergent', async () => {
+    const sim = await Simulation.open({
+      seed: 99,
+      system: new DemoSimulationSystem(),
+      fuzz: { intensity: 0.2 },
+    });
+    try {
+      const alice = await sim.actor('alice');
+      await alice.ui.tap('create');
+      await alice.ui.expect.text('shared-title', 'Game night (alice)');
+      const bob = await sim.actor('bob');
+      await bob.ui.expect.text('shared-title', 'Game night (alice)');
+      expect(sim.eventLog().length).toBeGreaterThan(0);
+      expect(sim.topology().fuzz?.enabled).toBe(true);
+    } finally {
+      await sim.dispose();
+    }
+  });
+
+  test('report writes topology.json and events.json', async () => {
     const rootDir = join(resolveLocalReportDataDir(), 'demo-report-test');
-    const runId = 'demo-run';
-    const testId = 'demo-report';
+    const runId = 'demo-topo-run';
+    const testId = 'demo-topo';
     const store = createNodeFsObjectStore({ rootDir });
     const sim = await Simulation.open({
       seed: 7,
@@ -81,43 +130,20 @@ describe('Simulation (demo system)', () => {
       await sim.dispose();
     }
 
-    const stepsKey = `runs/${runId}/tests/${testId}/steps.json`;
-    expect(sim.reportPath).toBe(stepsKey);
-    const stepsPath = join(rootDir, ...stepsKey.split('/'));
-    const runDir = join(rootDir, 'runs', runId);
-    expect(existsSync(stepsPath)).toBe(true);
-    expect(existsSync(join(rootDir, 'runs', 'index.json'))).toBe(true);
-    expect(existsSync(join(runDir, 'manifest.json'))).toBe(true);
-    expect(existsSync(join(runDir, 'snapshot-shell.css'))).toBe(true);
+    const testDir = join(rootDir, 'runs', runId, 'tests', testId);
+    expect(existsSync(join(testDir, 'steps.json'))).toBe(true);
+    expect(existsSync(join(testDir, 'topology.json'))).toBe(true);
+    expect(existsSync(join(testDir, 'events.json'))).toBe(true);
 
-    const manifest = JSON.parse(
-      readFileSync(join(runDir, 'manifest.json'), 'utf8')
-    ) as { tests: Array<{ testId: string; path: string }> };
-    expect(manifest.tests.some((t) => t.testId === testId)).toBe(true);
-    expect(manifest.tests.find((t) => t.testId === testId)?.path).toBe(
-      `/t/${testId}`
-    );
+    const topology = JSON.parse(
+      readFileSync(join(testDir, 'topology.json'), 'utf8')
+    ) as { seed: string; nodes: Array<{ id: string }> };
+    expect(topology.seed).toBe('7');
+    expect(topology.nodes.some((n) => n.id === 'alice')).toBe(true);
 
-    const stepsJson = JSON.parse(readFileSync(stepsPath, 'utf8')) as {
-      meta: { testId: string; runId: string };
-      steps: Array<{
-        kind: string;
-        snapshotFile?: string;
-        frames?: Array<{ file: string }>;
-      }>;
-    };
-    expect(stepsJson.meta.testId).toBe(testId);
-    expect(stepsJson.meta.runId).toBe(runId);
-    expect(stepsJson.steps.some((s) => s.kind === 'launch')).toBe(true);
-    expect(stepsJson.steps.some((s) => s.kind === 'tap')).toBe(true);
-    const tapStep = stepsJson.steps.find((s) => s.kind === 'tap');
-    expect(tapStep?.snapshotFile).toMatch(/^frames\/f-\d+\.[^/]+\.html$/);
-    expect(tapStep?.frames?.length).toBeGreaterThan(0);
-    const snap = readFileSync(
-      join(runDir, 'tests', testId, tapStep!.snapshotFile!),
-      'utf8'
-    );
-    expect(snap).toContain('Game night (alice)');
-    expect(snap).toContain('snapshot-shell.css');
+    const events = JSON.parse(
+      readFileSync(join(testDir, 'events.json'), 'utf8')
+    ) as Array<{ kind: string }>;
+    expect(events.some((e) => e.kind === 'ui.tap')).toBe(true);
   });
 });

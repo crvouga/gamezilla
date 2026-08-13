@@ -92,7 +92,7 @@ export type JoinInput = {
   readonly priority?: number;
   /**
    * Free-form caller payload that round-trips through `status()`. Stored
-   * verbatim as JSONB on the waiting and matched rows. Capped at
+   * verbatim as JSON TEXT on the waiting and matched rows. Capped at
    * {@link MATCHMAKING_PAYLOAD_LIMITS}.maxMetadataBytes (1024 bytes of
    * UTF-8 JSON). Use for routing hints, party IDs, custom display
    * data, etc. — the library never reads it.
