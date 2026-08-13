@@ -7,7 +7,7 @@ import {
 import { SecureStorageStoreProvider } from '@pkgs/secure-storage/use-secure-storage-item';
 import type { ReactNode } from 'react';
 
-import { useAppOverrides } from '../app-overrides';
+import { useClientSystemResources } from '../client-system-resources';
 
 /**
  * App-lifetime secure-storage store.
@@ -34,7 +34,7 @@ export function AppSecureStorage({
 }): ReactNode {
   // Sims inject a per-actor in-memory store; production uses the app-lifetime store.
   const store =
-    useAppOverrides().secureStorageStore ?? getAppSecureStorageStore();
+    useClientSystemResources().secureStorageStore ?? getAppSecureStorageStore();
   return (
     <SecureStorageContextProvider value={store.storage}>
       <SecureStorageStoreProvider value={store}>

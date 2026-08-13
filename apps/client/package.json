@@ -8,10 +8,16 @@
       "./src/providers/*.tsx",
       "./src/providers/*/index.ts"
     ],
-    "./app/*": [
-      "./src/app/*.ts",
-      "./src/app/*.tsx",
-      "./src/app/*/index.ts"
+    "./app": [
+      "./src/app.tsx"
+    ],
+    "./App": [
+      "./src/app.tsx"
+    ],
+    "./navigation/*": [
+      "./src/navigation/*.ts",
+      "./src/navigation/*.tsx",
+      "./src/navigation/*/index.ts"
     ],
     "./sync/*": [
       "./src/sync/*.ts",
@@ -60,7 +66,6 @@
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "setup": "bun run scripts/setup-env.ts && bun run --filter @pkgs/sql-client build:web-workers",
-    "setup:sentry-dsn": "bun run scripts/setup-sentry-dsn.ts",
     "prestart": "bun run bundle:skia-canvaskit-wasm && bun run --filter @pkgs/sql-client build:web-workers",
     "start": "expo start --web",
     "tc": "tsc --noEmit -p tsconfig.json",
@@ -124,7 +129,6 @@
     "@react-navigation/elements": "catalog:",
     "@react-navigation/native": "catalog:",
     "@react-navigation/native-stack": "catalog:",
-    "@sentry/react-native": "catalog:",
     "@shopify/react-native-skia": "catalog:",
     "buffer": "catalog:",
     "expo": "catalog:",
@@ -139,7 +143,6 @@
     "expo-linear-gradient": "catalog:",
     "expo-linking": "catalog:",
     "expo-network": "catalog:",
-    "expo-router": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-splash-screen": "catalog:",
     "expo-sqlite": "catalog:",

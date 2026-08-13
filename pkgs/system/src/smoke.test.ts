@@ -151,9 +151,17 @@ describe('@pkgs/system smoke', () => {
     });
   });
 
+  const stubTimers = {
+    setTimeout: () => 0,
+    clearTimeout: () => {},
+    setInterval: () => 0,
+    clearInterval: () => {},
+  };
+
   function openWorld(seed: number | string) {
     return createWorld(system, {
       seed,
+      timers: stubTimers,
       impls: [apiImpl, clientImpl, roomImpl],
       provide: {
         db: bunSqliteProvider(),

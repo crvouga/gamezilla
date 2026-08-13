@@ -39,7 +39,6 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "expo-router": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",

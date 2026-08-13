@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
 import type { Interaction } from '../shared/interaction';

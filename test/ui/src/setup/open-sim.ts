@@ -1,7 +1,5 @@
 /**
  * Open a client UI simulation on `@pkgs/system` createWorld + product implements.
- *
- * Facade matches HEAD scenarios: `actor` / `edge` / `topology` / async dispose.
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -113,6 +111,7 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
 
   const world = createWorld(system, {
     seed: 1,
+    timers: simNodeTimers,
     impls: createProductImpls({ pubSubBus }),
     provide: createProductProvide({ db, pubSubBus }),
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
@@ -121,7 +120,6 @@ export async function openSim(testId: string): Promise<OpenSimHandle> {
   const actors = new Map<string, SimActorHandle>();
   const nodes = new Set<string>(['server', 'pubsub']);
 
-  // Keep report run marker parity with HEAD (frames optional until reporting driver wired).
   void new SimulationReporter({
     seed: '1',
     store: reportStore,

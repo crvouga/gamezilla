@@ -29,9 +29,7 @@ import {
 } from './llm-tts-secrets';
 import {
   EXPO_PUBLIC_OBSERVABILITY_BACKEND,
-  EXPO_PUBLIC_SENTRY_DSN,
   OBSERVABILITY_BACKEND,
-  SENTRY_DSN,
 } from './observability-secrets';
 import { RAILWAY_TOKEN } from './railway-token';
 import {
@@ -86,9 +84,7 @@ export const SECRETS: readonly Secret[] = [
   EXPO_PUBLIC_COMMIT_HASH,
   EXPO_PUBLIC_COMMIT_DATE,
   OBSERVABILITY_BACKEND,
-  SENTRY_DSN,
   EXPO_PUBLIC_OBSERVABILITY_BACKEND,
-  EXPO_PUBLIC_SENTRY_DSN,
   RAILWAY_TOKEN,
   EMQX_API_URL,
   EMQX_WSS_URL,

@@ -1,6 +1,5 @@
 import { useLingui } from '@lingui/react/macro';
-import { Button } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
+import { Button, useRouter } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 export function ProfileFriendsActions(): ReactNode {

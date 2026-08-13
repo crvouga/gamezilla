@@ -493,3 +493,4 @@ export {
   TopBarTitle,
   type TopBarTitleProps,
 } from './top-bar';
+export { useBreadcrumbNav } from './use-breadcrumb-nav';

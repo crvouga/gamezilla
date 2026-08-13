@@ -18,7 +18,7 @@ export type {
  * Runtime-agnostic tracing port for fullstack observability.
  *
  * Apps depend on this interface only; adapters live in sibling `impl-*.ts`
- * files (`impl-noop`, `impl-local-file`, future `impl-sentry`). Mirrors the
+ * files (`impl-noop`, `impl-local-file`, `impl-logger`). Mirrors the
  * {@link ../object-store/interface.ts ObjectStore} / {@link ../sql-client/interface.ts SqlClient}
  * pattern: one port, swappable backends, conformance tests in `conformance.test.ts`.
  *
@@ -33,7 +33,7 @@ export type {
 export interface Observability {
   /** Logical service name stamped on every exported span (e.g. `gamezilla-api`). */
   readonly serviceName: string;
-  /** Active adapter; `noop` is zero-cost, `local-file` POSTs spans to the dev collector, `logger` emits structured logs, `sentry` exports to Sentry Performance. */
+  /** Active adapter; `noop` is zero-cost, `local-file` POSTs spans to the dev collector, `logger` emits structured logs. */
   readonly backend: ObservabilityBackend;
 
   /** Returns the span context bound to the current async scope, if any. */

@@ -1,5 +1,5 @@
 import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from '@pkgs/ui';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import type { FriendProfile } from '../shared/friends-types';

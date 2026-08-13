@@ -1,14 +1,16 @@
-import { releaseWebFocus } from '@pkgs/ui';
-import type { Href, Router } from 'expo-router';
-import { useLocalSearchParams, usePathname } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import {
+  type AppRouter,
+  releaseWebFocus,
+  useLocalSearchParams,
+} from '@pkgs/ui';
+import { useRef } from 'react';
 
-/** Expo Router href for `/space/:id` — use instead of `{ pathname, params }`. */
-export function spaceDetailHref(spaceId: string): Href {
-  return `/space/${spaceId}` as Href;
+/** Path href for `/space/:id`. */
+export function spaceDetailHref(spaceId: string): string {
+  return `/space/${spaceId}`;
 }
 
-/** Normalize a dynamic `[id]` route param (Expo may yield `string[]` when path + `?id=` duplicate). */
+/** Normalize a dynamic `id` route param. */
 export function normalizeSpaceRouteParam(
   id: string | string[] | undefined
 ): string {
@@ -21,80 +23,32 @@ export function normalizeSpaceRouteParam(
   return '';
 }
 
-/** Read the space id segment from `/space/:id` when search params are ambiguous. */
-export function spaceIdFromPathname(pathname: string): string {
-  const match = /^\/space\/([^/?#]+)/.exec(pathname);
-  return match?.[1] ?? '';
-}
-
 /**
- * Stable space id for `/space/[id]` screens. Prefer the normalized route param;
- * fall back to the path segment so redundant `?id=` mirrors cannot blank the id.
- * Hold the last non-empty id so brief Expo Router param gaps do not unmount the
- * space session (which tears down the room and flashes join/loading).
+ * Stable space id for Space screens. Prefer the route param; hold the last
+ * non-empty id so brief param gaps do not unmount the space session.
  */
 export function useSpaceRouteId(): string {
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
-  const pathname = usePathname();
   const fromParams = normalizeSpaceRouteParam(id);
-  const fromPath = spaceIdFromPathname(pathname);
-  const resolved = fromParams.length > 0 ? fromParams : fromPath;
-  const lastRef = useRef(resolved);
-  if (resolved.length > 0) {
-    lastRef.current = resolved;
-    return resolved;
+  const lastRef = useRef(fromParams);
+  if (fromParams.length > 0) {
+    lastRef.current = fromParams;
+    return fromParams;
   }
   return lastRef.current;
 }
 
-export function openSpaceDetail(router: Router, spaceId: string): void {
+export function openSpaceDetail(router: AppRouter, spaceId: string): void {
   releaseWebFocus();
   router.push(spaceDetailHref(spaceId));
 }
 
-/** Leave `/space/:id` — pop the modal stack on iOS, fall back to lobby on deep links. */
-export function closeSpaceDetail(router: Router): void {
+/** Leave space detail — pop the modal stack, fall back to lobby. */
+export function closeSpaceDetail(router: AppRouter): void {
   releaseWebFocus();
   if (router.canGoBack()) {
     router.back();
     return;
   }
   router.replace('/');
-}
-
-/** Paths already cleaned this session (Strict Mode may invoke the stripper twice). */
-const strippedSearchPaths = new Set<string>();
-
-/**
- * Strip redundant `?id=` from `/space/:id` URLs on web without routing through
- * Expo Router — `router.replace` remounts the screen and can loop when the
- * query param is re-applied during navigation.
- */
-export function stripRedundantSpaceRouteSearchParams(spaceId: string): void {
-  if (spaceId.length === 0 || typeof window === 'undefined') return;
-  const { pathname, search } = window.location;
-  if (search.length === 0) return;
-  const pathKey = `${pathname}${search}`;
-  if (strippedSearchPaths.has(pathKey)) return;
-  const params = new URLSearchParams(search);
-  if (params.get('id') !== spaceId) return;
-  strippedSearchPaths.add(pathKey);
-  params.delete('id');
-  const next = params.toString();
-  window.history.replaceState(
-    window.history.state,
-    '',
-    next.length > 0 ? `${pathname}?${next}` : pathname
-  );
-}
-
-/**
- * Expo Router web sometimes mirrors the dynamic `[id]` segment into
- * `?id=…` even when the id is already in the path. Replace with the
- * path-only href so bookmarks and the address bar stay clean.
- */
-export function useStripRedundantSpaceRouteSearchParams(spaceId: string): void {
-  useEffect(() => {
-    stripRedundantSpaceRouteSearchParams(spaceId);
-  }, [spaceId]);
 }

@@ -1,11 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { wallIo } from '@pkgs/io';
-import type { Span as SentrySpanType } from '@sentry/core';
 import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
 import { createLoggerObservabilityWithExporter } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
-import { createSentryObservability } from '../impl-sentry/sentry-observability';
-import type { SentrySdk } from '../impl-sentry/sentry-sdk';
 import { isSlowSpan, slowThresholdMsForSpan } from '../shared/slow-thresholds';
 import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
@@ -15,41 +12,6 @@ import type { Observability } from './observability';
 const io = wallIo();
 
 type Factory = { readonly name: string; create: () => Observability };
-
-function createMockSentrySdk(): SentrySdk {
-  let spanCounter = 0;
-  const rootTraceId = 'a'.repeat(32);
-  return {
-    startInactiveSpan: (options) => {
-      spanCounter += 1;
-      const parent = options.parentSpan as SentrySpanType | undefined;
-      const traceId =
-        parent !== undefined ? parent.spanContext().traceId : rootTraceId;
-      const spanId = spanCounter.toString(16).padStart(16, '0');
-      return {
-        setAttribute: () => {},
-        addEvent: () => {},
-        setStatus: () => {},
-        end: () => {},
-        spanContext: () => ({ traceId, spanId, traceFlags: 1 }),
-        name: String(options.name ?? 'span'),
-      } as unknown as SentrySpanType;
-    },
-    withActiveSpan: (_span, callback) => callback(),
-    spanToTraceparentHeader: (span) => {
-      const ctx = span.spanContext();
-      return `00-${ctx.traceId}-${ctx.spanId}-01`;
-    },
-    spanToTraceHeader: (span) => {
-      const ctx = span.spanContext();
-      return `${ctx.spanId}-${ctx.traceId}-1`;
-    },
-    spanContext: (span) => span.spanContext(),
-    continueTrace: (_options, callback) => callback(),
-    captureException: () => {},
-    flush: async () => true,
-  };
-}
 
 function conformanceSuite(factory: Factory): void {
   describe(factory.name, () => {
@@ -132,17 +94,6 @@ describe('Observability port conformance', () => {
         storage: new InMemorySpanContextStorage(),
       });
     },
-  });
-
-  conformanceSuite({
-    name: 'sentry',
-    create: () =>
-      createSentryObservability({
-        serviceName: 'test-sentry',
-        sdk: createMockSentrySdk(),
-        storage: new InMemorySpanContextStorage(),
-        now: io.clock.now,
-      }),
   });
 
   test('noop startSpan/end is cheap and does not call fetch', async () => {

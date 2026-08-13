@@ -5,8 +5,7 @@ import {
 import { Handles } from '@libs/dst-handles';
 import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
 import { useLingui } from '@lingui/react/macro';
-import { RegisterStatusBarItem, useStatusBar } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
+import { RegisterStatusBarItem, useRouter, useStatusBar } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
 /**

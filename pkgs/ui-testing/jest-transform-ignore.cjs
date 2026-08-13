@@ -18,8 +18,6 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     '@expo-google-fonts/.*',
     'react-navigation',
     '@react-navigation/.*',
-    '@sentry/.*',
-    '@sentry-internal/.*',
     'native-base',
     'react-native-svg',
     '@testing-library/react-native',

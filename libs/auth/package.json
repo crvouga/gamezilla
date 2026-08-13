@@ -48,7 +48,6 @@
     "expo-constants": "catalog:",
     "expo-device": "catalog:",
     "expo-network": "catalog:",
-    "expo-router": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",
     "hono": "catalog:",

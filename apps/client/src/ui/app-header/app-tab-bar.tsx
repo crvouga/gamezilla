@@ -1,6 +1,6 @@
 /**
  * Standalone tab bar driven by live {@link BottomTabBarProps} from the
- * expo-router `Tabs` navigator.
+ * React Navigation `Tabs` navigator.
  */
 
 import { Handles } from '@libs/dst-handles';
@@ -16,7 +16,9 @@ import { APP_TAB_ICON_SIZE, AppTabButton } from './app-tab-button';
 type TabRoute = BottomTabBarProps['state']['routes'][number];
 
 function tabTestID(routeName: string): string | undefined {
-  if (routeName === 'profile') return Handles.tabProfile;
+  if (routeName === 'ProfileTab' || routeName === 'profile') {
+    return Handles.tabProfile;
+  }
   return undefined;
 }
 

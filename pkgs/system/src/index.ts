@@ -1,7 +1,7 @@
 export type { ProviderSpec } from './dst/providers';
 export { decoratePort, stubPort } from './dst/providers';
 export type { Trace, TraceEvent, TraceKind } from './dst/trace';
-export type { CreateWorldOptions, World } from './dst/world';
+export type { CreateWorldOptions, World, WorldTimers } from './dst/world';
 export { createWorld } from './dst/world';
 export type {
   Exposes,

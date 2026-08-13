@@ -39,15 +39,6 @@
     },
     "plugins": [
       [
-        "expo-router",
-        {
-          "headers": {
-            "Cross-Origin-Embedder-Policy": "require-corp",
-            "Cross-Origin-Opener-Policy": "same-origin"
-          }
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "image": "./src/assets/images/splash-icon.png",
@@ -63,18 +54,9 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-audio",
-      "expo-dev-client",
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "organization": "gamezilla",
-          "project": "react-native"
-        }
-      ]
+      "expo-dev-client"
     ],
     "experiments": {
-      "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {

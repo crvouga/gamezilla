@@ -2,7 +2,6 @@ import type { CreateId } from '@pkgs/uuid';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
-import { createServerSentryObservability } from '../impl-sentry/create-server-sentry-observability';
 import type { Observability } from '../port/observability';
 import {
   DEFAULT_COLLECTOR_URL,
@@ -43,13 +42,6 @@ export function createServerObservability(
       serviceName: options.serviceName,
       now: options.now,
       createId: options.createId,
-      storage,
-    });
-  }
-  if (backend === 'sentry') {
-    return createServerSentryObservability({
-      serviceName: options.serviceName,
-      now: options.now,
       storage,
     });
   }

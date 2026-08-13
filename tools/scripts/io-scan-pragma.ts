@@ -40,6 +40,7 @@ const ENTRY_BASENAMES = new Set([
   'export-chess-puzzles-load.ts',
   'example-root.tsx',
   'impl-pg-mem.ts',
+  'app.tsx',
 ]);
 
 /**

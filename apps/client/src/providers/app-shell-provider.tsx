@@ -4,7 +4,7 @@ import { AudioPlaybackProvider } from '@pkgs/sounds/audio-playback/audio-playbac
 import { ComposeProviders, SpinnerProvider } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { useAppOverrides } from './app-overrides';
+import { useClientSystemResources } from './client-system-resources';
 import { AppFontsProvider } from './shell/fonts';
 import { AppGestureHandler } from './shell/gesture-handler';
 import { AppI18n } from './shell/i18n';
@@ -14,15 +14,15 @@ import { AppSuspenseRoot } from './shell/suspense-root';
 import { AppTheme } from './shell/theme';
 
 /**
- * Platform shell with optional sim overrides for Kv / device / audio ports.
- * Must sit under {@link AppOverridesProvider}.
+ * Platform shell with optional sim resources for Kv / device / audio ports.
+ * Must sit under {@link SystemProvider}.
  */
 export function AppShellProvider({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const { kv, network, devMenu, audio } = useAppOverrides();
+  const { kv, network, devMenu, audio } = useClientSystemResources();
 
   return (
     <DevicePortsProvider

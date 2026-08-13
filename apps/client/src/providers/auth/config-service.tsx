@@ -1,14 +1,14 @@
 import { ConfigServiceProvider } from '@libs/auth/client/config-service-context';
 import { type ReactNode, useMemo } from 'react';
 import { createConfigService } from '../../config/create-config-service';
-import { useAppOverrides } from '../app-overrides';
+import { useClientSystemResources } from '../client-system-resources';
 
 export function AppConfigService({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
-  const { apiUrl } = useAppOverrides();
+  const { apiUrl } = useClientSystemResources();
   const config = useMemo(
     () => createConfigService(apiUrl === undefined ? {} : { apiUrl }),
     [apiUrl]

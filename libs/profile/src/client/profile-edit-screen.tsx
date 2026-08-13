@@ -1,8 +1,7 @@
 import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { MenuList, MenuRow, ScreenBase } from '@pkgs/ui';
+import { MenuList, MenuRow, ScreenBase, useRouter } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { useRouter } from 'expo-router';
 
 export function ProfileEditScreen() {
   const { t } = useLingui();

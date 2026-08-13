@@ -19,5 +19,17 @@ export {
   playAudioOrIgnoreAutoplayBlock,
 } from './expo/safe-audio-play';
 export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
+export {
+  type AppRouter,
+  type Href,
+  type HrefObject,
+  hrefToPath,
+  navigationRef,
+  router,
+  setAppLinkingConfig,
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+} from './navigation/app-router';
 export * from './theme';
 export { releaseWebFocus } from './web/release-web-focus';

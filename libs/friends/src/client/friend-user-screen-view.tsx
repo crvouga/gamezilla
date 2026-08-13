@@ -1,7 +1,11 @@
 import { Trans } from '@lingui/react/macro';
-import { ScreenBase, type ScreenBaseAction } from '@pkgs/ui';
+import {
+  ScreenBase,
+  type ScreenBaseAction,
+  useLocalSearchParams,
+  useRouter,
+} from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useBlockUser } from './block-user/use-block-user';

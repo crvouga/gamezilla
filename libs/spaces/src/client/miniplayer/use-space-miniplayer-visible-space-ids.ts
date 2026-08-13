@@ -1,4 +1,4 @@
-import { usePathname } from 'expo-router';
+import { usePathname } from '@pkgs/ui';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
 import { isSpaceMiniplayerHidden } from './space-miniplayer-layout';
 

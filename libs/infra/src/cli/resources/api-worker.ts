@@ -30,7 +30,6 @@ const WORKER_EXTRA_ENV_KEYS = [
   'SECRETS_ENV',
   'OBSERVABILITY_BACKEND',
   'OBSERVABILITY_COLLECTOR_URL',
-  'SENTRY_DSN',
 ] as const;
 
 function buildWorkerSecretBulkPayload(): Record<string, string> {

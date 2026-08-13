@@ -1,4 +1,4 @@
-import { type Href, router } from 'expo-router';
+import { type Href, router } from '@pkgs/ui';
 
 export type InboxRouteFilter = 'all' | 'action_required' | 'archived';
 

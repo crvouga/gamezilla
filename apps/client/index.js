@@ -1,4 +1,7 @@
-// Polyfill must run before expo-router loads route modules (they may assert crypto).
+// Polyfill must run before the app tree loads (may assert crypto).
 import './src/polyfill-entry';
-import './src/sentry-init';
-import 'expo-router/entry';
+import { registerRootComponent } from 'expo';
+
+import { App } from './src/app';
+
+registerRootComponent(App);

@@ -36,8 +36,6 @@ export const ApiSecretName = {
   emqxJwtSecret: 'EMQX_JWT_SECRET',
   /** Client MQTT WSS URL materialized into synced `client_config`. */
   emqxWssUrl: 'EMQX_WSS_URL',
-  /** Public client Sentry DSN materialized into synced `client_config`. */
-  expoPublicSentryDsn: 'EXPO_PUBLIC_SENTRY_DSN',
   /** Client observability backend materialized into synced `client_config`. */
   expoPublicObservabilityBackend: 'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
 } as const;

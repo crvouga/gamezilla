@@ -1,5 +1,4 @@
-import { Box, Pressable } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
+import { Box, Pressable, useRouter } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceLiveBadge } from './space-live-badge';
 import { openSpaceDetail } from './space-routes';

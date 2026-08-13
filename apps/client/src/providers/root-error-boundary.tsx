@@ -53,7 +53,7 @@ function CopyErrorButton({ error }: { error: Error }): ReactNode {
 /**
  * Last-resort boundary outside feature providers so a startup render throw
  * (e.g. a provider that calls `getApiBaseUrl()` / asserts) renders a readable
- * error instead of a blank white screen. Must sit under `AppIoProvider` so the
+ * error instead of a blank white screen. Must sit under `SystemProvider` so the
  * fallback UI can use `useTimers`. Uses raw react-native primitives so it never
  * depends on the (possibly-crashing) theme/provider stack.
  */

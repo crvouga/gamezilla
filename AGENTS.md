@@ -167,7 +167,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
-- `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, Sentry DSN, observability backend) live here — not in `EXPO_PUBLIC_*` Expo env (API URL / commit provenance / E2E / Watchman stay build-time env).
+- `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `EXPO_PUBLIC_*` Expo env (API URL / commit provenance / E2E / Watchman stay build-time env).
 - `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename/set-visibility).
 - `@libs/stripe` — Stripe checkout routes, catalog mirror, ABAC policies for stripe entities (`abac-policies.ts`).

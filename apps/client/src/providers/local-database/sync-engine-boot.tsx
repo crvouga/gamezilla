@@ -23,7 +23,7 @@ import {
   type AppSyncEnginePool,
   defaultAppSyncEnginePool,
 } from '../../sync/sync-engine-pool';
-import { useAppOverrides } from '../app-overrides';
+import { useClientSystemResources } from '../client-system-resources';
 import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
   LocalDatabaseBootErrorScreen,
@@ -65,7 +65,7 @@ function useSyncEnginePromise(
   userId: string,
   pool: AppSyncEnginePool
 ): Promise<SyncEngine> {
-  const { openSqlClient, createPubSub } = useAppOverrides();
+  const { openSqlClient, createPubSub } = useClientSystemResources();
   const config = useConfigService();
   const observability = useObservability();
   const io = useIo();
@@ -184,7 +184,8 @@ function SyncEngineBootWithUser({
   readonly children: ReactNode;
 }): ReactNode {
   const dbName = useIdentitySqliteDbName(userId);
-  const pool = useAppOverrides().syncEnginePool ?? defaultAppSyncEnginePool;
+  const pool =
+    useClientSystemResources().syncEnginePool ?? defaultAppSyncEnginePool;
   const warmEngine = pool.peekReady(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const lastDbNameRef = useRef(dbName);

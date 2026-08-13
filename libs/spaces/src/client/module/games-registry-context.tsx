@@ -13,7 +13,7 @@ export type GamesRegistryProviderProps = {
 
 /**
  * Provides the set of games available inside a space. Wrap the app shell
- * once at the composition root (`apps/client/src/app/_layout.tsx`) — the
+ * once at the composition root (`apps/client/src/app.tsx`) — the
  * spaces UI then reads the registry without `@libs/spaces` knowing
  * anything about specific games.
  */

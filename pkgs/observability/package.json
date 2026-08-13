@@ -26,9 +26,6 @@
     "./impl-logger/*": [
       "./src/impl-logger/*.ts"
     ],
-    "./impl-sentry/*": [
-      "./src/impl-sentry/*.ts"
-    ],
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -49,9 +46,6 @@
     "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "@sentry/cloudflare": "catalog:",
-    "@sentry/core": "catalog:",
-    "@sentry/react-native": "catalog:",
     "hono": "catalog:",
     "react": "catalog:"
   },

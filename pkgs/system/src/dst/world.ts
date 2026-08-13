@@ -7,7 +7,7 @@ import type {
   SystemDefinition,
 } from '../system';
 import type { ProviderSpec } from './providers';
-import { createSeededRandom, createSimClock } from './rng';
+import { createSeededRandom, createSimClock, hashSeed } from './rng';
 import { createTrace, type Trace } from './trace';
 import { makeFaults } from './world-faults';
 import {
@@ -18,11 +18,20 @@ import {
   type WorldInternal,
 } from './world-runtime';
 
+export type WorldTimers = {
+  setTimeout: (fn: () => void, ms: number) => unknown;
+  clearTimeout: (handle: unknown) => void;
+  setInterval: (fn: () => void, ms: number) => unknown;
+  clearInterval: (handle: unknown) => void;
+};
+
 export type CreateWorldOptions = {
   seed: number | bigint | string;
   impls: readonly ResourceImpl<unknown, unknown>[];
   provide: Record<string, ProviderSpec>;
   startMs?: number;
+  /** Wall or sim timers for resource Io (required for product DST). */
+  timers: WorldTimers;
 };
 
 export type World = {
@@ -51,36 +60,51 @@ function createPending() {
   };
 }
 
-export function createWorld(
-  system: SystemDefinition,
-  options: CreateWorldOptions
-): World {
-  const random = createSeededRandom(options.seed);
-  const clock = createSimClock(options.startMs ?? 0);
-  const trace = createTrace();
-  const partitions = new Set<string>();
-  const instances = new Map<string, InstanceState>();
-  const sharedLive = new Map<string, unknown>();
-  const factoryByResource = new Map(
-    options.impls.map((i) => [i.resource, i.factory])
-  );
-  const { bump, done, settle } = createPending();
-  const worldRef: WorldInternal = {
-    scheduleCall: async () => null,
-    getOrBuild: async () => null,
+function seedToBigint(seed: number | bigint | string): bigint {
+  if (typeof seed === 'bigint') return seed;
+  if (typeof seed === 'number') return BigInt(seed | 0);
+  return BigInt(hashSeed(seed) >>> 0);
+}
+
+function createSeededCreateId(random: () => number): () => string {
+  return () => {
+    const bytes = new Uint8Array(16);
+    for (let i = 0; i < 16; i += 1) {
+      bytes[i] = Math.floor(random() * 256);
+    }
+    bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
+    bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
+    const hex = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   };
-  const buildCtx = (address: string): ResourceCtx => ({
+}
+
+function makeBuildCtx(args: {
+  readonly clock: { now(): number; advance(ms: number): void };
+  readonly timers: WorldTimers;
+  readonly random: () => number;
+  readonly createId: () => string;
+  readonly seed: bigint;
+  readonly trace: Trace;
+}): (address: string) => ResourceCtx {
+  const { clock, timers, random, createId, seed, trace } = args;
+  return (address) => ({
     address,
-    log: (...args) => {
-      trace.push('log', address, args.map(String).join(' '));
+    log: (...logArgs) => {
+      trace.push('log', address, logArgs.map(String).join(' '));
     },
     clock,
+    timers,
     random,
+    createId,
+    seed,
   });
-  const ensureInstance = (
-    address: string,
-    resource: ResourceRef
-  ): InstanceState => {
+}
+
+function makeEnsureInstance(
+  instances: Map<string, InstanceState>
+): (address: string, resource: ResourceRef) => InstanceState {
+  return (address, resource) => {
     let inst = instances.get(address);
     if (!inst) {
       inst = { address, resource, live: null, down: false, evicted: false };
@@ -88,20 +112,33 @@ export function createWorld(
     }
     return inst;
   };
-  attachWorldHandlers({
-    worldRef,
+}
+
+function makeWorldApi(args: {
+  readonly system: SystemDefinition;
+  readonly options: CreateWorldOptions;
+  readonly worldRef: WorldInternal;
+  readonly settle: () => Promise<void>;
+  readonly instances: Map<string, InstanceState>;
+  readonly sharedLive: Map<string, unknown>;
+  readonly partitions: Set<string>;
+  readonly trace: Trace;
+  readonly ensureInstance: (
+    address: string,
+    resource: ResourceRef
+  ) => InstanceState;
+}): World {
+  const {
     system,
     options,
+    worldRef,
+    settle,
     instances,
     sharedLive,
     partitions,
     trace,
-    factoryByResource,
-    buildCtx,
     ensureInstance,
-    bump,
-    done,
-  });
+  } = args;
   return {
     async spawn<T = unknown>(name: string, instanceId?: string): Promise<T> {
       const resource = system.roots[name];
@@ -130,6 +167,63 @@ export function createWorld(
       partitions.clear();
     },
   };
+}
+
+export function createWorld(
+  system: SystemDefinition,
+  options: CreateWorldOptions
+): World {
+  const random = createSeededRandom(options.seed);
+  const createId = createSeededCreateId(
+    createSeededRandom(`${String(options.seed)}:ids`)
+  );
+  const seed = seedToBigint(options.seed);
+  const clock = createSimClock(options.startMs ?? 0);
+  const trace = createTrace();
+  const partitions = new Set<string>();
+  const instances = new Map<string, InstanceState>();
+  const sharedLive = new Map<string, unknown>();
+  const factoryByResource = new Map(
+    options.impls.map((i) => [i.resource, i.factory])
+  );
+  const { bump, done, settle } = createPending();
+  const worldRef: WorldInternal = {
+    scheduleCall: async () => null,
+    getOrBuild: async () => null,
+  };
+  const ensureInstance = makeEnsureInstance(instances);
+  attachWorldHandlers({
+    worldRef,
+    system,
+    options,
+    instances,
+    sharedLive,
+    partitions,
+    trace,
+    factoryByResource,
+    buildCtx: makeBuildCtx({
+      clock,
+      timers: options.timers,
+      random,
+      createId,
+      seed,
+      trace,
+    }),
+    ensureInstance,
+    bump,
+    done,
+  });
+  return makeWorldApi({
+    system,
+    options,
+    worldRef,
+    settle,
+    instances,
+    sharedLive,
+    partitions,
+    trace,
+    ensureInstance,
+  });
 }
 
 function wrapSpawnFacade(

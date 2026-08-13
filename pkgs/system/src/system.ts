@@ -10,7 +10,15 @@ export type ResourceCtx = {
   readonly address: string;
   log: (...args: unknown[]) => void;
   clock: { now(): number };
+  timers: {
+    setTimeout: (fn: () => void, ms: number) => unknown;
+    clearTimeout: (handle: unknown) => void;
+    setInterval: (fn: () => void, ms: number) => unknown;
+    clearInterval: (handle: unknown) => void;
+  };
   random: () => number;
+  createId: () => string;
+  seed: bigint;
 };
 
 export type ImplFactory<

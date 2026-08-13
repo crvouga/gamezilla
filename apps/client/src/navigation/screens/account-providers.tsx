@@ -1,6 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import { Box, ScreenBase, Text } from '@pkgs/ui';
-import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
+import { Box, ScreenBase, Text, useBreadcrumbNav } from '@pkgs/ui';
 
 /**
  * Stub — linked sign-in providers UI previously read synced `entity_store`

@@ -24,7 +24,6 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "expo-router": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"
   },

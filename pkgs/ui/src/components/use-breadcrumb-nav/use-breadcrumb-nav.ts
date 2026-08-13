@@ -1,7 +1,9 @@
-import type { Href } from 'expo-router';
-import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+/**
+ * Breadcrumb back: prefer pop, else replace to fallback path.
+ */
 
+import { useCallback } from 'react';
+import { type Href, useRouter } from '../../navigation/app-router';
 import { releaseWebFocus } from '../../web/release-web-focus';
 
 /**
@@ -17,7 +19,7 @@ export function useBreadcrumbNav(): (fallbackHref: Href) => () => void {
         router.back();
         return;
       }
-      router.replace(fallbackHref as Parameters<typeof router.replace>[0]);
+      router.replace(fallbackHref);
     },
     [router]
   );

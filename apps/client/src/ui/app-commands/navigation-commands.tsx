@@ -1,49 +1,39 @@
 import { useLingui } from '@lingui/react/macro';
-import { RegisterCommand } from '@pkgs/ui';
-import {
-  type Href,
-  type SitemapType,
-  useRouter,
-  useSitemap,
-} from 'expo-router';
-import { useMemo } from 'react';
+import { RegisterCommand, useRouter } from '@pkgs/ui';
 
-import {
-  collectNavigableRoutes,
-  dedupeNavigableRoutes,
-  navCommandTitle,
-} from './sitemap-nav-entries';
+const NAV_TARGETS: ReadonlyArray<{
+  readonly href: string;
+  readonly title: string;
+}> = [
+  { href: '/', title: 'Spaces' },
+  { href: '/search', title: 'Search' },
+  { href: '/inbox', title: 'Inbox' },
+  { href: '/profile', title: 'Profile' },
+  { href: '/more', title: 'Settings' },
+  { href: '/more/theme', title: 'Theme' },
+  { href: '/more/about', title: 'About' },
+  { href: '/more/account', title: 'Account' },
+  { href: '/more/sync', title: 'Sync' },
+  { href: '/ui', title: 'UI explorer' },
+];
 
 export function NavigationCommands() {
   const { t } = useLingui();
   const router = useRouter();
-  const sitemap = useSitemap();
-
-  const entries = useMemo(() => {
-    if (!sitemap) return [];
-    const collected: SitemapType[] = [];
-    for (const child of sitemap.children) {
-      collectNavigableRoutes(child, collected);
-    }
-    return dedupeNavigableRoutes(collected);
-  }, [sitemap]);
 
   return (
     <>
-      {entries.map((node) => {
-        const target = navCommandTitle(node);
-        return (
-          <RegisterCommand
-            key={node.contextKey}
-            id={`nav:${node.contextKey}`}
-            title={t`Go to ${target}`}
-            category={t`Navigation`}
-            run={async () => {
-              router.push(node.href as Href);
-            }}
-          />
-        );
-      })}
+      {NAV_TARGETS.map((node) => (
+        <RegisterCommand
+          key={node.href}
+          id={`nav:${node.href}`}
+          title={t`Go to ${node.title}`}
+          category={t`Navigation`}
+          run={async () => {
+            router.push(node.href);
+          }}
+        />
+      ))}
     </>
   );
 }

@@ -1,23 +1,20 @@
 /**
  * In-process API composition for UI / product sims.
  *
- * Wires the usual in-memory fakes (object store, observability, Stripe, LLM,
- * TTS, publish-only pubsub) plus a record secret store and Better Auth boot
- * config. Production / Worker boot stays on {@link createApiApp}.
+ * Leaves (object store, Stripe, LLM, TTS, pubsub) come from the system graph.
+ * Production / Worker boot stays on {@link createApiApp}.
  */
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
-import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import type { Io } from '@pkgs/io';
-import { InMemoryLlmProvider } from '@pkgs/llm/server';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import type { LlmProvider } from '@pkgs/llm/server';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
-import {
-  createInMemoryPublishOnlyPubSub,
-  type InMemoryBus,
-} from '@pkgs/pubsub/testing/in-memory';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
-import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { TtsProvider } from '@pkgs/tts/server';
+import type Stripe from 'stripe';
 
 import { loadBetterAuthBootConfig } from '../config/better-auth-boot';
 import type { OpenRequestDb } from '../db/open-request-db';
@@ -26,8 +23,12 @@ import { createApiApp } from './create-app';
 export type CreateSimApiAppArgs = {
   readonly io: Io;
   readonly openRequestDb: OpenRequestDb;
-  /** Shared in-memory bus; API publishes, actors subscribe via peers. */
-  readonly pubSubBus: InMemoryBus;
+  readonly sqlClient: SqlClient;
+  readonly pubSub: PubSub;
+  readonly objectStore: ObjectStore;
+  readonly stripe: Stripe;
+  readonly llmProvider: LlmProvider;
+  readonly ttsProvider: TtsProvider;
   readonly betterAuthSecret: string;
   readonly databaseUrl: string;
   readonly apiUrl: string;
@@ -39,6 +40,7 @@ export type CreateSimApiAppArgs = {
 export async function createSimApiApp(
   args: CreateSimApiAppArgs
 ): Promise<Awaited<ReturnType<typeof createApiApp>>> {
+  void args.sqlClient;
   const secretStore = createRecordSecretStore({
     BETTER_AUTH_SECRET: args.betterAuthSecret,
     DATABASE_URL: args.databaseUrl,
@@ -58,11 +60,11 @@ export async function createSimApiApp(
     apiUrlOverride: args.apiUrl,
     openRequestDb: args.openRequestDb,
     secretsEnv: 'dev',
-    objectStore: new ObjectStoreImplInMemory(),
+    objectStore: args.objectStore,
     observability: createNoopObservability('sim-api'),
-    stripe: createInMemoryStripe({ baseUrl: args.apiUrl }),
-    llmProvider: new InMemoryLlmProvider(),
-    ttsProvider: new InMemoryTtsProvider(),
-    pubSub: createInMemoryPublishOnlyPubSub(args.pubSubBus),
+    stripe: args.stripe,
+    llmProvider: args.llmProvider,
+    ttsProvider: args.ttsProvider,
+    pubSub: args.pubSub,
   });
 }

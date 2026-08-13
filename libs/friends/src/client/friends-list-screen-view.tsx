@@ -1,9 +1,15 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/client/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import { Box, Button, ScreenBase, ScreenBodyFlatList, Text } from '@pkgs/ui';
+import {
+  Box,
+  Button,
+  ScreenBase,
+  ScreenBodyFlatList,
+  Text,
+  useRouter,
+} from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
-import { useRouter } from 'expo-router';
 import { type ReactNode, useCallback } from 'react';
 import type { Friend } from '../shared/friends-types';
 import { FriendUserRow } from './friend-user-row';

@@ -17,7 +17,6 @@ export type ClientRuntimeConfig = {
   readonly tts_enabled: boolean;
   readonly llm_enabled: boolean;
   readonly emqx_wss_url: string | null;
-  readonly sentry_dsn: string | null;
   readonly observability_backend: ObservabilityBackendName;
 };
 
@@ -29,11 +28,10 @@ export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
   tts_enabled: false,
   llm_enabled: false,
   emqx_wss_url: null,
-  sentry_dsn: null,
   observability_backend: 'noop',
 };
 
-const OBSERVABILITY_BACKENDS = new Set<string>(['noop', 'sentry', 'console']);
+const OBSERVABILITY_BACKENDS = new Set<string>(['noop', 'console']);
 
 /** SQLite stores booleans as 0/1; Postgres returns real booleans. */
 function readBoolean(raw: unknown): boolean {
@@ -120,7 +118,6 @@ export function parseClientConfigRows(
     emqx_wss_url: parseNullableString(
       liveValue(byId, ClientConfigKey.emqxWssUrl)
     ),
-    sentry_dsn: parseNullableString(liveValue(byId, ClientConfigKey.sentryDsn)),
     observability_backend: parseObservabilityBackend(
       liveValue(byId, ClientConfigKey.observabilityBackend)
     ),

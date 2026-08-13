@@ -1,4 +1,4 @@
-export type ObservabilityBackend = 'noop' | 'local-file' | 'logger' | 'sentry';
+export type ObservabilityBackend = 'noop' | 'local-file' | 'logger';
 
 export const DEFAULT_COLLECTOR_URL = 'http://127.0.0.1:8799';
 
@@ -10,7 +10,7 @@ export function parseObservabilityBackend(
   if (v === 'noop' || v === 'none') return 'noop';
   if (v === 'local-file') return 'local-file';
   if (v === 'logger' || v === 'console') return 'logger';
-  if (v === 'sentry') return 'sentry';
+  // Legacy `sentry` (and unknown values) → noop.
   return 'noop';
 }
 
@@ -22,6 +22,5 @@ export function resolveObservabilityBackend(args: {
   if (args.forceNoop === true) return 'noop';
   const explicit = parseObservabilityBackend(args.envBackend);
   if (explicit !== null) return explicit;
-  // Default quiet until Sentry (or another backend) is intentionally enabled.
   return 'noop';
 }

@@ -229,7 +229,7 @@ async function main(): Promise<void> {
     monorepoRoot,
   });
 
-  // Runtime knobs (EMQX / Sentry / observability backend) come from synced
+  // Runtime knobs (EMQX / observability backend) come from synced
   // `client_config`, not Expo env — do not write them here.
   let body =
     `EXPO_PUBLIC_API_URL=${JSON.stringify(origin)}\n` +

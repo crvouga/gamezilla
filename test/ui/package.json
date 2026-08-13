@@ -48,7 +48,6 @@
     "@testing-library/react-native": "catalog:",
     "better-sqlite3": "catalog:",
     "expo": "catalog:",
-    "expo-router": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "react-native-reanimated": "catalog:",

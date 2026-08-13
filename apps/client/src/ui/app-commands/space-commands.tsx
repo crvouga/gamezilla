@@ -14,9 +14,10 @@ import {
   LogInIcon,
   LogOutIcon,
   RegisterCommand,
+  usePathname,
+  useRouter,
   XIcon,
 } from '@pkgs/ui';
-import { usePathname, useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
 const SPACE_ROUTE_RE = /^\/space\/([^/?#]+)/;

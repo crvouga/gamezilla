@@ -7,7 +7,6 @@ export const ClientConfigKey = {
   ttsEnabled: 'tts_enabled',
   llmEnabled: 'llm_enabled',
   emqxWssUrl: 'emqx_wss_url',
-  sentryDsn: 'sentry_dsn',
   observabilityBackend: 'observability_backend',
 } as const;
 
@@ -22,8 +21,7 @@ export const CLIENT_CONFIG_KEYS: readonly ClientConfigKeyId[] = [
   ClientConfigKey.ttsEnabled,
   ClientConfigKey.llmEnabled,
   ClientConfigKey.emqxWssUrl,
-  ClientConfigKey.sentryDsn,
   ClientConfigKey.observabilityBackend,
 ];
 
-export type ObservabilityBackendName = 'noop' | 'sentry' | 'console';
+export type ObservabilityBackendName = 'noop' | 'console';

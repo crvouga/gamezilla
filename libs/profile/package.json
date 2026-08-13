@@ -36,7 +36,6 @@
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "expo-clipboard": "catalog:",
-    "expo-router": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",
     "unique-names-generator": "catalog:",

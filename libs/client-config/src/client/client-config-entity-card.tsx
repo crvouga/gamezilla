@@ -61,13 +61,11 @@ export function ClientConfigEntityCard() {
         />
       </Box>
       <Box sx={{ gap: 1 }}>
-        <Text variant="label" label={<Trans>EMQX / Sentry / Obs</Trans>} />
+        <Text variant="label" label={<Trans>EMQX / Obs</Trans>} />
         <Text
           variant="mono"
           selectable
-          label={`emqx=${config.emqx_wss_url ?? 'null'} sentry=${
-            config.sentry_dsn !== null ? 'set' : 'null'
-          } obs=${config.observability_backend}`}
+          label={`emqx=${config.emqx_wss_url ?? 'null'} obs=${config.observability_backend}`}
         />
       </Box>
       <Text variant="label" label={<Trans>Snapshot (JSON)</Trans>} />

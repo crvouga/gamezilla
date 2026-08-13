@@ -1,17 +1,15 @@
 /**
- * Product DST provide map for `@test/ui` — real SQLite / bus / in-memory leaves
- * registered so `api.implement` can resolve sim bindings.
+ * Product DST provide map for `@test/ui` — leaf adapters only (no registries).
  */
 
-import {
-  bindSimPubSubBus,
-  registerSimApiTimers,
-} from '@apps/api/system/api-resource';
-import { registerSimSqlClient } from '@apps/api/system/sim-sql-registry';
+import { attachSimOpenRequestDb } from '@apps/api/system/sim-open-request-db';
+import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import type { Kv } from '@pkgs/kv/interface';
+import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import {
   createInMemoryBus,
@@ -21,10 +19,10 @@ import {
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
 import { decoratePort, type ProviderSpec, stubPort } from '@pkgs/system';
+import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import BetterSqlite3 from 'better-sqlite3';
 
 import type { SimSqliteHandle } from './boot-sim-sqlite';
-import { simNodeTimers } from './sim-actor-overrides';
 
 export type ProductProvideHandles = {
   readonly db: SimSqliteHandle;
@@ -69,29 +67,15 @@ function actorSqliteProvider(): ProviderSpec<SqlClient> {
 export function createProductProvide(
   handles: ProductProvideHandles
 ): Record<string, ProviderSpec> {
-  registerSimApiTimers(simNodeTimers);
-
-  const dbProvider = decoratePort<SqlClient>(async (address) => {
-    registerSimSqlClient(address === 'db' ? 'db' : address, {
-      sqlite: handles.db.sqlite,
-      openRequestDb: handles.db.openRequestDb,
-    });
-    // Always pin the shared product DB under 'db' for api.implement.
-    registerSimSqlClient('db', {
-      sqlite: handles.db.sqlite,
-      openRequestDb: handles.db.openRequestDb,
-    });
-    return handles.db.sqlClient;
+  const dbProvider = decoratePort<SqlClient>(async () => {
+    return attachSimOpenRequestDb(
+      handles.db.sqlClient,
+      handles.db.openRequestDb
+    );
   });
 
-  const eventsProvider = decoratePort<PubSub>(async (address) => {
-    const pubSub = createInMemoryPubSub({ bus: handles.pubSubBus });
-    bindSimPubSubBus(
-      address === 'events' ? 'events' : address,
-      handles.pubSubBus
-    );
-    bindSimPubSubBus('events', handles.pubSubBus);
-    return pubSub;
+  const eventsProvider = decoratePort<PubSub>(async () => {
+    return createInMemoryPubSub({ bus: handles.pubSubBus });
   });
 
   return {
@@ -99,32 +83,14 @@ export function createProductProvide(
     events: eventsProvider,
     'api.kv': kvProvider(),
     'api.media': blobProvider(),
-    'api.payments': stubPort({
-      async charge(cents: number, currency: string) {
-        return { id: `pay_${cents}_${currency}` };
-      },
-    }),
-    'api.tts': stubPort({
-      async synthesize(text: string) {
-        return new TextEncoder().encode(`tts:${text}`);
-      },
-    }),
-    'api.llm': stubPort({
-      async complete(prompt: string) {
-        return `echo:${prompt}`;
-      },
-    }),
-    'api.google': stubPort({
-      async getAuthUrl(state: string) {
-        return `https://accounts.google.com/o/oauth2?state=${state}`;
-      },
-    }),
+    'api.payments': stubPort(
+      createInMemoryStripe({ baseUrl: 'http://sim.local' })
+    ),
+    'api.tts': stubPort(new InMemoryTtsProvider()),
+    'api.llm': stubPort(new InMemoryLlmProvider()),
     'client.db': actorSqliteProvider(),
     'client.kv': kvProvider(),
-    'client.sentry': stubPort({
-      captureException() {},
-      captureMessage() {},
-    }),
+    'client.observability': stubPort(createNoopObservability('sim-client')),
     'room.storage': kvProvider(),
     'room:*.storage': kvProvider(),
   };

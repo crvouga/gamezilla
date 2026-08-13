@@ -1,5 +1,4 @@
-import { Box } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
+import { Box, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback, useContext, useState } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 

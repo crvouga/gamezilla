@@ -1,10 +1,5 @@
 /**
  * Per-actor client composition seams for a product simulation session.
- *
- * Each actor gets its own in-memory secure storage, an isolated sync-engine
- * pool (no process-global key), and a Node `:memory:` SQLite opener so no
- * two actors share client state. The actor `Io` reuses the shared simulation
- * clock / timers / ids / rng but swaps in the in-process Hono HTTP client.
  */
 
 import {
@@ -15,7 +10,7 @@ import {
 } from 'node:timers';
 import { createInMemoryDevMenuPort } from '@apps/client/device/in-memory-dev-menu-port';
 import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-network-state-port';
-import type { AppOverrides } from '@apps/client/providers/app-overrides';
+import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import type { OpenLocalSqlClient } from '@apps/client/sync/create-local-sync-engine';
 import {
   type AppSyncEnginePool,
@@ -23,9 +18,6 @@ import {
 } from '@apps/client/sync/sync-engine-pool';
 import { createInMemoryAuthClientStorage } from '@pkgs/auth-better-auth/client';
 import type { Timers } from '@pkgs/clock';
-import { wallClock } from '@pkgs/clock';
-import type { HttpClient } from '@pkgs/http-client';
-import type { Io, SimIo } from '@pkgs/io';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import { createInMemoryPubSub } from '@pkgs/pubsub/testing/in-memory';
@@ -40,8 +32,6 @@ import BetterSqlite3 from 'better-sqlite3';
 
 /**
  * Jest-immune wall timers for sim API + actor Io.
- * `wallTimers` / `globalThis.setTimeout` get faked after expo-router render;
- * product async must keep progressing on real Node timers.
  */
 export const simNodeTimers: Timers = {
   setTimeout: (fn, ms) => nodeSetTimeout(fn, ms),
@@ -54,31 +44,11 @@ export const simNodeTimers: Timers = {
   },
 };
 
-/** Builds an actor `Io` sharing sim nondeterminism but with in-process HTTP. */
-export function createActorIo(
-  base: SimIo,
-  http: HttpClient,
-  getClockSkewMs: () => number = () => 0
-): Io {
-  return {
-    clock: {
-      now: () => wallClock.now() + getClockSkewMs(),
-    },
-    timers: simNodeTimers,
-    createId: base.createId,
-    random: base.random,
-    http,
-    seed: base.seed,
-  };
-}
-
 export type ActorClientSeams = {
-  readonly overrides: AppOverrides;
+  readonly resources: ClientSystemResources;
   readonly secureStorageStore: SecureStorageStore;
   readonly syncEnginePool: AppSyncEnginePool;
-  /** Live better-sqlite3 handle once the client opens local SQLite. */
   readonly getSqlite: () => BetterSqlite3.Database | undefined;
-  /** Close and drop the retained actor SQLite handle (if any). */
   readonly disposeSqlite: () => void;
 };
 
@@ -86,7 +56,6 @@ export type CreateActorClientSeamsArgs = {
   readonly apiUrl: string;
   readonly pubSubBus: InMemoryBus;
   readonly nodeId?: string;
-  /** Called when the actor's `:memory:` SQLite is opened (or closed). */
   readonly onSqlite?: (sqlite: BetterSqlite3.Database | undefined) => void;
 };
 
@@ -129,7 +98,7 @@ export function createActorClientSeams(
       actorSqlite = undefined;
       onSqlite?.(undefined);
     },
-    overrides: {
+    resources: {
       apiUrl,
       authBaseURL: apiUrl,
       authClientStorage,

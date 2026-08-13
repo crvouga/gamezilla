@@ -4,7 +4,6 @@ import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
-import { createClientSentryObservability } from '../impl-sentry/create-client-sentry-observability';
 import { InMemorySpanContextStorage } from '../port/in-memory-context-storage';
 import type { Observability } from '../port/observability';
 import {
@@ -58,13 +57,6 @@ function createClientObservability(args: {
       serviceName: args.serviceName,
       now: args.now,
       createId: args.createId,
-      storage: new InMemorySpanContextStorage(),
-    });
-  }
-  if (backend === 'sentry') {
-    return createClientSentryObservability({
-      serviceName: args.serviceName,
-      now: args.now,
       storage: new InMemorySpanContextStorage(),
     });
   }

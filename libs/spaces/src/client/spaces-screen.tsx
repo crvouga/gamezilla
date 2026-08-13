@@ -10,8 +10,8 @@ import {
   ScreenBase,
   type ScreenBasePrimaryAction,
   ScreenBodyScrollView,
+  useRouter,
 } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 
 import { SpaceCard } from './card/space-card';

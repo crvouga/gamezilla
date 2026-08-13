@@ -18,7 +18,7 @@ import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { useClock, useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/use-secure-storage-item';
-import { usePathname } from 'expo-router';
+import { usePathname } from '@pkgs/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuthClientPort } from './auth-client-provider';

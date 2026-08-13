@@ -1,5 +1,4 @@
-import { Box, LoadingState } from '@pkgs/ui';
-import { useRouter } from 'expo-router';
+import { Box, LoadingState, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback, useContext, useMemo } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { SpaceActiveLayout } from './active-space/space-active-layout';

@@ -17,7 +17,6 @@ export type DesiredClientConfig = {
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
-  readonly sentryDsn: string | null;
   readonly observabilityBackend: ObservabilityBackendName;
 };
 
@@ -61,10 +60,6 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
     {
       id: ClientConfigKey.emqxWssUrl,
       value: trimOrNull(desired.emqxWssUrl),
-    },
-    {
-      id: ClientConfigKey.sentryDsn,
-      value: trimOrNull(desired.sentryDsn),
     },
     {
       id: ClientConfigKey.observabilityBackend,

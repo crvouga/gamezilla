@@ -194,11 +194,7 @@ function parseObservabilityBackend(
 ): ObservabilityBackendName {
   if (raw === null) return 'noop';
   const normalized = raw.trim().toLowerCase();
-  if (
-    normalized === 'noop' ||
-    normalized === 'sentry' ||
-    normalized === 'console'
-  ) {
+  if (normalized === 'noop' || normalized === 'console') {
     return normalized;
   }
   return 'noop';
@@ -227,14 +223,13 @@ async function buildDesiredClientConfig(args: {
   readonly apiUrlOverride?: string | null;
 }): Promise<DesiredClientConfig> {
   const { betterAuth, secretStore } = args;
-  const [emqxWssUrl, sentryDsn, observabilityRaw] = await Promise.all([
+  const [emqxWssUrl, observabilityRaw] = await Promise.all([
     resolveEmqxWssUrlForClientConfig({
       secretStore,
       ...(args.apiUrlOverride !== undefined
         ? { apiUrlOverride: args.apiUrlOverride }
         : {}),
     }),
-    readOptionalSecretValue(secretStore, ApiSecretName.expoPublicSentryDsn),
     readOptionalSecretValue(
       secretStore,
       ApiSecretName.expoPublicObservabilityBackend
@@ -248,7 +243,6 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: betterAuth.googleClientId,
     emqxWssUrl,
-    sentryDsn,
     observabilityBackend: parseObservabilityBackend(observabilityRaw),
   };
 }

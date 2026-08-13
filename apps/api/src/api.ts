@@ -6,7 +6,6 @@ import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { isSecretStoreError } from '@pkgs/secret-store';
-import * as Sentry from '@sentry/cloudflare';
 import { createApiApp } from './app/create-app';
 import { loadBetterAuthBootConfig } from './config/better-auth-boot';
 import type { ApiWorkerEnv } from './config/env';
@@ -251,23 +250,4 @@ const workerHandler = {
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;
 
-function sentryWorkerOptions(env: ApiWorkerEnv):
-  | {
-      dsn: string;
-      tracesSampleRate: number;
-      environment: string;
-    }
-  | Record<string, never> {
-  const backend = env.OBSERVABILITY_BACKEND?.trim().toLowerCase();
-  const dsn = env.SENTRY_DSN?.trim();
-  if (backend !== 'sentry' || dsn === undefined || dsn.length === 0) {
-    return {};
-  }
-  return {
-    dsn,
-    tracesSampleRate: 1.0,
-    environment: env.SECRETS_ENV ?? 'dev',
-  };
-}
-
-export default Sentry.withSentry(sentryWorkerOptions, workerHandler);
+export default workerHandler;

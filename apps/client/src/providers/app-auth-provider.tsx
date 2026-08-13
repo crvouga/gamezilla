@@ -5,9 +5,8 @@ import { createBetterAuthClientAdapter } from '@pkgs/auth-better-auth/client';
 import { useIo } from '@pkgs/io';
 import { ComposeProviders } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
-
-import { useAppOverrides } from './app-overrides';
 import { AppApiClient } from './auth/api-client';
+import { useClientSystemResources } from './client-system-resources';
 
 function readAuthBaseURL(): string {
   const url = process.env['EXPO_PUBLIC_API_URL']?.trim().replace(/\/$/, '');
@@ -19,7 +18,7 @@ function readAuthBaseURL(): string {
 }
 
 function BetterAuthStack({ children }: { children: ReactNode }): ReactNode {
-  const { authBaseURL, authClientStorage } = useAppOverrides();
+  const { authBaseURL, authClientStorage } = useClientSystemResources();
   const baseURL = useMemo(
     () => authBaseURL ?? readAuthBaseURL(),
     [authBaseURL]
@@ -51,7 +50,7 @@ const authProviders = [BetterAuthStack, AppApiClient, AuthBridge];
  * {@link AppUiProvider} (needs SurfaceStack / AppUiPortals).
  *
  * Better Auth `baseURL` defaults to `EXPO_PUBLIC_API_URL`; sims override it
- * via {@link AppOverrides}`.authBaseURL` and dispatch through `io.http.fetch`.
+ * via {@link ClientSystemResources}`.authBaseURL` and dispatch through `io.http.fetch`.
  */
 export function AppAuthProvider({
   children,

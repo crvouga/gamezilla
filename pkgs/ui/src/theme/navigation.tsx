@@ -1,7 +1,10 @@
-import type { Stack, Tabs } from 'expo-router';
+import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { useTheme } from './theme-context';
 
-export function useStackProps(): Parameters<typeof Stack>[0] {
+export function useStackProps(): {
+  screenOptions: NativeStackNavigationOptions;
+} {
   const theme = useTheme();
   return {
     screenOptions: {
@@ -12,9 +15,11 @@ export function useStackProps(): Parameters<typeof Stack>[0] {
 }
 
 /**
- * Tint colors + scene background for the expo-router `Tabs` navigator.
+ * Tint colors + scene background for the bottom-tabs navigator.
  */
-export function useTabsProps(): Parameters<typeof Tabs>[0] {
+export function useTabsProps(): {
+  screenOptions: BottomTabNavigationOptions;
+} {
   const theme = useTheme();
   return {
     screenOptions: {

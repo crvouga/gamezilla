@@ -19,12 +19,12 @@ describe('parseObservabilityBackend', () => {
     expect(parseObservabilityBackend('local-file')).toBe('local-file');
     expect(parseObservabilityBackend('logger')).toBe('logger');
     expect(parseObservabilityBackend('console')).toBe('logger');
-    expect(parseObservabilityBackend('sentry')).toBe('sentry');
-    expect(parseObservabilityBackend('SENTRY')).toBe('sentry');
   });
 
-  test('unknown values fall back to noop', () => {
+  test('unknown and legacy sentry values fall back to noop', () => {
     expect(parseObservabilityBackend('unknown')).toBe('noop');
+    expect(parseObservabilityBackend('sentry')).toBe('noop');
+    expect(parseObservabilityBackend('SENTRY')).toBe('noop');
   });
 });
 
@@ -56,7 +56,7 @@ describe('resolveObservabilityBackend', () => {
         envBackend: 'sentry',
         isProduction: false,
       })
-    ).toBe('sentry');
+    ).toBe('noop');
     expect(
       resolveObservabilityBackend({
         envBackend: 'logger',
@@ -74,7 +74,7 @@ describe('resolveObservabilityBackend', () => {
   test('forceNoop overrides defaults and explicit backend', () => {
     expect(
       resolveObservabilityBackend({
-        envBackend: 'sentry',
+        envBackend: 'logger',
         forceNoop: true,
         isProduction: true,
       })

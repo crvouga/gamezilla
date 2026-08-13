@@ -33,7 +33,6 @@ export type ApiWorkerEnv = {
   S3_REGION?: string;
   OBSERVABILITY_BACKEND?: string;
   OBSERVABILITY_COLLECTOR_URL?: string;
-  SENTRY_DSN?: string;
   ROOM?: RoomNamespace;
   [key: string]: string | RoomNamespace | undefined;
 };

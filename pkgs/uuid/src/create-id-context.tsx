@@ -17,7 +17,7 @@ export type IdProviderProps = {
 
 /**
  * Injects {@link CreateId} + {@link Random} for the React tree.
- * Both are required — construct at a composition root (e.g. AppIoProvider).
+ * Both are required — construct at a composition root (e.g. SystemProvider).
  */
 export function IdProvider({
   children,

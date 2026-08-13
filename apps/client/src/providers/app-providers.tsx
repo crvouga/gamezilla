@@ -7,7 +7,6 @@ import { AppGamesProvider } from './app-games-provider';
 import { AppInboxProvider } from './app-inbox-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
-import { type AppOverrides, AppOverridesProvider } from './app-overrides';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
@@ -18,6 +17,8 @@ void preventSplashAutoHide();
 
 /**
  * App-wide provider stack (outermost → innermost).
+ *
+ * Must sit under {@link SystemProvider} (Io + optional client resources).
  *
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.
@@ -43,18 +44,11 @@ const appProviders = [
 ];
 const USE_REACT_SCAN_DEV = false;
 
-export function AppProviders({
-  children,
-  overrides,
-}: {
-  children: ReactNode;
-  /** Simulation composition seams; omit for production boot. */
-  overrides?: AppOverrides;
-}): ReactNode {
+export function AppProviders({ children }: { children: ReactNode }): ReactNode {
   return (
-    <AppOverridesProvider value={overrides ?? {}}>
+    <>
       {USE_REACT_SCAN_DEV ? <ReactScanDev /> : null}
       <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
-    </AppOverridesProvider>
+    </>
   );
 }

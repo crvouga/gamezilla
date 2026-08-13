@@ -1,5 +1,5 @@
 /**
- * Tab bar slot for expo-router's `Tabs` navigator.
+ * Tab bar slot for React Navigation's `Tabs` navigator.
  */
 
 import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';

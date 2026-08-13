@@ -5,17 +5,12 @@ import { SpaceJoinPrompt } from './join-space/space-join-prompt';
 import { SpacesNavProvider } from './nav/spaces-nav-context';
 import { SpaceRoomProvider } from './room/space-room-context';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
-import {
-  useSpaceRouteId,
-  useStripRedundantSpaceRouteSearchParams,
-} from './space-routes';
+import { useSpaceRouteId } from './space-routes';
 import { useSpacePresence } from './use-space-presence';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
 export function SpaceDetailScreen(): ReactNode {
   const spaceId = useSpaceRouteId();
-
-  useStripRedundantSpaceRouteSearchParams(spaceId);
 
   if (spaceId.length === 0) {
     return (

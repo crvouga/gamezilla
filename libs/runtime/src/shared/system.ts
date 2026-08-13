@@ -1,17 +1,17 @@
 import type { Kv } from '@pkgs/kv/interface';
+import type { LlmProvider } from '@pkgs/llm/shared/llm-provider';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { defineSystem, type Fetch, keyed, resource } from '@pkgs/system';
-import type { Driver } from '@pkgs/ui-testing';
+import type { TtsProvider } from '@pkgs/tts/server/ports/tts-provider';
+import type Stripe from 'stripe';
 
-import type {
-  GoogleAuth,
-  LlmProvider,
-  Observability,
-  PaymentGateway,
-  TtsProvider,
-} from './ports';
+/** Client resource handle — prod app or DST Driver both expose dispose. */
+export type ClientHandle = {
+  close(): Promise<void>;
+};
 
 export const db = resource<SqlClient>();
 export const events = resource<PubSub>();
@@ -28,16 +28,15 @@ export const api = resource<Fetch>()({
   room,
   kv: resource<Kv>(),
   media: resource<ObjectStore>(),
-  payments: resource<PaymentGateway>(),
+  payments: resource<Stripe>(),
   tts: resource<TtsProvider>(),
   llm: resource<LlmProvider>(),
-  google: resource<GoogleAuth>(),
 });
 
-export const client = resource<Driver>()({
+export const client = resource<ClientHandle>()({
   db: resource<SqlClient>(),
   kv: resource<Kv>(),
-  sentry: resource<Observability>(),
+  observability: resource<Observability>(),
   events,
   api,
   room,
