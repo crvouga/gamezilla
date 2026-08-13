@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Generates PWA icons, splash screens, favicon, and manifest under
  * `public/pwa/` from the app icon. Requires Chromium

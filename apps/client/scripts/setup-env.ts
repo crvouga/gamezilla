@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { execFileSync } from 'node:child_process';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

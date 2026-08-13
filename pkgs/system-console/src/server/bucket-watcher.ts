@@ -1,5 +1,3 @@
-import { type FSWatcher, watch } from 'node:fs';
-
 import type { Timers } from '@pkgs/clock';
 
 import type { RunSummary, SimulationReportData, SuiteManifest } from '../types';
@@ -13,8 +11,7 @@ import {
 import type { BucketSubscription, SseHub } from './sse-hub';
 import type { ReportBucket } from './types';
 
-const FS_DEBOUNCE_MS = 50;
-const S3_POLL_MS = 500;
+const POLL_MS = 500;
 
 export type BucketWatcher = {
   readonly stop: () => void;
@@ -22,8 +19,8 @@ export type BucketWatcher = {
 };
 
 /**
- * Watch local FS (or poll generation for remote stores) and push SSE snapshots
- * to subscribers of this bucket.
+ * Poll object-store generation and push SSE snapshots to subscribers of this
+ * bucket. (No wall `fs.watch` — generation is the sole change signal.)
  */
 export function startBucketWatcher(
   bucket: ReportBucket,
@@ -31,9 +28,7 @@ export function startBucketWatcher(
   timers: Timers
 ): BucketWatcher {
   let stopped = false;
-  let debounceTimer: unknown = null;
   let pollTimer: unknown = null;
-  let fsWatcher: FSWatcher | null = null;
   let lastGeneration = -1;
 
   const publishNow = async () => {
@@ -46,55 +41,27 @@ export function startBucketWatcher(
     }
   };
 
-  const schedulePublish = () => {
-    if (stopped) return;
-    if (debounceTimer != null) timers.clearTimeout(debounceTimer);
-    debounceTimer = timers.setTimeout(() => {
-      debounceTimer = null;
-      void publishNow();
-    }, FS_DEBOUNCE_MS);
-  };
-
-  if (bucket.watchRoot) {
-    try {
-      fsWatcher = watch(bucket.watchRoot, { recursive: true }, () =>
-        schedulePublish()
-      );
-      fsWatcher.on('error', () => {
-        /* fall through — polling below still runs as backup for remote-like */
-      });
-    } catch {
-      fsWatcher = null;
-    }
-  }
-
-  // Always poll generation as a safety net (S3 primary; local backup).
-  pollTimer = timers.setInterval(
-    () => {
-      void (async () => {
-        if (stopped) return;
-        try {
-          const gen = await readGeneration(bucket.store);
-          if (gen !== lastGeneration) {
-            lastGeneration = gen;
-            await publishBucketToSubscribers(bucket, hub);
-          }
-        } catch {
-          /* ignore */
+  pollTimer = timers.setInterval(() => {
+    void (async () => {
+      if (stopped) return;
+      try {
+        const gen = await readGeneration(bucket.store);
+        if (gen !== lastGeneration) {
+          lastGeneration = gen;
+          await publishBucketToSubscribers(bucket, hub);
         }
-      })();
-    },
-    bucket.watchRoot ? Math.max(S3_POLL_MS * 4, 2000) : S3_POLL_MS
-  );
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, POLL_MS);
 
   void publishNow();
 
   return {
     stop: () => {
       stopped = true;
-      if (debounceTimer != null) timers.clearTimeout(debounceTimer);
       if (pollTimer != null) timers.clearInterval(pollTimer);
-      fsWatcher?.close();
     },
     publishNow,
   };

@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Foreground entry for `@apps/minio` `dev` / `preview`.
  * Spawns `minio server` under one process so Turbo SIGINT/SIGTERM tears it down.

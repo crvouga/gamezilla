@@ -50,7 +50,6 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
-import { join } from 'node:path';
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -60,6 +59,7 @@ import {
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import type { Io } from '@pkgs/io';
 import { createLogger, type Logger } from '@pkgs/logger';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
@@ -87,8 +87,6 @@ import {
   type ResolvedSource,
 } from './streaming';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../../..');
-
 type StreamContext = {
   cli: Cli;
   profile: ResolvedSeedProfile;
@@ -111,17 +109,29 @@ type PuzzleLoadPriorState = {
   finishedAt: string | null;
 };
 
+export type ChessPuzzleSeederStores = {
+  readonly configStore: ObjectStore;
+  readonly sourceStore: ObjectStore;
+  readonly cacheStoreForDir: (cacheDir: string) => ObjectStore;
+};
+
 export class ChessPuzzleSeeder {
   readonly #cli: Cli;
   readonly #io: Io;
+  readonly #stores: ChessPuzzleSeederStores;
 
-  static fromArgv(argv: string[], io: Io): ChessPuzzleSeeder {
-    return new ChessPuzzleSeeder(parseCli(argv), io);
+  static fromArgv(
+    argv: string[],
+    io: Io,
+    stores: ChessPuzzleSeederStores
+  ): ChessPuzzleSeeder {
+    return new ChessPuzzleSeeder(parseCli(argv), io, stores);
   }
 
-  constructor(config: Cli, io: Io) {
+  constructor(config: Cli, io: Io, stores: ChessPuzzleSeederStores) {
     this.#cli = config;
     this.#io = io;
+    this.#stores = stores;
   }
 
   async run(): Promise<void> {
@@ -137,7 +147,9 @@ export class ChessPuzzleSeeder {
     const archiveCache = new PuzzleArchiveCache(
       log,
       this.#io.http,
-      this.#io.clock.now
+      this.#io.clock.now,
+      this.#stores.cacheStoreForDir(this.#cli.cacheDir),
+      this.#stores.sourceStore
     );
     const resolved = await this.#resolveArchive(archiveCache, reporter);
     if (this.#cli.dryRun) {
@@ -261,7 +273,7 @@ export class ChessPuzzleSeeder {
     });
     reporter.endDownloadProgressLine();
     reporter.phase('Archive ready', {
-      path: resolved.localPath,
+      path: resolved.displayPath,
       isZst: resolved.isZst,
       etagPreview:
         resolved.etag.length > 48
@@ -277,7 +289,7 @@ export class ChessPuzzleSeeder {
   ): Promise<void> {
     const cli = this.#cli;
     reporter.phase('Dry run — parse CSV only (no database writes)', {
-      path: resolved.localPath,
+      path: resolved.displayPath,
     });
     let n = 0;
     try {
@@ -491,7 +503,8 @@ export class ChessPuzzleSeeder {
     });
     const store = createScriptSecretStore();
     const secretsEnv =
-      process.env['SECRETS_ENV']?.trim() || resolveSecretsScope(REPO_ROOT).env;
+      process.env['SECRETS_ENV']?.trim() ||
+      (await resolveSecretsScope(this.#stores.configStore)).env;
     if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
       assertDevSecretsEnv(secretsEnv);
     }

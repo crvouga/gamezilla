@@ -1,12 +1,12 @@
-import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { PathExists } from '@pkgs/system-console';
 import type { Subprocess } from 'bun';
 
-function resolveWorkspaceRoot(): string {
+function resolveWorkspaceRoot(pathExists: PathExists): string {
   let dir = dirname(fileURLToPath(import.meta.url));
   for (;;) {
-    if (existsSync(join(dir, 'turbo.json'))) return dir;
+    if (pathExists(join(dir, 'turbo.json'))) return dir;
     const parent = dirname(dir);
     if (parent === dir) {
       throw new Error('turbo.json not found when walking up from client test');
@@ -51,9 +51,10 @@ function killSubprocess(proc: Subprocess | null): void {
 export async function runPackageScriptOnce(
   packageName: string,
   scriptName: string,
-  env: Record<string, string>
+  env: Record<string, string>,
+  pathExists: PathExists
 ): Promise<void> {
-  const repoRoot = resolveWorkspaceRoot();
+  const repoRoot = resolveWorkspaceRoot(pathExists);
   const buffer = { current: '' };
   const subprocess = Bun.spawn(
     ['bun', 'run', '--filter', packageName, scriptName],

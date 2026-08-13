@@ -6,6 +6,7 @@ import {
   verifyRun,
   which,
   whichPath,
+  type OsFs,
 } from '@pkgs/os';
 import { fetchLatestGithubReleaseVersion } from './cli-version-fetch';
 import { INFISICAL_CLI_BIN } from './defaults';
@@ -25,23 +26,28 @@ const homebrewInstaller = new PackageManagerInstaller({
   ],
 });
 
-const githubInstaller = new GithubReleaseTarballInstaller({
-  repo: 'Infisical/cli',
-  binName: INFISICAL_CLI_BIN,
-  archive: (version, os) => {
-    const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
-    const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
-    return {
-      name: `cli_${version}_${osName}_${arch}.tar.gz`,
-      format: 'tar.gz',
-    };
-  },
-});
+function createGithubInstaller(osFs: OsFs | undefined) {
+  return new GithubReleaseTarballInstaller({
+    repo: 'Infisical/cli',
+    binName: INFISICAL_CLI_BIN,
+    archive: (version, os) => {
+      const arch = os.releaseArchName() === 'arm64' ? 'arm64' : 'amd64';
+      const osName = os.platform === 'darwin' ? 'darwin' : 'linux';
+      return {
+        name: `cli_${version}_${osName}_${arch}.tar.gz`,
+        format: 'tar.gz',
+      };
+    },
+    ...(osFs !== undefined ? { osFs } : {}),
+  });
+}
 
-const installer = new FirstAvailableInstaller(
-  [homebrewInstaller, githubInstaller],
-  INSTALL_HINT
-);
+function createInstaller(githubInstaller: GithubReleaseTarballInstaller) {
+  return new FirstAvailableInstaller(
+    [homebrewInstaller, githubInstaller],
+    INSTALL_HINT
+  );
+}
 
 export type SecretBackendCliStatus =
   | { readonly ok: true; readonly version: string }
@@ -58,6 +64,8 @@ function isUserLocalBin(binPath: string): boolean {
 export class InfisicalCliDep {
   readonly name = 'secrets-backend-cli';
   readonly bin = INFISICAL_CLI_BIN;
+
+  constructor(private readonly options: { readonly osFs?: OsFs } = {}) {}
 
   version(): string | null {
     return captureVersion(INFISICAL_CLI_BIN, ['--version']);
@@ -93,11 +101,13 @@ export class InfisicalCliDep {
 
   private installOrUpgrade(method: 'install' | 'upgrade'): void {
     const path = whichPath(INFISICAL_CLI_BIN);
+    const githubInstaller = createGithubInstaller(this.options.osFs);
     // PATH owns a user-local binary — update that (Homebrew would leave it stale).
     if (path !== null && isUserLocalBin(path)) {
       githubInstaller[method]();
       return;
     }
+    const installer = createInstaller(githubInstaller);
     installer[method]();
   }
 }

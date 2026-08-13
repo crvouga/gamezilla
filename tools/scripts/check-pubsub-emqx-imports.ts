@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Ensures `@pkgs/pubsub-emqx` is only imported from composition roots.
  *

@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it } from 'bun:test';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { createInfisicalCliAdminStore } from './cli-admin-store';
 
 const ENV_KEYS = [
@@ -18,6 +20,11 @@ const ENV_KEYS = [
 describe('createInfisicalCliAdminStore', () => {
   let repoRoot: string;
   let previous: Record<string, string | undefined>;
+  const fs = wallNodeFs();
+
+  function configStore() {
+    return createNodeFsObjectStore({ rootDir: repoRoot, fs, layout: 'tree' });
+  }
 
   afterEach(() => {
     rmSync(repoRoot, { recursive: true, force: true });
@@ -40,9 +47,9 @@ describe('createInfisicalCliAdminStore', () => {
     for (const key of ENV_KEYS) delete process.env[key];
     process.env['GITHUB_ACTIONS'] = 'true';
 
-    await expect(createInfisicalCliAdminStore({ repoRoot })).rejects.toThrow(
-      /SECRETS_IDENTITY_ID/
-    );
+    await expect(
+      createInfisicalCliAdminStore({ repoRoot, configStore: configStore() })
+    ).rejects.toThrow(/SECRETS_IDENTITY_ID/);
   });
 
   it('accepts an explicit SECRETS_TOKEN outside of OIDC', async () => {
@@ -58,7 +65,10 @@ describe('createInfisicalCliAdminStore', () => {
     process.env['GITHUB_ACTIONS'] = 'true';
     process.env['SECRETS_TOKEN'] = 'explicit-token';
 
-    const store = await createInfisicalCliAdminStore({ repoRoot });
+    const store = await createInfisicalCliAdminStore({
+      repoRoot,
+      configStore: configStore(),
+    });
     expect(store).toBeDefined();
     expect(process.env['INFISICAL_TOKEN']).toBe('explicit-token');
   });

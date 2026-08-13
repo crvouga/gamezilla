@@ -1,9 +1,19 @@
+import { join } from 'node:path';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import type { ExportedSpanRecord } from '../shared/types';
-import { DEFAULT_FILE_SINK_OPTIONS, ObservabilityFileSink } from './file-sink';
+import {
+  DEFAULT_FILE_SINK_LIMITS,
+  ObservabilityFileSink,
+} from './file-sink';
 
 export type CollectorOptions = {
   readonly port?: number;
   readonly host?: string;
+  /** Injected store for NDJSON sinks. When omitted, uses cwd/.observability tree. */
+  readonly store?: ObjectStore;
+  /** @deprecated Prefer {@link CollectorOptions.store}. */
   readonly rootDir?: string;
   readonly now: () => number;
 };
@@ -34,15 +44,25 @@ function isExportedSpanRecord(v: unknown): v is ExportedSpanRecord {
   );
 }
 
+function resolveStore(options: CollectorOptions): ObjectStore {
+  if (options.store !== undefined) return options.store;
+  const rootDir = options.rootDir ?? join(process.cwd(), '.observability');
+  return createNodeFsObjectStore({
+    rootDir,
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+}
+
 export function startObservabilityCollector(
   options: CollectorOptions
 ): CollectorHandle {
   const port = options.port ?? 8799;
   const host = options.host ?? '127.0.0.1';
   const sink = new ObservabilityFileSink({
-    ...DEFAULT_FILE_SINK_OPTIONS,
+    ...DEFAULT_FILE_SINK_LIMITS,
+    store: resolveStore(options),
     now: options.now,
-    ...(options.rootDir !== undefined ? { rootDir: options.rootDir } : {}),
   });
 
   const server = Bun.serve({
@@ -58,9 +78,9 @@ export function startObservabilityCollector(
       if (url.pathname === '/v1/spans' && req.method === 'POST') {
         return req
           .json()
-          .then((body) => {
+          .then(async (body) => {
             for (const record of parseSpanBody(body)) {
-              sink.write(record);
+              await sink.write(record);
             }
             return new Response(JSON.stringify({ ok: true }), {
               headers: { 'Content-Type': 'application/json' },

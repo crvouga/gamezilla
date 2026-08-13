@@ -1,19 +1,27 @@
-import { existsSync } from 'node:fs';
+/**
+ * Path helpers for local report data. Filesystem probes are injected — no
+ * wall `node:fs` in this module.
+ */
 import { dirname, join, resolve } from 'node:path';
 
 /** Repo-root directory name for local Node-FS report artifacts. */
 export const LOCAL_REPORT_DATA_DIRNAME = 'system-console-data';
+
+export type PathExists = (absolutePath: string) => boolean;
 
 /**
  * Walk up from `startDir` and return the outermost directory that contains
  * `turbo.json` (true monorepo root). Package-level `turbo.json` files
  * (`extends: ["//"]`) must not win over the workspace root.
  */
-export function findMonorepoRoot(startDir: string): string | null {
+export function findMonorepoRoot(
+  startDir: string,
+  exists: PathExists
+): string | null {
   let dir = resolve(startDir);
   let found: string | null = null;
   for (;;) {
-    if (existsSync(join(dir, 'turbo.json'))) found = dir;
+    if (exists(join(dir, 'turbo.json'))) found = dir;
     const parent = dirname(dir);
     if (parent === dir) return found;
     dir = parent;
@@ -25,18 +33,20 @@ export function findMonorepoRoot(startDir: string): string | null {
  * when no monorepo root is found).
  */
 export function resolveLocalReportDataDir(
-  startDir: string = process.cwd()
+  startDir: string,
+  exists: PathExists
 ): string {
-  const root = findMonorepoRoot(startDir) ?? resolve(startDir);
+  const root = findMonorepoRoot(startDir, exists) ?? resolve(startDir);
   return join(root, LOCAL_REPORT_DATA_DIRNAME);
 }
 
 /** Repo-relative POSIX path, or null when outside the monorepo / invalid. */
 export function toRepoRelativePath(
   absolutePath: string,
-  startDir: string = process.cwd()
+  startDir: string,
+  exists: PathExists
 ): string | null {
-  const root = findMonorepoRoot(startDir);
+  const root = findMonorepoRoot(startDir, exists);
   if (!root) return null;
   const abs = resolve(absolutePath);
   if (!abs.startsWith(root)) return null;

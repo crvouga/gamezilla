@@ -2,15 +2,17 @@
 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { wallTimers } from '@pkgs/clock';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import {
   LOCAL_REPORT_DATA_DIRNAME,
   resolveLocalReportDataDir,
 } from '../src/local-data-dir';
+import { wallPathExists } from '../src/wall-path-exists';
 import {
   createSimulationReportServer,
   type ReportBucket,
@@ -28,15 +30,15 @@ type EnvBucket = {
   readonly accessKeyId: string;
   readonly secretAccessKey: string;
   readonly bucket: string;
-  readonly endpoint: string;
   readonly region: string;
+  readonly endpoint: string;
   readonly rootPrefix?: string;
 };
 
 function resolveReportDir(env: NodeJS.ProcessEnv, cwd: string): string {
   const raw = env['REPORT_DIR']?.trim() || env['SIM_REPORT_DIR']?.trim();
   if (raw) return resolve(raw);
-  return resolveLocalReportDataDir(cwd);
+  return resolveLocalReportDataDir(cwd, wallPathExists);
 }
 
 function parseOptionalS3Buckets(env: NodeJS.ProcessEnv): ReportBucket[] {
@@ -94,8 +96,11 @@ function buildBuckets(
   const local: ReportBucket = {
     id: 'local',
     label: 'Local',
-    store: createNodeFsObjectStore({ rootDir: localRootDir }),
-    watchRoot: localRootDir,
+    store: createNodeFsObjectStore({
+      rootDir: localRootDir,
+      fs: wallNodeFs(),
+      layout: 'sidecar',
+    }),
   };
   return {
     buckets: [local, ...parseOptionalS3Buckets(env)],
@@ -109,7 +114,7 @@ const { buckets, localRootDir } = buildBuckets(process.env, cwd);
 const report = createSimulationReportServer({
   buckets,
   timers: wallTimers,
-  now: () => Date.now(),
+  now: () => wallClock.now(),
 });
 
 const server = Bun.serve({

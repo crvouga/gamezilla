@@ -28,6 +28,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/io": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

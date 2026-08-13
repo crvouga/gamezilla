@@ -6,9 +6,11 @@
 export {
   findMonorepoRoot,
   LOCAL_REPORT_DATA_DIRNAME,
+  type PathExists,
   resolveLocalReportDataDir,
   toRepoRelativePath,
 } from './local-data-dir';
+export { wallPathExists } from './wall-path-exists';
 export {
   DEFAULT_FRAME_INTERVAL_MS,
   DEFAULT_MAX_FRAMES_PER_STEP,
@@ -28,7 +30,6 @@ export {
   type SimulationReportEvent,
   type SimulationReportMeta,
   type SimulationReportOptions,
-  type SimulationReportTopology,
   type SimulationStep,
   type SimulationStepKind,
   type SimulationStepStatus,

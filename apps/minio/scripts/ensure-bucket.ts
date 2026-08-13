@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Create the local app bucket once MinIO is accepting S3 API requests.
  */

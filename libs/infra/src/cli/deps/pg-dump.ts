@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { join } from 'node:path';
 import {
   capture,
@@ -6,6 +6,7 @@ import {
   FirstAvailableInstaller,
   Homebrew,
   PackageManagerInstaller,
+  wallOsFs,
   whichPath,
 } from '@pkgs/os';
 
@@ -18,6 +19,7 @@ import type { Dep, DepStatus } from './types';
 export const PG_DUMP_REQUIRED_MAJOR = 18;
 
 const HOMEBREW_FORMULA = `postgresql@${PG_DUMP_REQUIRED_MAJOR}`;
+const osFs = wallOsFs();
 
 const INSTALL_HINT =
   `Install PostgreSQL ${PG_DUMP_REQUIRED_MAJOR} client tools ` +
@@ -30,12 +32,12 @@ const INSTALL_HINT =
  * `postgresql@N` on PATH would otherwise shadow the required major.
  */
 export function resolvePgDumpPath(): string | null {
-  const brew = new Homebrew();
+  const brew = new Homebrew(osFs.pathExists);
   if (brew.isAvailable()) {
     const dir = brew.binDirFor(HOMEBREW_FORMULA);
     if (dir !== null) {
       const candidate = join(dir, 'pg_dump');
-      if (existsSync(candidate)) return candidate;
+      if (osFs.pathExists(candidate)) return candidate;
     }
   }
   return whichPath('pg_dump');
@@ -101,7 +103,7 @@ export class PgDumpDep implements Dep {
   }
 
   async fetchLatestVersion(): Promise<string | null> {
-    const brew = new Homebrew();
+    const brew = new Homebrew(osFs.pathExists);
     if (!brew.isAvailable()) {
       // Non-Homebrew: treat required major as the floor; skip upgrade churn.
       return `${PG_DUMP_REQUIRED_MAJOR}.0.0`;
@@ -137,7 +139,7 @@ export class PgDumpDep implements Dep {
 
   verify(): void {
     const bin = resolvePgDumpPath();
-    if (bin === null || !existsSync(bin)) {
+    if (bin === null || !osFs.pathExists(bin)) {
       throw new Error(`pg_dump verify failed — ${INSTALL_HINT}`);
     }
     const v = readPgDumpVersion(bin);

@@ -1,4 +1,5 @@
 import { createToolingSecretStore } from '@pkgs/secret-provider';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { cliIo } from '../cli/lib/cli-io';
 import { REPO_ROOT } from '../cli/paths';
 import {
@@ -13,8 +14,9 @@ export async function resolveProductionDatabaseUrlFromSecretStore(): Promise<
   const token = (process.env['SECRETS_TOKEN'] ?? '').trim();
   if (token.length === 0) return null;
   try {
-    const store = createToolingSecretStore({
+    const store = await createToolingSecretStore({
       repoRoot: REPO_ROOT,
+      configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
       envOverride: PRODUCTION_SECRETS_ENV,
       token,
       fetchFn: cliIo.http.fetch.bind(cliIo.http),

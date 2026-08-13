@@ -12,8 +12,10 @@ import { join } from 'node:path';
 import { which } from '@pkgs/os/command';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 type TargetEnv = 'dev' | 'prod';
 
@@ -107,13 +109,16 @@ async function fetchDatabaseUrl(env: TargetEnv): Promise<string> {
   }
 
   const secretsEnv = resolveSecretsEnv(env);
-  const scope = resolveSecretsScope(REPO_ROOT, secretsEnv);
+  const scope = await resolveSecretsScope(configStore, secretsEnv);
   log(
     `Fetching DATABASE_URL from secret store (projectId=${scope.projectId}, env=${scope.env})`
   );
 
   try {
-    const admin = await createSecretAdminStore({ repoRoot: REPO_ROOT });
+    const admin = await createSecretAdminStore({
+      repoRoot: REPO_ROOT,
+      configStore,
+    });
     const url = (await admin.fetchSecret('DATABASE_URL', secretsEnv)).trim();
     if (url.length === 0) {
       fail('Secret store returned an empty DATABASE_URL');

@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it } from 'bun:test';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { resolveInfisicalAccessTokenForWrites } from './oidc-access-token';
 
 const ENV_KEYS = [
@@ -18,6 +20,11 @@ const ENV_KEYS = [
 describe('resolveInfisicalAccessTokenForWrites', () => {
   let repoRoot: string;
   let previous: Record<string, string | undefined>;
+  const fs = wallNodeFs();
+
+  function configStore() {
+    return createNodeFsObjectStore({ rootDir: repoRoot, fs, layout: 'tree' });
+  }
 
   afterEach(() => {
     rmSync(repoRoot, { recursive: true, force: true });
@@ -42,7 +49,10 @@ describe('resolveInfisicalAccessTokenForWrites', () => {
     process.env['INFISICAL_TOKEN'] = 'legacy-token';
 
     await expect(
-      resolveInfisicalAccessTokenForWrites({ repoRoot })
+      resolveInfisicalAccessTokenForWrites({
+        repoRoot,
+        configStore: configStore(),
+      })
     ).resolves.toBe('secrets-token');
   });
 
@@ -58,7 +68,10 @@ describe('resolveInfisicalAccessTokenForWrites', () => {
     for (const key of ENV_KEYS) delete process.env[key];
 
     await expect(
-      resolveInfisicalAccessTokenForWrites({ repoRoot })
+      resolveInfisicalAccessTokenForWrites({
+        repoRoot,
+        configStore: configStore(),
+      })
     ).resolves.toBeNull();
   });
 });

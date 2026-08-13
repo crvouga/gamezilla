@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import EmbeddedPostgres from 'embedded-postgres';

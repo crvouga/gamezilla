@@ -1,30 +1,28 @@
-import { existsSync, readFileSync, statSync } from 'fs';
-import { resolve } from 'path';
+import { readObjectBytes } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createStaticFileHandler } from './static-file-server';
 
-function createBunFileAdapter(rootDir: string) {
-  return (pathname: string): Blob | null => {
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const out = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(out).set(bytes);
+  return out;
+}
+
+function createBunFileAdapter(store: ObjectStore) {
+  return async (pathname: string): Promise<Blob | null> => {
     const safePath =
       pathname === '/' ? 'index.html' : (pathname.slice(1).split('?')[0] ?? '');
-    const filePath = resolve(rootDir, safePath);
-
-    if (!filePath.startsWith(resolve(rootDir))) {
+    if (safePath.length === 0 || safePath.includes('..')) {
       return null;
     }
-    if (!existsSync(filePath)) {
-      return null;
-    }
-    const stat = statSync(filePath);
-    if (!stat.isFile()) {
-      return null;
-    }
-    const buffer = readFileSync(filePath);
-    return new Blob([buffer]);
+    const bytes = await readObjectBytes(store, safePath);
+    if (bytes === null) return null;
+    return new Blob([toArrayBuffer(bytes)]);
   };
 }
 
-export function createStaticFileHandlerBun(rootDir: string) {
+export function createStaticFileHandlerBun(store: ObjectStore) {
   return createStaticFileHandler({
-    getFile: createBunFileAdapter(rootDir),
+    getFile: createBunFileAdapter(store),
   });
 }

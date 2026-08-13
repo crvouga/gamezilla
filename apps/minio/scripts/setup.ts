@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Idempotent bootstrap for `@apps/minio`: ensure data + cache dirs exist.
  */

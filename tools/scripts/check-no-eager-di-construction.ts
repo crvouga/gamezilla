@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Fail if repositories/services are eagerly constructed into long-lived fields

@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Package-level graph of @apps|@libs|@pkgs|@test / * imports discovered from source.
  * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.

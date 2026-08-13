@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { capture, captureVersionDiagnostic, run, verifyRun } from '@pkgs/os';

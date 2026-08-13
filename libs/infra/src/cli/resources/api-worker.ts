@@ -1,7 +1,9 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 import {
   deleteLegacyWorkerScripts,
@@ -25,6 +27,7 @@ import { runAsync } from '../subprocess';
 import { type InfraContext, ResourceBase } from './types';
 
 const WRANGLER_ENV = 'production';
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 const WORKER_EXTRA_ENV_KEYS = [
   'SECRETS_ENV',
@@ -32,8 +35,8 @@ const WORKER_EXTRA_ENV_KEYS = [
   'OBSERVABILITY_COLLECTOR_URL',
 ] as const;
 
-function buildWorkerSecretBulkPayload(): Record<string, string> {
-  const scope = resolveSecretsScope(REPO_ROOT);
+async function buildWorkerSecretBulkPayload(): Promise<Record<string, string>> {
+  const scope = await resolveSecretsScope(configStore);
   const payload: Record<string, string> = {
     SECRETS_ENV: scope.env,
   };
@@ -64,7 +67,7 @@ async function pushWorkerSecrets(
   apiDir: string,
   env: NodeJS.ProcessEnv
 ): Promise<void> {
-  const payload = buildWorkerSecretBulkPayload();
+  const payload = await buildWorkerSecretBulkPayload();
   const bulkPath = join(tmpdir(), `wrangler-secrets-${process.pid}.json`);
   writeFileSync(bulkPath, JSON.stringify(payload), 'utf8');
   try {
@@ -87,9 +90,9 @@ async function pushWorkerSecrets(
   );
 }
 
-function validateSecretsForDeploy(): void {
-  const scope = resolveSecretsScope(REPO_ROOT);
-  buildWorkerSecretBulkPayload();
+async function validateSecretsForDeploy(): Promise<void> {
+  const scope = await resolveSecretsScope(configStore);
+  await buildWorkerSecretBulkPayload();
   ok('Secrets preflight', `env=${scope.env} payload validated`);
 }
 
@@ -110,7 +113,7 @@ export class ApiWorkerResource extends ResourceBase {
   async provision(_platform: CiPlatform, _ctx: InfraContext): Promise<void> {}
 
   async dryRun(platform: CiPlatform, _ctx: InfraContext): Promise<void> {
-    validateSecretsForDeploy();
+    await validateSecretsForDeploy();
 
     const apiDir = join(REPO_ROOT, 'apps/api');
     await runAsync(platform, 'wrangler', wranglerArgs('deploy', '--dry-run'), {
@@ -139,7 +142,7 @@ export class ApiWorkerResource extends ResourceBase {
     const apiDir = join(REPO_ROOT, 'apps/api');
     const env = wranglerEnv();
 
-    validateSecretsForDeploy();
+    await validateSecretsForDeploy();
     deleteLegacyWorkerScripts();
     await pushWorkerSecrets(platform, apiDir, env);
     await deployProductionWorker(platform, apiDir, env);

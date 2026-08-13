@@ -17,6 +17,7 @@ import {
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
@@ -25,11 +26,12 @@ import { readDevVarsDatabaseUrl } from './dev-vars';
 const io = wallIo();
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
-function resolveSecretsEnvForWipe(): string {
+async function resolveSecretsEnvForWipe(): Promise<string> {
   const fromEnv = process.env['SECRETS_ENV']?.trim() ?? '';
   if (fromEnv.length > 0) return fromEnv;
-  return resolveSecretsScope(REPO_ROOT).env;
+  return (await resolveSecretsScope(configStore)).env;
 }
 
 function isPostgresUrl(url: string): boolean {
@@ -66,7 +68,7 @@ function resolveDatabaseUrlForWipe(): string {
  * run the shared non-prod URL checks.
  */
 async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
-  const secretsEnv = resolveSecretsEnvForWipe();
+  const secretsEnv = await resolveSecretsEnvForWipe();
   assertDevSecretsEnv(secretsEnv);
 
   if (process.env['ALLOW_PRODUCTION_DATABASE_URL'] === '1') {

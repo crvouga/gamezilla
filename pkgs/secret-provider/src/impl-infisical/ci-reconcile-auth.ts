@@ -1,8 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
 import { globalHttpFetch } from '@pkgs/http-client';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { ReconcileFail, ReconcileLog } from './ci-reconcile-types';
 
 function trimEnv(name: string): string {
@@ -44,26 +43,20 @@ type CliLogin = {
   readonly domain: string;
 };
 
-function readCliLogin(): CliLogin | null {
-  try {
-    const raw = readFileSync(
-      join(homedir(), '.infisical', 'infisical-config.json'),
-      'utf8'
-    );
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const email =
-      typeof parsed['loggedInUserEmail'] === 'string'
-        ? parsed['loggedInUserEmail']
-        : '';
-    const rawDomain =
-      typeof parsed['LoggedInUserDomain'] === 'string'
-        ? parsed['LoggedInUserDomain']
-        : '';
-    if (email.length === 0) return null;
-    return { email, domain: normalizeDomain(rawDomain.replace(/\/api$/, '')) };
-  } catch {
-    return null;
-  }
+async function readCliLogin(store: ObjectStore): Promise<CliLogin | null> {
+  const raw = await readUtf8(store, '.infisical/infisical-config.json');
+  if (raw === null) return null;
+  const parsed = JSON.parse(raw) as Record<string, unknown>;
+  const email =
+    typeof parsed['loggedInUserEmail'] === 'string'
+      ? parsed['loggedInUserEmail']
+      : '';
+  const rawDomain =
+    typeof parsed['LoggedInUserDomain'] === 'string'
+      ? parsed['LoggedInUserDomain']
+      : '';
+  if (email.length === 0) return null;
+  return { email, domain: normalizeDomain(rawDomain.replace(/\/api$/, '')) };
 }
 
 function readCliKeychainToken(email: string): string | null {
@@ -88,18 +81,23 @@ function readCliKeychainToken(email: string): string | null {
   }
 }
 
-function resolveCliToken(domain: string, log: ReconcileLog): string | null {
-  const login = readCliLogin();
+async function resolveCliToken(args: {
+  readonly domain: string;
+  readonly log: ReconcileLog;
+  readonly cliConfigStore: ObjectStore | null;
+}): Promise<string | null> {
+  if (args.cliConfigStore === null) return null;
+  const login = await readCliLogin(args.cliConfigStore);
   if (login === null) return null;
-  if (login.domain.length > 0 && login.domain !== domain) {
-    log(
-      `Skipping CLI session: logged into ${login.domain}, project domain is ${domain}.`
+  if (login.domain.length > 0 && login.domain !== args.domain) {
+    args.log(
+      `Skipping CLI session: logged into ${login.domain}, project domain is ${args.domain}.`
     );
     return null;
   }
   const token = readCliKeychainToken(login.email);
   if (token === null) return null;
-  log(`Using logged-in Infisical CLI session (${login.email}).`);
+  args.log(`Using logged-in Infisical CLI session (${login.email}).`);
   return token;
 }
 
@@ -107,6 +105,7 @@ export async function resolveInfisicalAdminToken(args: {
   readonly domain: string;
   readonly log: ReconcileLog;
   readonly fail: ReconcileFail;
+  readonly cliConfigStore?: ObjectStore | null;
 }): Promise<string | null> {
   const explicit = trimEnv('SECRETS_TOKEN') || trimEnv('INFISICAL_TOKEN');
   if (explicit.length > 0) {
@@ -119,5 +118,9 @@ export async function resolveInfisicalAdminToken(args: {
     args.log('Authenticating to Infisical via universal auth…');
     return loginUniversalAuth(args.domain, clientId, clientSecret, args.fail);
   }
-  return resolveCliToken(args.domain, args.log);
+  return resolveCliToken({
+    domain: args.domain,
+    log: args.log,
+    cliConfigStore: args.cliConfigStore ?? null,
+  });
 }

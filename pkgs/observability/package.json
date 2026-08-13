@@ -45,6 +45,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "hono": "catalog:",
     "react": "catalog:"

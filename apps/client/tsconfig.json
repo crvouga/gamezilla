@@ -4,9 +4,7 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./scripts/**/*.ts",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "./scripts/**/*.ts"
   ],
   "compilerOptions": {
     "paths": {
@@ -57,9 +55,7 @@
       "@pkgs/matchmaking/client": [
         "../../pkgs/matchmaking/src/client/index.ts"
       ],
-      "@pkgs/matchmaking/testing": [
-        "../../pkgs/matchmaking/src/testing/index.ts"
-      ],
+      "@pkgs/matchmaking/testing": ["../../pkgs/matchmaking/src/testkit.ts"],
       "@pkgs/message": ["../../pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
@@ -81,7 +77,6 @@
       "@pkgs/sql": ["../../pkgs/sql/src/index.ts"],
       "@pkgs/sql/*": ["../../pkgs/sql/src/*"],
       "@pkgs/sync-engine/*": ["../../pkgs/sync-engine/src/*"],
-
       "@pkgs/static-file-server/*": ["../../pkgs/static-file-server/src/*"],
       "@pkgs/task-dag": ["../../pkgs/task-dag/src/index.ts"],
       "@pkgs/task-dag/*": ["../../pkgs/task-dag/src/*"],

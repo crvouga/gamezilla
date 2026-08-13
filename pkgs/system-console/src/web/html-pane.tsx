@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useState } from 'react';
 
 import { testFrameUrl } from './api-client';
 import type { FlatFrame } from './frames';
+import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
 import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
 import { patchPreviewHtml } from './preview-html';
 import { styles, t } from './theme';
@@ -12,10 +13,12 @@ export function HtmlPane(props: {
   readonly runId: string;
   readonly testId: string;
   readonly frame: FlatFrame | null;
+  readonly nodeId: string | null;
+  readonly node: TopologyNodeInfo | null;
 }) {
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const file = props.frame?.file ?? null;
+  const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
 
   useEffect(() => {
     if (file == null) {
@@ -53,7 +56,13 @@ export function HtmlPane(props: {
   }, [file, props.bucketId, props.runId, props.testId]);
 
   if (file == null) {
-    return <div style={pane}>No HTML frame for this step.</div>;
+    return (
+      <div style={pane}>
+        <div style={styles.empty}>
+          No HTML snapshot for node `{props.nodeId ?? '—'}` on this frame.
+        </div>
+      </div>
+    );
   }
   if (error != null) {
     return (

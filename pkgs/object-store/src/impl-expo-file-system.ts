@@ -1,42 +1,22 @@
-import { Directory, File, Paths } from 'expo-file-system';
-import { Platform } from 'react-native';
+import type { ExpoFs, ExpoFsDirectory, ExpoFsOpfsDirHandle } from './expo-fs';
 import { ObjectStoreWithPrefix } from './impl-with-prefix';
 import type { ObjectStore, StoredObject } from './interface';
 
 /**
  * Local-first {@link ObjectStore} for the Expo client. On native (iOS / Android)
- * bytes are stored as files under `Paths.document/<baseDir>/<key><ext>` with a
- * sibling `<key>.meta` JSON sidecar holding the `contentType` (the new
- * `expo-file-system` `File` API does not persist mime type for arbitrary bytes).
- * `<ext>` is derived from `contentType` via {@link extensionForContentType} so
- * iOS AVFoundation can decode cached audio (it MIME-sniffs by extension).
- * On web `expo-file-system` is a no-op (the package warns + returns empty
- * stubs), so this impl falls back to the Origin-Private File System (OPFS)
- * exposed via `navigator.storage.getDirectory()` — same persistence semantics.
+ * bytes are stored as files under `document/<baseDir>/<key><ext>` with a
+ * sibling `<key>.meta` JSON sidecar holding the `contentType`. On web this
+ * falls back to OPFS via the injected {@link ExpoFs}.
  *
- * `getUri` returns:
- *   - native: the underlying `file://` URI from `expo-file-system`. Playable
- *     directly by `expo-audio`'s `useAudioPlayer({ uri })`.
- *   - web: a `blob:` URL freshly minted from the cached bytes
- *     (`URL.createObjectURL(new Blob(...))`). The TTS hook reuses the same URL
- *     for the lifetime of an utterance, so we accept the small cost of not
- *     revoking it (the browser cleans up at navigation).
+ * Wall `expo-file-system` is injected via {@link ObjectStoreImplExpoFileSystemOptions.expoFs}.
  *
- * Keys must match `KEY_PATTERN` — the SHA-256 hex hash from
- * {@link ../tts/shared/tts-cache-key.ts ttsCacheKey} already conforms.
+ * Keys must match `KEY_PATTERN` — the SHA-256 hex hash from TTS cache keys
+ * already conforms.
  */
 const KEY_PATTERN = /^[A-Za-z0-9._-]+$/;
 const META_SUFFIX = '.meta';
 const BIN_SUFFIX = '.bin';
 
-/**
- * Map a stored object's `contentType` to a file extension iOS AVFoundation
- * recognises. iOS detects audio MIME type from the file extension alone —
- * blobs saved as `.bin` never finish loading and `useAudioPlayer.status.isLoaded`
- * stays false indefinitely, surfacing as "speaking avatar loading forever".
- * Web doesn't need this: `getUriWeb` returns a `blob:` URL whose MIME type
- * is encoded in the `Blob` object, not the file extension.
- */
 function extensionForContentType(contentType: string): string {
   const normalized = contentType.toLowerCase().split(';')[0]?.trim() ?? '';
   switch (normalized) {
@@ -58,41 +38,13 @@ function extensionForContentType(contentType: string): string {
 
 export type ObjectStoreImplExpoFileSystemOptions = {
   /**
-   * Sub-directory under `Paths.document` (native) or the OPFS root (web).
-   * The directory is created lazily on first write. Use a fixed string per
-   * cache namespace (e.g. `'object-store'`) so the same store is reopened
-   * across app launches.
+   * Sub-directory under document (native) or the OPFS root (web).
+   * The directory is created lazily on first write.
    */
   readonly baseDir: string;
+  /** Injected Expo / OPFS surface — composition roots pass {@link ./wall-expo-fs.ts wallExpoFs()}. */
+  readonly expoFs: ExpoFs;
 };
-
-interface OpfsFileHandle {
-  createWritable(): Promise<{
-    write(data: Uint8Array): Promise<void>;
-    close(): Promise<void>;
-  }>;
-  getFile(): Promise<{
-    arrayBuffer(): Promise<ArrayBuffer>;
-    type: string;
-    size: number;
-  }>;
-}
-
-interface OpfsDirHandle {
-  getFileHandle(
-    name: string,
-    options?: { create?: boolean }
-  ): Promise<OpfsFileHandle>;
-  getDirectoryHandle(
-    name: string,
-    options?: { create?: boolean }
-  ): Promise<OpfsDirHandle>;
-  removeEntry(name: string, options?: { recursive?: boolean }): Promise<void>;
-}
-
-interface OpfsStorageManager {
-  getDirectory(): Promise<OpfsDirHandle>;
-}
 
 function assertKey(key: string): void {
   if (!KEY_PATTERN.test(key)) {
@@ -104,8 +56,9 @@ function assertKey(key: string): void {
 
 export class ObjectStoreImplExpoFileSystem implements ObjectStore {
   private readonly baseDir: string;
+  private readonly expoFs: ExpoFs;
   private nativeDirReady = false;
-  private opfsDirPromise: Promise<OpfsDirHandle> | null = null;
+  private opfsDirPromise: Promise<ExpoFsOpfsDirHandle> | null = null;
 
   constructor(options: ObjectStoreImplExpoFileSystemOptions) {
     if (options.baseDir.length === 0) {
@@ -114,14 +67,18 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
       );
     }
     this.baseDir = options.baseDir;
+    this.expoFs = options.expoFs;
   }
 
   private isWeb(): boolean {
-    return Platform.OS === 'web';
+    return this.expoFs.platformOs === 'web';
   }
 
-  private nativeDir(): Directory {
-    return new Directory(Paths.document, this.baseDir);
+  private nativeDir(): ExpoFsDirectory {
+    return this.expoFs.createDirectory(
+      this.expoFs.paths.document,
+      this.baseDir
+    );
   }
 
   private ensureNativeDir(): void {
@@ -131,22 +88,10 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     this.nativeDirReady = true;
   }
 
-  private opfsRoot(): OpfsStorageManager {
-    const root = (
-      globalThis as unknown as { navigator?: { storage?: OpfsStorageManager } }
-    ).navigator?.storage;
-    if (root === undefined || typeof root.getDirectory !== 'function') {
-      throw new Error(
-        'ObjectStoreImplExpoFileSystem: OPFS unavailable — navigator.storage.getDirectory() missing'
-      );
-    }
-    return root;
-  }
-
-  private async ensureOpfsDir(): Promise<OpfsDirHandle> {
+  private async ensureOpfsDir(): Promise<ExpoFsOpfsDirHandle> {
     if (this.opfsDirPromise === null) {
       this.opfsDirPromise = (async () => {
-        const root = await this.opfsRoot().getDirectory();
+        const root = await this.expoFs.getOpfsRoot();
         return root.getDirectoryHandle(this.baseDir, { create: true });
       })();
     }
@@ -163,12 +108,11 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     const meta = this.readNativeMeta(key);
     if (meta === null) return null;
     const ext = extensionForContentType(meta.contentType);
-    const file = new File(this.nativeDir(), `${key}${ext}`);
+    const file = this.expoFs.createFile(this.nativeDir(), `${key}${ext}`);
     if (!file.exists) return null;
     const bytes = file.bytesSync();
-    const stream = bytesStream(bytes);
     return {
-      body: stream,
+      body: bytesStream(bytes),
       contentType: meta.contentType,
       size: bytes.byteLength,
     };
@@ -206,11 +150,11 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     this.ensureNativeDir();
     const dir = this.nativeDir();
     const ext = extensionForContentType(contentType);
-    const bodyFile = new File(dir, `${key}${ext}`);
+    const bodyFile = this.expoFs.createFile(dir, `${key}${ext}`);
     if (bodyFile.exists) bodyFile.delete();
     bodyFile.create();
     bodyFile.write(bytes);
-    const metaFile = new File(dir, `${key}${META_SUFFIX}`);
+    const metaFile = this.expoFs.createFile(dir, `${key}${META_SUFFIX}`);
     if (metaFile.exists) metaFile.delete();
     metaFile.create();
     metaFile.write(JSON.stringify({ contentType }));
@@ -236,7 +180,7 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     const meta = this.readNativeMeta(key);
     if (meta === null) return false;
     const ext = extensionForContentType(meta.contentType);
-    return new File(this.nativeDir(), `${key}${ext}`).exists;
+    return this.expoFs.createFile(this.nativeDir(), `${key}${ext}`).exists;
   }
 
   async delete(key: string): Promise<void> {
@@ -251,10 +195,10 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     const meta = this.readNativeMeta(key);
     if (meta !== null) {
       const ext = extensionForContentType(meta.contentType);
-      const body = new File(dir, `${key}${ext}`);
+      const body = this.expoFs.createFile(dir, `${key}${ext}`);
       if (body.exists) body.delete();
     }
-    const metaFile = new File(dir, `${key}${META_SUFFIX}`);
+    const metaFile = this.expoFs.createFile(dir, `${key}${META_SUFFIX}`);
     if (metaFile.exists) metaFile.delete();
   }
 
@@ -268,7 +212,7 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     const meta = this.readNativeMeta(key);
     if (meta === null) return null;
     const ext = extensionForContentType(meta.contentType);
-    const file = new File(this.nativeDir(), `${key}${ext}`);
+    const file = this.expoFs.createFile(this.nativeDir(), `${key}${ext}`);
     if (!file.exists) return null;
     return file.uri;
   }
@@ -284,8 +228,45 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     return URL.createObjectURL(new Blob([ab], { type: stored.contentType }));
   }
 
+  async listKeys(prefix = ''): Promise<readonly string[]> {
+    const keys = this.isWeb()
+      ? await this.listKeysWeb()
+      : this.listKeysNative();
+    const filtered =
+      prefix.length === 0 ? keys : keys.filter((k) => k.startsWith(prefix));
+    return filtered.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+
+  private listKeysNative(): string[] {
+    const dir = this.nativeDir();
+    if (!dir.exists || typeof dir.list !== 'function') return [];
+    const keys: string[] = [];
+    for (const entry of dir.list()) {
+      const name = entry.name;
+      if (typeof name !== 'string') continue;
+      if (name.endsWith(META_SUFFIX)) continue;
+      const key = name.replace(/\.[^.]+$/, '');
+      if (KEY_PATTERN.test(key)) keys.push(key);
+    }
+    return keys;
+  }
+
+  private async listKeysWeb(): Promise<string[]> {
+    const dir = await this.ensureOpfsDir();
+    const keys: string[] = [];
+    for await (const name of dir.keys()) {
+      if (!name.endsWith(BIN_SUFFIX)) continue;
+      const key = name.slice(0, -BIN_SUFFIX.length);
+      if (KEY_PATTERN.test(key)) keys.push(key);
+    }
+    return keys;
+  }
+
   private readNativeMeta(key: string): { contentType: string } | null {
-    const metaFile = new File(this.nativeDir(), `${key}${META_SUFFIX}`);
+    const metaFile = this.expoFs.createFile(
+      this.nativeDir(),
+      `${key}${META_SUFFIX}`
+    );
     if (!metaFile.exists) return null;
     try {
       const parsed = JSON.parse(metaFile.textSync()) as {
@@ -302,7 +283,7 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
   }
 
   private async readWebMeta(
-    dir: OpfsDirHandle,
+    dir: ExpoFsOpfsDirHandle,
     key: string
   ): Promise<{ contentType: string }> {
     const handle = await tryGetOpfsFile(dir, `${key}${META_SUFFIX}`);
@@ -361,9 +342,9 @@ async function readAllBytes(
 }
 
 async function tryGetOpfsFile(
-  dir: OpfsDirHandle,
+  dir: ExpoFsOpfsDirHandle,
   name: string
-): Promise<OpfsFileHandle | null> {
+): Promise<Awaited<ReturnType<ExpoFsOpfsDirHandle['getFileHandle']>> | null> {
   try {
     return await dir.getFileHandle(name, { create: false });
   } catch (err) {
@@ -373,7 +354,7 @@ async function tryGetOpfsFile(
 }
 
 async function writeOpfs(
-  dir: OpfsDirHandle,
+  dir: ExpoFsOpfsDirHandle,
   name: string,
   bytes: Uint8Array
 ): Promise<void> {
@@ -387,7 +368,7 @@ async function writeOpfs(
 }
 
 async function removeOpfsIfExists(
-  dir: OpfsDirHandle,
+  dir: ExpoFsOpfsDirHandle,
   name: string
 ): Promise<void> {
   try {

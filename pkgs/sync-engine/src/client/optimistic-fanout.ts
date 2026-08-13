@@ -66,7 +66,9 @@ export async function buildOptimisticFanout(
   const items: OutboundLiveItem[] = [];
   for (const topic of topics) {
     const topicRows = partitioned.get(topic) ?? {};
-    const tableNames = Object.keys(topicRows);
+    const tableNames = Object.keys(topicRows).sort((a, b) =>
+      a < b ? -1 : a > b ? 1 : 0
+    );
     if (tableNames.length === 0) continue;
     items.push({
       topic,

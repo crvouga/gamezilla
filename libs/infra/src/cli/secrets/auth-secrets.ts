@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { randomBytes } from 'node:crypto';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 

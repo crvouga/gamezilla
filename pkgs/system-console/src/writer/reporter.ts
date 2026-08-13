@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { type World, worldTopology } from '@pkgs/system';
 import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
 
 import type {
@@ -22,6 +23,7 @@ import {
 import type { SnapshotDatabaseNode } from './frame-databases';
 import type { SnapshotViewNode } from './frame-views';
 import { snapshotShellKey, testStepsKey } from './keys';
+import { projectReportTopology } from './project-topology';
 import {
   buildReporterData,
   buildReporterStep,
@@ -73,8 +75,10 @@ export type SimulationReporterOptions = {
   readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
   /** Fine-grained event log snapshot (written to events.json). */
   readonly snapshotEvents?: () => readonly SimulationReportEvent[];
-  /** Topology + seed/fuzz snapshot (written to topology.json). */
-  readonly snapshotTopology?: () => SimulationReportTopology;
+  /**
+   * Live DST world — console maps {@link worldTopology} into topology.json.
+   */
+  readonly world?: World;
 };
 
 type RecordArgs = {
@@ -165,7 +169,11 @@ export class SimulationReporter {
     this.snapshotDatabases = options.snapshotDatabases;
     this.snapshotViews = options.snapshotViews;
     this.snapshotEvents = options.snapshotEvents;
-    this.snapshotTopology = options.snapshotTopology;
+    const world = options.world;
+    this.snapshotTopology =
+      world !== undefined
+        ? () => projectReportTopology(worldTopology(world), options.seed)
+        : undefined;
     this.startedAtMs = options.now();
   }
 

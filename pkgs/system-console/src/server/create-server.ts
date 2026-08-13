@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import type { Timers } from '@pkgs/clock';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { readObjectBytes } from '@pkgs/object-store/helpers';
 
 import { handleApi } from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
@@ -11,10 +11,13 @@ export type { ReportBucket } from './types';
 
 export type CreateSimulationReportServerOptions = {
   readonly buckets: readonly ReportBucket[];
-  /** Injected timers for SSE heartbeat + bucket watch debounce/poll. */
+  /** Injected timers for SSE heartbeat + bucket watch poll. */
   readonly timers: Timers;
-  /** Prebuilt SPA dir (default: package `dist/`). */
-  readonly distDir?: string;
+  /**
+   * Prebuilt SPA static assets as an ObjectStore (tree layout). Keys are
+   * repo-relative paths under dist (e.g. `index.html`, `app.js`).
+   */
+  readonly distStore?: ObjectStore;
   /** Clock for prune `olderThanMs` (inject from composition root). */
   readonly now?: () => number;
 };
@@ -50,7 +53,7 @@ export function createSimulationReportServer(
     throw new Error('createSimulationReportServer: bucket ids must be unique');
   }
 
-  const distDir = options.distDir;
+  const distStore = options.distStore;
   const now = options.now;
   const timers = options.timers;
   const hub = new SseHub();
@@ -65,7 +68,7 @@ export function createSimulationReportServer(
         buckets,
         hub,
         watchers,
-        distDir,
+        distStore,
         now,
         timers,
       }),
@@ -82,7 +85,7 @@ async function handleFetch(
     readonly buckets: readonly ReportBucket[];
     readonly hub: SseHub;
     readonly watchers: ReadonlyMap<string, BucketWatcher>;
-    readonly distDir: string | undefined;
+    readonly distStore: ObjectStore | undefined;
     readonly now: (() => number) | undefined;
     readonly timers: Timers;
   }
@@ -97,14 +100,14 @@ async function handleFetch(
   });
   if (api) return api;
 
-  if (ctx.distDir) {
-    const staticFile = serveDist(url.pathname, ctx.distDir);
+  if (ctx.distStore) {
+    const staticFile = await serveDist(url.pathname, ctx.distStore);
     if (staticFile) return staticFile;
 
     if (!url.pathname.startsWith('/api/')) {
-      const index = join(ctx.distDir, 'index.html');
-      if (existsSync(index)) {
-        return new Response(Bun.file(index), {
+      const indexBytes = await readObjectBytes(ctx.distStore, 'index.html');
+      if (indexBytes !== null) {
+        return new Response(responseBodyBytes(indexBytes), {
           headers: {
             'content-type': 'text/html; charset=utf-8',
             'cache-control': 'no-store',
@@ -117,17 +120,26 @@ async function handleFetch(
   return new Response('Not found', { status: 404 });
 }
 
-function serveDist(pathname: string, distDir: string): Response | null {
+function responseBodyBytes(bytes: Uint8Array): ArrayBuffer {
+  const out = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(out).set(bytes);
+  return out;
+}
+
+async function serveDist(
+  pathname: string,
+  distStore: ObjectStore
+): Promise<Response | null> {
   const rel =
     pathname === '/' || pathname === ''
       ? 'index.html'
       : pathname.replace(/^\//, '');
   if (rel.includes('..') || rel.includes('\0')) return null;
-  const filePath = join(distDir, rel);
-  if (!existsSync(filePath)) return null;
-  return new Response(Bun.file(filePath), {
+  const bytes = await readObjectBytes(distStore, rel);
+  if (bytes === null) return null;
+  return new Response(responseBodyBytes(bytes), {
     headers: {
-      'content-type': contentTypeForPath(filePath),
+      'content-type': contentTypeForPath(rel),
       'cache-control': pathname.startsWith('/app.') ? 'no-cache' : 'no-store',
     },
   });

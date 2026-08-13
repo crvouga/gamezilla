@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
 import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
 import { assert } from '@pkgs/assert';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 
 /** Production API origin — must match `productionApiOrigin()` in `@libs/infra`. */
 export function productionClientApiOrigin(): string {
@@ -67,23 +67,24 @@ export function assertProductionClientBuildEnv(
   );
 }
 
-function listBundleFilesUnder(root: string): string[] {
-  const paths: string[] = [];
-  for (const rel of readdirSync(root, { recursive: true, encoding: 'utf8' })) {
-    if (rel.endsWith('.js') || rel.endsWith('.hbc')) {
-      paths.push(join(root, rel));
-    }
-  }
-  return paths;
+async function listBundleFiles(store: ObjectStore): Promise<readonly string[]> {
+  const keys = await store.listKeys();
+  return keys.filter((key) => key.endsWith('.js') || key.endsWith('.hbc'));
 }
 
-export function assertProductionBundlesAtDir(dir: string, label: string): void {
-  const files = listBundleFilesUnder(dir);
-  assert.ok(files.length > 0, `${label}: no JS/HBC bundles found`, { dir });
+export async function assertProductionBundlesAtDir(
+  store: ObjectStore,
+  label: string
+): Promise<void> {
+  const files = await listBundleFiles(store);
+  assert.ok(files.length > 0, `${label}: no JS/HBC bundles found`);
 
   let scannedChunks = 0;
   for (const file of files) {
-    const source = readFileSync(file, 'utf8');
+    const source = await readUtf8(store, file);
+    assert.defined(source, `${label}: bundle disappeared during scan`, {
+      file,
+    });
     // Babel jsx-source-attr injects `dataSet: { src: "…:line" }` only in
     // dev/e2e. Production must not contain those `data-src` path markers.
     assert.ok(
@@ -115,6 +116,6 @@ export function assertProductionBundlesAtDir(dir: string, label: string): void {
   assert.ok(
     scannedChunks > 0,
     `${label}: no getApiBaseUrl() bundle chunk found — cannot verify API URL was inlined`,
-    { dir, fileCount: files.length }
+    { fileCount: files.length }
   );
 }

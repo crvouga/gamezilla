@@ -2,6 +2,7 @@
  * Idempotent Infisical machine-identity + GitHub OIDC reconciliation.
  * Provider-private: called only via the neutral `reconcileCiSecretsAuth` facade.
  */
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { readSecretsConfig } from '@pkgs/secrets-config';
 import { resolveInfisicalAdminToken } from './ci-reconcile-auth';
 import {
@@ -28,6 +29,8 @@ const LEGACY_PROJECT_SLUG_ENV_VAR = 'INFISICAL_PROJECT_SLUG';
 
 export type ReconcileInfisicalCiSecretsAuthOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
+  readonly cliConfigStore?: ObjectStore | null;
   readonly repo?: string | null;
   readonly identityName?: string | null;
   readonly dryRun?: boolean;
@@ -95,6 +98,7 @@ async function resolveProjectAndIdentity(args: {
   readonly dryRun: boolean;
   readonly domain: string;
   readonly projectId: string;
+  readonly cliConfigStore: ObjectStore | null;
   readonly log: ReconcileLog;
   readonly fail: ReconcileFail;
 }): Promise<{ projectSlug: string; identityId: string }> {
@@ -102,6 +106,7 @@ async function resolveProjectAndIdentity(args: {
     domain: args.domain,
     log: args.log,
     fail: args.fail,
+    cliConfigStore: args.cliConfigStore,
   });
   if (token === null) {
     args.log('No secrets admin token — GitHub-variables-only mode.');
@@ -189,7 +194,7 @@ export async function reconcileInfisicalCiSecretsAuth(
     throw new Error(message);
   };
   const dryRun = options.dryRun === true;
-  const config = readSecretsConfig(options.repoRoot);
+  const config = await readSecretsConfig(options.configStore);
   const domain = normalizeDomain(
     resolveInfisicalEndpoint({
       endpoint: config.endpoint ?? INFISICAL_DEFAULT_ENDPOINT,
@@ -213,6 +218,7 @@ export async function reconcileInfisicalCiSecretsAuth(
     projectId: config.projectId,
     log,
     fail,
+    cliConfigStore: options.cliConfigStore ?? null,
   });
   publishGithubVars({
     repoRoot: options.repoRoot,

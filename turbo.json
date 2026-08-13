@@ -448,6 +448,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:matchmaking-blackbox-tests": {
+      "inputs": [
+        "pkgs/matchmaking/**/*.test.ts",
+        "pkgs/matchmaking/src/tests/**",
+        "tools/scripts/check-matchmaking-blackbox-tests.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:sync-engine-framework-leak": {
       "inputs": [
         "apps/**/*.{ts,tsx}",

@@ -11,6 +11,7 @@ import {
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { wallIo } from '@pkgs/io';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
@@ -18,6 +19,7 @@ const io = wallIo();
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(apiRoot, '../..');
+const configStore = createRepoTreeObjectStore({ rootDir: repoRoot });
 const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
@@ -139,7 +141,7 @@ async function loadOptionalSecretsOverlay(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const { env: secretsEnv } = resolveSecretsScope(repoRoot);
+  const { env: secretsEnv } = await resolveSecretsScope(configStore);
   assertDevSecretsEnv(secretsEnv);
   // Best-effort Infisical overlay; local Postgres/MinIO/EMQX always win below.
   await loadOptionalSecretsOverlay();

@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Framework table names and retired public DDL constants must not appear

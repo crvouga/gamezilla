@@ -75,7 +75,7 @@ export function publishPushMessages(options: {
     const topicRows = options.rowsByTopic?.get(topic) ?? options.rows;
     const tables =
       topicRows !== undefined && Object.keys(topicRows).length > 0
-        ? Object.keys(topicRows)
+        ? Object.keys(topicRows).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
         : options.tables;
     const payload: PushMessage = {
       pushSeq,

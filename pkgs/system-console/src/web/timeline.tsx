@@ -44,11 +44,10 @@ export function Timeline(props: {
 const rail: CSSProperties = {
   display: 'flex',
   gap: 6,
-  padding: '8px 12px',
+  padding: '6px 0 10px',
   overflowX: 'auto',
-  borderTop: `1px solid ${t.border}`,
   background: t.panel,
-  minHeight: 56,
+  minHeight: 52,
 };
 
 const tick: CSSProperties = {

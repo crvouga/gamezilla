@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 import { join } from 'node:path';
 import { Glob } from 'bun';

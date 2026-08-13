@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Ensure `@embedded-postgres/*` postinstall symlinks exist.
  * Bun may skip optional-dep lifecycle scripts unless trusted; hydrate here.

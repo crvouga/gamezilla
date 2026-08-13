@@ -168,6 +168,7 @@
     "@libs/infra": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@pkgs/os": "workspace:*",
+    "@pkgs/system-console": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

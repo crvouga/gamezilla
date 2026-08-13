@@ -1,19 +1,21 @@
 /**
  * Seeds `chess_puzzles` from the committed CSV load file (local sidecar boot).
  */
-import { readFile } from 'node:fs/promises';
 import type { Clock } from '@pkgs/clock';
 import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { parse } from 'csv-parse/sync';
 import { PuzzleSeedFastPath } from './fast-path';
-import { resolveChessPuzzlesLoadFilePath } from './load-file';
+import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file';
 import type { PuzzleTableRow } from './row';
 
 const BATCH_SIZE = 250;
 
 export type ChessPuzzleLoadFileSeederArgs = {
-  readonly loadFilePath?: string;
+  readonly loadFileStore: ObjectStore;
+  readonly loadFileKey?: string;
   readonly createId: CreateId;
   readonly now: Clock['now'];
 };
@@ -70,19 +72,24 @@ function csvRecordToPuzzleTableRow(
 }
 
 export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
-  readonly #loadFilePath: string;
+  readonly #loadFileStore: ObjectStore;
+  readonly #loadFileKey: string;
   readonly #createId: CreateId;
   readonly #now: Clock['now'];
 
   constructor(args: ChessPuzzleLoadFileSeederArgs) {
-    this.#loadFilePath = args.loadFilePath ?? resolveChessPuzzlesLoadFilePath();
+    this.#loadFileStore = args.loadFileStore;
+    this.#loadFileKey = args.loadFileKey ?? CHESS_PUZZLES_LOAD_FILE_RELATIVE;
     this.#createId = args.createId;
     this.#now = args.now;
   }
 
   async seed(ctx: DatabaseSeederContext): Promise<void> {
     const { sqlClient, logger } = ctx;
-    const text = await readFile(this.#loadFilePath, 'utf8');
+    const text = await readUtf8(this.#loadFileStore, this.#loadFileKey);
+    if (text === null) {
+      throw new Error(`chess puzzle load file not found: ${this.#loadFileKey}`);
+    }
     const records = parse(text, {
       columns: true,
       skip_empty_lines: true,
@@ -107,7 +114,7 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
     }
 
     logger.info('chess-puzzle-load-file: seed complete', {
-      loadFilePath: this.#loadFilePath,
+      loadFileKey: this.#loadFileKey,
       parsedRows: rows.length,
       rowsInserted: inserted,
     });

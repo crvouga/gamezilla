@@ -1,13 +1,13 @@
 /**
- * Guards that interface / testing / client / wire never import the SQL
- * adapter or engine clients.
+ * Guards that interface / client / wire never import the SQL adapter.
+ * `testing/` may re-export the sim world (which boots impl-sql privately).
  */
 
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const ROOT = join(import.meta.dir);
+const ROOT = join(import.meta.dir, '../..');
 const FORBIDDEN = [
   /from ['"]\.\.\/impl-sql/,
   /from ['"]@pkgs\/matchmaking\/impl-sql/,
@@ -31,7 +31,7 @@ function walk(dir: string): string[] {
 }
 
 describe('import hygiene', () => {
-  for (const folder of ['interface', 'testing', 'client', 'wire']) {
+  for (const folder of ['interface', 'client', 'wire']) {
     test(`${folder} does not import SQL / PGlite / in-memory`, () => {
       const files = walk(join(ROOT, folder));
       const offenders: string[] = [];

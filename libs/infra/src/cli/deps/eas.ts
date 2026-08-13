@@ -2,6 +2,7 @@ import {
   captureVersionDiagnostic,
   NpmGlobalInstaller,
   verifyRun,
+  wallOsFs,
   which,
 } from '@pkgs/os';
 import { summarize } from './summarize';
@@ -22,6 +23,7 @@ export class EasDep implements Dep {
     pkg: 'eas-cli',
     bin: 'eas',
     tag: 'latest',
+      pathExists: wallOsFs().pathExists,
   });
 
   version(): string | null {

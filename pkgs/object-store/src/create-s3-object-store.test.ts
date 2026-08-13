@@ -109,6 +109,16 @@ class GuardedTransportMemory implements ObjectStore {
     return this.inner.getUri(key);
   }
 
+  listKeys(prefix?: string) {
+    if (prefix !== undefined && prefix.length > 0) {
+      assertRemoteObjectKey(
+        prefix.endsWith('/') ? `${prefix}x` : prefix,
+        this.namespace
+      );
+    }
+    return this.inner.listKeys(prefix);
+  }
+
   withPrefix(_prefix: string): ObjectStore {
     throw new Error(
       'S3 transport does not support withPrefix; call withPrefix on createS3ObjectStore() result'

@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Fail-fast guardrail: every DATABASE_URL entrypoint must call the Tiger

@@ -6,6 +6,7 @@
     "jingle": "./jingle.ts"
   },
   "dependencies": {
+    "@pkgs/object-store": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secrets-config": "workspace:*"

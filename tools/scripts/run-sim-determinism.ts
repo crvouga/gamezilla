@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
 /**
  * PR determinism gate: run every `*.sim.test.ts` twice with the same seed.
  * Fails if either run exits non-zero (tests assert equal hashes internally).
@@ -90,3 +91,4 @@ function runSimTest(
     encoding: 'utf8',
   });
 }
+

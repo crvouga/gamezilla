@@ -1,3 +1,4 @@
+import type { OsFs } from '@pkgs/os';
 import { InfisicalCliDep } from './impl-infisical/cli-dep';
 import { INFISICAL_DEFAULT_ENDPOINT } from './impl-infisical/defaults';
 
@@ -17,8 +18,10 @@ export type SecretBackendCli = {
 };
 
 /** CLI dependency for the configured secrets backend (install / check / upgrade). */
-export function createSecretBackendCli(): SecretBackendCli {
-  return new InfisicalCliDep();
+export function createSecretBackendCli(options?: {
+  readonly osFs?: OsFs;
+}): SecretBackendCli {
+  return new InfisicalCliDep(options);
 }
 
 /** Dashboard URL for the configured secrets backend (vendor console links). */

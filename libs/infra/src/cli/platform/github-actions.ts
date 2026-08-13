@@ -1,3 +1,4 @@
+// @io-wall-ok
 import { randomBytes } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 import { assert } from '@pkgs/assert';

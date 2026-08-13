@@ -25,6 +25,28 @@ Inject one `Io` bag from a composition root (`IoProvider` / `runWithIo` /
 Domain and game-logic code take required `io` (or `now` / `createId` slices).
 Never default to wall implementations inside libraries.
 
+## What `@pkgs/object-store` covers (filesystem / blobs)
+
+All file **content** I/O goes through an injected {@link ObjectStore}:
+
+| Layout | Use |
+| --- | --- |
+| `sidecar` | Product blob cache (TTS, etc.) with `.meta.json` content-types |
+| `tree` | Git trees / CI scans / NDJSON logs (keys = relative paths) |
+
+Wall `node:fs` / `expo-file-system` live only in `@io-wall-ok` adapters
+(`wall-node-fs.ts`, `wall-expo-fs.ts`). Composition roots pass
+`createNodeFsObjectStore({ rootDir, fs: wallNodeFs(), layout })`.
+
+**Not** ObjectStore (process / OS I/O — keep on existing ports):
+
+- `child_process` / `Bun.spawn`
+- `chmod` / executable bits (`@pkgs/os` `OsFs`)
+- Pure path math (`node:path`)
+- Path roots (`cwd` / `homedir` / `tmpdir`) as constructor `rootDir` only
+
+CI: `bun run ci:no-bare-fs` in addition to `ci:no-bare-io`.
+
 ## Banned APIs (product runtime)
 
 Do not call bare:

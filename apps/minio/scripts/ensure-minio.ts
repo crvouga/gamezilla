@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Resolve a `minio` binary: MINIO_BIN → PATH → Homebrew → cached download.
  */

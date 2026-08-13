@@ -7,6 +7,7 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { resolveLocalReportDataDir } from './local-data-dir';
 import { createSimulationReportServer } from './server/create-server';
 import type { SimulationReportData } from './types';
+import { wallPathExists } from './wall-path-exists';
 import {
   isLatestRunId,
   LATEST_RUN_ID,
@@ -26,16 +27,17 @@ import {
 
 describe('resolveLocalReportDataDir', () => {
   test('resolves under monorepo root', () => {
-    const dir = resolveLocalReportDataDir();
+    const dir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
     expect(dir.endsWith('/system-console-data')).toBe(true);
     expect(existsSync(join(dir, '..', 'turbo.json'))).toBe(true);
   });
 
   test('ignores package-level turbo.json under apps/', () => {
     const fromApp = resolveLocalReportDataDir(
-      join(import.meta.dir, '../../../pkgs/system-console')
+      join(import.meta.dir, '../../../pkgs/system-console'),
+      wallPathExists
     );
-    const fromPkg = resolveLocalReportDataDir(import.meta.dir);
+    const fromPkg = resolveLocalReportDataDir(import.meta.dir, wallPathExists);
     expect(fromApp).toBe(fromPkg);
     expect(fromApp.endsWith('/system-console-data')).toBe(true);
     expect(fromApp.includes('/pkgs/system-console/')).toBe(false);
@@ -72,13 +74,14 @@ describe('parseReportNav', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
   test('parses bucket / run / test', () => {
     expect(
       parseReportNav(
         '/b/local/r/20240601T120000/t/auth-login-logout',
-        '?frame=5&node=alice'
+        '?frame=5&node=alice&view=sqlite'
       )
     ).toEqual({
       bucketId: 'local',
@@ -86,6 +89,7 @@ describe('parseReportNav', () => {
       testId: 'auth-login-logout',
       frame: 5,
       node: 'alice',
+      view: 'sqlite',
     });
   });
 });
@@ -99,6 +103,7 @@ describe('buildReportUrl', () => {
         testId: null,
         frame: null,
         node: null,
+        view: null,
       },
       {
         bucketId: 'local',
@@ -106,11 +111,13 @@ describe('buildReportUrl', () => {
         testId: 'demo',
         frame: 3,
         node: 'bob',
+        view: 'html',
       }
     );
     expect(url.pathname).toBe('/b/local/r/run1/t/demo');
     expect(url.search).toContain('frame=3');
     expect(url.search).toContain('node=bob');
+    expect(url.search).toContain('view=html');
     expect(url.search).not.toContain('step=');
   });
 });
@@ -384,7 +391,6 @@ describe('createSimulationReportServer', () => {
 
     const server = createSimulationReportServer({
       buckets: [{ id: 'local', label: 'Local', store }],
-      distDir: '/tmp/simulation-report-missing-dist',
       timers: wallTimers,
       now: () => 999,
     });
@@ -428,5 +434,65 @@ describe('LATEST_RUN_ID', () => {
       bucketId: 'local',
       runId: 'latest',
     });
+  });
+});
+
+describe('projectReportTopology', () => {
+  test('maps system WorldTopology into report JSON', async () => {
+    const { projectReportTopology } = await import('./writer/project-topology');
+    const report = projectReportTopology(
+      {
+        nodes: [
+          { address: 'api', kind: 'api', down: true },
+          { address: 'client:alice', kind: 'client', down: false },
+          { address: 'events', kind: 'events', down: false },
+        ],
+        edges: [
+          {
+            from: 'client:alice',
+            to: 'api',
+            kind: 'api',
+            partitioned: true,
+          },
+          {
+            from: 'api',
+            to: 'events',
+            kind: 'events',
+            partitioned: false,
+          },
+        ],
+        spawn: {
+          client: { edges: [{ to: 'api', kind: 'api' }] },
+          api: { edges: [{ to: 'events', kind: 'events' }] },
+        },
+      },
+      'seed-1'
+    );
+
+    expect(report.seed).toBe('seed-1');
+    expect(report.fuzz).toBeNull();
+    expect(report.nodes.find((n) => n.id === 'api')).toMatchObject({
+      status: 'down',
+      attributes: ['sqlite', 'ingress', 'egress'],
+      clockSkewMs: 0,
+    });
+    expect(report.nodes.find((n) => n.id === 'client:alice')).toMatchObject({
+      status: 'ok',
+      attributes: ['html', 'sqlite', 'ingress', 'egress'],
+    });
+    expect(
+      report.edges.find((e) => e.from === 'client:alice' && e.to === 'api')
+    ).toMatchObject({
+      state: 'down',
+      latencyMs: 0,
+      dropRate: 0,
+    });
+    expect(
+      report.edges.find((e) => e.from === 'api' && e.to === 'events')
+    ).toMatchObject({ state: 'up' });
+    expect(report.definition.kinds['client']?.attributes).toContain('html');
+    expect(report.definition.spawn['client']?.edges).toEqual([
+      { to: 'api', kind: 'api' },
+    ]);
   });
 });

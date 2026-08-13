@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { CURATED_SOUNDS, type CuratedSound } from './curate-mapping';

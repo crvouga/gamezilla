@@ -38,6 +38,7 @@ const CI_GATE_TASKS = [
   'ci:channel-exhaustiveness',
   'ci:sync-engine-terminology',
   'ci:sync-engine-blackbox-tests',
+  'ci:matchmaking-blackbox-tests',
   'ci:sync-engine-framework-leak',
   'ci:sync-engine-protocol-freeze',
   'ci:sync-engine-public-api',

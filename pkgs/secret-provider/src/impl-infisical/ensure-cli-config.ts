@@ -1,10 +1,10 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import {
   type ResolvedSecretsScope,
   readSecretsConfig,
   SECRETS_DEFAULTS,
 } from '@pkgs/secrets-config';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { INFISICAL_CLI_CONFIG_FILENAME } from './defaults';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
@@ -16,12 +16,11 @@ import { resolveInfisicalEndpoint } from './resolve-endpoint';
  * SECRETS_DEFAULTS) — never the effective `SECRETS_ENV` override — so check
  * (`dev`) vs infra (`prd`) runs do not flip a tracked file.
  */
-export function ensureInfisicalCliConfig(
-  repoRoot: string,
+export async function ensureInfisicalCliConfig(
+  store: ObjectStore,
   scope: ResolvedSecretsScope
-): void {
-  const path = join(repoRoot, INFISICAL_CLI_CONFIG_FILENAME);
-  const file = readSecretsConfig(repoRoot);
+): Promise<void> {
+  const file = await readSecretsConfig(store);
   const defaultEnvironment = file.environment?.trim() || SECRETS_DEFAULTS.env;
   const body = `${JSON.stringify(
     {
@@ -32,8 +31,8 @@ export function ensureInfisicalCliConfig(
     null,
     2
   )}\n`;
-  if (existsSync(path) && readFileSync(path, 'utf8') === body) {
+  if ((await readUtf8(store, INFISICAL_CLI_CONFIG_FILENAME)) === body) {
     return;
   }
-  writeFileSync(path, body, 'utf8');
+  await writeUtf8(store, INFISICAL_CLI_CONFIG_FILENAME, body, 'application/json');
 }

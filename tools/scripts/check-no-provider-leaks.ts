@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Ensures Better Auth SDK and `@pkgs/auth-better-auth` stay behind the auth
  * adapter boundary.

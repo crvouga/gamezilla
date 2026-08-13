@@ -1,3 +1,5 @@
+// @io-wall-ok — tools composition root
+// @io-wall-ok — tools composition root
 /**
  * Ban vendor-specific SQL in application code.
  *
@@ -134,7 +136,7 @@ function scanFile(abs: string): Offense[] {
 // Touch shared ban list so turbo inputs stay honest when only bans change.
 void AGNOSTIC_SQL_BANS.length;
 
-const files = collectSqlWallScanFiles();
+const files = await collectSqlWallScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
@@ -155,3 +157,4 @@ if (offenses.length > 0) {
 }
 
 console.log(`Vendor SQL check passed (${String(files.length)} files).`);
+

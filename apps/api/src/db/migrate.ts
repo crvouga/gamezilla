@@ -17,6 +17,7 @@ import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger, type Logger } from '@pkgs/logger';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
@@ -27,6 +28,7 @@ import {
 } from './migrate-transient-errors';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 /** Composition root: migrate CLI / in-process migrate owns wall I/O. */
 const io = wallIo();
 const now = io.clock.now;
@@ -56,10 +58,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => timers.setTimeout(resolve, ms));
 }
 
-function resolveSecretsEnvForMigrate(): string {
+async function resolveSecretsEnvForMigrate(): Promise<string> {
   const fromEnv = process.env['SECRETS_ENV']?.trim() ?? '';
   if (fromEnv.length > 0) return fromEnv;
-  return resolveSecretsScope(REPO_ROOT).env;
+  return (await resolveSecretsScope(configStore)).env;
 }
 
 async function resolveDatabaseUrlForMigrate(
@@ -82,7 +84,7 @@ async function resolveDatabaseUrlForMigrate(
 }
 
 async function assertMigrateDatabasePolicy(databaseUrl: string): Promise<void> {
-  const secretsEnv = resolveSecretsEnvForMigrate();
+  const secretsEnv = await resolveSecretsEnvForMigrate();
   if (secretsEnv !== DEVELOPMENT_SECRETS_ENV) {
     return;
   }

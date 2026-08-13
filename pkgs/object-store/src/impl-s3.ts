@@ -2,6 +2,7 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -200,6 +201,34 @@ class ObjectStoreImplS3 implements ObjectStore {
 
   async getUri(_key: string): Promise<string | null> {
     return null;
+  }
+
+  async listKeys(prefix = ''): Promise<readonly string[]> {
+    const listPrefix = prefix.length > 0 ? prefix : this.namespace;
+    if (!listPrefix.startsWith(this.namespace) && listPrefix !== this.namespace) {
+      throw new Error(
+        `ObjectStoreImplS3: listKeys prefix must start with "${this.namespace}": ${listPrefix}`
+      );
+    }
+    const keys: string[] = [];
+    let continuationToken: string | undefined;
+    for (;;) {
+      const response = await this.client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket,
+          Prefix: listPrefix,
+          ContinuationToken: continuationToken,
+        })
+      );
+      for (const obj of response.Contents ?? []) {
+        if (typeof obj.Key === 'string' && obj.Key.length > 0) {
+          keys.push(obj.Key);
+        }
+      }
+      if (!response.IsTruncated) break;
+      continuationToken = response.NextContinuationToken;
+    }
+    return keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }
 
   withPrefix(_prefix: string): ObjectStore {

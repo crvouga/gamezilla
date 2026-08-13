@@ -4,6 +4,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { wallPathExists } from '@pkgs/system-console';
 
 import { runPackageScriptOnce } from './run-package-script-once';
 
@@ -35,6 +38,7 @@ function resolveWorkspaceRoot(): string {
 }
 
 const DIST_DIR = join(resolveWorkspaceRoot(), 'apps/client/dist');
+const fs = wallNodeFs();
 
 test(
   'production web export inlines the production API origin',
@@ -43,10 +47,13 @@ test(
 
     await runPackageScriptOnce('@apps/client', 'build', {
       ...PRODUCTION_CLIENT_ENV,
-    });
+    }, wallPathExists);
 
     expect(existsSync(DIST_DIR)).toBe(true);
-    assertProductionBundlesAtDir(DIST_DIR, 'production web dist');
+    await assertProductionBundlesAtDir(
+      createNodeFsObjectStore({ rootDir: DIST_DIR, fs, layout: 'tree' }),
+      'production web dist'
+    );
   },
   { timeout: 600_000 }
 );

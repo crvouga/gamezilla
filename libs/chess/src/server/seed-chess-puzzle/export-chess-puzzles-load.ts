@@ -16,6 +16,7 @@ import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/sha
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
@@ -28,6 +29,7 @@ import {
 
 const io = wallIo();
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 type ExportRow = {
   readonly id: string;
@@ -88,7 +90,8 @@ export async function exportChessPuzzlesLoadFile(
   });
   const store = createScriptSecretStore();
   const secretsEnv =
-    process.env['SECRETS_ENV']?.trim() || resolveSecretsScope(REPO_ROOT).env;
+    process.env['SECRETS_ENV']?.trim() ||
+    (await resolveSecretsScope(configStore)).env;
   if (secretsEnv === PRODUCTION_SECRETS_ENV && !confirmProd) {
     assert.fail(
       'export:puzzles-load: refusing SECRETS_ENV=prd without --confirm-prod'

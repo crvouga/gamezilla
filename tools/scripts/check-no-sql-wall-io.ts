@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Ban SQL-engine wall clock / RNG defaults and DML.
  *
@@ -128,7 +129,7 @@ function scanFile(abs: string): Offense[] {
   return out;
 }
 
-const files = collectSqlWallScanFiles();
+const files = await collectSqlWallScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
@@ -149,3 +150,4 @@ if (offenses.length > 0) {
 }
 
 console.log(`SQL wall-I/O check passed (${String(files.length)} files).`);
+

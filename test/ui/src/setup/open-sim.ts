@@ -2,18 +2,19 @@
  * Open a client UI simulation on `@pkgs/system` createWorld + product implements.
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { system } from '@libs/runtime/shared/system';
 import { wallClock } from '@pkgs/clock';
 import { createSimIo } from '@pkgs/io';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { createWorld, instanceAddress, type World } from '@pkgs/system';
 import {
   createReportingDriver,
   mintRunId,
   resolveLocalReportDataDir,
   SimulationReporter,
+  wallPathExists,
 } from '@pkgs/system-console';
 import type { Driver } from '@pkgs/ui-testing';
 
@@ -24,39 +25,43 @@ import { createInMemoryBus, createProductProvide } from './product-provide';
 import { simNodeTimers } from './sim-actor-overrides';
 import { projectReportTopology } from './sim-topology';
 
+const reportDataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
+
 const reportStore = createNodeFsObjectStore({
-  rootDir: resolveLocalReportDataDir(),
+  rootDir: reportDataDir,
+  fs: wallNodeFs(),
+  layout: 'sidecar',
 });
+
+const RUN_MARKER_KEY = '.jest-open-sim-run.json';
 
 type RunMarker = {
   readonly pid: number;
   readonly runId: string;
 };
 
-function runMarkerPath(): string {
-  return join(resolveLocalReportDataDir(), '.jest-open-sim-run.json');
-}
-
-function resolveProcessRunId(): string {
+async function resolveProcessRunId(): Promise<string> {
   const fromEnv = process.env['SIM_REPORT_RUN_ID'];
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
 
-  const path = runMarkerPath();
   try {
-    const marker = JSON.parse(readFileSync(path, 'utf8')) as RunMarker;
-    if (marker.pid === process.pid && marker.runId.length > 0) {
-      return marker.runId;
+    const text = await readUtf8(reportStore, RUN_MARKER_KEY);
+    if (text !== null) {
+      const marker = JSON.parse(text) as RunMarker;
+      if (marker.pid === process.pid && marker.runId.length > 0) {
+        return marker.runId;
+      }
     }
   } catch {
     // Missing or corrupt — mint below.
   }
 
   const runId = mintRunId(wallClock.now());
-  mkdirSync(resolveLocalReportDataDir(), { recursive: true });
-  writeFileSync(
-    path,
+  await writeUtf8(
+    reportStore,
+    RUN_MARKER_KEY,
     `${JSON.stringify({ pid: process.pid, runId } satisfies RunMarker)}\n`,
-    'utf8'
+    'application/json'
   );
   return runId;
 }
@@ -108,7 +113,7 @@ async function bootSim(testId: string): Promise<BootedSim> {
   const reporter = new SimulationReporter({
     seed: '1',
     store: reportStore,
-    runId: resolveProcessRunId(),
+    runId: await resolveProcessRunId(),
     testId,
     now: () => wallClock.now(),
     maxFramesPerStep: 1,

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { INFISICAL_CLI_BIN } from './defaults';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
@@ -92,15 +93,16 @@ function hasInjectedSecrets(): boolean {
 
 export type RunWithInfisicalSecretsOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
   readonly childArgs: readonly string[];
 };
 
 /**
  * Run a command with secrets injected (CI env or Infisical CLI locally).
  */
-export function runWithInfisicalSecrets(
+export async function runWithInfisicalSecrets(
   options: RunWithInfisicalSecretsOptions
-): number {
+): Promise<number> {
   const { repoRoot, childArgs } = options;
   if (childArgs.length === 0) {
     console.error(
@@ -110,8 +112,8 @@ export function runWithInfisicalSecrets(
     return 1;
   }
 
-  const scope = resolveSecretsScope(repoRoot);
-  ensureInfisicalCliConfig(repoRoot, scope);
+  const scope = await resolveSecretsScope(options.configStore);
+  await ensureInfisicalCliConfig(options.configStore, scope);
   const endpoint = resolveInfisicalEndpoint(scope);
 
   process.stderr.write(

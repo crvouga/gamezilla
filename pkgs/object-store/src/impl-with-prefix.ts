@@ -54,6 +54,12 @@ export class ObjectStoreWithPrefix implements ObjectStore {
     return this.inner.getUri(this.scopedKey(key));
   }
 
+  async listKeys(prefix = ''): Promise<readonly string[]> {
+    const scopedPrefix = `${this.prefix}${prefix}`;
+    const keys = await this.inner.listKeys(scopedPrefix);
+    return keys.map((k) => k.slice(this.prefix.length));
+  }
+
   withPrefix(subPrefix: string): ObjectStore {
     return new ObjectStoreWithPrefix(
       this.inner,

@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Fail if libs domain mutation/SQL paths hard-delete domain rows.

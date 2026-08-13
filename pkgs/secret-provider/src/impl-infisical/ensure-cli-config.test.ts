@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it } from 'bun:test';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
 
 describe('ensureInfisicalCliConfig', () => {
   let repoRoot: string;
   let previousSecretsEnv: string | undefined;
+  const fs = wallNodeFs();
 
   afterEach(() => {
     rmSync(repoRoot, { recursive: true, force: true });
@@ -14,7 +17,11 @@ describe('ensureInfisicalCliConfig', () => {
     else process.env['SECRETS_ENV'] = previousSecretsEnv;
   });
 
-  it('pins defaultEnvironment to .secrets.json, not SECRETS_ENV', () => {
+  function configStore() {
+    return createNodeFsObjectStore({ rootDir: repoRoot, fs, layout: 'tree' });
+  }
+
+  it('pins defaultEnvironment to .secrets.json, not SECRETS_ENV', async () => {
     repoRoot = mkdtempSync(join(tmpdir(), 'ensure-cli-config-'));
     writeFileSync(
       join(repoRoot, '.secrets.json'),
@@ -26,7 +33,7 @@ describe('ensureInfisicalCliConfig', () => {
     previousSecretsEnv = process.env['SECRETS_ENV'];
     process.env['SECRETS_ENV'] = 'prd';
 
-    ensureInfisicalCliConfig(repoRoot, {
+    await ensureInfisicalCliConfig(configStore(), {
       projectId: '26137c60-8dea-4d95-a8a3-30901615b026',
       env: 'prd',
       endpoint: null,
@@ -39,7 +46,7 @@ describe('ensureInfisicalCliConfig', () => {
     expect(written.workspaceId).toBe('26137c60-8dea-4d95-a8a3-30901615b026');
   });
 
-  it('does not rewrite when content is already correct', () => {
+  it('does not rewrite when content is already correct', async () => {
     repoRoot = mkdtempSync(join(tmpdir(), 'ensure-cli-config-'));
     writeFileSync(
       join(repoRoot, '.secrets.json'),
@@ -55,12 +62,12 @@ describe('ensureInfisicalCliConfig', () => {
       env: 'dev',
       endpoint: null,
     } as const;
-    ensureInfisicalCliConfig(repoRoot, scope);
+    await ensureInfisicalCliConfig(configStore(), scope);
     const path = join(repoRoot, '.infisical.json');
     const first = readFileSync(path, 'utf8');
 
     process.env['SECRETS_ENV'] = 'prd';
-    ensureInfisicalCliConfig(repoRoot, { ...scope, env: 'prd' });
+    await ensureInfisicalCliConfig(configStore(), { ...scope, env: 'prd' });
     expect(readFileSync(path, 'utf8')).toBe(first);
   });
 });

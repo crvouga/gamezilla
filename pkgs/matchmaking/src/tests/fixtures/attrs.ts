@@ -1,19 +1,13 @@
 /**
- * Shared fixtures for matchmaking contract tests.
+ * Shared fixtures for matchmaking sim / adapter tests.
  * No Postgres / SqlClient / adapter imports.
  */
 
 import { expect } from 'bun:test';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
-import { createSimIo, wallIo } from '@pkgs/io';
 import type { MiddlewareHandler } from 'hono';
-import type {
-  Matchmaking,
-  MatchmakingConfig,
-  MatchmakingTuning,
-} from '../interface/matchmaking';
-import type { MatchedStatus, StatusResult } from '../interface/types';
+import type { MatchedStatus } from '../../interface/types';
 
 export const testNs = createAttrNamespace('mmtest');
 
@@ -49,25 +43,6 @@ export const KindAttr = testNs.text('kind', (v): string => {
 export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const testWallIo = wallIo();
-
-export function defaultTestTuning(
-  overrides?: Partial<MatchmakingTuning>
-): MatchmakingTuning {
-  return {
-    now: () => testWallIo.clock.now(),
-    createId: testWallIo.createId,
-    ...overrides,
-  };
-}
-
-export async function pauseForJoinedAtOrdering(): Promise<void> {
-  const timers = testWallIo.timers;
-  await new Promise<void>((resolve) => {
-    timers.setTimeout(resolve, 50);
-  });
-}
-
 export function registerTestCrashHandler(): () => void {
   return Assert.registerCrashHandler({
     priority: 0,
@@ -80,47 +55,6 @@ export function registerTestCrashHandler(): () => void {
       );
     },
   });
-}
-
-export type MatchmakingFactory = (
-  overrides?: BootOverrides
-) => Promise<Matchmaking> | Matchmaking;
-
-export type BootOverrides = {
-  readonly schema?: MatchmakingConfig['schema'];
-  readonly radius?: MatchmakingConfig['radius'];
-  readonly tuning?: Partial<MatchmakingTuning>;
-};
-
-export function resolveConfig(overrides?: BootOverrides): MatchmakingConfig {
-  return {
-    schema: overrides?.schema ?? {},
-    ...(overrides?.radius !== undefined ? { radius: overrides.radius } : {}),
-    tuning: defaultTestTuning(overrides?.tuning),
-  };
-}
-
-export function resolveConfigWithSimIo(
-  overrides?: BootOverrides & {
-    readonly sim?: { readonly seed?: number; readonly startMs?: number };
-  }
-): MatchmakingConfig & { readonly io: ReturnType<typeof createSimIo> } {
-  const io = createSimIo({
-    seed: overrides?.sim?.seed ?? 1,
-    ...(overrides?.sim?.startMs !== undefined
-      ? { startMs: overrides.sim.startMs }
-      : {}),
-  });
-  return {
-    schema: overrides?.schema ?? {},
-    ...(overrides?.radius !== undefined ? { radius: overrides.radius } : {}),
-    tuning: defaultTestTuning({
-      now: () => io.clock.now(),
-      createId: io.createId,
-      ...overrides?.tuning,
-    }),
-    io,
-  };
 }
 
 export const defaultStubAuth: MiddlewareHandler = async (c, next) => {
@@ -138,5 +72,3 @@ export function expectMatched(status: unknown): MatchedStatus {
   expect(narrowed.status).toBe('matched');
   return narrowed;
 }
-
-export type { StatusResult };

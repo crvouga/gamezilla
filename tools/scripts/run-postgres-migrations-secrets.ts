@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Postgres migrations using secret-store `DATABASE_URL` (ignores stale `.dev.vars`).
  * Used by sync setup/deploy so schema + publication target the same DB.

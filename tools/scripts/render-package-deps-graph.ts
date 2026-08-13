@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Writes tmp/package-deps-graph.html — Mermaid flowchart (DAG-style layout)

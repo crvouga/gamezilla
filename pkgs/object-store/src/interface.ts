@@ -25,6 +25,10 @@
  *     directly (`file://` on native, `blob:` on web). Stores that don't expose
  *     direct URLs (e.g. remote B2 — bytes must be streamed through HTTP)
  *     return `null`. Returns `null` when the key is missing.
+ *
+ * Listing:
+ *   - {@link ObjectStore.listKeys} returns keys in sorted code-unit order
+ *     (deterministic). Optional `prefix` filters to keys that start with it.
  */
 
 export interface StoredObject {
@@ -53,6 +57,12 @@ export interface ObjectStore {
    * `null` for stores whose backend has no addressable URL (e.g. B2).
    */
   getUri(key: string): Promise<string | null>;
+
+  /**
+   * Returns keys present in the store, sorted by code-unit order.
+   * When `prefix` is set, only keys that start with it are returned.
+   */
+  listKeys(prefix?: string): Promise<readonly string[]>;
 
   /**
    * Returns a new store scoped to `prefix`. Caller keys are relative (must not

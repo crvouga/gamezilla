@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Ban React Native StyleSheet / `style=` / RN View|Text|Pressable hosts

@@ -210,7 +210,8 @@ const pane: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   minHeight: 0,
-  borderTop: `1px solid ${t.border}`,
+  minWidth: 0,
+  height: '100%',
   background: t.panel,
 };
 

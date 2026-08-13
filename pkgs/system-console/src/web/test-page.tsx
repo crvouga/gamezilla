@@ -8,6 +8,7 @@ import type {
 } from '../types';
 import type { BucketInfo } from './api-client';
 import { fetchTestTopology } from './api-client';
+import { EventsPane } from './events-pane';
 import {
   flattenFrames,
   playheadFrameIndex,
@@ -15,13 +16,19 @@ import {
 } from './frames';
 import { HtmlPane } from './html-pane';
 import { NavBreadcrumb } from './nav-breadcrumb';
+import {
+  defaultNodeId,
+  resolveNodeList,
+  resolveSelectedView,
+  viewsForNode,
+} from './node-views';
+import { PlayerStrip } from './player-strip';
 import { ReportHeader } from './report-header';
-import type { ReportNavState } from './router';
+import type { NodeViewKind, ReportNavState } from './router';
 import { navigateReport } from './router';
 import { SqlitePane } from './sqlite-pane';
+import { TabBar } from './tab-bar';
 import { styles, t } from './theme';
-import { Timeline } from './timeline';
-import { TopologyPane } from './topology-pane';
 
 export function TestPage(props: {
   readonly data: SimulationReportData;
@@ -43,39 +50,18 @@ export function TestPage(props: {
       ? (frames[selectedIdx] ?? null)
       : null;
 
-  const [topology, setTopology] = useState<SimulationReportTopology | null>(
-    null
+  const topology = useTopology(bucketId, runId, data.meta.testId);
+  const nodes = useMemo(
+    () => resolveNodeList({ topology, actorIds: data.meta.actorIds }),
+    [topology, data.meta.actorIds]
   );
+  const fallbackNode = defaultNodeId(nodes);
+  const nodeId = nav.node ?? fallbackNode;
+  const node = nodes.find((n) => n.id === nodeId) ?? null;
+  const views = viewsForNode(node);
+  const view = resolveSelectedView(nav.view, views);
 
-  useEffect(() => {
-    let cancelled = false;
-    void fetchTestTopology(bucketId, runId, data.meta.testId).then((topo) => {
-      if (!cancelled) setTopology(topo);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [bucketId, runId, data.meta.testId]);
-
-  const defaultNode =
-    topology?.nodes.find((n) =>
-      (topology.definition.kinds[n.kind]?.attributes ?? []).includes('html')
-    )?.id ??
-    topology?.nodes.find((n) => n.kind === 'api')?.id ??
-    data.meta.actorIds[0] ??
-    'api';
-
-  const nodeId = nav.node ?? defaultNode;
-
-  useEffect(() => {
-    if (nav.frame != null || frames.length === 0) return;
-    onNav(navigateReport(nav, { frame: 1 }, 'replace'));
-  }, [frames.length, nav, onNav]);
-
-  useEffect(() => {
-    if (nav.node != null || defaultNode == null) return;
-    onNav(navigateReport(nav, { node: defaultNode }, 'replace'));
-  }, [defaultNode, nav, onNav]);
+  useDefaultNav({ framesLen: frames.length, nav, onNav, fallbackNode, view });
 
   return (
     <div style={styles.appShell}>
@@ -92,62 +78,125 @@ export function TestPage(props: {
         meta={`${data.meta.status} · ${frames.length} frames · seed ${data.meta.seed}`}
       />
       <div style={body}>
-        <div style={mainRow}>
-          <div style={topoCol}>
-            <TopologyPane
-              topology={topology}
-              selectedNodeId={nodeId}
-              onSelectNode={(id) => {
-                onNav(navigateReport(nav, { node: id }));
-              }}
-            />
-          </div>
-          <div style={htmlCol}>
-            <HtmlPane
-              bucketId={bucketId}
-              runId={runId}
-              testId={data.meta.testId}
-              frame={frame}
-            />
-          </div>
-        </div>
-        <div style={sqlRow}>
-          <SqlitePane
-            bucketId={bucketId}
-            runId={runId}
-            testId={data.meta.testId}
-            frame={frame}
-            nodeId={nodeId}
-          />
-        </div>
-        <Timeline
+        <PlayerStrip
           frames={frames}
           selectedIndex={Math.max(0, selectedIdx)}
           onSelect={(index) => {
             onNav(navigateReport(nav, { frame: index + 1 }));
           }}
         />
+        <TabBar
+          label="Nodes"
+          items={nodes.map((n) => ({ id: n.id, label: n.id }))}
+          selectedId={nodeId}
+          onSelect={(id) => onNav(navigateReport(nav, { node: id }))}
+        />
+        <TabBar
+          label="Views"
+          items={views.map((v) => ({ id: v, label: v }))}
+          selectedId={view}
+          onSelect={(id) =>
+            onNav(navigateReport(nav, { view: id as NodeViewKind }))
+          }
+        />
+        <div style={paneSlot}>
+          <SelectedPane
+            view={view}
+            bucketId={bucketId}
+            runId={runId}
+            testId={data.meta.testId}
+            frame={frame}
+            nodeId={nodeId}
+            node={node}
+          />
+        </div>
       </div>
     </div>
   );
 }
 
+function SelectedPane(props: {
+  readonly view: NodeViewKind | null;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly testId: string;
+  readonly frame: ReturnType<typeof flattenFrames>[number] | null;
+  readonly nodeId: string | null;
+  readonly node: ReturnType<typeof resolveNodeList>[number] | null;
+}) {
+  const loc = {
+    bucketId: props.bucketId,
+    runId: props.runId,
+    testId: props.testId,
+    frame: props.frame,
+    nodeId: props.nodeId,
+  };
+  if (props.view === 'html') {
+    return <HtmlPane {...loc} node={props.node} />;
+  }
+  if (props.view === 'sqlite') {
+    return <SqlitePane {...loc} />;
+  }
+  if (props.view === 'events') {
+    return <EventsPane {...loc} />;
+  }
+  return <div style={styles.empty}>No views for this node.</div>;
+}
+
+function useTopology(
+  bucketId: string,
+  runId: string,
+  testId: string
+): SimulationReportTopology | null {
+  const [topology, setTopology] = useState<SimulationReportTopology | null>(
+    null
+  );
+  useEffect(() => {
+    let cancelled = false;
+    void fetchTestTopology(bucketId, runId, testId).then((topo) => {
+      if (!cancelled) setTopology(topo);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [bucketId, runId, testId]);
+  return topology;
+}
+
+function useDefaultNav(args: {
+  readonly framesLen: number;
+  readonly nav: ReportNavState;
+  readonly onNav: (nav: ReportNavState) => void;
+  readonly fallbackNode: string | null;
+  readonly view: NodeViewKind | null;
+}): void {
+  const { framesLen, nav, onNav, fallbackNode, view } = args;
+  useEffect(() => {
+    if (nav.frame != null || framesLen === 0) return;
+    onNav(navigateReport(nav, { frame: 1 }, 'replace'));
+  }, [framesLen, nav, onNav]);
+
+  useEffect(() => {
+    if (nav.node != null || fallbackNode == null) return;
+    onNav(navigateReport(nav, { node: fallbackNode }, 'replace'));
+  }, [fallbackNode, nav, onNav]);
+
+  useEffect(() => {
+    if (view == null || nav.view === view) return;
+    onNav(navigateReport(nav, { view }, 'replace'));
+  }, [view, nav, onNav]);
+}
+
 const body: CSSProperties = {
   display: 'grid',
-  gridTemplateRows: 'minmax(0, 1fr) minmax(160px, 28%) auto',
+  gridTemplateRows: 'auto auto auto minmax(0, 1fr)',
   minHeight: 0,
   minWidth: 0,
 };
 
-const mainRow: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '260px minmax(0, 1fr)',
+const paneSlot: CSSProperties = {
   minHeight: 0,
-  borderBottom: `1px solid ${t.border}`,
+  minWidth: 0,
+  overflow: 'hidden',
+  background: t.bg,
 };
-
-const topoCol: CSSProperties = { minHeight: 0, minWidth: 0 };
-
-const htmlCol: CSSProperties = { minHeight: 0, minWidth: 0 };
-
-const sqlRow: CSSProperties = { minHeight: 0, minWidth: 0 };

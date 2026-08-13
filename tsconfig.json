@@ -63,7 +63,7 @@
       ],
       "@pkgs/matchmaking/wire": ["./pkgs/matchmaking/src/wire/index.ts"],
       "@pkgs/matchmaking/client": ["./pkgs/matchmaking/src/client/index.ts"],
-      "@pkgs/matchmaking/testing": ["./pkgs/matchmaking/src/testing/index.ts"],
+      "@pkgs/matchmaking/testing": ["./pkgs/matchmaking/src/testkit.ts"],
       "@pkgs/postgres-sqlite-compat": [
         "./pkgs/postgres-sqlite-compat/src/index.ts"
       ],

@@ -5,13 +5,17 @@
  */
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 import type { SecretAdminStore } from '@pkgs/secret-store';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { REPO_ROOT } from '../paths';
 
 let adminStorePromise: Promise<SecretAdminStore> | null = null;
 
 function getAdminStore(): Promise<SecretAdminStore> {
   if (adminStorePromise === null) {
-    adminStorePromise = createSecretAdminStore({ repoRoot: REPO_ROOT });
+    adminStorePromise = createSecretAdminStore({
+      repoRoot: REPO_ROOT,
+      configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+    });
   }
   return adminStorePromise;
 }

@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
  * Keep the CocoaPods install in sync with `node_modules` before an iOS build.
  *

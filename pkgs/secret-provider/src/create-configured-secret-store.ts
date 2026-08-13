@@ -4,6 +4,7 @@ import {
   type SecretStore,
 } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   createInfisicalSecretStore,
   type InfisicalFetch,
@@ -13,6 +14,7 @@ import { resolveInfisicalEndpoint } from './impl-infisical/resolve-endpoint';
 
 export type CreateConfiguredSecretStoreOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
   readonly envOverride?: string;
   readonly token?: string;
   /** When true, compose env reads with remote writes (script/CI pattern). */
@@ -28,7 +30,10 @@ export type CreateConfiguredSecretStoreOptions = {
 export async function createConfiguredSecretStore(
   options: CreateConfiguredSecretStoreOptions
 ): Promise<SecretStore> {
-  const scope = resolveSecretsScope(options.repoRoot, options.envOverride);
+  const scope = await resolveSecretsScope(
+    options.configStore,
+    options.envOverride
+  );
   const endpoint = resolveInfisicalEndpoint(scope);
   const { fetchFn } = options;
 
@@ -38,6 +43,7 @@ export async function createConfiguredSecretStore(
       options.token?.trim() ||
       (await resolveInfisicalAccessTokenForWrites({
         repoRoot: options.repoRoot,
+        configStore: options.configStore,
         secretsEnv: scope.env,
       }));
     if (token === null || token.length === 0) {
@@ -70,16 +76,20 @@ export async function createConfiguredSecretStore(
 
 export type CreateToolingSecretStoreOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
   readonly envOverride?: string;
   readonly token?: string;
   readonly fetchFn: InfisicalFetch;
 };
 
-/** Sync tooling store — requires an explicit or env `SECRETS_TOKEN`. */
-export function createToolingSecretStore(
+/** Tooling store — requires an explicit or env `SECRETS_TOKEN`. */
+export async function createToolingSecretStore(
   options: CreateToolingSecretStoreOptions
-): SecretStore {
-  const scope = resolveSecretsScope(options.repoRoot, options.envOverride);
+): Promise<SecretStore> {
+  const scope = await resolveSecretsScope(
+    options.configStore,
+    options.envOverride
+  );
   const token = (options.token ?? process.env['SECRETS_TOKEN'] ?? '').trim();
   if (token.length === 0) {
     throw new Error(
@@ -97,6 +107,7 @@ export function createToolingSecretStore(
 
 export type CreateWritableScriptSecretStoreOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
   readonly secretsEnv?: string;
   readonly fetchFn: InfisicalFetch;
 };
@@ -110,6 +121,7 @@ export async function createWritableScriptSecretStore(
 ): Promise<SecretStore> {
   return createConfiguredSecretStore({
     repoRoot: options.repoRoot,
+    configStore: options.configStore,
     ...(options.secretsEnv !== undefined
       ? { envOverride: options.secretsEnv }
       : {}),

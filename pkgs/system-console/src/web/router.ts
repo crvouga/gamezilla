@@ -1,9 +1,12 @@
+export type NodeViewKind = 'html' | 'sqlite' | 'events';
+
 export type ReportNavState = {
   readonly bucketId: string | null;
   readonly runId: string | null;
   readonly testId: string | null;
   readonly frame: number | null;
   readonly node: string | null;
+  readonly view: NodeViewKind | null;
 };
 
 const DEFAULT_NAV: ReportNavState = {
@@ -12,14 +15,17 @@ const DEFAULT_NAV: ReportNavState = {
   testId: null,
   frame: null,
   node: null,
+  view: null,
 };
+
+const VIEW_KINDS = new Set<string>(['html', 'sqlite', 'events']);
 
 /**
  * Paths:
  * - `/`
  * - `/b/:bucketId`
  * - `/b/:bucketId/r/:runId` (`runId` may be the sticky alias `latest`)
- * - `/b/:bucketId/r/:runId/t/:testId?frame=&node=`
+ * - `/b/:bucketId/r/:runId/t/:testId?frame=&node=&view=`
  */
 export function parseReportNav(
   pathname: string,
@@ -41,6 +47,7 @@ export function parseReportNav(
     testId,
     frame: parsePositiveInt(params.get('frame')),
     node: nodeRaw && nodeRaw.length > 0 ? nodeRaw : null,
+    view: parseView(params.get('view')),
   };
 }
 
@@ -49,6 +56,11 @@ function parsePositiveInt(raw: string | null): number | null {
   const n = Number(raw);
   if (!Number.isFinite(n) || n < 1) return null;
   return Math.floor(n);
+}
+
+function parseView(raw: string | null): NodeViewKind | null {
+  if (raw == null || raw === '') return null;
+  return VIEW_KINDS.has(raw) ? (raw as NodeViewKind) : null;
 }
 
 export type NavPatch = Partial<ReportNavState>;
@@ -69,6 +81,7 @@ function buildPlayerSearch(next: ReportNavState): string {
   const params = new URLSearchParams();
   if (next.frame != null) params.set('frame', String(next.frame));
   if (next.node != null) params.set('node', next.node);
+  if (next.view != null) params.set('view', next.view);
   const qs = params.toString();
   return qs ? `?${qs}` : '';
 }
@@ -110,6 +123,7 @@ export function clearPlayerNav(patch: NavPatch = {}): NavPatch {
     testId: null,
     frame: null,
     node: null,
+    view: null,
     ...patch,
   };
 }

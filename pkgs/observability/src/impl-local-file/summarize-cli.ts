@@ -1,31 +1,11 @@
 // @io-wall-ok
-import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import type { ExportedSpanRecord } from '../shared/types';
-import { DEFAULT_FILE_SINK_OPTIONS } from './file-sink';
-
-function filesInDayDir(dayDir: string): string[] {
-  return readdirSync(dayDir)
-    .filter((file) => file.endsWith('.ndjson'))
-    .map((file) => join(dayDir, file));
-}
-
-function filesInServiceDir(serviceDir: string): string[] {
-  return readdirSync(serviceDir).flatMap((day) =>
-    filesInDayDir(join(serviceDir, day))
-  );
-}
-
-function listNdjsonFiles(rootDir: string): string[] {
-  try {
-    return readdirSync(rootDir).flatMap((service) =>
-      filesInServiceDir(join(rootDir, service))
-    );
-  } catch {
-    return [];
-  }
-}
 
 function parseLine(line: string): ExportedSpanRecord | undefined {
   if (line.trim().length === 0) return undefined;
@@ -40,22 +20,29 @@ function parseLine(line: string): ExportedSpanRecord | undefined {
   return undefined;
 }
 
-function parseLines(path: string): ExportedSpanRecord[] {
-  const text = readFileSync(path, 'utf8');
-  return text
-    .split('\n')
-    .map(parseLine)
-    .filter((r): r is ExportedSpanRecord => r !== undefined);
+async function loadAllRecords(store: ObjectStore): Promise<ExportedSpanRecord[]> {
+  const keys = await store.listKeys();
+  const ndjsonKeys = keys.filter((k) => k.endsWith('.ndjson'));
+  const out: ExportedSpanRecord[] = [];
+  for (const key of ndjsonKeys) {
+    const text = await readUtf8(store, key);
+    if (text === null) continue;
+    for (const line of text.split('\n')) {
+      const record = parseLine(line);
+      if (record !== undefined) out.push(record);
+    }
+  }
+  return out;
 }
 
-function loadAllRecords(rootDir: string): ExportedSpanRecord[] {
-  return listNdjsonFiles(rootDir).flatMap(parseLines);
+function compareCodeUnit(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 function printWaterfall(records: ExportedSpanRecord[], traceId: string): void {
   const filtered = records
     .filter((r) => r.traceId === traceId)
-    .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    .sort((a, b) => compareCodeUnit(a.timestamp, b.timestamp));
   if (filtered.length === 0) {
     process.stdout.write(`No spans for traceId ${traceId}\n`);
     return;
@@ -120,7 +107,7 @@ function applySummarizeFlag(
 function parseSummarizeArgs(argv: string[]): SummarizeArgs {
   let args: SummarizeArgs = {
     limit: 10,
-    rootDir: DEFAULT_FILE_SINK_OPTIONS.rootDir,
+    rootDir: join(process.cwd(), '.observability'),
   };
   for (let i = 2; i < argv.length; i += 1) {
     const flag = argv[i];
@@ -143,11 +130,16 @@ function filterSince(
   return records.filter((r) => Date.parse(r.timestamp) >= cutoff);
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const io = wallIo();
   const args = parseSummarizeArgs(process.argv);
+  const store = createNodeFsObjectStore({
+    rootDir: args.rootDir,
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
   const records = filterSince(
-    loadAllRecords(args.rootDir),
+    await loadAllRecords(store),
     args.sinceHours,
     io.clock.now
   );
@@ -158,4 +150,4 @@ function main(): void {
   printSlowest(records, args.limit);
 }
 
-main();
+void main();

@@ -1,8 +1,8 @@
+// @io-wall-ok — package build script entry.
+
 import { cp, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-// @io-wall-ok — package build script entry.
 
 const here = dirname(fileURLToPath(import.meta.url));
 const webDir = join(here, 'web');

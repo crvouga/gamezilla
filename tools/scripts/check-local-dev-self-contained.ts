@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Regression guard: `setup-dev-vars` with no Infisical / cloud feature secrets
  * must succeed and force loopback Postgres, MinIO, and EMQX.

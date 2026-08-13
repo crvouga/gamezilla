@@ -1,3 +1,5 @@
+// @io-wall-ok — browser SPA composition root for wall clock/timers.
+import { ClockProvider, wallClock, wallTimers } from '@pkgs/clock';
 import { useCallback, useEffect, useState } from 'react';
 
 import { ReportViews } from './report-views';
@@ -19,11 +21,13 @@ export function App() {
   }, []);
 
   return (
-    <ReportViews
-      nav={nav}
-      data={data}
-      generation={data.generation}
-      onNav={onNav}
-    />
+    <ClockProvider clock={wallClock} timers={wallTimers}>
+      <ReportViews
+        nav={nav}
+        data={data}
+        generation={data.generation}
+        onNav={onNav}
+      />
+    </ClockProvider>
   );
 }

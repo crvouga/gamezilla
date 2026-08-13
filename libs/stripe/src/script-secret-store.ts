@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import type { HttpClient } from '@pkgs/http-client';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createWritableScriptSecretStore } from '@pkgs/secret-provider';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createCachingSecretStore } from '@pkgs/secret-store';
@@ -22,6 +23,7 @@ export async function createStripeScriptSecretStore(
 ): Promise<SecretStore> {
   const store = await createWritableScriptSecretStore({
     repoRoot: REPO_ROOT,
+    configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
     fetchFn: options.fetchFn,
   });
   return createCachingSecretStore(store, {

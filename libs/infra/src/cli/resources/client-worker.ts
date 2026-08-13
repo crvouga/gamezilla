@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert';

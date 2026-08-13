@@ -1,46 +1,15 @@
 /**
- * Construction / schema-drift faults against portable SQL backends.
+ * Schema-drift fault: remigrate with a new schema makes join throw the
+ * public MatchmakingSchemaDriftError.
  */
 
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { wallIo } from '@pkgs/io';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { MatchmakingSchemaDriftError } from '../interface/errors';
-import { RatingAttr, registerTestCrashHandler } from '../testing/fixtures';
-import { MatchmakingImplSql } from './matchmaking';
-
-function openSqlite() {
-  const db = new Database(':memory:');
-  return {
-    sqlClient: new SqlClientImplBunSqlite(db),
-    close: () => {
-      db.close(false);
-    },
-  };
-}
-
-describe('MatchmakingImplSql - construction', () => {
-  let dispose: () => void;
-  beforeAll(() => {
-    dispose = registerTestCrashHandler();
-  });
-  afterAll(() => {
-    dispose();
-  });
-
-  test('requires sqlClient / schema / tuning', () => {
-    const { sqlClient, close } = openSqlite();
-    try {
-      expect(() => {
-        // @ts-expect-error missing required fields
-        new MatchmakingImplSql({ sqlClient });
-      }).toThrow();
-    } finally {
-      close();
-    }
-  });
-});
+import { MatchmakingImplSql } from '../../impl-sql';
+import { MatchmakingSchemaDriftError } from '../../interface/errors';
+import { RatingAttr, registerTestCrashHandler } from '../fixtures';
 
 describe('MatchmakingImplSql - schema drift', () => {
   let dispose: () => void;
@@ -52,7 +21,8 @@ describe('MatchmakingImplSql - schema drift', () => {
   });
 
   test('join throws MatchmakingSchemaDriftError after remigrate with new schema', async () => {
-    const { sqlClient, close } = openSqlite();
+    const db = new Database(':memory:');
+    const sqlClient = new SqlClientImplBunSqlite(db);
     try {
       const io = wallIo();
       const mm = new MatchmakingImplSql({
@@ -75,7 +45,7 @@ describe('MatchmakingImplSql - schema drift', () => {
         })
       ).rejects.toBeInstanceOf(MatchmakingSchemaDriftError);
     } finally {
-      close();
+      db.close(false);
     }
   });
 });

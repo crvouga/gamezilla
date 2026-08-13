@@ -22,15 +22,19 @@ function tupleJson(t: readonly unknown[]): string {
   return JSON.stringify(t);
 }
 
+function compareCodeUnit(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 export function buildSnapshot(declared: ReadonlyDeclaredSchema): Snapshot {
   const indexes = [...declared.indexes].sort((a, b) =>
-    tupleJson(a).localeCompare(tupleJson(b))
+    compareCodeUnit(tupleJson(a), tupleJson(b))
   );
   const uniqueIndexes = [...declared.uniqueIndexes].sort((a, b) =>
-    tupleJson(a).localeCompare(tupleJson(b))
+    compareCodeUnit(tupleJson(a), tupleJson(b))
   );
   const deprecations = [...declared.deprecations].sort((a, b) =>
-    tupleJson(a).localeCompare(tupleJson(b))
+    compareCodeUnit(tupleJson(a), tupleJson(b))
   );
   return {
     tables: sortNestedTables(declared.tables),

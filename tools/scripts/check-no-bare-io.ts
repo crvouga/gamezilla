@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Extremely strict bare-I/O gate for product runtime.
  *
@@ -8,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
-import { fileAllowsWallConstruction } from './io-scan-pragma';
+import { fileAllowsWallConstruction, fileHasIoWallOkPragma } from './io-scan-pragma';
 import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
 
 type Ban = {
@@ -25,11 +26,29 @@ const BANS: readonly Ban[] = [
   { kind: 'clearTimeout', re: /(?:^|[^\w.])clearTimeout\s*\(/ },
   { kind: 'setInterval', re: /(?:^|[^\w.])setInterval\s*\(/ },
   { kind: 'clearInterval', re: /(?:^|[^\w.])clearInterval\s*\(/ },
+  {
+    kind: 'qualified setTimeout',
+    re: /\b(?:globalThis|self|window)\.setTimeout\s*\(/,
+  },
+  {
+    kind: 'qualified setInterval',
+    re: /\b(?:globalThis|self|window)\.setInterval\s*\(/,
+  },
+  {
+    kind: 'qualified clearTimeout',
+    re: /\b(?:globalThis|self|window)\.clearTimeout\s*\(/,
+  },
+  {
+    kind: 'qualified clearInterval',
+    re: /\b(?:globalThis|self|window)\.clearInterval\s*\(/,
+  },
   { kind: 'bare fetch', re: /(?:^|[^.\w])fetch\s*\(/ },
   { kind: 'globalThis.fetch', re: /globalThis\.fetch/ },
   { kind: 'crypto.randomUUID', re: /crypto\.randomUUID\b/ },
   { kind: 'Math.random', re: /\bMath\.random\b/ },
   { kind: 'crypto.getRandomValues', re: /crypto\.getRandomValues\b/ },
+  { kind: 'imported randomUUID(', re: /(?<![\w.])randomUUID\s*\(/ },
+  { kind: 'imported randomBytes(', re: /(?<![\w.])randomBytes\s*\(/ },
 ];
 
 type Offense = {
@@ -58,8 +77,22 @@ function stripLineComment(line: string): string {
 
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
+  // Tooling / meta-checkers embed ban patterns as string literals.
+  if (rel.startsWith('tools/')) return [];
+  // Built / copied worker bundles — sources are scanned separately.
+  if (rel.includes('/public/')) return [];
+  if (rel.includes('/e2e/public/')) return [];
   const text = readFileSync(abs, 'utf8');
   if (fileAllowsWallConstruction(rel, text)) return [];
+  // Test files may use wall I/O; product reduce paths are covered by non-test scans.
+  if (
+    /\.(test|spec|sim\.test)\.[tj]sx?$/.test(rel) ||
+    /\/(__tests__|testing|testkit)\//.test(rel)
+  ) {
+    return [];
+  }
+  // Top-level test/ harnesses are simulation composition roots — allow wall via pragma only.
+  if (rel.startsWith('test/') && fileHasIoWallOkPragma(text)) return [];
   const lines = text.split('\n');
   const out: Offense[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -80,7 +113,7 @@ function scanFile(abs: string): Offense[] {
   return out;
 }
 
-const files = collectIoScanFiles();
+const files = await collectIoScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
@@ -101,3 +134,4 @@ if (offenses.length > 0) {
 }
 
 console.log(`Bare I/O check passed (${String(files.length)} files).`);
+

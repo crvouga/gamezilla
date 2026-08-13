@@ -1,3 +1,4 @@
+// @io-wall-ok
 /**
  * Foreground entry for `@apps/emqx dev`. Spawns `emqx foreground` under one
  * Node process so turbo SIGINT/SIGTERM tear down the broker (no shell &).

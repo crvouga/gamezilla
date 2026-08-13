@@ -16,6 +16,7 @@ import {
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
@@ -24,6 +25,7 @@ import { createStripeScriptSecretStore } from './script-secret-store';
 import { StripeSecretKeys } from './secret-keys';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
+const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 function stripeScriptFetch() {
   return cliIo.http.fetch.bind(cliIo.http);
@@ -57,10 +59,10 @@ export async function assertStripeSecretKey(
   return trimmed;
 }
 
-function resolveSecretsEnvName(): string {
+async function resolveSecretsEnvName(): Promise<string> {
   const fromEnv = process.env['SECRETS_ENV']?.trim() ?? '';
   if (fromEnv.length > 0) return fromEnv;
-  return resolveSecretsScope(REPO_ROOT).env;
+  return (await resolveSecretsScope(configStore)).env;
 }
 
 /**
@@ -68,7 +70,7 @@ function resolveSecretsEnvName(): string {
  * scripts only do persistence, so absent DB makes them a no-op (footgun).
  */
 export async function assertDbUrl(scriptTag: string): Promise<string> {
-  const secretsEnv = resolveSecretsEnvName();
+  const secretsEnv = await resolveSecretsEnvName();
   if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
     assertDevSecretsEnv(secretsEnv);
   }

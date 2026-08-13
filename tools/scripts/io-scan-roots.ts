@@ -1,108 +1,126 @@
+// @io-wall-ok — tools composition root (repo tree ObjectStore for CI scans)
 /**
  * Shared filesystem roots for deterministic-I/O CI gates.
+ * Walks via injected {@link ObjectStore} tree layout — no direct `node:fs`.
  */
-import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+
+import {
+  createRepoTreeObjectStore,
+  REPO_TREE_SKIP_DIRS,
+} from '../../pkgs/object-store/src/repo-tree-store';
+import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
 
-const SKIP_DIR = new Set([
-  'node_modules',
-  'dist',
-  '.git',
-  '.turbo',
-  'coverage',
-  '.expo',
-  '.wrangler',
-  'ios',
-  'android',
-  'data',
-]);
-
-function walk(dir: string, out: string[], exts: readonly string[]): void {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return;
-  }
-  for (const entry of entries) {
-    const abs = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (SKIP_DIR.has(entry.name)) continue;
-      walk(abs, out, exts);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    if (entry.name.endsWith('.d.ts')) continue;
-    if (!exts.some((ext) => entry.name.endsWith(ext))) continue;
-    out.push(abs);
-  }
-}
-
-function addIfDir(dir: string, out: string[], exts: readonly string[]): void {
-  try {
-    if (statSync(dir).isDirectory()) walk(dir, out, exts);
-  } catch {
-    // missing
-  }
-}
+export { REPO_TREE_SKIP_DIRS as SKIP_DIR };
 
 const TS_EXTS = ['.ts', '.tsx'] as const;
+const TS_JS_EXTS = ['.ts', '.tsx', '.js', '.cjs', '.mjs'] as const;
 const TS_SQL_EXTS = ['.ts', '.tsx', '.sql'] as const;
 
-/** Product + tooling TS/TSX scanned by bare-io / resolve-wall gates. */
-export function collectIoScanFiles(): string[] {
+function hasExt(key: string, exts: readonly string[]): boolean {
+  if (key.endsWith('.d.ts')) return false;
+  return exts.some((ext) => key.endsWith(ext));
+}
+
+function underPrefix(key: string, prefix: string): boolean {
+  return key === prefix || key.startsWith(`${prefix}/`);
+}
+
+async function keysUnder(
+  store: ObjectStore,
+  prefix: string,
+  exts: readonly string[]
+): Promise<string[]> {
+  const keys = await store.listKeys(prefix.length > 0 ? `${prefix}/` : undefined);
+  return keys.filter((k) => underPrefix(k, prefix) && hasExt(k, exts));
+}
+
+function toAbs(relKeys: readonly string[]): string[] {
+  return relKeys.map((k) => join(REPO_ROOT, k));
+}
+
+/** Shared repo-tree ObjectStore for CI scanners. */
+export function createCiRepoStore(): ObjectStore {
+  return createRepoTreeObjectStore({ rootDir: REPO_ROOT });
+}
+
+/** Product + tooling TS/TSX/JS scanned by bare-io / resolve-wall / bare-fs gates. */
+export async function collectIoScanFiles(
+  store: ObjectStore = createCiRepoStore()
+): Promise<string[]> {
   const files: string[] = [];
 
-  addIfDir(join(REPO_ROOT, 'apps/client/src'), files, TS_EXTS);
-  addIfDir(join(REPO_ROOT, 'apps/client/scripts'), files, TS_EXTS);
-  addIfDir(join(REPO_ROOT, 'apps/api/src'), files, TS_EXTS);
-  addIfDir(join(REPO_ROOT, 'apps/api/scripts'), files, TS_EXTS);
-  addIfDir(join(REPO_ROOT, 'apps/postgres'), files, TS_EXTS);
+  for (const app of [
+    'client',
+    'api',
+    'postgres',
+    'room',
+    'minio',
+    'emqx',
+  ] as const) {
+    files.push(
+      ...(await keysUnder(store, `apps/${app}/src`, TS_JS_EXTS)),
+      ...(await keysUnder(store, `apps/${app}/scripts`, TS_EXTS)),
+      ...(await keysUnder(store, `apps/${app}/public`, TS_JS_EXTS))
+    );
+  }
 
-  const libsRoot = join(REPO_ROOT, 'libs');
-  if (existsSync(libsRoot)) {
-    for (const name of readdirSync(libsRoot)) {
-      addIfDir(join(libsRoot, name, 'src'), files, TS_EXTS);
-      addIfDir(join(libsRoot, name, 'scripts'), files, TS_EXTS);
-      addIfDir(join(libsRoot, name, 'e2e'), files, TS_EXTS);
+  const allKeys = await store.listKeys();
+  for (const key of allKeys) {
+    if (key.startsWith('libs/') && hasExt(key, TS_EXTS)) {
+      if (
+        /\/src\//.test(key) ||
+        /\/scripts\//.test(key) ||
+        /\/e2e\//.test(key)
+      ) {
+        files.push(key);
+      }
+    }
+    if (key.startsWith('pkgs/') && hasExt(key, TS_JS_EXTS)) {
+      if (
+        /\/src\//.test(key) ||
+        /\/scripts\//.test(key) ||
+        /\/db\//.test(key) ||
+        /\/e2e\//.test(key)
+      ) {
+        files.push(key);
+      }
     }
   }
 
-  const pkgsRoot = join(REPO_ROOT, 'pkgs');
-  if (existsSync(pkgsRoot)) {
-    for (const name of readdirSync(pkgsRoot)) {
-      addIfDir(join(pkgsRoot, name, 'src'), files, TS_EXTS);
-      addIfDir(join(pkgsRoot, name, 'scripts'), files, TS_EXTS);
-      addIfDir(join(pkgsRoot, name, 'db'), files, TS_EXTS);
-    }
-  }
+  files.push(
+    ...(await keysUnder(store, 'test', TS_EXTS)),
+    ...(await keysUnder(store, 'tools', TS_EXTS))
+  );
 
-  return [...new Set(files)].sort();
+  return [...new Set(toAbs(files))].sort();
 }
 
 /** TS/TSX/SQL scanned by the SQL wall-I/O gate. */
-export function collectSqlWallScanFiles(): string[] {
+export async function collectSqlWallScanFiles(
+  store: ObjectStore = createCiRepoStore()
+): Promise<string[]> {
   const files: string[] = [];
-
-  for (const app of ['client', 'api', 'postgres'] as const) {
-    addIfDir(join(REPO_ROOT, 'apps', app), files, TS_SQL_EXTS);
+  for (const app of [
+    'client',
+    'api',
+    'postgres',
+    'room',
+    'minio',
+    'emqx',
+  ] as const) {
+    files.push(...(await keysUnder(store, `apps/${app}`, TS_SQL_EXTS)));
   }
-
-  const libsRoot = join(REPO_ROOT, 'libs');
-  if (existsSync(libsRoot)) {
-    for (const name of readdirSync(libsRoot)) {
-      addIfDir(join(libsRoot, name), files, TS_SQL_EXTS);
+  const allKeys = await store.listKeys();
+  for (const key of allKeys) {
+    if (
+      (key.startsWith('libs/') || key.startsWith('pkgs/')) &&
+      hasExt(key, TS_SQL_EXTS)
+    ) {
+      files.push(key);
     }
   }
-
-  const pkgsRoot = join(REPO_ROOT, 'pkgs');
-  if (existsSync(pkgsRoot)) {
-    for (const name of readdirSync(pkgsRoot)) {
-      addIfDir(join(pkgsRoot, name), files, TS_SQL_EXTS);
-    }
-  }
-
-  return [...new Set(files)].sort();
+  return [...new Set(toAbs(files))].sort();
 }

@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
 import { assert } from '@pkgs/assert';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { wallPathExists } from '@pkgs/system-console';
 
 import { runPackageScriptOnce } from './run-package-script-once';
 
@@ -43,6 +46,7 @@ function resolveWorkspaceRoot(): string {
 }
 
 const OUTPUT_DIR = join(resolveWorkspaceRoot(), 'apps/client/.check-native');
+const fs = wallNodeFs();
 
 function listFilesRecursive(dir: string): string[] {
   return readdirSync(dir, { recursive: true, encoding: 'utf8' });
@@ -62,14 +66,17 @@ test(
 
     await runPackageScriptOnce('@apps/client', 'check:export:native', {
       ...PRODUCTION_CLIENT_ENV,
-    });
+    }, wallPathExists);
 
     expect(existsSync(OUTPUT_DIR)).toBe(true);
     const files = listFilesRecursive(OUTPUT_DIR);
     expect(files.length).toBeGreaterThan(0);
     expect(hasNativeBundle(files, 'android')).toBe(true);
     expect(hasNativeBundle(files, 'ios')).toBe(true);
-    assertProductionBundlesAtDir(OUTPUT_DIR, 'production native export');
+    await assertProductionBundlesAtDir(
+      createNodeFsObjectStore({ rootDir: OUTPUT_DIR, fs, layout: 'tree' }),
+      'production native export'
+    );
   },
   { timeout: 600_000 }
 );

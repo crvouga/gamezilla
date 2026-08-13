@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   type ResolvedSecretsScope,
   SECRETS_DEFAULTS,
@@ -57,9 +58,14 @@ export function resolveSecretsConfigPath(repoRoot: string): string {
   return join(repoRoot, CONFIG_FILENAME);
 }
 
-export function readSecretsConfig(repoRoot: string): SecretsConfigFile {
-  const path = resolveSecretsConfigPath(repoRoot);
-  return parseConfig(readFileSync(path, 'utf8'));
+export async function readSecretsConfig(
+  store: ObjectStore
+): Promise<SecretsConfigFile> {
+  const raw = await readUtf8(store, CONFIG_FILENAME);
+  if (raw === null) {
+    throw new Error(`${CONFIG_FILENAME}: file not found`);
+  }
+  return parseConfig(raw);
 }
 
 function readTrimmedEnv(name: string): string {
@@ -104,11 +110,11 @@ function resolveProjectId(file: SecretsConfigFile): string {
   return fromEnv;
 }
 
-export function resolveSecretsScope(
-  repoRoot: string,
+export async function resolveSecretsScope(
+  store: ObjectStore,
   envOverride?: string | null
-): ResolvedSecretsScope {
-  const file = readSecretsConfig(repoRoot);
+): Promise<ResolvedSecretsScope> {
+  const file = await readSecretsConfig(store);
   const projectId = resolveProjectId(file);
   assertValidProjectId(projectId);
   return {

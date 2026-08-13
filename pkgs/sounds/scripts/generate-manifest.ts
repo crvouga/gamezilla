@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import path from 'node:path';
 import { CURATED_SOUNDS, KENNEY_ATTRIBUTION } from './curate-mapping';
 

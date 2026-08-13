@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 import { readFileSync, writeFileSync } from 'node:fs';
 
 for (const path of process.argv.slice(2)) {

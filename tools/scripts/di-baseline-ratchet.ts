@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Shared baseline ratchet helpers for transaction-scoped DI CI gates.
  *

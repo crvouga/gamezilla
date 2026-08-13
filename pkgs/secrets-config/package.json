@@ -13,6 +13,9 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
+  "dependencies": {
+    "@pkgs/object-store": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

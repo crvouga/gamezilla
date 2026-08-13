@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
 import { INFISICAL_CLI_BIN } from './defaults';
@@ -14,14 +15,15 @@ type SecretsCoords = {
 
 export type CreateInfisicalCliAdminStoreOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
 };
 
-function resolveSecretsCoords(
-  repoRoot: string,
+async function resolveSecretsCoords(
+  configStore: ObjectStore,
   envOverride?: string
-): SecretsCoords {
-  const scope = resolveSecretsScope(repoRoot, envOverride);
-  ensureInfisicalCliConfig(repoRoot, scope);
+): Promise<SecretsCoords> {
+  const scope = await resolveSecretsScope(configStore, envOverride);
+  await ensureInfisicalCliConfig(configStore, scope);
   return {
     workspaceId: scope.projectId,
     env: scope.env,
@@ -64,10 +66,13 @@ function runInfisical(args: string[]): string {
 }
 
 class InfisicalCliAdminStore implements SecretAdminStore {
-  constructor(private readonly repoRoot: string) {}
+  constructor(private readonly configStore: ObjectStore) {}
 
   async fetchSecret(name: string, envOverride?: string): Promise<string> {
-    const coords = resolveSecretsCoords(this.repoRoot, envOverride);
+    const coords = await resolveSecretsCoords(
+      this.configStore,
+      envOverride
+    );
     return runInfisical([
       'secrets',
       'get',
@@ -91,7 +96,10 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     value: string,
     envOverride?: string
   ): Promise<void> {
-    const coords = resolveSecretsCoords(this.repoRoot, envOverride);
+    const coords = await resolveSecretsCoords(
+      this.configStore,
+      envOverride
+    );
     runInfisical([
       'secrets',
       'set',
@@ -101,7 +109,10 @@ class InfisicalCliAdminStore implements SecretAdminStore {
   }
 
   async deleteSecret(name: string, envOverride?: string): Promise<void> {
-    const coords = resolveSecretsCoords(this.repoRoot, envOverride);
+    const coords = await resolveSecretsCoords(
+      this.configStore,
+      envOverride
+    );
     runInfisical([
       'secrets',
       'delete',
@@ -115,7 +126,10 @@ class InfisicalCliAdminStore implements SecretAdminStore {
   async exportSecrets(
     envOverride?: string
   ): Promise<ReadonlyMap<string, string>> {
-    const coords = resolveSecretsCoords(this.repoRoot, envOverride);
+    const coords = await resolveSecretsCoords(
+      this.configStore,
+      envOverride
+    );
     const raw = runInfisical([
       'export',
       ...infisicalBaseArgs(coords),
@@ -152,6 +166,7 @@ export async function createInfisicalCliAdminStore(
 ): Promise<SecretAdminStore> {
   const token = await resolveInfisicalAccessTokenForWrites({
     repoRoot: options.repoRoot,
+    configStore: options.configStore,
   });
   if (token !== null) {
     process.env['INFISICAL_TOKEN'] = token;
@@ -166,5 +181,5 @@ export async function createInfisicalCliAdminStore(
         'The secrets-auth action should write SECRETS_IDENTITY_ID to GITHUB_ENV.'
     );
   }
-  return new InfisicalCliAdminStore(options.repoRoot);
+  return new InfisicalCliAdminStore(options.configStore);
 }

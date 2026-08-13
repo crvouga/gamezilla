@@ -1,7 +1,8 @@
+import { wallOsFs } from '@pkgs/os';
 import { createSecretBackendCli } from '@pkgs/secret-provider';
 import type { Dep, DepStatus } from './types';
 
-const backend = createSecretBackendCli();
+const backend = createSecretBackendCli({ osFs: wallOsFs() });
 
 /**
  * Tooling dependency for the configured secrets backend CLI.

@@ -1,12 +1,3 @@
-import { createReadStream, createWriteStream } from 'node:fs';
-import {
-  access,
-  mkdir,
-  readFile,
-  rename,
-  stat,
-  writeFile,
-} from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { PassThrough, Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -15,6 +6,8 @@ import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { Logger } from '@pkgs/logger';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { parse } from 'csv-parse';
 import { ZstdDecodeTransform } from './zstd-decode-transform';
 
@@ -22,31 +15,28 @@ const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';
 
 export type ResolvedSource = {
-  /** Path to `.csv` or `.csv.zst` on disk (downloaded or user-provided). */
-  localPath: string;
+  /** Store containing the `.csv` or `.csv.zst` source. */
+  store: ObjectStore;
+  /** Object key for `.csv` or `.csv.zst` source. */
+  key: string;
+  /** Human-readable path/key for logs. */
+  displayPath: string;
   /** ETag / fingerprint used for resume + cache skip. */
   etag: string;
   isZst: boolean;
 };
-
-async function fileExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function isHttpUrl(source: string): boolean {
   return source.startsWith('http://') || source.startsWith('https://');
 }
 
 async function readCachedManifestEtag(
-  manifestPath: string
+  store: ObjectStore,
+  manifestKey: string
 ): Promise<string | undefined> {
   try {
-    const raw = await readFile(manifestPath, 'utf8');
+    const raw = await readUtf8(store, manifestKey);
+    if (raw === null) return undefined;
     const parsed = JSON.parse(raw) as { etag?: string };
     return typeof parsed.etag === 'string' ? parsed.etag : undefined;
   } catch {
@@ -69,7 +59,8 @@ function parseContentLengthHeader(raw: string | null): number | null {
 
 async function streamWebBodyToFile(args: {
   body: NodeReadableStream;
-  destPath: string;
+  store: ObjectStore;
+  key: string;
   totalBytes: number | null;
   now: Clock['now'];
   onProgress?: (p: {
@@ -77,7 +68,6 @@ async function streamWebBodyToFile(args: {
     totalBytes: number | null;
   }) => void;
 }): Promise<void> {
-  const ws = createWriteStream(args.destPath);
   let received = 0;
   let lastEmit = 0;
   const throttleMs = 550;
@@ -106,13 +96,31 @@ async function streamWebBodyToFile(args: {
     },
   });
 
-  await pipeline(Readable.fromWeb(args.body), counter, ws);
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for await (const chunk of Readable.fromWeb(args.body).pipe(counter)) {
+    const bytes =
+      chunk instanceof Uint8Array
+        ? new Uint8Array(chunk)
+        : new TextEncoder().encode(String(chunk));
+    chunks.push(bytes);
+    total += bytes.byteLength;
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  await args.store.put(args.key, bytes, 'application/zstd');
 }
 
 async function downloadAndPersistHttpArchive(args: {
   source: string;
-  dataPath: string;
-  manifestPath: string;
+  cacheStore: ObjectStore;
+  dataKey: string;
+  manifestKey: string;
+  displayPath: string;
   log: Logger;
   headEtag: string;
   http: HttpClient;
@@ -136,20 +144,20 @@ async function downloadAndPersistHttpArchive(args: {
     source: args.source,
     totalBytes,
   });
-  const tmpPath = `${args.dataPath}.partial`;
   await streamWebBodyToFile({
     body: res.body as unknown as NodeReadableStream,
-    destPath: tmpPath,
+    store: args.cacheStore,
+    key: args.dataKey,
     totalBytes,
     now: args.now,
     ...(args.onDownloadProgress !== undefined
       ? { onProgress: args.onDownloadProgress }
       : {}),
   });
-  await rename(tmpPath, args.dataPath);
   const etagFinal = etagAfterDownload(args.headEtag, res);
-  await writeFile(
-    args.manifestPath,
+  await writeUtf8(
+    args.cacheStore,
+    args.manifestKey,
     JSON.stringify(
       {
         etag: etagFinal,
@@ -159,15 +167,22 @@ async function downloadAndPersistHttpArchive(args: {
       null,
       2
     ),
-    'utf8'
+    'application/json'
   );
-  args.log.info('seed:puzzles: download complete', { path: args.dataPath });
-  return { localPath: args.dataPath, etag: etagFinal, isZst: true };
+  args.log.info('seed:puzzles: download complete', { path: args.displayPath });
+  return {
+    store: args.cacheStore,
+    key: args.dataKey,
+    displayPath: args.displayPath,
+    etag: etagFinal,
+    isZst: true,
+  };
 }
 
 async function resolveHttpArchiveSource(args: {
   source: string;
   cacheDir: string;
+  cacheStore: ObjectStore;
   log: Logger;
   http: HttpClient;
   now: Clock['now'];
@@ -176,27 +191,39 @@ async function resolveHttpArchiveSource(args: {
     totalBytes: number | null;
   }) => void;
 }): Promise<ResolvedSource> {
-  const manifestPath = join(args.cacheDir, MANIFEST_NAME);
-  const dataPath = join(args.cacheDir, ZST_NAME);
+  const manifestKey = MANIFEST_NAME;
+  const dataKey = ZST_NAME;
+  const displayPath = join(args.cacheDir, ZST_NAME);
   args.log.info('seed:puzzles: HTTP HEAD', { source: args.source });
   const head = await args.http.fetch(args.source, { method: 'HEAD' });
   const headEtag = (head.headers.get('etag') ?? '').trim();
-  const manifestEtag = await readCachedManifestEtag(manifestPath);
+  const manifestEtag = await readCachedManifestEtag(
+    args.cacheStore,
+    manifestKey
+  );
   if (
     headEtag.length > 0 &&
     manifestEtag === headEtag &&
-    (await fileExists(dataPath))
+    (await args.cacheStore.head(dataKey))
   ) {
     args.log.info('seed:puzzles: using cached puzzle archive', {
-      path: dataPath,
+      path: displayPath,
       etag: headEtag,
     });
-    return { localPath: dataPath, etag: headEtag, isZst: true };
+    return {
+      store: args.cacheStore,
+      key: dataKey,
+      displayPath,
+      etag: headEtag,
+      isZst: true,
+    };
   }
   return downloadAndPersistHttpArchive({
     source: args.source,
-    dataPath,
-    manifestPath,
+    cacheStore: args.cacheStore,
+    dataKey,
+    manifestKey,
+    displayPath,
     log: args.log,
     headEtag,
     http: args.http,
@@ -209,28 +236,38 @@ async function resolveHttpArchiveSource(args: {
 
 async function resolveLocalFileArchive(
   source: string,
+  sourceStore: ObjectStore,
   log: Logger
 ): Promise<ResolvedSource> {
   const localPath = isAbsolute(source)
     ? source
     : resolve(process.cwd(), source);
-  if (!(await fileExists(localPath))) {
+  const key = localPath.replace(/^\/+/, '');
+  const obj = await sourceStore.get(key);
+  if (obj === null) {
     assert.fail('seed:puzzles: source file not found', { localPath });
   }
-  const st = await stat(localPath);
   log.info('seed:puzzles: local source', {
     localPath,
-    sizeBytes: st.size,
+    sizeBytes: obj.size,
   });
-  const etag = `file:${localPath}:${st.mtimeMs}:${st.size}`;
-  return { localPath, etag, isZst: localPath.endsWith('.zst') };
+  const etag = `file:${localPath}:${obj.size}`;
+  return {
+    store: sourceStore,
+    key,
+    displayPath: localPath,
+    etag,
+    isZst: localPath.endsWith('.zst'),
+  };
 }
 
 export class PuzzleArchiveCache {
   constructor(
     private readonly log: Logger,
     private readonly http: HttpClient,
-    private readonly now: Clock['now']
+    private readonly now: Clock['now'],
+    private readonly cacheStore: ObjectStore,
+    private readonly sourceStore: ObjectStore
   ) {}
 
   async ensureCachedArchive(args: {
@@ -241,11 +278,11 @@ export class PuzzleArchiveCache {
       totalBytes: number | null;
     }) => void;
   }): Promise<ResolvedSource> {
-    await mkdir(args.cacheDir, { recursive: true });
     if (isHttpUrl(args.source)) {
       return resolveHttpArchiveSource({
         source: args.source,
         cacheDir: args.cacheDir,
+        cacheStore: this.cacheStore,
         log: this.log,
         http: this.http,
         now: this.now,
@@ -254,7 +291,7 @@ export class PuzzleArchiveCache {
           : {}),
       });
     }
-    return resolveLocalFileArchive(args.source, this.log);
+    return resolveLocalFileArchive(args.source, this.sourceStore, this.log);
   }
 }
 
@@ -275,7 +312,14 @@ export async function iteratePuzzleRows(
   onRow: (row: Record<string, unknown>) => Promise<boolean>,
   options?: IteratePuzzleRowsOptions
 ): Promise<void> {
-  const fileStream = createReadStream(resolved.localPath);
+  const obj = await resolved.store.get(resolved.key);
+  assert.defined(obj, 'seed:puzzles: resolved source disappeared', {
+    key: resolved.key,
+    displayPath: resolved.displayPath,
+  });
+  const fileStream = Readable.fromWeb(
+    obj.body as unknown as NodeReadableStream
+  );
   const decode = resolved.isZst ? new ZstdDecodeTransform() : new PassThrough();
   const parser = parse({
     columns: true,

@@ -106,6 +106,14 @@ export class ObjectStoreImplInMemory implements ObjectStore {
     return URL.createObjectURL(blob);
   }
 
+  async listKeys(prefix = ''): Promise<readonly string[]> {
+    this.maybeThrow();
+    const keys = [...this.store.keys()].filter(
+      (k) => prefix.length === 0 || k.startsWith(prefix)
+    );
+    return keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+
   withPrefix(prefix: string): ObjectStore {
     return new ObjectStoreWithPrefix(this, prefix);
   }

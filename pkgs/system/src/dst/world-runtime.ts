@@ -37,6 +37,11 @@ export function instanceAddress(rootName: string, instanceId?: string): string {
   return instanceId === undefined ? rootName : `${rootName}:${instanceId}`;
 }
 
+/** Root instance addresses have no `.` (owned leaves use `owner.leaf`). */
+export function isRootInstanceAddress(address: string): boolean {
+  return !address.includes('.');
+}
+
 export function stateAddress(ownerAddress: string, leafKey: string): string {
   return `${ownerAddress}.${leafKey}`;
 }

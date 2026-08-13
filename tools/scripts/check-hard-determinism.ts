@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
 /**
  * Hard-determinism gate for game / domain / sync shared paths.
  *
@@ -79,6 +80,7 @@ function collectScanRoots(): string[] {
   walkTsFiles(join(REPO_ROOT, 'pkgs/sync-engine/src/mutations'), files);
   walkTsFiles(join(REPO_ROOT, 'pkgs/sync-engine/src/client'), files);
   walkTsFiles(join(REPO_ROOT, 'pkgs/sync-engine/src/sim'), files);
+  walkTsFiles(join(REPO_ROOT, 'pkgs/db-schema/src'), files);
   for (const sub of [
     'client/core',
     'server/core',
@@ -141,3 +143,4 @@ if (offenses.length > 0) {
 }
 
 console.log('check:hard-determinism OK');
+

@@ -4,6 +4,7 @@ import {
   SecretStoreRequestError,
 } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
 function trimEnv(name: string): string {
@@ -100,6 +101,7 @@ async function exchangeOidcJwtForInfisicalAccessToken(args: {
 
 export type ResolveInfisicalAccessTokenOptions = {
   readonly repoRoot: string;
+  readonly configStore: ObjectStore;
   readonly secretsEnv?: string;
 };
 
@@ -126,8 +128,8 @@ export async function resolveInfisicalAccessTokenForWrites(
   const jwt = await fetchGithubActionsOidcJwt(audience);
   if (jwt.length === 0) return null;
 
-  const scope = resolveSecretsScope(
-    options.repoRoot,
+  const scope = await resolveSecretsScope(
+    options.configStore,
     options.secretsEnv ?? (trimEnv('SECRETS_ENV') || undefined)
   );
   return exchangeOidcJwtForInfisicalAccessToken({

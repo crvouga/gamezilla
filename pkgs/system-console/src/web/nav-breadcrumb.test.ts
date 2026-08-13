@@ -14,6 +14,7 @@ describe('breadcrumb nav patches', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
 
@@ -24,6 +25,7 @@ describe('breadcrumb nav patches', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
 
@@ -33,6 +35,7 @@ describe('breadcrumb nav patches', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
 
@@ -42,14 +45,16 @@ describe('breadcrumb nav patches', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
 
-  test('test change clears frame/node', () => {
+  test('test change clears frame/node/view', () => {
     expect(breadcrumbPatchForTest('profile-guest-avatar')).toEqual({
       testId: 'profile-guest-avatar',
       frame: null,
       node: null,
+      view: null,
     });
   });
 
@@ -58,6 +63,7 @@ describe('breadcrumb nav patches', () => {
       testId: null,
       frame: null,
       node: null,
+      view: null,
     });
   });
 });

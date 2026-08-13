@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { spawnSync } from 'node:child_process';
 import {
   chmodSync,

@@ -8,10 +8,14 @@ import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ComposedDatabaseSeeder } from '@pkgs/db-migrate';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { LOCAL_DATABASE_URL } from './ports';
 
 const io = wallIo();
+const fs = wallNodeFs();
+const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;
 
 export async function runLocalSeed(): Promise<void> {
   process.stdout.write(`[postgres] seed start ${LOCAL_DATABASE_URL}\n`);
@@ -24,6 +28,11 @@ export async function runLocalSeed(): Promise<void> {
   try {
     const databaseSeeder = new ComposedDatabaseSeeder().register(
       new ChessPuzzleLoadFileSeeder({
+        loadFileStore: createNodeFsObjectStore({
+          rootDir: chessRoot,
+          fs,
+          layout: 'tree',
+        }),
         createId: io.createId,
         now: io.clock.now,
       })

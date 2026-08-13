@@ -2,6 +2,7 @@ import {
   captureVersionDiagnostic,
   NpmGlobalInstaller,
   verifyRun,
+  wallOsFs,
   which,
 } from '@pkgs/os';
 import { summarize } from './summarize';
@@ -16,6 +17,7 @@ export class WranglerDep implements Dep {
     pkg: 'wrangler',
     bin: 'wrangler',
     tag: 'latest',
+      pathExists: wallOsFs().pathExists,
   });
 
   version(): string | null {

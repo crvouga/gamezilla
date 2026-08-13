@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 /**
  * Ban silent wall I/O fallbacks and deleted resolve* escape hatches.
  *
@@ -94,6 +95,10 @@ function stripLineComment(line: string): string {
 
 function scanFile(abs: string): Offense[] {
   const rel = relative(REPO_ROOT, abs);
+  // Meta-checkers embed ban pattern strings as source.
+  if (rel.startsWith('tools/')) return [];
+  // Built / copied bundles — sources scanned separately.
+  if (rel.includes('/public/')) return [];
   const text = readFileSync(abs, 'utf8');
   const wallOk = fileAllowsWallConstruction(rel, text);
   const testFile = isTestFile(rel);
@@ -111,7 +116,7 @@ function scanFile(abs: string): Offense[] {
   return out;
 }
 
-const files = collectIoScanFiles();
+const files = await collectIoScanFiles();
 const offenses: Offense[] = [];
 for (const f of files) {
   offenses.push(...scanFile(f));
@@ -135,3 +140,4 @@ if (offenses.length > 0) {
 console.log(
   `No-resolve-wall-defaults check passed (${String(files.length)} files).`
 );
+

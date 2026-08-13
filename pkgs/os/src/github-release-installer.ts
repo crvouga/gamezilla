@@ -1,8 +1,8 @@
-import { chmodSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { capture, run } from './command';
 import { currentOs } from './current-os';
 import type { Installer } from './installer';
+import { missingOsFs, type OsFs } from './os-fs';
 import type { Os } from './os';
 
 const UA = 'pkgs-os-github-release-installer';
@@ -26,6 +26,8 @@ export interface GithubReleaseTarballInstallerOptions {
   readonly installDir?: string;
   /** Test seam: inject a specific `Os`. */
   readonly os?: Os;
+  /** Injected filesystem operations for install-dir creation and chmod. */
+  readonly osFs?: OsFs;
 }
 
 /**
@@ -51,19 +53,20 @@ export class GithubReleaseTarballInstaller implements Installer {
   private fetchAndExtract(): void {
     const os = this.opts.os ?? currentOs();
     const installDir = this.opts.installDir ?? os.defaultBinDir();
+    const osFs = this.opts.osFs ?? missingOsFs;
     const version = resolveLatestSync(this.opts.repo);
     if (version === null) {
       throw new Error(`failed to resolve latest release for ${this.opts.repo}`);
     }
     const archive = this.opts.archive(version, os);
     const url = `https://github.com/${this.opts.repo}/releases/download/v${version}/${archive.name}`;
-    mkdirSync(installDir, { recursive: true });
+    osFs.mkdirpSync(installDir);
     extractTo(installDir, url, archive, this.opts.binName);
     const binPath = join(
       installDir,
       os.platform === 'win32' ? `${this.opts.binName}.exe` : this.opts.binName
     );
-    if (os.platform !== 'win32') chmodSync(binPath, 0o755);
+    if (os.platform !== 'win32') osFs.chmodSync(binPath, 0o755);
   }
 }
 

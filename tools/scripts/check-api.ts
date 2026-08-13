@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,

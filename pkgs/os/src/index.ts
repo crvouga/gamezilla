@@ -32,6 +32,7 @@ export { LinuxOs } from './linux-os';
 export { MacOs } from './mac-os';
 export type { NpmGlobalInstallerOptions } from './npm-global-installer';
 export { NpmGlobalInstaller } from './npm-global-installer';
+export type { OsFs, PathExists } from './os-fs';
 export type { Os } from './os';
 export type { PackageManager } from './package-manager';
 export type {
@@ -46,3 +47,4 @@ export { Scoop } from './scoop';
 export { runAsRoot } from './sudo';
 export { WindowsOs } from './windows-os';
 export { Winget } from './winget';
+export { wallOsFs } from './wall-os-fs';

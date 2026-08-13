@@ -20,6 +20,7 @@ import {
   keyed,
   resource,
   serveFetch,
+  worldTopology,
 } from './index';
 
 function bunSqliteProvider() {
@@ -233,6 +234,39 @@ describe('@pkgs/system smoke', () => {
     // next call rebuilds empty storage.
     expect(await (await a('http://room/get')).text()).toBe('');
     expect(await (await b('http://room/get')).text()).toBe('two');
+    world.dispose();
+  });
+
+  test('worldTopology projects live roots, deps, partitions, spawn', async () => {
+    const world = openWorld(17);
+    expect(world.system).toBe(system);
+    await world.spawn<AppUi>('client', 'alice');
+    await world.spawn<Fetch>('room', 'space:1');
+    world.faults.partition('client:alice', 'api');
+    world.faults.crash('api');
+
+    const topo = worldTopology(world);
+    const addresses = topo.nodes.map((n) => n.address).sort();
+    expect(addresses).toContain('api');
+    expect(addresses).toContain('client:alice');
+    expect(addresses).toContain('events');
+    expect(addresses).toContain('db');
+    expect(addresses).toContain('room:space:1');
+    expect(topo.nodes.find((n) => n.address === 'api')?.down).toBe(true);
+    expect(topo.nodes.find((n) => n.address === 'client:alice')?.down).toBe(
+      false
+    );
+
+    const clientApi = topo.edges.find(
+      (e) => e.from === 'client:alice' && e.to === 'api' && e.kind === 'api'
+    );
+    expect(clientApi?.partitioned).toBe(true);
+
+    expect(topo.spawn['client']?.edges.some((e) => e.to === 'api')).toBe(true);
+    expect(topo.spawn['api']?.edges.some((e) => e.to === 'db')).toBe(true);
+    // Keyed room is not a named-root dep edge from api/client templates.
+    expect(topo.spawn['api']?.edges.every((e) => e.to !== 'room')).toBe(true);
+
     world.dispose();
   });
 

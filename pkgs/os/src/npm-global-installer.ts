@@ -1,10 +1,11 @@
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { capture, run, whichPath } from './command';
 import type { Installer } from './installer';
+import type { PathExists } from './os-fs';
 
 export interface NpmGlobalInstallerOptions {
   readonly pkg: string;
+  readonly pathExists?: PathExists;
   /** npm dist-tag or version (default `latest`). */
   readonly tag?: string;
   /**
@@ -62,7 +63,11 @@ export class NpmGlobalInstaller implements Installer {
     const prefix = this.globalPrefix();
     if (prefix === null) return null;
     const bin = join(prefix, 'bin', this.opts.pkg);
-    return existsSync(bin) ? bin : null;
+    return this.pathExists(bin) ? bin : null;
+  }
+
+  private pathExists(path: string): boolean {
+    return this.opts.pathExists?.(path) ?? false;
   }
 
   private installViaPreferredManager(): void {

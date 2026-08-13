@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Scaffold a new `@libs/<game>` package with RoomModule.hash, sim tests, and

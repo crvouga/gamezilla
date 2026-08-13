@@ -81,4 +81,12 @@ export function runObjectStoreContractTests(
   test('delete on missing key is a no-op', async () => {
     await expect(store.delete('missing')).resolves.toBeUndefined();
   });
+
+  test('listKeys returns sorted keys and respects prefix', async () => {
+    await store.put('b', new Uint8Array([1]), 'text/plain');
+    await store.put('a/x', new Uint8Array([2]), 'text/plain');
+    await store.put('a/y', new Uint8Array([3]), 'text/plain');
+    expect([...(await store.listKeys())]).toEqual(['a/x', 'a/y', 'b']);
+    expect([...(await store.listKeys('a/'))]).toEqual(['a/x', 'a/y']);
+  });
 }

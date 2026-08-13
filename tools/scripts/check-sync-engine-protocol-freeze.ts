@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Protocol v2 freeze: `pkgs/sync-engine/src/protocol/v2.ts` must match the

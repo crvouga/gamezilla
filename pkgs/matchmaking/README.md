@@ -43,9 +43,6 @@ const { participantId } = await mm.join({
 });
 ```
 
-Hermetic tests use Bun SQLite or PGlite — same code path; compat install
-auto-detects Postgres and no-ops on SQLite.
-
 ---
 
 ## Public surface
@@ -56,19 +53,58 @@ auto-detects Postgres and no-ops on SQLite.
 | `@pkgs/matchmaking/impl-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking/testing` | Contract runners + fixtures |
+| `@pkgs/matchmaking/testing` | Sim world + fixtures (`openMatchmakingSimWorld`) |
 
 Anything outside these subpaths is internal.
 
-## Contract tests
+## Testing
 
-Behavioral suites live in `@pkgs/matchmaking/testing` and take a factory
-that returns a `Matchmaking`. Default `bun test` runs them as a matrix
-against Bun SQLite and PGlite (+ compat):
+All tests live under `src/tests/`. Deterministic scenarios use a seeded
+sim world that boots **N Matchmaking replicas sharing one DB** — the
+horizontal-scale composition root.
+
+```text
+pkgs/matchmaking/src/
+  sim/                          # private DST harness
+  testkit.ts                    # @pkgs/matchmaking/testing facade
+  tests/
+    fixtures/
+    hygiene/
+    adapter/
+    scenarios/
+```
+
+```ts
+import { openMatchmakingSimWorld, RatingAttr } from '@pkgs/matchmaking/testing';
+
+await using world = await openMatchmakingSimWorld({
+  seed: 3,
+  replicas: 3,
+  // backend: 'postgres', // required for concurrent tickAll claim races
+});
+
+const a = await world.join(
+  { data: RatingAttr(1000), formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }] },
+  'r0'
+);
+await world.tickAll({ maxPassesPerPartition: 4 });
+```
+
+| Concept | API |
+|---------|-----|
+| Time | `runFor`, `until`, `never` (each step advances clock then `tickAll`) |
+| Replicas | `addReplica`, `replica(id)`, `tick` / `tickAll` |
+| Port | `join` / `status` / `leave` / `updateFormulas` / `mm.app()` |
+
+Scenarios assert only port observables — never SQL tables or claim
+columns. CI: `bun run ci:matchmaking-blackbox-tests` and
+`bun run ci:sim-determinism` (every `*.sim.test.ts` ×2).
 
 ```bash
 bun run --filter @pkgs/matchmaking test
+bun run --filter @pkgs/matchmaking test:sim
 ```
 
 Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent
-ticks are safe: each pass claims waiting rows inside a transaction.
+ticks across replicas are safe: each pass claims waiting rows inside a
+transaction.

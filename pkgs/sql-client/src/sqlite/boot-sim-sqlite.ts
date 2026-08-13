@@ -1,22 +1,19 @@
 /**
  * Seeded better-sqlite3 boot for in-process simulations.
  *
- * Migrated schema is cached as an on-disk seed file. Each open clones that seed
- * into `:memory:` (or restores the shared process handle) instead of re-running
- * migrations. Product code injects `migrate` + fingerprint inputs — this module
- * stays app-agnostic.
+ * Migrated schema is cached via an injected {@link ObjectStore}. Each open
+ * clones that seed into `:memory:` (or restores the shared process handle)
+ * instead of re-running migrations. Product code injects `migrate` +
+ * fingerprint inputs — this module stays app-agnostic.
  */
 
 import { createHash } from 'node:crypto';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  unlinkSync,
-  writeFileSync,
-} from 'node:fs';
-import { join } from 'node:path';
+  readObjectBytes,
+  readUtf8,
+  writeUtf8,
+} from '@pkgs/object-store/helpers';
 import type { Sql } from '@pkgs/sql';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import type { PreparedStatement, SqlClient } from '@pkgs/sql-client/interface';
@@ -44,10 +41,10 @@ export type SimSqliteMigrateHandle = {
 };
 
 export type BootMigratedSimSqliteArgs = {
-  /** Directory for seed file + fingerprint (created if missing). */
-  readonly cacheDir: string;
-  /** Seed filename inside `cacheDir` (default `sim-backend-seed.sqlite`). */
-  readonly seedFileName?: string;
+  /** Object store for seed + fingerprint keys (tree or sidecar layout). */
+  readonly store: ObjectStore;
+  /** Seed object key (default `sim-backend-seed.sqlite`). */
+  readonly seedKey?: string;
   /** Extra fingerprint bytes (e.g. migrate composer source). */
   readonly fingerprintSource: Buffer | string;
   readonly seedVersion?: number;
@@ -97,11 +94,8 @@ function openMemoryFromBuffer(seedBuffer: Buffer): SimSqliteLiveRefs {
   return { sqlClient, sqlite };
 }
 
-function seedPaths(cacheDir: string, seedFileName: string) {
-  return {
-    seedPath: join(cacheDir, seedFileName),
-    fingerprintPath: join(cacheDir, `${seedFileName}.fingerprint`),
-  };
+function fingerprintKeyFor(seedKey: string): string {
+  return `${seedKey}.fingerprint`;
 }
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
@@ -120,93 +114,47 @@ export function computeSimSqliteSeedFingerprint(args: {
     .digest('hex');
 }
 
-function readCachedFingerprint(fingerprintPath: string, seedPath: string) {
-  if (!existsSync(fingerprintPath)) return null;
-  if (!existsSync(seedPath)) return null;
-  return readFileSync(fingerprintPath, 'utf8').trim();
-}
-
-function writeSeedArtifacts(args: {
-  readonly cacheDir: string;
-  readonly seedPath: string;
-  readonly fingerprintPath: string;
-  readonly seedBuffer: Buffer;
-  readonly fingerprint: string;
-}): void {
-  mkdirSync(args.cacheDir, { recursive: true });
-  const tmpPath = `${args.seedPath}.${String(process.pid)}.tmp`;
-  try {
-    writeFileSync(tmpPath, args.seedBuffer);
-    renameSync(tmpPath, args.seedPath);
-    writeFileSync(args.fingerprintPath, `${args.fingerprint}\n`, 'utf8');
-  } catch (err) {
-    try {
-      unlinkSync(tmpPath);
-    } catch {
-      // ignore cleanup
-    }
-    throw err;
-  }
-}
-
 /**
- * Ensure on-disk seed matches fingerprint. Rebuilds via `migrate` when missing
+ * Ensure stored seed matches fingerprint. Rebuilds via `migrate` when missing
  * or stale. Returns the seed bytes and whether migrate ran.
  */
 export async function ensureSimSqliteSeedBuffer(
   args: BootMigratedSimSqliteArgs
 ): Promise<{ readonly seedBuffer: Buffer; readonly didMigrate: boolean }> {
-  const seedFileName = args.seedFileName ?? 'sim-backend-seed.sqlite';
-  const { seedPath, fingerprintPath } = seedPaths(args.cacheDir, seedFileName);
+  const seedKey = args.seedKey ?? 'sim-backend-seed.sqlite';
+  const fingerprintKey = fingerprintKeyFor(seedKey);
   const fingerprint = computeSimSqliteSeedFingerprint({
     fingerprintSource: args.fingerprintSource,
     ...(args.seedVersion !== undefined
       ? { seedVersion: args.seedVersion }
       : {}),
   });
-  const cached = readCachedFingerprint(fingerprintPath, seedPath);
+  const cached = (await readUtf8(args.store, fingerprintKey))?.trim() ?? null;
   if (cached === fingerprint) {
-    return {
-      seedBuffer: readFileSync(seedPath),
-      didMigrate: false,
-    };
-  }
-
-  mkdirSync(args.cacheDir, { recursive: true });
-  const buildPath = join(
-    args.cacheDir,
-    `${seedFileName}.build.${String(process.pid)}.sqlite`
-  );
-  try {
-    if (existsSync(buildPath)) unlinkSync(buildPath);
-    const fileDb = new BetterSqlite3(buildPath);
-    // Migrate uses the raw engine client — schema reconcile needs PRAGMA /
-    // vendor bootstrap SQL that SqlClientImplAgnostic correctly bans at runtime.
-    const base = new SqlClientImplBetterSqlite(fileDb);
-    await base.connect();
-    const sqlClient = createSerialSqlClient(base);
-    await args.migrate({ sqlClient, sqlite: fileDb });
-    const seedBuffer = fileDb.serialize();
-    fileDb.close();
-    writeSeedArtifacts({
-      cacheDir: args.cacheDir,
-      seedPath,
-      fingerprintPath,
-      seedBuffer,
-      fingerprint,
-    });
-    return { seedBuffer, didMigrate: true };
-  } finally {
-    try {
-      if (existsSync(buildPath)) unlinkSync(buildPath);
-    } catch {
-      // ignore
+    const bytes = await readObjectBytes(args.store, seedKey);
+    if (bytes !== null) {
+      return { seedBuffer: Buffer.from(bytes), didMigrate: false };
     }
   }
+
+  const memDb = new BetterSqlite3(':memory:');
+  const base = new SqlClientImplBetterSqlite(memDb);
+  await base.connect();
+  const sqlClient = createSerialSqlClient(base);
+  await args.migrate({ sqlClient, sqlite: memDb });
+  const seedBuffer = memDb.serialize();
+  memDb.close();
+  await args.store.put(
+    seedKey,
+    new Uint8Array(seedBuffer),
+    'application/octet-stream'
+  );
+  await writeUtf8(args.store, fingerprintKey, `${fingerprint}\n`);
+  return { seedBuffer, didMigrate: true };
 }
 
-function cacheKey(cacheDir: string, seedFileName: string, fingerprint: string) {
-  return `${cacheDir}\0${seedFileName}\0${fingerprint}`;
+function cacheKey(seedKey: string, fingerprint: string) {
+  return `${seedKey}\0${fingerprint}`;
 }
 
 function installProcessCache(
@@ -240,7 +188,7 @@ function restoreProcessCacheFromSeed(key: string): void {
 }
 
 /**
- * Boots shared in-memory SQLite from the seed file (rebuilds seed when stale).
+ * Boots shared in-memory SQLite from the seed object (rebuilds seed when stale).
  * `stop()` restores the post-migrate snapshot for the next Simulation.open.
  */
 export async function bootMigratedSimSqlite(
@@ -249,14 +197,14 @@ export async function bootMigratedSimSqlite(
   readonly handle: SimSqliteHandle;
   readonly didMigrate: boolean;
 }> {
-  const seedFileName = args.seedFileName ?? 'sim-backend-seed.sqlite';
+  const seedKey = args.seedKey ?? 'sim-backend-seed.sqlite';
   const fingerprint = computeSimSqliteSeedFingerprint({
     fingerprintSource: args.fingerprintSource,
     ...(args.seedVersion !== undefined
       ? { seedVersion: args.seedVersion }
       : {}),
   });
-  const key = cacheKey(args.cacheDir, seedFileName, fingerprint);
+  const key = cacheKey(seedKey, fingerprint);
 
   const existing = processCaches.get(key);
   if (existing !== undefined) {

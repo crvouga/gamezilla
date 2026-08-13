@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Remove empty directories under the repo root (bottom-up). Skips heavy /

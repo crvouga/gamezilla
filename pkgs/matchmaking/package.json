@@ -7,11 +7,12 @@
     "./impl-sql": "./src/impl-sql/index.ts",
     "./wire": "./src/wire/index.ts",
     "./client": "./src/client/index.ts",
-    "./testing": "./src/testing/index.ts"
+    "./testing": "./src/testkit.ts"
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --parallel=1 --timeout 120000"
+    "test": "bun test --parallel=1 --timeout 120000",
+    "test:sim": "bun test --parallel=1 --timeout 120000 src/tests/scenarios"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

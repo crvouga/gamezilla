@@ -1,3 +1,4 @@
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { appendFileSync, readFileSync } from 'node:fs';
 import { buildLlmFixPromptMarkdown } from './build-llm-fix-prompt';
 import { buildVendorDashboardMarkdown } from './dashboard-links';

@@ -1,3 +1,4 @@
+// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
 /**
  * Install a pinned gitleaks release with retries for transient GitHub CDN

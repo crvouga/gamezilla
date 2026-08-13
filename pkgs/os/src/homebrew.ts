@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { capture, run, runOk, which } from './command';
+import type { PathExists } from './os-fs';
 import type { PackageManager } from './package-manager';
 
 /**
@@ -22,6 +22,8 @@ const KEG_BIN_PREFIXES: readonly string[] = [
 
 export class Homebrew implements PackageManager {
   readonly id = 'homebrew';
+
+  constructor(private readonly pathExists: PathExists = () => false) {}
 
   isAvailable(): boolean {
     return which('brew');
@@ -72,12 +74,12 @@ export class Homebrew implements PackageManager {
       const prefix = prefixOut.stdout.trim();
       if (prefix.length > 0) {
         const dir = join(prefix, 'bin');
-        if (existsSync(dir)) return dir;
+        if (this.pathExists(dir)) return dir;
       }
     }
     for (const prefix of KEG_BIN_PREFIXES) {
       const dir = join(prefix, pkg, 'bin');
-      if (existsSync(dir)) return dir;
+      if (this.pathExists(dir)) return dir;
     }
     return null;
   }

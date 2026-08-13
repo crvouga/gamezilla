@@ -25,12 +25,19 @@ const ENTRY_BASENAMES = new Set([
   'wall-io.ts',
   'sim-io.ts',
   'wall.ts',
+  'wall-node-fs.ts',
+  'wall-os-fs.ts',
+  'wall-expo-fs.ts',
+  'wall-path-exists.ts',
+  'build-web.ts',
+  'repo-tree-store.ts',
   'global.ts',
   'cli-io.ts',
   'app-io-provider.tsx',
   'polyfill-entry.ts',
   'create-app.ts',
   'api.ts',
+  'room.ts',
   'migrate.ts',
   'migrate-cli.ts',
   'seed.ts',
@@ -38,6 +45,7 @@ const ENTRY_BASENAMES = new Set([
   'summarize-cli.ts',
   'default-crash-handler.ts',
   'export-chess-puzzles-load.ts',
+  'serve-harness.ts',
   'example-root.tsx',
   'impl-pg-mem.ts',
   'app.tsx',
@@ -49,16 +57,30 @@ const ENTRY_BASENAMES = new Set([
  */
 export function isIoCompositionEntryPath(rel: string): boolean {
   if (rel.includes('/scripts/')) return true;
+  // Infra CLI is a process composition root (secrets seed, deploy, GHA).
+  if (rel.startsWith('libs/infra/src/cli/')) return true;
+  // Expo crypto wall polyfill (RNG/UUID for RN).
+  if (rel === 'pkgs/polyfill/src/crypto.ts') return true;
   const base = rel.split('/').pop() ?? '';
   if (ENTRY_BASENAMES.has(base)) return true;
   // SharedWorker process roots (separate JS realm; still require `@io-wall-ok`).
-  if (base.endsWith('-shared-worker.ts')) {
+  if (base.endsWith('-shared-worker.ts') || base.endsWith('-shared-worker.js')) {
+    return true;
+  }
+  if (base.endsWith('-boot.js') || base.endsWith('-boot.ts')) {
     return true;
   }
   if (base.endsWith('.example.ts') || base.endsWith('.example.tsx')) {
     return true;
   }
   if (rel === 'pkgs/clock/src/index.ts') {
+    return true;
+  }
+  // SQL client e2e harness entries.
+  if (
+    rel.endsWith('/e2e/harness/tab-app.ts') ||
+    rel.endsWith('/e2e/harness/harness-client.ts')
+  ) {
     return true;
   }
   return false;
