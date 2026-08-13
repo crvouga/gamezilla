@@ -1,7 +1,6 @@
 // @io-wall-ok — system-console viewer process entry (Bun.serve + env).
 
-import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { wallTimers } from '@pkgs/clock';
 
@@ -16,12 +15,12 @@ import {
   createSimulationReportServer,
   type ReportBucket,
 } from '../src/server/index';
+import indexHtml from '../src/web/index.html';
 
 import { SYSTEM_CONSOLE_PORT } from './ports';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPkgRoot = resolve(here, '..');
-const distDir = join(reportPkgRoot, 'dist');
 
 type EnvBucket = {
   readonly id: string;
@@ -104,27 +103,26 @@ function buildBuckets(
   };
 }
 
-if (!existsSync(join(distDir, 'index.html'))) {
-  console.error(
-    `Missing ${join(distDir, 'index.html')}. Run: bun run --filter @pkgs/system-console build`
-  );
-  process.exit(1);
-}
-
 const port = Number(process.env['PORT'] ?? SYSTEM_CONSOLE_PORT);
 const cwd = process.cwd();
 const { buckets, localRootDir } = buildBuckets(process.env, cwd);
-const { fetch } = createSimulationReportServer({
+const report = createSimulationReportServer({
   buckets,
-  distDir,
   timers: wallTimers,
   now: () => Date.now(),
 });
 
 const server = Bun.serve({
   port,
-  fetch,
   idleTimeout: 0,
+  development: {
+    hmr: true,
+    console: true,
+  },
+  routes: {
+    '/api/*': (req) => report.fetch(req),
+    '/*': indexHtml,
+  },
 });
 
 const reportDirEnv =
@@ -139,5 +137,5 @@ process.stdout.write(
     `    REPORT_DIR/SIM_REPORT_DIR=${reportDirEnv ?? `(unset → <repo>/${LOCAL_REPORT_DATA_DIRNAME})`}\n` +
     `    layout: runs/index.json, runs/<runId>/tests/<testId>/…\n` +
     `  buckets=${buckets.map((b) => `${b.id} (${b.label})`).join(', ')}\n` +
-    `  spa dist=${distDir}\n`
+    `  spa=Bun HTML HMR (${reportPkgRoot}/src/web)\n`
 );

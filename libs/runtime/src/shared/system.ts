@@ -2,7 +2,7 @@ import type { Kv } from '@pkgs/kv/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { defineSystem, type Fetch, keyed, resource } from '@pkgs/system';
+import { defineResource, defineSystem, type Fetch, keyed } from '@pkgs/system';
 import type { Driver } from '@pkgs/ui-testing';
 
 import type {
@@ -13,35 +13,34 @@ import type {
   TtsProvider,
 } from './ports';
 
-export const db = resource<SqlClient>();
-export const events = resource<PubSub>();
+export const db = defineResource<SqlClient>();
+export const events = defineResource<PubSub>();
 
 export const room = keyed(
-  resource<Fetch>()({
-    storage: resource<Kv>(),
+  defineResource<Fetch>()({
+    storage: defineResource<Kv>(),
   })
 );
 
-export const api = resource<Fetch>()({
+export const api = defineResource<Fetch>()({
   db,
   events,
   room,
-  kv: resource<Kv>(),
-  media: resource<ObjectStore>(),
-  payments: resource<PaymentGateway>(),
-  tts: resource<TtsProvider>(),
-  llm: resource<LlmProvider>(),
-  google: resource<GoogleAuth>(),
+  kv: defineResource<Kv>(),
+  media: defineResource<ObjectStore>(),
+  payments: defineResource<PaymentGateway>(),
+  tts: defineResource<TtsProvider>(),
+  llm: defineResource<LlmProvider>(),
+  google: defineResource<GoogleAuth>(),
 });
 
-/** Client spawn facade is the UI-testing {@link Driver}. */
-export const client = resource<Driver>()({
-  db: resource<SqlClient>(),
-  kv: resource<Kv>(),
+export const client = defineResource<Driver>()({
+  db: defineResource<SqlClient>(),
+  kv: defineResource<Kv>(),
+  observability: defineResource<Observability>(),
   events,
   api,
   room,
-  sentry: resource<Observability>(),
 });
 
 export const system = defineSystem({

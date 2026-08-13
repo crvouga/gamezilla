@@ -88,7 +88,7 @@ function createNode(): InternalResource {
  * `resource<T>()` — leaf resource.
  * `resource<T>()({ ...deps })` — depful resource (extra call required for TS).
  */
-export function resource<T = never>(): LeafFn<T> {
+export function defineResource<T = never>(): LeafFn<T> {
   const state = createNode();
 
   function withDeps<D extends DepMap>(

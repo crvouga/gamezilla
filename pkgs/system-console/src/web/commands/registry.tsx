@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -61,10 +62,49 @@ export function useCommands(): CommandsApi {
   return ctx;
 }
 
+/** Stable key for when the registered command *set* changes (not handler identity). */
+function commandsIdentityKey(commands: readonly Command[]): string {
+  return commands
+    .map((c) => `${c.id}\0${c.label}\0${c.section}\0${c.shortcut ?? ''}`)
+    .join('\n');
+}
+
+/**
+ * Register page commands. Rebinds when the command set identity changes;
+ * latest `run` / `when` / `match` are always read from a ref so unstable
+ * callback props (inline `onOpen`, etc.) do not trigger setState loops.
+ */
 export function useRegisterCommands(commands: readonly Command[]): void {
   const { setCommands } = useCommands();
+  const latest = useRef(commands);
+  latest.current = commands;
+  const key = commandsIdentityKey(commands);
+
   useEffect(() => {
-    setCommands(commands);
+    const wrap = (list: readonly Command[]): Command[] =>
+      list.map((c) => ({
+        id: c.id,
+        label: c.label,
+        section: c.section,
+        run: () => {
+          latest.current.find((x) => x.id === c.id)?.run();
+        },
+        ...(c.shortcut !== undefined ? { shortcut: c.shortcut } : {}),
+        ...(c.when
+          ? {
+              when: () =>
+                latest.current.find((x) => x.id === c.id)?.when?.() ?? true,
+            }
+          : {}),
+        ...(c.match
+          ? {
+              match: (e: KeyboardEvent) =>
+                latest.current.find((x) => x.id === c.id)?.match?.(e) ?? false,
+            }
+          : {}),
+      }));
+
+    setCommands(wrap(latest.current));
     return () => setCommands([]);
-  }, [commands, setCommands]);
+  }, [key, setCommands]);
 }

@@ -15,10 +15,10 @@ import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite'
 import {
   createWorld,
   decoratePort,
+  defineResource,
   defineSystem,
   type Fetch,
   keyed,
-  resource,
   serveFetch,
 } from './index';
 
@@ -73,21 +73,21 @@ function busProvider() {
 }
 
 describe('@pkgs/system smoke', () => {
-  const db = resource<SqlClient>();
-  const events = resource<PubSub>();
+  const db = defineResource<SqlClient>();
+  const events = defineResource<PubSub>();
   const room = keyed(
-    resource<Fetch>()({
-      storage: resource<Kv>(),
+    defineResource<Fetch>()({
+      storage: defineResource<Kv>(),
     })
   );
-  const api = resource<Fetch>()({
+  const api = defineResource<Fetch>()({
     db,
     events,
     room,
-    cache: resource<Kv>(),
+    cache: defineResource<Kv>(),
   });
-  const client = resource<never>()({
-    db: resource<SqlClient>(),
+  const client = defineResource<never>()({
+    db: defineResource<SqlClient>(),
     events,
     api,
     room,
@@ -225,9 +225,9 @@ describe('@pkgs/system smoke', () => {
   });
 
   test('defineSystem rejects unnamed shared resources', () => {
-    const shared = resource<SqlClient>();
-    const a = resource<Fetch>()({ db: shared });
-    const b = resource<Fetch>()({ db: shared });
+    const shared = defineResource<SqlClient>();
+    const a = defineResource<Fetch>()({ db: shared });
+    const b = defineResource<Fetch>()({ db: shared });
     expect(() => defineSystem({ a, b })).toThrow(/shared resource/);
   });
 });

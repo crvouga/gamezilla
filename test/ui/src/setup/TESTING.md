@@ -5,4 +5,4 @@ Product system graph and DST worlds live in `@libs/runtime` (`defineSystem` /
 `test/ui/src/setup/open-sim.ts`.
 
 View captured timelines with `@pkgs/system-console`
-(`bun run --filter @pkgs/system-console build && … dev`).
+(`bun run --filter @pkgs/system-console dev`).
