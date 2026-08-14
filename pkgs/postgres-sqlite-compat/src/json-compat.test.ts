@@ -48,15 +48,16 @@ const SAMPLE = '{"a":2,"c":[4,5,{"f":7}],"s":"xyz","n":null}';
 describe('postgres-sqlite-compat JSON1 goldens', () => {
   const backends: Backend[] = [];
 
+  // PGlite WASM + plpgsql install exceeds bun's 5s default under CI load.
   beforeAll(async () => {
     backends.push(await openSqlite(), await openPostgresCompat());
-  });
+  }, 120_000);
 
   afterAll(async () => {
     for (const b of backends) {
       await b.close();
     }
-  });
+  }, 120_000);
 
   test('json_extract single path', async () => {
     for (const b of backends) {

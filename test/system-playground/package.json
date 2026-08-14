@@ -4,9 +4,9 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "web": "EXPO_PUBLIC_API_URL=http://sim.local expo start --web --port 5180",
+    "kill": "bun ../../apps/client/scripts/kill-dev.ts || true",
     "tc": "tsc --noEmit -p ./tsconfig.json",
-    "kill": "bun ../../apps/client/scripts/kill-dev.ts || true"
+    "web": "EXPO_PUBLIC_API_URL=http://sim.local expo start --web --port 5180"
   },
   "dependencies": {
     "@apps/api": "workspace:*",

@@ -175,7 +175,6 @@
     "@typescript/native": "catalog:",
     "babel-plugin-macros": "catalog:",
     "esbuild": "catalog:",
-    "pwa-asset-generator": "catalog:",
     "react-scan": "catalog:",
     "typescript": "catalog:",
     "workbox-build": "catalog:"

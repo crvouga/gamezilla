@@ -4,16 +4,20 @@
  * `public/pwa/` from the app icon. Requires Chromium
  * (pwa-asset-generator / Puppeteer).
  *
- * The output directory is committed to git so CI / Cloudflare Pages deploys
- * always include the manifest + icons even when this script is not run as
- * part of the build (Puppeteer downloads Chromium, which we don't want in CI).
+ * Invoked via `bunx` so the generator (and its unmaintained `extract-zip`
+ * transitive) never enters the lockfile / `ci:audit` graph. Assets are
+ * committed so CI / Cloudflare Pages deploys include them without running
+ * this script (Puppeteer downloads Chromium, which we don't want in CI).
  *
  * Usage: `bun run pwa:generate` from apps/client
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { generateImages } from 'pwa-asset-generator';
+import { run } from '@pkgs/os/command';
+
+/** Pinned bunx spec — not a workspace dep (extract-zip has no patched release). */
+const PWA_ASSET_GENERATOR = 'pwa-asset-generator@8.1.4';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(__dirname, '..');
@@ -65,23 +69,38 @@ if (!existsSync(manifestPath)) {
   );
 }
 
-if (!hasAllExpectedAssets()) {
-  const result = await generateImages(iconSource, pwaDir, {
-    manifest: manifestPath,
-    index: indexPath,
-    pathOverride: '/pwa',
-    favicon: true,
-    maskable: true,
-    darkMode: true,
-    background: '#FAFAFA',
-    type: 'png',
-    scrape: false,
-    log: true,
-  });
-
-  console.log(
-    `PWA assets: ${result.savedImages?.length ?? 0} images, manifest updated`
+function generatePwaImages(): void {
+  run(
+    process.execPath,
+    [
+      'x',
+      PWA_ASSET_GENERATOR,
+      iconSource,
+      pwaDir,
+      '--manifest',
+      manifestPath,
+      '--index',
+      indexPath,
+      '--path-override',
+      '/pwa',
+      '--favicon',
+      '--maskable',
+      '--dark-mode',
+      '--background',
+      '#FAFAFA',
+      '--type',
+      'png',
+      '--scrape',
+      'false',
+      '--log',
+    ],
+    { cwd: clientRoot }
   );
+}
+
+if (!hasAllExpectedAssets()) {
+  generatePwaImages();
+  console.log(`PWA assets generated under ${pwaDir}`);
 } else {
   console.log(`Up-to-date: ${pwaDir}`);
 }
