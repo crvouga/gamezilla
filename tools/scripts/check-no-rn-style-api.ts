@@ -76,8 +76,6 @@ function isExempt(rel: string): boolean {
   if (rel.includes('/fixtures/')) return true;
   if (rel.includes('serialize-host-tree-html')) return true;
   if (rel.includes('/demo-app.')) return true;
-  // Standalone browser SPA — not RN / @pkgs/ui product chrome.
-  if (rel.startsWith('pkgs/system-console/')) return true;
   return false;
 }
 

@@ -86,7 +86,6 @@
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
-    "system:console": "bun --filter @pkgs/system-console dev",
     "wipe": "git clean -xfd"
   },
   "overrides": {

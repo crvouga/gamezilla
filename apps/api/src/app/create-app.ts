@@ -11,8 +11,10 @@ import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import type { Io } from '@pkgs/io';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
+import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import type { SecretStore } from '@pkgs/secret-store';
+import { createSystemConsoleApp } from '@pkgs/system-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -333,5 +335,23 @@ export async function createApiApp(config: ApiHandlerConfig) {
 
   apiRouter.onError(createApiErrorHandler(log));
 
-  return new Hono().route('/api', apiRouter);
+  const reportConsole = createSystemConsoleApp({
+    buckets: [
+      {
+        id: 'local',
+        label: 'Local',
+        store: config.objectStore.withPrefix(ObjectStorePrefix.systemConsole),
+      },
+    ],
+    timers: io.timers,
+    now: () => io.clock.now(),
+  });
+
+  const consoleRouter = new Hono()
+    .use('*', apiCors)
+    .route('/', reportConsole.app);
+
+  return new Hono()
+    .route('/api', apiRouter)
+    .route('/system-console', consoleRouter);
 }

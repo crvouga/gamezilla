@@ -61,6 +61,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/system-console": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "better-sqlite3": "catalog:",

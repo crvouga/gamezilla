@@ -4,16 +4,16 @@ overview: Fold playground into @pkgs/system-console as extra RN screens, keep th
 todos:
   - id: console-ports-screens
     content: Define pkgs-level ports; add Console screens for Reports + Playground; delete @test/system-playground
-    status: pending
+    status: completed
   - id: console-hono-rn
     content: Delete console Bun/DOM entry; rewrite API as Hono; convert existing report UI to RN + @pkgs/ui; mount Hono on apps/api
-    status: pending
+    status: completed
   - id: host-inject
     content: Isolate ProductApp from Expo entry; ClientHost Main|Console; inject ProductApp + bootPlayground from apps/client composition root
-    status: pending
+    status: completed
   - id: react-dom-cleanup
     content: Remove first-party react-dom (console SPA, spaces Happy-DOM test, unused package deps). No tier exceptions.
-    status: pending
+    status: completed
 isProject: false
 ---
 

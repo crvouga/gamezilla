@@ -24,7 +24,6 @@
     "expo": "catalog:",
     "make-plural": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
     "react-native": "catalog:",
     "react-native-web": "catalog:"
   },

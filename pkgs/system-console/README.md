@@ -1,11 +1,12 @@
 # `@pkgs/system-console`
 
-Capture system/DST timelines into an ObjectStore and browse them in a local SPA.
+Capture system/DST timelines into an ObjectStore and browse them in the
+product client Console tab (`SystemConsoleApp`).
 
-```bash
-bun run --filter @pkgs/system-console dev
-```
+- **Client:** `@pkgs/system-console/client` — RN UI (`Reports` / `Playground` / `Session`)
+- **Server:** `@pkgs/system-console/server` — Hono app mounted at `/system-console` on `@apps/api`
+- **Writer:** `@pkgs/system-console` — `SimulationReporter` / `createReportingDriver` for DST
 
-Serves the API + React SPA with Bun's HTML bundler and HMR (no prebuild). Optional static build: `bun run --filter @pkgs/system-console build` → `dist/`.
-
-Local artifacts land in `<repo>/system-console-data` (gitignored).
+Product App and playground boot are injected through `SystemConsolePorts`.
+Local artifacts still land in `<repo>/system-console-data` when writers use the
+local ObjectStore path helpers.

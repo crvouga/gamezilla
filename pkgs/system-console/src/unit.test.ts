@@ -15,7 +15,7 @@ import {
   sanitizeTestId,
 } from './types';
 import { wallPathExists } from './wall-path-exists';
-import { buildReportUrl, parseReportNav } from './web/router';
+import { buildReportUrl, parseReportNav } from './client/router';
 import { testStepsKey } from './writer/keys';
 import { deleteRun, pruneRuns } from './writer/prune';
 import { hashString, SimulationReporter } from './writer/reporter';

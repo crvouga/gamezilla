@@ -1,6 +1,7 @@
 /**
  * `@pkgs/system-console` — capture system/DST timelines into an ObjectStore.
- * Serve the multi-bucket SPA via `@pkgs/system-console/server`.
+ * Browse them via `SystemConsoleApp` (`@pkgs/system-console/client`) and
+ * `createSystemConsoleApp` (`@pkgs/system-console/server`).
  */
 
 export {

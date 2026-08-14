@@ -2,12 +2,20 @@
  * Regression: open-rooms registry commit must notify React consumers.
  * A stable dispatch API + ref-only getEntry caused Context bailout so
  * SpaceRoomProvider kept rooms=null → permanent Connecting… / dead Chess.
+ *
+ * Uses react-test-renderer (not react-dom / happy-dom) so bun test stays RN-free.
  */
-import { beforeAll, describe, expect, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
 import type { RoomCommandPayload } from '@pkgs/room';
-import { act, createElement, type ReactNode, useEffect, useState } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import {
+  act,
+  createElement,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
+import TestRenderer from 'react-test-renderer';
 
 import {
   type SpaceOpenRoomEntry,
@@ -16,14 +24,6 @@ import {
   useSpaceOpenRooms,
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
-
-beforeAll(async () => {
-  const { GlobalRegistrator } = await import('@happy-dom/global-registrator');
-  GlobalRegistrator.register();
-  (
-    globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
-  ).IS_REACT_ACT_ENVIRONMENT = true;
-});
 
 function stubEntry(clientId: string): SpaceOpenRoomEntry {
   return {
@@ -59,18 +59,15 @@ function CommitButton({
 }): ReactNode {
   const setEntry = useSpaceOpenRoomsRegistry();
   return createElement('button', {
-    type: 'button',
-    'data-testid': 'commit',
+    testID: 'commit',
     onClick: () => setEntry(spaceId, entry),
   });
 }
 
 function DispatchProbe({
   spaceId,
-  onDispatched,
 }: {
   readonly spaceId: string;
-  readonly onDispatched: (payload: RoomCommandPayload) => void;
 }): ReactNode {
   const { dispatch } = useSpaceOpenRooms();
   const [ready, setReady] = useState(false);
@@ -79,29 +76,25 @@ function DispatchProbe({
   }, []);
   if (!ready) return null;
   return createElement('button', {
-    type: 'button',
-    'data-testid': 'dispatch',
+    testID: 'dispatch',
     onClick: () => {
       const payload: RoomCommandPayload = {
-        type: asKeyword('games-cmd/select-game'),
+        type: asKeyword('team-cmd/select-game'),
         payload: { game: 'chess' },
       };
       dispatch(spaceId, payload);
-      onDispatched(payload);
     },
   });
 }
 
 describe('SpaceOpenRoomsStoreProvider entries notify', () => {
-  it('re-renders useSpaceOpenRoomEntry after registry commit', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root: Root = createRoot(container);
+  it('re-renders useSpaceOpenRoomEntry after registry commit', () => {
     const seen: Array<SpaceOpenRoomEntry | null> = [];
     const entry = stubEntry('client-1');
 
-    await act(async () => {
-      root.render(
+    let renderer!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      renderer = TestRenderer.create(
         createElement(
           SpaceOpenRoomsStoreProvider,
           null,
@@ -118,26 +111,20 @@ describe('SpaceOpenRoomsStoreProvider entries notify', () => {
 
     expect(seen.at(-1)).toBeNull();
 
-    const button = container.querySelector(
-      '[data-testid="commit"]'
-    ) as HTMLButtonElement;
-    await act(async () => {
-      button.click();
+    const button = renderer.root.findByProps({ testID: 'commit' });
+    act(() => {
+      (button.props as { onClick: () => void }).onClick();
     });
 
     expect(seen.at(-1)).toBe(entry);
     expect(seen.at(-1)?.clientId).toBe('client-1');
 
-    await act(async () => {
-      root.unmount();
+    act(() => {
+      renderer.unmount();
     });
-    container.remove();
   });
 
-  it('buffers dispatch until commit then flushes to the room', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root: Root = createRoot(container);
+  it('buffers dispatch until commit then flushes to the room', () => {
     const dispatched: RoomCommandPayload[] = [];
     let roomDispatchCount = 0;
     const entry = stubEntry('client-2');
@@ -148,40 +135,33 @@ describe('SpaceOpenRoomsStoreProvider entries notify', () => {
       dispatched.push(p);
     };
 
-    await act(async () => {
-      root.render(
+    let renderer!: TestRenderer.ReactTestRenderer;
+    act(() => {
+      renderer = TestRenderer.create(
         createElement(
           SpaceOpenRoomsStoreProvider,
           null,
-          createElement(DispatchProbe, {
-            spaceId: 'space-2',
-            onDispatched: () => undefined,
-          }),
+          createElement(DispatchProbe, { spaceId: 'space-2' }),
           createElement(CommitButton, { spaceId: 'space-2', entry })
         )
       );
     });
 
-    const dispatchBtn = container.querySelector(
-      '[data-testid="dispatch"]'
-    ) as HTMLButtonElement;
-    await act(async () => {
-      dispatchBtn.click();
+    const dispatchBtn = renderer.root.findByProps({ testID: 'dispatch' });
+    act(() => {
+      (dispatchBtn.props as { onClick: () => void }).onClick();
     });
     expect(roomDispatchCount).toBe(0);
 
-    const commitBtn = container.querySelector(
-      '[data-testid="commit"]'
-    ) as HTMLButtonElement;
-    await act(async () => {
-      commitBtn.click();
+    const commitBtn = renderer.root.findByProps({ testID: 'commit' });
+    act(() => {
+      (commitBtn.props as { onClick: () => void }).onClick();
     });
     expect(roomDispatchCount).toBe(1);
     expect(dispatched[0]?.payload).toEqual({ game: 'chess' });
 
-    await act(async () => {
-      root.unmount();
+    act(() => {
+      renderer.unmount();
     });
-    container.remove();
   });
 });

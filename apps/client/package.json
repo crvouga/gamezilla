@@ -9,10 +9,18 @@
       "./src/providers/*/index.ts"
     ],
     "./app": [
-      "./src/app.tsx"
+      "./src/product/app.tsx"
     ],
     "./App": [
-      "./src/app.tsx"
+      "./src/product/app.tsx"
+    ],
+    "./product": [
+      "./src/product/app.tsx"
+    ],
+    "./host/*": [
+      "./src/host/*.ts",
+      "./src/host/*.tsx",
+      "./src/host/*/index.ts"
     ],
     "./navigation/*": [
       "./src/navigation/*.ts",
@@ -119,6 +127,7 @@
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/system": "workspace:*",
+    "@pkgs/system-console": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
@@ -168,7 +177,6 @@
     "@libs/infra": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@pkgs/os": "workspace:*",
-    "@pkgs/system-console": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

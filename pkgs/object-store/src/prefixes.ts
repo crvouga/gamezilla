@@ -1,6 +1,7 @@
 /** Feature-relative prefixes composed under the injected root namespace. */
 export const ObjectStorePrefix = {
   ttsAudio: 'tts-audio/',
+  systemConsole: 'system-console/',
 } as const;
 
 /** Normalizes a root namespace slug to a wire-key prefix with trailing slash. */

@@ -1,146 +1,27 @@
-import type { Timers } from '@pkgs/clock';
-import { readObjectBytes } from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-
-import { handleApi } from './api-routes';
-import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
-import { SseHub } from './sse-hub';
-import type { ReportBucket } from './types';
+import {
+  createSystemConsoleApp,
+  type CreateSystemConsoleAppOptions,
+} from './create-system-console-app';
 
 export type { ReportBucket } from './types';
 
-export type CreateSimulationReportServerOptions = {
-  readonly buckets: readonly ReportBucket[];
-  /** Injected timers for SSE heartbeat + bucket watch poll. */
-  readonly timers: Timers;
-  /**
-   * Prebuilt SPA static assets as an ObjectStore (tree layout). Keys are
-   * repo-relative paths under dist (e.g. `index.html`, `app.js`).
-   */
-  readonly distStore?: ObjectStore;
-  /** Clock for prune `olderThanMs` (inject from composition root). */
-  readonly now?: () => number;
-};
+export type CreateSimulationReportServerOptions = CreateSystemConsoleAppOptions;
 
 export type SimulationReportServer = {
   readonly fetch: (req: Request) => Promise<Response>;
   readonly stop: () => void;
 };
 
-function contentTypeForPath(path: string): string {
-  if (path.endsWith('.js') || path.endsWith('.mjs')) {
-    return 'application/javascript; charset=utf-8';
-  }
-  if (path.endsWith('.css')) return 'text/css; charset=utf-8';
-  if (path.endsWith('.html')) return 'text/html; charset=utf-8';
-  if (path.endsWith('.json')) return 'application/json; charset=utf-8';
-  if (path.endsWith('.wasm')) return 'application/wasm';
-  return 'application/octet-stream';
-}
-
 /**
- * Library entry: multi-bucket report API + SPA static files + SSE watchers.
+ * Fetch-handler wrapper around {@link createSystemConsoleApp} for tests
+ * and non-Hono hosts.
  */
 export function createSimulationReportServer(
   options: CreateSimulationReportServerOptions
 ): SimulationReportServer {
-  const buckets = options.buckets;
-  if (buckets.length === 0) {
-    throw new Error('createSimulationReportServer: buckets must be non-empty');
-  }
-  const ids = new Set(buckets.map((b) => b.id));
-  if (ids.size !== buckets.length) {
-    throw new Error('createSimulationReportServer: bucket ids must be unique');
-  }
-
-  const distStore = options.distStore;
-  const now = options.now;
-  const timers = options.timers;
-  const hub = new SseHub();
-  const watchers = new Map<string, BucketWatcher>();
-  for (const bucket of buckets) {
-    watchers.set(bucket.id, startBucketWatcher(bucket, hub, timers));
-  }
-
+  const { app, stop } = createSystemConsoleApp(options);
   return {
-    fetch: (req) =>
-      handleFetch(req, {
-        buckets,
-        hub,
-        watchers,
-        distStore,
-        now,
-        timers,
-      }),
-    stop: () => {
-      for (const w of watchers.values()) w.stop();
-      watchers.clear();
-    },
+    fetch: async (req) => app.fetch(req),
+    stop,
   };
-}
-
-async function handleFetch(
-  req: Request,
-  ctx: {
-    readonly buckets: readonly ReportBucket[];
-    readonly hub: SseHub;
-    readonly watchers: ReadonlyMap<string, BucketWatcher>;
-    readonly distStore: ObjectStore | undefined;
-    readonly now: (() => number) | undefined;
-    readonly timers: Timers;
-  }
-): Promise<Response> {
-  const url = new URL(req.url);
-  const api = await handleApi(req, url, {
-    buckets: ctx.buckets,
-    hub: ctx.hub,
-    watchers: ctx.watchers,
-    now: ctx.now,
-    timers: ctx.timers,
-  });
-  if (api) return api;
-
-  if (ctx.distStore) {
-    const staticFile = await serveDist(url.pathname, ctx.distStore);
-    if (staticFile) return staticFile;
-
-    if (!url.pathname.startsWith('/api/')) {
-      const indexBytes = await readObjectBytes(ctx.distStore, 'index.html');
-      if (indexBytes !== null) {
-        return new Response(responseBodyBytes(indexBytes), {
-          headers: {
-            'content-type': 'text/html; charset=utf-8',
-            'cache-control': 'no-store',
-          },
-        });
-      }
-    }
-  }
-
-  return new Response('Not found', { status: 404 });
-}
-
-function responseBodyBytes(bytes: Uint8Array): ArrayBuffer {
-  const out = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(out).set(bytes);
-  return out;
-}
-
-async function serveDist(
-  pathname: string,
-  distStore: ObjectStore
-): Promise<Response | null> {
-  const rel =
-    pathname === '/' || pathname === ''
-      ? 'index.html'
-      : pathname.replace(/^\//, '');
-  if (rel.includes('..') || rel.includes('\0')) return null;
-  const bytes = await readObjectBytes(distStore, rel);
-  if (bytes === null) return null;
-  return new Response(responseBodyBytes(bytes), {
-    headers: {
-      'content-type': contentTypeForPath(rel),
-      'cache-control': pathname.startsWith('/app.') ? 'no-cache' : 'no-store',
-    },
-  });
 }

@@ -1,0 +1,38 @@
+/**
+ * Injected ports so `@pkgs/system-console` never imports apps/libs/test.
+ */
+
+import type { Io } from '@pkgs/io';
+import type { ComponentType } from 'react';
+
+export type EmbeddedProductAppProps<R = unknown> = {
+  readonly io: Io;
+  readonly resources: R;
+  readonly embedded: true;
+};
+
+export type PlaygroundActor<R = unknown> = {
+  readonly id: string;
+  readonly io: Io;
+  readonly resources: R;
+};
+
+export type PlaygroundSession<R = unknown> = {
+  readonly actors: {
+    readonly alice: PlaygroundActor<R>;
+    readonly bob: PlaygroundActor<R>;
+  };
+  dispose(): Promise<void>;
+};
+
+export type SystemConsolePorts<R = unknown> = {
+  readonly ProductApp: ComponentType<EmbeddedProductAppProps<R>>;
+  readonly bootPlayground: () => Promise<PlaygroundSession<R>>;
+  /** Process I/O for report HTTP (and playground actor Io is separate). */
+  readonly io: Io;
+  /**
+   * Base path for the mounted console Hono app (no trailing slash).
+   * Default `/system-console`.
+   */
+  readonly reportApiBasePath?: string;
+};
