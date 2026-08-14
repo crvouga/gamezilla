@@ -23,6 +23,7 @@
       "@apps/client/*": ["./apps/client/src/*"],
       "@test/ui": ["./test/ui/src/index.ts"],
       "@test/ui/*": ["./test/ui/src/*"],
+      "@test/system-playground/*": ["./test/system-playground/src/*"],
       "@pkgs/llm/*": ["./pkgs/llm/src/*"],
       "@pkgs/ui/*": ["./pkgs/ui/src/*"],
       "@pkgs/sync-engine/client": ["./pkgs/sync-engine/src/client/index.ts"],
@@ -295,6 +296,8 @@
     "apps/room/src/**/*.ts",
     "pkgs/system/src/**/*.ts",
     "test/ui/scripts/**/*.ts",
+    "test/system-playground/src/**/*.ts",
+    "test/system-playground/src/**/*.tsx",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]

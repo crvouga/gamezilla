@@ -18,4 +18,8 @@ export {
   type RunBetterAuthMigrationsArgs,
   runBetterAuthMigrations,
 } from './run-better-auth-migrations';
+export {
+  SqlClientSqliteDialect,
+  type SqlClientSqliteDialectConfig,
+} from './sql-client-sqlite-dialect';
 export { buildBetterAuthTrustedOrigins } from './trusted-origins';

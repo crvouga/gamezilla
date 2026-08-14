@@ -1,3 +1,4 @@
+import { useEmbeddedApp } from '@apps/client/providers/embedded-app-context';
 import { PwaUpdatePromptBanner } from '@apps/client/pwa/update-prompt';
 import { AppCommands } from '@apps/client/ui/app-commands';
 import { CommandPalette, CommandRegistryProvider } from '@pkgs/ui';
@@ -10,13 +11,14 @@ export function AppCommandRegistry({
 }: {
   children: ReactNode;
 }): ReactNode {
+  const embedded = useEmbeddedApp();
   return (
-    <CommandRegistryProvider>
+    <CommandRegistryProvider enableDefaultShortcuts={!embedded}>
       <AppCommands />
       <CommandPalette />
       <CommandPaletteDevMenu />
       {children}
-      <PwaUpdatePromptBanner />
+      {embedded ? null : <PwaUpdatePromptBanner />}
     </CommandRegistryProvider>
   );
 }

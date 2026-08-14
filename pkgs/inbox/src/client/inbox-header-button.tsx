@@ -1,9 +1,9 @@
 import { useLingui } from '@lingui/react/macro';
 import type { IconProps } from '@pkgs/ui';
-import { Badge, BellIcon, Box, IconButton } from '@pkgs/ui';
+import { Badge, BellIcon, Box, IconButton, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
-import { openInbox } from './inbox-routes';
+import { inboxPath } from './inbox-routes';
 import { useInboxUnreadCount } from './use-inbox-unread-count';
 
 type InboxTabIconProps = IconProps & {
@@ -33,10 +33,11 @@ export function InboxTabIcon({
 
 export function InboxHeaderButton(): ReactNode {
   const { t } = useLingui();
+  const router = useRouter();
   const unreadCount = useInboxUnreadCount();
   const onPress = useCallback(() => {
-    openInbox();
-  }, []);
+    router.push(inboxPath());
+  }, [router]);
 
   return (
     <Box sx={{ position: 'relative' }}>

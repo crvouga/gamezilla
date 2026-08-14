@@ -1,5 +1,13 @@
 import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-servers';
-import { createTypedApiRpcClient } from '@libs/client-config/shared/typed-api-rpc-client';
+import {
+  createTypedApiRpcClient,
+  type TypedApiRpcFetch,
+} from '@libs/client-config/shared/typed-api-rpc-client';
+
+export type CreateApiClientOptions = {
+  /** Injected transport (sim / playground in-process Hono). */
+  readonly fetch?: TypedApiRpcFetch;
+};
 
 /**
  * Typed Hono RPC client for the API Worker. Base URL must be the API
@@ -9,7 +17,10 @@ import { createTypedApiRpcClient } from '@libs/client-config/shared/typed-api-rp
  * edge on `@apps/api` or a direct `hono` import (Metro resolves `hono/client`
  * from client-config's own dependency tree).
  */
-export function createApiClient(apiUrl: string) {
+export function createApiClient(
+  apiUrl: string,
+  options?: CreateApiClientOptions
+) {
   if (typeof apiUrl !== 'string' || apiUrl.length === 0) {
     throw new Error('apiUrl must be a non-empty string');
   }
@@ -26,7 +37,10 @@ export function createApiClient(apiUrl: string) {
     parsed.origin,
     'forbid-prod-in-expo-dev-bundle'
   );
-  return createTypedApiRpcClient(parsed.toString());
+  return createTypedApiRpcClient(
+    parsed.toString(),
+    options?.fetch !== undefined ? { fetch: options.fetch } : undefined
+  );
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;

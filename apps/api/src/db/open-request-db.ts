@@ -16,7 +16,8 @@ export type RequestDbPostgres = {
 export type RequestDbSqlite = {
   readonly kind: 'sqlite';
   readonly sqlClient: SqlClient;
-  readonly sqlite: BetterSqliteDatabase;
+  /** Optional better-sqlite3 handle (Jest sims). Prefer sqlClient for auth. */
+  readonly sqlite?: BetterSqliteDatabase;
 };
 
 export type RequestDb = RequestDbPostgres | RequestDbSqlite;

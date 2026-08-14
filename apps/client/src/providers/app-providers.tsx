@@ -11,6 +11,7 @@ import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
 import { AppUiProvider } from './app-ui-provider';
+import { EmbeddedAppProvider } from './embedded-app-context';
 import { AppStatusBarRegistry } from './ui/status-bar-registry';
 
 void preventSplashAutoHide();
@@ -44,11 +45,17 @@ const appProviders = [
 ];
 const USE_REACT_SCAN_DEV = false;
 
-export function AppProviders({ children }: { children: ReactNode }): ReactNode {
+export function AppProviders({
+  children,
+  embedded = false,
+}: {
+  children: ReactNode;
+  readonly embedded?: boolean;
+}): ReactNode {
   return (
-    <>
+    <EmbeddedAppProvider embedded={embedded}>
       {USE_REACT_SCAN_DEV ? <ReactScanDev /> : null}
       <ComposeProviders providers={appProviders}>{children}</ComposeProviders>
-    </>
+    </EmbeddedAppProvider>
   );
 }

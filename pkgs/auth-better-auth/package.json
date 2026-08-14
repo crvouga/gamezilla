@@ -25,10 +25,13 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "better-auth": "catalog:",
     "better-sqlite3": "catalog:",
     "expo-secure-store": "catalog:",
     "expo-web-browser": "catalog:",
+    "kysely": "catalog:",
     "react-native": "catalog:"
   },
   "devDependencies": {

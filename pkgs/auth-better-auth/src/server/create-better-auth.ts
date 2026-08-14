@@ -1,4 +1,5 @@
 import { expo } from '@better-auth/expo';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
 import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
@@ -6,13 +7,19 @@ import type { Pool } from 'pg';
 
 import { BETTER_AUTH_TABLE_NAMES } from './better-auth-table-names';
 import { exposeBearerFromSessionCookie } from './expose-bearer-from-session-cookie';
+import { SqlClientSqliteDialect } from './sql-client-sqlite-dialect';
 
 export type BetterAuthInstance = ReturnType<typeof createBetterAuth>;
 
-/** Composition-root database handle for Better Auth (Postgres pool or SQLite). */
+/**
+ * Composition-root database handle for Better Auth.
+ * Prefer `sql-client` for sims / Expo web (async engines). Keep `sqlite`
+ * (better-sqlite3) for Jest until call sites migrate.
+ */
 export type BetterAuthDatabase =
   | { readonly kind: 'postgres'; readonly pool: Pool }
-  | { readonly kind: 'sqlite'; readonly db: BetterSqliteDatabase };
+  | { readonly kind: 'sqlite'; readonly db: BetterSqliteDatabase }
+  | { readonly kind: 'sql-client'; readonly client: SqlClient };
 
 export type CreateBetterAuthConfig = {
   readonly database: BetterAuthDatabase;
@@ -34,13 +41,21 @@ function trimOrNull(value: string | null | undefined): string | null {
 
 function resolveBetterAuthDatabase(
   database: BetterAuthDatabase
-): Pool | BetterSqliteDatabase {
-  return database.kind === 'postgres' ? database.pool : database.db;
+):
+  | Pool
+  | BetterSqliteDatabase
+  | { dialect: SqlClientSqliteDialect; type: 'sqlite' } {
+  if (database.kind === 'postgres') return database.pool;
+  if (database.kind === 'sqlite') return database.db;
+  return {
+    dialect: new SqlClientSqliteDialect({ client: database.client }),
+    type: 'sqlite',
+  };
 }
 
 /**
- * Per-request Better Auth instance bound to the request DB (Postgres pool or
- * better-sqlite3). Branch only at composition roots.
+ * Per-request Better Auth instance bound to the request DB (Postgres pool,
+ * better-sqlite3, or SqlClient dialect). Branch only at composition roots.
  */
 export function createBetterAuth(config: CreateBetterAuthConfig) {
   const googleClientId = trimOrNull(config.googleClientId);

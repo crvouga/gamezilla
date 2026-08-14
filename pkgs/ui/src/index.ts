@@ -20,14 +20,17 @@ export {
 } from './expo/safe-audio-play';
 export { hideSplash, preventSplashAutoHide } from './expo/splash-screen';
 export {
+  type AppNavigationRef,
   type AppRouter,
   type Href,
   type HrefObject,
   hrefToPath,
   navigationRef,
+  NavigationRefProvider,
   router,
   setAppLinkingConfig,
   useLocalSearchParams,
+  useNavigationRef,
   usePathname,
   useRouter,
 } from './navigation/app-router';

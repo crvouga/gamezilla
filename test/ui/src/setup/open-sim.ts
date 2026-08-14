@@ -93,7 +93,6 @@ async function bootSim(testId: string): Promise<BootedSim> {
     migrate: async (handle) => {
       await migrateSimSqlite({
         sqlClient: handle.sqlClient,
-        sqlite: handle.sqlite,
         io: {
           ...io,
           clock: { now: () => wallClock.now() },

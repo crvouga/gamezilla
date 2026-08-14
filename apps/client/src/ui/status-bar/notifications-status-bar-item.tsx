@@ -1,9 +1,10 @@
 import { useLingui } from '@lingui/react/macro';
-import { openInbox, useInboxUnreadCount } from '@pkgs/inbox/client';
+import { inboxPath, useInboxUnreadCount } from '@pkgs/inbox/client';
 import {
   BellIcon,
   Box,
   RegisterStatusBarItem,
+  useRouter,
   useStatusBar,
   useTheme,
 } from '@pkgs/ui';
@@ -36,14 +37,15 @@ function NotificationsIndicator({ unread }: { unread: number }): ReactNode {
  */
 export function NotificationsStatusBarItem(): ReactNode {
   const { t } = useLingui();
+  const router = useRouter();
   const unread = useInboxUnreadCount();
   const { close } = useStatusBar();
   const caption =
     unread === 0 ? t`None` : unread === 1 ? t`1 unread` : t`${unread} unread`;
   const onPress = useCallback(() => {
     close();
-    openInbox();
-  }, [close]);
+    router.push(inboxPath());
+  }, [close, router]);
 
   return (
     <RegisterStatusBarItem

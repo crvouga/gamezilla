@@ -128,7 +128,7 @@ function createRequestBetterAuth(
   const database =
     opened.kind === 'postgres'
       ? ({ kind: 'postgres', pool: opened.pool } as const)
-      : ({ kind: 'sqlite', db: opened.sqlite } as const);
+      : ({ kind: 'sql-client', client: opened.sqlClient } as const);
   return createBetterAuth(betterAuthConfigForDatabase(boot, database));
 }
 

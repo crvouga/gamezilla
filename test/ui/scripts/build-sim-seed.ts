@@ -22,7 +22,6 @@ async function main(): Promise<void> {
     migrate: async (handle) => {
       await migrateSimSqlite({
         sqlClient: handle.sqlClient,
-        sqlite: handle.sqlite,
         io,
       });
     },

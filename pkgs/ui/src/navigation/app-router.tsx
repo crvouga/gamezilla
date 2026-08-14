@@ -1,6 +1,9 @@
 /**
  * App navigation helpers over React Navigation (replaces expo-router hooks).
  * Path strings match the linking config registered via {@link setAppLinkingConfig}.
+ *
+ * Production uses the module singleton {@link navigationRef}. Embedded multi-App
+ * hosts provide a per-tree ref via {@link NavigationRefProvider}.
  */
 
 import {
@@ -13,7 +16,13 @@ import {
   type ParamListBase,
   useRoute,
 } from '@react-navigation/native';
-import { useSyncExternalStore } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from 'react';
 
 /** Path string used with linking (e.g. `/space/abc`, `/more/theme`). */
 export type Href = string;
@@ -30,7 +39,27 @@ export type AppRouter = {
   canGoBack: () => boolean;
 };
 
+/** Production default — attached by the top-level product App. */
 export const navigationRef = createNavigationContainerRef();
+
+export type AppNavigationRef = typeof navigationRef;
+
+const NavigationRefContext = createContext<AppNavigationRef>(navigationRef);
+
+export function NavigationRefProvider(props: {
+  readonly navigationRef: AppNavigationRef;
+  readonly children: ReactNode;
+}): ReactNode {
+  return (
+    <NavigationRefContext.Provider value={props.navigationRef}>
+      {props.children}
+    </NavigationRefContext.Provider>
+  );
+}
+
+export function useNavigationRef(): AppNavigationRef {
+  return useContext(NavigationRefContext);
+}
 
 type LinkingConfig = NonNullable<LinkingOptions<ParamListBase>['config']>;
 
@@ -78,17 +107,22 @@ function pathForState(path: string): string {
   return n === '/' ? '' : n.replace(/^\//, '');
 }
 
-function dispatchAction(action: unknown): void {
-  if (!navigationRef.isReady()) return;
+function dispatchAction(ref: AppNavigationRef, action: unknown): void {
+  if (!ref.isReady()) return;
   // exactOptionalPropertyTypes fights NavigationAction payload optionality
-  navigationRef.dispatch(action as never);
+  ref.dispatch(action as never);
 }
 
-function dispatchPath(path: string, mode: 'push' | 'replace'): void {
-  if (!navigationRef.isReady()) return;
+function dispatchPath(
+  ref: AppNavigationRef,
+  path: string,
+  mode: 'push' | 'replace'
+): void {
+  if (!ref.isReady()) return;
   const normalized = normalizePath(path);
   if (normalized === '/') {
     dispatchAction(
+      ref,
       CommonActions.reset({
         index: 0,
         routes: [{ name: 'Tabs' }],
@@ -100,18 +134,18 @@ function dispatchPath(path: string, mode: 'push' | 'replace'): void {
   const state = getStateFromPath(pathForState(normalized), linkingConfig);
   if (state === undefined) return;
   if (mode === 'replace') {
-    dispatchAction(CommonActions.reset(state));
+    dispatchAction(ref, CommonActions.reset(state));
     return;
   }
   const action = getActionFromState(state, linkingConfig);
   if (action !== undefined) {
-    dispatchAction(action);
+    dispatchAction(ref, action);
   }
 }
 
-function pathnameFromRootState(): string {
-  if (!navigationRef.isReady()) return '/';
-  const state = navigationRef.getRootState();
+function pathnameFromRootState(ref: AppNavigationRef): string {
+  if (!ref.isReady()) return '/';
+  const state = ref.getRootState();
   if (state === undefined) return '/';
   try {
     const path = getPathFromState(state, linkingConfig);
@@ -122,45 +156,54 @@ function pathnameFromRootState(): string {
   }
 }
 
-function subscribeRootNavigationState(onStoreChange: () => void): () => void {
-  if (!navigationRef.isReady()) {
+function subscribeRootNavigationState(
+  ref: AppNavigationRef,
+  onStoreChange: () => void
+): () => void {
+  if (!ref.isReady()) {
     onStoreChange();
     return () => undefined;
   }
-  return navigationRef.addListener('state', onStoreChange);
+  return ref.addListener('state', onStoreChange);
+}
+
+function createRouterForRef(ref: AppNavigationRef): AppRouter {
+  return {
+    push(href) {
+      dispatchPath(ref, hrefToPath(href), 'push');
+    },
+    replace(href) {
+      dispatchPath(ref, hrefToPath(href), 'replace');
+    },
+    back() {
+      if (ref.isReady() && ref.canGoBack()) {
+        ref.goBack();
+      }
+    },
+    canGoBack() {
+      return ref.isReady() && ref.canGoBack();
+    },
+  };
 }
 
 /**
- * Imperative router for non-React call sites (inbox deep links).
+ * Imperative router for non-React call sites (production singleton).
  * Requires {@link navigationRef} attached to NavigationContainer.
  */
-export const router: AppRouter = {
-  push(href) {
-    dispatchPath(hrefToPath(href), 'push');
-  },
-  replace(href) {
-    dispatchPath(hrefToPath(href), 'replace');
-  },
-  back() {
-    if (navigationRef.isReady() && navigationRef.canGoBack()) {
-      navigationRef.goBack();
-    }
-  },
-  canGoBack() {
-    return navigationRef.isReady() && navigationRef.canGoBack();
-  },
-};
+export const router: AppRouter = createRouterForRef(navigationRef);
 
-/** Hook mirror of {@link router} — works under NavigationContainer, not only inside a screen. */
+/** Hook mirror of {@link router} — reads the nearest NavigationRefProvider. */
 export function useRouter(): AppRouter {
-  return router;
+  const ref = useNavigationRef();
+  return useMemo(() => createRouterForRef(ref), [ref]);
 }
 
 export function usePathname(): string {
+  const ref = useNavigationRef();
   return useSyncExternalStore(
-    subscribeRootNavigationState,
-    pathnameFromRootState,
-    pathnameFromRootState
+    (onStoreChange) => subscribeRootNavigationState(ref, onStoreChange),
+    () => pathnameFromRootState(ref),
+    () => pathnameFromRootState(ref)
   );
 }
 

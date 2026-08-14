@@ -727,10 +727,13 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
         "better-auth": "catalog:",
         "better-sqlite3": "catalog:",
         "expo-secure-store": "catalog:",
         "expo-web-browser": "catalog:",
+        "kysely": "catalog:",
         "react-native": "catalog:",
       },
       "devDependencies": {
@@ -1636,6 +1639,57 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "test/system-playground": {
+      "name": "@test/system-playground",
+      "version": "0.0.0",
+      "dependencies": {
+        "@apps/api": "workspace:*",
+        "@apps/client": "workspace:*",
+        "@apps/room": "workspace:*",
+        "@expo/metro-runtime": "catalog:",
+        "@libs/runtime": "workspace:*",
+        "@libs/stripe": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/io": "workspace:*",
+        "@pkgs/kv": "workspace:*",
+        "@pkgs/llm": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/observability": "workspace:*",
+        "@pkgs/polyfill": "workspace:*",
+        "@pkgs/pubsub": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/system": "workspace:*",
+        "@pkgs/tts": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@react-navigation/native": "catalog:",
+        "@test/ui": "workspace:*",
+        "expo": "catalog:",
+        "expo-sqlite": "catalog:",
+        "expo-status-bar": "catalog:",
+        "expo-web-browser": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "react-native": "catalog:",
+        "react-native-gesture-handler": "catalog:",
+        "react-native-reanimated": "catalog:",
+        "react-native-safe-area-context": "catalog:",
+        "react-native-screens": "catalog:",
+        "react-native-web": "catalog:",
+        "react-native-worklets": "catalog:",
+      },
+      "devDependencies": {
+        "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -3076,6 +3130,8 @@
 
     "@surma/rollup-plugin-off-main-thread": ["@surma/rollup-plugin-off-main-thread@2.2.3", "", { "dependencies": { "ejs": "^3.1.6", "json5": "^2.2.0", "magic-string": "^0.25.0", "string.prototype.matchall": "^4.0.6" } }, "sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ=="],
 
+    "@test/system-playground": ["@test/system-playground@workspace:test/system-playground"],
+
     "@test/ui": ["@test/ui@workspace:test/ui"],
 
     "@testing-library/react-native": ["@testing-library/react-native@13.3.3", "", { "dependencies": { "jest-matcher-utils": "^30.0.5", "picocolors": "^1.1.1", "pretty-format": "^30.0.5", "redent": "^3.0.0" }, "peerDependencies": { "jest": ">=29.0.0", "react": ">=18.2.0", "react-native": ">=0.71", "react-test-renderer": ">=18.2.0" }, "optionalPeers": ["jest"] }, "sha512-k6Mjsd9dbZgvY4Bl7P1NIpePQNi+dfYtlJ5voi9KQlynxSyQkfOgJmYGCYmw/aSgH/rUcFvG8u5gd4npzgRDyg=="],
@@ -4204,7 +4260,7 @@
 
     "knip": ["knip@6.11.0", "", { "dependencies": { "fdir": "^6.5.0", "formatly": "^0.3.0", "get-tsconfig": "4.14.0", "jiti": "^2.6.0", "minimist": "^1.2.8", "oxc-parser": "^0.128.0", "oxc-resolver": "^11.19.1", "picomatch": "^4.0.4", "smol-toml": "^1.6.1", "strip-json-comments": "5.0.3", "tinyglobby": "^0.2.16", "unbash": "^3.0.0", "yaml": "^2.8.2", "zod": "^4.1.11" }, "bin": { "knip": "bin/knip.js", "knip-bun": "bin/knip-bun.js" } }, "sha512-84PTlN8Q5smLpTbzs8smTVh8PMbTDXtw0tFksXq/m6auGFC/KSzJykKFmnYh3As38kiWDkoDBvdTTyKk5M1TAQ=="],
 
-    "kysely": ["kysely@0.29.4", "", {}, "sha512-y5mVgQNkMbs1eK9Xyc0pmNdabN2wHhRYY/5r4W5HrUT1rYCEPeVNSj1RUJeSDKT3U0p+mXCvLgkrFuIafYI6BA=="],
+    "kysely": ["kysely@0.28.17", "", {}, "sha512-nbD8lB9EB3wNdMhOCdx5Li8DxnLbvKByylRLcJ1h+4SkrowVeECAyZlyiKMThF7xFdRz0jSQ2MoJr+wXux2y0Q=="],
 
     "lan-network": ["lan-network@0.2.1", "", { "bin": { "lan-network": "dist/lan-network-cli.js" } }, "sha512-ONPnazC96VKDntab9j9JKwIWhZ4ZUceB4A9Epu4Ssg0hYFmtHZSeQ+n15nIwTFmcBUKtExOer8WTJ4GF9MO64A=="],
 
@@ -5355,6 +5411,8 @@
     "babel-preset-expo/@babel/preset-typescript": ["@babel/preset-typescript@7.28.5", "", { "dependencies": { "@babel/helper-plugin-utils": "^7.27.1", "@babel/helper-validator-option": "^7.27.1", "@babel/plugin-syntax-jsx": "^7.27.1", "@babel/plugin-transform-modules-commonjs": "^7.27.1", "@babel/plugin-transform-typescript": "^7.28.5" }, "peerDependencies": { "@babel/core": "^7.0.0-0" } }, "sha512-+bQy5WOI2V6LJZpPVxY+yp66XdZ2yifu0Mc1aP5CQKgjn4QM5IN2i5fAZ4xKop47pr8rpVhiAeu+nDQa12C8+g=="],
 
     "babel-preset-expo/babel-plugin-syntax-hermes-parser": ["babel-plugin-syntax-hermes-parser@0.32.1", "", { "dependencies": { "hermes-parser": "0.32.1" } }, "sha512-HgErPZTghW76Rkq9uqn5ESeiD97FbqpZ1V170T1RG2RDp+7pJVQV2pQJs7y5YzN0/gcT6GM5ci9apRnIwuyPdQ=="],
+
+    "better-auth/kysely": ["kysely@0.29.4", "", {}, "sha512-y5mVgQNkMbs1eK9Xyc0pmNdabN2wHhRYY/5r4W5HrUT1rYCEPeVNSj1RUJeSDKT3U0p+mXCvLgkrFuIafYI6BA=="],
 
     "better-opn/open": ["open@8.4.2", "", { "dependencies": { "define-lazy-prop": "^2.0.0", "is-docker": "^2.1.1", "is-wsl": "^2.2.0" } }, "sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ=="],
 

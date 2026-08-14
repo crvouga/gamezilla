@@ -27,6 +27,7 @@ import {
   type SecureStorageStore,
 } from '@pkgs/secure-storage/secure-storage-store';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBetterSqlite } from '@pkgs/sql-client/sqlite/impl-better-sqlite3';
 import BetterSqlite3 from 'better-sqlite3';
 
@@ -57,22 +58,37 @@ export type CreateActorClientSeamsArgs = {
   readonly pubSubBus: InMemoryBus;
   readonly nodeId?: string;
   readonly onSqlite?: (sqlite: BetterSqlite3.Database | undefined) => void;
+  /**
+   * Override local SQLite open (Expo web playground). Default is
+   * better-sqlite3 `:memory:` for Jest.
+   */
+  readonly openSqlClient?: OpenLocalSqlClient;
 };
 
 /** Fresh, isolated client seams for one actor session. */
 export function createActorClientSeams(
   args: CreateActorClientSeamsArgs
 ): ActorClientSeams {
-  const { apiUrl, pubSubBus, onSqlite, nodeId } = args;
+  const { apiUrl, pubSubBus, onSqlite, nodeId, openSqlClient } = args;
   let actorSqlite: BetterSqlite3.Database | undefined;
-  const openMemorySqlClient: OpenLocalSqlClient = async () => {
+  let actorClient: SqlClient | undefined;
+  const defaultOpenMemorySqlClient: OpenLocalSqlClient = async () => {
     const sqlite = new BetterSqlite3(':memory:');
     actorSqlite = sqlite;
     onSqlite?.(sqlite);
     const client = new SqlClientImplBetterSqlite(sqlite);
     await client.connect();
+    actorClient = client;
     return client;
   };
+  const openLocal: OpenLocalSqlClient =
+    openSqlClient !== undefined
+      ? async (openArgs) => {
+          const client = await openSqlClient(openArgs);
+          actorClient = client;
+          return client;
+        }
+      : defaultOpenMemorySqlClient;
   const secureStorageStore = createSecureStorageStore(
     createInMemorySecureStorage()
   );
@@ -89,14 +105,19 @@ export function createActorClientSeams(
     syncEnginePool,
     getSqlite: () => actorSqlite,
     disposeSqlite: () => {
-      if (actorSqlite === undefined) return;
-      try {
-        actorSqlite.close();
-      } catch {
-        // Already closed during sync-engine teardown.
+      if (actorSqlite !== undefined) {
+        try {
+          actorSqlite.close();
+        } catch {
+          // Already closed during sync-engine teardown.
+        }
+        actorSqlite = undefined;
+        onSqlite?.(undefined);
       }
-      actorSqlite = undefined;
-      onSqlite?.(undefined);
+      if (actorClient !== undefined) {
+        void actorClient.disconnect();
+        actorClient = undefined;
+      }
     },
     resources: {
       apiUrl,
@@ -104,7 +125,7 @@ export function createActorClientSeams(
       authClientStorage,
       secureStorageStore,
       syncEnginePool,
-      openSqlClient: openMemorySqlClient,
+      openSqlClient: openLocal,
       createPubSub: () => createInMemoryPubSub({ bus: pubSubBus }),
       kv,
       network,
