@@ -135,4 +135,3 @@ if (offenses.length > 0) {
 }
 
 console.log(`Bare FS check passed (${String(files.length)} files).`);
-

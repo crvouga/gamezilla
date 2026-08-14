@@ -4,12 +4,11 @@
  * Walks via injected {@link ObjectStore} tree layout — no direct `node:fs`.
  */
 import { join } from 'node:path';
-
+import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 import {
   createRepoTreeObjectStore,
   REPO_TREE_SKIP_DIRS,
 } from '../../pkgs/object-store/src/repo-tree-store';
-import type { ObjectStore } from '../../pkgs/object-store/src/interface';
 
 export const REPO_ROOT = join(import.meta.dirname, '../..');
 
@@ -33,7 +32,9 @@ async function keysUnder(
   prefix: string,
   exts: readonly string[]
 ): Promise<string[]> {
-  const keys = await store.listKeys(prefix.length > 0 ? `${prefix}/` : undefined);
+  const keys = await store.listKeys(
+    prefix.length > 0 ? `${prefix}/` : undefined
+  );
   return keys.filter((k) => underPrefix(k, prefix) && hasExt(k, exts));
 }
 

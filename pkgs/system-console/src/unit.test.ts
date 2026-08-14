@@ -7,7 +7,6 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { resolveLocalReportDataDir } from './local-data-dir';
 import { createSimulationReportServer } from './server/create-server';
 import type { SimulationReportData } from './types';
-import { wallPathExists } from './wall-path-exists';
 import {
   isLatestRunId,
   LATEST_RUN_ID,
@@ -15,6 +14,7 @@ import {
   sanitizeRunId,
   sanitizeTestId,
 } from './types';
+import { wallPathExists } from './wall-path-exists';
 import { buildReportUrl, parseReportNav } from './web/router';
 import { testStepsKey } from './writer/keys';
 import { deleteRun, pruneRuns } from './writer/prune';

@@ -2,11 +2,11 @@ import {
   captureVersion,
   FirstAvailableInstaller,
   GithubReleaseTarballInstaller,
+  type OsFs,
   PackageManagerInstaller,
   verifyRun,
   which,
   whichPath,
-  type OsFs,
 } from '@pkgs/os';
 import { fetchLatestGithubReleaseVersion } from './cli-version-fetch';
 import { INFISICAL_CLI_BIN } from './defaults';

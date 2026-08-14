@@ -17,7 +17,7 @@ export class WranglerDep implements Dep {
     pkg: 'wrangler',
     bin: 'wrangler',
     tag: 'latest',
-      pathExists: wallOsFs().pathExists,
+    pathExists: wallOsFs().pathExists,
   });
 
   version(): string | null {

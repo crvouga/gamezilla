@@ -5,9 +5,9 @@
 
 import { join } from 'node:path';
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
+import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { readUtf8 } from '@pkgs/object-store/helpers';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {

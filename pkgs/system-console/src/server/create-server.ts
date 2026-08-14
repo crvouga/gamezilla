@@ -1,6 +1,6 @@
 import type { Timers } from '@pkgs/clock';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { readObjectBytes } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 
 import { handleApi } from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';

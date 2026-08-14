@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Framework table names and retired public DDL constants must not appear
  * outside `pkgs/sync-engine/src/` (product, tools, other pkgs).

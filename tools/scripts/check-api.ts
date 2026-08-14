@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,
  * then runs `@apps/api` `test:integration`.

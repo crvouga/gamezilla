@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Writes tmp/package-deps-graph.html — Mermaid flowchart (DAG-style layout)
  * of @apps|@libs|@pkgs/* runtime imports. Same graph model as ci:circular-deps.

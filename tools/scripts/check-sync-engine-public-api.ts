@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Checked-in API report for `@pkgs/sync-engine` entrypoints.
  * Drift fails CI — update `pkgs/sync-engine/api-reports/*.txt` deliberately.

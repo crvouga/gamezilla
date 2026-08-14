@@ -1,10 +1,10 @@
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   createCombinedSecretStore,
   createScriptSecretStore,
   type SecretStore,
 } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   createInfisicalSecretStore,
   type InfisicalFetch,

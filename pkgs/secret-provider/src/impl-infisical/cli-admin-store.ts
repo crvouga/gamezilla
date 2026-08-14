@@ -69,10 +69,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
   constructor(private readonly configStore: ObjectStore) {}
 
   async fetchSecret(name: string, envOverride?: string): Promise<string> {
-    const coords = await resolveSecretsCoords(
-      this.configStore,
-      envOverride
-    );
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
     return runInfisical([
       'secrets',
       'get',
@@ -96,10 +93,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     value: string,
     envOverride?: string
   ): Promise<void> {
-    const coords = await resolveSecretsCoords(
-      this.configStore,
-      envOverride
-    );
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
     runInfisical([
       'secrets',
       'set',
@@ -109,10 +103,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
   }
 
   async deleteSecret(name: string, envOverride?: string): Promise<void> {
-    const coords = await resolveSecretsCoords(
-      this.configStore,
-      envOverride
-    );
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
     runInfisical([
       'secrets',
       'delete',
@@ -126,10 +117,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
   async exportSecrets(
     envOverride?: string
   ): Promise<ReadonlyMap<string, string>> {
-    const coords = await resolveSecretsCoords(
-      this.configStore,
-      envOverride
-    );
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
     const raw = runInfisical([
       'export',
       ...infisicalBaseArgs(coords),

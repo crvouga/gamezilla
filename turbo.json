@@ -516,6 +516,26 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-bare-fs": {
+      "inputs": [
+        "tools/scripts/check-no-bare-fs.ts",
+        "tools/scripts/io-scan-roots.ts",
+        "tools/scripts/io-scan-pragma.ts",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "apps/**/*.js",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "pkgs/**/*.js",
+        "test/**/*.ts",
+        "test/**/*.tsx",
+        "tools/**/*.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:hard-determinism": {
       "inputs": [
         "tools/scripts/check-hard-determinism.ts",

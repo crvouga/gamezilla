@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail-fast guardrail: only `@pkgs/sql-client` may open `node-postgres`
  * connections.

@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Remove empty directories under the repo root (bottom-up). Skips heavy /
  * generated trees so format stays fast. Safe: Git does not track empty dirs.

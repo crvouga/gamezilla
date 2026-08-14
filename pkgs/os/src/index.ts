@@ -32,8 +32,8 @@ export { LinuxOs } from './linux-os';
 export { MacOs } from './mac-os';
 export type { NpmGlobalInstallerOptions } from './npm-global-installer';
 export { NpmGlobalInstaller } from './npm-global-installer';
-export type { OsFs, PathExists } from './os-fs';
 export type { Os } from './os';
+export type { OsFs, PathExists } from './os-fs';
 export type { PackageManager } from './package-manager';
 export type {
   PackageManagerInstallEntry,
@@ -45,6 +45,6 @@ export type { Arch, Platform } from './platform';
 export { currentArch, currentPlatform } from './platform';
 export { Scoop } from './scoop';
 export { runAsRoot } from './sudo';
+export { wallOsFs } from './wall-os-fs';
 export { WindowsOs } from './windows-os';
 export { Winget } from './winget';
-export { wallOsFs } from './wall-os-fs';

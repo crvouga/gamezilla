@@ -1,9 +1,9 @@
 // @io-wall-ok
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';
+import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { readUtf8 } from '@pkgs/object-store/helpers';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import type { ExportedSpanRecord } from '../shared/types';
 
@@ -20,7 +20,9 @@ function parseLine(line: string): ExportedSpanRecord | undefined {
   return undefined;
 }
 
-async function loadAllRecords(store: ObjectStore): Promise<ExportedSpanRecord[]> {
+async function loadAllRecords(
+  store: ObjectStore
+): Promise<ExportedSpanRecord[]> {
   const keys = await store.listKeys();
   const ndjsonKeys = keys.filter((k) => k.endsWith('.ndjson'));
   const out: ExportedSpanRecord[] = [];

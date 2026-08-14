@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if retired sync-engine terminology remains in the monorepo.
  * Hard cutover: no aliases, no dual wire fields, no dead names.

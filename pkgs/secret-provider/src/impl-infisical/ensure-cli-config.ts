@@ -1,10 +1,10 @@
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   type ResolvedSecretsScope,
   readSecretsConfig,
   SECRETS_DEFAULTS,
 } from '@pkgs/secrets-config';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { INFISICAL_CLI_CONFIG_FILENAME } from './defaults';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
@@ -34,5 +34,10 @@ export async function ensureInfisicalCliConfig(
   if ((await readUtf8(store, INFISICAL_CLI_CONFIG_FILENAME)) === body) {
     return;
   }
-  await writeUtf8(store, INFISICAL_CLI_CONFIG_FILENAME, body, 'application/json');
+  await writeUtf8(
+    store,
+    INFISICAL_CLI_CONFIG_FILENAME,
+    body,
+    'application/json'
+  );
 }

@@ -1,10 +1,10 @@
 import { globalHttpFetch } from '@pkgs/http-client';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   SecretStoreParseError,
   SecretStoreRequestError,
 } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
 function trimEnv(name: string): string {

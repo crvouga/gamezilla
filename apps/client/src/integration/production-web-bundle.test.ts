@@ -3,7 +3,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { assertProductionBundlesAtDir } from '@libs/client-config/shared/production-client-bundle-guard';
+import { ProductionBundleGuard } from '@libs/client-config/shared/production-client-bundle-guard';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { wallPathExists } from '@pkgs/system-console';
@@ -45,15 +45,19 @@ test(
   async () => {
     rmSync(DIST_DIR, { recursive: true, force: true });
 
-    await runPackageScriptOnce('@apps/client', 'build', {
-      ...PRODUCTION_CLIENT_ENV,
-    }, wallPathExists);
+    await runPackageScriptOnce(
+      '@apps/client',
+      'build',
+      {
+        ...PRODUCTION_CLIENT_ENV,
+      },
+      wallPathExists
+    );
 
     expect(existsSync(DIST_DIR)).toBe(true);
-    await assertProductionBundlesAtDir(
-      createNodeFsObjectStore({ rootDir: DIST_DIR, fs, layout: 'tree' }),
-      'production web dist'
-    );
+    await new ProductionBundleGuard(
+      createNodeFsObjectStore({ rootDir: DIST_DIR, fs, layout: 'tree' })
+    ).assert('production web dist');
   },
   { timeout: 600_000 }
 );

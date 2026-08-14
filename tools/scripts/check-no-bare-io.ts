@@ -9,7 +9,10 @@
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
-import { fileAllowsWallConstruction, fileHasIoWallOkPragma } from './io-scan-pragma';
+import {
+  fileAllowsWallConstruction,
+  fileHasIoWallOkPragma,
+} from './io-scan-pragma';
 import { collectIoScanFiles, REPO_ROOT } from './io-scan-roots';
 
 type Ban = {
@@ -134,4 +137,3 @@ if (offenses.length > 0) {
 }
 
 console.log(`Bare I/O check passed (${String(files.length)} files).`);
-

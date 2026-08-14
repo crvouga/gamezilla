@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Ban React Native StyleSheet / `style=` / RN View|Text|Pressable hosts
  * outside `@pkgs/ui` host adapters and a few third-party/crash allowlists.

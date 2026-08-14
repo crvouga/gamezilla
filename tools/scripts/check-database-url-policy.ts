@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail-fast guardrail: every DATABASE_URL entrypoint must call the Tiger
  * database policy helpers so non-deploy contexts never reach production Postgres.

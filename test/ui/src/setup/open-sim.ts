@@ -5,8 +5,8 @@
 import { system } from '@libs/runtime/shared/system';
 import { wallClock } from '@pkgs/clock';
 import { createSimIo } from '@pkgs/io';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { createWorld, instanceAddress, type World } from '@pkgs/system';
 import {
@@ -23,7 +23,6 @@ import { migrateSimSqlite } from './migrate-sim-sqlite';
 import { createProductImpls } from './product-impls';
 import { createInMemoryBus, createProductProvide } from './product-provide';
 import { simNodeTimers } from './sim-actor-overrides';
-import { projectReportTopology } from './sim-topology';
 
 const reportDataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
 
@@ -120,7 +119,7 @@ async function bootSim(testId: string): Promise<BootedSim> {
     frameIntervalMs: 250,
     publishThrottleMs: 50,
     ui: 'in-process',
-    snapshotTopology: () => projectReportTopology(world, system, '1'),
+    world,
     snapshotDatabases: async () => [
       { nodeId: 'api', bytes: new Uint8Array(db.sqlite.serialize()) },
     ],

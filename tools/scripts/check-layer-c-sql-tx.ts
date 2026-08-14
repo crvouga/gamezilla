@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if Layer C classes (*Repository|*Service|*Publisher|*Handler) take
  * `SqlClient` in their constructor. They must take `SqlTx` (or a Pick alias).

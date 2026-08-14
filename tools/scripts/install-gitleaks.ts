@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Install a pinned gitleaks release with retries for transient GitHub CDN
  * failures (502/503). CI invokes this instead of curling "latest" on every run.

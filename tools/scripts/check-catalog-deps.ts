@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 /**

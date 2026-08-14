@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if libs export top-level functions that take injected dependencies
  * (SqlClient, CreateId, …) as parameters. Prefer constructor-injected classes.

@@ -19,7 +19,10 @@ export function wallExpoFs(): ExpoFs {
     paths: { document: Paths.document },
     platformOs: Platform.OS,
     createDirectory(root, baseDir) {
-      return new Directory(root as never, baseDir) as unknown as ExpoFsDirectory;
+      return new Directory(
+        root as never,
+        baseDir
+      ) as unknown as ExpoFsDirectory;
     },
     createFile(dir, name) {
       return new File(dir as never, name) as unknown as ExpoFsFile;

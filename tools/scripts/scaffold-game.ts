@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Scaffold a new `@libs/<game>` package with RoomModule.hash, sim tests, and
  * no wall globals. See DETERMINISM.md and AGENTS.md § Adding a new game.

@@ -140,4 +140,3 @@ if (offenses.length > 0) {
 console.log(
   `No-resolve-wall-defaults check passed (${String(files.length)} files).`
 );
-

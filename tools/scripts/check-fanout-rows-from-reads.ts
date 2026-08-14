@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if fanout `rows` payloads are built from mutation args instead of
  * the framework post-replay SELECT helper (`selectFanoutRows`).

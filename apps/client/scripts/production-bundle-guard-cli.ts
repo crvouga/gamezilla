@@ -2,8 +2,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  assertProductionBundlesAtDir,
   assertProductionClientBuildEnv,
+  ProductionBundleGuard,
   productionClientApiOrigin,
 } from '@libs/client-config/shared/production-client-bundle-guard';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
@@ -47,8 +47,7 @@ switch (subcommand) {
     );
     break;
   case 'check-dist':
-    await assertProductionBundlesAtDir(
-      dirStore(resolveDir(subcommand)),
+    await new ProductionBundleGuard(dirStore(resolveDir(subcommand))).assert(
       'production web dist'
     );
     process.stdout.write(
@@ -56,8 +55,7 @@ switch (subcommand) {
     );
     break;
   case 'check-native-dir':
-    await assertProductionBundlesAtDir(
-      dirStore(resolveDir(subcommand)),
+    await new ProductionBundleGuard(dirStore(resolveDir(subcommand))).assert(
       'production native export'
     );
     process.stdout.write(

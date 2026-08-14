@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { INFISICAL_CLI_BIN } from './defaults';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';

@@ -72,50 +72,56 @@ async function listBundleFiles(store: ObjectStore): Promise<readonly string[]> {
   return keys.filter((key) => key.endsWith('.js') || key.endsWith('.hbc'));
 }
 
-export async function assertProductionBundlesAtDir(
-  store: ObjectStore,
-  label: string
-): Promise<void> {
-  const files = await listBundleFiles(store);
-  assert.ok(files.length > 0, `${label}: no JS/HBC bundles found`);
+/**
+ * Scans a production client bundle tree (ObjectStore) for baked-in API URL and
+ * jsx-source markers. Construct at the call site — do not export free functions
+ * that take {@link ObjectStore}.
+ */
+export class ProductionBundleGuard {
+  constructor(private readonly store: ObjectStore) {}
 
-  let scannedChunks = 0;
-  for (const file of files) {
-    const source = await readUtf8(store, file);
-    assert.defined(source, `${label}: bundle disappeared during scan`, {
-      file,
-    });
-    // Babel jsx-source-attr injects `dataSet: { src: "…:line" }` only in
-    // dev/e2e. Production must not contain those `data-src` path markers.
+  async assert(label: string): Promise<void> {
+    const files = await listBundleFiles(this.store);
+    assert.ok(files.length > 0, `${label}: no JS/HBC bundles found`);
+
+    let scannedChunks = 0;
+    for (const file of files) {
+      const source = await readUtf8(this.store, file);
+      assert.defined(source, `${label}: bundle disappeared during scan`, {
+        file,
+      });
+      // Babel jsx-source-attr injects `dataSet: { src: "…:line" }` only in
+      // dev/e2e. Production must not contain those `data-src` path markers.
+      assert.ok(
+        !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
+        `${label}: production bundle still contains jsx-source-attr data-src markers`,
+        { file }
+      );
+      if (!source.includes(INLINED_API_URL_SENTINEL)) continue;
+      scannedChunks += 1;
+      const inlined = extractInlinedApiUrlFromBundleSource(source);
+      assert.ok(
+        inlined !== null,
+        `${label}: could not parse inlined EXPO_PUBLIC_API_URL`,
+        { file }
+      );
+      assert.ok(
+        !isLocalApiOrigin(inlined),
+        `${label}: bundle bakes a loopback API origin (refusing to ship)`,
+        { file, inlined, expected: productionClientApiOrigin() }
+      );
+      assert.equals(
+        inlined,
+        productionClientApiOrigin(),
+        `${label}: bundle inlined EXPO_PUBLIC_API_URL does not match production origin`,
+        { file, inlined, expected: productionClientApiOrigin() }
+      );
+    }
+
     assert.ok(
-      !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
-      `${label}: production bundle still contains jsx-source-attr data-src markers`,
-      { file }
-    );
-    if (!source.includes(INLINED_API_URL_SENTINEL)) continue;
-    scannedChunks += 1;
-    const inlined = extractInlinedApiUrlFromBundleSource(source);
-    assert.ok(
-      inlined !== null,
-      `${label}: could not parse inlined EXPO_PUBLIC_API_URL`,
-      { file }
-    );
-    assert.ok(
-      !isLocalApiOrigin(inlined),
-      `${label}: bundle bakes a loopback API origin (refusing to ship)`,
-      { file, inlined, expected: productionClientApiOrigin() }
-    );
-    assert.equals(
-      inlined,
-      productionClientApiOrigin(),
-      `${label}: bundle inlined EXPO_PUBLIC_API_URL does not match production origin`,
-      { file, inlined, expected: productionClientApiOrigin() }
+      scannedChunks > 0,
+      `${label}: no getApiBaseUrl() bundle chunk found — cannot verify API URL was inlined`,
+      { fileCount: files.length }
     );
   }
-
-  assert.ok(
-    scannedChunks > 0,
-    `${label}: no getApiBaseUrl() bundle chunk found — cannot verify API URL was inlined`,
-    { fileCount: files.length }
-  );
 }

@@ -2,8 +2,8 @@ import { join } from 'node:path';
 import { capture, run } from './command';
 import { currentOs } from './current-os';
 import type { Installer } from './installer';
-import { missingOsFs, type OsFs } from './os-fs';
 import type { Os } from './os';
+import { missingOsFs, type OsFs } from './os-fs';
 
 const UA = 'pkgs-os-github-release-installer';
 const FETCH_TIMEOUT_MS = 15_000;

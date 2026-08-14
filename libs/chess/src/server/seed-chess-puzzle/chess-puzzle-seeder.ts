@@ -78,14 +78,13 @@ import {
   type ResolvedSeedProfile,
   resolveSeedProfile,
 } from './profile';
-import { PuzzleSeedReporter } from './reporter';
-import { rowToPuzzleBatchEntry } from './row';
 import {
   type IteratePuzzleRowsOptions,
-  iteratePuzzleRows,
-  PuzzleArchiveCache,
-  type ResolvedSource,
-} from './streaming';
+  PuzzleRowIterator,
+} from './puzzle-row-iterator';
+import { PuzzleSeedReporter } from './reporter';
+import { rowToPuzzleBatchEntry } from './row';
+import { PuzzleArchiveCache, type ResolvedSource } from './streaming';
 
 type StreamContext = {
   cli: Cli;
@@ -144,13 +143,13 @@ export class ChessPuzzleSeeder {
       logger: log,
       now: this.#io.clock.now,
     });
-    const archiveCache = new PuzzleArchiveCache(
+    const archiveCache = new PuzzleArchiveCache({
       log,
-      this.#io.http,
-      this.#io.clock.now,
-      this.#stores.cacheStoreForDir(this.#cli.cacheDir),
-      this.#stores.sourceStore
-    );
+      http: this.#io.http,
+      now: this.#io.clock.now,
+      cacheStore: this.#stores.cacheStoreForDir(this.#cli.cacheDir),
+      sourceStore: this.#stores.sourceStore,
+    });
     const resolved = await this.#resolveArchive(archiveCache, reporter);
     if (this.#cli.dryRun) {
       await this.#runDryRun(resolved, reporter);
@@ -293,7 +292,7 @@ export class ChessPuzzleSeeder {
     });
     let n = 0;
     try {
-      await iteratePuzzleRows(
+      await new PuzzleRowIterator().iterate(
         resolved,
         async (row) => {
           if (rowToPuzzleBatchEntry(row) === null) return true;
@@ -384,7 +383,7 @@ export class ChessPuzzleSeeder {
       deferIndexes: ctx.profile.deferIndexes,
     });
     try {
-      await iteratePuzzleRows(
+      await new PuzzleRowIterator().iterate(
         ctx.resolved,
         (row) => this.#processPuzzleRow({ ctx, rowState, row }),
         this.#iterateProgressOptions(ctx.reporter)

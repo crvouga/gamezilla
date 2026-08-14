@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Enforce black-box sync-engine tests:
  * - all `*.test.ts` live under `pkgs/sync-engine/src/tests/`

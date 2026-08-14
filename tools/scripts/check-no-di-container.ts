@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if DI container / registry / service-locator classes (or filenames)
  * appear under apps/ or libs/.

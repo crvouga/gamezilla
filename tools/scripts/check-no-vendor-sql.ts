@@ -157,4 +157,3 @@ if (offenses.length > 0) {
 }
 
 console.log(`Vendor SQL check passed (${String(files.length)} files).`);
-

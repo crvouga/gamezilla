@@ -1,5 +1,5 @@
-import { createToolingSecretStore } from '@pkgs/secret-provider';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { createToolingSecretStore } from '@pkgs/secret-provider';
 import { cliIo } from '../cli/lib/cli-io';
 import { REPO_ROOT } from '../cli/paths';
 import {

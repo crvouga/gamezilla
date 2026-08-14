@@ -1,5 +1,5 @@
-import { runWithInfisicalSecrets } from './impl-infisical/cli-run';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { runWithInfisicalSecrets } from './impl-infisical/cli-run';
 
 export type RunWithSecretsOptions = {
   readonly repoRoot: string;

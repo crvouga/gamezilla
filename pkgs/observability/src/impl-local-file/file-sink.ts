@@ -1,9 +1,9 @@
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
 } from '@pkgs/object-store/helpers';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { ExportedSpanRecord } from '../shared/types';
 
 export type FileSinkOptions = {
@@ -68,10 +68,16 @@ export class ObservabilityFileSink {
       this.activeByService.set(service, active);
     }
 
-    const prev = this.buffers.get(active.key) ?? (await this.readExisting(active.key));
+    const prev =
+      this.buffers.get(active.key) ?? (await this.readExisting(active.key));
     const next = `${prev}${line}`;
     this.buffers.set(active.key, next);
-    await writeUtf8(this.options.store, active.key, next, 'application/x-ndjson');
+    await writeUtf8(
+      this.options.store,
+      active.key,
+      next,
+      'application/x-ndjson'
+    );
     active.bytes += bytes;
 
     this.ingestCount += 1;

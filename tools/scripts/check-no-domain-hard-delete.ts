@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail if libs domain mutation/SQL paths hard-delete domain rows.
  * Soft-delete (`UPDATE … SET deleted_at`) is required.

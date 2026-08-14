@@ -3,10 +3,7 @@ import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import type { ExportedSpanRecord } from '../shared/types';
-import {
-  DEFAULT_FILE_SINK_LIMITS,
-  ObservabilityFileSink,
-} from './file-sink';
+import { DEFAULT_FILE_SINK_LIMITS, ObservabilityFileSink } from './file-sink';
 
 export type CollectorOptions = {
   readonly port?: number;

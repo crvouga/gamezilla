@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Protocol v2 freeze: `pkgs/sync-engine/src/protocol/v2.ts` must match the
  * checked-in snapshot. Shape changes require an explicit version decision.

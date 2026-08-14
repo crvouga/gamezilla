@@ -192,7 +192,8 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
   }
 
   private async walk(relDir: string, out: string[]): Promise<void> {
-    const abs = relDir.length === 0 ? this.rootDir : resolve(this.rootDir, relDir);
+    const abs =
+      relDir.length === 0 ? this.rootDir : resolve(this.rootDir, relDir);
     let entries;
     try {
       entries = await this.fs.readdir(abs, { withFileTypes: true });

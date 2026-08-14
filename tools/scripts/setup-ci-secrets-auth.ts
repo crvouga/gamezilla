@@ -1,6 +1,9 @@
 #!/usr/bin/env bun
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 /**
  * Idempotent setup for CI → secrets-backend OIDC auth.
  *
@@ -26,9 +29,6 @@ import { join } from 'node:path';
  *   --dry-run             Print planned changes without applying them.
  */
 import { reconcileCiSecretsAuth } from '@pkgs/secret-provider';
-import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
-import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const fs = wallNodeFs();

@@ -205,7 +205,10 @@ class ObjectStoreImplS3 implements ObjectStore {
 
   async listKeys(prefix = ''): Promise<readonly string[]> {
     const listPrefix = prefix.length > 0 ? prefix : this.namespace;
-    if (!listPrefix.startsWith(this.namespace) && listPrefix !== this.namespace) {
+    if (
+      !listPrefix.startsWith(this.namespace) &&
+      listPrefix !== this.namespace
+    ) {
       throw new Error(
         `ObjectStoreImplS3: listKeys prefix must start with "${this.namespace}": ${listPrefix}`
       );

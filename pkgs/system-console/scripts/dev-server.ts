@@ -12,11 +12,11 @@ import {
   LOCAL_REPORT_DATA_DIRNAME,
   resolveLocalReportDataDir,
 } from '../src/local-data-dir';
-import { wallPathExists } from '../src/wall-path-exists';
 import {
   createSimulationReportServer,
   type ReportBucket,
 } from '../src/server/index';
+import { wallPathExists } from '../src/wall-path-exists';
 import indexHtml from '../src/web/index.html';
 
 import { SYSTEM_CONSOLE_PORT } from './ports';

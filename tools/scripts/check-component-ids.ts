@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 /**
  * Fail-fast guardrail: every visual `@pkgs/ui` component folder must call
  * `componentDataSet('<Name>'` so web DOM identifiers stay wired.

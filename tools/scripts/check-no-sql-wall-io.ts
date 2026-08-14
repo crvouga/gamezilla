@@ -150,4 +150,3 @@ if (offenses.length > 0) {
 }
 
 console.log(`SQL wall-I/O check passed (${String(files.length)} files).`);
-

@@ -143,4 +143,3 @@ if (offenses.length > 0) {
 }
 
 console.log('check:hard-determinism OK');
-

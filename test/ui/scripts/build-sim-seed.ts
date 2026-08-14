@@ -17,7 +17,7 @@ import { migrateSimSqlite } from '../src/setup/migrate-sim-sqlite';
 
 async function main(): Promise<void> {
   const io = wallIo();
-  const fingerprint = computeSimSeedFingerprint();
+  const fingerprint = await computeSimSeedFingerprint();
   const { didMigrate } = await ensureSimSeedBuffer({
     migrate: async (handle) => {
       await migrateSimSqlite({

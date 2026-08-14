@@ -1,5 +1,6 @@
-// @io-wall-ok — tools composition root
 #!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+
 import { join } from 'node:path';
 /**
  * Ban non-deterministic APIs inside mutation `run` bodies and mutation modules.

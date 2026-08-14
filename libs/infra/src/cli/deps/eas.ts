@@ -23,7 +23,7 @@ export class EasDep implements Dep {
     pkg: 'eas-cli',
     bin: 'eas',
     tag: 'latest',
-      pathExists: wallOsFs().pathExists,
+    pathExists: wallOsFs().pathExists,
   });
 
   version(): string | null {
