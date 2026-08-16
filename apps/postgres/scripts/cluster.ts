@@ -32,6 +32,14 @@ export function createEmbeddedPostgres(): EmbeddedPostgres {
     password: POSTGRES_PASSWORD,
     port: POSTGRES_PORT,
     persistent: true,
+    // Wrangler HMR used to orphan per-request TCP clients up to the default
+    // max_connections=100. Shared loopback pool + higher ceiling + idle reclaim.
+    postgresFlags: [
+      '-c',
+      'max_connections=400',
+      '-c',
+      'idle_session_timeout=60s',
+    ],
     onLog: (message) => {
       process.stdout.write(`[postgres] ${String(message)}`);
       if (!String(message).endsWith('\n')) {

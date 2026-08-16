@@ -84,6 +84,10 @@ const minio = spawn(
       ...process.env,
       MINIO_ROOT_USER,
       MINIO_ROOT_PASSWORD,
+      // Global browser CORS for Expo web (bucket PutBucketCors is also applied).
+      MINIO_API_CORS_ALLOW_ORIGIN:
+        process.env['MINIO_API_CORS_ALLOW_ORIGIN'] ??
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8081,http://127.0.0.1:8081,http://localhost:19006,http://127.0.0.1:19006',
     },
   }
 );

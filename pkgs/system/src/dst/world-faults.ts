@@ -9,19 +9,63 @@ import {
   partitionKey,
 } from './world-runtime';
 
-export function makeFaults(args: {
+type FaultArgs = {
   instances: Map<string, InstanceState>;
   sharedLive: Map<string, unknown>;
   partitions: Set<string>;
+  clockSkews: Map<string, number>;
   trace: Trace;
   system: SystemDefinition;
   provide: Record<string, ProviderSpec>;
   ensureInstance: (address: string, resource: ResourceRef) => InstanceState;
-}) {
+};
+
+function healPartitions(
+  partitions: Set<string>,
+  trace: Trace,
+  a?: string,
+  b?: string
+): void {
+  if (a === undefined) {
+    partitions.clear();
+    trace.push('fault', '*', 'heal-all');
+    return;
+  }
+  if (b === undefined) {
+    for (const key of [...partitions]) {
+      if (key.includes(a)) partitions.delete(key);
+    }
+    trace.push('fault', a, 'heal');
+    return;
+  }
+  partitions.delete(partitionKey(a, b));
+  trace.push('fault', a, `heal ${b}`);
+}
+
+async function wipeAddress(args: FaultArgs, addr: string): Promise<void> {
+  const { provide, instances, sharedLive, trace } = args;
+  const provider = findProvider(provide, addr);
+  assert.ok(!!provider?.wipe, `no wipe hook for '${addr}'`);
+  await provider.wipe(addr);
+  const inst = instances.get(addr);
+  if (inst) inst.live = null;
+  sharedLive.delete(addr);
+  const dot = addr.lastIndexOf('.');
+  if (dot > 0) {
+    const owner = addr.slice(0, dot);
+    const parent = instances.get(owner);
+    if (parent) parent.live = null;
+    sharedLive.delete(owner);
+  }
+  trace.push('fault', addr, 'wipe');
+}
+
+export function makeFaults(args: FaultArgs) {
   const {
     instances,
     sharedLive,
     partitions,
+    clockSkews,
     trace,
     system,
     provide,
@@ -64,20 +108,24 @@ export function makeFaults(args: {
       trace.push('fault', a, `partition ${b}`);
     },
     heal(a?: string, b?: string) {
-      if (a === undefined) {
-        partitions.clear();
-        trace.push('fault', '*', 'heal-all');
+      healPartitions(partitions, trace, a, b);
+    },
+    skewClock(address: string, offsetMs: number) {
+      if (offsetMs === 0) clockSkews.delete(address);
+      else clockSkews.set(address, offsetMs);
+      trace.push('fault', address, `skew ${offsetMs}`);
+    },
+    clearSkew(address?: string) {
+      if (address === undefined) {
+        clockSkews.clear();
+        trace.push('fault', '*', 'clear-skew-all');
         return;
       }
-      if (b === undefined) {
-        for (const key of [...partitions]) {
-          if (key.includes(a)) partitions.delete(key);
-        }
-        trace.push('fault', a, 'heal');
-        return;
-      }
-      partitions.delete(partitionKey(a, b));
-      trace.push('fault', a, `heal ${b}`);
+      clockSkews.delete(address);
+      trace.push('fault', address, 'clear-skew');
+    },
+    getSkew(address: string): number {
+      return clockSkews.get(address) ?? 0;
     },
     async corrupt(addr: string) {
       const provider = findProvider(provide, addr);
@@ -85,22 +133,8 @@ export function makeFaults(args: {
       await provider.corrupt(addr);
       trace.push('fault', addr, 'corrupt');
     },
-    async wipe(addr: string) {
-      const provider = findProvider(provide, addr);
-      assert.ok(!!provider?.wipe, `no wipe hook for '${addr}'`);
-      await provider.wipe(addr);
-      const inst = instances.get(addr);
-      if (inst) inst.live = null;
-      sharedLive.delete(addr);
-      // Owners that closed over this leaf must rebuild on next use.
-      const dot = addr.lastIndexOf('.');
-      if (dot > 0) {
-        const owner = addr.slice(0, dot);
-        const parent = instances.get(owner);
-        if (parent) parent.live = null;
-        sharedLive.delete(owner);
-      }
-      trace.push('fault', addr, 'wipe');
+    wipe(addr: string) {
+      return wipeAddress(args, addr);
     },
   };
 }

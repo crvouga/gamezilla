@@ -3,6 +3,7 @@ import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import { bootPlaygroundSession } from '@apps/client/host/boot-playground';
 import { ClientHost } from '@apps/client/host/client-host';
 import type { HostedSubApp } from '@apps/client/host/hosted-sub-app';
+import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { ProductApp } from '@apps/client/product/app';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { defaultAppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
@@ -27,7 +28,13 @@ function ConsoleSubApp(): ReactNode {
       reportApiBasePath: `${apiOrigin}/system-console`,
     };
   }, [io]);
-  return <SystemConsoleApp ports={ports} />;
+  // Console is outside ProductApp's shell — CommandPalette / other @pkgs/ui
+  // surfaces still call useLingui.
+  return (
+    <AppI18nProvider>
+      <SystemConsoleApp ports={ports} />
+    </AppI18nProvider>
+  );
 }
 
 /**

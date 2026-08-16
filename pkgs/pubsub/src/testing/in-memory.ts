@@ -14,6 +14,8 @@ export type InMemoryBus = {
   publish(topic: Topic, encoded: string, source: InMemoryPubSub): void;
   register(instance: InMemoryPubSub): void;
   unregister(instance: InMemoryPubSub): void;
+  /** Live peer instances registered on this bus. */
+  listInstances(): readonly InMemoryPubSub[];
 };
 
 export function createInMemoryBus(): InMemoryBus {
@@ -29,6 +31,9 @@ export function createInMemoryBus(): InMemoryBus {
       for (const instance of instances) {
         instance.receiveEncoded(topic, encoded, source);
       }
+    },
+    listInstances() {
+      return [...instances];
     },
   };
 }
@@ -141,6 +146,17 @@ export class InMemoryPubSub implements PubSub {
   /** Test hook: topics with at least one handler. */
   subscribedTopicsForTest(): readonly Topic[] {
     return [...this.handlers.keys()];
+  }
+
+  /** Test / playground hook: subscriber counts per topic. */
+  topicStatsForTest(): readonly {
+    readonly topic: Topic;
+    readonly subscriberCount: number;
+  }[] {
+    return [...this.handlers.entries()].map(([topic, set]) => ({
+      topic,
+      subscriberCount: set.size,
+    }));
   }
 
   /** Test hook: pending offline buffer depth. */

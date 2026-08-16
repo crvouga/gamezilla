@@ -6,8 +6,10 @@ import {
   isLikelyOpfsLockError,
   isLikelyOpfsPoolExhaustedError,
   openWithWaitRetry,
+  sleepMs,
 } from '../expo-sqlite-core';
 import { publishExpoSqliteWebFatalError } from '../expo-web-recovery';
+import { coerceSqliteDbBytes, isNotADatabaseError } from '../sqlite-db-bytes';
 import {
   type ActiveTx,
   handleOwnerRequest,
@@ -47,6 +49,8 @@ type ExpoSqliteClient = SqlClient & {
       sql: string,
       values: never
     ) => Promise<{ changes: number; lastInsertRowId: number }>;
+    serializeAsync: (databaseName?: string) => Promise<Uint8Array>;
+    closeAsync: () => Promise<void>;
   };
   prepare: <T extends Record<string, unknown>>(
     query: Sql<T>
@@ -137,26 +141,50 @@ async function recoverOwnerOpfsPool(
 
 async function openExpoSqliteForOwner(
   databaseName: string,
-  useNewConnection: boolean
+  timers: Timers
 ): Promise<ExpoSqliteClient> {
   const { SqlClientImplExpoSqlite } = await import('../impl-expo-sqlite');
+  // Uses delete-and-retry with useNewConnection on corruption — do not call
+  // openDatabaseAsync raw (that skips recovery and leaves AccessHandle stale).
+  return SqlClientImplExpoSqlite.open(databaseName, timers);
+}
+
+async function deleteDatabaseFile(databaseName: string): Promise<void> {
   const SQLite = await import('expo-sqlite');
-  const opts = useNewConnection ? { useNewConnection: true } : {};
-  const db = await SQLite.openDatabaseAsync(databaseName, opts);
-  return new SqlClientImplExpoSqlite(db);
+  try {
+    await SQLite.deleteDatabaseAsync(databaseName);
+  } catch {
+    // missing file is fine
+  }
 }
 
 async function openOwnerClient(args: {
   readonly databaseName: string;
   readonly timers: Timers;
 }): Promise<ExpoSqliteClient> {
-  return await openWithWaitRetry({
-    databaseName: args.databaseName,
-    timers: args.timers,
-    // Never useNewConnection on owner retries — extra handles worsen
-    // AccessHandlePoolVFS capacity exhaustion.
-    openOnce: () => openExpoSqliteForOwner(args.databaseName, false),
-  });
+  try {
+    return await openWithWaitRetry({
+      databaseName: args.databaseName,
+      timers: args.timers,
+      // Lock retries: SqlClientImplExpoSqlite.open ignores useNewConnection on
+      // the first attempt; its own recovery path sets it after delete.
+      openOnce: () => openExpoSqliteForOwner(args.databaseName, args.timers),
+    });
+  } catch (error: unknown) {
+    // In-page delete could not clear a corrupt OPFS file (handle still held).
+    // Full wipe is the only reliable recovery — same as Reset local data.
+    if (!isNotADatabaseError(error)) throw error;
+    const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
+    const returnTo =
+      typeof window !== 'undefined'
+        ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+        : undefined;
+    await runWebOpfsRecoveryAndReload({
+      timers: args.timers,
+      ...(returnTo !== undefined && returnTo.length > 0 ? { returnTo } : {}),
+    });
+    throw error;
+  }
 }
 
 class OwnerRuntimeImpl implements OwnerRuntime {
@@ -262,6 +290,8 @@ class OwnerRuntimeImpl implements OwnerRuntime {
       createBypassClient: (owner) =>
         createBypassClient(owner as ExpoSqliteClient),
       resetDatabase: () => this.resetDatabase(),
+      exportBytes: () => this.exportBytes(),
+      importBytes: (bytes) => this.importBytes(bytes),
       getActiveTx: () => this.activeTx,
       setActiveTx: (tx) => {
         this.activeTx = tx;
@@ -309,22 +339,85 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     };
   }
 
+  /**
+   * Drop the named OPFS DB after releasing the owner connection.
+   * Product full-OPFS wipe stays on {@link runWebOpfsRecoveryAndReload}
+   * (Reset local data / `?reset-db=1`) — not this path.
+   */
   async resetDatabase(): Promise<void> {
     if (this.activeTx !== null) {
       await this.abortActiveTx(
         txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted by resetDatabase')
       );
     }
+    await this.closeAndDeleteFile();
+  }
+
+  async exportBytes(): Promise<Uint8Array> {
+    const client = await this.ensureOpen();
+    const raw = await client.getSqliteDatabase().serializeAsync('main');
+    return coerceSqliteDbBytes(raw);
+  }
+
+  async importBytes(bytes: Uint8Array): Promise<void> {
+    if (this.activeTx !== null) {
+      await this.abortActiveTx(
+        txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted by importBytes')
+      );
+    }
+    const payload = coerceSqliteDbBytes(bytes);
+    await this.closeAndDeleteFile();
+    const SQLite = await import('expo-sqlite');
+    const mem = await SQLite.deserializeDatabaseAsync(payload);
+    let dest: Awaited<ReturnType<typeof SQLite.openDatabaseAsync>> | null =
+      null;
+    try {
+      dest = await this.openDestForImport(SQLite);
+      await SQLite.backupDatabaseAsync({
+        sourceDatabase: mem,
+        destDatabase: dest,
+      });
+    } finally {
+      await mem.closeAsync();
+      if (dest !== null) await dest.closeAsync();
+    }
+    // AccessHandlePoolVFS can briefly keep the just-closed dest file locked.
+    await sleepMs(this.timers, 50);
+    await this.ensureOpen();
+  }
+
+  private async openDestForImport(
+    SQLite: typeof import('expo-sqlite')
+  ): Promise<Awaited<ReturnType<typeof SQLite.openDatabaseAsync>>> {
+    let last: unknown;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        return await SQLite.openDatabaseAsync(this.dbName, {
+          useNewConnection: true,
+        });
+      } catch (error: unknown) {
+        last = error;
+        if (!isNotADatabaseError(error) && !isLikelyOpfsLockError(error)) {
+          throw error;
+        }
+        await deleteDatabaseFile(this.dbName);
+        await sleepMs(this.timers, 50 * (attempt + 1));
+      }
+    }
+    throw last instanceof Error ? last : new Error(String(last));
+  }
+
+  private async closeAndDeleteFile(): Promise<void> {
     this.stmts.clear();
     if (this.client !== null) {
       await this.client.disconnect();
       this.client = null;
       this.openPromise = null;
     }
-    // In-page OPFS delete fails while AccessHandlePoolVFS handles are live —
-    // navigate to the wipe document (Chrome tears down the Dedicated Worker).
-    const { runWebOpfsRecoveryAndReload } = await import('./opfs-recover');
-    await runWebOpfsRecoveryAndReload({ timers: this.timers });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await deleteDatabaseFile(this.dbName);
+      if (attempt < 2) await sleepMs(this.timers, 30 * (attempt + 1));
+    }
   }
 
   hasActiveTx(): boolean {

@@ -124,6 +124,9 @@ class ObjectStoreImplS3 implements ObjectStore {
         secretAccessKey: config.secretAccessKey,
       },
       forcePathStyle: true,
+      // MinIO / older S3-compat reject default flexible checksums (501).
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   }
 

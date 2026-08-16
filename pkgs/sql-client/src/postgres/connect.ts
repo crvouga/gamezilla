@@ -136,6 +136,7 @@ export function adaptPgClientAsPool(
     poolClient.release = () => undefined;
     return poolClient;
   };
+  let ended = false;
   const poolAdapter = {
     connect: (
       callback?: (
@@ -169,7 +170,15 @@ export function adaptPgClientAsPool(
       }
       return run;
     },
-    end: async () => undefined,
+    end: async () => {
+      if (ended) return;
+      ended = true;
+      try {
+        await client.end();
+      } catch {
+        // already closed by sqlClient.disconnect()
+      }
+    },
     on: () => poolAdapter,
     totalCount: 1,
     idleCount: 0,

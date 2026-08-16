@@ -25,6 +25,11 @@ export type WorldTimers = {
   clearInterval: (handle: unknown) => void;
 };
 
+export type WorldClock = {
+  now(): number;
+  advance?(ms: number): void;
+};
+
 export type CreateWorldOptions = {
   seed: number | bigint | string;
   impls: readonly ResourceImpl<unknown, unknown>[];
@@ -32,6 +37,15 @@ export type CreateWorldOptions = {
   startMs?: number;
   /** Wall or sim timers for resource Io (required for product DST). */
   timers: WorldTimers;
+  /**
+   * Shared sim/wall clock. Defaults to an internal {@link createSimClock}.
+   * Pass `createSimIo(...).clock` so playground and World share one timeline.
+   */
+  clock?: WorldClock;
+  /** Override seeded createId (e.g. from `createSimIo`). */
+  createId?: () => string;
+  /** Override seeded random (e.g. from `createSimIo`). */
+  random?: () => number;
 };
 
 export type World = {
@@ -86,20 +100,23 @@ function createSeededCreateId(random: () => number): () => string {
 }
 
 function makeBuildCtx(args: {
-  readonly clock: { now(): number; advance(ms: number): void };
+  readonly clock: WorldClock;
+  readonly clockSkews: Map<string, number>;
   readonly timers: WorldTimers;
   readonly random: () => number;
   readonly createId: () => string;
   readonly seed: bigint;
   readonly trace: Trace;
 }): (address: string) => ResourceCtx {
-  const { clock, timers, random, createId, seed, trace } = args;
+  const { clock, clockSkews, timers, random, createId, seed, trace } = args;
   return (address) => ({
     address,
     log: (...logArgs) => {
       trace.push('log', address, logArgs.map(String).join(' '));
     },
-    clock,
+    clock: {
+      now: () => clock.now() + (clockSkews.get(address) ?? 0),
+    },
     timers,
     random,
     createId,
@@ -128,6 +145,7 @@ function makeWorldApi(args: {
   readonly instances: Map<string, InstanceState>;
   readonly sharedLive: Map<string, unknown>;
   readonly partitions: Set<string>;
+  readonly clockSkews: Map<string, number>;
   readonly trace: Trace;
   readonly ensureInstance: (
     address: string,
@@ -142,6 +160,7 @@ function makeWorldApi(args: {
     instances,
     sharedLive,
     partitions,
+    clockSkews,
     trace,
     ensureInstance,
   } = args;
@@ -160,6 +179,7 @@ function makeWorldApi(args: {
       instances,
       sharedLive,
       partitions,
+      clockSkews,
       trace,
       system,
       provide: options.provide,
@@ -174,6 +194,7 @@ function makeWorldApi(args: {
       instances.clear();
       sharedLive.clear();
       partitions.clear();
+      clockSkews.clear();
     },
   };
 }
@@ -182,14 +203,15 @@ export function createWorld(
   system: SystemDefinition,
   options: CreateWorldOptions
 ): World {
-  const random = createSeededRandom(options.seed);
-  const createId = createSeededCreateId(
-    createSeededRandom(`${String(options.seed)}:ids`)
-  );
+  const random = options.random ?? createSeededRandom(options.seed);
+  const createId =
+    options.createId ??
+    createSeededCreateId(createSeededRandom(`${String(options.seed)}:ids`));
   const seed = seedToBigint(options.seed);
-  const clock = createSimClock(options.startMs ?? 0);
+  const clock = options.clock ?? createSimClock(options.startMs ?? 0);
   const trace = createTrace();
   const partitions = new Set<string>();
+  const clockSkews = new Map<string, number>();
   const instances = new Map<string, InstanceState>();
   const sharedLive = new Map<string, unknown>();
   const factoryByResource = new Map(
@@ -212,6 +234,7 @@ export function createWorld(
     factoryByResource,
     buildCtx: makeBuildCtx({
       clock,
+      clockSkews,
       timers: options.timers,
       random,
       createId,
@@ -230,6 +253,7 @@ export function createWorld(
     instances,
     sharedLive,
     partitions,
+    clockSkews,
     trace,
     ensureInstance,
   });

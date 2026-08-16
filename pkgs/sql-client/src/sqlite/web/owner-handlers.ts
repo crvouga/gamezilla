@@ -31,6 +31,8 @@ export type OwnerHandlerDeps = {
   readonly touchTxIdle: (tx: ActiveTx) => void;
   readonly createBypassClient: (owner: SqlClient) => SqlClient;
   readonly resetDatabase: () => Promise<void>;
+  readonly exportBytes: () => Promise<Uint8Array>;
+  readonly importBytes: (bytes: Uint8Array) => Promise<void>;
   getActiveTx: () => ActiveTx | null;
   setActiveTx: (tx: ActiveTx | null) => void;
   getTxGate: () => Promise<void> | null;
@@ -205,6 +207,16 @@ async function dispatchOwnerRequest(
       return finishTx(deps, request, 'ROLLBACK', false);
     case 'resetDatabase': {
       await deps.resetDatabase();
+      return { id: request.id, ok: true, result: null };
+    }
+    case 'exportBytes': {
+      const bytes = await deps.runExclusive(() => deps.exportBytes());
+      return { id: request.id, ok: true, result: bytes };
+    }
+    case 'importBytes': {
+      const payload = request.payload as { bytes: Uint8Array };
+      await deps.runExclusive(() => deps.importBytes(payload.bytes));
+      deps.emitChanged();
       return { id: request.id, ok: true, result: null };
     }
     case 'becomeOwner':

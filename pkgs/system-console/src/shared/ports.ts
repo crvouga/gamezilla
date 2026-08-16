@@ -4,6 +4,7 @@
 
 import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { World } from '@pkgs/system';
 import type { ComponentType } from 'react';
 
 export type EmbeddedProductAppProps<R = unknown> = {
@@ -29,24 +30,119 @@ export type PlaygroundLogBuffer = {
 
 export type PlaygroundNode = {
   readonly id: string;
-  readonly sqlClient: SqlClient;
+  readonly address: string;
   readonly logs: PlaygroundLogBuffer;
 };
 
-export type PlaygroundActor<R = unknown> = PlaygroundNode & {
+export type PlaygroundSqlNode = PlaygroundNode & {
+  readonly sqlClient: SqlClient;
+};
+
+export type PlaygroundActor<R = unknown> = PlaygroundSqlNode & {
   readonly io: Io;
   readonly resources: R;
 };
 
-export type PlaygroundSession<R = unknown> = {
-  readonly actors: {
-    readonly alice: PlaygroundActor<R>;
-    readonly bob: PlaygroundActor<R>;
+export type PlaygroundRoomSnapshot = {
+  readonly topic: string;
+  readonly committedState: unknown;
+  readonly roster: readonly {
+    readonly id: string;
+    readonly clientId: string;
+  }[];
+  readonly lastSeq: number;
+  readonly entries: readonly unknown[];
+  readonly dedupSize: number;
+};
+
+export type PlaygroundRoomNode = PlaygroundNode & {
+  inspect(): PlaygroundRoomSnapshot | null;
+};
+
+export type PlaygroundPubSubTopicStat = {
+  readonly topic: string;
+  readonly subscriberCount: number;
+  readonly instanceCount: number;
+};
+
+export type PlaygroundPubSubNode = PlaygroundNode & {
+  listTopicStats(): readonly PlaygroundPubSubTopicStat[];
+};
+
+export type PlaygroundCommandContext = {
+  readonly serverSql: SqlClient;
+  readonly io: Io;
+};
+
+export type PlaygroundCommand = {
+  readonly id: string;
+  readonly label: string;
+  run(ctx: PlaygroundCommandContext): Promise<void>;
+};
+
+/** Searchable command-palette entries (faults, clock, snapshots). */
+export type PlaygroundPaletteCommand = {
+  readonly id: string;
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly category?: string;
+  readonly keywords?: readonly string[];
+  run(): void | Promise<void>;
+};
+
+export type PlaygroundSnapshotInfo = {
+  readonly id: string;
+  readonly label: string;
+  readonly createdAtMs: number;
+};
+
+export type PlaygroundSnapshotManifest = {
+  readonly version: 1;
+  readonly id: string;
+  readonly label: string;
+  readonly createdAtMs: number;
+  readonly clockMs: number;
+  readonly clockPaused: boolean;
+  readonly clientIds: readonly string[];
+  readonly roomTopics: readonly string[];
+  readonly partitions: readonly string[];
+  readonly skewByAddress: Readonly<Record<string, number>>;
+  readonly downAddresses: readonly string[];
+  readonly evictedAddresses: readonly string[];
+  readonly keys: {
+    readonly serverSql: string;
+    readonly clientSql: Readonly<Record<string, string>>;
   };
-  readonly server: PlaygroundNode;
+};
+
+export type PlaygroundSession<R = unknown> = {
+  readonly world: World;
+  readonly io: Io;
+  /** Live product clients keyed by instance id (`alice`, `bob`, …). */
+  readonly clients: ReadonlyMap<string, PlaygroundActor<R>>;
+  readonly server: PlaygroundSqlNode;
+  readonly pubsub: PlaygroundPubSubNode;
+  /** Live room topics from the in-process room node. */
+  readonly rooms: ReadonlyMap<string, PlaygroundRoomNode>;
+  /** Subscribe to client / room map changes. */
+  subscribe(listener: () => void): () => void;
+  addClient(id?: string): Promise<PlaygroundActor<R>>;
+  removeClient(id: string): Promise<void>;
+  listCommands(): readonly PlaygroundCommand[];
+  runCommand(id: string): Promise<void>;
+  /** Fault / clock / snapshot entries for the command palette. */
+  listPaletteCommands(): readonly PlaygroundPaletteCommand[];
+  /** Refresh async snapshot-load palette entries from ObjectStore. */
+  refreshSnapshotPaletteCommands(): Promise<void>;
+  listSnapshots(): Promise<readonly PlaygroundSnapshotInfo[]>;
+  saveSnapshot(label?: string): Promise<PlaygroundSnapshotInfo>;
+  loadSnapshot(id: string): Promise<void>;
+  /** Pause / resume wall→sim clock advance. */
+  setClockPaused(paused: boolean): void;
+  isClockPaused(): boolean;
   /**
-   * Reset durable OPFS DBs + namespaced auth/KV for Alice/Bob, then close
-   * handles. Caller should remount / re-boot afterward.
+   * Reset durable OPFS DBs + namespaced auth/KV, then close handles.
+   * Caller should remount / re-boot afterward.
    */
   wipe(): Promise<void>;
   dispose(): Promise<void>;

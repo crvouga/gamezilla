@@ -6,6 +6,19 @@ type TopicState = {
   dedup: Map<string, CommandDedupOutcome>;
 };
 
+export type RoomStorageTopicSnapshot = {
+  readonly lastSeq: number;
+  readonly entries: readonly LogEntry[];
+  readonly dedupSize: number;
+  /** Full dedup map when captured via {@link InMemoryRoomStorage.exportTopic}. */
+  readonly dedup?: Readonly<Record<string, CommandDedupOutcome>>;
+};
+
+export type RoomStorageTopicReplace = {
+  readonly entries: readonly LogEntry[];
+  readonly dedup: Readonly<Record<string, CommandDedupOutcome>>;
+};
+
 /**
  * Volatile per-process {@link RoomStorage} for tests and the loopback
  * testkit. Not safe across isolates or restarts.
@@ -20,6 +33,55 @@ export class InMemoryRoomStorage implements RoomStorage {
       this.topics.set(topic, s);
     }
     return s;
+  }
+
+  /** Topics that have been touched (events or dedup). */
+  listTopics(): readonly string[] {
+    return [...this.topics.keys()];
+  }
+
+  snapshotTopic(topic: string): RoomStorageTopicSnapshot | null {
+    const s = this.topics.get(topic);
+    if (s === undefined) return null;
+    const lastSeq =
+      s.entries.length === 0 ? 0 : s.entries[s.entries.length - 1]!.seq;
+    return {
+      lastSeq,
+      entries: [...s.entries],
+      dedupSize: s.dedup.size,
+    };
+  }
+
+  /** Full topic export including dedup entries (for playground snapshots). */
+  exportTopic(topic: string): RoomStorageTopicSnapshot | null {
+    const s = this.topics.get(topic);
+    if (s === undefined) return null;
+    const lastSeq =
+      s.entries.length === 0 ? 0 : s.entries[s.entries.length - 1]!.seq;
+    const dedup: Record<string, CommandDedupOutcome> = {};
+    for (const [k, v] of s.dedup) dedup[k] = v;
+    return {
+      lastSeq,
+      entries: [...s.entries],
+      dedupSize: s.dedup.size,
+      dedup,
+    };
+  }
+
+  /** Replace topic state atomically (snapshot restore). */
+  replaceTopic(topic: string, next: RoomStorageTopicReplace): void {
+    const dedup = new Map<string, CommandDedupOutcome>();
+    for (const [k, v] of Object.entries(next.dedup)) {
+      dedup.set(k, v);
+    }
+    this.topics.set(topic, {
+      entries: [...next.entries],
+      dedup,
+    });
+  }
+
+  clearTopic(topic: string): void {
+    this.topics.delete(topic);
   }
 
   async loadEventsAfter(topic: string, afterSeq: number): Promise<LogEntry[]> {

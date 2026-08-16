@@ -90,3 +90,31 @@ export function clearNamespacedKvWeb(namespace: string): void {
     storage.removeItem(key);
   }
 }
+
+/** Dump `namespace.*` localStorage entries (relative keys without prefix). */
+export function dumpNamespacedKvWeb(namespace: string): Record<string, string> {
+  const storage = globalThis.localStorage;
+  if (storage === undefined) return {};
+  const prefix = `${namespace}.`;
+  const out: Record<string, string> = {};
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key === null || !key.startsWith(prefix)) continue;
+    const value = storage.getItem(key);
+    if (value !== null) out[key.slice(prefix.length)] = value;
+  }
+  return out;
+}
+
+/** Restore dump from {@link dumpNamespacedKvWeb} (clears namespace first). */
+export function restoreNamespacedKvWeb(
+  namespace: string,
+  entries: Record<string, string>
+): void {
+  clearNamespacedKvWeb(namespace);
+  const storage = globalThis.localStorage;
+  if (storage === undefined) return;
+  for (const [rel, value] of Object.entries(entries)) {
+    storage.setItem(`${namespace}.${rel}`, value);
+  }
+}

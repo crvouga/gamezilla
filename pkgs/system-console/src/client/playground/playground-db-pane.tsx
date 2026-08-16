@@ -98,7 +98,7 @@ export function PlaygroundDbPane(props: { readonly sqlClient: SqlClient }) {
   }
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
+    <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, flexDirection: 'row' }}>
       <TableRail
         tables={state.tables}
         selected={state.selected}
@@ -338,7 +338,7 @@ function GridPreview(props: { readonly state: ReadyState }) {
   return (
     <ScrollView
       horizontal
-      frameSx={{ flex: 1, minHeight: 0 }}
+      frameSx={{ flex: 1, minHeight: 0, minWidth: 0 }}
       sx={{ minHeight: 0 }}
     >
       <ScrollView frameSx={{ flex: 1, minHeight: 0 }} sx={{ padding: 4 }}>

@@ -17,12 +17,16 @@ export type UsePlaygroundSessionResult<R = unknown> = {
 };
 
 /**
- * Boot a two-actor playground session while `active`, disposing it on unmount
+ * Boot a playground session while `active`, disposing it on unmount
  * or when `active` becomes false. There are no wall fallbacks — a missing /
  * failing boot surfaces an error state.
  *
  * OPFS / namespaced localStorage survive page refresh; {@link wipe} +
  * {@link reboot} clear them and remount a clean session.
+ *
+ * Boots are serialized through {@link disposeGate}: React Strict Mode remounts
+ * wait for the prior in-flight boot to finish and dispose before opening OPFS
+ * again (avoids AccessHandle / "Error finalizing statement" races).
  */
 export function usePlaygroundSession<R>(
   bootPlayground: () => Promise<PlaygroundSession<R>>,
@@ -33,6 +37,7 @@ export function usePlaygroundSession<R>(
   });
   const [bootGeneration, setBootGeneration] = useState(0);
   const liveRef = useRef<PlaygroundSession<R> | null>(null);
+  const disposeGate = useRef(Promise.resolve());
 
   useEffect(() => {
     if (!active) {
@@ -43,11 +48,13 @@ export function usePlaygroundSession<R>(
     let cancelled = false;
     let live: PlaygroundSession<R> | null = null;
     setState({ status: 'booting' });
-    void (async () => {
+
+    const run = disposeGate.current.then(async () => {
+      if (cancelled) return;
       try {
         const session = await bootPlayground();
         if (cancelled) {
-          void session.dispose();
+          await session.dispose();
           return;
         }
         live = session;
@@ -60,11 +67,14 @@ export function usePlaygroundSession<R>(
           error: err instanceof Error ? err.message : String(err),
         });
       }
-    })();
+    });
+
     return () => {
       cancelled = true;
       liveRef.current = null;
-      if (live) void live.dispose();
+      disposeGate.current = run.then(async () => {
+        if (live !== null) await live.dispose();
+      });
     };
   }, [bootPlayground, active, bootGeneration]);
 

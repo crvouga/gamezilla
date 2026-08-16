@@ -1,34 +1,55 @@
-import { Box, ErrorState, LoadingState, TabStrip, useTheme } from '@pkgs/ui';
-import { type ReactNode, useState } from 'react';
+import {
+  Box,
+  CommandPalette,
+  CommandRegistryProvider,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  OverlayPortalProvider,
+  Pressable,
+  RegisterCommand,
+  SurfaceStackProvider,
+  TabStrip,
+  Text,
+  useCommandPalette,
+} from '@pkgs/ui';
+import {
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 
-import type { SystemConsolePorts } from '../../shared/ports';
+import type {
+  PlaygroundPaletteCommand,
+  PlaygroundSession,
+  SystemConsolePorts,
+} from '../../shared/ports';
 import {
   ClientPlaygroundPanel,
+  PubSubPlaygroundPanel,
+  RoomPlaygroundPanel,
   ServerPlaygroundPanel,
 } from './playground-panel';
+import { PlaygroundSnapshotStrip } from './playground-snapshot-strip';
 import type { PlaygroundSessionState } from './use-playground-session';
 
-const NODE_TABS = [
-  { id: 'alice', label: 'Alice' },
-  { id: 'bob', label: 'Bob' },
+const KIND_TABS = [
+  { id: 'client', label: 'Client' },
   { id: 'server', label: 'Server' },
+  { id: 'pubsub', label: 'PubSub' },
+  { id: 'actor', label: 'Actor' },
 ] as const;
 
-type NodeId = (typeof NODE_TABS)[number]['id'];
+type KindId = (typeof KIND_TABS)[number]['id'];
 
-/**
- * Fill-viewport playground. Tablet/desktop: three equal columns. Mobile only:
- * Alice / Bob / Server tabs. All panels stay mounted so ProductApp state survives
- * tab switches and breakpoint resizes.
- */
 export function PlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly state: PlaygroundSessionState<R>;
 }) {
   const { ports, state } = props;
-  const { breakpoint } = useTheme();
-  const wide = breakpoint !== 'mobile';
-  const [node, setNode] = useState<NodeId>('alice');
+  const [kind, setKind] = useState<KindId>('client');
 
   if (state.status === 'error') {
     return (
@@ -45,8 +66,48 @@ export function PlaygroundScreen<R>(props: {
     );
   }
 
-  const { alice, bob } = state.session.actors;
-  const { server } = state.session;
+  return (
+    <OverlayPortalProvider>
+      <SurfaceStackProvider>
+        <CommandRegistryProvider>
+          <ReadyPlaygroundScreen
+            ports={ports}
+            session={state.session}
+            kind={kind}
+            onKind={setKind}
+          />
+          <CommandPalette />
+        </CommandRegistryProvider>
+      </SurfaceStackProvider>
+    </OverlayPortalProvider>
+  );
+}
+
+function ReadyPlaygroundScreen<R>(props: {
+  readonly ports: SystemConsolePorts<R>;
+  readonly session: PlaygroundSession<R>;
+  readonly kind: KindId;
+  readonly onKind: (kind: KindId) => void;
+}) {
+  const { ports, session, kind, onKind } = props;
+  const tick = useSyncExternalStore(
+    session.subscribe,
+    () => session.clients.size + session.rooms.size,
+    () => session.clients.size + session.rooms.size
+  );
+  void tick;
+  const roomIds = [...session.rooms.keys()];
+  const [roomId, setRoomId] = useState<string | null>(roomIds[0] ?? null);
+
+  useEffect(() => {
+    if (roomId !== null && session.rooms.has(roomId)) return;
+    setRoomId(roomIds[0] ?? null);
+  }, [roomId, roomIds, session.rooms]);
+
+  const paletteCommands = useMemo(
+    () => session.listPaletteCommands(),
+    [session, tick]
+  );
 
   return (
     <Box
@@ -57,75 +118,181 @@ export function PlaygroundScreen<R>(props: {
         overflow: 'hidden',
       }}
     >
-      {wide ? null : (
+      <PlaygroundPaletteRegistrations commands={paletteCommands} />
+      <TabStrip
+        accessibilityLabel="Playground kinds"
+        items={[...KIND_TABS]}
+        selectedId={kind}
+        onSelect={(id) => onKind(id as KindId)}
+        keyboardScope
+        trailing={<PaletteOpenButton />}
+      />
+      <PlaygroundSnapshotStrip session={session} />
+      {kind === 'actor' ? (
         <TabStrip
-          accessibilityLabel="Playground nodes"
-          items={[...NODE_TABS]}
-          selectedId={node}
-          onSelect={(id) => setNode(id as NodeId)}
+          accessibilityLabel="Rooms"
+          items={roomIds.map((id) => ({ id, label: id }))}
+          selectedId={roomId}
+          onSelect={setRoomId}
         />
-      )}
+      ) : null}
+      <KindPanels
+        ports={ports}
+        session={session}
+        kind={kind}
+        selectedRoomId={roomId}
+      />
+    </Box>
+  );
+}
+
+function PaletteOpenButton() {
+  const { open } = useCommandPalette();
+  return (
+    <Pressable
+      accessibilityLabel="Open command palette"
+      onPress={open}
+      sx={{
+        paddingHorizontal: 2,
+        paddingVertical: 1,
+        borderRadius: 'sm',
+        borderWidth: 1,
+        borderColor: 'border',
+      }}
+    >
+      <Text
+        variant="caption"
+        label="⌘K"
+        sx={{ color: 'textSecondary', fontFamily: 'mono' }}
+      />
+    </Pressable>
+  );
+}
+
+function PlaygroundPaletteRegistrations(props: {
+  readonly commands: readonly PlaygroundPaletteCommand[];
+}) {
+  return (
+    <>
+      {props.commands.map((cmd) => (
+        <RegisterCommand
+          key={cmd.id}
+          id={cmd.id}
+          title={cmd.title}
+          {...(cmd.subtitle !== undefined ? { subtitle: cmd.subtitle } : {})}
+          {...(cmd.category !== undefined ? { category: cmd.category } : {})}
+          {...(cmd.keywords !== undefined
+            ? { keywords: [...cmd.keywords] }
+            : {})}
+          run={cmd.run}
+        />
+      ))}
+    </>
+  );
+}
+
+function KindPanels<R>(props: {
+  readonly ports: SystemConsolePorts<R>;
+  readonly session: PlaygroundSession<R>;
+  readonly kind: KindId;
+  readonly selectedRoomId: string | null;
+}) {
+  const { ports, session, kind, selectedRoomId } = props;
+  const selectedRoom =
+    selectedRoomId !== null ? session.rooms.get(selectedRoomId) : undefined;
+  const clients = [...session.clients.values()];
+
+  return (
+    <Box sx={{ flex: 1, minHeight: 0, position: 'relative' }}>
+      <KindSlot active={kind === 'client'}>
+        <ClientColumns ports={ports} session={session} clients={clients} />
+      </KindSlot>
+      <KindSlot active={kind === 'server'}>
+        <ServerPlaygroundPanel session={session} node={session.server} />
+      </KindSlot>
+      <KindSlot active={kind === 'pubsub'}>
+        <PubSubPlaygroundPanel session={session} pubsub={session.pubsub} />
+      </KindSlot>
+      <KindSlot active={kind === 'actor'}>
+        {selectedRoom !== undefined ? (
+          <RoomPlaygroundPanel session={session} room={selectedRoom} />
+        ) : (
+          <EmptyKind body="Open a space in a client to spawn a room." />
+        )}
+      </KindSlot>
+    </Box>
+  );
+}
+
+function ClientColumns<R>(props: {
+  readonly ports: SystemConsolePorts<R>;
+  readonly session: PlaygroundSession<R>;
+  readonly clients: readonly import('../../shared/ports').PlaygroundActor<R>[];
+}) {
+  const { ports, session, clients } = props;
+  if (clients.length === 0) {
+    return <EmptyKind body="Add a client with +" />;
+  }
+  return (
+    <Box sx={{ flex: 1, minHeight: 0 }}>
       <Box
-        sx={
-          wide
-            ? {
-                flex: 1,
-                minHeight: 0,
-                flexDirection: 'row',
-                overflow: 'hidden',
-              }
-            : {
-                flex: 1,
-                minHeight: 0,
-                position: 'relative',
-              }
-        }
+        sx={{
+          flexGrow: 0,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2,
+          paddingHorizontal: 2,
+          paddingVertical: 1,
+          borderBottomWidth: 1,
+          borderColor: 'border',
+        }}
       >
-        <PanelSlot wide={wide} active={node === 'alice'} separator={wide}>
+        <Pressable
+          accessibilityLabel="Add client"
+          onPress={() => {
+            void session.addClient();
+          }}
+          sx={{
+            paddingHorizontal: 3,
+            paddingVertical: 1,
+            borderRadius: 'sm',
+            borderWidth: 1,
+            borderColor: 'border',
+          }}
+        >
+          <Text label="+ Client" sx={{ color: 'text', fontSize: 12 }} />
+        </Pressable>
+      </Box>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          overflow: 'hidden',
+        }}
+      >
+        {clients.map((actor) => (
           <ClientPlaygroundPanel
-            title="Alice"
+            key={actor.id}
+            title={actor.id}
             ProductApp={ports.ProductApp}
-            actor={alice}
+            actor={actor}
+            onClose={() => {
+              void session.removeClient(actor.id);
+            }}
           />
-        </PanelSlot>
-        <PanelSlot wide={wide} active={node === 'bob'} separator={wide}>
-          <ClientPlaygroundPanel
-            title="Bob"
-            ProductApp={ports.ProductApp}
-            actor={bob}
-          />
-        </PanelSlot>
-        <PanelSlot wide={wide} active={node === 'server'}>
-          <ServerPlaygroundPanel node={server} />
-        </PanelSlot>
+        ))}
       </Box>
     </Box>
   );
 }
 
-function PanelSlot(props: {
-  readonly wide: boolean;
+function KindSlot(props: {
   readonly active: boolean;
-  readonly separator?: boolean;
   readonly children: ReactNode;
 }) {
-  if (props.wide) {
-    return (
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          minHeight: 0,
-          overflow: 'hidden',
-          ...(props.separator === true
-            ? { borderRightWidth: 1, borderColor: 'border' as const }
-            : {}),
-        }}
-      >
-        {props.children}
-      </Box>
-    );
-  }
   return (
     <Box
       sx={{
@@ -136,6 +303,18 @@ function PanelSlot(props: {
       }}
     >
       {props.children}
+    </Box>
+  );
+}
+
+function EmptyKind(props: { readonly body: string }) {
+  return (
+    <Box sx={centerSx}>
+      <EmptyState
+        variant="compact"
+        title="Nothing selected"
+        body={props.body}
+      />
     </Box>
   );
 }

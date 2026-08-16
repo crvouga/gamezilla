@@ -101,6 +101,8 @@ function createDeps(
         txGate = null;
       }
     },
+    exportBytes: async () => new Uint8Array([1, 2, 3]),
+    importBytes: async () => undefined,
     getActiveTx: () => activeTx,
     setActiveTx: (tx) => {
       activeTx = tx;

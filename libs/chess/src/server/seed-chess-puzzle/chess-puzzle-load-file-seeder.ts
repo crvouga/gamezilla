@@ -8,7 +8,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { parse } from 'csv-parse/sync';
 import { PuzzleSeedFastPath } from './fast-path';
-import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file';
+import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file-constants';
 import type { PuzzleTableRow } from './row';
 
 const BATCH_SIZE = 250;

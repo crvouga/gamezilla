@@ -1,6 +1,8 @@
 // @io-wall-ok
 /**
  * Create the local app bucket once MinIO is accepting S3 API requests.
+ * Browser CORS comes from `MINIO_API_CORS_ALLOW_ORIGIN` on the server process
+ * (this community MinIO build returns 501 for PutBucketCors).
  */
 import {
   CreateBucketCommand,
@@ -24,6 +26,9 @@ function createClient(): S3Client {
       secretAccessKey: MINIO_ROOT_PASSWORD,
     },
     forcePathStyle: true,
+    // Newer AWS SDK defaults checksums some MinIO builds reject (501).
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   });
 }
 
@@ -87,12 +92,10 @@ export async function ensureLocalBucket(): Promise<void> {
     try {
       await client.send(new HeadBucketCommand({ Bucket: MINIO_BUCKET }));
       process.stdout.write(`[minio] bucket ${MINIO_BUCKET} already exists\n`);
-      return;
     } catch {
-      // create below
+      await client.send(new CreateBucketCommand({ Bucket: MINIO_BUCKET }));
+      process.stdout.write(`[minio] created bucket ${MINIO_BUCKET}\n`);
     }
-    await client.send(new CreateBucketCommand({ Bucket: MINIO_BUCKET }));
-    process.stdout.write(`[minio] created bucket ${MINIO_BUCKET}\n`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/already|owned|BucketAlready/i.test(message)) {

@@ -33,6 +33,8 @@ export type ExpoWebSqlClient = SqlClient & {
   readonly dbName: string;
   isOwner: () => boolean;
   resetDatabase: () => Promise<void>;
+  exportBytes: () => Promise<Uint8Array>;
+  importBytes: (bytes: Uint8Array) => Promise<void>;
   onChanged: (listener: (notify: DbChangedNotify) => void) => () => void;
 };
 
@@ -292,6 +294,14 @@ export function createExpoWebSqlClient(
     resetDatabase: async () => {
       await ensureConnected();
       await transport.request('resetDatabase', {});
+    },
+    exportBytes: async () => {
+      await ensureConnected();
+      return (await transport.request('exportBytes', {})) as Uint8Array;
+    },
+    importBytes: async (bytes: Uint8Array) => {
+      await ensureConnected();
+      await transport.request('importBytes', { bytes });
     },
     connect: ensureConnected,
     disconnect: async () => {

@@ -20,8 +20,8 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/client/src/providers/app-auth-provider.tsx',
   // Sim DI seam: types `authClientStorage` for injected AuthClientStorage.
   'apps/client/src/providers/client-system-resources.ts',
-  // In-process playground: wires createInMemoryAuthClientStorage for actors.
-  'apps/client/src/host/boot-playground.ts',
+  // In-process playground: wires namespaced auth client storage for World clients.
+  'apps/client/src/host/playground-impls.ts',
   'apps/api/src/api.ts',
   'apps/api/src/app/request-db-middleware.ts',
   'apps/api/src/app/create-app.ts',

@@ -47,6 +47,8 @@ export type RpcOp =
   | 'commitTx'
   | 'rollbackTx'
   | 'resetDatabase'
+  | 'exportBytes'
+  | 'importBytes'
   | 'becomeOwner'
   | 'releaseOwner';
 
@@ -76,6 +78,8 @@ type OpPayloadMap = {
   commitTx: { readonly txId: string };
   rollbackTx: { readonly txId: string };
   resetDatabase: Record<string, never>;
+  exportBytes: Record<string, never>;
+  importBytes: { readonly bytes: Uint8Array };
   becomeOwner: Record<string, never>;
   releaseOwner: Record<string, never>;
 };
@@ -96,6 +100,8 @@ type OpResultMap = {
   commitTx: null;
   rollbackTx: null;
   resetDatabase: null;
+  exportBytes: Uint8Array;
+  importBytes: null;
   becomeOwner: null;
   releaseOwner: null;
 };

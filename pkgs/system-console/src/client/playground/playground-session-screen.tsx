@@ -21,7 +21,7 @@ import type {
   UsePlaygroundSessionResult,
 } from './use-playground-session';
 
-/** Thin status screen: boot state, actor ids, durable wipe control. */
+/** Thin status screen: boot state, client ids, durable wipe control. */
 export function PlaygroundSessionScreen<R>(props: {
   readonly state: PlaygroundSessionState<R>;
   readonly wipe: UsePlaygroundSessionResult<R>['wipe'];
@@ -58,12 +58,18 @@ export function PlaygroundSessionScreen<R>(props: {
 
       {state.status === 'ready' ? (
         <Box sx={{ gap: 1.5 }}>
-          <Row label="Alice" value={state.session.actors.alice.id} />
-          <Row label="Bob" value={state.session.actors.bob.id} />
-          <Row label="Server" value={state.session.server.id} />
+          {[...state.session.clients.values()].map((client) => (
+            <Row key={client.id} label="Client" value={client.address} />
+          ))}
+          <Row label="Server" value={state.session.server.address} />
+          <Row label="PubSub" value={state.session.pubsub.address} />
+          {[...state.session.rooms.values()].map((room) => (
+            <Row key={room.id} label="Room" value={room.address} />
+          ))}
           <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
             SQL + auth/KV survive page refresh (OPFS + namespaced localStorage).
             Closing Console releases handles but keeps the durable files.
+            Session is World-backed (`createWorld` + `createSimIo`).
           </Text>
           <Box sx={{ pt: 1 }}>
             <Button
@@ -78,7 +84,7 @@ export function PlaygroundSessionScreen<R>(props: {
             visible={wipeOpen}
             onClose={closeWipe}
             title="Wipe playground data?"
-            message="Deletes Alice, Bob, and server OPFS databases and clears namespaced auth/KV. This cannot be undone."
+            message="Deletes client and server OPFS databases and clears namespaced auth/KV. This cannot be undone."
             submitLabel="Wipe"
             variant="destructive"
             operation={runWipe}
@@ -89,10 +95,7 @@ export function PlaygroundSessionScreen<R>(props: {
           />
         </Box>
       ) : state.status === 'booting' ? (
-        <LoadingState
-          variant="compact"
-          caption="Booting Alice, Bob, and server…"
-        />
+        <LoadingState variant="compact" caption="Booting World playground…" />
       ) : state.status === 'error' ? null : (
         <EmptyState
           variant="compact"
