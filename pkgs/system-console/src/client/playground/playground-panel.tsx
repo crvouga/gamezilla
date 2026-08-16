@@ -156,7 +156,9 @@ function PanelShell(props: {
         </Text>
         {props.tabBar}
       </Box>
-      <Box sx={{ flex: 1, minHeight: 0 }}>{props.children}</Box>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {props.children}
+      </Box>
     </Box>
   );
 }
@@ -165,5 +167,6 @@ const uiBodySx = {
   flex: 1,
   minHeight: 0,
   overflow: 'hidden',
+  position: 'relative',
   background: 'surface',
 } as const;

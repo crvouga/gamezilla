@@ -8,7 +8,7 @@
  * card off the page.
  *
  * Width is controlled only via {@link ModalSize} buckets (see
- * {@link resolveModalLayoutWidth}), clamped to the viewport.
+ * {@link resolveModalLayoutWidth}), clamped to the layout width.
  */
 
 import type { PropsWithChildren } from 'react';
@@ -27,7 +27,7 @@ import { ContentEdgePaddingProvider } from '../content-edge-padding';
 const MODAL_CONTENT_PADDING_STEP = 5;
 
 export type ModalContentProps = PropsWithChildren<{
-  /** Default `medium`. Clamped to the viewport; cannot be overridden via style. */
+  /** Default `medium`. Clamped to the layout width; cannot be overridden via style. */
   size?: ModalSize;
   /** Optional max height in px (e.g. tall inspector modals). */
   maxHeight?: number;

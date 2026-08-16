@@ -1,12 +1,28 @@
 /**
  * Theme context and provider.
- * Resolves `colorScheme: 'system'` via React Native appearance; exposes window
- * metrics on the theme so apps avoid importing RN dimension hooks.
+ * Resolves `colorScheme: 'system'` via React Native appearance; exposes
+ * container layout metrics on the theme so apps avoid importing RN dimension
+ * hooks. Width/height come from this provider's host `onLayout` (falling back
+ * to the window until the first layout) so nested roots (e.g. playground
+ * panels) get correct breakpoints and modal clamps.
  */
 
 import { assert } from '@pkgs/assert';
-import { createContext, type ReactNode, useContext, useMemo } from 'react';
-import { StyleSheet, useColorScheme, useWindowDimensions } from 'react-native';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  type LayoutChangeEvent,
+  StyleSheet,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { type BreakpointName, getBreakpoint } from './breakpoints';
 import type { ColorScheme, ColorTokens } from './colors';
 import { COLOR_PALETTE } from './colors';
@@ -40,7 +56,7 @@ export type Theme = {
   /** Global casing for {@link Text} (overridable per node via `sx` / `style`). */
   textCasing: TextCasing;
   layout: ThemeLayout;
-  /** Current layout bucket from window width. */
+  /** Current layout bucket from container (layout) width. */
   breakpoint: BreakpointName;
   /** Motion design tokens (durations, easings). */
   motion: Motion;
@@ -53,6 +69,11 @@ export type Theme = {
 };
 
 const ThemeContext = createContext<Theme | null>(null);
+
+type MeasuredSize = {
+  readonly width: number;
+  readonly height: number;
+};
 
 export type ThemeProviderProps = {
   /**
@@ -82,7 +103,18 @@ export function ThemeProvider({
   textCasing: textCasingProp,
 }: ThemeProviderProps) {
   const systemScheme = useColorScheme();
-  const layout = useWindowDimensions();
+  const windowLayout = useWindowDimensions();
+  const [measured, setMeasured] = useState<MeasuredSize | null>(null);
+
+  const onHostLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setMeasured((prev) => {
+      if (prev !== null && prev.width === width && prev.height === height) {
+        return prev;
+      }
+      return { width, height };
+    });
+  }, []);
 
   const resolvedScheme: ColorScheme = useMemo(() => {
     if (colorSchemeProp !== 'system') {
@@ -103,6 +135,14 @@ export function ThemeProvider({
       : fonts;
     const textCasing = textCasingProp ?? defaultTextCasing;
     const elevation = makeElevation(colors, resolvedScheme);
+    const width =
+      measured !== null && measured.width > 0
+        ? measured.width
+        : windowLayout.width;
+    const height =
+      measured !== null && measured.height > 0
+        ? measured.height
+        : windowLayout.height;
 
     return {
       sx: createSx(colors, {
@@ -115,21 +155,41 @@ export function ThemeProvider({
       fonts: mergedFonts,
       textCasing,
       layout: {
-        width: layout.width,
-        height: layout.height,
-        scale: layout.scale,
-        fontScale: layout.fontScale,
+        width,
+        height,
+        scale: windowLayout.scale,
+        fontScale: windowLayout.fontScale,
       },
-      breakpoint: getBreakpoint(layout.width),
+      breakpoint: getBreakpoint(width),
       motion,
       elevation,
     };
-  }, [resolvedScheme, colorOverrides, fontsProp, textCasingProp, layout]);
+  }, [
+    resolvedScheme,
+    colorOverrides,
+    fontsProp,
+    textCasingProp,
+    measured,
+    windowLayout.height,
+    windowLayout.width,
+    windowLayout.scale,
+    windowLayout.fontScale,
+  ]);
 
   return (
-    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={theme}>
+      <View style={hostStyle} onLayout={onHostLayout}>
+        {children}
+      </View>
+    </ThemeContext.Provider>
   );
 }
+
+const hostStyle = {
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+} as const;
 
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);

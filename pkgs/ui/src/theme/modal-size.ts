@@ -1,6 +1,6 @@
 /**
  * Fixed modal width buckets. {@link resolveModalLayoutWidth} clamps to the
- * viewport so modals never overflow horizontally.
+ * layout width so modals never overflow horizontally.
  */
 
 export type ModalSize = 'small' | 'medium' | 'large' | 'fullWidth';

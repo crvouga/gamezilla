@@ -22,7 +22,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Animated, Platform } from 'react-native';
+import { Animated } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { USE_NATIVE_DRIVER } from '../../animation/use-native-driver';
 import type { ComponentDataSet } from '../../component-id';
@@ -143,17 +143,11 @@ export type DismissibleBannerPortalApi = {
 const DismissibleBannerPortalContext =
   createContext<DismissibleBannerPortalApi | null>(null);
 
-/** Full-screen overlay; web uses fixed + fill. */
-const DISMISSIBLE_BANNER_PORTAL_HOST_SX: SxProps =
-  Platform.OS === 'web'
-    ? {
-        absoluteFill: true,
-        zIndex: 999_999,
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-      }
-    : { absoluteFill: true, zIndex: 999_999 };
+/** Full-size overlay host; absoluteFill so nested roots (playground) can clip. */
+const DISMISSIBLE_BANNER_PORTAL_HOST_SX: SxProps = {
+  absoluteFill: true,
+  zIndex: 999_999,
+};
 
 function DismissibleBannerPortalHost({ store }: { store: PortalStore }) {
   const entries = useSyncExternalStore(

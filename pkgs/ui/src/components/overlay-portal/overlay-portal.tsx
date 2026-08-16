@@ -23,7 +23,6 @@ import {
   useMemo,
   useSyncExternalStore,
 } from 'react';
-import { Platform } from 'react-native';
 import type { SxProps } from '../../theme';
 import { Box } from '../box';
 
@@ -83,17 +82,12 @@ const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
 /**
  * Sits above {@link DismissibleBannerPortalProvider} (which uses `999_999`)
  * so drag previews float above banners as well.
+ * Absolute (not viewport-fixed) so hosts clip inside nested roots (playground panels).
  */
-const OVERLAY_PORTAL_HOST_SX: SxProps =
-  Platform.OS === 'web'
-    ? {
-        absoluteFill: true,
-        zIndex: 1_000_000,
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-      }
-    : { absoluteFill: true, zIndex: 1_000_000 };
+const OVERLAY_PORTAL_HOST_SX: SxProps = {
+  absoluteFill: true,
+  zIndex: 1_000_000,
+};
 
 function OverlayPortalHost({ store }: { store: PortalStore }) {
   const entries = useSyncExternalStore(
