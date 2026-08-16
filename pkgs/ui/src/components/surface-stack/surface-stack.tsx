@@ -15,6 +15,9 @@ import {
   useSyncExternalStore,
 } from 'react';
 import { Box } from '../box';
+import type { PortalHostFrame } from '../portal-host-frame';
+import { ZERO_PORTAL_HOST_FRAME } from '../portal-host-frame';
+import { usePortalHostFrameMeasure } from '../use-portal-host-frame';
 import { SURFACE_STACK_BASE } from './constants';
 import {
   createSurfaceStackStore,
@@ -30,6 +33,9 @@ export type SurfaceStackApi = {
 
 const SurfaceStackContext = createContext<SurfaceStackApi | null>(null);
 const SurfaceStackStoreContext = createContext<SurfaceStackStore | null>(null);
+const SurfaceStackHostFrameContext = createContext<PortalHostFrame>(
+  ZERO_PORTAL_HOST_FRAME
+);
 
 function SurfaceStackHost({ store }: { store: SurfaceStackStore }) {
   const entries = useSyncExternalStore(
@@ -74,14 +80,22 @@ export function SurfaceStackProvider({
     }),
     [store]
   );
+  const { hostRef, frame, onLayout } = usePortalHostFrameMeasure();
 
   return (
     <SurfaceStackStoreContext.Provider value={store}>
       <SurfaceStackContext.Provider value={api}>
-        <Box sx={{ flex: 1 }} collapsable={false}>
-          {children}
-          <SurfaceStackHost store={store} />
-        </Box>
+        <SurfaceStackHostFrameContext.Provider value={frame}>
+          <Box
+            ref={hostRef}
+            sx={{ flex: 1 }}
+            collapsable={false}
+            onLayout={onLayout}
+          >
+            {children}
+            <SurfaceStackHost store={store} />
+          </Box>
+        </SurfaceStackHostFrameContext.Provider>
       </SurfaceStackContext.Provider>
     </SurfaceStackStoreContext.Provider>
   );
@@ -99,6 +113,14 @@ export function useSurfaceStack(): SurfaceStackApi {
 
 export function useSurfaceStackOptional(): SurfaceStackApi | null {
   return useContext(SurfaceStackContext);
+}
+
+/**
+ * Window frame of the surface-stack root (`measureInWindow`). Use to convert
+ * window-space anchors into host-local coords for absolute paint.
+ */
+export function useSurfaceStackHostFrame(): PortalHostFrame {
+  return useContext(SurfaceStackHostFrameContext);
 }
 
 /** True when `id` is the topmost open surface (owns back / escape dismiss). */

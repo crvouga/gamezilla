@@ -25,6 +25,9 @@ import {
 } from 'react';
 import type { SxProps } from '../../theme';
 import { Box } from '../box';
+import type { PortalHostFrame } from '../portal-host-frame';
+import { ZERO_PORTAL_HOST_FRAME } from '../portal-host-frame';
+import { usePortalHostFrameMeasure } from '../use-portal-host-frame';
 
 type PortalEntry = readonly [string, ReactNode];
 type PortalSnapshot = ReadonlyArray<PortalEntry>;
@@ -78,6 +81,9 @@ export type OverlayPortalApi = {
 };
 
 const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
+const OverlayPortalHostFrameContext = createContext<PortalHostFrame>(
+  ZERO_PORTAL_HOST_FRAME
+);
 
 /**
  * Sits above {@link DismissibleBannerPortalProvider} (which uses `999_999`)
@@ -123,19 +129,35 @@ export function OverlayPortalProvider({
     }),
     [store]
   );
+  const { hostRef, frame, onLayout } = usePortalHostFrameMeasure();
 
   return (
     <OverlayPortalContext.Provider value={api}>
-      <Box sx={{ flex: 1 }} collapsable={false}>
-        {children}
-        <OverlayPortalHost store={store} />
-      </Box>
+      <OverlayPortalHostFrameContext.Provider value={frame}>
+        <Box
+          ref={hostRef}
+          sx={{ flex: 1 }}
+          collapsable={false}
+          onLayout={onLayout}
+        >
+          {children}
+          <OverlayPortalHost store={store} />
+        </Box>
+      </OverlayPortalHostFrameContext.Provider>
     </OverlayPortalContext.Provider>
   );
 }
 
 export function useOverlayPortal(): OverlayPortalApi | null {
   return useContext(OverlayPortalContext);
+}
+
+/**
+ * Window frame of the overlay portal root (`measureInWindow`). Use to convert
+ * window-space anchors into host-local coords for absolute paint.
+ */
+export function useOverlayPortalHostFrame(): PortalHostFrame {
+  return useContext(OverlayPortalHostFrameContext);
 }
 
 /**

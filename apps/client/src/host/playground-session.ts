@@ -32,6 +32,7 @@ import {
   createInMemoryPublishOnlyPubSub,
   type InMemoryBus,
 } from '@pkgs/pubsub/testing/in-memory';
+import { notifyChannels } from '@pkgs/sync-engine/server';
 import type { World } from '@pkgs/system';
 import type {
   createPlaygroundLogBuffer,
@@ -40,7 +41,7 @@ import type {
   PlaygroundSession,
   PlaygroundSqlNode,
 } from '@pkgs/system-console/client';
-import { notifyChannels } from '@pkgs/sync-engine/server';
+
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
 export type BootPlaygroundOptions = {

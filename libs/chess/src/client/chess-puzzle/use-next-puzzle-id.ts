@@ -9,11 +9,11 @@ import {
   resolveEffectivePuzzleRating,
 } from '../../shared/chess-puzzle-feed-config';
 import {
+  capPuzzleCandidateOffset,
   hashSeed,
   PUZZLE_CANDIDATE_MAX_OFFSET,
   PUZZLE_NEXT_MAX_BAND,
   type PuzzleCandidateRow,
-  capPuzzleCandidateOffset,
   pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';

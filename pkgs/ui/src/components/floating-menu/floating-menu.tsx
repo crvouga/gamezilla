@@ -10,7 +10,9 @@ import { useTheme } from '../../theme';
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
 import { ModalRoot } from '../modal/modal-root';
+import { windowRectToHostLocal } from '../portal-host-frame';
 import { Pressable } from '../pressable';
+import { useSurfaceStackHostFrame } from '../surface-stack';
 import type { FloatingMenuContent } from './floating-menu-content';
 import { FloatingMenuDivider } from './floating-menu-divider';
 import { estimateFloatingMenuHeight } from './floating-menu-estimate-height';
@@ -26,6 +28,7 @@ export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 export type FloatingMenuProps = {
   open: boolean;
   onClose: () => void;
+  /** Window-space anchor from `measureInWindow`. */
   anchor: LayoutRectangle | null;
   insets: FloatingMenuInsets;
   width?: number;
@@ -52,15 +55,22 @@ export function FloatingMenu({
   content,
   dataSet,
 }: FloatingMenuProps) {
+  const theme = useTheme();
+  const host = useSurfaceStackHostFrame();
   const visible = open && anchor !== null;
   const estimatedHeight = estimateFloatingMenuHeight(content);
+  const localAnchor =
+    anchor !== null ? windowRectToHostLocal(anchor, host) : null;
+  const viewportWidth = host.width > 0 ? host.width : theme.layout.width;
+  const viewportHeight = host.height > 0 ? host.height : theme.layout.height;
   const position =
-    anchor !== null
+    localAnchor !== null
       ? computeFloatingMenuPosition({
-          anchor,
+          anchor: localAnchor,
           menuHeight: estimatedHeight,
           insets,
           menuWidth: width,
+          viewport: { width: viewportWidth, height: viewportHeight },
         })
       : { top: 0, left: 0 };
 
@@ -68,7 +78,7 @@ export function FloatingMenu({
     <ModalRoot visible={visible} onRequestClose={onClose}>
       <Box sx={{ flex: 1 }} dataSet={{ component: 'FloatingMenu', ...dataSet }}>
         <FloatingMenuBackdrop onClose={onClose} />
-        {anchor !== null ? (
+        {localAnchor !== null ? (
           <FloatingMenuPanel
             top={position.top}
             left={position.left}

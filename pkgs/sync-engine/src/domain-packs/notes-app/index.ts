@@ -23,6 +23,7 @@ export {
   checkClientDomainMatchServer,
 } from './converge';
 export { notesDomainPack } from './domain-pack';
+export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
 export { runNotesSeed, runSeed, seedsFromEnv } from './replay';
 export {
@@ -98,5 +99,4 @@ export {
   roomTopic,
   userTopic,
 } from './shared/topics';
-export { insertCatalogNote } from './insert-catalog-note';
 export { writeNoteBody } from './write-note-body';

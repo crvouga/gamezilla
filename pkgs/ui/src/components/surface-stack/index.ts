@@ -5,6 +5,7 @@ export {
   type SurfaceStackProviderProps,
   useIsTopSurface,
   useSurfaceStack,
+  useSurfaceStackHostFrame,
   useSurfaceStackOptional,
   useSurfaceStackSlot,
 } from './surface-stack';

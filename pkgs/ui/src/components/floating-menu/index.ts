@@ -10,4 +10,7 @@ export type {
   FloatingMenuHeaderSpec,
   FloatingMenuItemRow,
 } from './floating-menu-content';
-export type { FloatingMenuInsets } from './floating-menu-position';
+export type {
+  FloatingMenuInsets,
+  FloatingMenuViewport,
+} from './floating-menu-position';

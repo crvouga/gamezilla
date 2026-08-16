@@ -135,7 +135,9 @@ export function createPlaygroundChessCommands(): PlaygroundCommand[] {
         await seedPlaygroundChessPuzzles({
           sqlClient: ctx.serverSql,
           io: ctx.io,
-          notifySyncWake: ctx.notifySyncWake,
+          ...(ctx.notifySyncWake !== undefined
+            ? { notifySyncWake: ctx.notifySyncWake }
+            : {}),
         });
       },
     },

@@ -1,6 +1,7 @@
-import { Box } from '@pkgs/ui';
+import { Box, useOverlayPortal, useOverlayPortalHostFrame } from '@pkgs/ui';
 import { memo, type ReactNode, useCallback, useEffect, useRef } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
+import { Platform } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import type { ChessBoardCanvasContentProps } from './chess-board-canvas-content';
 import { ChessBoardCanvasContent } from './chess-board-canvas-content';
@@ -73,7 +74,7 @@ function pieceCodeAtSquare(
   return null;
 }
 
-function useBoardWindowOrigin(): {
+function useBoardWindowOrigin(hostLocal: boolean): {
   originX: ReturnType<typeof useSharedValue<number>>;
   originY: ReturnType<typeof useSharedValue<number>>;
   onLayout: (e: LayoutChangeEvent) => void;
@@ -83,11 +84,22 @@ function useBoardWindowOrigin(): {
   const nodeRef = useRef<View | null>(null);
   const originX = useSharedValue(0);
   const originY = useSharedValue(0);
+  const host = useOverlayPortalHostFrame();
+  const hostLocalRef = useRef(hostLocal);
+  hostLocalRef.current = hostLocal;
+  const hostRef = useRef(host);
+  hostRef.current = host;
 
   const remountMeasure = useCallback(() => {
     nodeRef.current?.measureInWindow((x, y) => {
-      originX.value = x;
-      originY.value = y;
+      if (hostLocalRef.current) {
+        const frame = hostRef.current;
+        originX.value = x - frame.x;
+        originY.value = y - frame.y;
+      } else {
+        originX.value = x;
+        originY.value = y;
+      }
     });
   }, [originX, originY]);
 
@@ -103,6 +115,10 @@ function useBoardWindowOrigin(): {
     remountMeasure();
   }, [remountMeasure]);
 
+  useEffect(() => {
+    remountMeasure();
+  }, [host.x, host.y, host.width, host.height, hostLocal, remountMeasure]);
+
   return { originX, originY, onLayout, setNode, remountMeasure };
 }
 
@@ -110,8 +126,12 @@ function useBoardWindowOrigin(): {
 function ChessBoardViewImpl(p: ChessBoardViewProps): ReactNode {
   const { size, containerRef } = p;
   const hideDraggingPiece = useChessBoardPortalDragAvailable();
+  const portal = useOverlayPortal();
+  // OverlayPortal paints absoluteFill (host-local); iOS FullWindowOverlay is window-scoped.
+  const hostLocalOrigin =
+    Platform.OS !== 'ios' && portal !== null && hideDraggingPiece;
   const { originX, originY, onLayout, setNode, remountMeasure } =
-    useBoardWindowOrigin();
+    useBoardWindowOrigin(hostLocalOrigin);
   const dragFrom = p.contentProps.dragFrom;
   const dragCode = pieceCodeAtSquare(p.contentProps.pieceRows, dragFrom);
 
