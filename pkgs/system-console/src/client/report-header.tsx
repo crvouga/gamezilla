@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import { Box, Text } from '@pkgs/ui';
+import type { ReactNode } from 'react';
 
 import { appHeaderSx, appHeaderTrailingSx, metaSx } from './tokens';
 
@@ -15,7 +14,9 @@ export function ReportHeader(props: {
   const { breadcrumb, badge, meta, end } = props;
   return (
     <Box sx={appHeaderSx}>
-      <Box sx={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <Box
+        sx={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 1.5 }}
+      >
         {breadcrumb}
       </Box>
       {badge}

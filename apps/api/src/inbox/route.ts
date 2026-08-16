@@ -1,9 +1,9 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
 import { appAuth } from '@libs/auth/shared/auth-context';
 import { BackfillFriendRequestInboxUseCase } from '@libs/friends/server/backfill-friend-request-inbox-use-case';
 import { HandleFriendsInboxActionUseCase } from '@libs/friends/server/handle-friends-inbox-action-use-case';
 import { assert } from '@pkgs/assert';
+import { AsyncLocalStorage } from '@pkgs/async-local';
 import { Inbox } from '@pkgs/inbox';
 import { registerActionHandler } from '@pkgs/inbox/server/action-registry';
 import type { SqlClient } from '@pkgs/sql-client/interface';

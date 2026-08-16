@@ -22,10 +22,14 @@ export type ApiHandlerConfig = {
   /** When set, overrides secret store `DATABASE_URL` for preview / check. */
   readonly databaseUrlOverride?: string | null;
   /**
-   * When set, used instead of TCP {@link openRequestDb} (e.g. pg-mem for sims).
-   * Skips loopback/prod database URL policy checks.
+   * Per-request DB opener. Worker boots inject Postgres; sims inject SQLite /
+   * AlaSQL. Required so the Hono graph never default-imports `pg`.
    */
-  readonly openRequestDb?: OpenRequestDb;
+  readonly openRequestDb: OpenRequestDb;
+  /**
+   * When true, skip non-prod DATABASE_URL policy (sim injects SQLite / AlaSQL).
+   */
+  readonly skipDatabaseUrlPolicy?: boolean;
   /** Secrets env binding (`dev` / `prd`) for database safety checks. */
   readonly secretsEnv: string;
   readonly objectStore: ObjectStore;

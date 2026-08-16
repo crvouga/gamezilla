@@ -5,7 +5,7 @@ import type { SimulationReportEvent } from '../types';
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
-import { emptySx, paneSx, t } from './tokens';
+import { emptySx, paneSx } from './tokens';
 
 export function EventsPane(props: {
   readonly api: ReportApiClient;
@@ -57,7 +57,7 @@ export function EventsPane(props: {
     );
   }
   return (
-    <ScrollView frameSx={paneSx} sx={{ gap: 4, padding: 12 }}>
+    <ScrollView frameSx={paneSx} sx={{ gap: 1, padding: 3 }}>
       {rows.map((row) => (
         <EventRow key={row.event.id} row={row} />
       ))}
@@ -70,18 +70,44 @@ function EventRow(props: {
 }) {
   const { event, dir } = props.row;
   return (
-    <Box sx={rowStyleSx}>
-      <Text sx={{ color: t.muted, minWidth: 56, fontSize: 12 }}>
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 2.5,
+        paddingVertical: 6,
+        paddingHorizontal: 8,
+        borderWidth: 1,
+        borderColor: 'border',
+        borderRadius: 'md',
+        background: 'surface',
+        flexWrap: 'wrap',
+      }}
+    >
+      <Text sx={{ color: 'textSecondary', minWidth: 56, fontSize: 12 }}>
         {formatMs(event.atMs)}
       </Text>
-      <Text sx={dirBadgeSx}>{dir}</Text>
-      <Text sx={{ fontWeight: '600', color: t.text, fontSize: 12 }}>
+      <Text
+        sx={{
+          fontSize: 10,
+          textTransform: 'uppercase',
+          letterSpacing: 0.4,
+          color: 'tint',
+          minWidth: 52,
+        }}
+      >
+        {dir}
+      </Text>
+      <Text sx={{ fontWeight: '600', color: 'text', fontSize: 12 }}>
         {event.kind}
       </Text>
-      <Text sx={{ color: t.muted, flex: 1, fontSize: 12 }} numberOfLines={1}>
+      <Text
+        sx={{ color: 'textSecondary', flex: 1, fontSize: 12, minWidth: 80 }}
+        numberOfLines={1}
+      >
         {event.title ?? event.detail ?? '—'}
       </Text>
-      <Text sx={{ color: t.muted, fontSize: 11 }}>
+      <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
         {[event.from, event.to].filter(Boolean).join(' → ') || event.nodeId}
       </Text>
     </Box>
@@ -150,23 +176,3 @@ function eventDirection(
   if (event.nodeId === nodeId) return 'local';
   return null;
 }
-
-const rowStyleSx = {
-  flexDirection: 'row',
-  alignItems: 'baseline',
-  gap: 10,
-  paddingVertical: 6,
-  paddingHorizontal: 8,
-  borderWidth: 1,
-  borderColor: t.border,
-  borderRadius: 4,
-  backgroundColor: t.panel,
-} as const;
-
-const dirBadgeSx = {
-  fontSize: 10,
-  textTransform: 'uppercase',
-  letterSpacing: 0.4,
-  color: t.accent,
-  minWidth: 52,
-} as const;

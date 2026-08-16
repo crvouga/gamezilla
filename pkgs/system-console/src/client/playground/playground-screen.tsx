@@ -1,58 +1,86 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { Box, ErrorState, LoadingState, ScrollView, useTheme } from '@pkgs/ui';
 
-import type { PlaygroundActor, SystemConsolePorts } from '../../shared/ports';
-import { emptySx, t } from '../tokens';
+import type { SystemConsolePorts } from '../../shared/ports';
+import {
+  ClientPlaygroundPanel,
+  ServerPlaygroundPanel,
+} from './playground-panel';
 import type { PlaygroundSessionState } from './use-playground-session';
 
 /**
- * Two phone frames (Alice / Bob), each mounting the injected product app with
- * an embedded, isolated actor `io` + `resources`.
+ * Three fill-width panels (Alice / Bob / Server). Each panel owns a PillTabBar:
+ * clients UI|DB|Logs; server DB|Logs.
  */
 export function PlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly state: PlaygroundSessionState<R>;
 }) {
   const { ports, state } = props;
+  const { breakpoint } = useTheme();
+  const mobile = breakpoint === 'mobile';
 
   if (state.status === 'error') {
     return (
       <Box sx={centerSx}>
-        <Text sx={emptySx}>Failed to boot playground: {state.error}</Text>
+        <ErrorState title="Failed to boot playground" body={state.error} />
       </Box>
     );
   }
   if (state.status !== 'ready') {
     return (
       <Box sx={centerSx}>
-        <Text sx={emptySx}>Booting playground…</Text>
+        <LoadingState caption="Booting playground…" />
       </Box>
     );
   }
 
   const { alice, bob } = state.session.actors;
-  return (
-    <ScrollView
-      horizontal
-      frameSx={{ flex: 1, backgroundColor: t.bg }}
-      sx={{ flexDirection: 'row', gap: 16, padding: 16 }}
-    >
-      <PhoneFrame ProductApp={ports.ProductApp} actor={alice} />
-      <PhoneFrame ProductApp={ports.ProductApp} actor={bob} />
-    </ScrollView>
-  );
-}
+  const { server } = state.session;
 
-function PhoneFrame<R>(props: {
-  readonly ProductApp: SystemConsolePorts<R>['ProductApp'];
-  readonly actor: PlaygroundActor<R>;
-}) {
-  const { ProductApp, actor } = props;
+  if (mobile) {
+    return (
+      <ScrollView frameSx={{ flex: 1, minHeight: 0, background: 'background' }}>
+        <ClientPlaygroundPanel
+          title="Alice"
+          ProductApp={ports.ProductApp}
+          actor={alice}
+          stacked
+          separator
+        />
+        <ClientPlaygroundPanel
+          title="Bob"
+          ProductApp={ports.ProductApp}
+          actor={bob}
+          stacked
+          separator
+        />
+        <ServerPlaygroundPanel node={server} stacked />
+      </ScrollView>
+    );
+  }
+
   return (
-    <Box sx={{ gap: 8 }}>
-      <Text sx={{ color: t.muted, fontSize: 12 }}>{actor.id}</Text>
-      <Box sx={frameSx}>
-        <ProductApp io={actor.io} resources={actor.resources} embedded />
-      </Box>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        flexDirection: 'row',
+        background: 'background',
+      }}
+    >
+      <ClientPlaygroundPanel
+        title="Alice"
+        ProductApp={ports.ProductApp}
+        actor={alice}
+        separator
+      />
+      <ClientPlaygroundPanel
+        title="Bob"
+        ProductApp={ports.ProductApp}
+        actor={bob}
+        separator
+      />
+      <ServerPlaygroundPanel node={server} />
     </Box>
   );
 }
@@ -61,15 +89,6 @@ const centerSx = {
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: t.bg,
-} as const;
-
-const frameSx = {
-  width: 390,
-  height: 780,
-  borderWidth: 1,
-  borderColor: t.border,
-  borderRadius: 24,
-  overflow: 'hidden',
-  backgroundColor: t.bg,
+  background: 'background',
+  padding: 4,
 } as const;

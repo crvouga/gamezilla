@@ -1,4 +1,4 @@
-import { Box, Text } from '@pkgs/ui';
+import { Box, PillTabBar, Text } from '@pkgs/ui';
 import { useEffect, useMemo, useState } from 'react';
 
 import type {
@@ -27,8 +27,7 @@ import { ReportHeader } from './report-header';
 import type { NodeViewKind, ReportNavState } from './router';
 import { navigateReport } from './router';
 import { SqlitePane } from './sqlite-pane';
-import { TabBar } from './tab-bar';
-import { appShellSx, emptySx, paneSx, t } from './tokens';
+import { appShellSx, emptySx, paneSx } from './tokens';
 
 export function TestPage(props: {
   readonly data: SimulationReportData;
@@ -78,7 +77,7 @@ export function TestPage(props: {
         }
         meta={`${data.meta.status} · ${frames.length} frames · seed ${data.meta.seed}`}
       />
-      <Box sx={{ flex: 1, flexDirection: 'column', backgroundColor: t.bg }}>
+      <Box sx={{ flex: 1, flexDirection: 'column', minHeight: 0 }}>
         <PlayerStrip
           frames={frames}
           selectedIndex={Math.max(0, selectedIdx)}
@@ -86,21 +85,21 @@ export function TestPage(props: {
             onNav(navigateReport(nav, { frame: index + 1 }));
           }}
         />
-        <TabBar
-          label="Nodes"
+        <PillTabBar
+          accessibilityLabel="Nodes"
           items={nodes.map((n) => ({ id: n.id, label: n.id }))}
           selectedId={nodeId}
           onSelect={(id) => onNav(navigateReport(nav, { node: id }))}
         />
-        <TabBar
-          label="Views"
+        <PillTabBar
+          accessibilityLabel="Views"
           items={views.map((v) => ({ id: v, label: v }))}
           selectedId={view}
           onSelect={(id) =>
             onNav(navigateReport(nav, { view: id as NodeViewKind }))
           }
         />
-        <Box sx={{ flex: 1, backgroundColor: t.bg }}>
+        <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
           <SelectedPane
             view={view}
             api={api}

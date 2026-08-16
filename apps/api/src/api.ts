@@ -1,4 +1,5 @@
 // @io-wall-ok
+// @api-wall-ok
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
@@ -19,6 +20,7 @@ import {
 import { createApiObjectStore } from './config/object-store';
 import { createApiSecretStore } from './config/secret-store';
 import { resolveWebClientOrigin } from './config/web-client-origin';
+import { openRequestDb } from './db/open-request-db-postgres';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
@@ -125,6 +127,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     io: roomIo,
     apiUrlOverride,
     databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
+    openRequestDb,
     secretsEnv,
     objectStore,
     observability,

@@ -14,9 +14,9 @@ let fontCssPromise: Promise<string> | null = null;
  * `font-display: swap` to `block` so preview text waits for the face. Pure
  * helper — the caller injects `fetch` (e.g. a web `.web.tsx` HTML preview).
  */
-export function loadPreviewFontCss(fetch: HttpFetch): Promise<string> {
+export function loadPreviewFontCss(httpFetch: HttpFetch): Promise<string> {
   if (fontCssPromise === null) {
-    fontCssPromise = fetch(NUNITO_FONT_CSS_URL)
+    fontCssPromise = httpFetch(NUNITO_FONT_CSS_URL)
       .then(async (res) => {
         if (!res.ok) return '';
         const css = await res.text();

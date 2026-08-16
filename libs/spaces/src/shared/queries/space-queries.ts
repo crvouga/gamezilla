@@ -26,18 +26,8 @@ export const mySpaceUsers = defineQuery({
   name: 'mySpaceUsers',
   async run(ctx) {
     const actor = ctx.env.actorId;
+    // Nested subqueries (not WITH) — AlaSQL cannot resolve tables inside CTEs.
     const rows = await ctx.db.query(sql`
-      WITH related_spaces AS (
-        SELECT id
-        FROM spaces
-        WHERE host_member_id = ${actor}
-           OR host_account_id = ${actor}
-           OR id IN (
-             SELECT space_id
-             FROM spaces_users
-             WHERE user_id = ${actor}
-           )
-      )
       SELECT
         id,
         space_id,
@@ -47,7 +37,17 @@ export const mySpaceUsers = defineQuery({
         deleted_at
       FROM spaces_users
       WHERE user_id = ${actor}
-         OR space_id IN (SELECT id FROM related_spaces)
+         OR space_id IN (
+           SELECT id
+           FROM spaces
+           WHERE host_member_id = ${actor}
+              OR host_account_id = ${actor}
+              OR id IN (
+                SELECT space_id
+                FROM spaces_users
+                WHERE user_id = ${actor}
+              )
+         )
 `);
     return { spaces_users: rows };
   },

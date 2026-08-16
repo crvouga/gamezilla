@@ -3,6 +3,7 @@
  */
 
 import type { Io } from '@pkgs/io';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { ComponentType } from 'react';
 
 export type EmbeddedProductAppProps<R = unknown> = {
@@ -11,8 +12,28 @@ export type EmbeddedProductAppProps<R = unknown> = {
   readonly embedded: true;
 };
 
-export type PlaygroundActor<R = unknown> = {
+export type PlaygroundLogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+export type PlaygroundLogEntry = {
+  readonly at: number;
+  readonly level: PlaygroundLogLevel;
+  readonly msg: string;
+  readonly context?: Record<string, unknown>;
+};
+
+export type PlaygroundLogBuffer = {
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly snapshot: () => readonly PlaygroundLogEntry[];
+  readonly append: (entry: PlaygroundLogEntry) => void;
+};
+
+export type PlaygroundNode = {
   readonly id: string;
+  readonly sqlClient: SqlClient;
+  readonly logs: PlaygroundLogBuffer;
+};
+
+export type PlaygroundActor<R = unknown> = PlaygroundNode & {
   readonly io: Io;
   readonly resources: R;
 };
@@ -22,6 +43,7 @@ export type PlaygroundSession<R = unknown> = {
     readonly alice: PlaygroundActor<R>;
     readonly bob: PlaygroundActor<R>;
   };
+  readonly server: PlaygroundNode;
   dispose(): Promise<void>;
 };
 

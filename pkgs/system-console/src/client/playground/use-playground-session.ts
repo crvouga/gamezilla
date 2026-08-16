@@ -10,8 +10,8 @@ export type PlaygroundSessionState<R = unknown> =
 
 /**
  * Boot a two-actor playground session while `active`, disposing it on unmount
- * or when the console leaves the playground sections. There are no wall
- * fallbacks — a missing / failing boot surfaces an error state.
+ * or when `active` becomes false. There are no wall fallbacks — a missing /
+ * failing boot surfaces an error state.
  */
 export function usePlaygroundSession<R>(
   bootPlayground: () => Promise<PlaygroundSession<R>>,

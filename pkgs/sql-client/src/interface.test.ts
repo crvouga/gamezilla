@@ -4,6 +4,7 @@ import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
+import { SqlClientImplAlaSql } from './sqlite/impl-alasql';
 import { SqlClientImplBunSqlite } from './sqlite/impl-bun-sqlite';
 
 const io = createSimIo({ seed: 1 });
@@ -13,11 +14,21 @@ type ClientFactory = () => Promise<SqlClient>;
 async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
 > {
+  let alasqlSeq = 0;
   const impls: { name: string; createClient: ClientFactory }[] = [
     {
       name: 'SqlClientImplBunSqlite',
       createClient: () =>
         Promise.resolve(SqlClientImplBunSqlite.open(':memory:')),
+    },
+    {
+      name: 'SqlClientImplAlaSql',
+      createClient: async () => {
+        alasqlSeq += 1;
+        const client = SqlClientImplAlaSql.open(`iface_alasql_${alasqlSeq}`);
+        await client.connect();
+        return client;
+      },
     },
     {
       name: 'SqlClientWithPubSub',
@@ -106,18 +117,18 @@ describe.each(implementations)('$name', ({ createClient }) => {
   test('query returns rows with positional params', async () => {
     if (!client || !available) return;
     await client.connect();
-    await client.run(raw('CREATE TABLE items (id INTEGER, value TEXT)'));
+    await client.run(raw('CREATE TABLE items (id INTEGER, item_value TEXT)'));
     await client.run(sql<void>`INSERT INTO items VALUES (${1}, ${'a'})`);
     await client.run(sql<void>`INSERT INTO items VALUES (${2}, ${'b'})`);
     const rows = await client.query(
       sql<{
         id: number;
-        value: string;
-      }>`SELECT id, value FROM items WHERE id >= ${1} ORDER BY id`
+        item_value: string;
+      }>`SELECT id, item_value FROM items WHERE id >= ${1} ORDER BY id`
     );
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toEqual({ id: 1, value: 'a' });
-    expect(rows[1]).toEqual({ id: 2, value: 'b' });
+    expect(rows[0]).toEqual({ id: 1, item_value: 'a' });
+    expect(rows[1]).toEqual({ id: 2, item_value: 'b' });
     await client.disconnect();
   });
 

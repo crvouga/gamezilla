@@ -2,7 +2,6 @@ import { Pressable, ScrollView, Text } from '@pkgs/ui';
 
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
-import { t } from './tokens';
 
 export function Timeline(props: {
   readonly frames: readonly FlatFrame[];
@@ -11,7 +10,9 @@ export function Timeline(props: {
 }) {
   if (props.frames.length === 0) {
     return (
-      <Text sx={{ ...railSx, color: t.muted, padding: 10 }}>No frames.</Text>
+      <Text sx={{ ...railSx, color: 'textSecondary', padding: 10 }}>
+        No frames.
+      </Text>
     );
   }
 
@@ -19,7 +20,7 @@ export function Timeline(props: {
     <ScrollView
       horizontal
       frameSx={railSx}
-      sx={{ flexDirection: 'row', gap: 6, alignItems: 'stretch' }}
+      sx={{ flexDirection: 'row', gap: 1.5, alignItems: 'stretch' }}
       accessibilityLabel="Frames"
     >
       {props.frames.map((frame, index) => {
@@ -29,14 +30,27 @@ export function Timeline(props: {
             key={`${frame.file}-${index}`}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            sx={[tickSx, selected ? tickActiveSx : null]}
+            sx={{
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: 0.5,
+              minWidth: 72,
+              paddingVertical: 6,
+              paddingHorizontal: 8,
+              background: 'background',
+              borderWidth: 1,
+              borderColor: selected ? 'tint' : 'border',
+              borderRadius: 'md',
+            }}
             onPress={() => props.onSelect(index)}
           >
-            <Text sx={{ fontWeight: '600', color: t.text, fontSize: 12 }}>
+            <Text sx={{ fontWeight: '600', color: 'text', fontSize: 12 }}>
               {index + 1}
             </Text>
-            <Text sx={{ color: t.muted, fontSize: 11 }}>{frame.step.kind}</Text>
-            <Text sx={{ color: t.muted, fontSize: 11 }}>
+            <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
+              {frame.step.kind}
+            </Text>
+            <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
               {formatMs(frame.durationMs)}
             </Text>
           </Pressable>
@@ -49,21 +63,7 @@ export function Timeline(props: {
 const railSx = {
   paddingTop: 6,
   paddingBottom: 10,
-  backgroundColor: t.panel,
+  background: 'surface',
   minHeight: 52,
+  flexGrow: 0,
 } as const;
-
-const tickSx = {
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  gap: 2,
-  minWidth: 72,
-  paddingVertical: 6,
-  paddingHorizontal: 8,
-  backgroundColor: t.bg,
-  borderWidth: 1,
-  borderColor: t.border,
-  borderRadius: 4,
-} as const;
-
-const tickActiveSx = { borderColor: t.accent } as const;

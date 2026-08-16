@@ -15,6 +15,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",

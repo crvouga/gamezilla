@@ -8,13 +8,7 @@
 import { describe, expect, it } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
 import type { RoomCommandPayload } from '@pkgs/room';
-import {
-  act,
-  createElement,
-  type ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import { act, createElement, type ReactNode, useEffect, useState } from 'react';
 import TestRenderer from 'react-test-renderer';
 
 import {
@@ -64,11 +58,7 @@ function CommitButton({
   });
 }
 
-function DispatchProbe({
-  spaceId,
-}: {
-  readonly spaceId: string;
-}): ReactNode {
+function DispatchProbe({ spaceId }: { readonly spaceId: string }): ReactNode {
   const { dispatch } = useSpaceOpenRooms();
   const [ready, setReady] = useState(false);
   useEffect(() => {

@@ -501,6 +501,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:api-isomorphic": {
+      "inputs": [
+        "tools/scripts/check-api-isomorphic.ts",
+        "apps/api/src/**/*.ts",
+        "apps/api/src/**/*.tsx"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:no-bare-io": {
       "inputs": [
         "tools/scripts/check-no-bare-io.ts",

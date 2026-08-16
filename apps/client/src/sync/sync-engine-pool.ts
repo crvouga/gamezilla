@@ -13,6 +13,8 @@ export type AppSyncEnginePool = {
   readonly getOrCreate: (
     args: CreateAppLocalSyncEngineArgs
   ) => Promise<SyncEngine>;
+  /** Soft-stop all engines and close each SqlClient (releases web OPFS). */
+  readonly releaseAll: () => Promise<void>;
 };
 
 /**
@@ -30,6 +32,7 @@ export function createAppSyncEnginePool(options?: {
     peekReady: (databaseName) => pool.peekReady(databaseName),
     getOrCreate: (args) =>
       pool.getOrCreate(args.databaseName, () => createAppLocalSyncEngine(args)),
+    releaseAll: () => pool.releaseAll(),
   };
 }
 

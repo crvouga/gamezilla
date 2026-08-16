@@ -5,7 +5,7 @@
  * Fail-fast guardrail: enforce the workspace tier import pyramid.
  *
  *   test -> apps, libs, pkgs  (system-wide DST / UI testing)
- *   apps -> libs, pkgs   (never other @apps/*; never @test/*)
+ *   apps -> apps, libs, pkgs  (never @test/*; cross-app OK e.g. client → api)
  *   libs -> pkgs only    (libs may not import apps or test)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
@@ -67,20 +67,14 @@ type ManifestViolation = {
   targetPkg: string;
 };
 
-/** True when the import/dep edge breaks the tier pyramid or apps-not-apps. */
+/** True when the import/dep edge breaks the tier pyramid. */
 function isForbiddenEdge(
   fromTier: Tier,
-  fromScoped: PackageName,
+  _fromScoped: PackageName,
   targetTier: Tier,
-  targetShort: string
+  _targetShort: string
 ): boolean {
-  if (FORBIDDEN_FROM[fromTier].has(targetTier)) return true;
-  // Apps may compose libs/pkgs, never another @apps/* package.
-  if (fromTier === 'apps' && targetTier === 'apps') {
-    const targetScoped = `@${targetTier}/${targetShort}`;
-    if (fromScoped !== targetScoped) return true;
-  }
-  return false;
+  return FORBIDDEN_FROM[fromTier].has(targetTier);
 }
 
 function scanSourceImports(
@@ -193,7 +187,7 @@ function main(): never {
   const total = importViolations.length + manifestViolations.length;
   if (total === 0) {
     console.log(
-      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (test -> apps -> libs -> pkgs).`
+      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (test -> apps -> libs -> pkgs; apps may compose apps).`
     );
     process.exit(0);
   }

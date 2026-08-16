@@ -16,7 +16,14 @@ import type {
 
 export function wallExpoFs(): ExpoFs {
   return {
-    paths: { document: Paths.document },
+    // Lazy: `Paths.document` constructs a Directory that calls `validatePath`,
+    // which the web ExpoFileSystem stub does not implement. Native object-store
+    // paths access this only when Platform.OS !== 'web'.
+    paths: {
+      get document() {
+        return Paths.document;
+      },
+    },
     platformOs: Platform.OS,
     createDirectory(root, baseDir) {
       return new Directory(

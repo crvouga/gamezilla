@@ -10,7 +10,6 @@ import {
 } from './nav-breadcrumb-patches';
 import type { ReportNavState } from './router';
 import { navigateReport } from './router';
-import { t } from './tokens';
 
 export {
   breadcrumbPatchForBucket,
@@ -35,7 +34,7 @@ export function NavBreadcrumb(props: {
     <ScrollView
       horizontal
       frameSx={{ flex: 1 }}
-      sx={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+      sx={{ flexDirection: 'row', alignItems: 'center', gap: 1.5 }}
       accessibilityLabel="Report location"
     >
       <CrumbChips
@@ -87,7 +86,7 @@ export function NavBreadcrumb(props: {
 
 function CrumbSep() {
   return (
-    <Text sx={{ color: t.muted }} accessibilityElementsHidden>
+    <Text sx={{ color: 'textSecondary' }} accessibilityElementsHidden>
       /
     </Text>
   );
@@ -104,11 +103,11 @@ function CrumbChips(props: {
   const hasSelection = value !== '';
   return (
     <Box
-      sx={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+      sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}
       accessibilityLabel={ariaLabel}
     >
       {!hasSelection ? (
-        <Text sx={{ color: t.muted, fontSize: 12, fontWeight: '600' }}>
+        <Text sx={{ color: 'textSecondary', fontSize: 12, fontWeight: '600' }}>
           {placeholder}
         </Text>
       ) : null}
@@ -119,12 +118,19 @@ function CrumbChips(props: {
             key={o.value}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            sx={[chipSx, selected ? chipActiveSx : null]}
+            sx={{
+              borderWidth: 1,
+              borderColor: selected ? 'tint' : 'border',
+              background: selected ? 'tintSubtle' : 'surface',
+              borderRadius: 'md',
+              paddingVertical: 4,
+              paddingHorizontal: 8,
+            }}
             onPress={() => onChange(selected ? null : o.value)}
           >
             <Text
               sx={{
-                color: selected ? t.accent : t.text,
+                color: selected ? 'tint' : 'text',
                 fontSize: 12,
                 fontWeight: '600',
               }}
@@ -137,17 +143,3 @@ function CrumbChips(props: {
     </Box>
   );
 }
-
-const chipSx = {
-  borderWidth: 1,
-  borderColor: t.border,
-  backgroundColor: t.control,
-  borderRadius: t.radius,
-  paddingVertical: 4,
-  paddingHorizontal: 8,
-} as const;
-
-const chipActiveSx = {
-  borderColor: t.accent,
-  backgroundColor: t.accentSoft,
-} as const;

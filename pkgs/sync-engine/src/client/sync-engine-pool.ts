@@ -67,6 +67,11 @@ export type SyncEnginePoolApi = {
     databaseName: string,
     create: () => Promise<SyncEngine>
   ) => Promise<SyncEngine>;
+  /**
+   * Soft-stop every ready engine (upload loops / push), close each engine's
+   * SqlClient (releases web OPFS Access Handles), and clear the pool.
+   */
+  readonly releaseAll: () => Promise<void>;
 };
 
 /**
@@ -125,6 +130,20 @@ export function createSyncEnginePool(
         () => undefined
       );
       return result;
+    },
+    async releaseAll() {
+      const pool = resolvePool();
+      const engines = [...pool.ready.values()];
+      pool.ready.clear();
+      pool.pending.clear();
+      pool.activeName = null;
+      for (const engine of engines) {
+        // Soft-stop sync first, then close SQLite — same order as
+        // deactivatePrevious. Web OPFS is single-session; leaving handles
+        // open blocks the next open (Console playground, tab remount).
+        await engine.disconnect();
+        await engine.db.disconnect();
+      }
     },
   };
 }

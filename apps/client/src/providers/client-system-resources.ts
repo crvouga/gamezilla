@@ -12,6 +12,7 @@ import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-sto
 import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { useSystemResources } from '@pkgs/system/react';
+import type { CreateId } from '@pkgs/uuid';
 
 import type { DevMenuPort, NetworkStatePort } from '../device/ports';
 import type { OpenLocalSqlClient } from '../sync/create-local-sync-engine';
@@ -26,6 +27,14 @@ export type ClientSystemResources = {
   readonly secureStorageStore?: SecureStorageStore;
   readonly openSqlClient?: OpenLocalSqlClient;
   readonly syncEnginePool?: AppSyncEnginePool;
+  /**
+   * Override the identity-scoped sync pool key / local DB name.
+   * Playground uses `sim_*` so accidental OPFS opens cannot collide with Main.
+   */
+  readonly resolveDatabaseName?: (args: {
+    readonly userId: string;
+    readonly createId: CreateId;
+  }) => string;
   readonly createPubSub?: () => PubSub;
   readonly kv?: Kv;
   readonly network?: NetworkStatePort;

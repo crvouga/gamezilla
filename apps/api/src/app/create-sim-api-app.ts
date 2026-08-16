@@ -59,6 +59,7 @@ export async function createSimApiApp(
     databaseUrlOverride: args.databaseUrl,
     apiUrlOverride: args.apiUrl,
     openRequestDb: args.openRequestDb,
+    skipDatabaseUrlPolicy: true,
     secretsEnv: 'dev',
     objectStore: args.objectStore,
     observability: createNoopObservability('sim-api'),

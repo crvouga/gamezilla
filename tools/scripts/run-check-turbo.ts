@@ -43,6 +43,7 @@ const CI_GATE_TASKS = [
   'ci:sync-engine-protocol-freeze',
   'ci:sync-engine-public-api',
   'ci:no-provider-leaks',
+  'ci:api-isomorphic',
   'ci:no-bare-io',
   'ci:no-bare-fs',
   'ci:no-resolve-wall-defaults',

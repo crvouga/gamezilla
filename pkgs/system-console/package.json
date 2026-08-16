@@ -22,6 +22,8 @@
     "@pkgs/io": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/os": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "@pkgs/system": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",

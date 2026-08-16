@@ -1,4 +1,4 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
+import { AsyncLocalStorage } from '@pkgs/async-local';
 
 import type { Io } from './types';
 

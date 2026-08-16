@@ -1,6 +1,6 @@
 import {
-  createSystemConsoleApp,
   type CreateSystemConsoleAppOptions,
+  createSystemConsoleApp,
 } from './create-system-console-app';
 
 export type { ReportBucket } from './types';

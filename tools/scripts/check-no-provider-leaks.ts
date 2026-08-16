@@ -20,11 +20,15 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/client/src/providers/app-auth-provider.tsx',
   // Sim DI seam: types `authClientStorage` for injected AuthClientStorage.
   'apps/client/src/providers/client-system-resources.ts',
+  // In-process playground: wires createInMemoryAuthClientStorage for actors.
+  'apps/client/src/host/boot-playground.ts',
   'apps/api/src/api.ts',
   'apps/api/src/app/request-db-middleware.ts',
   'apps/api/src/app/create-app.ts',
   'apps/api/src/auth/better-auth-routes.ts',
   'apps/api/src/config/better-auth-boot.ts',
+  // Sim SQLite migrate: runBetterAuthMigrations for product UI sims.
+  'apps/api/src/system/migrate-sim-sqlite.ts',
   'libs/db/src/server/run-postgres-migrations.ts',
   'apps/api/src/db/migrate.ts',
   'apps/api/src/request-scope.ts',

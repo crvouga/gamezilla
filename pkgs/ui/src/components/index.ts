@@ -330,6 +330,12 @@ export {
 } from './overlay-portal';
 export { Picker, type PickerOption, type PickerProps } from './picker';
 export { PickerSection, type PickerSectionProps } from './picker-section';
+export {
+  PillTabBar,
+  type PillTabBarProps,
+  type PillTabItem,
+} from './pill-tab-bar';
+
 // Portal context bridge (ResponsiveSurface / bottom-sheet)
 export {
   PortalContentBridgeProvider,

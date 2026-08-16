@@ -8,11 +8,12 @@ import type { ResourceCtx } from '@pkgs/system';
 import { serveFetch } from '@pkgs/system';
 
 import { createSimApiApp } from '../app/create-sim-api-app';
+import {
+  SIM_API_URL,
+  SIM_BETTER_AUTH_SECRET,
+  SIM_SQLITE_DATABASE_URL,
+} from './migrate-sim-sqlite';
 import { requireSimOpenRequestDb } from './sim-open-request-db';
-
-const SIM_BETTER_AUTH_SECRET = 'sim-better-auth-secret-0123456789abcdef';
-const SIM_API_URL = 'http://sim.local';
-const SIM_SQLITE_DATABASE_URL = 'sqlite://sim';
 
 function ioFromCtx(ctx: ResourceCtx): Io {
   return {

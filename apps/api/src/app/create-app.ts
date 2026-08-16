@@ -249,41 +249,17 @@ async function buildDesiredClientConfig(args: {
   };
 }
 
-/**
- * Composes the API Worker app from mounted sub-apps (`app.route()`), per
- * [Hono best practices](https://hono.dev/docs/guides/best-practices).
- */
-export async function createApiApp(config: ApiHandlerConfig) {
+function createApiRouter(args: {
+  readonly config: ApiHandlerConfig;
+  readonly desiredClientConfig: DesiredClientConfig;
+  readonly stripe: Stripe | null;
+  readonly tts: Awaited<ReturnType<typeof createTtsAppForApi>>;
+  readonly llm: Awaited<ReturnType<typeof createLlmAppForApi>>;
+  readonly log: ReturnType<typeof createAppLogger>;
+}) {
+  const { config, desiredClientConfig, stripe, tts, llm, log } = args;
   const { secretStore, dbScope, observability, betterAuth, secretsEnv, io } =
     config;
-  const log = createAppLogger(io);
-
-  if (config.pubSub !== undefined) {
-    setApiPubSubOverride(config.pubSub);
-  }
-
-  const [stripe, tts, llm] = await Promise.all([
-    createStripeClient(config, log),
-    createTtsAppForApi(config),
-    createLlmAppForApi(config),
-  ]);
-
-  if (!betterAuth.googleEnabled) {
-    log.warn(
-      'Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)'
-    );
-  }
-
-  const desiredClientConfig = await buildDesiredClientConfig({
-    secretStore,
-    betterAuth,
-    stripeConfigured: stripe !== null,
-    ttsConfigured: tts.configured,
-    llmConfigured: llm.configured,
-    ...(config.apiUrlOverride !== undefined
-      ? { apiUrlOverride: config.apiUrlOverride }
-      : {}),
-  });
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -302,8 +278,9 @@ export async function createApiApp(config: ApiHandlerConfig) {
         observability,
         io,
         desiredClientConfig,
-        ...(config.openRequestDb !== undefined
-          ? { openRequestDb: config.openRequestDb }
+        openRequestDb: config.openRequestDb,
+        ...(config.skipDatabaseUrlPolicy === true
+          ? { skipDatabaseUrlPolicy: true }
           : {}),
       })
     )
@@ -334,7 +311,10 @@ export async function createApiApp(config: ApiHandlerConfig) {
     .route('/inbox', createInboxSubApp());
 
   apiRouter.onError(createApiErrorHandler(log));
+  return apiRouter;
+}
 
+function createConsoleRouter(config: ApiHandlerConfig) {
   const reportConsole = createSystemConsoleApp({
     buckets: [
       {
@@ -343,15 +323,51 @@ export async function createApiApp(config: ApiHandlerConfig) {
         store: config.objectStore.withPrefix(ObjectStorePrefix.systemConsole),
       },
     ],
-    timers: io.timers,
-    now: () => io.clock.now(),
+    timers: config.io.timers,
+    now: () => config.io.clock.now(),
+  });
+  return new Hono().use('*', apiCors).route('/', reportConsole.app);
+}
+
+/**
+ * Composes the API Worker app from mounted sub-apps (`app.route()`), per
+ * [Hono best practices](https://hono.dev/docs/guides/best-practices).
+ */
+export async function createApiApp(config: ApiHandlerConfig) {
+  const { betterAuth, io } = config;
+  const log = createAppLogger(io);
+
+  if (config.pubSub !== undefined) {
+    setApiPubSubOverride(config.pubSub);
+  }
+
+  const [stripe, tts, llm] = await Promise.all([
+    createStripeClient(config, log),
+    createTtsAppForApi(config),
+    createLlmAppForApi(config),
+  ]);
+
+  if (!betterAuth.googleEnabled) {
+    log.warn(
+      'Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)'
+    );
+  }
+
+  const desiredClientConfig = await buildDesiredClientConfig({
+    secretStore: config.secretStore,
+    betterAuth,
+    stripeConfigured: stripe !== null,
+    ttsConfigured: tts.configured,
+    llmConfigured: llm.configured,
+    ...(config.apiUrlOverride !== undefined
+      ? { apiUrlOverride: config.apiUrlOverride }
+      : {}),
   });
 
-  const consoleRouter = new Hono()
-    .use('*', apiCors)
-    .route('/', reportConsole.app);
-
   return new Hono()
-    .route('/api', apiRouter)
-    .route('/system-console', consoleRouter);
+    .route(
+      '/api',
+      createApiRouter({ config, desiredClientConfig, stripe, tts, llm, log })
+    )
+    .route('/system-console', createConsoleRouter(config));
 }

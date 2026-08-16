@@ -1,7 +1,7 @@
 import type { Timers } from '@pkgs/clock';
 import { Hono } from 'hono';
 
-import { handleApi, type HandleApiContext } from './api-routes';
+import { type HandleApiContext, handleApi } from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
 import { SseHub } from './sse-hub';
 import type { ReportBucket } from './types';

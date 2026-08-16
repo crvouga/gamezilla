@@ -1,4 +1,12 @@
-import { Box, Pressable, ScrollView, Text, TextInput } from '@pkgs/ui';
+import {
+  Badge,
+  Box,
+  Button,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+} from '@pkgs/ui';
 import { useState } from 'react';
 
 import type { RunSummary, SuiteTestSummary } from '../types';
@@ -7,21 +15,15 @@ import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
 import {
-  appBodyContentSx,
   appBodyFrameSx,
   appShellSx,
-  badgeSx,
-  btnDisabledSx,
-  btnPrimarySx,
-  btnPrimaryTextSx,
-  btnSx,
-  btnTextSx,
   cellTextSx,
   emptySx,
   rowSx,
-  t,
+  statusBadgeIntent,
   testIdSx,
   thSx,
+  useAppBodyContentSx,
 } from './tokens';
 
 const COLS = {
@@ -73,6 +75,7 @@ export function RunsPage(props: {
   } = props;
   const [keepLast, setKeepLast] = useState(5);
   const [busy, setBusy] = useState(false);
+  const bodySx = useAppBodyContentSx();
 
   return (
     <Box sx={appShellSx}>
@@ -88,11 +91,9 @@ export function RunsPage(props: {
         }
         meta={`${bucketId} · ${runs.length} run${runs.length === 1 ? '' : 's'} · gen ${generation}`}
       />
-      <ScrollView frameSx={appBodyFrameSx} sx={appBodyContentSx}>
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable sx={btnPrimarySx} onPress={onOpenLatest}>
-            <Text sx={btnPrimaryTextSx}>Open latest run</Text>
-          </Pressable>
+      <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
+        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
+          <Button title="Open latest run" size="sm" onPress={onOpenLatest} />
         </Box>
         <PruneBar
           keepLast={keepLast}
@@ -103,15 +104,17 @@ export function RunsPage(props: {
             void onKeepLast(keepLast).finally(() => setBusy(false));
           }}
         />
-        <RunsTable
-          runs={runs}
-          busy={busy}
-          onOpenRun={onOpenRun}
-          onDeleteRun={(runId) => {
-            setBusy(true);
-            void onDeleteRun(runId).finally(() => setBusy(false));
-          }}
-        />
+        <ScrollView horizontal frameSx={{ alignSelf: 'stretch' }}>
+          <RunsTable
+            runs={runs}
+            busy={busy}
+            onOpenRun={onOpenRun}
+            onDeleteRun={(runId) => {
+              setBusy(true);
+              void onDeleteRun(runId).finally(() => setBusy(false));
+            }}
+          />
+        </ScrollView>
       </ScrollView>
     </Box>
   );
@@ -125,28 +128,22 @@ function PruneBar(props: {
 }) {
   const { keepLast, busy, onKeepLastChange, onPrune } = props;
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
       <Text sx={cellTextSx}>Keep last</Text>
       <TextInput
         keyboardType="number-pad"
         value={String(keepLast)}
-        sx={{
-          width: 64,
-          backgroundColor: t.control,
-          borderWidth: 1,
-          borderColor: t.border,
-          borderRadius: t.radius,
-          color: t.text,
-        }}
+        sx={{ width: 64 }}
         onChangeText={(text) => onKeepLastChange(Number(text) || 0)}
       />
-      <Pressable
+      <Button
+        title="Prune"
+        size="sm"
+        intent="neutral"
+        variant="outline"
         disabled={busy}
-        sx={[btnSx, busy ? btnDisabledSx : null]}
         onPress={onPrune}
-      >
-        <Text sx={btnTextSx}>Prune</Text>
-      </Pressable>
+      />
     </Box>
   );
 }
@@ -159,7 +156,7 @@ function RunsTable(props: {
 }) {
   const { runs, busy, onOpenRun, onDeleteRun } = props;
   return (
-    <Box>
+    <Box sx={{ minWidth: 640 }}>
       <Box sx={rowSx}>
         <Text sx={[thSx, { flex: COLS.run }]}>Run</Text>
         <Text sx={[thSx, { flex: COLS.status }]}>Status</Text>
@@ -198,7 +195,11 @@ function RunRow(props: {
         <Text sx={testIdSx}>{r.id}</Text>
       </Pressable>
       <Box sx={{ flex: COLS.status }}>
-        <Text sx={badgeSx(r.status)}>{r.status.toUpperCase()}</Text>
+        <Badge
+          label={r.status.toUpperCase()}
+          intent={statusBadgeIntent(r.status)}
+          size="sm"
+        />
       </Box>
       <Text sx={[cellTextSx, { flex: COLS.updated }]}>
         {formatUpdated(r.updatedAtMs)}
@@ -206,13 +207,14 @@ function RunRow(props: {
       <Text sx={[cellTextSx, { flex: COLS.tests }]}>{r.testCount}</Text>
       <Text sx={[cellTextSx, { flex: COLS.frames }]}>{r.frameCount}</Text>
       <Box sx={{ flex: COLS.action, alignItems: 'flex-start' }}>
-        <Pressable
+        <Button
+          title="Delete"
+          size="sm"
+          intent="danger"
+          variant="outline"
           disabled={busy}
-          sx={[btnSx, busy ? btnDisabledSx : null]}
           onPress={onDelete}
-        >
-          <Text sx={btnTextSx}>Delete</Text>
-        </Pressable>
+        />
       </Box>
     </Box>
   );

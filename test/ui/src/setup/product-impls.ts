@@ -3,7 +3,7 @@
  */
 
 import { apiResource } from '@apps/api/system/api-resource';
-import { App } from '@apps/client/product';
+import { App } from '@apps/client/product/app';
 import { ioFromResourceCtx } from '@apps/client/system/client-resource';
 import { roomResource } from '@apps/room/system/room-resource';
 import { client } from '@libs/runtime/shared/system';

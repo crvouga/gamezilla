@@ -200,7 +200,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ```text
 test  →  apps, libs, pkgs, tools  (system-wide DST / UI testing)
-apps  →  libs, pkgs (never other @apps/*; never @test/*)
+apps  →  apps, libs, pkgs (never @test/*; cross-app OK e.g. client → api)
 libs  →  pkgs only
 pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 ```
@@ -210,7 +210,8 @@ pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 **Other layering rules:**
 
 - `@test/<name>` may import `@apps/*`, `@libs/*`, `@pkgs/*`, and tools. Product apps/libs/pkgs must not import `@test/*`.
-- `@apps/<name>` must not import or depend on another `@apps/<other>` (`ci:tier-imports` apps-not-apps). Same-package deep imports and type-only `import type` are fine.
+- `@apps/<name>` may import other `@apps/<other>` (e.g. client composing api’s in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
+- **`@apps/api` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenRequestDb`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:api-isomorphic`.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.

@@ -1,6 +1,18 @@
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import {
+  Badge,
+  Box,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  ScrollView,
+  Text,
+} from '@pkgs/ui';
 
-import { appBodyContentSx, appBodyFrameSx, badgeSx, t } from '../tokens';
+import {
+  appBodyFrameSx,
+  statusBadgeIntent,
+  useAppBodyContentSx,
+} from '../tokens';
 import type { PlaygroundSessionState } from './use-playground-session';
 
 /** Thin status screen: boot state, actor ids, dispose posture. */
@@ -8,35 +20,44 @@ export function PlaygroundSessionScreen<R>(props: {
   readonly state: PlaygroundSessionState<R>;
 }) {
   const { state } = props;
+  const bodySx = useAppBodyContentSx();
   return (
-    <ScrollView frameSx={appBodyFrameSx} sx={appBodyContentSx}>
-      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Text sx={{ color: t.text, fontSize: 14, fontWeight: '600' }}>
+    <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
+      <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
+        <Text sx={{ color: 'text', fontSize: 14, fontWeight: '600' }}>
           Playground session
         </Text>
-        <Text sx={badgeSx(statusBadge(state))}>
-          {state.status.toUpperCase()}
-        </Text>
+        <Badge
+          label={state.status.toUpperCase()}
+          intent={statusBadgeIntent(statusBadge(state))}
+          size="sm"
+        />
       </Box>
 
       {state.status === 'error' ? (
-        <Text sx={{ color: t.fail, fontSize: 12 }}>{state.error}</Text>
+        <ErrorState title="Boot failed" body={state.error} />
       ) : null}
 
       {state.status === 'ready' ? (
-        <Box sx={{ gap: 6 }}>
+        <Box sx={{ gap: 1.5 }}>
           <Row label="Alice" value={state.session.actors.alice.id} />
           <Row label="Bob" value={state.session.actors.bob.id} />
-          <Text sx={{ color: t.muted, fontSize: 12 }}>
+          <Row label="Server" value={state.session.server.id} />
+          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
             Session disposes automatically when leaving the playground.
           </Text>
         </Box>
-      ) : (
-        <Text sx={{ color: t.muted, fontSize: 12 }}>
-          {state.status === 'booting'
-            ? 'Booting two isolated actors…'
-            : 'Open the Playground tab to boot a session.'}
-        </Text>
+      ) : state.status === 'booting' ? (
+        <LoadingState
+          variant="compact"
+          caption="Booting Alice, Bob, and server…"
+        />
+      ) : state.status === 'error' ? null : (
+        <EmptyState
+          variant="compact"
+          title="Idle"
+          body="Open the Playground tab to boot a session."
+        />
       )}
     </ScrollView>
   );
@@ -44,11 +65,11 @@ export function PlaygroundSessionScreen<R>(props: {
 
 function Row(props: { readonly label: string; readonly value: string }) {
   return (
-    <Box sx={{ flexDirection: 'row', gap: 8 }}>
-      <Text sx={{ color: t.muted, fontSize: 12, minWidth: 56 }}>
+    <Box sx={{ flexDirection: 'row', gap: 2 }}>
+      <Text sx={{ color: 'textSecondary', fontSize: 12, minWidth: 56 }}>
         {props.label}
       </Text>
-      <Text sx={{ color: t.text, fontSize: 12 }}>{props.value}</Text>
+      <Text sx={{ color: 'text', fontSize: 12 }}>{props.value}</Text>
     </Box>
   );
 }

@@ -1,5 +1,11 @@
-import { Box } from '@pkgs/ui';
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { Box, PillTabBar } from '@pkgs/ui';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import type { SystemConsolePorts } from '../shared/ports';
 import { createReportApiClient } from './api-client';
@@ -8,8 +14,7 @@ import { PlaygroundSessionScreen } from './playground/playground-session-screen'
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
 import { DEFAULT_NAV, type ReportNavState } from './router';
-import { TabBar } from './tab-bar';
-import { appShellSx, t } from './tokens';
+import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
 type Section = 'reports' | 'playground' | 'session';
@@ -31,6 +36,9 @@ export function SystemConsoleApp<R>(props: {
 }): ReactNode {
   const { ports } = props;
   const [section, setSection] = useState<Section>('reports');
+  // Keep AlaSQL + sync engines alive across Reports ↔ Playground; dispose only
+  // when this console root unmounts (MutationUploadQueue races DROP DATABASE).
+  const [playgroundPinned, setPlaygroundPinned] = useState(false);
 
   const api = useMemo(
     () =>
@@ -41,21 +49,25 @@ export function SystemConsoleApp<R>(props: {
     [ports.io, ports.reportApiBasePath]
   );
 
-  const playgroundActive = section === 'playground' || section === 'session';
+  const playgroundSection = section === 'playground' || section === 'session';
+  useEffect(() => {
+    if (playgroundSection) setPlaygroundPinned(true);
+  }, [playgroundSection]);
+
   const sessionState = usePlaygroundSession(
     ports.bootPlayground,
-    playgroundActive
+    playgroundPinned
   );
 
   return (
     <Box sx={appShellSx}>
-      <TabBar
-        label="Console sections"
+      <PillTabBar
+        accessibilityLabel="Console sections"
         items={[...SECTIONS]}
         selectedId={section}
         onSelect={(id) => setSection(id as Section)}
       />
-      <Box sx={{ flex: 1, backgroundColor: t.bg }}>
+      <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
         {section === 'reports' ? <ReportsSection api={api} /> : null}
         {section === 'playground' ? (
           <PlaygroundScreen ports={ports} state={sessionState} />

@@ -26,11 +26,7 @@ import {
   betterAuthConfigForDatabase,
 } from '../config/better-auth-boot';
 import { ApiSecretName } from '../config/secret-names';
-import {
-  openRequestDb as defaultOpenRequestDb,
-  type OpenRequestDb,
-  type RequestDb,
-} from '../db/open-request-db';
+import type { OpenRequestDb, RequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { notifyClientConfigChannels } from '../sync/notify-client-config-channels';
@@ -74,8 +70,10 @@ export type RequestDbMiddlewareOptions = {
   readonly io: Io;
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
-  /** Sims inject SQLite; default is TCP {@link defaultOpenRequestDb}. */
-  readonly openRequestDb?: OpenRequestDb;
+  /** Injected DB opener (Postgres wall adapter or sim SQLite/AlaSQL). */
+  readonly openRequestDb: OpenRequestDb;
+  /** Sims skip non-prod DATABASE_URL policy checks. */
+  readonly skipDatabaseUrlPolicy?: boolean;
 };
 
 type ClientConfigLatch = { promise: Promise<void> | null };
@@ -164,7 +162,7 @@ async function attachRequestDatabase(
   const { c, next, dbScope, dbUrl, options, secretStore, clientConfigLatch } =
     args;
   const { betterAuth: boot, observability, io } = options;
-  const openDb = options.openRequestDb ?? defaultOpenRequestDb;
+  const openDb = options.openRequestDb;
   const opened = await openObservedRequestDb(
     observability,
     dbUrl,
@@ -202,16 +200,16 @@ async function attachRequestDatabase(
         );
         return await next();
       } finally {
-        try {
-          if (opened.kind === 'postgres') {
+        // SQLite openers own process-lifetime handles (sim AlaSQL / better-sqlite3).
+        // Disconnecting here DROP/closes them after the first request.
+        if (opened.kind === 'postgres') {
+          try {
             await Promise.all([sqlClient.disconnect(), opened.pool.end()]);
-          } else {
-            await sqlClient.disconnect();
+          } catch (error: unknown) {
+            observability.recordException(error, {
+              operation: 'request-db-cleanup',
+            });
           }
-        } catch (error: unknown) {
-          observability.recordException(error, {
-            operation: 'request-db-cleanup',
-          });
         }
       }
     })
@@ -226,7 +224,7 @@ export function createRequestDbMiddleware(
   const { databaseUrlOverride = null, secretsEnv } = options;
   const policyLatch: PolicyLatch = { checked: false };
   const clientConfigLatch: ClientConfigLatch = { promise: null };
-  const skipDatabasePolicy = options.openRequestDb !== undefined;
+  const skipDatabasePolicy = options.skipDatabaseUrlPolicy === true;
   return async (c, next) => {
     if (new URL(c.req.url).pathname === '/api/health') {
       return next();

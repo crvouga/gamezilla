@@ -84,6 +84,8 @@
       "@pkgs/assistant/client": ["./pkgs/assistant/src/client/index.ts"],
       "@pkgs/assert": ["./pkgs/assert/src/index.ts"],
       "@pkgs/assert/*": ["./pkgs/assert/src/*"],
+      "@pkgs/async-local": ["./pkgs/async-local/src/index.ts"],
+      "@pkgs/async-local/*": ["./pkgs/async-local/src/*"],
       "@pkgs/auth": ["./pkgs/auth/src/shared/index.ts"],
       "@pkgs/auth/*": ["./pkgs/auth/src/*"],
       "@pkgs/auth-better-auth/client": [
@@ -231,6 +233,8 @@
     "apps/client/expo-env.d.ts",
     "apps/client/scripts/**/*.ts",
     "pkgs/assert/src/**/*.ts",
+    "pkgs/async-local/src/**/*.ts",
+    "pkgs/async-local/src/**/*.tsx",
     "pkgs/auth/src/**/*.ts",
     "pkgs/auth/src/**/*.tsx",
     "pkgs/auth-better-auth/src/**/*.ts",

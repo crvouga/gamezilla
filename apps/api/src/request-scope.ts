@@ -1,5 +1,5 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import type { SessionAuth } from '@libs/auth/server/session-middleware';
+import { AsyncLocalStorage } from '@pkgs/async-local';
 import type { BetterAuthInstance } from '@pkgs/auth-better-auth/server';
 import type { Io } from '@pkgs/io';
 import type { Kv } from '@pkgs/kv/interface';

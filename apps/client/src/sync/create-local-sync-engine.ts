@@ -166,6 +166,14 @@ export async function createAppLocalSyncEngine(
   await deleteLegacySidecarDb(args.databaseName);
   const syncLease = await tryAcquireSyncOwnerLease(args.databaseName);
   try {
+    if (
+      args.openSqlClient === undefined &&
+      args.databaseName.startsWith('sim_')
+    ) {
+      throw new Error(
+        `createAppLocalSyncEngine: refusing OPFS open for sim database "${args.databaseName}" — inject openSqlClient`
+      );
+    }
     const db =
       args.openSqlClient !== undefined
         ? await args.openSqlClient({

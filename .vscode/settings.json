@@ -27,6 +27,7 @@
     "ABAC",
     "acked",
     "affordances",
+    "alasql",
     "alphanum",
     "amortise",
     "apprunner",
@@ -272,6 +273,7 @@
     "Tweens",
     "txns",
     "uidx",
+    "unacked",
     "Unblended",
     "uncatchable",
     "unindexed",
@@ -299,8 +301,7 @@
     "worklets",
     "xact",
     "xmark",
-    "xyflow",
-    "unacked"
+    "xyflow"
   ],
   "yaml.schemas": {
     "https://json.schemastore.org/github-workflow.json": [

@@ -28,6 +28,7 @@
     "@pkgs/object-store": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
+    "alasql": "catalog:",
     "better-sqlite3": "catalog:",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",

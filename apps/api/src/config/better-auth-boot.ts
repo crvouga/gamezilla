@@ -4,7 +4,7 @@ import {
   type CreateBetterAuthConfig,
 } from '@pkgs/auth-better-auth/server';
 import type { SecretStore } from '@pkgs/secret-store';
-import type { Pool } from 'pg';
+import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';

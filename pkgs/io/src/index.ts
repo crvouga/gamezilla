@@ -1,6 +1,7 @@
 /**
  * Client-safe surface. Server request-scope helpers live at `@pkgs/io/als`
- * (`getIo` / `runWithIo`) so Metro / web never evaluate `node:async_hooks`.
+ * (`getIo` / `runWithIo`) so Metro / web never need Node `async_hooks`
+ * (ALS is isomorphic via `@pkgs/async-local`).
  */
 export {
   IoProvider,

@@ -11,7 +11,6 @@ export {
 } from './config/web-client-origin';
 export {
   type OpenRequestDb,
-  openRequestDb,
   type RequestDb,
   type RequestDbPostgres,
   type RequestDbSqlite,

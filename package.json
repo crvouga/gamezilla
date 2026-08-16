@@ -10,7 +10,7 @@
     "tools"
   ],
   "scripts": {
-    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:domain-table-prefixes ci:dst-selector-discipline ci:no-legacy-writes ci:no-domain-hard-delete ci:no-top-level-di-functions ci:no-eager-di-construction ci:layer-c-sql-tx ci:no-di-container ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:matchmaking-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:no-bare-io ci:no-bare-fs ci:no-resolve-wall-defaults ci:no-sql-wall-io ci:no-vendor-sql ci:hard-determinism ci:sim-determinism ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:component-ids ci:no-rn-style-api ci:no-size-limit-overrides ci:audit check:static @apps/api#build @apps/minio#build @apps/postgres#build",
+    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:domain-table-prefixes ci:dst-selector-discipline ci:no-legacy-writes ci:no-domain-hard-delete ci:no-top-level-di-functions ci:no-eager-di-construction ci:layer-c-sql-tx ci:no-di-container ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:matchmaking-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:api-isomorphic ci:no-bare-io ci:no-bare-fs ci:no-resolve-wall-defaults ci:no-sql-wall-io ci:no-vendor-sql ci:hard-determinism ci:sim-determinism ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:component-ids ci:no-rn-style-api ci:no-size-limit-overrides ci:audit check:static @apps/api#build @apps/minio#build @apps/postgres#build",
     "check:actionlint": "actionlint -color",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-api.ts",
     "check:ci": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-turbo.ts ci",
@@ -28,6 +28,7 @@
     "check:static": "bun run check:actionlint && bun run check:gitleaks",
     "chess:puzzles:export-load": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
+    "ci:api-isomorphic": "bun run tools/scripts/check-api-isomorphic.ts",
     "ci:audit": "bun run tools/scripts/ci-audit.ts",
     "ci:channel-exhaustiveness": "bun run tools/scripts/check-channel-exhaustiveness.ts",
     "ci:circular-deps": "bun run tools/scripts/check-circular-deps.ts",
@@ -220,6 +221,7 @@
     "mqtt": "^5.14.1",
     "node-sql-parser": "^5.4.0",
     "pg": "^8.16.3",
+    "alasql": "^4.17.3",
     "pg-mem": "^3.0.14",
     "picocolors": "^1.1.1",
     "react": "19.2.0",
@@ -238,7 +240,7 @@
     "sort-package-json": "^3.6.1",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
-    "turbo": "^2.10.9",
+    "turbo": "^2.10.10",
     "typescript": "~6.0.3",
     "unique-names-generator": "^4.7.1",
     "whatwg-fetch": "^3.6.20",

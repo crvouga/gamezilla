@@ -1,3 +1,4 @@
+// @io-wall-ok — product App composition root (wall Io fallback when host omits io).
 /**
  * Product client root — SystemProvider + providers + React Navigation.
  * Production and DST mount the same component.

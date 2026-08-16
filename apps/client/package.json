@@ -17,6 +17,11 @@
     "./product": [
       "./src/product/app.tsx"
     ],
+    "./product/*": [
+      "./src/product/*.ts",
+      "./src/product/*.tsx",
+      "./src/product/*/index.ts"
+    ],
     "./host/*": [
       "./src/host/*.ts",
       "./src/host/*.tsx",
@@ -83,6 +88,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@apps/api": "workspace:*",
     "@expo-google-fonts/nunito": "catalog:",
     "@expo/metro-runtime": "catalog:",
     "@gorhom/bottom-sheet": "catalog:",
@@ -97,6 +103,7 @@
     "@libs/runtime": "workspace:*",
     "@libs/search": "workspace:*",
     "@libs/spaces": "workspace:*",
+    "@libs/stripe": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

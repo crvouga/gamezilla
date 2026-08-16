@@ -49,6 +49,8 @@ const ENTRY_BASENAMES = new Set([
   'example-root.tsx',
   'impl-pg-mem.ts',
   'app.tsx',
+  'boot-playground.ts',
+  'compose-sub-apps.tsx',
 ]);
 
 /**

@@ -37,6 +37,7 @@ import { default as MutationModalExample } from '../mutation-modal/mutation-moda
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
 import { default as PickerExample } from '../picker/picker.example';
 import { default as PickerSectionExample } from '../picker-section/picker-section.example';
+import { default as PillTabBarExample } from '../pill-tab-bar/pill-tab-bar.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
 import { default as PullToRefreshExample } from '../pull-to-refresh/pull-to-refresh.example';
@@ -192,6 +193,11 @@ const builtInEntries: ComponentEntry[] = [
     name: 'SegmentedControl',
     category: 'Inputs',
     Example: SegmentedControlExample,
+  },
+  {
+    name: 'PillTabBar',
+    category: 'Inputs',
+    Example: PillTabBarExample,
   },
 
   // Status

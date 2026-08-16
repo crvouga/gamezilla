@@ -24,6 +24,7 @@ import {
   defaultAppSyncEnginePool,
 } from '../../sync/sync-engine-pool';
 import { useClientSystemResources } from '../client-system-resources';
+import { useEmbeddedApp } from '../embedded-app-context';
 import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
   LocalDatabaseBootErrorScreen,
@@ -34,9 +35,13 @@ import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
 function useIdentitySqliteDbName(userId: string): string {
   const createId = useIo().createId;
+  const resolveDatabaseName = useClientSystemResources().resolveDatabaseName;
   return useMemo(
-    () => getMainSqliteDbName(userId, createId),
-    [userId, createId]
+    () =>
+      resolveDatabaseName !== undefined
+        ? resolveDatabaseName({ userId, createId })
+        : getMainSqliteDbName(userId, createId),
+    [userId, createId, resolveDatabaseName]
   );
 }
 
@@ -65,7 +70,9 @@ function useSyncEnginePromise(
   userId: string,
   pool: AppSyncEnginePool
 ): Promise<SyncEngine> {
-  const { openSqlClient, createPubSub } = useClientSystemResources();
+  const resources = useClientSystemResources();
+  const { openSqlClient, createPubSub, syncEnginePool } = resources;
+  const embedded = useEmbeddedApp();
   const config = useConfigService();
   const observability = useObservability();
   const io = useIo();
@@ -88,6 +95,16 @@ function useSyncEnginePromise(
   authRef.current = auth;
   ioRef.current = io;
   createPubSubRef.current = createPubSub;
+
+  if (
+    (embedded || syncEnginePool !== undefined) &&
+    openSqlClient === undefined
+  ) {
+    throw new Error(
+      'SyncEngineBoot: embedded / sim hosts must inject openSqlClient (never fall through to OPFS)'
+    );
+  }
+
   return useMemo(
     () =>
       pool.getOrCreate({

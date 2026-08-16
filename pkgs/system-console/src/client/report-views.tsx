@@ -10,7 +10,12 @@ import { clearPlayerNav, navigateReport } from './router';
 import { RunsPage } from './runs-page';
 import { SuitePage } from './suite-page';
 import { TestPage } from './test-page';
-import { appBodyContentSx, appBodyFrameSx, appShellSx, emptySx } from './tokens';
+import {
+  appBodyFrameSx,
+  appShellSx,
+  emptySx,
+  useAppBodyContentSx,
+} from './tokens';
 import type { ReportDataApi } from './use-report-data';
 
 const LOCAL_BUCKET = 'local';
@@ -36,7 +41,9 @@ export function ReportViews(props: {
   if (!nav.bucketId) {
     return (
       <Box sx={appShellSx}>
-        <ReportHeader breadcrumb={<Text sx={{ color: '#d7dde8' }}>Reports</Text>} />
+        <ReportHeader
+          breadcrumb={<Text sx={{ color: 'text' }}>Reports</Text>}
+        />
         <Box sx={appBodyFrameSx}>
           <Text sx={emptySx}>
             {data.buckets.length === 0
@@ -140,6 +147,7 @@ function TestOrLoading(props: {
   readonly api: ReportApiClient;
 }) {
   const { nav, data, concreteRunId, onNav, api } = props;
+  const bodySx = useAppBodyContentSx();
   const crumb = (
     <NavBreadcrumb
       nav={nav}
@@ -153,7 +161,7 @@ function TestOrLoading(props: {
     return (
       <Box sx={appShellSx}>
         <ReportHeader breadcrumb={crumb} />
-        <ScrollView frameSx={appBodyFrameSx} sx={appBodyContentSx}>
+        <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
             {isLatestRunId(nav.runId)
               ? 'Waiting for the latest run…'
@@ -169,7 +177,7 @@ function TestOrLoading(props: {
     return (
       <Box sx={appShellSx}>
         <ReportHeader breadcrumb={crumb} />
-        <ScrollView frameSx={appBodyFrameSx} sx={appBodyContentSx}>
+        <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
             {data.error
               ? `Failed to load test: ${data.error}`

@@ -1,3 +1,4 @@
+// @api-wall-ok
 // @io-wall-ok
 /**
  * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.

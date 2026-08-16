@@ -1,4 +1,4 @@
-import { Box, Pressable, Stack, Text } from '@pkgs/ui';
+import { Box, PillTabBar, Text } from '@pkgs/ui';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import type { ClientHostProps } from './hosted-sub-app';
@@ -28,42 +28,13 @@ export function ClientHost(props: ClientHostProps): ReactNode {
 
   return (
     <Box sx={{ flex: 1, background: 'background' }}>
-      <Stack
-        direction="horizontal"
-        spacing={1}
-        sx={{
-          paddingHorizontal: 2,
-          paddingVertical: 2,
-          borderBottomWidth: 1,
-          borderColor: 'border',
-          background: 'surface',
-        }}
-      >
-        {apps.map((app) => {
-          const active = app.id === selected.id;
-          return (
-            <Pressable
-              key={app.id}
-              onPress={() => setSelectedId(app.id)}
-              sx={{
-                paddingHorizontal: 3,
-                paddingVertical: 2,
-                borderRadius: 'md',
-                borderWidth: 1,
-                borderColor: active ? 'tint' : 'border',
-                background: active ? 'tintSubtle' : 'surface',
-              }}
-            >
-              <Text
-                variant="label"
-                label={app.title}
-                sx={{ color: active ? 'tint' : 'text' }}
-              />
-            </Pressable>
-          );
-        })}
-      </Stack>
-      <Box sx={{ flex: 1 }}>
+      <PillTabBar
+        accessibilityLabel="Apps"
+        items={apps.map((app) => ({ id: app.id, label: app.title }))}
+        selectedId={selected.id}
+        onSelect={setSelectedId}
+      />
+      <Box sx={{ flex: 1, minHeight: 0 }}>
         <SelectedApp />
       </Box>
     </Box>
