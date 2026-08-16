@@ -13,6 +13,8 @@
     ]
   },
   "scripts": {
+    "dev": "bun run scripts/local-report-server.ts",
+    "kill": "bun run scripts/kill-dev.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test src --pass-with-no-tests"
   },

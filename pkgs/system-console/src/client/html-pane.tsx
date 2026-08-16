@@ -1,14 +1,16 @@
 import { Box, Text } from '@pkgs/ui';
 
+import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
 import { emptySx, paneSx } from './tokens';
 
 /**
- * Native-safe HTML preview fallback. The DOM iframe renderer is web-only; a
- * `.web.tsx` variant can reintroduce it (via `preview-html` + `preview-fonts`).
+ * Native-safe HTML preview fallback. The DOM iframe renderer is web-only
+ * (`html-pane.web.tsx` via Metro platform resolution).
  */
 export function HtmlPane(props: {
+  readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
   readonly testId: string;

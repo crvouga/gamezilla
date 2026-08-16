@@ -134,7 +134,7 @@ function SelectedPane(props: {
     nodeId: props.nodeId,
   };
   if (props.view === 'html') {
-    return <HtmlPane {...loc} node={props.node} />;
+    return <HtmlPane {...loc} api={props.api} node={props.node} />;
   }
   if (props.view === 'sqlite') {
     return <SqlitePane {...loc} />;

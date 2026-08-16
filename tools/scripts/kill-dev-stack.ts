@@ -17,6 +17,7 @@ const DEV_PORTS = [
   5174, // legacy Expo web / Metro
   5556, // dev IdP (DEV_IDP_DEFAULT_PORT)
   8799, // observability collector
+  7789, // @pkgs/system-console local report console
   1883, // EMQX MQTT TCP
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API

@@ -51,9 +51,12 @@ export function createSystemConsoleApp(
   const app = new Hono();
   app.all('*', async (c) => {
     const url = new URL(c.req.url);
-    // When mounted via `.route('/system-console', app)`, Hono strips the
-    // prefix from `c.req.path` while `c.req.url` keeps the full path.
-    url.pathname = c.req.path;
+    // Hono keeps the full request path on `c.req.path` even when mounted via
+    // `.route('/system-console', app)`. Route matching expects `/api/*`, so
+    // slice from the `/api` segment (works at root or under any mount prefix).
+    const fullPath = c.req.path;
+    const apiIdx = fullPath.indexOf('/api');
+    url.pathname = apiIdx >= 0 ? fullPath.slice(apiIdx) : fullPath;
     const res = await handleApi(c.req.raw, url, ctx);
     if (res) return res;
     return c.json({ error: 'not found' }, 404);

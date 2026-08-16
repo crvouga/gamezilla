@@ -13,6 +13,7 @@ import { defaultAppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
 import { useIo, wallIo } from '@pkgs/io';
 import { SystemProvider } from '@pkgs/system/react';
 import {
+  DEFAULT_REPORT_SERVER_PORT,
   SystemConsoleApp,
   type SystemConsolePorts,
 } from '@pkgs/system-console/client';
@@ -21,17 +22,32 @@ import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { useHostChrome } from './host-chrome-context';
 
+function isLocalApiOrigin(origin: string): boolean {
+  try {
+    const host = new URL(origin).hostname;
+    return host === 'localhost' || host === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 function ConsoleSubApp(): ReactNode {
   const io = useIo();
   const { state, patch } = useHostChrome();
   const ports = useMemo((): SystemConsolePorts<ClientSystemResources> => {
     const apiOrigin = getApiBaseUrl().replace(/\/$/, '');
+    // Local Jest sims write to `<repo>/system-console-data`. The Bun report
+    // sidecar (`@pkgs/system-console#dev`) serves that tree; the API Worker
+    // mount reads MinIO/B2 and stays for non-local / production.
+    const reportApiBasePath = isLocalApiOrigin(apiOrigin)
+      ? `http://localhost:${String(DEFAULT_REPORT_SERVER_PORT)}`
+      : `${apiOrigin}/system-console`;
     return {
       ProductApp:
         ProductApp as SystemConsolePorts<ClientSystemResources>['ProductApp'],
       bootPlayground: bootPlaygroundSession,
       io,
-      reportApiBasePath: `${apiOrigin}/system-console`,
+      reportApiBasePath,
     };
   }, [io]);
   return (
