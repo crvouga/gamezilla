@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
 import { Text } from '../text';
-import { PillTabBar } from './pill-tab-bar';
+import { TabStrip } from './tab-strip';
 
-export default function PillTabBarExample() {
+export default function TabStripExample() {
   const [app, setApp] = useState('main');
   const [section, setSection] = useState('reports');
+  const [view, setView] = useState('ui');
 
   return (
     <ExampleRoot>
       <Stack spacing={4}>
-        <PillTabBar
+        <TabStrip
           accessibilityLabel="Apps"
           items={[
             { id: 'main', label: 'Main' },
@@ -22,7 +23,7 @@ export default function PillTabBarExample() {
         />
         <Text variant="caption" label={`App: ${app}`} />
 
-        <PillTabBar
+        <TabStrip
           accessibilityLabel="Console sections"
           items={[
             { id: 'reports', label: 'Reports' },
@@ -33,6 +34,24 @@ export default function PillTabBarExample() {
           onSelect={setSection}
         />
         <Text variant="caption" label={`Section: ${section}`} />
+
+        <TabStrip
+          accessibilityLabel="Panel views"
+          leading={
+            <Text
+              sx={{ color: 'text', fontSize: 12, fontWeight: '600' }}
+              label="Alice"
+            />
+          }
+          items={[
+            { id: 'ui', label: 'UI' },
+            { id: 'db', label: 'DB' },
+            { id: 'logs', label: 'Logs' },
+          ]}
+          selectedId={view}
+          onSelect={setView}
+        />
+        <Text variant="caption" label={`View: ${view}`} />
       </Stack>
     </ExampleRoot>
   );

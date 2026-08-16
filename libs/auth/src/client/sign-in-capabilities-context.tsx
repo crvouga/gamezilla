@@ -4,8 +4,9 @@ export type SignInCapabilities = {
   readonly google: boolean;
   readonly emailPassword: boolean;
   /**
-   * False while synced `client_config` is still loading. Callers must not
-   * treat missing methods as “server has none configured” until ready.
+   * False while sync paint is not ready or the local `client_config` watch has
+   * not hydrated. Callers must not treat missing methods as “server has none
+   * configured” until ready.
    */
   readonly ready: boolean;
 };

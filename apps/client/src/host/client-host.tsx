@@ -1,4 +1,4 @@
-import { Box, PillTabBar, Text } from '@pkgs/ui';
+import { Box, TabStrip, Text } from '@pkgs/ui';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import type { ClientHostProps } from './hosted-sub-app';
@@ -28,7 +28,7 @@ export function ClientHost(props: ClientHostProps): ReactNode {
 
   return (
     <Box sx={{ flex: 1, background: 'background' }}>
-      <PillTabBar
+      <TabStrip
         accessibilityLabel="Apps"
         items={apps.map((app) => ({ id: app.id, label: app.title }))}
         selectedId={selected.id}

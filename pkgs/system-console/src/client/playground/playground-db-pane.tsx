@@ -1,5 +1,4 @@
-import { ident, sql } from '@pkgs/sql';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   Box,
   Button,
@@ -8,13 +7,16 @@ import {
   Pressable,
   ScrollView,
   Text,
+  useTheme,
 } from '@pkgs/ui';
 import { useEffect, useState } from 'react';
 
-type SchemaRow = {
-  readonly name: string;
-  readonly type: string;
-};
+import {
+  formatPlaygroundDbCell,
+  listPlaygroundTables,
+  loadPlaygroundTablePreview,
+  type SchemaRow,
+} from './playground-db-query';
 
 type ReadyState = {
   readonly status: 'ready';
@@ -32,11 +34,12 @@ type DbState =
 
 /**
  * Live SQL browser for a playground node: table list + SELECT * LIMIT 100.
- * Postgres ({@link PostgresSqlClient} / `dbScope`) uses information_schema;
- * otherwise SQLite/AlaSQL catalog (`sqlite_master` / PRAGMA).
+ * Narrow breakpoints stack a chip picker + row cards; desktop keeps rail + grid.
  */
 export function PlaygroundDbPane(props: { readonly sqlClient: SqlClient }) {
   const { sqlClient } = props;
+  const { breakpoint } = useTheme();
+  const narrow = breakpoint === 'mobile' || breakpoint === 'tablet';
   const [state, setState] = useState<DbState>({ status: 'loading' });
   const [tick, setTick] = useState(0);
 
@@ -73,22 +76,41 @@ export function PlaygroundDbPane(props: { readonly sqlClient: SqlClient }) {
     );
   }
 
+  const onSelect = (name: string) => {
+    void selectTable(sqlClient, name, setState);
+  };
+  const onRefresh = () => setTick((n) => n + 1);
+
+  if (narrow) {
+    return (
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <TableChipPicker
+          tables={state.tables}
+          selected={state.selected}
+          onRefresh={onRefresh}
+          onSelect={onSelect}
+        />
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <RowCardPreview state={state} />
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ flex: 1, minHeight: 0, flexDirection: 'row' }}>
-      <TableList
+      <TableRail
         tables={state.tables}
         selected={state.selected}
-        onRefresh={() => setTick((n) => n + 1)}
-        onSelect={(name) => {
-          void selectTable(sqlClient, name, setState);
-        }}
+        onRefresh={onRefresh}
+        onSelect={onSelect}
       />
-      <TablePreview state={state} />
+      <GridPreview state={state} />
     </Box>
   );
 }
 
-function TableList(props: {
+function TableChipPicker(props: {
   readonly tables: readonly SchemaRow[];
   readonly selected: string | null;
   readonly onRefresh: () => void;
@@ -97,7 +119,85 @@ function TableList(props: {
   return (
     <Box
       sx={{
-        width: 140,
+        flexShrink: 0,
+        borderBottomWidth: 1,
+        borderColor: 'border',
+        paddingVertical: 6,
+        gap: 2,
+      }}
+    >
+      <Box
+        sx={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 8,
+        }}
+      >
+        <Text sx={{ color: 'textSecondary', fontSize: 10, fontWeight: '600' }}>
+          {props.selected ?? 'Tables'}
+        </Text>
+        <Button
+          title="Refresh"
+          size="sm"
+          intent="neutral"
+          variant="ghost"
+          onPress={props.onRefresh}
+        />
+      </Box>
+      <ScrollView
+        horizontal
+        frameSx={{ flexGrow: 0 }}
+        sx={{ paddingHorizontal: 6, gap: 1, flexDirection: 'row' }}
+      >
+        {props.tables.length === 0 ? (
+          <Text sx={{ color: 'textSecondary', fontSize: 11, padding: 4 }}>
+            No tables yet.
+          </Text>
+        ) : (
+          props.tables.map((t) => {
+            const active = t.name === props.selected;
+            return (
+              <Pressable
+                key={t.name}
+                onPress={() => props.onSelect(t.name)}
+                sx={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 'md',
+                  background: active ? 'tintSubtle' : 'background',
+                  flexShrink: 0,
+                }}
+              >
+                <Text
+                  sx={{
+                    color: active ? 'tint' : 'text',
+                    fontSize: 11,
+                    fontWeight: active ? '600' : '400',
+                  }}
+                  numberOfLines={1}
+                >
+                  {t.name}
+                </Text>
+              </Pressable>
+            );
+          })
+        )}
+      </ScrollView>
+    </Box>
+  );
+}
+
+function TableRail(props: {
+  readonly tables: readonly SchemaRow[];
+  readonly selected: string | null;
+  readonly onRefresh: () => void;
+  readonly onSelect: (name: string) => void;
+}) {
+  return (
+    <Box
+      sx={{
+        width: 180,
         flexShrink: 0,
         borderRightWidth: 1,
         borderColor: 'border',
@@ -167,7 +267,63 @@ function TableList(props: {
   );
 }
 
-function TablePreview(props: { readonly state: ReadyState }) {
+function RowCardPreview(props: { readonly state: ReadyState }) {
+  const { state } = props;
+  if (state.rowError != null) {
+    return <ErrorState title="Query failed" body={state.rowError} />;
+  }
+  if (state.selected == null) {
+    return (
+      <Text sx={{ color: 'textSecondary', fontSize: 12, padding: 8 }}>
+        Select a table.
+      </Text>
+    );
+  }
+  if (state.rows.length === 0) {
+    return (
+      <Text sx={{ color: 'textSecondary', fontSize: 11, padding: 8 }}>
+        Empty table.
+      </Text>
+    );
+  }
+  return (
+    <ScrollView frameSx={{ flex: 1, minHeight: 0 }} sx={{ padding: 6, gap: 2 }}>
+      {state.rows.map((row, i) => (
+        <Box
+          key={i}
+          sx={{
+            borderWidth: 1,
+            borderColor: 'border',
+            borderRadius: 'md',
+            padding: 8,
+            gap: 1.5,
+            background: 'surface',
+          }}
+        >
+          <Text
+            sx={{ color: 'textSecondary', fontSize: 10, fontWeight: '600' }}
+          >
+            Row {i + 1}
+          </Text>
+          {state.columns.map((col) => (
+            <Box key={col} sx={{ gap: 0.5 }}>
+              <Text
+                sx={{ color: 'textSecondary', fontSize: 10, fontWeight: '600' }}
+              >
+                {col}
+              </Text>
+              <Text sx={{ color: 'text', fontSize: 12 }} numberOfLines={4}>
+                {formatPlaygroundDbCell(row[col])}
+              </Text>
+            </Box>
+          ))}
+        </Box>
+      ))}
+    </ScrollView>
+  );
+}
+
+function GridPreview(props: { readonly state: ReadyState }) {
   const { state } = props;
   if (state.rowError != null) {
     return <ErrorState title="Query failed" body={state.rowError} />;
@@ -229,7 +385,7 @@ function TablePreview(props: { readonly state: ReadyState }) {
                   }}
                   numberOfLines={2}
                 >
-                  {formatCell(row[col])}
+                  {formatPlaygroundDbCell(row[col])}
                 </Text>
               ))}
             </Box>
@@ -246,7 +402,7 @@ async function loadSchema(
 ): Promise<void> {
   setState({ status: 'loading' });
   try {
-    const tables = await listTables(sqlClient);
+    const tables = await listPlaygroundTables(sqlClient);
     const selected = tables[0]?.name ?? null;
     if (selected == null) {
       setState({
@@ -259,7 +415,7 @@ async function loadSchema(
       });
       return;
     }
-    const preview = await loadTablePreview(sqlClient, selected);
+    const preview = await loadPlaygroundTablePreview(sqlClient, selected);
     setState({
       status: 'ready',
       tables,
@@ -281,7 +437,7 @@ async function selectTable(
   name: string,
   setState: (updater: (prev: DbState) => DbState) => void
 ): Promise<void> {
-  const preview = await loadTablePreview(sqlClient, name);
+  const preview = await loadPlaygroundTablePreview(sqlClient, name);
   setState((prev) => {
     if (prev.status !== 'ready') return prev;
     return {
@@ -292,100 +448,6 @@ async function selectTable(
       rowError: preview.error,
     };
   });
-}
-
-function isPostgresSqlClient(
-  sqlClient: SqlClient
-): sqlClient is PostgresSqlClient {
-  return 'dbScope' in sqlClient;
-}
-
-async function listTables(sqlClient: SqlClient): Promise<readonly SchemaRow[]> {
-  if (isPostgresSqlClient(sqlClient)) {
-    return sqlClient.query<SchemaRow>(sql`
-      SELECT
-        CASE table_type
-          WHEN 'BASE TABLE' THEN 'table'
-          ELSE 'view'
-        END AS type,
-        table_name AS name
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_type IN ('BASE TABLE', 'VIEW')
-      ORDER BY
-        CASE table_type WHEN 'BASE TABLE' THEN 0 ELSE 1 END,
-        table_name
-    `);
-  }
-  return sqlClient.query<SchemaRow>(sql`
-    SELECT type, name FROM sqlite_master
-    WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
-    ORDER BY
-      CASE type WHEN 'table' THEN 0 ELSE 1 END,
-      name
-  `);
-}
-
-async function loadTablePreview(
-  sqlClient: SqlClient,
-  tableName: string
-): Promise<{
-  readonly columns: readonly string[];
-  readonly rows: readonly Record<string, unknown>[];
-  readonly error: string | null;
-}> {
-  try {
-    const rows = await sqlClient.query<Record<string, unknown>>(
-      sql`SELECT * FROM ${ident(tableName)} LIMIT 100`
-    );
-    const columns =
-      rows.length > 0
-        ? Object.keys(rows[0] as Record<string, unknown>).sort()
-        : await loadColumnNames(sqlClient, tableName);
-    return { columns, rows, error: null };
-  } catch (err) {
-    return {
-      columns: [],
-      rows: [],
-      error: err instanceof Error ? err.message : String(err),
-    };
-  }
-}
-
-async function loadColumnNames(
-  sqlClient: SqlClient,
-  tableName: string
-): Promise<readonly string[]> {
-  try {
-    if (isPostgresSqlClient(sqlClient)) {
-      const info = await sqlClient.query<{ name: string }>(sql`
-        SELECT column_name AS name
-        FROM information_schema.columns
-        WHERE table_schema = 'public' AND table_name = ${tableName}
-        ORDER BY ordinal_position
-      `);
-      return info.map((r) => r.name);
-    }
-    const info = await sqlClient.query<{ name: string }>(
-      sql`PRAGMA table_info(${ident(tableName)})`
-    );
-    return info.map((r) => r.name);
-  } catch {
-    return [];
-  }
-}
-
-function formatCell(value: unknown): string {
-  if (value == null) return 'NULL';
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
-  }
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
 }
 
 const paneFillSx = {

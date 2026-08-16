@@ -1,4 +1,5 @@
-import { Box, ErrorState, LoadingState, ScrollView, useTheme } from '@pkgs/ui';
+import { Box, ErrorState, LoadingState, TabStrip, useTheme } from '@pkgs/ui';
+import { type ReactNode, useState } from 'react';
 
 import type { SystemConsolePorts } from '../../shared/ports';
 import {
@@ -7,9 +8,18 @@ import {
 } from './playground-panel';
 import type { PlaygroundSessionState } from './use-playground-session';
 
+const NODE_TABS = [
+  { id: 'alice', label: 'Alice' },
+  { id: 'bob', label: 'Bob' },
+  { id: 'server', label: 'Server' },
+] as const;
+
+type NodeId = (typeof NODE_TABS)[number]['id'];
+
 /**
- * Three fill-width panels (Alice / Bob / Server). Each panel owns a PillTabBar:
- * clients UI|DB|Logs; server DB|Logs.
+ * Fill-viewport playground. Tablet/desktop: three equal columns. Mobile only:
+ * Alice / Bob / Server tabs. All panels stay mounted so ProductApp state survives
+ * tab switches and breakpoint resizes.
  */
 export function PlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
@@ -17,7 +27,8 @@ export function PlaygroundScreen<R>(props: {
 }) {
   const { ports, state } = props;
   const { breakpoint } = useTheme();
-  const mobile = breakpoint === 'mobile';
+  const wide = breakpoint !== 'mobile';
+  const [node, setNode] = useState<NodeId>('alice');
 
   if (state.status === 'error') {
     return (
@@ -37,50 +48,94 @@ export function PlaygroundScreen<R>(props: {
   const { alice, bob } = state.session.actors;
   const { server } = state.session;
 
-  if (mobile) {
-    return (
-      <ScrollView frameSx={{ flex: 1, minHeight: 0, background: 'background' }}>
-        <ClientPlaygroundPanel
-          title="Alice"
-          ProductApp={ports.ProductApp}
-          actor={alice}
-          stacked
-          separator
-        />
-        <ClientPlaygroundPanel
-          title="Bob"
-          ProductApp={ports.ProductApp}
-          actor={bob}
-          stacked
-          separator
-        />
-        <ServerPlaygroundPanel node={server} stacked />
-      </ScrollView>
-    );
-  }
-
   return (
     <Box
       sx={{
         flex: 1,
         minHeight: 0,
-        flexDirection: 'row',
         background: 'background',
+        overflow: 'hidden',
       }}
     >
-      <ClientPlaygroundPanel
-        title="Alice"
-        ProductApp={ports.ProductApp}
-        actor={alice}
-        separator
-      />
-      <ClientPlaygroundPanel
-        title="Bob"
-        ProductApp={ports.ProductApp}
-        actor={bob}
-        separator
-      />
-      <ServerPlaygroundPanel node={server} />
+      {wide ? null : (
+        <TabStrip
+          accessibilityLabel="Playground nodes"
+          items={[...NODE_TABS]}
+          selectedId={node}
+          onSelect={(id) => setNode(id as NodeId)}
+        />
+      )}
+      <Box
+        sx={
+          wide
+            ? {
+                flex: 1,
+                minHeight: 0,
+                flexDirection: 'row',
+                overflow: 'hidden',
+              }
+            : {
+                flex: 1,
+                minHeight: 0,
+                position: 'relative',
+              }
+        }
+      >
+        <PanelSlot wide={wide} active={node === 'alice'} separator={wide}>
+          <ClientPlaygroundPanel
+            title="Alice"
+            ProductApp={ports.ProductApp}
+            actor={alice}
+          />
+        </PanelSlot>
+        <PanelSlot wide={wide} active={node === 'bob'} separator={wide}>
+          <ClientPlaygroundPanel
+            title="Bob"
+            ProductApp={ports.ProductApp}
+            actor={bob}
+          />
+        </PanelSlot>
+        <PanelSlot wide={wide} active={node === 'server'}>
+          <ServerPlaygroundPanel node={server} />
+        </PanelSlot>
+      </Box>
+    </Box>
+  );
+}
+
+function PanelSlot(props: {
+  readonly wide: boolean;
+  readonly active: boolean;
+  readonly separator?: boolean;
+  readonly children: ReactNode;
+}) {
+  if (props.wide) {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          overflow: 'hidden',
+          ...(props.separator === true
+            ? { borderRightWidth: 1, borderColor: 'border' as const }
+            : {}),
+        }}
+      >
+        {props.children}
+      </Box>
+    );
+  }
+  return (
+    <Box
+      sx={{
+        absoluteFill: true,
+        display: props.active ? 'flex' : 'none',
+        pointerEvents: props.active ? 'auto' : 'none',
+        overflow: 'hidden',
+      }}
+    >
+      {props.children}
     </Box>
   );
 }

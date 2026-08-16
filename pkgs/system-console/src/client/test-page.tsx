@@ -1,4 +1,4 @@
-import { Box, PillTabBar, Text } from '@pkgs/ui';
+import { Box, TabStrip, Text } from '@pkgs/ui';
 import { useEffect, useMemo, useState } from 'react';
 
 import type {
@@ -85,13 +85,13 @@ export function TestPage(props: {
             onNav(navigateReport(nav, { frame: index + 1 }));
           }}
         />
-        <PillTabBar
+        <TabStrip
           accessibilityLabel="Nodes"
           items={nodes.map((n) => ({ id: n.id, label: n.id }))}
           selectedId={nodeId}
           onSelect={(id) => onNav(navigateReport(nav, { node: id }))}
         />
-        <PillTabBar
+        <TabStrip
           accessibilityLabel="Views"
           items={views.map((v) => ({ id: v, label: v }))}
           selectedId={view}

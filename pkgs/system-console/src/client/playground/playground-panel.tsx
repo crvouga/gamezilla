@@ -1,4 +1,4 @@
-import { Box, PillTabBar, Text } from '@pkgs/ui';
+import { Box, TabStrip, Text } from '@pkgs/ui';
 import { type ReactNode, useState } from 'react';
 
 import type {
@@ -23,52 +23,38 @@ const SERVER_TABS = [
 type ClientTabId = (typeof CLIENT_TABS)[number]['id'];
 type ServerTabId = (typeof SERVER_TABS)[number]['id'];
 
-/** Client panel: UI / DB / Logs with live ProductApp on the UI tab. */
+/**
+ * Client panel: UI / DB / Logs. ProductApp stays mounted across tab switches so
+ * sync engines are not torn down mid-hydrate (warm remount used to skip
+ * waitForFirstSync and paint empty client_config → “no sign-in methods”).
+ */
 export function ClientPlaygroundPanel<R>(props: {
   readonly title: string;
   readonly ProductApp: SystemConsolePorts<R>['ProductApp'];
   readonly actor: PlaygroundActor<R>;
-  readonly stacked?: boolean;
-  /** Draw a flush separator after this panel (right in row, bottom when stacked). */
-  readonly separator?: boolean;
 }) {
-  const {
-    title,
-    ProductApp,
-    actor,
-    stacked = false,
-    separator = false,
-  } = props;
+  const { title, ProductApp, actor } = props;
   const [tab, setTab] = useState<ClientTabId>('ui');
-
-  let body: ReactNode = null;
-  if (tab === 'ui') {
-    body = (
-      <Box sx={uiBodySx}>
-        <ProductApp io={actor.io} resources={actor.resources} embedded />
-      </Box>
-    );
-  } else if (tab === 'db') {
-    body = <PlaygroundDbPane sqlClient={actor.sqlClient} />;
-  } else {
-    body = <PlaygroundLogsPane logs={actor.logs} />;
-  }
 
   return (
     <PanelShell
       title={title}
-      stacked={stacked}
-      separator={separator}
-      tabBar={
-        <PillTabBar
-          accessibilityLabel={`${title} views`}
-          items={[...CLIENT_TABS]}
-          selectedId={tab}
-          onSelect={(id) => setTab(id as ClientTabId)}
-        />
-      }
+      accessibilityLabel={`${title} views`}
+      items={[...CLIENT_TABS]}
+      selectedId={tab}
+      onSelect={(id) => setTab(id as ClientTabId)}
     >
-      {body}
+      <Box
+        sx={{
+          ...uiBodySx,
+          display: tab === 'ui' ? 'flex' : 'none',
+          pointerEvents: tab === 'ui' ? 'auto' : 'none',
+        }}
+      >
+        <ProductApp io={actor.io} resources={actor.resources} embedded />
+      </Box>
+      {tab === 'db' ? <PlaygroundDbPane sqlClient={actor.sqlClient} /> : null}
+      {tab === 'logs' ? <PlaygroundLogsPane logs={actor.logs} /> : null}
     </PanelShell>
   );
 }
@@ -76,25 +62,17 @@ export function ClientPlaygroundPanel<R>(props: {
 /** Server panel: DB / Logs only (no product UI). */
 export function ServerPlaygroundPanel(props: {
   readonly node: PlaygroundNode;
-  readonly stacked?: boolean;
-  readonly separator?: boolean;
 }) {
-  const { node, stacked = false, separator = false } = props;
+  const { node } = props;
   const [tab, setTab] = useState<ServerTabId>('db');
 
   return (
     <PanelShell
       title="Server"
-      stacked={stacked}
-      separator={separator}
-      tabBar={
-        <PillTabBar
-          accessibilityLabel="Server views"
-          items={[...SERVER_TABS]}
-          selectedId={tab}
-          onSelect={(id) => setTab(id as ServerTabId)}
-        />
-      }
+      accessibilityLabel="Server views"
+      items={[...SERVER_TABS]}
+      selectedId={tab}
+      onSelect={(id) => setTab(id as ServerTabId)}
     >
       {tab === 'db' ? (
         <PlaygroundDbPane sqlClient={node.sqlClient} />
@@ -107,55 +85,34 @@ export function ServerPlaygroundPanel(props: {
 
 function PanelShell(props: {
   readonly title: string;
-  readonly tabBar: ReactNode;
+  readonly accessibilityLabel: string;
+  readonly items: readonly { id: string; label: string }[];
+  readonly selectedId: string;
+  readonly onSelect: (id: string) => void;
   readonly children: ReactNode;
-  readonly stacked?: boolean;
-  readonly separator?: boolean;
 }) {
-  const separatorSx = props.separator
-    ? props.stacked
-      ? { borderBottomWidth: 1, borderColor: 'border' as const }
-      : { borderRightWidth: 1, borderColor: 'border' as const }
-    : {};
-
   return (
     <Box
-      sx={
-        props.stacked
-          ? {
-              width: '100%',
-              minHeight: 420,
-              overflow: 'hidden',
-              background: 'surface',
-              ...separatorSx,
-            }
-          : {
-              flex: 1,
-              minWidth: 0,
-              minHeight: 0,
-              overflow: 'hidden',
-              background: 'surface',
-              ...separatorSx,
-            }
-      }
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        minHeight: 0,
+        overflow: 'hidden',
+        background: 'surface',
+      }}
     >
-      <Box
-        sx={{
-          paddingHorizontal: 10,
-          paddingTop: 8,
-          paddingBottom: 4,
-          borderBottomWidth: 1,
-          borderColor: 'border',
-          background: 'surface',
-          flexShrink: 0,
-          gap: 2,
-        }}
-      >
-        <Text sx={{ color: 'text', fontSize: 12, fontWeight: '600' }}>
-          {props.title}
-        </Text>
-        {props.tabBar}
-      </Box>
+      <TabStrip
+        accessibilityLabel={props.accessibilityLabel}
+        leading={
+          <Text
+            label={props.title}
+            sx={{ color: 'text', fontSize: 12, fontWeight: '600' }}
+          />
+        }
+        items={props.items}
+        selectedId={props.selectedId}
+        onSelect={props.onSelect}
+      />
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {props.children}
       </Box>

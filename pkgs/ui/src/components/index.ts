@@ -330,12 +330,6 @@ export {
 } from './overlay-portal';
 export { Picker, type PickerOption, type PickerProps } from './picker';
 export { PickerSection, type PickerSectionProps } from './picker-section';
-export {
-  PillTabBar,
-  type PillTabBarProps,
-  type PillTabItem,
-} from './pill-tab-bar';
-
 // Portal context bridge (ResponsiveSurface / bottom-sheet)
 export {
   PortalContentBridgeProvider,
@@ -482,6 +476,14 @@ export {
   useSurfaceStackSlot,
 } from './surface-stack';
 export { Switch, type SwitchProps } from './switch';
+export {
+  TabStrip as PillTabBar,
+  TabStrip,
+  type TabStripItem as PillTabItem,
+  type TabStripItem,
+  type TabStripProps as PillTabBarProps,
+  type TabStripProps,
+} from './tab-strip';
 export { Text, type TextProps, type TextVariant } from './text';
 export { TextInput, type TextInputProps } from './text-input';
 export {

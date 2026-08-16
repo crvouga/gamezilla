@@ -1,4 +1,4 @@
-import { Box, PillTabBar } from '@pkgs/ui';
+import { Box, TabStrip } from '@pkgs/ui';
 import {
   type ReactNode,
   useCallback,
@@ -62,7 +62,7 @@ export function SystemConsoleApp<R>(props: {
 
   return (
     <Box sx={appShellSx}>
-      <PillTabBar
+      <TabStrip
         accessibilityLabel="Console sections"
         items={[...SECTIONS]}
         selectedId={section}

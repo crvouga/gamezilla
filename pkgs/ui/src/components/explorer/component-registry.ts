@@ -37,7 +37,6 @@ import { default as MutationModalExample } from '../mutation-modal/mutation-moda
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
 import { default as PickerExample } from '../picker/picker.example';
 import { default as PickerSectionExample } from '../picker-section/picker-section.example';
-import { default as PillTabBarExample } from '../pill-tab-bar/pill-tab-bar.example';
 import { default as PressableExample } from '../pressable/pressable.example';
 import { default as ProgressBarExample } from '../progress-bar/progress-bar.example';
 import { default as PullToRefreshExample } from '../pull-to-refresh/pull-to-refresh.example';
@@ -60,6 +59,7 @@ import { default as StatusBarExample } from '../status-bar/status-bar.example';
 import { default as StatusDotExample } from '../status-dot/status-dot.example';
 import { default as SuccessStateExample } from '../success-state/success-state.example';
 import { default as SwitchExample } from '../switch/switch.example';
+import { default as TabStripExample } from '../tab-strip/tab-strip.example';
 import { default as TextExample } from '../text/text.example';
 import { default as TextInputExample } from '../text-input/text-input.example';
 import { default as ThemeTokensExample } from '../theme-tokens/theme-tokens.example';
@@ -195,9 +195,9 @@ const builtInEntries: ComponentEntry[] = [
     Example: SegmentedControlExample,
   },
   {
-    name: 'PillTabBar',
+    name: 'TabStrip',
     category: 'Inputs',
-    Example: PillTabBarExample,
+    Example: TabStripExample,
   },
 
   // Status
