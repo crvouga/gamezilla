@@ -1,10 +1,4 @@
-import {
-  Box,
-  Gamepad2Icon,
-  HistoryIcon,
-  ListChecksIcon,
-  TabStrip,
-} from '@pkgs/ui';
+import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
 import {
   type ReactNode,
   useCallback,
@@ -16,19 +10,17 @@ import {
 import type { SystemConsolePorts } from '../shared/ports';
 import { createReportApiClient } from './api-client';
 import { PlaygroundScreen } from './playground/playground-screen';
-import { PlaygroundSessionScreen } from './playground/playground-session-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
 import { DEFAULT_NAV, type ReportNavState } from './router';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
-type Section = 'reports' | 'playground' | 'session';
+type Section = 'reports' | 'playground';
 
 const SECTIONS = [
   { id: 'reports', label: 'Reports', icon: ListChecksIcon },
   { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
-  { id: 'session', label: 'Session', icon: HistoryIcon },
 ] as const;
 
 const DEFAULT_BASE_PATH = '/system-console';
@@ -55,10 +47,9 @@ export function SystemConsoleApp<R>(props: {
     [ports.io, ports.reportApiBasePath]
   );
 
-  const playgroundSection = section === 'playground' || section === 'session';
   useEffect(() => {
-    if (playgroundSection) setPlaygroundPinned(true);
-  }, [playgroundSection]);
+    if (section === 'playground') setPlaygroundPinned(true);
+  }, [section]);
 
   const { state: sessionState } = usePlaygroundSession(
     ports.bootPlayground,
@@ -77,9 +68,6 @@ export function SystemConsoleApp<R>(props: {
         {section === 'reports' ? <ReportsSection api={api} /> : null}
         {section === 'playground' ? (
           <PlaygroundScreen ports={ports} state={sessionState} />
-        ) : null}
-        {section === 'session' ? (
-          <PlaygroundSessionScreen state={sessionState} />
         ) : null}
       </Box>
     </Box>

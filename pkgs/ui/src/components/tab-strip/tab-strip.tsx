@@ -1,26 +1,31 @@
 /**
- * `TabStrip` -- exclusive floating-pill tab strip for shell / console chrome.
+ * `TabStrip` -- browser / IDE folder-tab chrome for shell and console.
  *
- * Owns a muted strip surface + a constant bottom hairline. Tabs are fully
- * rounded pills with min/max width, clearer padding, and active/inactive
- * contrast. Optional `leading` / `trailing` / `onAdd`. Web keyboard shortcuts
+ * Muted strip + bottom hairline. Active tab merges into content (top radii,
+ * side borders, covers hairline). Inactive tabs are flat with hairline
+ * separators and hover. Closable tabs reveal close on hover (always on
+ * active). Optional `leading` / `trailing` / `onAdd`. Web keyboard shortcuts
  * when `keyboardScope` is true: mod+1..9, ctrl+tab / ctrl+shift+tab,
  * mod+alt+arrows, mod+w (close), mod+t (add).
  */
 
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import {
+  type LayoutChangeEvent,
+  Platform,
+  type ScrollView as RNScrollView,
+} from 'react-native';
 
 import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
 import type { WebKeyboardEventLike } from '../command-palette/keyboard-shortcut';
-import { XIcon } from '../icons';
+import { PlusIcon } from '../icons';
 import { Pressable } from '../pressable';
 import { ScrollView } from '../scroll-view';
-import { Text } from '../text';
 import { handleTabStripKeyDown } from './tab-strip-keyboard';
+import { TAB_MIN_HEIGHT, TabStripTab } from './tab-strip-tab';
 import type { TabStripItem } from './tab-strip-types';
 
 export type { TabStripItem } from './tab-strip-types';
@@ -40,10 +45,6 @@ export type TabStripProps = {
   readonly accessibilityLabel?: string;
   readonly dataSet?: ComponentDataSet;
 };
-
-const TAB_MIN_HEIGHT = 40;
-const TAB_MIN_WIDTH = 88;
-const TAB_MAX_WIDTH = 200;
 
 function useTabStripKeyboard(
   enabled: boolean,
@@ -80,67 +81,43 @@ function useTabStripKeyboard(
   }, [enabled]);
 }
 
-function TabPill(props: {
-  readonly item: TabStripItem;
-  readonly active: boolean;
-  readonly onSelect: (id: string) => void;
-}) {
-  const theme = useTheme();
-  const { item, active, onSelect } = props;
-  const closable = item.onClose !== undefined;
-  const Icon = item.icon;
-  const iconColor = active ? theme.colors.tint : theme.colors.textSecondary;
-  return (
-    <Pressable
-      accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
-      onPress={() => onSelect(item.id)}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        minHeight: TAB_MIN_HEIGHT,
-        minWidth: TAB_MIN_WIDTH,
-        maxWidth: TAB_MAX_WIDTH,
-        paddingLeft: 5,
-        paddingRight: closable ? 2 : 5,
-        paddingVertical: 2,
-        borderRadius: 'md',
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: active ? 'border' : 'transparent',
-        background: active ? 'background' : 'transparent',
-      }}
-    >
-      {Icon !== undefined ? <Icon size={16} color={iconColor} /> : null}
-      <Text
-        variant="label"
-        label={item.label}
-        numberOfLines={1}
-        sx={{
-          flexShrink: 1,
-          color: active ? 'tint' : 'textSecondary',
-          fontWeight: active ? '700' : '500',
-        }}
-      />
-      {closable ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-          onPress={item.onClose!}
-          sx={{
-            padding: 1.5,
-            borderRadius: 'sm',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <XIcon size={14} color={theme.colors.textSecondary} />
-        </Pressable>
-      ) : null}
-    </Pressable>
-  );
+type TabLayoutMap = Map<string, { x: number; width: number }>;
+
+type ScrollIntoViewRefs = {
+  readonly scrollRef: RefObject<RNScrollView | null>;
+  readonly layoutsRef: RefObject<TabLayoutMap>;
+  readonly viewportWidthRef: RefObject<number>;
+  readonly scrollXRef: RefObject<number>;
+};
+
+function useScrollSelectedIntoView(
+  selectedId: string | null,
+  refs: ScrollIntoViewRefs
+): void {
+  const { scrollRef, layoutsRef, viewportWidthRef, scrollXRef } = refs;
+  useEffect(() => {
+    if (selectedId === null) return;
+    const layout = layoutsRef.current.get(selectedId);
+    const viewW = viewportWidthRef.current;
+    if (layout === undefined || viewW <= 0) return;
+    const pad = 8;
+    const scrollX = scrollXRef.current;
+    const left = layout.x;
+    const right = layout.x + layout.width;
+    if (left < scrollX + pad) {
+      scrollRef.current?.scrollTo({
+        x: Math.max(0, left - pad),
+        animated: true,
+      });
+      return;
+    }
+    if (right > scrollX + viewW - pad) {
+      scrollRef.current?.scrollTo({
+        x: Math.max(0, right - viewW + pad),
+        animated: true,
+      });
+    }
+  }, [selectedId, scrollRef, layoutsRef, viewportWidthRef, scrollXRef]);
 }
 
 export function TabStrip(props: TabStripProps) {
@@ -155,6 +132,11 @@ export function TabStrip(props: TabStripProps) {
     accessibilityLabel,
     dataSet,
   } = props;
+  const theme = useTheme();
+  const scrollRef = useRef<RNScrollView>(null);
+  const layoutsRef = useRef(new Map<string, { x: number; width: number }>());
+  const viewportWidthRef = useRef(0);
+  const scrollXRef = useRef(0);
 
   useTabStripKeyboard(keyboardScope, () => ({
     items: props.items,
@@ -162,49 +144,100 @@ export function TabStrip(props: TabStripProps) {
     onSelect: props.onSelect,
     ...(props.onAdd !== undefined ? { onAdd: props.onAdd } : {}),
   }));
+  useScrollSelectedIntoView(selectedId, {
+    scrollRef,
+    layoutsRef,
+    viewportWidthRef,
+    scrollXRef,
+  });
+
+  const showStandaloneAdd =
+    onAdd !== undefined && (trailing === undefined || trailing === null);
 
   return (
     <Box sx={stripSx} dataSet={{ component: 'TabStrip', ...dataSet }}>
       {leading !== undefined && leading !== null ? (
         <Box sx={leadingSx}>{leading}</Box>
       ) : null}
-      <ScrollView
-        horizontal
-        frameSx={scrollFrameSx}
-        sx={pillsSx}
-        accessibilityRole="tablist"
-        accessibilityLabel={accessibilityLabel}
-      >
-        {items.map((item) => (
-          <TabPill
-            key={item.id}
-            item={item}
-            active={item.id === selectedId}
-            onSelect={onSelect}
-          />
-        ))}
-      </ScrollView>
+      <TabStripScroll
+        scrollRef={scrollRef}
+        items={items}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        {...(accessibilityLabel !== undefined ? { accessibilityLabel } : {})}
+        layoutsRef={layoutsRef}
+        viewportWidthRef={viewportWidthRef}
+        scrollXRef={scrollXRef}
+      />
       {trailing !== undefined && trailing !== null ? (
         <Box sx={trailingSx}>{trailing}</Box>
       ) : null}
-      {onAdd !== undefined && (trailing === undefined || trailing === null) ? (
-        <Pressable
-          accessibilityLabel="Add tab"
-          onPress={onAdd}
-          sx={{
-            paddingHorizontal: 4,
-            paddingVertical: 2,
-            minHeight: TAB_MIN_HEIGHT,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 'md',
-            overflow: 'hidden',
-          }}
-        >
-          <Text label="+" sx={{ color: 'textSecondary', fontSize: 18 }} />
+      {showStandaloneAdd ? (
+        <Pressable accessibilityLabel="Add tab" onPress={onAdd} sx={addSx}>
+          <PlusIcon size={16} color={theme.colors.textSecondary} />
         </Pressable>
       ) : null}
     </Box>
+  );
+}
+
+function TabStripScroll(props: {
+  readonly scrollRef: RefObject<RNScrollView | null>;
+  readonly items: readonly TabStripItem[];
+  readonly selectedId: string | null;
+  readonly onSelect: (id: string) => void;
+  readonly accessibilityLabel?: string;
+  readonly layoutsRef: RefObject<TabLayoutMap>;
+  readonly viewportWidthRef: RefObject<number>;
+  readonly scrollXRef: RefObject<number>;
+}) {
+  const {
+    scrollRef,
+    items,
+    selectedId,
+    onSelect,
+    accessibilityLabel,
+    layoutsRef,
+    viewportWidthRef,
+    scrollXRef,
+  } = props;
+  return (
+    <ScrollView
+      ref={scrollRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      frameSx={scrollFrameSx}
+      sx={tabsSx}
+      accessibilityRole="tablist"
+      accessibilityLabel={accessibilityLabel}
+      onLayout={(e: LayoutChangeEvent) => {
+        viewportWidthRef.current = e.nativeEvent.layout.width;
+      }}
+      onScroll={(e) => {
+        scrollXRef.current = e.nativeEvent.contentOffset.x;
+      }}
+      scrollEventThrottle={16}
+    >
+      {items.map((item, index) => {
+        const active = item.id === selectedId;
+        const prevId = index > 0 ? items[index - 1]?.id : undefined;
+        const prevActive = prevId !== undefined && prevId === selectedId;
+        const separatorVisible = index > 0 && !active && !prevActive;
+        return (
+          <TabStripTab
+            key={item.id}
+            item={item}
+            active={active}
+            reserveSeparatorBefore={index > 0}
+            separatorVisible={separatorVisible}
+            onSelect={onSelect}
+            onLayout={(id, x, width) => {
+              layoutsRef.current.set(id, { x, width });
+            }}
+          />
+        );
+      })}
+    </ScrollView>
   );
 }
 
@@ -213,12 +246,12 @@ const stripSx = {
   flexShrink: 0,
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 1.5,
-  minHeight: TAB_MIN_HEIGHT + 8,
+  gap: 2,
+  minHeight: TAB_MIN_HEIGHT + 4,
   paddingLeft: 4,
-  paddingRight: 2,
+  paddingRight: 3,
   paddingTop: 2,
-  paddingBottom: 2,
+  paddingBottom: 0,
   borderBottomWidth: 1,
   borderColor: 'border',
   background: 'surfaceMuted',
@@ -232,8 +265,8 @@ const leadingSx = {
 
 const trailingSx = {
   flexShrink: 0,
-  paddingLeft: 1,
-  paddingRight: 0,
+  paddingLeft: 2,
+  paddingRight: 2,
   alignSelf: 'center',
 } as const;
 
@@ -244,8 +277,20 @@ const scrollFrameSx = {
   flexShrink: 1,
 } as const;
 
-const pillsSx = {
+const tabsSx = {
   flexDirection: 'row',
   alignItems: 'center',
   gap: 1.5,
+} as const;
+
+const addSx = {
+  paddingHorizontal: 4,
+  paddingVertical: 1,
+  height: TAB_MIN_HEIGHT,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderTopLeftRadius: 'md',
+  borderTopRightRadius: 'md',
+  overflow: 'hidden',
+  alignSelf: 'center',
 } as const;

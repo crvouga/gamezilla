@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import {
   DatabaseIcon,
   Gamepad2Icon,
-  HistoryIcon,
   HouseIcon,
   ListChecksIcon,
   PaintbrushIcon,
@@ -15,19 +16,28 @@ import { Text } from '../text';
 import { TabStrip } from './tab-strip';
 
 export default function TabStripExample() {
-  const [app, setApp] = useState('main');
-  const [section, setSection] = useState('reports');
-  const [view, setView] = useState('ui');
-  const [tables, setTables] = useState('accounts');
-  const [drafts, setDrafts] = useState([
-    { id: 'a', label: 'sync_engine_mutations_applied' },
-    { id: 'b', label: 'Draft' },
-  ]);
-  const [draftId, setDraftId] = useState('a');
-
   return (
     <ExampleRoot>
-      <Stack spacing={4}>
+      <Stack spacing={0}>
+        <NestedChromeDemo />
+        <ClosableOverflowDemo />
+      </Stack>
+    </ExampleRoot>
+  );
+}
+
+function NestedChromeDemo() {
+  const [app, setApp] = useState('console');
+  const [section, setSection] = useState('playground');
+  const [view, setView] = useState('ui');
+  return (
+    <>
+      <Text
+        variant="caption"
+        label="Nested chrome (folder tabs merge into the panel below)"
+        sx={{ padding: 3, color: 'textSecondary' }}
+      />
+      <DemoFrame>
         <TabStrip
           accessibilityLabel="Apps"
           items={[
@@ -37,20 +47,15 @@ export default function TabStripExample() {
           selectedId={app}
           onSelect={setApp}
         />
-        <Text variant="caption" label={`App: ${app}`} />
-
         <TabStrip
           accessibilityLabel="Console sections"
           items={[
             { id: 'reports', label: 'Reports', icon: ListChecksIcon },
             { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
-            { id: 'session', label: 'Session', icon: HistoryIcon },
           ]}
           selectedId={section}
           onSelect={setSection}
         />
-        <Text variant="caption" label={`Section: ${section}`} />
-
         <TabStrip
           accessibilityLabel="Panel views"
           items={[
@@ -61,8 +66,34 @@ export default function TabStripExample() {
           selectedId={view}
           onSelect={setView}
         />
-        <Text variant="caption" label={`View: ${view}`} />
+        <Box sx={{ padding: 4, minHeight: 72 }}>
+          <Text
+            variant="body"
+            label={`${app} / ${section} / ${view}`}
+            sx={{ color: 'textSecondary' }}
+          />
+        </Box>
+      </DemoFrame>
+    </>
+  );
+}
 
+function ClosableOverflowDemo() {
+  const [tables, setTables] = useState('accounts');
+  const [drafts, setDrafts] = useState([
+    { id: 'a', label: 'sync_engine_mutations_applied' },
+    { id: 'b', label: 'Draft' },
+    { id: 'c', label: 'spaces_members' },
+  ]);
+  const [draftId, setDraftId] = useState('a');
+  return (
+    <>
+      <Text
+        variant="caption"
+        label="Overflow + closable drafts (hover close on inactive)"
+        sx={{ padding: 3, paddingTop: 5, color: 'textSecondary' }}
+      />
+      <DemoFrame>
         <TabStrip
           accessibilityLabel="Tables"
           items={[
@@ -72,12 +103,11 @@ export default function TabStripExample() {
               label: 'sync_engine_write_rejections',
             },
             { id: 'spaces', label: 'spaces' },
+            { id: 'profiles', label: 'profiles' },
           ]}
           selectedId={tables}
           onSelect={setTables}
         />
-        <Text variant="caption" label={`Table: ${tables}`} />
-
         <TabStrip
           accessibilityLabel="Closable drafts"
           items={drafts.map((d) => ({
@@ -101,11 +131,34 @@ export default function TabStripExample() {
             setDraftId(id);
           }}
         />
-        <Text
-          variant="caption"
-          label={draftId ? `Draft: ${draftId}` : 'No drafts'}
-        />
-      </Stack>
-    </ExampleRoot>
+        <Box sx={{ padding: 4, minHeight: 56 }}>
+          <Text
+            variant="caption"
+            label={
+              draftId
+                ? `Table: ${tables} · Draft: ${draftId}`
+                : `Table: ${tables} · No drafts`
+            }
+            sx={{ color: 'textSecondary' }}
+          />
+        </Box>
+      </DemoFrame>
+    </>
+  );
+}
+
+function DemoFrame(props: { readonly children: ReactNode }) {
+  return (
+    <Box
+      sx={{
+        borderWidth: 1,
+        borderColor: 'border',
+        borderRadius: 'md',
+        overflow: 'hidden',
+        background: 'background',
+      }}
+    >
+      {props.children}
+    </Box>
   );
 }
