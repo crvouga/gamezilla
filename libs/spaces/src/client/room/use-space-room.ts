@@ -45,8 +45,8 @@ export function useSpaceRoom(spaceId: string): SpaceRoomUiState {
   const getFreshToken = useGetFreshAuthToken();
   const createId = useCreateId();
   const clientId =
-    spaceId.length > 0
-      ? new SpaceOpenSessionStore(createId).getOrCreate(spaceId)
+    spaceId.length > 0 && deviceId.length > 0
+      ? new SpaceOpenSessionStore(createId).getOrCreate(spaceId, deviceId)
       : '';
 
   // Lifetime is owned by SpaceOpenRoomSlot (open-session row). Do not gate on

@@ -37,6 +37,53 @@ export function createInMemoryAuthClientStorage(): AuthClientStorage {
 }
 
 /**
+ * Web {@link AuthClientStorage} that prefixes every key with `namespace.` in
+ * `localStorage` so multiple in-process actors (playground Alice/Bob) do not
+ * share bearer cookies / tokens. Falls back to in-memory when localStorage is
+ * unavailable (native / SSR).
+ */
+export function createNamespacedAuthClientStorage(
+  namespace: string
+): AuthClientStorage {
+  const prefix = `${namespace}.`;
+  if (typeof globalThis.localStorage === 'undefined') {
+    return createInMemoryAuthClientStorage();
+  }
+  const store = globalThis.localStorage;
+  return {
+    getItem: (key) => store.getItem(prefix + key),
+    setItem: (key, value) => {
+      store.setItem(prefix + key, value);
+    },
+    removeItem: (key) => {
+      store.removeItem(prefix + key);
+    },
+  };
+}
+
+/** Removes every `localStorage` key that starts with `namespace.`. */
+export function clearNamespacedAuthClientStorage(namespace: string): void {
+  clearStorageKeysWithPrefix(globalThis.localStorage, `${namespace}.`);
+}
+
+function clearStorageKeysWithPrefix(
+  storage: Storage | undefined,
+  prefix: string
+): void {
+  if (storage === undefined) return;
+  const toRemove: string[] = [];
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key !== null && key.startsWith(prefix)) {
+      toRemove.push(key);
+    }
+  }
+  for (const key of toRemove) {
+    storage.removeItem(key);
+  }
+}
+
+/**
  * Per-actor bearer token store. Holds no module-level state so multiple
  * clients can coexist in one process, each with isolated memory + persistence.
  */

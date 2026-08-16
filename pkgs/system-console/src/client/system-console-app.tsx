@@ -36,8 +36,8 @@ export function SystemConsoleApp<R>(props: {
 }): ReactNode {
   const { ports } = props;
   const [section, setSection] = useState<Section>('reports');
-  // Keep AlaSQL + sync engines alive across Reports ↔ Playground; dispose only
-  // when this console root unmounts (MutationUploadQueue races DROP DATABASE).
+  // Keep OPFS handles + sync engines alive across Reports ↔ Playground; dispose
+  // only when this console root unmounts (closes handles; durable files remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
 
   const api = useMemo(
@@ -54,10 +54,11 @@ export function SystemConsoleApp<R>(props: {
     if (playgroundSection) setPlaygroundPinned(true);
   }, [playgroundSection]);
 
-  const sessionState = usePlaygroundSession(
-    ports.bootPlayground,
-    playgroundPinned
-  );
+  const {
+    state: sessionState,
+    wipe,
+    reboot,
+  } = usePlaygroundSession(ports.bootPlayground, playgroundPinned);
 
   return (
     <Box sx={appShellSx}>
@@ -73,7 +74,11 @@ export function SystemConsoleApp<R>(props: {
           <PlaygroundScreen ports={ports} state={sessionState} />
         ) : null}
         {section === 'session' ? (
-          <PlaygroundSessionScreen state={sessionState} />
+          <PlaygroundSessionScreen
+            state={sessionState}
+            wipe={wipe}
+            reboot={reboot}
+          />
         ) : null}
       </Box>
     </Box>

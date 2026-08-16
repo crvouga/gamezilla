@@ -108,9 +108,30 @@ export function createInProcessRoomNode(io: Io): InProcessRoomNode {
     }
     const topic = `space:${args.spaceId}`;
     const entry = getOrCreate(topic);
+    // Connection ids must be unique per live socket. `clientId` is a stable
+    // open-session latch (shared across remounts / Alice+Bob collisions on the
+    // process-wide SpaceOpenSessionStore) — reusing it as connectionId trips
+    // RoomServer "duplicate connection id".
+    const connectionId = io.createId();
     const transport = new LoopbackRoomTransport({
-      server: entry.server,
-      connectionId: args.clientId,
+      server: {
+        registerConnection(id, send, actor, options) {
+          for (const stale of entry.server.connectionIdsForActor(
+            actor.id,
+            actor.clientId
+          )) {
+            entry.server.unregisterConnection(stale);
+          }
+          entry.server.registerConnection(id, send, actor, options);
+        },
+        unregisterConnection(id) {
+          entry.server.unregisterConnection(id);
+        },
+        handleClientMessage(connectionId, identity, raw) {
+          return entry.server.handleClientMessage(connectionId, identity, raw);
+        },
+      },
+      connectionId,
       identity: args.identity,
       clientId: args.clientId,
     });

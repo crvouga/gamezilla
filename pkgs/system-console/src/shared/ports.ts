@@ -44,6 +44,11 @@ export type PlaygroundSession<R = unknown> = {
     readonly bob: PlaygroundActor<R>;
   };
   readonly server: PlaygroundNode;
+  /**
+   * Reset durable OPFS DBs + namespaced auth/KV for Alice/Bob, then close
+   * handles. Caller should remount / re-boot afterward.
+   */
+  wipe(): Promise<void>;
   dispose(): Promise<void>;
 };
 

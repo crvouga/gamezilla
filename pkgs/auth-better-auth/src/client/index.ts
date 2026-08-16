@@ -2,8 +2,10 @@ export {
   type AuthClientStorage,
   BETTER_AUTH_BEARER_STORAGE_KEY,
   type BearerTokenStore,
+  clearNamespacedAuthClientStorage,
   createBearerTokenStore,
   createInMemoryAuthClientStorage,
+  createNamespacedAuthClientStorage,
 } from './bearer-token-store';
 export {
   type BetterAuthReactClient,

@@ -1,3 +1,4 @@
+import { useMyDeviceId } from '@libs/auth/client/use-current-user';
 import { type ReactNode, useEffect, useRef } from 'react';
 
 import { useOpenSpaceSessionIds } from '../open-space/use-open-space-session-ids';
@@ -24,6 +25,7 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
   const setEntry = useSpaceOpenRoomsRegistry();
   const clearPending = useSpaceOpenRoomsPendingClear();
   const state = useSpaceRoom(spaceId);
+  const deviceId = useMyDeviceId();
 
   useEffect(() => {
     if (state.room === null) {
@@ -40,9 +42,9 @@ function SpaceOpenRoomSlot({ spaceId }: { readonly spaceId: string }): null {
   useEffect(() => {
     return () => {
       clearPending?.(spaceId);
-      clearSpaceOpenSession(spaceId);
+      clearSpaceOpenSession(spaceId, deviceId);
     };
-  }, [spaceId, clearPending]);
+  }, [spaceId, deviceId, clearPending]);
 
   return null;
 }

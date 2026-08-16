@@ -28,6 +28,52 @@ export function createWebSecureStorage(): SecureStorage {
   });
 }
 
+/**
+ * Like {@link createWebSecureStorage}, but every physical key is prefixed with
+ * `namespace.` so multiple in-process actors (playground Alice/Bob) isolate
+ * device ids and similar secrets.
+ */
+export function createNamespacedWebSecureStorage(
+  namespace: string
+): SecureStorage {
+  const prefix = `${namespace}.`;
+  return wrapSecureStorage({
+    async getItem(key: string): Promise<string | null> {
+      return webStore(key).getItem(prefix + key);
+    },
+    async setItem(key: string, value: string): Promise<void> {
+      webStore(key).setItem(prefix + key, value);
+    },
+    async deleteItem(key: string): Promise<void> {
+      webStore(key).removeItem(prefix + key);
+    },
+  });
+}
+
+/** Removes every localStorage / sessionStorage key that starts with `namespace.`. */
+export function clearNamespacedWebSecureStorage(namespace: string): void {
+  const prefix = `${namespace}.`;
+  clearStorageKeysWithPrefix(globalThis.localStorage, prefix);
+  clearStorageKeysWithPrefix(globalThis.sessionStorage, prefix);
+}
+
+function clearStorageKeysWithPrefix(
+  storage: Storage | undefined,
+  prefix: string
+): void {
+  if (storage === undefined) return;
+  const toRemove: string[] = [];
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key !== null && key.startsWith(prefix)) {
+      toRemove.push(key);
+    }
+  }
+  for (const key of toRemove) {
+    storage.removeItem(key);
+  }
+}
+
 function webStore(key: string): Storage {
   if (SESSION_SCOPED_KEYS.has(key)) {
     assertSessionStorageAvailable();
