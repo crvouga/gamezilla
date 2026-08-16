@@ -1,14 +1,14 @@
+import { useTimers } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   Box,
-  Button,
   ErrorState,
   LoadingState,
   ScrollView,
   TabStrip,
   Text,
 } from '@pkgs/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   formatPlaygroundDbCell,
@@ -33,6 +33,8 @@ type DbState =
 
 /**
  * Live SQL browser for a playground node: TabStrip table picker + column grid.
+ * Soft-polls every 500ms (and on reloadToken) so the grid stays current without
+ * a manual Refresh control.
  */
 export function PlaygroundDbPane(props: {
   readonly sqlClient: SqlClient;
@@ -40,18 +42,75 @@ export function PlaygroundDbPane(props: {
   readonly reloadToken?: number;
 }) {
   const { sqlClient, reloadToken = 0 } = props;
+  const timers = useTimers();
   const [state, setState] = useState<DbState>({ status: 'loading' });
-  const [tick, setTick] = useState(0);
+  const selectedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (state.status === 'ready') {
+      selectedRef.current = state.selected;
+    }
+  }, [state]);
 
   useEffect(() => {
     let cancelled = false;
-    void loadSchema(sqlClient, (next) => {
-      if (!cancelled) setState(next);
-    });
+
+    const softReload = async () => {
+      try {
+        const next = await fetchReadyState(sqlClient, selectedRef.current);
+        if (!cancelled) {
+          selectedRef.current = next.selected;
+          setState(next);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setState({
+            status: 'error',
+            message: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    };
+
+    setState({ status: 'loading' });
+    void softReload();
+    const handle = timers.setInterval(() => {
+      void softReload();
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      timers.clearInterval(handle);
+    };
+  }, [sqlClient, timers]);
+
+  const reloadTokenReady = useRef(false);
+  useEffect(() => {
+    if (!reloadTokenReady.current) {
+      reloadTokenReady.current = true;
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const next = await fetchReadyState(sqlClient, selectedRef.current);
+        if (!cancelled) {
+          selectedRef.current = next.selected;
+          setState(next);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setState({
+            status: 'error',
+            message: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    })();
     return () => {
       cancelled = true;
     };
-  }, [sqlClient, tick, reloadToken]);
+  }, [reloadToken, sqlClient]);
 
   if (state.status === 'loading') {
     return (
@@ -65,21 +124,14 @@ export function PlaygroundDbPane(props: {
     return (
       <Box sx={paneFillSx}>
         <ErrorState title="DB error" body={state.message} />
-        <Button
-          title="Retry"
-          size="sm"
-          intent="neutral"
-          variant="outline"
-          onPress={() => setTick((n) => n + 1)}
-        />
       </Box>
     );
   }
 
   const onSelect = (name: string) => {
+    selectedRef.current = name;
     void selectTable(sqlClient, name, setState);
   };
-  const onRefresh = () => setTick((n) => n + 1);
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>
@@ -88,15 +140,6 @@ export function PlaygroundDbPane(props: {
         items={state.tables.map((t) => ({ id: t.name, label: t.name }))}
         selectedId={state.selected}
         onSelect={onSelect}
-        trailing={
-          <Button
-            title="Refresh"
-            size="sm"
-            intent="neutral"
-            variant="ghost"
-            onPress={onRefresh}
-          />
-        }
       />
       <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>
         <GridPreview state={state} />
@@ -178,40 +221,34 @@ function GridPreview(props: { readonly state: ReadyState }) {
   );
 }
 
-async function loadSchema(
+async function fetchReadyState(
   sqlClient: SqlClient,
-  setState: (next: DbState) => void
-): Promise<void> {
-  setState({ status: 'loading' });
-  try {
-    const tables = await listPlaygroundTables(sqlClient);
-    const selected = tables[0]?.name ?? null;
-    if (selected == null) {
-      setState({
-        status: 'ready',
-        tables,
-        selected: null,
-        columns: [],
-        rows: [],
-        rowError: null,
-      });
-      return;
-    }
-    const preview = await loadPlaygroundTablePreview(sqlClient, selected);
-    setState({
+  preferredSelected: string | null
+): Promise<ReadyState> {
+  const tables = await listPlaygroundTables(sqlClient);
+  const selected =
+    preferredSelected != null && tables.some((t) => t.name === preferredSelected)
+      ? preferredSelected
+      : (tables[0]?.name ?? null);
+  if (selected == null) {
+    return {
       status: 'ready',
       tables,
-      selected,
-      columns: preview.columns,
-      rows: preview.rows,
-      rowError: preview.error,
-    });
-  } catch (err) {
-    setState({
-      status: 'error',
-      message: err instanceof Error ? err.message : String(err),
-    });
+      selected: null,
+      columns: [],
+      rows: [],
+      rowError: null,
+    };
   }
+  const preview = await loadPlaygroundTablePreview(sqlClient, selected);
+  return {
+    status: 'ready',
+    tables,
+    selected,
+    columns: preview.columns,
+    rows: preview.rows,
+    rowError: preview.error,
+  };
 }
 
 async function selectTable(

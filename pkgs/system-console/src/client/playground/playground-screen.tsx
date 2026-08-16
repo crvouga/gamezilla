@@ -7,13 +7,11 @@ import {
   LoadingState,
   MonitorIcon,
   OverlayPortalProvider,
-  Pressable,
   RadioIcon,
   RegisterCommand,
   ServerIcon,
   SurfaceStackProvider,
   TabStrip,
-  Text,
   UserIcon,
 } from '@pkgs/ui';
 import {
@@ -45,14 +43,28 @@ const KIND_TABS = [
   { id: 'actor', label: 'Actor', icon: UserIcon },
 ] as const;
 
-type KindId = (typeof KIND_TABS)[number]['id'];
+export type PlaygroundKindId = (typeof KIND_TABS)[number]['id'];
 
 export function PlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly state: PlaygroundSessionState<R>;
+  readonly kind: PlaygroundKindId;
+  readonly view: string;
+  readonly clientViews: Readonly<Record<string, string>>;
+  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onViewChange: (view: string) => void;
+  readonly onClientViewChange: (clientId: string, view: string) => void;
 }) {
-  const { ports, state } = props;
-  const [kind, setKind] = useState<KindId>('client');
+  const {
+    ports,
+    state,
+    kind,
+    view,
+    clientViews,
+    onKindChange,
+    onViewChange,
+    onClientViewChange,
+  } = props;
 
   if (state.status === 'error') {
     return (
@@ -77,7 +89,11 @@ export function PlaygroundScreen<R>(props: {
             ports={ports}
             session={state.session}
             kind={kind}
-            onKind={setKind}
+            view={view}
+            clientViews={clientViews}
+            onKindChange={onKindChange}
+            onViewChange={onViewChange}
+            onClientViewChange={onClientViewChange}
           />
           <CommandPalette />
         </CommandRegistryProvider>
@@ -89,10 +105,23 @@ export function PlaygroundScreen<R>(props: {
 function ReadyPlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly session: PlaygroundSession<R>;
-  readonly kind: KindId;
-  readonly onKind: (kind: KindId) => void;
+  readonly kind: PlaygroundKindId;
+  readonly view: string;
+  readonly clientViews: Readonly<Record<string, string>>;
+  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onViewChange: (view: string) => void;
+  readonly onClientViewChange: (clientId: string, view: string) => void;
 }) {
-  const { ports, session, kind, onKind } = props;
+  const {
+    ports,
+    session,
+    kind,
+    view,
+    clientViews,
+    onKindChange,
+    onViewChange,
+    onClientViewChange,
+  } = props;
   const tick = useSyncExternalStore(
     session.subscribe,
     () => session.revision,
@@ -111,11 +140,6 @@ function ReadyPlaygroundScreen<R>(props: {
     () => session.listPaletteCommands(),
     [session, tick]
   );
-  // Read maps during the subscribed render so React Compiler cannot memoize
-  // KindPanels on the stable `session` object identity alone (reload looked
-  // like a no-op: host restored clients, UI kept pre-reload ProductApps).
-  // While snapshotRestoring, force zero clients so SyncEngineBoot cannot race
-  // detach destroying AlaSQL (migrate xcolumns crash).
   const clients = session.snapshotRestoring
     ? []
     : [...session.clients.values()];
@@ -135,7 +159,7 @@ function ReadyPlaygroundScreen<R>(props: {
         accessibilityLabel="Playground kinds"
         items={[...KIND_TABS]}
         selectedId={kind}
-        onSelect={(id) => onKind(id as KindId)}
+        onSelect={(id) => onKindChange(id as PlaygroundKindId)}
         keyboardScope
         trailing={<PlaygroundSnapshotChrome session={session} />}
       />
@@ -151,6 +175,10 @@ function ReadyPlaygroundScreen<R>(props: {
         ports={ports}
         session={session}
         kind={kind}
+        view={view}
+        clientViews={clientViews}
+        onViewChange={onViewChange}
+        onClientViewChange={onClientViewChange}
         selectedRoomId={roomId}
         clients={clients}
         snapshotEpoch={snapshotEpoch}
@@ -184,13 +212,27 @@ function PlaygroundPaletteRegistrations(props: {
 function KindPanels<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly session: PlaygroundSession<R>;
-  readonly kind: KindId;
+  readonly kind: PlaygroundKindId;
+  readonly view: string;
+  readonly clientViews: Readonly<Record<string, string>>;
+  readonly onViewChange: (view: string) => void;
+  readonly onClientViewChange: (clientId: string, view: string) => void;
   readonly selectedRoomId: string | null;
   readonly clients: readonly import('../../shared/ports').PlaygroundActor<R>[];
   readonly snapshotEpoch: number;
 }) {
-  const { ports, session, kind, selectedRoomId, clients, snapshotEpoch } =
-    props;
+  const {
+    ports,
+    session,
+    kind,
+    view,
+    clientViews,
+    onViewChange,
+    onClientViewChange,
+    selectedRoomId,
+    clients,
+    snapshotEpoch,
+  } = props;
   const selectedRoom =
     selectedRoomId !== null ? session.rooms.get(selectedRoomId) : undefined;
 
@@ -202,17 +244,34 @@ function KindPanels<R>(props: {
           session={session}
           clients={clients}
           snapshotEpoch={snapshotEpoch}
+          clientViews={clientViews}
+          onClientViewChange={onClientViewChange}
         />
       </KindSlot>
       <KindSlot active={kind === 'server'}>
-        <ServerPlaygroundPanel session={session} node={session.server} />
+        <ServerPlaygroundPanel
+          session={session}
+          node={session.server}
+          view={view}
+          onViewChange={onViewChange}
+        />
       </KindSlot>
       <KindSlot active={kind === 'pubsub'}>
-        <PubSubPlaygroundPanel session={session} pubsub={session.pubsub} />
+        <PubSubPlaygroundPanel
+          session={session}
+          pubsub={session.pubsub}
+          view={view}
+          onViewChange={onViewChange}
+        />
       </KindSlot>
       <KindSlot active={kind === 'actor'}>
         {selectedRoom !== undefined ? (
-          <RoomPlaygroundPanel session={session} room={selectedRoom} />
+          <RoomPlaygroundPanel
+            session={session}
+            room={selectedRoom}
+            view={view}
+            onViewChange={onViewChange}
+          />
         ) : (
           <EmptyKind body="Open a space in a client to spawn a room." />
         )}
@@ -226,65 +285,43 @@ function ClientColumns<R>(props: {
   readonly session: PlaygroundSession<R>;
   readonly clients: readonly import('../../shared/ports').PlaygroundActor<R>[];
   readonly snapshotEpoch: number;
+  readonly clientViews: Readonly<Record<string, string>>;
+  readonly onClientViewChange: (clientId: string, view: string) => void;
 }) {
-  const { ports, session, clients, snapshotEpoch } = props;
+  const {
+    ports,
+    session,
+    clients,
+    snapshotEpoch,
+    clientViews,
+    onClientViewChange,
+  } = props;
   if (clients.length === 0) {
-    return <EmptyKind body="Add a client with +" />;
+    return <EmptyKind body="No clients in this session." />;
   }
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
-      <Box
-        sx={{
-          flexGrow: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          paddingHorizontal: 2,
-          paddingVertical: 1,
-          borderBottomWidth: 1,
-          borderColor: 'border',
-        }}
-      >
-        <Pressable
-          accessibilityLabel="Add client"
-          onPress={() => {
-            void session.addClient();
-          }}
-          sx={{
-            paddingHorizontal: 3,
-            paddingVertical: 1,
-            borderRadius: 'sm',
-            borderWidth: 1,
-            borderColor: 'border',
-          }}
-        >
-          <Text label="+ Client" sx={{ color: 'text', fontSize: 12 }} />
-        </Pressable>
-      </Box>
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          minWidth: 0,
-          flexDirection: 'row',
-          alignItems: 'stretch',
-          overflow: 'hidden',
-        }}
-      >
-        {clients.map((actor) => (
-          <ClientPlaygroundPanel
-            key={`${actor.id}:${snapshotEpoch}`}
-            title={actor.id}
-            ProductApp={ports.ProductApp}
-            actor={actor}
-            snapshotEpoch={snapshotEpoch}
-            reloadToken={session.revision}
-            onClose={() => {
-              void session.removeClient(actor.id);
-            }}
-          />
-        ))}
-      </Box>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        minWidth: 0,
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        overflow: 'hidden',
+      }}
+    >
+      {clients.map((actor) => (
+        <ClientPlaygroundPanel
+          key={`${actor.id}:${snapshotEpoch}`}
+          title={actor.id}
+          ProductApp={ports.ProductApp}
+          actor={actor}
+          snapshotEpoch={snapshotEpoch}
+          reloadToken={session.revision}
+          view={clientViews[actor.id] ?? 'ui'}
+          onViewChange={(v) => onClientViewChange(actor.id, v)}
+        />
+      ))}
     </Box>
   );
 }

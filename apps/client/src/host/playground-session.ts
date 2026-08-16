@@ -227,7 +227,6 @@ async function bootClients(
   session: PlaygroundSession<ClientSystemResources>,
   setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void
 ): Promise<void> {
-  let loadedSnapshot = false;
   if (args.skipSnapshotLoad !== true) {
     try {
       const snaps = await listPlaygroundSnapshots(args.snapshotStore);
@@ -239,16 +238,18 @@ async function bootClients(
         // Restore before any ProductApp spawn so AuthBridge cannot race the
         // durable namespace (pre-spawn + load was clobbering sessionToken).
         await loadPlaygroundSnapshot(makeSnapshotCtx(args, maps)(), newest.id);
-        loadedSnapshot = true;
       }
       setSnapshotLoads(await buildSnapshotLoadCommands(session));
     } catch {
       // Snapshot store down/slow — fall through to fresh default clients.
     }
   }
-  if (loadedSnapshot) return;
-  for (const id of DEFAULT_CLIENT_IDS) {
-    await spawnClient(args.world, maps, id);
+  // Empty / pre-client snapshots used to leave the Client pane blank with no
+  // UI to add them back — always seed the default pair in that case.
+  if (maps.clients.size === 0) {
+    for (const id of DEFAULT_CLIENT_IDS) {
+      await spawnClient(args.world, maps, id);
+    }
   }
 }
 

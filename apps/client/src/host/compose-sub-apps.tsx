@@ -2,7 +2,9 @@
 import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import { bootPlaygroundSession } from '@apps/client/host/boot-playground';
 import { ClientHost } from '@apps/client/host/client-host';
+import { HostChromeProvider } from '@apps/client/host/host-chrome-context';
 import type { HostedSubApp } from '@apps/client/host/hosted-sub-app';
+import { useHostNav } from '@apps/client/host/use-host-nav';
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { ProductApp } from '@apps/client/product/app';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
@@ -17,8 +19,11 @@ import {
 import { AppThemeRoot, HouseIcon, TerminalIcon } from '@pkgs/ui';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
+import { useHostChrome } from './host-chrome-context';
+
 function ConsoleSubApp(): ReactNode {
   const io = useIo();
+  const { state, patch } = useHostChrome();
   const ports = useMemo((): SystemConsolePorts<ClientSystemResources> => {
     const apiOrigin = getApiBaseUrl().replace(/\/$/, '');
     return {
@@ -29,13 +34,22 @@ function ConsoleSubApp(): ReactNode {
       reportApiBasePath: `${apiOrigin}/system-console`,
     };
   }, [io]);
-  // Console is outside ProductApp's shell — CommandPalette / other @pkgs/ui
-  // surfaces still call useLingui. AppUiPortals supplies SurfaceStack for
-  // Session wipe MutationModal (and any other console overlays).
   return (
     <AppI18nProvider>
       <AppUiPortals>
-        <SystemConsoleApp ports={ports} />
+        <SystemConsoleApp
+          ports={ports}
+          section={state.section}
+          kind={state.kind}
+          view={state.view}
+          clientViews={state.clientViews}
+          onSectionChange={(section) => patch({ section })}
+          onKindChange={(kind) => patch({ kind })}
+          onViewChange={(view) => patch({ view })}
+          onClientViewChange={(clientId, view) => {
+            patch({ clientView: { id: clientId, view } });
+          }}
+        />
       </AppUiPortals>
     </AppI18nProvider>
   );
@@ -65,11 +79,13 @@ export function composeSubApps(): readonly HostedSubApp[] {
 export function RootApp(): ReactNode {
   const io = useMemo(() => wallIo(), []);
   const apps = useMemo(() => composeSubApps(), []);
-  // SystemProvider (clock) must wrap AppThemeRoot — ThemePreference uses useKvState → useClock.
+  const hostNav = useHostNav();
   return (
     <SystemProvider io={io}>
       <AppThemeRoot>
-        <ClientHost apps={apps} />
+        <HostChromeProvider value={hostNav}>
+          <ClientHost apps={apps} />
+        </HostChromeProvider>
       </AppThemeRoot>
     </SystemProvider>
   );

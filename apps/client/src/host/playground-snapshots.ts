@@ -420,6 +420,11 @@ export async function loadPlaygroundSnapshot(
       // Clear before runQuiet's exit notify so ProductApps may mount.
       ctx.endSnapshotRestoring();
     });
+    // Empty-client snapshots leave the Client pane blank (no add-client UI).
+    if (ctx.maps.clients.size === 0) {
+      await ctx.spawnClient('alice');
+      await ctx.spawnClient('bob');
+    }
   } catch (err) {
     ctx.endSnapshotRestoring();
     ctx.notify();

@@ -17,4 +17,5 @@ export type {
   PlaygroundSqlNode,
   SystemConsolePorts,
 } from '../shared/ports';
-export { SystemConsoleApp } from './system-console-app';
+export type { PlaygroundKindId } from './playground/playground-screen';
+export { type ConsoleSection, SystemConsoleApp } from './system-console-app';

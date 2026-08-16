@@ -10,5 +10,4 @@ export type HostedSubApp = {
 
 export type ClientHostProps = {
   readonly apps: readonly HostedSubApp[];
-  readonly initialId?: string;
 };

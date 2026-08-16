@@ -3,14 +3,12 @@ import {
   CodeIcon,
   DatabaseIcon,
   PaintbrushIcon,
-  Pressable,
   ScrollTextIcon,
   TabStrip,
   type TabStripItem,
   TerminalIcon,
-  Text,
 } from '@pkgs/ui';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import type {
   PlaygroundActor,
@@ -53,6 +51,24 @@ type ServerTabId = (typeof SERVER_TABS)[number]['id'];
 type PubSubTabId = (typeof PUBSUB_TABS)[number]['id'];
 type RoomTabId = (typeof ROOM_TABS)[number]['id'];
 
+function asClientTab(view: string): ClientTabId {
+  return CLIENT_TABS.some((t) => t.id === view) ? (view as ClientTabId) : 'ui';
+}
+
+function asServerTab(view: string): ServerTabId {
+  return SERVER_TABS.some((t) => t.id === view) ? (view as ServerTabId) : 'db';
+}
+
+function asPubSubTab(view: string): PubSubTabId {
+  return PUBSUB_TABS.some((t) => t.id === view)
+    ? (view as PubSubTabId)
+    : 'logs';
+}
+
+function asRoomTab(view: string): RoomTabId {
+  return ROOM_TABS.some((t) => t.id === view) ? (view as RoomTabId) : 'db';
+}
+
 export function ClientPlaygroundPanel<R>(props: {
   readonly title: string;
   readonly ProductApp: SystemConsolePorts<R>['ProductApp'];
@@ -60,21 +76,27 @@ export function ClientPlaygroundPanel<R>(props: {
   /** Bumps only on snapshot restore — remount ProductApp without room churn. */
   readonly snapshotEpoch?: number;
   readonly reloadToken?: number;
-  readonly onClose?: () => void;
+  readonly view: string;
+  readonly onViewChange: (view: string) => void;
 }) {
-  const { title, ProductApp, actor, snapshotEpoch, reloadToken, onClose } =
-    props;
-  const [tab, setTab] = useState<ClientTabId>('ui');
+  const {
+    title,
+    ProductApp,
+    actor,
+    snapshotEpoch,
+    reloadToken,
+    view,
+    onViewChange,
+  } = props;
+  const tab = asClientTab(view);
   const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
 
   return (
     <PanelShell
-      title={title}
       accessibilityLabel={`${title} views`}
       items={[...CLIENT_TABS]}
       selectedId={tab}
-      onSelect={(id) => setTab(id as ClientTabId)}
-      {...(onClose !== undefined ? { onClose } : {})}
+      onSelect={onViewChange}
     >
       <Box
         sx={{
@@ -104,17 +126,18 @@ export function ClientPlaygroundPanel<R>(props: {
 export function ServerPlaygroundPanel<R>(props: {
   readonly session: PlaygroundSession<R>;
   readonly node: PlaygroundSqlNode;
+  readonly view: string;
+  readonly onViewChange: (view: string) => void;
 }) {
-  const { session, node } = props;
-  const [tab, setTab] = useState<ServerTabId>('db');
+  const { session, node, view, onViewChange } = props;
+  const tab = asServerTab(view);
 
   return (
     <PanelShell
-      title="Server"
       accessibilityLabel="Server views"
       items={[...SERVER_TABS]}
       selectedId={tab}
-      onSelect={(id) => setTab(id as ServerTabId)}
+      onSelect={onViewChange}
     >
       {tab === 'db' ? (
         <PlaygroundDbPane
@@ -131,17 +154,18 @@ export function ServerPlaygroundPanel<R>(props: {
 export function PubSubPlaygroundPanel<R>(props: {
   readonly session: PlaygroundSession<R>;
   readonly pubsub: PlaygroundPubSubNode;
+  readonly view: string;
+  readonly onViewChange: (view: string) => void;
 }) {
-  const { session, pubsub } = props;
-  const [tab, setTab] = useState<PubSubTabId>('logs');
+  const { session, pubsub, view, onViewChange } = props;
+  const tab = asPubSubTab(view);
 
   return (
     <PanelShell
-      title="PubSub"
       accessibilityLabel="PubSub views"
       items={[...PUBSUB_TABS]}
       selectedId={tab}
-      onSelect={(id) => setTab(id as PubSubTabId)}
+      onSelect={onViewChange}
     >
       {tab === 'logs' ? <PlaygroundLogsPane logs={pubsub.logs} /> : null}
       {tab === 'topics' ? (
@@ -157,17 +181,18 @@ export function PubSubPlaygroundPanel<R>(props: {
 export function RoomPlaygroundPanel<R>(props: {
   readonly session: PlaygroundSession<R>;
   readonly room: PlaygroundRoomNode;
+  readonly view: string;
+  readonly onViewChange: (view: string) => void;
 }) {
-  const { session, room } = props;
-  const [tab, setTab] = useState<RoomTabId>('db');
+  const { session, room, view, onViewChange } = props;
+  const tab = asRoomTab(view);
 
   return (
     <PanelShell
-      title={room.id}
       accessibilityLabel={`${room.id} views`}
       items={[...ROOM_TABS]}
       selectedId={tab}
-      onSelect={(id) => setTab(id as RoomTabId)}
+      onSelect={onViewChange}
     >
       {tab === 'db' ? (
         <PlaygroundRoomDbPane room={room} subscribe={session.subscribe} />
@@ -178,12 +203,10 @@ export function RoomPlaygroundPanel<R>(props: {
 }
 
 function PanelShell(props: {
-  readonly title: string;
   readonly accessibilityLabel: string;
   readonly items: readonly TabStripItem[];
   readonly selectedId: string;
   readonly onSelect: (id: string) => void;
-  readonly onClose?: () => void;
   readonly children: ReactNode;
 }) {
   return (
@@ -204,22 +227,6 @@ function PanelShell(props: {
         items={props.items}
         selectedId={props.selectedId}
         onSelect={props.onSelect}
-        {...(props.onClose !== undefined
-          ? {
-              trailing: (
-                <Pressable
-                  accessibilityLabel={`Close ${props.title}`}
-                  onPress={props.onClose}
-                  sx={{ paddingHorizontal: 2, paddingVertical: 1 }}
-                >
-                  <Text
-                    label="×"
-                    sx={{ color: 'textSecondary', fontSize: 16 }}
-                  />
-                </Pressable>
-              ),
-            }
-          : {})}
       />
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {props.children}

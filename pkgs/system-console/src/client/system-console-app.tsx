@@ -9,14 +9,17 @@ import {
 
 import type { SystemConsolePorts } from '../shared/ports';
 import { createReportApiClient } from './api-client';
-import { PlaygroundScreen } from './playground/playground-screen';
+import {
+  type PlaygroundKindId,
+  PlaygroundScreen,
+} from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
 import { DEFAULT_NAV, type ReportNavState } from './router';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
-type Section = 'reports' | 'playground';
+export type ConsoleSection = 'reports' | 'playground';
 
 const SECTIONS = [
   { id: 'reports', label: 'Reports', icon: ListChecksIcon },
@@ -28,12 +31,32 @@ const DEFAULT_BASE_PATH = '/system-console';
 /**
  * Root console screen. Injects everything product-specific through `ports`
  * so `@pkgs/system-console` never imports apps/libs/test.
+ *
+ * Section / playground kind / panel view are controlled by the host so they
+ * can sync to browser history.
  */
 export function SystemConsoleApp<R>(props: {
   readonly ports: SystemConsolePorts<R>;
+  readonly section: ConsoleSection;
+  readonly kind: PlaygroundKindId;
+  readonly view: string;
+  readonly clientViews: Readonly<Record<string, string>>;
+  readonly onSectionChange: (section: ConsoleSection) => void;
+  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onViewChange: (view: string) => void;
+  readonly onClientViewChange: (clientId: string, view: string) => void;
 }): ReactNode {
-  const { ports } = props;
-  const [section, setSection] = useState<Section>('reports');
+  const {
+    ports,
+    section,
+    kind,
+    view,
+    clientViews,
+    onSectionChange,
+    onKindChange,
+    onViewChange,
+    onClientViewChange,
+  } = props;
   // Keep the in-memory World alive across Reports ↔ Playground; dispose only
   // when this console root unmounts (live state is lost; snapshots remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
@@ -62,12 +85,21 @@ export function SystemConsoleApp<R>(props: {
         accessibilityLabel="Console sections"
         items={[...SECTIONS]}
         selectedId={section}
-        onSelect={(id) => setSection(id as Section)}
+        onSelect={(id) => onSectionChange(id as ConsoleSection)}
       />
       <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
         {section === 'reports' ? <ReportsSection api={api} /> : null}
         {section === 'playground' ? (
-          <PlaygroundScreen ports={ports} state={sessionState} />
+          <PlaygroundScreen
+            ports={ports}
+            state={sessionState}
+            kind={kind}
+            view={view}
+            clientViews={clientViews}
+            onKindChange={onKindChange}
+            onViewChange={onViewChange}
+            onClientViewChange={onClientViewChange}
+          />
         ) : null}
       </Box>
     </Box>

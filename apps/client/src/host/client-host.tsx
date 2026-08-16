@@ -1,16 +1,17 @@
+import { useHostChrome } from '@apps/client/host/host-chrome-context';
 import { Box, TabStrip, Text } from '@pkgs/ui';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
 import type { ClientHostProps } from './hosted-sub-app';
 
 /**
  * Thin composition chrome: Main | Console (and any future sub-apps).
- * Depends only on {@link HostedSubApp} — implementations are injected.
+ * Host selection comes from {@link useHostChrome} (URL-synced on web).
  */
 export function ClientHost(props: ClientHostProps): ReactNode {
-  const { apps, initialId } = props;
-  const defaultId = initialId ?? apps[0]?.id ?? '';
-  const [selectedId, setSelectedId] = useState(defaultId);
+  const { apps } = props;
+  const { state, patch } = useHostChrome();
+  const selectedId = state.host;
   const selected = useMemo(
     () => apps.find((a) => a.id === selectedId) ?? apps[0],
     [apps, selectedId]
@@ -36,7 +37,11 @@ export function ClientHost(props: ClientHostProps): ReactNode {
           ...(app.icon !== undefined ? { icon: app.icon } : {}),
         }))}
         selectedId={selected.id}
-        onSelect={setSelectedId}
+        onSelect={(id) => {
+          if (id === 'main' || id === 'console') {
+            patch({ host: id });
+          }
+        }}
       />
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <SelectedApp />
