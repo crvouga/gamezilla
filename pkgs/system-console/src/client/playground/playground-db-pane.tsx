@@ -227,7 +227,8 @@ async function fetchReadyState(
 ): Promise<ReadyState> {
   const tables = await listPlaygroundTables(sqlClient);
   const selected =
-    preferredSelected != null && tables.some((t) => t.name === preferredSelected)
+    preferredSelected != null &&
+    tables.some((t) => t.name === preferredSelected)
       ? preferredSelected
       : (tables[0]?.name ?? null);
   if (selected == null) {
