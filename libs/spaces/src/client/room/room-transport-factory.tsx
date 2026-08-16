@@ -13,6 +13,8 @@ import { apiUrlToRoomWebSocketUrl } from './space-room-url';
 export type CreateRoomTransportArgs = {
   readonly spaceId: string;
   readonly apiUrl: string;
+  /** Member actor id (`accountId ?? deviceId`) — room identity + roster. */
+  readonly identity: string;
   readonly installId: string;
   readonly clientId: string;
   readonly getSessionToken: () => string | null | Promise<string | null>;

@@ -4,9 +4,9 @@
  */
 
 import type { Sql, Value } from '@pkgs/sql';
-import type { Pool, PoolClient, QueryResult } from 'pg';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { questionMarkParamsToDollarParams } from '../positional-params';
+import type { Pool, PoolClient, QueryResult } from './pg-types';
 import type { PostgresDbScope } from './schema';
 import { quotePgIdent } from './schema';
 

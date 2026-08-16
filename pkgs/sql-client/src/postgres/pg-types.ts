@@ -1,15 +1,58 @@
 /**
- * Re-exported `node-postgres` types so application code can reference a
- * `Client` / `Pool` without importing `pg` directly. Direct `pg` imports are
- * banned outside this package (`tools/scripts/check-no-direct-pg-imports.ts`); types
- * are erased at runtime but the import specifier still trips the guard, so
- * route type-only needs through here.
+ * Isomorphic Postgres pool / client shapes used across Worker, sims, and
+ * Expo web (pg-mem). Hand-written so Metro never resolves `node-postgres`
+ * (`pg`) via type re-exports — that package is Node-only and crashes in the
+ * browser (`util.deprecate`).
+ *
+ * Real TCP connections still go through wall openers
+ * (`postgres/connect.ts`, `postgres/ping.ts`) which value-import `pg` and
+ * return handles structurally compatible with these types.
  */
-export type {
-  Client,
-  ClientBase,
-  Pool,
-  PoolClient,
-  QueryResult,
-  QueryResultRow,
-} from 'pg';
+
+export type QueryResultRow = Record<string, unknown>;
+
+export type QueryResult<R extends QueryResultRow = QueryResultRow> = {
+  rows: R[];
+  rowCount: number | null;
+};
+
+/**
+ * `pg.Client#query` / `Pool#query` / `PoolClient#query` overload surface.
+ * Kept loose so wall `pg` instances and pg-mem MemPool both assign.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: mirrors node-postgres query overloads
+export type PgQueryFn = (...args: any[]) => any;
+
+/** Checked-out pool client (or pinned single session presented as one). */
+export type PoolClient = {
+  query: PgQueryFn;
+  release: (err?: Error | boolean) => void;
+};
+
+/** Single TCP session (`pg.Client`) or compatible. */
+export type Client = {
+  query: PgQueryFn;
+  connect: () => Promise<void>;
+  end: () => Promise<void>;
+};
+
+/** Pool or pool-shaped adapter (real `pg.Pool`, MemPool, adaptPgClientAsPool). */
+export type Pool = {
+  query: PgQueryFn;
+  connect: {
+    (): Promise<PoolClient>;
+    (
+      callback: (
+        err: Error | undefined,
+        client: PoolClient | undefined,
+        done: (release?: boolean | (() => void)) => void
+      ) => void
+    ): void;
+  };
+  end: () => Promise<void>;
+  /** Used by {@link isPgPool} in impl-pg-shared (real pools expose this). */
+  totalCount?: number;
+};
+
+/** Alias kept for call sites that mirrored `pg.ClientBase`. */
+export type ClientBase = Client;

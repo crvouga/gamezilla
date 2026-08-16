@@ -22,7 +22,7 @@ export type LoopbackRoomSystem<
 > = {
   server: RoomServer<S, C, E, string>;
   room: Room<S, C, E, string>;
-  transport: LoopbackRoomTransport<S, C, E>;
+  transport: LoopbackRoomTransport;
 };
 
 export type OpenLoopbackRoomArgs<
@@ -85,15 +85,12 @@ export async function openLoopbackRoom<
   const identity = args.identity ?? 'test-user';
   const clientId = args.clientId ?? connectionId;
 
-  const transport = new LoopbackRoomTransport(server, connectionId, identity);
-
-  server.registerConnection(
+  const transport = new LoopbackRoomTransport({
+    server,
     connectionId,
-    (msg) => {
-      transport.deliverToClient(msg);
-    },
-    { id: identity, clientId }
-  );
+    identity,
+    clientId,
+  });
 
   const clientSchedule = createTimerScheduleStack({
     clock: io.clock,

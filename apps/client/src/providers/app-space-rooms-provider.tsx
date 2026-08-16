@@ -2,18 +2,26 @@ import { RoomTransportFactoryProvider } from '@libs/spaces/client/room/room-tran
 import { SpaceOpenRoomsProvider } from '@libs/spaces/client/room/space-open-rooms-context';
 import type { ReactNode } from 'react';
 
+import { useClientSystemResources } from './client-system-resources';
+
 /**
- * Meet-style room WebSockets: one connection per locally-open space.
+ * Meet-style room connections: one connection per locally-open space.
  * Must sit under open-spaces, auth, Kv, sync engine, and SpaceModuleProvider.
- * Transport factory defaults to WebSocket; `@libs/sim` can inject loopback.
+ * Transport factory defaults to WebSocket; playground injects loopback via
+ * {@link ClientSystemResources}.createRoomTransport.
  */
 export function AppSpaceRoomsProvider({
   children,
 }: {
   readonly children: ReactNode;
 }): ReactNode {
+  const { createRoomTransport } = useClientSystemResources();
   return (
-    <RoomTransportFactoryProvider>
+    <RoomTransportFactoryProvider
+      {...(createRoomTransport !== undefined
+        ? { createTransport: createRoomTransport }
+        : {})}
+    >
       <SpaceOpenRoomsProvider>{children}</SpaceOpenRoomsProvider>
     </RoomTransportFactoryProvider>
   );

@@ -8,20 +8,20 @@
  * different schema impossible without going through here.
  */
 
-import { raw } from '@pkgs/sql';
-import { Client, Pool, type PoolClient } from 'pg';
-import type { PostgresSqlClient, SqlClient } from '../interface';
+import { Client as PgClient, Pool as PgPool } from 'pg';
+import type { PostgresSqlClient } from '../interface';
 import { SqlClientImplPg, SqlClientImplPgClient } from './impl-pg';
 import { type PgExecutor, pgRawQueryWithSearchPathPin } from './impl-pg-shared';
+import type { Client, Pool, PoolClient } from './pg-types';
 import { sanitizePostgresUrlForNodePg } from './sanitize-url-for-node-pg';
 import { type PostgresDbScope, quotePgIdent } from './schema';
 import {
-  assertPgSessionSchema,
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
   withPostgresSearchPathOption,
 } from './session-schema';
 
+export { ensurePostgresSchema } from './ensure-schema';
 export { pingPostgres } from './ping';
 
 /** Extra `pg.Client` knobs that standalone tools occasionally need. */
@@ -78,7 +78,7 @@ export async function openPgClient(
   const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
     args.connectionString
   );
-  const client = new Client({
+  const client = new PgClient({
     connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
     ...args.clientOptions,
   });
@@ -97,9 +97,9 @@ export async function openPgClient(
     args.connectionString
   );
   return {
-    client,
+    client: client as unknown as Client,
     sqlClient: new SqlClientImplPgClient(
-      client,
+      client as unknown as Client,
       args.dbScope,
       pinSearchPathEachQuery
     ),
@@ -206,44 +206,16 @@ export function createPgPool(args: CreatePgPoolArgs): CreatePgPoolResult {
       args.dbScope
     );
   }
-  const pool = new Pool({
+  const pool = new PgPool({
     connectionString,
     max: args.max ?? 1,
   });
   return {
-    pool,
-    sqlClient: new SqlClientImplPg(pool, args.dbScope, pinSearchPathEachQuery),
-  };
-}
-
-/**
- * Creates the application schema if it does not exist, then verifies the live
- * session resolves to it. Idempotent; call once at the start of every
- * migration entry point before any DDL runs.
- */
-export async function ensurePostgresSchema(
-  sqlClient: SqlClient,
-  dbScope: PostgresDbScope
-): Promise<void> {
-  if (dbScope.schema === 'public') {
-    await sqlClient.run(raw('CREATE SCHEMA IF NOT EXISTS public'));
-    return;
-  }
-  await sqlClient.run(
-    raw(`CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(dbScope.schema)}`)
-  );
-  await assertPgSessionSchema(toPgQueryable(sqlClient), dbScope);
-}
-
-/** Adapts a {@link SqlClient} to the {@link assertPgSessionSchema} row shape. */
-function toPgQueryable(sqlClient: SqlClient): {
-  query<R extends Record<string, unknown>>(
-    queryText: string
-  ): Promise<{ rows: R[] }>;
-} {
-  return {
-    query: async <R extends Record<string, unknown>>(queryText: string) => ({
-      rows: await sqlClient.query(raw<R>(queryText)),
-    }),
+    pool: pool as unknown as Pool,
+    sqlClient: new SqlClientImplPg(
+      pool as unknown as Pool,
+      args.dbScope,
+      pinSearchPathEachQuery
+    ),
   };
 }

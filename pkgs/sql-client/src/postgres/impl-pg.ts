@@ -9,7 +9,6 @@
  */
 
 import type { Sql, Value } from '@pkgs/sql';
-import type { Pool } from 'pg';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -22,6 +21,7 @@ import {
   pgQueryWithOptionalSearchPathPin,
   pgRunResultFromQuery,
 } from './impl-pg-shared';
+import type { Pool } from './pg-types';
 import type { PostgresDbScope } from './schema';
 import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 

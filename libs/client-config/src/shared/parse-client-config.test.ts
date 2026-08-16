@@ -69,6 +69,17 @@ describe('parseClientConfigRows', () => {
     expect(config.llm_enabled).toBe(false);
   });
 
+  test('treats omitted deleted_at as live (AlaSQL null → undefined)', () => {
+    const config = parseClientConfigRows([
+      {
+        id: ClientConfigKey.emailPasswordEnabled,
+        value: 'true',
+        deleted_at: undefined as unknown as string | null,
+      },
+    ]);
+    expect(config.email_password_enabled).toBe(true);
+  });
+
   test('ignores soft-deleted rows', () => {
     const config = parseClientConfigRows([
       {

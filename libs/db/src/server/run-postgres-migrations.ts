@@ -44,6 +44,12 @@ export type PostgresMigrationRunnerDeps = {
    * sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
    */
   skipAdvisoryLock?: boolean;
+  /**
+   * When true, skip PL/pgSQL {@link PostgresSqliteCompatMigration}.
+   * Use for pg-mem where JSON1 shims are installed via
+   * `installPgMemSqliteCompat` at `createPgMemSqlClient` time.
+   */
+  skipSqliteCompat?: boolean;
 };
 
 export class PostgresMigrationRunner {
@@ -58,6 +64,7 @@ export class PostgresMigrationRunner {
       betterAuthBaseURL,
       betterAuthSecret,
       skipAdvisoryLock = false,
+      skipSqliteCompat = false,
     } = this.deps;
 
     const locked = new ComposedDatabaseMigration()
@@ -72,10 +79,14 @@ export class PostgresMigrationRunner {
       .register(new KvPostgresDatabaseMigration())
       .register(new EntityStorePostgresDatabaseMigration());
 
-    const databaseMigration = new ComposedDatabaseMigration()
-      .register(new EnsurePostgresSchemaMigration(dbScope))
-      // JSON1 shims so app SQL stays SQLite-shaped on Postgres.
-      .register(new PostgresSqliteCompatMigration())
+    const databaseMigration = new ComposedDatabaseMigration().register(
+      new EnsurePostgresSchemaMigration(dbScope)
+    );
+    // JSON1 shims so app SQL stays SQLite-shaped on Postgres (not pg-mem).
+    if (!skipSqliteCompat) {
+      databaseMigration.register(new PostgresSqliteCompatMigration());
+    }
+    databaseMigration
       .register(
         skipAdvisoryLock
           ? locked

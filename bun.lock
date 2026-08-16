@@ -122,6 +122,7 @@
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
+        "@pkgs/room": "workspace:*",
         "@pkgs/room-widgets": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
@@ -749,10 +750,8 @@
       "devDependencies": {
         "@types/better-sqlite3": "catalog:",
         "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",
-        "pg": "catalog:",
         "react": "catalog:",
         "typescript": "catalog:",
       },

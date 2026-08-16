@@ -125,6 +125,7 @@
     "@pkgs/polyfill": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
+    "@pkgs/room": "workspace:*",
     "@pkgs/room-widgets": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",

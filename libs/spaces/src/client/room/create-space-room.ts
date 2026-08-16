@@ -83,6 +83,7 @@ export class SpaceRoomFactory {
     const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
       spaceId,
       apiUrl,
+      identity: myId,
       installId,
       clientId,
       getSessionToken,

@@ -1,15 +1,20 @@
 import { expo } from '@better-auth/expo';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import { betterAuth } from 'better-auth';
 import { bearer } from 'better-auth/plugins';
-import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
-import type { Pool } from 'pg';
 
 import { BETTER_AUTH_TABLE_NAMES } from './better-auth-table-names';
 import { exposeBearerFromSessionCookie } from './expose-bearer-from-session-cookie';
 import { SqlClientSqliteDialect } from './sql-client-sqlite-dialect';
 
 export type BetterAuthInstance = ReturnType<typeof createBetterAuth>;
+
+/**
+ * better-sqlite3 Database (Jest / Node sims). Structural only — do not import
+ * `better-sqlite3` here (Metro would resolve it into Expo web).
+ */
+export type BetterSqliteDatabase = object;
 
 /**
  * Composition-root database handle for Better Auth.

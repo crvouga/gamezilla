@@ -13,9 +13,7 @@
  * across round-trips.
  */
 
-import { randomUUID } from 'node:crypto';
 import type { Sql, Value } from '@pkgs/sql';
-import type { Pool } from 'pg';
 import { DataType, type IMemoryDb, newDb } from 'pg-mem';
 import type {
   PostgresSqlClient,
@@ -29,12 +27,17 @@ import {
   pgQueryRows,
   pgRunResultFromQuery,
 } from './impl-pg-shared';
+import { installPgMemSqliteCompat } from './pg-mem-sqlite-compat';
+import type { Pool } from './pg-types';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
   quotePgIdent,
 } from './schema';
 
+function pgMemRandomUuid(): string {
+  return globalThis.crypto.randomUUID();
+}
 export type CreatePgMemSqlClientOptions = {
   readonly dbScope?: PostgresDbScope;
   /** Artificial query latency passed to `adapters.createPg` (ms). */
@@ -48,14 +51,13 @@ export type PgMemSqlClientBundle = {
   readonly pool: Pool;
 };
 
-function registerPgMemTestBuiltins(mem: IMemoryDb): void {
+function registerPgMemCatalogFns(mem: IMemoryDb): void {
   mem.public.registerFunction({
     name: 'gen_random_uuid',
     returns: DataType.uuid,
-    implementation: randomUUID,
+    implementation: pgMemRandomUuid,
     impure: true,
   });
-  // Kysely / Better Auth introspection uses Postgres regex ops.
   mem.public.registerOperator({
     operator: '!~',
     left: DataType.text,
@@ -94,7 +96,6 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
     returns: DataType.text,
     implementation: (ident: string) => `"${String(ident).replace(/"/g, '""')}"`,
   });
-  // Migrate mutex — no-op in single-process sims (pg-mem has no real locks).
   for (const arg of [DataType.integer, DataType.bigint] as const) {
     mem.public.registerFunction({
       name: 'pg_advisory_xact_lock',
@@ -104,7 +105,9 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
       impure: true,
     });
   }
-  // Catalog views used by kv / entity-store / db-schema migrate.
+}
+
+function registerPgMemCatalogViews(mem: IMemoryDb): void {
   mem.public.none(`
     CREATE VIEW pg_tables AS
     SELECT
@@ -129,24 +132,20 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
       NULL::text AS indexdef
     WHERE false
   `);
+}
+
+function registerPgMemQueryIntercepts(mem: IMemoryDb): void {
   mem.public.interceptQueries((sqlText) => {
     const trimmed = sqlText.trim();
-    // No-op Postgres storage knobs pg-mem cannot parse.
-    if (/\bSET\s+STORAGE\b/i.test(trimmed)) {
-      return [];
-    }
-    if (/ALTER\s+TABLE\s+\S+\s+SET\s*\(/i.test(trimmed)) {
-      return [];
-    }
+    if (/\bSET\s+STORAGE\b/i.test(trimmed)) return [];
+    if (/ALTER\s+TABLE\s+\S+\s+SET\s*\(/i.test(trimmed)) return [];
     if (/ALTER\s+TABLE\s+\S+\s+SET\s+(UN)?LOGGED\b/i.test(trimmed)) {
       return [];
     }
-    // kv migrate probes relpersistence via regnamespace — emulate as unlogged.
     if (/\brelpersistence\b/i.test(trimmed) && /\bpg_class\b/i.test(trimmed)) {
       return [{ relpersistence: 'u' }];
     }
     if (!/^DO\s+\$\$/i.test(trimmed)) {
-      // Strip Postgres-only table options pg-mem cannot parse.
       if (/\bUNLOGGED\b/i.test(trimmed) || /\)\s*WITH\s*\(/i.test(trimmed)) {
         const simplified = trimmed
           .replace(/\bUNLOGGED\b/gi, '')
@@ -156,8 +155,7 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
       }
       return null;
     }
-    const statements = extractDoBlockStatements(trimmed);
-    for (const statement of statements) {
+    for (const statement of extractDoBlockStatements(trimmed)) {
       try {
         mem.public.none(statement);
       } catch {
@@ -167,6 +165,13 @@ function registerPgMemTestBuiltins(mem: IMemoryDb): void {
     return [];
   });
   mem.registerLanguage('plpgsql', () => () => null);
+}
+
+function registerPgMemTestBuiltins(mem: IMemoryDb): void {
+  installPgMemSqliteCompat({ mem });
+  registerPgMemCatalogFns(mem);
+  registerPgMemCatalogViews(mem);
+  registerPgMemQueryIntercepts(mem);
 }
 
 /** Pull EXECUTE '…' / bare ALTER/CREATE statements out of a DO $$ block. */

@@ -1,4 +1,4 @@
-import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/connect';
+import { ensurePostgresSchema } from '@pkgs/sql-client/postgres/ensure-schema';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 
 import type {

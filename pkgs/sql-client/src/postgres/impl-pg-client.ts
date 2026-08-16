@@ -5,7 +5,6 @@
  */
 
 import type { Sql, Value } from '@pkgs/sql';
-import type { Client } from 'pg';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -18,6 +17,7 @@ import {
   pgQueryWithOptionalSearchPathPin,
   pgRunResultFromQuery,
 } from './impl-pg-shared';
+import type { Client } from './pg-types';
 import type { PostgresDbScope } from './schema';
 import { assertPgSessionSchema, setPgSessionSchema } from './session-schema';
 

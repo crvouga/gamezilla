@@ -4,6 +4,7 @@
  * Sims pass the full bag from `client.implement`.
  */
 
+import type { CreateRoomTransport } from '@libs/spaces/client/room/room-transport-factory';
 import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';
@@ -44,6 +45,11 @@ export type ClientSystemResources = {
   readonly db?: SqlClient;
   /** Graph-resolved client.observability when provided by DST. */
   readonly observability?: Observability;
+  /**
+   * Override space room transport (playground in-process loopback).
+   * When omitted, production WebSocket transport is used.
+   */
+  readonly createRoomTransport?: CreateRoomTransport;
 };
 
 export function useClientSystemResources(): ClientSystemResources {

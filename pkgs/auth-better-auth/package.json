@@ -37,10 +37,8 @@
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
-    "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
-    "pg": "catalog:",
     "react": "catalog:",
     "typescript": "catalog:"
   },

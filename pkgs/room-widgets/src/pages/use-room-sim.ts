@@ -38,9 +38,10 @@ async function connectClient(
   identity: string,
   io: Io
 ): Promise<CounterRoom> {
-  const transport = new LoopbackRoomTransport(server, id, identity);
-  server.registerConnection(id, (msg) => transport.deliverToClient(msg), {
-    id: identity,
+  const transport = new LoopbackRoomTransport({
+    server,
+    connectionId: id,
+    identity,
     clientId: id,
   });
   return Room.open({

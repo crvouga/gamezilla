@@ -1,3 +1,8 @@
+export {
+  type LoopbackRoomHost,
+  LoopbackRoomTransport,
+  type LoopbackRoomTransportArgs,
+} from './client/adapters/transport/loopback';
 export { openRoomSimWorld } from './sim/world';
 export type {
   OpenRoomSimWorldArgs,
@@ -37,7 +42,6 @@ export {
   matchClockWinner,
   StartMatch,
 } from './tests/fixtures/match-clock-module';
-export { LoopbackRoomTransport } from './tests/harness/loopback-transport';
 export type { LoopbackRoomSystem } from './tests/harness/simulator';
 export { openLoopbackRoom } from './tests/harness/simulator';
 export type { GenCtx, ModuleConformanceArgs } from './tests/kit';
