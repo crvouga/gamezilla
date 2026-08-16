@@ -14,7 +14,7 @@ import {
   SystemConsoleApp,
   type SystemConsolePorts,
 } from '@pkgs/system-console/client';
-import { AppThemeRoot } from '@pkgs/ui';
+import { AppThemeRoot, HouseIcon, TerminalIcon } from '@pkgs/ui';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
 function ConsoleSubApp(): ReactNode {
@@ -56,8 +56,8 @@ function MainSubApp(): ReactNode {
 
 export function composeSubApps(): readonly HostedSubApp[] {
   return [
-    { id: 'main', title: 'Main', App: MainSubApp },
-    { id: 'console', title: 'Console', App: ConsoleSubApp },
+    { id: 'main', title: 'Main', icon: HouseIcon, App: MainSubApp },
+    { id: 'console', title: 'Console', icon: TerminalIcon, App: ConsoleSubApp },
   ];
 }
 

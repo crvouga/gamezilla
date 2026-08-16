@@ -9,12 +9,15 @@ import {
 import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 
+type DrainEngine = {
+  readonly wakeUploads: () => void;
+  readonly pendingMutationCount: () => Promise<number>;
+};
+
 type DrainLive = {
   readonly id: string;
   readonly syncEnginePool: {
-    readonly peekReady: (
-      databaseName: string
-    ) => { readonly wakeUploads: () => void } | null;
+    readonly peekReady: (databaseName: string) => DrainEngine | null;
   };
 };
 
@@ -38,12 +41,11 @@ async function pendingMutationTotal(
 ): Promise<number> {
   let total = 0;
   for (const clientId of clientIds) {
-    const handle = ctx.clientSqlByAddress.get(`client:${clientId}.db`);
-    if (handle === undefined) continue;
-    const rows = await handle.sqlClient.query(sql<{ c: number | string }>`
-      SELECT COUNT(*) AS c FROM sync_engine_mutations
-    `);
-    total += Number(rows[0]?.c ?? 0);
+    const live = ctx.maps.lives.get(clientId);
+    if (live === undefined) continue;
+    const engine = live.syncEnginePool.peekReady(clientNamespace(live.id));
+    if (engine === null) continue;
+    total += await engine.pendingMutationCount();
   }
   return total;
 }

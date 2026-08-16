@@ -5,12 +5,16 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  MonitorIcon,
   OverlayPortalProvider,
   Pressable,
+  RadioIcon,
   RegisterCommand,
+  ServerIcon,
   SurfaceStackProvider,
   TabStrip,
   Text,
+  UserIcon,
 } from '@pkgs/ui';
 import {
   type ReactNode,
@@ -35,10 +39,10 @@ import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
 import type { PlaygroundSessionState } from './use-playground-session';
 
 const KIND_TABS = [
-  { id: 'client', label: 'Client' },
-  { id: 'server', label: 'Server' },
-  { id: 'pubsub', label: 'PubSub' },
-  { id: 'actor', label: 'Actor' },
+  { id: 'client', label: 'Client', icon: MonitorIcon },
+  { id: 'server', label: 'Server', icon: ServerIcon },
+  { id: 'pubsub', label: 'PubSub', icon: RadioIcon },
+  { id: 'actor', label: 'Actor', icon: UserIcon },
 ] as const;
 
 type KindId = (typeof KIND_TABS)[number]['id'];

@@ -1,4 +1,15 @@
-import { Box, Pressable, TabStrip, Text } from '@pkgs/ui';
+import {
+  Box,
+  CodeIcon,
+  DatabaseIcon,
+  PaintbrushIcon,
+  Pressable,
+  ScrollTextIcon,
+  TabStrip,
+  type TabStripItem,
+  TerminalIcon,
+  Text,
+} from '@pkgs/ui';
 import { type ReactNode, useState } from 'react';
 
 import type {
@@ -16,25 +27,25 @@ import { PlaygroundPubSubTopicsPane } from './playground-pubsub-topics-pane';
 import { PlaygroundRoomDbPane } from './playground-room-db-pane';
 
 const CLIENT_TABS = [
-  { id: 'ui', label: 'UI' },
-  { id: 'db', label: 'DB' },
-  { id: 'logs', label: 'Logs' },
+  { id: 'ui', label: 'UI', icon: PaintbrushIcon },
+  { id: 'db', label: 'DB', icon: DatabaseIcon },
+  { id: 'logs', label: 'Logs', icon: ScrollTextIcon },
 ] as const;
 
 const SERVER_TABS = [
-  { id: 'db', label: 'DB' },
-  { id: 'logs', label: 'Logs' },
-  { id: 'commands', label: 'Commands' },
+  { id: 'db', label: 'DB', icon: DatabaseIcon },
+  { id: 'logs', label: 'Logs', icon: ScrollTextIcon },
+  { id: 'commands', label: 'Commands', icon: TerminalIcon },
 ] as const;
 
 const PUBSUB_TABS = [
-  { id: 'logs', label: 'Logs' },
-  { id: 'topics', label: 'Topics' },
+  { id: 'logs', label: 'Logs', icon: ScrollTextIcon },
+  { id: 'topics', label: 'Topics', icon: CodeIcon },
 ] as const;
 
 const ROOM_TABS = [
-  { id: 'db', label: 'DB' },
-  { id: 'logs', label: 'Logs' },
+  { id: 'db', label: 'DB', icon: DatabaseIcon },
+  { id: 'logs', label: 'Logs', icon: ScrollTextIcon },
 ] as const;
 
 type ClientTabId = (typeof CLIENT_TABS)[number]['id'];
@@ -169,7 +180,7 @@ export function RoomPlaygroundPanel<R>(props: {
 function PanelShell(props: {
   readonly title: string;
   readonly accessibilityLabel: string;
-  readonly items: readonly { id: string; label: string }[];
+  readonly items: readonly TabStripItem[];
   readonly selectedId: string;
   readonly onSelect: (id: string) => void;
   readonly onClose?: () => void;

@@ -241,6 +241,52 @@ describe('AlaSQL ≡ Bun SQLite', () => {
     );
   });
 
+  test('UPDATE RETURNING with predicate on mutated column (endSpace shape)', async () => {
+    const pair = await openPair();
+    await setupBoth(pair, [
+      raw(
+        'CREATE TABLE spaces (id TEXT PRIMARY KEY, ended_at TEXT, host_id TEXT)'
+      ),
+      sql<void>`
+        INSERT INTO spaces (id, ended_at, host_id)
+        VALUES (${'s1'}, ${null}, ${'d1'})
+      `,
+    ]);
+    const now = '2026-08-16T18:00:00.000Z';
+    await expectQueryEqual(
+      pair,
+      sql<{ id: string; ended_at: string | null; host_id: string }>`
+        UPDATE spaces
+        SET ended_at = ${now}, host_id = ${'d1'}
+        WHERE id = ${'s1'} AND ended_at IS NULL
+        RETURNING *
+      `
+    );
+  });
+
+  test('UPDATE RETURNING soft-delete WHERE deleted_at IS NULL', async () => {
+    const pair = await openPair();
+    await setupBoth(pair, [
+      raw(
+        'CREATE TABLE spaces_open_sessions (id TEXT PRIMARY KEY, space_id TEXT, deleted_at TEXT)'
+      ),
+      sql<void>`
+        INSERT INTO spaces_open_sessions (id, space_id, deleted_at)
+        VALUES (${'sess1'}, ${'s1'}, ${null})
+      `,
+    ]);
+    const now = '2026-08-16T18:00:00.000Z';
+    await expectQueryEqual(
+      pair,
+      sql<{ id: string; space_id: string; deleted_at: string | null }>`
+        UPDATE spaces_open_sessions
+        SET deleted_at = ${now}
+        WHERE space_id = ${'s1'} AND deleted_at IS NULL
+        RETURNING *
+      `
+    );
+  });
+
   test('quotes better-auth primary subquery alias', async () => {
     const pair = await openPair();
     await setupBoth(pair, [

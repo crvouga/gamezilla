@@ -1,4 +1,10 @@
-import { Box, TabStrip } from '@pkgs/ui';
+import {
+  Box,
+  Gamepad2Icon,
+  HistoryIcon,
+  ListChecksIcon,
+  TabStrip,
+} from '@pkgs/ui';
 import {
   type ReactNode,
   useCallback,
@@ -20,9 +26,9 @@ import { useReportData } from './use-report-data';
 type Section = 'reports' | 'playground' | 'session';
 
 const SECTIONS = [
-  { id: 'reports', label: 'Reports' },
-  { id: 'playground', label: 'Playground' },
-  { id: 'session', label: 'Session' },
+  { id: 'reports', label: 'Reports', icon: ListChecksIcon },
+  { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
+  { id: 'session', label: 'Session', icon: HistoryIcon },
 ] as const;
 
 const DEFAULT_BASE_PATH = '/system-console';
@@ -54,11 +60,10 @@ export function SystemConsoleApp<R>(props: {
     if (playgroundSection) setPlaygroundPinned(true);
   }, [playgroundSection]);
 
-  const {
-    state: sessionState,
-    wipe,
-    reboot,
-  } = usePlaygroundSession(ports.bootPlayground, playgroundPinned);
+  const { state: sessionState } = usePlaygroundSession(
+    ports.bootPlayground,
+    playgroundPinned
+  );
 
   return (
     <Box sx={appShellSx}>
@@ -74,11 +79,7 @@ export function SystemConsoleApp<R>(props: {
           <PlaygroundScreen ports={ports} state={sessionState} />
         ) : null}
         {section === 'session' ? (
-          <PlaygroundSessionScreen
-            state={sessionState}
-            wipe={wipe}
-            reboot={reboot}
-          />
+          <PlaygroundSessionScreen state={sessionState} />
         ) : null}
       </Box>
     </Box>

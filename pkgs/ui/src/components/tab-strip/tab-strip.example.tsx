@@ -1,5 +1,15 @@
 import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
+import {
+  DatabaseIcon,
+  Gamepad2Icon,
+  HistoryIcon,
+  HouseIcon,
+  ListChecksIcon,
+  PaintbrushIcon,
+  ScrollTextIcon,
+  TerminalIcon,
+} from '../icons';
 import { Stack } from '../stack';
 import { Text } from '../text';
 import { TabStrip } from './tab-strip';
@@ -21,8 +31,8 @@ export default function TabStripExample() {
         <TabStrip
           accessibilityLabel="Apps"
           items={[
-            { id: 'main', label: 'Main' },
-            { id: 'console', label: 'Console' },
+            { id: 'main', label: 'Main', icon: HouseIcon },
+            { id: 'console', label: 'Console', icon: TerminalIcon },
           ]}
           selectedId={app}
           onSelect={setApp}
@@ -32,9 +42,9 @@ export default function TabStripExample() {
         <TabStrip
           accessibilityLabel="Console sections"
           items={[
-            { id: 'reports', label: 'Reports' },
-            { id: 'playground', label: 'Playground' },
-            { id: 'session', label: 'Session' },
+            { id: 'reports', label: 'Reports', icon: ListChecksIcon },
+            { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
+            { id: 'session', label: 'Session', icon: HistoryIcon },
           ]}
           selectedId={section}
           onSelect={setSection}
@@ -44,9 +54,9 @@ export default function TabStripExample() {
         <TabStrip
           accessibilityLabel="Panel views"
           items={[
-            { id: 'ui', label: 'UI' },
-            { id: 'db', label: 'DB' },
-            { id: 'logs', label: 'Logs' },
+            { id: 'ui', label: 'UI', icon: PaintbrushIcon },
+            { id: 'db', label: 'DB', icon: DatabaseIcon },
+            { id: 'logs', label: 'Logs', icon: ScrollTextIcon },
           ]}
           selectedId={view}
           onSelect={setView}

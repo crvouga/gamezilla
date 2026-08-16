@@ -33,6 +33,7 @@ import {
   planOnConflictUpsert,
 } from './impl-alasql-on-conflict';
 import {
+  buildUpdateReturningPostSelect,
   buildUpdateReturningSteps,
   planUpdateReturning,
   type UpdateReturningPlan,
@@ -315,14 +316,20 @@ export class SqlClientImplAlaSql implements SqlClient {
     params?: readonly Value[]
   ): unknown {
     const steps = buildUpdateReturningSteps(plan, params);
+    const idRows = toRows<{ id: unknown }>(
+      this.execAla(
+        adaptSqliteDialect(steps.preSelectSql),
+        steps.preSelectParams as Value[]
+      )
+    );
     this.execAla(
       adaptSqliteDialect(steps.updateSql),
       steps.updateParams as Value[]
     );
-    return this.execAla(
-      adaptSqliteDialect(steps.selectSql),
-      steps.selectParams as Value[]
-    );
+    const ids = idRows.map((r) => r.id).filter((id) => id != null && id !== '');
+    const post = buildUpdateReturningPostSelect(steps, ids);
+    if (post === null) return [];
+    return this.execAla(adaptSqliteDialect(post.sql), post.params as Value[]);
   }
 
   private execAdapted(

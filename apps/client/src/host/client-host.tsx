@@ -30,7 +30,11 @@ export function ClientHost(props: ClientHostProps): ReactNode {
     <Box sx={{ flex: 1, background: 'background' }}>
       <TabStrip
         accessibilityLabel="Apps"
-        items={apps.map((app) => ({ id: app.id, label: app.title }))}
+        items={apps.map((app) => ({
+          id: app.id,
+          label: app.title,
+          ...(app.icon !== undefined ? { icon: app.icon } : {}),
+        }))}
         selectedId={selected.id}
         onSelect={setSelectedId}
       />

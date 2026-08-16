@@ -88,6 +88,8 @@ function TabPill(props: {
   const theme = useTheme();
   const { item, active, onSelect } = props;
   const closable = item.onClose !== undefined;
+  const Icon = item.icon;
+  const iconColor = active ? theme.colors.tint : theme.colors.textSecondary;
   return (
     <Pressable
       accessibilityRole="tab"
@@ -110,6 +112,7 @@ function TabPill(props: {
         background: active ? 'background' : 'transparent',
       }}
     >
+      {Icon !== undefined ? <Icon size={16} color={iconColor} /> : null}
       <Text
         variant="label"
         label={item.label}

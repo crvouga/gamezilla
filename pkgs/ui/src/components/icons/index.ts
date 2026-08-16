@@ -16,6 +16,7 @@ import {
   Ellipsis,
   Gamepad2,
   Heart,
+  History,
   House,
   Lightbulb,
   ListChecks,
@@ -23,17 +24,22 @@ import {
   LogOut,
   Mail,
   Menu,
+  Monitor,
   Paintbrush,
   Play,
   Plus,
+  Radio,
   RotateCcw,
   Save,
+  ScrollText,
   Search,
   Send,
+  Server,
   Settings,
   Share,
   Shuffle,
   SquarePen,
+  Terminal,
   Trash2,
   User,
   Volume2,
@@ -82,3 +88,9 @@ export const SquarePenIcon = createIcon(SquarePen);
 export const Trash2Icon = createIcon(Trash2);
 export const HeartIcon = createIcon(Heart);
 export const BellIcon = createIcon(Bell);
+export const TerminalIcon = createIcon(Terminal);
+export const ServerIcon = createIcon(Server);
+export const RadioIcon = createIcon(Radio);
+export const ScrollTextIcon = createIcon(ScrollText);
+export const HistoryIcon = createIcon(History);
+export const MonitorIcon = createIcon(Monitor);
