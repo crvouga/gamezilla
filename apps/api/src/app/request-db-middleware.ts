@@ -76,7 +76,7 @@ export type RequestDbMiddlewareOptions = {
   readonly skipDatabaseUrlPolicy?: boolean;
 };
 
-type ClientConfigLatch = { promise: Promise<void> | null };
+type ClientConfigLatch = { done: boolean };
 
 type AttachRequestDatabaseArgs = {
   readonly c: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[0];
@@ -135,24 +135,17 @@ async function materializeClientConfigIfNeeded(
   options: RequestDbMiddlewareOptions,
   latch: ClientConfigLatch
 ): Promise<void> {
-  if (latch.promise !== null) {
-    await latch.promise;
-    return;
-  }
-  latch.promise = (async () => {
-    const result = await new EnsureClientConfigMaterialized(
-      sqlClient,
-      options.io
-    ).execute(options.desiredClientConfig);
-    if (result.updated) {
-      await notifyClientConfigChannels('client-config-materialize');
-    }
-  })();
-  try {
-    await latch.promise;
-  } catch (err: unknown) {
-    latch.promise = null;
-    throw err;
+  if (latch.done) return;
+  // Never share an in-flight Promise across requests — Workers cancels the
+  // waiter ("hung and would never generate a response"). Concurrent first
+  // requests may both materialize; EnsureClientConfigMaterialized is idempotent.
+  const result = await new EnsureClientConfigMaterialized(
+    sqlClient,
+    options.io
+  ).execute(options.desiredClientConfig);
+  latch.done = true;
+  if (result.updated) {
+    await notifyClientConfigChannels('client-config-materialize');
   }
 }
 
@@ -223,7 +216,7 @@ export function createRequestDbMiddleware(
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   const { databaseUrlOverride = null, secretsEnv } = options;
   const policyLatch: PolicyLatch = { checked: false };
-  const clientConfigLatch: ClientConfigLatch = { promise: null };
+  const clientConfigLatch: ClientConfigLatch = { done: false };
   const skipDatabasePolicy = options.skipDatabaseUrlPolicy === true;
   return async (c, next) => {
     if (new URL(c.req.url).pathname === '/api/health') {
