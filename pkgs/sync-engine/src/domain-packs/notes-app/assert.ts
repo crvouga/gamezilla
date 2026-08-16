@@ -147,3 +147,17 @@ export async function expectNoForeignOpenSessions(
   `);
   expect(rows).toEqual([]);
 }
+
+/** Live username for a profile id, or null if missing / empty. */
+export async function readProfileUsername(
+  db: SqlClient,
+  profileId: string
+): Promise<string | null> {
+  const rows = await db.query(sql<{ username: string | null }>`
+    SELECT username FROM profile
+    WHERE id = ${profileId} AND deleted_at IS NULL
+    LIMIT 1
+  `);
+  const username = rows[0]?.username;
+  return typeof username === 'string' && username.length > 0 ? username : null;
+}

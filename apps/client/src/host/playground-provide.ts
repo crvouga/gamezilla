@@ -1,6 +1,9 @@
 /**
  * Browser playground provide map for `@pkgs/system` createWorld.
- * Mirrors `@test/ui` product-provide but uses OPFS / expo-sqlite + web namespaces.
+ *
+ * Live SQL is **in-memory AlaSQL** (no OPFS / SharedWorker). Expo-sqlite web
+ * workers race under Strict Mode remounts and hang playground boot; snapshots
+ * via ObjectStore remain the only durable playground state.
  */
 
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
@@ -8,10 +11,6 @@ import { attachSimOpenRequestDb } from '@apps/api/system/sim-open-request-db';
 import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
 import type { Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import {
-  clearNamespacedKvWeb,
-  KvImplWebNamespaced,
-} from '@pkgs/kv/impl-kv-web-namespaced';
 import type { Kv } from '@pkgs/kv/interface';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -23,19 +22,9 @@ import {
   type InMemoryBus,
 } from '@pkgs/pubsub/testing/in-memory';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplExpoSqlite } from '@pkgs/sql-client/sqlite/impl-expo-sqlite';
-import {
-  coerceSqliteDbBytes,
-  isNotADatabaseError,
-} from '@pkgs/sql-client/sqlite/sqlite-db-bytes';
-import {
-  createExpoWebSqlClient,
-  type ExpoWebSqlClient,
-} from '@pkgs/sql-client/sqlite/web';
+import { SqlClientImplAlaSql } from '@pkgs/sql-client/sqlite/impl-alasql';
 import { decoratePort, type ProviderSpec, stubPort } from '@pkgs/system';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import * as SQLite from 'expo-sqlite';
-import { Platform } from 'react-native';
 
 export type PlaygroundSqlHandle = {
   readonly sqlClient: SqlClient;
@@ -46,86 +35,57 @@ export type PlaygroundSqlHandle = {
   importBytes(bytes: Uint8Array): Promise<void>;
 };
 
-export async function openPlaygroundSql(
-  databaseName: string,
-  timers: Timers
-): Promise<PlaygroundSqlHandle> {
-  if (Platform.OS === 'web') {
-    const client: ExpoWebSqlClient = createExpoWebSqlClient(databaseName, {
-      timers,
-    });
-    try {
-      await client.connect();
-    } catch (error: unknown) {
-      // Owner open already delete-retries; persistent NOTADB needs OPFS wipe.
-      if (isNotADatabaseError(error)) {
-        const { runWebOpfsRecoveryAndReload } = await import(
-          '@pkgs/sql-client/sqlite/web/opfs-recover'
-        );
-        const returnTo =
-          typeof window !== 'undefined'
-            ? `${window.location.pathname}${window.location.search}${window.location.hash}`
-            : undefined;
-        await runWebOpfsRecoveryAndReload({
-          timers,
-          closeLocal: () => client.disconnect(),
-          ...(returnTo !== undefined && returnTo.length > 0
-            ? { returnTo }
-            : {}),
-        });
-      }
-      throw error;
-    }
-    return {
-      sqlClient: client,
-      databaseName,
-      disconnect: () => client.disconnect(),
-      reset: () => client.resetDatabase(),
-      exportBytes: () => client.exportBytes(),
-      importBytes: (bytes) => client.importBytes(bytes),
-    };
-  }
-  const client = await SqlClientImplExpoSqlite.open(databaseName, timers);
-  await client.connect();
-  let live: SqlClientImplExpoSqlite = client;
+let playgroundSqlSeq = 0;
+
+function uniqueAlaSqlName(base: string): string {
+  playgroundSqlSeq += 1;
+  // AlaSQL identifiers: keep alphanumeric + underscore.
+  const safe = base.replace(/[^a-zA-Z0-9_]/g, '_');
+  return `${safe}_${playgroundSqlSeq}`;
+}
+
+function openAlaSqlHandle(logicalName: string): PlaygroundSqlHandle {
+  let databaseName = uniqueAlaSqlName(logicalName);
+  let live = SqlClientImplAlaSql.open(databaseName);
   const handle: PlaygroundSqlHandle = {
     get sqlClient() {
       return live;
     },
-    databaseName,
+    get databaseName() {
+      return databaseName;
+    },
     disconnect: () => live.disconnect(),
     reset: async () => {
       await live.disconnect();
-      await SQLite.deleteDatabaseAsync(databaseName);
-    },
-    exportBytes: async () =>
-      coerceSqliteDbBytes(
-        await live.getSqliteDatabase().serializeAsync('main')
-      ),
-    importBytes: async (bytes) => {
-      const payload = coerceSqliteDbBytes(bytes);
-      await live.disconnect();
-      try {
-        await SQLite.deleteDatabaseAsync(databaseName);
-      } catch {
-        // missing ok
-      }
-      const mem = await SQLite.deserializeDatabaseAsync(payload);
-      const dest = await SQLite.openDatabaseAsync(databaseName);
-      try {
-        await SQLite.backupDatabaseAsync({
-          sourceDatabase: mem,
-          destDatabase: dest,
-        });
-      } finally {
-        await mem.closeAsync();
-        await dest.closeAsync();
-      }
-      live = await SqlClientImplExpoSqlite.open(databaseName, timers);
+      databaseName = uniqueAlaSqlName(logicalName);
+      live = SqlClientImplAlaSql.open(databaseName);
       await live.connect();
+    },
+    exportBytes: async () => live.exportDatabaseBytes(),
+    importBytes: async (bytes) => {
+      live.importDatabaseBytes(bytes);
     },
   };
   return handle;
+}
+
+export async function openPlaygroundSql(
+  databaseName: string,
+  _timers: Timers
+): Promise<PlaygroundSqlHandle> {
+  const handle = openAlaSqlHandle(databaseName);
+  await handle.sqlClient.connect();
+  return handle;
+}
+
+/**
+ * Open a fresh ephemeral DB. AlaSQL names are unique per call — no OPFS reset.
+ */
+export async function openFreshPlaygroundSql(
+  databaseName: string,
+  timers: Timers
+): Promise<PlaygroundSqlHandle> {
+  return openPlaygroundSql(databaseName, timers);
 }
 
 /** Ignore request-middleware disconnect on shared process-lifetime DBs. */
@@ -145,12 +105,40 @@ export function sessionOwnedSqlClient(sqlClient: SqlClient): SqlClient {
   return sharedRequestSqlClient(sqlClient);
 }
 
+/**
+ * Always forward to the handle's current AlaSQL client. Snapshot reload
+ * {@link PlaygroundSqlHandle.reset}s in place — SyncEngines that captured a
+ * raw AlaSQL instance see "database is closed"; handle-bound clients do not.
+ */
+export function handleBoundSqlClient(handle: PlaygroundSqlHandle): SqlClient {
+  return {
+    connect: async () => undefined,
+    disconnect: async () => undefined,
+    query: (query) => handle.sqlClient.query(query),
+    run: (query) => handle.sqlClient.run(query),
+    prepare: (query) => handle.sqlClient.prepare(query),
+    transaction: <T>(fn: (tx: SqlClient) => Promise<T>) =>
+      handle.sqlClient.transaction(fn),
+  };
+}
+
 export function clientDbName(instanceId: string): string {
   return `playground_client_${instanceId}`;
 }
 
+/**
+ * Epoch bumps on each snapshot load so a dying client's AuthBridge cannot
+ * overwrite restored tokens in the shared localStorage namespace.
+ */
+let playgroundDurableEpoch = 0;
+
+export function bumpPlaygroundDurableEpoch(): number {
+  playgroundDurableEpoch += 1;
+  return playgroundDurableEpoch;
+}
+
 export function clientNamespace(instanceId: string): string {
-  return `playground_client_${instanceId}`;
+  return `playground_client_${instanceId}_e${playgroundDurableEpoch}`;
 }
 
 /** Parse `client:alice.db` / `client:alice.kv` → `alice`. */
@@ -166,24 +154,17 @@ export function clientInstanceIdFromLeafAddress(address: string): string {
   return address;
 }
 
-function kvProvider(namespace?: string): ProviderSpec<Kv> {
-  return decoratePort<Kv>(
-    () =>
-      Platform.OS === 'web' && namespace !== undefined
-        ? new KvImplWebNamespaced(namespace)
-        : new KvImplInMemory(),
-    {
-      wipe(instance) {
-        if (instance instanceof KvImplInMemory) instance.clearForTest();
-        if (namespace !== undefined) clearNamespacedKvWeb(namespace);
-      },
-      corrupt(instance) {
-        if (instance instanceof KvImplInMemory) {
-          instance.armFault(new Error('kv corrupted'));
-        }
-      },
-    }
-  );
+function kvProvider(): ProviderSpec<Kv> {
+  return decoratePort<Kv>(() => new KvImplInMemory(), {
+    wipe(instance) {
+      if (instance instanceof KvImplInMemory) instance.clearForTest();
+    },
+    corrupt(instance) {
+      if (instance instanceof KvImplInMemory) {
+        instance.armFault(new Error('kv corrupted'));
+      }
+    },
+  });
 }
 
 function blobProvider(): ProviderSpec<ObjectStore> {
@@ -227,21 +208,20 @@ export function createPlaygroundProvide(
   const clientDbProvider = decoratePort<SqlClient>(
     async (address) => {
       const existing = handles.clientSqlByAddress.get(address);
-      if (existing !== undefined)
-        return sessionOwnedSqlClient(existing.sqlClient);
+      if (existing !== undefined) return handleBoundSqlClient(existing);
       const instanceId = clientInstanceIdFromLeafAddress(address);
-      const handle = await openPlaygroundSql(
+      const handle = await openFreshPlaygroundSql(
         clientDbName(instanceId),
         handles.timers
       );
       handles.clientSqlByAddress.set(address, handle);
-      return sessionOwnedSqlClient(handle.sqlClient);
+      return handleBoundSqlClient(handle);
     },
     {
       async wipe(_instance, address) {
         const handle = handles.clientSqlByAddress.get(address);
         if (handle === undefined) return;
-        await handle.reset();
+        await handle.disconnect();
         handles.clientSqlByAddress.delete(address);
       },
     }
@@ -258,12 +238,7 @@ export function createPlaygroundProvide(
     'api.tts': stubPort(new InMemoryTtsProvider()),
     'api.llm': stubPort(new InMemoryLlmProvider()),
     'client.db': clientDbProvider,
-    'client.kv': decoratePort<Kv>((address) => {
-      const instanceId = clientInstanceIdFromLeafAddress(address);
-      return Platform.OS === 'web'
-        ? new KvImplWebNamespaced(clientNamespace(instanceId))
-        : new KvImplInMemory();
-    }),
+    'client.kv': decoratePort<Kv>(() => new KvImplInMemory()),
     'client.observability': stubPort(
       createNoopObservability('playground-client')
     ),

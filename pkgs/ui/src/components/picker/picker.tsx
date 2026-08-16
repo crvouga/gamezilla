@@ -9,12 +9,15 @@ import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
+import type { SxProps } from '../../theme/sx-props';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
 import { List, ListItem } from '../list';
 import { Pressable } from '../pressable';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';
+
+export type PickerSize = 'sm' | 'md';
 
 export type PickerOption<T extends string | number = string> = {
   label: ReactNode;
@@ -30,8 +33,12 @@ export type PickerProps<T extends string | number = string> = {
   label?: ReactNode;
   /** Title in the surface; defaults to `label` when set, else `"Choose"`. */
   surfaceTitle?: ReactNode;
+  /** Content rendered at the top of the surface body (below the title). */
+  surfaceExtra?: ReactNode;
   disabled?: boolean;
   placeholder?: LocalizedString;
+  /** Compact trigger for dense chrome (e.g. tab bars). Default `'md'`. */
+  size?: PickerSize;
   /** Custom row renderer; default uses {@link ListItem}. */
   renderOption?: (
     option: PickerOption<T>,
@@ -48,8 +55,10 @@ export function Picker<T extends string | number = string>({
   onValueChange,
   label,
   surfaceTitle,
+  surfaceExtra,
   disabled = false,
   placeholder,
+  size = 'md',
   renderOption,
   dataSet,
 }: PickerProps<T>) {
@@ -75,6 +84,7 @@ export function Picker<T extends string | number = string>({
         selected={selected}
         placeholder={placeholderResolved}
         disabled={disabled}
+        size={size}
         onPress={() => setOpen(true)}
       />
       <ResponsiveSurface
@@ -82,6 +92,9 @@ export function Picker<T extends string | number = string>({
         onClose={() => setOpen(false)}
         title={title}
       >
+        {surfaceExtra !== undefined && surfaceExtra !== null ? (
+          <Box sx={{ mb: 2 }}>{surfaceExtra}</Box>
+        ) : null}
         <PickerOptions
           options={options}
           value={value}
@@ -107,27 +120,22 @@ function PickerTrigger<T extends string | number>({
   selected,
   placeholder,
   disabled,
+  size,
   onPress,
 }: {
   selected: PickerOption<T> | undefined;
   placeholder: LocalizedString;
   disabled: boolean;
+  size: PickerSize;
   onPress: () => void;
 }) {
+  const compact = size === 'sm';
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       sx={{
-        borderRadius: borderRadius.md,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: 'outline',
-        backgroundColor: 'surfaceMuted',
-        gap: 2.5,
+        ...triggerSx(compact),
         opacity: disabled ? 0.4 : 1,
       }}
     >
@@ -135,16 +143,45 @@ function PickerTrigger<T extends string | number>({
         <Box sx={{ flexShrink: 0 }}>{selected.preview}</Box>
       ) : null}
       <Text
-        variant="label"
+        variant={compact ? 'caption' : 'label'}
+        numberOfLines={1}
+        ellipsizeMode="tail"
         sx={{
           flex: 1,
+          minWidth: 0,
+          flexShrink: 1,
           color: selected !== undefined ? 'text' : 'textSecondary',
+          ...(compact
+            ? { fontSize: 12, lineHeight: 16, fontWeight: '500' }
+            : {}),
         }}
         label={selected?.label ?? placeholder}
       />
-      <Text sx={{ color: 'textSecondary', fontSize: 10 }} label="▼" />
+      <Text
+        sx={{
+          color: 'textSecondary',
+          fontSize: compact ? 9 : 10,
+          flexShrink: 0,
+        }}
+        label="▼"
+      />
     </Pressable>
   );
+}
+
+function triggerSx(compact: boolean): SxProps {
+  return {
+    borderRadius: borderRadius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 0,
+    paddingHorizontal: compact ? 8 : 12,
+    paddingVertical: compact ? 6 : 10,
+    borderWidth: 1,
+    borderColor: 'outline',
+    backgroundColor: 'surfaceMuted',
+    gap: compact ? 1.5 : 2.5,
+  };
 }
 
 function PickerOptions<T extends string | number>({

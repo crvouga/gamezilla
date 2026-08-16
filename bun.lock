@@ -177,6 +177,7 @@
         "react-native-worklets": "catalog:",
         "whatwg-fetch": "catalog:",
         "workbox-window": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@libs/infra": "workspace:*",
@@ -1405,14 +1406,12 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "alasql": "catalog:",
         "better-sqlite3": "catalog:",
         "expo-sqlite": "catalog:",
-        "hono": "catalog:",
         "pg": "catalog:",
         "pg-mem": "catalog:",
         "react": "catalog:",

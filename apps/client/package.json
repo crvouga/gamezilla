@@ -179,7 +179,8 @@
     "react-native-web": "catalog:",
     "react-native-worklets": "catalog:",
     "whatwg-fetch": "catalog:",
-    "workbox-window": "catalog:"
+    "workbox-window": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@libs/infra": "workspace:*",

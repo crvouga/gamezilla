@@ -11,7 +11,6 @@ import {
   SurfaceStackProvider,
   TabStrip,
   Text,
-  useCommandPalette,
 } from '@pkgs/ui';
 import {
   type ReactNode,
@@ -32,7 +31,7 @@ import {
   RoomPlaygroundPanel,
   ServerPlaygroundPanel,
 } from './playground-panel';
-import { PlaygroundSnapshotStrip } from './playground-snapshot-strip';
+import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
 import type { PlaygroundSessionState } from './use-playground-session';
 
 const KIND_TABS = [
@@ -92,8 +91,8 @@ function ReadyPlaygroundScreen<R>(props: {
   const { ports, session, kind, onKind } = props;
   const tick = useSyncExternalStore(
     session.subscribe,
-    () => session.clients.size + session.rooms.size,
-    () => session.clients.size + session.rooms.size
+    () => session.revision,
+    () => session.revision
   );
   void tick;
   const roomIds = [...session.rooms.keys()];
@@ -108,6 +107,15 @@ function ReadyPlaygroundScreen<R>(props: {
     () => session.listPaletteCommands(),
     [session, tick]
   );
+  // Read maps during the subscribed render so React Compiler cannot memoize
+  // KindPanels on the stable `session` object identity alone (reload looked
+  // like a no-op: host restored clients, UI kept pre-reload ProductApps).
+  // While snapshotRestoring, force zero clients so SyncEngineBoot cannot race
+  // detach destroying AlaSQL (migrate xcolumns crash).
+  const clients = session.snapshotRestoring
+    ? []
+    : [...session.clients.values()];
+  const snapshotEpoch = session.snapshotEpoch;
 
   return (
     <Box
@@ -125,9 +133,8 @@ function ReadyPlaygroundScreen<R>(props: {
         selectedId={kind}
         onSelect={(id) => onKind(id as KindId)}
         keyboardScope
-        trailing={<PaletteOpenButton />}
+        trailing={<PlaygroundSnapshotChrome session={session} />}
       />
-      <PlaygroundSnapshotStrip session={session} />
       {kind === 'actor' ? (
         <TabStrip
           accessibilityLabel="Rooms"
@@ -141,31 +148,10 @@ function ReadyPlaygroundScreen<R>(props: {
         session={session}
         kind={kind}
         selectedRoomId={roomId}
+        clients={clients}
+        snapshotEpoch={snapshotEpoch}
       />
     </Box>
-  );
-}
-
-function PaletteOpenButton() {
-  const { open } = useCommandPalette();
-  return (
-    <Pressable
-      accessibilityLabel="Open command palette"
-      onPress={open}
-      sx={{
-        paddingHorizontal: 2,
-        paddingVertical: 1,
-        borderRadius: 'sm',
-        borderWidth: 1,
-        borderColor: 'border',
-      }}
-    >
-      <Text
-        variant="caption"
-        label="⌘K"
-        sx={{ color: 'textSecondary', fontFamily: 'mono' }}
-      />
-    </Pressable>
   );
 }
 
@@ -196,16 +182,23 @@ function KindPanels<R>(props: {
   readonly session: PlaygroundSession<R>;
   readonly kind: KindId;
   readonly selectedRoomId: string | null;
+  readonly clients: readonly import('../../shared/ports').PlaygroundActor<R>[];
+  readonly snapshotEpoch: number;
 }) {
-  const { ports, session, kind, selectedRoomId } = props;
+  const { ports, session, kind, selectedRoomId, clients, snapshotEpoch } =
+    props;
   const selectedRoom =
     selectedRoomId !== null ? session.rooms.get(selectedRoomId) : undefined;
-  const clients = [...session.clients.values()];
 
   return (
     <Box sx={{ flex: 1, minHeight: 0, position: 'relative' }}>
       <KindSlot active={kind === 'client'}>
-        <ClientColumns ports={ports} session={session} clients={clients} />
+        <ClientColumns
+          ports={ports}
+          session={session}
+          clients={clients}
+          snapshotEpoch={snapshotEpoch}
+        />
       </KindSlot>
       <KindSlot active={kind === 'server'}>
         <ServerPlaygroundPanel session={session} node={session.server} />
@@ -228,8 +221,9 @@ function ClientColumns<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly session: PlaygroundSession<R>;
   readonly clients: readonly import('../../shared/ports').PlaygroundActor<R>[];
+  readonly snapshotEpoch: number;
 }) {
-  const { ports, session, clients } = props;
+  const { ports, session, clients, snapshotEpoch } = props;
   if (clients.length === 0) {
     return <EmptyKind body="Add a client with +" />;
   }
@@ -275,10 +269,12 @@ function ClientColumns<R>(props: {
       >
         {clients.map((actor) => (
           <ClientPlaygroundPanel
-            key={actor.id}
+            key={`${actor.id}:${snapshotEpoch}`}
             title={actor.id}
             ProductApp={ports.ProductApp}
             actor={actor}
+            snapshotEpoch={snapshotEpoch}
+            reloadToken={session.revision}
             onClose={() => {
               void session.removeClient(actor.id);
             }}

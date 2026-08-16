@@ -35,6 +35,11 @@ export const notesAppSchema = defineSchema({
       device_id: 'text',
       opened_at: 'timestamp',
     },
+    /** Same-account peer fanout scrub target (framework hardcodes `profile`). */
+    profile: {
+      username: 'text',
+      username_norm: 'text',
+    },
   },
   uniqueIndexes: [
     ['spaces_users', 'space_id', 'user_id'],
@@ -50,6 +55,7 @@ export const notesAppSchema = defineSchema({
     ['spaces_users', 'user_id'],
     ['spaces_open_sessions', 'device_id'],
     ['spaces_open_sessions', 'space_id'],
+    ['profile', 'username_norm'],
   ],
 });
 
@@ -59,4 +65,5 @@ export const NOTES_APP_TABLES = [
   'spaces',
   'spaces_users',
   'spaces_open_sessions',
+  'profile',
 ] as const;

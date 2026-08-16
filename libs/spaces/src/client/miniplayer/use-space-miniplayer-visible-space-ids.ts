@@ -1,23 +1,15 @@
-import { usePathname } from '@pkgs/ui';
 import { useCurrentSpaceIds } from '../use-current-space-ids';
-import { isSpaceMiniplayerHidden } from './space-miniplayer-layout';
 
 /**
- * Space ids the miniplayer should currently render. Returns an empty list
- * either when the user has no active spaces, or when the current route
- * already shows the space (full screen).
+ * Space ids the miniplayer should currently render.
+ *
+ * Do not hide on `/space/:id`: that route is a fullScreenModal over the tabs,
+ * so the tab bar (and miniplayer) are already covered. Unmounting on that
+ * route forced a remount after dismiss and left the bar empty in playground.
  */
 export function useSpaceMiniplayerVisibleSpaceIds(): string[] {
-  const pathname = usePathname();
   const { entries, isLoading } = useCurrentSpaceIds();
-  const rawPath = pathname.split('?')[0] ?? '';
-  if (
-    isLoading ||
-    isSpaceMiniplayerHidden({
-      rawPath,
-      activeSpaceCount: entries.length,
-    })
-  ) {
+  if (isLoading || entries.length === 0) {
     return [];
   }
   return entries.map((e) => e.spaceId);

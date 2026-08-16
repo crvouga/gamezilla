@@ -1,1 +1,6 @@
-export { Picker, type PickerOption, type PickerProps } from './picker';
+export {
+  Picker,
+  type PickerOption,
+  type PickerProps,
+  type PickerSize,
+} from './picker';

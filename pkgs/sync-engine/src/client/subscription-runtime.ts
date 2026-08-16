@@ -179,6 +179,14 @@ export class SubscriptionRuntime {
    */
   bumpGenerations(): void {
     for (const entry of this.entries.values()) entry.generation += 1;
+    // Mutation ack intentionally invalidates in-flight sweeps. If first-sync
+    // gates are still open, re-enqueue those scopes — otherwise waitForFirstSync
+    // hangs forever when a topic-filtered wake omits a stale scope (playground
+    // snapshot mutation replay during boot).
+    const needFirst = [...this.entries.values()]
+      .filter((e) => !e.firstDone && !e.stopped && e.refs > 0)
+      .map((e) => e.scope);
+    if (needFirst.length > 0) this.enqueue(needFirst);
   }
 
   /**

@@ -148,14 +148,26 @@ export async function buildSnapshotLoadCommands(
   session: PlaygroundSession
 ): Promise<PlaygroundPaletteCommand[]> {
   const list = await session.listSnapshots();
-  return list.map((snap) => ({
-    id: `snapshot:load:${snap.id}`,
-    title: `snapshot · load · ${snap.label}`,
-    subtitle: snap.id,
-    category: 'Snapshot',
-    keywords: ['snapshot', 'load', snap.id, snap.label],
-    run: async () => {
-      await session.loadSnapshot(snap.id);
+  return list.flatMap((snap) => [
+    {
+      id: `snapshot:load:${snap.id}`,
+      title: `snapshot · load · ${snap.label}`,
+      subtitle: snap.id,
+      category: 'Snapshot',
+      keywords: ['snapshot', 'load', snap.id, snap.label],
+      run: async () => {
+        await session.loadSnapshot(snap.id);
+      },
     },
-  }));
+    {
+      id: `snapshot:delete:${snap.id}`,
+      title: `snapshot · delete · ${snap.label}`,
+      subtitle: snap.id,
+      category: 'Snapshot',
+      keywords: ['snapshot', 'delete', 'remove', snap.id, snap.label],
+      run: async () => {
+        await session.deleteSnapshot(snap.id);
+      },
+    },
+  ]);
 }

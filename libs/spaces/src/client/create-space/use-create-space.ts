@@ -19,11 +19,10 @@ export function useCreateSpace() {
       options?: CreateSpaceOptions
     ): Promise<string> => {
       const spaceId = createId();
-      const input = {
+      const result = await mutationClient.mutate(createSpaceMutation, {
         spaceId,
         visibility: options?.visibility ?? ('private' as const),
-      };
-      const result = await mutationClient.mutate(createSpaceMutation, input);
+      });
       if (!result.ok) throw new Error(result.failures[0]?.message);
       onCreated?.(spaceId);
       return spaceId;

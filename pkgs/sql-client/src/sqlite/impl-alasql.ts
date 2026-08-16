@@ -13,18 +13,30 @@ import alasql from 'alasql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import {
   adaptSqliteDialect,
-  buildUpsertExecSteps,
   inlineLimitOffsetParams,
   isPragmaSql,
   isSqliteMasterSql,
-  type OnConflictUpsertPlan,
   parseCreateIndex,
   parseDropIndex,
   parseDropTable,
   parsePragmaBody,
-  planOnConflictUpsert,
   unquoteIdent,
 } from './impl-alasql-adapt';
+import {
+  buildInsertReturningSteps,
+  type InsertReturningPlan,
+  planInsertReturning,
+} from './impl-alasql-insert-returning';
+import {
+  buildUpsertExecSteps,
+  type OnConflictUpsertPlan,
+  planOnConflictUpsert,
+} from './impl-alasql-on-conflict';
+import {
+  buildUpdateReturningSteps,
+  planUpdateReturning,
+  type UpdateReturningPlan,
+} from './impl-alasql-update-returning';
 
 type AlaSqlTable = {
   columns: readonly {
@@ -272,6 +284,77 @@ export class SqlClientImplAlaSql implements SqlClient {
     return [];
   }
 
+  private execUpserts(
+    plans: readonly OnConflictUpsertPlan[],
+    params?: readonly Value[]
+  ): unknown {
+    const returned: Record<string, unknown>[] = [];
+    let hasReturning = false;
+    for (const plan of plans) {
+      const result = this.execUpsert(plan, params);
+      if (plan.returning != null) {
+        hasReturning = true;
+        returned.push(...toRows(result));
+      }
+    }
+    return hasReturning ? returned : [];
+  }
+
+  private execInsertReturning(
+    plan: InsertReturningPlan,
+    params?: readonly Value[]
+  ): unknown {
+    const steps = buildInsertReturningSteps(plan, params);
+    this.execAla(steps.insertSql, steps.insertParams as Value[]);
+    this.lastInsertRowid += 1;
+    return this.execAla(steps.selectSql, steps.selectParams as Value[]);
+  }
+
+  private execUpdateReturning(
+    plan: UpdateReturningPlan,
+    params?: readonly Value[]
+  ): unknown {
+    const steps = buildUpdateReturningSteps(plan, params);
+    this.execAla(
+      adaptSqliteDialect(steps.updateSql),
+      steps.updateParams as Value[]
+    );
+    return this.execAla(
+      adaptSqliteDialect(steps.selectSql),
+      steps.selectParams as Value[]
+    );
+  }
+
+  private execAdapted(
+    sqlText: string,
+    adapted: string,
+    params?: readonly Value[]
+  ): unknown {
+    const upserts = planOnConflictUpsert(adapted);
+    if (upserts != null) return this.execUpserts(upserts, params);
+
+    const createIx = parseCreateIndex(adapted);
+    if (createIx != null && this.indexes.has(createIx.name)) return [];
+
+    const dropIx = parseDropIndex(adapted);
+    if (
+      dropIx != null &&
+      /^\s*DROP\s+INDEX\s+IF\s+NOT\s+EXISTS\b/i.test(sqlText) &&
+      !this.indexes.has(dropIx)
+    ) {
+      return [];
+    }
+
+    const bound = inlineLimitOffsetParams(adapted, params);
+    const db = this.requireDb();
+    const result =
+      bound.params.length === 0
+        ? db.exec(bound.sql)
+        : db.exec(bound.sql, bound.params as Value[]);
+    this.noteIndexDdl(adapted);
+    return result;
+  }
+
   private execRaw(sqlText: string, params?: readonly Value[]): unknown {
     if (isSqliteMasterSql(sqlText)) {
       return this.querySqliteMaster(sqlText);
@@ -284,34 +367,17 @@ export class SqlClientImplAlaSql implements SqlClient {
       return this.execPragma(body);
     }
 
-    const db = this.requireDb();
-    const adapted = adaptSqliteDialect(sqlText);
-
-    const upsert = planOnConflictUpsert(adapted);
-    if (upsert != null) {
-      return this.execUpsert(upsert, params);
+    const insertRet = planInsertReturning(sqlText);
+    if (insertRet != null) {
+      return this.execInsertReturning(insertRet, params);
     }
 
-    const createIx = parseCreateIndex(adapted);
-    if (createIx != null && this.indexes.has(createIx.name)) {
-      return [];
-    }
-    const dropIx = parseDropIndex(adapted);
-    if (
-      dropIx != null &&
-      /^\s*DROP\s+INDEX\s+IF\s+NOT\s+EXISTS\b/i.test(sqlText) &&
-      !this.indexes.has(dropIx)
-    ) {
-      return [];
+    const updateRet = planUpdateReturning(sqlText);
+    if (updateRet != null) {
+      return this.execUpdateReturning(updateRet, params);
     }
 
-    const bound = inlineLimitOffsetParams(adapted, params);
-    const result =
-      bound.params.length === 0
-        ? db.exec(bound.sql)
-        : db.exec(bound.sql, bound.params as Value[]);
-    this.noteIndexDdl(adapted);
-    return result;
+    return this.execAdapted(sqlText, adaptSqliteDialect(sqlText), params);
   }
 
   private noteInsert(sqlText: string, result: unknown): void {
@@ -348,6 +414,54 @@ export class SqlClientImplAlaSql implements SqlClient {
       this.indexes.clear();
       this.userVersion = 0;
     }
+  }
+
+  /**
+   * JSON dump for playground ObjectStore snapshots (not SQLite binary).
+   */
+  exportDatabaseBytes(): Uint8Array {
+    const db = this.requireDb();
+    const payload = {
+      v: 1 as const,
+      kind: 'alasql' as const,
+      userVersion: this.userVersion,
+      indexes: [...this.indexes.entries()],
+      tables: snapshotTables(db.tables as Record<string, unknown>),
+    };
+    return new TextEncoder().encode(JSON.stringify(payload));
+  }
+
+  /**
+   * Restore a prior {@link exportDatabaseBytes} payload into this connection.
+   */
+  importDatabaseBytes(bytes: Uint8Array): void {
+    const text = new TextDecoder().decode(bytes);
+    let payload: {
+      v: number;
+      kind?: string;
+      userVersion: number;
+      indexes: readonly [string, IndexMeta][];
+      tables: Record<string, unknown>;
+    };
+    try {
+      payload = JSON.parse(text) as typeof payload;
+    } catch {
+      throw new Error(
+        'SqlClientImplAlaSql.importDatabaseBytes: expected JSON alasql snapshot'
+      );
+    }
+    if (payload.v !== 1 || payload.kind !== 'alasql') {
+      throw new Error(
+        'SqlClientImplAlaSql.importDatabaseBytes: unsupported snapshot format'
+      );
+    }
+    const db = this.requireDb();
+    db.tables = snapshotTables(payload.tables) as AlaSqlDatabase['tables'];
+    this.indexes.clear();
+    for (const [k, v] of payload.indexes) {
+      this.indexes.set(k, v);
+    }
+    this.userVersion = payload.userVersion;
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {

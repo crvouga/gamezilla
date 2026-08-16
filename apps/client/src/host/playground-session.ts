@@ -4,27 +4,28 @@
 
 import type { InProcessRoomNode } from '@apps/client/host/in-process-room-node';
 import { createPlaygroundChessCommands } from '@apps/client/host/playground-chess-seed';
+import { buildSnapshotLoadCommands } from '@apps/client/host/playground-fault-commands';
+import type { PlaygroundClientLive } from '@apps/client/host/playground-impls';
+import type { PlaygroundSqlHandle } from '@apps/client/host/playground-provide';
+import { makePlaygroundPubSubNode } from '@apps/client/host/playground-session-nodes';
+import { snapshotSessionMethods } from '@apps/client/host/playground-session-snapshot-api';
 import {
-  buildPlaygroundPaletteCommands,
-  buildSnapshotLoadCommands,
-} from '@apps/client/host/playground-fault-commands';
-import {
-  clearClientDurablePorts,
-  type PlaygroundClientLive,
-} from '@apps/client/host/playground-impls';
-import {
-  clientNamespace,
-  type PlaygroundSqlHandle,
-} from '@apps/client/host/playground-provide';
+  detachClientsForSnapshotLoad,
+  disposeSession,
+  notify,
+  refreshRoomMap,
+  removeClient,
+  runQuiet,
+  type SessionMaps,
+  wipeSession,
+} from '@apps/client/host/playground-session-teardown';
 import {
   listPlaygroundSnapshots,
   loadPlaygroundSnapshot,
   type SnapshotSessionCtx,
-  savePlaygroundSnapshot,
 } from '@apps/client/host/playground-snapshots';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import type { SimIo } from '@pkgs/io';
-import { clearNamespacedKvWeb } from '@pkgs/kv/impl-kv-web-namespaced';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import type { World } from '@pkgs/system';
@@ -32,13 +33,16 @@ import type {
   createPlaygroundLogBuffer,
   PlaygroundActor,
   PlaygroundPaletteCommand,
-  PlaygroundPubSubNode,
-  PlaygroundRoomNode,
   PlaygroundSession,
   PlaygroundSqlNode,
 } from '@pkgs/system-console/client';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
+
+export type BootPlaygroundOptions = {
+  /** After wipe: reboot a fresh session without loading the newest snapshot. */
+  readonly skipSnapshotLoad?: boolean;
+};
 
 export type PlaygroundSessionBuildArgs = {
   readonly world: World;
@@ -54,97 +58,8 @@ export type PlaygroundSessionBuildArgs = {
   readonly disposeTick: () => void;
   readonly getClockPaused: () => boolean;
   readonly setClockPaused: (paused: boolean) => void;
+  readonly skipSnapshotLoad?: boolean;
 };
-
-type SessionMaps = {
-  readonly clients: Map<string, PlaygroundActor<ClientSystemResources>>;
-  readonly lives: Map<string, PlaygroundClientLive>;
-  readonly rooms: Map<string, PlaygroundRoomNode>;
-  readonly listeners: Set<() => void>;
-  /** >0 while snapshot restore (or similar) batches UI updates. */
-  quietDepth: number;
-};
-
-function notify(maps: SessionMaps): void {
-  if (maps.quietDepth > 0) return;
-  for (const listener of [...maps.listeners]) {
-    try {
-      listener();
-    } catch {
-      // ignore listener errors
-    }
-  }
-}
-
-async function runQuiet<T>(
-  maps: SessionMaps,
-  fn: () => Promise<T>
-): Promise<T> {
-  maps.quietDepth += 1;
-  try {
-    return await fn();
-  } finally {
-    maps.quietDepth -= 1;
-    notify(maps);
-  }
-}
-
-function makeRoomNode(
-  topic: string,
-  roomNode: InProcessRoomNode,
-  logs: ReturnType<typeof createPlaygroundLogBuffer>
-): PlaygroundRoomNode {
-  return {
-    id: topic,
-    address: `room:${topic}`,
-    logs,
-    inspect() {
-      const snap = roomNode.inspect(topic);
-      if (snap === null) return null;
-      return {
-        topic: snap.topic,
-        committedState: snap.committedState,
-        roster: snap.roster,
-        lastSeq: snap.storage?.lastSeq ?? 0,
-        entries: snap.storage?.entries ?? [],
-        dedupSize: snap.storage?.dedupSize ?? 0,
-      };
-    },
-  };
-}
-
-function makePubSubNode(
-  bus: InMemoryBus,
-  logs: ReturnType<typeof createPlaygroundLogBuffer>
-): PlaygroundPubSubNode {
-  return {
-    id: 'events',
-    address: 'events',
-    logs,
-    listTopicStats() {
-      const byTopic = new Map<
-        string,
-        { subscriberCount: number; instanceCount: number }
-      >();
-      for (const instance of bus.listInstances()) {
-        for (const row of instance.topicStatsForTest()) {
-          const cur = byTopic.get(row.topic) ?? {
-            subscriberCount: 0,
-            instanceCount: 0,
-          };
-          cur.subscriberCount += row.subscriberCount;
-          cur.instanceCount += 1;
-          byTopic.set(row.topic, cur);
-        }
-      }
-      return [...byTopic.entries()].map(([topic, stats]) => ({
-        topic,
-        subscriberCount: stats.subscriberCount,
-        instanceCount: stats.instanceCount,
-      }));
-    },
-  };
-}
 
 function liveToActor(
   live: PlaygroundClientLive
@@ -189,98 +104,6 @@ async function spawnClient(
   return actor;
 }
 
-async function removeClient(
-  world: World,
-  maps: SessionMaps,
-  clientSqlByAddress: Map<string, PlaygroundSqlHandle>,
-  id: string
-): Promise<void> {
-  const live = maps.lives.get(id);
-  if (live === undefined) return;
-  await live.close();
-  world.faults.crash(live.address);
-  clearClientDurablePorts(id);
-  clearNamespacedKvWeb(clientNamespace(id));
-  const dbAddress = `${live.address}.db`;
-  const handle = clientSqlByAddress.get(dbAddress);
-  if (handle !== undefined) {
-    await handle.reset();
-    clientSqlByAddress.delete(dbAddress);
-  }
-  maps.lives.delete(id);
-  maps.clients.delete(id);
-  notify(maps);
-}
-
-function refreshRoomMap(
-  roomNode: InProcessRoomNode,
-  maps: SessionMaps,
-  roomLogs: ReturnType<typeof createPlaygroundLogBuffer>
-): void {
-  const topics = roomNode.listTopics();
-  let changed = false;
-  for (const topic of topics) {
-    if (!maps.rooms.has(topic)) {
-      maps.rooms.set(topic, makeRoomNode(topic, roomNode, roomLogs));
-      changed = true;
-    }
-  }
-  for (const topic of [...maps.rooms.keys()]) {
-    if (!topics.includes(topic)) {
-      maps.rooms.delete(topic);
-      changed = true;
-    }
-  }
-  if (changed) notify(maps);
-}
-
-async function wipeSession(
-  args: PlaygroundSessionBuildArgs,
-  maps: SessionMaps,
-  markDisposed: () => void
-): Promise<void> {
-  for (const live of maps.lives.values()) {
-    await live.close();
-    clearClientDurablePorts(live.id);
-    clearNamespacedKvWeb(clientNamespace(live.id));
-  }
-  maps.lives.clear();
-  maps.clients.clear();
-  for (const handle of args.clientSqlByAddress.values()) {
-    await handle.reset();
-  }
-  args.clientSqlByAddress.clear();
-  await args.serverHandle.reset();
-  args.roomNode.dispose();
-  args.world.dispose();
-  args.disposeTick();
-  await args.serverHandle.disconnect();
-  markDisposed();
-  notify(maps);
-}
-
-async function disposeSession(
-  args: PlaygroundSessionBuildArgs,
-  maps: SessionMaps,
-  unsubRooms: () => void,
-  markDisposed: () => void
-): Promise<void> {
-  markDisposed();
-  unsubRooms();
-  for (const live of maps.lives.values()) await live.close();
-  maps.lives.clear();
-  maps.clients.clear();
-  args.roomNode.dispose();
-  args.world.dispose();
-  args.disposeTick();
-  for (const handle of args.clientSqlByAddress.values()) {
-    await handle.disconnect();
-  }
-  args.clientSqlByAddress.clear();
-  await args.serverHandle.disconnect();
-  maps.listeners.clear();
-}
-
 function makeSnapshotCtx(
   args: PlaygroundSessionBuildArgs,
   maps: SessionMaps
@@ -302,12 +125,17 @@ function makeSnapshotCtx(
     spawnClient: (id) => spawnClient(args.world, maps, id),
     removeClient: (id) =>
       removeClient(args.world, maps, args.clientSqlByAddress, id),
+    detachClientsForSnapshotLoad: () =>
+      detachClientsForSnapshotLoad(args.world, maps, args.clientSqlByAddress),
     notify: () => notify(maps),
+    endSnapshotRestoring: () => {
+      maps.snapshotRestoring = false;
+    },
     runQuiet: (fn) => runQuiet(maps, fn),
   });
 }
 
-function attachSessionApi(args: {
+type SessionApiAttachArgs = {
   readonly args: PlaygroundSessionBuildArgs;
   readonly maps: SessionMaps;
   readonly commands: ReturnType<typeof createPlaygroundChessCommands>;
@@ -321,16 +149,16 @@ function attachSessionApi(args: {
   readonly markDisposed: () => void;
   readonly unsubRooms: () => void;
   readonly disposed: () => boolean;
-}): PlaygroundSession<ClientSystemResources> {
+};
+
+function attachSessionApi(
+  args: SessionApiAttachArgs
+): PlaygroundSession<ClientSystemResources> {
   const {
     args: buildArgs,
     maps,
     commands,
     server,
-    sessionRef,
-    snapshotCtx,
-    getSnapshotLoads,
-    setSnapshotLoads,
     markDisposed,
     unsubRooms,
     disposed,
@@ -341,8 +169,17 @@ function attachSessionApi(args: {
     io: buildArgs.io,
     clients: maps.clients,
     server,
-    pubsub: makePubSubNode(buildArgs.pubSubBus, buildArgs.pubsubLogs),
+    pubsub: makePlaygroundPubSubNode(buildArgs.pubSubBus, buildArgs.pubsubLogs),
     rooms: maps.rooms,
+    get revision() {
+      return maps.revision;
+    },
+    get snapshotEpoch() {
+      return maps.snapshotEpoch;
+    },
+    get snapshotRestoring() {
+      return maps.snapshotRestoring;
+    },
     subscribe(listener) {
       maps.listeners.add(listener);
       return () => {
@@ -361,35 +198,6 @@ function attachSessionApi(args: {
         io: buildArgs.io,
       });
     },
-    listPaletteCommands() {
-      const live = sessionRef.current ?? session;
-      const seed: PlaygroundPaletteCommand[] = commands.map((c) => ({
-        id: `cmd:${c.id}`,
-        title: c.label,
-        category: 'Commands',
-        keywords: [c.id, c.label],
-        run: () => live.runCommand(c.id),
-      }));
-      return [
-        ...buildPlaygroundPaletteCommands(live),
-        ...getSnapshotLoads(),
-        ...seed,
-      ];
-    },
-    async refreshSnapshotPaletteCommands() {
-      const live = sessionRef.current ?? session;
-      setSnapshotLoads(await buildSnapshotLoadCommands(live));
-      notify(maps);
-    },
-    listSnapshots: () => listPlaygroundSnapshots(buildArgs.snapshotStore),
-    saveSnapshot: async (label) => {
-      const info = await savePlaygroundSnapshot(snapshotCtx(), label);
-      const live = sessionRef.current ?? session;
-      setSnapshotLoads(await buildSnapshotLoadCommands(live));
-      notify(maps);
-      return info;
-    },
-    loadSnapshot: (id) => loadPlaygroundSnapshot(snapshotCtx(), id),
     setClockPaused: buildArgs.setClockPaused,
     isClockPaused: buildArgs.getClockPaused,
     async wipe() {
@@ -400,8 +208,48 @@ function attachSessionApi(args: {
       if (disposed()) return;
       await disposeSession(buildArgs, maps, unsubRooms, markDisposed);
     },
+    ...snapshotSessionMethods({
+      snapshotStore: buildArgs.snapshotStore,
+      sessionRef: args.sessionRef,
+      snapshotCtx: args.snapshotCtx,
+      getSnapshotLoads: args.getSnapshotLoads,
+      setSnapshotLoads: args.setSnapshotLoads,
+      commands,
+      notify: () => notify(maps),
+    }),
   };
   return session;
+}
+
+async function bootClients(
+  args: PlaygroundSessionBuildArgs,
+  maps: SessionMaps,
+  session: PlaygroundSession<ClientSystemResources>,
+  setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void
+): Promise<void> {
+  let loadedSnapshot = false;
+  if (args.skipSnapshotLoad !== true) {
+    try {
+      const snaps = await listPlaygroundSnapshots(args.snapshotStore);
+      if (snaps.length > 0) {
+        let newest = snaps[0]!;
+        for (const s of snaps) {
+          if (s.createdAtMs > newest.createdAtMs) newest = s;
+        }
+        // Restore before any ProductApp spawn so AuthBridge cannot race the
+        // durable namespace (pre-spawn + load was clobbering sessionToken).
+        await loadPlaygroundSnapshot(makeSnapshotCtx(args, maps)(), newest.id);
+        loadedSnapshot = true;
+      }
+      setSnapshotLoads(await buildSnapshotLoadCommands(session));
+    } catch {
+      // Snapshot store down/slow — fall through to fresh default clients.
+    }
+  }
+  if (loadedSnapshot) return;
+  for (const id of DEFAULT_CLIENT_IDS) {
+    await spawnClient(args.world, maps, id);
+  }
 }
 
 export async function buildPlaygroundSession(
@@ -412,6 +260,9 @@ export async function buildPlaygroundSession(
     lives: new Map(),
     rooms: new Map(),
     listeners: new Set(),
+    revision: 0,
+    snapshotEpoch: 0,
+    snapshotRestoring: false,
     quietDepth: 0,
   };
   let disposed = false;
@@ -421,10 +272,6 @@ export async function buildPlaygroundSession(
   const unsubRooms = args.roomNode.subscribe(() =>
     refreshRoomMap(args.roomNode, maps, args.roomLogs)
   );
-
-  for (const id of DEFAULT_CLIENT_IDS) {
-    await spawnClient(args.world, maps, id);
-  }
 
   const commands = createPlaygroundChessCommands();
   let snapshotLoadCommands: PlaygroundPaletteCommand[] = [];
@@ -453,7 +300,8 @@ export async function buildPlaygroundSession(
     disposed: () => disposed,
   });
   sessionRef.current = session;
-  // Do not await MinIO here — a down/slow MinIO stalls boot and races OPFS
-  // opens under React Strict Mode remounts. Snapshot strip refreshes lazily.
+  await bootClients(args, maps, session, (cmds) => {
+    snapshotLoadCommands = cmds;
+  });
   return session;
 }

@@ -13,7 +13,6 @@ import { createInMemoryDevMenuPort } from '@apps/client/device/in-memory-dev-men
 import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-network-state-port';
 import type { InProcessRoomNode } from '@apps/client/host/in-process-room-node';
 import {
-  clientDbName,
   clientNamespace,
   sessionOwnedSqlClient,
 } from '@apps/client/host/playground-provide';
@@ -27,13 +26,14 @@ import {
 } from '@pkgs/auth-better-auth/client';
 import type { Io } from '@pkgs/io';
 import { asKeyword, asKeywordRecord } from '@pkgs/keyword/keyword';
-import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
+import {
+  clearNamespacedKvWeb,
+  KvImplWebNamespaced,
+} from '@pkgs/kv/impl-kv-web-namespaced';
 import {
   createInMemoryPubSub,
   type InMemoryBus,
 } from '@pkgs/pubsub/testing/in-memory';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import {
   clearNamespacedWebSecureStorage,
   createNamespacedWebSecureStorage,
@@ -47,7 +47,6 @@ import {
   createPlaygroundLogBuffer,
   type PlaygroundLogBuffer,
 } from '@pkgs/system-console/client';
-import { Platform } from 'react-native';
 
 export type PlaygroundClientLive = {
   readonly id: string;
@@ -139,9 +138,10 @@ export function serializeFetch(fetchFn: Fetch): Fetch {
 }
 
 export function clearClientDurablePorts(instanceId: string): void {
-  const namespace = clientNamespace(instanceId);
-  clearNamespacedAuthClientStorage(namespace);
-  clearNamespacedWebSecureStorage(namespace);
+  const ns = clientNamespace(instanceId);
+  clearNamespacedKvWeb(ns);
+  clearNamespacedAuthClientStorage(ns);
+  clearNamespacedWebSecureStorage(ns);
 }
 
 function ioFromCtx(ctx: ResourceCtx): Io {
@@ -219,21 +219,30 @@ export function createPlaygroundClientResource(args: {
     );
     void deps.api;
     const io = ioFromResourceCtx(ctx, apiFetch);
-    const namespace = clientNamespace(id);
-    const databaseName = clientDbName(id);
-    const secureStorage =
-      Platform.OS === 'web'
-        ? createNamespacedWebSecureStorage(namespace)
-        : createInMemorySecureStorage();
+    const ns = clientNamespace(id);
+    // Namespaced localStorage — same surface snapshot save/load dumps via
+    // dumpNamespacedKvWeb / restoreNamespacedKvWeb (auth + secure + kv share
+    // the `ns.` prefix).
+    const secureStorage = createNamespacedWebSecureStorage(ns);
     const secureStorageStore = createSecureStorageStore(secureStorage);
     secureStorageStore.setValue('signInPending', null);
-    const authClientStorage = createNamespacedAuthClientStorage(namespace);
-    const kv =
-      Platform.OS === 'web'
-        ? new KvImplWebNamespaced(namespace)
-        : new KvImplInMemory();
+    const authClientStorage = createNamespacedAuthClientStorage(ns);
+    const kv = new KvImplWebNamespaced(ns);
+    // Prefetch session keys so AuthBridge / profile chrome see restored state
+    // before first paint (hydrate is otherwise lazy via React).
+    await Promise.all([
+      secureStorageStore.hydrate('sessionToken'),
+      secureStorageStore.hydrate('deviceId'),
+      secureStorageStore.hydrate('sessionExpiresAt'),
+      secureStorageStore.hydrate('sessionExternalUserId'),
+      secureStorageStore.hydrate('lastLocalAccountId'),
+    ]);
     const syncEnginePool = createAppSyncEnginePool();
+    // deps.db is handle-bound (playground provide); wrap only to no-op disconnect.
     const sqlClient = sessionOwnedSqlClient(deps.db);
+    // Epoch-scoped logical name so SyncEngineBoot drops sticky engines and Web
+    // Locks (if any) never collide across snapshot reloads.
+    const resolveDatabaseName = () => clientNamespace(id);
     const resources: ClientSystemResources = {
       apiUrl: SIM_API_URL,
       authBaseURL: SIM_API_URL,
@@ -241,7 +250,7 @@ export function createPlaygroundClientResource(args: {
       secureStorageStore,
       syncEnginePool,
       openSqlClient: async () => sqlClient,
-      resolveDatabaseName: () => databaseName,
+      resolveDatabaseName,
       createPubSub: () => createInMemoryPubSub({ bus: args.pubSubBus }),
       kv,
       network: createInMemoryNetworkStatePort(),

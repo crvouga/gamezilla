@@ -43,15 +43,20 @@ export async function buildOptimisticFanout(
 ): Promise<readonly OutboundLiveItem[]> {
   const { env, capture, topicMap } = args;
   if (capture.tables.length === 0) return [];
-  const rows = capture.images;
+  const rows = scrubIncompleteProfileImages(capture.images);
   if (Object.keys(rows).length === 0) return [];
   if (!fanoutRowsWithinCap(rows)) return [];
 
   if (topicMap === undefined) return [];
   const ctx = topicMapCtxFromEnv(env);
+  const scrubbedCapture: WriteCaptureSnapshot = {
+    tables: Object.keys(rows).sort(),
+    ids: capture.ids,
+    images: rows,
+  };
   const topics = await topicsFromWriteCapture({
     topicMap,
-    capture,
+    capture: scrubbedCapture,
     ctx,
     db: args.db,
   });
@@ -81,6 +86,31 @@ export async function buildOptimisticFanout(
     });
   }
   return items;
+}
+
+/**
+ * Same-account peers must not receive an empty-username profile seed from
+ * ensureProfile — that upsert wipes a peer's already-assigned handle.
+ */
+function scrubIncompleteProfileImages(
+  rows: Readonly<Record<string, readonly Record<string, unknown>[]>>
+): Readonly<Record<string, readonly Record<string, unknown>[]>> {
+  const profiles = rows['profile'];
+  if (profiles === undefined) return rows;
+  const kept = profiles.filter((row) => {
+    const username = row['username'];
+    return typeof username === 'string' && username.length > 0;
+  });
+  if (kept.length === profiles.length) return rows;
+  const next: Record<string, readonly Record<string, unknown>[]> = {
+    ...rows,
+  };
+  if (kept.length === 0) {
+    delete next['profile'];
+  } else {
+    next['profile'] = kept;
+  }
+  return next;
 }
 
 async function publishItems(

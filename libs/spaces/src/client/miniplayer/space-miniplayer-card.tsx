@@ -28,7 +28,9 @@ export function SpaceMiniplayerCard({
   requestLeaveSpace,
 }: SpaceMiniplayerCardProps): ReactNode {
   const endedAt = useSpaceColumn(spaceId, SpaceField.endedAt);
-  if (endedAt !== null) {
+  // Treat only real timestamps as ended (empty/undefined → still live).
+  const hide = endedAt != null && endedAt.length > 0;
+  if (hide) {
     return null;
   }
   return (

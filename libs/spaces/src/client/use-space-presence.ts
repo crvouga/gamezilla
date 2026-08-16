@@ -67,7 +67,7 @@ export function useSpacePresence(spaceId: string): SpacePresence {
   if (!paintReady) {
     return { status: 'loading' };
   }
-  return resolveSpacePresence({
+  const presence = resolveSpacePresence({
     spaceEnabled: spaceId.length > 0,
     spaceLoading: isLoading,
     spaceRow:
@@ -81,4 +81,5 @@ export function useSpacePresence(spaceId: string): SpacePresence {
     isOpenLocally: row?.is_open === 1,
     myId: accountId ?? '',
   });
+  return presence;
 }

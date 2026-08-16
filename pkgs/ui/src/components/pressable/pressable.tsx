@@ -19,10 +19,12 @@ import type { ComponentDataSet } from '../../component-id';
 import {
   flattenSx,
   type SxInput,
+  type SxRadius,
   useHostSx,
   useHoverCapable,
   useTheme,
 } from '../../theme';
+import { resolveRadius } from '../../theme/sx-resolve';
 import { Box } from '../box';
 
 export type PressableFeedback = 'tint' | 'opacity' | 'none';
@@ -73,7 +75,9 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   const hoverCapable = useHoverCapable();
   const [hovered, setHovered] = useState(false);
   const host = useHostSx('Pressable', restSx(sxProp), dataSet);
-  const overlayRadius = flattenSx(restSx(sxProp))?.borderRadius;
+  const overlayRadius = resolveRadius(
+    flattenSx(restSx(sxProp))?.borderRadius as SxRadius | undefined
+  );
 
   useEffect(() => {
     if (!hoverCapable) setHovered(false);
@@ -127,7 +131,7 @@ function PressableTintOverlay({
   state: PressableStateCallbackType;
   hovered: boolean;
   colors: { interactiveHover: string; interactivePress: string };
-  radius: number | string | undefined;
+  radius: number | undefined;
 }): ReactNode {
   const color = resolveOverlayColor(state, hovered, colors);
   if (!color) return null;
@@ -138,7 +142,7 @@ function PressableTintOverlay({
         position: 'absolute',
         inset: 0,
         backgroundColor: color,
-        ...(typeof radius === 'number' ? { borderRadius: radius } : {}),
+        ...(radius !== undefined ? { borderRadius: radius } : {}),
       }}
     />
   );

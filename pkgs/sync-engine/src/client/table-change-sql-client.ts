@@ -36,7 +36,12 @@ function transactionClient(db: SqlClient, changed: Set<string>): SqlClient {
   return {
     connect: () => db.connect(),
     disconnect: () => Promise.resolve(),
-    query: (query) => db.query(query),
+    query: async (query) => {
+      const result = await db.query(query);
+      // Domain mutations write via `query(... RETURNING *)` (see wrapMutationDb).
+      recordChange(changed, query);
+      return result;
+    },
     run: async (query) => {
       const result = await db.run(query);
       recordChange(changed, query);
@@ -56,7 +61,12 @@ export function createTableChangeSqlClient(
   return {
     connect: () => db.connect(),
     disconnect: () => db.disconnect(),
-    query: (query) => db.query(query),
+    query: async (query) => {
+      const result = await db.query(query);
+      const table = changedTable(query.sql);
+      if (table !== null) bus.emit([table]);
+      return result;
+    },
     run: async (query) => {
       const result = await db.run(query);
       const table = changedTable(query.sql);

@@ -82,6 +82,7 @@ export function createSyncEnginePool(
   options: CreateSyncEnginePoolOptions = {}
 ): SyncEnginePoolApi {
   let ownPool: SyncEnginePool | null = null;
+  let releaseGeneration = 0;
   const resolvePool = (): SyncEnginePool => {
     if (options.globalKey !== undefined) {
       return getOrInitPool(options.globalKey);
@@ -95,6 +96,7 @@ export function createSyncEnginePool(
     },
     async getOrCreate(databaseName, create) {
       const pool = resolvePool();
+      const generationAtStart = releaseGeneration;
 
       const run = async (): Promise<SyncEngine> => {
         await deactivatePrevious(pool, databaseName);
@@ -111,6 +113,14 @@ export function createSyncEnginePool(
         const created = create().then(
           (engine) => {
             pool.pending.delete(databaseName);
+            // releaseAll cleared this generation — do not resurrect a closed DB.
+            if (generationAtStart !== releaseGeneration) {
+              void engine.disconnect().catch(() => undefined);
+              void engine.db.disconnect().catch(() => undefined);
+              throw new Error(
+                'sync-engine-pool: getOrCreate aborted after releaseAll'
+              );
+            }
             pool.ready.set(databaseName, engine);
             pool.activeName = databaseName;
             return engine;
@@ -132,6 +142,7 @@ export function createSyncEnginePool(
       return result;
     },
     async releaseAll() {
+      releaseGeneration += 1;
       const pool = resolvePool();
       const engines = [...pool.ready.values()];
       pool.ready.clear();

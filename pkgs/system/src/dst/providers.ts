@@ -41,8 +41,9 @@ export function decoratePort<T>(
       if (live === undefined) return;
       if (hooks?.wipe) {
         await hooks.wipe(live, address);
-        return;
       }
+      // Always drop the cached instance. Wipe hooks may replace or close the
+      // underlying adapter; keeping a stale reference breaks the next create.
       instances.delete(address);
     },
   };

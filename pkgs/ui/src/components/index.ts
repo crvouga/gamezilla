@@ -228,12 +228,14 @@ export {
   PlayIcon,
   PlusIcon,
   RotateCcwIcon,
+  SaveIcon,
   SearchIcon,
   SendIcon,
   SettingsIcon,
   ShareIcon,
   ShuffleIcon,
   SquarePenIcon,
+  Trash2Icon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -328,7 +330,12 @@ export {
   useOverlayPortal,
   useOverlayPortalSlot,
 } from './overlay-portal';
-export { Picker, type PickerOption, type PickerProps } from './picker';
+export {
+  Picker,
+  type PickerOption,
+  type PickerProps,
+  type PickerSize,
+} from './picker';
 export { PickerSection, type PickerSectionProps } from './picker-section';
 // Portal context bridge (ResponsiveSurface / bottom-sheet)
 export {

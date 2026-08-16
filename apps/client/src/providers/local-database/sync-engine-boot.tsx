@@ -200,16 +200,21 @@ function SyncEngineBootWithUser({
   readonly userId: string;
   readonly children: ReactNode;
 }): ReactNode {
+  const embedded = useEmbeddedApp();
   const dbName = useIdentitySqliteDbName(userId);
   const pool =
     useClientSystemResources().syncEnginePool ?? defaultAppSyncEnginePool;
   const warmEngine = pool.peekReady(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const lastDbNameRef = useRef(dbName);
+  const lastPoolRef = useRef(pool);
   // Identity switch closes the prior SQLite handle (web OPFS). Never keep the
   // old engine sticky across database names — its connection is gone.
-  if (lastDbNameRef.current !== dbName) {
+  // Playground also swaps the isolated pool on snapshot restore; sticky would
+  // keep serving a closed AlaSQL client across that boundary.
+  if (lastDbNameRef.current !== dbName || lastPoolRef.current !== pool) {
     lastDbNameRef.current = dbName;
+    lastPoolRef.current = pool;
     lastReadyEngineRef.current = warmEngine;
   }
   const enginePromise = useSyncEnginePromise(dbName, userId, pool);
@@ -220,8 +225,14 @@ function SyncEngineBootWithUser({
   }
 
   const paintReady = boot.phase === 'ready';
+  // Embedded playground: never paint a sticky prior engine — snapshot restore
+  // closes the prior AlaSQL handle while React may still be remounting.
   const engine =
-    boot.phase === 'ready' ? boot.engine : lastReadyEngineRef.current;
+    boot.phase === 'ready'
+      ? boot.engine
+      : embedded
+        ? null
+        : lastReadyEngineRef.current;
 
   if (engine === null) {
     if (boot.phase === 'error') {

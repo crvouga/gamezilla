@@ -6,31 +6,13 @@ import {
 } from './space-miniplayer-layout';
 
 describe('isSpaceMiniplayerHidden', () => {
-  it('hides on the full-screen space route', () => {
-    expect(
-      isSpaceMiniplayerHidden({
-        rawPath: '/space/abc',
-        activeSpaceCount: 1,
-      })
-    ).toBe(true);
-  });
-
   it('hides when there are no active spaces', () => {
-    expect(
-      isSpaceMiniplayerHidden({
-        rawPath: '/spaces',
-        activeSpaceCount: 0,
-      })
-    ).toBe(true);
+    expect(isSpaceMiniplayerHidden({ activeSpaceCount: 0 })).toBe(true);
   });
 
-  it('shows on tab routes with at least one active space', () => {
-    expect(
-      isSpaceMiniplayerHidden({
-        rawPath: '/spaces',
-        activeSpaceCount: 2,
-      })
-    ).toBe(false);
+  it('shows with at least one active space', () => {
+    expect(isSpaceMiniplayerHidden({ activeSpaceCount: 1 })).toBe(false);
+    expect(isSpaceMiniplayerHidden({ activeSpaceCount: 2 })).toBe(false);
   });
 });
 

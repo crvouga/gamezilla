@@ -6,6 +6,7 @@ import type { HostedSubApp } from '@apps/client/host/hosted-sub-app';
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { ProductApp } from '@apps/client/product/app';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
+import { AppUiPortals } from '@apps/client/providers/ui/portals';
 import { defaultAppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
 import { useIo, wallIo } from '@pkgs/io';
 import { SystemProvider } from '@pkgs/system/react';
@@ -29,10 +30,13 @@ function ConsoleSubApp(): ReactNode {
     };
   }, [io]);
   // Console is outside ProductApp's shell — CommandPalette / other @pkgs/ui
-  // surfaces still call useLingui.
+  // surfaces still call useLingui. AppUiPortals supplies SurfaceStack for
+  // Session wipe MutationModal (and any other console overlays).
   return (
     <AppI18nProvider>
-      <SystemConsoleApp ports={ports} />
+      <AppUiPortals>
+        <SystemConsoleApp ports={ports} />
+      </AppUiPortals>
     </AppI18nProvider>
   );
 }

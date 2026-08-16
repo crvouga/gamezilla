@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { PlaygroundSession } from '../../shared/ports';
+import type {
+  BootPlaygroundOptions,
+  PlaygroundSession,
+} from '../../shared/ports';
 
 export type PlaygroundSessionState<R = unknown> =
   | { readonly status: 'idle' }
@@ -10,7 +13,7 @@ export type PlaygroundSessionState<R = unknown> =
 
 export type UsePlaygroundSessionResult<R = unknown> = {
   readonly state: PlaygroundSessionState<R>;
-  /** Clear durable OPFS + namespaced auth/KV (does not remount). */
+  /** Tear down the live session; next {@link reboot} skips snapshot auto-load. */
   readonly wipe: () => Promise<void>;
   /** Remount a fresh session after {@link wipe}. */
   readonly reboot: () => void;
@@ -21,15 +24,18 @@ export type UsePlaygroundSessionResult<R = unknown> = {
  * or when `active` becomes false. There are no wall fallbacks — a missing /
  * failing boot surfaces an error state.
  *
- * OPFS / namespaced localStorage survive page refresh; {@link wipe} +
- * {@link reboot} clear them and remount a clean session.
+ * Live SQL/auth/KV are ephemeral. ObjectStore snapshots are the only durable
+ * state; boot auto-loads the newest snapshot unless {@link wipe} set
+ * `skipSnapshotLoad` for the next reboot.
  *
  * Boots are serialized through {@link disposeGate}: React Strict Mode remounts
- * wait for the prior in-flight boot to finish and dispose before opening OPFS
+ * wait for the prior in-flight boot to finish and dispose before opening SQLite
  * again (avoids AccessHandle / "Error finalizing statement" races).
  */
 export function usePlaygroundSession<R>(
-  bootPlayground: () => Promise<PlaygroundSession<R>>,
+  bootPlayground: (
+    opts?: BootPlaygroundOptions
+  ) => Promise<PlaygroundSession<R>>,
   active: boolean
 ): UsePlaygroundSessionResult<R> {
   const [state, setState] = useState<PlaygroundSessionState<R>>({
@@ -38,6 +44,7 @@ export function usePlaygroundSession<R>(
   const [bootGeneration, setBootGeneration] = useState(0);
   const liveRef = useRef<PlaygroundSession<R> | null>(null);
   const disposeGate = useRef(Promise.resolve());
+  const skipSnapshotLoadRef = useRef(false);
 
   useEffect(() => {
     if (!active) {
@@ -48,13 +55,17 @@ export function usePlaygroundSession<R>(
     let cancelled = false;
     let live: PlaygroundSession<R> | null = null;
     setState({ status: 'booting' });
+    const skipSnapshotLoad = skipSnapshotLoadRef.current;
+    skipSnapshotLoadRef.current = false;
 
     const run = disposeGate.current.then(async () => {
       if (cancelled) return;
       try {
-        const session = await bootPlayground();
+        const session = await bootPlayground(
+          skipSnapshotLoad ? { skipSnapshotLoad: true } : undefined
+        );
         if (cancelled) {
-          await session.dispose();
+          await session.dispose().catch(() => {});
           return;
         }
         live = session;
@@ -72,17 +83,27 @@ export function usePlaygroundSession<R>(
     return () => {
       cancelled = true;
       liveRef.current = null;
-      disposeGate.current = run.then(async () => {
-        if (live !== null) await live.dispose();
-      });
+      disposeGate.current = run
+        .then(async () => {
+          if (live !== null) await live.dispose();
+        })
+        .catch(() => {
+          // Teardown races (already-wiped World) must not crash the console.
+        });
     };
   }, [bootPlayground, active, bootGeneration]);
 
   const wipe = useCallback(async () => {
+    skipSnapshotLoadRef.current = true;
     const current = liveRef.current;
     liveRef.current = null;
+    setState({ status: 'booting' });
     if (current !== null) {
-      await current.wipe();
+      try {
+        await current.wipe();
+      } catch {
+        // Live World may already be partially torn down.
+      }
     }
   }, []);
 

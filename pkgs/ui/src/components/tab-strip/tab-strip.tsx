@@ -1,10 +1,10 @@
 /**
- * `TabStrip` -- browser-like exclusive tab strip for shell / console chrome.
+ * `TabStrip` -- exclusive floating-pill tab strip for shell / console chrome.
  *
- * Owns surface background + a hairline bottom border. Tabs are squarer and
- * taller than pills; the active tab sits flush with the content edge.
- * Optional `leading` / `trailing` / `onAdd`. Web keyboard shortcuts when
- * `keyboardScope` is true: mod+1..9, ctrl+tab / ctrl+shift+tab,
+ * Owns a muted strip surface + a constant bottom hairline. Tabs are fully
+ * rounded pills with min/max width, clearer padding, and active/inactive
+ * contrast. Optional `leading` / `trailing` / `onAdd`. Web keyboard shortcuts
+ * when `keyboardScope` is true: mod+1..9, ctrl+tab / ctrl+shift+tab,
  * mod+alt+arrows, mod+w (close), mod+t (add).
  */
 
@@ -40,6 +40,10 @@ export type TabStripProps = {
   readonly accessibilityLabel?: string;
   readonly dataSet?: ComponentDataSet;
 };
+
+const TAB_MIN_HEIGHT = 40;
+const TAB_MIN_WIDTH = 88;
+const TAB_MAX_WIDTH = 200;
 
 function useTabStripKeyboard(
   enabled: boolean,
@@ -93,18 +97,15 @@ function TabPill(props: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 1,
-        minHeight: 36,
-        minWidth: 96,
-        paddingLeft: 3,
-        paddingRight: closable ? 1 : 3,
+        minHeight: TAB_MIN_HEIGHT,
+        minWidth: TAB_MIN_WIDTH,
+        maxWidth: TAB_MAX_WIDTH,
+        paddingLeft: 5,
+        paddingRight: closable ? 2 : 5,
         paddingVertical: 2,
-        borderTopLeftRadius: 'sm',
-        borderTopRightRadius: 'sm',
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
+        borderRadius: 'md',
+        overflow: 'hidden',
         borderWidth: 1,
-        borderBottomWidth: active ? 0 : 1,
-        marginBottom: active ? -1 : 0,
         borderColor: active ? 'border' : 'transparent',
         background: active ? 'background' : 'transparent',
       }}
@@ -112,9 +113,11 @@ function TabPill(props: {
       <Text
         variant="label"
         label={item.label}
+        numberOfLines={1}
         sx={{
-          color: active ? 'text' : 'textSecondary',
-          fontWeight: active ? '600' : '500',
+          flexShrink: 1,
+          color: active ? 'tint' : 'textSecondary',
+          fontWeight: active ? '700' : '500',
         }}
       />
       {closable ? (
@@ -127,6 +130,7 @@ function TabPill(props: {
             borderRadius: 'sm',
             alignItems: 'center',
             justifyContent: 'center',
+            flexShrink: 0,
           }}
         >
           <XIcon size={14} color={theme.colors.textSecondary} />
@@ -185,13 +189,13 @@ export function TabStrip(props: TabStripProps) {
           accessibilityLabel="Add tab"
           onPress={onAdd}
           sx={{
-            paddingHorizontal: 3,
+            paddingHorizontal: 4,
             paddingVertical: 2,
-            minHeight: 36,
+            minHeight: TAB_MIN_HEIGHT,
             alignItems: 'center',
             justifyContent: 'center',
-            borderTopLeftRadius: 'sm',
-            borderTopRightRadius: 'sm',
+            borderRadius: 'md',
+            overflow: 'hidden',
           }}
         >
           <Text label="+" sx={{ color: 'textSecondary', fontSize: 18 }} />
@@ -205,26 +209,28 @@ const stripSx = {
   flexGrow: 0,
   flexShrink: 0,
   flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: 1,
-  paddingHorizontal: 2,
+  alignItems: 'center',
+  gap: 1.5,
+  minHeight: TAB_MIN_HEIGHT + 8,
+  paddingLeft: 4,
+  paddingRight: 2,
   paddingTop: 2,
+  paddingBottom: 2,
   borderBottomWidth: 1,
   borderColor: 'border',
-  background: 'surface',
+  background: 'surfaceMuted',
 } as const;
 
 const leadingSx = {
   flexShrink: 0,
   paddingHorizontal: 2,
-  paddingBottom: 2,
   alignSelf: 'center',
 } as const;
 
 const trailingSx = {
   flexShrink: 0,
-  paddingHorizontal: 1,
-  paddingBottom: 1,
+  paddingLeft: 1,
+  paddingRight: 0,
   alignSelf: 'center',
 } as const;
 
@@ -237,6 +243,6 @@ const scrollFrameSx = {
 
 const pillsSx = {
   flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: 0,
+  alignItems: 'center',
+  gap: 1.5,
 } as const;

@@ -51,6 +51,11 @@ export const notesTopicMap = defineTopicMap({
       return [];
     },
   },
+  profile: {
+    topics(row, ctx) {
+      return [userTopic(String(row['id'] ?? ctx.actorId))];
+    },
+  },
 });
 
 export function notesDefaultEntryChannel(

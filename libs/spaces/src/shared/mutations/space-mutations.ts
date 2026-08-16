@@ -163,8 +163,8 @@ export const createSpaceMutation = defineMutation({
     const actorMemberId = memberId(env);
     const now = env.now().toISOString();
     await tx.run(sql`
-      INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at)
-      VALUES (${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${visibility}, ${now})
+      INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at, ended_at)
+      VALUES (${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${visibility}, ${now}, ${null})
       ON CONFLICT (id) DO UPDATE SET
         host_id = excluded.host_id,
         host_member_id = excluded.host_member_id,

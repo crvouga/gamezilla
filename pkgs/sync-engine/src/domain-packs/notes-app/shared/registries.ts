@@ -33,6 +33,7 @@ import {
   setNoteNoFanout,
   setNoteV2,
 } from './mutations';
+import { ensureProfileEmpty, setProfileUsername } from './profile-mutations';
 import {
   foldersOnlyQuery,
   notesDeniedQuery,
@@ -40,6 +41,7 @@ import {
   notesOnlyQuery,
   notesOwnedQuery,
   notesWorldQuery,
+  ownProfileQuery,
 } from './queries';
 
 /** Product-only registry; createLocalSyncEngine / createSyncApp merge framework mutations. */
@@ -59,6 +61,8 @@ export const notesMutationRegistry = mutationRegistry([
   leaveSpace,
   endSpace,
   setSpaceNote,
+  setProfileUsername,
+  ensureProfileEmpty,
   setNoteArgsTight,
   setNoteUniqueSlug,
   setNoteUndeclaredFolderWrite,
@@ -77,6 +81,7 @@ export const notesQueryRegistry = queryRegistry([
   notesOwnedQuery,
   notesOnlyQuery,
   foldersOnlyQuery,
+  ownProfileQuery,
   spaceMembershipQuery,
   openSpaceSessionsQuery,
 ]);

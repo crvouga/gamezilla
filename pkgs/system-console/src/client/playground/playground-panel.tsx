@@ -46,10 +46,15 @@ export function ClientPlaygroundPanel<R>(props: {
   readonly title: string;
   readonly ProductApp: SystemConsolePorts<R>['ProductApp'];
   readonly actor: PlaygroundActor<R>;
+  /** Bumps only on snapshot restore — remount ProductApp without room churn. */
+  readonly snapshotEpoch?: number;
+  readonly reloadToken?: number;
   readonly onClose?: () => void;
 }) {
-  const { title, ProductApp, actor, onClose } = props;
+  const { title, ProductApp, actor, snapshotEpoch, reloadToken, onClose } =
+    props;
   const [tab, setTab] = useState<ClientTabId>('ui');
+  const productKey = `${actor.id}:${snapshotEpoch ?? 0}`;
 
   return (
     <PanelShell
@@ -67,9 +72,19 @@ export function ClientPlaygroundPanel<R>(props: {
           pointerEvents: tab === 'ui' ? 'auto' : 'none',
         }}
       >
-        <ProductApp io={actor.io} resources={actor.resources} embedded />
+        <ProductApp
+          key={productKey}
+          io={actor.io}
+          resources={actor.resources}
+          embedded
+        />
       </Box>
-      {tab === 'db' ? <PlaygroundDbPane sqlClient={actor.sqlClient} /> : null}
+      {tab === 'db' ? (
+        <PlaygroundDbPane
+          sqlClient={actor.sqlClient}
+          {...(reloadToken !== undefined ? { reloadToken } : {})}
+        />
+      ) : null}
       {tab === 'logs' ? <PlaygroundLogsPane logs={actor.logs} /> : null}
     </PanelShell>
   );
@@ -90,7 +105,12 @@ export function ServerPlaygroundPanel<R>(props: {
       selectedId={tab}
       onSelect={(id) => setTab(id as ServerTabId)}
     >
-      {tab === 'db' ? <PlaygroundDbPane sqlClient={node.sqlClient} /> : null}
+      {tab === 'db' ? (
+        <PlaygroundDbPane
+          sqlClient={node.sqlClient}
+          reloadToken={session.revision}
+        />
+      ) : null}
       {tab === 'logs' ? <PlaygroundLogsPane logs={node.logs} /> : null}
       {tab === 'commands' ? <PlaygroundCommandsPane session={session} /> : null}
     </PanelShell>
@@ -170,12 +190,6 @@ function PanelShell(props: {
     >
       <TabStrip
         accessibilityLabel={props.accessibilityLabel}
-        leading={
-          <Text
-            label={props.title}
-            sx={{ color: 'text', fontSize: 12, fontWeight: '600' }}
-          />
-        }
         items={props.items}
         selectedId={props.selectedId}
         onSelect={props.onSelect}

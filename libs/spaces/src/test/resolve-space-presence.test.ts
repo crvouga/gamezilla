@@ -60,6 +60,22 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'host' });
   });
 
+  test('resolves active host when ended_at is undefined (AlaSQL omission)', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: {
+          host_member_id: 'user-1',
+          host_account_id: 'user-1',
+          ended_at: undefined as unknown as null,
+        },
+        isOpenLocally: true,
+        myId: 'user-1',
+      })
+    ).toEqual({ status: 'active', role: 'host' });
+  });
+
   test('resolves join when not open for non-host', () => {
     expect(
       resolveSpacePresence({

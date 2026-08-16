@@ -1,7 +1,9 @@
-// @io-wall-ok — composition root: createSimIo + createWorld + durable OPFS SQLite.
+// @io-wall-ok — composition root: createSimIo + createWorld + ephemeral AlaSQL.
 /**
  * Boot a World-backed playground session: shared api/db/events, dynamic clients,
  * in-process room node, and wall-driven sim clock advance.
+ * Live SQL/auth/KV are ephemeral in-memory (AlaSQL); ObjectStore snapshots are
+ * the only durable state.
  */
 
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
@@ -14,13 +16,15 @@ import {
 import { createPlaygroundSnapshotStore } from '@apps/client/host/playground-minio-store';
 import {
   clientDbName,
-  clientNamespace,
   createPlaygroundProvide,
-  openPlaygroundSql,
+  openFreshPlaygroundSql,
   type PlaygroundSqlHandle,
   sharedRequestSqlClient,
 } from '@apps/client/host/playground-provide';
-import { buildPlaygroundSession } from '@apps/client/host/playground-session';
+import {
+  type BootPlaygroundOptions,
+  buildPlaygroundSession,
+} from '@apps/client/host/playground-session';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { system } from '@libs/runtime/shared/system';
 import { createSimIo, type SimIo, wallIo } from '@pkgs/io';
@@ -62,11 +66,11 @@ function startSimClockTick(io: SimIo): {
 }
 
 /**
- * Durable OPFS/expo-sqlite clients + shared in-memory pubsub on createWorld.
+ * Ephemeral AlaSQL (reset on open) + in-memory auth/KV + ObjectStore snapshots.
  */
-export async function bootPlaygroundSession(): Promise<
-  PlaygroundSession<ClientSystemResources>
-> {
+export async function bootPlaygroundSession(
+  opts?: BootPlaygroundOptions
+): Promise<PlaygroundSession<ClientSystemResources>> {
   const wall = wallIo();
   const io: SimIo = createSimIo({ seed: 1, startMs: wall.clock.now() });
   const clock = startSimClockTick(io);
@@ -76,7 +80,10 @@ export async function bootPlaygroundSession(): Promise<
   const roomLogs = createPlaygroundLogBuffer();
   const clientSqlByAddress = new Map<string, PlaygroundSqlHandle>();
 
-  const serverHandle = await openPlaygroundSql(PLAYGROUND_SERVER_DB, io.timers);
+  const serverHandle = await openFreshPlaygroundSql(
+    PLAYGROUND_SERVER_DB,
+    io.timers
+  );
   await migrateSimSqlite({ sqlClient: serverHandle.sqlClient, io });
   const shared = sharedRequestSqlClient(serverHandle.sqlClient);
   const openRequestDb: OpenRequestDb = async () => ({
@@ -130,6 +137,7 @@ export async function bootPlaygroundSession(): Promise<
     disposeTick: clock.disposeTick,
     getClockPaused: clock.getClockPaused,
     setClockPaused: clock.setClockPaused,
+    skipSnapshotLoad: opts?.skipSnapshotLoad === true,
   });
 }
 
@@ -140,7 +148,4 @@ export const PLAYGROUND_DB_NAMES = {
   bob: clientDbName('bob'),
 } as const;
 
-export const PLAYGROUND_ACTOR_NAMESPACES = {
-  alice: clientNamespace('alice'),
-  bob: clientNamespace('bob'),
-} as const;
+export type { BootPlaygroundOptions };

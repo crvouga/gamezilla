@@ -138,6 +138,8 @@ type LocalEngineState = {
   connected: boolean;
   revokePromise: Promise<void> | null;
   disposePush: (() => void) | null;
+  /** Remake entryChannel / held-row topics after identity switch wake. */
+  refreshTopics: (() => void) | null;
   pushPubSub: PubSub | null;
   disposeExternalDbChanged: (() => void) | null;
 };
@@ -243,6 +245,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     connected: false,
     revokePromise: null,
     disposePush: null,
+    refreshTopics: null,
     pushPubSub: null,
     disposeExternalDbChanged,
   };
@@ -282,9 +285,10 @@ function attachPushIfConfigured(state: LocalEngineState): void {
         state.pushPubSub = next;
         flushOutboundLive(state);
       },
-      ...(push.onBindTopicRefresh !== undefined
-        ? { onBindTopicRefresh: push.onBindTopicRefresh }
-        : {}),
+      onBindTopicRefresh: (refresh) => {
+        state.refreshTopics = refresh;
+        push.onBindTopicRefresh?.(refresh);
+      },
       ...(topicMap !== undefined ? { topicMap } : {}),
       ...(push.defaultEntryChannel !== undefined
         ? { defaultEntryChannel: push.defaultEntryChannel }
@@ -304,6 +308,7 @@ function attachPushIfConfigured(state: LocalEngineState): void {
 function detachPush(state: LocalEngineState): void {
   state.disposePush?.();
   state.disposePush = null;
+  state.refreshTopics = null;
   state.pushPubSub = null;
 }
 
@@ -338,6 +343,9 @@ function notifyLocalMutation(
 async function connectState(state: LocalEngineState): Promise<void> {
   if (state.connected) {
     state.uploadQueue.wake();
+    // Identity may have switched while this engine stayed open (playground
+    // fixed DB name). Remake entryChannel topics before waking queries.
+    state.refreshTopics?.();
     state.runtime.wakeAll();
     return;
   }

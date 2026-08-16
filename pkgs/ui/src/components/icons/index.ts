@@ -27,12 +27,14 @@ import {
   Play,
   Plus,
   RotateCcw,
+  Save,
   Search,
   Send,
   Settings,
   Share,
   Shuffle,
   SquarePen,
+  Trash2,
   User,
   Volume2,
   VolumeX,
@@ -49,6 +51,7 @@ export const Gamepad2Icon = createIcon(Gamepad2);
 export const UserIcon = createIcon(User);
 export const PlusIcon = createIcon(Plus);
 export const RotateCcwIcon = createIcon(RotateCcw);
+export const SaveIcon = createIcon(Save);
 export const SendIcon = createIcon(Send);
 export const CodeIcon = createIcon(Code);
 export const ChevronRightIcon = createIcon(ChevronRight);
@@ -76,5 +79,6 @@ export const SearchIcon = createIcon(Search);
 export const ShareIcon = createIcon(Share);
 export const ShuffleIcon = createIcon(Shuffle);
 export const SquarePenIcon = createIcon(SquarePen);
+export const Trash2Icon = createIcon(Trash2);
 export const HeartIcon = createIcon(Heart);
 export const BellIcon = createIcon(Bell);

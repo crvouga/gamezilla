@@ -732,7 +732,7 @@ pkgs/sync-engine/src/
   sim/              # deterministic multi-client simulation (not public)
   test/             # in-memory engine
   tests/
-    scenarios/      # black-box correctness (111 files)
+    scenarios/      # black-box correctness (112 files)
     harness/        # sim kernel self-tests
 ```
 
@@ -1087,7 +1087,7 @@ src/domain-packs/
   notes-app/                         # scenario domain + notesDomainPack + fuzz
 
 src/tests/
-  scenarios/                         # black-box correctness suite (111 files)
+  scenarios/                         # black-box correctness suite (112 files)
   harness/                           # sim kernel self-tests + scenario-api
 ```
 
@@ -1206,7 +1206,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Black-box correctness under `src/tests/scenarios/` (**111** files) plus harness
+Black-box correctness under `src/tests/scenarios/` (**112** files) plus harness
 `src/tests/harness/kernel.test.ts`. Most scenarios compose `openSimWorld` with
 `notesDomainPack` + notes-app asserts from `src/domain-packs/notes-app/`.
 Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
@@ -1214,7 +1214,7 @@ describe the behavior under test. Production-hardening phases (schema drift
 through channel drift) extend the original suite; all scenarios stay
 rewrite-safe (public + sim world API + domain packs only).
 
-### Happy path / multi-client (9)
+### Happy path / multi-client (10)
 
 | File | Proves |
 |------|--------|
@@ -1223,6 +1223,7 @@ rewrite-safe (public + sim world API + domain packs only).
 | `live-fanout-peer-visibility-within-budget.test.ts` | Happy-path live visibility within sim-time budget; restart rehydrates |
 | `folders-and-notes-multi-table-converge.test.ts` | Folders + notes, `moveNote`, soft-delete folder leaves notes |
 | `same-actor-two-devices-converge.test.ts` | Two devices, same `actorId`, concurrent writes converge |
+| `same-actor-empty-profile-fanout-does-not-wipe-peer.test.ts` | Empty `ensureProfile` seed fanout does not blank peer username |
 | `peer-visibility-under-200ms-sim-budget.test.ts` | Peer visibility under 200ms simulated time with fixed one-way delay |
 | `set-note-v1-v2-interleaved-converge.test.ts` | `setNote` + `setNoteV2` interleaved; V1-only client still replays |
 | `mutation-batch-over-max-drains-without-dupes.test.ts` | Queue > `MAX_MUTATIONS_BATCH` drains across batches without dupes |
@@ -1513,6 +1514,7 @@ reupload-idempotent-no-duplicate-rows
 room-live-isolated-until-member-joins
 row-image-apply-then-refetch-not-not-modified
 row-image-for-inactive-table-ignored-safely
+same-actor-empty-profile-fanout-does-not-wipe-peer
 same-actor-two-devices-converge
 same-batch-posted-twice-verdicts-stable
 scope-churn-no-leaked-timers-or-subscriptions

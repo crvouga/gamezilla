@@ -175,3 +175,26 @@ export const foldersOnlyQuery = defineQuery({
     return { folders };
   },
 });
+
+/** Actor-scoped profile hydrate — same-account fanout scrub scenarios. */
+export const ownProfileQuery = defineQuery({
+  name: 'ownProfile',
+  limit: 1,
+  async run({ db, env }) {
+    const profile = await db.query(sql<{
+      id: string;
+      username: string;
+      username_norm: string;
+      deleted_at: string | null;
+    }>`
+      SELECT id, username, username_norm, deleted_at FROM profile
+      WHERE id = ${env.actorId}
+`);
+    return { profile };
+  },
+});
+
+export const OWN_PROFILE_SESSION = {
+  name: 'ownProfile',
+  params: {},
+} as const;

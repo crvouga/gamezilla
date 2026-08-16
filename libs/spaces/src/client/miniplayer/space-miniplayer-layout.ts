@@ -1,8 +1,8 @@
+/** True when the miniplayer has nothing to show (no live open spaces). */
 export function isSpaceMiniplayerHidden(args: {
-  rawPath: string;
   activeSpaceCount: number;
 }): boolean {
-  return args.rawPath.startsWith('/space/') || args.activeSpaceCount === 0;
+  return args.activeSpaceCount === 0;
 }
 
 export type MiniplayerMode =

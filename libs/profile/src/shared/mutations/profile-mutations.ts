@@ -16,12 +16,15 @@ import {
   normalizeUsername,
   validateUsername,
 } from '../username';
+import { generateRandomUsername } from '../username-generator';
 import { assignUniqueUsernameIfEmpty } from './assign-unique-username';
 
 const avatarConfigArgs = z.union([
   z.string(),
   z.record(z.string(), z.unknown()),
 ]);
+
+const PROFILE_SEED_USERNAME_ATTEMPTS = 8;
 
 type UsernameRow = {
   readonly username: string | null;
@@ -80,9 +83,42 @@ async function seedProfile(
   now: string,
   avatarConfig: string
 ): Promise<void> {
+  // Prefer a non-empty username on INSERT so write-capture fanout never
+  // publishes username='' to same-account peers (AlaSQL UPDATE RETURNING may
+  // not refresh the capture map after assignUniqueUsernameIfEmpty).
+  let username = '';
+  for (
+    let attempt = 0;
+    attempt < PROFILE_SEED_USERNAME_ATTEMPTS;
+    attempt += 1
+  ) {
+    const candidate = generateRandomUsername(`${profileId}:seed:${attempt}`);
+    const taken = await tx.query(sql<{ one: number }>`
+      SELECT 1 AS one
+      FROM profile
+      WHERE lower(username) = ${candidate.toLowerCase()}
+        AND username <> ''
+      LIMIT 1
+    `);
+    if (taken.length > 0) continue;
+    username = candidate;
+    break;
+  }
+  if (username.length === 0) {
+    throw new MutationError(
+      'USERNAME_TAKEN',
+      'Could not assign a unique username.'
+    );
+  }
   await tx.run(sql`
     INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
-    VALUES (${profileId}, ${now}, ${''}, ${''}, ${avatarConfig})
+    VALUES (
+      ${profileId},
+      ${now},
+      ${username},
+      ${username.toLowerCase()},
+      ${avatarConfig}
+    )
     ON CONFLICT (id) DO NOTHING
   `);
 }

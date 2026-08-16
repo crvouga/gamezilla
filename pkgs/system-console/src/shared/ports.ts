@@ -124,6 +124,21 @@ export type PlaygroundSession<R = unknown> = {
   readonly pubsub: PlaygroundPubSubNode;
   /** Live room topics from the in-process room node. */
   readonly rooms: ReadonlyMap<string, PlaygroundRoomNode>;
+  /**
+   * Monotonic UI revision — bumps on every session notify (client/room map
+   * changes, end of snapshot restore, etc.).
+   */
+  readonly revision: number;
+  /**
+   * Bumps only after snapshot restore (`runQuiet`). Use for remounting
+   * embedded ProductApp so room/client notifies do not tear down live UI.
+   */
+  readonly snapshotEpoch: number;
+  /**
+   * True while a snapshot load is tearing down / restoring clients. UI should
+   * paint no ProductApps until restore finishes.
+   */
+  readonly snapshotRestoring: boolean;
   /** Subscribe to client / room map changes. */
   subscribe(listener: () => void): () => void;
   addClient(id?: string): Promise<PlaygroundActor<R>>;
@@ -137,20 +152,29 @@ export type PlaygroundSession<R = unknown> = {
   listSnapshots(): Promise<readonly PlaygroundSnapshotInfo[]>;
   saveSnapshot(label?: string): Promise<PlaygroundSnapshotInfo>;
   loadSnapshot(id: string): Promise<void>;
+  deleteSnapshot(id: string): Promise<void>;
   /** Pause / resume wall→sim clock advance. */
   setClockPaused(paused: boolean): void;
   isClockPaused(): boolean;
   /**
-   * Reset durable OPFS DBs + namespaced auth/KV, then close handles.
-   * Caller should remount / re-boot afterward.
+   * Tear down the live in-memory session (SQL handles + World).
+   * Snapshots in ObjectStore are kept. Caller should remount with
+   * `skipSnapshotLoad: true` for a blank reboot.
    */
   wipe(): Promise<void>;
   dispose(): Promise<void>;
 };
 
+export type BootPlaygroundOptions = {
+  /** Reboot blank without auto-loading the newest ObjectStore snapshot. */
+  readonly skipSnapshotLoad?: boolean;
+};
+
 export type SystemConsolePorts<R = unknown> = {
   readonly ProductApp: ComponentType<EmbeddedProductAppProps<R>>;
-  readonly bootPlayground: () => Promise<PlaygroundSession<R>>;
+  readonly bootPlayground: (
+    opts?: BootPlaygroundOptions
+  ) => Promise<PlaygroundSession<R>>;
   /** Process I/O for report HTTP (and playground actor Io is separate). */
   readonly io: Io;
   /**

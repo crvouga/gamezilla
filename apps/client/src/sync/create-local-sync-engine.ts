@@ -115,9 +115,8 @@ function createMembershipChannels(args: {
   readonly onBindTopicRefresh: (refresh: () => void) => void;
 } {
   return {
-    onBindTopicRefresh: () => {
-      // Held-row refresh is driven by the local table-change bus.
-    },
+    // Engine connect wake remakes topics via pkgs `state.refreshTopics`.
+    onBindTopicRefresh: (_refresh) => undefined,
     getChannelsCtx: () => ({
       actorId: args.auth.getAccountId() ?? args.userId,
     }),
@@ -159,30 +158,54 @@ function pushOptions(
   };
 }
 
+async function openAppLocalDb(
+  args: CreateAppLocalSyncEngineArgs
+): Promise<SqlClient> {
+  if (
+    args.openSqlClient === undefined &&
+    args.databaseName.startsWith('sim_')
+  ) {
+    throw new Error(
+      `createAppLocalSyncEngine: refusing OPFS open for sim database "${args.databaseName}" — inject openSqlClient`
+    );
+  }
+  if (args.openSqlClient !== undefined) {
+    return args.openSqlClient({
+      userId: args.userId,
+      databaseName: args.databaseName,
+      createId: args.createId,
+      timers: args.timers,
+    });
+  }
+  return openMainSqlClient(args.userId, args.createId, args.timers);
+}
+
+async function deleteEngineDatabase(
+  args: CreateAppLocalSyncEngineArgs,
+  webDb: ExpoWebSqlClient
+): Promise<void> {
+  if (typeof webDb.resetDatabase === 'function') {
+    await webDb.resetDatabase();
+    return;
+  }
+  const SQLite = await import('expo-sqlite');
+  await SQLite.deleteDatabaseAsync(args.databaseName);
+}
+
 /** Opens the identity DB and builds the push-driven local sync engine. */
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
   await deleteLegacySidecarDb(args.databaseName);
-  const syncLease = await tryAcquireSyncOwnerLease(args.databaseName);
+  // Injected openSqlClient = sim/playground isolated DB — never share OPFS, so
+  // skip Web Locks (a prior engine's unreleased lock would make reload a
+  // permanent non-owner with no upload/push).
+  const syncLease =
+    args.openSqlClient !== undefined
+      ? { isOwner: true as const, release: () => undefined }
+      : await tryAcquireSyncOwnerLease(args.databaseName);
   try {
-    if (
-      args.openSqlClient === undefined &&
-      args.databaseName.startsWith('sim_')
-    ) {
-      throw new Error(
-        `createAppLocalSyncEngine: refusing OPFS open for sim database "${args.databaseName}" — inject openSqlClient`
-      );
-    }
-    const db =
-      args.openSqlClient !== undefined
-        ? await args.openSqlClient({
-            userId: args.userId,
-            databaseName: args.databaseName,
-            createId: args.createId,
-            timers: args.timers,
-          })
-        : await openMainSqlClient(args.userId, args.createId, args.timers);
+    const db = await openAppLocalDb(args);
     const pushCtx = createMembershipChannels({
       auth: args.auth,
       userId: args.userId,
@@ -206,14 +229,7 @@ export async function createAppLocalSyncEngine(
       postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
       isAuthRevoked: (error) =>
         error instanceof SyncApiAuthError && error.reason === 'revoked',
-      deleteDatabase: async () => {
-        if (typeof webDb.resetDatabase === 'function') {
-          await webDb.resetDatabase();
-          return;
-        }
-        const SQLite = await import('expo-sqlite');
-        await SQLite.deleteDatabaseAsync(args.databaseName);
-      },
+      deleteDatabase: () => deleteEngineDatabase(args, webDb),
       lifecycle: createAppSyncLifecycle(),
       now: args.clock.now,
       timers: args.timers,
@@ -231,7 +247,17 @@ export async function createAppLocalSyncEngine(
     });
 
     emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
-    return engine;
+    const disconnect = engine.disconnect.bind(engine);
+    return {
+      ...engine,
+      disconnect: async () => {
+        try {
+          await disconnect();
+        } finally {
+          syncLease.release();
+        }
+      },
+    };
   } catch (error: unknown) {
     syncLease.release();
     throw error;

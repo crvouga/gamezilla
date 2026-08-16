@@ -15,6 +15,7 @@ export {
   readLiveNotes,
   readLiveOpenSessions,
   readNoteTombstone,
+  readProfileUsername,
 } from './assert';
 export { notesLocalSchema } from './client/local-schema';
 export {
@@ -69,6 +70,10 @@ export {
   setNoteV2,
 } from './shared/mutations';
 export {
+  ensureProfileEmpty,
+  setProfileUsername,
+} from './shared/profile-mutations';
+export {
   foldersOnlyQuery,
   NOTES_AUTH_GATE_FOLDER_ID,
   notesDeniedQuery,
@@ -76,6 +81,8 @@ export {
   notesOnlyQuery,
   notesOwnedQuery,
   notesWorldQuery,
+  OWN_PROFILE_SESSION,
+  ownProfileQuery,
 } from './shared/queries';
 export {
   notesMutationRegistry,

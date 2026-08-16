@@ -1,4 +1,6 @@
 import type { Topic } from '@pkgs/pubsub/interface';
+import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRow } from '../queries/core/types';
 import type { PushMessage } from '../shared/push-payload';
@@ -27,14 +29,53 @@ async function tryApplyOptimisticRows(
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return true;
   try {
-    await applyRowImages(
-      getMergeDeps(),
+    const rows = await dropRegressiveProfileImages(
+      bag.options.db,
       payload.rows as Record<string, readonly QueryRow[]>
     );
+    if (Object.keys(rows).length === 0) return true;
+    await applyRowImages(getMergeDeps(), rows);
   } catch (error) {
     console.warn('[push] optimistic fanout apply failed', topic, error);
   }
   return true;
+}
+
+/** Never blank a peer's assigned username with an empty ensureProfile seed. */
+async function dropRegressiveProfileImages(
+  db: SqlClient,
+  rows: Record<string, readonly QueryRow[]>
+): Promise<Record<string, readonly QueryRow[]>> {
+  const profiles = rows['profile'];
+  if (profiles === undefined) return rows;
+  const kept: QueryRow[] = [];
+  for (const row of profiles) {
+    const id = row['id'];
+    const username = row['username'];
+    const empty =
+      username == null ||
+      (typeof username === 'string' && username.length === 0);
+    if (!empty || typeof id !== 'string') {
+      kept.push(row);
+      continue;
+    }
+    const existing = await db.query(sql<{ username: string | null }>`
+      SELECT username FROM profile WHERE id = ${id} LIMIT 1
+    `);
+    const local = existing[0]?.username;
+    if (typeof local === 'string' && local.length > 0) {
+      continue;
+    }
+    kept.push(row);
+  }
+  if (kept.length === profiles.length) return rows;
+  const next: Record<string, readonly QueryRow[]> = { ...rows };
+  if (kept.length === 0) {
+    delete next['profile'];
+  } else {
+    next['profile'] = kept;
+  }
+  return next;
 }
 
 async function tryApplyFanoutRows(

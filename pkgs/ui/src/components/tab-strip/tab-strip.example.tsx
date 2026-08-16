@@ -8,6 +8,12 @@ export default function TabStripExample() {
   const [app, setApp] = useState('main');
   const [section, setSection] = useState('reports');
   const [view, setView] = useState('ui');
+  const [tables, setTables] = useState('accounts');
+  const [drafts, setDrafts] = useState([
+    { id: 'a', label: 'sync_engine_mutations_applied' },
+    { id: 'b', label: 'Draft' },
+  ]);
+  const [draftId, setDraftId] = useState('a');
 
   return (
     <ExampleRoot>
@@ -37,12 +43,6 @@ export default function TabStripExample() {
 
         <TabStrip
           accessibilityLabel="Panel views"
-          leading={
-            <Text
-              sx={{ color: 'text', fontSize: 12, fontWeight: '600' }}
-              label="Alice"
-            />
-          }
           items={[
             { id: 'ui', label: 'UI' },
             { id: 'db', label: 'DB' },
@@ -52,6 +52,49 @@ export default function TabStripExample() {
           onSelect={setView}
         />
         <Text variant="caption" label={`View: ${view}`} />
+
+        <TabStrip
+          accessibilityLabel="Tables"
+          items={[
+            { id: 'accounts', label: 'accounts' },
+            {
+              id: 'sync_engine_write_rejections',
+              label: 'sync_engine_write_rejections',
+            },
+            { id: 'spaces', label: 'spaces' },
+          ]}
+          selectedId={tables}
+          onSelect={setTables}
+        />
+        <Text variant="caption" label={`Table: ${tables}`} />
+
+        <TabStrip
+          accessibilityLabel="Closable drafts"
+          items={drafts.map((d) => ({
+            ...d,
+            onClose: () => {
+              const remaining = drafts.filter((x) => x.id !== d.id);
+              setDrafts(remaining);
+              setDraftId((cur) =>
+                cur === d.id ? (remaining[0]?.id ?? '') : cur
+              );
+            },
+          }))}
+          selectedId={draftId || null}
+          onSelect={setDraftId}
+          onAdd={() => {
+            const id = `d${drafts.length + 1}`;
+            setDrafts((prev) => [
+              ...prev,
+              { id, label: `Draft ${prev.length + 1}` },
+            ]);
+            setDraftId(id);
+          }}
+        />
+        <Text
+          variant="caption"
+          label={draftId ? `Draft: ${draftId}` : 'No drafts'}
+        />
       </Stack>
     </ExampleRoot>
   );

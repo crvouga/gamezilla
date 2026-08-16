@@ -1,5 +1,6 @@
 export { createPlaygroundLogBuffer } from '../shared/playground-log-buffer';
 export type {
+  BootPlaygroundOptions,
   EmbeddedProductAppProps,
   PlaygroundActor,
   PlaygroundCommand,

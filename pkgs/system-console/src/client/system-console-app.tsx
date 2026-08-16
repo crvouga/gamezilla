@@ -36,8 +36,8 @@ export function SystemConsoleApp<R>(props: {
 }): ReactNode {
   const { ports } = props;
   const [section, setSection] = useState<Section>('reports');
-  // Keep OPFS handles + sync engines alive across Reports ↔ Playground; dispose
-  // only when this console root unmounts (closes handles; durable files remain).
+  // Keep the in-memory World alive across Reports ↔ Playground; dispose only
+  // when this console root unmounts (live state is lost; snapshots remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
 
   const api = useMemo(

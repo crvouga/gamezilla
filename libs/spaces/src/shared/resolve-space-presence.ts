@@ -23,7 +23,8 @@ export function isViewerSpaceHost(
   myId: string
 ): boolean {
   if (spaceRow === null || spaceRow === undefined) return false;
-  if (spaceRow.ended_at !== null) return false;
+  // Treat missing/`undefined` like SQL NULL (AlaSQL omits unset columns).
+  if (spaceRow.ended_at != null) return false;
   return (
     nonEmptyEqual(spaceRow.host_member_id ?? '', myId) ||
     nonEmptyEqual(spaceRow.host_account_id ?? '', myId)
@@ -41,7 +42,7 @@ export function resolveSpacePresence(args: {
     return { status: 'loading' };
   }
   const endedAt = args.spaceRow?.ended_at ?? null;
-  if (endedAt !== null) {
+  if (endedAt != null) {
     return { status: 'join', ended: true };
   }
   if (args.spaceLoading && args.spaceRow === null) {
