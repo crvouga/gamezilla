@@ -68,6 +68,18 @@ export {
 // Data Display
 export { Card, type CardProps } from './card';
 export {
+  createMemoryPageLoader,
+  DataTable,
+  type DataTableColumn,
+  type DataTableColumnAlign,
+  type DataTableDensity,
+  type DataTableLoadPage,
+  type DataTableLoadPageParams,
+  type DataTableLoadPageResult,
+  type DataTableOrderDir,
+  type DataTableProps,
+} from './data-table';
+export {
   CatalogDetail,
   CatalogDetailNav,
   type CatalogDetailNavProps,

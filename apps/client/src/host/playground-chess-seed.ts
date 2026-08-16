@@ -7,6 +7,7 @@
 import { PLAYGROUND_CHESS_PUZZLES_CSV } from '@apps/client/host/playground-chess-fixture';
 import { PuzzleSeedFastPath } from '@libs/chess/server/seed-chess-puzzle/fast-path';
 import type { PuzzleTableRow } from '@libs/chess/server/seed-chess-puzzle/row';
+import { chessPuzzlesTopic } from '@libs/db/shared/sync-topics';
 import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PlaygroundCommand } from '@pkgs/system-console/client';
@@ -97,6 +98,11 @@ function recordToPuzzleRow(row: Record<string, string>): PuzzleTableRow | null {
 export async function seedPlaygroundChessPuzzles(args: {
   readonly sqlClient: SqlClient;
   readonly io: Io;
+  readonly notifySyncWake?: (args: {
+    readonly topics: readonly string[];
+    readonly tables?: readonly string[];
+    readonly label: string;
+  }) => Promise<void>;
 }): Promise<void> {
   const rows: PuzzleTableRow[] = [];
   for (const record of parseCsvRecords(PLAYGROUND_CHESS_PUZZLES_CSV)) {
@@ -111,6 +117,13 @@ export async function seedPlaygroundChessPuzzles(args: {
       now: args.io.clock.now,
     });
   }
+  if (args.notifySyncWake !== undefined) {
+    await args.notifySyncWake({
+      topics: [chessPuzzlesTopic()],
+      tables: ['chess_puzzles'],
+      label: 'seed-chess-puzzles',
+    });
+  }
 }
 
 export function createPlaygroundChessCommands(): PlaygroundCommand[] {
@@ -122,6 +135,7 @@ export function createPlaygroundChessCommands(): PlaygroundCommand[] {
         await seedPlaygroundChessPuzzles({
           sqlClient: ctx.serverSql,
           io: ctx.io,
+          notifySyncWake: ctx.notifySyncWake,
         });
       },
     },

@@ -2,6 +2,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';
+import { killListenersOnPorts } from '@pkgs/os/kill-port';
 import { migratePostgresApp } from '../src/db/migrate';
 
 const io = wallIo();
@@ -17,6 +18,10 @@ const API_DIR = join(import.meta.dirname, '..');
 const API_PORT = 8788;
 /** `0` = OS-assigned free port. Fixed 9229/9231 hit EADDRNOTAVAIL on some hosts. */
 const INSPECTOR_PORT = 0;
+/** Stale wrangler from a prior turbo tear-down still binds 8788 / old inspectors. */
+const LEGACY_INSPECTOR_PORTS = [9231, 9229] as const;
+
+killListenersOnPorts([API_PORT, ...LEGACY_INSPECTOR_PORTS]);
 
 const children: ChildProcess[] = [];
 let shuttingDown = false;

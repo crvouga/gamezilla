@@ -2,12 +2,16 @@ import {
   Badge,
   Box,
   Button,
+  createMemoryPageLoader,
+  DataTable,
+  type DataTableColumn,
+  type DataTableOrderDir,
   Pressable,
   ScrollView,
   Text,
   TextInput,
 } from '@pkgs/ui';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import type { RunSummary, SuiteTestSummary } from '../types';
 import type { BucketInfo } from './api-client';
@@ -17,23 +21,10 @@ import type { ReportNavState } from './router';
 import {
   appBodyFrameSx,
   appShellSx,
-  cellTextSx,
-  emptySx,
-  rowSx,
   statusBadgeIntent,
   testIdSx,
-  thSx,
   useAppBodyContentSx,
 } from './tokens';
-
-const COLS = {
-  run: 2,
-  status: 1,
-  updated: 2,
-  tests: 1,
-  frames: 1,
-  action: 1,
-} as const;
 
 function formatUpdated(ms: number): string {
   try {
@@ -44,6 +35,20 @@ function formatUpdated(ms: number): string {
   } catch {
     return String(ms);
   }
+}
+
+function compareRuns(
+  a: RunSummary,
+  b: RunSummary,
+  orderBy: string,
+  orderDir: DataTableOrderDir
+): number {
+  const dir = orderDir === 'asc' ? 1 : -1;
+  if (orderBy === 'updated') return (a.updatedAtMs - b.updatedAtMs) * dir;
+  if (orderBy === 'tests') return (a.testCount - b.testCount) * dir;
+  if (orderBy === 'frames') return (a.frameCount - b.frameCount) * dir;
+  if (orderBy === 'status') return a.status.localeCompare(b.status) * dir;
+  return a.id.localeCompare(b.id) * dir;
 }
 
 export function RunsPage(props: {
@@ -77,6 +82,24 @@ export function RunsPage(props: {
   const [busy, setBusy] = useState(false);
   const bodySx = useAppBodyContentSx();
 
+  const loadPage = useMemo(
+    () => createMemoryPageLoader(() => runs, compareRuns),
+    [runs]
+  );
+
+  const handleDelete = useCallback(
+    (runId: string) => {
+      setBusy(true);
+      void onDeleteRun(runId).finally(() => setBusy(false));
+    },
+    [onDeleteRun]
+  );
+
+  const columns = useMemo(
+    () => buildRunColumns({ busy, onOpenRun, onDeleteRun: handleDelete }),
+    [busy, onOpenRun, handleDelete]
+  );
+
   return (
     <Box sx={appShellSx}>
       <ReportHeader
@@ -104,20 +127,93 @@ export function RunsPage(props: {
             void onKeepLast(keepLast).finally(() => setBusy(false));
           }}
         />
-        <ScrollView horizontal frameSx={{ alignSelf: 'stretch' }}>
-          <RunsTable
-            runs={runs}
-            busy={busy}
-            onOpenRun={onOpenRun}
-            onDeleteRun={(runId) => {
-              setBusy(true);
-              void onDeleteRun(runId).finally(() => setBusy(false));
-            }}
+        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
+          <DataTable
+            columns={columns}
+            loadPage={loadPage}
+            getRowId={(r) => r.id}
+            sourceKey={generation}
+            pageSize={50}
+            defaultOrderBy="updated"
+            defaultOrderDir="desc"
+            emptyTitle="No runs yet"
+            emptyBody="Write reports with report:"
+            density="compact"
           />
-        </ScrollView>
+        </Box>
       </ScrollView>
     </Box>
   );
+}
+
+function buildRunColumns(args: {
+  readonly busy: boolean;
+  readonly onOpenRun: (runId: string) => void;
+  readonly onDeleteRun: (runId: string) => void;
+}): DataTableColumn<RunSummary>[] {
+  const { busy, onOpenRun, onDeleteRun } = args;
+  return [
+    {
+      id: 'run',
+      header: 'Run',
+      width: 160,
+      sortable: true,
+      cell: (r) => (
+        <Pressable onPress={() => onOpenRun(r.id)}>
+          <Text sx={testIdSx} label={r.id} />
+        </Pressable>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      width: 100,
+      sortable: true,
+      cell: (r) => (
+        <Badge
+          label={r.status.toUpperCase()}
+          intent={statusBadgeIntent(r.status)}
+          size="sm"
+        />
+      ),
+    },
+    {
+      id: 'updated',
+      header: 'Updated',
+      width: 180,
+      sortable: true,
+      getValue: (r) => formatUpdated(r.updatedAtMs),
+    },
+    {
+      id: 'tests',
+      header: 'Tests',
+      width: 72,
+      sortable: true,
+      getValue: (r) => r.testCount,
+    },
+    {
+      id: 'frames',
+      header: 'Frames',
+      width: 72,
+      sortable: true,
+      getValue: (r) => r.frameCount,
+    },
+    {
+      id: 'action',
+      header: '',
+      width: 88,
+      cell: (r) => (
+        <Button
+          title="Delete"
+          size="sm"
+          intent="danger"
+          variant="outline"
+          disabled={busy}
+          onPress={() => onDeleteRun(r.id)}
+        />
+      ),
+    },
+  ];
 }
 
 function PruneBar(props: {
@@ -129,7 +225,7 @@ function PruneBar(props: {
   const { keepLast, busy, onKeepLastChange, onPrune } = props;
   return (
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
-      <Text sx={cellTextSx}>Keep last</Text>
+      <Text sx={{ color: 'text', fontSize: 12 }} label="Keep last" />
       <TextInput
         keyboardType="number-pad"
         value={String(keepLast)}
@@ -144,78 +240,6 @@ function PruneBar(props: {
         disabled={busy}
         onPress={onPrune}
       />
-    </Box>
-  );
-}
-
-function RunsTable(props: {
-  readonly runs: readonly RunSummary[];
-  readonly busy: boolean;
-  readonly onOpenRun: (runId: string) => void;
-  readonly onDeleteRun: (runId: string) => void;
-}) {
-  const { runs, busy, onOpenRun, onDeleteRun } = props;
-  return (
-    <Box sx={{ minWidth: 640 }}>
-      <Box sx={rowSx}>
-        <Text sx={[thSx, { flex: COLS.run }]}>Run</Text>
-        <Text sx={[thSx, { flex: COLS.status }]}>Status</Text>
-        <Text sx={[thSx, { flex: COLS.updated }]}>Updated</Text>
-        <Text sx={[thSx, { flex: COLS.tests }]}>Tests</Text>
-        <Text sx={[thSx, { flex: COLS.frames }]}>Frames</Text>
-        <Box sx={{ flex: COLS.action }} />
-      </Box>
-      {runs.length === 0 ? (
-        <Text sx={emptySx}>No runs yet. Write reports with report:</Text>
-      ) : (
-        runs.map((r) => (
-          <RunRow
-            key={r.id}
-            run={r}
-            busy={busy}
-            onOpen={() => onOpenRun(r.id)}
-            onDelete={() => onDeleteRun(r.id)}
-          />
-        ))
-      )}
-    </Box>
-  );
-}
-
-function RunRow(props: {
-  readonly run: RunSummary;
-  readonly busy: boolean;
-  readonly onOpen: () => void;
-  readonly onDelete: () => void;
-}) {
-  const { run: r, busy, onOpen, onDelete } = props;
-  return (
-    <Box sx={rowSx}>
-      <Pressable sx={{ flex: COLS.run }} onPress={onOpen}>
-        <Text sx={testIdSx}>{r.id}</Text>
-      </Pressable>
-      <Box sx={{ flex: COLS.status }}>
-        <Badge
-          label={r.status.toUpperCase()}
-          intent={statusBadgeIntent(r.status)}
-          size="sm"
-        />
-      </Box>
-      <Text sx={[cellTextSx, { flex: COLS.updated }]}>
-        {formatUpdated(r.updatedAtMs)}
-      </Text>
-      <Text sx={[cellTextSx, { flex: COLS.tests }]}>{r.testCount}</Text>
-      <Text sx={[cellTextSx, { flex: COLS.frames }]}>{r.frameCount}</Text>
-      <Box sx={{ flex: COLS.action, alignItems: 'flex-start' }}>
-        <Button
-          title="Delete"
-          size="sm"
-          intent="danger"
-          variant="outline"
-          disabled={busy}
-          onPress={onDelete}
-        />
-      </Box>
     </Box>
   );
 }

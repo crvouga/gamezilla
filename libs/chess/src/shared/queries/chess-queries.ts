@@ -1,3 +1,4 @@
+import { chessPuzzlesChannels } from '@libs/db/shared/sync-topics';
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
@@ -54,7 +55,7 @@ export const chessPuzzlePool = defineQuery({
     })
     .refine((p) => p.ratingMin <= p.ratingMax),
   limit: 5000,
-  entryChannel: false,
+  entryChannel: () => chessPuzzlesChannels(),
   async run(ctx, { ratingMin, ratingMax }) {
     const rows = await ctx.db.query(sql`
       SELECT

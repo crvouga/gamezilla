@@ -11,6 +11,7 @@ import { default as BrandIconExample } from '../brand-icon/brand-icon.example';
 import { default as ButtonExample } from '../button/button.example';
 import { default as CardExample } from '../card/card.example';
 import { default as CatalogExample } from '../catalog/catalog.example';
+import { default as DataTableExample } from '../data-table/data-table.example';
 import { default as CenterExample } from '../center/center.example';
 import { default as CheckboxExample } from '../checkbox/checkbox.example';
 import { default as ChipExample } from '../chip/chip.example';
@@ -136,6 +137,7 @@ const builtInEntries: ComponentEntry[] = [
 
   // Data Display
   { name: 'Card', category: 'Data Display', Example: CardExample },
+  { name: 'DataTable', category: 'Data Display', Example: DataTableExample },
   { name: 'Avatar', category: 'Data Display', Example: AvatarExample },
   {
     name: 'AvatarHero',

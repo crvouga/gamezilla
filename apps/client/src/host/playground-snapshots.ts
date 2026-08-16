@@ -114,8 +114,8 @@ export type SnapshotSessionCtx = {
   readonly spawnClient: (id?: string) => Promise<PlaygroundActor>;
   readonly removeClient: (id: string) => Promise<void>;
   /**
-   * Unmount ProductApps (notify) then close/wipe client SQL. Must run outside
-   * {@link runQuiet} so the detach notify is not suppressed.
+   * Unmount ProductApps (notify) then reset client SQL handles in place.
+   * Must run outside {@link runQuiet} so the detach notify is not suppressed.
    */
   readonly detachClientsForSnapshotLoad: () => Promise<void>;
   readonly notify: () => void;
@@ -398,8 +398,8 @@ export async function loadPlaygroundSnapshot(
     throw new Error(`snapshot '${snapshotId}' has an invalid manifest`);
   }
 
-  // Hide ProductApps, destroy SQL, then restore. Painting clients during
-  // teardown lets SyncEngineBoot migrate a DB mid-destroy (xcolumns crash).
+  // Hide ProductApps, reset client SQL in place, then restore. Painting clients
+  // during teardown lets SyncEngineBoot migrate a DB mid-destroy (xcolumns crash).
   ctx.setClockPaused(true);
   try {
     await ctx.detachClientsForSnapshotLoad();

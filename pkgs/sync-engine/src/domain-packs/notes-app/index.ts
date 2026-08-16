@@ -98,4 +98,5 @@ export {
   roomTopic,
   userTopic,
 } from './shared/topics';
+export { insertCatalogNote } from './insert-catalog-note';
 export { writeNoteBody } from './write-note-body';

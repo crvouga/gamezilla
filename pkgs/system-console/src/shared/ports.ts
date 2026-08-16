@@ -72,6 +72,15 @@ export type PlaygroundPubSubNode = PlaygroundNode & {
 export type PlaygroundCommandContext = {
   readonly serverSql: SqlClient;
   readonly io: Io;
+  /**
+   * Best-effort sync wake after non-mutation DOMAIN writes.
+   * Host (apps/client playground) wires pubsub + pushSeq allocate.
+   */
+  readonly notifySyncWake?: (args: {
+    readonly topics: readonly string[];
+    readonly tables?: readonly string[];
+    readonly label: string;
+  }) => Promise<void>;
 };
 
 export type PlaygroundCommand = {

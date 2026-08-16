@@ -113,6 +113,18 @@ export type BuildPuzzleCandidatesSqlArgs = BuildPuzzleFilterArgs & {
   readonly pickOffset?: number;
 };
 
+/** Keep OFFSET inside the catalog so small fixtures still return a page. */
+export function capPuzzleCandidateOffset(
+  pickOffset: number,
+  catalogSize: number
+): number {
+  if (pickOffset <= 0 || catalogSize <= 0) return 0;
+  return Math.min(
+    pickOffset,
+    Math.max(0, catalogSize - PUZZLE_CANDIDATE_LIMIT)
+  );
+}
+
 export function buildPuzzleCandidatesSql(
   args: BuildPuzzleCandidatesSqlArgs
 ): Sql<PuzzleCandidateRow> {

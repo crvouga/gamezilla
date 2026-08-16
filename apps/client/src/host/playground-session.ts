@@ -27,7 +27,11 @@ import {
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import type { SimIo } from '@pkgs/io';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
+import type { Topic } from '@pkgs/pubsub/interface';
+import {
+  createInMemoryPublishOnlyPubSub,
+  type InMemoryBus,
+} from '@pkgs/pubsub/testing/in-memory';
 import type { World } from '@pkgs/system';
 import type {
   createPlaygroundLogBuffer,
@@ -36,7 +40,7 @@ import type {
   PlaygroundSession,
   PlaygroundSqlNode,
 } from '@pkgs/system-console/client';
-
+import { notifyChannels } from '@pkgs/sync-engine/server';
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
 export type BootPlaygroundOptions = {
@@ -193,10 +197,29 @@ function attachSessionApi(
     async runCommand(id) {
       const cmd = commands.find((c) => c.id === id);
       if (cmd === undefined) throw new Error(`unknown command '${id}'`);
-      await cmd.run({
-        serverSql: buildArgs.serverHandle.sqlClient,
-        io: buildArgs.io,
-      });
+      const publishPeer = createInMemoryPublishOnlyPubSub(buildArgs.pubSubBus);
+      try {
+        await cmd.run({
+          serverSql: buildArgs.serverHandle.sqlClient,
+          io: buildArgs.io,
+          notifySyncWake: async (wake) => {
+            await notifyChannels({
+              pubsub: publishPeer,
+              sql: buildArgs.serverHandle.sqlClient,
+              topics: wake.topics as Topic[],
+              ...(wake.tables !== undefined && wake.tables.length > 0
+                ? { tables: wake.tables }
+                : {}),
+              label: wake.label,
+              schedulePublish: (run) => {
+                buildArgs.io.timers.setTimeout(run, 0);
+              },
+            });
+          },
+        });
+      } finally {
+        publishPeer.close();
+      }
     },
     setClockPaused: buildArgs.setClockPaused,
     isClockPaused: buildArgs.getClockPaused,

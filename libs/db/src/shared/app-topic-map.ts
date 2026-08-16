@@ -1,4 +1,5 @@
 import {
+  chessPuzzlesTopic,
   clientConfigTopic,
   roomTopic,
   userTopic,
@@ -140,6 +141,14 @@ export const appTopicMap = defineTopicMap({
   chess_puzzle_interactions: {
     topics(_row, ctx) {
       return [userTopic(ctx.actorId)];
+    },
+  },
+  chess_puzzles: {
+    topics() {
+      return [chessPuzzlesTopic()];
+    },
+    fallbackTopics() {
+      return [chessPuzzlesTopic()];
     },
   },
   client_config: {

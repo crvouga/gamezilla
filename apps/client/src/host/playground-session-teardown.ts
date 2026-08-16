@@ -113,6 +113,8 @@ async function destroyClientSql(
   live: PlaygroundClientLive
 ): Promise<void> {
   const dbAddress = `${live.address}.db`;
+  // Wipe resets in place (keeps handle identity for fault reuse). For remove we
+  // still need to drop the handle from the session map.
   await wipeClientSql(world, live);
   const orphan = clientSqlByAddress.get(dbAddress);
   if (orphan !== undefined) {
@@ -159,9 +161,13 @@ export async function removeClient(
 }
 
 /**
- * Snapshot restore: hide client UI, destroy SQL, then caller restores inside
- * `runQuiet`. Must not run inside `runQuiet` — quiet would suppress the empty
- * notify and leave SyncEngineBoot migrating DBs mid-teardown (xcolumns crash).
+ * Snapshot restore: hide client UI, reset SQL handles in place, then caller
+ * imports inside `runQuiet`. Reset (not destroy) keeps PlaygroundSqlHandle
+ * identity so handle-bound clients / DB-pane polls never hit a closed AlaSQL
+ * DB while React catches up to the empty-client notify.
+ *
+ * Must not run inside `runQuiet` — quiet would suppress the empty notify and
+ * leave SyncEngineBoot migrating DBs mid-teardown (xcolumns crash).
  */
 export async function detachClientsForSnapshotLoad(
   world: World,
@@ -175,7 +181,7 @@ export async function detachClientsForSnapshotLoad(
   maps.snapshotEpoch += 1;
   notify(maps);
   for (const live of lives) {
-    await disposeClientLive(world, clientSqlByAddress, live, 'destroy');
+    await disposeClientLive(world, clientSqlByAddress, live, 'reset');
   }
 }
 

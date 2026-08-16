@@ -56,10 +56,13 @@ function openAlaSqlHandle(logicalName: string): PlaygroundSqlHandle {
     },
     disconnect: () => live.disconnect(),
     reset: async () => {
-      await live.disconnect();
+      // Open the replacement first so handle-bound clients never observe a
+      // closed AlaSQL instance mid-reset (DB pane soft-poll / in-flight queries).
+      const prev = live;
       databaseName = uniqueAlaSqlName(logicalName);
       live = SqlClientImplAlaSql.open(databaseName);
       await live.connect();
+      await prev.disconnect();
     },
     exportBytes: async () => live.exportDatabaseBytes(),
     importBytes: async (bytes) => {
@@ -106,9 +109,10 @@ export function sessionOwnedSqlClient(sqlClient: SqlClient): SqlClient {
 }
 
 /**
- * Always forward to the handle's current AlaSQL client. Snapshot reload
- * {@link PlaygroundSqlHandle.reset}s in place — SyncEngines that captured a
- * raw AlaSQL instance see "database is closed"; handle-bound clients do not.
+ * Always forward to the handle's current AlaSQL client. Snapshot reload /
+ * fault wipe {@link PlaygroundSqlHandle.reset}s in place — SyncEngines or DB
+ * panes that captured a raw AlaSQL instance see "database is closed";
+ * handle-bound clients do not.
  */
 export function handleBoundSqlClient(handle: PlaygroundSqlHandle): SqlClient {
   return {
@@ -219,10 +223,12 @@ export function createPlaygroundProvide(
     },
     {
       async wipe(_instance, address) {
+        // Reset in place — same PlaygroundSqlHandle object. Snapshot detach and
+        // fault wipe must not drop the handle: handleBoundSqlClient + UI DB pane
+        // keep wrapping it across restore (disconnect+delete → "database is closed").
         const handle = handles.clientSqlByAddress.get(address);
         if (handle === undefined) return;
-        await handle.disconnect();
-        handles.clientSqlByAddress.delete(address);
+        await handle.reset();
       },
     }
   );

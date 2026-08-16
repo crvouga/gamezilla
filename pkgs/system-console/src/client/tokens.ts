@@ -63,29 +63,6 @@ export const testIdSx: SxProps = {
   color: 'tint',
 };
 
-export const thSx: SxProps = {
-  color: 'textSecondary',
-  fontWeight: '500',
-  textTransform: 'uppercase',
-  letterSpacing: 1,
-  fontSize: 10,
-};
-
-export const rowSx: SxProps = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  gap: 3,
-  borderBottomWidth: 1,
-  borderColor: 'border',
-};
-
-export const cellTextSx: SxProps = {
-  color: 'text',
-  fontSize: 12,
-};
-
 /** Map report / session status strings to Badge intent. */
 export function statusBadgeIntent(status: string): BadgeIntent {
   if (status === 'passed' || status === 'ready') return 'success';

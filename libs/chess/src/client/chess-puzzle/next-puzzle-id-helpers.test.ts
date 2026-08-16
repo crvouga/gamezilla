@@ -3,6 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   buildPuzzleCandidatesSql,
   buildPuzzleMatchedCountSql,
+  capPuzzleCandidateOffset,
   pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 
@@ -110,6 +111,18 @@ describe('buildPuzzleCandidatesSql', () => {
     expect(query.sql).not.toContain('rating >=');
     expect(query.sql).not.toContain('rating <=');
     expect(query.values).toEqual([50, 28]);
+  });
+});
+
+describe('capPuzzleCandidateOffset', () => {
+  test('clamps past end of small catalog', () => {
+    expect(capPuzzleCandidateOffset(71, 50)).toBe(0);
+    expect(capPuzzleCandidateOffset(10, 50)).toBe(0);
+  });
+
+  test('preserves offset when catalog is large enough', () => {
+    expect(capPuzzleCandidateOffset(71, 5000)).toBe(71);
+    expect(capPuzzleCandidateOffset(0, 5000)).toBe(0);
   });
 });
 

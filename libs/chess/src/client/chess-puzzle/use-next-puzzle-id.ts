@@ -13,6 +13,7 @@ import {
   PUZZLE_CANDIDATE_MAX_OFFSET,
   PUZZLE_NEXT_MAX_BAND,
   type PuzzleCandidateRow,
+  capPuzzleCandidateOffset,
   pickPuzzleIdFromPool,
 } from './next-puzzle-id-helpers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
@@ -108,22 +109,12 @@ function usePuzzleCandidateQueries(args: {
 
 type PuzzleCountRow = { readonly value: number };
 
-function useWaitingForLocalPuzzles(args: {
-  myId: string;
-  puzzleId: string | null;
-  noCandidates: boolean;
-}): boolean {
+function useLocalPuzzleTotal(): number {
   const { rows } = useQuery(sql<PuzzleCountRow>`
     SELECT COUNT(*) AS value
     FROM chess_puzzles
   `);
-  const localPuzzleTotal = rows[0]?.value;
-  return (
-    args.myId.length > 0 &&
-    args.puzzleId === null &&
-    (localPuzzleTotal ?? 0) === 0 &&
-    args.noCandidates
-  );
+  return Number(rows[0]?.value ?? 0);
 }
 
 export function useNextPuzzleId(args: {
@@ -141,7 +132,11 @@ export function useNextPuzzleId(args: {
   const myId = useMyId();
   const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
-  const pickOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
+  const localPuzzleTotal = useLocalPuzzleTotal();
+  const rawOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
+  // AlaSQL has no reliable CTE/OFFSET MIN — cap in JS so a 50-row fixture
+  // cannot OFFSET past the end of the table.
+  const pickOffset = capPuzzleCandidateOffset(rawOffset, localPuzzleTotal);
   const { banded, fallback } = usePuzzleCandidateQueries({
     rating,
     myId,
@@ -162,11 +157,11 @@ export function useNextPuzzleId(args: {
     [puzzleResult.rows, rating, seed]
   );
   const noCandidates = banded.rows.length === 0 && fallback.rows.length === 0;
-  const waitingForLocalPuzzles = useWaitingForLocalPuzzles({
-    myId,
-    puzzleId,
-    noCandidates,
-  });
+  const waitingForLocalPuzzles =
+    myId.length > 0 &&
+    puzzleId === null &&
+    localPuzzleTotal === 0 &&
+    noCandidates;
   const loading =
     computeNextPuzzleLoading({ myId, banded, fallback }) ||
     waitingForLocalPuzzles;

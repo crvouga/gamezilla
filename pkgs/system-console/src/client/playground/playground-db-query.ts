@@ -1,4 +1,4 @@
-import { ident, sql } from '@pkgs/sql';
+import { empty, ident, raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 
 export type SchemaRow = {
@@ -51,13 +51,10 @@ export async function loadPlaygroundTablePreview(
   tableName: string
 ): Promise<TablePreview> {
   try {
+    const columns = await loadColumnNames(sqlClient, tableName);
     const rows = await sqlClient.query<Record<string, unknown>>(
       sql`SELECT * FROM ${ident(tableName)} LIMIT 100`
     );
-    const columns =
-      rows.length > 0
-        ? Object.keys(rows[0] as Record<string, unknown>).sort()
-        : await loadColumnNames(sqlClient, tableName);
     return { columns, rows, error: null };
   } catch (err) {
     return {
@@ -68,7 +65,39 @@ export async function loadPlaygroundTablePreview(
   }
 }
 
-async function loadColumnNames(
+export type PlaygroundTablePageParams = {
+  readonly offset: number;
+  readonly limit: number;
+  readonly orderBy: string | null;
+  readonly orderDir: 'asc' | 'desc';
+};
+
+export type PlaygroundTablePage = {
+  readonly rows: readonly Record<string, unknown>[];
+  readonly totalCount: number;
+};
+
+/** Paged table read for DataTable `loadPage` (LIMIT/OFFSET + optional ORDER BY). */
+export async function loadPlaygroundTablePage(
+  sqlClient: SqlClient,
+  tableName: string,
+  params: PlaygroundTablePageParams
+): Promise<PlaygroundTablePage> {
+  const { offset, limit, orderBy, orderDir } = params;
+  const countRows = await sqlClient.query<{ count: number }>(
+    sql`SELECT COUNT(*) AS count FROM ${ident(tableName)}`
+  );
+  const totalCount = Number(countRows[0]?.count ?? 0);
+  const dir = orderDir === 'desc' ? raw('DESC') : raw('ASC');
+  const orderClause =
+    orderBy != null ? sql` ORDER BY ${ident(orderBy)} ${dir}` : empty;
+  const rows = await sqlClient.query<Record<string, unknown>>(
+    sql`SELECT * FROM ${ident(tableName)}${orderClause} LIMIT ${limit} OFFSET ${offset}`
+  );
+  return { rows, totalCount };
+}
+
+export async function loadColumnNames(
   sqlClient: SqlClient,
   tableName: string
 ): Promise<readonly string[]> {

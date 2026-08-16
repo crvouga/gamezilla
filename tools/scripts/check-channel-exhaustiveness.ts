@@ -10,9 +10,7 @@ import { APP_QUERIES } from '../../apps/api/src/sync/app-queries';
 const queries = Object.values(APP_QUERIES);
 
 try {
-  await assertChannelExhaustiveness(appTopicMap, queries, {
-    reconcileOnlyTables: new Set(['chess_puzzles']),
-  });
+  await assertChannelExhaustiveness(appTopicMap, queries);
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message);

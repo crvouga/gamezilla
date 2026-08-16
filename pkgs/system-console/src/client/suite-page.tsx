@@ -1,4 +1,14 @@
-import { Badge, Box, Pressable, ScrollView, Text } from '@pkgs/ui';
+import {
+  Badge,
+  Box,
+  createMemoryPageLoader,
+  DataTable,
+  type DataTableColumn,
+  type DataTableOrderDir,
+  ScrollView,
+  Text,
+} from '@pkgs/ui';
+import { useMemo } from 'react';
 
 import type { RunSummary, SuiteTestSummary } from '../types';
 import type { BucketInfo } from './api-client';
@@ -9,16 +19,68 @@ import type { ReportNavState } from './router';
 import {
   appBodyFrameSx,
   appShellSx,
-  cellTextSx,
-  emptySx,
-  rowSx,
   statusBadgeIntent,
   testIdSx,
-  thSx,
   useAppBodyContentSx,
 } from './tokens';
 
-const COLS = { test: 2, status: 1, duration: 1, steps: 1, frames: 1 } as const;
+function compareTests(
+  a: SuiteTestSummary,
+  b: SuiteTestSummary,
+  orderBy: string,
+  orderDir: DataTableOrderDir
+): number {
+  const dir = orderDir === 'asc' ? 1 : -1;
+  if (orderBy === 'duration') return (a.durationMs - b.durationMs) * dir;
+  if (orderBy === 'steps') return (a.stepCount - b.stepCount) * dir;
+  if (orderBy === 'frames') return (a.frameCount - b.frameCount) * dir;
+  if (orderBy === 'status') return a.status.localeCompare(b.status) * dir;
+  return a.testId.localeCompare(b.testId) * dir;
+}
+
+const TEST_COLUMNS: DataTableColumn<SuiteTestSummary>[] = [
+  {
+    id: 'test',
+    header: 'Test',
+    width: 200,
+    sortable: true,
+    cell: (tt) => <Text sx={testIdSx} label={tt.testId} />,
+  },
+  {
+    id: 'status',
+    header: 'Status',
+    width: 100,
+    sortable: true,
+    cell: (tt) => (
+      <Badge
+        label={tt.status.toUpperCase()}
+        intent={statusBadgeIntent(tt.status)}
+        size="sm"
+      />
+    ),
+  },
+  {
+    id: 'duration',
+    header: 'Duration',
+    width: 96,
+    sortable: true,
+    getValue: (tt) => formatMs(tt.durationMs),
+  },
+  {
+    id: 'steps',
+    header: 'Steps',
+    width: 72,
+    sortable: true,
+    getValue: (tt) => tt.stepCount,
+  },
+  {
+    id: 'frames',
+    header: 'Frames',
+    width: 72,
+    sortable: true,
+    getValue: (tt) => tt.frameCount,
+  },
+];
 
 export function SuitePage(props: {
   readonly nav: ReportNavState;
@@ -35,6 +97,11 @@ export function SuitePage(props: {
   const passed = tests.filter((tt) => tt.status === 'passed').length;
   const bodySx = useAppBodyContentSx();
 
+  const loadPage = useMemo(
+    () => createMemoryPageLoader(() => tests, compareTests),
+    [tests]
+  );
+
   return (
     <Box sx={appShellSx}>
       <ReportHeader
@@ -50,46 +117,19 @@ export function SuitePage(props: {
         meta={`${bucketId} · ${runId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
       />
       <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-        <ScrollView horizontal frameSx={{ alignSelf: 'stretch' }}>
-          <Box sx={{ minWidth: 560 }}>
-            <Box sx={rowSx}>
-              <Text sx={[thSx, { flex: COLS.test }]}>Test</Text>
-              <Text sx={[thSx, { flex: COLS.status }]}>Status</Text>
-              <Text sx={[thSx, { flex: COLS.duration }]}>Duration</Text>
-              <Text sx={[thSx, { flex: COLS.steps }]}>Steps</Text>
-              <Text sx={[thSx, { flex: COLS.frames }]}>Frames</Text>
-            </Box>
-            {tests.length === 0 ? (
-              <Text sx={emptySx}>No tests in this run yet.</Text>
-            ) : (
-              tests.map((tt) => (
-                <Pressable
-                  key={tt.testId}
-                  sx={rowSx}
-                  onPress={() => onOpenTest(tt.testId)}
-                >
-                  <Text sx={[testIdSx, { flex: COLS.test }]}>{tt.testId}</Text>
-                  <Box sx={{ flex: COLS.status }}>
-                    <Badge
-                      label={tt.status.toUpperCase()}
-                      intent={statusBadgeIntent(tt.status)}
-                      size="sm"
-                    />
-                  </Box>
-                  <Text sx={[cellTextSx, { flex: COLS.duration }]}>
-                    {formatMs(tt.durationMs)}
-                  </Text>
-                  <Text sx={[cellTextSx, { flex: COLS.steps }]}>
-                    {tt.stepCount}
-                  </Text>
-                  <Text sx={[cellTextSx, { flex: COLS.frames }]}>
-                    {tt.frameCount}
-                  </Text>
-                </Pressable>
-              ))
-            )}
-          </Box>
-        </ScrollView>
+        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
+          <DataTable
+            columns={TEST_COLUMNS}
+            loadPage={loadPage}
+            getRowId={(tt) => tt.testId}
+            sourceKey={`${bucketId}:${runId}`}
+            pageSize={50}
+            defaultOrderBy="test"
+            emptyTitle="No tests in this run yet"
+            density="compact"
+            onRowPress={(tt) => onOpenTest(tt.testId)}
+          />
+        </Box>
       </ScrollView>
     </Box>
   );
