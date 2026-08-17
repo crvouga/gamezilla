@@ -5,6 +5,10 @@ import { z } from 'zod';
 import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
 import { isAuthErrorBody } from './auth-error';
+import {
+  resolveRequestSql,
+  type SyncSqlVariables,
+} from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
@@ -50,8 +54,14 @@ export type MountQueryRoutesDeps = {
   readonly strictQueryLimits?: boolean;
 };
 
-export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
+export function mountQueryRoutes(
+  app: Hono<{ Variables: SyncSqlVariables }>,
+  deps: MountQueryRoutesDeps
+): void {
   app.post('/query', async (c) => {
+    // Capture before awaits — Hono vars are request-pinned; ALS getSql can race
+    // under stack ALS when concurrent requests overlap.
+    const db = resolveRequestSql(c, deps.getSql);
     const protocolErr = assertSyncProtocol(c.req.raw);
     if (protocolErr !== null) return c.json(protocolErr, 401);
     const auth = await deps.resolveAuth(c.req.raw);
@@ -63,7 +73,7 @@ export function mountQueryRoutes(app: Hono, deps: MountQueryRoutesDeps): void {
       return c.json({ status: 'denied' as const }, 400);
     }
     const runDeps: RunQueryDeps = {
-      db: deps.getSql(),
+      db,
       registry: deps.queries,
       auth: { ...auth, now: () => new Date(deps.now()) },
       nextCheckpoint: deps.nextCheckpoint,

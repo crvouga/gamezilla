@@ -22,12 +22,13 @@ import Stripe from 'stripe';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
-import { createInboxSubApp } from '../inbox/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
+import { createNotificationsSubApp } from '../notifications/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
 import { setApiPubSubOverride } from '../sync/api-pubsub';
 import { notifyUserChannels } from '../sync/notify-user-channels';
+import { drainAndNotifyOutbox } from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
 import type { ApiHonoEnv } from './api-hono-types';
@@ -301,6 +302,15 @@ function createApiRouter(args: {
           notifyUserChannels([userId], 'auth-domain-write'),
       })
     )
+    .use('*', async (c, next) => {
+      await next();
+      const path = new URL(c.req.url).pathname;
+      if (c.req.method !== 'POST' || !path.endsWith('/mutations')) return;
+      if (c.res.status < 200 || c.res.status >= 300) return;
+      const store = apiRequestAsyncLocalStorage.getStore();
+      if (store === undefined) return;
+      await drainAndNotifyOutbox({ db: store.sqlClient, io: store.io });
+    })
     .route('/', createSyncApp())
     .route('/', createPubSubTokenRoutes())
     .route('/', tts.app)
@@ -308,19 +318,22 @@ function createApiRouter(args: {
     .route('/', createStripeSubApp(stripe))
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())
-    .route('/inbox', createInboxSubApp());
+    .route('/notifications', createNotificationsSubApp());
 
   apiRouter.onError(createApiErrorHandler(log));
   return apiRouter;
 }
 
-function createConsoleRouter(config: ApiHandlerConfig) {
+async function createConsoleRouter(config: ApiHandlerConfig) {
   const reportConsole = createSystemConsoleApp({
     buckets: [
       {
         id: 'local',
         label: 'Local',
-        store: config.objectStore.withPrefix(ObjectStorePrefix.systemConsole),
+        // Mediated ObjectStore.withPrefix may return a Promise (DST scheduleCall).
+        store: await Promise.resolve(
+          config.objectStore.withPrefix(ObjectStorePrefix.systemConsole)
+        ),
       },
     ],
     timers: config.io.timers,
@@ -364,10 +377,12 @@ export async function createApiApp(config: ApiHandlerConfig) {
       : {}),
   });
 
+  const consoleRouter = await createConsoleRouter(config);
+
   return new Hono()
     .route(
       '/api',
       createApiRouter({ config, desiredClientConfig, stripe, tts, llm, log })
     )
-    .route('/system-console', createConsoleRouter(config));
+    .route('/system-console', consoleRouter);
 }

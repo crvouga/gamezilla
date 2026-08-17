@@ -1,8 +1,11 @@
-import { useLingui } from '@lingui/react/macro';
-import { inboxPath, useInboxUnreadCount } from '@pkgs/inbox/client';
 import {
+  notificationsPath,
+  useNotificationsUnreadCount,
+} from '@libs/notifications/client';
+import { useLingui } from '@lingui/react/macro';
+import {
+  Badge,
   BellIcon,
-  Box,
   RegisterStatusBarItem,
   useRouter,
   useStatusBar,
@@ -10,26 +13,24 @@ import {
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
-function NotificationsIndicator({ unread }: { unread: number }): ReactNode {
+function NotificationsIndicator({
+  unread,
+}: {
+  readonly unread: number;
+}): ReactNode {
   const theme = useTheme();
-  return (
-    <Box sx={{ position: 'relative' }}>
-      <BellIcon size={12} color={theme.colors.textSecondary} />
-      {unread > 0 ? (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: -4,
-            right: -6,
-            width: 6,
-            height: 6,
-            borderRadius: 999,
-            background: 'destructive',
-          }}
-        />
-      ) : null}
-    </Box>
-  );
+  if (unread > 0) {
+    return (
+      <Badge
+        label={unread > 99 ? '99+' : String(unread)}
+        intent="brand"
+        tone="solid"
+        ping
+        size="sm"
+      />
+    );
+  }
+  return <BellIcon size={12} color={theme.colors.textSecondary} />;
 }
 
 /**
@@ -38,13 +39,13 @@ function NotificationsIndicator({ unread }: { unread: number }): ReactNode {
 export function NotificationsStatusBarItem(): ReactNode {
   const { t } = useLingui();
   const router = useRouter();
-  const unread = useInboxUnreadCount();
+  const unread = useNotificationsUnreadCount();
   const { close } = useStatusBar();
   const caption =
     unread === 0 ? t`None` : unread === 1 ? t`1 unread` : t`${unread} unread`;
   const onPress = useCallback(() => {
     close();
-    router.push(inboxPath());
+    router.push(notificationsPath());
   }, [close, router]);
 
   return (

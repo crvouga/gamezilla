@@ -1,3 +1,4 @@
+import { Outbox } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import {
   defineMutation,
@@ -8,6 +9,11 @@ import {
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../canonical-pair';
+import {
+  FriendRequestAccepted,
+  FriendRequestClosed,
+  FriendRequestSent,
+} from '../friends-outbox-messages';
 import { FriendshipRepository } from '../friends-sql/friendship-repository';
 import { UserBlockRepository } from '../friends-sql/user-block-repository';
 import { pairId } from '../pair-id';
@@ -147,12 +153,24 @@ async function acceptRequestsBetween(
   `);
 }
 
-async function cancelPendingRequests(
-  tx: MutationDb,
-  actor: string,
-  other: string,
-  now: string
-): Promise<void> {
+async function cancelPendingRequests(args: {
+  readonly tx: MutationDb;
+  readonly env: MutationEnv;
+  readonly actor: string;
+  readonly other: string;
+  readonly now: string;
+}): Promise<void> {
+  const { tx, env, actor, other, now } = args;
+  const pending = await tx.query(
+    sql<{ readonly id: string; readonly to_user_id: string }>`
+    SELECT id, to_user_id FROM friends_requests
+    WHERE status = 'pending'
+      AND (
+        (from_user_id = ${actor} AND to_user_id = ${other})
+        OR (from_user_id = ${other} AND to_user_id = ${actor})
+      )
+  `
+  );
   await tx.run(sql`
     UPDATE friends_requests
     SET status = 'cancelled', updated_at = ${now}, responded_at = ${now}
@@ -162,6 +180,16 @@ async function cancelPendingRequests(
         OR (from_user_id = ${other} AND to_user_id = ${actor})
       )
   `);
+  const outbox = new Outbox({ tx, env });
+  for (const row of pending) {
+    await outbox.send({
+      id: `friends.outbox/request-closed:${row.id}`,
+      message: FriendRequestClosed({
+        requestId: row.id,
+        toUserId: row.to_user_id,
+      }),
+    });
+  }
 }
 
 async function hasPendingRequest(
@@ -241,8 +269,9 @@ export const sendFriendRequestMutation = defineMutation({
   async run({ tx, env }, { requestId, toUserId, message }) {
     const fromUserId = otherUserId(env, toUserId, 'send a friend request to');
     const nowDate = env.now();
-    if (!(await validateSendFriendRequest(tx, fromUserId, toUserId, nowDate)))
+    if (!(await validateSendFriendRequest(tx, fromUserId, toUserId, nowDate))) {
       return;
+    }
     const now = nowDate.toISOString();
     await tx.run(sql`
       INSERT INTO friends_requests (
@@ -253,6 +282,14 @@ export const sendFriendRequestMutation = defineMutation({
       )
       ON CONFLICT (id) DO NOTHING
     `);
+    await new Outbox({ tx, env }).send({
+      id: `friends.outbox/request-sent:${requestId}`,
+      message: FriendRequestSent({
+        requestId,
+        fromUserId,
+        toUserId,
+      }),
+    });
   },
 });
 
@@ -299,6 +336,14 @@ export const acceptFriendRequestMutation = defineMutation({
         created_at = excluded.created_at,
         source_request_id = excluded.source_request_id
     `);
+    await new Outbox({ tx, env }).send({
+      id: `friends.outbox/request-accepted:${requestId}`,
+      message: FriendRequestAccepted({
+        requestId,
+        fromUserId: request.from_user_id,
+        toUserId: request.to_user_id,
+      }),
+    });
   },
 });
 
@@ -319,6 +364,13 @@ export const declineFriendRequestMutation = defineMutation({
         'declined',
         env.now().toISOString()
       );
+      await new Outbox({ tx, env }).send({
+        id: `friends.outbox/request-closed:${requestId}`,
+        message: FriendRequestClosed({
+          requestId,
+          toUserId: request.to_user_id,
+        }),
+      });
     }
   },
 });
@@ -340,6 +392,13 @@ export const cancelFriendRequestMutation = defineMutation({
         'cancelled',
         env.now().toISOString()
       );
+      await new Outbox({ tx, env }).send({
+        id: `friends.outbox/request-closed:${requestId}`,
+        message: FriendRequestClosed({
+          requestId,
+          toUserId: request.to_user_id,
+        }),
+      });
     }
   },
 });
@@ -367,7 +426,7 @@ export const blockUserMutation = defineMutation({
     const actor = otherUserId(env, userId, 'block');
     const now = env.now().toISOString();
     await new FriendshipRepository(tx).softDelete(actor, userId, now);
-    await cancelPendingRequests(tx, actor, userId, now);
+    await cancelPendingRequests({ tx, env, actor, other: userId, now });
     await tx.run(sql`
       INSERT INTO friends_blocks (id, blocker_id, blocked_id, created_at, deleted_at)
       VALUES (${blockId}, ${actor}, ${userId}, ${now}, ${null})

@@ -305,6 +305,11 @@ export {
   usePullToRefresh,
   useResolvedRefreshControl,
 } from './pull-to-refresh';
+export {
+  RelativeTime,
+  type RelativeTimeProps,
+  useRelativeTimeLabel,
+} from './relative-time';
 export * from './responsive-surface';
 export { SafeAreaView, type SafeAreaViewProps } from './safe-area-view';
 export * from './screen-base';

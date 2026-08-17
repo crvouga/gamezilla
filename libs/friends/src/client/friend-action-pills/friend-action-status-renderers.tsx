@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import type { useLingui } from '@lingui/react/macro';
 import { Trans } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
@@ -45,12 +46,16 @@ function renderBlockedByMe(
 
 function renderPendingIncoming(
   wrap: WrapMutation,
-  mutations: FriendActionMutations
+  mutations: FriendActionMutations,
+  username: string | undefined
 ): ReactNode {
   return (
     <ConfirmDeletePills
       onConfirm={wrap(mutations.confirmRequest)}
       onDelete={wrap(mutations.deleteRequest)}
+      {...(username !== undefined && username.length > 0
+        ? { confirmTestID: Handles.friendConfirm(username) }
+        : {})}
     />
   );
 }
@@ -72,7 +77,7 @@ function renderPendingOutgoing(
   );
 }
 
-function renderFriends(t: LinguiT): ReactNode {
+function renderFriends(t: LinguiT, username: string | undefined): ReactNode {
   return (
     <SingleActionPill
       operation={async () => {}}
@@ -82,6 +87,9 @@ function renderFriends(t: LinguiT): ReactNode {
       error={t`Friends`}
       variant="outline"
       disabled
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendStatusFriends(username) }
+        : {})}
     />
   );
 }
@@ -89,7 +97,8 @@ function renderFriends(t: LinguiT): ReactNode {
 function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT
+  t: LinguiT,
+  username: string | undefined
 ): ReactNode {
   return (
     <SingleActionPill
@@ -102,28 +111,38 @@ function renderNone(
         success: Sounds.social.friendRequestReceived,
         error: Sounds.feedback.error,
       }}
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendAdd(username) }
+        : {})}
     />
   );
 }
 
-export function renderFriendActionPillsForStatus(
-  status: FriendshipStatus,
-  mutations: FriendActionMutations,
-  wrap: WrapMutation,
-  t: LinguiT
-): ReactNode {
+export function renderFriendActionPillsForStatus({
+  status,
+  mutations,
+  wrap,
+  t,
+  username,
+}: {
+  status: FriendshipStatus;
+  mutations: FriendActionMutations;
+  wrap: WrapMutation;
+  t: LinguiT;
+  username?: string | undefined;
+}): ReactNode {
   switch (status) {
     case 'blocked_by_them':
       return renderBlockedByThem(t);
     case 'blocked_by_me':
       return renderBlockedByMe(wrap, mutations, t);
     case 'pending_incoming':
-      return renderPendingIncoming(wrap, mutations);
+      return renderPendingIncoming(wrap, mutations, username);
     case 'pending_outgoing':
       return renderPendingOutgoing(wrap, mutations, t);
     case 'friends':
-      return renderFriends(t);
+      return renderFriends(t, username);
     default:
-      return renderNone(wrap, mutations, t);
+      return renderNone(wrap, mutations, t, username);
   }
 }

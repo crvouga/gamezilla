@@ -159,7 +159,7 @@ export const appTopicMap = defineTopicMap({
       return [clientConfigTopic()];
     },
   },
-  inbox_interactions: {
+  notifications: {
     topics(row, ctx) {
       const uid = String(row['user_id'] ?? ctx.actorId);
       return [userTopic(uid)];

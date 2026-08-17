@@ -209,7 +209,7 @@
         "libs/search/**/*.{ts,tsx}",
         "libs/user-search/**/*.{ts,tsx}",
         "libs/client-config/**/*.{ts,tsx}",
-        "pkgs/inbox/**/*.{ts,tsx}",
+        "libs/notifications/**/*.{ts,tsx}",
         "pkgs/tts/**/*.{ts,tsx}",
         "pkgs/llm/**/*.{ts,tsx}",
         "!**/*.{test,spec}.{ts,tsx}",
@@ -230,7 +230,7 @@
         "libs/search/**/*.{ts,tsx}",
         "libs/user-search/**/*.{ts,tsx}",
         "libs/client-config/**/*.{ts,tsx}",
-        "pkgs/inbox/**/*.{ts,tsx}",
+        "libs/notifications/**/*.{ts,tsx}",
         "pkgs/tts/**/*.{ts,tsx}",
         "pkgs/llm/**/*.{ts,tsx}",
         "!**/*.{test,spec}.{ts,tsx}",
@@ -245,7 +245,7 @@
     },
     {
       "path": "./tools/biome-plugins/no-export-star.grit",
-      "includes": ["pkgs/inbox/**/*.{ts,tsx}"]
+      "includes": ["libs/notifications/**/*.{ts,tsx}"]
     },
     {
       "path": "./tools/biome-plugins/lingui-no-trans-inside-trans.grit",

@@ -174,6 +174,15 @@ export const claimUsernameMutation = defineMutation({
     const username = normalizeUsername(rawUsername).toLowerCase();
     const validationError = validateUsername(username);
     if (validationError !== null) usernameFailure(validationError);
+    const now = env.now().toISOString();
+    // Claim may upload before ensureProfile; seed so server replay is not a
+    // no-op / PROFILE_NOT_FOUND when the row is missing.
+    await seedProfile(
+      tx,
+      env.actorId,
+      now,
+      serializeDefaultAvatarConfig(env.actorId)
+    );
     const row = await getUsernameRow(tx, env.actorId);
     if (row.username === username) return;
     if (!canChangeUsername(row.username_changed_at, env.now().getTime())) {
@@ -197,7 +206,7 @@ export const claimUsernameMutation = defineMutation({
       UPDATE profile
       SET username = ${username},
           username_norm = ${username},
-          username_changed_at = ${env.now().toISOString()}
+          username_changed_at = ${now}
       WHERE id = ${env.actorId}
     `);
   },

@@ -17,6 +17,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/dst-handles": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",

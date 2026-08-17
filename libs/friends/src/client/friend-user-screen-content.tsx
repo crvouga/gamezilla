@@ -40,6 +40,7 @@ export function FriendUserScreenContent({
       <Box sx={{ alignSelf: 'stretch' }}>
         <FriendActionPills
           userId={userId}
+          username={profile.username}
           status={status}
           incomingRequestId={incomingRequestId}
           outgoingRequestId={outgoingRequestId}

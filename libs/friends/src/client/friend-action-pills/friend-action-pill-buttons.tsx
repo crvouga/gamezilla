@@ -6,9 +6,11 @@ import type { ReactNode } from 'react';
 export function ConfirmDeletePills({
   onConfirm,
   onDelete,
+  confirmTestID,
 }: {
   onConfirm: () => Promise<void>;
   onDelete: () => Promise<void>;
+  confirmTestID?: string;
 }): ReactNode {
   const { t } = useLingui();
   const confirm = useMutationButton({
@@ -34,7 +36,11 @@ export function ConfirmDeletePills({
   return (
     <Box sx={{ flexDirection: 'row', gap: 2, alignSelf: 'stretch' }}>
       <Box sx={{ flex: 1 }}>
-        <Button variant="solid" {...confirm.buttonProps} />
+        <Button
+          variant="solid"
+          {...confirm.buttonProps}
+          {...(confirmTestID !== undefined ? { testID: confirmTestID } : {})}
+        />
       </Box>
       <Box sx={{ flex: 1 }}>
         <Button variant="outline" {...del.buttonProps} />
@@ -52,6 +58,7 @@ export function SingleActionPill({
   variant = 'solid',
   disabled = false,
   sounds,
+  testID,
 }: {
   operation: () => Promise<void>;
   idle: ReactNode;
@@ -61,6 +68,7 @@ export function SingleActionPill({
   variant?: 'solid' | 'outline';
   disabled?: boolean;
   sounds?: { success?: SoundId; error?: SoundId };
+  testID?: string;
 }): ReactNode {
   const mutation = useMutationButton({
     operation,
@@ -69,5 +77,11 @@ export function SingleActionPill({
     disabled,
     sounds,
   });
-  return <Button variant={variant} {...mutation.buttonProps} />;
+  return (
+    <Button
+      variant={variant}
+      {...mutation.buttonProps}
+      {...(testID !== undefined ? { testID } : {})}
+    />
+  );
 }

@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import { ReactScanDev } from '../dev/react-scan-dev';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppGamesProvider } from './app-games-provider';
-import { AppInboxProvider } from './app-inbox-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
+import { AppNotificationsProvider } from './app-notifications-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppSpaceRoomsProvider } from './app-space-rooms-provider';
@@ -40,7 +40,7 @@ const appProviders = [
   AppGamesProvider,
   AppSpaceRoomsProvider,
   AppUiProvider,
-  AppInboxProvider,
+  AppNotificationsProvider,
   AppStatusBarRegistry,
 ];
 const USE_REACT_SCAN_DEV = false;

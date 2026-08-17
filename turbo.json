@@ -461,7 +461,7 @@
       "inputs": [
         "apps/**/*.{ts,tsx}",
         "libs/**/*.{ts,tsx}",
-        "pkgs/inbox/**/*.{ts,tsx}",
+        "libs/notifications/**/*.{ts,tsx}",
         "tools/scripts/check-sync-engine-framework-leak.ts"
       ],
       "outputs": [],

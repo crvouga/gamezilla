@@ -18,7 +18,7 @@ authoritative contract map + redesign target. Runtime docs stay in
 
 ### Code API (four entrypoints)
 
-Coordinated monorepo refactors OK. Evidence: apps/client, apps/api, libs/\*, pkgs/inbox.
+Coordinated monorepo refactors OK. Evidence: apps/client, apps/api, libs/\*, libs/notifications.
 
 **client:** `createLocalSyncEngine`, pool, HTTP client, providers/hooks (`useSyncEngine`, `useQuery`, `useMutationClient`, paint gate), `SyncEngine` (+ `mutationOutcome` / `listRejections` / `pendingMutationCount`), status types, lifecycle **types**, upload/query port type aliases.
 

@@ -22,7 +22,16 @@ function assertSearchRateLimit(userId: string, now: () => number): void {
   const nowMs = now();
   const windowStart = nowMs - USER_SEARCH_RATE_WINDOW_MS;
   const prior = searchTimestamps.get(userId) ?? [];
-  const recent = prior.filter((ts) => ts >= windowStart);
+  let recent = prior.filter((ts) => ts >= windowStart);
+  // Frozen sim clocks keep every stamp equal to `nowMs`, which would lock the
+  // window forever after RATE_LIMIT hits. Reset the bucket in that case so DST
+  // / paused-clock hosts can keep searching.
+  if (
+    recent.length >= USER_SEARCH_RATE_LIMIT &&
+    recent.every((ts) => ts === nowMs)
+  ) {
+    recent = [];
+  }
   if (recent.length >= USER_SEARCH_RATE_LIMIT) {
     throw new FriendsError('FRIENDS_SEARCH_RATE_LIMIT', 'Too many searches');
   }

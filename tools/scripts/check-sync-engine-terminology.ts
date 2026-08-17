@@ -12,7 +12,7 @@ const root = join(import.meta.dirname, '../..');
 
 const SCAN_GLOBS = [
   'pkgs/sync-engine/**/*.{ts,tsx,md}',
-  'pkgs/inbox/src/**/*.{ts,tsx}',
+  'libs/notifications/src/**/*.{ts,tsx}',
   'pkgs/pubsub/README.md',
   'apps/client/src/sync/**/*.{ts,tsx}',
   'apps/api/src/sync/**/*.{ts,tsx}',

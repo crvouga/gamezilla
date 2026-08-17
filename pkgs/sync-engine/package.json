@@ -22,6 +22,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

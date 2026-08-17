@@ -24,6 +24,10 @@ import type { WriteCaptureSnapshot } from '../sql-ast';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { publishPushMessages } from './notify-channels';
+import {
+  resolveRequestSql,
+  type SyncSqlVariables,
+} from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
@@ -152,9 +156,9 @@ type PreparedMutationNotify = {
 async function prepareMutationNotify(
   deps: MountMutationsRouteDeps,
   auth: SyncAppAuth,
-  mutationRows: MutationRow[]
+  mutationRows: MutationRow[],
+  db: SqlClient
 ): Promise<PreparedMutationNotify> {
-  const db = deps.getSql();
   return db.transaction(async (tx) => {
     await acquireLock(tx, auth.actorId);
     const nested = asNestedTxClient(tx);
@@ -247,10 +251,11 @@ export type MountMutationsRouteDeps = {
 };
 
 export function mountMutationsRoute(
-  app: Hono,
+  app: Hono<{ Variables: SyncSqlVariables }>,
   deps: MountMutationsRouteDeps
 ): void {
   app.post('/mutations', async (c) => {
+    const db = resolveRequestSql(c, deps.getSql);
     const protocolErr = assertSyncProtocol(c.req.raw);
     if (protocolErr !== null) return c.json(protocolErr, 401);
     const auth = await deps.resolveAuth(c.req.raw);
@@ -272,7 +277,7 @@ export function mountMutationsRoute(
       seq: m.seq,
       createdAt: m.createdAt,
     }));
-    const prepared = await prepareMutationNotify(deps, auth, mutationRows);
+    const prepared = await prepareMutationNotify(deps, auth, mutationRows, db);
     const { result, checkpoints } = prepared;
     if (deps.pubsub !== undefined && result.applied.length > 0) {
       publishMutationPushes(deps, prepared);

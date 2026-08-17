@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Box, Pressable, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
@@ -8,6 +9,8 @@ export type FriendUserRowProps = {
   readonly profile: FriendProfile;
   readonly onPress?: (() => void) | undefined;
   readonly trailing?: ReactNode;
+  /** When true, sets the friends-list DST handle from `profile.username`. */
+  readonly friendsListHandle?: boolean;
 };
 
 function usernameLabel(profile: FriendProfile): string {
@@ -19,8 +22,13 @@ export function FriendUserRow({
   profile,
   onPress,
   trailing,
+  friendsListHandle = false,
 }: FriendUserRowProps): ReactNode {
   const title = usernameLabel(profile);
+  const rowTestID =
+    friendsListHandle && profile.username.length > 0
+      ? Handles.friendsListRow(profile.username)
+      : undefined;
 
   const body = (
     <Box
@@ -39,6 +47,16 @@ export function FriendUserRow({
     </Box>
   );
 
-  if (onPress === undefined) return body;
-  return <Pressable onPress={onPress}>{body}</Pressable>;
+  if (onPress === undefined) {
+    if (rowTestID === undefined) return body;
+    return <Box testID={rowTestID}>{body}</Box>;
+  }
+  return (
+    <Pressable
+      onPress={onPress}
+      {...(rowTestID !== undefined ? { testID: rowTestID } : {})}
+    >
+      {body}
+    </Pressable>
+  );
 }

@@ -30,6 +30,17 @@ export default function BadgeExample() {
             <Badge label="New" intent="success" />
             <Badge label="Updated" intent="info" />
           </Stack>
+
+          <Text
+            variant="label"
+            sx={{ color: 'textSecondary' }}
+            label="Notification count (brand solid + ping)"
+          />
+          <Stack direction="horizontal" spacing={2} align="center">
+            <Badge label="1" intent="brand" tone="solid" ping size="sm" />
+            <Badge label="12" intent="brand" tone="solid" ping size="sm" />
+            <Badge label="99+" intent="brand" tone="solid" ping size="sm" />
+          </Stack>
         </Stack>
       </SchemePreview>
     </ExampleRoot>

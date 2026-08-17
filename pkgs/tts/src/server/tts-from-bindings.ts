@@ -56,7 +56,11 @@ export async function createTtsAppFromBindings(
     configured: true,
     app: createTtsApp({
       provider,
-      objectStore: options.objectStore.withPrefix(ObjectStorePrefix.ttsAudio),
+      // World-mediated stores wrap methods in async scheduleCall, so withPrefix
+      // may return Promise<ObjectStore>. Promise.resolve is a no-op for sync stores.
+      objectStore: await Promise.resolve(
+        options.objectStore.withPrefix(ObjectStorePrefix.ttsAudio)
+      ),
       requireAuth: options.requireAuth,
       ...(options.publicPathPrefix !== undefined
         ? { publicPathPrefix: options.publicPathPrefix }

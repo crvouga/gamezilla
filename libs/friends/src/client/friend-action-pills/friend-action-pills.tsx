@@ -59,6 +59,7 @@ export function FriendActionPills({
       status={ctx.status}
       mutations={mutations}
       onChanged={onChanged}
+      {...(ctx.username !== undefined ? { username: ctx.username } : {})}
     />
   );
 }

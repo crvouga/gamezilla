@@ -32,6 +32,7 @@ export function SearchUserResultRow({
         <Box sx={{ flexShrink: 1, minWidth: 0 }}>
           <FriendActionPills
             userId={user.userId}
+            username={user.username}
             status={status}
             incomingRequestId={requestIds.incomingRequestId}
             outgoingRequestId={requestIds.outgoingRequestId}

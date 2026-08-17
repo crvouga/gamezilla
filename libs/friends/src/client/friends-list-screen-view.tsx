@@ -66,6 +66,7 @@ function FriendsListBody(): ReactNode {
               <FriendUserRow
                 profile={item}
                 onPress={() => openUser(item)}
+                friendsListHandle
                 trailing={<FriendLiveSpaceBadge hostAccountId={item.userId} />}
               />
             )}

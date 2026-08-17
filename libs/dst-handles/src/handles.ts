@@ -8,6 +8,8 @@ export const Handles = {
   statusCurrentUser: 'status-current-user',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
+  tabSearch: 'tab-search',
+  tabNotifications: 'tab-notifications',
 
   // account
   accountSignIn: 'account-sign-in',
@@ -40,6 +42,30 @@ export const Handles = {
   profileAvatarStyle: 'profile-avatar-style',
   profileAvatarStyleBottts: 'profile-avatar-style-bottts',
   profileAvatarTrait: 'profile-avatar-trait',
+  profileFriendsStats: 'profile-friends-stats',
+
+  // search
+  searchInput: 'search-input',
+
+  /** Add Friend pill scoped by peer username (search / friend-user). */
+  friendAdd: (username: string) => `friend-add-${username}`,
+  /** Confirm (accept incoming request) pill scoped by peer username. */
+  friendConfirm: (username: string) => `friend-confirm-${username}`,
+  /** Disabled Friends status pill scoped by peer username. */
+  friendStatusFriends: (username: string) =>
+    `friend-status-friends-${username}`,
+  /** Friends list row scoped by friend username. */
+  friendsListRow: (username: string) => `friends-list-row-${username}`,
+  /** Notifications friend-request summary card (fromUsername). */
+  notificationsFriendRequestCard: (fromUsername: string) =>
+    `notifications-friend-request-card-${fromUsername}`,
+  /** Notifications Accept for an incoming friend-request modal (fromUsername). */
+  notificationsFriendRequestAccept: (fromUsername: string) =>
+    `notifications-friend-request-accept-${fromUsername}`,
 } as const;
 
-export type Handle = (typeof Handles)[keyof typeof Handles];
+export type Handle = {
+  [K in keyof typeof Handles]: (typeof Handles)[K] extends string
+    ? (typeof Handles)[K]
+    : never;
+}[keyof typeof Handles];

@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { AsyncLocalStorage as NodeAsyncLocalStorage } from 'node:async_hooks';
 
-import { AsyncLocalStorage } from './async-local-storage';
+import {
+  AsyncLocalStorage,
+  resetAsyncLocalNativeCtorCacheForTests,
+} from './async-local-storage';
+import { StackAsyncLocalStorage } from './stack-async-local-storage';
 
 describe('AsyncLocalStorage', () => {
   test('getStore is undefined outside run', () => {
@@ -30,5 +35,63 @@ describe('AsyncLocalStorage', () => {
     });
     expect(await done).toBe('ok');
     expect(als.getStore()).toBeUndefined();
+  });
+
+  test('native ALS isolates overlapping concurrent runs after install', async () => {
+    const g = globalThis as typeof globalThis & {
+      AsyncLocalStorage?: typeof NodeAsyncLocalStorage;
+    };
+    const previous = g.AsyncLocalStorage;
+    g.AsyncLocalStorage = NodeAsyncLocalStorage;
+    resetAsyncLocalNativeCtorCacheForTests();
+    try {
+      const als = new AsyncLocalStorage<string>();
+      const gate = Promise.withResolvers<void>();
+      const seen: string[] = [];
+
+      const a = als.run('A', async () => {
+        await gate.promise;
+        seen.push(als.getStore() ?? 'missing');
+      });
+      const b = als.run('B', async () => {
+        seen.push(als.getStore() ?? 'missing');
+        gate.resolve();
+        await Promise.resolve();
+        seen.push(als.getStore() ?? 'missing');
+      });
+      await Promise.all([a, b]);
+      expect(seen).toEqual(['B', 'A', 'B']);
+    } finally {
+      if (previous === undefined) {
+        Reflect.deleteProperty(g, 'AsyncLocalStorage');
+      } else {
+        g.AsyncLocalStorage = previous;
+      }
+      resetAsyncLocalNativeCtorCacheForTests();
+    }
+  });
+});
+
+describe('StackAsyncLocalStorage', () => {
+  test('overlapping concurrent runs share one mutable store', async () => {
+    const als = new StackAsyncLocalStorage<string>();
+    const gate = Promise.withResolvers<void>();
+    const seen: string[] = [];
+
+    const a = als.run('A', async () => {
+      await gate.promise;
+      seen.push(als.getStore() ?? 'missing');
+    });
+    const b = als.run('B', async () => {
+      seen.push(als.getStore() ?? 'missing');
+      gate.resolve();
+      await Promise.resolve();
+      seen.push(als.getStore() ?? 'missing');
+    });
+    await Promise.all([a, b]);
+    // Documents why Worker entry must install native ALS: A observes B.
+    expect(seen[0]).toBe('B');
+    expect(seen[1]).toBe('B');
+    expect(seen[2]).toBe('B');
   });
 });

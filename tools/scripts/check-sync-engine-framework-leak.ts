@@ -17,7 +17,7 @@ const FORBIDDEN_RE =
 const SCAN_GLOBS = [
   'apps/**/*.{ts,tsx}',
   'libs/**/*.{ts,tsx}',
-  'pkgs/inbox/**/*.{ts,tsx}',
+  'libs/notifications/**/*.{ts,tsx}',
   'tools/**/*.{ts,tsx}',
 ] as const;
 

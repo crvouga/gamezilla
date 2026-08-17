@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import {
   UserSearchQueryHint,
   UserSearchSignInPrompt,
@@ -42,6 +43,7 @@ function SearchScreenBody(): ReactNode {
         autoCapitalize="none"
         autoCorrect={false}
         autoFocus
+        testID={Handles.searchInput}
       />
       {showRecent ? (
         <SearchRecentQueries

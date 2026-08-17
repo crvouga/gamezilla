@@ -17,6 +17,13 @@ import { injectManagedColumns } from './inject-managed-columns';
 
 const FRAMEWORK_TABLE_SET: ReadonlySet<string> = new Set(FRAMEWORK_TABLE_NAMES);
 
+/** Non-domain tables writable from mutations that must not get managed columns. */
+const NON_DOMAIN_WRITE_TABLES: ReadonlySet<string> = new Set([
+  ...FRAMEWORK_TABLE_NAMES,
+  'outbox_events',
+  'outbox_deliveries',
+]);
+
 export type WrappedMutationDb = {
   readonly tx: MutationDb;
   readonly getCapture: () => WriteCaptureSnapshot;
@@ -46,7 +53,7 @@ export function wrapMutationDb(
     op: 'insert' | 'upsert' | 'update'
   ): Promise<void> {
     capture.touch(table);
-    const injected = FRAMEWORK_TABLE_SET.has(table)
+    const injected = NON_DOMAIN_WRITE_TABLES.has(table)
       ? query
       : injectManagedColumns(query, env, op);
     const returning = withReturning(injected);

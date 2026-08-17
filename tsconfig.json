@@ -68,11 +68,15 @@
         "./pkgs/postgres-sqlite-compat/src/index.ts"
       ],
       "@pkgs/postgres-sqlite-compat/*": ["./pkgs/postgres-sqlite-compat/src/*"],
-      "@pkgs/inbox": ["./pkgs/inbox/src/index.ts"],
-      "@pkgs/inbox/client": ["./pkgs/inbox/src/client/index.ts"],
-      "@pkgs/inbox/server/publish": ["./pkgs/inbox/src/server/publish.ts"],
-      "@pkgs/inbox/server/action-registry": [
-        "./pkgs/inbox/src/server/action-registry.ts"
+      "@libs/notifications": ["./libs/notifications/src/index.ts"],
+      "@libs/notifications/client": [
+        "./libs/notifications/src/client/index.ts"
+      ],
+      "@libs/notifications/server/publish": [
+        "./libs/notifications/src/server/publish.ts"
+      ],
+      "@libs/notifications/server/action-registry": [
+        "./libs/notifications/src/server/action-registry.ts"
       ],
       "@libs/games/*": ["./libs/games/src/*"],
       "@libs/infra/namespace-bindings": [
@@ -148,6 +152,8 @@
       "@pkgs/attribute/*": ["./pkgs/attribute/src/*"],
       "@pkgs/message": ["./pkgs/message/src/index.ts"],
       "@pkgs/message/*": ["./pkgs/message/src/*"],
+      "@pkgs/outbox": ["./pkgs/outbox/src/index.ts"],
+      "@pkgs/outbox/*": ["./pkgs/outbox/src/*"],
       "@pkgs/sql-client/*": ["./pkgs/sql-client/src/*"],
       "@pkgs/sql-cli/*": ["./pkgs/sql-cli/src/*"],
       "@pkgs/kv/*": ["./pkgs/kv/src/*"],
@@ -222,9 +228,9 @@
     "libs/db/src/**/*.ts",
     "pkgs/matchmaking/src/**/*.ts",
     "pkgs/postgres-sqlite-compat/src/**/*.ts",
-    "pkgs/inbox/src/**/*.ts",
-    "pkgs/inbox/src/**/*.tsx",
-    "pkgs/inbox/sync/**/*.ts",
+    "libs/notifications/src/**/*.ts",
+    "libs/notifications/src/**/*.tsx",
+    "libs/notifications/sync/**/*.ts",
     "libs/games/src/**/*.ts",
     "libs/games/src/**/*.tsx",
     "pkgs/assistant/src/**/*.ts",
@@ -278,6 +284,7 @@
     "pkgs/task-dag/src/**/*.ts",
     "pkgs/attribute/src/**/*.ts",
     "pkgs/message/src/**/*.ts",
+    "pkgs/outbox/src/**/*.ts",
     "pkgs/sql-client/src/**/*.ts",
     "pkgs/sql-client/src/**/*.tsx",
     "pkgs/sql-client/src/**/*.d.ts",

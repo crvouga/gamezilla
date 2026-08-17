@@ -4,6 +4,8 @@ import type { FriendshipStatus } from '../../shared/friends-types';
 
 export type FriendActionPillsProps = {
   readonly userId: string;
+  /** Peer username for DST Handles on action pills (optional). */
+  readonly username?: string | undefined;
   readonly status: FriendshipStatus;
   readonly incomingRequestId: string | null;
   readonly outgoingRequestId: string | null;

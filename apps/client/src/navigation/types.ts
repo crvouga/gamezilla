@@ -26,7 +26,7 @@ export type RootStackParamList = {
 export type TabsParamList = {
   Spaces: undefined;
   Search: undefined;
-  Inbox: undefined;
+  Notifications: undefined;
   ProfileTab: undefined;
 };
 
@@ -39,7 +39,7 @@ export const appLinking: LinkingOptions<RootStackParamList> = {
         screens: {
           Spaces: '',
           Search: 'search',
-          Inbox: 'inbox',
+          Notifications: 'notifications',
           ProfileTab: 'profile',
         },
       },

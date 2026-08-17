@@ -15,6 +15,7 @@ import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema/postgres';
 import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
 import { KvPostgresDatabaseMigration } from '@pkgs/kv/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
+import { OutboxDatabaseMigration } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
@@ -70,6 +71,7 @@ export class PostgresMigrationRunner {
     const locked = new ComposedDatabaseMigration()
       .register(new HardCutoverDropLegacyTablesMigration())
       .register(new SyncEngineDatabaseMigration())
+      .register(new OutboxDatabaseMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,

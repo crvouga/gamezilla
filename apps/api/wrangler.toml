@@ -11,6 +11,9 @@ name = "ROOM"
 class_name = "Room"
 script_name = "gamezilla-room"
 
+[triggers]
+crons = ["*/1 * * * *"]
+
 [observability]
 [observability.logs]
 enabled = true

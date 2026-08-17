@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
 import { Box, Pressable, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
@@ -15,6 +16,7 @@ export function ProfileFriendsStats(): ReactNode {
     <Pressable
       onPress={() => navigate(FriendsProfileRoute.Friends)}
       sx={{ alignSelf: 'stretch' }}
+      testID={Handles.profileFriendsStats}
     >
       <Box sx={{ alignItems: 'center', py: 1 }}>
         <Text variant="title" label={String(friends.length)} />

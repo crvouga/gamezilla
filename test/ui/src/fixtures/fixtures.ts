@@ -14,3 +14,12 @@ export const aliceAvatarCreds = {
   email: 'alice-avatar@sim.local',
   password: aliceCreds.password,
 } as const;
+
+export const bobCreds = {
+  email: 'bob@sim.local',
+  password: aliceCreds.password,
+} as const;
+
+/** Claimed usernames for the friends request/accept scenario. */
+export const aliceUsername = 'alice' as const;
+export const bobUsername = 'bob' as const;

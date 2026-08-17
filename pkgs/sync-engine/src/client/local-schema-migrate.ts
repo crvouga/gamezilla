@@ -12,6 +12,7 @@ const domainMigrateLogger = createLogger({
   now: () => 0,
 });
 
+import { migrateOutbox } from '@pkgs/outbox';
 import {
   ensureFrameworkSchema,
   RETIRED_LOCAL_TABLES,
@@ -38,6 +39,7 @@ const MIGRATIONS: readonly Migration[] = [
   async (db, schema) => {
     await dropRetiredTables(db);
     await ensureFrameworkSchema(db);
+    await migrateOutbox(db);
     await ensureDomainTables(db, schema);
   },
 ];
@@ -107,6 +109,7 @@ async function createCurrentSchema(
   try {
     await dropRetiredTables(db);
     await ensureFrameworkSchema(db);
+    await migrateOutbox(db);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(`ensureFrameworkSchema: ${detail}`, { cause: error });

@@ -37,6 +37,10 @@ export const LEGACY_TABLES_TO_DROP = [
   'session',
   'account',
   'verification',
+  // Pre-notifications rename
+  'inbox_interactions',
+  'inbox_preferences',
+  'inbox_schema_state',
 ] as const;
 
 export class HardCutoverDropLegacyTablesMigration implements DatabaseMigration {

@@ -32,6 +32,7 @@
         "@libs/db": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/spaces": "workspace:*",
@@ -46,7 +47,6 @@
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/inbox": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -55,6 +55,7 @@
         "@pkgs/matchmaking": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
+        "@pkgs/outbox": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -96,6 +97,7 @@
         "@libs/dst-handles": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
+        "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/search": "workspace:*",
@@ -112,7 +114,6 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/inbox": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
@@ -393,6 +394,7 @@
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/outbox": "workspace:*",
         "@pkgs/postgres-sqlite-compat": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -418,6 +420,8 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/db": "workspace:*",
+        "@libs/dst-handles": "workspace:*",
+        "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/user-search": "workspace:*",
@@ -426,8 +430,9 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/inbox": "workspace:*",
         "@pkgs/io": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/outbox": "workspace:*",
         "@pkgs/sounds": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -487,6 +492,34 @@
         "typescript": "catalog:",
       },
     },
+    "libs/notifications": {
+      "name": "@libs/notifications",
+      "version": "0.0.0",
+      "dependencies": {
+        "@lingui/core": "catalog:",
+        "@lingui/react": "catalog:",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/io": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sounds": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+        "hono": "catalog:",
+        "react": "catalog:",
+        "react-native": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/profile": {
       "name": "@libs/profile",
       "version": "0.0.0",
@@ -542,6 +575,7 @@
       "name": "@libs/search",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/dst-handles": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
@@ -565,6 +599,7 @@
         "@libs/auth": "workspace:*",
         "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
@@ -575,7 +610,6 @@
         "@pkgs/collab": "workspace:*",
         "@pkgs/collab-ui": "workspace:*",
         "@pkgs/i18n": "workspace:*",
-        "@pkgs/inbox": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
@@ -968,33 +1002,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/inbox": {
-      "name": "@pkgs/inbox",
-      "version": "0.0.0",
-      "dependencies": {
-        "@lingui/core": "catalog:",
-        "@lingui/react": "catalog:",
-        "@pkgs/assert": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
-        "@pkgs/io": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/sounds": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-        "@pkgs/ui": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "hono": "catalog:",
-        "react": "catalog:",
-        "react-native": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/react": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/io": {
       "name": "@pkgs/io",
       "version": "0.0.0",
@@ -1177,6 +1184,24 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/outbox": {
+      "name": "@pkgs/outbox",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/io": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1466,6 +1491,7 @@
         "@pkgs/http-client": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/outbox": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -1669,6 +1695,7 @@
         "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/notifications": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/auth-better-auth": "workspace:*",
@@ -1676,7 +1703,6 @@
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/inbox": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -2642,6 +2668,8 @@
 
     "@libs/infra": ["@libs/infra@workspace:libs/infra"],
 
+    "@libs/notifications": ["@libs/notifications@workspace:libs/notifications"],
+
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
     "@libs/runtime": ["@libs/runtime@workspace:libs/runtime"],
@@ -2862,8 +2890,6 @@
 
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
 
-    "@pkgs/inbox": ["@pkgs/inbox@workspace:pkgs/inbox"],
-
     "@pkgs/io": ["@pkgs/io@workspace:pkgs/io"],
 
     "@pkgs/keyword": ["@pkgs/keyword@workspace:pkgs/keyword"],
@@ -2885,6 +2911,8 @@
     "@pkgs/observability": ["@pkgs/observability@workspace:pkgs/observability"],
 
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
+
+    "@pkgs/outbox": ["@pkgs/outbox@workspace:pkgs/outbox"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
 

@@ -42,11 +42,16 @@ export function createProductClientResource(args: {
       harness: {
         mount: async () => {
           const result = render(
-            createElement(App, { io, resources: seams.resources })
+            createElement(App, {
+              io,
+              resources: seams.resources,
+            })
           );
           await act(async () => {
             await Promise.resolve();
           });
+          // Dual-actor DST parks the inactive actor (close/launch) so only one
+          // RNTL tree is mounted — text input works without `embedded`.
           return createRenderedAppFromRntl(result);
         },
       },

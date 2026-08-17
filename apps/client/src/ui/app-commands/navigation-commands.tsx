@@ -7,7 +7,7 @@ const NAV_TARGETS: ReadonlyArray<{
 }> = [
   { href: '/', title: 'Spaces' },
   { href: '/search', title: 'Search' },
-  { href: '/inbox', title: 'Inbox' },
+  { href: '/notifications', title: 'Notifications' },
   { href: '/profile', title: 'Profile' },
   { href: '/more', title: 'Settings' },
   { href: '/more/theme', title: 'Theme' },

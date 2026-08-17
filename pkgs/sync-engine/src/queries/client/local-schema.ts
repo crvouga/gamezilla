@@ -49,7 +49,7 @@ CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 9;
+export const SCHEMA_EPOCH = 10;
 
 /** Retired local tables dropped on epoch migrate (legacy + pre-prefix names). */
 export const RETIRED_LOCAL_TABLES = [
@@ -64,6 +64,9 @@ export const RETIRED_LOCAL_TABLES = [
   '_scope_meta',
   '_push_applied',
   '_sync_topic_seq',
+  'inbox_interactions',
+  'inbox_preferences',
+  'inbox_schema_state',
 ] as const;
 
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {

@@ -52,7 +52,7 @@ const SESSION_QUERIES = [
   'friendships',
   'friendRequests',
   'userBlocks',
-  'inboxActive',
+  'notificationsActive',
   'chessPuzzleProfile',
   'chessPuzzleInteractions',
 ] as const;

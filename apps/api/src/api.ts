@@ -1,7 +1,14 @@
 // @io-wall-ok
 // @api-wall-ok
 
+// Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
+import './install-native-als';
+
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import {
+  assertDatabaseUrlAllowedForSecretsEnv,
+  DEVELOPMENT_SECRETS_ENV,
+} from '@libs/infra/shared/database-url-policy';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
@@ -18,9 +25,11 @@ import {
   workerEnvToSecretRecord,
 } from './config/env';
 import { createApiObjectStore } from './config/object-store';
+import { ApiSecretName } from './config/secret-names';
 import { createApiSecretStore } from './config/secret-store';
 import { resolveWebClientOrigin } from './config/web-client-origin';
 import { openRequestDb } from './db/open-request-db-postgres';
+import { drainAndNotifyOutbox } from './sync/outbox-drain';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
@@ -225,6 +234,39 @@ async function handleWorkerFetch(
   );
 }
 
+/** Sweeper for stranded outbox deliveries (cron). Opens its own DB session. */
+async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
+  const secretsEnv = assertSecretsEnvBinding(env);
+  const secretStore = createApiSecretStore(
+    workerEnvToSecretRecord(env),
+    roomIo.clock.now
+  );
+  const override = readOptionalDatabaseUrlOverride(env);
+  const dbUrl =
+    override !== null && override.length > 0
+      ? override
+      : (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
+  if (secretsEnv === DEVELOPMENT_SECRETS_ENV) {
+    await assertDatabaseUrlAllowedForSecretsEnv(dbUrl, secretsEnv, {
+      surface: 'api-worker-cron',
+    });
+  }
+  const opened = await openRequestDb(dbUrl, appPostgresDbScope());
+  try {
+    const processed = await drainAndNotifyOutbox({
+      db: opened.sqlClient,
+      io: roomIo,
+    });
+    if (processed > 0) {
+      log.info('outbox cron drained', { processed });
+    }
+  } finally {
+    if (opened.kind === 'postgres') {
+      await opened.pool.end();
+    }
+  }
+}
+
 const workerHandler = {
   async fetch(
     request: Request,
@@ -249,6 +291,19 @@ const workerHandler = {
           ...corsHeadersForRequest(request),
         },
       });
+    }
+  },
+
+  async scheduled(
+    _controller: ScheduledController,
+    env: ApiWorkerEnv,
+    _ctx: ExecutionContext
+  ): Promise<void> {
+    try {
+      await drainOutboxOnCron(env);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('outbox cron drain failed', { error: message });
     }
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;

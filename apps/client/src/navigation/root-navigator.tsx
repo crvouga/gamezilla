@@ -4,6 +4,10 @@ import { AccountDevicesScreen } from '@libs/auth/client/account-device/account-d
 import { ClientConfigScreen } from '@libs/client-config/client/client-config-screen';
 import { FriendUserScreen } from '@libs/friends/client/friend-user-screen-view';
 import { FriendsListScreen } from '@libs/friends/client/friends-list-screen-view';
+import {
+  NotificationsScreen,
+  NotificationsTabIcon,
+} from '@libs/notifications/client';
 import { AvatarEditorScreen } from '@libs/profile/client/patch-avatar/avatar-editor-screen';
 import { ProfileEditScreen } from '@libs/profile/client/profile-edit-screen';
 import { ProfileHandleScreen } from '@libs/profile/client/set-username/profile-handle-screen';
@@ -11,7 +15,6 @@ import { SearchScreen } from '@libs/search/client/search-screen';
 import { SpaceDetailScreen } from '@libs/spaces/client/space-detail-screen';
 import { SpacesScreen } from '@libs/spaces/client/spaces-screen';
 import { useLingui } from '@lingui/react/macro';
-import { InboxScreen, InboxTabIcon } from '@pkgs/inbox/client';
 import {
   Gamepad2Icon,
   SearchIcon,
@@ -73,12 +76,12 @@ function MainTabs(): ReactNode {
         }}
       />
       <Tabs.Screen
-        name="Inbox"
-        component={InboxScreen}
+        name="Notifications"
+        component={NotificationsScreen}
         options={{
-          title: t`Inbox`,
+          title: t`Notifications`,
           tabBarIcon: ({ color, size }) => (
-            <InboxTabIcon color={color} size={size ?? 24} />
+            <NotificationsTabIcon color={color} size={size ?? 24} />
           ),
         }}
       />

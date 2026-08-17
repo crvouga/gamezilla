@@ -5,13 +5,13 @@ import {
   CircleCheckIcon,
   Pressable,
   Text,
+  useRelativeTimeLabel,
   useTheme,
   XIcon,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
 import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
-import { useRelativeTimeLabel } from './use-relative-time-label';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;

@@ -23,6 +23,7 @@
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",

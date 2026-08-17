@@ -10,10 +10,12 @@ export function FriendActionPillsForStatus({
   status,
   mutations,
   onChanged,
+  username,
 }: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
   onChanged?: (() => void) | undefined;
+  username?: string | undefined;
 }): ReactNode {
   const { t } = useLingui();
   const wrap = useCallback(
@@ -23,7 +25,13 @@ export function FriendActionPillsForStatus({
     },
     [onChanged]
   );
-  const pills = renderFriendActionPillsForStatus(status, mutations, wrap, t);
+  const pills = renderFriendActionPillsForStatus({
+    status,
+    mutations,
+    wrap,
+    t,
+    username,
+  });
 
   if (status === 'blocked_by_them') {
     return <Box sx={{ alignSelf: 'stretch' }}>{pills}</Box>;

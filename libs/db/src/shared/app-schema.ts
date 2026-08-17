@@ -12,7 +12,7 @@ export const APP_SCHEMA_DOMAINS = [
   'friends',
   'chess',
   'client_config',
-  'inbox',
+  'notifications',
 ] as const;
 
 /**
@@ -20,7 +20,7 @@ export const APP_SCHEMA_DOMAINS = [
  * Managed columns (`id`, `created_at`, `updated_at`, `deleted_at`) are
  * implicit via `@pkgs/db-schema`. Business identity is the managed text PK `id`.
  *
- * Out of scope: framework tables, kv, entity_store, inbox_schema_state,
+ * Out of scope: framework tables, kv, entity_store, notifications_schema_state,
  * matchmaking, CHECK/FK/REPLICA IDENTITY, partial indexes.
  */
 export const appSchema = defineSchema(
@@ -128,7 +128,7 @@ export const appSchema = defineSchema(
       client_config: {
         value: 'json',
       },
-      inbox_interactions: {
+      notifications: {
         user_id: 'text',
         source_namespace: 'text',
         source_type: 'text',
@@ -152,10 +152,6 @@ export const appSchema = defineSchema(
         dismissed_at: 'timestamp',
         active: 'boolean',
       },
-      inbox_preferences: {
-        user_id: 'text',
-        preferences: 'json',
-      },
     },
     uniqueIndexes: [
       ['auth_external_accounts', 'provider', 'external_id'],
@@ -165,13 +161,12 @@ export const appSchema = defineSchema(
       ['friends_friendships', 'user_low', 'user_high'],
       ['friends_blocks', 'blocker_id', 'blocked_id'],
       [
-        'inbox_interactions',
+        'notifications',
         'user_id',
         'source_namespace',
         'source_type',
         'source_id',
       ],
-      ['inbox_preferences', 'user_id'],
     ],
     indexes: [
       ['auth_devices', 'account_id'],
@@ -199,7 +194,7 @@ export const appSchema = defineSchema(
       ['chess_puzzles', 'popularity'],
       ['chess_puzzles', 'rating'],
       ['chess_puzzles', 'rating', 'popularity'],
-      ['inbox_interactions', 'user_id'],
+      ['notifications', 'user_id'],
     ],
     deprecations: [
       ['chess_puzzles', 'sync_pool', 'not needed anymore'],

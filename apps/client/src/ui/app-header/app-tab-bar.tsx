@@ -19,6 +19,12 @@ function tabTestID(routeName: string): string | undefined {
   if (routeName === 'ProfileTab' || routeName === 'profile') {
     return Handles.tabProfile;
   }
+  if (routeName === 'Search') {
+    return Handles.tabSearch;
+  }
+  if (routeName === 'Notifications') {
+    return Handles.tabNotifications;
+  }
   return undefined;
 }
 

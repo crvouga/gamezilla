@@ -196,8 +196,9 @@ async function attachRequestDatabase(
         // SQLite openers own process-lifetime handles (sim AlaSQL / better-sqlite3).
         // Disconnecting here DROP/closes them after the first request.
         if (opened.kind === 'postgres') {
+          // One end only — sqlClient and pool wrap the same pg.Client.
           try {
-            await Promise.all([sqlClient.disconnect(), opened.pool.end()]);
+            await opened.pool.end();
           } catch (error: unknown) {
             observability.recordException(error, {
               operation: 'request-db-cleanup',

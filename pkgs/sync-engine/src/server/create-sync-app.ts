@@ -8,6 +8,7 @@ import { withFrameworkMutations } from '../mutations/shared/with-framework-mutat
 import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { TopicMap } from '../shared/topic-map';
+import type { SyncSqlVariables } from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { mountMutationsRoute } from './sync-app-mutations-route';
 import { mountQueryRoutes } from './sync-app-query-routes';
@@ -50,7 +51,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
       return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
     });
   const mutations = withFrameworkMutations(deps.mutations);
-  const app = new Hono();
+  const app = new Hono<{ Variables: SyncSqlVariables }>();
   mountQueryRoutes(app, {
     resolveAuth: deps.resolveAuth,
     getSql: deps.getSql,

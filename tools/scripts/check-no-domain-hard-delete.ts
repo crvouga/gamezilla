@@ -27,7 +27,6 @@ const SCAN_GLOBS = [
   'libs/**/shared/**/*-sql/**/*.{ts,tsx}',
   'libs/**/shared/friends-sql/**/*.{ts,tsx}',
   'libs/friends/src/shared/friends-sql/**/*.ts',
-  'libs/friends/src/server/friend-block-service.ts',
   'pkgs/sync-engine/src/server/select-fanout-rows.ts',
 ] as const;
 
