@@ -103,10 +103,14 @@ export type PlaygroundSnapshotInfo = {
   readonly id: string;
   readonly label: string;
   readonly createdAtMs: number;
+  /** False when local SyncEngine schema version no longer matches. */
+  readonly compatible: boolean;
+  readonly incompatibleReason?: string;
 };
 
 export type PlaygroundSnapshotManifest = {
-  readonly version: 1;
+  readonly version: 2;
+  readonly localSchemaVersion: number;
   readonly id: string;
   readonly label: string;
   readonly createdAtMs: number;
@@ -162,6 +166,10 @@ export type PlaygroundSession<R = unknown> = {
   saveSnapshot(label?: string): Promise<PlaygroundSnapshotInfo>;
   loadSnapshot(id: string): Promise<void>;
   deleteSnapshot(id: string): Promise<void>;
+  /** Delete many snapshots in one ObjectStore pass. */
+  deleteSnapshots(ids: readonly string[]): Promise<void>;
+  /** Delete snapshots whose schema version no longer matches the app. */
+  purgeIncompatibleSnapshots(): Promise<number>;
   /** Pause / resume wall→sim clock advance. */
   setClockPaused(paused: boolean): void;
   isClockPaused(): boolean;

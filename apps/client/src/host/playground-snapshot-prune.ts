@@ -1,5 +1,6 @@
 /**
  * Validate playground snapshots and delete ones that fail the AlaSQL schema.
+ * Schema-version mismatches stay listed as incompatible (not auto-deleted).
  */
 
 import {
@@ -12,6 +13,7 @@ import {
   playgroundSnapshotManifestSchema,
 } from '@apps/client/host/playground-snapshot-schema';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import type { PlaygroundSnapshotInfo } from '@pkgs/system-console/client';
 
 const INDEX_KEY = 'index.json';
@@ -61,7 +63,10 @@ async function deleteSnapshotTree(
   store: ObjectStore,
   id: string
 ): Promise<void> {
-  const keys = await store.listKeys(`snapshots/${id}/`);
+  const prefix = `snapshots/${id}/`;
+  // Always attempt the manifest first so prune cannot rediscover a half-deleted tree.
+  await store.delete(`${prefix}manifest.json`);
+  const keys = await store.listKeys(prefix);
   for (const key of keys) {
     await store.delete(key);
   }
@@ -77,11 +82,11 @@ async function isAlaSqlBlob(store: ObjectStore, key: string): Promise<boolean> {
   return dump !== null;
 }
 
-async function isValidSnapshot(
+/** Structural integrity only — schema version is annotated separately. */
+async function isStructurallyValidSnapshot(
   store: ObjectStore,
-  info: PlaygroundSnapshotInfo
+  info: { readonly id: string }
 ): Promise<boolean> {
-  if (!playgroundSnapshotInfoSchema.safeParse(info).success) return false;
   const text = await readText(store, `snapshots/${info.id}/manifest.json`);
   if (text === null) return false;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
@@ -93,6 +98,45 @@ async function isValidSnapshot(
     if (!(await isAlaSqlBlob(store, key))) return false;
   }
   return true;
+}
+
+export function snapshotCompatibility(manifest: {
+  readonly version: 1 | 2;
+  readonly localSchemaVersion?: number;
+}): Pick<PlaygroundSnapshotInfo, 'compatible' | 'incompatibleReason'> {
+  const required = getLocalSchemaTargetVersion();
+  if (manifest.version !== 2) {
+    return {
+      compatible: false,
+      incompatibleReason: `schema v${String(required)} required, snapshot missing/legacy`,
+    };
+  }
+  if (manifest.localSchemaVersion !== required) {
+    return {
+      compatible: false,
+      incompatibleReason: `schema v${String(required)} required, snapshot v${String(manifest.localSchemaVersion ?? 'missing')}`,
+    };
+  }
+  return { compatible: true };
+}
+
+export function toSnapshotInfo(manifest: {
+  readonly version: 1 | 2;
+  readonly localSchemaVersion?: number;
+  readonly id: string;
+  readonly label: string;
+  readonly createdAtMs: number;
+}): PlaygroundSnapshotInfo {
+  const compat = snapshotCompatibility(manifest);
+  return {
+    id: manifest.id,
+    label: manifest.label,
+    createdAtMs: manifest.createdAtMs,
+    compatible: compat.compatible,
+    ...(compat.incompatibleReason !== undefined
+      ? { incompatibleReason: compat.incompatibleReason }
+      : {}),
+  };
 }
 
 async function readIndex(store: ObjectStore): Promise<PlaygroundSnapshotIndex> {
@@ -113,13 +157,8 @@ async function infoFromManifest(
   if (text === null) return null;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null || manifest.id !== id) return null;
-  const info: PlaygroundSnapshotInfo = {
-    id: manifest.id,
-    label: manifest.label,
-    createdAtMs: manifest.createdAtMs,
-  };
-  if (!(await isValidSnapshot(store, info))) return null;
-  return info;
+  if (!(await isStructurallyValidSnapshot(store, { id }))) return null;
+  return toSnapshotInfo(manifest);
 }
 
 async function discoverSnapshotIds(store: ObjectStore): Promise<string[]> {
@@ -132,9 +171,22 @@ async function discoverSnapshotIds(store: ObjectStore): Promise<string[]> {
   return [...found];
 }
 
+function indexEntryShape(info: PlaygroundSnapshotInfo): {
+  id: string;
+  label: string;
+  createdAtMs: number;
+} {
+  return {
+    id: info.id,
+    label: info.label,
+    createdAtMs: info.createdAtMs,
+  };
+}
+
 /**
  * Drop index / object trees that fail the AlaSQL snapshot schema.
  * Recovers orphan trees with a valid manifest into the index.
+ * Schema-mismatched dumps are kept and marked incompatible.
  */
 export async function pruneInvalidPlaygroundSnapshots(
   store: ObjectStore
@@ -143,13 +195,23 @@ export async function pruneInvalidPlaygroundSnapshots(
   const byId = new Map<string, PlaygroundSnapshotInfo>();
   let changed = false;
 
-  for (const info of index.snapshots) {
-    if (await isValidSnapshot(store, info)) {
-      byId.set(info.id, info);
-    } else {
+  for (const raw of index.snapshots) {
+    if (!playgroundSnapshotInfoSchema.safeParse(raw).success) {
       changed = true;
-      await deleteSnapshotTree(store, info.id);
+      continue;
     }
+    if (!(await isStructurallyValidSnapshot(store, raw))) {
+      changed = true;
+      await deleteSnapshotTree(store, raw.id);
+      continue;
+    }
+    const recovered = await infoFromManifest(store, raw.id);
+    if (recovered === null) {
+      changed = true;
+      await deleteSnapshotTree(store, raw.id);
+      continue;
+    }
+    byId.set(recovered.id, recovered);
   }
 
   for (const id of await discoverSnapshotIds(store)) {
@@ -164,13 +226,32 @@ export async function pruneInvalidPlaygroundSnapshots(
     }
   }
 
-  const valid = [...byId.values()].sort(
+  const listed = [...byId.values()].sort(
     (a, b) => b.createdAtMs - a.createdAtMs
   );
   if (changed) {
-    await putJson(store, INDEX_KEY, { snapshots: valid });
+    await putJson(store, INDEX_KEY, {
+      snapshots: listed.map(indexEntryShape),
+    });
   }
-  return valid;
+  return listed;
+}
+
+/** Delete all snapshots whose schema version no longer matches. */
+export async function purgeIncompatiblePlaygroundSnapshots(
+  store: ObjectStore
+): Promise<number> {
+  const listed = await pruneInvalidPlaygroundSnapshots(store);
+  const incompatible = listed.filter((s) => !s.compatible);
+  if (incompatible.length === 0) return 0;
+  for (const snap of incompatible) {
+    await deleteSnapshotTree(store, snap.id);
+  }
+  const remaining = listed.filter((s) => s.compatible);
+  await putJson(store, INDEX_KEY, {
+    snapshots: remaining.map(indexEntryShape),
+  });
+  return incompatible.length;
 }
 
 export {

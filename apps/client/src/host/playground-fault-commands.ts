@@ -148,18 +148,8 @@ export async function buildSnapshotLoadCommands(
   session: PlaygroundSession
 ): Promise<PlaygroundPaletteCommand[]> {
   const list = await session.listSnapshots();
-  return list.flatMap((snap) => [
-    {
-      id: `snapshot:load:${snap.id}`,
-      title: `snapshot · load · ${snap.label}`,
-      subtitle: snap.id,
-      category: 'Snapshot',
-      keywords: ['snapshot', 'load', snap.id, snap.label],
-      run: async () => {
-        await session.loadSnapshot(snap.id);
-      },
-    },
-    {
+  return list.flatMap((snap) => {
+    const deleteCmd: PlaygroundPaletteCommand = {
       id: `snapshot:delete:${snap.id}`,
       title: `snapshot · delete · ${snap.label}`,
       subtitle: snap.id,
@@ -168,6 +158,37 @@ export async function buildSnapshotLoadCommands(
       run: async () => {
         await session.deleteSnapshot(snap.id);
       },
-    },
-  ]);
+    };
+    if (!snap.compatible) {
+      return [
+        {
+          id: `snapshot:outdated:${snap.id}`,
+          title: `snapshot · outdated · ${snap.label}`,
+          subtitle: snap.incompatibleReason ?? snap.id,
+          category: 'Snapshot',
+          keywords: ['snapshot', 'outdated', snap.id, snap.label],
+          run: async () => {
+            throw new Error(
+              snap.incompatibleReason ??
+                'Snapshot schema is incompatible with the current app'
+            );
+          },
+        },
+        deleteCmd,
+      ];
+    }
+    return [
+      {
+        id: `snapshot:load:${snap.id}`,
+        title: `snapshot · load · ${snap.label}`,
+        subtitle: snap.id,
+        category: 'Snapshot',
+        keywords: ['snapshot', 'load', snap.id, snap.label],
+        run: async () => {
+          await session.loadSnapshot(snap.id);
+        },
+      },
+      deleteCmd,
+    ];
+  });
 }

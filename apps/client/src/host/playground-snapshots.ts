@@ -15,10 +15,13 @@ import {
   deleteSnapshotTree,
   INDEX_KEY,
   pruneInvalidPlaygroundSnapshots,
+  purgeIncompatiblePlaygroundSnapshots,
   putJson,
   readBody,
   readIndex,
   readText,
+  snapshotCompatibility,
+  toSnapshotInfo,
 } from '@apps/client/host/playground-snapshot-prune';
 import {
   parseJsonBytesWithSchema,
@@ -39,6 +42,7 @@ import {
 } from '@pkgs/kv/impl-kv-web-namespaced';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage/impl-web';
+import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import type { World } from '@pkgs/system';
 import type {
   PlaygroundActor,
@@ -93,7 +97,7 @@ function restorePlaygroundClientDurable(
   }
 }
 
-const MANIFEST_VERSION = 1 as const;
+const MANIFEST_VERSION = 2 as const;
 
 export type SnapshotSessionMaps = {
   readonly clients: Map<string, PlaygroundActor>;
@@ -226,13 +230,34 @@ export async function deletePlaygroundSnapshot(
   store: ObjectStore,
   snapshotId: string
 ): Promise<void> {
-  const id = snapshotId.trim();
-  if (id.length === 0) throw new Error('snapshot id required');
-  await deleteSnapshotTree(store, id);
+  await deletePlaygroundSnapshots(store, [snapshotId]);
+}
+
+/** Delete many snapshot trees and rewrite the index once. */
+export async function deletePlaygroundSnapshots(
+  store: ObjectStore,
+  snapshotIds: readonly string[]
+): Promise<void> {
+  const ids = [
+    ...new Set(
+      snapshotIds.map((id) => id.trim()).filter((id) => id.length > 0)
+    ),
+  ];
+  if (ids.length === 0) throw new Error('snapshot id required');
+  for (const id of ids) {
+    await deleteSnapshotTree(store, id);
+  }
   const index = await readIndex(store);
+  const drop = new Set(ids);
   await putJson(store, INDEX_KEY, {
-    snapshots: index.snapshots.filter((s) => s.id !== id),
+    snapshots: index.snapshots.filter((s) => !drop.has(s.id)),
   });
+}
+
+export async function purgeIncompatiblePlaygroundSnapshotsFromStore(
+  store: ObjectStore
+): Promise<number> {
+  return purgeIncompatiblePlaygroundSnapshots(store);
 }
 
 export async function savePlaygroundSnapshot(
@@ -250,8 +275,10 @@ export async function savePlaygroundSnapshot(
   const keys = await putSqlBlobs(ctx, prefix, clientIds);
   await putKvAndRooms(ctx, prefix, clientIds, roomTopics);
 
+  const localSchemaVersion = getLocalSchemaTargetVersion();
   const manifest: PlaygroundSnapshotManifest = {
     version: MANIFEST_VERSION,
+    localSchemaVersion,
     id,
     label: displayLabel,
     createdAtMs: now,
@@ -265,14 +292,13 @@ export async function savePlaygroundSnapshot(
   };
   await putJson(ctx.store, `${prefix}manifest.json`, manifest);
 
-  const info: PlaygroundSnapshotInfo = {
-    id,
-    label: manifest.label,
-    createdAtMs: now,
-  };
+  const info = toSnapshotInfo(manifest);
   const index = await readIndex(ctx.store);
   await putJson(ctx.store, INDEX_KEY, {
-    snapshots: [info, ...index.snapshots.filter((s) => s.id !== id)],
+    snapshots: [
+      { id: info.id, label: info.label, createdAtMs: info.createdAtMs },
+      ...index.snapshots.filter((s) => s.id !== id),
+    ],
   });
   return info;
 }
@@ -396,6 +422,13 @@ export async function loadPlaygroundSnapshot(
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null) {
     throw new Error(`snapshot '${snapshotId}' has an invalid manifest`);
+  }
+  const compat = snapshotCompatibility(manifest);
+  if (!compat.compatible || manifest.version !== 2) {
+    throw new Error(
+      compat.incompatibleReason ??
+        `snapshot '${snapshotId}' is incompatible with the current schema`
+    );
   }
 
   // Hide ProductApps, reset client SQL in place, then restore. Painting clients

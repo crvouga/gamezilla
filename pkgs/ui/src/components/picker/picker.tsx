@@ -23,6 +23,8 @@ export type PickerOption<T extends string | number = string> = {
   label: ReactNode;
   value: T;
   preview?: ReactNode;
+  /** Grayed out; not selectable. */
+  disabled?: boolean;
 };
 
 export type PickerProps<T extends string | number = string> = {
@@ -202,31 +204,40 @@ function PickerOptions<T extends string | number>({
         isSelected: boolean,
         onPickItem: () => void
       ) {
+        const disabled = item.disabled === true;
         return (
-          <ListItem
-            title={item.label}
-            leading={item.preview}
-            trailing={
-              isSelected ? (
-                <Text sx={{ color: 'tint', fontSize: 16 }} label="✓" />
-              ) : undefined
-            }
-            onPress={onPickItem}
-          />
+          <Box sx={{ opacity: disabled ? 0.4 : 1 }}>
+            <ListItem
+              title={item.label}
+              leading={item.preview}
+              trailing={
+                isSelected ? (
+                  <Text sx={{ color: 'tint', fontSize: 16 }} label="✓" />
+                ) : undefined
+              }
+              {...(disabled ? {} : { onPress: onPickItem })}
+            />
+          </Box>
         );
       },
     []
   );
 
+  const pickIfEnabled = (item: PickerOption<T>) => {
+    if (item.disabled === true) return;
+    onPick(item.value);
+  };
+
   if (renderOption !== undefined) {
     return (
       <FlatList
         data={options}
-        keyExtractor={(_item, index) => String(index)}
+        extraData={value}
+        keyExtractor={(item) => String(item.value)}
         frameSx={{ maxHeight: 360 }}
         renderItem={({ item }) => {
           const row = renderOption(item, item.value === value, () =>
-            onPick(item.value)
+            pickIfEnabled(item)
           );
           return row ?? <Box />;
         }}
@@ -237,7 +248,7 @@ function PickerOptions<T extends string | number>({
     <List separator>
       {options.map((item, index) => (
         <Box key={String(item.value) + String(index)}>
-          {defaultRender(item, item.value === value, () => onPick(item.value))}
+          {defaultRender(item, item.value === value, () => pickIfEnabled(item))}
         </Box>
       ))}
     </List>

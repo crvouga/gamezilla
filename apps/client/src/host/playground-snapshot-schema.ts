@@ -8,10 +8,11 @@ export const playgroundSnapshotInfoSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
   createdAtMs: z.number().finite(),
+  compatible: z.boolean().optional(),
+  incompatibleReason: z.string().optional(),
 });
 
-export const playgroundSnapshotManifestSchema = z.object({
-  version: z.literal(1),
+const playgroundSnapshotManifestShared = {
   id: z.string().min(1),
   label: z.string().min(1),
   createdAtMs: z.number().finite(),
@@ -27,7 +28,24 @@ export const playgroundSnapshotManifestSchema = z.object({
     serverSql: z.string().min(1),
     clientSql: z.record(z.string(), z.string()),
   }),
+} as const;
+
+/** Legacy manifests (pre schema-gate). Treated as incompatible at load. */
+export const playgroundSnapshotManifestV1Schema = z.object({
+  version: z.literal(1),
+  ...playgroundSnapshotManifestShared,
 });
+
+export const playgroundSnapshotManifestV2Schema = z.object({
+  version: z.literal(2),
+  localSchemaVersion: z.number().int(),
+  ...playgroundSnapshotManifestShared,
+});
+
+export const playgroundSnapshotManifestSchema = z.union([
+  playgroundSnapshotManifestV2Schema,
+  playgroundSnapshotManifestV1Schema,
+]);
 
 export const playgroundSnapshotIndexSchema = z.object({
   snapshots: z.array(playgroundSnapshotInfoSchema),
@@ -58,6 +76,9 @@ export type PlaygroundSnapshotIndex = z.infer<
   typeof playgroundSnapshotIndexSchema
 >;
 export type PlaygroundAlaSqlDump = z.infer<typeof playgroundAlaSqlDumpSchema>;
+export type PlaygroundSnapshotManifestParsed = z.infer<
+  typeof playgroundSnapshotManifestSchema
+>;
 
 export function parseJsonWithSchema<T>(
   text: string,

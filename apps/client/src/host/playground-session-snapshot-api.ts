@@ -9,8 +9,10 @@ import {
 } from '@apps/client/host/playground-fault-commands';
 import {
   deletePlaygroundSnapshot,
+  deletePlaygroundSnapshots,
   listPlaygroundSnapshots,
   loadPlaygroundSnapshot,
+  purgeIncompatiblePlaygroundSnapshotsFromStore,
   type SnapshotSessionCtx,
   savePlaygroundSnapshot,
 } from '@apps/client/host/playground-snapshots';
@@ -52,6 +54,8 @@ export function snapshotSessionMethods(
   | 'saveSnapshot'
   | 'loadSnapshot'
   | 'deleteSnapshot'
+  | 'deleteSnapshots'
+  | 'purgeIncompatibleSnapshots'
 > {
   const {
     snapshotStore,
@@ -96,6 +100,16 @@ export function snapshotSessionMethods(
     async deleteSnapshot(id) {
       await deletePlaygroundSnapshot(snapshotStore, id);
       await refreshSnapshotLoads(live(), setSnapshotLoads, notify);
+    },
+    async deleteSnapshots(ids) {
+      await deletePlaygroundSnapshots(snapshotStore, ids);
+      await refreshSnapshotLoads(live(), setSnapshotLoads, notify);
+    },
+    async purgeIncompatibleSnapshots() {
+      const n =
+        await purgeIncompatiblePlaygroundSnapshotsFromStore(snapshotStore);
+      await refreshSnapshotLoads(live(), setSnapshotLoads, notify);
+      return n;
     },
   };
 }

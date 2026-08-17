@@ -254,9 +254,10 @@ async function bootClients(
   if (args.skipSnapshotLoad !== true) {
     try {
       const snaps = await listPlaygroundSnapshots(args.snapshotStore);
-      if (snaps.length > 0) {
-        let newest = snaps[0]!;
-        for (const s of snaps) {
+      const compatible = snaps.filter((s) => s.compatible);
+      if (compatible.length > 0) {
+        let newest = compatible[0]!;
+        for (const s of compatible) {
           if (s.createdAtMs > newest.createdAtMs) newest = s;
         }
         // Restore before any ProductApp spawn so AuthBridge cannot race the

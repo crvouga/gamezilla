@@ -26,6 +26,16 @@ import {
 const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
+/**
+ * Target `PRAGMA user_version` / AlaSQL `userVersion` after migrate.
+ * Playground snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
+ */
+export function getLocalSchemaTargetVersion(
+  schemaEpoch: number = SCHEMA_EPOCH
+): number {
+  return schemaEpoch * VERSION_STRIDE + MIGRATIONS.length;
+}
+
 export type LocalDomainSchema = {
   /** Declarative domain schema applied via `SqliteSchemaDatabaseMigration`. */
   readonly domainSchema: Schema;
@@ -151,7 +161,7 @@ export async function migrateLocalSchema(
   options?: MigrateLocalSchemaOptions
 ): Promise<void> {
   const epoch = options?.schemaEpoch ?? SCHEMA_EPOCH;
-  const targetVersion = epoch * VERSION_STRIDE + MIGRATIONS.length;
+  const targetVersion = getLocalSchemaTargetVersion(epoch);
   const onPhase = options?.onLocalMigratePhase;
   const previous = await readUserVersion(db);
   const previousEpoch = Math.floor(previous / VERSION_STRIDE);
