@@ -8,6 +8,7 @@ import {
 } from '../client/create-local-sync-engine';
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { Timers } from '../client/sim-ports';
+import { SIM_QUERY_RECONCILE_INTERVAL_MS } from '../client/subscription-constants';
 import type { SyncEngine } from '../client/sync-engine-port';
 import { SyncApiAuthError } from '../client/sync-http-client';
 import {
@@ -142,6 +143,7 @@ export async function createEngineFromParts(
     random: args.random,
     timers: args.timers,
     createId: args.createId,
+    reconcileIntervalMs: SIM_QUERY_RECONCILE_INTERVAL_MS,
     ...(args.schemaEpoch !== undefined
       ? { schemaEpoch: args.schemaEpoch }
       : {}),

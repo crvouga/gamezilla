@@ -9,8 +9,9 @@ import {
 import { openSimWorld } from '../../sim/world';
 
 describe('non mutation server write without notify stale until sweep', () => {
-  // Domain write outside mutation replay must notify; missed notify ⇒ stale until sweep.
-  test('writeNoteBody notify false leaves peers stale until refresh', async () => {
+  // Domain write outside mutation replay should notify; missed notify heals
+  // via the reconcile tick (safety net), not forever-stale.
+  test('writeNoteBody notify false heals via reconcile tick', async () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1090,
@@ -27,24 +28,21 @@ describe('non mutation server write without notify stale until sweep', () => {
       notify: false,
     });
     await expectLiveNote(world.server.db, 'n1', { body: 'v2-silent' });
-    await world.never(
-      async () =>
-        (await readLiveNotes(b.db)).some(
-          (n) => n.id === 'n1' && n.body === 'v2-silent'
-        ),
-      { forMs: 400 }
-    );
+    // No notify → no instant wake; reconcile tick heals below.
     await expectLiveNote(b.db, 'n1', { body: 'v1' });
 
-    // nudge: explicit sweep — missed notify is the footgun under test
-    await world.until(b.nudge());
+    await world.until(async () =>
+      (await readLiveNotes(b.db)).some(
+        (n) => n.id === 'n1' && n.body === 'v2-silent'
+      )
+    );
     await expectLiveNote(b.db, 'n1', { body: 'v2-silent' });
     await world.assertConverged();
     await expectLiveNote(a.db, 'n1', { body: 'v2-silent' });
   });
 
   test.each([1091, 1092, 1093])(
-    'silent write heals on sweep (seed=%i)',
+    'silent write heals on reconcile tick (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
         domain: notesDomainPack,
@@ -59,10 +57,11 @@ describe('non mutation server write without notify stale until sweep', () => {
         body: 'new',
         notify: false,
       });
-      // nudge: heal-by-refetch is the behavior under test
-      await world.until(b.nudge());
-      // nudge: alice also needs sweep for converge
-      await world.until(a.nudge());
+      await world.until(async () =>
+        (await readLiveNotes(b.db)).some(
+          (n) => n.id === `n-${seed}` && n.body === 'new'
+        )
+      );
       await world.assertConverged();
       await expectLiveNote(b.db, `n-${seed}`, { body: 'new' });
     }

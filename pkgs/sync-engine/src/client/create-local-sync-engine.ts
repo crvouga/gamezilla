@@ -92,8 +92,9 @@ export type CreateLocalSyncEngineOptions = {
   readonly isAuthRevoked: (error: unknown) => boolean;
   readonly deleteDatabase: () => Promise<void>;
   /**
-   * Optional pubsub push. When omitted the engine hydrates once at connect
-   * and stays on that snapshot until reconnect — no periodic poll.
+   * Optional pubsub push. When omitted the engine still hydrates at connect
+   * and refetches on the reconcile tick / reconnect / foreground wake —
+   * push is the fast path for peer awareness, not the only path.
    */
   readonly push?: SyncEnginePushOptions;
   readonly lifecycle?: AppLifecycle;
@@ -102,6 +103,11 @@ export type CreateLocalSyncEngineOptions = {
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random?: () => number;
+  /**
+   * Safety-net refetch interval for missed notify / lost push
+   * (default 30s). `<= 0` disables. Sim uses a shorter interval.
+   */
+  readonly reconcileIntervalMs?: number;
   /**
    * Override local schema epoch (default {@link SCHEMA_EPOCH}).
    * Used by the deterministic sim for epoch-bump scenarios.
@@ -189,6 +195,9 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       ? { lifecycle: options.lifecycle }
       : {}),
     timers: options.timers,
+    ...(options.reconcileIntervalMs !== undefined
+      ? { reconcileIntervalMs: options.reconcileIntervalMs }
+      : {}),
     getMergeDeps: () => mergeDeps(readState(stateRef)),
     onError: (error) => handleError(readState(stateRef), error),
     onSynced: () =>

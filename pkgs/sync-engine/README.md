@@ -332,7 +332,8 @@ scopes whose derived hydrate tables overlap.
 CI `ci:channel-exhaustiveness` statically checks that every hydrated domain
 table has a topic-map entry (or is reconcile-only with empty `entryChannel`).
 Missed `notifyChannels` on non-mutation server writes remains a runtime
-footgun — prefer mutations.
+footgun for *latency* — prefer mutations / notify; the client reconcile tick
+is the safety net so peers do not stay forever-stale.
 
 ### `rowImageFanout` defaults (important)
 
@@ -504,7 +505,8 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 
 - One coalesce queue (`QUERY_COALESCE_MS = 0` → microtask coalesce)
 - One in-flight flush; further wakes queue
-- Background (`AppLifecycle`) pauses sweeps
+- Background (`AppLifecycle`) pauses sweeps; foreground resumes with `wakeAll`
+- Safety-net reconcile tick (`QUERY_RECONCILE_INTERVAL_MS`, sim shorter) → `wakeAll`
 - Session queries held for engine life; `waitForFirstSync` waits on them
 
 ### `attachPush`
@@ -551,7 +553,7 @@ don’t invent a second delete model without review.
 | Denied query | Detach scope meta; domain rows remain |
 | Auth revoked | Wipe identity DB |
 | Auth expired | Refresh; must not wipe |
-| Push lost | Next reconnect / foreground / membership wakeAll eventually refetches |
+| Push lost / missed notify | Next reconnect / foreground / reconcile tick / membership wakeAll eventually refetches |
 | Partial multi-query batch | Per-response apply; generation guards drop superseded scopes |
 
 **Not provided:** causal multi-device domain locks, exactly-once UI effects.
@@ -957,7 +959,7 @@ fields for fuzz profiles.
 **Server ops:** `server.pruneArtifacts(olderThanMs)`,
 `server.notifyFanout({ topics, tables, label })`. Notes fixture
 `writeNoteBody(server, { id, body, notify? })` (`notify: false` pins the
-non-mutation footgun).
+non-mutation path; reconcile tick heals).
 
 **Demoted / internal (lab + harness; CI-banned in scenarios):** `world.clock`,
 `world.rng`, `world.scheduler`, `world.network`, `runUntilIdle`,
@@ -1150,8 +1152,9 @@ delta mode “for completeness,” raise in-flight polls without evidence.
   sync → stale live rows after soft-delete.
 - Forgetting `deleted_at` in SELECT → upsert won’t update deletion state.
 - UI query missing live filter → soft-deleted rows appear in UI.
-- Domain write outside mutations without `notifyChannels` → silent peer
-  staleness.
+- Domain write outside mutations without `notifyChannels` → peers briefly
+  stale until reconcile tick / foreground / reconnect (prefer notify for
+  fast path; tick is the safety net).
 - `DELETE FROM` in a mutation → `NO_HARD_DELETE`.
 - Expecting unsubscribe to wipe domain rows → only `sync_engine_scope_meta` clears.
 - Expecting reject alone to revert domain rows → need a subsequent merge.
@@ -1406,13 +1409,15 @@ rewrite-safe (public + sim world API + domain packs only).
 | `connect-disconnect-flapping-under-load.test.ts` | Connect/disconnect flap under load |
 | `mutation-storm-batching-order-preserved.test.ts` | Large offline queue drains in seq order |
 
-### Channel drift pins (3)
+### Channel drift pins (5)
 
 | File | Proves |
 |------|--------|
 | `undeclared-table-write-misses-table-filter-heals-on-wakeall.test.ts` | Undeclared write stale until wake (limitation 8) |
 | `wrong-topic-map-heals-on-refetch.test.ts` | Wrong topic-map wake; heal on refetch |
-| `non-mutation-server-write-without-notify-stale-until-sweep.test.ts` | Direct server write without notify; stale until sweep |
+| `non-mutation-server-write-without-notify-stale-until-sweep.test.ts` | Direct server write without notify; heals via reconcile tick |
+| `non-mutation-catalog-insert-wakes-empty-hydrate.test.ts` | Empty hydrate + catalog INSERT; notify fast path + tick heal |
+| `oob-empty-hydrate-heals-via-reconcile-tick.test.ts` | Chess-puzzle shaped empty hydrate + silent OOB INSERT/UPDATE heals without nudge |
 
 ### Unit / harness (3)
 
@@ -1422,7 +1427,7 @@ rewrite-safe (public + sim world API + domain packs only).
 | `strict-default-query-limit-throws.test.ts` | Default budget + `strictQueryLimits` throws; explicit budget still clips |
 | `../harness/kernel.test.ts` | Sim kernel: RNG / scheduler / timers; membership topic sync |
 
-### Alphabetical index (114 scenarios)
+### Alphabetical index (116 scenarios)
 
 ```text
 account-switch-pool-isolation
@@ -1480,11 +1485,13 @@ mutate-local-apply-and-queue-atomic-under-crash
 mutation-batch-over-max-drains-without-dupes
 mutation-storm-batching-order-preserved
 new-domain-table-added-mid-life-hydrates-after-migrate
+non-mutation-catalog-insert-wakes-empty-hydrate
 non-mutation-server-write-without-notify-stale-until-sweep
 non-owner-mutation-denied-owner-converges
 not-modified-does-not-clobber-pending
 null-vs-missing-column-in-snapshot
 offline-crash-partition-lifecycle-matrix
+oob-empty-hydrate-heals-via-reconcile-tick
 online-mutate-no-optimistic-body-flicker
 optimistic-push-rejected-server-side-heals
 oversized-fanout-falls-back-to-refetch

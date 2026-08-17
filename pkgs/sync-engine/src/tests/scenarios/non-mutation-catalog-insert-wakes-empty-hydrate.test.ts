@@ -4,14 +4,13 @@ import {
   insertCatalogNote,
   isLiveNote,
   notesDomainPack,
-  readLiveNotes,
 } from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
   // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,
   // then a non-mutation catalog INSERT. notify on the entry topic must wake
-  // the client; without notify the snapshot stays empty until an explicit sweep.
+  // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
     await using world = await openSimWorld({
@@ -34,7 +33,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
     await world.assertConverged();
   });
 
-  test('insertCatalogNote notify false stays empty until nudge', async () => {
+  test('insertCatalogNote notify false heals via reconcile tick', async () => {
     await using world = await openSimWorld({
       domain: notesDomainPack,
       seed: 1402,
@@ -52,15 +51,10 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
       body: 'seeded-silent',
     });
 
-    await world.never(
-      async () =>
-        (await readLiveNotes(client.db)).some((n) => n.id === 'n-silent'),
-      { forMs: 400 }
-    );
+    // No notify → no instant wake; reconcile tick heals below.
     expect(await isLiveNote(client.db, 'n-silent')).toBe(false);
 
-    // nudge: explicit sweep — missed notify is the footgun under test
-    await world.until(client.nudge());
+    await world.until(async () => isLiveNote(client.db, 'n-silent'));
     await expectLiveNote(client.db, 'n-silent', { body: 'seeded-silent' });
     await world.assertConverged();
   });

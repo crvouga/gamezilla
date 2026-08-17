@@ -5,8 +5,9 @@ import { NOTES_WORLD_TOPIC } from './shared/topics';
 
 /**
  * Direct catalog INSERT bypassing mutations (seed-shaped write).
- * When `notify` is false, clients that already empty-hydrated stay stale
- * until a refetch trigger — same footgun as chess puzzle seed without wake.
+ * Prefer `notify: true`. When false, clients that already empty-hydrated
+ * stay briefly stale until the reconcile tick — same footgun shape as a
+ * chess puzzle seed without wake.
  */
 export async function insertCatalogNote(
   server: SimServer,

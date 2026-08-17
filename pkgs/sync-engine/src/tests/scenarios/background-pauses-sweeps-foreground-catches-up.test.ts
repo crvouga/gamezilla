@@ -24,8 +24,7 @@ describe('background pauses sweeps foreground catches up', () => {
     await world.never(() => isLiveNote(b.db, 'n1'), { forMs: 300 });
 
     b.foreground(true);
-    // nudge: foreground catch-up after paused sweeps
-    await world.until(b.nudge());
+    await world.until(async () => isLiveNote(b.db, 'n1'));
     await world.assertConverged();
     await expectLiveNote(b.db, 'n1', { body: 'while-bg' });
   });

@@ -4,8 +4,8 @@ import type { SimServer } from '../../sim/server';
 import { NOTES_WORLD_TOPIC } from './shared/topics';
 
 /**
- * Direct domain write bypassing mutations. When `notify` is false, peers
- * stay stale until a refetch trigger (documented footgun).
+ * Direct domain write bypassing mutations. Prefer `notify: true`.
+ * When false, peers stay briefly stale until the reconcile tick.
  */
 export async function writeNoteBody(
   server: SimServer,

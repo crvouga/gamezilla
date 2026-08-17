@@ -10,7 +10,10 @@ import {
 } from './app-lifecycle';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
-import { QUERY_COALESCE_MS } from './subscription-constants';
+import {
+  QUERY_COALESCE_MS,
+  QUERY_RECONCILE_INTERVAL_MS,
+} from './subscription-constants';
 
 /** Host/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;
@@ -57,6 +60,11 @@ export type SubscriptionRuntimeOptions = {
   readonly timers: Timers;
   /** Coalesce window override (default QUERY_COALESCE_MS). */
   readonly coalesceMs?: number;
+  /**
+   * Safety-net refetch interval (default {@link QUERY_RECONCILE_INTERVAL_MS}).
+   * `<= 0` disables the tick.
+   */
+  readonly reconcileIntervalMs?: number;
 };
 
 function createEntry(spec: QuerySubscriptionSpec): Entry {
@@ -128,11 +136,13 @@ export class SubscriptionRuntime {
   private readonly lifecycle: AppLifecycle;
   private readonly timers: Timers;
   private readonly coalesceMs: number;
+  private readonly reconcileIntervalMs: number;
   private running = false;
   private foregrounded = true;
   private disposeLifecycle: (() => void) | null = null;
   private pending: PendingSweep | null = null;
   private coalesceTimer: unknown = null;
+  private reconcileTimer: unknown = null;
   private inFlight = false;
   private flushWaiters: Array<() => void> = [];
 
@@ -140,6 +150,8 @@ export class SubscriptionRuntime {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
     this.timers = options.timers;
     this.coalesceMs = options.coalesceMs ?? QUERY_COALESCE_MS;
+    this.reconcileIntervalMs =
+      options.reconcileIntervalMs ?? QUERY_RECONCILE_INTERVAL_MS;
     this.foregrounded = this.lifecycle.isForeground();
   }
 
@@ -150,12 +162,14 @@ export class SubscriptionRuntime {
     this.disposeLifecycle = this.lifecycle.subscribe((event) =>
       this.onLifecycle(event)
     );
+    this.startReconcileTick();
     this.enqueue('all');
   }
 
   stop(): void {
     this.running = false;
     this.clearCoalesceTimer();
+    this.clearReconcileTick();
     this.pending = null;
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
@@ -262,12 +276,30 @@ export class SubscriptionRuntime {
   private onLifecycle(event: AppLifecycleEvent): void {
     if (event === 'foreground') {
       this.foregrounded = true;
+      this.startReconcileTick();
+      this.wakeAll();
       return;
     }
     if (event === 'background') {
       this.foregrounded = false;
       this.clearCoalesceTimer();
+      this.clearReconcileTick();
     }
+  }
+
+  private startReconcileTick(): void {
+    if (this.reconcileTimer !== null) return;
+    if (this.reconcileIntervalMs <= 0) return;
+    if (!this.running || !this.foregrounded) return;
+    this.reconcileTimer = this.timers.setInterval(() => {
+      this.wakeAll();
+    }, this.reconcileIntervalMs);
+  }
+
+  private clearReconcileTick(): void {
+    if (this.reconcileTimer === null) return;
+    this.timers.clearInterval(this.reconcileTimer);
+    this.reconcileTimer = null;
   }
 
   private ensureEntry(spec: QuerySubscriptionSpec): Entry {
