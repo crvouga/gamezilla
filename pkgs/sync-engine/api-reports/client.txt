@@ -7,6 +7,8 @@ CreateSyncEnginePoolOptions
 createSyncHttpClient
 CreateSyncHttpClientOptions
 GetFreshAuthToken
+getLocalSchemaTargetVersion
+LocalDomainSchema
 MutationClient
 MutationClientIds
 MutationClientProvider

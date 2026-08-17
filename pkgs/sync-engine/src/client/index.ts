@@ -17,8 +17,8 @@ export {
   createLocalSyncEngine,
   type SyncEnginePushOptions,
 } from './create-local-sync-engine';
-export { getLocalSchemaTargetVersion } from './local-schema-migrate';
 export type { LocalDomainSchema } from './local-schema-migrate';
+export { getLocalSchemaTargetVersion } from './local-schema-migrate';
 export {
   MutationClientProvider,
   type MutationClientProviderProps,
