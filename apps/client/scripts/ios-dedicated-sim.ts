@@ -3,7 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
+import { APP_IDENTITY } from '@libs/auth/public/app-identity';
 import { wallIo } from '@pkgs/io';
 import { ensurePodsMatchNodeModules } from './ios-pods';
 

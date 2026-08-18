@@ -1,9 +1,9 @@
 // @io-wall-ok — warm UI-sim SQLite seed cache before Jest
 /**
- * Builds `test/ui/.cache/sim-backend-seed.sqlite` when missing or fingerprint-
+ * Builds `test/system/.cache/sim-backend-seed.sqlite` when missing or fingerprint-
  * stale. The harness rebuilds lazily if this is skipped.
  *
- * Usage: `bun run --filter @test/ui seed:sim-db`
+ * Usage: `bun run --filter @test/system seed:sim-db`
  * (runs under Node via tsx — better-sqlite3 NAPI is unreliable under Bun)
  */
 

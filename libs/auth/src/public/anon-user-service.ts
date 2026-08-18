@@ -1,13 +1,10 @@
-import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
 import type { Io } from '@pkgs/io';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { assertDeviceId, assertUuid } from '../shared/auth/device-id';
 
-import {
-  managedInsertColumns,
-  managedUpdatedAtIso,
-} from '../shared/managed-row';
+import { managedInsertColumns, managedUpdatedAtIso } from './managed-row';
 
 type DeviceUserRow = {
   readonly user_id: string | null;

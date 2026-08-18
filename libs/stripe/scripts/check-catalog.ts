@@ -8,10 +8,10 @@
  */
 
 import { cliIo } from '@libs/infra/cli/lib/cli-io';
-import { createStripeClientFromSecret } from '../src/script-runtime';
-import { createStripeScriptSecretStore } from '../src/script-secret-store';
-import { StripeSecretKeys } from '../src/secret-keys';
-import { StripeCatalogSync } from '../src/sync';
+import { createStripeClientFromSecret } from '../src/shared/stripe/script-runtime';
+import { createStripeScriptSecretStore } from '../src/shared/stripe/script-secret-store';
+import { StripeSecretKeys } from '../src/shared/stripe/secret-keys';
+import { StripeCatalogSync } from '../src/use-cases/sync-catalog/server/sync';
 
 const SCRIPT_TAG = 'stripe check';
 

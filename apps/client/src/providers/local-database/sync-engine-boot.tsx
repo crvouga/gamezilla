@@ -1,10 +1,10 @@
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useCurrentAccountId } from '@libs/auth/client/use-current-account-id';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useConfigService } from '@libs/auth/public/config-service-context';
+import { useCurrentAccountId } from '@libs/auth/public/use-current-account-id';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import {
   useFreshAuthToken,
   useGetFreshAuthToken,
-} from '@libs/auth/client/use-fresh-auth-token';
+} from '@libs/auth/public/use-fresh-auth-token';
 import { useHttpClient } from '@pkgs/http-client';
 import { useIo } from '@pkgs/io';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';

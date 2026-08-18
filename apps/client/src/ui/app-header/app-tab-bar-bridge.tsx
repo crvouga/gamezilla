@@ -2,7 +2,7 @@
  * Tab bar slot for React Navigation's `Tabs` navigator.
  */
 
-import { SpaceMiniplayer } from '@libs/spaces/client/miniplayer/space-miniplayer';
+import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
 import { Box } from '@pkgs/ui';
 import {
   BottomTabBarHeightCallbackContext,

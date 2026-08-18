@@ -1,6 +1,6 @@
 import type { SqlTx } from '@pkgs/sql-client/interface';
-import type { Notification } from '../shared/notification';
-import { NotificationsError } from '../shared/notifications-errors';
+import type { Notification } from '../shared/notifications/notification';
+import { NotificationsError } from '../shared/notifications/notifications-errors';
 
 export type NotificationActionContext = {
   readonly sql: SqlTx;

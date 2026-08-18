@@ -1,4 +1,4 @@
-import { UserUsername } from '@libs/profile/client/user-username';
+import { UserUsername } from '@libs/profile/public/user-username';
 import type { SxProps, TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';

@@ -1,19 +1,19 @@
-import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useIsSignedIn, useMyId } from '@libs/auth/client/use-current-user';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
+import { useConfigService } from '@libs/auth/public/config-service-context';
+import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import {
   type GetFreshAuthTokenFn,
   useFreshAuthToken,
   useGetFreshAuthToken,
-} from '@libs/auth/client/use-fresh-auth-token';
-import { createFriendsNotificationProvider } from '@libs/friends/client/friends-notification-provider';
-import { useFriendsClientDeps } from '@libs/friends/client/use-friends-client-deps';
+} from '@libs/auth/public/use-fresh-auth-token';
+import { createFriendsNotificationProvider } from '@libs/friends/root/client/friends-notification-provider';
+import { useFriendsClientDeps } from '@libs/friends/root/client/use-friends-client-deps';
 import {
   type NotificationProvider,
   type NotificationsClientDeps,
   NotificationsProviderRegistry,
-} from '@libs/notifications/client';
+} from '@libs/notifications/public';
 import { useHttpClient } from '@pkgs/http-client';
 import { type ReactNode, useMemo, useRef } from 'react';
 

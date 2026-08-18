@@ -1,5 +1,5 @@
-import { resolvePresenceRole } from '../../shared/participation/space-participation-policy';
-import { SpaceField, useSpaceColumn } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
+import { resolvePresenceRole } from '../../../shared/space/participation/space-participation-policy';
 
 export function useMemberRole(
   spaceId: string,

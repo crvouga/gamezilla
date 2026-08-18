@@ -1,4 +1,4 @@
-import { useSpacePresence } from '../room/use-space-presence';
+import { useSpacePresence } from '../../../public/room/use-space-presence';
 
 /**
  * Whether the given member has any active room connection in this space.

@@ -2,7 +2,7 @@ import type {
   Notification,
   NotificationCardActions,
   NotificationProvider,
-} from '@libs/notifications/client';
+} from '@libs/notifications/public';
 
 import { FriendRequestNotificationCard } from './friend-request-notification-card';
 import type { FriendsClientDeps } from './friends-client-deps';

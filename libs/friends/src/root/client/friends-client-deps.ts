@@ -1,7 +1,7 @@
-import type { ClientRequestAuth } from '@libs/auth/client/client-request-auth';
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { ClientRequestAuth } from '@libs/auth/public/client-request-auth';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 
-import type { FriendsApiFetch } from './friends-api-client';
+import type { FriendsApiFetch } from '../../use-cases/search-friends/client/friends-api-client';
 
 export type FriendsClientDeps = {
   readonly config: ConfigService;

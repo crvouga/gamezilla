@@ -1,14 +1,14 @@
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { type ReactNode, useCallback, useMemo } from 'react';
-import { buildPuzzleMoveHistory } from '../../shared/chess-puzzle-move-history';
+import { buildPuzzleMoveHistory } from '../chess-puzzle-move-history';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   SeekChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 
 /**

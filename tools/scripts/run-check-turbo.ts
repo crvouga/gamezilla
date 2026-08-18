@@ -55,6 +55,8 @@ const CI_GATE_TASKS = [
   'ci:depcruise',
   'ci:circular-deps',
   'ci:tier-imports',
+  'ci:use-case-isolation',
+  'ci:libs-import-surface',
   'ci:component-ids',
   'ci:no-rn-style-api',
   'ci:no-size-limit-overrides',

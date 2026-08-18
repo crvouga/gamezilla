@@ -1,12 +1,12 @@
 import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from './api-hono-env';
-import { BearerAuthResolver } from './bearer-resolve';
+import type { ApiHonoEnv } from '../../public/api-hono-env';
+import { BearerAuthResolver } from '../../public/bearer-resolve';
+import { ANON_ID_HEADER } from '../../public/session-middleware';
+import type { AuthContext } from '../../public/types';
+import { UnauthorizedError } from '../../public/unauthorized-error';
 import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
 import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
-import { ANON_ID_HEADER } from './session-middleware';
-import type { AuthContext } from './types';
-import { UnauthorizedError } from './unauthorized-error';
 
 type RefreshBody = {
   device: Record<string, string | null>;

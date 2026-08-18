@@ -2,9 +2,8 @@ import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
 import { Box, Pressable, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
+import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsProfileRoute } from './friends-profile-routes';
-import { useFriends } from './use-friends';
 import { useFriendsProfileNavigation } from './use-friends-profile-chrome';
 
 export function ProfileFriendsStats(): ReactNode {

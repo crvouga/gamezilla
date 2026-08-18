@@ -1,10 +1,9 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCallback } from 'react';
-
-import { setVisibilityMutation } from '../../shared/mutations/space-mutations';
-import { AnnounceVisibilityChanged } from '../../shared/space-log/space-log-messages';
-import { useSpaceRoomDispatch } from '../room/use-space-room-selector';
+import { useSpaceRoomDispatch } from '../../../public/room/use-space-room-selector';
+import { AnnounceVisibilityChanged } from '../../../shared/space/space-log/space-log-messages';
+import type { SpaceVisibility } from '../../../shared/space/space-visibility';
+import { setVisibilityMutation } from '../../mutations';
 
 export function useSetVisibility() {
   const mutationClient = useMutationClient();

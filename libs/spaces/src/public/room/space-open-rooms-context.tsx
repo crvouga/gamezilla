@@ -1,7 +1,7 @@
-import { useMyDeviceId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId } from '@libs/auth/public/use-current-user';
 import { type ReactNode, useEffect, useRef } from 'react';
 
-import { useOpenSpaceSessionIds } from '../open-space/use-open-space-session-ids';
+import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import {
   SpaceOpenRoomsStoreProvider,
   useSpaceOpenRoomsPendingClear,

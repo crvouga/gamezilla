@@ -7,12 +7,12 @@ import type { HttpFetch } from '@pkgs/http-client';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '../../public/auth-storage-keys';
+import { shouldBindAnonUserAfterEnsure } from '../../public/resolve-client-identity';
+import { SessionCapabilityStore } from '../../public/session-capability';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { ensureAnonAuth } from './ensure-anon-auth-fetch';
 import { isUnauthorizedRefreshError, refreshAuth } from './refresh-auth-fetch';
-import { shouldBindAnonUserAfterEnsure } from './resolve-client-identity';
-import { SessionCapabilityStore } from './session-capability';
 
 export type AuthBridgeLogger = {
   info: (msg: string, meta?: Record<string, unknown>) => void;

@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 

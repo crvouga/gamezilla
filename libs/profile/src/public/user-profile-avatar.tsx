@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { parseAvatarConfig } from '../shared/avatar-config';
+import { parseAvatarConfig } from './avatar-config';
 import { DeviceAvatar } from './device-avatar';
 import { useProfileColumn } from './use-profile-column';
 

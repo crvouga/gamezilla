@@ -1,10 +1,10 @@
 import { type ReactNode, useCallback } from 'react';
 
-import { useAcceptFriendRequest } from '../accept-friend-request/use-accept-friend-request';
-import { useCancelFriendRequest } from '../cancel-friend-request/use-cancel-friend-request';
-import { useDeclineFriendRequest } from '../decline-friend-request/use-decline-friend-request';
-import { useSendFriendRequest } from '../send-friend-request/use-send-friend-request';
-import { useUnblockUser } from '../unblock-user/use-unblock-user';
+import { useAcceptFriendRequest } from '../../use-cases/friend-request-accept/client/use-accept-friend-request';
+import { useCancelFriendRequest } from '../../use-cases/friend-request-cancel/client/use-cancel-friend-request';
+import { useDeclineFriendRequest } from '../../use-cases/friend-request-decline/client/use-decline-friend-request';
+import { useSendFriendRequest } from '../../use-cases/friend-request-send/client/use-send-friend-request';
+import { useUnblockUser } from '../../use-cases/unblock-user/client/use-unblock-user';
 import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import type {
   FriendActionMutations,

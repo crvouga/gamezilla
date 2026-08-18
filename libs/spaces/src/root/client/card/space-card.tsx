@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
+import { useIsSpaceOpenLocally } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { SpaceGuestSection } from '../members/space-guest-section';
-import { useIsSpaceOpenLocally } from '../open-space/use-open-space-session-ids';
-import { SpaceField, useSpaceColumn } from '../use-space-column';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,

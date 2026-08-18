@@ -4,7 +4,7 @@ import { Trans } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
 import type { ReactNode } from 'react';
 
-import type { FriendshipStatus } from '../../shared/friends-types';
+import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import {
   ConfirmDeletePills,
   SingleActionPill,

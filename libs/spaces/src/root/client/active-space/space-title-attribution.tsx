@@ -6,11 +6,10 @@ import { deriveAttribution, projectEventLog } from '@pkgs/collab';
 import { AttributionHighlight } from '@pkgs/collab-ui';
 import { useNamedRoomLog } from '@pkgs/room';
 import { type ReactNode, useCallback, useMemo } from 'react';
-
-import { SPACE_LOG_TARGET } from '../../shared/space-log/space-log-router';
+import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
+import { SPACE_LOG_TARGET } from '../../../shared/space/space-log/space-log-router';
 import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
-import { SPACE_ROOM_NAME } from '../room/use-space-room-selector';
 
 export function SpaceTitleAttribution({
   spaceId,

@@ -1,4 +1,4 @@
 export {
   clientRowToInteraction,
   rowToNotification,
-} from '../shared/row-mapper';
+} from '../../shared/notifications/row-mapper';

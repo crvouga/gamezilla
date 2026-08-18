@@ -1,10 +1,10 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { useRouter } from '@pkgs/ui';
 import { type Random, useRandom } from '@pkgs/uuid';
 import * as Clipboard from 'expo-clipboard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { AvatarConfig } from '../../shared/avatar-config';
+import type { AvatarConfig } from '../../../shared/profile/avatar-config';
 import {
   AvatarSeedGenerator,
   configsEqual,
@@ -12,12 +12,12 @@ import {
   parseAvatarConfig,
   resolveAvatarSeed,
   serializeAvatarConfig,
-} from '../../shared/avatar-config';
-import { patchAvatarMutation } from '../../shared/mutations/profile-mutations';
-import { getFieldsByTab, type SchemaField } from '../dicebear-schema';
-import { isStyleKey, type StyleKey } from '../dicebear-styles';
-import { useMyProfileId } from '../use-my-profile-id';
-import { useProfileRow } from '../use-profile-row';
+} from '../../../shared/profile/avatar-config';
+import { patchAvatarMutation } from '../shared/patch-avatar-mutation';
+import { getFieldsByTab, type SchemaField } from './dicebear-schema';
+import { isStyleKey, type StyleKey } from './dicebear-styles';
+import { useMyProfileId } from './use-my-profile-id';
+import { useProfileRow } from './use-profile-row';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();

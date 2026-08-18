@@ -1,8 +1,8 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import { resolveEffectivePuzzleRating } from '../../shared/chess-puzzle-feed-config';
+import { resolveEffectivePuzzleRating } from '../chess-puzzle-feed-config';
 import {
   buildPuzzleMatchedCountSql,
   buildPuzzleTotalCountSql,

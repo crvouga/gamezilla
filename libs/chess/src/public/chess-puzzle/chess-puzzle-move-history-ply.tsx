@@ -2,7 +2,7 @@ import { Box, Pressable, Text } from '@pkgs/ui';
 import { memo, type ReactNode, type Ref, useCallback } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
 
-import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
+import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
 
 type HistoryPlyChipProps = {
   ply: PuzzleHistoryPly;

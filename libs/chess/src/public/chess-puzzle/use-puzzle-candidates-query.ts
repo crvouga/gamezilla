@@ -1,7 +1,7 @@
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import type { ChessPuzzleFeedHistoryFilter } from '../../shared/chess-puzzle-feed-config';
+import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 import {
   buildPuzzleCandidatesSql,
   PUZZLE_NEXT_MAX_BAND,

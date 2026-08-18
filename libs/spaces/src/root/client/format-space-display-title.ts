@@ -1,4 +1,4 @@
-import { resolveSpaceFallbackTitleParts } from '../shared/resolve-space-fallback-title-parts';
+import { resolveSpaceFallbackTitleParts } from '../../shared/space/resolve-space-fallback-title-parts';
 
 type Translate = (
   strings: TemplateStringsArray,

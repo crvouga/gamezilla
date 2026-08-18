@@ -1,11 +1,11 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import { isViewerSpaceHost } from '../shared/resolve-space-presence';
+import { isViewerSpaceHost } from '../../shared/space/resolve-space-presence';
 
 export type CurrentSpaceEntry = {
   spaceId: string;

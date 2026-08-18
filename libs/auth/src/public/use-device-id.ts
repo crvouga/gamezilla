@@ -5,9 +5,8 @@ import {
 } from '@pkgs/secure-storage/use-secure-storage-item';
 import { useCreateId } from '@pkgs/uuid';
 import { useEffect, useRef } from 'react';
-
-import { isUuid } from '../shared/device-id';
 import { DEVICE_ID_KEY } from './auth-storage-keys';
+import { isUuid } from './device-id';
 
 /**
  * Reactive accessor for the per-install device UUID. Suspends until the

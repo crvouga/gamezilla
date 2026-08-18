@@ -1,7 +1,7 @@
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 
-import type { FriendshipStatus } from '../shared/friends-types';
+import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 
 export function useFriendUserOverflowMenu(
   status: FriendshipStatus,

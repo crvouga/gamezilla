@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import {
   useIncomingFriendRequests,
   useOutgoingFriendRequests,
-} from './use-friend-requests';
+} from '../use-cases/list-friend-requests/client/use-friend-requests';
 
 export function useFriendRequestIdsForUser(targetUserId: string): {
   readonly incomingRequestId: string | null;

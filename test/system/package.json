@@ -1,5 +1,5 @@
 {
-  "name": "@test/ui",
+  "name": "@test/system",
   "version": "0.0.0",
   "private": true,
   "exports": {

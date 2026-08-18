@@ -1,5 +1,5 @@
-import { resolveSpaceMemberId } from '../participation/participation-ids';
-import { parseSpaceVisibility } from '../space-visibility';
+import { resolveSpaceMemberId } from '../../../shared/space/participation/participation-ids';
+import { parseSpaceVisibility } from '../../../shared/space/space-visibility';
 import { decideSpaceJoinAccess } from './decide-space-join-access';
 
 export type SpaceJoinSnapshotStatus =

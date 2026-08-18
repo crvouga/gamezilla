@@ -1,5 +1,5 @@
-import type { AppRulesAuth } from '../shared/app-rules-auth';
-import { mapAppAuthToRulesAuth } from '../shared/map-app-auth-to-rules-auth';
+import type { AppRulesAuth } from './app-rules-auth';
+import { mapAppAuthToRulesAuth } from './map-app-auth-to-rules-auth';
 import {
   useIsAnon,
   useMyAccountId,

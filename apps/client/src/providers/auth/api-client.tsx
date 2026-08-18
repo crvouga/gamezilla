@@ -1,4 +1,4 @@
-import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useConfigService } from '@libs/auth/public/config-service-context';
 import { useIo } from '@pkgs/io';
 import { type ReactNode, useMemo } from 'react';
 import { ApiClientProvider } from '../../api/api-context';

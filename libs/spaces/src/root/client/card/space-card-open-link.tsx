@@ -1,9 +1,8 @@
 import { useLingui } from '@lingui/react/macro';
 import { Pressable, useRouter } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-
-import { useIsSpaceOpenLocally } from '../open-space/use-open-space-session-ids';
-import { openSpaceDetail } from '../space-routes';
+import { openSpaceDetail } from '../../../public/space-routes';
+import { useIsSpaceOpenLocally } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { useSpaceDisplayTitle } from '../use-space-display-title';
 
 export type SpaceCardOpenLinkProps = {

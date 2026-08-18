@@ -17,7 +17,7 @@ import {
   useSpaceOpenRoomEntry,
   useSpaceOpenRooms,
   useSpaceOpenRoomsRegistry,
-} from './space-open-rooms-store';
+} from '../../../public/room/space-open-rooms-store';
 
 function stubEntry(clientId: string): SpaceOpenRoomEntry {
   return {

@@ -4,9 +4,9 @@ import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { AnonUserService } from './anon-user-service';
+import { AnonUserService } from '../../public/anon-user-service';
+import { EnsureInternalAccountUseCase } from '../../public/ensure-internal-account-use-case';
 import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
-import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
 
 const io = createSimIo({ seed: 1 });
 

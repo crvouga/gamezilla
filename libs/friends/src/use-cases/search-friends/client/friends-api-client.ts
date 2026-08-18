@@ -1,8 +1,8 @@
 import {
   type ClientRequestAuth,
   clientAuthHeaders,
-} from '@libs/auth/client/client-request-auth';
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+} from '@libs/auth/public/client-request-auth';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 
 export type FriendsApiFetch = (
   input: RequestInfo | URL,

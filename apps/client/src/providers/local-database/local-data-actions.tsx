@@ -1,6 +1,6 @@
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth/client/auth-storage-keys';
-import { SessionCapabilityStore } from '@libs/auth/client/session-capability';
-import { SyncLocalDataActionsContext } from '@libs/auth/client/sync-local-data-actions-context';
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth/public/auth-storage-keys';
+import { SessionCapabilityStore } from '@libs/auth/public/session-capability';
+import { SyncLocalDataActionsContext } from '@libs/auth/root/client/sync-local-data-actions-context';
 import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-state';
 import { useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';

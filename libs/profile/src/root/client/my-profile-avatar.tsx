@@ -1,9 +1,9 @@
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
 
-import { DeviceAvatar } from './device-avatar';
-import { useMyProfileId } from './use-my-profile-id';
-import { UserProfileAvatar } from './user-profile-avatar';
+import { DeviceAvatar } from '../../public/device-avatar';
+import { useMyProfileId } from '../../public/use-my-profile-id';
+import { UserProfileAvatar } from '../../public/user-profile-avatar';
 
 export type MyProfileAvatarProps = {
   size: number;

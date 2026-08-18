@@ -8,7 +8,7 @@ import {
   resolveMemberId,
   resolvePresenceRole,
   resolveRoomActorId,
-} from '../shared/participation/space-participation-policy';
+} from '../shared/space/participation/space-participation-policy';
 
 describe('resolveMemberId', () => {
   test('returns account id', () => {

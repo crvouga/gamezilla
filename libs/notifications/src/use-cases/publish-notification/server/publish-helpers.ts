@@ -4,10 +4,13 @@ import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedInsertColumns } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
 
-import type { NotificationSource } from '../shared/notification-id';
-import { buildNotificationId } from '../shared/notification-id';
-import { assertBoundedPayload } from '../shared/payload-schema';
-import type { PublishNotificationInput, StoredNotificationRow } from './types';
+import type { NotificationSource } from '../../../shared/notifications/notification-id';
+import { buildNotificationId } from '../../../shared/notifications/notification-id';
+import { assertBoundedPayload } from '../../../shared/notifications/payload-schema';
+import type {
+  PublishNotificationInput,
+  StoredNotificationRow,
+} from '../../../shared/notifications/publish-types';
 
 type SourceLookup = NotificationSource & {
   readonly userId: string;

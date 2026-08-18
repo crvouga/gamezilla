@@ -64,10 +64,11 @@ async function deleteSnapshotTree(
   id: string
 ): Promise<void> {
   const prefix = `snapshots/${id}/`;
-  // Always attempt the manifest first so prune cannot rediscover a half-deleted tree.
-  await store.delete(`${prefix}manifest.json`);
   const keys = await store.listKeys(prefix);
-  for (const key of keys) {
+  // Always include the manifest so prune cannot rediscover a half-deleted tree.
+  const toDelete = new Set(keys);
+  toDelete.add(`${prefix}manifest.json`);
+  for (const key of toDelete) {
     await store.delete(key);
   }
 }

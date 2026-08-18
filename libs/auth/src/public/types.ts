@@ -1,4 +1,4 @@
-import type { AppAuthContext } from '@libs/auth/shared/auth-context';
+import type { AppAuthContext } from '@libs/auth/public/auth-context';
 
 /**
  * Authenticated sync context: signed-in account UUID (not anonymous).

@@ -1,7 +1,10 @@
 import { Box, type SxInput } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import type { FriendProfile, FriendshipStatus } from '../shared/friends-types';
-import { FriendActionPills } from './friend-action-pills/friend-action-pills';
+import { FriendActionPills } from '../../public/friend-action-pills/friend-action-pills';
+import type {
+  FriendProfile,
+  FriendshipStatus,
+} from '../../shared/friendship/friends-types';
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendUserDangerModals } from './friend-user-danger-modals';
 

@@ -17,11 +17,11 @@ import {
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
-import type { Notification } from '../shared/notification';
+import type { Notification } from '../shared/notifications/notification';
 import type {
   NotificationAction,
   NotificationCardActions,
-} from '../shared/notification-action';
+} from '../shared/notifications/notification-action';
 
 /** Matches ScreenBase body inset once the list bleeds to the screen edge. */
 const ROW_EDGE_PADDING = SCREEN_BODY_PADDING_STEP;

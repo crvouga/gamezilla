@@ -1,4 +1,4 @@
-import { useSpacePresence } from '../room/use-space-presence';
+import { useSpacePresence } from '../../../public/room/use-space-presence';
 
 /**
  * Number of active room connections (peer ids) for this member in this space.

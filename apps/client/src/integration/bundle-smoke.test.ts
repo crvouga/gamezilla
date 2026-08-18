@@ -3,7 +3,7 @@ import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ProductionBundleGuard } from '@libs/client-config/shared/production-client-bundle-guard';
+import { ProductionBundleGuard } from '@libs/client-config/public/production-client-bundle-guard';
 import { assert } from '@pkgs/assert';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';

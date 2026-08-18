@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-
-import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
 import {
   type ChessPuzzleDialogueBoardContext,
   useChessPuzzleAssistant,
 } from '../assistant/use-chess-puzzle-assistant';
+import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 import { chessPuzzleStatusKindFromState } from './chess-puzzle-status-from-state';
 
 export function usePuzzlePlayerPresentation(args: {

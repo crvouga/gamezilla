@@ -4,11 +4,11 @@ import {
   USER_SEARCH_RATE_LIMIT,
   USER_SEARCH_RATE_WINDOW_MS,
   type UserSearchResult,
-} from '@libs/user-search/shared/user-search-types';
+} from '@libs/user-search/public/user-search-types';
 import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-import { FriendsError } from '../shared/friends-errors';
+import { FriendsError } from '../../../shared/friendship/friends-errors';
 
 type SearchHitRow = {
   readonly id: string;

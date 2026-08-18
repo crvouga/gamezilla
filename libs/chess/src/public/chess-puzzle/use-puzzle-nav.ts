@@ -1,12 +1,12 @@
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 import {
   nextForwardSolveIdx,
   prevSolveIdx,
   puzzleTokensLength,
-} from '../../shared/chess-puzzle-step';
+} from '../chess-puzzle-step';
 
 export type PuzzleNavModel = {
   atFrontier: boolean;

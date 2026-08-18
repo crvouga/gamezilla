@@ -3,7 +3,7 @@ import { jsonKvCodec } from '@pkgs/kv/kv-state-codec';
 import { useKvState } from '@pkgs/kv/use-kv-state';
 import { useCallback } from 'react';
 
-import { SEARCH_HISTORY_LIMIT } from '../shared/search-types';
+import { SEARCH_HISTORY_LIMIT } from '../../shared/search/search-types';
 
 const SEARCH_HISTORY_KEY = asKeyword('search/history');
 const SEARCH_HISTORY_VALUE_ATTR = asKeyword('search/value');

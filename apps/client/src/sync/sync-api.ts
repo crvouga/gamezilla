@@ -1,4 +1,4 @@
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 import type { Clock, Timers } from '@pkgs/clock';
 import {
   createSyncHttpClient,

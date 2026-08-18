@@ -8,13 +8,12 @@ import {
   useMutationButton,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
-
-import type { NotificationFilter } from '../shared/notification';
+import { useNotificationsShell } from '../../public/notifications-provider-registry';
+import { useNotifications } from '../../public/use-notifications';
+import { useNotificationsActions } from '../../public/use-notifications-actions';
+import type { NotificationFilter } from '../../shared/notifications/notification';
 import { NotificationsFilterBar } from './notifications-filter-bar';
 import { NotificationsList } from './notifications-list';
-import { useNotificationsShell } from './notifications-provider-registry';
-import { useNotifications } from './use-notifications';
-import { useNotificationsActions } from './use-notifications-actions';
 
 export type NotificationsScreenProps = {
   readonly initialFilter?: NotificationFilter;

@@ -1,10 +1,10 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { sql } from '@pkgs/sql';
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 
-import { closeEndedOpenSessionsMutation } from '../../shared/mutations/space-mutations';
+import { closeEndedOpenSessionsMutation } from '../shared/close-ended-open-sessions-mutation';
 
 type EndedSessionRow = {
   readonly space_id: string;

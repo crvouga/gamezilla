@@ -1,4 +1,4 @@
-import { useSyncLocalDataActions } from '@libs/auth/client/sync-local-data-actions-context';
+import { useSyncLocalDataActions } from '@libs/auth/root/client/sync-local-data-actions-context';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { DatabaseIcon, MutationModal, RegisterCommand } from '@pkgs/ui';
 import { useCallback, useState } from 'react';

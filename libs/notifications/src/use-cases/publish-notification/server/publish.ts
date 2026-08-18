@@ -2,20 +2,20 @@ import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import { managedUpdatedAtIso } from '@pkgs/sync-engine/shared';
 import type { CreateId } from '@pkgs/uuid';
-import type { Notification } from '../shared/notification';
-import { buildNotificationId } from '../shared/notification-id';
-import { NotificationsError } from '../shared/notifications-errors';
+import type { Notification } from '../../../shared/notifications/notification';
+import { buildNotificationId } from '../../../shared/notifications/notification-id';
+import { NotificationsError } from '../../../shared/notifications/notifications-errors';
+import type {
+  DeactivateNotificationInput,
+  PublishNotificationInput,
+  UpdateNotificationInput,
+} from '../../../shared/notifications/publish-types';
+import { rowToNotification } from '../../../shared/notifications/row-mapper';
 import {
   findById,
   findBySource,
   upsertNotificationSql,
 } from './publish-helpers';
-import { rowToNotification } from './row-mapper';
-import type {
-  DeactivateNotificationInput,
-  PublishNotificationInput,
-  UpdateNotificationInput,
-} from './types';
 
 export async function publishNotification(
   db: SqlTx,
@@ -90,5 +90,5 @@ export async function findNotificationBySource(
   return rowToNotification(row);
 }
 
-export type { PublishNotificationInput } from './types';
+export type { PublishNotificationInput } from '../../../shared/notifications/publish-types';
 export { buildNotificationId, findById as findStoredNotificationById };

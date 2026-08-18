@@ -2,7 +2,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
-import { managedInsertColumns } from '../shared/managed-row';
+import { managedInsertColumns } from './managed-row';
 
 type UserIdRow = { readonly user_id: string };
 

@@ -1,4 +1,4 @@
-import { compareCodeUnit } from '../../shared/code-unit-compare';
+import { compareCodeUnit } from '../../../shared/chess/code-unit-compare';
 
 /**
  * Pure helpers for converting a parsed Lichess CSV row into chess_puzzles

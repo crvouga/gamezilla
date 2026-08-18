@@ -1,7 +1,7 @@
-import { SessionAuth } from '@libs/auth/server/session-middleware';
-import type { AuthContext } from '@libs/auth/server/types';
-import type { DesiredClientConfig } from '@libs/client-config/server/ensure-client-config-materialized';
-import { EnsureClientConfigMaterialized } from '@libs/client-config/server/ensure-client-config-materialized';
+import { SessionAuth } from '@libs/auth/public/session-middleware';
+import type { AuthContext } from '@libs/auth/public/types';
+import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
+import { EnsureClientConfigMaterialized } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,

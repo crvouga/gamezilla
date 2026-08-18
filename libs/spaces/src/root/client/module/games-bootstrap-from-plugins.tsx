@@ -1,9 +1,12 @@
 import { useClock } from '@pkgs/clock';
 import { type ReactNode, useMemo } from 'react';
 
-import type { GameClientDefinition, GameDefinition } from '../../shared/game';
-import { composeSpaceRoomModule } from '../../shared/load-game-plugins';
-import { createSpaceEventLogRouter } from '../../shared/space-log/space-log-router';
+import type {
+  GameClientDefinition,
+  GameDefinition,
+} from '../../../shared/space/game';
+import { composeSpaceRoomModule } from '../../../shared/space/load-game-plugins';
+import { createSpaceEventLogRouter } from '../../../shared/space/space-log/space-log-router';
 import { GamesRegistryProvider } from './games-registry-context';
 import { SpaceEventLogRouterProvider } from './space-event-log-router-context';
 import {

@@ -38,7 +38,7 @@ yarn-error.*
 
 # Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
 **/.jest-cache/
-test/ui/.cache/
+test/system/.cache/
 pkgs/ui-testing/.cache/
 pkgs/simulation/.cache/
 

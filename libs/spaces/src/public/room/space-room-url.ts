@@ -1,4 +1,4 @@
-import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
+import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
 
 export type SpaceRoomWebSocketUrlArgs = {
   apiUrl: string;

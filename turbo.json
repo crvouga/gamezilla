@@ -213,8 +213,8 @@
         "apps/api/scripts/setup-dev-vars.ts",
         "apps/api/src/db/migrate.ts",
         "apps/api/src/app/request-db-middleware.ts",
-        "libs/stripe/src/script-runtime.ts",
-        "libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts",
+        "libs/stripe/src/shared/stripe/script-runtime.ts",
+        "libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
         "tools/scripts/check-database-url-policy.ts"
       ],
       "outputs": [],
@@ -253,6 +253,29 @@
         "test/**/*.cts",
         "test/*/package.json",
         "tools/scripts/check-tier-imports.ts",
+        "tools/scripts/workspace-package-import-graph.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:use-case-isolation": {
+      "inputs": [
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "tools/scripts/check-use-case-isolation.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:libs-import-surface": {
+      "inputs": [
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "test/**/*.ts",
+        "test/**/*.tsx",
+        "tools/scripts/check-libs-import-surface.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
       "outputs": [],
@@ -305,9 +328,9 @@
     },
     "//#ci:dst-selector-discipline": {
       "inputs": [
-        "test/ui/src/scenarios/**/*.ts",
-        "test/ui/src/scenarios/**/*.tsx",
-        "test/ui/src/drivers/**/*.ts",
+        "test/system/src/scenarios/**/*.ts",
+        "test/system/src/scenarios/**/*.tsx",
+        "test/system/src/drivers/**/*.ts",
         "tools/scripts/check-dst-selector-discipline.ts"
       ],
       "outputs": [],

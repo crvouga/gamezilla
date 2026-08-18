@@ -1,9 +1,8 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCallback } from 'react';
-
-import { renameSpaceMutation } from '../../shared/mutations/space-mutations';
-import { AnnounceRenamed } from '../../shared/space-log/space-log-messages';
-import { useSpaceRoomDispatch } from '../room/use-space-room-selector';
+import { useSpaceRoomDispatch } from '../../../public/room/use-space-room-selector';
+import { AnnounceRenamed } from '../../../shared/space/space-log/space-log-messages';
+import { renameSpaceMutation } from '../../mutations';
 
 export function useRenameSpace() {
   const mutationClient = useMutationClient();

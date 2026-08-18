@@ -1,8 +1,8 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { type ReactNode, useEffect } from 'react';
 
-import { ProfileEnsurer } from './ensure-profile-local/ensure-profile';
+import { ProfileEnsurer } from '../../use-cases/ensure-profile/client/ensure-profile';
 
 /**
  * Profile bootstrap: ensures a local profile row (with auto username) for the

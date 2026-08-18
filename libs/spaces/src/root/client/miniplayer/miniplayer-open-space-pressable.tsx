@@ -1,7 +1,7 @@
 import { useLingui } from '@lingui/react/macro';
 import { Pressable, useRouter } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { openSpaceDetail } from '../space-routes';
+import { openSpaceDetail } from '../../../public/space-routes';
 
 export type MiniplayerOpenSpacePressableProps = {
   spaceId: string;

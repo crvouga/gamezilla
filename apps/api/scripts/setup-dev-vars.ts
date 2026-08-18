@@ -2,8 +2,8 @@
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/shared/local-api-origin';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/shared/local-preview-api-origin';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/public/local-preview-api-origin';
 import {
   getApiWorkerSecrets,
   loadSecretsIntoEnv,

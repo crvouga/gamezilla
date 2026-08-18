@@ -1,9 +1,9 @@
 /**
- * Product DST provide map for `@test/ui` — leaf adapters only (no registries).
+ * Product DST provide map for `@test/system` — leaf adapters only (no registries).
  */
 
 import { attachSimOpenRequestDb } from '@apps/api/system/sim-open-request-db';
-import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
+import { createInMemoryStripe } from '@libs/stripe/root/in-memory-stripe';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import type { Kv } from '@pkgs/kv/interface';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';

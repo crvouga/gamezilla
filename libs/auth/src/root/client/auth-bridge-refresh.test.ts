@@ -3,7 +3,7 @@ import type { Timers } from '@pkgs/clock';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '../../public/auth-storage-keys';
 
 mock.module('./collect-device-snapshot', () => ({
   collectDeviceSnapshot: () => ({}),
@@ -41,11 +41,13 @@ function jsonResponse(status: number, body: unknown): Response {
 
 describe('AuthBridgeRefresh unauthorized recovery', () => {
   let AuthBridgeRefresh: typeof import('./auth-bridge-refresh').AuthBridgeRefresh;
-  let SessionCapabilityStore: typeof import('./session-capability').SessionCapabilityStore;
+  let SessionCapabilityStore: typeof import('../../public/session-capability').SessionCapabilityStore;
 
   beforeAll(async () => {
     ({ AuthBridgeRefresh } = await import('./auth-bridge-refresh'));
-    ({ SessionCapabilityStore } = await import('./session-capability'));
+    ({ SessionCapabilityStore } = await import(
+      '../../public/session-capability'
+    ));
   });
 
   test('401 refresh clears dead token and binds anon account id', async () => {

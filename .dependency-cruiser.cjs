@@ -21,25 +21,29 @@ module.exports = {
         pathNot: 'smoke-tests',
       },
     },
-    // Shared cannot reach into any runtime-specific code, anywhere in the repo.
+    // Shared cannot reach into any runtime-specific code, anywhere in the repo
+    // (pkgs triad src/shared and product-lib use-cases/*/shared + src/shared).
     {
       name: 'shared-pure',
       severity: 'error',
-      from: { path: '/src/shared/' },
-      to: { path: '/src/(client|server)/' },
+      from: {
+        path: '(/src/shared/|/use-cases/[^/]+/shared/)',
+      },
+      to: { path: '/(client|server)/' },
     },
-    // Within and across feature packages, client and server are isolated.
+    // Within and across feature packages, client and server are isolated
+    // (pkgs src/client, use-cases/*/client, root/client).
     {
       name: 'client-not-server',
       severity: 'error',
-      from: { path: '/src/client/' },
-      to: { path: '/src/server/' },
+      from: { path: '/client/' },
+      to: { path: '/server/' },
     },
     {
       name: 'server-not-client',
       severity: 'error',
-      from: { path: '/src/server/' },
-      to: { path: '/src/client/' },
+      from: { path: '/server/' },
+      to: { path: '/client/' },
     },
     {
       name: 'no-non-package-json',
@@ -122,7 +126,7 @@ module.exports = {
       comment:
         'Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See DETERMINISM.md.',
       from: {
-        path: '(^libs/[^/]+/src/shared/|^pkgs/room/src/(client/core|server/core|types\\.ts|hash-room-state\\.ts))',
+        path: '(^libs/[^/]+/src/shared/|^libs/[^/]+/src/use-cases/[^/]+/shared/|^pkgs/room/src/(client/core|server/core|types\\.ts|hash-room-state\\.ts))',
         pathNot:
           '(\\.(test|spec|sim\\.test)\\.|/(test|tests|testing|testkit|__tests__)/)',
       },

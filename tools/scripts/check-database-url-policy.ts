@@ -38,18 +38,18 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnv'],
   },
   {
-    file: 'libs/stripe/src/script-runtime.ts',
+    file: 'libs/stripe/src/shared/stripe/script-runtime.ts',
     mustInclude: [
       'assertDevSecretsEnv',
       'assertDatabaseUrlAllowedForSecretsEnvForTooling',
     ],
   },
   {
-    file: 'libs/chess/src/server/seed-chess-puzzle/chess-puzzle-seeder.ts',
+    file: 'libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts',
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnvForTooling'],
   },
   {
-    file: 'libs/chess/src/server/seed-chess-puzzle/export-chess-puzzles-load.ts',
+    file: 'libs/chess/src/root/server/seed-chess-puzzles/export-chess-puzzles-load.ts',
     mustInclude: [
       'assertDevSecretsEnv',
       'assertDatabaseUrlAllowedForSecretsEnvForTooling',

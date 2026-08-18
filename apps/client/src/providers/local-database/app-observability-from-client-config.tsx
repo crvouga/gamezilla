@@ -1,4 +1,4 @@
-import { useClientConfig } from '@libs/client-config/client/use-client-config';
+import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import { ObservabilityProvider as BaseObservabilityProvider } from '@pkgs/observability/client/observability-provider';
 import type { ReactNode } from 'react';
 

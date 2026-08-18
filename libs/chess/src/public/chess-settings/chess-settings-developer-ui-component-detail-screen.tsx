@@ -1,8 +1,8 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
 import { Box, EmptyState, ExplorerDetail } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect } from 'react';
@@ -11,7 +11,7 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
-} from '../../shared/chess-main-menu';
+} from '../chess-main-menu';
 import {
   CHESS_COMPONENT_ENTRIES,
   ensureChessBoardExampleRegistered,

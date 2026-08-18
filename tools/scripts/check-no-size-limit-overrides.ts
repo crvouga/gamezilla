@@ -34,7 +34,7 @@ const ALLOWED_OVERRIDE_INCLUDES = new Set([
   'apps/client/src/providers/app-providers.tsx',
   'libs/infra/src/cli/**/*.ts',
   'libs/stripe/scripts/**/*.ts',
-  'libs/stripe/src/sync/**/*.ts',
+  'libs/stripe/src/use-cases/sync-catalog/server/sync/**/*.ts',
   'pkgs/async/src/use-async.ts',
   'pkgs/chess-board/src/use-chess-game.ts',
   '**/scripts/**',

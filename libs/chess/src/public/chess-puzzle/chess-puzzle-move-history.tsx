@@ -14,7 +14,7 @@ import type {
   View,
 } from 'react-native';
 
-import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
+import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';
 
 const ROW_HEIGHT = 28;

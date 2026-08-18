@@ -11,7 +11,7 @@ import {
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
+import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;

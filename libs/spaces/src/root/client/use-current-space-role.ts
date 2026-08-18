@@ -1,4 +1,4 @@
-import { useSpacePresence } from './use-space-presence';
+import { useSpacePresence } from '../../public/use-space-presence';
 
 /**
  * Returns the current user's role on `spaceId` — `'host'`, `'guest'`, or

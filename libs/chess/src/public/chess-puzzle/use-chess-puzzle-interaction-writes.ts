@@ -1,5 +1,5 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useClock } from '@pkgs/clock';
 import { useCreateId } from '@pkgs/uuid';
 import { useCallback, useMemo } from 'react';
@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react';
 import type {
   ChessPuzzleInteractionKind,
   ChessPuzzleInteractionRow,
-} from '../../shared/chess-puzzle-interaction-entities';
+} from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 

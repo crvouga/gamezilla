@@ -6,7 +6,7 @@ import {
   parseAvatarConfig,
   serializeAvatarConfig,
   serializeDefaultAvatarConfig,
-} from './avatar-config';
+} from '../../public/avatar-config';
 
 describe('createDefaultAvatarConfig', () => {
   test('uses profile entity id as seed and default style', () => {

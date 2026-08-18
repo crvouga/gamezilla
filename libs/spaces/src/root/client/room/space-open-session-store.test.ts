@@ -6,7 +6,7 @@ import {
   clearSpaceOpenSession,
   readSpaceClientId,
   SpaceOpenSessionStore,
-} from './space-open-session-store';
+} from '../../../public/room/space-open-session-store';
 
 const io = createSimIo({ seed: 1 });
 

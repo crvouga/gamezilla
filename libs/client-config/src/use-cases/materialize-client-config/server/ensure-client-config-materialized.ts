@@ -6,7 +6,7 @@ import {
   ClientConfigKey,
   type ClientConfigKeyId,
   type ObservabilityBackendName,
-} from '../shared/client-config-keys';
+} from '../../../shared/client-config/client-config-keys';
 import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {

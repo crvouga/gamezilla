@@ -1,4 +1,4 @@
-import { exportChessPuzzlesLoadFile } from '@libs/chess/server/seed-chess-puzzle/export-chess-puzzles-load';
+import { exportChessPuzzlesLoadFile } from '@libs/chess/root/server/seed-chess-puzzles/export-chess-puzzles-load';
 import { assert } from '@pkgs/assert';
 
 await exportChessPuzzlesLoadFile(process.argv.slice(2)).catch(

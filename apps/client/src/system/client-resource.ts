@@ -1,6 +1,6 @@
 /**
  * Helpers for DST client composition — Io from ResourceCtx + App props.
- * Driver / RNTL mounting lives in `@test/ui`.
+ * Driver / RNTL mounting lives in `@test/system`.
  */
 
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';

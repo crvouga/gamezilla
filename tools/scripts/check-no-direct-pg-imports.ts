@@ -38,19 +38,21 @@ const ALLOWED_CONNECT_IMPORT_FILES = new Set([
     'libs',
     'chess',
     'src',
+    'root',
     'server',
-    'seed-chess-puzzle',
+    'seed-chess-puzzles',
     'chess-puzzle-seeder.ts'
   ),
   join(
     'libs',
     'chess',
     'src',
+    'root',
     'server',
-    'seed-chess-puzzle',
+    'seed-chess-puzzles',
     'export-chess-puzzles-load.ts'
   ),
-  join('libs', 'stripe', 'src', 'script-runtime.ts'),
+  join('libs', 'stripe', 'src', 'shared', 'stripe', 'script-runtime.ts'),
   join('libs', 'infra', 'src', 'cli', 'secrets', 'db-url.ts'),
   join('tools', 'scripts', 'run-postgres-migrations-secrets.ts'),
 ]);

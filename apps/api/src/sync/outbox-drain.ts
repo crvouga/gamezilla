@@ -3,7 +3,7 @@ import {
   friendRequestAcceptedNotifyConsumer,
   friendRequestClosedNotifyConsumer,
   friendRequestSentNotifyConsumer,
-} from '@libs/friends/server/friends-outbox-consumers';
+} from '@libs/friends/root/server/friends-outbox-consumers';
 import { assert } from '@pkgs/assert';
 import type { Io } from '@pkgs/io';
 import { drainOutbox, OutboxConsumerRegistry } from '@pkgs/outbox';

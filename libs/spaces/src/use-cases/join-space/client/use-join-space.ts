@@ -1,7 +1,7 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCallback } from 'react';
 
-import { joinSpaceMutation } from '../../shared/mutations/space-mutations';
+import { joinSpaceMutation } from '../shared/join-space-mutation';
 
 export function useJoinSpace() {
   const mutationClient = useMutationClient();

@@ -1,4 +1,4 @@
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 import type { Timers } from '@pkgs/clock';
 import type { Io } from '@pkgs/io';
 import { useIo } from '@pkgs/io';

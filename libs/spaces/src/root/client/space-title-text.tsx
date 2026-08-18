@@ -1,9 +1,8 @@
 import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
 import { optionalProps } from '@pkgs/ui/components/optional-props';
 import type { ReactNode } from 'react';
+import { SpaceField, useSpaceColumn } from '../../public/use-space-column';
 import { SpaceHostFallbackTitle } from './members/space-host-fallback-title';
-
-import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceTitleTextProps = {
   spaceId: string;

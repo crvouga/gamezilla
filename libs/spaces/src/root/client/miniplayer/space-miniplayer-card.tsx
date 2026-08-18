@@ -1,10 +1,10 @@
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { SpaceCardGradientBox } from '../card/space-card-gradient';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
-import { SpaceField, useSpaceColumn } from '../use-space-column';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';

@@ -6,7 +6,7 @@ import {
 } from '@pkgs/room';
 import { useCallback } from 'react';
 
-import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
+import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
 import { useSpaceOpenRooms } from './space-open-rooms-context';
 import { useSpaceRoomSessionId } from './space-room-context';
 

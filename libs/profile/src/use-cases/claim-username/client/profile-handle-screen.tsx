@@ -1,4 +1,4 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { Handles } from '@libs/dst-handles';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
@@ -17,9 +17,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import { claimUsernameMutation } from '../../shared/mutations/profile-mutations';
-import { useMyProfileId } from '../use-my-profile-id';
-import { type ProfileRow, useProfileRow } from '../use-profile-row';
+import { claimUsernameMutation } from '../shared/claim-username-mutation';
+import { useMyProfileId } from './use-my-profile-id';
+import { type ProfileRow, useProfileRow } from './use-profile-row';
 
 function useSyncedUsername(row: ProfileRow | null) {
   const [value, setValue] = useState('');

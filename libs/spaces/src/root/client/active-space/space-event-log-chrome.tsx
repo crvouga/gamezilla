@@ -2,8 +2,8 @@
  * Spaces wiring for the collaborative event log bar + surface.
  */
 
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { UserUsername } from '@libs/profile/client/user-username';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
+import { UserUsername } from '@libs/profile/public/user-username';
 import { useLingui } from '@lingui/react/macro';
 import { type LogLine, projectEventLog } from '@pkgs/collab';
 import { EventLogBar, EventLogSurface } from '@pkgs/collab-ui';
@@ -11,13 +11,12 @@ import { asLocalized } from '@pkgs/i18n';
 import type { RoomActor } from '@pkgs/room';
 import { RoomMetaAttr, useNamedRoomLog } from '@pkgs/room';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-
-import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
-import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
 import {
   SPACE_ROOM_NAME,
   useSpaceRoomSelector,
-} from '../room/use-space-room-selector';
+} from '../../../public/room/use-space-room-selector';
+import { useSpaceEventLogRouter } from '../module/space-event-log-router-context';
+import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
 
 function renderSpaceEventAvatar(
   actor: RoomActor | null,

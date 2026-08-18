@@ -3,7 +3,7 @@
  * Local-dev seed orchestrator. Invoked after migrate on `@apps/postgres` boot.
  * Compose {@link DatabaseSeeder} units here (same pattern as migrations).
  */
-import { ChessPuzzleLoadFileSeeder } from '@libs/chess/server/seed-chess-puzzle/chess-puzzle-load-file-seeder';
+import { ChessPuzzleLoadFileSeeder } from '@libs/chess/root/server/seed-chess-puzzles/chess-puzzle-load-file-seeder';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { ComposedDatabaseSeeder } from '@pkgs/db-migrate';
 import { wallIo } from '@pkgs/io';

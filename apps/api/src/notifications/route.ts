@@ -1,10 +1,8 @@
-import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
-import { appAuth } from '@libs/auth/shared/auth-context';
-import { HandleFriendsNotificationsActionUseCase } from '@libs/friends/server/handle-friends-notifications-action-use-case';
-import {
-  NotificationsApp,
-  registerNotificationActionHandler,
-} from '@libs/notifications';
+import { appAuth } from '@libs/auth/public/auth-context';
+import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
+import { HandleFriendsNotificationsActionUseCase } from '@libs/friends/root/server/handle-friends-notifications-action-use-case';
+import { registerNotificationActionHandler } from '@libs/notifications/public/notifications';
+import { NotificationsApp } from '@libs/notifications/root/server/notifications-app';
 import { assert } from '@pkgs/assert';
 import { AsyncLocalStorage } from '@pkgs/async-local';
 import type { SqlClient } from '@pkgs/sql-client/interface';

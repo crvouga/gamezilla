@@ -4,7 +4,7 @@
  * Sims pass the full bag from `client.implement`.
  */
 
-import type { CreateRoomTransport } from '@libs/spaces/client/room/room-transport-factory';
+import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
 import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
 import type { Kv } from '@pkgs/kv/interface';
 import type { Observability } from '@pkgs/observability/port/observability';

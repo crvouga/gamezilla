@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
-import { ExternalAccountRepository } from '@libs/auth/server/external-account-repository';
-import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/shared/external-account-providers';
+import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/public/external-account-providers';
+import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
 import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import type Stripe from 'stripe';
 import { z } from 'zod';
-import { STRIPE_CATALOG_PRICE_KEYS } from './catalog-spec';
+import { STRIPE_CATALOG_PRICE_KEYS } from '../../../shared/stripe/catalog-spec';
 
 const log = createLogger({
   name: 'stripe:checkout',

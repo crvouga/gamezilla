@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { chessPuzzleStatusKindFromState } from './chess-puzzle-status-from-state';
+import { chessPuzzleStatusKindFromState } from '../../../public/chess-puzzle/chess-puzzle-status-from-state';
 
 describe('chessPuzzleStatusKindFromState', () => {
   test('maps loading status to loading kind regardless of orientation', () => {

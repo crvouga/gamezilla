@@ -1,4 +1,4 @@
-import { DEV_PROVIDER, GOOGLE_PROVIDER } from '../shared';
+import { DEV_PROVIDER, GOOGLE_PROVIDER } from '../../shared/auth/auth-entities';
 
 const PROVIDER_LABELS: Record<string, string> = {
   [GOOGLE_PROVIDER]: 'Google',

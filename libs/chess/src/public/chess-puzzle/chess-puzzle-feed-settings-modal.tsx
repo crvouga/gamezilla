@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
@@ -26,13 +26,13 @@ import {
   PUZZLE_FEED_RATING_MAX,
   PUZZLE_FEED_RATING_MIN,
   resolveEffectivePuzzleRating,
-} from '../../shared/chess-puzzle-feed-config';
-import { formatChessPuzzleThemeLabel } from '../../shared/chess-puzzle-theme-label';
+} from '../chess-puzzle-feed-config';
+import { formatChessPuzzleThemeLabel } from '../chess-puzzle-theme-label';
 import {
   CHESS_PUZZLE_THEMES,
   type ChessPuzzleTheme,
   isChessPuzzleTheme,
-} from '../../shared/chess-puzzle-themes';
+} from '../chess-puzzle-themes';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';

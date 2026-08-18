@@ -1,8 +1,8 @@
-import { DeviceAvatar } from '@libs/profile/client/device-avatar';
-import { parseAvatarConfig } from '@libs/profile/shared/avatar-config';
+import { parseAvatarConfig } from '@libs/profile/public/avatar-config';
+import { DeviceAvatar } from '@libs/profile/public/device-avatar';
 import type { ReactNode } from 'react';
 
-import type { FriendProfile } from '../shared/friends-types';
+import type { FriendProfile } from '../shared/friendship/friends-types';
 
 export type FriendProfileAvatarProps = {
   readonly profile: FriendProfile;

@@ -1,9 +1,9 @@
-import type { GameClientDefinition } from '@libs/spaces/shared/game';
+import type { GameClientDefinition } from '@libs/spaces/public/game';
 import { Trans } from '@lingui/react/macro';
 import { preloadChessBoardCanvas } from '@pkgs/chess-board/chess-board-canvas-runtime';
 
-import { CHESS_GAME_ID } from '../shared/chess-game';
-import { ChessMainMenu } from './chess-main-menu';
+import { CHESS_GAME_ID } from './chess-game';
+import { ChessMainMenu } from './chess-main-menu-view';
 
 /**
  * Client-side chess game registration. Listed in `@libs/games` and provided to

@@ -1,7 +1,10 @@
 import type { Io } from '@pkgs/io';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-import type { Notification } from '../shared/notification';
-import { deactivateNotification, publishNotification } from './publish';
+import type { Notification } from '../shared/notifications/notification';
+import {
+  deactivateNotification,
+  publishNotification,
+} from '../use-cases/publish-notification/server/publish';
 import type {
   DeactivateNotificationInput,
   PublishNotificationInput,

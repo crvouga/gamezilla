@@ -1,1 +1,1 @@
-export { useMutationClient } from './mutation-client-provider';
+export { useMutationClient } from '../../public/mutation-client-provider';

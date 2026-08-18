@@ -1,9 +1,9 @@
-import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
+import type { ApiHonoEnv } from '@libs/auth/public/api-hono-env';
 import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
-import { withFriendsAuth } from './friends-route-auth';
-import { readRequiredString } from './friends-route-utils';
-import { SearchFriendsUseCase } from './search-friends-use-case';
+import { withFriendsAuth } from '../../use-cases/search-friends/server/friends-route-auth';
+import { readRequiredString } from '../../use-cases/search-friends/server/friends-route-utils';
+import { SearchFriendsUseCase } from '../../use-cases/search-friends/server/search-friends-use-case';
 
 type SearchBody = { readonly query?: string; readonly limit?: number };
 

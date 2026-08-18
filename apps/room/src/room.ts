@@ -1,7 +1,7 @@
 // @io-wall-ok — Room Worker composition root (Durable Object isolate).
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
-import { composeRoomModules } from '@libs/spaces/shared/load-game-plugins';
+import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
 import { wallIo } from '@pkgs/io';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 

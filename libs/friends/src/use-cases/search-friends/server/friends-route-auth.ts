@@ -1,12 +1,12 @@
-import type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
-import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
-import { type AppAuth, appAuth } from '@libs/auth/shared/auth-context';
+import type { ApiHonoEnv } from '@libs/auth/public/api-hono-env';
+import { type AppAuth, appAuth } from '@libs/auth/public/auth-context';
+import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import type { Context } from 'hono';
 
 import {
   type FriendsErrorCode,
   isFriendsError,
-} from '../shared/friends-errors';
+} from '../../../shared/friendship/friends-errors';
 
 async function requireSignedInFriendsAuth(
   c: Context<ApiHonoEnv>

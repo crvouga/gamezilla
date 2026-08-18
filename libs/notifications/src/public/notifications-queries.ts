@@ -1,7 +1,7 @@
 import { type Sql, sql } from '@pkgs/sql';
 
-import type { NotificationFilter } from '../shared/notification';
-import type { StoredNotificationRow } from '../shared/stored-notification-row';
+import type { NotificationFilter } from '../shared/notifications/notification';
+import type { StoredNotificationRow } from '../shared/notifications/stored-notification-row';
 
 export type InboxUnreadCountRow = {
   readonly count: number | string;

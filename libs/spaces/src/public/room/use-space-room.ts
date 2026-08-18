@@ -1,9 +1,9 @@
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
+import { useConfigService } from '@libs/auth/public/config-service-context';
+import { useMyDeviceId, useMyId } from '@libs/auth/public/use-current-user';
 import {
   useFreshAuthToken,
   useGetFreshAuthToken,
-} from '@libs/auth/client/use-fresh-auth-token';
+} from '@libs/auth/public/use-fresh-auth-token';
 import { useKv } from '@pkgs/kv/kv-context';
 import type {
   ClientTransport,

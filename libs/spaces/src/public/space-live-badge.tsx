@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { useIsSpaceOpenLocally } from './open-space/use-open-space-session-ids';
+import { useIsSpaceOpenLocally } from '../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceLiveBadgeProps = {

@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   buildLinkedProviders,
   readLinkedProviderField,
-} from './linked-account-providers';
+} from '../../public/linked-account-providers';
 
 const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const AUTH_USER_ID = 'user_external_1';

@@ -1,4 +1,4 @@
-import { MySpaceIdsLoader } from '@libs/spaces/server/load-my-space-ids-sql';
+import { MySpaceIdsLoader } from '@libs/spaces/root/server/load-my-space-ids-sql';
 import { assert } from '@pkgs/assert';
 import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';

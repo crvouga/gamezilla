@@ -1,11 +1,11 @@
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionKind,
-} from '../../shared/chess-puzzle-interaction-entities';
+} from '../chess-puzzle-interaction-entities';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 
 type AppendInteraction = (
   kind: ChessPuzzleInteractionKind,

@@ -1,4 +1,4 @@
-import type { AuthContext } from '@libs/auth/server/types';
+import type { AuthContext } from '@libs/auth/public/types';
 import { assert } from '@pkgs/assert';
 import {
   type BetterAuthInstance,

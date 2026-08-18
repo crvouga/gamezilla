@@ -1,10 +1,10 @@
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import {
   UserSearchQueryHint,
   UserSearchSignInPrompt,
   useDebouncedUserSearchEffect,
-} from '@libs/user-search/client/use-user-search';
-import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/shared/user-search-types';
+} from '@libs/user-search/public/use-user-search';
+import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Box, Combobox, type ComboboxOption, Text } from '@pkgs/ui';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';

@@ -1,8 +1,8 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Box, Card, CopyToClipboardField, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { useIsSignedIn } from '../../../public/use-current-user';
 import { useAccountDeviceIds } from '../use-account-device-ids';
-import { useIsSignedIn } from '../use-current-user';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
 
 function CaptionLine({ label }: { label: ReactNode }) {

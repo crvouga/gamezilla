@@ -6,7 +6,7 @@ import {
   shouldBindAnonUserAfterEnsure,
   shouldClearAccountOnExternalUserChange,
   shouldClearCapabilityOnBaSignedOut,
-} from './resolve-client-identity';
+} from '../../public/resolve-client-identity';
 
 describe('resolveIsSignedIn', () => {
   test('requires user id, token, and non-anon', () => {

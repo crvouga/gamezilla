@@ -1,7 +1,7 @@
-import { AuthModalsProvider } from '@libs/auth/client/auth-modals-provider';
-import { EndSpaceModalProvider } from '@libs/spaces/client/end-space/end-space-modal-provider';
-import { LeaveSpaceModalProvider } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
-import { ReconcileEndedOpenSessions } from '@libs/spaces/client/leave-space/reconcile-ended-open-sessions';
+import { AuthModalsProvider } from '@libs/auth/public/auth-modals-provider';
+import { EndSpaceModalProvider } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
+import { LeaveSpaceModalProvider } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
+import { ReconcileEndedOpenSessions } from '@libs/spaces/root/client/reconcile-ended-open-sessions';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 

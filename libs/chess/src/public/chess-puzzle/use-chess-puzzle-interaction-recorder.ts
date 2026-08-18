@@ -1,12 +1,12 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { sliceCurrentPlay } from '../../shared/chess-puzzle-derive';
+import { sliceCurrentPlay } from '../chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionRow,
-} from '../../shared/chess-puzzle-interaction-entities';
-import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-interaction-entities';
+import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 import { syncInteractionForRoomStatus } from './chess-puzzle-interaction-status-sync';
 import { useChessPuzzleInteractionWrites } from './use-chess-puzzle-interaction-writes';
 

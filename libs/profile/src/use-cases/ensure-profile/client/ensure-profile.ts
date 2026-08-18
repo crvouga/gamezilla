@@ -1,6 +1,6 @@
 import type { MutationClient } from '@pkgs/sync-engine/client';
 
-import { ensureProfileMutation } from '../../shared/mutations/profile-mutations';
+import { ensureProfileMutation } from '../shared/ensure-profile-mutation';
 
 /**
  * Ensures a local `profiles` row exists for `auth.userId` (install id when

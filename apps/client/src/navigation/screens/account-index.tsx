@@ -2,14 +2,14 @@
  * Account settings route: profile identity + account management.
  */
 
-import { AccountScreen } from '@libs/auth/client/account-screen';
 import {
   useIsAnon,
   useSessionAccountEmail,
-} from '@libs/auth/client/use-current-user';
-import { MyProfileAvatar } from '@libs/profile/client/my-profile-avatar';
-import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
-import { useProfileColumn } from '@libs/profile/client/use-profile-column';
+} from '@libs/auth/public/use-current-user';
+import { AccountScreen } from '@libs/auth/root/client/account-screen';
+import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
+import { useProfileColumn } from '@libs/profile/public/use-profile-column';
+import { MyProfileAvatar } from '@libs/profile/root/client/my-profile-avatar';
 import { useLingui } from '@lingui/react/macro';
 import type { LocalizedString } from '@pkgs/i18n';
 import { useSyncEngine } from '@pkgs/sync-engine/client';

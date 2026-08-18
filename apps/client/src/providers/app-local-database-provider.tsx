@@ -1,5 +1,5 @@
-import { AuthSyncBridge } from '@libs/auth/client/auth-sync-bridge';
-import { ProfileProvider } from '@libs/profile/client/profile-provider';
+import { AuthSyncBridge } from '@libs/auth/root/client/auth-sync-bridge';
+import { ProfileProvider } from '@libs/profile/root/client/profile-provider';
 import { ComposeProviders } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { DeviceEntityBootstrap } from './local-database/device-bootstrap';

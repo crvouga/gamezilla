@@ -1,9 +1,9 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import type { SpaceVisibility } from '@libs/spaces/shared/space-visibility';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCreateId } from '@pkgs/uuid';
 import { useCallback } from 'react';
+import type { SpaceVisibility } from '../../../shared/space/space-visibility';
 
-import { createSpaceMutation } from '../../shared/mutations/space-mutations';
+import { createSpaceMutation } from '../shared/create-space-mutation';
 
 export type CreateSpaceOptions = {
   readonly visibility?: SpaceVisibility;

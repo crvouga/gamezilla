@@ -6,7 +6,7 @@ import {
   SIGN_IN_RETURN_FALLBACK_HREF,
   sanitizeSignInReturnHref,
   signInReturnHrefFromPending,
-} from './sign-in-pending';
+} from '../../public/sign-in-pending';
 
 const io = createSimIo({ seed: 1 });
 

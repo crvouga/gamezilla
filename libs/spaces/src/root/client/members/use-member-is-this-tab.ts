@@ -1,6 +1,6 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 
-import { useSpacePresence } from '../room/use-space-presence';
+import { useSpacePresence } from '../../../public/room/use-space-presence';
 
 /**
  * Whether `memberId` is this user *and* this browser tab has an active

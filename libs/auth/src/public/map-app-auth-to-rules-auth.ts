@@ -1,4 +1,4 @@
-import type { AppAuth } from '@libs/auth/shared/auth-context';
+import type { AppAuth } from '@libs/auth/public/auth-context';
 
 import type { AppRulesAuth } from './app-rules-auth';
 

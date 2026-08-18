@@ -3,7 +3,7 @@
  * Package-level graph of @apps|@libs|@pkgs|@test / * imports discovered from source.
  * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.
  *
- * Graph keys are full scoped names (`@pkgs/ui`, `@test/ui`) so short-name
+ * Graph keys are full scoped names (`@pkgs/ui`, `@test/system`) so short-name
  * collisions across tiers do not merge unrelated packages.
  */
 
@@ -23,7 +23,7 @@ export type PackageName = string;
 /** from -> to -> sample importer paths (relative to repo root) */
 export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
-/** Captures the full scoped import (`@apps/api`, `@test/ui`, …). */
+/** Captures the full scoped import (`@apps/api`, `@test/system`, …). */
 export const IMPORT_PATTERN =
   /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs|test)\/[^/'"\s)]+)/g;
 

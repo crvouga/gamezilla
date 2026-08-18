@@ -1,20 +1,17 @@
 import type { Clock } from '@pkgs/clock';
 import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
+import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
+import { upsertPuzzleProfileMutation } from '../../use-cases/upsert-puzzle-profile/shared/upsert-puzzle-profile-mutation';
 import {
   deriveOutcomeScore,
   isPlayClosed,
   sliceCurrentPlay,
-} from '../../shared/chess-puzzle-derive';
-
-import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
-import { updatePuzzleRating } from '../../shared/chess-puzzle-rating';
-import {
-  appendPuzzleInteractionMutation,
-  upsertPuzzleProfileMutation,
-} from '../../shared/mutations/chess-mutations';
-import type { AppendPuzzleInteractionInput } from '../../shared/writes/append-puzzle-interaction-write';
-import type { UpsertPuzzleProfileInput } from '../../shared/writes/upsert-puzzle-profile-write';
+} from '../chess-puzzle-derive';
+import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
+import { updatePuzzleRating } from '../chess-puzzle-rating';
+import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
+import type { UpsertPuzzleProfileInput } from '../writes/upsert-puzzle-profile-write';
 
 function nowIso(clock: Clock): string {
   return new Date(clock.now()).toISOString();

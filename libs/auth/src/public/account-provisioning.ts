@@ -1,8 +1,8 @@
-import { assertUuid } from '@libs/auth/shared/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Io } from '@pkgs/io';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { assertUuid } from '../shared/auth/device-id';
 
 import { AnonUserService } from './anon-user-service';
 import { ExternalAccountRepository } from './external-account-repository';

@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,
-} from '../card/space-card-gradient';
-import { SpaceSummaryHeader } from '../card/space-summary-header';
-import { SpaceGuestSection } from '../members/space-guest-section';
+} from '../../../root/client/card/space-card-gradient';
+import { SpaceSummaryHeader } from '../../../root/client/card/space-summary-header';
+import { SpaceGuestSection } from '../../../root/client/members/space-guest-section';
 
 export type SpaceJoinLiveBodyProps = {
   spaceId: string;

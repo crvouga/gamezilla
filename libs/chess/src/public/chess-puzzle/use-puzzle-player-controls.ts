@@ -1,6 +1,6 @@
 import type { Move, Square } from '@pkgs/chess-board/chess-board-types';
 import { useCallback, useRef } from 'react';
-import type { ChessPuzzlePlayStatus } from '../../shared/chess-puzzle-play';
+import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 import { type HintStage, hintStageFromRoom } from './use-hint-stage';
 import { puzzleNavFromState } from './use-puzzle-nav';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';

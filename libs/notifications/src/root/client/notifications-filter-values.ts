@@ -1,4 +1,4 @@
-import type { NotificationFilter } from '../shared/notification';
+import type { NotificationFilter } from '../../shared/notifications/notification';
 
 export const NOTIFICATIONS_FILTER_ALL: NotificationFilter = 'all';
 export const NOTIFICATIONS_FILTER_ACTION_REQUIRED: NotificationFilter =

@@ -5,7 +5,7 @@ import type { CreateId } from '@pkgs/uuid';
 import {
   AnonUserService,
   type EnsureAnonUserResult,
-} from './anon-user-service';
+} from '../../public/anon-user-service';
 
 export class EnsureAnonUserUseCase {
   constructor(

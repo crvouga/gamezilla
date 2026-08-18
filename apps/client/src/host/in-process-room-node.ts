@@ -5,8 +5,8 @@
  */
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
-import type { CreateRoomTransport } from '@libs/spaces/client/room/room-transport-factory';
-import { composeSpaceRoomModule } from '@libs/spaces/shared/load-game-plugins';
+import { composeSpaceRoomModule } from '@libs/spaces/public/load-game-plugins';
+import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
 import type { Io } from '@pkgs/io';
 import type { Message } from '@pkgs/message';
 import {

@@ -1,4 +1,4 @@
-import { SpaceField, useSpaceColumn } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
 export function useSpaceMemberCount(spaceId: string): number {

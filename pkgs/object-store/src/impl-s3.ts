@@ -14,21 +14,40 @@ import type { S3ObjectStoreConfig } from './s3-config';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
+function s3HttpStatus(err: unknown): number | undefined {
+  if (err === null || typeof err !== 'object' || !('$metadata' in err)) {
+    return undefined;
+  }
+  const meta = err.$metadata;
+  if (
+    meta === null ||
+    typeof meta !== 'object' ||
+    !('httpStatusCode' in meta)
+  ) {
+    return undefined;
+  }
+  return typeof meta.httpStatusCode === 'number'
+    ? meta.httpStatusCode
+    : undefined;
+}
+
 function isS3NotFound(err: unknown): boolean {
   if (err === null || typeof err !== 'object') return false;
   if ('name' in err && err.name === 'NotFound') return true;
-  if ('$metadata' in err) {
-    const meta = err.$metadata;
-    if (
-      meta !== null &&
-      typeof meta === 'object' &&
-      'httpStatusCode' in meta &&
-      meta.httpStatusCode === 404
-    ) {
-      return true;
-    }
+  return s3HttpStatus(err) === 404;
+}
+
+/** MinIO + browser SDK sometimes answers DeleteObject on absent keys with 403. */
+function isS3AccessDenied(err: unknown): boolean {
+  if (err === null || typeof err !== 'object') return false;
+  if (
+    'name' in err &&
+    (err.name === 'AccessDenied' || err.name === 'Forbidden')
+  ) {
+    return true;
   }
-  return false;
+  if ('Code' in err && err.Code === 'AccessDenied') return true;
+  return s3HttpStatus(err) === 403;
 }
 
 async function readTransformableBody(body: {
@@ -127,6 +146,8 @@ class ObjectStoreImplS3 implements ObjectStore {
       // MinIO / older S3-compat reject default flexible checksums (501).
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
+      // Directory-bucket session auth is AWS-only; keep SigV4 for MinIO/B2.
+      disableS3ExpressSessionAuth: true,
     });
   }
 
@@ -198,6 +219,14 @@ class ObjectStoreImplS3 implements ObjectStore {
       );
     } catch (err: unknown) {
       if (isS3NotFound(err)) return;
+      if (isS3AccessDenied(err)) {
+        // Idempotent delete: if the object is already gone, treat as success.
+        try {
+          if (!(await this.head(key))) return;
+        } catch {
+          // Keep the original AccessDenied when presence cannot be confirmed.
+        }
+      }
       throw err;
     }
   }

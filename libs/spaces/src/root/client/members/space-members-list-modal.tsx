@@ -1,6 +1,6 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { UserUsername } from '@libs/profile/client/user-username';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
+import { UserUsername } from '@libs/profile/public/user-username';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
@@ -8,9 +8,9 @@ import { asLocalized } from '@pkgs/i18n';
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
 import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui';
 import { type ReactNode, useMemo } from 'react';
-import { useSpaceRoomClientId } from '../room/space-room-context';
+import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
+import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
-import { SPACE_ROOM_NAME } from '../room/use-space-room-selector';
 import { useMemberRole } from './use-member-role';
 
 export type SpaceMembersListModalProps = {

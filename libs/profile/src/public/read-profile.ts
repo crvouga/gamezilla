@@ -1,7 +1,7 @@
 import { join, sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
-import type { ProfileCard } from '../shared/profile-card';
+import type { ProfileCard } from '../shared/profile/profile-card';
 
 export type { ProfileCard };
 

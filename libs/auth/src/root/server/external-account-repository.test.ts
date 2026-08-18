@@ -6,7 +6,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 
-import { ExternalAccountRepository } from './external-account-repository';
+import { ExternalAccountRepository } from '../../public/external-account-repository';
 
 const io = createSimIo({ seed: 1 });
 

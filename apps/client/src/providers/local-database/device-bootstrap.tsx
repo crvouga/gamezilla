@@ -1,5 +1,5 @@
-import { EnsureDeviceEntity } from '@libs/auth/client/ensure-device-entity';
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { EnsureDeviceEntity } from '@libs/auth/root/client/ensure-device-entity';
 import { type ReactNode, useEffect } from 'react';
 
 /**

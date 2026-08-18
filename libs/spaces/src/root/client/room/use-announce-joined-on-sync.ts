@@ -1,16 +1,15 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { RoomMetaAttr } from '@pkgs/room';
 import { useEffect, useRef } from 'react';
-
-import { markSpaceJoinAnnouncedMutation } from '../../shared/mutations/space-mutations';
-import { AnnounceMemberJoined } from '../../shared/space-log/space-log-messages';
-import { JoinSpaceSeat } from '../../shared/space-members/space-members-messages';
-import { useSpaceOpenSession } from '../open-space/use-open-space-session-ids';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from './use-space-room-selector';
+} from '../../../public/room/use-space-room-selector';
+import { AnnounceMemberJoined } from '../../../shared/space/space-log/space-log-messages';
+import { JoinSpaceSeat } from '../../../shared/space/space-members/space-members-messages';
+import { useSpaceOpenSession } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';
+import { markSpaceJoinAnnouncedMutation } from '../../mutations';
 
 function dispatchJoinAnnounce(
   dispatch: ReturnType<typeof useSpaceRoomDispatch>,

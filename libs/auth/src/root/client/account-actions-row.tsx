@@ -3,8 +3,11 @@ import { useLingui } from '@lingui/react/macro';
 import { Box, Button } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
-import { useSignInModal, useSignOutModal } from './auth-modals-provider';
-import { useHasAuthSession } from './use-current-user';
+import {
+  useSignInModal,
+  useSignOutModal,
+} from '../../public/auth-modals-provider';
+import { useHasAuthSession } from '../../public/use-current-user';
 
 /** Sign in / sign out actions for the account screen. */
 export function AccountActionsRow(): ReactNode {

@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-
-import { SpaceMembersRoomAttr } from '../../shared/space-members/space-members-messages';
-import { useSpaceRoomSelector } from '../room/use-space-room-selector';
-import { SpaceField, useSpaceColumn } from '../use-space-column';
+import { useSpaceRoomSelector } from '../../../public/room/use-space-room-selector';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
+import { SpaceMembersRoomAttr } from '../../../shared/space/space-members/space-members-messages';
 
 /**
  * Guest member ids currently seated in the room (excludes the host).

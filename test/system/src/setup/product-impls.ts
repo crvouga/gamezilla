@@ -1,5 +1,5 @@
 /**
- * Product system implements for `@test/ui` DST.
+ * Product system implements for `@test/system` DST.
  */
 
 import { apiResource } from '@apps/api/system/api-resource';

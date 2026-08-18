@@ -3,8 +3,8 @@ import {
   UserSearchQueryHint,
   UserSearchSignInPrompt,
   useDebouncedUserSearchEffect,
-} from '@libs/user-search/client/use-user-search';
-import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/shared/user-search-types';
+} from '@libs/user-search/public/use-user-search';
+import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Box, ScreenBase, Text, TextInput } from '@pkgs/ui';
 import { type ReactNode, useCallback, useState } from 'react';

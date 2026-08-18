@@ -1,8 +1,11 @@
 import { useIo } from '@pkgs/io';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useEffect, useMemo, useState } from 'react';
-import type { Notification, NotificationFilter } from '../shared/notification';
-import { clientRowToInteraction } from '../shared/row-mapper';
+import type {
+  Notification,
+  NotificationFilter,
+} from '../shared/notifications/notification';
+import { clientRowToInteraction } from '../shared/notifications/row-mapper';
 import { useNotificationsShell } from './notifications-provider-registry';
 import { inboxListSql } from './notifications-queries';
 import { buildNotificationSections } from './notifications-sections';

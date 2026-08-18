@@ -5,16 +5,16 @@
  * DST selector discipline:
  * - scenarios: no `@pkgs/ui-testing`, no `by.`
  * - drivers: no `by.(text|nth|role|label)(` — Handles + Driver testIds only
- * - `@test/ui` package: only `*.sim.test.ts(x)` under `src/scenarios/`
+ * - `@test/system` package: only `*.sim.test.ts(x)` under `src/scenarios/`
  *   (no RN component / Vitest / bun unit tests in this package)
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
-const UI_SRC_DIR = join(REPO_ROOT, 'test/ui/src');
-const SCENARIOS_DIR = join(REPO_ROOT, 'test/ui/src/scenarios');
-const DRIVERS_DIR = join(REPO_ROOT, 'test/ui/src/drivers');
+const SYSTEM_SRC_DIR = join(REPO_ROOT, 'test/system/src');
+const SCENARIOS_DIR = join(REPO_ROOT, 'test/system/src/scenarios');
+const DRIVERS_DIR = join(REPO_ROOT, 'test/system/src/drivers');
 
 type Violation = { file: string; detail: string };
 
@@ -45,13 +45,13 @@ const violations: Violation[] = [];
 const SIM_TEST_RE = /\.sim\.test\.tsx?$/;
 const ANY_TEST_RE = /\.test\.tsx?$/;
 
-for (const file of walk(UI_SRC_DIR)) {
+for (const file of walk(SYSTEM_SRC_DIR)) {
   if (!ANY_TEST_RE.test(file)) continue;
   if (!file.startsWith(`${SCENARIOS_DIR}/`) || !SIM_TEST_RE.test(file)) {
     violations.push({
       file: rel(file),
       detail:
-        '@test/ui may only contain src/scenarios/**/*.sim.test.ts(x) — use bun:test or jest-expo in other packages for unit/component tests',
+        '@test/system may only contain src/scenarios/**/*.sim.test.ts(x) — use bun:test or jest-expo in other packages for unit/component tests',
     });
   }
 }

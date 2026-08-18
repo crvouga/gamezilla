@@ -1,6 +1,6 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { UserUsername } from '@libs/profile/client/user-username';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
+import { UserUsername } from '@libs/profile/public/user-username';
 import { Trans } from '@lingui/react/macro';
 import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';

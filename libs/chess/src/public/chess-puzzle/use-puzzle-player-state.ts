@@ -1,9 +1,9 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
-import { useSpacePresence } from '@libs/spaces/client/room/use-space-presence';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { useSpacePresence } from '@libs/spaces/public/room/use-space-presence';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { RoomMetaAttr } from '@pkgs/room';
 import { useEffect, useMemo, useRef } from 'react';
 
@@ -12,7 +12,7 @@ import {
   ChessPuzzlePlayAttr,
   ReclaimChessPuzzlePlay,
   StartChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,

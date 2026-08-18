@@ -2,7 +2,7 @@ import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 
-import { NotificationsError } from '../shared/notifications-errors';
+import { NotificationsError } from '../../shared/notifications/notifications-errors';
 import { registerInboxRoutes } from './notifications-app-routes';
 import type { NotificationsRequestContext } from './notifications-context';
 

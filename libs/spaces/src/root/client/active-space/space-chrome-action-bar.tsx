@@ -12,9 +12,9 @@ import {
   XIcon,
 } from '@pkgs/ui';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { useSpacesNavBack } from '../../../public/nav/spaces-nav-context';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { SpacePresenceStrip } from '../members/space-presence-strip';
-import { useSpacesNavBack } from '../nav/spaces-nav-context';
 import { SpaceShareSheet } from '../space-users/space-share-sheet';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceSessionUi } from './space-session-ui-context';

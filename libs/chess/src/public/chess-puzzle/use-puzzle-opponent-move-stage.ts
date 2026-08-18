@@ -7,7 +7,7 @@ import {
   PUZZLE_OPPONENT_UNLOCK_BUFFER_MS,
   PUZZLE_PIECE_MOVE_MS,
   planOpponentStage,
-} from '../../shared/chess-puzzle-opponent-stage';
+} from '../chess-puzzle-opponent-stage';
 import type { SolveStatus } from './solve-status';
 
 export type PuzzleOpponentMoveStage = {

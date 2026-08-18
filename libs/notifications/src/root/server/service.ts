@@ -1,12 +1,15 @@
 import { sql } from '@pkgs/sql';
 
 import type { SqlTx } from '@pkgs/sql-client/interface';
-import type { Notification } from '../shared/notification';
-import { NotificationsError } from '../shared/notifications-errors';
-import { dispatchNotificationAction } from './action-registry';
-import { findNotificationById } from './publish';
+import { dispatchNotificationAction } from '../../public/action-registry';
+import type {
+  NotificationListQuery,
+  StoredNotificationRow,
+} from '../../public/types';
+import type { Notification } from '../../shared/notifications/notification';
+import { NotificationsError } from '../../shared/notifications/notifications-errors';
+import { findNotificationById } from '../../use-cases/publish-notification/server/publish';
 import { rowToNotification } from './row-mapper';
-import type { NotificationListQuery, StoredNotificationRow } from './types';
 
 const DEFAULT_LIMIT = 30;
 

@@ -1,6 +1,6 @@
-import type { ConfigService } from '@libs/auth/client/config-service-types';
-import { ClientConfigKey } from '@libs/client-config/shared/client-config-keys';
-import { parseClientConfigRows } from '@libs/client-config/shared/parse-client-config';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
+import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
+import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import type { Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';

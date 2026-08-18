@@ -10,7 +10,6 @@ export {
   NotificationCardDefault,
   NotificationsHeaderButton,
   NotificationsProviderRegistry,
-  NotificationsScreen,
   NotificationsTabBadge,
   NotificationsTabIcon,
   notificationsPath,

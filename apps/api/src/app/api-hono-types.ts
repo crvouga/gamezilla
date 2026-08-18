@@ -1,1 +1,1 @@
-export type { ApiHonoEnv } from '@libs/auth/server/api-hono-env';
+export type { ApiHonoEnv } from '@libs/auth/public/api-hono-env';

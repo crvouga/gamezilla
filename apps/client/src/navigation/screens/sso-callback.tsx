@@ -1,14 +1,14 @@
 import {
   type AuthClientPort,
   useAuthClientPort,
-} from '@libs/auth/client/auth-client-provider';
-import { useAuthModals } from '@libs/auth/client/auth-modals-provider';
-import { SIGN_IN_PENDING_KEY } from '@libs/auth/client/auth-storage-keys';
+} from '@libs/auth/public/auth-client-provider';
+import { useAuthModals } from '@libs/auth/public/auth-modals-provider';
+import { SIGN_IN_PENDING_KEY } from '@libs/auth/public/auth-storage-keys';
 import {
   readSignInPendingSync,
   SignInPendingStore,
   signInReturnHrefFromPending,
-} from '@libs/auth/client/sign-in-pending';
+} from '@libs/auth/public/sign-in-pending';
 import { useLingui } from '@lingui/react/macro';
 import { useClock, useTimers } from '@pkgs/clock';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';

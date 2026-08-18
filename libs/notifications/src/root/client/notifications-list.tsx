@@ -2,8 +2,8 @@ import { Trans } from '@lingui/react/macro';
 import { Box, SCREEN_BODY_PADDING_STEP, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { NotificationSection } from '../shared/notification';
-import type { NotificationCardActions } from '../shared/notification-action';
+import type { NotificationSection } from '../../shared/notifications/notification';
+import type { NotificationCardActions } from '../../shared/notifications/notification-action';
 import { NotificationCard } from './notification-card';
 import { NotificationsEmptyState } from './notifications-empty-state';
 

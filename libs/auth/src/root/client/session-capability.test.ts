@@ -5,7 +5,7 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import {
   resolveHasAuthSession,
   SessionCapabilityStore,
-} from './session-capability';
+} from '../../public/session-capability';
 
 class InMemorySecureStorage implements SecureStorage {
   private readonly map = new Map<string, string>();

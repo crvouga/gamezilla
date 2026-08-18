@@ -1,7 +1,10 @@
 import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
 
-import { SESSION_EXPIRES_AT_KEY } from './auth-storage-keys';
-import { useHasAuthSession, useMyDeviceId } from './use-current-user';
+import { SESSION_EXPIRES_AT_KEY } from '../../public/auth-storage-keys';
+import {
+  useHasAuthSession,
+  useMyDeviceId,
+} from '../../public/use-current-user';
 
 /**
  * ISO expiry of the auth provider session for the current install, or `null`

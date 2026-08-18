@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { resolveSpaceHostProfileId } from '../shared/resolve-space-host-profile-id';
+import { resolveSpaceHostProfileId } from '../shared/space/resolve-space-host-profile-id';
 
 describe('resolveSpaceHostProfileId', () => {
   test('prefers host_member_id', () => {

@@ -1,5 +1,5 @@
 // @io-wall-ok
-import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/shared/resolve-local-preview-api-origin';
+import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/public/resolve-local-preview-api-origin';
 import { wallIo } from '@pkgs/io';
 
 const io = wallIo();

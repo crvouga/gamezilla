@@ -1,7 +1,7 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCallback } from 'react';
 
-import { declineFriendRequestMutation } from '../../shared/mutations/friends-mutations';
+import { declineFriendRequestMutation } from '../shared/decline-friend-request-mutation';
 
 export function useDeclineFriendRequest() {
   const mutationClient = useMutationClient();

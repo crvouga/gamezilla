@@ -1,4 +1,4 @@
-import { useConfigService } from '@libs/auth/client/config-service-context';
+import { useConfigService } from '@libs/auth/public/config-service-context';
 import { useHttpClient } from '@pkgs/http-client';
 import { useKv } from '@pkgs/kv/kv-context';
 import { LlmContextProvider } from '@pkgs/llm/client/llm-context';

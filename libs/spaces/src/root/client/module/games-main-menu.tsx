@@ -1,9 +1,3 @@
-import type { GameClientDefinition } from '@libs/spaces/shared/game';
-import {
-  GamesRoomAttr,
-  type SelectedGameId,
-  SelectGame,
-} from '@libs/spaces/shared/games';
 import { Trans } from '@lingui/react/macro';
 import { FadeSwitch } from '@pkgs/ui';
 import {
@@ -12,11 +6,17 @@ import {
 } from '@pkgs/ui/components/main-menu-screen';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '../room/use-space-room-selector';
+} from '../../../public/room/use-space-room-selector';
+import type { GameClientDefinition } from '../../../shared/space/game';
+import {
+  GamesRoomAttr,
+  type SelectedGameId,
+  SelectGame,
+} from '../../../shared/space/games';
+import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
 import { GamesMenuAttribution } from './games-menu-attribution';
 import { useGamesRegistry } from './games-registry-context';

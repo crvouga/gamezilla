@@ -2,7 +2,7 @@ import { sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
-import { useMyDeviceId } from './use-current-user';
+import { useMyDeviceId } from '../../public/use-current-user';
 
 type DeviceRow = {
   readonly id: string;

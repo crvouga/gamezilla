@@ -1,4 +1,4 @@
-import type { Notification } from '@libs/notifications/client';
+import type { Notification } from '@libs/notifications/public';
 
 export type FriendRequestNotificationProfile = {
   userId: string;

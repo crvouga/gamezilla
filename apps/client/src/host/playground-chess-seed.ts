@@ -5,8 +5,8 @@
  */
 
 import { PLAYGROUND_CHESS_PUZZLES_CSV } from '@apps/client/host/playground-chess-fixture';
-import { PuzzleSeedFastPath } from '@libs/chess/server/seed-chess-puzzle/fast-path';
-import type { PuzzleTableRow } from '@libs/chess/server/seed-chess-puzzle/row';
+import { PuzzleSeedFastPath } from '@libs/chess/root/server/seed-chess-puzzles/fast-path';
+import type { PuzzleTableRow } from '@libs/chess/root/server/seed-chess-puzzles/row';
 import { chessPuzzlesTopic } from '@libs/db/shared/sync-topics';
 import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';

@@ -1,12 +1,12 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import { otherUserInPair } from '../shared/canonical-pair';
-import type { Friend } from '../shared/friends-types';
+import { otherUserInPair } from '../../../shared/friendship/canonical-pair';
+import type { Friend } from '../../../shared/friendship/friends-types';
 
 type FriendRow = {
   readonly friend_id: string;

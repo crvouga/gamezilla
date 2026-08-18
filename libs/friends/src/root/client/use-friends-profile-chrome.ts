@@ -1,5 +1,5 @@
-import { useSignInModal } from '@libs/auth/client/auth-modals-provider';
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
+import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { type Href, useRouter } from '@pkgs/ui';
 import { useCallback } from 'react';
 

@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import {
   type ChessPuzzleFeedHistoryFilter,
   resolveEffectivePuzzleRating,
-} from '../../shared/chess-puzzle-feed-config';
+} from '../chess-puzzle-feed-config';
 import {
   capPuzzleCandidateOffset,
   hashSeed,

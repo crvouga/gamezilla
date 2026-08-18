@@ -50,7 +50,6 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
-import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess/shared/chess-puzzle-entities';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -65,6 +64,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '../../../shared/chess/chess-puzzle-entities';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import { PuzzleSnapshotIndexDeferral } from './defer-indexes';

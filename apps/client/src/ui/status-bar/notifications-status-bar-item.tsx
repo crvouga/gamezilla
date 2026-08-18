@@ -1,7 +1,7 @@
 import {
   notificationsPath,
   useNotificationsUnreadCount,
-} from '@libs/notifications/client';
+} from '@libs/notifications/public';
 import { useLingui } from '@lingui/react/macro';
 import {
   Badge,

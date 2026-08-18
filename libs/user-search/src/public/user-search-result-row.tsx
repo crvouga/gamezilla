@@ -1,9 +1,9 @@
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { UserUsername } from '@libs/profile/client/user-username';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
+import { UserUsername } from '@libs/profile/public/user-username';
 import { Box, Pressable } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { UserSearchResult } from '../shared/user-search-types';
+import type { UserSearchResult } from './user-search-types';
 
 export type UserSearchResultRowProps = {
   readonly user: UserSearchResult;

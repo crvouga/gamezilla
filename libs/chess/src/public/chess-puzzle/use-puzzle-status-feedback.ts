@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 
 type PuzzleFeedback = {
   onWrongMove: () => void;

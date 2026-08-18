@@ -3,10 +3,9 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { MutationError } from '@pkgs/sync-engine/shared';
-
-import { generateRandomUsername } from '../username-generator';
-import { assignUniqueUsernameIfEmpty } from './assign-unique-username';
-import { ensureProfileMutation } from './profile-mutations';
+import { assignUniqueUsernameIfEmpty } from '../../../shared/profile/assign-unique-username';
+import { generateRandomUsername } from '../../../shared/profile/username-generator';
+import { ensureProfileMutation } from './ensure-profile-mutation';
 
 const ACCOUNT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const OTHER_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';

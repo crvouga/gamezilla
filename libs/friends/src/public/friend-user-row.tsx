@@ -2,7 +2,7 @@ import { Handles } from '@libs/dst-handles';
 import { Box, Pressable, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { FriendProfile } from '../shared/friends-types';
+import type { FriendProfile } from '../shared/friendship/friends-types';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 
 export type FriendUserRowProps = {

@@ -1,11 +1,10 @@
 import { Box, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback, useContext, useState } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
+import { closeSpaceDetail } from '../../../public/space-routes';
 import { useRequestEndSpace } from '../end-space/end-space-modal-provider';
 import { useRequestLeaveSpace } from '../leave-space/leave-space-modal-provider';
 import { RenameSpaceModal } from '../rename-space/rename-space-modal';
-import { closeSpaceDetail } from '../space-routes';
 import { ActiveSpaceBody } from './active-space-body';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };

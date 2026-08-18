@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { ChessPuzzleStats } from '../../shared/chess-puzzle-stats';
+import type { ChessPuzzleStats } from '../chess-puzzle-stats';
 
 type StatTileProps = {
   label: ReactNode;

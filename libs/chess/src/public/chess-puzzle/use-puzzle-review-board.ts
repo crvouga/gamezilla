@@ -1,21 +1,18 @@
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import {
   ChessMainMenuScreenAttr,
   SeekChessPuzzleReview,
-} from '../../shared/chess-main-menu';
-import type { ChessPuzzleOrientation } from '../../shared/chess-puzzle-fsm';
-import { setupPuzzleStart } from '../../shared/chess-puzzle-fsm';
-import type { PuzzleHistoryPly } from '../../shared/chess-puzzle-move-history';
-import { buildPuzzleMoveHistory } from '../../shared/chess-puzzle-move-history';
-import {
-  fenAtSolveIdx,
-  puzzleTokensLength,
-} from '../../shared/chess-puzzle-step';
+} from '../chess-main-menu';
+import type { ChessPuzzleOrientation } from '../chess-puzzle-fsm';
+import { setupPuzzleStart } from '../chess-puzzle-fsm';
+import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
+import { buildPuzzleMoveHistory } from '../chess-puzzle-move-history';
+import { fenAtSolveIdx, puzzleTokensLength } from '../chess-puzzle-step';
 
 export type PuzzleReviewBoardModel = {
   readonly ready: boolean;

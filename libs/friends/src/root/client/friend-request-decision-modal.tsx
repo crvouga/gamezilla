@@ -2,7 +2,7 @@ import { Handles } from '@libs/dst-handles';
 import type {
   Notification,
   NotificationCardActions,
-} from '@libs/notifications/client';
+} from '@libs/notifications/public';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isSoundId } from '@pkgs/sounds';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@pkgs/ui';
 import { type ReactNode, useCallback, useMemo } from 'react';
 
-import { FriendProfileAvatar } from './friend-profile-avatar';
+import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
 
 function findAction(

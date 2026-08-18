@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   buildChessPuzzleActionBarPlan,
   type ChessPuzzleActionBarPlanInput,
-} from './chess-puzzle-action-bar-plan';
+} from '../../../public/chess-puzzle/chess-puzzle-action-bar-plan';
 
 function input(
   partial: Partial<ChessPuzzleActionBarPlanInput>

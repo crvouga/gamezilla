@@ -1,8 +1,8 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCreateId } from '@pkgs/uuid';
 import { useCallback } from 'react';
 
-import { blockUserMutation } from '../../shared/mutations/friends-mutations';
+import { blockUserMutation } from '../shared/block-user-mutation';
 
 export function useBlockUser() {
   const mutationClient = useMutationClient();

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 
 const SOLVED_CELEBRATION_MS = 1500;
 

@@ -3,7 +3,7 @@ import type {
   DialogueContext,
 } from '@pkgs/assistant/shared';
 
-import { boardOrientationFromFen } from '../../shared/chess-puzzle-fsm';
+import { boardOrientationFromFen } from '../chess-puzzle-fsm';
 
 export type ChessPuzzleDialogueBoardContext = {
   readonly orientation: 'white' | 'black';

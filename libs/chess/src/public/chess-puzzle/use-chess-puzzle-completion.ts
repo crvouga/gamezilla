@@ -1,18 +1,15 @@
 import { useMemo } from 'react';
 
-import {
-  deriveCurrentStreak,
-  sliceCurrentPlay,
-} from '../../shared/chess-puzzle-derive';
+import { deriveCurrentStreak, sliceCurrentPlay } from '../chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
-} from '../../shared/chess-puzzle-interaction-entities';
+} from '../chess-puzzle-interaction-entities';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 
 export type PuzzleCompletionOutcome = 'solved' | 'abandoned';
 

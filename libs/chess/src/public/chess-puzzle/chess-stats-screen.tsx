@@ -1,5 +1,5 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
+import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
 import {
   Box,
@@ -15,8 +15,8 @@ import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
   SetChessSelectedReviewPuzzle,
-} from '../../shared/chess-main-menu';
-import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
+} from '../chess-main-menu';
+import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 import { ChessEloSparkline } from './chess-elo-sparkline';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';

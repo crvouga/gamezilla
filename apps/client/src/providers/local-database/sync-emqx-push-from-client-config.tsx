@@ -1,4 +1,4 @@
-import { useClientConfig } from '@libs/client-config/client/use-client-config';
+import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import { useEffect } from 'react';
 

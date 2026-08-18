@@ -7,20 +7,19 @@ import {
 } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
-
-import { useBlockUser } from './block-user/use-block-user';
+import { useFriendRequestIdsForUser } from '../../public/use-friend-request-ids';
+import { useFriendshipStatus } from '../../public/use-friendship-status';
+import { useBlockUser } from '../../use-cases/block-user/client/use-block-user';
+import { useRemoveFriend } from '../../use-cases/remove-friend/client/use-remove-friend';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import { FriendUserScreenContent } from './friend-user-screen-content';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
-import { useRemoveFriend } from './remove-friend/use-remove-friend';
-import { useFriendRequestIdsForUser } from './use-friend-request-ids';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
 import {
   friendUserBreadcrumbName,
   readRouteParam,
   useFriendUserProfile,
 } from './use-friend-user-profile';
-import { useFriendshipStatus } from './use-friendship-status';
 
 function FriendUserScreenBody({ userId }: { userId: string }): ReactNode {
   const router = useRouter();

@@ -1,9 +1,8 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useCallback } from 'react';
-
-import { endSpaceMutation } from '../../shared/mutations/space-mutations';
-import { AnnounceEnded } from '../../shared/space-log/space-log-messages';
-import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
+import { useSpaceOpenRooms } from '../../../public/room/space-open-rooms-context';
+import { AnnounceEnded } from '../../../shared/space/space-log/space-log-messages';
+import { endSpaceMutation } from '../../mutations';
 
 export function useEndSpace() {
   const mutationClient = useMutationClient();

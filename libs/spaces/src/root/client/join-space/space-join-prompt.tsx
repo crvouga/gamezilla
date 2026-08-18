@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
-import { SpaceTitleText } from '../space-title-text';
+import { SpaceTitleText } from '../../../root/client/space-title-text';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinLiveBody } from './space-join-live-body';

@@ -75,6 +75,16 @@ function collectScanRoots(): string[] {
     }
     for (const pkg of pkgs) {
       walkTsFiles(join(tierRoot, pkg, 'src', 'shared'), files);
+      const useCasesRoot = join(tierRoot, pkg, 'src', 'use-cases');
+      let useCases: string[];
+      try {
+        useCases = readdirSync(useCasesRoot);
+      } catch {
+        useCases = [];
+      }
+      for (const uc of useCases) {
+        walkTsFiles(join(useCasesRoot, uc, 'shared'), files);
+      }
     }
   }
   walkTsFiles(join(REPO_ROOT, 'pkgs/sync-engine/src/mutations'), files);

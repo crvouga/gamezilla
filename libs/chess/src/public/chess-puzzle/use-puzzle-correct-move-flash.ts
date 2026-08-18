@@ -4,7 +4,7 @@ import { type MutableRefObject, useEffect, useState } from 'react';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 
 const CORRECT_FLASH_MS = 1200;
 

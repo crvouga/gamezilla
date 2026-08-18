@@ -14,7 +14,7 @@ fi
 NEED=0
 while IFS= read -r f; do
   case "$f" in
-    libs/*/src/shared/*|pkgs/room/*|pkgs/sync-engine/*|tools/scripts/check-hard-determinism.ts|tools/scripts/run-sim-determinism.ts|DETERMINISM.md)
+    libs/*/src/shared/*|libs/*/src/use-cases/*/shared/*|pkgs/room/*|pkgs/sync-engine/*|tools/scripts/check-hard-determinism.ts|tools/scripts/run-sim-determinism.ts|DETERMINISM.md)
       NEED=1
       break
       ;;

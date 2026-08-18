@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import { Box, type Href, ScreenBase, useRouter } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { useCallback } from 'react';
-import { useMyAccountId } from '../use-current-user';
+import { useMyAccountId } from '../../../public/use-current-user';
 import { AccountDevicesCard } from './account-devices-card';
 
 export function AccountDevicesScreen() {

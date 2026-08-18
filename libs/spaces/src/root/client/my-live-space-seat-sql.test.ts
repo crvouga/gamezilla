@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
-
-import { spaceUserEntityId } from '@libs/spaces/shared/participation/participation-ids';
 import { type Sql, sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { spaceUserEntityId } from '../../shared/space/participation/participation-ids';
 
-import { sharedLiveSpaceIdsSql } from '../client/my-live-space-seat-sql';
-import { buildCurrentSpaceEntries } from '../client/use-current-space-ids';
+import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
+import { buildCurrentSpaceEntries } from './use-current-space-ids';
 
 const HOST_SPACE = 'space-host-1';
 const SHARED_SPACE = 'space-shared-1';

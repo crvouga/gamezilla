@@ -1,9 +1,9 @@
 // @io-wall-ok
-import { ChessPuzzleSeeder } from '@libs/chess/server/seed-chess-puzzle/chess-puzzle-seeder';
+import { ChessPuzzleSeeder } from '@libs/chess/root/server/seed-chess-puzzles/chess-puzzle-seeder';
 import {
   formatPostgresStorageLimitError,
   isPostgresStorageLimitError,
-} from '@libs/chess/server/seed-chess-puzzle/defer-indexes';
+} from '@libs/chess/root/server/seed-chess-puzzles/defer-indexes';
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';

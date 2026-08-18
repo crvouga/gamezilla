@@ -1,5 +1,5 @@
 import { type Sql, sql } from '@pkgs/sql';
-import type { ClientConfigDbRow } from '../shared/parse-client-config';
+import type { ClientConfigDbRow } from '../../../shared/client-config/parse-client-config';
 
 export type ClientConfigRow = ClientConfigDbRow;
 

@@ -2,11 +2,10 @@ import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-st
 import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
-
-import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '../shared/external-account-providers';
-import { parseMetadataEmail } from '../shared/linked-account-providers';
 import { useAuthClientPort } from './auth-client-provider';
 import { SESSION_TOKEN_KEY } from './auth-storage-keys';
+import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from './external-account-providers';
+import { parseMetadataEmail } from './linked-account-providers';
 import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
 import { resolveHasAuthSession } from './session-capability';
 import { useCurrentAccountId } from './use-current-account-id';

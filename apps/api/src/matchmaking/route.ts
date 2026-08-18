@@ -19,8 +19,8 @@
  * this file.
  */
 
-import { UnauthorizedError } from '@libs/auth/server/unauthorized-error';
-import { appAuth } from '@libs/auth/shared/auth-context';
+import { appAuth } from '@libs/auth/public/auth-context';
+import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { assert } from '@pkgs/assert';
 import { getIo } from '@pkgs/io/als';
 import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';

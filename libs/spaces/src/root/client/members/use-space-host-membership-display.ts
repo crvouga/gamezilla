@@ -1,8 +1,7 @@
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/public/use-current-user';
 import { useMemo } from 'react';
-
-import { resolveSpaceHostProfileId } from '../../shared/resolve-space-host-profile-id';
-import { SpaceField, useSpaceColumn } from '../use-space-column';
+import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
+import { resolveSpaceHostProfileId } from '../../../shared/space/resolve-space-host-profile-id';
 
 export type SpaceHostMembershipDisplay = {
   readonly deviceId: string;

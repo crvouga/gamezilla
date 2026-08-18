@@ -1,11 +1,11 @@
 import {
   type AppAuthContext,
   buildAppAuthContext,
-} from '@libs/auth/shared/auth-context';
-import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+} from '@libs/auth/public/auth-context';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { assertDeviceId, assertUuid } from '../shared/auth/device-id';
 
 import { AnonUserService } from './anon-user-service';
 import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';

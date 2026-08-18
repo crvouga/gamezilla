@@ -3,10 +3,10 @@ import { empty, join, type Sql, type SqlFragment, sql } from '@pkgs/sql';
 import {
   type ChessPuzzleFeedHistoryFilter,
   PUZZLE_RATING_BAND_SIZE,
-} from '../../shared/chess-puzzle-feed-config';
-import { CHESS_PUZZLE_INTERACTION_KIND } from '../../shared/chess-puzzle-interaction-entities';
+} from '../chess-puzzle-feed-config';
+import { CHESS_PUZZLE_INTERACTION_KIND } from '../chess-puzzle-interaction-entities';
 
-export { chessPuzzleSyncRatingBands } from '../../shared/chess-puzzle-feed-config';
+export { chessPuzzleSyncRatingBands } from '../chess-puzzle-feed-config';
 
 export const PUZZLE_NEXT_MAX_BAND = PUZZLE_RATING_BAND_SIZE;
 export const PUZZLE_CANDIDATE_LIMIT = 50;

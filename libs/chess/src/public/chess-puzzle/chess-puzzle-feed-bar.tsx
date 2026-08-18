@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { Box, Pressable, Text } from '@pkgs/ui';
@@ -7,8 +7,8 @@ import { type ReactNode, useMemo } from 'react';
 import {
   type ChessPuzzleFeedHistoryFilter,
   resolveEffectivePuzzleRating,
-} from '../../shared/chess-puzzle-feed-config';
-import { formatChessPuzzleThemeLabel } from '../../shared/chess-puzzle-theme-label';
+} from '../chess-puzzle-feed-config';
+import { formatChessPuzzleThemeLabel } from '../chess-puzzle-theme-label';
 import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';

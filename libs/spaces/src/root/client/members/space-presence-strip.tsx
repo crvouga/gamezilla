@@ -2,15 +2,15 @@
  * Connected-client presence strip for space chrome (one face per client).
  */
 
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceStrip } from '@pkgs/collab-ui';
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
 import { type ReactNode, useMemo } from 'react';
 
-import { useSpaceRoomClientId } from '../room/space-room-context';
+import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
+import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
-import { SPACE_ROOM_NAME } from '../room/use-space-room-selector';
 
 export type SpacePresenceStripProps = {
   spaceId: string;

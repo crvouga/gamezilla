@@ -67,7 +67,7 @@ function runSimTest(
   absFile: string
 ): ReturnType<typeof spawnSync> {
   const env = { ...process.env, SIM_SEED: SEED };
-  if (rel.startsWith('test/ui/')) {
+  if (rel.startsWith('test/system/')) {
     return spawnSync(
       'bunx',
       [
@@ -79,7 +79,7 @@ function runSimTest(
         absFile,
       ],
       {
-        cwd: join(REPO_ROOT, 'test/ui'),
+        cwd: join(REPO_ROOT, 'test/system'),
         env,
         encoding: 'utf8',
       }

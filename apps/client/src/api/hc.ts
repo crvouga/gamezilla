@@ -2,7 +2,7 @@ import { assertTigerPolicyForResolvedApiOrigin } from '@apps/client/config/api-s
 import {
   createTypedApiRpcClient,
   type TypedApiRpcFetch,
-} from '@libs/client-config/shared/typed-api-rpc-client';
+} from '@libs/client-config/public/typed-api-rpc-client';
 
 export type CreateApiClientOptions = {
   /** Injected transport (sim / playground in-process Hono). */

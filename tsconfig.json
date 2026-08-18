@@ -21,8 +21,8 @@
       "@apps/room/*": ["./apps/room/src/*"],
       "@apps/api/*": ["./apps/api/src/*"],
       "@apps/client/*": ["./apps/client/src/*"],
-      "@test/ui": ["./test/ui/src/index.ts"],
-      "@test/ui/*": ["./test/ui/src/*"],
+      "@test/system": ["./test/system/src/index.ts"],
+      "@test/system/*": ["./test/system/src/*"],
       "@pkgs/llm/*": ["./pkgs/llm/src/*"],
       "@pkgs/ui/*": ["./pkgs/ui/src/*"],
       "@pkgs/sync-engine/client": ["./pkgs/sync-engine/src/client/index.ts"],
@@ -68,16 +68,8 @@
         "./pkgs/postgres-sqlite-compat/src/index.ts"
       ],
       "@pkgs/postgres-sqlite-compat/*": ["./pkgs/postgres-sqlite-compat/src/*"],
-      "@libs/notifications": ["./libs/notifications/src/index.ts"],
-      "@libs/notifications/client": [
-        "./libs/notifications/src/client/index.ts"
-      ],
-      "@libs/notifications/server/publish": [
-        "./libs/notifications/src/server/publish.ts"
-      ],
-      "@libs/notifications/server/action-registry": [
-        "./libs/notifications/src/server/action-registry.ts"
-      ],
+      "@libs/notifications": ["./libs/notifications/src/public/index.ts"],
+      "@libs/notifications/*": ["./libs/notifications/src/*"],
       "@libs/games/*": ["./libs/games/src/*"],
       "@libs/infra/namespace-bindings": [
         "./libs/infra/src/namespace-bindings.ts"
@@ -305,7 +297,7 @@
     "libs/runtime/src/**/*.ts",
     "apps/room/src/**/*.ts",
     "pkgs/system/src/**/*.ts",
-    "test/ui/scripts/**/*.ts",
+    "test/system/scripts/**/*.ts",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]

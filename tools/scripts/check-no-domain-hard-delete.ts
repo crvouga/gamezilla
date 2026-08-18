@@ -23,10 +23,9 @@ const ALLOWED_TABLES = new Set([
 ]);
 
 const SCAN_GLOBS = [
-  'libs/**/shared/mutations/**/*.{ts,tsx}',
+  'libs/**/use-cases/**/shared/**/*.{ts,tsx}',
   'libs/**/shared/**/*-sql/**/*.{ts,tsx}',
-  'libs/**/shared/friends-sql/**/*.{ts,tsx}',
-  'libs/friends/src/shared/friends-sql/**/*.ts',
+  'libs/**/shared/friendship/**/*.ts',
   'pkgs/sync-engine/src/server/select-fanout-rows.ts',
 ] as const;
 

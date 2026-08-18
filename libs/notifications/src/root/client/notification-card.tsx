@@ -1,10 +1,9 @@
 import { useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
-
-import type { Notification } from '../shared/notification';
-import type { NotificationCardActions } from '../shared/notification-action';
-import { NotificationCardDefault } from './notification-card-default';
-import { useNotificationRenderProvider } from './notifications-provider-registry';
+import { NotificationCardDefault } from '../../public/notification-card-default';
+import { useNotificationRenderProvider } from '../../public/notifications-provider-registry';
+import type { Notification } from '../../shared/notifications/notification';
+import type { NotificationCardActions } from '../../shared/notifications/notification-action';
 
 export type NotificationCardProps = {
   readonly interaction: Notification;

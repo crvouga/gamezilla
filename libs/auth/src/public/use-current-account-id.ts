@@ -1,7 +1,6 @@
 import { useHydratedSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
-
-import { isUuid } from '../shared/device-id';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from './auth-storage-keys';
+import { isUuid } from './device-id';
 
 /**
  * Internal `accountId` of the locally signed-in user, or `null` when signed

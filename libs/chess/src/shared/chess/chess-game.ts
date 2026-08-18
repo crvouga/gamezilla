@@ -1,4 +1,4 @@
-import type { GameDefinition } from '@libs/spaces/shared/game';
+import type { GameDefinition } from '@libs/spaces/public/game';
 import type { RoomState } from '@pkgs/room';
 
 import {

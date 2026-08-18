@@ -1,4 +1,4 @@
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { useLingui } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
 import { Button, useMutationButton } from '@pkgs/ui';

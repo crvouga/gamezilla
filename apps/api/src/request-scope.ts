@@ -1,4 +1,4 @@
-import type { SessionAuth } from '@libs/auth/server/session-middleware';
+import type { SessionAuth } from '@libs/auth/public/session-middleware';
 import { AsyncLocalStorage } from '@pkgs/async-local';
 import type { BetterAuthInstance } from '@pkgs/auth-better-auth/server';
 import type { Io } from '@pkgs/io';

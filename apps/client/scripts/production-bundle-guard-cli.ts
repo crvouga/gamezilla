@@ -5,7 +5,7 @@ import {
   assertProductionClientBuildEnv,
   ProductionBundleGuard,
   productionClientApiOrigin,
-} from '@libs/client-config/shared/production-client-bundle-guard';
+} from '@libs/client-config/public/production-client-bundle-guard';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 

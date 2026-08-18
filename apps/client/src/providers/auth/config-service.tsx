@@ -1,4 +1,4 @@
-import { ConfigServiceProvider } from '@libs/auth/client/config-service-context';
+import { ConfigServiceProvider } from '@libs/auth/public/config-service-context';
 import { type ReactNode, useMemo } from 'react';
 import { createConfigService } from '../../config/create-config-service';
 import { useClientSystemResources } from '../client-system-resources';

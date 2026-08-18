@@ -4,7 +4,7 @@ import type Stripe from 'stripe';
 import {
   StripeCheckoutRoutes,
   type StripeRequireAuth,
-} from './stripe-checkout-route';
+} from '../../use-cases/create-checkout-session/server/stripe-checkout-route';
 
 export class StripeApp {
   constructor(

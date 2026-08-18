@@ -1,5 +1,5 @@
-import { APP_IDENTITY } from '@libs/auth/shared/app-identity';
-import { isLocalApiOrigin } from '@libs/auth/shared/local-api-origin';
+import { APP_IDENTITY } from '@libs/auth/public/app-identity';
+import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import { assert } from '@pkgs/assert';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';

@@ -1,10 +1,10 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import type { ChessPuzzleInteractionRow } from '../../shared/chess-puzzle-interaction-entities';
+import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
 
 function readStringArray(raw: unknown): readonly string[] {
   if (typeof raw === 'string') {

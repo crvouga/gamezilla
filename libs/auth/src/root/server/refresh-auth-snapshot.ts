@@ -1,13 +1,12 @@
-import { assertDeviceId, assertUuid } from '@libs/auth/shared/device-id';
+import { assertDeviceId, assertUuid } from '@libs/auth/public/device-id';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-
-import { managedInsertColumns } from '../shared/managed-row';
+import { ExternalAccountRepository } from '../../public/external-account-repository';
+import { managedInsertColumns } from '../../public/managed-row';
 import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
-import { ExternalAccountRepository } from './external-account-repository';
 
 /**
  * Idempotent server-side upsert run from `POST /identity/refresh`. Given a

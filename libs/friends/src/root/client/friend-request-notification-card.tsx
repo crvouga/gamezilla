@@ -2,11 +2,11 @@ import { Handles } from '@libs/dst-handles';
 import type {
   Notification,
   NotificationCardActions,
-} from '@libs/notifications/client';
-import { NotificationCardDefault } from '@libs/notifications/client';
+} from '@libs/notifications/public';
+import { NotificationCardDefault } from '@libs/notifications/public';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { FriendProfileAvatar } from './friend-profile-avatar';
+import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
 

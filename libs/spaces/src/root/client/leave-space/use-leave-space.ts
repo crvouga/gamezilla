@@ -1,15 +1,14 @@
-import { useMutationClient } from '@libs/auth/client/mutation-client-provider';
+import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useCallback } from 'react';
-
-import { leaveSpaceMutation } from '../../shared/mutations/space-mutations';
-import { AnnounceMemberLeft } from '../../shared/space-log/space-log-messages';
+import { useSpaceOpenRooms } from '../../../public/room/space-open-rooms-context';
+import { AnnounceMemberLeft } from '../../../shared/space/space-log/space-log-messages';
 import {
   LeaveSpaceSeat,
   SpaceMembersRoomAttr,
-} from '../../shared/space-members/space-members-messages';
-import { useSpaceOpenRooms } from '../room/space-open-rooms-context';
+} from '../../../shared/space/space-members/space-members-messages';
+import { leaveSpaceMutation } from '../../mutations';
 
 export function useLeaveSpace() {
   const mutationClient = useMutationClient();

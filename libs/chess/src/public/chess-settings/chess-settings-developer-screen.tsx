@@ -1,15 +1,12 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
+import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
 import {
   type MainMenuItem,
   MainMenuScreen,
 } from '@pkgs/ui/components/main-menu-screen';
 import { type ReactNode, useCallback, useMemo } from 'react';
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '../../shared/chess-main-menu';
+import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 
 export function ChessSettingsDeveloperScreen(): ReactNode {
   const dispatch = useSpaceRoomDispatch();

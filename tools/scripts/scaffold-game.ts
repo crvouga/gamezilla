@@ -55,18 +55,19 @@ const files: Array<{ from: string; to: string }> = [
   { from: 'tsconfig.tc.json', to: 'tsconfig.tc.json' },
   {
     from: 'src/shared/__GAME__-module.ts',
-    to: `src/shared/${game}-module.ts`,
+    to: `src/shared/${game}/${game}-module.ts`,
   },
   {
     from: 'src/shared/__GAME__-module.test.ts',
-    to: `src/shared/${game}-module.test.ts`,
+    to: `src/shared/${game}/${game}-module.test.ts`,
   },
   {
     from: 'src/shared/__GAME__-module.sim.test.ts',
-    to: `src/shared/${game}-module.sim.test.ts`,
+    to: `src/shared/${game}/${game}-module.sim.test.ts`,
   },
-  { from: 'src/client/.gitkeep', to: 'src/client/.gitkeep' },
-  { from: 'src/server/.gitkeep', to: 'src/server/.gitkeep' },
+  { from: 'src/root/client/.gitkeep', to: 'src/root/client/.gitkeep' },
+  { from: 'src/root/server/.gitkeep', to: 'src/root/server/.gitkeep' },
+  { from: 'src/public/.gitkeep', to: 'src/public/.gitkeep' },
 ];
 
 for (const { from, to } of files) {

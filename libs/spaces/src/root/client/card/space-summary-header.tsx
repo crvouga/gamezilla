@@ -1,8 +1,8 @@
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+import { SpaceLiveBadge } from '../../../public/space-live-badge';
 import { SpaceHostAvatar } from '../members/space-host-avatar';
 import { SpaceHostNameText } from '../members/space-host-name-text';
-import { SpaceLiveBadge } from '../space-live-badge';
 import { SpaceTitleText } from '../space-title-text';
 
 export type SpaceSummaryHeaderProps = {

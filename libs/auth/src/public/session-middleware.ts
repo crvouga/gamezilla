@@ -3,12 +3,12 @@ import {
   type AppClientContext,
   appAuth,
   buildAppAuthContext,
-} from '@libs/auth/shared/auth-context';
-import { assertDeviceId } from '@libs/auth/shared/device-id';
+} from '@libs/auth/public/auth-context';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import { getIo } from '@pkgs/io/als';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { assertDeviceId } from '../shared/auth/device-id';
 import { AnonUserService } from './anon-user-service';
 import { BearerAuthResolver } from './bearer-resolve';
 import type { AuthContext } from './types';

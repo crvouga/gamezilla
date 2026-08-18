@@ -3,10 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*/index.ts"
+    "./public/*": [
+      "./src/public/*.ts",
+      "./src/public/*.tsx"
+    ],
+    "./root/*": [
+      "./src/root/*.ts",
+      "./src/root/*.tsx"
     ]
   },
   "scripts": {

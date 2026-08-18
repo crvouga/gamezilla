@@ -327,7 +327,7 @@
     {
       "includes": [
         "libs/stripe/scripts/**/*.ts",
-        "libs/stripe/src/sync/**/*.ts"
+        "libs/stripe/src/use-cases/sync-catalog/server/sync/**/*.ts"
       ],
       "linter": {
         "rules": {
@@ -441,7 +441,7 @@
       }
     },
     {
-      "includes": ["test/ui/src/scenarios/**"],
+      "includes": ["test/system/src/scenarios/**"],
       "linter": {
         "rules": {
           "style": {
@@ -450,7 +450,7 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "message": "Scenarios must use AppDriver / openSim (see test/ui/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
+                    "message": "Scenarios must use AppDriver / openSim (see test/system/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
                   }
                 }
               }

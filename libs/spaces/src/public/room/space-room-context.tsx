@@ -1,7 +1,7 @@
 import { type AnyRoom, RoomClientsProvider } from '@pkgs/room';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
-import { SPACE_ROOM_MODULE_NAME } from '../../shared/space-room-module-name';
+import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
 import { useSpaceOpenRoomEntry } from './space-open-rooms-context';
 
 export type SpaceRoomProviderProps = {

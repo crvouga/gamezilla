@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { FriendshipStatus } from '../../shared/friends-types';
+import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 
 export type FriendActionPillsProps = {
   readonly userId: string;

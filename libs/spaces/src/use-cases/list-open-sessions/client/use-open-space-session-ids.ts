@@ -1,4 +1,4 @@
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';

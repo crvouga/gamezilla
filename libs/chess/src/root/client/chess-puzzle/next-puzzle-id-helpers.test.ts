@@ -5,7 +5,7 @@ import {
   buildPuzzleMatchedCountSql,
   capPuzzleCandidateOffset,
   pickPuzzleIdFromPool,
-} from './next-puzzle-id-helpers';
+} from '../../../public/chess-puzzle/next-puzzle-id-helpers';
 
 describe('buildPuzzleCandidatesSql', () => {
   test('rating band bounds are present in SQL', () => {

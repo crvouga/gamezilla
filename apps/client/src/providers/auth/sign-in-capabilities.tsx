@@ -1,5 +1,5 @@
-import { SignInCapabilitiesProvider } from '@libs/auth/client/sign-in-capabilities-context';
-import { useClientConfig } from '@libs/client-config/client/use-client-config';
+import { SignInCapabilitiesProvider } from '@libs/auth/public/sign-in-capabilities-context';
+import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
 

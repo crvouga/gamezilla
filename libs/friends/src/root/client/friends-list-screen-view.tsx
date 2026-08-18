@@ -1,4 +1,4 @@
-import { FriendLiveSpaceBadge } from '@libs/spaces/client/friend-live-space-badge';
+import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
@@ -11,10 +11,10 @@ import {
 } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import { type ReactNode, useCallback } from 'react';
-import type { Friend } from '../shared/friends-types';
-import { FriendUserRow } from './friend-user-row';
+import { FriendUserRow } from '../../public/friend-user-row';
+import type { Friend } from '../../shared/friendship/friends-types';
+import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsSignedInGate } from './friends-signed-in-gate';
-import { useFriends } from './use-friends';
 
 function FriendsEmptyState(): ReactNode {
   const { t } = useLingui();

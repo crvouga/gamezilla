@@ -14,21 +14,21 @@ import {
   Text,
 } from '@pkgs/ui';
 import { useMemo } from 'react';
-import type { AvatarConfig } from '../../shared/avatar-config';
-import { AvatarEditorSeedField } from '../avatar-editor-seed-field';
-import type { SchemaField } from '../dicebear-schema';
+import type { AvatarConfig } from '../../../shared/profile/avatar-config';
+import { AvatarEditorSeedField } from './avatar-editor-seed-field';
+import type { SchemaField } from './dicebear-schema';
 import {
   isStyleKey,
   STYLE_KEYS,
   type StyleKey,
   styleLabel,
-} from '../dicebear-styles';
+} from './dicebear-styles';
 import {
   buildThumbnailEnumOptions,
   humanizeOptionKey,
   selectedVariantForField,
-} from '../option-helpers';
-import { ProfileDiceBearAvatar } from '../profile-dicebear-avatar';
+} from './option-helpers';
+import { ProfileDiceBearAvatar } from './profile-dicebear-avatar';
 import { type UseAvatarEditor, useAvatarEditor } from './use-avatar-editor';
 
 type EnumField = Extract<SchemaField, { kind: 'enum' }>;

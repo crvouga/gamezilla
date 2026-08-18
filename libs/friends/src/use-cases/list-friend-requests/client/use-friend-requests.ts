@@ -1,11 +1,11 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { useMemo } from 'react';
 
-import type { FriendRequest } from '../shared/friends-types';
+import type { FriendRequest } from '../../../shared/friendship/friends-types';
 
 type FriendRequestRow = {
   readonly id: string;

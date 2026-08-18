@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
 
-import { createSpaceOpenRoomsPending } from './space-open-rooms-pending';
+import { createSpaceOpenRoomsPending } from '../../../public/room/space-open-rooms-pending';
 
 describe('createSpaceOpenRoomsPending', () => {
   it('flushes enqueued payloads in order when a room becomes available', () => {

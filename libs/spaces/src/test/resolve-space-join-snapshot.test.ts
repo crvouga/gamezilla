@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { resolveSpaceJoinSnapshot } from '../shared/join-space/resolve-space-join-snapshot';
+import { resolveSpaceJoinSnapshot } from '../use-cases/join-space/shared/resolve-space-join-snapshot';
 
 const liveRow = {
   host_id: 'device-host',

@@ -1,6 +1,6 @@
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
-import type { NotificationProvider } from '../shared/notification-provider';
+import type { NotificationProvider } from '../shared/notifications/notification-provider';
 import type { NotificationsClientDeps } from './notifications-actions';
 
 export type NotificationsShellContextValue = {

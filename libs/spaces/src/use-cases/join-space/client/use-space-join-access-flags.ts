@@ -1,0 +1,21 @@
+import { sql } from '@pkgs/sql';
+import { useQuery } from '@pkgs/sync-engine/client';
+import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
+
+/** True when the viewer has a local spaces_users ACL row for this space. */
+export function useHasSpaceUserLocal(
+  spaceId: string,
+  userId: string | null
+): boolean {
+  const enabled = spaceId.length > 0 && userId !== null && userId.length > 0;
+  const id =
+    enabled && userId !== null ? spaceUserEntityId(spaceId, userId) : '';
+  const { rows } = useQuery(sql<{ readonly id: string }>`
+    SELECT id
+    FROM spaces_users
+    WHERE id = ${id} AND deleted_at IS NULL
+    LIMIT 1
+  `);
+  const row = rows[0] ?? null;
+  return row !== null;
+}

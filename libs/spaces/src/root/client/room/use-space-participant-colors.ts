@@ -6,7 +6,7 @@ import {
 import { useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
 import { useCallback, useMemo } from 'react';
 
-import { SPACE_ROOM_NAME } from './use-space-room-selector';
+import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
 
 /**
  * Stable participant colors from the live roster. Offline / unknown ids still

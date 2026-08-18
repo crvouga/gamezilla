@@ -10,8 +10,8 @@
 import {
   assertStripeSecretKey,
   createStripeClientFromSecret,
-} from '../src/script-runtime';
-import { StripeFullSync } from '../src/sync';
+} from '../src/shared/stripe/script-runtime';
+import { StripeFullSync } from '../src/use-cases/sync-catalog/server/sync';
 
 const SCRIPT_TAG = 'stripe sync';
 

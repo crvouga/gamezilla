@@ -1,27 +1,19 @@
 export type {
-  NotificationsAppOptions,
-  NotificationsCtx,
-  NotificationsStorage,
-} from './notifications';
+  NotificationActionContext,
+  NotificationActionHandler,
+} from './action-registry';
+export type { NotificationsCtx } from './notifications-impl';
 export {
   deactivateNotification,
-  migrateNotifications,
   NOTIFICATIONS_SERVER_MANAGED,
   Notifications,
-  NotificationsApp,
-  NotificationsDatabaseMigration,
   publishNotification,
   registerNotificationActionHandler,
   updateNotification,
-} from './notifications';
-export type {
-  NotificationActionContext,
-  NotificationActionHandler,
-} from './server/action-registry';
-export type { NotificationsRequestContext } from './server/notifications-context';
+} from './notifications-impl';
 export type {
   DeactivateNotificationInput,
   NotificationPresentation,
   PublishNotificationInput,
   UpdateNotificationInput,
-} from './server/types';
+} from './types';

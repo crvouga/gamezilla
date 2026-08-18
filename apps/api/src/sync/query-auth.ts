@@ -1,4 +1,4 @@
-import { appAuth } from '@libs/auth/shared/auth-context';
+import { appAuth } from '@libs/auth/public/auth-context';
 import { assert } from '@pkgs/assert';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import type { AuthErrorBody } from '@pkgs/sync-engine/shared';

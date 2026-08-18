@@ -1,5 +1,5 @@
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
-import { UserUsername } from '@libs/profile/client/user-username';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
+import { UserUsername } from '@libs/profile/public/user-username';
 import { Box } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 

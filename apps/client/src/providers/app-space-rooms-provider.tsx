@@ -1,5 +1,5 @@
-import { RoomTransportFactoryProvider } from '@libs/spaces/client/room/room-transport-factory';
-import { SpaceOpenRoomsProvider } from '@libs/spaces/client/room/space-open-rooms-context';
+import { SpaceOpenRoomsProvider } from '@libs/spaces/public/room/space-open-rooms-context';
+import { RoomTransportFactoryProvider } from '@libs/spaces/root/client/room/room-transport-factory';
 import type { ReactNode } from 'react';
 
 import { useClientSystemResources } from './client-system-resources';

@@ -1,8 +1,8 @@
 import {
   useSignInModal,
   useSignOutModal,
-} from '@libs/auth/client/auth-modals-provider';
-import { useHasAuthSession } from '@libs/auth/client/use-current-user';
+} from '@libs/auth/public/auth-modals-provider';
+import { useHasAuthSession } from '@libs/auth/public/use-current-user';
 import { useLingui } from '@lingui/react/macro';
 import { useAsync } from '@pkgs/async/use-async';
 import { LogInIcon, LogOutIcon, RegisterCommand } from '@pkgs/ui';

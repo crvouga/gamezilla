@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { resolveSpacePresence } from '../shared/resolve-space-presence';
+import { resolveSpacePresence } from '../shared/space/resolve-space-presence';
 
 const hostSpaceRow = {
   host_member_id: 'user-1',

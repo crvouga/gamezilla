@@ -7,14 +7,14 @@
  * `transfer_lookup_key`.
  */
 import type Stripe from 'stripe';
-import { STRIPE_CATALOG_SPEC } from '../catalog-spec';
+import { STRIPE_CATALOG_SPEC } from '../../../../shared/stripe/catalog-spec';
 import {
   decidePriceReconcile,
   type PriceSpecEntry,
   priceMatchesSpec,
   specCurrencyOptionsToStripe,
   stripePriceProductId,
-} from '../catalog-sync-shared';
+} from '../../../../shared/stripe/catalog-sync-shared';
 
 /** Stripe product metadata key used to match catalog product ids. */
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =

@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import type { ChessPuzzleGameLogEntry } from '../../shared/chess-puzzle-stats';
+import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 import { ChessGameLogRow } from './chess-game-log-row';
 
 export type ChessGameLogProps = {

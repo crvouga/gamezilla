@@ -6,9 +6,9 @@
 import {
   decideJoin,
   type SpaceAccessDecision,
-} from '../participation/space-participation-policy';
-import type { SpaceVisibility } from '../space-visibility';
-import type { SpacesError } from '../spaces-errors';
+} from '../../../shared/space/participation/space-participation-policy';
+import type { SpaceVisibility } from '../../../shared/space/space-visibility';
+import type { SpacesError } from '../../../shared/space/spaces-errors';
 
 export type { SpaceAccessDecision };
 

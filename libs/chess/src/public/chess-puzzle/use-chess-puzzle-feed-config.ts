@@ -7,7 +7,7 @@ import {
   type ChessPuzzleFeedConfig,
   DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
   readChessPuzzleFeedConfig,
-} from '../../shared/chess-puzzle-feed-config';
+} from '../chess-puzzle-feed-config';
 
 const PUZZLE_FEED_ROW_KEY = asKeyword('chess.prefs/puzzle-feed');
 const PUZZLE_FEED_VALUE_ATTR = asKeyword('chess.prefs/value');

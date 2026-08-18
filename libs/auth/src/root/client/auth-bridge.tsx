@@ -11,28 +11,30 @@ import {
 import type { PropsWithChildren } from 'react';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-
-import {
-  AuthBridgeRefresh,
-  type AuthBridgeRefreshDeps,
-} from './auth-bridge-refresh';
-import { useAuthClientPort } from './auth-client-provider';
+import { useAuthClientPort } from '../../public/auth-client-provider';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_EXPIRES_AT_KEY,
   SESSION_TOKEN_KEY,
-} from './auth-storage-keys';
-import { useConfigService } from './config-service-context';
+} from '../../public/auth-storage-keys';
+import { useConfigService } from '../../public/config-service-context';
 import {
   shouldClearAccountOnExternalUserChange,
   shouldClearCapabilityOnBaSignedOut,
-} from './resolve-client-identity';
+} from '../../public/resolve-client-identity';
+import { SessionCapabilityStore } from '../../public/session-capability';
+import {
+  authSessionError,
+  isAuthSessionSignedIn,
+} from '../../public/session-snapshot';
+import { useCurrentAccountId } from '../../public/use-current-account-id';
+import { useDeviceId } from '../../public/use-device-id';
+import { useFreshAuthToken } from '../../public/use-fresh-auth-token';
+import {
+  AuthBridgeRefresh,
+  type AuthBridgeRefreshDeps,
+} from './auth-bridge-refresh';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
-import { SessionCapabilityStore } from './session-capability';
-import { authSessionError, isAuthSessionSignedIn } from './session-snapshot';
-import { useCurrentAccountId } from './use-current-account-id';
-import { useDeviceId } from './use-device-id';
-import { useFreshAuthToken } from './use-fresh-auth-token';
 
 type TokenRef = { current: string | null };
 type ExpiresAtRef = { current: string | null };

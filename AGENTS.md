@@ -10,18 +10,24 @@
 
 - **Local SQLite + defineQuery/mutations is the default for client reads and writes.** Client UI reads local SQLite via `useQuery` (table-change reactivity). Status / paint gate come from `useSyncEngine()` (`status`, `paintReady`); writes go through `useMutationClient()` / `mutate()`. Server mounts one `createSyncApp` (query + mutations). Hydration uses event-driven `POST /api/query` (batch body: `{ queries }` → `{ responses }`) on initial connect plus pubsub pushes — not periodic polling; client mutations drain through `POST /api/mutations`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: cross-user search (`POST /friends/search`) and Stripe/external APIs. Prefer shrinking that list, never growing it casually. Username claims go through the `claimUsername` mutation (not REST). Profile bootstrap uses the `ensureProfile` mutation (auto username on upload). Sync wire is protocol v3 (`x-sync-protocol: 3`); pre-cut clients get `upgrade_required` without a local DB wipe. Mutation/query authoring derives write sets and wake topics from SQL AST capture + `defineTopicMap` (no hand-declared write/invalidate lists). `@pkgs/sync-engine` public API is four entrypoints only: `client`, `server`, `shared`, `test`.
 
-- **Writes are mutations.** Client business code calls `mutate()` through `@pkgs/sync-engine/client` (`useMutationClient()`); each mutation applies its domain SQL in the local transaction and queues an idempotent mutation record for upload. Domain defs use `defineMutation` / `defineQuery` from `@pkgs/sync-engine/shared`. Server upload replays mutations in one Postgres transaction with the authenticated actor and records permanent `MutationError` / validation failures as write rejections. Server-initiated inbox actions invoke the same mutation definitions. Do not add a second rules engine, raw CRUD upload, or feature REST write path. Any code writing DOMAIN tables outside mutation replay must call `notifyChannels` (pubsub push); a missed call is caught by the reconciliation tick (and fails the channel-exhaustiveness CI check when mutation/query wiring is incomplete). Organize mutations by vertical slice:
+- **Writes are mutations.** Client business code calls `mutate()` through `@pkgs/sync-engine/client` (`useMutationClient()`); each mutation applies its domain SQL in the local transaction and queues an idempotent mutation record for upload. Domain defs use `defineMutation` / `defineQuery` from `@pkgs/sync-engine/shared`. Server upload replays mutations in one Postgres transaction with the authenticated actor and records permanent `MutationError` / validation failures as write rejections. Server-initiated inbox actions invoke the same mutation definitions. Do not add a second rules engine, raw CRUD upload, or feature REST write path. Any code writing DOMAIN tables outside mutation replay must call `notifyChannels` (pubsub push); a missed call is caught by the reconciliation tick (and fails the channel-exhaustiveness CI check when mutation/query wiring is incomplete). Organize product libs by vertical slice — one folder per request:
 
   ```
   libs/<feature>/src/
-    client/<slice>/     # hooks + UI calling mutate()
-    shared/<slice>/     # pure helpers / SQL helpers for that slice
-    shared/mutations/   # defineMutation defs for the feature
-    shared/queries/     # defineQuery defs for the feature (hydrated via POST /api/query)
-    server/<slice>/     # REST/inbox only when absolute exception needs it
+    use-cases/<use-case>/
+      client/     # hook + that request's own confirm UI
+      shared/     # defineMutation / defineQuery / validation for THIS request
+      server/     # REST / outbox consumer / Layer-B class for THIS request
+    shared/       # domain primitives only (types, repos, RoomModule)
+    root/
+      client/     # app screens / chrome that compose many use-case hooks
+      server/     # app Hono mounts / outbox lists
+    public/       # what other @libs packages may import
   ```
 
-  Domain mutation definitions and their SQL live under `libs/<feature>/src/shared/mutations/`. Domain query definitions live under `libs/<feature>/src/shared/queries/`. The mutation environment contains the actor, account, and device identity. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
+  Omit empty `client/` / `server/` stubs inside a use case. Split mutation/query hubs so each `defineMutation` / `defineQuery` lives in its use case `shared/`. App sync registries (`FRIENDS_MUTATIONS`) live in `root/`. Other libs import `@libs/<pkg>/public/…` only; apps and tests may also import `@libs/<pkg>/root/…`. Never import `use-cases/` or `shared/` from outside the package. Use cases must not import other use cases, `root/`, or `public/`. Ban god-hooks that re-export every mutation (`useSpaceActions`); each UI calls its slice hook.
+
+  Domain mutation definitions and their SQL live under `libs/<feature>/src/use-cases/<use-case>/shared/`. The mutation environment contains the actor, account, and device identity. CI: `ci:use-case-isolation`, `ci:libs-import-surface`.
 
 - **Domain rows are soft-delete only.** Removals set managed `deleted_at` (never `DELETE FROM` domain tables). `defineQuery` snapshots **include** soft-deleted rows (tombstones on the wire, with `deleted_at` selected); UI / live client reads filter `deleted_at IS NULL`. Sync-engine merge upserts snapshot rows verbatim (including `deleted_at`) and rebases pending `sync_engine_mutations` on top — no absence GC, no `_row_scopes`. Unsubscribe / denied only clears `sync_engine_scope_meta`. Mutation `tx` rejects domain hard deletes at apply/replay (`NO_HARD_DELETE`). Framework tables (`sync_engine_mutations`, `sync_engine_scope_meta`, `sync_engine_write_rejections`, `sync_engine_mutations_applied`) may still hard-delete. CI: `bun run ci:no-domain-hard-delete`.
 
@@ -115,47 +121,48 @@ Workspace packages live under four top-level tier directories with matching npm 
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Test | `test/` | `@test/` | System-wide DST / product UI simulations (may import apps+libs+pkgs). |
+| Test | `test/` | `@test/` | System tests / DST (may import apps+libs+pkgs). |
 | Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `api`).                       |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
-Inside each one, runtimes are isolated by three sibling folders. Under each runtime, organize by **vertical slice** (one folder per mutation/feature) with mirrored names across `client/` / `shared/` / `server/` — do not add horizontal hubs that force jumping across many directories to follow one request:
+Inside each **product** `@libs` package, organize by use case so one directory traces a request from client to server to db. Do not add horizontal mutation/query hubs:
 
 ```
-<tier>/<name>/
-  package.json          # name "@<tier>/<name>", subpath-pattern `exports`
-  tsconfig.tc.json      # scoped `tc` only (extends ../../tsconfig.json); IDE uses root tsconfig.json
+libs/<feature>/
+  package.json          # name "@libs/<feature>"; exports ./public/* and ./root/* only
+  tsconfig.tc.json
   src/
-    client/<slice>/     # React Native / Expo — hooks + UI for that slice
-    server/<slice>/     # Cloudflare Worker / Hono — only when the slice needs REST/inbox
-    shared/<slice>/     # pure helpers / SQL helpers for that slice
+    use-cases/<use-case>/{client,shared,server}/
+    shared/             # domain primitives used by use-cases and root
+    root/{client,server}/
+    public/             # cross-lib contract
 ```
+
+Exempt (no request to trace; keep their current trees): `@libs/db`, `@libs/infra`, `@libs/games`, `@libs/runtime`, `@libs/dst-handles`.
 
 Lint/format is root-only Biome ([`biome.json`](biome.json) + [`tools/biome-plugins/`](tools/biome-plugins/)); packages do not ship per-package lint configs.
 
-Example (`join-space`): `client/join-space/use-join-space.ts` + `join-space-button.tsx`, `shared/join-space/` helpers + `@libs/spaces/shared/rules` rules, optional `server/join-space/` only for REST exceptions. Nested paths resolve via exports wildcards (`@libs/spaces/client/join-space/use-join-space`).
-Cross-package imports always use deep paths: `@<tier>/<name>/client/<file>`, `@<tier>/<name>/server/<file>`, `@<tier>/<name>/shared/<file>`. The `exports` field uses one Node subpath pattern per runtime folder (with `.ts` / `.tsx` array fallback) so adding/removing/renaming a file requires zero `package.json` change while bundlers still see one module per import site:
+Example (`friend-request-send`): `use-cases/friend-request-send/client/use-send-friend-request.ts`, `shared/send-friend-request-mutation.ts`, optional `server/` consumer. Composition UI (FriendActionPills) lives in `public/` if other libs need it, otherwise `root/client`. Apps import `@libs/friends/root/client/friends-list-screen`. Other libs import `@libs/friends/public/…`.
+
+Product lib `exports`:
 
 ```jsonc
 "exports": {
-  "./client/*": ["./src/client/*.ts", "./src/client/*.tsx"],
-  "./server/*": ["./src/server/*.ts", "./src/server/*.tsx"],
-  "./shared/*": ["./src/shared/*.ts", "./src/shared/*.tsx"]
+  "./public/*": ["./src/public/*.ts", "./src/public/*.tsx"],
+  "./root/*": ["./src/root/*.ts", "./src/root/*.tsx"]
 }
 ```
 
-Do **not** add `index.ts` barrels that mix `client` / `server` / `shared` (Metro / Wrangler need per-runtime resolution to drop the wrong runtime from the bundle). A per-runtime `client/index.ts` / `server/index.ts` / `shared/index.ts` is fine when there's a real reason to expose a curated facade (see `libs/auth/src/server/index.ts`); add it as an explicit `"./server": "./src/server/index.ts"` entry alongside the wildcard.
+Do **not** export `use-cases/` or `shared/`. Do **not** add a god barrel that mixes client UI with server Hono. Within a feature package, prefer **relative** imports; use the `@libs/<name>/public/…` alias only for a **different** feature package.
 
-Flat (runtime-agnostic) packages — the per-utility micro-packages (`@pkgs/assert`, `@pkgs/keyword`, `@pkgs/kv`, …), `ui`, `api`, `room-widgets`, `stripe` — use a single pattern that also resolves bare folder imports via per-folder `index.ts`:
+`pkgs/` keep `src/{client,server,shared}/` (or a flat `./*` export for micro-packages). Flat runtime-agnostic packages (`@pkgs/assert`, `ui`, …) still use:
 
 ```jsonc
 "exports": {
   "./*": ["./src/*.ts", "./src/*.tsx", "./src/*/index.ts"]
 }
 ```
-
-Within a feature package, prefer **relative** imports between sibling files (`./foo`, `../shared/bar`); use the `@<tier>/<name>/...` alias only for imports from a different feature package.
 
 Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Root Biome still formats/lints package sources; `**/scripts/**` overrides relax console + cognitive-complexity noise for long CLI orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.tc.json` `include` and the root `tsconfig.json` `include` so type-checking covers them. Package `"tc"` scripts use `tsc --noEmit -p ./tsconfig.tc.json` so scoped CI checks stay fast while the IDE language service uses the root mega-project (Rename Symbol / Find All References across packages). Do not name the package config `tsconfig.json` — that steals file ownership from the root and breaks cross-package rename. Exception: `apps/client/tsconfig.json` (Expo).
 
@@ -180,18 +187,18 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 1. Prefer `bun run scaffold:game -- <kebab-name>` (creates `RoomModule` with required `hash(state)`, `*.sim.test.ts` / unit skeletons, no wall globals). Or scaffold `libs/<game>/` manually:
    - `package.json` with `"name": "@libs/<game>"`, per-file `exports`, deps mirroring what the implementation actually imports (typically a granular subset of the `@pkgs/<util>` micro-packages — `assert`, `keyword`, `attribute`, etc. — plus `@pkgs/sync-engine`, `@lingui/*`, `react`, `react-native`).
    - `tsconfig.tc.json` extending root; `"tc": "tsc --noEmit -p ./tsconfig.tc.json"`.
-   - Empty `src/{client,server,shared}/` plus a `hash(state)` on every `RoomModule` (see [`DETERMINISM.md`](DETERMINISM.md)).
+   - Empty `src/shared/<game>/` RoomModule plus `src/use-cases/`, `src/root/{client,server}/`, `src/public/` (omit empty runtimes). `hash(state)` on every `RoomModule` (see [`DETERMINISM.md`](DETERMINISM.md)).
 2. Add path alias to root `tsconfig.json`: `"@libs/<game>/*": ["./libs/<game>/src/*"]` and the matching `include` entries.
 3. Add the package's `src` directory to `lingui.config.cjs` `catalogs.include` so translatable strings are extracted.
 4. Implement the game:
-   - `shared/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
-   - `shared/<game>-play.ts` — game-play reducer (moves, win/loss state).
-   - `shared/<game>-entities.ts` — attribute/entity type defs for domain constants.
+   - `shared/<game>/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
+   - `shared/<game>/<game>-play.ts` — game-play reducer (moves, win/loss state).
+   - `shared/<game>/<game>-entities.ts` — attribute/entity type defs for domain constants.
    - Add any new sync tables to `@libs/db` `app-schema.ts` (`defineSchema`).
-   - `client/<game>-main-menu.tsx`, `client/<game>-board.tsx`, `client/<game>-settings-screen.tsx`, etc. — flat under `client/`.
-5. Register the game in `libs/spaces/src/shared/games.ts` (composed game module) and `libs/spaces/src/shared/space-module.ts` (top-level router).
-6. Add client hooks under `libs/<game>/src/client/<slice>/` that call domain mutation definitions under `libs/<game>/src/shared/mutations/`. Prefer domain mutation writes over new REST.
-7. Wire the client entry in `libs/spaces/src/client/module/games-main-menu.tsx` so the new game shows up in the games list.
+   - `root/client/<game>-main-menu.tsx`, board, settings, etc. — app chrome that composes use cases.
+5. Register the game in spaces `shared/` games registry and `space-module.ts` (top-level router). Other libs consume the game via `@libs/<game>/public/…`.
+6. Add client hooks under `libs/<game>/src/use-cases/<slice>/client/` that call domain mutation definitions under `use-cases/<slice>/shared/`. Prefer domain mutation writes over new REST.
+7. Wire the client entry in spaces `root/client` games menu so the new game shows up in the games list.
    `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
@@ -199,7 +206,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 **Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`, `apps|libs|pkgs-not-test`:
 
 ```text
-test  →  apps, libs, pkgs, tools  (system-wide DST / UI testing)
+test  →  apps, libs, pkgs, tools  (system tests / DST)
 apps  →  apps, libs, pkgs (never @test/*; cross-app OK e.g. client → api)
 libs  →  pkgs only
 pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
@@ -212,7 +219,8 @@ pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 - `@test/<name>` may import `@apps/*`, `@libs/*`, `@pkgs/*`, and tools. Product apps/libs/pkgs must not import `@test/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing api’s in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/api` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenRequestDb`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:api-isomorphic`.
-- `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`).
+- `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/` (`ci:use-case-isolation`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
+- Other `@libs/*` may import a product lib only through `@libs/<pkg>/public/…`. Apps and tests may also import `@libs/<pkg>/root/…` (`ci:libs-import-surface`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.
 - `apps/client` cannot reach any feature's `server/`; `apps/api` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).

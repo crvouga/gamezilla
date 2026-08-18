@@ -1,8 +1,8 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/react/macro';
 import { ChessBoardCanvasBootstrap } from '@pkgs/chess-board/chess-board-canvas-bootstrap';
 import { Box, FadeSwitch } from '@pkgs/ui';
@@ -16,7 +16,7 @@ import {
   type ChessMainMenuScreen,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
-} from '../shared/chess-main-menu';
+} from '../shared/chess/chess-main-menu';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
 import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';

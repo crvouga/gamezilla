@@ -1,5 +1,5 @@
-import { useConfigService } from '@libs/auth/client/config-service-context';
-import { useClientRequestAuth } from '@libs/auth/client/use-client-request-auth';
+import { useConfigService } from '@libs/auth/public/config-service-context';
+import { useClientRequestAuth } from '@libs/auth/public/use-client-request-auth';
 import { useHttpClient } from '@pkgs/http-client';
 import { useMemo } from 'react';
 

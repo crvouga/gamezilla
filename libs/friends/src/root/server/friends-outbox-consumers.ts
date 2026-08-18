@@ -1,6 +1,6 @@
-import { Notifications } from '@libs/notifications';
-import type { PublishNotificationInput } from '@libs/notifications/server/types';
-import { ProfileReadRepository } from '@libs/profile/server/read-profile';
+import { Notifications } from '@libs/notifications/public/notifications';
+import type { PublishNotificationInput } from '@libs/notifications/public/types';
+import { ProfileReadRepository } from '@libs/profile/public/read-profile';
 import type { Io } from '@pkgs/io';
 import { defineOutboxConsumer } from '@pkgs/outbox';
 import { Sounds } from '@pkgs/sounds/sound-id';
@@ -10,8 +10,8 @@ import {
   FriendRequestAccepted,
   FriendRequestClosed,
   FriendRequestSent,
-} from '../shared/friends-outbox-messages';
-import { FriendRequestRepository } from '../shared/friends-sql/friend-request-repository';
+} from '../../shared/friendship/friends-outbox-messages';
+import { FriendRequestRepository } from '../../shared/friendship/friends-sql/friend-request-repository';
 
 const FRIENDS_NAMESPACE = 'friends' as const;
 const FRIEND_REQUEST_TYPE = 'friend-request' as const;

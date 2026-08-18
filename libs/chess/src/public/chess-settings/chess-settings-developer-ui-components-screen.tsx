@@ -1,12 +1,12 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
+import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import { Box, ExplorerList } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect } from 'react';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
-} from '../../shared/chess-main-menu';
+} from '../chess-main-menu';
 import {
   CHESS_COMPONENT_ENTRIES,
   ensureChessBoardExampleRegistered,

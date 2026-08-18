@@ -1,14 +1,13 @@
-import { useMyDeviceId, useMyId } from '@libs/auth/client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth/public/use-current-user';
 import {
   ProfileField,
   useProfileColumn,
-} from '@libs/profile/client/use-profile-column';
+} from '@libs/profile/public/use-profile-column';
 import { useLingui } from '@lingui/react/macro';
-
-import { resolveSpaceFallbackTitleParts } from '../shared/resolve-space-fallback-title-parts';
-import { resolveSpaceTitleUsername } from '../shared/resolve-space-title-username';
+import { SpaceField, useSpaceColumn } from '../../public/use-space-column';
+import { resolveSpaceFallbackTitleParts } from '../../shared/space/resolve-space-fallback-title-parts';
+import { resolveSpaceTitleUsername } from '../../shared/space/resolve-space-title-username';
 import { useSpaceHostMembershipDisplay } from './members/use-space-host-membership-display';
-import { SpaceField, useSpaceColumn } from './use-space-column';
 
 /** Live space title for cards, miniplayer, a11y, and command palette. */
 export function useSpaceDisplayTitle(spaceId: string): string {

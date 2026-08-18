@@ -2,8 +2,11 @@ import { Handles } from '@libs/dst-handles';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import type { ReactNode } from 'react';
 
-import { useMyProfileId } from './use-my-profile-id';
-import { UserUsername, type UserUsernameProps } from './user-username';
+import { useMyProfileId } from '../../public/use-my-profile-id';
+import {
+  UserUsername,
+  type UserUsernameProps,
+} from '../../public/user-username';
 
 export type MyUsernameProps = Omit<UserUsernameProps, 'profileId' | 'testID'>;
 

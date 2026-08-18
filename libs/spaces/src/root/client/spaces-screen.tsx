@@ -1,4 +1,4 @@
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
+import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
 import {
@@ -13,11 +13,10 @@ import {
   useRouter,
 } from '@pkgs/ui';
 import { useMemo } from 'react';
-
+import { openSpaceDetail } from '../../public/space-routes';
+import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
+import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { SpaceCard } from './card/space-card';
-import { useCreateSpace } from './create-space/use-create-space';
-import { useOpenSpaceSessionIds } from './open-space/use-open-space-session-ids';
-import { openSpaceDetail } from './space-routes';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
 function sortCurrentSpacesFirst(

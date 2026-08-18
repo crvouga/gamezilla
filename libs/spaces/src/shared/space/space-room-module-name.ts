@@ -5,6 +5,6 @@
  * - Client: {@link SPACE_ROOM_NAME} registry key (`@pkgs/room`)
  *
  * Used as the `name` of the composed space module built by
- * `composeSpaceRoomModule` in `@libs/spaces/shared/load-game-plugins`.
+ * `composeSpaceRoomModule` in `./load-game-plugins`.
  */
 export const SPACE_ROOM_MODULE_NAME = 'space' as const;

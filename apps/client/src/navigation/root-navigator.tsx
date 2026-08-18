@@ -1,19 +1,17 @@
 import { AppTabBarBridge } from '@apps/client/ui/app-header/app-tab-bar-bridge';
-import { AccountDeviceDetailScreen } from '@libs/auth/client/account-device/account-device-detail-screen';
-import { AccountDevicesScreen } from '@libs/auth/client/account-device/account-devices-screen';
-import { ClientConfigScreen } from '@libs/client-config/client/client-config-screen';
-import { FriendUserScreen } from '@libs/friends/client/friend-user-screen-view';
-import { FriendsListScreen } from '@libs/friends/client/friends-list-screen-view';
-import {
-  NotificationsScreen,
-  NotificationsTabIcon,
-} from '@libs/notifications/client';
-import { AvatarEditorScreen } from '@libs/profile/client/patch-avatar/avatar-editor-screen';
-import { ProfileEditScreen } from '@libs/profile/client/profile-edit-screen';
-import { ProfileHandleScreen } from '@libs/profile/client/set-username/profile-handle-screen';
-import { SearchScreen } from '@libs/search/client/search-screen';
-import { SpaceDetailScreen } from '@libs/spaces/client/space-detail-screen';
-import { SpacesScreen } from '@libs/spaces/client/spaces-screen';
+import { AccountDeviceDetailScreen } from '@libs/auth/root/client/account-device/account-device-detail-screen';
+import { AccountDevicesScreen } from '@libs/auth/root/client/account-device/account-devices-screen';
+import { ClientConfigScreen } from '@libs/client-config/root/client/client-config-screen';
+import { FriendUserScreen } from '@libs/friends/root/client/friend-user-screen-view';
+import { FriendsListScreen } from '@libs/friends/root/client/friends-list-screen-view';
+import { NotificationsTabIcon } from '@libs/notifications/public';
+import { NotificationsScreen } from '@libs/notifications/root/client/notifications-screen';
+import { ProfileHandleScreen } from '@libs/profile/root/client/claim-username/profile-handle-screen';
+import { AvatarEditorScreen } from '@libs/profile/root/client/patch-avatar/avatar-editor-screen';
+import { ProfileEditScreen } from '@libs/profile/root/client/profile-edit-screen';
+import { SearchScreen } from '@libs/search/root/client/search-screen';
+import { SpaceDetailScreen } from '@libs/spaces/root/client/space-detail-screen';
+import { SpacesScreen } from '@libs/spaces/root/client/spaces-screen';
 import { useLingui } from '@lingui/react/macro';
 import {
   Gamepad2Icon,

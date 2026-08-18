@@ -1,5 +1,5 @@
-import { useMyAccountId } from '@libs/auth/client/use-current-user';
-import { useDeviceId } from '@libs/auth/client/use-device-id';
+import { useMyAccountId } from '@libs/auth/public/use-current-user';
+import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import {
   resolveSpacePresence,
   type SpacePresence,
-} from '../shared/resolve-space-presence';
+} from '../shared/space/resolve-space-presence';
 
 export type { SpacePresence };
 

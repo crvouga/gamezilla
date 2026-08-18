@@ -100,27 +100,27 @@ Reuse the existing console header/tab-bar pattern, rewritten to `Box`/`Text`/`Pr
 
 Exports:
 
-- `.` — writer / types (unchanged for [`test/ui/src/setup/open-sim.ts`](test/ui/src/setup/open-sim.ts))
+- `.` — writer / types (unchanged for [`test/system/src/setup/open-sim.ts`](test/system/src/setup/open-sim.ts))
 - `./client` — `SystemConsoleApp` + ports types
 - `./server` — Hono factory
 
 ## 4. Injected playground boot (stays out of pkgs)
 
-pkgs cannot import `@apps/api` / `@apps/room` / `@test/ui`. The **implementation** of `bootPlayground` lives in the client composition root.
+pkgs cannot import `@apps/api` / `@apps/room` / `@test/system`. The **implementation** of `bootPlayground` lives in the client composition root.
 
 [`apps/client`](apps/client) already talks to a live API (`bun run dev`). Default boot:
 
-- Two isolated actor seams (move [`createActorClientSeams`](test/ui/src/setup/sim-actor-overrides.ts) usage to a client-side helper, or call an equivalent that already lives next to `ClientSystemResources`)
+- Two isolated actor seams (move [`createActorClientSeams`](test/system/src/setup/sim-actor-overrides.ts) usage to a client-side helper, or call an equivalent that already lives next to `ClientSystemResources`)
 - Separate Expo SQLite DBs (`sim_alice` / `sim_bob`)
 - `io.http` pointed at the configured API URL
 
 That needs **no** `@apps/api` / `@apps/room` imports (avoids apps-not-apps). It is two embedded product Apps against the running API, which is the right fit once playground is a console screen inside the main Expo client.
 
-Do **not** move `bootPlaygroundWorld` / `createPlaygroundProvide` (in-process `createWorld` + `apiResource` + `roomResource`) into pkgs — those imports are illegal in pkgs. DST Jest keeps its own in-process World via `@test/ui`.
+Do **not** move `bootPlaygroundWorld` / `createPlaygroundProvide` (in-process `createWorld` + `apiResource` + `roomResource`) into pkgs — those imports are illegal in pkgs. DST Jest keeps its own in-process World via `@test/system`.
 
 ## 5. `@apps/client` host — Main vs Console
 
-Isolate today’s [`apps/client/src/app.tsx`](apps/client/src/app.tsx) to [`apps/client/src/product/app.tsx`](apps/client/src/product/app.tsx). Export `@apps/client/product`. Update [`test/ui/src/setup/product-impls.ts`](test/ui/src/setup/product-impls.ts).
+Isolate today’s [`apps/client/src/app.tsx`](apps/client/src/app.tsx) to [`apps/client/src/product/app.tsx`](apps/client/src/product/app.tsx). Export `@apps/client/product`. Update [`test/system/src/setup/product-impls.ts`](test/system/src/setup/product-impls.ts).
 
 ```ts
 // apps/client/src/host/hosted-sub-app.ts
@@ -163,4 +163,4 @@ Keep `react-dom` on `@apps/client` / catalog for `react-native-web`. Remove firs
 
 - Not moving ProductApp into pkgs/libs (it composes `@libs/*`)
 - Not relocating in-process `createWorld` + api/room into pkgs
-- Not rewriting `@test/ui` DST beyond pointing at `@apps/client/product`
+- Not rewriting `@test/system` DST beyond pointing at `@apps/client/product`

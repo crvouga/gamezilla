@@ -1,4 +1,4 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { RoomMetaAttr, useRoomFromRegistry, useRoomRoster } from '@pkgs/room';
 import { useMemo } from 'react';
 

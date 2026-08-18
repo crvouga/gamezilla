@@ -1,10 +1,7 @@
-import { useSpaceRoomDispatch } from '@libs/spaces/client/room/use-space-room-selector';
+import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useCallback } from 'react';
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '../../shared/chess-main-menu';
+import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   type ChessPuzzlePlayStatus,
@@ -14,7 +11,7 @@ import {
   RevealChessPuzzleSolution,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import type { HintStage } from './use-hint-stage';
 

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 import { Box, Card, Text } from '@pkgs/ui';
-import { useClientConfig } from './use-client-config';
+import { useClientConfig } from '../../public/use-client-config';
 
 export function ClientConfigEntityCard() {
   const { config, rows } = useClientConfig();

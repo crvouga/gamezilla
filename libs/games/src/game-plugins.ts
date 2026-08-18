@@ -1,6 +1,6 @@
-import { chessGameShared } from '@libs/chess/shared/chess-game';
-import type { GameDefinition } from '@libs/spaces/shared/game';
-import { assertGameRegistry } from '@libs/spaces/shared/load-game-plugins';
+import { chessGameShared } from '@libs/chess/public/chess-game';
+import type { GameDefinition } from '@libs/spaces/public/game';
+import { assertGameRegistry } from '@libs/spaces/public/load-game-plugins';
 
 /**
  * Authoritative shared game definitions for server (`apps/api`) and client.

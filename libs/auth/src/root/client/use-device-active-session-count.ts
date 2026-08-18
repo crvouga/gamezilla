@@ -1,4 +1,7 @@
-import { useHasAuthSession, useMyDeviceId } from './use-current-user';
+import {
+  useHasAuthSession,
+  useMyDeviceId,
+} from '../../public/use-current-user';
 
 /**
  * Count of currently-active sessions for the given device. Only the current

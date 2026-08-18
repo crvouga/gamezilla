@@ -1,13 +1,13 @@
-import { useIsSignedIn } from '@libs/auth/client/use-current-user';
-import { useCreateSpace } from '@libs/spaces/client/create-space/use-create-space';
-import { useRequestEndSpace } from '@libs/spaces/client/end-space/end-space-modal-provider';
-import { useJoinSpace } from '@libs/spaces/client/join-space/use-join-space';
-import { useRequestLeaveSpace } from '@libs/spaces/client/leave-space/leave-space-modal-provider';
-import { openSpaceDetail } from '@libs/spaces/client/space-routes';
-import { useCurrentSpaceIds } from '@libs/spaces/client/use-current-space-ids';
-import { useCurrentSpaceRole } from '@libs/spaces/client/use-current-space-role';
-import { useLiveSpaceIds } from '@libs/spaces/client/use-live-space-ids';
-import { useSpaceCommandLabel } from '@libs/spaces/client/use-space-command-label';
+import { useIsSignedIn } from '@libs/auth/public/use-current-user';
+import { openSpaceDetail } from '@libs/spaces/public/space-routes';
+import { useCreateSpace } from '@libs/spaces/root/client/create-space/use-create-space';
+import { useRequestEndSpace } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
+import { useJoinSpace } from '@libs/spaces/root/client/join-space/use-join-space';
+import { useRequestLeaveSpace } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
+import { useCurrentSpaceIds } from '@libs/spaces/root/client/use-current-space-ids';
+import { useCurrentSpaceRole } from '@libs/spaces/root/client/use-current-space-role';
+import { useLiveSpaceIds } from '@libs/spaces/root/client/use-live-space-ids';
+import { useSpaceCommandLabel } from '@libs/spaces/root/client/use-space-command-label';
 import { useLingui } from '@lingui/react/macro';
 import {
   Gamepad2Icon,

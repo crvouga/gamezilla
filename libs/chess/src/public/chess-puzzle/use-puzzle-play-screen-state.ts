@@ -1,17 +1,14 @@
-import { useMyId } from '@libs/auth/client/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
-} from '@libs/spaces/client/room/use-space-room-selector';
+} from '@libs/spaces/public/room/use-space-room-selector';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '../../shared/chess-main-menu';
+import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import {
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
-} from '../../shared/chess-puzzle-play';
+} from '../chess-puzzle-play';
 import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loading-status';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 

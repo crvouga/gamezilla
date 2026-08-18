@@ -1,13 +1,13 @@
 import { Box, LoadingState, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback, useContext, useMemo } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { DefineBackButton } from '../../public/nav/spaces-nav-context';
+import { closeSpaceDetail } from '../../public/space-routes';
 import { SpaceActiveLayout } from './active-space/space-active-layout';
 import {
   SpaceSessionUiProvider,
   type SpaceSessionUiValue,
 } from './active-space/space-session-ui-context';
-import { DefineBackButton } from './nav/spaces-nav-context';
-import { closeSpaceDetail } from './space-routes';
 
 const ZERO_SAFE_AREA = { top: 0, right: 0, bottom: 0, left: 0 };
 

@@ -1,10 +1,10 @@
 import {
   type ClientRequestAuth,
   clientAuthHeaders,
-} from '@libs/auth/client/client-request-auth';
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+} from '@libs/auth/public/client-request-auth';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 
-import type { UserSearchResult } from '../shared/user-search-types';
+import type { UserSearchResult } from './user-search-types';
 
 export type UserSearchApiFetch = (
   input: RequestInfo | URL,

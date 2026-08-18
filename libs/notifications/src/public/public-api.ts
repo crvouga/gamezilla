@@ -3,12 +3,12 @@ export type {
   NotificationCategory,
   NotificationFilter,
   NotificationSection,
-} from '../shared/notification';
+} from '../shared/notifications/notification';
 export type {
   NotificationAction,
   NotificationCardActions,
-} from '../shared/notification-action';
-export type { NotificationProvider } from '../shared/notification-provider';
+} from '../shared/notifications/notification-action';
+export type { NotificationProvider } from '../shared/notifications/notification-provider';
 export { NotificationCardDefault } from './notification-card-default';
 export type { NotificationsClientDeps } from './notifications-actions';
 export {
@@ -18,7 +18,6 @@ export {
 } from './notifications-header-button';
 export { NotificationsProviderRegistry } from './notifications-provider-registry';
 export { notificationsPath, openNotifications } from './notifications-routes';
-export { NotificationsScreen } from './notifications-screen';
 export { useNotifications } from './use-notifications';
 export { useNotificationsActions } from './use-notifications-actions';
 export { useNotificationsUnreadCount } from './use-notifications-unread-count';

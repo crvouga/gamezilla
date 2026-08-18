@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
+import { SpacesNavProvider } from '../../public/nav/spaces-nav-context';
+import { SpaceRoomProvider } from '../../public/room/space-room-context';
+import { useSpaceRouteId } from '../../public/space-routes';
+import { useSpacePresence } from '../../public/use-space-presence';
 import { ActiveSpace } from './active-space/active-space';
 import { SpaceEndedScreen } from './join-space/space-ended-screen';
 import { SpaceJoinPrompt } from './join-space/space-join-prompt';
-import { SpacesNavProvider } from './nav/spaces-nav-context';
-import { SpaceRoomProvider } from './room/space-room-context';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
-import { useSpaceRouteId } from './space-routes';
-import { useSpacePresence } from './use-space-presence';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
 export function SpaceDetailScreen(): ReactNode {

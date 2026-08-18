@@ -2,13 +2,10 @@ import type { Io } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
-import { wrapMutationDb } from '@pkgs/sync-engine/shared';
-import type { FriendRequest } from '../shared/friends-types';
-import {
-  acceptFriendRequestMutation,
-  cancelFriendRequestMutation,
-  declineFriendRequestMutation,
-} from '../shared/mutations/friends-mutations';
+import type { FriendRequest } from '../../shared/friendship/friends-types';
+import { applyAcceptFriendRequest } from '../../use-cases/friend-request-accept/server/apply-accept-friend-request';
+import { applyCancelFriendRequest } from '../../use-cases/friend-request-cancel/server/apply-cancel-friend-request';
+import { applyDeclineFriendRequest } from '../../use-cases/friend-request-decline/server/apply-decline-friend-request';
 
 export type FriendsNotificationsActionArgs = {
   readonly actorId: string;
@@ -69,29 +66,19 @@ export class FriendsNotificationsActionHandler {
     args: FriendsNotificationsActionArgs
   ): Promise<{ readonly userIds: readonly string[] }> {
     const env = this.mutationEnv(args);
-    const wrapped = wrapMutationDb(this.tx, env);
 
     if (args.actionId === 'accept') {
-      await acceptFriendRequestMutation.run(
-        { tx: wrapped.tx, env },
-        { requestId: args.requestId }
-      );
+      await applyAcceptFriendRequest(this.tx, env, args.requestId);
       const request = await this.getRequest(args.requestId);
       return { userIds: [request.fromUserId, request.toUserId] };
     }
     if (args.actionId === 'decline') {
-      await declineFriendRequestMutation.run(
-        { tx: wrapped.tx, env },
-        { requestId: args.requestId }
-      );
+      await applyDeclineFriendRequest(this.tx, env, args.requestId);
       const request = await this.getRequest(args.requestId);
       return { userIds: [request.fromUserId, request.toUserId] };
     }
     if (args.actionId === 'cancel') {
-      await cancelFriendRequestMutation.run(
-        { tx: wrapped.tx, env },
-        { requestId: args.requestId }
-      );
+      await applyCancelFriendRequest(this.tx, env, args.requestId);
       const request = await this.getRequest(args.requestId);
       return { userIds: [request.fromUserId, request.toUserId] };
     }

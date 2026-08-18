@@ -1,4 +1,4 @@
-import type { ConfigService } from '@libs/auth/client/config-service-types';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
 import {
   appSchema,
   LOCAL_DOMAIN_TABLE_NAMES,

@@ -1,4 +1,4 @@
-import { appAuth } from '@libs/auth/shared/auth-context';
+import { appAuth } from '@libs/auth/public/auth-context';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
 import { MemberOfSpaceIdsLoader } from './load-member-of-space-ids-sql';

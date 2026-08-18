@@ -1,4 +1,4 @@
-import type { UserSearchResult } from '@libs/user-search/shared/user-search-types';
+import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
 import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 

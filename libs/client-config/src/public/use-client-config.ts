@@ -4,7 +4,7 @@ import {
   type ClientRuntimeConfig,
   DEFAULT_CLIENT_RUNTIME_CONFIG,
   parseClientConfigRows,
-} from '../shared/parse-client-config';
+} from '../shared/client-config/parse-client-config';
 import { clientConfigRowsQuery } from './client-config-queries';
 
 /**

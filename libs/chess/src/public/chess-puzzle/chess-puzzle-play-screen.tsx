@@ -1,4 +1,4 @@
-import { DefineBackButton } from '@libs/spaces/client/nav/spaces-nav-context';
+import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { Box, componentDataSet, SpeakingAvatar } from '@pkgs/ui';

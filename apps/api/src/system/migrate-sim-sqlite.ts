@@ -4,7 +4,7 @@
  */
 
 import { appSchema } from '@libs/db/shared/app-schema';
-import { migrateNotifications } from '@libs/notifications/server/migrate';
+import { migrateNotifications } from '@libs/notifications/root/server/migrate';
 import { runBetterAuthMigrations } from '@pkgs/auth-better-auth/server';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 import { EntityStoreSqliteDatabaseMigration } from '@pkgs/entity-store/sqlite-database-migration';

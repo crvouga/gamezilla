@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   isSpaceVisibility,
   parseSpaceVisibility,
-} from '../shared/space-visibility';
+} from '../shared/space/space-visibility';
 
 describe('space visibility', () => {
   test('parses known values', () => {

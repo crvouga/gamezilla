@@ -1,4 +1,7 @@
-import type { Notification, NotificationSection } from '../shared/notification';
+import type {
+  Notification,
+  NotificationSection,
+} from '../shared/notifications/notification';
 
 function startOfLocalDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());

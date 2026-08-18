@@ -1,4 +1,4 @@
-import { UserProfileAvatar } from '@libs/profile/client/user-profile-avatar';
+import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import type { ReactNode } from 'react';
 
 export type SpaceGuestMembershipAvatarProps = {

@@ -2,7 +2,7 @@ import { useLingui } from '@lingui/react/macro';
 import { Box } from '@pkgs/ui';
 import { type ReactNode, useCallback } from 'react';
 
-import type { FriendshipStatus } from '../../shared/friends-types';
+import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
 import type { FriendActionMutations } from './friend-action-types';
 

@@ -1,5 +1,5 @@
-import { AuthBridge } from '@libs/auth/client/auth-bridge';
-import { AuthClientProvider } from '@libs/auth/client/auth-client-provider';
+import { AuthClientProvider } from '@libs/auth/public/auth-client-provider';
+import { AuthBridge } from '@libs/auth/root/client/auth-bridge';
 import { assert } from '@pkgs/assert';
 import { createBetterAuthClientAdapter } from '@pkgs/auth-better-auth/client';
 import { useIo } from '@pkgs/io';

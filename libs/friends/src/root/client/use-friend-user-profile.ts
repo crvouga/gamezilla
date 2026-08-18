@@ -1,9 +1,9 @@
-import { useMyProfileId } from '@libs/profile/client/use-my-profile-id';
+import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
 import { useLocalSearchParams, useRouter } from '@pkgs/ui';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import type { FriendProfile } from '../shared/friends-types';
-import { useFriends } from './use-friends';
+import type { FriendProfile } from '../../shared/friendship/friends-types';
+import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 
 export function readRouteParam(value: string | string[] | undefined): string {
   if (typeof value === 'string') return value;
