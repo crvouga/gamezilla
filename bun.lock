@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
-      "dependencies": {
-        "@crvouga/sqlite-mem": "^1.1.2",
-      },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "@lingui/cli": "catalog:",
