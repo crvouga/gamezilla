@@ -26,9 +26,9 @@ import {
 import {
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
-  playgroundAlaSqlDumpSchema,
   playgroundClientKvDumpSchema,
   playgroundSnapshotManifestSchema,
+  playgroundSqliteMemDumpSchema,
 } from '@apps/client/host/playground-snapshot-schema';
 import {
   awaitPlaygroundMutationDrain,
@@ -325,13 +325,13 @@ async function ensureClientSqlHandle(
   if (existing !== undefined) return existing;
   const handle = await openFreshPlaygroundSql(
     clientDbName(clientId),
-    ctx.io.timers
+    ctx.io.clock
   );
   ctx.clientSqlByAddress.set(address, handle);
   return handle;
 }
 
-async function importAlaSqlBlob(
+async function importSqliteMemBlob(
   store: ObjectStore,
   key: string,
   handle: PlaygroundSqlHandle
@@ -339,8 +339,8 @@ async function importAlaSqlBlob(
   const obj = await store.get(key);
   if (obj === null) throw new Error(`missing sql blob '${key}'`);
   const bytes = await readBody(obj.body);
-  if (parseJsonBytesWithSchema(bytes, playgroundAlaSqlDumpSchema) === null) {
-    throw new Error(`invalid AlaSQL snapshot blob '${key}'`);
+  if (parseJsonBytesWithSchema(bytes, playgroundSqliteMemDumpSchema) === null) {
+    throw new Error(`invalid sqlite-mem snapshot blob '${key}'`);
   }
   await handle.importBytes(bytes);
 }
@@ -357,7 +357,7 @@ async function restoreClientSql(
     const handle = await ensureClientSqlHandle(ctx, id);
     const key = manifest.keys.clientSql[id];
     if (key !== undefined) {
-      await importAlaSqlBlob(ctx.store, key, handle);
+      await importSqliteMemBlob(ctx.store, key, handle);
     }
   }
   await reconcileServerProfilesFromClients(ctx, manifest.clientIds);
@@ -440,7 +440,7 @@ export async function loadPlaygroundSnapshot(
       // New durable epoch before restore so unmounting AuthBridge writes land in
       // the abandoned prior namespace.
       bumpPlaygroundDurableEpoch();
-      await importAlaSqlBlob(
+      await importSqliteMemBlob(
         ctx.store,
         manifest.keys.serverSql,
         ctx.serverHandle

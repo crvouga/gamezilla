@@ -27,7 +27,7 @@ const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 /**
- * Target `PRAGMA user_version` / AlaSQL `userVersion` after migrate.
+ * Target `PRAGMA user_version` after migrate.
  * Playground snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
  */
 export function getLocalSchemaTargetVersion(

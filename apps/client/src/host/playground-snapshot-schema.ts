@@ -1,5 +1,5 @@
 /**
- * Zod schemas for playground ObjectStore snapshots (AlaSQL JSON dumps).
+ * Zod schemas for playground ObjectStore snapshots (sqlite-mem SQLM dumps).
  */
 
 import { z } from 'zod';
@@ -51,22 +51,35 @@ export const playgroundSnapshotIndexSchema = z.object({
   snapshots: z.array(playgroundSnapshotInfoSchema),
 });
 
-/** AlaSQL {@link SqlClientImplAlaSql.exportDatabaseBytes} payload. */
-export const playgroundAlaSqlDumpSchema = z.object({
+/** sqlite-mem exportDatabaseBytes payload (SQLM envelope). */
+function hasSqlmMagic(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0x53 &&
+    bytes[1] === 0x51 &&
+    bytes[2] === 0x4c &&
+    bytes[3] === 0x4d
+  );
+}
+
+function sqlmB64HasMagic(b64: string): boolean {
+  try {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return hasSqlmMagic(bytes);
+  } catch {
+    return false;
+  }
+}
+
+export const playgroundSqliteMemDumpSchema = z.object({
   v: z.literal(1),
-  kind: z.literal('alasql'),
+  kind: z.literal('sqlite-mem'),
   userVersion: z.number().int(),
-  indexes: z.array(
-    z.tuple([
-      z.string(),
-      z.object({
-        table: z.string(),
-        columns: z.array(z.string()),
-        unique: z.boolean(),
-      }),
-    ])
-  ),
-  tables: z.record(z.string(), z.unknown()),
+  sqlmB64: z.string().min(1).refine(sqlmB64HasMagic),
 });
 
 /** Namespaced client KV dump (`dumpNamespacedKvWeb`). */
@@ -75,7 +88,9 @@ export const playgroundClientKvDumpSchema = z.record(z.string(), z.string());
 export type PlaygroundSnapshotIndex = z.infer<
   typeof playgroundSnapshotIndexSchema
 >;
-export type PlaygroundAlaSqlDump = z.infer<typeof playgroundAlaSqlDumpSchema>;
+export type PlaygroundSqliteMemDump = z.infer<
+  typeof playgroundSqliteMemDumpSchema
+>;
 export type PlaygroundSnapshotManifestParsed = z.infer<
   typeof playgroundSnapshotManifestSchema
 >;

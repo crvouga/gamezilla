@@ -60,7 +60,7 @@ describe('resolveSpacePresence', () => {
     ).toEqual({ status: 'active', role: 'host' });
   });
 
-  test('resolves active host when ended_at is undefined (AlaSQL omission)', () => {
+  test('resolves active host when ended_at is undefined (omitted NULL)', () => {
     expect(
       resolveSpacePresence({
         spaceEnabled: true,

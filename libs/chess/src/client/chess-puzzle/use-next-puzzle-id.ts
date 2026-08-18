@@ -134,8 +134,7 @@ export function useNextPuzzleId(args: {
   const rating = useEffectivePuzzleRating();
   const localPuzzleTotal = useLocalPuzzleTotal();
   const rawOffset = hashSeed(seed) % (PUZZLE_CANDIDATE_MAX_OFFSET + 1);
-  // AlaSQL has no reliable CTE/OFFSET MIN — cap in JS so a 50-row fixture
-  // cannot OFFSET past the end of the table.
+  // Cap OFFSET in JS so a 50-row fixture cannot skip past the end of the table.
   const pickOffset = capPuzzleCandidateOffset(rawOffset, localPuzzleTotal);
   const { banded, fallback } = usePuzzleCandidateQueries({
     rating,

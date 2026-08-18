@@ -1,8 +1,8 @@
-// @io-wall-ok — composition root: createSimIo + createWorld + ephemeral AlaSQL.
+// @io-wall-ok — composition root: createSimIo + createWorld + ephemeral sqlite-mem.
 /**
  * Boot a World-backed playground session: shared api/db/events, dynamic clients,
  * in-process room node, and wall-driven sim clock advance.
- * Live SQL/auth/KV are ephemeral in-memory (AlaSQL); ObjectStore snapshots are
+ * Live SQL/auth/KV are ephemeral in-memory (sqlite-mem); ObjectStore snapshots are
  * the only durable state.
  */
 
@@ -66,7 +66,7 @@ function startSimClockTick(io: SimIo): {
 }
 
 /**
- * Ephemeral AlaSQL (reset on open) + in-memory auth/KV + ObjectStore snapshots.
+ * Ephemeral sqlite-mem (reset on open) + in-memory auth/KV + ObjectStore snapshots.
  */
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
@@ -82,7 +82,7 @@ export async function bootPlaygroundSession(
 
   const serverHandle = await openFreshPlaygroundSql(
     PLAYGROUND_SERVER_DB,
-    io.timers
+    io.clock
   );
   await migrateSimSqlite({ sqlClient: serverHandle.sqlClient, io });
   const shared = sharedRequestSqlClient(serverHandle.sqlClient);
@@ -116,7 +116,7 @@ export async function bootPlaygroundSession(
         handle: serverHandle,
       },
       pubSubBus,
-      timers: io.timers,
+      clock: io.clock,
       clientSqlByAddress,
     }),
   });

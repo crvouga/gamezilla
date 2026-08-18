@@ -37,6 +37,7 @@ function isVendorSqlExemptPath(rel: string): boolean {
   if (rel.includes('/sql-client/src/impl-agnostic')) return true;
   if (rel.includes('/sql-client/src/sqlite/impl-bun-sqlite')) return true;
   if (rel.includes('/sql-client/src/sqlite/impl-better-sqlite3')) return true;
+  if (rel.includes('/sql-client/src/sqlite/impl-sqlite-mem')) return true;
   if (rel.includes('/sql-client/src/sqlite/expo-sqlite-core')) return true;
   // SQL AST / map compiler goldens intentionally include PG dialect.
   if (rel.startsWith('pkgs/sql-map/')) return true;

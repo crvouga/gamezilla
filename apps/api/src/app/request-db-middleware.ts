@@ -70,7 +70,7 @@ export type RequestDbMiddlewareOptions = {
   readonly io: Io;
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
-  /** Injected DB opener (Postgres wall adapter or sim SQLite/AlaSQL). */
+  /** Injected DB opener (Postgres wall adapter or sim SQLite). */
   readonly openRequestDb: OpenRequestDb;
   /** Sims skip non-prod DATABASE_URL policy checks. */
   readonly skipDatabaseUrlPolicy?: boolean;
@@ -193,7 +193,7 @@ async function attachRequestDatabase(
         );
         return await next();
       } finally {
-        // SQLite openers own process-lifetime handles (sim AlaSQL / better-sqlite3).
+        // SQLite openers own process-lifetime handles (sim sqlite-mem / better-sqlite3).
         // Disconnecting here DROP/closes them after the first request.
         if (opened.kind === 'postgres') {
           // One end only — sqlClient and pool wrap the same pg.Client.

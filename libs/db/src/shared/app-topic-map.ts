@@ -112,7 +112,7 @@ export const appTopicMap = defineTopicMap({
       const id = String(row['id'] ?? ctx.actorId);
       return [userTopic(id)];
     },
-    // Touch-only capture (e.g. AlaSQL stripped UPDATE RETURNING) still wakes
+    // Touch-only capture (no RETURNING row) still wakes
     // the actor channel so peers refetch.
     fallbackTopics(ctx) {
       return [userTopic(ctx.actorId)];

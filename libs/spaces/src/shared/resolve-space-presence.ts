@@ -23,7 +23,7 @@ export function isViewerSpaceHost(
   myId: string
 ): boolean {
   if (spaceRow === null || spaceRow === undefined) return false;
-  // Treat missing/`undefined` like SQL NULL (AlaSQL omits unset columns).
+  // Treat missing/`undefined` like SQL NULL (some drivers omit unset columns).
   if (spaceRow.ended_at != null) return false;
   return (
     nonEmptyEqual(spaceRow.host_member_id ?? '', myId) ||

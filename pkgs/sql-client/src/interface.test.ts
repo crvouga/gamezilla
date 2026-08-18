@@ -4,8 +4,8 @@ import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
-import { SqlClientImplAlaSql } from './sqlite/impl-alasql';
 import { SqlClientImplBunSqlite } from './sqlite/impl-bun-sqlite';
+import { SqlClientImplSqliteMem } from './sqlite/impl-sqlite-mem';
 
 const io = createSimIo({ seed: 1 });
 
@@ -14,7 +14,6 @@ type ClientFactory = () => Promise<SqlClient>;
 async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
 > {
-  let alasqlSeq = 0;
   const impls: { name: string; createClient: ClientFactory }[] = [
     {
       name: 'SqlClientImplBunSqlite',
@@ -22,10 +21,9 @@ async function loadImplementations(): Promise<
         Promise.resolve(SqlClientImplBunSqlite.open(':memory:')),
     },
     {
-      name: 'SqlClientImplAlaSql',
+      name: 'SqlClientImplSqliteMem',
       createClient: async () => {
-        alasqlSeq += 1;
-        const client = SqlClientImplAlaSql.open(`iface_alasql_${alasqlSeq}`);
+        const client = SqlClientImplSqliteMem.open();
         await client.connect();
         return client;
       },

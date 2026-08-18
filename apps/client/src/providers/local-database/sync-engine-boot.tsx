@@ -211,7 +211,7 @@ function SyncEngineBootWithUser({
   // Identity switch closes the prior SQLite handle (web OPFS). Never keep the
   // old engine sticky across database names — its connection is gone.
   // Playground also swaps the isolated pool on snapshot restore; sticky would
-  // keep serving a closed AlaSQL client across that boundary.
+  // keep serving a closed sqlite-mem client across that boundary.
   if (lastDbNameRef.current !== dbName || lastPoolRef.current !== pool) {
     lastDbNameRef.current = dbName;
     lastPoolRef.current = pool;
@@ -226,7 +226,7 @@ function SyncEngineBootWithUser({
 
   const paintReady = boot.phase === 'ready';
   // Embedded playground: never paint a sticky prior engine — snapshot restore
-  // closes the prior AlaSQL handle while React may still be remounting.
+  // closes the prior sqlite-mem handle while React may still be remounting.
   const engine =
     boot.phase === 'ready'
       ? boot.engine

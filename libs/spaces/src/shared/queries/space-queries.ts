@@ -26,7 +26,7 @@ export const mySpaceUsers = defineQuery({
   name: 'mySpaceUsers',
   async run(ctx) {
     const actor = ctx.env.actorId;
-    // Nested subqueries (not WITH) — AlaSQL cannot resolve tables inside CTEs.
+    // Nested subqueries (not WITH) keep the plan simple for every SQLite driver.
     const rows = await ctx.db.query(sql`
       SELECT
         id,

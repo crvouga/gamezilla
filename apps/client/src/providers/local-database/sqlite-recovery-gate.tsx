@@ -8,7 +8,7 @@ import { LocalDatabaseBootErrorScreen } from './boot-screens';
  * When expo-sqlite's OPFS worker hits an unrecoverable I/O error mid-session,
  * show the same reset-local-data screen used at boot instead of a blank crash.
  *
- * Embedded playground actors use AlaSQL — ignore global OPFS fatals from Main
+ * Embedded playground actors use sqlite-mem — ignore global OPFS fatals from Main
  * (or a wedged SharedWorker) so Alice/Bob are not poisoned by that channel.
  */
 export function SqliteRecoveryGate({

@@ -84,8 +84,7 @@ async function seedProfile(
   avatarConfig: string
 ): Promise<void> {
   // Prefer a non-empty username on INSERT so write-capture fanout never
-  // publishes username='' to same-account peers (AlaSQL UPDATE RETURNING may
-  // not refresh the capture map after assignUniqueUsernameIfEmpty).
+  // publishes username='' to same-account peers before assignUniqueUsernameIfEmpty.
   let username = '';
   for (
     let attempt = 0;

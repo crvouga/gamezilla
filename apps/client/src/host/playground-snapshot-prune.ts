@@ -1,5 +1,5 @@
 /**
- * Validate playground snapshots and delete ones that fail the AlaSQL schema.
+ * Validate playground snapshots and delete ones that fail the sqlite-mem schema.
  * Schema-version mismatches stay listed as incompatible (not auto-deleted).
  */
 
@@ -7,10 +7,10 @@ import {
   type PlaygroundSnapshotIndex,
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
-  playgroundAlaSqlDumpSchema,
   playgroundSnapshotIndexSchema,
   playgroundSnapshotInfoSchema,
   playgroundSnapshotManifestSchema,
+  playgroundSqliteMemDumpSchema,
 } from '@apps/client/host/playground-snapshot-schema';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
@@ -72,12 +72,15 @@ async function deleteSnapshotTree(
   }
 }
 
-async function isAlaSqlBlob(store: ObjectStore, key: string): Promise<boolean> {
+async function isSqliteMemBlob(
+  store: ObjectStore,
+  key: string
+): Promise<boolean> {
   const obj = await store.get(key);
   if (obj === null) return false;
   const dump = parseJsonBytesWithSchema(
     await readBody(obj.body),
-    playgroundAlaSqlDumpSchema
+    playgroundSqliteMemDumpSchema
   );
   return dump !== null;
 }
@@ -91,11 +94,11 @@ async function isStructurallyValidSnapshot(
   if (text === null) return false;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null || manifest.id !== info.id) return false;
-  if (!(await isAlaSqlBlob(store, manifest.keys.serverSql))) return false;
+  if (!(await isSqliteMemBlob(store, manifest.keys.serverSql))) return false;
   for (const clientId of manifest.clientIds) {
     const key = manifest.keys.clientSql[clientId];
     if (key === undefined) return false;
-    if (!(await isAlaSqlBlob(store, key))) return false;
+    if (!(await isSqliteMemBlob(store, key))) return false;
   }
   return true;
 }
@@ -184,7 +187,7 @@ function indexEntryShape(info: PlaygroundSnapshotInfo): {
 }
 
 /**
- * Drop index / object trees that fail the AlaSQL snapshot schema.
+ * Drop index / object trees that fail the sqlite-mem snapshot schema.
  * Recovers orphan trees with a valid manifest into the index.
  * Schema-mismatched dumps are kept and marked incompatible.
  */

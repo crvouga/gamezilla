@@ -69,7 +69,7 @@ describe('parseClientConfigRows', () => {
     expect(config.llm_enabled).toBe(false);
   });
 
-  test('treats omitted deleted_at as live (AlaSQL null → undefined)', () => {
+  test('treats omitted deleted_at as live (null → undefined)', () => {
     const config = parseClientConfigRows([
       {
         id: ClientConfigKey.emailPasswordEnabled,

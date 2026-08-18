@@ -31,7 +31,7 @@ export function buildCurrentSpaceEntries(
   const seen = new Set<string>();
   for (const space of spaceRows) {
     if (space.id.length === 0 || seen.has(space.id)) continue;
-    // AlaSQL may omit null columns → undefined; treat like SQL NULL.
+    // Some drivers omit null columns → undefined; treat like SQL NULL.
     if (space.ended_at != null) continue;
     seen.add(space.id);
     entries.push({

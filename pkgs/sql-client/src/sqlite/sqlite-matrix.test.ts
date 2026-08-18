@@ -1,8 +1,8 @@
 import { describe } from 'bun:test';
 import { wallTimers } from '@pkgs/clock';
 import type { SqlClient } from '../interface';
-import { SqlClientImplAlaSql } from './impl-alasql';
 import { SqlClientImplBunSqlite } from './impl-bun-sqlite';
+import { SqlClientImplSqliteMem } from './impl-sqlite-mem';
 import { runSqliteContractTests } from './testing/sqlite-contract';
 
 type ClientFactory = () => Promise<SqlClient>;
@@ -10,14 +10,10 @@ type ClientFactory = () => Promise<SqlClient>;
 async function loadImplementations(): Promise<
   { name: string; createClient: ClientFactory }[]
 > {
-  let alasqlSeq = 0;
   const impls: { name: string; createClient: ClientFactory }[] = [
     {
-      name: 'SqlClientImplAlaSql',
-      createClient: async () => {
-        alasqlSeq += 1;
-        return SqlClientImplAlaSql.open(`sqlite_contract_alasql_${alasqlSeq}`);
-      },
+      name: 'SqlClientImplSqliteMem',
+      createClient: async () => SqlClientImplSqliteMem.open(),
     },
     {
       name: 'SqlClientImplBunSqlite',

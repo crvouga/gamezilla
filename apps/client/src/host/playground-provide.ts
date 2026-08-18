@@ -1,7 +1,7 @@
 /**
  * Browser playground provide map for `@pkgs/system` createWorld.
  *
- * Live SQL is **in-memory AlaSQL** (no OPFS / SharedWorker). Expo-sqlite web
+ * Live SQL is **in-memory sqlite-mem** (no OPFS / SharedWorker). Expo-sqlite web
  * workers race under Strict Mode remounts and hang playground boot; snapshots
  * via ObjectStore remain the only durable playground state.
  */
@@ -9,7 +9,7 @@
 import type { OpenRequestDb } from '@apps/api/db/open-request-db';
 import { attachSimOpenRequestDb } from '@apps/api/system/sim-open-request-db';
 import { createInMemoryStripe } from '@libs/stripe/in-memory-stripe';
-import type { Timers } from '@pkgs/clock';
+import type { Clock } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import type { Kv } from '@pkgs/kv/interface';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -22,7 +22,7 @@ import {
   type InMemoryBus,
 } from '@pkgs/pubsub/testing/in-memory';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplAlaSql } from '@pkgs/sql-client/sqlite/impl-alasql';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 import { decoratePort, type ProviderSpec, stubPort } from '@pkgs/system';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 
@@ -37,16 +37,25 @@ export type PlaygroundSqlHandle = {
 
 let playgroundSqlSeq = 0;
 
-function uniqueAlaSqlName(base: string): string {
+function uniquePlaygroundDbName(base: string): string {
   playgroundSqlSeq += 1;
-  // AlaSQL identifiers: keep alphanumeric + underscore.
   const safe = base.replace(/[^a-zA-Z0-9_]/g, '_');
   return `${safe}_${playgroundSqlSeq}`;
 }
 
-function openAlaSqlHandle(logicalName: string): PlaygroundSqlHandle {
-  let databaseName = uniqueAlaSqlName(logicalName);
-  let live = SqlClientImplAlaSql.open(databaseName);
+function openSqliteMem(clock: Clock): SqlClientImplSqliteMem {
+  return SqlClientImplSqliteMem.open({
+    seed: 1,
+    now: () => new Date(clock.now()),
+  });
+}
+
+function openSqliteMemHandle(
+  logicalName: string,
+  clock: Clock
+): PlaygroundSqlHandle {
+  let databaseName = uniquePlaygroundDbName(logicalName);
+  let live = openSqliteMem(clock);
   const handle: PlaygroundSqlHandle = {
     get sqlClient() {
       return live;
@@ -57,10 +66,10 @@ function openAlaSqlHandle(logicalName: string): PlaygroundSqlHandle {
     disconnect: () => live.disconnect(),
     reset: async () => {
       // Open the replacement first so handle-bound clients never observe a
-      // closed AlaSQL instance mid-reset (DB pane soft-poll / in-flight queries).
+      // closed sqlite-mem instance mid-reset (DB pane soft-poll / in-flight queries).
       const prev = live;
-      databaseName = uniqueAlaSqlName(logicalName);
-      live = SqlClientImplAlaSql.open(databaseName);
+      databaseName = uniquePlaygroundDbName(logicalName);
+      live = openSqliteMem(clock);
       await live.connect();
       await prev.disconnect();
     },
@@ -74,21 +83,21 @@ function openAlaSqlHandle(logicalName: string): PlaygroundSqlHandle {
 
 export async function openPlaygroundSql(
   databaseName: string,
-  _timers: Timers
+  clock: Clock
 ): Promise<PlaygroundSqlHandle> {
-  const handle = openAlaSqlHandle(databaseName);
+  const handle = openSqliteMemHandle(databaseName, clock);
   await handle.sqlClient.connect();
   return handle;
 }
 
 /**
- * Open a fresh ephemeral DB. AlaSQL names are unique per call — no OPFS reset.
+ * Open a fresh ephemeral DB. Each sqlite-mem instance is isolated — no OPFS reset.
  */
 export async function openFreshPlaygroundSql(
   databaseName: string,
-  timers: Timers
+  clock: Clock
 ): Promise<PlaygroundSqlHandle> {
-  return openPlaygroundSql(databaseName, timers);
+  return openPlaygroundSql(databaseName, clock);
 }
 
 /** Ignore request-middleware disconnect on shared process-lifetime DBs. */
@@ -109,9 +118,9 @@ export function sessionOwnedSqlClient(sqlClient: SqlClient): SqlClient {
 }
 
 /**
- * Always forward to the handle's current AlaSQL client. Snapshot reload /
+ * Always forward to the handle's current sqlite-mem client. Snapshot reload /
  * fault wipe {@link PlaygroundSqlHandle.reset}s in place — SyncEngines or DB
- * panes that captured a raw AlaSQL instance see "database is closed";
+ * panes that captured a raw sqlite-mem instance see "database is closed";
  * handle-bound clients do not.
  */
 export function handleBoundSqlClient(handle: PlaygroundSqlHandle): SqlClient {
@@ -184,7 +193,7 @@ function blobProvider(): ProviderSpec<ObjectStore> {
 export type PlaygroundProvideHandles = {
   readonly serverSql: PlaygroundSqlClientBundle;
   readonly pubSubBus: InMemoryBus;
-  readonly timers: Timers;
+  readonly clock: Clock;
   /** Tracks opened client DB handles for wipe/dispose. */
   readonly clientSqlByAddress: Map<string, PlaygroundSqlHandle>;
 };
@@ -216,7 +225,7 @@ export function createPlaygroundProvide(
       const instanceId = clientInstanceIdFromLeafAddress(address);
       const handle = await openFreshPlaygroundSql(
         clientDbName(instanceId),
-        handles.timers
+        handles.clock
       );
       handles.clientSqlByAddress.set(address, handle);
       return handleBoundSqlClient(handle);

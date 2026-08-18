@@ -163,7 +163,7 @@ export async function removeClient(
 /**
  * Snapshot restore: hide client UI, reset SQL handles in place, then caller
  * imports inside `runQuiet`. Reset (not destroy) keeps PlaygroundSqlHandle
- * identity so handle-bound clients / DB-pane polls never hit a closed AlaSQL
+ * identity so handle-bound clients / DB-pane polls never hit a closed sqlite-mem
  * DB while React catches up to the empty-client notify.
  *
  * Must not run inside `runQuiet` — quiet would suppress the empty notify and

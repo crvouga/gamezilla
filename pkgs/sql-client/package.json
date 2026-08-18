@@ -23,12 +23,12 @@
     "test:e2e": "bun ./scripts/build-web-workers.ts && playwright test -c ./e2e/playwright.config.mjs"
   },
   "dependencies": {
+    "@crvouga/sqlite-mem": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "alasql": "catalog:",
     "better-sqlite3": "catalog:",
     "expo-sqlite": "catalog:",
     "pg": "catalog:",

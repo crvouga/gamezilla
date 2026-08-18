@@ -41,7 +41,7 @@ function readBoolean(raw: unknown): boolean {
 }
 
 function isLiveRow(row: ClientConfigDbRow): boolean {
-  // AlaSQL / some drivers omit NULL columns as `undefined` instead of `null`.
+  // Some drivers omit NULL columns as `undefined` instead of `null`.
   // Client queries already filter `deleted_at IS NULL`; treat nullish as live.
   return row.deleted_at == null;
 }

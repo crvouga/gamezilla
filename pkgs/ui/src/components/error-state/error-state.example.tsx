@@ -43,6 +43,22 @@ export default function ErrorStateExample() {
       <Text
         variant="label"
         sx={{ color: 'textSecondary' }}
+        label="Fill with copy (body present)"
+      />
+      <SchemePreview>
+        <Box sx={{ height: 280 }}>
+          <ErrorState
+            title="Failed to boot playground"
+            body="no such table-valued function: pragma_table_info"
+          />
+        </Box>
+      </SchemePreview>
+
+      <Divider />
+
+      <Text
+        variant="label"
+        sx={{ color: 'textSecondary' }}
         label="Compact with retry"
       />
       <SchemePreview>

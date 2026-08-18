@@ -93,8 +93,8 @@ export function runSqliteContractTests(
       { name: 'body', type: 'TEXT', notnull: 0, pk: 0 },
     ]);
 
-    // Bun/better-sqlite3 synthesize sqlite_autoindex_* for PRIMARY KEY;
-    // AlaSQL tracks explicit CREATE INDEX only. Compare user indexes.
+    // Native SQLite synthesizes sqlite_autoindex_* for PRIMARY KEY.
+    // Compare user indexes only.
     const mapIx = (rows: { name: string; origin: string }[]) =>
       rows
         .filter((r) => !r.name.startsWith('sqlite_autoindex_'))
