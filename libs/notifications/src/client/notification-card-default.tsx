@@ -187,11 +187,11 @@ function InteractionRowTrailing({
 export type NotificationCardDefaultProps = {
   readonly interaction: Notification;
   readonly actions: NotificationCardActions;
-  /** Opens the deep-link / profile when the leading+text area is pressed. */
+  /** Opens the deep-link / profile when the row (or text area) is pressed. */
   readonly onOpen?: () => void;
   /**
-   * Whole-row press (summary mode). When set with `showInlineActions={false}`,
-   * the entire row is pressable and inline actions are hidden.
+   * Whole-row press (summary mode). Takes precedence over {@link onOpen}.
+   * Prefer this when inline actions are hidden and the row has a custom handler.
    */
   readonly onPress?: () => void;
   /**
@@ -214,7 +214,10 @@ export function NotificationCardDefault({
   actionTestID,
   testID,
 }: NotificationCardDefaultProps): ReactNode {
-  const rowPress = onPress ?? (showInlineActions ? undefined : onOpen);
+  const hasInlineActions = showInlineActions && interaction.actions.length > 0;
+  // Whole row like MenuRow when no inline buttons compete for presses.
+  // With inline actions, only the text area opens so Accept/Decline stay tappable.
+  const rowPress = onPress ?? (hasInlineActions ? undefined : onOpen);
   const textPress =
     rowPress === undefined && onOpen !== undefined ? onOpen : undefined;
   const main = (
@@ -249,6 +252,7 @@ export function NotificationCardDefault({
     return (
       <Pressable
         onPress={rowPress}
+        accessibilityRole="button"
         {...(testID !== undefined ? { testID } : {})}
       >
         {main}
