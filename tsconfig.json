@@ -155,6 +155,7 @@
       "@pkgs/os": ["./pkgs/os/src/index.ts"],
       "@pkgs/os/*": ["./pkgs/os/src/*"],
       "@pkgs/postgres-embedded": ["./pkgs/postgres-embedded/src/index.ts"],
+      "@pkgs/postgres-embedded/*": ["./pkgs/postgres-embedded/src/*"],
       "@pkgs/minio-server": ["./pkgs/minio-server/src/index.ts"],
       "@pkgs/emqx-server": ["./pkgs/emqx-server/src/index.ts"],
       "@pkgs/ui-testing": ["./pkgs/ui-testing/src/index.ts"],

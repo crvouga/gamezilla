@@ -17,14 +17,12 @@ import {
   wallPathExists,
 } from '@pkgs/system-console';
 import type { Driver } from '@pkgs/ui-testing';
-import { bootSimPostgres } from './boot-sim-postgres';
 import { bootMigratedSimSqlite, type SimSqliteHandle } from './boot-sim-sqlite';
 import {
   type OpenSimFidelity,
   type OpenSimOptions,
   resolveOpenSimFidelity,
 } from './fidelity';
-import { ensureMaxFidelityStack } from './max-fidelity-stack';
 import { migrateSimSqlite } from './migrate-sim-sqlite';
 import { createProductImpls } from './product-impls';
 import { createInMemoryBus, createProductProvide } from './product-provide';
@@ -125,6 +123,8 @@ async function bootSim(
   let db: BootedDb;
 
   if (fidelity === 'max') {
+    const { ensureMaxFidelityStack } = await import('./max-fidelity-stack');
+    const { bootSimPostgres } = await import('./boot-sim-postgres');
     await ensureMaxFidelityStack();
     const pg = await bootSimPostgres();
     sqlClient = pg.sqlClient;

@@ -74,14 +74,15 @@ function AppNavigation(props: {
 /** Isolated product App (not the Expo composition root). */
 export function ProductApp(props: ProductAppProps): ReactNode {
   const injectedIo = props.io;
+  const apiBaseUrl = props.resources?.apiUrl ?? getApiBaseUrl();
   const runtime = useMemo(
     () =>
       resolveProductRuntime({
         injectedIo,
         wall: wallIo(),
-        apiBaseUrl: getApiBaseUrl(),
+        apiBaseUrl,
       }),
-    [injectedIo]
+    [injectedIo, apiBaseUrl]
   );
   useEffect(() => {
     runtime.availability.start();

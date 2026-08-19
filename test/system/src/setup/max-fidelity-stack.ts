@@ -16,7 +16,7 @@ import {
   MINIO_ROOT_PASSWORD,
   MINIO_ROOT_USER,
 } from '@pkgs/minio-server';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
 
 import { bootLocalStack } from '../../../../tools/scripts/boot-local-stack';
 

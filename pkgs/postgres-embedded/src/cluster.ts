@@ -1,6 +1,5 @@
-// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
-import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { wallOsFs } from '@pkgs/os';
 import EmbeddedPostgres from 'embedded-postgres';
 import {
   LOCAL_DATABASE_URL,
@@ -9,6 +8,8 @@ import {
   POSTGRES_PORT,
   POSTGRES_USER,
 } from './ports';
+
+const osFs = wallOsFs();
 
 export const APP_DIR = join(import.meta.dirname, '..');
 
@@ -32,7 +33,7 @@ const REQUIRED_CLUSTER_DIRS = [
 ] as const;
 
 export function createEmbeddedPostgres(): EmbeddedPostgres {
-  mkdirSync(DATA_DIR, { recursive: true });
+  osFs.mkdirpSync(DATA_DIR);
   return new EmbeddedPostgres({
     databaseDir: DATABASE_DIR,
     user: POSTGRES_USER,
@@ -68,9 +69,9 @@ export function createEmbeddedPostgres(): EmbeddedPostgres {
 
 /** True when initdb has produced a usable cluster under {@link DATABASE_DIR}. */
 export function clusterLooksHealthy(): boolean {
-  if (!existsSync(join(DATABASE_DIR, 'PG_VERSION'))) return false;
+  if (!osFs.pathExists(join(DATABASE_DIR, 'PG_VERSION'))) return false;
   for (const dir of REQUIRED_CLUSTER_DIRS) {
-    if (!existsSync(join(DATABASE_DIR, dir))) return false;
+    if (!osFs.pathExists(join(DATABASE_DIR, dir))) return false;
   }
   return true;
 }
@@ -81,11 +82,11 @@ export function clusterAlreadyInitialised(): boolean {
 }
 
 export function wipeClusterData(): void {
-  if (!existsSync(DATABASE_DIR)) return;
+  if (!osFs.pathExists(DATABASE_DIR)) return;
   process.stdout.write(
     `[postgres] wiping incomplete cluster at ${DATABASE_DIR}\n`
   );
-  rmSync(DATABASE_DIR, { recursive: true, force: true });
+  osFs.rmrfSync(DATABASE_DIR);
 }
 
 /**
@@ -99,7 +100,7 @@ export async function ensureClusterInitialised(
   if (clusterLooksHealthy()) {
     return;
   }
-  if (existsSync(join(DATABASE_DIR, 'PG_VERSION'))) {
+  if (osFs.pathExists(join(DATABASE_DIR, 'PG_VERSION'))) {
     wipeClusterData();
   }
   process.stdout.write('[postgres] initialising cluster…\n');
