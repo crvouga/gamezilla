@@ -13,8 +13,6 @@
     ]
   },
   "scripts": {
-    "dev": "bun run scripts/local-report-server.ts",
-    "kill": "bun run scripts/kill-dev.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test src --pass-with-no-tests"
   },
@@ -23,7 +21,6 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/object-store": "workspace:*",
-    "@pkgs/os": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/system": "workspace:*",

@@ -36,9 +36,9 @@ function ConsoleSubApp(): ReactNode {
   const { state, patch } = useHostChrome();
   const ports = useMemo((): SystemConsolePorts<ClientSystemResources> => {
     const apiOrigin = getApiBaseUrl().replace(/\/$/, '');
-    // Local Jest sims write to `<repo>/system-console-data`. The Bun report
-    // sidecar (`@pkgs/system-console#dev`) serves that tree; the API Worker
-    // mount reads MinIO/B2 and stays for non-local / production.
+    // Local Jest sims write to `<repo>/system-console-data`. `@apps/api` `dev`
+    // serves that tree on the report sidecar; the API Worker mount reads
+    // MinIO/B2 and stays for non-local / production.
     const reportApiBasePath = isLocalApiOrigin(apiOrigin)
       ? `http://localhost:${String(DEFAULT_REPORT_SERVER_PORT)}`
       : `${apiOrigin}/system-console`;

@@ -3,15 +3,20 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { wallIo } from '@pkgs/io';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
+import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
 import { migratePostgresApp } from '../src/db/migrate';
+import {
+  type LocalReportConsoleHandle,
+  startLocalReportConsole,
+} from './local-report-server';
 
 const io = wallIo();
 
 /**
- * Foreground entry for `@apps/api dev`. Runs migrate → wrangler under one
- * Node process so turbo SIGINT/SIGTERM tear down the whole tree instead of
- * leaving a shell background job alive. Client config materializes on the
- * first non-health API request from Worker secrets.
+ * Foreground entry for `@apps/api dev`. Runs migrate → local report console
+ * → wrangler under one Node process so turbo SIGINT/SIGTERM tear down the
+ * whole tree instead of leaving a shell background job alive. Client config
+ * materializes on the first non-health API request from Worker secrets.
  */
 
 const API_DIR = join(import.meta.dirname, '..');
@@ -21,9 +26,14 @@ const INSPECTOR_PORT = 0;
 /** Stale wrangler from a prior turbo tear-down still binds 8788 / old inspectors. */
 const LEGACY_INSPECTOR_PORTS = [9231, 9229] as const;
 
-killListenersOnPorts([API_PORT, ...LEGACY_INSPECTOR_PORTS]);
+killListenersOnPorts([
+  API_PORT,
+  DEFAULT_REPORT_SERVER_PORT,
+  ...LEGACY_INSPECTOR_PORTS,
+]);
 
 const children: ChildProcess[] = [];
+let reportConsole: LocalReportConsoleHandle | undefined;
 let shuttingDown = false;
 
 function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
@@ -49,6 +59,7 @@ function killChildren(): void {
 function shutdown(exitCode: number): void {
   if (shuttingDown) return;
   shuttingDown = true;
+  reportConsole?.stop();
   killChildren();
   process.exit(exitCode);
 }
@@ -65,6 +76,8 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 }
 
 await migratePostgresApp({ wait: true });
+
+reportConsole = startLocalReportConsole();
 
 const wrangler = spawn(
   'wrangler',
@@ -84,4 +97,5 @@ const exitCode = await new Promise<number>((resolve) => {
 });
 
 killChildren();
+reportConsole?.stop();
 process.exit(exitCode);

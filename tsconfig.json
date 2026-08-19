@@ -292,7 +292,6 @@
     "pkgs/ui-testing/src/**/*.tsx",
     "pkgs/system-console/src/**/*.ts",
     "pkgs/system-console/src/**/*.tsx",
-    "pkgs/system-console/scripts/**/*.ts",
     "libs/runtime/src/**/*.ts",
     "apps/room/src/**/*.ts",
     "pkgs/system/src/**/*.ts",

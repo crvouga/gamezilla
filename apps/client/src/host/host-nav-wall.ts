@@ -1,5 +1,8 @@
 // @io-wall-ok — browser location / history adapter for host chrome nav.
-import type { HostNavState } from '@apps/client/host/host-nav';
+import {
+  coerceKind,
+  type HostNavState,
+} from '@apps/client/host/host-nav';
 
 export type HostNavHistoryMode = 'push' | 'replace';
 
@@ -55,7 +58,7 @@ export function readHostNavFromPopState(
   return {
     host: h.host as HostNavState['host'],
     section: h.section as HostNavState['section'],
-    kind: h.kind as HostNavState['kind'],
+    kind: coerceKind(h.kind),
     view: h.view,
     clientViews,
   };

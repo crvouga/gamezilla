@@ -2,6 +2,7 @@ import {
   Box,
   CommandPalette,
   CommandRegistryProvider,
+  DoorOpenIcon,
   EmptyState,
   ErrorState,
   LoadingState,
@@ -12,7 +13,6 @@ import {
   ServerIcon,
   SurfaceStackProvider,
   TabStrip,
-  UserIcon,
 } from '@pkgs/ui';
 import {
   type ReactNode,
@@ -40,7 +40,7 @@ const KIND_TABS = [
   { id: 'client', label: 'Client', icon: MonitorIcon },
   { id: 'server', label: 'Server', icon: ServerIcon },
   { id: 'pubsub', label: 'PubSub', icon: RadioIcon },
-  { id: 'actor', label: 'Actor', icon: UserIcon },
+  { id: 'room', label: 'Room', icon: DoorOpenIcon },
 ] as const;
 
 export type PlaygroundKindId = (typeof KIND_TABS)[number]['id'];
@@ -163,7 +163,7 @@ function ReadyPlaygroundScreen<R>(props: {
         keyboardScope
         trailing={<PlaygroundSnapshotChrome session={session} />}
       />
-      {kind === 'actor' ? (
+      {kind === 'room' ? (
         <TabStrip
           accessibilityLabel="Rooms"
           items={roomIds.map((id) => ({ id, label: id }))}
@@ -264,7 +264,7 @@ function KindPanels<R>(props: {
           onViewChange={onViewChange}
         />
       </KindSlot>
-      <KindSlot active={kind === 'actor'}>
+      <KindSlot active={kind === 'room'}>
         {selectedRoom !== undefined ? (
           <RoomPlaygroundPanel
             session={session}

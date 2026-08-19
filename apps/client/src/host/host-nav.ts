@@ -4,13 +4,13 @@
  * URL search keys: host, section, kind, view, cv. Defaults are omitted from
  * the built search so Main product linking stays clean.
  *
- * `view` is the shared panel tab for server / pubsub / actor.
+ * `view` is the shared panel tab for server / pubsub / room.
  * `cv` encodes per-client tabs as `alice:db,bob:logs`.
  */
 
 export type HostId = 'main' | 'console';
 export type HostSection = 'reports' | 'playground';
-export type HostKind = 'client' | 'server' | 'pubsub' | 'actor';
+export type HostKind = 'client' | 'server' | 'pubsub' | 'room';
 export type HostView = string;
 
 export type HostNavState = {
@@ -43,20 +43,21 @@ export const DEFAULT_HOST_NAV: HostNavState = {
 
 const HOST_IDS = new Set<string>(['main', 'console']);
 const SECTIONS = new Set<string>(['reports', 'playground']);
-const KINDS = new Set<string>(['client', 'server', 'pubsub', 'actor']);
+const KINDS = new Set<string>(['client', 'server', 'pubsub', 'room']);
+const KIND_ALIASES: Readonly<Record<string, HostKind>> = { actor: 'room' };
 
 const VIEWS_BY_KIND: Record<HostKind, readonly string[]> = {
   client: ['ui', 'db', 'logs'],
   server: ['db', 'logs', 'commands'],
   pubsub: ['logs', 'topics'],
-  actor: ['db', 'logs'],
+  room: ['db', 'logs'],
 };
 
 const DEFAULT_VIEW_BY_KIND: Record<HostKind, string> = {
   client: 'ui',
   server: 'db',
   pubsub: 'logs',
-  actor: 'db',
+  room: 'db',
 };
 
 const CLIENT_DEFAULT_VIEW = DEFAULT_VIEW_BY_KIND.client;
@@ -177,6 +178,12 @@ export function applyHostNavPatch(
   return next;
 }
 
+export function coerceKind(kindRaw: string | null | undefined): HostKind {
+  if (kindRaw === null || kindRaw === undefined) return 'client';
+  const aliased = KIND_ALIASES[kindRaw] ?? kindRaw;
+  return KINDS.has(aliased) ? (aliased as HostKind) : 'client';
+}
+
 export function parseHostNav(search: string): HostNavState {
   const params = new URLSearchParams(
     search.startsWith('?') ? search.slice(1) : search
@@ -190,8 +197,7 @@ export function parseHostNav(search: string): HostNavState {
       ? (sectionRaw as HostSection)
       : 'reports';
   const kindRaw = params.get('kind');
-  const kind: HostKind =
-    kindRaw !== null && KINDS.has(kindRaw) ? (kindRaw as HostKind) : 'client';
+  const kind = coerceKind(kindRaw);
   const viewRaw = params.get('view') ?? DEFAULT_VIEW_BY_KIND[kind];
   return {
     host,

@@ -6,6 +6,6 @@ Product system graph and DST worlds live in `@libs/runtime` (`defineSystem` /
 
 View captured timelines in the product client **Console** tab
 (`SystemConsoleApp`). Locally (`bun dev`), reports are served from
-`<repo>/system-console-data` by `@pkgs/system-console#dev` on port 7789.
+`<repo>/system-console-data` by `@apps/api` on port 7789.
 `openSim` writes into that directory; the API Worker `/system-console` mount
 (MinIO / B2) is for non-local / production browsing.

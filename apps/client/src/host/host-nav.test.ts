@@ -119,7 +119,17 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
     expect(coerceView('client', 'commands')).toBe('ui');
     expect(coerceView('server', 'topics')).toBe('db');
     expect(coerceView('pubsub', 'ui')).toBe('logs');
-    expect(coerceView('actor', 'commands')).toBe('db');
+    expect(coerceView('room', 'commands')).toBe('db');
+  });
+
+  test('legacy kind=actor maps to room', () => {
+    expect(parseHostNav('?host=console&kind=actor')).toEqual({
+      host: 'console',
+      section: 'reports',
+      kind: 'room',
+      view: 'db',
+      clientViews: {},
+    });
   });
 
   test('kind change coerces view and keeps clientViews', () => {

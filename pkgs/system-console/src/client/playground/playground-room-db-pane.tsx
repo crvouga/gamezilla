@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock';
-import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui';
+import { Box, EmptyState, JsonView, ScrollView, Text } from '@pkgs/ui';
 import { type ReactNode, useEffect, useState } from 'react';
 
 import type { PlaygroundRoomNode } from '../../shared/ports';
@@ -49,13 +49,7 @@ export function PlaygroundRoomDbPane(props: {
             sx={{ color: 'textSecondary' }}
           />
         ) : (
-          snap.roster.map((actor) => (
-            <Text
-              key={`${actor.id}:${actor.clientId}`}
-              sx={{ color: 'text', fontSize: 12, fontFamily: 'mono' }}
-              label={`${actor.id} · ${actor.clientId}`}
-            />
-          ))
+          <JsonView value={snap.roster} initialExpandDepth={1} />
         )}
       </Section>
       <Section title={`Log (seq ${snap.lastSeq}, dedup ${snap.dedupSize})`}>
@@ -66,20 +60,11 @@ export function PlaygroundRoomDbPane(props: {
             sx={{ color: 'textSecondary' }}
           />
         ) : (
-          snap.entries.map((entry, i) => (
-            <Text
-              key={i}
-              sx={{ color: 'text', fontSize: 11, fontFamily: 'mono' }}
-              label={safeJson(entry)}
-            />
-          ))
+          <JsonView value={snap.entries} initialExpandDepth={2} />
         )}
       </Section>
       <Section title="Committed state">
-        <Text
-          sx={{ color: 'text', fontSize: 11, fontFamily: 'mono' }}
-          label={safeJson(snap.committedState)}
-        />
+        <JsonView value={snap.committedState} initialExpandDepth={2} />
       </Section>
     </ScrollView>
   );
@@ -105,12 +90,4 @@ function Section(props: {
       {props.children}
     </Box>
   );
-}
-
-function safeJson(value: unknown): string {
-  try {
-    return JSON.stringify(value, null, 2) ?? String(value);
-  } catch {
-    return String(value);
-  }
 }
