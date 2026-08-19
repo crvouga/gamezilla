@@ -3,7 +3,7 @@
  * unknown names, constraint mapping, authorize throw, channel drift).
  */
 
-import { defineSchema } from '@pkgs/db-schema';
+import { defineTable, registerTables } from '@pkgs/db-schema';
 import { sql } from '@pkgs/sql';
 import {
   defineMutation,
@@ -16,13 +16,17 @@ import type { LocalDomainSchema } from '../../../client/local-schema-migrate';
 import { NOTES_WORLD_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */
-export const notesAppSchemaExtraColumn = defineSchema({
-  tables: {
-    folders: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    notes: {
+export const notesAppSchemaExtraColumn = registerTables([
+  defineTable({
+    domain: 'folders',
+    name: 'folders',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'notes',
+    name: 'notes',
+    columns: {
       folder_id: 'text',
       space_id: 'text',
       title: 'text',
@@ -30,36 +34,33 @@ export const notesAppSchemaExtraColumn = defineSchema({
       color: 'text',
       owner_id: 'text',
     },
-    spaces: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    spaces_users: {
-      space_id: 'text',
-      user_id: 'text',
-    },
-    spaces_open_sessions: {
+    indexes: ['folder_id', 'owner_id', 'space_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_users',
+    columns: { space_id: 'text', user_id: 'text' },
+    indexes: ['space_id', 'user_id'],
+    uniqueIndexes: [['space_id', 'user_id']],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_open_sessions',
+    columns: {
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
-  },
-  uniqueIndexes: [
-    ['spaces_users', 'space_id', 'user_id'],
-    ['spaces_open_sessions', 'device_id', 'space_id'],
-  ],
-  indexes: [
-    ['notes', 'folder_id'],
-    ['notes', 'owner_id'],
-    ['notes', 'space_id'],
-    ['folders', 'owner_id'],
-    ['spaces', 'owner_id'],
-    ['spaces_users', 'space_id'],
-    ['spaces_users', 'user_id'],
-    ['spaces_open_sessions', 'device_id'],
-    ['spaces_open_sessions', 'space_id'],
-  ],
-});
+    indexes: ['device_id', 'space_id'],
+    uniqueIndexes: [['device_id', 'space_id']],
+  }),
+]);
 
 export const NOTES_APP_TABLES_EXTRA_COLUMN = [
   'folders',
@@ -75,54 +76,56 @@ export const notesLocalSchemaExtraColumn: LocalDomainSchema = {
 };
 
 /** Schema with an extra `tags` table for mid-life migrate scenarios. */
-export const notesAppSchemaExtraTable = defineSchema({
-  tables: {
-    folders: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    notes: {
+export const notesAppSchemaExtraTable = registerTables([
+  defineTable({
+    domain: 'folders',
+    name: 'folders',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'notes',
+    name: 'notes',
+    columns: {
       folder_id: 'text',
       space_id: 'text',
       title: 'text',
       body: 'text',
       owner_id: 'text',
     },
-    tags: {
-      label: 'text',
-      owner_id: 'text',
-    },
-    spaces: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    spaces_users: {
-      space_id: 'text',
-      user_id: 'text',
-    },
-    spaces_open_sessions: {
+    indexes: ['folder_id', 'owner_id', 'space_id'],
+  }),
+  defineTable({
+    domain: 'tags',
+    name: 'tags',
+    columns: { label: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_users',
+    columns: { space_id: 'text', user_id: 'text' },
+    indexes: ['space_id', 'user_id'],
+    uniqueIndexes: [['space_id', 'user_id']],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_open_sessions',
+    columns: {
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
-  },
-  uniqueIndexes: [
-    ['spaces_users', 'space_id', 'user_id'],
-    ['spaces_open_sessions', 'device_id', 'space_id'],
-  ],
-  indexes: [
-    ['notes', 'folder_id'],
-    ['notes', 'owner_id'],
-    ['notes', 'space_id'],
-    ['tags', 'owner_id'],
-    ['folders', 'owner_id'],
-    ['spaces', 'owner_id'],
-    ['spaces_users', 'space_id'],
-    ['spaces_users', 'user_id'],
-    ['spaces_open_sessions', 'device_id'],
-    ['spaces_open_sessions', 'space_id'],
-  ],
-});
+    indexes: ['device_id', 'space_id'],
+    uniqueIndexes: [['device_id', 'space_id']],
+  }),
+]);
 
 export const NOTES_APP_TABLES_EXTRA_TABLE = [
   'folders',

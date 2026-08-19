@@ -25,6 +25,7 @@ const CI_GATE_TASKS = [
   'ci:database-url-policy',
   'ci:local-dev-self-contained',
   'ci:no-local-tables',
+  'ci:no-raw-schema-sql',
   'ci:domain-table-prefixes',
   'ci:dst-selector-discipline',
   'ci:no-legacy-writes',

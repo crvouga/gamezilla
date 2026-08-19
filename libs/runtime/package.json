@@ -6,6 +6,18 @@
     "./shared/*": [
       "./src/shared/*.ts",
       "./src/shared/*.tsx"
+    ],
+    "./public/*": [
+      "./src/public/*.ts",
+      "./src/public/*.tsx"
+    ],
+    "./root/*": [
+      "./src/root/*.ts",
+      "./src/root/*.tsx"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*.tsx"
     ]
   },
   "scripts": {
@@ -13,13 +25,29 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/chess": "workspace:*",
+    "@libs/client-config": "workspace:*",
+    "@libs/friends": "workspace:*",
+    "@libs/notifications": "workspace:*",
+    "@libs/profile": "workspace:*",
+    "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/entity-store": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/llm": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
+    "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
     "@pkgs/system": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "stripe": "catalog:"

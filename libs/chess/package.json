@@ -20,7 +20,6 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
@@ -32,6 +31,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/io": "workspace:*",

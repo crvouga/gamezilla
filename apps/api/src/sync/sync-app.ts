@@ -1,4 +1,4 @@
-import { appTopicMap } from '@libs/db/shared/app-topic-map';
+import { appTopicMap } from '@libs/runtime/root/app-topic-map';
 import { assert } from '@pkgs/assert';
 import { getIo } from '@pkgs/io/als';
 import type { PubSub } from '@pkgs/pubsub/interface';

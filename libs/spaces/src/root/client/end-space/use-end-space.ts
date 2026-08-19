@@ -6,14 +6,14 @@ import { endSpaceMutation } from '../../mutations';
 
 export function useEndSpace() {
   const mutationClient = useMutationClient();
-  const { dispatch: dispatchToSpace } = useSpaceOpenRooms();
+  const { dispatch } = useSpaceOpenRooms();
 
   return useCallback(
     async (spaceId: string) => {
-      dispatchToSpace(spaceId, AnnounceEnded({}));
+      dispatch(spaceId, AnnounceEnded({}));
       const result = await mutationClient.mutate(endSpaceMutation, { spaceId });
       if (!result.ok) throw new Error(result.failures[0]?.message);
     },
-    [dispatchToSpace, mutationClient]
+    [dispatch, mutationClient]
   );
 }

@@ -31,7 +31,7 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/api/src/config/better-auth-boot.ts',
   // Sim SQLite migrate: runBetterAuthMigrations for product UI sims.
   'apps/api/src/system/migrate-sim-sqlite.ts',
-  'libs/db/src/server/run-postgres-migrations.ts',
+  'libs/runtime/src/server/run-postgres-migrations.ts',
   'apps/api/src/db/migrate.ts',
   'apps/api/src/request-scope.ts',
   'apps/api/scripts/wipe-dev-db.ts',

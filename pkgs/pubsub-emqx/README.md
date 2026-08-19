@@ -22,7 +22,7 @@ Operators / broker should configure:
 
 ### Product topic helpers (Gamezilla)
 
-Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/db/shared/sync-topics`:
+Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/runtime/public/sync-topics`:
 
 - `user:{actorId}`
 - `room:{spaceId}`

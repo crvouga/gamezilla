@@ -6,7 +6,6 @@
  */
 
 import { join } from 'node:path';
-import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -14,6 +13,7 @@ import {
   assertNonProdDatabaseUrl,
   normalizeDatabaseUrlForCompare,
 } from '@libs/infra/shared/database-url-policy';
+import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';

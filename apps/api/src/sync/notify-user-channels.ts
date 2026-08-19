@@ -1,4 +1,4 @@
-import { userTopic } from '@libs/db/shared/sync-topics';
+import { userTopic } from '@libs/runtime/public/sync-topics';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';

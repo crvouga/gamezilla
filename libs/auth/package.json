@@ -17,7 +17,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@libs/db": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
@@ -25,6 +24,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/io": "workspace:*",

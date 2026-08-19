@@ -22,7 +22,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sounds": "workspace:*",

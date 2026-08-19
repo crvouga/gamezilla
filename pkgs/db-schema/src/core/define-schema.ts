@@ -347,7 +347,7 @@ function assertAllTablesMatchPolicy(
   }
 }
 
-function validateRuntime(
+export function validateRuntime(
   literal: unknown,
   options?: DefineSchemaOptions
 ): ReadonlyDeclaredSchema {
@@ -389,25 +389,24 @@ function validateRuntime(
   };
 }
 
-/**
- * Validate, deep-freeze, and seal a declarative schema literal.
- * When this returns, the schema is complete and permanently immutable.
- */
-export function defineSchema<const T>(
-  literal: SchemaInput<T>,
-  options?: DefineSchemaOptions
-): Schema {
-  const declared = validateRuntime(literal, options);
+/** Seal a validated declared schema into an immutable {@link Schema}. */
+export function sealSchema(declared: ReadonlyDeclaredSchema): Schema {
   const frozenDeclared = deepFreeze(declared);
-
   const schema: Schema = {
     snapshot(): Snapshot {
       return buildSnapshot(frozenDeclared);
     },
     _declared: frozenDeclared,
   };
-
   return deepFreeze(schema);
+}
+
+/** @internal Package tests only — product code uses {@link registerTables}. */
+export function defineSchema<const T>(
+  literal: SchemaInput<T>,
+  options?: DefineSchemaOptions
+): Schema {
+  return sealSchema(validateRuntime(literal, options));
 }
 
 export type { SchemaInput, SchemaLiteral, ValidateSchema };

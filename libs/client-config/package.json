@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/db": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/object-store": "workspace:*",

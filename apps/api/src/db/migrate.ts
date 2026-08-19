@@ -2,19 +2,19 @@
 // @io-wall-ok
 /**
  * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.
- * Compose site is `@libs/db/server/run-postgres-migrations`. Same-package
+ * Compose site is `@libs/runtime/server/run-postgres-migrations`. Same-package
  * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
  * shell out to `migrate-cli.ts`. `@apps/postgres` imports the lib compose site
  * directly (apps must not import other `@apps/*` packages).
  */
 import { join } from 'node:path';
-import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
 import { wallIo } from '@pkgs/io';
 import { createLogger, type Logger } from '@pkgs/logger';

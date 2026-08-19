@@ -6,7 +6,7 @@
 import {
   APP_SCHEMA_DOMAINS,
   LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/db/shared/app-schema';
+} from '@libs/runtime/root/app-schema';
 import { FRAMEWORK_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 // Relative: keep `@pkgs/auth-better-auth` behind the adapter / composition-root allowlist.
 import { BETTER_AUTH_TABLE_NAMES } from '../../pkgs/auth-better-auth/src/server/better-auth-table-names';

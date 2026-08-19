@@ -5,7 +5,7 @@
  * passes domain names into an opaque collision check.
  */
 import { assertDomainTablesAvoidFrameworkNames } from '@pkgs/sync-engine/shared';
-import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/app-schema';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/runtime/src/root/app-schema';
 
 try {
   assertDomainTablesAvoidFrameworkNames(LOCAL_DOMAIN_TABLE_NAMES);

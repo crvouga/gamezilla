@@ -4,8 +4,8 @@
  * `skipAdvisoryLock` + `skipSqliteCompat` (JSON1 via installPgMemSqliteCompat).
  */
 
-import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import type { Io } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';

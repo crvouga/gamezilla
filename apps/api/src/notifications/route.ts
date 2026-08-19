@@ -5,7 +5,6 @@ import { registerNotificationActionHandler } from '@libs/notifications/public/no
 import { NotificationsApp } from '@libs/notifications/root/server/notifications-app';
 import { assert } from '@pkgs/assert';
 import { AsyncLocalStorage } from '@pkgs/async-local';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -78,33 +77,6 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   }
 };
 
-function lazyRequestSqlClient(): SqlClient {
-  return {
-    connect: async () => {},
-    disconnect: async () => {},
-    query: (query) => {
-      const store = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(store, 'notifications sql: request store missing');
-      return store.sqlClient.query(query);
-    },
-    run: (query) => {
-      const store = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(store, 'notifications sql: request store missing');
-      return store.sqlClient.run(query);
-    },
-    transaction: (fn) => {
-      const store = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(store, 'notifications sql: request store missing');
-      return store.sqlClient.transaction(fn);
-    },
-    prepare: (query) => {
-      const store = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(store, 'notifications sql: request store missing');
-      return store.sqlClient.prepare(query);
-    },
-  };
-}
-
 function lazyRequestContext() {
   const store = apiRequestAsyncLocalStorage.getStore();
   const actor = notificationsActorStorage.getStore();
@@ -117,9 +89,7 @@ let notificationsApp: NotificationsApp | null = null;
 
 function getNotificationsApp(): NotificationsApp {
   if (notificationsApp === null) {
-    notificationsApp = new NotificationsApp({
-      sqlClient: lazyRequestSqlClient(),
-    });
+    notificationsApp = new NotificationsApp();
   }
   return notificationsApp;
 }

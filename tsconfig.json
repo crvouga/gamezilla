@@ -54,7 +54,6 @@
       "@libs/spaces/*": ["./libs/spaces/src/*"],
       "@pkgs/tts/*": ["./pkgs/tts/src/*"],
       "@libs/client-config/*": ["./libs/client-config/src/*"],
-      "@libs/db/*": ["./libs/db/src/*"],
       "@pkgs/matchmaking/interface": [
         "./pkgs/matchmaking/src/interface/index.ts"
       ],
@@ -217,7 +216,7 @@
     "libs/client-config/src/**/*.ts",
     "libs/client-config/src/**/*.tsx",
     "libs/client-config/scripts/**/*.ts",
-    "libs/db/src/**/*.ts",
+    "libs/runtime/src/**/*.ts",
     "pkgs/matchmaking/src/**/*.ts",
     "pkgs/postgres-sqlite-compat/src/**/*.ts",
     "libs/notifications/src/**/*.ts",

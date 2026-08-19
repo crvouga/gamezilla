@@ -308,7 +308,8 @@
     },
     "//#ci:no-local-tables": {
       "inputs": [
-        "libs/db/src/shared/**/*.ts",
+        "libs/runtime/src/root/app-schema.ts",
+        "libs/**/public/schema.ts",
         "pkgs/sync-engine/src/shared/assert-domain-tables.ts",
         "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
         "tools/scripts/check-local-table-categories.ts"
@@ -316,9 +317,21 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#ci:no-raw-schema-sql": {
+      "inputs": [
+        "libs/**/*.sql",
+        "pkgs/**/*.sql",
+        "apps/**/*.sql",
+        "test/**/*.sql",
+        "tools/scripts/check-no-raw-schema-sql.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "//#ci:domain-table-prefixes": {
       "inputs": [
-        "libs/db/src/shared/app-schema.ts",
+        "libs/runtime/src/root/app-schema.ts",
+        "libs/**/public/schema.ts",
         "pkgs/sync-engine/src/shared/framework-server-ddl.ts",
         "pkgs/auth-better-auth/src/server/better-auth-table-names.ts",
         "tools/scripts/check-domain-table-prefixes.ts"
@@ -454,7 +467,8 @@
         "apps/client/src/sync/**",
         "apps/api/src/sync/**",
         "libs/**/shared/mutations/**",
-        "libs/db/src/shared/sync-topics.ts",
+        "libs/runtime/src/public/sync-topics.ts",
+        "libs/runtime/src/root/app-topic-map.ts",
         "AGENTS.md",
         "tools/scripts/check-sync-engine-terminology.ts",
         "tools/scripts/check-no-domain-hard-delete.ts"

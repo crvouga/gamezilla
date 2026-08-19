@@ -1,9 +1,9 @@
-import { userTopic } from '@libs/db/shared/sync-topics';
 import {
   friendRequestAcceptedNotifyConsumer,
   friendRequestClosedNotifyConsumer,
   friendRequestSentNotifyConsumer,
 } from '@libs/friends/root/server/friends-outbox-consumers';
+import { userTopic } from '@libs/runtime/public/sync-topics';
 import { assert } from '@pkgs/assert';
 import type { Io } from '@pkgs/io';
 import { drainOutbox, OutboxConsumerRegistry } from '@pkgs/outbox';

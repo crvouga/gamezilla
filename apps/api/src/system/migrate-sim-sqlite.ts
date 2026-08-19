@@ -3,8 +3,7 @@
  * Composes package-owned migrations — no inline DDL.
  */
 
-import { appSchema } from '@libs/db/shared/app-schema';
-import { migrateNotifications } from '@libs/notifications/root/server/migrate';
+import { appSchema } from '@libs/runtime/root/app-schema';
 import { runBetterAuthMigrations } from '@pkgs/auth-better-auth/server';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 import { EntityStoreSqliteDatabaseMigration } from '@pkgs/entity-store/sqlite-database-migration';
@@ -22,7 +21,7 @@ export const SIM_API_URL = 'http://sim.local';
 /** Placeholder DATABASE_URL for secret-store / config (SQLite has no TCP listener). */
 export const SIM_SQLITE_DATABASE_URL = 'sqlite://sim';
 
-/** Applies portable framework + domain + kv/entity/notifications/outbox + Better Auth (sqlite). */
+/** Applies portable framework + domain + kv/entity/outbox + Better Auth (sqlite). */
 export async function migrateSimSqlite(args: {
   readonly sqlClient: SqlClient;
   readonly io: Io;
@@ -47,6 +46,4 @@ export async function migrateSimSqlite(args: {
     secret: SIM_BETTER_AUTH_SECRET,
     baseURL: SIM_API_URL,
   });
-
-  await migrateNotifications(args.sqlClient);
 }

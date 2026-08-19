@@ -1,13 +1,13 @@
 import type { ConfigService } from '@libs/auth/public/config-service-types';
+import type { AppChannelsCtx } from '@libs/runtime/public/sync-topics';
 import {
   appSchema,
   LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/db/shared/app-schema';
+} from '@libs/runtime/root/app-schema';
 import {
   appDefaultEntryChannel,
   appTopicMap,
-} from '@libs/db/shared/app-topic-map';
-import type { AppChannelsCtx } from '@libs/db/shared/sync-topics';
+} from '@libs/runtime/root/app-topic-map';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';

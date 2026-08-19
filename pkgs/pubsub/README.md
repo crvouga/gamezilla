@@ -11,7 +11,7 @@ Application-agnostic **topic pub/sub port**. One interface (`PubSub`) for every 
 ### Product topic helpers (Gamezilla)
 
 Entity-scoped, coarse names for the sync push layer live in
-`@libs/db/shared/sync-topics` (`userTopic`, `roomTopic`, `userChannels`) —
+`@libs/runtime/public/sync-topics` (`userTopic`, `roomTopic`, `userChannels`) —
 not in `@pkgs/sync-engine` or this package:
 
 - `user:{actorId}` — actor-scoped boot / membership list invalidation

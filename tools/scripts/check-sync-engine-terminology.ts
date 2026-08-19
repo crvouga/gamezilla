@@ -17,8 +17,8 @@ const SCAN_GLOBS = [
   'apps/client/src/sync/**/*.{ts,tsx}',
   'apps/api/src/sync/**/*.{ts,tsx}',
   'libs/**/use-cases/**/shared/**/*.{ts,tsx}',
-  'libs/db/src/shared/sync-topics.ts',
-  'libs/db/src/shared/app-topic-map.ts',
+  'libs/runtime/src/public/sync-topics.ts',
+  'libs/runtime/src/root/app-topic-map.ts',
   'AGENTS.md',
   'tools/scripts/check-no-domain-hard-delete.ts',
 ] as const;

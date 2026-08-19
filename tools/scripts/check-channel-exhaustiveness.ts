@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { appTopicMap } from '@libs/db/shared/app-topic-map';
+import { appTopicMap } from '@libs/runtime/root/app-topic-map';
 import { assertChannelExhaustiveness } from '@pkgs/sync-engine/shared';
 /**
  * Fail CI when a query hydrates a table with no topic map entry

@@ -103,7 +103,13 @@ Non-production (`SECRETS_ENV=dev`) is **self-contained**: Turbo starts **`@apps/
 
 ### Database migrations (`@pkgs/db-migrate`)
 
-Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@libs/db/server` (`runPostgresMigrations`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex). Domain schema application on Postgres and local SQLite goes through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes only (no public `reconcile` API). Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `DatabaseMigration` and register it at the compose site (or call `.migrate({ sqlClient, logger })` from lazy boot). `@apps/api` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); `@apps/postgres` boot imports `@libs/db/server/run-postgres-migrations` in-process. Root `db:migrate` / infra shell out to `apps/api/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
+Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@libs/runtime/server/run-postgres-migrations` (`PostgresMigrationRunner`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex).
+
+**Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/` / `test/` — CI enforces `ci:no-raw-schema-sql`.
+
+**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking, Better Auth) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`.
+
+Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain** schema — implement `defineTable` + register in app-schema (or a `DatabaseMigration` at the compose site for framework/infra). `@apps/api` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); `@apps/postgres` boot imports `@libs/runtime/server/run-postgres-migrations` in-process. Root `db:migrate` / infra shell out to `apps/api/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
 ### Database safety (Tiger policy)
 
@@ -139,7 +145,7 @@ libs/<feature>/
     public/             # cross-lib contract
 ```
 
-Exempt (no request to trace; keep their current trees): `@libs/db`, `@libs/infra`, `@libs/games`, `@libs/runtime`, `@libs/dst-handles`.
+Exempt (no request to trace; keep their current trees): `@libs/infra`, `@libs/games`, `@libs/runtime`, `@libs/dst-handles`.
 
 Lint/format is root-only Biome ([`biome.json`](biome.json) + [`tools/biome-plugins/`](tools/biome-plugins/)); packages do not ship per-package lint configs.
 
@@ -170,7 +176,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@libs/db` — domain schema via `defineSchema` (`app-schema.ts`) applied by `PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` on Postgres migrate and local SQLite open; sync topics. Framework tables (`sync_engine_mutations`, `sync_engine_write_rejections`, …) are owned by `@pkgs/sync-engine` (`SyncEngineDatabaseMigration` / `FRAMEWORK_SERVER_DDL`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
+- `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_mutations`, `sync_engine_write_rejections`, …) are owned by `@pkgs/sync-engine` (`SyncEngineDatabaseMigration` / `FRAMEWORK_SERVER_DDL`) and applied at migrate time. Domain mutations validate and apply their own authorized SQL against declared table names.
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`.
@@ -194,7 +200,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
    - `shared/<game>/<game>-main-menu.ts` — `RoomModule` + `MainMenu` reducer (state, command/event router).
    - `shared/<game>/<game>-play.ts` — game-play reducer (moves, win/loss state).
    - `shared/<game>/<game>-entities.ts` — attribute/entity type defs for domain constants.
-   - Add any new sync tables to `@libs/db` `app-schema.ts` (`defineSchema`).
+   - Add any new sync tables via `defineTable` in the owning feature lib's `shared/schema/` (export from `public/schema.ts`); register in `@libs/runtime/root/app-schema.ts`.
    - `root/client/<game>-main-menu.tsx`, board, settings, etc. — app chrome that composes use cases.
 5. Register the game in spaces `shared/` games registry and `space-module.ts` (top-level router). Other libs consume the game via `@libs/<game>/public/…`.
 6. Add client hooks under `libs/<game>/src/use-cases/<slice>/client/` that call domain mutation definitions under `use-cases/<slice>/shared/`. Prefer domain mutation writes over new REST.

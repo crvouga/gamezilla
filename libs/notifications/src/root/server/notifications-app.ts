@@ -1,33 +1,21 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { MiddlewareHandler } from 'hono';
 
 import { createNotificationsApp } from './app';
-import { migrateNotifications } from './migrate';
 import type { NotificationsRequestContext } from './notifications-context';
-
-export type NotificationsStorage = {
-  readonly sqlClient: SqlClient;
-};
 
 export type NotificationsAppOptions = {
   readonly requireAuth: MiddlewareHandler;
   readonly requestContext: () => NotificationsRequestContext;
 };
 
-/** HTTP/sync shell for the notifications sub-app (migrate + Hono routes). */
+/**
+ * HTTP/sync shell for the notifications sub-app.
+ * Domain DDL is owned by defineTable → appSchema migrate (not a boot-time hand path).
+ */
 export class NotificationsApp {
-  private readonly storage: NotificationsStorage;
-  private bootPromise: Promise<void> | null = null;
-
-  constructor(storage: NotificationsStorage) {
-    this.storage = storage;
-  }
-
+  /** Schema is applied by Postgres/SQLite domain migrate; no lazy DDL. */
   ready(): Promise<void> {
-    if (this.bootPromise === null) {
-      this.bootPromise = migrateNotifications(this.storage.sqlClient);
-    }
-    return this.bootPromise;
+    return Promise.resolve();
   }
 
   app(opts: NotificationsAppOptions) {
@@ -38,6 +26,4 @@ export class NotificationsApp {
   }
 }
 
-export { migrateNotifications } from './migrate';
 export type { NotificationsRequestContext } from './notifications-context';
-export { NotificationsDatabaseMigration } from './notifications-database-migration';

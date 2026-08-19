@@ -1,4 +1,4 @@
-import { defineSchema } from '@pkgs/db-schema';
+import { defineTable, registerTables } from '@pkgs/db-schema';
 
 /**
  * Tiny notes app domain schema for black-box sync-engine scenarios.
@@ -8,56 +8,56 @@ import { defineSchema } from '@pkgs/db-schema';
  * `spaces` / `spaces_users` mirror product membership table names so
  * `attachPush` table-change hooks schedule topic sync.
  */
-export const notesAppSchema = defineSchema({
-  tables: {
-    folders: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    notes: {
+export const notesAppSchema = registerTables([
+  defineTable({
+    domain: 'folders',
+    name: 'folders',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'notes',
+    name: 'notes',
+    columns: {
       folder_id: 'text',
       space_id: 'text',
       title: 'text',
       body: 'text',
       owner_id: 'text',
     },
-    spaces: {
-      title: 'text',
-      owner_id: 'text',
-    },
-    spaces_users: {
-      space_id: 'text',
-      user_id: 'text',
-    },
-    /** Install-local "space is open here" — device-scoped, not user-scoped. */
-    spaces_open_sessions: {
+    indexes: ['folder_id', 'owner_id', 'space_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_users',
+    columns: { space_id: 'text', user_id: 'text' },
+    indexes: ['space_id', 'user_id'],
+    uniqueIndexes: [['space_id', 'user_id']],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_open_sessions',
+    columns: {
       space_id: 'text',
       device_id: 'text',
       opened_at: 'timestamp',
     },
-    /** Same-account peer fanout scrub target (framework hardcodes `profile`). */
-    profile: {
-      username: 'text',
-      username_norm: 'text',
-    },
-  },
-  uniqueIndexes: [
-    ['spaces_users', 'space_id', 'user_id'],
-    ['spaces_open_sessions', 'device_id', 'space_id'],
-  ],
-  indexes: [
-    ['notes', 'folder_id'],
-    ['notes', 'owner_id'],
-    ['notes', 'space_id'],
-    ['folders', 'owner_id'],
-    ['spaces', 'owner_id'],
-    ['spaces_users', 'space_id'],
-    ['spaces_users', 'user_id'],
-    ['spaces_open_sessions', 'device_id'],
-    ['spaces_open_sessions', 'space_id'],
-    ['profile', 'username_norm'],
-  ],
-});
+    indexes: ['device_id', 'space_id'],
+    uniqueIndexes: [['device_id', 'space_id']],
+  }),
+  defineTable({
+    domain: 'profile',
+    name: 'profile',
+    columns: { username: 'text', username_norm: 'text' },
+    indexes: ['username_norm'],
+  }),
+]);
 
 export const NOTES_APP_TABLES = [
   'folders',

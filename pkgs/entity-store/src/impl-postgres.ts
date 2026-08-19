@@ -1,6 +1,6 @@
 /**
  * Postgres-backed {@link EntityStore}. Table layout and DDL are private to
- * this module — owned by `@pkgs/entity-store`, not `libs/db` / sync.
+ * this module — owned by `@pkgs/entity-store`, not `@libs/runtime` / sync.
  *
  * Schema is applied via {@link EntityStoreImplPostgres.migrateUp} during
  * `db:migrate` (same pattern as `@pkgs/kv`).

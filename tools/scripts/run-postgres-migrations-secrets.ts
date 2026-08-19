@@ -8,8 +8,8 @@
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
-import { PostgresMigrationRunner } from '@libs/db/server/run-postgres-migrations';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { wallIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';

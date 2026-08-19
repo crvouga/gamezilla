@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@libs/chess": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
+    "@libs/runtime": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",

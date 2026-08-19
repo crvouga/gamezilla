@@ -30,7 +30,6 @@
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",

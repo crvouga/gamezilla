@@ -1,10 +1,4 @@
-/**
- * Canonical Postgres migration order: compose {@link DatabaseMigration}
- * units (ensure schema → postgres-sqlite-compat → advisory-locked hard-cutover
- * drop + framework/domain/kv/entity_store → Better Auth → purge Clerk links).
- */
-
-import { appSchema } from '@libs/db/shared/app-schema';
+import { appSchema } from '@libs/runtime/root/app-schema';
 import { BetterAuthDatabaseMigration } from '@pkgs/auth-better-auth/server';
 import {
   ComposedDatabaseMigration,
@@ -84,7 +78,6 @@ export class PostgresMigrationRunner {
     const databaseMigration = new ComposedDatabaseMigration().register(
       new EnsurePostgresSchemaMigration(dbScope)
     );
-    // JSON1 shims so app SQL stays SQLite-shaped on Postgres (not pg-mem).
     if (!skipSqliteCompat) {
       databaseMigration.register(new PostgresSqliteCompatMigration());
     }

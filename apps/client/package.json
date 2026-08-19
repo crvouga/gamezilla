@@ -95,7 +95,6 @@
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/games": "workspace:*",

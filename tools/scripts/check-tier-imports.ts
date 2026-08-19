@@ -6,7 +6,7 @@
  *
  *   test -> apps, libs, pkgs  (system tests / DST)
  *   apps -> apps, libs, pkgs  (never @test/*; cross-app OK e.g. client → api)
- *   libs -> pkgs only    (libs may not import apps or test)
+ *   libs -> pkgs only    (libs may not import apps or test; @libs/runtime may import other @libs/*)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
  * Why a custom script (not `dependency-cruiser` alone): depcruise's
@@ -70,10 +70,13 @@ type ManifestViolation = {
 /** True when the import/dep edge breaks the tier pyramid. */
 function isForbiddenEdge(
   fromTier: Tier,
-  _fromScoped: PackageName,
+  fromPkg: PackageName,
   targetTier: Tier,
   _targetShort: string
 ): boolean {
+  if (fromPkg === '@libs/runtime' && targetTier === 'libs') {
+    return false;
+  }
   return FORBIDDEN_FROM[fromTier].has(targetTier);
 }
 
@@ -221,7 +224,9 @@ function main(): never {
   console.error(
     '  apps/  -> libs/, pkgs/   (never other @apps/*; never @test/*)'
   );
-  console.error('  libs/  -> pkgs/ only     (no upward imports to apps/test)');
+  console.error(
+    '  libs/  -> pkgs/ only     (@libs/runtime may import other @libs/*; no apps/test)'
+  );
   console.error(
     '  pkgs/  -> pkgs/ only     (leaf tier: reusable, app-agnostic)'
   );

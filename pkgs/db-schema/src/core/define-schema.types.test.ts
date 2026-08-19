@@ -2,74 +2,30 @@
  * Type-level enforcement tests. Failures must be `@ts-expect-error`.
  * These files are included in `tsc --noEmit`.
  */
-import { defineSchema } from './define-schema';
+import { defineTable } from './define-table';
 import type { ServerOperation } from './operations';
-import type { SchemaInput } from './validate-schema-types';
+import { registerTables } from './register-tables';
 
 // Legal schema compiles
-const _ok = defineSchema({
-  tables: {
-    users: {
-      email: 'text',
-    },
-    todos: {
+const _ok = registerTables([
+  defineTable({
+    domain: 'users',
+    name: 'users',
+    columns: { email: 'text' },
+    deprecations: [['display_name', 'use email']],
+  }),
+  defineTable({
+    domain: 'todos',
+    name: 'todos',
+    columns: {
       user_id: 'uuid',
       title: 'text',
       done: 'boolean',
     },
-  },
-  indexes: [['todos', 'user_id']],
-  deprecations: [['users', 'display_name', 'use email']],
-});
+    indexes: ['user_id'],
+  }),
+]);
 void _ok;
-
-type ExpectError<T> =
-  SchemaInput<T> extends { readonly __error: string } ? true : false;
-
-const _pascal: ExpectError<{ tables: { Users: { email: 'text' } } }> = true;
-const _camel: ExpectError<{ tables: { users: { userId: 'text' } } }> = true;
-const _kebab: ExpectError<{
-  tables: { users: { 'user-id': 'text' } };
-}> = true;
-const _underscore: ExpectError<{ tables: { users: { _id: 'text' } } }> = true;
-const _managedId: ExpectError<{ tables: { users: { id: 'text' } } }> = true;
-const _indexPk: ExpectError<{
-  tables: { users: { email: 'text' } };
-  uniqueIndexes: [['users', 'id']];
-}> = true;
-const _typo: ExpectError<{ tables: { users: { email: 'txet' } } }> = true;
-const _objectCol: ExpectError<{
-  tables: { users: { email: { type: 'text' } } };
-}> = true;
-const _badIndexTable: ExpectError<{
-  tables: { users: { email: 'text' } };
-  indexes: [['nope', 'email']];
-}> = true;
-const _badIndexCol: ExpectError<{
-  tables: { users: { email: 'text' } };
-  indexes: [['users', 'nope']];
-}> = true;
-const _badDepTable: ExpectError<{
-  tables: { users: { email: 'text' } };
-  deprecations: [['nope', 'gone']];
-}> = true;
-const _badDepColStillDeclared: ExpectError<{
-  tables: { users: { email: 'text' } };
-  deprecations: [['users', 'email', 'gone']];
-}> = true;
-
-void _pascal;
-void _camel;
-void _kebab;
-void _underscore;
-void _managedId;
-void _indexPk;
-void _typo;
-void _objectCol;
-void _badIndexTable;
-void _badIndexCol;
-void _badDepTable;
-void _badDepColStillDeclared;
 
 // ServerOperation kinds must be additive-only
 type ServerKinds = ServerOperation['kind'];

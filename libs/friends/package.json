@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
@@ -28,6 +27,7 @@
     "@lingui/react": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/message": "workspace:*",

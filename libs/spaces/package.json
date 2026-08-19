@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
@@ -30,6 +29,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
     "@pkgs/collab-ui": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",

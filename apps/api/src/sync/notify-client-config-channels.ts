@@ -1,4 +1,4 @@
-import { clientConfigTopic } from '@libs/db/shared/sync-topics';
+import { clientConfigTopic } from '@libs/client-config/public/sync-topics';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';

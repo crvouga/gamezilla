@@ -1,8 +1,5 @@
-import {
-  clientConfigTopic,
-  roomTopic,
-  userTopic,
-} from '@libs/db/shared/sync-topics';
+import { clientConfigTopic } from '@libs/client-config/public/sync-topics';
+import { roomTopic, userTopic } from '@libs/runtime/public/sync-topics';
 import type { Topic } from '@pkgs/pubsub/interface';
 import { SignJWT } from 'jose';
 

@@ -3,7 +3,7 @@
  * Forbid sync `local_*` app tables.
  * Client schema must be a pure subset of the remote Postgres schema.
  */
-import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/db/src/shared/app-schema';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '../../libs/runtime/src/root/app-schema';
 
 type Violation = { where: string; detail: string };
 

@@ -1,41 +1,41 @@
-import { defineSchema } from '../core/define-schema';
+import { defineTable } from '../core/define-table';
 import {
   asValidatedIdent,
   fingerprintForIndexDef,
 } from '../core/index-fingerprint';
+import { registerTables } from '../core/register-tables';
 import type {
   ColumnType,
   IntrospectedCatalog,
   IntrospectedTable,
 } from '../core/types';
 
-export const sampleSchema = defineSchema({
-  tables: {
-    users: {
-      email: 'text',
-      display_name: 'text',
-    },
-    todos: {
+export const sampleSchema = registerTables([
+  defineTable({
+    domain: 'users',
+    name: 'users',
+    columns: { email: 'text', display_name: 'text' },
+    deprecations: [['name', 'use display_name']],
+  }),
+  defineTable({
+    domain: 'todos',
+    name: 'todos',
+    columns: {
       user_id: 'uuid',
       title: 'text',
       done: 'boolean',
       status: 'text',
       due_at: 'timestamp',
     },
-    legacy_notes: {
-      body: 'text',
-    },
-  },
-  indexes: [
-    ['todos', 'user_id'],
-    ['todos', 'due_at'],
-    ['todos', 'created_at'],
-  ],
-  deprecations: [
-    ['legacy_notes', 'replaced by todos'],
-    ['users', 'name', 'use display_name'],
-  ],
-});
+    indexes: ['user_id', 'due_at', 'created_at'],
+  }),
+  defineTable({
+    domain: 'legacy',
+    name: 'legacy_notes',
+    columns: { body: 'text' },
+    deprecations: [['replaced by todos']],
+  }),
+]);
 
 export function emptyCatalog(): IntrospectedCatalog {
   return {

@@ -70,7 +70,7 @@ custom per-feature REST sync; peer mutation replay.
 
 | Owned by `@pkgs/sync-engine` | Owned by product (`@libs/*`, `apps/*`) |
 |------------------------------|----------------------------------------|
-| Merge / rebase / upload queue | Domain schema (`@libs/db` `appSchema`) |
+| Merge / rebase / upload queue | Domain schema (`@libs/runtime` `appSchema`) |
 | Query/mutation registries API | Query + mutation **defs** per feature |
 | Framework tables + DDL | Topic naming (`user:`, `room:`, …) |
 | `createSyncApp` Hono routes | Auth resolution, Postgres client |
@@ -79,7 +79,7 @@ custom per-feature REST sync; peer mutation replay.
 | Deterministic sim + scenarios | Product REST exceptions |
 
 **Tier rule:** this is a flat `pkgs/` package — **no** product imports
-(`@libs/*`, `gamezilla`, apps). Product topics and schemas live in `@libs/db`
+(`@libs/*`, `gamezilla`, apps). Product topics and schemas live in `@libs/runtime`
 / feature packages; the engine only sees registries + SQL clients + pubsub
 ports.
 
@@ -315,8 +315,8 @@ dynamically (e.g. `chessPuzzlePool`).
 
 ### Topics (product convention)
 
-Host registers `defineTopicMap` (`@libs/db/shared/app-topic-map`) plus
-`defaultEntryChannel`. Helpers in `@libs/db/shared/sync-topics`:
+Host registers `defineTopicMap` (`@libs/runtime/shared/app-topic-map`) plus
+`defaultEntryChannel`. Helpers in `@libs/runtime/shared/sync-topics`:
 
 | Helper | Topics |
 |--------|--------|
@@ -375,12 +375,12 @@ tables; durable `sync_engine_mutations` survive epoch wipe semantics carefully (
 `local-schema-migrate.ts`).
 
 Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
-`@libs/db` `appSchema`). Managed columns include `deleted_at`.
+`@libs/runtime` `appSchema`). Managed columns include `deleted_at`.
 
 ### Server Postgres (framework)
 
 Applied by `applyFrameworkServerDdl` at migrate time (not domain
-`defineSchema`):
+`defineTable` / `registerTables`):
 
 | Table | Purpose |
 |-------|---------|
@@ -678,7 +678,7 @@ single-flight (it does) — mainly HTTP/server load then.
 
 ## Schema & versioning
 
-- **Domain schema:** `@libs/db` `defineSchema` / `appSchema`; local reconcile via
+- **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
   `@pkgs/db-schema/sqlite`; Postgres migrate separate.
 - **Framework local:** `FRAMEWORK_LOCAL_DDL` + `SCHEMA_EPOCH` (= 7) in
   `queries/client/local-schema.ts`.
@@ -1202,8 +1202,8 @@ Three distinct monotonic sequences — do not conflate them:
 - Product defs: `libs/<feature>/src/shared/{queries,mutations}/`
 - Product client wiring: `apps/client/src/sync/create-local-sync-engine.ts`
 - Product API wiring: `apps/api/src/sync/sync-app.ts`
-- Topics: `libs/db/src/shared/sync-topics.ts`
-- Schema: `libs/db/src/shared/app-schema.ts`
+- Topics: `libs/runtime/src/root/sync-topics.ts`
+- Schema: `libs/runtime/src/root/app-schema.ts`
 
 ---
 
