@@ -51,6 +51,7 @@ const ENTRY_BASENAMES = new Set([
   'app.tsx',
   'boot-playground.ts',
   'compose-sub-apps.tsx',
+  'root-app.tsx',
 ]);
 
 /**

@@ -27,6 +27,7 @@ import { ReportHeader } from './report-header';
 import type { NodeViewKind, ReportNavState } from './router';
 import { navigateReport } from './router';
 import { SqlitePane } from './sqlite-pane';
+import { reportViewTabItem, systemNodeTabItem } from './system-node-chrome';
 import { appShellSx, emptySx, paneSx } from './tokens';
 
 export function TestPage(props: {
@@ -87,13 +88,15 @@ export function TestPage(props: {
         />
         <TabStrip
           accessibilityLabel="Nodes"
-          items={nodes.map((n) => ({ id: n.id, label: n.id }))}
+          items={nodes.map((n) =>
+            systemNodeTabItem({ id: n.id, kind: n.kind })
+          )}
           selectedId={nodeId}
           onSelect={(id) => onNav(navigateReport(nav, { node: id }))}
         />
         <TabStrip
           accessibilityLabel="Views"
-          items={views.map((v) => ({ id: v, label: v }))}
+          items={views.map((v) => reportViewTabItem(v))}
           selectedId={view}
           onSelect={(id) =>
             onNav(navigateReport(nav, { view: id as NodeViewKind }))

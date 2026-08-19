@@ -17,6 +17,9 @@ export type {
   PlaygroundSqlNode,
   SystemConsolePorts,
 } from '../shared/ports';
+export type {
+  SystemChromeKind,
+  SystemChromeKind as PlaygroundKindId,
+} from '../shared/system-node';
 export { DEFAULT_REPORT_SERVER_PORT } from '../types';
-export type { PlaygroundKindId } from './playground/playground-screen';
 export { type ConsoleSection, SystemConsoleApp } from './system-console-app';

@@ -248,13 +248,14 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      # SECRETS_ENV=dev always points the API at local `@apps/postgres`.
-      # Start that sidecar before setup/migrate so `--wait` can connect.
+      # SECRETS_ENV=dev points the API at loopback Postgres. Boot embedded
+      # Postgres from pkgs (not bun dev) before setup/migrate.
       - name: Start local Postgres
         run: |
           set -euo pipefail
-          bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts install:deps setup --filter=@apps/postgres
-          nohup bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/postgres preview > /tmp/postgres.log 2>&1 &
+          bun run --filter @pkgs/postgres-embedded install:deps
+          bun run --filter @pkgs/postgres-embedded setup
+          nohup bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts > /tmp/postgres.log 2>&1 &
           echo $! > /tmp/postgres.pid
           for _ in $(seq 1 120); do
             if grep -q '\[postgres\] ready' /tmp/postgres.log 2>/dev/null; then
@@ -269,7 +270,7 @@ jobs:
             fi
             sleep 1
           done
-          echo "::error::timed out waiting for @apps/postgres"
+          echo "::error::timed out waiting for embedded Postgres"
           echo "::group::postgres.log (last 200 lines)"
           tail -n 200 /tmp/postgres.log || true
           echo "::endgroup::"

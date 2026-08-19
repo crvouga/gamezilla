@@ -2,7 +2,7 @@
 // @api-wall-ok
 /**
  * CLI entry for root `bun run db:migrate` / infra migrate phase.
- * Local `@apps/postgres` boot migrates in-process via `@libs/runtime`.
+ * Tests/CI boot `@pkgs/postgres-embedded` then migrate via `@libs/runtime`.
  */
 import { assert } from '@pkgs/assert';
 import { migratePostgresApp } from './migrate';

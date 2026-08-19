@@ -1,7 +1,11 @@
 import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
 import { useTimers } from '@pkgs/clock';
-import { useHttpClient } from '@pkgs/http-client';
+import {
+  useHttpClient,
+  useOptionalOriginAvailability,
+} from '@pkgs/http-client';
+import { useIo } from '@pkgs/io';
 import { useLogger } from '@pkgs/logger/react';
 import {
   useSecureStorageItem,
@@ -108,16 +112,20 @@ async function handleBaSignedIn(args: {
 function useStorageFirstBoot(args: {
   deps: AuthBridgeRefreshDeps;
   tokenHydrated: boolean;
+  accountIdHydrated: boolean;
 }): void {
-  const { deps, tokenHydrated } = args;
+  const { deps, tokenHydrated, accountIdHydrated } = args;
   const bootedRef = useRef(false);
 
   useEffect(() => {
-    if (!tokenHydrated || bootedRef.current) return;
+    if (!tokenHydrated || !accountIdHydrated || bootedRef.current) return;
     const session = new SessionCapabilityStore(deps.store);
     const token = session.readToken();
-    if (token === null) return;
     bootedRef.current = true;
+    if (token === null) {
+      void new AuthBridgeRefresh(deps).bindLocalAccountThenEnsure();
+      return;
+    }
     const expiresAt = session.readExpiresAt();
     const externalUserId = session.readExternalUserId();
     deps.lastSyncedTokenRef.current = null;
@@ -127,7 +135,7 @@ function useStorageFirstBoot(args: {
       externalUserId,
       force: true,
     });
-  }, [deps, tokenHydrated]);
+  }, [accountIdHydrated, deps, tokenHydrated]);
 }
 
 function useReconcileAuthSession(args: {
@@ -157,12 +165,21 @@ function useReconcileAuthSession(args: {
           deps.log.warn('auth session error', { error: err.message });
         }
         if (!signedIn) {
+          const storedToken = new SessionCapabilityStore(
+            deps.store
+          ).readToken();
+          const rotateAccount =
+            wasBaSignedInRef.current || storedToken !== null;
           const clear = shouldClearCapabilityOnBaSignedOut({
-            storedToken: new SessionCapabilityStore(deps.store).readToken(),
+            storedToken,
             wasBaSignedIn: wasBaSignedInRef.current,
           });
           wasBaSignedInRef.current = false;
-          if (clear) await new AuthBridgeRefresh(deps).handleSignedOut();
+          if (clear) {
+            await new AuthBridgeRefresh(deps).handleSignedOut({
+              rotateAccount,
+            });
+          }
           return;
         }
         if (!wasBaSignedInRef.current) {
@@ -232,11 +249,16 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const store = useSecureStorageStore();
   const deviceId = useDeviceId();
   const { fetch: fetchFn } = useHttpClient();
+  const originAvailability = useOptionalOriginAvailability();
   const authToken = useFreshAuthToken();
   const { isHydrated: tokenHydrated } = useSecureStorageItem(SESSION_TOKEN_KEY);
+  const { isHydrated: accountIdHydrated } = useSecureStorageItem(
+    LAST_LOCAL_ACCOUNT_ID_KEY
+  );
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const timers = useTimers();
+  const createId = useIo().createId;
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
   const pendingTokenRef = useRef<string | null>(null);
@@ -261,14 +283,30 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
       store,
       log,
       timers,
+      createId,
       lastSyncedTokenRef,
       inFlightRef,
       pendingTokenRef,
+      ...(originAvailability?.kind === 'health'
+        ? {
+            waitUntilAvailable: (signal?: AbortSignal | null) =>
+              originAvailability.waitUntilAvailable(signal),
+          }
+        : {}),
     }),
-    [apiUrl, deviceId, fetchFn, store, log, timers]
+    [
+      apiUrl,
+      createId,
+      deviceId,
+      fetchFn,
+      originAvailability,
+      store,
+      log,
+      timers,
+    ]
   );
 
-  useStorageFirstBoot({ deps, tokenHydrated });
+  useStorageFirstBoot({ deps, tokenHydrated, accountIdHydrated });
   useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
   useRefreshOnAppForeground({

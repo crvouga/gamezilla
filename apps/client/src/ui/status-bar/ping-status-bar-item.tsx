@@ -1,6 +1,7 @@
 import { useServerStatus } from '@apps/client/connection/use-server-status';
 import { useLingui } from '@lingui/react/macro';
 import { useTimers } from '@pkgs/clock';
+import { useOptionalOriginAvailability } from '@pkgs/http-client';
 import { Box, RegisterStatusBarItem, Text, useTheme, WifiIcon } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect } from 'react';
 
@@ -24,12 +25,15 @@ function PingIndicator({ latencyMs }: { latencyMs: number | null }): ReactNode {
 export function PingStatusBarItem(): ReactNode {
   const { t } = useLingui();
   const timers = useTimers();
+  const availability = useOptionalOriginAvailability();
   const { health, aggregateStatus, refresh } = useServerStatus();
 
   useEffect(() => {
+    if (availability?.kind !== 'health') return;
+    if (health.phase !== 'success') return;
     const id = timers.setInterval(() => refresh(), REFRESH_INTERVAL_MS);
     return () => timers.clearInterval(id);
-  }, [refresh, timers]);
+  }, [availability, health.phase, refresh, timers]);
 
   const caption =
     health.latencyMs === null ? t`Checking…` : t`${health.latencyMs} ms`;

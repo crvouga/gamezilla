@@ -4,8 +4,10 @@
 
 import type { Timers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
+import { HttpNetworkError } from '@pkgs/http-client';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { writeSecureStorageItem } from '@pkgs/secure-storage/use-secure-storage-item';
+import type { CreateId } from '@pkgs/uuid';
 
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '../../public/auth-storage-keys';
 import { shouldBindAnonUserAfterEnsure } from '../../public/resolve-client-identity';
@@ -27,17 +29,16 @@ export type AuthBridgeRefreshDeps = {
   store: SecureStorageStore;
   log: AuthBridgeLogger;
   timers: Timers;
+  createId: CreateId;
   lastSyncedTokenRef: { current: string | null };
   inFlightRef: { current: boolean };
   pendingTokenRef: { current: string | null };
+  waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
-const ANON_ENSURE_RETRY_DELAYS_MS = [500, 1500, 3000] as const;
-
-async function sleepMs(ms: number, timers: Timers): Promise<void> {
-  await new Promise<void>((resolve) => {
-    timers.setTimeout(resolve, ms);
-  });
+function readStoredAccountId(store: SecureStorageStore): string | null {
+  const value = store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY);
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 export class AuthBridgeRefresh {
@@ -116,7 +117,7 @@ export class AuthBridgeRefresh {
       // (`shouldClearCapabilityOnBaSignedOut`). Without this fallthrough,
       // `lastLocalAccountId` never binds and SyncEngineBoot spins forever.
       if (isUnauthorizedRefreshError(e)) {
-        await this.handleSignedOut();
+        await this.handleSignedOut({ rotateAccount: true });
         return;
       }
     } finally {
@@ -125,7 +126,30 @@ export class AuthBridgeRefresh {
     }
   }
 
-  async handleSignedOut(): Promise<void> {
+  /**
+   * Cold start with no session token: persist a local account id immediately
+   * so SQLite can open, then reconcile with `/identity/anon/ensure`.
+   */
+  async bindLocalAccountThenEnsure(): Promise<void> {
+    if (this.session().readToken() !== null) return;
+    const previous = readStoredAccountId(this.deps.store);
+    const localId = previous ?? this.deps.createId();
+    if (previous === null) {
+      await writeSecureStorageItem(
+        this.deps.store,
+        LAST_LOCAL_ACCOUNT_ID_KEY,
+        localId
+      );
+    }
+    await this.ensureAndMaybeAdopt({
+      localId,
+      adoptDifferentRemote: previous === null,
+    });
+  }
+
+  async handleSignedOut(args?: {
+    readonly rotateAccount?: boolean;
+  }): Promise<void> {
     this.deps.lastSyncedTokenRef.current = null;
     this.deps.pendingTokenRef.current = null;
     try {
@@ -135,12 +159,38 @@ export class AuthBridgeRefresh {
         error: e instanceof Error ? e.message : String(e),
       });
     }
+    if (args?.rotateAccount === true) {
+      const localId = this.deps.createId();
+      await writeSecureStorageItem(
+        this.deps.store,
+        LAST_LOCAL_ACCOUNT_ID_KEY,
+        localId
+      );
+      await this.ensureAndMaybeAdopt({
+        localId,
+        adoptDifferentRemote: true,
+      });
+      return;
+    }
+    await this.bindLocalAccountThenEnsure();
+  }
+
+  private async ensureAndMaybeAdopt(args: {
+    readonly localId: string;
+    readonly adoptDifferentRemote: boolean;
+  }): Promise<void> {
     try {
-      const hadUser =
-        typeof this.deps.store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY) === 'string';
-      const userId = await this.ensureAnonUserWithRetries();
+      const userId = await this.ensureAnonUserWithRetries(args.localId);
       if (!shouldBindAnonUserAfterEnsure(this.session().readToken())) {
         this.deps.log.info('anon ensure discarded; session token present');
+        return;
+      }
+      if (userId === args.localId) return;
+      if (!args.adoptDifferentRemote) {
+        this.deps.log.info('anon ensure kept local account id', {
+          localId: args.localId,
+          userId,
+        });
         return;
       }
       await writeSecureStorageItem(
@@ -148,10 +198,8 @@ export class AuthBridgeRefresh {
         LAST_LOCAL_ACCOUNT_ID_KEY,
         userId
       );
-      if (!hadUser) {
-        this.deps.log.info('anon user ensured', { userId });
-      }
     } catch (e) {
+      if (e instanceof HttpNetworkError) return;
       this.deps.log.error('auth/anon/ensure failed', {
         error: e instanceof Error ? e.message : String(e),
       });
@@ -184,32 +232,22 @@ export class AuthBridgeRefresh {
     });
   }
 
-  private async ensureAnonUserWithRetries(): Promise<string> {
-    let lastError: unknown;
-    for (
-      let attempt = 0;
-      attempt <= ANON_ENSURE_RETRY_DELAYS_MS.length;
-      attempt++
-    ) {
+  private async ensureAnonUserWithRetries(userId: string): Promise<string> {
+    while (true) {
       try {
-        const { userId } = await ensureAnonAuth({
+        const result = await ensureAnonAuth({
           apiUrl: this.deps.apiUrl,
           deviceId: this.deps.deviceId,
           fetchFn: this.deps.fetchFn,
           forceNew: false,
+          userId,
         });
-        return userId;
+        return result.userId;
       } catch (e) {
-        lastError = e;
-        const delay = ANON_ENSURE_RETRY_DELAYS_MS[attempt];
-        if (delay === undefined) break;
-        this.deps.log.warn('auth/anon/ensure failed; retrying', {
-          attempt: attempt + 1,
-          error: e instanceof Error ? e.message : String(e),
-        });
-        await sleepMs(delay, this.deps.timers);
+        if (!(e instanceof HttpNetworkError)) throw e;
+        if (this.deps.waitUntilAvailable === undefined) throw e;
+        await this.deps.waitUntilAvailable();
       }
     }
-    throw lastError instanceof Error ? lastError : new Error(String(lastError));
   }
 }

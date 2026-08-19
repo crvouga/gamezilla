@@ -2,15 +2,11 @@ import {
   Box,
   CommandPalette,
   CommandRegistryProvider,
-  DoorOpenIcon,
   EmptyState,
   ErrorState,
   LoadingState,
-  MonitorIcon,
   OverlayPortalProvider,
-  RadioIcon,
   RegisterCommand,
-  ServerIcon,
   SurfaceStackProvider,
   TabStrip,
 } from '@pkgs/ui';
@@ -28,6 +24,11 @@ import type {
   SystemConsolePorts,
 } from '../../shared/ports';
 import {
+  coerceSystemChromeKind,
+  type SystemChromeKind,
+} from '../../shared/system-node';
+import { PLAYGROUND_KIND_TABS, systemNodeIcon } from '../system-node-chrome';
+import {
   ClientPlaygroundPanel,
   PubSubPlaygroundPanel,
   RoomPlaygroundPanel,
@@ -36,22 +37,15 @@ import {
 import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
 import type { PlaygroundSessionState } from './use-playground-session';
 
-const KIND_TABS = [
-  { id: 'client', label: 'Client', icon: MonitorIcon },
-  { id: 'server', label: 'Server', icon: ServerIcon },
-  { id: 'pubsub', label: 'PubSub', icon: RadioIcon },
-  { id: 'room', label: 'Room', icon: DoorOpenIcon },
-] as const;
-
-export type PlaygroundKindId = (typeof KIND_TABS)[number]['id'];
+export type { SystemChromeKind as PlaygroundKindId } from '../../shared/system-node';
 
 export function PlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly state: PlaygroundSessionState<R>;
-  readonly kind: PlaygroundKindId;
+  readonly kind: SystemChromeKind;
   readonly view: string;
   readonly clientViews: Readonly<Record<string, string>>;
-  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onKindChange: (kind: SystemChromeKind) => void;
   readonly onViewChange: (view: string) => void;
   readonly onClientViewChange: (clientId: string, view: string) => void;
 }) {
@@ -105,10 +99,10 @@ export function PlaygroundScreen<R>(props: {
 function ReadyPlaygroundScreen<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly session: PlaygroundSession<R>;
-  readonly kind: PlaygroundKindId;
+  readonly kind: SystemChromeKind;
   readonly view: string;
   readonly clientViews: Readonly<Record<string, string>>;
-  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onKindChange: (kind: SystemChromeKind) => void;
   readonly onViewChange: (view: string) => void;
   readonly onClientViewChange: (clientId: string, view: string) => void;
 }) {
@@ -157,16 +151,20 @@ function ReadyPlaygroundScreen<R>(props: {
       <PlaygroundPaletteRegistrations commands={paletteCommands} />
       <TabStrip
         accessibilityLabel="Playground kinds"
-        items={[...KIND_TABS]}
+        items={[...PLAYGROUND_KIND_TABS]}
         selectedId={kind}
-        onSelect={(id) => onKindChange(id as PlaygroundKindId)}
+        onSelect={(id) => onKindChange(coerceSystemChromeKind(id))}
         keyboardScope
         trailing={<PlaygroundSnapshotChrome session={session} />}
       />
       {kind === 'room' ? (
         <TabStrip
           accessibilityLabel="Rooms"
-          items={roomIds.map((id) => ({ id, label: id }))}
+          items={roomIds.map((id) => ({
+            id,
+            label: id,
+            icon: systemNodeIcon('room'),
+          }))}
           selectedId={roomId}
           onSelect={setRoomId}
         />
@@ -212,7 +210,7 @@ function PlaygroundPaletteRegistrations(props: {
 function KindPanels<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly session: PlaygroundSession<R>;
-  readonly kind: PlaygroundKindId;
+  readonly kind: SystemChromeKind;
   readonly view: string;
   readonly clientViews: Readonly<Record<string, string>>;
   readonly onViewChange: (view: string) => void;
@@ -248,7 +246,7 @@ function KindPanels<R>(props: {
           onClientViewChange={onClientViewChange}
         />
       </KindSlot>
-      <KindSlot active={kind === 'server'}>
+      <KindSlot active={kind === 'api'}>
         <ServerPlaygroundPanel
           session={session}
           node={session.server}
@@ -256,7 +254,7 @@ function KindPanels<R>(props: {
           onViewChange={onViewChange}
         />
       </KindSlot>
-      <KindSlot active={kind === 'pubsub'}>
+      <KindSlot active={kind === 'events'}>
         <PubSubPlaygroundPanel
           session={session}
           pubsub={session.pubsub}

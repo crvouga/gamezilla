@@ -16,6 +16,7 @@ export class EnsureAnonUserUseCase {
   async execute(args: {
     readonly deviceId: string;
     readonly forceNew?: boolean;
+    readonly userId?: string;
     readonly now?: () => number;
     readonly createId?: CreateId;
   }): Promise<EnsureAnonUserResult> {

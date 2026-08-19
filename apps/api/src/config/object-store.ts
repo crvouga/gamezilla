@@ -18,8 +18,8 @@ const S3_SECRET_NAMES = [
  * S3-compatible object store for the API Worker. Credentials are loaded from
  * env bindings at boot; every key is scoped via {@link createS3ObjectStore}.
  *
- * Non-prod (`SECRETS_ENV=dev`) uses local `@apps/minio` via `.dev.vars` S3
- * overrides. Production uses Infisical → Backblaze B2.
+ * CI / fidelity-max may boot `@pkgs/minio-server` and write loopback S3
+ * into `.dev.vars`. Production uses Infisical → Backblaze B2.
  *
  * Object storage only backs non-critical caches (e.g. TTS audio). When the S3
  * credentials are absent, fall back to an ephemeral in-memory store so the

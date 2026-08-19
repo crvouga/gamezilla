@@ -10,8 +10,23 @@ import {
 } from '@libs/infra/cli/secrets/secrets';
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_DASHBOARD_PORT,
+  EMQX_JWT_SECRET,
+  EMQX_WS_PORT,
+} from '@pkgs/emqx-server';
 import { wallIo } from '@pkgs/io';
+import {
+  MINIO_BUCKET,
+  MINIO_ENDPOINT,
+  MINIO_REGION,
+  MINIO_ROOT_PASSWORD,
+  MINIO_ROOT_USER,
+} from '@pkgs/minio-server';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
@@ -23,35 +38,24 @@ const configStore = createRepoTreeObjectStore({ rootDir: repoRoot });
 const outPath = DEV_VARS_PATH;
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-/**
- * Local `@apps/emqx` secrets (keep in sync with apps/emqx/scripts/ports.ts).
- * SECRETS_ENV=dev always uses local EMQX — Infisical EMQX_* is ignored.
- */
+/** Loopback EMQX when CI boots `@pkgs/emqx-server` — Infisical EMQX_* ignored. */
 const LOCAL_EMQX_DEV_SECRETS: Readonly<Record<string, string>> = {
-  EMQX_API_URL: 'http://127.0.0.1:18083',
-  EMQX_API_KEY: 'pubsub-test',
-  EMQX_API_SECRET: 'pubsub-test-secret',
-  EMQX_JWT_SECRET: 'local-emqx-jwt-secret-change-me',
-  EMQX_WSS_URL: 'ws://127.0.0.1:8083/mqtt',
+  EMQX_API_URL: `http://127.0.0.1:${String(EMQX_DASHBOARD_PORT)}`,
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_JWT_SECRET,
+  EMQX_WSS_URL: `ws://127.0.0.1:${String(EMQX_WS_PORT)}/mqtt`,
 };
 
-/**
- * Local `@apps/postgres` wire URL (keep in sync with apps/postgres/scripts/ports.ts).
- * SECRETS_ENV=dev always uses embedded Postgres — Infisical DATABASE_URL is ignored.
- */
-const LOCAL_POSTGRES_DATABASE_URL =
-  'postgresql://postgres:postgres@127.0.0.1:15432/local?sslmode=disable';
+const LOCAL_POSTGRES_DATABASE_URL = LOCAL_DATABASE_URL;
 
-/**
- * Local `@apps/minio` S3 secrets (keep in sync with apps/minio/scripts/ports.ts).
- * SECRETS_ENV=dev always uses MinIO — Infisical B2/S3 app secrets are ignored.
- */
+/** Loopback MinIO when CI boots `@pkgs/minio-server`. */
 const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
-  B2_APP_KEY_ID: 'minioadmin',
-  B2_APP_KEY: 'minioadmin',
-  S3_BUCKET: 'local',
-  S3_ENDPOINT: 'http://127.0.0.1:9000',
-  S3_REGION: 'us-east-1',
+  B2_APP_KEY_ID: MINIO_ROOT_USER,
+  B2_APP_KEY: MINIO_ROOT_PASSWORD,
+  S3_BUCKET: MINIO_BUCKET,
+  S3_ENDPOINT: MINIO_ENDPOINT,
+  S3_REGION: MINIO_REGION,
 };
 
 /**
@@ -157,7 +161,7 @@ async function main(): Promise<void> {
   const written = new Set<string>(['SECRETS_ENV', 'API_URL', 'DATABASE_URL']);
 
   process.stdout.write(
-    '[setup-dev-vars] DATABASE_URL → @apps/postgres local embedded (Infisical ignored).\n'
+    '[setup-dev-vars] DATABASE_URL → loopback embedded Postgres (Infisical ignored).\n'
   );
 
   for (const [name, value] of Object.entries(LOCAL_MINIO_S3_SECRETS)) {
@@ -165,7 +169,7 @@ async function main(): Promise<void> {
     written.add(name);
   }
   process.stdout.write(
-    '[setup-dev-vars] S3/B2_APP_* → @apps/minio local (Infisical ignored).\n'
+    '[setup-dev-vars] S3/B2_APP_* → loopback MinIO (Infisical ignored).\n'
   );
 
   for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_SECRETS)) {
@@ -173,7 +177,7 @@ async function main(): Promise<void> {
     written.add(name);
   }
   process.stdout.write(
-    '[setup-dev-vars] EMQX_* → @apps/emqx local (Infisical ignored).\n'
+    '[setup-dev-vars] EMQX_* → loopback EMQX (Infisical ignored).\n'
   );
 
   const betterAuthSecret = ensureBetterAuthSecret();

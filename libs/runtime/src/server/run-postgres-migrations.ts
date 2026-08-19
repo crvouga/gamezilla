@@ -20,7 +20,7 @@ import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-acco
 
 /**
  * Session/transaction advisory lock for app migrate. Serializes concurrent
- * migrates (api + `@apps/postgres` boot, parallel CI jobs) so they wait instead
+ * migrates (api + `@pkgs/postgres-embedded` boot, parallel CI jobs) so they wait instead
  * of thrashing on DDL `lock_timeout`. Distinct from the matchmaking tick lock id.
  */
 export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';

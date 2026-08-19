@@ -55,7 +55,7 @@ export const PROJECT_CONFIG = {
      */
     railwayWorkspaceName: "Chris Vouga's Projects",
     railwayServiceName: 'emqx',
-    githubRootDirectory: 'apps/emqx',
+    githubRootDirectory: 'libs/infra/emqx-deploy',
     /** Container public listen port (Caddy → Railway `$PORT`). */
     targetPort: 8080,
   },

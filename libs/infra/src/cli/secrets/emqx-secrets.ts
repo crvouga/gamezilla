@@ -46,7 +46,7 @@ async function seedApiKey(_input: SecretSeedInput): Promise<string> {
 }
 
 async function seedApiSecret(_input: SecretSeedInput): Promise<string> {
-  // Must match apps/emqx/config/api-keys.bootstrap baked into the image.
+  // Must match the EMQX deploy image api-keys.bootstrap.
   return 'pubsub-test-secret';
 }
 

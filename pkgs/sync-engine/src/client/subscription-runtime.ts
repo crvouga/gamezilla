@@ -1,3 +1,4 @@
+import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
@@ -390,7 +391,22 @@ export class SubscriptionRuntime {
       await this.applySweepResponses({ active, gens, responses });
       this.afterSweep?.(active.map((e) => e.scope));
     } catch (error) {
+      if (error instanceof HttpNetworkError) {
+        this.markFirstOnNetworkError(active, gens);
+      }
       this.options.onError(error);
+    }
+  }
+
+  /** Offline / connection-refused: unblock waitForFirstSync; later wakes retry. */
+  private markFirstOnNetworkError(
+    active: readonly Entry[],
+    gens: Map<string, number>
+  ): void {
+    for (const entry of active) {
+      if (gens.get(entry.scope) !== entry.generation) continue;
+      if (!this.running || entry.stopped) continue;
+      markFirst(entry);
     }
   }
 

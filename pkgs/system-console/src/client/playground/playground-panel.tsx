@@ -134,7 +134,7 @@ export function ServerPlaygroundPanel<R>(props: {
 
   return (
     <PanelShell
-      accessibilityLabel="Server views"
+      accessibilityLabel="API views"
       items={[...SERVER_TABS]}
       selectedId={tab}
       onSelect={onViewChange}
@@ -162,7 +162,7 @@ export function PubSubPlaygroundPanel<R>(props: {
 
   return (
     <PanelShell
-      accessibilityLabel="PubSub views"
+      accessibilityLabel="Events views"
       items={[...PUBSUB_TABS]}
       selectedId={tab}
       onSelect={onViewChange}

@@ -17,12 +17,13 @@ This was not a greenfield engine pick. Option B is already in tree:
 
 - Client / Expo: SQLite (`sqlite-mem`, bun/better-sqlite, OPFS). No production
   Postgres on Hermes or iOS.
-- Production / local sidecar: Postgres (`@apps/postgres`, Neon-shaped prod).
+- Production: Postgres (Neon-shaped). Tests/CI may boot `@pkgs/postgres-embedded`.
 - Portable SQL: `assertAgnosticSql` / `ci:no-vendor-sql` plus
   `@pkgs/postgres-sqlite-compat` (JSON1-shaped APIs on Postgres).
 - Dual schema: `defineTable` → SQLite + Postgres migrations.
-- DST / playground API: **SQLite server** (`migrateSimSqlite`). Sim engine ≠
-  prod engine today.
+- Daily `bun dev` / DST default / playground API: **SQLite** (`migrateSimSqlite`,
+  sqlite-mem). Representativeness of Postgres is contract matrices +
+  `openSim` fidelity `max`, not a second stack for clicking.
 - Cross-user friend search: REST `POST /friends/search` with portable prefix
   `LIKE` on username — not FTS5 vs `tsvector` query-driven sync.
 
@@ -53,9 +54,9 @@ converge on self-hosting at extremes.
 
 1. Treat portable SQL + `postgres-sqlite-compat` as the product, not a temporary
    hack.
-2. Write down the DST gap: sim server is SQLite; prod is Postgres. Optionally
-   close it later with **PGlite** (or embedded Postgres) as the sim server. Do
-   not close it with postgres-mem or pg-mem as the fidelity story.
+2. Write down the DST gap: default sim/playground server is SQLite; prod is
+   Postgres. Close it with **contract matrices** and `openSim({ fidelity: 'max' })`
+   (PGlite / embedded Postgres), not postgres-mem or pg-mem as the fidelity story.
 3. Keep search as REST / portable `LIKE` (or server-computed match sets). Do not
    run FTS5 SQL as the canonical sync query on both engines.
 4. Keep sqlite-mem for clients. Do not “complete the vision” by putting Turso in
@@ -136,8 +137,9 @@ libSQL, not the pre-1.0 Rust rewrite); pinned-region primary + replicas;
 queue-and-batch; Litestream/self-host drill; portable SQL + Postgres corpus as
 escape hatch.
 
-**Option B (chosen).** SQLite client; managed Postgres. If tightening DST, PGlite
-as sim server — not pg-mem, not postgres-mem.
+**Option B (chosen).** SQLite client; managed Postgres. DST default stays SQLite;
+representativeness is contract matrices + `fidelity: 'max'` (embedded Postgres /
+PGlite), not pg-mem or postgres-mem.
 
 ---
 

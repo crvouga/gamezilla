@@ -10,6 +10,8 @@ export type EnsureAnonAuthArgs = {
   readonly fetchFn: HttpFetch;
   /** When true, mint a fresh anon user and rebind the device (sign-out). */
   readonly forceNew?: boolean;
+  /** Client-minted account id so an unbound device can adopt local SQLite identity. */
+  readonly userId?: string;
 };
 
 export type EnsureAnonAuthResult = {
@@ -23,7 +25,13 @@ export type EnsureAnonAuthResult = {
 export async function ensureAnonAuth(
   args: EnsureAnonAuthArgs
 ): Promise<EnsureAnonAuthResult> {
-  const { apiUrl, deviceId, fetchFn, forceNew = false } = args;
+  const {
+    apiUrl,
+    deviceId,
+    fetchFn,
+    forceNew = false,
+    userId: proposedUserId,
+  } = args;
   const base = apiUrl.replace(/\/$/, '');
   const res = await fetchFn(`${base}/api/identity/anon/ensure`, {
     method: 'POST',
@@ -32,7 +40,10 @@ export async function ensureAnonAuth(
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
-    body: JSON.stringify({ forceNew }),
+    body: JSON.stringify({
+      forceNew,
+      ...(proposedUserId !== undefined ? { userId: proposedUserId } : {}),
+    }),
   });
   const text = await res.text();
   let json: unknown;
@@ -53,7 +64,7 @@ export async function ensureAnonAuth(
     );
   }
   assert.record(json, 'auth/anon/ensure success body');
-  const userId = json['userId'] ?? json['accountId'];
-  assert.string(userId, 'auth/anon/ensure userId');
-  return { userId, isAnon: true };
+  const resolvedUserId = json['userId'] ?? json['accountId'];
+  assert.string(resolvedUserId, 'auth/anon/ensure userId');
+  return { userId: resolvedUserId, isAnon: true };
 }

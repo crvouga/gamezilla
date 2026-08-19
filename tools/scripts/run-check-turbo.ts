@@ -65,11 +65,7 @@ const CI_GATE_TASKS = [
 ] as const;
 
 /** No-op app builds only — never `@apps/client#build` (Expo export). */
-const CHECK_BUILD_TASKS = [
-  '@apps/api#build',
-  '@apps/minio#build',
-  '@apps/postgres#build',
-] as const;
+const CHECK_BUILD_TASKS = ['@apps/api#build'] as const;
 
 const SECRETS_VALIDATE_TASK = 'check:secrets:validate';
 

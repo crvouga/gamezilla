@@ -6,10 +6,17 @@ import { describe, expect, test } from '@jest/globals';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceCreds } from '../fixtures/fixtures';
+import {
+  isWorldMeshSupported,
+  resolveOpenSimFidelity,
+} from '../setup/fidelity';
 import { openSim } from '../setup/open-sim';
 
 describe('topology partition', () => {
-  test('partition alice–api then heal still allows sign-up', async () => {
+  const fidelity = resolveOpenSimFidelity();
+  const testFn = isWorldMeshSupported(fidelity) ? test : test.skip;
+
+  testFn('partition alice–api then heal still allows sign-up', async () => {
     await using sim = await openSim('topology-partition-heal');
     const app = await AppDriver.forActor(sim, 'alice');
 

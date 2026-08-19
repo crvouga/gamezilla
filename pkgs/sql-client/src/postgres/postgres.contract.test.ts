@@ -1,5 +1,5 @@
 /**
- * Live Postgres contract (ambient `DATABASE_URL` — local `@apps/postgres` or
+ * Live Postgres contract (ambient `DATABASE_URL` — `@pkgs/postgres-embedded` or
  * secrets-run). Excluded from default unit speed when URL unset.
  */
 import { describe, expect, test } from 'bun:test';

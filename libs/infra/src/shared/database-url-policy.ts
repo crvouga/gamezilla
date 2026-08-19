@@ -50,7 +50,7 @@ function assertValidDevPostgresWireUrl(
       { ...context, url: normalizeDatabaseUrlForCompare(url) }
     );
   }
-  // Loopback is allowed for `@apps/postgres` embedded (SECRETS_ENV=dev).
+  // Loopback is allowed for `@pkgs/postgres-embedded` (SECRETS_ENV=dev).
   // Production hostnames / dual-compare vs `prd` still block remote prod.
 }
 

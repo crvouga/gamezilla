@@ -1,23 +1,18 @@
-// @io-wall-ok — Expo composition root for Main | Console sub-apps.
 import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import { bootPlaygroundSession } from '@apps/client/host/boot-playground';
-import { ClientHost } from '@apps/client/host/client-host';
-import { HostChromeProvider } from '@apps/client/host/host-chrome-context';
 import type { HostedSubApp } from '@apps/client/host/hosted-sub-app';
-import { useHostNav } from '@apps/client/host/use-host-nav';
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { ProductApp } from '@apps/client/product/app';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { AppUiPortals } from '@apps/client/providers/ui/portals';
 import { defaultAppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
-import { useIo, wallIo } from '@pkgs/io';
-import { SystemProvider } from '@pkgs/system/react';
+import { useIo } from '@pkgs/io';
 import {
   DEFAULT_REPORT_SERVER_PORT,
   SystemConsoleApp,
   type SystemConsolePorts,
 } from '@pkgs/system-console/client';
-import { AppThemeRoot, HouseIcon, TerminalIcon } from '@pkgs/ui';
+import { HouseIcon, TerminalIcon } from '@pkgs/ui';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { useHostChrome } from './host-chrome-context';
@@ -36,9 +31,6 @@ function ConsoleSubApp(): ReactNode {
   const { state, patch } = useHostChrome();
   const ports = useMemo((): SystemConsolePorts<ClientSystemResources> => {
     const apiOrigin = getApiBaseUrl().replace(/\/$/, '');
-    // Local Jest sims write to `<repo>/system-console-data`. `@apps/api` `dev`
-    // serves that tree on the report sidecar; the API Worker mount reads
-    // MinIO/B2 and stays for non-local / production.
     const reportApiBasePath = isLocalApiOrigin(apiOrigin)
       ? `http://localhost:${String(DEFAULT_REPORT_SERVER_PORT)}`
       : `${apiOrigin}/system-console`;
@@ -72,10 +64,10 @@ function ConsoleSubApp(): ReactNode {
 }
 
 /**
- * Release Main's identity OPFS handles when leaving for Console — otherwise
+ * Release Client identity OPFS handles when leaving for System — otherwise
  * playground / remount hits Access Handle contention on the same `user_*` DB.
  */
-function MainSubApp(): ReactNode {
+function ClientSubApp(): ReactNode {
   useEffect(() => {
     return () => {
       void defaultAppSyncEnginePool.releaseAll();
@@ -86,23 +78,7 @@ function MainSubApp(): ReactNode {
 
 export function composeSubApps(): readonly HostedSubApp[] {
   return [
-    { id: 'main', title: 'Main', icon: HouseIcon, App: MainSubApp },
-    { id: 'console', title: 'Console', icon: TerminalIcon, App: ConsoleSubApp },
+    { id: 'main', title: 'Client', icon: HouseIcon, App: ClientSubApp },
+    { id: 'console', title: 'System', icon: TerminalIcon, App: ConsoleSubApp },
   ];
-}
-
-/** Expo root: host chrome + injected Main / Console. */
-export function RootApp(): ReactNode {
-  const io = useMemo(() => wallIo(), []);
-  const apps = useMemo(() => composeSubApps(), []);
-  const hostNav = useHostNav();
-  return (
-    <SystemProvider io={io}>
-      <AppThemeRoot>
-        <HostChromeProvider value={hostNav}>
-          <ClientHost apps={apps} />
-        </HostChromeProvider>
-      </AppThemeRoot>
-    </SystemProvider>
-  );
 }

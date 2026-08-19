@@ -4,13 +4,18 @@
  * URL search keys: host, section, kind, view, cv. Defaults are omitted from
  * the built search so Main product linking stays clean.
  *
- * `view` is the shared panel tab for server / pubsub / room.
+ * `view` is the shared panel tab for api / events / room.
  * `cv` encodes per-client tabs as `alice:db,bob:logs`.
  */
 
+import {
+  coerceSystemChromeKind,
+  type SystemChromeKind,
+} from '@pkgs/system-console/shared/system-node';
+
 export type HostId = 'main' | 'console';
 export type HostSection = 'reports' | 'playground';
-export type HostKind = 'client' | 'server' | 'pubsub' | 'room';
+export type HostKind = SystemChromeKind;
 export type HostView = string;
 
 export type HostNavState = {
@@ -43,20 +48,18 @@ export const DEFAULT_HOST_NAV: HostNavState = {
 
 const HOST_IDS = new Set<string>(['main', 'console']);
 const SECTIONS = new Set<string>(['reports', 'playground']);
-const KINDS = new Set<string>(['client', 'server', 'pubsub', 'room']);
-const KIND_ALIASES: Readonly<Record<string, HostKind>> = { actor: 'room' };
 
 const VIEWS_BY_KIND: Record<HostKind, readonly string[]> = {
   client: ['ui', 'db', 'logs'],
-  server: ['db', 'logs', 'commands'],
-  pubsub: ['logs', 'topics'],
+  api: ['db', 'logs', 'commands'],
+  events: ['logs', 'topics'],
   room: ['db', 'logs'],
 };
 
 const DEFAULT_VIEW_BY_KIND: Record<HostKind, string> = {
   client: 'ui',
-  server: 'db',
-  pubsub: 'logs',
+  api: 'db',
+  events: 'logs',
   room: 'db',
 };
 
@@ -179,9 +182,7 @@ export function applyHostNavPatch(
 }
 
 export function coerceKind(kindRaw: string | null | undefined): HostKind {
-  if (kindRaw === null || kindRaw === undefined) return 'client';
-  const aliased = KIND_ALIASES[kindRaw] ?? kindRaw;
-  return KINDS.has(aliased) ? (aliased as HostKind) : 'client';
+  return coerceSystemChromeKind(kindRaw);
 }
 
 export function parseHostNav(search: string): HostNavState {

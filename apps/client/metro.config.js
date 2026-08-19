@@ -2,8 +2,12 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
-const projectRoot = __dirname;
-const monorepoRoot = path.resolve(projectRoot, '../..');
+const projectRoot =
+  typeof process.env.EXPO_METRO_PROJECT_ROOT === 'string' &&
+  process.env.EXPO_METRO_PROJECT_ROOT.length > 0
+    ? path.resolve(process.env.EXPO_METRO_PROJECT_ROOT)
+    : __dirname;
+const monorepoRoot = path.resolve(__dirname, '../..');
 
 const config = getDefaultConfig(projectRoot);
 

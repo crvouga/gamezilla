@@ -12,7 +12,8 @@
   "scripts": {
     "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
+    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
+    "test:max": "SYSTEM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@apps/api": "workspace:*",
@@ -25,13 +26,16 @@
     "@pkgs/auth-better-auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/minio-server": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/observability": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
@@ -57,6 +61,7 @@
     "@babel/runtime": "catalog:",
     "@jest/globals": "catalog:",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@playwright/test": "catalog:",
     "@types/better-sqlite3": "catalog:",
     "@types/jest": "catalog:",
     "@types/react": "catalog:",

@@ -1,0 +1,26 @@
+{
+  "name": "@pkgs/minio-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts"
+    ]
+  },
+  "scripts": {
+    "setup": "bun run scripts/setup.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@pkgs/os": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

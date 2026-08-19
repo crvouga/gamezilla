@@ -1,3 +1,7 @@
+import {
+  coerceSystemNodeKind,
+  fallbackReportNodes,
+} from '../shared/system-node';
 import type { SimulationReportTopology } from '../types';
 import type { FlatFrame } from './frames';
 import type { NodeViewKind } from './router';
@@ -8,7 +12,7 @@ export type TopologyNodeInfo = {
   readonly attributes: readonly string[];
 };
 
-/** Prefer topology nodes; else actors + server/pubsub while topology loads. */
+/** Prefer topology nodes; else api/events + actors while topology loads. */
 export function resolveNodeList(args: {
   readonly topology: SimulationReportTopology | null;
   readonly actorIds: readonly string[];
@@ -20,29 +24,16 @@ export function resolveNodeList(args: {
       attributes: n.attributes,
     }));
   }
-  const out: TopologyNodeInfo[] = [
-    {
-      id: 'server',
-      kind: 'server',
-      attributes: ['sqlite', 'ingress', 'egress'],
-    },
-    { id: 'pubsub', kind: 'pubsub', attributes: ['ingress', 'egress'] },
-  ];
-  for (const id of args.actorIds) {
-    out.push({
-      id,
-      kind: 'client',
-      attributes: ['html', 'sqlite', 'ingress', 'egress'],
-    });
-  }
-  return out;
+  return fallbackReportNodes(args.actorIds);
 }
 
 export function viewsForNode(node: TopologyNodeInfo | null): NodeViewKind[] {
   if (node == null) return [];
   const attrs = new Set(node.attributes);
   const views: NodeViewKind[] = [];
-  if (attrs.has('html') || node.kind === 'client') views.push('html');
+  if (attrs.has('html') || coerceSystemNodeKind(node.kind) === 'client') {
+    views.push('html');
+  }
   if (attrs.has('sqlite')) views.push('sqlite');
   if (attrs.has('ingress') || attrs.has('egress')) views.push('events');
   return views;
@@ -80,7 +71,8 @@ export function resolveHtmlFile(
   if (fromView) return fromView.file;
   const wantsHtml =
     node != null &&
-    (node.attributes.includes('html') || node.kind === 'client');
+    (node.attributes.includes('html') ||
+      coerceSystemNodeKind(node.kind) === 'client');
   if (wantsHtml && frame.file) return frame.file;
   return null;
 }
@@ -89,7 +81,8 @@ export function defaultNodeId(
   nodes: readonly TopologyNodeInfo[]
 ): string | null {
   const withHtml = nodes.find(
-    (n) => n.attributes.includes('html') || n.kind === 'client'
+    (n) =>
+      n.attributes.includes('html') || coerceSystemNodeKind(n.kind) === 'client'
   );
   return withHtml?.id ?? nodes[0]?.id ?? null;
 }

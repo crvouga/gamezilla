@@ -10,7 +10,7 @@
     "tools"
   ],
   "scripts": {
-    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:no-raw-schema-sql ci:domain-table-prefixes ci:dst-selector-discipline ci:no-legacy-writes ci:no-domain-hard-delete ci:no-top-level-di-functions ci:no-eager-di-construction ci:layer-c-sql-tx ci:no-di-container ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:matchmaking-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:api-isomorphic ci:no-bare-io ci:no-bare-fs ci:no-resolve-wall-defaults ci:no-sql-wall-io ci:no-vendor-sql ci:hard-determinism ci:sim-determinism ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:use-case-isolation ci:libs-import-surface ci:component-ids ci:no-rn-style-api ci:no-size-limit-overrides ci:audit check:static @apps/api#build @apps/minio#build @apps/postgres#build",
+    "check": "SECRETS_ENV=dev LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:no-direct-pg-imports ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:no-raw-schema-sql ci:domain-table-prefixes ci:dst-selector-discipline ci:no-legacy-writes ci:no-domain-hard-delete ci:no-top-level-di-functions ci:no-eager-di-construction ci:layer-c-sql-tx ci:no-di-container ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:matchmaking-blackbox-tests ci:sync-engine-framework-leak ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:no-provider-leaks ci:api-isomorphic ci:no-bare-io ci:no-bare-fs ci:no-resolve-wall-defaults ci:no-sql-wall-io ci:no-vendor-sql ci:hard-determinism ci:sim-determinism ci:pubsub-emqx-imports ci:depcruise ci:circular-deps ci:tier-imports ci:use-case-isolation ci:libs-import-surface ci:component-ids ci:no-rn-style-api ci:no-size-limit-overrides ci:audit check:static @apps/api#build",
     "check:actionlint": "actionlint -color",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-api.ts",
     "check:ci": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-turbo.ts ci",
@@ -77,7 +77,7 @@
     "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run apps/api/src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
-    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui",
+    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"test/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
@@ -85,8 +85,8 @@
     "infra": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
     "kill": "bun run tools/scripts/kill-dev-stack.ts",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
-    "preview": "bun run tools/scripts/secrets-run.ts -- turbo run preview --filter=@apps/api --filter=@apps/client --filter=@apps/postgres --filter=@apps/minio",
-    "psql": "bun ./apps/postgres/scripts/psql.ts",
+    "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
+    "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
     "stripe:check": "bun run --filter '@libs/stripe' check",
     "stripe:sync": "bun run --filter '@libs/stripe' sync",
@@ -243,7 +243,7 @@
     "sort-package-json": "^3.6.1",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
-    "turbo": "^2.10.10",
+    "turbo": "^2.10.11",
     "typescript": "~6.0.3",
     "unique-names-generator": "^4.7.1",
     "whatwg-fetch": "^3.6.20",
@@ -265,8 +265,5 @@
     "@embedded-postgres/linux-ppc64",
     "@embedded-postgres/linux-x64",
     "@embedded-postgres/windows-x64"
-  ],
-  "dependencies": {
-    "@crvouga/sqlite-mem": "^1.2.0"
-  }
+  ]
 }

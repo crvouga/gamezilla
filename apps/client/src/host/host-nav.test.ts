@@ -16,11 +16,11 @@ describe('parseHostNav', () => {
 
   test('parses console playground chrome', () => {
     expect(
-      parseHostNav('?host=console&section=playground&kind=server&view=commands')
+      parseHostNav('?host=console&section=playground&kind=api&view=commands')
     ).toEqual({
       host: 'console',
       section: 'playground',
-      kind: 'server',
+      kind: 'api',
       view: 'commands',
       clientViews: {},
     });
@@ -49,10 +49,10 @@ describe('parseHostNav', () => {
   });
 
   test('coerces illegal view for kind', () => {
-    expect(parseHostNav('?host=console&kind=server&view=ui')).toEqual({
+    expect(parseHostNav('?host=console&kind=api&view=ui')).toEqual({
       host: 'console',
       section: 'reports',
-      kind: 'server',
+      kind: 'api',
       view: 'db',
       clientViews: {},
     });
@@ -73,7 +73,7 @@ describe('parseHostNav', () => {
       '?host=console&section=playground&kind=pubsub&view=topics&resetDb=1'
     );
     expect(buildHostSearch(state, '?resetDb=1&junk=2')).toBe(
-      '?resetDb=1&junk=2&host=console&section=playground&kind=pubsub&view=topics'
+      '?resetDb=1&junk=2&host=console&section=playground&kind=events&view=topics'
     );
   });
 
@@ -117,9 +117,35 @@ describe('buildHostSearch', () => {
 describe('coerceView / applyHostNavPatch / setClientView', () => {
   test('coerceView picks kind default when illegal', () => {
     expect(coerceView('client', 'commands')).toBe('ui');
-    expect(coerceView('server', 'topics')).toBe('db');
-    expect(coerceView('pubsub', 'ui')).toBe('logs');
+    expect(coerceView('api', 'topics')).toBe('db');
+    expect(coerceView('events', 'ui')).toBe('logs');
     expect(coerceView('room', 'commands')).toBe('db');
+  });
+
+  test('legacy kind=server/pubsub map to api/events', () => {
+    expect(parseHostNav('?host=console&kind=server&view=commands')).toEqual({
+      host: 'console',
+      section: 'reports',
+      kind: 'api',
+      view: 'commands',
+      clientViews: {},
+    });
+    expect(parseHostNav('?host=console&kind=pubsub&view=topics')).toEqual({
+      host: 'console',
+      section: 'reports',
+      kind: 'events',
+      view: 'topics',
+      clientViews: {},
+    });
+    expect(
+      buildHostSearch({
+        host: 'console',
+        section: 'playground',
+        kind: 'api',
+        view: 'commands',
+        clientViews: {},
+      })
+    ).toBe('?host=console&section=playground&kind=api&view=commands');
   });
 
   test('legacy kind=actor maps to room', () => {
@@ -141,12 +167,12 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
         view: 'ui',
         clientViews: { alice: 'db' },
       },
-      { kind: 'server' }
+      { kind: 'api' }
     );
     expect(next).toEqual({
       host: 'console',
       section: 'playground',
-      kind: 'server',
+      kind: 'api',
       view: 'db',
       clientViews: { alice: 'db' },
     });
@@ -161,7 +187,7 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
         view: 'ui',
         clientViews: {},
       },
-      { kind: 'server', view: 'logs' }
+      { kind: 'api', view: 'logs' }
     );
     expect(next.view).toBe('logs');
   });

@@ -36,7 +36,7 @@
  * long as they run in **session pooling** mode (transaction mode breaks
  * `SET …` statements that need to persist across the seed's batches).
  *
- * Dev (secrets env `dev`, local `@apps/postgres` or resolved DATABASE_URL):
+ * Dev (secrets env `dev`, local `@pkgs/postgres-embedded` or resolved DATABASE_URL):
  *   SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (secrets env `prd`, `DATABASE_URL` → Postgres):

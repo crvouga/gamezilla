@@ -41,7 +41,7 @@ export const apiResource = api.implement(async (deps, ctx) => {
     llmProvider: deps.llm,
     ttsProvider: deps.tts,
     betterAuthSecret: SIM_BETTER_AUTH_SECRET,
-    databaseUrl: SIM_SQLITE_DATABASE_URL,
+    databaseUrl: process.env['SIM_API_DATABASE_URL'] ?? SIM_SQLITE_DATABASE_URL,
     apiUrl: SIM_API_URL,
   });
   return serveFetch((request) => app.fetch(request));

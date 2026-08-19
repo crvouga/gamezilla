@@ -13,7 +13,6 @@ import {
   createPlaygroundImpls,
   serializeFetch,
 } from '@apps/client/host/playground-impls';
-import { createPlaygroundSnapshotStore } from '@apps/client/host/playground-minio-store';
 import {
   clientDbName,
   createPlaygroundProvide,
@@ -25,6 +24,7 @@ import {
   type BootPlaygroundOptions,
   buildPlaygroundSession,
 } from '@apps/client/host/playground-session';
+import { createPlaygroundSnapshotStore } from '@apps/client/host/playground-snapshot-store';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { system } from '@libs/runtime/shared/system';
 import { createSimIo, type SimIo, wallIo } from '@pkgs/io';

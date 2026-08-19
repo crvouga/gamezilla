@@ -114,6 +114,27 @@ describe('AnonUserService', () => {
     });
     expect(next.userId).not.toBe(first.userId);
   });
+
+  test('unbound device adopts a client-proposed user id', async () => {
+    const proposed = '33333333-3333-4333-8333-333333333333';
+    const result = await ensureAnon.execute({
+      deviceId: DEVICE_ID,
+      userId: proposed,
+    });
+    expect(result.userId).toBe(proposed);
+    expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(proposed);
+  });
+
+  test('already-bound device ignores a different proposed user id', async () => {
+    const first = await ensureAnon.execute({
+      deviceId: DEVICE_ID,
+    });
+    const next = await ensureAnon.execute({
+      deviceId: DEVICE_ID,
+      userId: '33333333-3333-4333-8333-333333333333',
+    });
+    expect(next.userId).toBe(first.userId);
+  });
 });
 
 describe('AccountProvisioningService upgrade', () => {

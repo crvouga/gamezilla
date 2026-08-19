@@ -37,6 +37,7 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
     "@pkgs/io": "workspace:*",
     "@playwright/test": "catalog:",
     "@types/better-sqlite3": "catalog:",

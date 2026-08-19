@@ -1,8 +1,5 @@
 // @io-wall-ok — browser location / history adapter for host chrome nav.
-import {
-  coerceKind,
-  type HostNavState,
-} from '@apps/client/host/host-nav';
+import { coerceKind, type HostNavState } from '@apps/client/host/host-nav';
 
 export type HostNavHistoryMode = 'push' | 'replace';
 

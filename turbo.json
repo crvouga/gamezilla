@@ -29,6 +29,8 @@
     "SECRETS_ADDR",
     "SECRETS_TOKEN",
     "TURBO_*",
+    "SYSTEM_FIDELITY",
+    "PLAYWRIGHT_BASE_URL",
     "TMPDIR"
   ],
   "tasks": {
@@ -64,6 +66,18 @@
       "outputs": []
     },
     "test": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "package.json",
+        "jest.config.*",
+        "*.cjs"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:max": {
+      "cache": false,
       "inputs": [
         "**/*.ts",
         "**/*.tsx",

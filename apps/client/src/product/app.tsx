@@ -5,9 +5,11 @@
  * Embedded hosts (multi-App playground) pass `embedded` for an isolated nav tree.
  */
 
+import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import { AppProviders } from '@apps/client/providers/app-providers';
 import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
+import { OriginAvailabilityProvider } from '@pkgs/http-client';
 import type { Io } from '@pkgs/io';
 import { wallIo } from '@pkgs/io';
 import { SystemProvider } from '@pkgs/system/react';
@@ -22,10 +24,11 @@ import {
   NavigationIndependentTree,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { RootNavigator } from '../navigation/root-navigator';
 import { appLinking } from '../navigation/types';
+import { resolveProductRuntime } from './product-runtime-io';
 
 setAppLinkingConfig(appLinking.config as never);
 
@@ -70,20 +73,37 @@ function AppNavigation(props: {
 
 /** Isolated product App (not the Expo composition root). */
 export function ProductApp(props: ProductAppProps): ReactNode {
-  const io = useMemo(() => props.io ?? wallIo(), [props.io]);
+  const injectedIo = props.io;
+  const runtime = useMemo(
+    () =>
+      resolveProductRuntime({
+        injectedIo,
+        wall: wallIo(),
+        apiBaseUrl: getApiBaseUrl(),
+      }),
+    [injectedIo]
+  );
+  useEffect(() => {
+    runtime.availability.start();
+    return () => {
+      runtime.availability.stop();
+    };
+  }, [runtime]);
   const embedded = props.embedded === true;
   return (
     <SystemProvider
-      io={io}
+      io={runtime.io}
       {...(props.resources !== undefined ? { resources: props.resources } : {})}
     >
-      <RootErrorBoundary>
-        <AppNavigation embedded={embedded}>
-          <AppProviders embedded={embedded}>
-            <RootNavigator />
-          </AppProviders>
-        </AppNavigation>
-      </RootErrorBoundary>
+      <OriginAvailabilityProvider availability={runtime.availability}>
+        <RootErrorBoundary>
+          <AppNavigation embedded={embedded}>
+            <AppProviders embedded={embedded}>
+              <RootNavigator />
+            </AppProviders>
+          </AppNavigation>
+        </RootErrorBoundary>
+      </OriginAvailabilityProvider>
     </SystemProvider>
   );
 }

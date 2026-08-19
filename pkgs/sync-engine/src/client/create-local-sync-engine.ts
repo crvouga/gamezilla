@@ -114,6 +114,11 @@ export type CreateLocalSyncEngineOptions = {
    */
   readonly schemaEpoch?: number;
   /**
+   * Park mutation uploads until the API origin is reachable. On
+   * HttpNetworkError, wait here instead of a timed hammer.
+   */
+  readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
+  /**
    * Boundary hook during local migrate (sim crash / fault injection).
    * Phases: before → afterCacheWipe → afterEnsure → done.
    */
@@ -183,6 +188,28 @@ function handleError(state: LocalEngineState, error: unknown): void {
   state.status.patch({ online: false, lastError: errorMessage(error) });
 }
 
+function createUploadQueue(
+  options: CreateLocalSyncEngineOptions,
+  bus: ReturnType<typeof createTableChangeBus>,
+  stateRef: LocalEngineStateRef
+): MutationUploadQueue {
+  return new MutationUploadQueue({
+    db: options.db,
+    bus,
+    clientId: options.getClientId,
+    postBatch: options.postMutations,
+    onAckFence: () => {
+      readState(stateRef).runtime.bumpGenerations();
+    },
+    onError: (error) => handleError(readState(stateRef), error),
+    timers: options.timers,
+    now: options.now,
+    ...(options.waitUntilAvailable !== undefined
+      ? { waitUntilAvailable: options.waitUntilAvailable }
+      : {}),
+  });
+}
+
 function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const bus = createTableChangeBus();
   const appDb = createTableChangeSqlClient(options.db, bus);
@@ -211,18 +238,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const sessionHandles = options.sessionQueries.map((spec) =>
     runtime.subscribe(spec)
   );
-  const uploadQueue = new MutationUploadQueue({
-    db: options.db,
-    bus,
-    clientId: options.getClientId,
-    postBatch: options.postMutations,
-    onAckFence: () => {
-      readState(stateRef).runtime.bumpGenerations();
-    },
-    onError: (error) => handleError(readState(stateRef), error),
-    timers: options.timers,
-    now: options.now,
-  });
+  const uploadQueue = createUploadQueue(options, bus, stateRef);
   bus.subscribe((tables) => {
     if (tables.has('sync_engine_mutations')) uploadQueue.wake();
   });

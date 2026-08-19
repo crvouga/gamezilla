@@ -4,8 +4,8 @@
  * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.
  * Compose site is `@libs/runtime/server/run-postgres-migrations`. Same-package
  * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
- * shell out to `migrate-cli.ts`. `@apps/postgres` imports the lib compose site
- * directly (apps must not import other `@apps/*` packages).
+ * shell out to `migrate-cli.ts`. Tests/CI boot `@pkgs/postgres-embedded` then
+ * run migrate scripts (apps must not import other `@apps/*` packages).
  */
 import { join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';

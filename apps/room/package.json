@@ -12,7 +12,6 @@
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
-    "dev": "wrangler dev",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },

@@ -17,13 +17,13 @@ const DEV_PORTS = [
   5174, // legacy Expo web / Metro
   5556, // dev IdP (DEV_IDP_DEFAULT_PORT)
   8799, // observability collector
-  7789, // @apps/api local report console sidecar
-  1883, // EMQX MQTT TCP
+  7789, // @apps/client local report console
+  1883, // EMQX MQTT TCP (fidelity-max / CI)
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API
-  15432, // @apps/postgres embedded
-  9000, // @apps/minio S3 API
-  9001, // @apps/minio console
+  15432, // embedded Postgres
+  9000, // MinIO S3 API
+  9001, // MinIO console
 ] as const;
 
 function runTurboKill(): void {

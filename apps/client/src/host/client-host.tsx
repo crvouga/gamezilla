@@ -5,8 +5,8 @@ import { type ReactNode, useMemo } from 'react';
 import type { ClientHostProps } from './hosted-sub-app';
 
 /**
- * Thin composition chrome: Main | Console (and any future sub-apps).
- * Host selection comes from {@link useHostChrome} (URL-synced on web).
+ * Top chrome: Client | System. Host selection comes from {@link useHostChrome}
+ * (URL-synced on web).
  */
 export function ClientHost(props: ClientHostProps): ReactNode {
   const { apps } = props;
@@ -28,24 +28,50 @@ export function ClientHost(props: ClientHostProps): ReactNode {
   const SelectedApp = selected.App;
 
   return (
-    <Box sx={{ flex: 1, background: 'background' }}>
-      <TabStrip
-        accessibilityLabel="Apps"
-        items={apps.map((app) => ({
-          id: app.id,
-          label: app.title,
-          ...(app.icon !== undefined ? { icon: app.icon } : {}),
-        }))}
-        selectedId={selected.id}
-        onSelect={(id) => {
-          if (id === 'main' || id === 'console') {
-            patch({ host: id });
-          }
-        }}
-      />
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+    <Box sx={shellSx}>
+      <Box sx={chromeSx}>
+        <TabStrip
+          accessibilityLabel="Apps"
+          keyboardScope
+          items={apps.map((app) => ({
+            id: app.id,
+            label: app.title,
+            ...(app.icon !== undefined ? { icon: app.icon } : {}),
+          }))}
+          selectedId={selected.id}
+          onSelect={(id) => {
+            if (id === 'main' || id === 'console') {
+              patch({ host: id });
+            }
+          }}
+        />
+      </Box>
+      <Box sx={bodySx}>
         <SelectedApp />
       </Box>
     </Box>
   );
 }
+
+const shellSx = {
+  flex: 1,
+  flexDirection: 'column',
+  width: '100%',
+  height: '100%',
+  minHeight: 0,
+  overflow: 'hidden',
+  background: 'background',
+} as const;
+
+const chromeSx = {
+  flexGrow: 0,
+  flexShrink: 0,
+  zIndex: 20,
+} as const;
+
+const bodySx = {
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+  overflow: 'hidden',
+} as const;

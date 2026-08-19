@@ -8,11 +8,9 @@ import {
 } from 'react';
 
 import type { SystemConsolePorts } from '../shared/ports';
+import type { SystemChromeKind } from '../shared/system-node';
 import { createReportApiClient } from './api-client';
-import {
-  type PlaygroundKindId,
-  PlaygroundScreen,
-} from './playground/playground-screen';
+import { PlaygroundScreen } from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
 import { DEFAULT_NAV, type ReportNavState } from './router';
@@ -38,11 +36,11 @@ const DEFAULT_BASE_PATH = '/system-console';
 export function SystemConsoleApp<R>(props: {
   readonly ports: SystemConsolePorts<R>;
   readonly section: ConsoleSection;
-  readonly kind: PlaygroundKindId;
+  readonly kind: SystemChromeKind;
   readonly view: string;
   readonly clientViews: Readonly<Record<string, string>>;
   readonly onSectionChange: (section: ConsoleSection) => void;
-  readonly onKindChange: (kind: PlaygroundKindId) => void;
+  readonly onKindChange: (kind: SystemChromeKind) => void;
   readonly onViewChange: (view: string) => void;
   readonly onClientViewChange: (clientId: string, view: string) => void;
 }): ReactNode {

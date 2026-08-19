@@ -84,6 +84,7 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly openSqlClient?: OpenLocalSqlClient;
   /** Sim override; defaults to EMQX from client_config URL. */
   readonly createPubSub?: () => PubSub;
+  readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
@@ -235,6 +236,9 @@ export async function createAppLocalSyncEngine(
       timers: args.timers,
       createId: args.createId,
       enableMutationUpload: syncLease.isOwner,
+      ...(args.waitUntilAvailable !== undefined
+        ? { waitUntilAvailable: args.waitUntilAvailable }
+        : {}),
       ...(canBridgeWebChanges
         ? {
             subscribeExternalDbChanged: (listener: () => void) =>

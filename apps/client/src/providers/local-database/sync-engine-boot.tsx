@@ -5,7 +5,10 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/public/use-fresh-auth-token';
-import { useHttpClient } from '@pkgs/http-client';
+import {
+  useHttpClient,
+  useOptionalOriginAvailability,
+} from '@pkgs/http-client';
 import { useIo } from '@pkgs/io';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
@@ -77,6 +80,7 @@ function useSyncEnginePromise(
   const observability = useObservability();
   const io = useIo();
   const { fetch: httpFetch } = useHttpClient();
+  const originAvailability = useOptionalOriginAvailability();
   const getFreshAuthToken = useGetFreshAuthToken();
   const auth = useSyncClientAuthRef();
   const fetchFn = useMemo(
@@ -144,8 +148,14 @@ function useSyncEnginePromise(
         getFreshAuthToken: (options) => getFreshAuthTokenRef.current(options),
         databaseName: dbName,
         userId,
+        ...(originAvailability?.kind === 'health'
+          ? {
+              waitUntilAvailable: (signal?: AbortSignal | null) =>
+                originAvailability.waitUntilAvailable(signal),
+            }
+          : {}),
       }),
-    [dbName, userId, pool, openSqlClient, createPubSub]
+    [dbName, userId, pool, openSqlClient, createPubSub, originAvailability]
   );
 }
 

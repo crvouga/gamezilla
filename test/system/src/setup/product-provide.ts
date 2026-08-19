@@ -2,6 +2,7 @@
  * Product DST provide map for `@test/system` — leaf adapters only (no registries).
  */
 
+import type { OpenRequestDb } from '@apps/api/db/open-request-db';
 import { attachSimOpenRequestDb } from '@apps/api/system/sim-open-request-db';
 import { createInMemoryStripe } from '@libs/stripe/root/in-memory-stripe';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -22,10 +23,9 @@ import { decoratePort, type ProviderSpec, stubPort } from '@pkgs/system';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import BetterSqlite3 from 'better-sqlite3';
 
-import type { SimSqliteHandle } from './boot-sim-sqlite';
-
 export type ProductProvideHandles = {
-  readonly db: SimSqliteHandle;
+  readonly sqlClient: SqlClient;
+  readonly openRequestDb: OpenRequestDb;
   readonly pubSubBus: InMemoryBus;
 };
 
@@ -62,16 +62,13 @@ function actorSqliteProvider(): ProviderSpec<SqlClient> {
 }
 
 /**
- * Build the DST provide map bound to a booted sim SQLite + shared pubsub bus.
+ * Build the DST provide map bound to a booted API SqlClient + shared pubsub bus.
  */
 export function createProductProvide(
   handles: ProductProvideHandles
 ): Record<string, ProviderSpec> {
   const dbProvider = decoratePort<SqlClient>(async () => {
-    return attachSimOpenRequestDb(
-      handles.db.sqlClient,
-      handles.db.openRequestDb
-    );
+    return attachSimOpenRequestDb(handles.sqlClient, handles.openRequestDb);
   });
 
   const eventsProvider = decoratePort<PubSub>(async () => {

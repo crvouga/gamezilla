@@ -17,8 +17,14 @@ import {
   wallPathExists,
 } from '@pkgs/system-console';
 import type { Driver } from '@pkgs/ui-testing';
-
+import { bootSimPostgres } from './boot-sim-postgres';
 import { bootMigratedSimSqlite, type SimSqliteHandle } from './boot-sim-sqlite';
+import {
+  type OpenSimFidelity,
+  type OpenSimOptions,
+  resolveOpenSimFidelity,
+} from './fidelity';
+import { ensureMaxFidelityStack } from './max-fidelity-stack';
 import { migrateSimSqlite } from './migrate-sim-sqlite';
 import { createProductImpls } from './product-impls';
 import { createInMemoryBus, createProductProvide } from './product-provide';
@@ -72,23 +78,28 @@ export type SimActorHandle = {
 
 export type OpenSimHandle = {
   readonly world: World;
+  readonly fidelity: OpenSimFidelity;
   actor(id: string): Promise<SimActorHandle>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
 
+type BootedDb = {
+  stop(): Promise<void>;
+  snapshotApiBytes(): Uint8Array;
+};
+
 type BootedSim = {
   readonly world: World;
-  readonly db: SimSqliteHandle;
+  readonly db: BootedDb;
   readonly reporter: SimulationReporter;
 };
 
-async function bootSim(testId: string): Promise<BootedSim> {
+async function bootSqliteDb(): Promise<SimSqliteHandle> {
   const io = createSimIo({
     seed: 1,
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
   });
-  const pubSubBus = createInMemoryBus();
   const { handle: db } = await bootMigratedSimSqlite({
     migrate: async (handle) => {
       await migrateSimSqlite({
@@ -101,11 +112,42 @@ async function bootSim(testId: string): Promise<BootedSim> {
       });
     },
   });
+  return db;
+}
+
+async function bootSim(
+  testId: string,
+  fidelity: OpenSimFidelity
+): Promise<BootedSim> {
+  const pubSubBus = createInMemoryBus();
+  let sqlClient: import('@pkgs/sql-client/interface').SqlClient;
+  let openRequestDb: import('@apps/api/db/open-request-db').OpenRequestDb;
+  let db: BootedDb;
+
+  if (fidelity === 'max') {
+    await ensureMaxFidelityStack();
+    const pg = await bootSimPostgres();
+    sqlClient = pg.sqlClient;
+    openRequestDb = pg.openRequestDb;
+    db = {
+      stop: () => pg.stop(),
+      snapshotApiBytes: () => new Uint8Array(),
+    };
+  } else {
+    const sqlite = await bootSqliteDb();
+    sqlClient = sqlite.sqlClient;
+    openRequestDb = sqlite.openRequestDb;
+    db = {
+      stop: () => sqlite.stop(),
+      snapshotApiBytes: () => new Uint8Array(sqlite.sqlite.serialize()),
+    };
+  }
+
   const world = createWorld(system, {
     seed: 1,
     timers: simNodeTimers,
-    impls: createProductImpls({ pubSubBus }),
-    provide: createProductProvide({ db, pubSubBus }),
+    impls: createProductImpls({ pubSubBus, fidelity }),
+    provide: createProductProvide({ sqlClient, openRequestDb, pubSubBus }),
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
   });
   const reporter = new SimulationReporter({
@@ -117,22 +159,26 @@ async function bootSim(testId: string): Promise<BootedSim> {
     maxFramesPerStep: 1,
     frameIntervalMs: 250,
     publishThrottleMs: 50,
-    ui: 'in-process',
+    ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'in-process',
     world,
     snapshotDatabases: async () => [
-      { nodeId: 'api', bytes: new Uint8Array(db.sqlite.serialize()) },
+      { nodeId: 'api', bytes: db.snapshotApiBytes() },
     ],
   });
   return { world, db, reporter };
 }
 
-function buildOpenSimHandle(boot: BootedSim): OpenSimHandle {
+function buildOpenSimHandle(
+  boot: BootedSim,
+  fidelity: OpenSimFidelity
+): OpenSimHandle {
   const { world, db, reporter } = boot;
   const actors = new Map<string, SimActorHandle>();
   let disposed = false;
 
   const handle: OpenSimHandle = {
     world,
+    fidelity,
     async actor(id: string) {
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
@@ -173,9 +219,13 @@ function buildOpenSimHandle(boot: BootedSim): OpenSimHandle {
   return handle;
 }
 
-export async function openSim(testId: string): Promise<OpenSimHandle> {
-  const boot = await bootSim(testId);
-  const handle = buildOpenSimHandle(boot);
+export async function openSim(
+  testId: string,
+  options?: OpenSimOptions
+): Promise<OpenSimHandle> {
+  const fidelity = resolveOpenSimFidelity(options);
+  const boot = await bootSim(testId, fidelity);
+  const handle = buildOpenSimHandle(boot, fidelity);
   await boot.world.spawn('api');
   return handle;
 }

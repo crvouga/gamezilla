@@ -1,3 +1,4 @@
+import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type {
@@ -48,6 +49,7 @@ export type MutationUploadQueueOptions = {
   readonly onAckFence?: (() => void) | undefined;
   readonly timers: Timers;
   readonly now: () => number;
+  readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
 function toWireRow(row: StoredMutation): MutationUploadRow {
@@ -147,6 +149,7 @@ export class MutationUploadQueue {
   private wakeWaiter: (() => void) | null = null;
   /** Set by `wake()`; consumed before idle wait so mid-drain wakes are not lost. */
   private pendingWake = false;
+  private availabilityAbort: AbortController | null = null;
   private readonly timers: Timers;
   private readonly now: () => number;
 
@@ -158,12 +161,14 @@ export class MutationUploadQueue {
   start(): void {
     if (this.running) return;
     this.running = true;
+    this.availabilityAbort = new AbortController();
     this.loopPromise = this.runLoop();
   }
 
   async stop(): Promise<void> {
     this.running = false;
     this.pendingWake = true;
+    this.availabilityAbort?.abort();
     this.wakeWaiter?.();
     await this.loopPromise;
     this.loopPromise = null;
@@ -200,6 +205,8 @@ export class MutationUploadQueue {
   private async drainOnce(): Promise<boolean> {
     const pending = await readPending(this.options.db, this.options.clientId());
     if (pending.length === 0) return false;
+    await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
+    if (!this.running) return false;
     const result = await this.options.postBatch(pending.map(toWireRow));
     await applyUploadResult(this.options, result, this.now);
     return true;
@@ -219,10 +226,16 @@ export class MutationUploadQueue {
         }
         await this.wait(IDLE_DELAY_MS);
       } catch (error) {
+        if (!this.running) return;
         this.options.onError(error);
-        // Keep the 2s error backoff: discard sticky wakes from the failed
-        // attempt. A fresh wake() during the wait still interrupts.
         this.pendingWake = false;
+        if (
+          error instanceof HttpNetworkError &&
+          this.options.waitUntilAvailable !== undefined
+        ) {
+          await this.options.waitUntilAvailable(this.availabilityAbort?.signal);
+          continue;
+        }
         await this.wait(ERROR_DELAY_MS);
       }
     }

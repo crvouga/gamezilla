@@ -2,6 +2,7 @@ import { getIo } from '@pkgs/io/als';
 import { Hono } from 'hono';
 import type { ApiHonoEnv } from '../../public/api-hono-env';
 import { BearerAuthResolver } from '../../public/bearer-resolve';
+import { isUuid } from '../../public/device-id';
 import { ANON_ID_HEADER } from '../../public/session-middleware';
 import type { AuthContext } from '../../public/types';
 import { UnauthorizedError } from '../../public/unauthorized-error';
@@ -14,6 +15,7 @@ type RefreshBody = {
 
 type AnonEnsureBody = {
   forceNew: boolean;
+  userId?: string;
 };
 
 /** Writable device metadata columns accepted by `POST /identity/refresh`. */
@@ -62,8 +64,10 @@ function readAnonEnsureBody(raw: unknown): AnonEnsureBody {
     raw === null || typeof raw !== 'object'
       ? {}
       : (raw as Record<string, unknown>);
+  const userId = obj['userId'];
   return {
     forceNew: obj['forceNew'] === true,
+    ...(typeof userId === 'string' && isUuid(userId) ? { userId } : {}),
   };
 }
 
@@ -107,6 +111,7 @@ export function createAuthApiRoutes(deps?: {
       const result = await new EnsureAnonUserUseCase(sql, io).execute({
         deviceId,
         forceNew: body.forceNew,
+        ...(body.userId !== undefined ? { userId: body.userId } : {}),
       });
 
       await deps?.onUserDomainWrite?.(result.userId);

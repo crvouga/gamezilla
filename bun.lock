@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
-      "dependencies": {
-        "@crvouga/sqlite-mem": "^1.2.0",
-      },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "@lingui/cli": "catalog:",
@@ -47,6 +44,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/emqx-server": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/io": "workspace:*",
@@ -55,9 +53,11 @@
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/matchmaking": "workspace:*",
+        "@pkgs/minio-server": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/outbox": "workspace:*",
+        "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -194,56 +194,6 @@
         "react-scan": "catalog:",
         "typescript": "catalog:",
         "workbox-build": "catalog:",
-      },
-    },
-    "apps/emqx": {
-      "name": "@apps/emqx",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/os": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "apps/minio": {
-      "name": "@apps/minio",
-      "version": "0.0.0",
-      "dependencies": {
-        "@aws-sdk/client-s3": "catalog:",
-        "@pkgs/os": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "apps/postgres": {
-      "name": "@apps/postgres",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess": "workspace:*",
-        "@libs/infra": "workspace:*",
-        "@libs/runtime": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
-        "@pkgs/io": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "embedded-postgres": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
       },
     },
     "apps/room": {
@@ -936,6 +886,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/emqx-server": {
+      "name": "@pkgs/emqx-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/os": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/entity-store": {
       "name": "@pkgs/entity-store",
       "version": "0.0.0",
@@ -979,6 +942,7 @@
       "name": "@pkgs/http-client",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
         "react": "catalog:",
       },
       "devDependencies": {
@@ -1121,6 +1085,20 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/minio-server": {
+      "name": "@pkgs/minio-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@aws-sdk/client-s3": "catalog:",
+        "@pkgs/os": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/ndjson": {
       "name": "@pkgs/ndjson",
       "version": "0.0.0",
@@ -1213,6 +1191,20 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/postgres-embedded": {
+      "name": "@pkgs/postgres-embedded",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/os": "workspace:*",
+        "embedded-postgres": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1438,6 +1430,7 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@electric-sql/pglite": "catalog:",
         "@pkgs/io": "workspace:*",
         "@playwright/test": "catalog:",
         "@types/better-sqlite3": "catalog:",
@@ -1534,7 +1527,6 @@
         "@pkgs/http-client": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/object-store": "workspace:*",
-        "@pkgs/os": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/system": "workspace:*",
@@ -1695,13 +1687,16 @@
         "@pkgs/auth-better-auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/emqx-server": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/minio-server": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
+        "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
@@ -1727,6 +1722,7 @@
         "@babel/runtime": "catalog:",
         "@jest/globals": "catalog:",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@playwright/test": "catalog:",
         "@types/better-sqlite3": "catalog:",
         "@types/jest": "catalog:",
         "@types/react": "catalog:",
@@ -1896,7 +1892,7 @@
     "sort-package-json": "^3.6.1",
     "stripe": "^18.0.0",
     "syncpack": "^14.3.1",
-    "turbo": "^2.10.10",
+    "turbo": "^2.10.11",
     "typescript": "~6.0.3",
     "unique-names-generator": "^4.7.1",
     "whatwg-fetch": "^3.6.20",
@@ -1921,12 +1917,6 @@
     "@apps/api": ["@apps/api@workspace:apps/api"],
 
     "@apps/client": ["@apps/client@workspace:apps/client"],
-
-    "@apps/emqx": ["@apps/emqx@workspace:apps/emqx"],
-
-    "@apps/minio": ["@apps/minio@workspace:apps/minio"],
-
-    "@apps/postgres": ["@apps/postgres@workspace:apps/postgres"],
 
     "@apps/room": ["@apps/room@workspace:apps/room"],
 
@@ -2874,6 +2864,8 @@
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
 
+    "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
+
     "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
@@ -2898,6 +2890,8 @@
 
     "@pkgs/message": ["@pkgs/message@workspace:pkgs/message"],
 
+    "@pkgs/minio-server": ["@pkgs/minio-server@workspace:pkgs/minio-server"],
+
     "@pkgs/ndjson": ["@pkgs/ndjson@workspace:pkgs/ndjson"],
 
     "@pkgs/object-store": ["@pkgs/object-store@workspace:pkgs/object-store"],
@@ -2909,6 +2903,8 @@
     "@pkgs/outbox": ["@pkgs/outbox@workspace:pkgs/outbox"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
+
+    "@pkgs/postgres-embedded": ["@pkgs/postgres-embedded@workspace:pkgs/postgres-embedded"],
 
     "@pkgs/postgres-sqlite-compat": ["@pkgs/postgres-sqlite-compat@workspace:pkgs/postgres-sqlite-compat"],
 
@@ -3122,17 +3118,17 @@
 
     "@total-typescript/ts-reset": ["@total-typescript/ts-reset@0.6.1", "", {}, "sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg=="],
 
-    "@turbo/darwin-64": ["@turbo/darwin-64@2.10.10", "", { "os": "darwin", "cpu": "x64" }, "sha512-gFDD+wRP5hWxBRghGyEbjpbLOY7aIU/wvsnKdMM7odQcp/wHMrnI83p0FyxxMRZnFH9ZD+S59MvcpOC5b+nrCA=="],
+    "@turbo/darwin-64": ["@turbo/darwin-64@2.10.11", "", { "os": "darwin", "cpu": "x64" }, "sha512-v3R+1R/Ysozyo+p7Ri8MCIbndOvYt3DgPFrGLhrhQHfvyvbxyH3WyJj+A/2JTNmNleuAlh3JUyCV0iSVHIONTA=="],
 
-    "@turbo/darwin-arm64": ["@turbo/darwin-arm64@2.10.10", "", { "os": "darwin", "cpu": "arm64" }, "sha512-VZYsxZ6yjyDosUqtiroAVSXPLmx/qBxdHJgIxdMH9RyNmLdOLOWtJnYMnI4qckwCgQMK85G3fu94/xk5+iBCgw=="],
+    "@turbo/darwin-arm64": ["@turbo/darwin-arm64@2.10.11", "", { "os": "darwin", "cpu": "arm64" }, "sha512-R0a0CvGAeYYsBgPIgFNB3agGXh6qukjduNhFlwVVX1Ss2IdBJLXmgjytNGmo084bLKS0B6UdLRwKhXMHKKaObQ=="],
 
-    "@turbo/linux-64": ["@turbo/linux-64@2.10.10", "", { "os": [ "linux", "android", ], "cpu": "x64" }, "sha512-lAvW+yEnmsCKMEIwNugjozawvYytHKPhU0kfLBizu83MIs8OUb9KobYvkZ56L5akSM6K7+gBFLEIfQkaceh90g=="],
+    "@turbo/linux-64": ["@turbo/linux-64@2.10.11", "", { "os": [ "linux", "android", ], "cpu": "x64" }, "sha512-dGlY2vg7jpsLjGS1bf9sD/cw1sGMAYbeHGQKGRFxd5Zaj+Ufbj8cNXl/vIit8ueCU97zhL/znn60ZV5iSfZAxw=="],
 
-    "@turbo/linux-arm64": ["@turbo/linux-arm64@2.10.10", "", { "os": [ "linux", "android", ], "cpu": "arm64" }, "sha512-MSJ+NkRTd79Z9+YEZpUV9VOWVOOigFhE+v/ETNYJEuTJp3r00y9YgFvDXrmM+DP8Kal6tk3U6xSugD2/Ojh+Jg=="],
+    "@turbo/linux-arm64": ["@turbo/linux-arm64@2.10.11", "", { "os": [ "linux", "android", ], "cpu": "arm64" }, "sha512-eSP9+jjsSCBs2x0QpJZlp49dSD1EIMwXH7PsMIhdWk7w6IThhuKJ+jL95JQ2IW7tRjRmdh8gKcKQtrHLD5R5lA=="],
 
-    "@turbo/windows-64": ["@turbo/windows-64@2.10.10", "", { "os": "win32", "cpu": "x64" }, "sha512-ycWpXDkUfnDFDY9d+4Qna/UZotDB0wj+s9agrlmNt0Q7a3XHORhK8GPKJdzgzeutXu9EW5P/jyabTEHlohuDXw=="],
+    "@turbo/windows-64": ["@turbo/windows-64@2.10.11", "", { "os": "win32", "cpu": "x64" }, "sha512-4aD7edogJ8arK8DOyvjTI2KKwmchD5M/WM4BZgidrtFf7aSgn8Ce2rJnDwmriw980c2cKlHnhXtlGy38VtKB8g=="],
 
-    "@turbo/windows-arm64": ["@turbo/windows-arm64@2.10.10", "", { "os": "win32", "cpu": "arm64" }, "sha512-PMk6zQN0csUFklLe+1hz/5G9uU1YmV0cEIey2R/bSeA6o69qcBTlN4A3jOqkgenOO5dOpMHmq2sEUZo8r1+Ssg=="],
+    "@turbo/windows-arm64": ["@turbo/windows-arm64@2.10.11", "", { "os": "win32", "cpu": "arm64" }, "sha512-m8tJkIrTrbQ9O1uHxV0GUq623Zg1678xGna8eMsy4KbygUX/wVFgdZDYV/AxyoyaW/U7nyKoBvaDVwm22p9xqA=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg=="],
 
@@ -4864,7 +4860,7 @@
 
     "tslib": ["tslib@2.8.1", "", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
-    "turbo": ["turbo@2.10.10", "", { "optionalDependencies": { "@turbo/darwin-64": "2.10.10", "@turbo/darwin-arm64": "2.10.10", "@turbo/linux-64": "2.10.10", "@turbo/linux-arm64": "2.10.10", "@turbo/windows-64": "2.10.10", "@turbo/windows-arm64": "2.10.10" }, "bin": { "turbo": "bin/turbo" } }, "sha512-/90KTW+USzvYOPmafRZHVKLBsHXQ5810Ao/HdtJYAqguIhZ+XruS6eIUjqJUDtrSxaZYynNFht68qckGKAOWTA=="],
+    "turbo": ["turbo@2.10.11", "", { "optionalDependencies": { "@turbo/darwin-64": "2.10.11", "@turbo/darwin-arm64": "2.10.11", "@turbo/linux-64": "2.10.11", "@turbo/linux-arm64": "2.10.11", "@turbo/windows-64": "2.10.11", "@turbo/windows-arm64": "2.10.11" }, "bin": { "turbo": "bin/turbo" } }, "sha512-yQfwQVoRXwOuyX1LxiJFBFNg6VfuYh+/RyZLd82+isgyLkBXw3S5XRRzvcck1FAjSCG5sVyLd+O1eDMvYa3J7g=="],
 
     "type-check": ["type-check@0.4.0", "", { "dependencies": { "prelude-ls": "^1.2.1" } }, "sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew=="],
 

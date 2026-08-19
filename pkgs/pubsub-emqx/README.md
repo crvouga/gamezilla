@@ -7,7 +7,7 @@ EMQX adapter for `@pkgs/pubsub`. Two factories, **one** returned type (`PubSub`)
 
 ## Broker config expectations (EMQX 5.x)
 
-Preferred local broker: `@apps/emqx` via `bun dev` (ports 8083 / 18083). Production: Railway at `emqx.gamezilla.app` (provisioned by `@libs/infra`).
+Preferred local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083). Production: Railway (provisioned by `@libs/infra`).
 
 Operators / broker should configure:
 
@@ -15,7 +15,7 @@ Operators / broker should configure:
 - MQTT authentication (JWT-as-password is the intended client pattern: `auth()` returns fresh `{ username, password }` on every reconnect)
 - WebSocket listener path `/mqtt` (wss URL ends with `/mqtt`)
 - Dashboard API key + secret for `POST /api/v5/publish` and `DELETE /api/v5/clients/{clientid}`
-- MQTT session / mqueue caps for short offline drain (see `@apps/emqx` `emqx.conf`):
+- MQTT session / mqueue caps for short offline drain (see `@pkgs/emqx-server` `emqx.conf`):
   - `mqtt.session_expiry_interval` (broker default for non-MQTT5; clients send MQTT5 `sessionExpiryInterval`)
   - `mqtt.max_mqueue_len` (cap offline queue length)
 - Adapter publishes/subscribes at **QoS 1**, `retain: false`, MQTT **5**, `cleanStart: false`, stable `clientId` (= `clientIdPrefix`)

@@ -2,6 +2,6 @@
 import './src/polyfill-entry';
 import { registerRootComponent } from 'expo';
 
-import { RootApp } from './src/host/compose-sub-apps';
+import { RootApp } from './src/host/root-app';
 
 registerRootComponent(RootApp);

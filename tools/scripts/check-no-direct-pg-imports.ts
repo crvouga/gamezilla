@@ -32,6 +32,8 @@ const ALLOWED_CONNECT_IMPORT_FILES = new Set([
   join('apps', 'api', 'src', 'db', 'migrate.ts'),
   join('apps', 'api', 'src', 'db', 'open-request-db-postgres.ts'),
   join('apps', 'api', 'scripts', 'wipe-dev-db.ts'),
+  join('apps', 'api', 'scripts', 'run-local-postgres-migrate.ts'),
+  join('apps', 'api', 'scripts', 'run-local-postgres-seed.ts'),
   join('apps', 'postgres', 'scripts', 'migrate.ts'),
   join('apps', 'postgres', 'scripts', 'seed.ts'),
   join(

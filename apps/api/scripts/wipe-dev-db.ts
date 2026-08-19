@@ -1,7 +1,7 @@
 // @io-wall-ok
 /**
  * Wipe SECRETS_ENV=dev Postgres (DROP SCHEMA public) then remigrate.
- * Prefers `.dev.vars` (local `@apps/postgres`) then secrets-run env.
+ * Prefers `.dev.vars` (loopback embedded Postgres) then secrets-run env.
  * No confirm flags — every guard exists only to block production.
  */
 

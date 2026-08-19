@@ -42,6 +42,7 @@ export class AnonUserService {
   async ensureForDevice(args: {
     readonly deviceId: string;
     readonly forceNew?: boolean;
+    readonly userId?: string;
     readonly now?: () => number;
     readonly createId?: CreateId;
   }): Promise<EnsureAnonUserResult> {
@@ -61,11 +62,23 @@ export class AnonUserService {
       }
     }
 
-    const userId = createId();
+    const userId = await this.resolveMintUserId(args.userId, createId);
     assertUuid(userId, 'userId must be UUID');
     await this.insertAnonUser(userId, now, createId);
     await this.bindDeviceToUser({ deviceId, userId, now, createId });
     return { userId, isAnon: true as const };
+  }
+
+  /** Uses a client-proposed id when unbound (or forceNew), unless it is a non-anon user. */
+  private async resolveMintUserId(
+    proposed: string | undefined,
+    createId: CreateId
+  ): Promise<string> {
+    if (proposed === undefined) return createId();
+    assertUuid(proposed, 'userId must be UUID');
+    const anon = await this.readUserIsAnon(proposed);
+    if (anon === false) return createId();
+    return proposed;
   }
 
   /** Looks up `devices.user_id` for session / sync resolution. */
