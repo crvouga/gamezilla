@@ -21,7 +21,9 @@ for (const root of ROOTS) {
 }
 
 if (offenders.length === 0) {
-  console.log('ci:no-raw-schema-sql OK — 0 .sql files under libs/pkgs/apps/test');
+  console.log(
+    'ci:no-raw-schema-sql OK — 0 .sql files under libs/pkgs/apps/test'
+  );
   process.exit(0);
 }
 

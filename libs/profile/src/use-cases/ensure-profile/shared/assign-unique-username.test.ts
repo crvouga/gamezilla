@@ -185,4 +185,52 @@ describe('ensureProfileMutation', () => {
     `);
     expect(rows[0]?.username.length).toBeGreaterThan(0);
   });
+
+  test('applies a preferred unique username without claiming', async () => {
+    await ensureProfileMutation.run(
+      { tx: sqlClient, env: mutationEnv(ACCOUNT_ID) },
+      { username: 'Alice_1' }
+    );
+
+    const rows = await sqlClient.query(
+      sql<{ username: string; username_changed_at: string | null }>`
+        SELECT username, username_changed_at
+        FROM profile
+        WHERE id = ${ACCOUNT_ID}
+      `
+    );
+    expect(rows[0]?.username).toBe('alice_1');
+    expect(rows[0]?.username_changed_at).toBeNull();
+  });
+
+  test('keeps auto username when preferred is taken', async () => {
+    await sqlClient.run(sql<void>`
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
+      VALUES (${OTHER_ID}, ${NOW_ISO}, ${'alice'}, ${'alice'}, ${'{}'})
+    `);
+
+    await ensureProfileMutation.run(
+      { tx: sqlClient, env: mutationEnv(ACCOUNT_ID) },
+      { username: 'alice' }
+    );
+
+    const rows = await sqlClient.query(sql<{ username: string }>`
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
+    `);
+    expect(rows[0]?.username).not.toBe('alice');
+    expect(rows[0]?.username.length).toBeGreaterThan(0);
+  });
+
+  test('keeps auto username when preferred is invalid', async () => {
+    await ensureProfileMutation.run(
+      { tx: sqlClient, env: mutationEnv(ACCOUNT_ID) },
+      { username: 'ab' }
+    );
+
+    const rows = await sqlClient.query(sql<{ username: string }>`
+      SELECT username FROM profile WHERE id = ${ACCOUNT_ID}
+    `);
+    expect(rows[0]?.username).not.toBe('ab');
+    expect(rows[0]?.username.length).toBeGreaterThan(0);
+  });
 });

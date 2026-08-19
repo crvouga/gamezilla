@@ -4,6 +4,7 @@ import type { Driver } from '@pkgs/ui-testing';
 export type EmailCredentials = {
   readonly email: string;
   readonly password: string;
+  readonly username: string;
 };
 
 export class AuthFlows {
@@ -15,7 +16,9 @@ export class AuthFlows {
     await this.ui.tap(Handles.authMethodEmail);
     await this.ui.tap(Handles.authGoToSignUp);
     await this.ui.input(Handles.authEmailInput, creds.email);
+    await this.ui.input(Handles.authUsernameInput, creds.username);
     await this.ui.input(Handles.authPasswordInput, creds.password);
+    await this.ui.input(Handles.authConfirmPasswordInput, creds.password);
     await this.ui.tap(Handles.authSubmitCreate);
     await this.ui.tap(Handles.authSignedInDone);
     // dismissModal can flash idle + Close before unmount; dismiss when present.

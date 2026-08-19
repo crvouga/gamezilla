@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "gamezilla",
+      "dependencies": {
+        "@crvouga/sqlite-mem": "^1.2.0",
+      },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "@lingui/cli": "catalog:",
@@ -29,7 +32,6 @@
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/notifications": "workspace:*",
@@ -93,7 +95,6 @@
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
@@ -227,8 +228,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/chess": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
+        "@libs/runtime": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -268,7 +269,6 @@
       "name": "@libs/auth",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -276,6 +276,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/io": "workspace:*",
@@ -312,7 +313,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
@@ -324,6 +324,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/collab": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/io": "workspace:*",
@@ -362,10 +363,10 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/equal": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/object-store": "workspace:*",
@@ -384,28 +385,6 @@
         "typescript": "catalog:",
       },
     },
-    "libs/db": {
-      "name": "@libs/db",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/auth-better-auth": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
-        "@pkgs/db-schema": "workspace:*",
-        "@pkgs/entity-store": "workspace:*",
-        "@pkgs/kv": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/outbox": "workspace:*",
-        "@pkgs/postgres-sqlite-compat": "workspace:*",
-        "@pkgs/pubsub": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sync-engine": "workspace:*",
-      },
-      "devDependencies": {
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "libs/dst-handles": {
       "name": "@libs/dst-handles",
       "version": "0.0.0",
@@ -419,7 +398,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -429,6 +407,7 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/message": "workspace:*",
@@ -500,7 +479,7 @@
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sounds": "workspace:*",
@@ -527,12 +506,12 @@
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -554,13 +533,29 @@
       "name": "@libs/runtime",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@libs/chess": "workspace:*",
+        "@libs/client-config": "workspace:*",
+        "@libs/friends": "workspace:*",
+        "@libs/notifications": "workspace:*",
+        "@libs/profile": "workspace:*",
+        "@libs/spaces": "workspace:*",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
+        "@pkgs/entity-store": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/llm": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/observability": "workspace:*",
+        "@pkgs/outbox": "workspace:*",
+        "@pkgs/postgres-sqlite-compat": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
+        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
         "@pkgs/system": "workspace:*",
         "@pkgs/tts": "workspace:*",
         "stripe": "catalog:",
@@ -597,7 +592,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -609,6 +603,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/collab": "workspace:*",
         "@pkgs/collab-ui": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/io": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -1692,7 +1687,6 @@
       "dependencies": {
         "@apps/api": "workspace:*",
         "@apps/client": "workspace:*",
-        "@libs/db": "workspace:*",
         "@libs/dst-handles": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/notifications": "workspace:*",
@@ -1793,7 +1787,7 @@
     "@babel/runtime": "^7.29.7",
     "@better-auth/expo": "1.6.26",
     "@biomejs/biome": "2.5.7",
-    "@crvouga/sqlite-mem": "^1.1.2",
+    "@crvouga/sqlite-mem": "^1.2.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",
@@ -2294,7 +2288,7 @@
 
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20260430.1", "", { "os": "win32", "cpu": "x64" }, "sha512-jS3ffixjb5USOwz4frw4WzCz0HrjVxkgyU3WiYb06N7hBAfN6eOrveAJ4QRef0+suK4V1vQFoB1oKdRBsXe9Dw=="],
 
-    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.1.2", "", {}, "sha512-XtXuJJtfRPtx6faFs2dK+E8j5u9pAcppy2WbXqPvFsbv2ZPHwoNHPIztbQaIHWsKjqfGOvaY3yCz2A25DPmDEw=="],
+    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.2.0", "", {}, "sha512-SA0Kj4k35dfGPfHGwCfq9aiRavqCVQBOMLqdZJLfLy4fVAR28ET3rk+JMTXwhQgpqiog0fFHvLeQkKc2ykbqdw=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
@@ -2659,8 +2653,6 @@
     "@libs/chess": ["@libs/chess@workspace:libs/chess"],
 
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
-
-    "@libs/db": ["@libs/db@workspace:libs/db"],
 
     "@libs/dst-handles": ["@libs/dst-handles@workspace:libs/dst-handles"],
 

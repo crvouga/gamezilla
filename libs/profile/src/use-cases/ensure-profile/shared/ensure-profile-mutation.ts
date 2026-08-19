@@ -5,6 +5,7 @@ import {
   MutationError,
 } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
+import { applyPreferredUsernameIfAvailable } from '../../../shared/profile/apply-preferred-username';
 import { assignUniqueUsernameIfEmpty } from '../../../shared/profile/assign-unique-username';
 import {
   parseAvatarConfig,
@@ -78,8 +79,9 @@ export const ensureProfileMutation = defineMutation({
   name: 'ensureProfile',
   args: z.object({
     avatarConfig: avatarConfigArgs.optional(),
+    username: z.string().optional(),
   }),
-  async run({ tx, env }, { avatarConfig }) {
+  async run({ tx, env }, { avatarConfig, username }) {
     await seedProfile(
       tx,
       env.actorId,
@@ -89,5 +91,6 @@ export const ensureProfileMutation = defineMutation({
         : avatarConfigJson(avatarConfig)
     );
     await assignUniqueUsernameIfEmpty(tx, env.actorId);
+    await applyPreferredUsernameIfAvailable(tx, env.actorId, username);
   },
 });
