@@ -1,4 +1,4 @@
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
 import { InMemoryRoomStorage } from '../server/adapters/memory';
@@ -59,17 +59,17 @@ async function createWorldKernel<
   E extends RoomEvent,
 >(args: OpenRoomSimWorldArgs<S, C, E>): Promise<WorldKernel<S, C, E>> {
   const seed = resolveSeed(args.seed);
-  const io = createSimIo({
+  const adapters = createSimAdapters({
     seed: args.seed,
     startMs: args.startMs ?? 1_700_000_000_000,
   });
-  const topic = args.topic ?? `sim:${io.createId()}`;
+  const topic = args.topic ?? `sim:${adapters.createId()}`;
   const storage = args.storage ?? new InMemoryRoomStorage();
   const serverQueue = new SerialQueue();
   const schedule = createTimerScheduleStack({
-    clock: io.clock,
-    timers: io.timers,
-    createId: io.createId,
+    clock: adapters.clock,
+    timers: adapters.timers,
+    createId: adapters.createId,
     topic,
     enqueueWake: (work) => {
       void serverQueue.enqueue(work);
@@ -79,7 +79,7 @@ async function createWorldKernel<
     topic,
     module: args.module,
     storage,
-    clock: io.clock,
+    clock: adapters.clock,
     effectHandlers: [schedule.handler],
     ...(args.authorize !== undefined ? { authorize: args.authorize } : {}),
   });
@@ -91,7 +91,10 @@ async function createWorldKernel<
     })
   );
   await server.hydrateFromStorage();
-  const network = new SimRoomNetwork(() => io.clock.now(), io.rng.fork('net'));
+  const network = new SimRoomNetwork(
+    () => adapters.clock.now(),
+    adapters.rng.fork('net')
+  );
   if (args.mildFaults === true) {
     network.setDefaultFaults(MILD_ROOM_FAULTS);
   }
@@ -99,7 +102,10 @@ async function createWorldKernel<
     seed,
     topic,
     module: args.module,
-    io,
+    clock: adapters.clock,
+    timers: adapters.timers,
+    createId: adapters.createId,
+    rng: adapters.rng,
     storage,
     server,
     network,
@@ -117,10 +123,10 @@ function makeDrainCtx<
 >(k: WorldKernel<S, C, E>) {
   return () => ({
     seed: k.seed,
-    now: () => k.io.clock.now(),
+    now: () => k.clock.now(),
     network: k.network,
     serverQueue: k.serverQueue,
-    clockAdvance: (ms: number) => k.io.clock.advance(ms),
+    clockAdvance: (ms: number) => k.clock.advance(ms),
     clients: k.slots,
   });
 }
@@ -162,10 +168,10 @@ function assembleRoomSimWorld<
 >(k: WorldKernel<S, C, E>): RoomSimWorld<S, C, E> {
   const drainCtx = makeDrainCtx(k);
   const step = async (ms: number): Promise<void> => {
-    k.io.clock.advance(ms);
+    k.clock.advance(ms);
     await drainRoomSim(drainCtx());
   };
-  const untilCtx = { clock: k.io.clock, seed: k.seed, step };
+  const untilCtx = { clock: k.clock, seed: k.seed, step };
 
   let disposed = false;
   const dispose = async (): Promise<void> => {
@@ -183,8 +189,8 @@ function assembleRoomSimWorld<
     seed: k.seed,
     topic: k.topic,
     module: k.module,
-    io: k.io,
-    clock: k.io.clock,
+    rng: k.rng,
+    clock: k.clock,
     storage: k.storage,
     server: k.server,
     clients: k.handles,

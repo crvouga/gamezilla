@@ -6,8 +6,9 @@ import {
 } from '@libs/auth/public/auth-context';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { getIo } from '@pkgs/io/als';
+import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId } from '../shared/auth/device-id';
 import { AnonUserService } from './anon-user-service';
 import { BearerAuthResolver } from './bearer-resolve';
@@ -23,11 +24,11 @@ const UNAUTH_CLIENT_CONTEXT: AppClientContext = {};
 
 async function buildAnonAppAuthContext(
   sql: SqlClient,
-  deviceId: string
+  deviceId: string,
+  time: { readonly clock: Clock; readonly createId: CreateId }
 ): Promise<AppAuthContext | null> {
   assertDeviceId(deviceId);
-  const io = getIo();
-  const anonUsers = new AnonUserService(sql, io);
+  const anonUsers = new AnonUserService(sql, time);
   const userId = await anonUsers.findUserIdByDeviceId(deviceId);
   if (userId === null) return null;
   const state = await anonUsers.readUserAnonState(userId);
@@ -49,7 +50,13 @@ async function buildAnonAppAuthContext(
  * `sql` is passed per call because the client is request-scoped.
  */
 export class SessionAuth {
-  constructor(private readonly authServer: AuthServerPort) {}
+  constructor(
+    private readonly authServer: AuthServerPort,
+    private readonly time: {
+      readonly clock: Clock;
+      readonly createId: CreateId;
+    }
+  ) {}
 
   async resolveAuthContext(
     sql: SqlClient,
@@ -61,7 +68,8 @@ export class SessionAuth {
     if (header === null || !header.startsWith('Bearer ')) {
       if (anonRaw.length > 0) {
         return (
-          (await buildAnonAppAuthContext(sql, anonRaw)) ?? UNAUTH_CLIENT_CONTEXT
+          (await buildAnonAppAuthContext(sql, anonRaw, this.time)) ??
+          UNAUTH_CLIENT_CONTEXT
         );
       }
       return UNAUTH_CLIENT_CONTEXT;
@@ -74,11 +82,10 @@ export class SessionAuth {
       return UNAUTH_CLIENT_CONTEXT;
     }
 
-    const io = getIo();
     const ctx = await new BearerAuthResolver(
       sql,
       this.authServer,
-      io
+      this.time
     ).buildAppAuthContext(token, anonRaw);
     return ctx ?? UNAUTH_CLIENT_CONTEXT;
   }

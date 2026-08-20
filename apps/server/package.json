@@ -1,5 +1,5 @@
 {
-  "name": "@apps/api",
+  "name": "@apps/server",
   "version": "1.0.0",
   "private": true,
   "exports": {
@@ -47,7 +47,6 @@
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/llm": "workspace:*",

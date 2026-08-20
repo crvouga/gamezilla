@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
 import { assertRoomModuleName, type RoomCommand } from '@pkgs/room';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import type { GameDefinition } from './game';
 import { SelectGame } from './games';
@@ -18,11 +18,11 @@ const chessStub: GameDefinition = {
 };
 
 function runOnce(seed: number): { hash: string; seats: readonly string[] } {
-  const io = createSimIo({ seed, startMs: 10_000 });
+  const adapters = createSimAdapters({ seed, startMs: 10_000 });
   const module = createSpaceModule(
     assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
     [chessStub],
-    io.clock.now
+    adapters.clock.now
   );
   let state = module.initialState();
 
@@ -30,8 +30,8 @@ function runOnce(seed: number): { hash: string; seats: readonly string[] } {
     const res = module.handle(
       state,
       {
-        id: io.createId(),
-        ts: io.clock.now(),
+        id: adapters.createId(),
+        ts: adapters.clock.now(),
         payload: JoinSpaceSeat({ memberId }),
       } satisfies RoomCommand,
       memberId
@@ -48,8 +48,8 @@ function runOnce(seed: number): { hash: string; seats: readonly string[] } {
   const select = module.handle(
     state,
     {
-      id: io.createId(),
-      ts: io.clock.now(),
+      id: adapters.createId(),
+      ts: adapters.clock.now(),
       payload: SelectGame({ game: 'chess' }),
     } satisfies RoomCommand,
     'member-a'

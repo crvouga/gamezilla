@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 
 import { TestCounterModule } from '../../../tests/fixtures/counter-module';
 import { createDurableObjectAdapter } from './adapter';
@@ -8,8 +8,6 @@ import type {
   DurableObjectKvListOptions,
   DurableObjectKvStorage,
 } from './types';
-
-const io = wallIo();
 
 function createMemoryDoKv(): DurableObjectKvStorage {
   const map = new Map<string, unknown>();
@@ -64,8 +62,8 @@ describe('Durable Object auth at upgrade', () => {
   test('missing identity header → 401', async () => {
     const RoomDo = createDurableObjectAdapter({
       modules: [TestCounterModule],
-      clock: io.clock,
-      createId: io.createId,
+      clock: wallClock,
+      createId: () => crypto.randomUUID(),
     });
     const doInstance = new RoomDo(createFakeDoState(createMemoryDoKv()), {});
     const res = await doInstance.fetch(

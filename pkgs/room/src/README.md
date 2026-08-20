@@ -367,7 +367,7 @@ import { openRoomSimWorld, runModuleConformance } from '@pkgs/room/tests';
 ## Design constraints (for contributors / agents)
 
 - No `@pkgs/sync-engine` dependency (room stays a leaf).
-- No bare wall I/O in sim or product paths — inject `Io` / `createSimIo`.
+- No bare wall I/O in sim or product paths — inject `createSimAdapters` / clock.
   Wall helpers only in tests / `@io-wall-ok` entry roots (repo-wide rule).
 - Tiger size caps (`biome.json`) — split helpers; no size-rule ignores.
 - Domain hard-delete rules belong to sync-engine SQL; room uses event fold only.
@@ -485,7 +485,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
-| `tests/fixtures/counter-module.sim.test.ts` | M8 | Pure `TestCounterModule` under `createSimIo` seed-stable |
+| `tests/fixtures/counter-module.sim.test.ts` | M8 | Pure `TestCounterModule` under `createSimAdapters` seed-stable |
 
 ### Game-layer DST (outside this package; still under `ci:sim-determinism`)
 

@@ -124,7 +124,7 @@ for (const f of files) {
 
 if (offenses.length > 0) {
   console.error(
-    'Bare I/O check failed — use @pkgs/io (io.clock / io.timers / io.http / io.createId / io.random).\n' +
+    'Bare I/O check failed — inject clock/timers/http/createId (or use wallClock/wallTimers/crypto.randomUUID at `@io-wall-ok` roots).\n' +
       'Wall adapters / polyfills must be entry-shaped and mark `// @io-wall-ok`:\n'
   );
   for (const o of offenses.slice(0, 200)) {

@@ -24,6 +24,7 @@ export {
   resolveReportOptions,
   type SimulationFrame,
   type SimulationFrameAttribute,
+  type SimulationFrameCheckpoint,
   type SimulationFrameDatabase,
   type SimulationFrameView,
   type SimulationReportData,
@@ -40,6 +41,7 @@ export {
   type UiAttribution,
 } from './types';
 export { wallPathExists } from './wall-path-exists';
+export { projectReportTopology } from './writer/project-topology';
 export { deleteRun, type PruneOptions, pruneRuns } from './writer/prune';
 export {
   type FrameCaptureState,

@@ -1,4 +1,5 @@
 // @io-wall-ok
+
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,7 @@ import {
 } from '@libs/infra/cli/secrets/secrets';
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { wallTimers } from '@pkgs/clock';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -17,7 +19,6 @@ import {
   EMQX_JWT_SECRET,
   EMQX_WS_PORT,
 } from '@pkgs/emqx-server';
-import { wallIo } from '@pkgs/io';
 import {
   MINIO_BUCKET,
   MINIO_ENDPOINT,
@@ -29,8 +30,6 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
-
-const io = wallIo();
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(apiRoot, '../..');
@@ -101,7 +100,7 @@ function ensureBetterAuthSecret(): string {
   if (existing.length >= 32) return existing;
   const bytes = new Uint8Array(32);
   for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = Math.floor(io.random() * 256);
+    bytes[i] = Math.floor(Math.random() * 256);
   }
   const seeded = Buffer.from(bytes).toString('base64url');
   process.env['BETTER_AUTH_SECRET'] = seeded;
@@ -129,7 +128,7 @@ async function loadOptionalSecretsOverlay(): Promise<void> {
     await Promise.race([
       loadSecretsIntoEnv(),
       new Promise<never>((_, reject) => {
-        io.timers.setTimeout(() => {
+        wallTimers.setTimeout(() => {
           reject(
             new Error(`timed out after ${String(SECRETS_OVERLAY_TIMEOUT_MS)}ms`)
           );

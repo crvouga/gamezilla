@@ -19,10 +19,9 @@
     "@libs/games": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/spaces": "workspace:*",
-    "@pkgs/io": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/keyword": "workspace:*",
-    "@pkgs/room": "workspace:*",
-    "@pkgs/system": "workspace:*"
+    "@pkgs/room": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

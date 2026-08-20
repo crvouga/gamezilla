@@ -6,27 +6,26 @@ import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
+import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import { assert } from '@pkgs/assert';
 import {
   type BetterAuthInstance,
   createBetterAuth,
   createBetterAuthServerAdapter,
 } from '@pkgs/auth-better-auth/server';
-import type { Io } from '@pkgs/io';
-import { runWithIo } from '@pkgs/io/als';
+import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
 import type { Observability } from '@pkgs/observability/port/observability';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import type { CreateId } from '@pkgs/uuid';
 import type { MiddlewareHandler } from 'hono';
 import {
   type BetterAuthBootConfig,
   betterAuthConfigForDatabase,
 } from '../config/better-auth-boot';
 import { ApiSecretName } from '../config/secret-names';
-import type { OpenRequestDb, RequestDb } from '../db/open-request-db';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { notifyClientConfigChannels } from '../sync/notify-client-config-channels';
@@ -66,13 +65,12 @@ export type RequestDbMiddlewareOptions = {
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
   readonly observability: Observability;
-  /** Process-level Io from the API composition root. */
-  readonly io: Io;
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly createId: CreateId;
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
-  /** Injected DB opener (Postgres wall adapter or sim SQLite). */
-  readonly openRequestDb: OpenRequestDb;
-  /** Sims skip non-prod DATABASE_URL policy checks. */
+  readonly openSqlClient: OpenSqlClient;
   readonly skipDatabaseUrlPolicy?: boolean;
 };
 
@@ -82,20 +80,16 @@ type AttachRequestDatabaseArgs = {
   readonly c: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[0];
   readonly next: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[1];
   readonly secretStore: SecretStore;
-  readonly dbScope: PostgresDbScope;
-  readonly dbUrl: string;
   readonly options: RequestDbMiddlewareOptions;
   readonly clientConfigLatch: ClientConfigLatch;
 };
 
-async function openObservedRequestDb(
+async function openObservedSqlClient(
   observability: Observability,
-  dbUrl: string,
-  dbScope: PostgresDbScope,
-  openDb: OpenRequestDb
-): Promise<RequestDb> {
+  openSqlClient: OpenSqlClient
+): Promise<SqlClient> {
   if (!isObservabilityActive(observability)) {
-    return openDb(dbUrl, dbScope);
+    return openSqlClient();
   }
   const span = observability.startSpan({
     name: 'db.open',
@@ -103,7 +97,7 @@ async function openObservedRequestDb(
   });
   return observability.withSpanContextAsync(span.spanContext, async () => {
     try {
-      const db = await openDb(dbUrl, dbScope);
+      const db = await openSqlClient();
       span.setStatus({ code: 'ok' });
       return db;
     } catch (err: unknown) {
@@ -121,13 +115,14 @@ async function openObservedRequestDb(
 
 function createRequestBetterAuth(
   boot: BetterAuthBootConfig,
-  opened: RequestDb
+  sqlClient: SqlClient
 ): BetterAuthInstance {
-  const database =
-    opened.kind === 'postgres'
-      ? ({ kind: 'postgres', pool: opened.pool } as const)
-      : ({ kind: 'sql-client', client: opened.sqlClient } as const);
-  return createBetterAuth(betterAuthConfigForDatabase(boot, database));
+  return createBetterAuth(
+    betterAuthConfigForDatabase(boot, {
+      kind: 'sql-client',
+      client: sqlClient,
+    })
+  );
 }
 
 async function materializeClientConfigIfNeeded(
@@ -141,7 +136,7 @@ async function materializeClientConfigIfNeeded(
   // requests may both materialize; EnsureClientConfigMaterialized is idempotent.
   const result = await new EnsureClientConfigMaterialized(
     sqlClient,
-    options.io
+    options.clock
   ).execute(options.desiredClientConfig);
   latch.done = true;
   if (result.updated) {
@@ -152,24 +147,14 @@ async function materializeClientConfigIfNeeded(
 async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
-  const { c, next, dbScope, dbUrl, options, secretStore, clientConfigLatch } =
-    args;
-  const { betterAuth: boot, observability, io } = options;
-  const openDb = options.openRequestDb;
-  const opened = await openObservedRequestDb(
-    observability,
-    dbUrl,
-    dbScope,
-    openDb
-  );
-  const sqlClient = wrapSqlClientForObservability(
-    observability,
-    opened.sqlClient
-  );
-  const betterAuth = createRequestBetterAuth(boot, opened);
+  const { c, next, options, secretStore, clientConfigLatch } = args;
+  const { betterAuth: boot, observability, clock, timers, createId } = options;
+  const raw = await openObservedSqlClient(observability, options.openSqlClient);
+  const sqlClient = wrapSqlClientForObservability(observability, raw);
+  const betterAuth = createRequestBetterAuth(boot, sqlClient);
   const authServer = createBetterAuthServerAdapter(betterAuth);
-  const kv = new KvImplPostgres(sqlClient, io.clock.now);
-  const sessionAuth = new SessionAuth(authServer);
+  const kv = new KvImplPostgres(sqlClient, clock.now);
+  const sessionAuth = new SessionAuth(authServer, { clock, createId });
   const store = {
     sqlClient,
     sessionAuth,
@@ -177,42 +162,37 @@ async function attachRequestDatabase(
     observability,
     secretStore,
     betterAuth,
-    io,
+    clock,
+    timers,
+    createId,
   };
-  return await runWithIo(io, () =>
-    apiRequestAsyncLocalStorage.run(store, async () => {
-      c.set('sqlClient', sqlClient);
-      c.set('sessionAuth', sessionAuth);
-      c.set('authServer', authServer);
-      c.set('betterAuth', betterAuth);
+  return await apiRequestAsyncLocalStorage.run(store, async () => {
+    c.set('sqlClient', sqlClient);
+    c.set('sessionAuth', sessionAuth);
+    c.set('authServer', authServer);
+    c.set('betterAuth', betterAuth);
+    try {
+      await materializeClientConfigIfNeeded(
+        sqlClient,
+        options,
+        clientConfigLatch
+      );
+      return await next();
+    } finally {
+      if (options.skipDatabaseUrlPolicy === true) return;
       try {
-        await materializeClientConfigIfNeeded(
-          sqlClient,
-          options,
-          clientConfigLatch
-        );
-        return await next();
-      } finally {
-        // SQLite openers own process-lifetime handles (sim sqlite-mem / better-sqlite3).
-        // Disconnecting here DROP/closes them after the first request.
-        if (opened.kind === 'postgres') {
-          // One end only — sqlClient and pool wrap the same pg.Client.
-          try {
-            await opened.pool.end();
-          } catch (error: unknown) {
-            observability.recordException(error, {
-              operation: 'request-db-cleanup',
-            });
-          }
-        }
+        await sqlClient.disconnect();
+      } catch (error: unknown) {
+        observability.recordException(error, {
+          operation: 'request-db-cleanup',
+        });
       }
-    })
-  );
+    }
+  });
 }
 
 export function createRequestDbMiddleware(
   secretStore: SecretStore,
-  dbScope: PostgresDbScope,
   options: RequestDbMiddlewareOptions
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
   const { databaseUrlOverride = null, secretsEnv } = options;
@@ -223,20 +203,18 @@ export function createRequestDbMiddleware(
     if (new URL(c.req.url).pathname === '/api/health') {
       return next();
     }
-    const dbUrl = await resolveRequestDatabaseUrl(
-      secretStore,
-      databaseUrlOverride
-    );
-    assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
     if (!skipDatabasePolicy) {
+      const dbUrl = await resolveRequestDatabaseUrl(
+        secretStore,
+        databaseUrlOverride
+      );
+      assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
       await ensureDevDatabasePolicy(dbUrl, secretsEnv, policyLatch);
     }
     return attachRequestDatabase({
       c,
       next,
       secretStore,
-      dbScope,
-      dbUrl,
       options,
       clientConfigLatch,
     });

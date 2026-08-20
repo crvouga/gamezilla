@@ -1,4 +1,4 @@
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -28,7 +28,10 @@ export type EnsureAnonUserResult = {
 export class AnonUserService {
   constructor(
     private readonly tx: SqlTx,
-    private readonly io: Io
+    private readonly time: {
+      readonly clock: Clock;
+      readonly createId: CreateId;
+    }
   ) {}
 
   /**
@@ -47,8 +50,8 @@ export class AnonUserService {
     readonly createId?: CreateId;
   }): Promise<EnsureAnonUserResult> {
     const { deviceId, forceNew = false } = args;
-    const now = args.now ?? this.io.clock.now;
-    const createId = args.createId ?? this.io.createId;
+    const now = args.now ?? this.time.clock.now;
+    const createId = args.createId ?? this.time.createId;
     assertDeviceId(deviceId);
 
     if (!forceNew) {

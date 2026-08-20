@@ -1,6 +1,7 @@
 // @io-wall-ok
+
 import { join } from 'node:path';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -133,7 +134,6 @@ function filterSince(
 }
 
 async function main(): Promise<void> {
-  const io = wallIo();
   const args = parseSummarizeArgs(process.argv);
   const store = createNodeFsObjectStore({
     rootDir: args.rootDir,
@@ -143,7 +143,7 @@ async function main(): Promise<void> {
   const records = filterSince(
     await loadAllRecords(store),
     args.sinceHours,
-    io.clock.now
+    wallClock.now
   );
   if (args.traceId !== undefined) {
     printWaterfall(records, args.traceId);

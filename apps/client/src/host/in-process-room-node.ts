@@ -7,7 +7,7 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeSpaceRoomModule } from '@libs/spaces/public/load-game-plugins';
 import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
-import type { Io } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
 import type { Message } from '@pkgs/message';
 import {
   type ClientTransport,
@@ -23,12 +23,17 @@ import {
   type RoomStorageTopicReplace,
   type RoomStorageTopicSnapshot,
 } from '@pkgs/room/server/adapters/memory';
+import type { CreateId } from '@pkgs/uuid';
 
-type SpaceRoomServer = RoomServer<RoomState, Message, Message, string>;
+type RoomTime = {
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly createId: CreateId;
+};
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
 
 type TopicEntry = {
-  readonly server: SpaceRoomServer;
+  readonly server: RoomServer<RoomState, Message, Message, string>;
   readonly storage: InMemoryRoomStorage;
   readonly disposeSchedule: () => void;
   readonly ready: Promise<void>;
@@ -47,6 +52,7 @@ export type InProcessRoomNode = {
   inspect(topic: string): InProcessRoomInspect | null;
   exportTopic(topic: string): RoomStorageTopicSnapshot | null;
   replaceTopic(topic: string, next: RoomStorageTopicReplace): Promise<void>;
+  dropTopic(topic: string): void;
   subscribe(listener: () => void): () => void;
   dispose(): void;
 };
@@ -80,21 +86,21 @@ function withReadyGate(
 
 function createTopicEntry(
   topic: string,
-  io: Io,
+  time: RoomTime,
   module: SpaceModule
 ): TopicEntry {
   const storage = new InMemoryRoomStorage();
   const schedule = createTimerScheduleStack({
-    clock: io.clock,
-    timers: io.timers,
-    createId: io.createId,
+    clock: time.clock,
+    timers: time.timers,
+    createId: time.createId,
     topic,
   });
   const server = new RoomServer<RoomState, Message, Message, string>({
     topic,
     module,
     storage,
-    clock: io.clock,
+    clock: time.clock,
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -113,11 +119,11 @@ function createTopicEntry(
 }
 
 function buildLoopbackTransport(
-  io: Io,
+  time: RoomTime,
   entry: TopicEntry,
   args: Parameters<CreateRoomTransport>[0]
 ): ClientTransport {
-  const connectionId = io.createId();
+  const connectionId = time.createId();
   const transport = new LoopbackRoomTransport({
     server: {
       registerConnection(id, send, actor, options) {
@@ -146,11 +152,13 @@ function buildLoopbackTransport(
 /**
  * Shared room node for one playground session.
  */
-export function createInProcessRoomNode(io: Io): InProcessRoomNode {
+export function createInProcessRoomNode(time: RoomTime): InProcessRoomNode {
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
-  const module = composeSpaceRoomModule(GAME_DEFINITIONS, () => io.clock.now());
+  const module = composeSpaceRoomModule(GAME_DEFINITIONS, () =>
+    time.clock.now()
+  );
 
   const notify = () => {
     for (const listener of [...listeners]) {
@@ -165,7 +173,7 @@ export function createInProcessRoomNode(io: Io): InProcessRoomNode {
   const getOrCreate = (topic: string): TopicEntry => {
     const existing = topics.get(topic);
     if (existing !== undefined) return existing;
-    const entry = createTopicEntry(topic, io, module);
+    const entry = createTopicEntry(topic, time, module);
     topics.set(topic, entry);
     notify();
     return entry;
@@ -175,7 +183,7 @@ export function createInProcessRoomNode(io: Io): InProcessRoomNode {
     createTransport: (args) => {
       if (disposed) throw new Error('InProcessRoomNode: disposed');
       return buildLoopbackTransport(
-        io,
+        time,
         getOrCreate(`space:${args.spaceId}`),
         args
       );
@@ -201,6 +209,13 @@ export function createInProcessRoomNode(io: Io): InProcessRoomNode {
       const entry = getOrCreate(topic);
       entry.storage.replaceTopic(topic, next);
       await entry.server.hydrateFromStorage();
+      notify();
+    },
+    dropTopic(topic) {
+      const entry = topics.get(topic);
+      if (entry === undefined) return;
+      entry.disposeSchedule();
+      topics.delete(topic);
       notify();
     },
     subscribe(listener) {

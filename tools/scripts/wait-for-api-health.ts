@@ -3,10 +3,9 @@
  * Poll `/api/health` until ready (used by CI after starting `preview:serve`).
  * Optional `API_PREVIEW_PID` / `API_PREVIEW_LOG` fail fast if the process dies.
  */
-import { existsSync, readFileSync } from 'node:fs';
-import { wallIo } from '@pkgs/io';
 
-const io = wallIo();
+import { existsSync, readFileSync } from 'node:fs';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 const DEFAULT_ORIGIN = 'http://localhost:8788';
 const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');
@@ -47,10 +46,10 @@ const fromEnv = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim();
 const origin =
   fromEnv !== undefined && fromEnv.length > 0 ? fromEnv : DEFAULT_ORIGIN;
 const healthUrl = `${origin}/api/health`;
-const deadline = io.clock.now() + timeoutMs;
+const deadline = wallClock.now() + timeoutMs;
 let lastErr: string | undefined;
 
-while (io.clock.now() < deadline) {
+while (wallClock.now() < deadline) {
   if (
     Number.isFinite(previewPid) &&
     previewPid > 0 &&
@@ -62,7 +61,7 @@ while (io.clock.now() < deadline) {
   }
 
   try {
-    const res = await io.http.fetch(healthUrl);
+    const res = await globalThis.fetch(healthUrl);
     if (res.ok) {
       process.stdout.write(`[wait-for-api-health] ready ${healthUrl}\n`);
       process.exit(0);
@@ -73,7 +72,7 @@ while (io.clock.now() < deadline) {
   }
 
   await new Promise<void>((resolve) => {
-    io.timers.setTimeout(() => resolve(), 250);
+    wallTimers.setTimeout(() => resolve(), 250);
   });
 }
 

@@ -1,5 +1,5 @@
+import type { Clock } from '@pkgs/clock';
 import { isEqual } from '@pkgs/equal/is-equal';
-import type { Io } from '@pkgs/io';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   CLIENT_CONFIG_KEYS,
@@ -88,7 +88,7 @@ function liveStoredSnapshot(
 export class EnsureClientConfigMaterialized {
   constructor(
     private readonly db: SqlClient,
-    private readonly io: Io
+    private readonly clock: Clock
   ) {}
 
   /**
@@ -98,7 +98,10 @@ export class EnsureClientConfigMaterialized {
     desired: DesiredClientConfig
   ): Promise<{ readonly updated: boolean }> {
     const desiredRows = buildDesiredRows(desired);
-    const stored = await new ClientConfigRepository(this.db, this.io).listAll();
+    const stored = await new ClientConfigRepository(
+      this.db,
+      this.clock
+    ).listAll();
     if (isEqual(liveStoredSnapshot(stored), snapshotForCompare(desiredRows))) {
       return { updated: false };
     }
@@ -106,7 +109,7 @@ export class EnsureClientConfigMaterialized {
     const known = new Set<string>(CLIENT_CONFIG_KEYS);
 
     await this.db.transaction(async (tx) => {
-      const repo = new ClientConfigRepository(tx, this.io);
+      const repo = new ClientConfigRepository(tx, this.clock);
       for (const row of desiredRows) {
         await repo.upsert({ id: row.id, value: row.value });
       }

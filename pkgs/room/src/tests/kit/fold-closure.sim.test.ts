@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import {
   counterValue,
@@ -10,7 +10,7 @@ import {
 
 describe('kit: fold closure (M-F04)', () => {
   test('reduce over server-ordered log stays valid', () => {
-    const io = createSimIo({
+    const adapters = createSimAdapters({
       seed: process.env['SIM_SEED'] ?? '42',
       startMs: 1,
     });
@@ -20,7 +20,7 @@ describe('kit: fold closure (M-F04)', () => {
       const payload = i % 3 === 0 ? Decrement({}) : Increment({});
       const res = TestCounterModule.handle(
         state,
-        { id: io.createId(), ts: io.clock.now(), payload },
+        { id: adapters.createId(), ts: adapters.clock.now(), payload },
         'alice'
       );
       if (!res.ok) throw new Error('expected ok');

@@ -25,11 +25,11 @@
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {
     "@electric-sql/pglite": "catalog:",
-    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

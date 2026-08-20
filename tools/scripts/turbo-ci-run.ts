@@ -1,12 +1,12 @@
 /**
- * Shared Turbo flags for CI / `check:ci*`.
+ * Shared Turbo flags for CI / `check:ci*` / local `check`.
  *
  * - CI: `local:rw,remote:rw` when `TURBO_TOKEN` + `TURBO_TEAM` are present
  *   (injected by secrets-auth); otherwise `local:rw`. Local disk under
  *   `.turbo` is persisted via per-job `actions/cache`; remote is Vercel.
- * - Local: honor `TURBO_CACHE` when set; otherwise `local:rw` only.
- *   Remote is opt-in (`remote:r` / `remote:rw`) so a rate-limited
- *   Vercel Remote Cache cannot spam `429` into every local check.
+ * - Local: honor `TURBO_CACHE` when set. Otherwise use `local:rw,remote:rw`
+ *   when `TURBO_TOKEN` + `TURBO_TEAM` are present (secrets-run / shell),
+ *   else `local:rw` only.
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
  *   override Vercel's default cache endpoint for local remote use.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
@@ -56,7 +56,7 @@ function resolveCacheFlag(env: NodeJS.ProcessEnv): string {
     return fromEnv;
   }
 
-  return 'local:rw';
+  return hasRemoteCreds(env) ? 'local:rw,remote:rw' : 'local:rw';
 }
 
 function resolveConcurrency(): string {
@@ -119,7 +119,7 @@ const affected = resolveAffectedFilter(taskArgs);
 if (affected.length > 0) {
   console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
 }
-if (inCi()) {
+if (inCi() || hasRemoteCreds(env)) {
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${concurrency}` +
       (hasRemoteCreds(env) ? ' (remote creds present)' : ' (local only)')

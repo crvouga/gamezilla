@@ -1,4 +1,4 @@
-import { useIo } from '@pkgs/io';
+import { useClock } from '@pkgs/clock';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useEffect, useMemo, useState } from 'react';
 import type {
@@ -20,7 +20,7 @@ export function useNotifications(options?: {
   readonly setFilter: (filter: NotificationFilter) => void;
 } {
   const { userId } = useNotificationsShell();
-  const io = useIo();
+  const clock = useClock();
   const [filter, setFilter] = useState<NotificationFilter>(
     options?.filter ?? 'all'
   );
@@ -37,8 +37,8 @@ export function useNotifications(options?: {
     [rows]
   );
   const sections = useMemo(
-    () => buildNotificationSections(interactions, io.clock.now),
-    [interactions, io.clock.now]
+    () => buildNotificationSections(interactions, clock.now),
+    [interactions, clock.now]
   );
   return { interactions, sections, isLoading, filter, setFilter };
 }

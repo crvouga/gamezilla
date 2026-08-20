@@ -20,6 +20,12 @@ export default function CheckboxExample() {
             onToggle={setB}
           />
           <Checkbox label="Disabled" checked={c} onToggle={setC} disabled />
+          <Checkbox
+            label="Indeterminate (partial)"
+            checked={false}
+            indeterminate
+            onToggle={() => undefined}
+          />
         </Stack>
       </SchemePreview>
     </ExampleRoot>

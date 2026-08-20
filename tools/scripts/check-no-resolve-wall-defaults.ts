@@ -5,8 +5,8 @@
  * - `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` /
  *   `resolveClock` — banned everywhere (including definitions/imports).
  * - `cryptoCreateId` / `mathRandom` — banned everywhere; wall RNG/UUID only
- *   via `wallIo()`.
- * - `wallIo` / `wallClock` / `wallTimers` / `createGlobalHttpClient` — only in
+ *   via `crypto.randomUUID` / `Math.random` in `@io-wall-ok` roots.
+ * - `wallClock` / `wallTimers` / `createGlobalHttpClient` — only in
  *   test files or entry-shaped files marked `@io-wall-ok`.
  */
 import { readFileSync } from 'node:fs';
@@ -37,11 +37,6 @@ const BANS: readonly Ban[] = [
   {
     kind: 'createGlobalHttpClient()',
     re: /\bcreateGlobalHttpClient\s*\(\s*\)/,
-    allowInWallOk: true,
-  },
-  {
-    kind: 'wallIo()',
-    re: /\bwallIo\s*\(\s*\)/,
     allowInWallOk: true,
   },
   {
@@ -124,9 +119,9 @@ for (const f of files) {
 
 if (offenses.length > 0) {
   console.error(
-    'Silent wall-I/O fallback check failed — inject Io via constructor or React context (useIo / getIo).\n' +
-      'wallIo/wallClock/wallTimers/createGlobalHttpClient only in tests or entry-shaped `@io-wall-ok` files.\n' +
-      'resolve*/cryptoCreateId/mathRandom are removed — use wallIo() or createSimIo() at composition roots:\n'
+    'Silent wall-I/O fallback check failed — inject Clock/Timers/CreateId via constructor or React context (useClock / useTimers / useCreateId).\n' +
+      'wallClock/wallTimers/createGlobalHttpClient only in tests or entry-shaped `@io-wall-ok` files.\n' +
+      'resolve*/cryptoCreateId/mathRandom are removed — use wallClock/wallTimers/crypto.randomUUID at composition roots:\n'
   );
   for (const o of offenses.slice(0, 200)) {
     console.error(`  - ${offenseKey(o)}`);

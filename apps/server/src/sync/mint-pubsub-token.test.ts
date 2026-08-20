@@ -1,25 +1,24 @@
 import { describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { jwtVerify } from 'jose';
 
 import { mintPubSubToken } from './mint-pubsub-token';
 
 describe('mintPubSubToken', () => {
   test('embeds subscribe+publish ACL for user and rooms', async () => {
-    const io = wallIo();
     const secret = 'test-secret';
     const { token, expiresAt } = await mintPubSubToken({
       secret,
       actorId: 'actor1',
       spaceIds: ['space_a', 'space_b'],
-      now: io.clock.now,
+      now: wallClock.now,
     });
     const { payload } = await jwtVerify(
       token,
       new TextEncoder().encode(secret)
     );
     expect(payload.sub).toBe('actor1');
-    expect(expiresAt).toBeGreaterThan(Math.floor(io.clock.now() / 1000));
+    expect(expiresAt).toBeGreaterThan(Math.floor(wallClock.now() / 1000));
     const acl = payload['acl'] as Array<{
       permission: string;
       action: string;

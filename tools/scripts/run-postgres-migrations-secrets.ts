@@ -4,19 +4,18 @@
  * Used by sync setup/deploy so schema + publication target the same DB.
  *
  * Retries on transient Postgres errors (deadlock / too many clients) — same
- * policy as `@apps/api/db/migrate`. Dropping sync tables while
+ * policy as `@apps/server/db/migrate`. Dropping sync tables while
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
 import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
 
-const io = wallIo();
 const MIGRATE_RETRY_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
 
 function isPostgresConnectionLimitError(error: unknown): boolean {
@@ -60,7 +59,7 @@ function isPostgresTransientMigrateError(error: unknown): boolean {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
-    io.timers.setTimeout(resolve, ms);
+    wallTimers.setTimeout(resolve, ms);
   });
 }
 
@@ -77,7 +76,7 @@ async function runPostgresMigrationsFromSecretsOnce(): Promise<void> {
   const dbScope = appPostgresDbScope();
   const logger = createLogger({
     name: 'postgres:migrate-secrets',
-    now: io.clock.now,
+    now: wallClock.now,
   });
   const { pool, sqlClient } = createPgPool({
     connectionString: databaseUrl,
@@ -105,7 +104,7 @@ export async function runPostgresMigrationsFromSecrets(): Promise<void> {
   await loadSecretsIntoEnv();
   const logger = createLogger({
     name: 'postgres:migrate-secrets',
-    now: io.clock.now,
+    now: wallClock.now,
   });
   let lastError: unknown;
 

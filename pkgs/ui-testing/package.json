@@ -22,7 +22,6 @@
   "dependencies": {
     "@babel/runtime": "catalog:",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@testing-library/react-native": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:",

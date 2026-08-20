@@ -17,15 +17,15 @@ type EntrypointRule = {
 
 const ENTRYPOINTS: readonly EntrypointRule[] = [
   {
-    file: 'apps/api/scripts/setup-dev-vars.ts',
+    file: 'apps/server/scripts/setup-dev-vars.ts',
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/api/src/db/migrate.ts',
+    file: 'apps/server/src/db/migrate.ts',
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/api/scripts/wipe-dev-db.ts',
+    file: 'apps/server/scripts/wipe-dev-db.ts',
     mustInclude: [
       'assertDevSecretsEnv',
       'ALLOW_PRODUCTION_DATABASE_URL',
@@ -34,7 +34,7 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     ],
   },
   {
-    file: 'apps/api/src/app/request-db-middleware.ts',
+    file: 'apps/server/src/app/request-db-middleware.ts',
     mustInclude: ['assertDatabaseUrlAllowedForSecretsEnv'],
   },
   {

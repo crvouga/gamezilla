@@ -1,11 +1,14 @@
 import type { DataTableColumn, DataTableDensity } from './data-table-types';
 
 export const DATA_TABLE_ROW_HEIGHT: Record<DataTableDensity, number> = {
-  compact: 36,
-  comfortable: 44,
+  compact: 40,
+  comfortable: 48,
 };
 
-export const DATA_TABLE_HEADER_HEIGHT = 36;
+export const DATA_TABLE_HEADER_HEIGHT = 40;
+
+/** Leading checkbox column when `selectionMode="multiple"`. */
+export const DATA_TABLE_SELECTION_COL_WIDTH = 40;
 
 /** Horizontal padding on each side of header/row content. */
 export const DATA_TABLE_ROW_PAD_X = 12;

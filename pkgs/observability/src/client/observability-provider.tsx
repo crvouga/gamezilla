@@ -1,5 +1,5 @@
-import { useIo } from '@pkgs/io';
-import type { CreateId } from '@pkgs/uuid';
+import { useClock } from '@pkgs/clock';
+import { type CreateId, useCreateId } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import { createLocalFileObservability } from '../impl-local-file/impl-local-file';
 import { createLoggerObservability } from '../impl-logger/impl-logger';
@@ -71,13 +71,14 @@ export function ObservabilityProvider({
   collectorUrl,
   observability: observabilityOverride,
 }: ObservabilityProviderProps): ReactNode {
-  const io = useIo();
+  const clock = useClock();
+  const createId = useCreateId();
   const observability = useMemo(() => {
     if (observabilityOverride !== undefined) return observabilityOverride;
     return createClientObservability({
       serviceName,
-      now: io.clock.now,
-      createId: io.createId,
+      now: clock.now,
+      createId,
       backendEnv,
       ...(forceNoop !== undefined ? { forceNoop } : {}),
       ...(collectorUrl !== undefined ? { collectorUrl } : {}),
@@ -88,8 +89,8 @@ export function ObservabilityProvider({
     backendEnv,
     forceNoop,
     collectorUrl,
-    io.clock.now,
-    io.createId,
+    clock,
+    createId,
   ]);
 
   return (

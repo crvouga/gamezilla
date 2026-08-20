@@ -6,6 +6,7 @@ export {
   type SimulationReportServer,
 } from './create-server';
 export {
+  type ConvertSqliteDumpToSqlm,
   type CreateSystemConsoleAppOptions,
   createSystemConsoleApp,
   type SystemConsoleAppHandle,

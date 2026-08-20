@@ -40,7 +40,18 @@ export function DataTableStatusShell(props: {
   return (
     <Box sx={shellSx} dataSet={dataSet} onLayout={onLayout}>
       {header}
-      {children}
+      <Box
+        sx={{
+          flexGrow: 1,
+          minHeight: 0,
+          minWidth: 0,
+          alignSelf: 'stretch',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {children}
+      </Box>
     </Box>
   );
 }

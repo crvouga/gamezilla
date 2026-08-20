@@ -4,8 +4,8 @@
  */
 
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
-import { runLocalMigrate } from '../../apps/api/scripts/run-local-postgres-migrate';
-import { runLocalSeed } from '../../apps/api/scripts/run-local-postgres-seed';
+import { runLocalMigrate } from '../../apps/server/scripts/run-local-postgres-migrate';
+import { runLocalSeed } from '../../apps/server/scripts/run-local-postgres-seed';
 
 const handle = await startEmbeddedPostgres();
 await runLocalMigrate();

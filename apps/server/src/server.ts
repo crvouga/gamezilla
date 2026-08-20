@@ -10,11 +10,13 @@ import {
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { isSecretStoreError } from '@pkgs/secret-store';
-import { createApiApp } from './app/create-app';
+import Stripe from 'stripe';
+import { createServer } from './app/create-server';
+import type { ServerEnv } from './app/server-env';
 import { loadBetterAuthBootConfig } from './config/better-auth-boot';
 import type { ApiWorkerEnv } from './config/env';
 import {
@@ -33,11 +35,20 @@ import { drainAndNotifyOutbox } from './sync/outbox-drain';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
-const roomIo = wallIo();
+function mintWallSeed(): bigint {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  let n = 0n;
+  for (const b of bytes) {
+    n = (n << 8n) | BigInt(b);
+  }
+  return n === 0n ? 1n : n;
+}
 
-const log = createLogger({ name: 'api', now: roomIo.clock.now });
+const wallSeed = mintWallSeed();
+const log = createLogger({ name: 'server', now: wallClock.now });
 
-type App = Awaited<ReturnType<typeof createApiApp>>;
+type App = Awaited<ReturnType<typeof createServer>>;
 
 type BootState =
   | { readonly kind: 'pending' }
@@ -103,17 +114,17 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretsEnv = assertSecretsEnvBinding(env);
   const secretStore = createApiSecretStore(
     workerEnvToSecretRecord(env),
-    roomIo.clock.now
+    wallClock.now
   );
   const objectStore = await createApiObjectStore(secretStore, {
     secretsEnv,
-    now: roomIo.clock.now,
+    now: wallClock.now,
   });
   const dbScope = appPostgresDbScope();
   const observability = createServerObservability({
-    serviceName: 'gamezilla-api',
-    now: roomIo.clock.now,
-    createId: roomIo.createId,
+    serviceName: 'gamezilla-server',
+    now: wallClock.now,
+    createId: () => crypto.randomUUID(),
     envBackend: env.OBSERVABILITY_BACKEND,
     isProduction: secretsEnv === 'prd',
     ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
@@ -122,25 +133,62 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       : {}),
   });
 
-  const apiUrlOverride = readOptionalApiUrlOverride(env);
+  const serverUrl = readOptionalApiUrlOverride(env);
+  const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
   const betterAuth = await loadBetterAuthBootConfig({
     secretStore,
-    apiUrlOverride,
+    apiUrlOverride: serverUrl,
     secretsEnv,
   });
 
-  return await createApiApp({
-    secretStore,
-    betterAuth,
-    dbScope,
-    io: roomIo,
-    apiUrlOverride,
-    databaseUrlOverride: readOptionalDatabaseUrlOverride(env),
-    openRequestDb,
-    secretsEnv,
-    objectStore,
+  const stripeKey = (
+    await secretStore.getOptional(ApiSecretName.stripeSecretKey)
+  )
+    ?.readSecretValue()
+    ?.trim();
+  const payments =
+    stripeKey !== undefined && stripeKey.length > 0
+      ? new Stripe(stripeKey, {
+          httpClient: Stripe.createFetchHttpClient(),
+        })
+      : null;
+  if (payments === null) {
+    log.warn('stripe secret key missing; Stripe routes will return 503');
+  }
+
+  const serverEnv: ServerEnv = {
+    clock: wallClock,
+    timers: wallTimers,
+    createId: () => crypto.randomUUID(),
+    random: () => Math.random(),
+    seed: wallSeed,
+    openSqlClient: async () => {
+      const override = databaseUrlOverride?.trim();
+      const url =
+        override !== undefined && override.length > 0
+          ? override
+          : (
+              await secretStore.getRequired(ApiSecretName.dbUrl)
+            ).readSecretValue();
+      const opened = await openRequestDb(url, dbScope);
+      return opened.sqlClient;
+    },
+    events: null,
+    kv: null,
+    blob: objectStore,
+    payments,
+    tts: null,
+    llm: null,
+    secrets: secretStore,
     observability,
-  });
+    betterAuth,
+    secretsEnv,
+    serverUrl,
+    skipDatabaseUrlPolicy: false,
+    fetch: (input, init) => globalThis.fetch(input, init),
+  };
+
+  return await createServer(serverEnv);
 }
 
 async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
@@ -239,7 +287,7 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
   const secretsEnv = assertSecretsEnvBinding(env);
   const secretStore = createApiSecretStore(
     workerEnvToSecretRecord(env),
-    roomIo.clock.now
+    wallClock.now
   );
   const override = readOptionalDatabaseUrlOverride(env);
   const dbUrl =
@@ -255,7 +303,8 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
   try {
     const processed = await drainAndNotifyOutbox({
       db: opened.sqlClient,
-      io: roomIo,
+      clock: wallClock,
+      createId: () => crypto.randomUUID(),
     });
     if (processed > 0) {
       log.info('outbox cron drained', { processed });

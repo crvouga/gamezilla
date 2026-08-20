@@ -10,4 +10,5 @@ export type {
   DataTableLoadPageResult,
   DataTableOrderDir,
   DataTableProps,
+  DataTableSelectionMode,
 } from './data-table-types';

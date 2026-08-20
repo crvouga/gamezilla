@@ -182,8 +182,8 @@ Checked-in symbol lists: [`api-reports/`](./api-reports/).
 
 | Consumer | Change | Mechanical? |
 |----------|--------|-------------|
-| `apps/api` notify helpers | `notifyChannels({ sql, topics })` — done | Yes |
-| `apps/api` migrate | Keep `applyFrameworkServerDdl` | Yes (unchanged call) |
+| `apps/server` notify helpers | `notifyChannels({ sql, topics })` — done | Yes |
+| `apps/server` migrate | Keep `applyFrameworkServerDdl` | Yes (unchanged call) |
 | `apps/client` | No framework-table / epoch imports | Yes |
 | libs feature defs | Unchanged defineQuery/Mutation | Yes |
 | tools channel / table CI | Opaque asserts — done | Yes |

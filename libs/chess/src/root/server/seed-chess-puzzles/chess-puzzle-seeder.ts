@@ -24,7 +24,7 @@
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
  * standard migration step first (`bun run db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
- * of the seed lets `@libs/chess` stay independent of `@apps/api`
+ * of the seed lets `@libs/chess` stay independent of `@apps/server`
  * and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres
@@ -56,7 +56,8 @@ import {
   PRODUCTION_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
-import type { Io } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import { createLogger, type Logger } from '@pkgs/logger';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createScriptSecretStore } from '@pkgs/secret-store';
@@ -64,6 +65,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import type { CreateId } from '@pkgs/uuid';
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '../../../shared/chess/chess-puzzle-entities';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
@@ -114,39 +116,56 @@ export type ChessPuzzleSeederStores = {
   readonly cacheStoreForDir: (cacheDir: string) => ObjectStore;
 };
 
+export type ChessPuzzleSeederPorts = {
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly createId: CreateId;
+  readonly http: HttpClient;
+};
+
 export class ChessPuzzleSeeder {
   readonly #cli: Cli;
-  readonly #io: Io;
+  readonly #clock: Clock;
+  readonly #timers: Timers;
+  readonly #createId: CreateId;
+  readonly #http: HttpClient;
   readonly #stores: ChessPuzzleSeederStores;
 
   static fromArgv(
     argv: string[],
-    io: Io,
+    ports: ChessPuzzleSeederPorts,
     stores: ChessPuzzleSeederStores
   ): ChessPuzzleSeeder {
-    return new ChessPuzzleSeeder(parseCli(argv), io, stores);
+    return new ChessPuzzleSeeder(parseCli(argv), ports, stores);
   }
 
-  constructor(config: Cli, io: Io, stores: ChessPuzzleSeederStores) {
+  constructor(
+    config: Cli,
+    ports: ChessPuzzleSeederPorts,
+    stores: ChessPuzzleSeederStores
+  ) {
     this.#cli = config;
-    this.#io = io;
+    this.#clock = ports.clock;
+    this.#timers = ports.timers;
+    this.#createId = ports.createId;
+    this.#http = ports.http;
     this.#stores = stores;
   }
 
   async run(): Promise<void> {
     const log = createLogger({
       name: 'db:seed-puzzles',
-      now: this.#io.clock.now,
+      now: this.#clock.now,
     });
     const reporter = new PuzzleSeedReporter({
       pretty: this.#cli.prettyOutput,
       logger: log,
-      now: this.#io.clock.now,
+      now: this.#clock.now,
     });
     const archiveCache = new PuzzleArchiveCache({
       log,
-      http: this.#io.http,
-      now: this.#io.clock.now,
+      http: this.#http,
+      now: this.#clock.now,
       cacheStore: this.#stores.cacheStoreForDir(this.#cli.cacheDir),
       sourceStore: this.#stores.sourceStore,
     });
@@ -244,8 +263,8 @@ export class ChessPuzzleSeeder {
       sourceEtag,
       cursor: state.lastPuzzleId,
       finishedAt: null,
-      createId: this.#io.createId,
-      now: this.#io.clock.now,
+      createId: this.#createId,
+      now: this.#clock.now,
     });
   }
 
@@ -325,8 +344,8 @@ export class ChessPuzzleSeeder {
     await ctx.fastPath.flushPuzzleBatchFast({
       reporter: ctx.reporter,
       state: rowState.state,
-      createId: this.#io.createId,
-      now: this.#io.clock.now,
+      createId: this.#createId,
+      now: this.#clock.now,
     });
     if (
       rowState.state.batchesFlushed - rowState.lastProgressBatchIdx >=
@@ -371,7 +390,7 @@ export class ChessPuzzleSeeder {
 
   async #streamPuzzles(ctx: StreamContext): Promise<SeedStats> {
     const rowState: StreamRowState = {
-      state: createSeedStats(ctx.resumeCursor, this.#io.clock.now),
+      state: createSeedStats(ctx.resumeCursor, this.#clock.now),
       lastProgressBatchIdx: 0,
     };
     ctx.reporter.phase('Stream puzzles into chess_puzzles (fast path)', {
@@ -394,8 +413,8 @@ export class ChessPuzzleSeeder {
     await ctx.fastPath.flushPuzzleBatchFast({
       reporter: ctx.reporter,
       state: rowState.state,
-      createId: this.#io.createId,
-      now: this.#io.clock.now,
+      createId: this.#createId,
+      now: this.#clock.now,
     });
     await this.#persistResumeCursor({
       fastPath: ctx.fastPath,
@@ -471,9 +490,9 @@ export class ChessPuzzleSeeder {
       loadId: CHESS_PUZZLE_LOAD_ENTITY_ID,
       sourceEtag: resolved.etag,
       cursor: stats.lastPuzzleId,
-      finishedAt: new Date(this.#io.clock.now()).toISOString(),
-      createId: this.#io.createId,
-      now: this.#io.clock.now,
+      finishedAt: new Date(this.#clock.now()).toISOString(),
+      createId: this.#createId,
+      now: this.#clock.now,
     });
     await fastPath.runFinalMaintenance({
       reporter,
@@ -483,7 +502,7 @@ export class ChessPuzzleSeeder {
       processed: stats.processed,
       rowsInserted: stats.rowsInserted,
       batchesFlushed: stats.batchesFlushed,
-      totalMs: Math.round(this.#io.clock.now() - stats.startedAt),
+      totalMs: Math.round(this.#clock.now() - stats.startedAt),
       etagPreview:
         resolved.etag.length > 48
           ? `${resolved.etag.slice(0, 48)}…`
@@ -519,7 +538,7 @@ export class ChessPuzzleSeeder {
     );
     const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
     const fastPath = new PuzzleSeedFastPath(sqlClient, {
-      timers: this.#io.timers,
+      timers: this.#timers,
       log,
     });
     try {

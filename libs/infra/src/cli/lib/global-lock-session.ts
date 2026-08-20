@@ -2,7 +2,7 @@ import type { LockHandle } from '@pkgs/distributed-lock/interface';
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import type { CiPlatform } from '../platform/platform';
 import { buildDistributedLock } from './build-distributed-lock';
-import { cliIo } from './cli-io';
+import { cliClock, cliTimers } from './cli-io';
 import { fail, fmtMs, info, kv, ok, warn } from './fmt';
 import { encodeGithubJobOutputValue } from './github-job-output-codec';
 import { registerLockDbSessionHooks } from './lock-db-session';
@@ -162,7 +162,7 @@ function describe(e: unknown): string {
 function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: unknown = null;
   const timeout = new Promise<never>((_, reject) => {
-    timer = cliIo.timers.setTimeout(() => reject(new Error(label)), ms);
+    timer = cliTimers.setTimeout(() => reject(new Error(label)), ms);
     if (
       timer !== null &&
       typeof timer === 'object' &&
@@ -173,7 +173,7 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
     }
   });
   return Promise.race([p, timeout]).finally(() => {
-    if (timer !== null) cliIo.timers.clearTimeout(timer);
+    if (timer !== null) cliTimers.clearTimeout(timer);
   });
 }
 
@@ -200,7 +200,7 @@ function printLockHeld(e: LockHeldError): void {
   const c = e.current;
   const started = Date.parse(c.startedAt);
   const age = Number.isFinite(started)
-    ? fmtMs(cliIo.clock.now() - started)
+    ? fmtMs(cliClock.now() - started)
     : '(unknown)';
   fail('Global lock', `held — ${c.holder} (${c.operation})`);
   kv('holder', c.holder);

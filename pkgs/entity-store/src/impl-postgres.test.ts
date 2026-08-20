@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
-import { createSimIo } from '@pkgs/io';
 import { createLogger } from '@pkgs/logger';
 import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
+import { createSimAdapters } from '@pkgs/uuid';
 import { EntityStoreImplPostgres } from './impl-postgres';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 describe('EntityStoreImplPostgres', () => {
   let close: (() => Promise<void>) | undefined;
@@ -26,12 +26,12 @@ describe('EntityStoreImplPostgres', () => {
 
     const logger = createLogger({
       name: 'entity-store-test',
-      now: io.clock.now,
+      now: adapters.clock.now,
     });
     await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
     await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
 
-    const store = new EntityStoreImplPostgres(sqlClient, io.clock.now);
+    const store = new EntityStoreImplPostgres(sqlClient, adapters.clock.now);
     await store.upsert({
       namespace: 'test',
       type: 'thing',

@@ -2,13 +2,12 @@ import { appAuth } from '@libs/auth/public/auth-context';
 import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
-import { createAuthApiRoutes } from '@libs/auth/root/server/auth-routes';
+import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
-import { createFriendsApp } from '@libs/friends/root/server/create-friends-app';
+import { FriendsApp } from '@libs/friends/root/server/create-friends-app';
 import { StripeApp } from '@libs/stripe/root/server/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
-import type { Io } from '@pkgs/io';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
@@ -18,7 +17,7 @@ import { createSystemConsoleApp } from '@pkgs/system-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
@@ -32,14 +31,12 @@ import { drainAndNotifyOutbox } from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
 import type { ApiHonoEnv } from './api-hono-types';
-import type { ApiHandlerConfig } from './config';
 import { apiCors } from './cors';
 import { createRequestDbMiddleware } from './request-db-middleware';
+import type { ServerEnv } from './server-env';
 
-export type { ApiHandlerConfig } from './config';
-
-function createAppLogger(io: Io) {
-  return createLogger({ name: 'api:app', now: io.clock.now });
+function createAppLogger(env: ServerEnv) {
+  return createLogger({ name: 'server:app', now: env.clock.now });
 }
 
 function isAssertionFailure(err: unknown): err is {
@@ -87,42 +84,19 @@ function createApiErrorHandler(log: ReturnType<typeof createAppLogger>) {
   };
 }
 
-async function createStripeClient(
-  config: ApiHandlerConfig,
-  log: ReturnType<typeof createAppLogger>
-): Promise<Stripe | null> {
-  if (config.stripe !== undefined) {
-    return config.stripe;
-  }
-  const raw = (
-    await config.secretStore.getOptional(ApiSecretName.stripeSecretKey)
-  )?.readSecretValue();
-  const key =
-    typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
-  if (key === null) {
-    log.warn('stripe secret key missing; Stripe routes will return 503');
-    return null;
-  }
-  return new Stripe(key, {
-    httpClient: Stripe.createFetchHttpClient(),
-  });
-}
-
-async function createTtsAppForApi(config: ApiHandlerConfig) {
-  const log = createAppLogger(config.io);
+async function createTtsAppForServer(env: ServerEnv) {
+  const log = createAppLogger(env);
   const result = await createTtsAppFromBindings({
-    secretStore: config.secretStore,
-    objectStore: config.objectStore,
+    secretStore: env.secrets,
+    objectStore: env.blob,
     publicPathPrefix: '/api',
-    fetch: config.io.http.fetch.bind(config.io.http),
+    fetch: env.fetch,
     requireAuth: async (req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'tts auth: request store missing');
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
-    ...(config.ttsProvider !== undefined
-      ? { provider: config.ttsProvider }
-      : {}),
+    ...(env.tts !== null ? { provider: env.tts } : {}),
   });
   if (!result.configured) {
     log.warn('ELEVEN_LABS_API_KEY missing; TTS routes will return 503');
@@ -130,11 +104,11 @@ async function createTtsAppForApi(config: ApiHandlerConfig) {
   return result;
 }
 
-async function createLlmAppForApi(config: ApiHandlerConfig) {
-  const log = createAppLogger(config.io);
+async function createLlmAppForServer(env: ServerEnv) {
+  const log = createAppLogger(env);
   const result = await createLlmAppFromBindings({
-    secretStore: config.secretStore,
-    http: config.io.http,
+    secretStore: env.secrets,
+    http: { fetch: env.fetch },
     getKv: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'llm kv: request store missing');
@@ -145,9 +119,7 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
       assert.defined(s, 'llm auth: request store missing');
       await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
     },
-    ...(config.llmProvider !== undefined
-      ? { provider: config.llmProvider }
-      : {}),
+    ...(env.llm !== null ? { provider: env.llm } : {}),
   });
   if (!result.configured) {
     log.warn(
@@ -157,7 +129,7 @@ async function createLlmAppForApi(config: ApiHandlerConfig) {
   return result;
 }
 
-function createStripeSubApp(stripe: Stripe | null) {
+function createStripeSubApp(stripe: Stripe | null, now: () => number) {
   return new StripeApp(
     () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -176,7 +148,8 @@ function createStripeSubApp(stripe: Stripe | null) {
         );
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
-    }
+    },
+    now
   ).build();
 }
 
@@ -219,7 +192,7 @@ async function resolveEmqxWssUrlForClientConfig(args: {
 
 async function buildDesiredClientConfig(args: {
   readonly secretStore: SecretStore;
-  readonly betterAuth: ApiHandlerConfig['betterAuth'];
+  readonly betterAuth: ServerEnv['betterAuth'];
   readonly stripeConfigured: boolean;
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
@@ -250,17 +223,16 @@ async function buildDesiredClientConfig(args: {
   };
 }
 
-function createApiRouter(args: {
-  readonly config: ApiHandlerConfig;
+function createServerRouter(args: {
+  readonly env: ServerEnv;
   readonly desiredClientConfig: DesiredClientConfig;
   readonly stripe: Stripe | null;
-  readonly tts: Awaited<ReturnType<typeof createTtsAppForApi>>;
-  readonly llm: Awaited<ReturnType<typeof createLlmAppForApi>>;
+  readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
+  readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
-  const { config, desiredClientConfig, stripe, tts, llm, log } = args;
-  const { secretStore, dbScope, observability, betterAuth, secretsEnv, io } =
-    config;
+  const { env, desiredClientConfig, stripe, tts, llm, log } = args;
+  const { secrets, observability, betterAuth, secretsEnv } = env;
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -271,18 +243,17 @@ function createApiRouter(args: {
     )
     .use(
       '*',
-      createRequestDbMiddleware(secretStore, dbScope, {
+      createRequestDbMiddleware(secrets, {
         betterAuth,
-        apiUrlOverride: config.apiUrlOverride,
-        databaseUrlOverride: config.databaseUrlOverride,
+        apiUrlOverride: env.serverUrl,
         secretsEnv,
         observability,
-        io,
+        clock: env.clock,
+        timers: env.timers,
+        createId: env.createId,
         desiredClientConfig,
-        openRequestDb: config.openRequestDb,
-        ...(config.skipDatabaseUrlPolicy === true
-          ? { skipDatabaseUrlPolicy: true }
-          : {}),
+        openSqlClient: env.openSqlClient,
+        ...(env.skipDatabaseUrlPolicy ? { skipDatabaseUrlPolicy: true } : {}),
       })
     )
     .use('*', apiCors)
@@ -294,13 +265,12 @@ function createApiRouter(args: {
         webClientOrigin: betterAuth.webClientOrigin,
       })
     )
-    .route('/', createFriendsApp())
+    .route('/', new FriendsApp(env.clock).build())
     .route(
       '/',
-      createAuthApiRoutes({
-        onUserDomainWrite: (userId) =>
-          notifyUserChannels([userId], 'auth-domain-write'),
-      })
+      new AuthApiRoutes(env.clock, env.createId, (userId) =>
+        notifyUserChannels([userId], 'auth-domain-write')
+      ).build()
     )
     .use('*', async (c, next) => {
       await next();
@@ -309,55 +279,66 @@ function createApiRouter(args: {
       if (c.res.status < 200 || c.res.status >= 300) return;
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
-      await drainAndNotifyOutbox({ db: store.sqlClient, io: store.io });
+      await drainAndNotifyOutbox({
+        db: store.sqlClient,
+        clock: store.clock,
+        createId: store.createId,
+      });
     })
-    .route('/', createSyncApp())
+    .route(
+      '/',
+      createSyncApp({ now: () => env.clock.now(), createId: env.createId })
+    )
     .route('/', createPubSubTokenRoutes())
     .route('/', tts.app)
     .route('/', llm.app)
-    .route('/', createStripeSubApp(stripe))
+    .route(
+      '/',
+      createStripeSubApp(stripe, () => env.clock.now())
+    )
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())
-    .route('/notifications', createNotificationsSubApp());
+    .route(
+      '/notifications',
+      createNotificationsSubApp(() => env.clock.now())
+    );
 
   apiRouter.onError(createApiErrorHandler(log));
   return apiRouter;
 }
 
-async function createConsoleRouter(config: ApiHandlerConfig) {
+async function createConsoleRouter(env: ServerEnv) {
   const reportConsole = createSystemConsoleApp({
     buckets: [
       {
         id: 'local',
         label: 'Local',
-        // Mediated ObjectStore.withPrefix may return a Promise (DST scheduleCall).
         store: await Promise.resolve(
-          config.objectStore.withPrefix(ObjectStorePrefix.systemConsole)
+          env.blob.withPrefix(ObjectStorePrefix.systemConsole)
         ),
       },
     ],
-    timers: config.io.timers,
-    now: () => config.io.clock.now(),
+    timers: env.timers,
+    now: () => env.clock.now(),
   });
   return new Hono().use('*', apiCors).route('/', reportConsole.app);
 }
 
 /**
- * Composes the API Worker app from mounted sub-apps (`app.route()`), per
- * [Hono best practices](https://hono.dev/docs/guides/best-practices).
+ * Composes the server Worker app from mounted sub-apps (`app.route()`).
  */
-export async function createApiApp(config: ApiHandlerConfig) {
-  const { betterAuth, io } = config;
-  const log = createAppLogger(io);
+export async function createServer(env: ServerEnv) {
+  const { betterAuth } = env;
+  const log = createAppLogger(env);
 
-  if (config.pubSub !== undefined) {
-    setApiPubSubOverride(config.pubSub);
+  if (env.events !== null) {
+    setApiPubSubOverride(env.events);
   }
 
-  const [stripe, tts, llm] = await Promise.all([
-    createStripeClient(config, log),
-    createTtsAppForApi(config),
-    createLlmAppForApi(config),
+  const stripe = env.payments;
+  const [tts, llm] = await Promise.all([
+    createTtsAppForServer(env),
+    createLlmAppForServer(env),
   ]);
 
   if (!betterAuth.googleEnabled) {
@@ -367,22 +348,20 @@ export async function createApiApp(config: ApiHandlerConfig) {
   }
 
   const desiredClientConfig = await buildDesiredClientConfig({
-    secretStore: config.secretStore,
+    secretStore: env.secrets,
     betterAuth,
     stripeConfigured: stripe !== null,
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
-    ...(config.apiUrlOverride !== undefined
-      ? { apiUrlOverride: config.apiUrlOverride }
-      : {}),
+    ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
   });
 
-  const consoleRouter = await createConsoleRouter(config);
+  const consoleRouter = await createConsoleRouter(env);
 
   return new Hono()
     .route(
       '/api',
-      createApiRouter({ config, desiredClientConfig, stripe, tts, llm, log })
+      createServerRouter({ env, desiredClientConfig, stripe, tts, llm, log })
     )
     .route('/system-console', consoleRouter);
 }

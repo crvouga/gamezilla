@@ -45,12 +45,13 @@ export type EventSourceHandle = {
 export type CreateReportApiClientOptions = {
   /** Mounted console Hono base path (no trailing slash), e.g. `/system-console`. */
   readonly basePath: string;
-  /** Injected fetch (from `io.http.fetch`); never a bare global. */
+  /** Injected fetch (from ClientEnv / HttpClient); never a bare global. */
   readonly fetch: HttpFetch;
 };
 
 export type ReportApiClient = {
   readonly basePath: string;
+  readonly fetch: HttpFetch;
   openBucketsEvents(args: {
     readonly onBuckets: (buckets: readonly BucketInfo[]) => void;
     readonly onError?: (err: Event) => void;
@@ -220,6 +221,7 @@ export function createReportApiClient(
 
   return {
     basePath,
+    fetch,
     testFrameUrl: (bucketId, runId, testId, frameFile) =>
       testFrameUrl({ basePath, bucketId, runId, testId, frameFile }),
     openBucketsEvents: (args) => openBucketsEvents(basePath, args),

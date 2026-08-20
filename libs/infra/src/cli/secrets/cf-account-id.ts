@@ -1,4 +1,4 @@
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 import { cfHeaders, HEX32_RE } from './cloudflare';
 import { Secret, type SecretInput } from './secret';
 
@@ -12,7 +12,7 @@ async function validateCfAccountId(input: SecretInput): Promise<void> {
     process.env['CLOUDFLARE_API_TOKEN']?.trim();
   if (token === undefined || token.length === 0) return;
   try {
-    const res = await cliIo.http.fetch(
+    const res = await cliHttp.fetch(
       `https://api.cloudflare.com/client/v4/accounts/${accountId}`,
       { headers: cfHeaders(token) }
     );

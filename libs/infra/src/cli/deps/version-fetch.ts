@@ -1,5 +1,5 @@
 import { INFRA_CLI_USER_AGENT as UA } from '../constants';
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 
 /** Network budget for a single "what's the latest version?" probe. */
 export const FETCH_TIMEOUT_MS = 15_000;
@@ -13,7 +13,7 @@ export async function fetchLatestNpmVersion(
   pkg: string
 ): Promise<string | null> {
   try {
-    const res = await cliIo.http.fetch(
+    const res = await cliHttp.fetch(
       `https://registry.npmjs.org/${pkg}/latest`,
       {
         headers: { Accept: 'application/json', 'User-Agent': UA },
@@ -39,7 +39,7 @@ export async function fetchLatestGithubReleaseVersion(
   extractVersion: (tag: string) => string | null
 ): Promise<string | null> {
   try {
-    const res = await cliIo.http.fetch(
+    const res = await cliHttp.fetch(
       `https://api.github.com/repos/${repo}/releases/latest`,
       {
         headers: { Accept: 'application/vnd.github+json', 'User-Agent': UA },

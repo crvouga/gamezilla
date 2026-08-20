@@ -1,14 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
-
 import { sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { ExternalAccountRepository } from '../../public/external-account-repository';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 async function migrateTables(db: SqlClient): Promise<void> {
   await db.run(sql<void>`
@@ -50,8 +48,8 @@ describe('ExternalAccountRepository', () => {
     repo = new ExternalAccountRepository(sqlClient);
     await repo.insertUser({
       userId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
   });
 
@@ -65,8 +63,8 @@ describe('ExternalAccountRepository', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'a@example.com' },
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     expect(
@@ -84,8 +82,8 @@ describe('ExternalAccountRepository', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'b@example.com' },
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     const rows = await sqlClient.query(sql<{ metadata: string }>`
@@ -114,7 +112,7 @@ describe('ExternalAccountRepository', () => {
         ${primaryAuthProvider},
         ${externalUserId},
         ${'{}'},
-        ${new Date(io.clock.now()).toISOString()}
+        ${new Date(adapters.clock.now()).toISOString()}
       )
     `);
 
@@ -131,8 +129,8 @@ describe('ExternalAccountRepository', () => {
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     await expect(
@@ -140,8 +138,8 @@ describe('ExternalAccountRepository', () => {
         userId,
         provider: primaryAuthProvider,
         externalId: 'user_ext_2',
-        now: io.clock.now,
-        createId: io.createId,
+        now: adapters.clock.now,
+        createId: adapters.createId,
       })
     ).rejects.toThrow();
   });
@@ -150,16 +148,16 @@ describe('ExternalAccountRepository', () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
     await repo.insertUser({
       userId: otherUserId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
     await repo.upsertExternalAccount({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'owner@example.com' },
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     await repo.upsertExternalAccount({
@@ -167,8 +165,8 @@ describe('ExternalAccountRepository', () => {
       provider: primaryAuthProvider,
       externalId: externalUserId,
       metadata: { email: 'thief@example.com' },
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     expect(
@@ -193,23 +191,23 @@ describe('ExternalAccountRepository', () => {
     const otherUserId = '22222222-2222-4222-8222-222222222222';
     await repo.insertUser({
       userId: otherUserId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
     await repo.insertExternalAccountOrGet({
       userId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     const adopted = await repo.insertExternalAccountOrGet({
       userId: otherUserId,
       provider: primaryAuthProvider,
       externalId: externalUserId,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     expect(adopted).toBe(userId);

@@ -1,9 +1,6 @@
 // @io-wall-ok
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { wallIo } from '@pkgs/io';
-
-const io = wallIo();
 
 const ROOT = path.join(import.meta.dir, '..');
 const CACHE = path.join(ROOT, '.cache', 'kenney');
@@ -42,7 +39,7 @@ const PACKS: ReadonlyArray<{ name: string; url: string }> = [
 
 async function download(name: string, url: string): Promise<void> {
   const dest = path.join(CACHE, name);
-  const res = await io.http.fetch(url);
+  const res = await globalThis.fetch(url);
   if (!res.ok) {
     throw new Error(
       `Failed to download ${name}: ${res.status} ${res.statusText}`

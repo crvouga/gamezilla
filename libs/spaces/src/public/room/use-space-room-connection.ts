@@ -1,7 +1,6 @@
 import type { ConfigService } from '@libs/auth/public/config-service-types';
-import type { Timers } from '@pkgs/clock';
-import type { Io } from '@pkgs/io';
-import { useIo } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
+import { useClock, useTimers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
   ClientTransport,
@@ -10,6 +9,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
+import { type CreateId, type Random, useCreateId, useRandom } from '@pkgs/uuid';
 import {
   type Dispatch,
   type MutableRefObject,
@@ -85,7 +85,10 @@ type OpenSpaceRoomArgs = {
   module: ReturnType<typeof useSpaceModule>;
   getSessionToken: () => string | null | Promise<string | null>;
   createTransport: ReturnType<typeof useCreateRoomTransport>;
-  io: Io;
+  clock: Clock;
+  timers: Timers;
+  createId: CreateId;
+  random: Random;
   roomRef: MutableRefObject<SpaceRoom | null>;
   transportRef: MutableRefObject<ClientTransport | null>;
   setRoom: Dispatch<SetStateAction<SpaceRoom | null>>;
@@ -126,7 +129,12 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
     try {
       // Local hydrate first; WS may still be connecting. Commit as soon as
       // createSpaceRoom resolves so Games/Chess dispatch is not a no-op.
-      opened = await new SpaceRoomFactory(args.io).create({
+      opened = await new SpaceRoomFactory(
+        args.clock,
+        args.timers,
+        args.createId,
+        args.random
+      ).create({
         spaceId: args.bootstrap.spaceId,
         apiUrl: args.configService.getApiUrl(),
         module: args.module,
@@ -216,6 +224,12 @@ function makeGetSessionToken(args: {
   };
 }
 
+function useRenderRef<T>(value: T): MutableRefObject<T> {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}
+
 export type UseSpaceRoomConnectionArgs = {
   bootstrap: SpaceRoomConnectionBootstrap | null;
   configService: ConfigService;
@@ -238,17 +252,17 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const roomRef = useRef<SpaceRoom | null>(null);
   const module = useSpaceModule();
   const createTransport = useCreateRoomTransport();
-  const io = useIo();
-  const sessionTokenRef = useRef(sessionToken);
-  sessionTokenRef.current = sessionToken;
-  const getFreshTokenRef = useRef(getFreshToken);
-  getFreshTokenRef.current = getFreshToken;
-  const timersRef = useRef(io.timers);
-  timersRef.current = io.timers;
-  const ioRef = useRef(io);
-  ioRef.current = io;
-  const createTransportRef = useRef(createTransport);
-  createTransportRef.current = createTransport;
+  const clock = useClock();
+  const timers = useTimers();
+  const createId = useCreateId();
+  const random = useRandom();
+  const sessionTokenRef = useRenderRef(sessionToken);
+  const getFreshTokenRef = useRenderRef(getFreshToken);
+  const timersRef = useRenderRef(timers);
+  const clockRef = useRenderRef(clock);
+  const createIdRef = useRenderRef(createId);
+  const randomRef = useRenderRef(random);
+  const createTransportRef = useRenderRef(createTransport);
   const connectedKeyRef = useRef<string | null>(null);
   const openingKeyRef = useRef<string | null>(null);
 
@@ -262,16 +276,11 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
 
   // Keep open args off the effect dep list so JWT/token/provider identity
   // churn cannot destroy+recreate the WebSocket.
-  const bootstrapRef = useRef(bootstrap);
-  bootstrapRef.current = bootstrap;
-  const configServiceRef = useRef(configService);
-  configServiceRef.current = configService;
-  const kvRef = useRef(kv);
-  kvRef.current = kv;
-  const moduleRef = useRef(module);
-  moduleRef.current = module;
-  const hasBearerOrAnonRef = useRef(hasBearerOrAnon);
-  hasBearerOrAnonRef.current = hasBearerOrAnon;
+  const bootstrapRef = useRenderRef(bootstrap);
+  const configServiceRef = useRenderRef(configService);
+  const kvRef = useRenderRef(kv);
+  const moduleRef = useRenderRef(module);
+  const hasBearerOrAnonRef = useRenderRef(hasBearerOrAnon);
 
   const tearDown = useCallback(() => {
     connectedKeyRef.current = null;
@@ -300,7 +309,10 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
         timersRef,
       }),
       createTransport: createTransportRef.current,
-      io: ioRef.current,
+      clock: clockRef.current,
+      timers: timersRef.current,
+      createId: createIdRef.current,
+      random: randomRef.current,
       roomRef,
       transportRef,
       setRoom,

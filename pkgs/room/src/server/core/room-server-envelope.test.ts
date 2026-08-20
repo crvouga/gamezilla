@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 
 import { newCommandId } from '../../protocol/ids';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
@@ -8,8 +8,7 @@ import { ROOM_ERROR_TYPE } from '../../types';
 import { InMemoryRoomStorage } from '../adapters/memory';
 import { RoomServer } from './room-server';
 
-const io = wallIo();
-const now = io.clock.now;
+const now = wallClock.now;
 
 describe('RoomServer message envelope', () => {
   it('rejects command payload that is not a wire-valid Message envelope', async () => {
@@ -18,7 +17,7 @@ describe('RoomServer message envelope', () => {
       topic: 't-env',
       module: TestCounterModule,
       storage,
-      clock: io.clock,
+      clock: wallClock,
     });
     await server.hydrateFromStorage();
     const out: unknown[] = [];
@@ -29,7 +28,7 @@ describe('RoomServer message envelope', () => {
       },
       { id: 'user', clientId: 'c1-client' }
     );
-    const commandId = newCommandId(io.createId);
+    const commandId = newCommandId(() => crypto.randomUUID());
     await server.handleClientMessage('c1', 'user', {
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,

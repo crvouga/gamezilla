@@ -1,10 +1,11 @@
 import { Notifications } from '@libs/notifications/public/notifications';
 import type { PublishNotificationInput } from '@libs/notifications/public/types';
 import { ProfileReadRepository } from '@libs/profile/public/read-profile';
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { defineOutboxConsumer } from '@pkgs/outbox';
 import { Sounds } from '@pkgs/sounds/sound-id';
 import type { SqlTx } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import {
   FriendRequestAccepted,
@@ -78,9 +79,9 @@ function profilePresentation(
 export const friendRequestSentNotifyConsumer = defineOutboxConsumer({
   id: 'friends.notify.request-sent',
   on: FriendRequestSent,
-  async handler({ tx, io }, payload) {
+  async handler({ tx, clock, createId }, payload) {
     const fromProfile = await loadActorProfile(tx, payload.fromUserId);
-    const notifications = new Notifications({ tx, io });
+    const notifications = new Notifications({ tx, clock, createId });
     await notifications.send({
       userId: payload.toUserId,
       source: friendRequestSource(payload.requestId),
@@ -118,8 +119,8 @@ export const friendRequestSentNotifyConsumer = defineOutboxConsumer({
 export const friendRequestAcceptedNotifyConsumer = defineOutboxConsumer({
   id: 'friends.notify.request-accepted',
   on: FriendRequestAccepted,
-  async handler({ tx, io }, payload) {
-    const notifications = new Notifications({ tx, io });
+  async handler({ tx, clock, createId }, payload) {
+    const notifications = new Notifications({ tx, clock, createId });
     await notifications.deactivate({
       userId: payload.toUserId,
       source: friendRequestSource(payload.requestId),
@@ -149,8 +150,8 @@ export const friendRequestAcceptedNotifyConsumer = defineOutboxConsumer({
 export const friendRequestClosedNotifyConsumer = defineOutboxConsumer({
   id: 'friends.notify.request-closed',
   on: FriendRequestClosed,
-  async handler({ tx, io }, payload) {
-    await new Notifications({ tx, io }).deactivate({
+  async handler({ tx, clock, createId }, payload) {
+    await new Notifications({ tx, clock, createId }).deactivate({
       userId: payload.toUserId,
       source: friendRequestSource(payload.requestId),
     });
@@ -167,7 +168,7 @@ export const FRIENDS_OUTBOX_CONSUMERS = [
 /** Used by block flows that clear pending requests without a single request id. */
 export async function deactivatePendingFriendNotificationsBetween(
   tx: SqlTx,
-  io: Io,
+  time: { readonly clock: Clock; readonly createId: CreateId },
   userA: string,
   userB: string
 ): Promise<void> {
@@ -175,7 +176,11 @@ export async function deactivatePendingFriendNotificationsBetween(
     userA,
     userB
   );
-  const notifications = new Notifications({ tx, io });
+  const notifications = new Notifications({
+    tx,
+    clock: time.clock,
+    createId: time.createId,
+  });
   for (const request of pending) {
     await notifications.deactivate({
       userId: request.toUserId,

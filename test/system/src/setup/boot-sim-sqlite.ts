@@ -1,10 +1,9 @@
 /**
- * Product UI-sim SQLite boot: wraps `@pkgs/sql-client` seeded SQLite with the
- * API `OpenRequestDb` façade and this package's cache/fingerprint paths.
+ * Product UI-sim SQLite boot: wraps `@pkgs/sql-client` seeded SQLite with this
+ * package's cache/fingerprint paths.
  */
 
 import { join } from 'node:path';
-import type { OpenRequestDb } from '@apps/api/db/open-request-db';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -44,9 +43,7 @@ function createMigrateSourceStore(): ObjectStore {
   });
 }
 
-export type SimSqliteHandle = AgnosticSimSqliteHandle & {
-  readonly openRequestDb: OpenRequestDb;
-};
+export type SimSqliteHandle = AgnosticSimSqliteHandle;
 
 async function fingerprintSource(): Promise<Buffer> {
   const text = await readUtf8(createMigrateSourceStore(), MIGRATE_SOURCE_KEY);
@@ -54,42 +51,6 @@ async function fingerprintSource(): Promise<Buffer> {
     throw new Error(`missing migrate source: ${MIGRATE_SOURCE_KEY}`);
   }
   return Buffer.from(text);
-}
-
-function sharedRequestSqlClient(
-  getHandle: () => AgnosticSimSqliteHandle
-): SqlClient {
-  return {
-    connect: async () => undefined,
-    disconnect: async () => undefined,
-    query: (query) => getHandle().sqlClient.query(query),
-    run: (query) => getHandle().sqlClient.run(query),
-    prepare: (query) => getHandle().sqlClient.prepare(query),
-    transaction: <T>(fn: (tx: SqlClient) => Promise<T>) =>
-      getHandle().sqlClient.transaction(fn),
-  };
-}
-
-function withOpenRequestDb(handle: AgnosticSimSqliteHandle): SimSqliteHandle {
-  const getLive = (): AgnosticSimSqliteHandle => handle;
-  const openRequestDb: OpenRequestDb = async () => {
-    const live = getLive();
-    return {
-      kind: 'sqlite',
-      sqlClient: sharedRequestSqlClient(getLive),
-      sqlite: live.sqlite,
-    };
-  };
-  return {
-    get sqlClient() {
-      return handle.sqlClient;
-    },
-    get sqlite() {
-      return handle.sqlite;
-    },
-    openRequestDb,
-    stop: () => handle.stop(),
-  };
 }
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
@@ -127,11 +88,10 @@ export async function bootMigratedSimSqlite(args: {
   readonly handle: SimSqliteHandle;
   readonly didMigrate: boolean;
 }> {
-  const { handle, didMigrate } = await bootAgnostic({
+  return bootAgnostic({
     store: createSimSqliteCacheStore(),
     seedKey: SEED_KEY,
     fingerprintSource: await fingerprintSource(),
     migrate: args.migrate,
   });
-  return { handle: withOpenRequestDb(handle), didMigrate };
 }

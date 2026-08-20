@@ -1,4 +1,4 @@
-import type { SimClock } from '@pkgs/io';
+import type { SimClock } from '@pkgs/clock';
 
 export type UntilOpts = {
   readonly budgetMs?: number;

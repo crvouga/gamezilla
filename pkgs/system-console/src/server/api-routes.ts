@@ -8,6 +8,7 @@ import {
   type BucketWatcher,
   publishBucketToSubscribers,
 } from './bucket-watcher';
+import { gunzipBytes } from './gunzip-bytes';
 import {
   type BucketSubscription,
   type GlobalSubscription,
@@ -15,6 +16,12 @@ import {
   type SseHub,
 } from './sse-hub';
 import type { ReportBucket } from './types';
+
+/** Convert a native sqlite3 image (DST serialize) into sqlite-mem SQLM bytes. */
+export type ConvertSqliteDumpToSqlm = (args: {
+  readonly bytes: Uint8Array;
+  readonly nowMs: number;
+}) => Promise<Uint8Array> | Uint8Array;
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -86,17 +93,29 @@ async function handleRunDelete(
   return json({ ok: true, runId });
 }
 
-async function handleRunDataGet(
-  store: ObjectStore,
-  runId: string,
-  rel: string
-): Promise<Response> {
+async function handleRunDataGet(args: {
+  readonly store: ObjectStore;
+  readonly runId: string;
+  readonly rel: string;
+  readonly format: string | null;
+  readonly atMs: number;
+  readonly convertSqliteDumpToSqlm: ConvertSqliteDumpToSqlm | undefined;
+}): Promise<Response> {
+  const { store, runId, rel, format, atMs, convertSqliteDumpToSqlm } = args;
   if (!rel || rel.includes('\0') || rel.includes('..')) {
     return new Response('Bad request', { status: 400 });
   }
   const obj = await store.get(`${runPrefix(runId)}/${rel}`);
   if (!obj) return new Response('Not found', { status: 404 });
   const bytes = await readAllBytes(obj.body);
+  if (format === 'sqlm') {
+    return serveSqlmDump({
+      rel,
+      bytes,
+      atMs,
+      convertSqliteDumpToSqlm,
+    });
+  }
   const ab = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(ab).set(bytes);
   return new Response(ab, {
@@ -107,15 +126,56 @@ async function handleRunDataGet(
   });
 }
 
+async function serveSqlmDump(args: {
+  readonly rel: string;
+  readonly bytes: Uint8Array;
+  readonly atMs: number;
+  readonly convertSqliteDumpToSqlm: ConvertSqliteDumpToSqlm | undefined;
+}): Promise<Response> {
+  const { rel, bytes, atMs, convertSqliteDumpToSqlm } = args;
+  if (convertSqliteDumpToSqlm === undefined) {
+    return json(
+      { error: 'format=sqlm requires a Bun report server converter' },
+      501
+    );
+  }
+  if (!rel.endsWith('.sqlite.gz') && !rel.endsWith('.sqlite')) {
+    return json({ error: 'format=sqlm only applies to sqlite dumps' }, 400);
+  }
+  const native = rel.endsWith('.gz') ? await gunzipBytes(bytes) : bytes;
+  const sqlm = await convertSqliteDumpToSqlm({ bytes: native, nowMs: atMs });
+  const ab = new ArrayBuffer(sqlm.byteLength);
+  new Uint8Array(ab).set(sqlm);
+  return new Response(ab, {
+    headers: {
+      'content-type': 'application/octet-stream',
+      'cache-control': 'no-store',
+    },
+  });
+}
+
 async function handleRunScoped(args: {
   readonly req: Request;
+  readonly url: URL;
   readonly buckets: readonly ReportBucket[];
   readonly bucketId: string;
   readonly runId: string;
   readonly rest: string;
   readonly watchers: ReadonlyMap<string, BucketWatcher>;
+  readonly now: (() => number) | undefined;
+  readonly convertSqliteDumpToSqlm: ConvertSqliteDumpToSqlm | undefined;
 }): Promise<Response> {
-  const { req, buckets, bucketId, runId, rest, watchers } = args;
+  const {
+    req,
+    url,
+    buckets,
+    bucketId,
+    runId,
+    rest,
+    watchers,
+    now,
+    convertSqliteDumpToSqlm,
+  } = args;
   const bucket = await requireBucket(buckets, bucketId);
   if (bucket instanceof Response) return bucket;
 
@@ -128,11 +188,16 @@ async function handleRunScoped(args: {
 
   const dataMatch = /^\/data\/(.+)$/.exec(rest);
   if (dataMatch && req.method === 'GET') {
-    return handleRunDataGet(
-      bucket.store,
+    const atRaw = url.searchParams.get('at');
+    const atParsed = atRaw == null ? Number.NaN : Number(atRaw);
+    return handleRunDataGet({
+      store: bucket.store,
       runId,
-      decodeURIComponent(dataMatch[1]!)
-    );
+      rel: decodeURIComponent(dataMatch[1]!),
+      format: url.searchParams.get('format'),
+      atMs: Number.isFinite(atParsed) ? atParsed : (now?.() ?? 0),
+      convertSqliteDumpToSqlm,
+    });
   }
 
   return json({ error: 'not found' }, 404);
@@ -189,6 +254,7 @@ export type HandleApiContext = {
   readonly watchers: ReadonlyMap<string, BucketWatcher>;
   readonly now: (() => number) | undefined;
   readonly timers: Timers;
+  readonly convertSqliteDumpToSqlm: ConvertSqliteDumpToSqlm | undefined;
 };
 
 /** Route `/api/*` for the report server. Returns `null` for non-API paths. */
@@ -198,7 +264,7 @@ export async function handleApi(
   ctx: HandleApiContext
 ): Promise<Response | null> {
   const { pathname } = url;
-  const { buckets, hub, watchers, now, timers } = ctx;
+  const { buckets, hub, watchers, now, timers, convertSqliteDumpToSqlm } = ctx;
 
   if (pathname === '/api/health') {
     return json({ ok: true, bucketCount: buckets.length });
@@ -240,11 +306,14 @@ export async function handleApi(
   if (runMatch) {
     return handleRunScoped({
       req,
+      url,
       buckets,
       bucketId: decodeURIComponent(runMatch[1]!),
       runId: decodeURIComponent(runMatch[2]!),
       rest: runMatch[3] ?? '',
       watchers,
+      now,
+      convertSqliteDumpToSqlm,
     });
   }
 

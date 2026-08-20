@@ -1,4 +1,5 @@
-import { getIo } from '@pkgs/io/als';
+import type { Clock } from '@pkgs/clock';
+import type { CreateId } from '@pkgs/uuid';
 import { Hono } from 'hono';
 import type { ApiHonoEnv } from '../../public/api-hono-env';
 import { BearerAuthResolver } from '../../public/bearer-resolve';
@@ -95,65 +96,70 @@ function requireBearerToken(header: string | null): string {
  * - `POST /identity/anon/ensure` — mint/bind anon `users` row for the install
  * - `POST /identity/refresh` — upgrade-or-switch on provider sign-in
  */
-export function createAuthApiRoutes(deps?: {
-  readonly onUserDomainWrite?: (userId: string) => void | Promise<void>;
-}) {
-  return new Hono<ApiHonoEnv<AuthContext>>()
-    .post('/identity/anon/ensure', async (c) => {
-      const sql = c.get('sqlClient');
-      const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
+export class AuthApiRoutes {
+  constructor(
+    private readonly clock: Clock,
+    private readonly createId: CreateId,
+    private readonly onUserDomainWrite?: (
+      userId: string
+    ) => void | Promise<void>
+  ) {}
 
-      const rawBody: unknown = await c.req.json().catch(() => null);
-      const body = readAnonEnsureBody(rawBody);
+  build() {
+    const resolved = { clock: this.clock, createId: this.createId };
+    return new Hono<ApiHonoEnv<AuthContext>>()
+      .post('/identity/anon/ensure', async (c) => {
+        const sql = c.get('sqlClient');
+        const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
 
-      const io = getIo();
+        const rawBody: unknown = await c.req.json().catch(() => null);
+        const body = readAnonEnsureBody(rawBody);
 
-      const result = await new EnsureAnonUserUseCase(sql, io).execute({
-        deviceId,
-        forceNew: body.forceNew,
-        ...(body.userId !== undefined ? { userId: body.userId } : {}),
+        const result = await new EnsureAnonUserUseCase(sql, resolved).execute({
+          deviceId,
+          forceNew: body.forceNew,
+          ...(body.userId !== undefined ? { userId: body.userId } : {}),
+        });
+
+        await this.onUserDomainWrite?.(result.userId);
+
+        return c.json(
+          { userId: result.userId, accountId: result.userId, isAnon: true },
+          200
+        );
+      })
+      .post('/identity/refresh', async (c) => {
+        const sql = c.get('sqlClient');
+        const authServer = c.get('authServer');
+        const bearerToken = requireBearerToken(
+          c.req.header('Authorization') ?? null
+        );
+        const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
+
+        const accountId = await new BearerAuthResolver(
+          sql,
+          authServer,
+          resolved
+        ).resolveAccountId(bearerToken, deviceId);
+        if (accountId === null) {
+          throw new UnauthorizedError('Invalid or expired session');
+        }
+
+        const rawBody: unknown = await c.req.json().catch(() => null);
+        const body = readRefreshBody(rawBody);
+
+        await new AuthSnapshotRefresher(sql, authServer).refresh({
+          bearerToken,
+          accountId,
+          deviceId,
+          deviceAttributes: body.device,
+          now: resolved.clock.now,
+          createId: resolved.createId,
+        });
+
+        await this.onUserDomainWrite?.(accountId);
+
+        return c.json({ accountId, userId: accountId, isAnon: false }, 200);
       });
-
-      await deps?.onUserDomainWrite?.(result.userId);
-
-      return c.json(
-        { userId: result.userId, accountId: result.userId, isAnon: true },
-        200
-      );
-    })
-    .post('/identity/refresh', async (c) => {
-      const sql = c.get('sqlClient');
-      const authServer = c.get('authServer');
-      const bearerToken = requireBearerToken(
-        c.req.header('Authorization') ?? null
-      );
-      const deviceId = requireDeviceId(c.req.header(ANON_ID_HEADER));
-
-      const io = getIo();
-
-      const accountId = await new BearerAuthResolver(
-        sql,
-        authServer,
-        io
-      ).resolveAccountId(bearerToken, deviceId);
-      if (accountId === null) {
-        throw new UnauthorizedError('Invalid or expired session');
-      }
-
-      const rawBody: unknown = await c.req.json().catch(() => null);
-      const body = readRefreshBody(rawBody);
-
-      await new AuthSnapshotRefresher(sql, authServer).refresh({
-        bearerToken,
-        accountId,
-        deviceId,
-        deviceAttributes: body.device,
-        now: io.clock.now,
-        createId: io.createId,
-      });
-
-      await deps?.onUserDomainWrite?.(accountId);
-
-      return c.json({ accountId, userId: accountId, isAnon: false }, 200);
-    });
+  }
 }

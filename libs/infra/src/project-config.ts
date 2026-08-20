@@ -6,7 +6,7 @@ export const PROJECT_CONFIG = {
   },
   cloudflare: {
     /**
-     * Production Worker script name. Top-level `name` in `apps/api/wrangler.toml`
+     * Production Worker script name. Top-level `name` in `apps/server/wrangler.toml`
      * is `gamezilla-api`; `wrangler deploy --env production` publishes as this.
      */
     apiWorker: 'gamezilla-api-production',

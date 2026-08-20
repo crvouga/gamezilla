@@ -16,12 +16,13 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

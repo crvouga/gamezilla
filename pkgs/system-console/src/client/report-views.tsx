@@ -1,10 +1,9 @@
 import { Box, ScrollView, Text } from '@pkgs/ui';
 import { useEffect } from 'react';
-
-import { isLatestRunId, LATEST_RUN_ID } from '../types';
+import type { SystemConsolePorts } from '../shared/ports';
+import { isLatestRunId } from '../types';
 import type { ReportApiClient } from './api-client';
-import { NavBreadcrumb } from './nav-breadcrumb';
-import { ReportHeader } from './report-header';
+import type { DebuggerChromeNav } from './debugger-chrome';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
 import { RunsPage } from './runs-page';
@@ -26,8 +25,10 @@ export function ReportViews(props: {
   readonly generation: number;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
+  readonly chrome: DebuggerChromeNav;
+  readonly ports: SystemConsolePorts;
 }) {
-  const { nav, data, generation, onNav, api } = props;
+  const { nav, data, generation, onNav, api, chrome, ports } = props;
   const concreteRunId = data.resolvedRunId;
 
   useEffect(() => {
@@ -41,9 +42,6 @@ export function ReportViews(props: {
   if (!nav.bucketId) {
     return (
       <Box sx={appShellSx}>
-        <ReportHeader
-          breadcrumb={<Text sx={{ color: 'text' }}>Reports</Text>}
-        />
         <Box sx={appBodyFrameSx}>
           <Text sx={emptySx}>
             {data.buckets.length === 0
@@ -81,19 +79,17 @@ export function ReportViews(props: {
         concreteRunId={concreteRunId}
         onNav={onNav}
         api={api}
+        chrome={chrome}
+        ports={ports}
       />
     );
   }
 
   return (
     <SuitePage
-      nav={nav}
-      buckets={data.buckets}
-      runs={data.runs}
       bucketId={nav.bucketId}
       runId={runLabel}
       tests={data.tests}
-      onNav={onNav}
       onOpenTest={(testId) => {
         onNav(navigateReport(nav, clearPlayerNav({ testId })));
       }}
@@ -111,29 +107,14 @@ function RunsListView(props: {
   const { nav, data, generation, onNav, api } = props;
   return (
     <RunsPage
-      nav={nav}
-      buckets={data.buckets}
-      tests={data.tests}
       bucketId={nav.bucketId!}
       runs={data.runs}
       generation={generation}
-      onNav={onNav}
-      onBack={() => {
-        onNav(
-          navigateReport(nav, clearPlayerNav({ bucketId: null, runId: null }))
-        );
-      }}
       onOpenRun={(runId) => {
         onNav(navigateReport(nav, clearPlayerNav({ runId })));
       }}
-      onOpenLatest={() => {
-        onNav(navigateReport(nav, clearPlayerNav({ runId: LATEST_RUN_ID })));
-      }}
       onDeleteRun={async (runId) => {
         await api.deleteRunApi(nav.bucketId!, runId);
-      }}
-      onKeepLast={async (n) => {
-        await api.pruneBucket(nav.bucketId!, { keepLast: n });
       }}
     />
   );
@@ -145,22 +126,14 @@ function TestOrLoading(props: {
   readonly concreteRunId: string | null;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
+  readonly chrome: DebuggerChromeNav;
+  readonly ports: SystemConsolePorts;
 }) {
-  const { nav, data, concreteRunId, onNav, api } = props;
+  const { nav, data, concreteRunId, onNav, api, chrome, ports } = props;
   const bodySx = useAppBodyContentSx();
-  const crumb = (
-    <NavBreadcrumb
-      nav={nav}
-      buckets={data.buckets}
-      runs={data.runs}
-      tests={data.tests}
-      onNav={onNav}
-    />
-  );
   if (!concreteRunId) {
     return (
       <Box sx={appShellSx}>
-        <ReportHeader breadcrumb={crumb} />
         <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
             {isLatestRunId(nav.runId)
@@ -176,7 +149,6 @@ function TestOrLoading(props: {
   if (!data.testData) {
     return (
       <Box sx={appShellSx}>
-        <ReportHeader breadcrumb={crumb} />
         <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
             {data.error
@@ -193,11 +165,10 @@ function TestOrLoading(props: {
       nav={nav}
       bucketId={nav.bucketId!}
       runId={concreteRunId}
-      buckets={data.buckets}
-      runs={data.runs}
-      tests={data.tests}
       onNav={onNav}
       api={api}
+      chrome={chrome}
+      ports={ports}
     />
   );
 }

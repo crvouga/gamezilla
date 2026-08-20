@@ -1,8 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import { getIo } from '@pkgs/io/als';
-import { createLogger } from '@pkgs/logger';
+import { createLogger, type Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -10,11 +9,6 @@ import { HTTPException } from 'hono/http-exception';
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import { STRIPE_CATALOG_PRICE_KEYS } from '../../../shared/stripe/catalog-spec';
-
-const log = createLogger({
-  name: 'stripe:checkout',
-  now: () => getIo().clock.now(),
-});
 
 export type StripeAuthContext = {
   readonly accountId: string;
@@ -55,9 +49,10 @@ async function handleStripeCheckout(
   args: {
     readonly sql: SqlClient;
     readonly requireAuth: StripeRequireAuth;
+    readonly log: Logger;
   }
 ): Promise<Response> {
-  const { sql, requireAuth } = args;
+  const { sql, requireAuth, log } = args;
   await requireAuth(sql, c.req.raw);
 
   // Catalog price → Stripe price id previously came from entity_store.
@@ -82,9 +77,10 @@ async function handleStripePortal(
     readonly sql: SqlClient;
     readonly stripe: Stripe;
     readonly requireAuth: StripeRequireAuth;
+    readonly log: Logger;
   }
 ): Promise<Response> {
-  const { sql, stripe, requireAuth } = args;
+  const { sql, stripe, requireAuth, log } = args;
   const auth = await requireAuth(sql, c.req.raw);
   const stripeCustomerId = await readStripeCustomerId(sql, auth.accountId);
 
@@ -110,14 +106,19 @@ async function handleStripePortal(
 }
 
 export class StripeCheckoutRoutes {
+  private readonly log: Logger;
+
   constructor(
     private readonly getSqlClient: () => SqlClient,
     private readonly stripe: Stripe | null,
-    private readonly requireAuth: StripeRequireAuth
-  ) {}
+    private readonly requireAuth: StripeRequireAuth,
+    now: () => number
+  ) {
+    this.log = createLogger({ name: 'stripe:checkout', now });
+  }
 
   build(): Hono {
-    const { getSqlClient, stripe, requireAuth } = this;
+    const { getSqlClient, stripe, requireAuth, log } = this;
 
     return new Hono()
       .post(
@@ -132,6 +133,7 @@ export class StripeCheckoutRoutes {
           return handleStripeCheckout(c, body, {
             sql,
             requireAuth,
+            log,
           });
         }
       )
@@ -144,7 +146,12 @@ export class StripeCheckoutRoutes {
           }
           const body = c.req.valid('json');
           const sql = getSqlClient();
-          return handleStripePortal(c, body, { sql, stripe, requireAuth });
+          return handleStripePortal(c, body, {
+            sql,
+            stripe,
+            requireAuth,
+            log,
+          });
         }
       );
   }

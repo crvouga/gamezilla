@@ -1,5 +1,5 @@
 import { PROVISION_DEPS } from '../deps/registry';
-import { cliIo } from '../lib/cli-io';
+import { cliClock } from '../lib/cli-io';
 import { banner, ok } from '../lib/fmt';
 import { infraOutputs } from '../lib/infra-outputs';
 import {
@@ -27,7 +27,7 @@ export class ProvisionCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = cliIo.clock.now();
+    const t0 = cliClock.now();
     banner('Provision');
     const p = this.platform;
 
@@ -40,7 +40,7 @@ export class ProvisionCommand implements Command {
 
     const outputs = infraOutputs(ctx);
 
-    banner('Provision Complete', cliIo.clock.now() - t0);
+    banner('Provision Complete', cliClock.now() - t0);
     ok('cloudflare_nameservers', outputs.cloudflare_nameservers);
 
     p.setOutput('infra_context', serializeInfraContext(ctx));

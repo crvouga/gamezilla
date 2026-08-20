@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { createSimAdapters } from '@pkgs/uuid';
 import { AnonUserService } from '../../public/anon-user-service';
 import { EnsureInternalAccountUseCase } from '../../public/ensure-internal-account-use-case';
 import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';
@@ -59,8 +59,8 @@ describe('AnonUserService', () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
-    ensureAnon = new EnsureAnonUserUseCase(db, io);
-    anonUsers = new AnonUserService(db, io);
+    ensureAnon = new EnsureAnonUserUseCase(db, adapters);
+    anonUsers = new AnonUserService(db, adapters);
   });
 
   afterEach(async () => {
@@ -95,7 +95,7 @@ describe('AnonUserService', () => {
     const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
     });
-    await anonUsers.clearUserAnonFlag(first.userId, io.clock.now);
+    await anonUsers.clearUserAnonFlag(first.userId, adapters.clock.now);
 
     const next = await ensureAnon.execute({
       deviceId: DEVICE_ID,
@@ -146,8 +146,8 @@ describe('AccountProvisioningService upgrade', () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrate(db);
-    ensureAnon = new EnsureAnonUserUseCase(db, io);
-    anonUsers = new AnonUserService(db, io);
+    ensureAnon = new EnsureAnonUserUseCase(db, adapters);
+    anonUsers = new AnonUserService(db, adapters);
   });
 
   afterEach(async () => {
@@ -167,7 +167,7 @@ describe('AccountProvisioningService upgrade', () => {
 
     const accountId = await new EnsureInternalAccountUseCase(
       db,
-      io,
+      adapters,
       authServer
     ).execute({
       externalUserId: 'ext_1',
@@ -188,8 +188,8 @@ describe('AccountProvisioningService upgrade', () => {
     const other = await ensureAnon.execute({
       deviceId: DEVICE_B,
     });
-    await anonUsers.clearUserAnonFlag(other.userId, io.clock.now);
-    const now = new Date(io.clock.now()).toISOString();
+    await anonUsers.clearUserAnonFlag(other.userId, adapters.clock.now);
+    const now = new Date(adapters.clock.now()).toISOString();
     await db.run(sql<void>`
       INSERT INTO auth_external_accounts (id, user_id, provider, external_id, metadata, created_at)
       VALUES (${'better-auth:ext_existing'}, ${other.userId}, 'better-auth', 'ext_existing', '{}', ${now})
@@ -204,7 +204,7 @@ describe('AccountProvisioningService upgrade', () => {
 
     const accountId = await new EnsureInternalAccountUseCase(
       db,
-      io,
+      adapters,
       authServer
     ).execute({
       externalUserId: 'ext_existing',

@@ -7,7 +7,6 @@ import { appSchema } from '@libs/runtime/root/app-schema';
 import { runBetterAuthMigrations } from '@pkgs/auth-better-auth/server';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
 import { EntityStoreSqliteDatabaseMigration } from '@pkgs/entity-store/sqlite-database-migration';
-import type { Io } from '@pkgs/io';
 import { KvSqliteDatabaseMigration } from '@pkgs/kv/sqlite-database-migration';
 import { createLogger } from '@pkgs/logger';
 import { migrateOutbox } from '@pkgs/outbox';
@@ -17,19 +16,19 @@ import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 /** Fixed sim Better Auth secret (32+ chars — Better Auth requires length). */
 export const SIM_BETTER_AUTH_SECRET = 'sim-better-auth-secret-0123456789abcdef';
 /** Placeholder auth origin used during migrate (no network is used). */
-export const SIM_API_URL = 'http://sim.local';
+export const SIM_SERVER_URL = 'http://sim.local';
 /** Placeholder DATABASE_URL for secret-store / config (SQLite has no TCP listener). */
 export const SIM_SQLITE_DATABASE_URL = 'sqlite://sim';
 
 /** Applies portable framework + domain + kv/entity/outbox + Better Auth (sqlite). */
 export async function migrateSimSqlite(args: {
   readonly sqlClient: SqlClient;
-  readonly io: Io;
+  readonly now: () => number;
 }): Promise<void> {
   const logger = createLogger({
     name: 'sim:migrate',
     level: 'silent',
-    now: args.io.clock.now,
+    now: args.now,
   });
   const ctx = { sqlClient: args.sqlClient, logger };
 
@@ -44,6 +43,6 @@ export async function migrateSimSqlite(args: {
   await runBetterAuthMigrations({
     database: { kind: 'sql-client', client: args.sqlClient },
     secret: SIM_BETTER_AUTH_SECRET,
-    baseURL: SIM_API_URL,
+    baseURL: SIM_SERVER_URL,
   });
 }

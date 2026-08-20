@@ -1,18 +1,16 @@
-import { useConfigService } from '@libs/auth/public/config-service-context';
-import { useIo } from '@pkgs/io';
+import { useClientEnv } from '@apps/client/product/client-env-provider';
 import { type ReactNode, useMemo } from 'react';
 import { ApiClientProvider } from '../../api/api-context';
 import { createApiClient } from '../../api/hc';
 
 export function AppApiClient({ children }: { children: ReactNode }): ReactNode {
-  const config = useConfigService();
-  const io = useIo();
+  const env = useClientEnv();
   const apiClient = useMemo(
     () =>
-      createApiClient(config.getApiUrl(), {
-        fetch: (input, init) => io.http.fetch(input, init),
+      createApiClient(env.serverUrl, {
+        fetch: (input, init) => env.server(input, init),
       }),
-    [config, io.http]
+    [env]
   );
 
   return <ApiClientProvider value={apiClient}>{children}</ApiClientProvider>;

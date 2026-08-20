@@ -16,6 +16,11 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     return new SqlClientImplBetterSqlite(new BetterSqlite3(databasePath));
   }
 
+  /** Native sqlite image for DST frame dumps (`Database.serialize()`). */
+  serializeBytes(): Uint8Array {
+    return new Uint8Array(this.db.serialize());
+  }
+
   async connect(): Promise<void> {
     try {
       this.db.prepare('SELECT 1').get();

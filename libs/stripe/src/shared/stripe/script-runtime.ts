@@ -9,7 +9,7 @@
  */
 
 import { join } from 'node:path';
-import { cliIo } from '@libs/infra/cli/lib/cli-io';
+import { cliClock, cliHttp } from '@libs/infra/cli/lib/cli-io';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
   assertDevSecretsEnv,
@@ -28,7 +28,7 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 function stripeScriptFetch() {
-  return cliIo.http.fetch.bind(cliIo.http);
+  return cliHttp.fetch.bind(cliHttp);
 }
 
 function isPostgresDbUrl(u: string): boolean {
@@ -44,7 +44,7 @@ export async function assertStripeSecretKey(
 ): Promise<string> {
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
-    now: cliIo.clock.now,
+    now: cliClock.now,
   });
   const raw = (
     await store.getOptional(StripeSecretKeys.secretKey)
@@ -76,7 +76,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
   }
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
-    now: cliIo.clock.now,
+    now: cliClock.now,
   });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';
@@ -106,7 +106,7 @@ export async function assertDbUrl(scriptTag: string): Promise<string> {
 export async function resolveOptionalDbUrl(): Promise<string | undefined> {
   const store = await createStripeScriptSecretStore({
     fetchFn: stripeScriptFetch(),
-    now: cliIo.clock.now,
+    now: cliClock.now,
   });
   const raw =
     (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';

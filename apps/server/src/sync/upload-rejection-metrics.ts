@@ -1,9 +1,9 @@
-import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
+import { requireRequestStore } from '../request-scope';
 
 const log = createLogger({
   name: 'api:mutation-reject',
-  now: () => getIo().clock.now(),
+  now: () => requireRequestStore().clock.now(),
 });
 
 const counts = new Map<string, number>();

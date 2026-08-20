@@ -1,5 +1,6 @@
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import type { SqlTx } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import type { Notification } from '../shared/notifications/notification';
 import {
   deactivateNotification,
@@ -12,7 +13,8 @@ import type {
 
 export type NotificationsCtx = {
   readonly tx: SqlTx;
-  readonly io: Io;
+  readonly clock: Clock;
+  readonly createId: CreateId;
 };
 
 /**
@@ -26,12 +28,12 @@ export class Notifications {
     return publishNotification(
       this.ctx.tx,
       input,
-      this.ctx.io.clock.now,
-      this.ctx.io.createId
+      this.ctx.clock.now,
+      this.ctx.createId
     );
   }
 
   async deactivate(input: DeactivateNotificationInput): Promise<void> {
-    await deactivateNotification(this.ctx.tx, input, this.ctx.io.clock.now);
+    await deactivateNotification(this.ctx.tx, input, this.ctx.clock.now);
   }
 }

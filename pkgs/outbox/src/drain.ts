@@ -1,7 +1,8 @@
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 
 import {
   type OutboxConsumerRegistry,
@@ -23,7 +24,8 @@ type ClaimRow = {
 
 export type DrainOutboxDeps = {
   readonly db: SqlClient;
-  readonly io: Io;
+  readonly clock: Clock;
+  readonly createId: CreateId;
   readonly registry: OutboxConsumerRegistry;
   readonly limit?: number;
 };
@@ -43,13 +45,13 @@ export async function drainOutbox(
   const limit = deps.limit ?? 50;
   const log = createLogger({
     name: 'outbox-drain',
-    now: deps.io.clock.now,
+    now: deps.clock.now,
   });
   const notifyUserIds = new Set<string>();
 
   const processed = await deps.db.transaction(async (tx) => {
-    await ensureDeliveries(tx, deps.registry, deps.io);
-    const claims = await claimDueDeliveries(tx, deps.io, limit);
+    await ensureDeliveries(tx, deps.registry, deps.clock);
+    const claims = await claimDueDeliveries(tx, deps.clock, limit);
     let count = 0;
     for (const claim of claims) {
       const consumer = deps.registry.get(claim.consumer_id);
@@ -62,13 +64,14 @@ export async function drainOutbox(
       }
       const event = await loadEvent(tx, claim.event_id);
       if (event === null) {
-        await markProcessed(tx, claim, deps.io);
+        await markProcessed(tx, claim, deps.clock);
         count += 1;
         continue;
       }
       const result = await runDelivery({
         tx,
-        io: deps.io,
+        clock: deps.clock,
+        createId: deps.createId,
         consumer,
         event,
         claim,
@@ -90,9 +93,9 @@ export async function drainOutbox(
 async function ensureDeliveries(
   tx: SqlTx,
   registry: OutboxConsumerRegistry,
-  io: Io
+  clock: Clock
 ): Promise<void> {
-  const nowIso = new Date(io.clock.now()).toISOString();
+  const nowIso = new Date(clock.now()).toISOString();
   for (const consumer of registry.all()) {
     const missing = await tx.query(sql<{ id: string }>`
       SELECT e.id
@@ -122,10 +125,10 @@ async function ensureDeliveries(
 
 async function claimDueDeliveries(
   tx: SqlTx,
-  io: Io,
+  clock: Clock,
   limit: number
 ): Promise<readonly ClaimRow[]> {
-  const nowIso = new Date(io.clock.now()).toISOString();
+  const nowIso = new Date(clock.now()).toISOString();
   // Portable claim: select then bump attempts in the same tx (single Worker drain).
   const rows = await tx.query(sql<ClaimRow>`
     SELECT event_id, consumer_id, attempts
@@ -153,13 +156,14 @@ async function loadEvent(
 
 async function runDelivery(args: {
   readonly tx: SqlTx;
-  readonly io: Io;
+  readonly clock: Clock;
+  readonly createId: CreateId;
   readonly consumer: OutboxConsumerDef;
   readonly event: PendingEventRow;
   readonly claim: ClaimRow;
   readonly log: ReturnType<typeof createLogger>;
 }): Promise<{ ok: boolean; notifyUserIds: readonly string[] }> {
-  const { tx, io, consumer, event, claim, log } = args;
+  const { tx, clock, createId, consumer, event, claim, log } = args;
   const policy = resolveRetryPolicy(consumer);
   let payload: unknown;
   try {
@@ -167,7 +171,7 @@ async function runDelivery(args: {
   } catch (error: unknown) {
     await failDelivery({
       tx,
-      io,
+      clock,
       claim,
       policy,
       error: error instanceof Error ? error.message : String(error),
@@ -180,7 +184,7 @@ async function runDelivery(args: {
   if (!consumer.on.validatePayload(payload)) {
     await failDelivery({
       tx,
-      io,
+      clock,
       claim,
       policy,
       error: `invalid payload for ${event.type}`,
@@ -191,8 +195,8 @@ async function runDelivery(args: {
   }
 
   try {
-    const result = await consumer.handler({ tx, io }, payload);
-    await markProcessed(tx, claim, io);
+    const result = await consumer.handler({ tx, clock, createId }, payload);
+    await markProcessed(tx, claim, clock);
     return {
       ok: true,
       notifyUserIds: result?.notifyUserIds ?? [],
@@ -200,7 +204,7 @@ async function runDelivery(args: {
   } catch (error: unknown) {
     await failDelivery({
       tx,
-      io,
+      clock,
       claim,
       policy,
       error: error instanceof Error ? error.message : String(error),
@@ -214,9 +218,9 @@ async function runDelivery(args: {
 async function markProcessed(
   tx: SqlTx,
   claim: ClaimRow,
-  io: Io
+  clock: Clock
 ): Promise<void> {
-  const nowIso = new Date(io.clock.now()).toISOString();
+  const nowIso = new Date(clock.now()).toISOString();
   await tx.run(sql`
     UPDATE outbox_deliveries
        SET processed_at = ${nowIso},
@@ -228,16 +232,16 @@ async function markProcessed(
 
 async function failDelivery(args: {
   readonly tx: SqlTx;
-  readonly io: Io;
+  readonly clock: Clock;
   readonly claim: ClaimRow;
   readonly policy: ReturnType<typeof resolveRetryPolicy>;
   readonly error: string;
   readonly log: ReturnType<typeof createLogger>;
   readonly permanent: boolean;
 }): Promise<void> {
-  const { tx, io, claim, policy, error, log, permanent } = args;
+  const { tx, clock, claim, policy, error, log, permanent } = args;
   const attempts = claim.attempts + 1;
-  const nowMs = io.clock.now();
+  const nowMs = clock.now();
   if (permanent || attempts >= policy.maxAttempts) {
     log.error('outbox delivery exhausted', {
       eventId: claim.event_id,

@@ -16,7 +16,7 @@ export async function notifyClientConfigChannels(label: string): Promise<void> {
     topics: [clientConfigTopic()],
     label,
     schedulePublish: (run) => {
-      store.io.timers.setTimeout(run, 0);
+      store.timers.setTimeout(run, 0);
     },
   });
 }

@@ -5,14 +5,14 @@ import type {
   PlaygroundSession,
 } from '../../shared/ports';
 
-export type PlaygroundSessionState<R = unknown> =
+export type PlaygroundSessionState =
   | { readonly status: 'idle' }
   | { readonly status: 'booting' }
-  | { readonly status: 'ready'; readonly session: PlaygroundSession<R> }
+  | { readonly status: 'ready'; readonly session: PlaygroundSession }
   | { readonly status: 'error'; readonly error: string };
 
-export type UsePlaygroundSessionResult<R = unknown> = {
-  readonly state: PlaygroundSessionState<R>;
+export type UsePlaygroundSessionResult = {
+  readonly state: PlaygroundSessionState;
   /** Tear down the live session; next {@link reboot} skips snapshot auto-load. */
   readonly wipe: () => Promise<void>;
   /** Remount a fresh session after {@link wipe}. */
@@ -32,17 +32,15 @@ export type UsePlaygroundSessionResult<R = unknown> = {
  * wait for the prior in-flight boot to finish and dispose before opening SQLite
  * again (avoids AccessHandle / "Error finalizing statement" races).
  */
-export function usePlaygroundSession<R>(
-  bootPlayground: (
-    opts?: BootPlaygroundOptions
-  ) => Promise<PlaygroundSession<R>>,
+export function usePlaygroundSession(
+  bootPlayground: (opts?: BootPlaygroundOptions) => Promise<PlaygroundSession>,
   active: boolean
-): UsePlaygroundSessionResult<R> {
-  const [state, setState] = useState<PlaygroundSessionState<R>>({
+): UsePlaygroundSessionResult {
+  const [state, setState] = useState<PlaygroundSessionState>({
     status: 'idle',
   });
   const [bootGeneration, setBootGeneration] = useState(0);
-  const liveRef = useRef<PlaygroundSession<R> | null>(null);
+  const liveRef = useRef<PlaygroundSession | null>(null);
   const disposeGate = useRef(Promise.resolve());
   const skipSnapshotLoadRef = useRef(false);
 
@@ -53,7 +51,7 @@ export function usePlaygroundSession<R>(
       return;
     }
     let cancelled = false;
-    let live: PlaygroundSession<R> | null = null;
+    let live: PlaygroundSession | null = null;
     setState({ status: 'booting' });
     const skipSnapshotLoad = skipSnapshotLoadRef.current;
     skipSnapshotLoadRef.current = false;

@@ -5,10 +5,11 @@ import {
 } from '@libs/friends/root/server/friends-outbox-consumers';
 import { userTopic } from '@libs/runtime/public/sync-topics';
 import { assert } from '@pkgs/assert';
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { drainOutbox, OutboxConsumerRegistry } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { notifyChannels } from '@pkgs/sync-engine/server';
+import type { CreateId } from '@pkgs/uuid';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
@@ -36,11 +37,13 @@ export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
  */
 export async function drainAndNotifyOutbox(args: {
   readonly db: SqlClient;
-  readonly io: Io;
+  readonly clock: Clock;
+  readonly createId: CreateId;
 }): Promise<number> {
   const result = await drainOutbox({
     db: args.db,
-    io: args.io,
+    clock: args.clock,
+    createId: args.createId,
     registry: getOutboxConsumerRegistry(),
   });
   if (result.notifyUserIds.length === 0) return result.processed;

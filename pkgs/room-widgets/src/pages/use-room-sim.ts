@@ -1,4 +1,3 @@
-import { type Io, useIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword';
 import {
   Room,
@@ -14,7 +13,8 @@ import {
   LoopbackRoomTransport,
   TestCounterModule,
 } from '@pkgs/room/tests';
-import { useCallback, useEffect, useState } from 'react';
+import { createSimAdapters } from '@pkgs/uuid';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const TOPIC = 'playground';
 const COUNT_KEY = asKeyword('counter/count');
@@ -36,7 +36,7 @@ async function connectClient(
   server: RoomServer<RoomState, RoomCommandPayload, RoomEvent, string>,
   id: string,
   identity: string,
-  io: Io
+  adapters: ReturnType<typeof createSimAdapters>
 ): Promise<CounterRoom> {
   const transport = new LoopbackRoomTransport({
     server,
@@ -50,9 +50,9 @@ async function connectClient(
     storage: new InMemoryClientStorage(),
     transport,
     identity,
-    clock: io.clock,
-    timers: io.timers,
-    createId: io.createId,
+    clock: adapters.clock,
+    timers: adapters.timers,
+    createId: adapters.createId,
   });
 }
 
@@ -65,7 +65,7 @@ export function readSimCount(room: CounterRoom | null): number {
 export { Increment };
 
 export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
-  const io = useIo();
+  const adapters = useMemo(() => createSimAdapters({ seed: 1 }), []);
   const [, bump] = useState(0);
   const rerender = useCallback(() => bump((n) => n + 1), []);
   const [sim, setSim] = useState<RoomSim | null>(null);
@@ -86,12 +86,12 @@ export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
           topic: TOPIC,
           module: TestCounterModule,
           storage: new InMemoryRoomStorage(),
-          clock: io.clock,
+          clock: adapters.clock,
         });
         await server.hydrateFromStorage();
 
-        const alice = await connectClient(server, 'c-a', 'alice', io);
-        const bob = await connectClient(server, 'c-b', 'bob', io);
+        const alice = await connectClient(server, 'c-a', 'alice', adapters);
+        const bob = await connectClient(server, 'c-b', 'bob', adapters);
         opened.push(alice, bob);
 
         if (cancelled) {
@@ -119,7 +119,7 @@ export function useRoomSim(): { sim: RoomSim | null; error: string | null } {
       for (const r of opened) r.destroy();
       setSim(null);
     };
-  }, [io, rerender]);
+  }, [adapters, rerender]);
 
   return { sim, error };
 }

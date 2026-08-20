@@ -34,7 +34,6 @@
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",

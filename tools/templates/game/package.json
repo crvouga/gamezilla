@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@pkgs/attribute": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*"
   },

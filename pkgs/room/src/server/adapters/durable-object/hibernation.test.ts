@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../protocol/wire';
 import {
@@ -13,8 +13,7 @@ import type {
   DurableObjectKvStorage,
 } from './types';
 
-const io = wallIo();
-const now = io.clock.now;
+const now = wallClock.now;
 
 type FakeSocket = WebSocket & {
   readonly sent: unknown[];
@@ -152,8 +151,8 @@ describe('Durable Object hibernation restore', () => {
     const state = createFakeDoState(createMemoryDoKv());
     const RoomDo = createDurableObjectAdapter({
       modules: [TestCounterModule],
-      clock: io.clock,
-      createId: io.createId,
+      clock: wallClock,
+      createId: () => crypto.randomUUID(),
     });
     const topic = 'space:hibernation-test';
     const moduleName = String(TestCounterModule.name);

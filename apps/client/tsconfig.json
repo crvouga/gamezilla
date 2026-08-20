@@ -8,7 +8,7 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@apps/api/*": ["../../apps/api/src/*"],
+      "@apps/server/*": ["../../apps/server/src/*"],
       "@apps/client/*": ["../../apps/client/src/*"],
       "@libs/games/*": ["../../libs/games/src/*"],
       "@libs/notifications": ["../../libs/notifications/src/public/index.ts"],

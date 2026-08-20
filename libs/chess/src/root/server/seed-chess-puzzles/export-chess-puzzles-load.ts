@@ -5,6 +5,7 @@
  *   SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- \
  *     bun run --filter @libs/chess export:puzzles-load -- --confirm-prod
  */
+
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
@@ -14,7 +15,7 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { assert } from '@pkgs/assert';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
@@ -27,7 +28,6 @@ import {
   resolveChessPuzzlesLoadFilePath,
 } from './load-file';
 
-const io = wallIo();
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
@@ -86,7 +86,7 @@ export async function exportChessPuzzlesLoadFile(
   const { confirmProd } = parseArgs(argv);
   const log = createLogger({
     name: 'chess:export-puzzles-load',
-    now: io.clock.now,
+    now: wallClock.now,
   });
   const store = createScriptSecretStore();
   const secretsEnv =

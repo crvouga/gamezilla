@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { createLocalFileObservabilityWithExporter } from '../impl-local-file/impl-local-file';
 import { createLoggerObservabilityWithExporter } from '../impl-logger/impl-logger';
 import { createNoopObservability } from '../impl-noop/impl-noop';
@@ -8,8 +8,6 @@ import { TRACEPARENT_HEADER } from '../shared/trace-context';
 import type { ExportedSpanRecord, HttpFetchFn } from '../shared/types';
 import { InMemorySpanContextStorage } from './in-memory-context-storage';
 import type { Observability } from './observability';
-
-const io = wallIo();
 
 type Factory = { readonly name: string; create: () => Observability };
 
@@ -74,8 +72,8 @@ describe('Observability port conformance', () => {
       const exported: ExportedSpanRecord[] = [];
       return createLocalFileObservabilityWithExporter({
         serviceName: 'test-local',
-        now: io.clock.now,
-        createId: io.createId,
+        now: wallClock.now,
+        createId: () => crypto.randomUUID(),
         exporter: (r) => exported.push(r),
         storage: new InMemorySpanContextStorage(),
       });
@@ -88,8 +86,8 @@ describe('Observability port conformance', () => {
       const exported: ExportedSpanRecord[] = [];
       return createLoggerObservabilityWithExporter({
         serviceName: 'test-logger',
-        now: io.clock.now,
-        createId: io.createId,
+        now: wallClock.now,
+        createId: () => crypto.randomUUID(),
         exporter: (r) => exported.push(r),
         storage: new InMemorySpanContextStorage(),
       });

@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 import type { LayoutChangeEvent, ListRenderItemInfo } from 'react-native';
 
 import type { ComponentDataSet } from '../../component-id';
@@ -6,7 +6,10 @@ import type { SxInput } from '../../theme';
 import { Box } from '../box';
 import { FlatList } from '../flat-list';
 import { ScrollView } from '../scroll-view';
-import { DataTableHeader } from './data-table-header';
+import {
+  DataTableHeader,
+  type DataTableSelectionHeader,
+} from './data-table-header';
 import { DATA_TABLE_ROW_HEIGHT } from './data-table-metrics';
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableRow } from './data-table-row';
@@ -30,8 +33,10 @@ type ReadyBodyProps<T> = {
   readonly onToggleSort: (columnId: string) => void;
   readonly pageIndex: number;
   readonly pageCount: number;
-  readonly onPrev: () => void;
-  readonly onNext: () => void;
+  readonly onPageChange: (pageIndex: number) => void;
+  readonly selectionHeader?: DataTableSelectionHeader;
+  readonly selectedKeySet?: ReadonlySet<string>;
+  readonly onToggleRowKey?: (key: string, selected: boolean) => void;
   readonly shellSx: SxInput;
   readonly dataSet: ComponentDataSet;
   readonly onLayout: (e: LayoutChangeEvent) => void;
@@ -47,6 +52,9 @@ export function DataTableReadyBody<T>(props: ReadyBodyProps<T>): ReactNode {
       orderBy={props.orderBy}
       orderDir={props.orderDir}
       onToggleSort={props.onToggleSort}
+      {...(props.selectionHeader != null
+        ? { selection: props.selectionHeader }
+        : {})}
     />
   );
 
@@ -69,22 +77,30 @@ export function DataTableReadyBody<T>(props: ReadyBodyProps<T>): ReactNode {
           removeClippedSubviews
           frameSx={{ flex: 1, minHeight: 0, width: props.tableWidth }}
           sx={{ width: props.tableWidth }}
-          extraData={`${props.orderBy}:${props.orderDir}:${props.density}:${props.tableWidth}`}
+          extraData={list.extraData}
         />
       </ScrollView>
       <DataTablePagination
         pageIndex={props.pageIndex}
         pageCount={props.pageCount}
         totalCount={props.totalCount}
-        onPrev={props.onPrev}
-        onNext={props.onNext}
+        onPageChange={props.onPageChange}
       />
     </Box>
   );
 }
 
 function useDataTableList<T>(props: ReadyBodyProps<T>) {
-  const { columns, widths, tableWidth, density, getRowId, onRowPress } = props;
+  const {
+    columns,
+    widths,
+    tableWidth,
+    density,
+    getRowId,
+    onRowPress,
+    selectedKeySet,
+    onToggleRowKey,
+  } = props;
   const rowHeight = DATA_TABLE_ROW_HEIGHT[density];
   const getItemLayout = useCallback(
     (_: unknown, index: number) => ({
@@ -98,18 +114,43 @@ function useDataTableList<T>(props: ReadyBodyProps<T>) {
     (item: T, index: number) => getRowId(item, index),
     [getRowId]
   );
+  const selectionSig = useMemo(() => {
+    if (selectedKeySet == null) return '';
+    return [...selectedKeySet].join(',');
+  }, [selectedKeySet]);
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<T>) => (
-      <DataTableRow
-        row={item}
-        columns={columns}
-        widths={widths}
-        tableWidth={tableWidth}
-        density={density}
-        {...(onRowPress != null ? { onPress: () => onRowPress(item) } : {})}
-      />
-    ),
-    [columns, widths, tableWidth, density, onRowPress]
+    ({ item, index }: ListRenderItemInfo<T>) => {
+      const rowKey = getRowId(item, index);
+      const selection =
+        selectedKeySet != null && onToggleRowKey != null
+          ? {
+              selected: selectedKeySet.has(rowKey),
+              onToggle: (next: boolean) => onToggleRowKey(rowKey, next),
+            }
+          : undefined;
+      return (
+        <DataTableRow
+          row={item}
+          columns={columns}
+          widths={widths}
+          tableWidth={tableWidth}
+          density={density}
+          {...(onRowPress != null ? { onPress: () => onRowPress(item) } : {})}
+          {...(selection != null ? { selection } : {})}
+        />
+      );
+    },
+    [
+      columns,
+      widths,
+      tableWidth,
+      density,
+      onRowPress,
+      getRowId,
+      selectedKeySet,
+      onToggleRowKey,
+    ]
   );
-  return { getItemLayout, keyExtractor, renderItem };
+  const extraData = `${props.orderBy}:${props.orderDir}:${props.density}:${props.tableWidth}:${selectionSig}`;
+  return { getItemLayout, keyExtractor, renderItem, extraData };
 }

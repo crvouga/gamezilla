@@ -15,7 +15,7 @@ async function runChaos(seed: string): Promise<string> {
   const bob = await world.addClient({ id: 'bob' });
   const carol = await world.addClient({ id: 'carol' });
   const clients = [alice, bob, carol];
-  const rng = world.io.rng.fork('chaos');
+  const rng = world.rng.fork('chaos');
 
   for (let step = 0; step < 40; step += 1) {
     const actor = clients[rng.int(clients.length)]!;

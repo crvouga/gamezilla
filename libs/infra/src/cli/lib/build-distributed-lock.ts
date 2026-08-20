@@ -8,7 +8,7 @@ import { createLogger } from '@pkgs/logger';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
 import { resolveDatabaseUrl } from '../resources/postgres';
-import { cliIo } from './cli-io';
+import { cliClock, cliCreateId } from './cli-io';
 
 export interface DistributedLockConnection {
   readonly lock: DistributedLock;
@@ -42,18 +42,18 @@ export async function buildDistributedLock(): Promise<DistributedLockConnection>
   }
   const kvLogger = createLogger({
     name: 'infra-distributed-lock-kv',
-    now: cliIo.clock.now,
+    now: cliClock.now,
   });
   const kv = await KvImplPostgres.open({
     sqlClient: sql,
     logger: kvLogger,
-    now: cliIo.clock.now,
+    now: cliClock.now,
   });
   const lock = new DistributedLockImplKv(kv, {
     key: asKeyword('infra/distributed-lock'),
     identity: new DefaultLockIdentityProvider({
-      now: cliIo.clock.now,
-      createId: cliIo.createId,
+      now: cliClock.now,
+      createId: cliCreateId,
     }),
   });
   return {

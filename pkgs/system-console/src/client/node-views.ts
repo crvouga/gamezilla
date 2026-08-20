@@ -31,10 +31,14 @@ export function viewsForNode(node: TopologyNodeInfo | null): NodeViewKind[] {
   if (node == null) return [];
   const attrs = new Set(node.attributes);
   const views: NodeViewKind[] = [];
-  if (attrs.has('html') || coerceSystemNodeKind(node.kind) === 'client') {
-    views.push('html');
+  if (
+    attrs.has('html') ||
+    attrs.has('ui') ||
+    coerceSystemNodeKind(node.kind) === 'client'
+  ) {
+    views.push('ui');
   }
-  if (attrs.has('sqlite')) views.push('sqlite');
+  if (attrs.has('sqlite') || attrs.has('db')) views.push('db');
   if (attrs.has('ingress') || attrs.has('egress')) views.push('events');
   return views;
 }
@@ -42,8 +46,8 @@ export function viewsForNode(node: TopologyNodeInfo | null): NodeViewKind[] {
 export function defaultViewFor(
   views: readonly NodeViewKind[]
 ): NodeViewKind | null {
-  if (views.includes('html')) return 'html';
-  if (views.includes('sqlite')) return 'sqlite';
+  if (views.includes('ui')) return 'ui';
+  if (views.includes('db')) return 'db';
   if (views.includes('events')) return 'events';
   return null;
 }

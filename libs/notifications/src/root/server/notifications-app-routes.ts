@@ -1,4 +1,3 @@
-import { getIo } from '@pkgs/io/als';
 import type { Hono } from 'hono';
 import type { NotificationsRequestContext } from './notifications-context';
 import {
@@ -12,7 +11,8 @@ import {
 
 export function registerInboxRoutes(
   app: Hono,
-  requestContext: () => NotificationsRequestContext
+  requestContext: () => NotificationsRequestContext,
+  now: () => number
 ): void {
   app.get('/notifications', async (c) => {
     const { sql, actorId } = requestContext();
@@ -40,7 +40,7 @@ export function registerInboxRoutes(
 
   app.post('/notifications/read-all', async (c) => {
     const { sql, actorId } = requestContext();
-    await markAllInteractionsRead(sql, actorId, getIo().clock.now);
+    await markAllInteractionsRead(sql, actorId, now);
     return c.json({ ok: true });
   });
 
@@ -50,7 +50,7 @@ export function registerInboxRoutes(
       sql,
       actorId,
       c.req.param('id'),
-      getIo().clock.now
+      now
     );
     return c.json({ interaction });
   });
@@ -61,7 +61,7 @@ export function registerInboxRoutes(
       sql,
       actorId,
       c.req.param('id'),
-      getIo().clock.now
+      now
     );
     return c.json({ interaction });
   });
@@ -72,7 +72,7 @@ export function registerInboxRoutes(
       sql,
       actorId,
       c.req.param('id'),
-      getIo().clock.now
+      now
     );
     return c.json({ interaction });
   });

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "react": "catalog:"
   },
   "devDependencies": {

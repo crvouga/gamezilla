@@ -10,14 +10,16 @@ export class StripeApp {
   constructor(
     private readonly getSqlClient: () => SqlClient,
     private readonly stripe: Stripe | null,
-    private readonly requireAuth: StripeRequireAuth
+    private readonly requireAuth: StripeRequireAuth,
+    private readonly now: () => number
   ) {}
 
   build(): Hono {
     const checkout = new StripeCheckoutRoutes(
       this.getSqlClient,
       this.stripe,
-      this.requireAuth
+      this.requireAuth,
+      this.now
     ).build();
 
     return new Hono().route('/', checkout);

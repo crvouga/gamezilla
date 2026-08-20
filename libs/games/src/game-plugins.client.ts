@@ -11,7 +11,7 @@ export { GAME_DEFINITIONS };
 
 /**
  * Client UI definitions for each game in {@link GAME_DEFINITIONS}.
- * Not imported by `apps/api`.
+ * Not imported by `apps/server`.
  */
 export const GAME_CLIENT_DEFINITIONS = [
   chessGameClient,

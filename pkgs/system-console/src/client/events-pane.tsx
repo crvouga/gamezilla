@@ -21,11 +21,26 @@ export function EventsPane(props: {
     props.runId,
     props.testId
   );
-  const rows = useMemo(
-    () => filterNodeEvents(events, props.nodeId, props.frame?.capturedAtMs),
-    [events, props.nodeId, props.frame?.capturedAtMs]
+  return (
+    <EventsList
+      events={events}
+      error={error}
+      nodeId={props.nodeId}
+      cutoffMs={props.frame?.capturedAtMs}
+    />
   );
+}
 
+export function EventsList(props: {
+  readonly events: readonly SimulationReportEvent[] | null;
+  readonly error?: string | null;
+  readonly nodeId: string | null;
+  readonly cutoffMs: number | undefined;
+}) {
+  const rows = useMemo(
+    () => filterNodeEvents(props.events, props.nodeId, props.cutoffMs),
+    [props.events, props.nodeId, props.cutoffMs]
+  );
   if (props.nodeId == null) {
     return (
       <Box sx={paneSx}>
@@ -33,14 +48,14 @@ export function EventsPane(props: {
       </Box>
     );
   }
-  if (error != null) {
+  if (props.error != null) {
     return (
       <Box sx={paneSx}>
-        <Text sx={emptySx}>Failed to load events: {error}</Text>
+        <Text sx={emptySx}>Failed to load events: {props.error}</Text>
       </Box>
     );
   }
-  if (events == null) {
+  if (props.events == null) {
     return (
       <Box sx={paneSx}>
         <Text sx={emptySx}>Loading events…</Text>

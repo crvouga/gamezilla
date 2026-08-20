@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 const PRIMARY_AUTH_PROVIDER = 'better-auth';
 
@@ -170,8 +170,8 @@ describe('AuthSnapshotRefresher', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     const primary = await readPrimaryAuthExternalAccount(sqlClient, ACCOUNT_ID);
@@ -199,8 +199,8 @@ describe('AuthSnapshotRefresher', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     };
 
     await refresher.refresh(inputs);
@@ -226,7 +226,7 @@ describe('AuthSnapshotRefresher', () => {
       snapshot: AUTH_SNAPSHOT,
     });
 
-    const now = new Date(io.clock.now()).toISOString();
+    const now = new Date(adapters.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO auth_external_accounts (
         id,
@@ -244,8 +244,8 @@ describe('AuthSnapshotRefresher', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     const stripeRows = await sqlClient.query(sql<{
@@ -282,8 +282,8 @@ describe('AuthSnapshotRefresher', () => {
       accountId: ACCOUNT_ID,
       deviceId: DEVICE_ID,
       deviceAttributes: DEVICE_ATTRS,
-      now: io.clock.now,
-      createId: io.createId,
+      now: adapters.clock.now,
+      createId: adapters.createId,
     });
 
     expect(

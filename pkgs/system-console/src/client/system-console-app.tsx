@@ -33,29 +33,29 @@ const DEFAULT_BASE_PATH = '/system-console';
  * Section / playground kind / panel view are controlled by the host so they
  * can sync to browser history.
  */
-export function SystemConsoleApp<R>(props: {
-  readonly ports: SystemConsolePorts<R>;
+export function SystemConsoleApp(props: {
+  readonly ports: SystemConsolePorts;
   readonly section: ConsoleSection;
   readonly kind: SystemChromeKind;
+  readonly instance: string;
   readonly view: string;
-  readonly clientViews: Readonly<Record<string, string>>;
   readonly onSectionChange: (section: ConsoleSection) => void;
   readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
-  readonly onClientViewChange: (clientId: string, view: string) => void;
 }): ReactNode {
   const {
     ports,
     section,
     kind,
+    instance,
     view,
-    clientViews,
     onSectionChange,
     onKindChange,
+    onInstanceChange,
     onViewChange,
-    onClientViewChange,
   } = props;
-  // Keep the in-memory World alive across Reports ↔ Playground; dispose only
+  // Keep the playground session alive across Reports ↔ Playground; dispose only
   // when this console root unmounts (live state is lost; snapshots remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
 
@@ -63,9 +63,9 @@ export function SystemConsoleApp<R>(props: {
     () =>
       createReportApiClient({
         basePath: ports.reportApiBasePath ?? DEFAULT_BASE_PATH,
-        fetch: (input, init) => ports.io.http.fetch(input, init),
+        fetch: (input, init) => ports.fetch(input, init),
       }),
-    [ports.io, ports.reportApiBasePath]
+    [ports.fetch, ports.reportApiBasePath]
   );
 
   useEffect(() => {
@@ -86,17 +86,27 @@ export function SystemConsoleApp<R>(props: {
         onSelect={(id) => onSectionChange(id as ConsoleSection)}
       />
       <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-        {section === 'reports' ? <ReportsSection api={api} /> : null}
+        {section === 'reports' ? (
+          <ReportsSection
+            api={api}
+            ports={ports}
+            kind={kind}
+            instance={instance}
+            view={view}
+            onKindChange={onKindChange}
+            onInstanceChange={onInstanceChange}
+            onViewChange={onViewChange}
+          />
+        ) : null}
         {section === 'playground' ? (
           <PlaygroundScreen
-            ports={ports}
             state={sessionState}
             kind={kind}
+            instance={instance}
             view={view}
-            clientViews={clientViews}
             onKindChange={onKindChange}
+            onInstanceChange={onInstanceChange}
             onViewChange={onViewChange}
-            onClientViewChange={onClientViewChange}
           />
         ) : null}
       </Box>
@@ -106,8 +116,15 @@ export function SystemConsoleApp<R>(props: {
 
 function ReportsSection(props: {
   readonly api: ReturnType<typeof createReportApiClient>;
+  readonly ports: SystemConsolePorts;
+  readonly kind: SystemChromeKind;
+  readonly instance: string;
+  readonly view: string;
+  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onInstanceChange: (instance: string) => void;
+  readonly onViewChange: (view: string) => void;
 }) {
-  const { api } = props;
+  const { api, ports } = props;
   const [nav, setNav] = useState<ReportNavState>(DEFAULT_NAV);
   const onNav = useCallback((next: ReportNavState) => setNav(next), []);
   const data = useReportData(nav, onNav, api);
@@ -118,6 +135,15 @@ function ReportsSection(props: {
       generation={data.generation}
       onNav={onNav}
       api={api}
+      chrome={{
+        kind: props.kind,
+        instance: props.instance,
+        view: props.view,
+        onKindChange: props.onKindChange,
+        onInstanceChange: props.onInstanceChange,
+        onViewChange: props.onViewChange,
+      }}
+      ports={ports}
     />
   );
 }

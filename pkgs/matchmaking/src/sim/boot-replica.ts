@@ -2,8 +2,9 @@
  * Build MatchmakingImplSql replicas sharing one store + sim clock.
  */
 
-import type { SimIo } from '@pkgs/io';
+import type { SimClock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SeededRng } from '@pkgs/uuid';
 import { MatchmakingImplSql } from '../impl-sql';
 import type { Matchmaking, MatchmakingTuning } from '../interface/matchmaking';
 import type { MatchmakingSchema } from '../interface/schema';
@@ -39,12 +40,13 @@ function tuningFromPartial(
 
 export function buildReplicaMatchmaking(args: {
   readonly sqlClient: SqlClient;
-  readonly io: SimIo;
+  readonly clock: SimClock;
+  readonly rng: SeededRng;
   readonly replicaId: string;
   readonly config: ReplicaBootConfig;
 }): Matchmaking {
   const createId = createSeededCreateId(
-    args.io.rng.fork(`replica:${args.replicaId}`).random
+    args.rng.fork(`replica:${args.replicaId}`).random
   );
   return new MatchmakingImplSql({
     sqlClient: args.sqlClient,
@@ -52,7 +54,7 @@ export function buildReplicaMatchmaking(args: {
     ...(args.config.radius !== undefined ? { radius: args.config.radius } : {}),
     tuning: tuningFromPartial(
       args.config.tuning,
-      () => args.io.clock.now(),
+      () => args.clock.now(),
       createId
     ),
   });
@@ -60,13 +62,15 @@ export function buildReplicaMatchmaking(args: {
 
 export async function bootReplicaOnStore(args: {
   readonly store: SimStore;
-  readonly io: SimIo;
+  readonly clock: SimClock;
+  readonly rng: SeededRng;
   readonly replicaId: string;
   readonly config: ReplicaBootConfig;
 }): Promise<Matchmaking> {
   const mm = buildReplicaMatchmaking({
     sqlClient: args.store.openClient(),
-    io: args.io,
+    clock: args.clock,
+    rng: args.rng,
     replicaId: args.replicaId,
     config: args.config,
   });

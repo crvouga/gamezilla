@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
@@ -11,8 +11,7 @@ import { InMemoryRoomStorage } from '../adapters/memory/storage';
 import { RoomServer } from './room-server';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
-const io = wallIo();
-const timers = io.timers;
+const timers = wallTimers;
 
 /**
  * Simulates storage where `getLastSeq` disagrees with the event log read
@@ -57,7 +56,7 @@ describe('RoomServer welcome lastSeq', () => {
       topic: 't-welcome-seq',
       module: TestCounterModule,
       storage,
-      clock: io.clock,
+      clock: wallClock,
     });
     await server.hydrateFromStorage();
 

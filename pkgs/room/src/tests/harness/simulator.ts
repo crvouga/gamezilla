@@ -1,4 +1,5 @@
-import type { Io } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { CreateId } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../../client/adapters/storage/memory';
 import { Room } from '../../client/core/room';
@@ -32,8 +33,9 @@ export type OpenLoopbackRoomArgs<
 > = {
   topic: string;
   module: RoomModule<S, C, E, string>;
-  /** Injectable I/O bag (required — no wall default). */
-  io: Io;
+  clock: Clock;
+  timers: Timers;
+  createId: CreateId;
   identity?: string;
   clientId?: string;
   connectionId?: string;
@@ -54,21 +56,21 @@ export async function openLoopbackRoom<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(args: OpenLoopbackRoomArgs<S, C, E>): Promise<LoopbackRoomSystem<S, C, E>> {
-  const { io } = args;
+  const { clock, timers, createId } = args;
   let server = args.server;
   if (server === undefined) {
     const storage = new InMemoryRoomStorage();
     const schedule = createTimerScheduleStack({
-      clock: io.clock,
-      timers: io.timers,
-      createId: io.createId,
+      clock,
+      timers,
+      createId,
       topic: args.topic,
     });
     server = new RoomServer<S, C, E, string>({
       topic: args.topic,
       module: args.module,
       storage,
-      clock: io.clock,
+      clock,
       effectHandlers: [schedule.handler],
     });
     schedule.bindInject((cmd) =>
@@ -81,7 +83,7 @@ export async function openLoopbackRoom<
     await server.hydrateFromStorage();
   }
 
-  const connectionId = args.connectionId ?? `loopback-${io.createId()}`;
+  const connectionId = args.connectionId ?? `loopback-${createId()}`;
   const identity = args.identity ?? 'test-user';
   const clientId = args.clientId ?? connectionId;
 
@@ -93,9 +95,9 @@ export async function openLoopbackRoom<
   });
 
   const clientSchedule = createTimerScheduleStack({
-    clock: io.clock,
-    timers: io.timers,
-    createId: io.createId,
+    clock,
+    timers,
+    createId,
     topic: args.topic,
   });
   const clientStorage = new InMemoryClientStorage();
@@ -105,9 +107,9 @@ export async function openLoopbackRoom<
     storage: clientStorage,
     transport,
     identity,
-    clock: io.clock,
-    timers: io.timers,
-    createId: io.createId,
+    clock,
+    timers,
+    createId,
     effectHandlers: [clientSchedule.handler],
     ...(args.onError !== undefined ? { onError: args.onError } : {}),
   });

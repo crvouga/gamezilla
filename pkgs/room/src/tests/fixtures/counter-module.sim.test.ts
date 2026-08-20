@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 import type { RoomCommand, RoomState } from '../../types';
 import { Increment, TestCounterModule } from './counter-module';
 
@@ -12,14 +12,14 @@ function reduceAll(state: RoomState, events: readonly unknown[]): RoomState {
 }
 
 function runCounter(seed: number): string {
-  const io = createSimIo({ seed, startMs: 0 });
+  const adapters = createSimAdapters({ seed, startMs: 0 });
   let state = TestCounterModule.initialState();
   for (let i = 0; i < 5; i++) {
     const res = TestCounterModule.handle(
       state,
       {
-        id: io.createId(),
-        ts: io.clock.now(),
+        id: adapters.createId(),
+        ts: adapters.clock.now(),
         payload: Increment({}),
       } satisfies RoomCommand,
       'alice'

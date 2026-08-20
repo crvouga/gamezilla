@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../../../protocol/wire';
 import { WebSocketRoomTransport } from './transport';
 
-const io = wallIo();
-const now = io.clock.now;
-const timers = io.timers;
+const now = wallClock.now;
+const timers = wallTimers;
 
 type FakeWs = {
   readyState: number;
@@ -127,8 +126,8 @@ function testTransportOptions(
     reconnectBaseMs: 5,
     reconnectMaxMs: 10,
     reconnectJitterMs: 0,
-    timers: io.timers,
-    random: io.random,
+    timers: wallTimers,
+    random: Math.random,
     ...overrides,
   };
 }

@@ -1,5 +1,5 @@
 /**
- * Expand live topology into actor × operation × subject palette commands.
+ * Expand live topology into crash / partition / clock palette commands.
  */
 
 import type {
@@ -7,63 +7,16 @@ import type {
   PlaygroundSession,
 } from '@pkgs/system-console/client';
 
-const SKEW_PRESETS_MS = [0, 250, -250, 1000, -1000, 5000, -5000] as const;
-
-const UNARY_OPS = [
-  'crash',
-  'restart',
-  'evict',
-  'corrupt',
-  'wipe',
-  'clear-skew',
-] as const;
-
-type UnaryOp = (typeof UNARY_OPS)[number];
-
-function collectAddresses(session: PlaygroundSession): string[] {
-  const addrs = [session.server.address, session.pubsub.address];
-  for (const c of session.clients.values()) addrs.push(c.address);
-  for (const r of session.rooms.values()) addrs.push(r.address);
-  return addrs;
+function collectIds(session: PlaygroundSession): string[] {
+  const ids = ['server'];
+  for (const c of session.clients.values()) ids.push(c.id);
+  return ids;
 }
 
-function runUnary(
-  session: PlaygroundSession,
-  op: UnaryOp,
-  address: string
-): void | Promise<void> {
-  const { faults } = session.world;
-  switch (op) {
-    case 'crash':
-      faults.crash(address);
-      return;
-    case 'restart':
-      faults.restart(address);
-      return;
-    case 'evict':
-      faults.evict(address);
-      return;
-    case 'corrupt':
-      return Promise.all([
-        faults.corrupt(`${address}.db`).catch(() => faults.corrupt(address)),
-      ]).then(() => undefined);
-    case 'wipe':
-      return Promise.all([
-        faults.wipe(`${address}.db`).catch(() => faults.wipe(address)),
-      ]).then(() => undefined);
-    case 'clear-skew':
-      faults.clearSkew(address);
-      return;
-  }
-}
-
-/**
- * Build searchable fault / clock / snapshot palette entries for the live session.
- */
 export function buildPlaygroundPaletteCommands(
   session: PlaygroundSession
 ): PlaygroundPaletteCommand[] {
-  const addresses = collectAddresses(session);
+  const ids = collectIds(session);
   const out: PlaygroundPaletteCommand[] = [];
 
   out.push({
@@ -81,114 +34,58 @@ export function buildPlaygroundPaletteCommands(
     run: () => session.setClockPaused(false),
   });
   out.push({
-    id: 'fault:heal-all',
-    title: '* · heal-all',
-    category: 'Fault',
+    id: 'net:heal',
+    title: 'session · heal',
+    category: 'Network',
     keywords: ['heal', 'partition'],
-    run: () => session.world.faults.heal(),
+    run: () => session.heal(),
   });
 
-  for (const address of addresses) {
-    for (const op of UNARY_OPS) {
+  for (const id of ids) {
+    out.push({
+      id: `crash:${id}`,
+      title: `${id} · crash`,
+      category: 'Crash',
+      keywords: ['crash', id],
+      run: () => session.crash(id),
+    });
+    out.push({
+      id: `restart:${id}`,
+      title: `${id} · restart`,
+      category: 'Crash',
+      keywords: ['restart', id],
+      run: () => session.restart(id),
+    });
+  }
+
+  for (let i = 0; i < ids.length; i += 1) {
+    for (let j = i + 1; j < ids.length; j += 1) {
+      const a = ids[i]!;
+      const b = ids[j]!;
       out.push({
-        id: `fault:${op}:${address}`,
-        title: `${address} · ${op}`,
-        category: 'Fault',
-        keywords: [address, op],
-        run: () => runUnary(session, op, address),
-      });
-    }
-    for (const ms of SKEW_PRESETS_MS) {
-      out.push({
-        id: `fault:skew:${address}:${String(ms)}`,
-        title: `${address} · skew · ${String(ms)}ms`,
-        category: 'Fault',
-        keywords: [address, 'skew', String(ms)],
-        run: () => session.world.faults.skewClock(address, ms),
+        id: `partition:${a}:${b}`,
+        title: `${a} ↛ ${b}`,
+        category: 'Partition',
+        keywords: ['partition', a, b],
+        run: () => session.partition(a, b),
       });
     }
   }
-
-  for (let i = 0; i < addresses.length; i += 1) {
-    for (let j = i + 1; j < addresses.length; j += 1) {
-      const a = addresses[i]!;
-      const b = addresses[j]!;
-      out.push({
-        id: `fault:partition:${a}:${b}`,
-        title: `${a} · partition · ${b}`,
-        category: 'Fault',
-        keywords: [a, b, 'partition'],
-        run: () => session.world.faults.partition(a, b),
-      });
-      out.push({
-        id: `fault:heal:${a}:${b}`,
-        title: `${a} · heal · ${b}`,
-        category: 'Fault',
-        keywords: [a, b, 'heal'],
-        run: () => session.world.faults.heal(a, b),
-      });
-    }
-  }
-
-  out.push({
-    id: 'snapshot:save',
-    title: 'snapshot · save',
-    category: 'Snapshot',
-    keywords: ['snapshot', 'save', 'minio'],
-    run: async () => {
-      await session.saveSnapshot();
-    },
-  });
 
   return out;
 }
 
-/** Async-expand load commands from the snapshot index. */
 export async function buildSnapshotLoadCommands(
   session: PlaygroundSession
 ): Promise<PlaygroundPaletteCommand[]> {
-  const list = await session.listSnapshots();
-  return list.flatMap((snap) => {
-    const deleteCmd: PlaygroundPaletteCommand = {
-      id: `snapshot:delete:${snap.id}`,
-      title: `snapshot · delete · ${snap.label}`,
-      subtitle: snap.id,
+  const snaps = await session.listSnapshots();
+  return snaps
+    .filter((s) => s.compatible)
+    .map((s) => ({
+      id: `snapshot:load:${s.id}`,
+      title: `load · ${s.label}`,
       category: 'Snapshot',
-      keywords: ['snapshot', 'delete', 'remove', snap.id, snap.label],
-      run: async () => {
-        await session.deleteSnapshot(snap.id);
-      },
-    };
-    if (!snap.compatible) {
-      return [
-        {
-          id: `snapshot:outdated:${snap.id}`,
-          title: `snapshot · outdated · ${snap.label}`,
-          subtitle: snap.incompatibleReason ?? snap.id,
-          category: 'Snapshot',
-          keywords: ['snapshot', 'outdated', snap.id, snap.label],
-          run: async () => {
-            throw new Error(
-              snap.incompatibleReason ??
-                'Snapshot schema is incompatible with the current app'
-            );
-          },
-        },
-        deleteCmd,
-      ];
-    }
-    return [
-      {
-        id: `snapshot:load:${snap.id}`,
-        title: `snapshot · load · ${snap.label}`,
-        subtitle: snap.id,
-        category: 'Snapshot',
-        keywords: ['snapshot', 'load', snap.id, snap.label],
-        run: async () => {
-          await session.loadSnapshot(snap.id);
-        },
-      },
-      deleteCmd,
-    ];
-  });
+      keywords: ['snapshot', 'load', s.label],
+      run: () => session.loadSnapshot(s.id),
+    }));
 }

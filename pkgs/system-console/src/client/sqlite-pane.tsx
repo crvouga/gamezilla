@@ -5,8 +5,9 @@ import type { FlatFrame } from './frames';
 import { emptySx, paneSx } from './tokens';
 
 /**
- * Native-safe SQLite browser fallback. The `@sqlite.org/sqlite-wasm` browser is
- * web-only; a `.web.tsx` variant reintroduces it via `./sql/frame-sqlite`.
+ * SQLite dump browser placeholder. Report Client UI replay converts dumps to
+ * SQLM on the Bun report server (`?format=sqlm`); interactive SQL browse is
+ * not wired yet.
  */
 export function SqlitePane(props: {
   readonly bucketId: string;

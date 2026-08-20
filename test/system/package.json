@@ -16,8 +16,8 @@
     "test:max": "SYSTEM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {
-    "@apps/api": "workspace:*",
     "@apps/client": "workspace:*",
+    "@apps/server": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
@@ -29,7 +29,6 @@
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/minio-server": "workspace:*",
@@ -43,7 +42,6 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/system": "workspace:*",
     "@pkgs/system-console": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",

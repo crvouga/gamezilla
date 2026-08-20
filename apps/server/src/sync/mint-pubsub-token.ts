@@ -44,7 +44,7 @@ export async function mintPubSubToken(args: {
   readonly secret: string;
   readonly actorId: string;
   readonly spaceIds: readonly string[];
-  /** Epoch ms — callers pass getIo().clock.now or a sim clock. */
+  /** Epoch ms — callers pass env.clock.now or a sim clock. */
   readonly now: () => number;
 }): Promise<{ readonly token: string; readonly expiresAt: number }> {
   const nowMs = args.now();

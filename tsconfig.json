@@ -19,7 +19,7 @@
     "paths": {
       "@apps/room": ["./apps/room/src/room.ts"],
       "@apps/room/*": ["./apps/room/src/*"],
-      "@apps/api/*": ["./apps/api/src/*"],
+      "@apps/server/*": ["./apps/server/src/*"],
       "@apps/client/*": ["./apps/client/src/*"],
       "@test/system": ["./test/system/src/index.ts"],
       "@test/system/*": ["./test/system/src/*"],
@@ -112,8 +112,6 @@
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
       "@pkgs/clock": ["./pkgs/clock/src/index.ts"],
       "@pkgs/clock/*": ["./pkgs/clock/src/*"],
-      "@pkgs/io": ["./pkgs/io/src/index.ts"],
-      "@pkgs/io/*": ["./pkgs/io/src/*"],
       "@pkgs/http-client": ["./pkgs/http-client/src/index.ts"],
       "@pkgs/http-client/*": ["./pkgs/http-client/src/*"],
       "@pkgs/db-schema": ["./pkgs/db-schema/src/index.ts"],
@@ -164,15 +162,13 @@
       "@pkgs/system-console/server": [
         "./pkgs/system-console/src/server/index.ts"
       ],
-      "@pkgs/system-console/*": ["./pkgs/system-console/src/*"],
-      "@pkgs/system": ["./pkgs/system/src/index.ts"],
-      "@pkgs/system/*": ["./pkgs/system/src/*"]
+      "@pkgs/system-console/*": ["./pkgs/system-console/src/*"]
     }
   },
   "include": [
     "pkgs/ts-reset/src/index.ts",
-    "apps/api/src/**/*.ts",
-    "apps/api/src/**/*.d.ts",
+    "apps/server/src/**/*.ts",
+    "apps/server/src/**/*.d.ts",
     "apps/client/src/**/*.ts",
     "apps/client/src/**/*.tsx",
     "pkgs/llm/src/**/*.tsx",
@@ -196,7 +192,7 @@
     "pkgs/sounds/src/**/*.ts",
     "pkgs/sounds/src/**/*.tsx",
     "pkgs/sounds/scripts/**/*.ts",
-    "apps/api/scripts/**/*.ts",
+    "apps/server/scripts/**/*.ts",
     "pkgs/emqx-server/src/**/*.ts",
     "pkgs/emqx-server/scripts/**/*.ts",
     "pkgs/postgres-embedded/src/**/*.ts",
@@ -258,8 +254,6 @@
     "pkgs/uuid/src/**/*.tsx",
     "pkgs/clock/src/**/*.ts",
     "pkgs/clock/src/**/*.tsx",
-    "pkgs/io/src/**/*.ts",
-    "pkgs/io/src/**/*.tsx",
     "pkgs/http-client/src/**/*.ts",
     "pkgs/http-client/src/**/*.tsx",
     "pkgs/db-schema/src/**/*.ts",
@@ -300,7 +294,6 @@
     "pkgs/system-console/src/**/*.tsx",
     "libs/runtime/src/**/*.ts",
     "apps/room/src/**/*.ts",
-    "pkgs/system/src/**/*.ts",
     "test/system/scripts/**/*.ts",
     "tools/**/*.ts"
   ],

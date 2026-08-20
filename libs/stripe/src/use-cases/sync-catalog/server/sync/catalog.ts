@@ -1,5 +1,5 @@
 /**
- * Catalog reconcile: declarative {@link STRIPE_CATALOG_SPEC} → Stripe Products/Prices.
+ * Catalog reconcile: declarative {@link CATALOG_SPEC} → Stripe Products/Prices.
  *
  * Pure orchestration — no secret resolution, no SQL. Callers pass a ready-to-use
  * Stripe client. Idempotent: identifies products by `metadata.catalog_product_id`
@@ -7,7 +7,7 @@
  * `transfer_lookup_key`.
  */
 import type Stripe from 'stripe';
-import { STRIPE_CATALOG_SPEC } from '../../../../shared/stripe/catalog-spec';
+import { CATALOG_SPEC } from '../../../../shared/stripe/catalog-spec';
 import {
   decidePriceReconcile,
   type PriceSpecEntry,
@@ -209,9 +209,7 @@ async function reconcileAllProducts(stripe: Stripe): Promise<{
 }> {
   const entries: CatalogProductSyncEntry[] = [];
   const stripeIdsByKey: Record<string, string> = {};
-  for (const [productKey, def] of Object.entries(
-    STRIPE_CATALOG_SPEC.products
-  )) {
+  for (const [productKey, def] of Object.entries(CATALOG_SPEC.products)) {
     const p = await ensureProduct(stripe, def);
     stripeIdsByKey[productKey] = p.id;
     entries.push({ key: productKey, stripeProductId: p.id });
@@ -228,7 +226,7 @@ async function reconcileAllPrices(
 }> {
   const entries: CatalogPriceSyncEntry[] = [];
   const stripeIdsByKey: Record<string, string> = {};
-  for (const [priceKey, spec] of Object.entries(STRIPE_CATALOG_SPEC.prices)) {
+  for (const [priceKey, spec] of Object.entries(CATALOG_SPEC.prices)) {
     const productStripeId = productStripeIdsByKey[spec.product];
     if (productStripeId === undefined) {
       throw new Error(
@@ -248,7 +246,7 @@ async function reconcileAllPrices(
 }
 
 /**
- * Reconcile Stripe Products/Prices to match {@link STRIPE_CATALOG_SPEC}.
+ * Reconcile Stripe Products/Prices to match {@link CATALOG_SPEC}.
  * Catalog persistence into entity_store is intentionally omitted until
  * Stripe rewires onto `@pkgs/entity-store`.
  */

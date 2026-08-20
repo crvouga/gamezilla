@@ -48,6 +48,19 @@ export type SimulationFrameAttribute = {
   readonly eventIds?: readonly string[];
 };
 
+/** Small World checkpoint sidecar next to sqlite dumps (`frames/f-NNNNN.checkpoint.json`). */
+export type SimulationFrameCheckpoint = {
+  readonly file: string;
+  readonly clockMs: number;
+  readonly clockPaused: boolean;
+  readonly clientIds: readonly string[];
+  readonly roomTopics: readonly string[];
+  readonly partitions: readonly string[];
+  readonly skewByAddress: Readonly<Record<string, number>>;
+  readonly downAddresses: readonly string[];
+  readonly evictedAddresses: readonly string[];
+};
+
 export type SimulationFrame = {
   /** Path relative to the test report directory (e.g. `frames/f-00001.html`). */
   readonly file: string;
@@ -63,6 +76,8 @@ export type SimulationFrame = {
   readonly views?: readonly SimulationFrameView[];
   /** Topology-aware attribute bags (preferred over views/databases). */
   readonly attributes?: readonly SimulationFrameAttribute[];
+  /** Per-frame World checkpoint metadata (hydrate path for the player). */
+  readonly checkpoint?: SimulationFrameCheckpoint;
 };
 
 /** Fine-grained timeline event persisted in events.json. */
@@ -226,7 +241,7 @@ export type SimulationReportOptions = {
    */
   readonly testId?: string;
   /**
-   * Epoch-ms clock for step timestamps. Default: simulation `io.clock`.
+   * Epoch-ms clock for step timestamps. Default: simulation clock.
    * Wall-clock UI sims should pass a moving clock so durations are not zero.
    */
   readonly now?: () => number;

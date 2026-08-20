@@ -1,4 +1,3 @@
-import { getIo } from '@pkgs/io/als';
 import { createLogger } from '@pkgs/logger';
 import { Hono, type MiddlewareHandler } from 'hono';
 
@@ -9,12 +8,8 @@ import type { NotificationsRequestContext } from './notifications-context';
 export type CreateNotificationsAppOptions = {
   readonly requireAuth: MiddlewareHandler;
   readonly requestContext: () => NotificationsRequestContext;
+  readonly now: () => number;
 };
-
-const log = createLogger({
-  name: 'notifications-app',
-  now: () => getIo().clock.now(),
-});
 
 function mapNotificationsError(error: unknown): {
   status: number;
@@ -51,10 +46,11 @@ function mapNotificationsError(error: unknown): {
 export function createNotificationsApp(
   opts: CreateNotificationsAppOptions
 ): Hono {
-  const { requireAuth, requestContext } = opts;
+  const { requireAuth, requestContext, now } = opts;
+  const log = createLogger({ name: 'notifications-app', now });
   const app = new Hono();
   app.use('*', requireAuth);
-  registerInboxRoutes(app, requestContext);
+  registerInboxRoutes(app, requestContext, now);
 
   app.onError((err, c) => {
     const mapped = mapNotificationsError(err);

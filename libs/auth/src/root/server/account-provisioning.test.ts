@@ -1,15 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import { createSimIo } from '@pkgs/io';
 import { sql } from '@pkgs/sql';
-
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { EnsureInternalAccountUseCase } from '../../public/ensure-internal-account-use-case';
 import { ExternalAccountRepository } from '../../public/external-account-repository';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 function makeFakeAuthServer(
   snapshot: Record<string, unknown> | null
@@ -66,7 +65,7 @@ describe('AccountProvisioningService', () => {
 
   test('returns existing user id for known external user', async () => {
     const userId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date(io.clock.now()).toISOString();
+    const now = new Date(adapters.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO auth_users (id, created_at)
       VALUES (${userId}, ${now})
@@ -92,7 +91,7 @@ describe('AccountProvisioningService', () => {
 
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
-      io,
+      adapters,
       makeFakeAuthServer(null)
     ).execute({
       externalUserId: EXTERNAL_USER_ID,
@@ -105,7 +104,7 @@ describe('AccountProvisioningService', () => {
     const externalAccounts = new ExternalAccountRepository(sqlClient);
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
-      io,
+      adapters,
       makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' })
     ).execute({
       externalUserId: EXTERNAL_USER_ID,
@@ -136,7 +135,7 @@ describe('AccountProvisioningService', () => {
     });
     const provisioning = new EnsureInternalAccountUseCase(
       sqlClient,
-      io,
+      adapters,
       authServer
     );
     const a = await provisioning.execute({
@@ -168,7 +167,7 @@ describe('AccountProvisioningService', () => {
 
   test('adopts existing link when a candidate insert loses the race', async () => {
     const winnerId = '33333333-3333-4333-8333-333333333333';
-    const now = new Date(io.clock.now()).toISOString();
+    const now = new Date(adapters.clock.now()).toISOString();
     await sqlClient.run(sql<void>`
       INSERT INTO auth_users (id, created_at)
       VALUES (${winnerId}, ${now})
@@ -194,7 +193,7 @@ describe('AccountProvisioningService', () => {
 
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
-      io,
+      adapters,
       makeFakeAuthServer({ id: EXTERNAL_USER_ID })
     ).execute({
       externalUserId: EXTERNAL_USER_ID,

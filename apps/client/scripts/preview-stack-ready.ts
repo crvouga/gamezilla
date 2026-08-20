@@ -1,8 +1,5 @@
 // @io-wall-ok
 import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/public/resolve-local-preview-api-origin';
-import { wallIo } from '@pkgs/io';
-
-const io = wallIo();
 
 /**
  * Readiness probe for Playwright / `turbo preview`: the static export on
@@ -14,7 +11,7 @@ const PROBE_TIMEOUT_MS = 2_000;
 
 async function probeOk(url: string): Promise<boolean> {
   try {
-    const res = await io.http.fetch(url, {
+    const res = await globalThis.fetch(url, {
       signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
     });
     if (!res.ok) return false;

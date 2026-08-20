@@ -43,7 +43,7 @@ function toRequest(
 /**
  * In-process {@link HttpClient} that dispatches requests through a Hono app.
  * Relative URLs resolve against `origin`; never opens real sockets. Use for
- * product simulations wiring the API worker into `createSimIo({ http })`.
+ * product simulations wiring the API worker into `createSimAdapters({ http })`.
  */
 export function createHonoHttpClient(
   args: CreateHonoHttpClientArgs

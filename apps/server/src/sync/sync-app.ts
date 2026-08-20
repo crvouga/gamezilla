@@ -1,6 +1,5 @@
 import { appTopicMap } from '@libs/runtime/root/app-topic-map';
 import { assert } from '@pkgs/assert';
-import { getIo } from '@pkgs/io/als';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -38,22 +37,24 @@ function createRequestScopedPubSub(): PubSub {
 }
 
 /** Product mount: `POST /api/query` (batch body), `/api/mutations`. */
-export function createSyncApp() {
-  // Per-app counter — never module-scope (multi-sim / multi-app isolation).
+export function createSyncApp(time: {
+  readonly now: () => number;
+  readonly createId: () => string;
+}) {
   let checkpointSeq = 0;
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
     getSql: openRequestSqlClient,
     queries: APP_QUERIES,
     mutations: APP_MUTATIONS,
-    now: () => getIo().clock.now(),
-    createId: () => getIo().createId(),
+    now: time.now,
+    createId: time.createId,
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: appTopicMap,
     nextCheckpoint: () => {
       checkpointSeq += 1;
-      return `${String(getIo().clock.now())}${String(checkpointSeq).padStart(6, '0')}`;
+      return `${String(time.now())}${String(checkpointSeq).padStart(6, '0')}`;
     },
     ...(process.env['SECRETS_ENV'] === 'dev'
       ? { strictQueryLimits: true }

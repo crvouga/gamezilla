@@ -88,7 +88,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@apps/api": "workspace:*",
+    "@apps/server": "workspace:*",
     "@expo-google-fonts/nunito": "catalog:",
     "@expo/metro-runtime": "catalog:",
     "@gorhom/bottom-sheet": "catalog:",
@@ -115,7 +115,6 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/llm": "workspace:*",
     "@pkgs/logger": "workspace:*",
@@ -133,7 +132,6 @@
     "@pkgs/sql-cli": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/system": "workspace:*",
     "@pkgs/system-console": "workspace:*",
     "@pkgs/tts": "workspace:*",
     "@pkgs/ui": "workspace:*",

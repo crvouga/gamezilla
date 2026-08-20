@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallTimers } from '@pkgs/clock';
 import type { NdjsonErrorFrame, NdjsonFrame } from '../shared/frames';
 import { streamParallelIndexed } from './stream-parallel';
 
-const io = wallIo();
-const timers = io.timers;
+const timers = wallTimers;
 
 const genericMapError = (index: number, error: unknown): NdjsonErrorFrame => ({
   frame: 'error',

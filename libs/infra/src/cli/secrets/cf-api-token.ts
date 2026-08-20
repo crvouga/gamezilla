@@ -1,5 +1,5 @@
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
-import { cliIo } from '../lib/cli-io';
+import { cliHttp, cliTimers } from '../lib/cli-io';
 import { cfHeaders, probeCfPermission } from './cloudflare';
 import { Secret, type SecretInput } from './secret';
 
@@ -47,7 +47,7 @@ async function probeAccountPermissions(
   const zonesRes = await fetchWithRetry(
     `https://api.cloudflare.com/client/v4/zones?account.id=${accountId}&per_page=1`,
     { headers },
-    { fetch: cliIo.http.fetch, timers: cliIo.timers }
+    { fetch: cliHttp.fetch, timers: cliTimers }
   );
   if (zonesRes.ok) {
     const zonesBody = (await zonesRes.json()) as {
@@ -113,7 +113,7 @@ async function validateCfApiToken(input: SecretInput): Promise<void> {
     const res = await fetchWithRetry(
       'https://api.cloudflare.com/client/v4/user/tokens/verify',
       { headers },
-      { fetch: cliIo.http.fetch, timers: cliIo.timers }
+      { fetch: cliHttp.fetch, timers: cliTimers }
     );
     if (!res.ok) {
       throw new Error(`Cloudflare API returned HTTP ${String(res.status)}`);
@@ -128,7 +128,7 @@ async function validateCfApiToken(input: SecretInput): Promise<void> {
     const acctRes = await fetchWithRetry(
       'https://api.cloudflare.com/client/v4/accounts',
       { headers },
-      { fetch: cliIo.http.fetch, timers: cliIo.timers }
+      { fetch: cliHttp.fetch, timers: cliTimers }
     );
     if (!acctRes.ok) {
       throw new Error(

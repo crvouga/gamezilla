@@ -53,7 +53,7 @@ function wranglerLogDir(): string {
 }
 
 function apiDir(): string {
-  return join(REPO_ROOT, 'apps/api');
+  return join(REPO_ROOT, 'apps/server');
 }
 
 function wranglerEnv(): NodeJS.ProcessEnv {

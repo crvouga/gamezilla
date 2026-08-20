@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND } from './protocol/wire';
 import { Increment, TestCounterModule } from './tests/fixtures/counter-module';
 import { openLoopbackRoom } from './tests/harness/simulator';
 
-const io = wallIo();
-const now = io.clock.now;
-const timers = io.timers;
+const now = wallClock.now;
+const timers = wallTimers;
 
 describe('room roster + actor metadata', () => {
   it('grows and shrinks the roster on connect/disconnect', async () => {
     const a = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-roster',
       module: TestCounterModule,
       identity: 'alice',
@@ -30,7 +31,9 @@ describe('room roster + actor metadata', () => {
     ]);
 
     const b = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-roster',
       module: TestCounterModule,
       identity: 'bob',
@@ -55,7 +58,9 @@ describe('room roster + actor metadata', () => {
 
   it('lists two clients for the same actor id', async () => {
     const a = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-multi-tab',
       module: TestCounterModule,
       identity: 'alice',
@@ -65,7 +70,9 @@ describe('room roster + actor metadata', () => {
     await a.room.untilSynced();
 
     const a2 = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-multi-tab',
       module: TestCounterModule,
       identity: 'alice',
@@ -89,7 +96,9 @@ describe('room roster + actor metadata', () => {
 
   it('stamps actor + ts on committed log entries', async () => {
     const { room, server } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-actor-meta',
       module: TestCounterModule,
       identity: 'alice',

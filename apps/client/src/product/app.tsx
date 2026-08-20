@@ -1,18 +1,12 @@
-// @io-wall-ok — product App composition root (wall Io fallback when host omits io).
 /**
- * Product client root — SystemProvider + providers + React Navigation.
+ * Product client root — ClientEnvProvider is applied by {@link createClient}.
  * Production and DST mount the same component.
  * Embedded hosts (multi-App playground) pass `embedded` for an isolated nav tree.
  */
 
-import { getApiBaseUrl } from '@apps/client/config/api-servers';
 import { AppProviders } from '@apps/client/providers/app-providers';
-import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import { RootErrorBoundary } from '@apps/client/providers/root-error-boundary';
 import { OriginAvailabilityProvider } from '@pkgs/http-client';
-import type { Io } from '@pkgs/io';
-import { wallIo } from '@pkgs/io';
-import { SystemProvider } from '@pkgs/system/react';
 import {
   type AppNavigationRef,
   NavigationRefProvider,
@@ -24,17 +18,16 @@ import {
   NavigationIndependentTree,
   useNavigationContainerRef,
 } from '@react-navigation/native';
-import { type ReactNode, useEffect, useMemo } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 import { RootNavigator } from '../navigation/root-navigator';
 import { appLinking } from '../navigation/types';
-import { resolveProductRuntime } from './product-runtime-io';
+import { useClientEnv } from './client-env-provider';
+import { originAvailabilityFor } from './origin-availability-for-env';
 
 setAppLinkingConfig(appLinking.config as never);
 
 export type ProductAppProps = {
-  readonly io?: Io;
-  readonly resources?: ClientSystemResources;
   /**
    * When true, this App owns an isolated navigation tree (no URL linking /
    * document title) so multiple product Apps can mount in one page.
@@ -73,41 +66,24 @@ function AppNavigation(props: {
 
 /** Isolated product App (not the Expo composition root). */
 export function ProductApp(props: ProductAppProps): ReactNode {
-  const injectedIo = props.io;
-  const apiBaseUrl = props.resources?.apiUrl ?? getApiBaseUrl();
-  const runtime = useMemo(
-    () =>
-      resolveProductRuntime({
-        injectedIo,
-        wall: wallIo(),
-        apiBaseUrl,
-      }),
-    [injectedIo, apiBaseUrl]
-  );
+  const env = useClientEnv();
+  const availability = originAvailabilityFor(env);
   useEffect(() => {
-    runtime.availability.start();
+    availability.start();
     return () => {
-      runtime.availability.stop();
+      availability.stop();
     };
-  }, [runtime]);
+  }, [availability]);
   const embedded = props.embedded === true;
   return (
-    <SystemProvider
-      io={runtime.io}
-      {...(props.resources !== undefined ? { resources: props.resources } : {})}
-    >
-      <OriginAvailabilityProvider availability={runtime.availability}>
-        <RootErrorBoundary>
-          <AppNavigation embedded={embedded}>
-            <AppProviders embedded={embedded}>
-              <RootNavigator />
-            </AppProviders>
-          </AppNavigation>
-        </RootErrorBoundary>
-      </OriginAvailabilityProvider>
-    </SystemProvider>
+    <OriginAvailabilityProvider availability={availability}>
+      <RootErrorBoundary>
+        <AppNavigation embedded={embedded}>
+          <AppProviders embedded={embedded}>
+            <RootNavigator />
+          </AppProviders>
+        </AppNavigation>
+      </RootErrorBoundary>
+    </OriginAvailabilityProvider>
   );
 }
-
-/** @deprecated Prefer {@link ProductApp} — kept for DST import paths during transition. */
-export const App = ProductApp;

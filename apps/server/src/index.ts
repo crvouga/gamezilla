@@ -1,4 +1,6 @@
-export { type ApiHandlerConfig, createApiApp } from './app/create-app';
+export { createServer } from './app/create-server';
+export { serveFetch } from './app/serve-fetch';
+export type { ServerEnv } from './app/server-env';
 export {
   type BetterAuthBootConfig,
   betterAuthConfigForDatabase,

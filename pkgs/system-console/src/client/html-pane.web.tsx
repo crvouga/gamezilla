@@ -2,29 +2,16 @@
  * Web HTML snapshot preview (iframe + srcdoc). Native falls back to
  * `html-pane.tsx` ("HTML preview requires web.").
  */
-import { useIo } from '@pkgs/io';
 import { Box, Text } from '@pkgs/ui';
 import { useEffect, useState } from 'react';
 
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
+import { HtmlSrcdocFrame } from './html-srcdoc-frame';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
 import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
 import { patchPreviewHtml } from './preview-html';
 import { emptySx, paneSx } from './tokens';
-
-const PREVIEW_IFRAME_CLASS = 'system-console-html-preview';
-
-/** CSS for the iframe host — avoid RN `style=` (ci:no-rn-style-api). */
-const PREVIEW_IFRAME_CSS = `
-.${PREVIEW_IFRAME_CLASS} {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: hsla(240, 5%, 4%, 1);
-}
-`;
 
 export function HtmlPane(props: {
   readonly api: ReportApiClient;
@@ -35,7 +22,7 @@ export function HtmlPane(props: {
   readonly nodeId: string | null;
   readonly node: TopologyNodeInfo | null;
 }) {
-  const io = useIo();
+  const fetchFn = props.api.fetch;
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
@@ -56,8 +43,8 @@ export function HtmlPane(props: {
     void (async () => {
       try {
         const [res, fontCss] = await Promise.all([
-          io.http.fetch(url),
-          loadPreviewFontCss((input, init) => io.http.fetch(input, init)),
+          fetchFn(url),
+          loadPreviewFontCss((input, init) => fetchFn(input, init)),
         ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
@@ -78,7 +65,7 @@ export function HtmlPane(props: {
     return () => {
       cancelled = true;
     };
-  }, [file, io.http, props.api, props.bucketId, props.runId, props.testId]);
+  }, [file, fetchFn, props.api, props.bucketId, props.runId, props.testId]);
 
   if (file == null) {
     return (
@@ -104,15 +91,5 @@ export function HtmlPane(props: {
     );
   }
 
-  return (
-    <Box sx={paneSx}>
-      <style>{PREVIEW_IFRAME_CSS}</style>
-      <iframe
-        className={PREVIEW_IFRAME_CLASS}
-        title={`frame ${file}`}
-        srcDoc={srcdoc}
-        sandbox=""
-      />
-    </Box>
-  );
+  return <HtmlSrcdocFrame title={`frame ${file}`} srcdoc={srcdoc} />;
 }

@@ -1,4 +1,7 @@
-export type NodeViewKind = 'html' | 'sqlite' | 'events';
+import type { DebuggerViewId } from '../shared/debugger-views';
+import { aliasDebuggerView } from '../shared/debugger-views';
+
+export type NodeViewKind = DebuggerViewId;
 
 export type ReportNavState = {
   readonly bucketId: string | null;
@@ -18,7 +21,13 @@ export const DEFAULT_NAV: ReportNavState = {
   view: null,
 };
 
-const VIEW_KINDS = new Set<string>(['html', 'sqlite', 'events']);
+const VIEW_KINDS = new Set<string>([
+  'ui',
+  'db',
+  'events',
+  'commands',
+  'topics',
+]);
 
 /**
  * Paths:
@@ -60,7 +69,8 @@ function parsePositiveInt(raw: string | null): number | null {
 
 function parseView(raw: string | null): NodeViewKind | null {
   if (raw == null || raw === '') return null;
-  return VIEW_KINDS.has(raw) ? (raw as NodeViewKind) : null;
+  const aliased = aliasDebuggerView(raw);
+  return VIEW_KINDS.has(aliased) ? (aliased as NodeViewKind) : null;
 }
 
 export type NavPatch = Partial<ReportNavState>;

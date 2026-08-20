@@ -1,6 +1,6 @@
 /**
  * Injectable id mint for mutations / domain creates.
- * Composition roots inject via {@link Io}.createId / {@link Io}.random.
+ * Composition roots inject via env `createId` / `random`.
  */
 
 export type CreateId = () => string;

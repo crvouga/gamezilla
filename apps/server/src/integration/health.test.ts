@@ -1,11 +1,8 @@
 // @io-wall-ok
 import { expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
 
-/** Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788). */
+/** Loopback origin for `wrangler dev` in this repo (`apps/server` uses port 8788). */
 const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
-
-const io = wallIo();
 
 test('api GET /health returns ok when preview is already running', async () => {
   const fromEnv = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim();
@@ -17,7 +14,7 @@ test('api GET /health returns ok when preview is already running', async () => {
 
   let lastErr: string | undefined;
   try {
-    const probe = await io.http.fetch(healthUrl);
+    const probe = await globalThis.fetch(healthUrl);
     if (!probe.ok) {
       lastErr = `HTTP ${String(probe.status)}`;
     } else {
@@ -45,7 +42,7 @@ test('api GET /health returns ok when preview is already running', async () => {
     );
   }
 
-  const res = await io.http.fetch(healthUrl);
+  const res = await globalThis.fetch(healthUrl);
   expect(res.ok).toBe(true);
   expect(await res.json()).toEqual({ status: 'ok' });
 });

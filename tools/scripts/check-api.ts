@@ -3,7 +3,7 @@
 
 /**
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,
- * then runs `@apps/api` `test:integration`.
+ * then runs `@apps/server` `test:integration`.
  *
  * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
  * "Start API preview" step), runs tests immediately. Otherwise starts
@@ -19,7 +19,7 @@ import { join } from 'node:path';
 
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
-/** Loopback origin for `wrangler dev` in this repo (`apps/api` uses port 8788). */
+/** Loopback origin for `wrangler dev` in this repo (`apps/server` uses port 8788). */
 const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
@@ -49,7 +49,7 @@ function probeApiHealth(): boolean {
 function runIntegrationTests(): number {
   const result = spawnSync(
     'bun',
-    ['run', '--filter', '@apps/api', 'test:integration'],
+    ['run', '--filter', '@apps/server', 'test:integration'],
     { cwd: REPO_ROOT, stdio: 'inherit', env: process.env }
   );
   return result.status ?? 1;
@@ -85,7 +85,7 @@ function startApiPreview(): {
   const logFd = openSync(logPath, 'w');
   const child = spawn(
     'bun',
-    ['run', '--filter', '@apps/api', 'preview:serve'],
+    ['run', '--filter', '@apps/server', 'preview:serve'],
     {
       cwd: REPO_ROOT,
       detached: true,

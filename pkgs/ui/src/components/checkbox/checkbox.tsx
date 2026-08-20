@@ -5,6 +5,9 @@
  * stroked in `onPrimary` so the contrast holds in both schemes. Hover /
  * press feedback comes from {@link Pressable}'s tint overlay.
  *
+ * Pass `indeterminate` for a partial selection (dash) when some but not all
+ * items in a group are selected.
+ *
  * @example
  * ```tsx
  * <Checkbox label="Accept terms" checked={accepted} onToggle={setAccepted} />
@@ -22,6 +25,8 @@ import { Text } from '../text';
 export type CheckboxProps = {
   checked: boolean;
   onToggle: (next: boolean) => void;
+  /** Partial selection — dash glyph; takes visual precedence over `checked`. */
+  indeterminate?: boolean;
   label?: ReactNode;
   disabled?: boolean;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -33,15 +38,17 @@ const BOX_SIZE = 18;
 export function Checkbox({
   checked,
   onToggle,
+  indeterminate = false,
   label,
   disabled = false,
   dataSet,
 }: CheckboxProps) {
   const theme = useTheme();
+  const filled = checked || indeterminate;
 
   return (
     <Pressable
-      onPress={() => !disabled && onToggle(!checked)}
+      onPress={() => !disabled && onToggle(indeterminate ? true : !checked)}
       disabled={disabled}
       dataSet={{ component: 'Checkbox', ...dataSet }}
       sx={{
@@ -58,13 +65,23 @@ export function Checkbox({
           height: BOX_SIZE,
           borderRadius: 'xs',
           borderWidth: 1.5,
-          borderColor: checked ? 'tint' : 'outline',
-          backgroundColor: checked ? 'tint' : 'surface',
+          borderColor: filled ? 'tint' : 'outline',
+          backgroundColor: filled ? 'tint' : 'surface',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        {checked ? (
+        {indeterminate ? (
+          <Svg width={BOX_SIZE - 4} height={BOX_SIZE - 4} viewBox="0 0 16 16">
+            <Path
+              d="M3.5 8 H12.5"
+              fill="none"
+              stroke={theme.colors.onPrimary}
+              strokeWidth={2.25}
+              strokeLinecap="round"
+            />
+          </Svg>
+        ) : checked ? (
           <Svg width={BOX_SIZE - 4} height={BOX_SIZE - 4} viewBox="0 0 16 16">
             <Path
               d="M3.5 8.5 L7 12 L13 4.5"

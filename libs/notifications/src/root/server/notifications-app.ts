@@ -6,6 +6,7 @@ import type { NotificationsRequestContext } from './notifications-context';
 export type NotificationsAppOptions = {
   readonly requireAuth: MiddlewareHandler;
   readonly requestContext: () => NotificationsRequestContext;
+  readonly now: () => number;
 };
 
 /**
@@ -22,6 +23,7 @@ export class NotificationsApp {
     return createNotificationsApp({
       requireAuth: opts.requireAuth,
       requestContext: opts.requestContext,
+      now: opts.now,
     });
   }
 }

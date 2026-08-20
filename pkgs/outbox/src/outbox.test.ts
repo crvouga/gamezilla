@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import {
   defineOutboxConsumer,
@@ -26,7 +26,7 @@ describe('outbox', () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrateOutbox(db);
-    const io = createSimIo({ seed: 1 });
+    const adapters = createSimAdapters({ seed: 1 });
     const seen: number[] = [];
     const registry = new OutboxConsumerRegistry();
     registry.register(
@@ -42,8 +42,8 @@ describe('outbox', () => {
     const ctx = {
       tx: db,
       env: {
-        now: () => new Date(io.clock.now()),
-        createId: () => io.createId(),
+        now: () => new Date(adapters.clock.now()),
+        createId: () => adapters.createId(),
       },
     };
     await db.transaction(async (tx) => {
@@ -58,10 +58,20 @@ describe('outbox', () => {
       });
     });
 
-    const n1 = await drainOutbox({ db, io, registry });
+    const n1 = await drainOutbox({
+      db,
+      clock: adapters.clock,
+      createId: adapters.createId,
+      registry,
+    });
     expect(n1.processed).toBe(1);
     expect(seen).toEqual([7]);
-    const n2 = await drainOutbox({ db, io, registry });
+    const n2 = await drainOutbox({
+      db,
+      clock: adapters.clock,
+      createId: adapters.createId,
+      registry,
+    });
     expect(n2.processed).toBe(0);
     expect(seen).toEqual([7]);
     await db.disconnect();
@@ -71,7 +81,7 @@ describe('outbox', () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrateOutbox(db);
-    const io = createSimIo({ seed: 2 });
+    const adapters = createSimAdapters({ seed: 2 });
     const a: number[] = [];
     const b: number[] = [];
     const registry = new OutboxConsumerRegistry();
@@ -98,13 +108,18 @@ describe('outbox', () => {
       await new Outbox({
         tx,
         env: {
-          now: () => new Date(io.clock.now()),
-          createId: () => io.createId(),
+          now: () => new Date(adapters.clock.now()),
+          createId: () => adapters.createId(),
         },
       }).send({ id: 'ping:2', message: Ping({ n: 3 }) });
     });
 
-    await drainOutbox({ db, io, registry });
+    await drainOutbox({
+      db,
+      clock: adapters.clock,
+      createId: adapters.createId,
+      registry,
+    });
     expect(a).toEqual([3]);
     expect(b).toEqual([3]);
     await db.disconnect();

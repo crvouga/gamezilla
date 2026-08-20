@@ -13,6 +13,10 @@ import type {
 } from '../types';
 import { buildFrameAttributes } from './frame-attributes';
 import {
+  type SnapshotCheckpointMeta,
+  writeFrameCheckpoint,
+} from './frame-checkpoint';
+import {
   type SnapshotDatabaseNode,
   writeFrameDatabaseBlobs,
 } from './frame-databases';
@@ -42,6 +46,9 @@ export async function writeReporterFrame(args: {
   readonly writtenDbBlobs: Map<string, string>;
   readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
   readonly snapshotDatabases?: () => Promise<readonly SnapshotDatabaseNode[]>;
+  readonly snapshotCheckpoint?: () =>
+    | SnapshotCheckpointMeta
+    | Promise<SnapshotCheckpointMeta>;
   readonly snapshotEvents?: () => readonly SimulationReportEvent[];
 }): Promise<SimulationFrame> {
   const views = await writeFrameViewBlobs({
@@ -74,6 +81,15 @@ export async function writeReporterFrame(args: {
       ? { snapshotDatabases: args.snapshotDatabases }
       : {}),
   });
+  const checkpoint = await writeFrameCheckpoint({
+    store: args.store,
+    runId: args.runId,
+    testId: args.testId,
+    frameSeq: args.frameSeq,
+    ...(args.snapshotCheckpoint !== undefined
+      ? { snapshotCheckpoint: args.snapshotCheckpoint }
+      : {}),
+  });
   const attributes = buildFrameAttributes({
     views,
     databases,
@@ -86,6 +102,7 @@ export async function writeReporterFrame(args: {
     ...(databases !== undefined ? { databases } : {}),
     ...(views !== undefined ? { views } : {}),
     ...(attributes.length > 0 ? { attributes } : {}),
+    ...(checkpoint !== undefined ? { checkpoint } : {}),
   };
 }
 

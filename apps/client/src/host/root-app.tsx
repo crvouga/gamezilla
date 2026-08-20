@@ -4,26 +4,29 @@ import { ClientHost } from '@apps/client/host/client-host';
 import { composeSubApps } from '@apps/client/host/compose-sub-apps';
 import { HostChromeProvider } from '@apps/client/host/host-chrome-context';
 import { useHostNav } from '@apps/client/host/use-host-nav';
-import { wallIo } from '@pkgs/io';
-import { SystemProvider } from '@pkgs/system/react';
+import { ClockProvider, wallClock, wallTimers } from '@pkgs/clock';
 import { AppThemeRoot, Box } from '@pkgs/ui';
+import { IdProvider } from '@pkgs/uuid';
 import { type ReactNode, useMemo } from 'react';
 
 /** Expo root: host chrome + Client (product) / System (console + playground). */
 export function RootApp(): ReactNode {
-  const io = useMemo(() => wallIo(), []);
   const apps = useMemo(() => composeSubApps(), []);
   const hostNav = useHostNav();
+  const createId = useMemo(() => () => crypto.randomUUID(), []);
+  const random = useMemo(() => () => Math.random(), []);
   return (
-    <SystemProvider io={io}>
-      <AppThemeRoot>
-        <HostChromeProvider value={hostNav}>
-          <Box sx={rootSx}>
-            <ClientHost apps={apps} />
-          </Box>
-        </HostChromeProvider>
-      </AppThemeRoot>
-    </SystemProvider>
+    <ClockProvider clock={wallClock} timers={wallTimers}>
+      <IdProvider createId={createId} random={random}>
+        <AppThemeRoot>
+          <HostChromeProvider value={hostNav}>
+            <Box sx={rootSx}>
+              <ClientHost apps={apps} />
+            </Box>
+          </HostChromeProvider>
+        </AppThemeRoot>
+      </IdProvider>
+    </ClockProvider>
   );
 }
 

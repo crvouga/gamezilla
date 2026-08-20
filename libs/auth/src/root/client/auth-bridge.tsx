@@ -5,13 +5,13 @@ import {
   useHttpClient,
   useOptionalOriginAvailability,
 } from '@pkgs/http-client';
-import { useIo } from '@pkgs/io';
 import { useLogger } from '@pkgs/logger/react';
 import {
   useSecureStorageItem,
   useSecureStorageStore,
   writeSecureStorageItem,
 } from '@pkgs/secure-storage/use-secure-storage-item';
+import { useCreateId } from '@pkgs/uuid';
 import type { PropsWithChildren } from 'react';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
@@ -258,7 +258,7 @@ export function AuthBridge(props: PropsWithChildren): ReactNode {
   const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const timers = useTimers();
-  const createId = useIo().createId;
+  const createId = useCreateId();
   const lastSyncedTokenRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
   const pendingTokenRef = useRef<string | null>(null);

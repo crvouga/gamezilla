@@ -1,23 +1,24 @@
-import { getApiBaseUrl } from '@apps/client/config/api-servers';
+// @io-wall-ok — host composition root (Main vs Console).
+
+import { getServerBaseUrl } from '@apps/client/config/api-servers';
 import { bootPlaygroundSession } from '@apps/client/host/boot-playground';
 import type { HostedSubApp } from '@apps/client/host/hosted-sub-app';
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
-import { ProductApp } from '@apps/client/product/app';
-import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
+import { createClient } from '@apps/client/product/create-client';
+import { wallClientEnv } from '@apps/client/product/wall-client-env';
 import { AppUiPortals } from '@apps/client/providers/ui/portals';
-import { defaultAppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
-import { useIo } from '@pkgs/io';
+import { useClock, useTimers } from '@pkgs/clock';
 import {
   DEFAULT_REPORT_SERVER_PORT,
   SystemConsoleApp,
   type SystemConsolePorts,
 } from '@pkgs/system-console/client';
 import { HouseIcon, TerminalIcon } from '@pkgs/ui';
-import { type ReactNode, useEffect, useMemo } from 'react';
+import { createElement, type ReactNode, useEffect, useMemo } from 'react';
 
 import { useHostChrome } from './host-chrome-context';
 
-function isLocalApiOrigin(origin: string): boolean {
+function isLocalServerOrigin(origin: string): boolean {
   try {
     const host = new URL(origin).hostname;
     return host === 'localhost' || host === '127.0.0.1';
@@ -27,21 +28,22 @@ function isLocalApiOrigin(origin: string): boolean {
 }
 
 function ConsoleSubApp(): ReactNode {
-  const io = useIo();
+  const clock = useClock();
+  const timers = useTimers();
   const { state, patch } = useHostChrome();
-  const ports = useMemo((): SystemConsolePorts<ClientSystemResources> => {
-    const apiOrigin = getApiBaseUrl().replace(/\/$/, '');
-    const reportApiBasePath = isLocalApiOrigin(apiOrigin)
+  const ports = useMemo((): SystemConsolePorts => {
+    const origin = getServerBaseUrl().replace(/\/$/, '');
+    const reportApiBasePath = isLocalServerOrigin(origin)
       ? `http://localhost:${String(DEFAULT_REPORT_SERVER_PORT)}`
-      : `${apiOrigin}/system-console`;
+      : `${origin}/system-console`;
     return {
-      ProductApp:
-        ProductApp as SystemConsolePorts<ClientSystemResources>['ProductApp'],
       bootPlayground: bootPlaygroundSession,
-      io,
+      clock,
+      timers,
+      fetch: (input, init) => globalThis.fetch(input, init),
       reportApiBasePath,
     };
-  }, [io]);
+  }, [clock, timers]);
   return (
     <AppI18nProvider>
       <AppUiPortals>
@@ -50,30 +52,25 @@ function ConsoleSubApp(): ReactNode {
           section={state.section}
           kind={state.kind}
           view={state.view}
-          clientViews={state.clientViews}
+          instance={state.instance}
           onSectionChange={(section) => patch({ section })}
           onKindChange={(kind) => patch({ kind })}
+          onInstanceChange={(instance) => patch({ instance })}
           onViewChange={(view) => patch({ view })}
-          onClientViewChange={(clientId, view) => {
-            patch({ clientView: { id: clientId, view } });
-          }}
         />
       </AppUiPortals>
     </AppI18nProvider>
   );
 }
 
-/**
- * Release Client identity OPFS handles when leaving for System — otherwise
- * playground / remount hits Access Handle contention on the same `user_*` DB.
- */
 function ClientSubApp(): ReactNode {
+  const client = useMemo(() => createClient(wallClientEnv()), []);
   useEffect(() => {
     return () => {
-      void defaultAppSyncEnginePool.releaseAll();
+      void client.close();
     };
-  }, []);
-  return <ProductApp />;
+  }, [client]);
+  return createElement(client.App);
 }
 
 export function composeSubApps(): readonly HostedSubApp[] {

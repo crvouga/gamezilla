@@ -1,6 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { type World, worldTopology } from '@pkgs/system';
 import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
 
 import type {
@@ -20,10 +19,10 @@ import {
   sanitizeRunId,
   sanitizeTestId,
 } from '../types';
+import type { SnapshotCheckpointMeta } from './frame-checkpoint';
 import type { SnapshotDatabaseNode } from './frame-databases';
 import type { SnapshotViewNode } from './frame-views';
 import { snapshotShellKey, testStepsKey } from './keys';
-import { projectReportTopology } from './project-topology';
 import {
   buildReporterData,
   buildReporterStep,
@@ -69,6 +68,13 @@ export type SimulationReporterOptions = {
    */
   readonly snapshotDatabases?: () => Promise<readonly SnapshotDatabaseNode[]>;
   /**
+   * When set, every kept UI frame also writes `frames/f-NNNNN.checkpoint.json`
+   * (client ids, clock, faults, rooms) for live hydrate.
+   */
+  readonly snapshotCheckpoint?: () =>
+    | SnapshotCheckpointMeta
+    | Promise<SnapshotCheckpointMeta>;
+  /**
    * When set, every kept UI frame also dumps per-actor HTML under
    * `frames/f-NNNNN.<actorId>.html`.
    */
@@ -76,9 +82,9 @@ export type SimulationReporterOptions = {
   /** Fine-grained event log snapshot (written to events.json). */
   readonly snapshotEvents?: () => readonly SimulationReportEvent[];
   /**
-   * Live DST world — console maps {@link worldTopology} into topology.json.
+   * Live sim topology — console maps it into topology.json.
    */
-  readonly world?: World;
+  readonly snapshotTopology?: () => SimulationReportTopology;
 };
 
 type RecordArgs = {
@@ -139,6 +145,9 @@ export class SimulationReporter {
   private readonly snapshotDatabases:
     | (() => Promise<readonly SnapshotDatabaseNode[]>)
     | undefined;
+  private readonly snapshotCheckpoint:
+    | (() => SnapshotCheckpointMeta | Promise<SnapshotCheckpointMeta>)
+    | undefined;
   private readonly snapshotViews:
     | (() => Promise<readonly SnapshotViewNode[]>)
     | undefined;
@@ -167,13 +176,10 @@ export class SimulationReporter {
       options.publishThrottleMs ?? DEFAULT_PUBLISH_THROTTLE_MS;
     this.sourceFile = options.sourceFile;
     this.snapshotDatabases = options.snapshotDatabases;
+    this.snapshotCheckpoint = options.snapshotCheckpoint;
     this.snapshotViews = options.snapshotViews;
     this.snapshotEvents = options.snapshotEvents;
-    const world = options.world;
-    this.snapshotTopology =
-      world !== undefined
-        ? () => projectReportTopology(worldTopology(world), options.seed)
-        : undefined;
+    this.snapshotTopology = options.snapshotTopology;
     this.startedAtMs = options.now();
   }
 
@@ -215,11 +221,13 @@ export class SimulationReporter {
     state: FrameCaptureState
   ): Promise<void> {
     if (state.frames.length >= this.maxFramesPerStep) return;
-    const html = await snapshot({ stylesheetHref: FRAME_STYLESHEET_HREF });
-    if (html == null) return;
-    const hash = hashString(html);
-    if (hash === state.lastHash) return;
-    state.lastHash = hash;
+    const html =
+      (await snapshot({ stylesheetHref: FRAME_STYLESHEET_HREF })) ?? '';
+    if (this.snapshotDatabases === undefined) {
+      const hash = hashString(html);
+      if (hash === state.lastHash) return;
+      state.lastHash = hash;
+    }
     const frame = await this.writeFrame(html);
     state.frames.push(frame);
   }
@@ -402,10 +410,10 @@ export class SimulationReporter {
     state: FrameCaptureState
   ): Promise<void> {
     if (!wantSnapshot || state.frames.length > 0) return;
-    const html = await args.snapshot({
-      stylesheetHref: FRAME_STYLESHEET_HREF,
-    });
-    if (html == null) return;
+    const html =
+      (await args.snapshot({
+        stylesheetHref: FRAME_STYLESHEET_HREF,
+      })) ?? '';
     state.frames.push(await this.writeFrame(html));
   }
 
@@ -426,6 +434,9 @@ export class SimulationReporter {
         : {}),
       ...(this.snapshotDatabases !== undefined
         ? { snapshotDatabases: this.snapshotDatabases }
+        : {}),
+      ...(this.snapshotCheckpoint !== undefined
+        ? { snapshotCheckpoint: this.snapshotCheckpoint }
         : {}),
       ...(this.snapshotEvents !== undefined
         ? { snapshotEvents: this.snapshotEvents }

@@ -117,6 +117,6 @@ function readExpoPublicApiUrlOrigin(): string {
  * `EXPO_PUBLIC_API_URL` (`https://api.gamezilla.app`) — the SPA is on a
  * separate origin from the API Worker.
  */
-export function getApiBaseUrl(): string {
+export function getServerBaseUrl(): string {
   return readExpoPublicApiUrlOrigin();
 }

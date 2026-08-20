@@ -15,7 +15,7 @@ import {
 } from '@libs/infra/shared/database-url-policy';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
@@ -23,7 +23,6 @@ import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
-const io = wallIo();
 const apiRoot = join(import.meta.dirname, '..');
 const REPO_ROOT = join(apiRoot, '../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
@@ -103,7 +102,7 @@ async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const log = createLogger({ name: 'api:wipe-dev', now: io.clock.now });
+  const log = createLogger({ name: 'api:wipe-dev', now: wallClock.now });
   const databaseUrl = resolveDatabaseUrlForWipe();
   await assertWipeDatabasePolicy(databaseUrl);
 

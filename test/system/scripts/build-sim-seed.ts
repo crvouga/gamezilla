@@ -7,7 +7,7 @@
  * (runs under Node via tsx — better-sqlite3 NAPI is unreliable under Bun)
  */
 
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import {
   computeSimSeedFingerprint,
   ensureSimSeedBuffer,
@@ -16,13 +16,12 @@ import {
 import { migrateSimSqlite } from '../src/setup/migrate-sim-sqlite';
 
 async function main(): Promise<void> {
-  const io = wallIo();
   const fingerprint = await computeSimSeedFingerprint();
   const { didMigrate } = await ensureSimSeedBuffer({
     migrate: async (handle) => {
       await migrateSimSqlite({
         sqlClient: handle.sqlClient,
-        io,
+        now: wallClock.now,
       });
     },
   });

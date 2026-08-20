@@ -1,4 +1,4 @@
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
@@ -12,7 +12,7 @@ export type ClientConfigStoredRow = {
 export class ClientConfigRepository {
   constructor(
     private readonly tx: SqlTx,
-    private readonly io: Io
+    private readonly clock: Clock
   ) {}
 
   async listAll(): Promise<readonly ClientConfigStoredRow[]> {
@@ -26,7 +26,7 @@ export class ClientConfigRepository {
     readonly id: string;
     readonly value: unknown;
   }): Promise<void> {
-    const nowIso = new Date(this.io.clock.now()).toISOString();
+    const nowIso = new Date(this.clock.now()).toISOString();
     const valueJson = JSON.stringify(args.value);
     await this.tx.run(sql<void>`
       INSERT INTO client_config (
@@ -51,7 +51,7 @@ export class ClientConfigRepository {
   }
 
   async softDelete(id: string): Promise<void> {
-    const nowIso = new Date(this.io.clock.now()).toISOString();
+    const nowIso = new Date(this.clock.now()).toISOString();
     await this.tx.run(sql<void>`
       UPDATE client_config
       SET deleted_at = ${nowIso},

@@ -143,8 +143,8 @@ function resolveOptions<
  *
  * export const Room = createDurableObjectAdapter({
  *   modules: APP_ROOM_MODULES,
- *   clock: io.clock,
- *   createId: io.createId,
+ *   clock,
+ *   createId,
  * });
  * ```
  */

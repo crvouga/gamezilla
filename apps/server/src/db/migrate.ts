@@ -1,12 +1,13 @@
 // @api-wall-ok
 // @io-wall-ok
 /**
- * Programmatic app Postgres migrate orchestration — owned by `@apps/api/db`.
+ * Programmatic app Postgres migrate orchestration — owned by `@apps/server/db`.
  * Compose site is `@libs/runtime/server/run-postgres-migrations`. Same-package
  * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
  * shell out to `migrate-cli.ts`. Tests/CI boot `@pkgs/postgres-embedded` then
  * run migrate scripts (apps must not import other `@apps/*` packages).
  */
+
 import { join } from 'node:path';
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import {
@@ -16,7 +17,7 @@ import {
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger, type Logger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
@@ -31,9 +32,8 @@ import {
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 /** Composition root: migrate CLI / in-process migrate owns wall I/O. */
-const io = wallIo();
-const now = io.clock.now;
-const timers = io.timers;
+const now = wallClock.now;
+const timers = wallTimers;
 
 /** Concurrent migrates serialize via advisory lock; these cover contention. */
 const MIGRATE_RETRY_DELAYS_MS = [

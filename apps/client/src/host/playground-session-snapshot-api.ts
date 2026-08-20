@@ -16,7 +16,6 @@ import {
   type SnapshotSessionCtx,
   savePlaygroundSnapshot,
 } from '@apps/client/host/playground-snapshots';
-import type { ClientSystemResources } from '@apps/client/providers/client-system-resources';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   PlaygroundPaletteCommand,
@@ -25,18 +24,17 @@ import type {
 
 export type SnapshotSessionApiArgs = {
   readonly snapshotStore: ObjectStore;
-  readonly sessionRef: {
-    current: PlaygroundSession<ClientSystemResources> | null;
-  };
+  readonly sessionRef: { current: PlaygroundSession | null };
   readonly snapshotCtx: () => SnapshotSessionCtx;
   readonly getSnapshotLoads: () => PlaygroundPaletteCommand[];
   readonly setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void;
   readonly commands: ReturnType<typeof createPlaygroundChessCommands>;
   readonly notify: () => void;
+  readonly fireDomainWake: (label: string) => void;
 };
 
 async function refreshSnapshotLoads(
-  session: PlaygroundSession<ClientSystemResources>,
+  session: PlaygroundSession,
   setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void,
   notify: () => void
 ): Promise<void> {
@@ -47,7 +45,7 @@ async function refreshSnapshotLoads(
 export function snapshotSessionMethods(
   args: SnapshotSessionApiArgs
 ): Pick<
-  PlaygroundSession<ClientSystemResources>,
+  PlaygroundSession,
   | 'listPaletteCommands'
   | 'refreshSnapshotPaletteCommands'
   | 'listSnapshots'
@@ -65,8 +63,9 @@ export function snapshotSessionMethods(
     setSnapshotLoads,
     commands,
     notify,
+    fireDomainWake,
   } = args;
-  const live = (): PlaygroundSession<ClientSystemResources> => {
+  const live = (): PlaygroundSession => {
     const s = sessionRef.current;
     if (s === null) throw new Error('playground session not ready');
     return s;
@@ -82,7 +81,9 @@ export function snapshotSessionMethods(
         run: () => s.runCommand(c.id),
       }));
       return [
-        ...buildPlaygroundPaletteCommands(s),
+        ...buildPlaygroundPaletteCommands(s).map((cmd) =>
+          wrapPaletteWake(cmd, fireDomainWake)
+        ),
         ...getSnapshotLoads(),
         ...seed,
       ];
@@ -110,6 +111,19 @@ export function snapshotSessionMethods(
         await purgeIncompatiblePlaygroundSnapshotsFromStore(snapshotStore);
       await refreshSnapshotLoads(live(), setSnapshotLoads, notify);
       return n;
+    },
+  };
+}
+
+function wrapPaletteWake(
+  cmd: PlaygroundPaletteCommand,
+  fireDomainWake: (label: string) => void
+): PlaygroundPaletteCommand {
+  return {
+    ...cmd,
+    run: async () => {
+      await cmd.run();
+      fireDomainWake('fault');
     },
   };
 }

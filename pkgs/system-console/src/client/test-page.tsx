@@ -1,47 +1,51 @@
-import { Box, TabStrip, Text } from '@pkgs/ui';
+import { Box } from '@pkgs/ui';
 import { useEffect, useMemo, useState } from 'react';
 
-import type {
-  RunSummary,
-  SimulationReportData,
-  SimulationReportTopology,
-  SuiteTestSummary,
-} from '../types';
-import type { BucketInfo, ReportApiClient } from './api-client';
-import { EventsPane } from './events-pane';
+import {
+  findNodeForInstance,
+  instanceParamForNodeId,
+  instancesForKind,
+  sqliteNodeIdForApi,
+} from '../shared/debugger-nodes';
+import {
+  coerceDebuggerView,
+  type DebuggerViewId,
+  viewsForKind,
+} from '../shared/debugger-views';
+import type { SystemConsolePorts } from '../shared/ports';
+import type { SystemChromeKind } from '../shared/system-node';
+import type { SimulationReportData, SimulationReportTopology } from '../types';
+import type { ReportApiClient } from './api-client';
+import { DebuggerShell } from './debugger/debugger-shell';
+import type { DebuggerChromeNav } from './debugger-chrome';
 import {
   flattenFrames,
   playheadFrameIndex,
   resolveSelectedFrameIndex,
 } from './frames';
-import { HtmlPane } from './html-pane';
-import { NavBreadcrumb } from './nav-breadcrumb';
 import {
   defaultNodeId,
   resolveNodeList,
-  resolveSelectedView,
-  viewsForNode,
+  type TopologyNodeInfo,
 } from './node-views';
-import { PlayerStrip } from './player-strip';
 import { ReportHeader } from './report-header';
-import type { NodeViewKind, ReportNavState } from './router';
+import type { ReportNavState } from './router';
 import { navigateReport } from './router';
-import { SqlitePane } from './sqlite-pane';
-import { reportViewTabItem, systemNodeTabItem } from './system-node-chrome';
-import { appShellSx, emptySx, paneSx } from './tokens';
+import { ReportKindPane } from './test-page-panes';
+import { appShellSx } from './tokens';
+import { useReportReplay } from './use-report-replay';
 
 export function TestPage(props: {
   readonly data: SimulationReportData;
   readonly nav: ReportNavState;
   readonly bucketId: string;
   readonly runId: string;
-  readonly buckets: readonly BucketInfo[];
-  readonly runs: readonly RunSummary[];
-  readonly tests: readonly SuiteTestSummary[];
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
+  readonly chrome: DebuggerChromeNav;
+  readonly ports: SystemConsolePorts;
 }) {
-  const { data, nav, bucketId, runId, onNav, api } = props;
+  const { data, nav, bucketId, runId, onNav, api, chrome, ports } = props;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
   const selectedIdx =
     resolveSelectedFrameIndex(frames, data.steps, nav) ??
@@ -56,100 +60,167 @@ export function TestPage(props: {
     () => resolveNodeList({ topology, actorIds: data.meta.actorIds }),
     [topology, data.meta.actorIds]
   );
-  const fallbackNode = defaultNodeId(nodes);
-  const nodeId = nav.node ?? fallbackNode;
-  const node = nodes.find((n) => n.id === nodeId) ?? null;
-  const views = viewsForNode(node);
-  const view = resolveSelectedView(nav.view, views);
+  const instances = instancesForKind(nodes, chrome.kind);
+  const selected =
+    findNodeForInstance(nodes, chrome.kind, chrome.instance) ??
+    instances[0] ??
+    null;
+  const views = viewsForKind(chrome.kind, {
+    hasCommands: false,
+    hasTopics: false,
+  });
+  const view = coerceDebuggerView(chrome.kind, chrome.view);
+  const replay = useReportReplay({
+    ports,
+    frame,
+    api,
+    bucketId,
+    runId,
+    testId: data.meta.testId,
+  });
 
-  useDefaultNav({ framesLen: frames.length, nav, onNav, fallbackNode, view });
+  useDefaultNav({
+    framesLen: frames.length,
+    nav,
+    onNav,
+    fallbackNode: selected?.id ?? defaultNodeId(nodes),
+    view,
+  });
 
   return (
     <Box sx={appShellSx}>
-      <ReportHeader
-        breadcrumb={
-          <NavBreadcrumb
-            nav={nav}
-            buckets={props.buckets}
-            runs={props.runs}
-            tests={props.tests}
-            onNav={onNav}
-          />
-        }
-        meta={`${data.meta.status} · ${frames.length} frames · seed ${data.meta.seed}`}
+      <ReportDebuggerShell
+        data={data}
+        nav={nav}
+        frames={frames}
+        selectedIdx={selectedIdx}
+        view={view}
+        views={views}
+        instances={instances}
+        selected={selected}
+        nodes={nodes}
+        chrome={chrome}
+        onNav={onNav}
+        api={api}
+        bucketId={bucketId}
+        runId={runId}
+        frame={frame}
+        ports={ports}
+        replay={replay}
       />
-      <Box sx={{ flex: 1, flexDirection: 'column', minHeight: 0 }}>
-        <PlayerStrip
-          frames={frames}
-          selectedIndex={Math.max(0, selectedIdx)}
-          onSelect={(index) => {
-            onNav(navigateReport(nav, { frame: index + 1 }));
-          }}
-        />
-        <TabStrip
-          accessibilityLabel="Nodes"
-          items={nodes.map((n) =>
-            systemNodeTabItem({ id: n.id, kind: n.kind })
-          )}
-          selectedId={nodeId}
-          onSelect={(id) => onNav(navigateReport(nav, { node: id }))}
-        />
-        <TabStrip
-          accessibilityLabel="Views"
-          items={views.map((v) => reportViewTabItem(v))}
-          selectedId={view}
-          onSelect={(id) =>
-            onNav(navigateReport(nav, { view: id as NodeViewKind }))
-          }
-        />
-        <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-          <SelectedPane
-            view={view}
-            api={api}
-            bucketId={bucketId}
-            runId={runId}
-            testId={data.meta.testId}
-            frame={frame}
-            nodeId={nodeId}
-            node={node}
-          />
-        </Box>
-      </Box>
     </Box>
   );
 }
 
-function SelectedPane(props: {
-  readonly view: NodeViewKind | null;
+type ReportDebuggerShellProps = {
+  readonly data: SimulationReportData;
+  readonly nav: ReportNavState;
+  readonly frames: ReturnType<typeof flattenFrames>;
+  readonly selectedIdx: number;
+  readonly view: DebuggerViewId;
+  readonly views: readonly DebuggerViewId[];
+  readonly instances: readonly TopologyNodeInfo[];
+  readonly selected: TopologyNodeInfo | null;
+  readonly nodes: readonly TopologyNodeInfo[];
+  readonly chrome: DebuggerChromeNav;
+  readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
-  readonly testId: string;
   readonly frame: ReturnType<typeof flattenFrames>[number] | null;
-  readonly nodeId: string | null;
-  readonly node: ReturnType<typeof resolveNodeList>[number] | null;
-}) {
-  const loc = {
-    bucketId: props.bucketId,
-    runId: props.runId,
-    testId: props.testId,
-    frame: props.frame,
-    nodeId: props.nodeId,
-  };
-  if (props.view === 'html') {
-    return <HtmlPane {...loc} api={props.api} node={props.node} />;
-  }
-  if (props.view === 'sqlite') {
-    return <SqlitePane {...loc} />;
-  }
-  if (props.view === 'events') {
-    return <EventsPane {...loc} api={props.api} />;
-  }
+  readonly ports: SystemConsolePorts;
+  readonly replay: ReturnType<typeof useReportReplay>;
+};
+
+function ReportDebuggerShell(props: ReportDebuggerShellProps) {
+  const { nav, chrome, view, nodes, onNav } = props;
   return (
-    <Box sx={paneSx}>
-      <Text sx={emptySx}>No views for this node.</Text>
-    </Box>
+    <DebuggerShell
+      header={<ReportTestHeader {...props} />}
+      frames={props.frames}
+      selectedFrameIndex={Math.max(0, props.selectedIdx)}
+      onSelectFrame={(index) => {
+        onNav(navigateReport(nav, { frame: index + 1 }));
+      }}
+      kind={chrome.kind}
+      onKindChange={(kind) => {
+        const next = findNodeForInstance(nodes, kind, null);
+        patchChrome({ nodes, chrome, kind, view });
+        onNav(
+          navigateReport(nav, {
+            node: next?.id ?? null,
+            view: coerceDebuggerView(kind, view),
+          })
+        );
+      }}
+      instances={props.instances}
+      instanceId={props.selected?.id ?? null}
+      onInstanceChange={(id) => {
+        chrome.onInstanceChange(instanceParamForNodeId(id));
+        onNav(navigateReport(nav, { node: id }));
+      }}
+      views={props.views}
+      view={view}
+      onViewChange={(next) => {
+        chrome.onViewChange(next);
+        onNav(navigateReport(nav, { view: next }));
+      }}
+    >
+      <ReportKindPane
+        ports={props.ports}
+        replay={props.replay}
+        kind={chrome.kind}
+        view={view}
+        instances={props.instances}
+        selected={props.selected}
+        nodeId={paneNodeId({
+          kind: chrome.kind,
+          view,
+          nodeId: props.selected?.id ?? null,
+          nodes,
+        })}
+        api={props.api}
+        bucketId={props.bucketId}
+        runId={props.runId}
+        testId={props.data.meta.testId}
+        frame={props.frame}
+      />
+    </DebuggerShell>
   );
+}
+
+function ReportTestHeader(props: ReportDebuggerShellProps) {
+  return (
+    <ReportHeader
+      meta={`${props.data.meta.status} · ${props.frames.length} frames · seed ${props.data.meta.seed}`}
+    />
+  );
+}
+
+function patchChrome(args: {
+  readonly nodes: readonly TopologyNodeInfo[];
+  readonly chrome: DebuggerChromeNav;
+  readonly kind: SystemChromeKind;
+  readonly view: DebuggerViewId;
+}): void {
+  const next = findNodeForInstance(args.nodes, args.kind, null);
+  args.chrome.onKindChange(args.kind);
+  args.chrome.onInstanceChange(
+    next !== undefined ? instanceParamForNodeId(next.id) : ''
+  );
+  args.chrome.onViewChange(coerceDebuggerView(args.kind, args.view));
+}
+
+function paneNodeId(args: {
+  readonly kind: SystemChromeKind;
+  readonly view: DebuggerViewId;
+  readonly nodeId: string | null;
+  readonly nodes: readonly TopologyNodeInfo[];
+}): string | null {
+  if (args.view === 'db' && args.kind === 'api') {
+    return sqliteNodeIdForApi(args.nodes);
+  }
+  return args.nodeId;
 }
 
 function useTopology(
@@ -178,7 +249,7 @@ function useDefaultNav(args: {
   readonly nav: ReportNavState;
   readonly onNav: (nav: ReportNavState) => void;
   readonly fallbackNode: string | null;
-  readonly view: NodeViewKind | null;
+  readonly view: DebuggerViewId | null;
 }): void {
   const { framesLen, nav, onNav, fallbackNode, view } = args;
   useEffect(() => {

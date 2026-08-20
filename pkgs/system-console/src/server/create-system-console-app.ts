@@ -1,16 +1,27 @@
 import type { Timers } from '@pkgs/clock';
 import { Hono } from 'hono';
 
-import { type HandleApiContext, handleApi } from './api-routes';
+import {
+  type ConvertSqliteDumpToSqlm,
+  type HandleApiContext,
+  handleApi,
+} from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
 import { SseHub } from './sse-hub';
 import type { ReportBucket } from './types';
+
+export type { ConvertSqliteDumpToSqlm };
 
 export type CreateSystemConsoleAppOptions = {
   readonly buckets: readonly ReportBucket[];
   readonly timers: Timers;
   /** Clock for prune `olderThanMs` (inject from composition root). */
   readonly now?: () => number;
+  /**
+   * Optional: serve `?format=sqlm` on gzipped native dumps (Bun local report
+   * servers). Workers leave this unset — Expo cannot load sqlite-wasm.
+   */
+  readonly convertSqliteDumpToSqlm?: ConvertSqliteDumpToSqlm;
 };
 
 export type SystemConsoleAppHandle = {
@@ -46,6 +57,7 @@ export function createSystemConsoleApp(
     watchers,
     now: options.now,
     timers: options.timers,
+    convertSqliteDumpToSqlm: options.convertSqliteDumpToSqlm,
   };
 
   const app = new Hono();

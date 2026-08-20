@@ -6,6 +6,7 @@
     ".": "./src/index.ts",
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts",
+    "./server/bun-sqlite-dump-to-sqlm": "./src/server/bun-sqlite-dump-to-sqlm.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -19,14 +20,11 @@
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/system": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "catalog:",
     "hono": "catalog:",
     "react": "catalog:",
     "react-native": "catalog:"

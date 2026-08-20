@@ -17,7 +17,6 @@
     "verify:licenses": "bun run scripts/verify-licenses.ts"
   },
   "dependencies": {
-    "@pkgs/io": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "expo-audio": "catalog:",

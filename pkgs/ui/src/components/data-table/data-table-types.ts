@@ -34,11 +34,17 @@ export type DataTableColumn<T> = {
   readonly sortable?: boolean;
   /** Fast path: primitive text cell (preferred). */
   readonly getValue?: (row: T) => string | number | null | undefined;
-  /** Escape hatch for Badge / Button / custom cells. Prefer `getValue`. */
+  /**
+   * Escape hatch for Badge / IconButton / custom cells. Prefer `getValue`.
+   * For row actions in compact density, prefer quiet IconButton (~28px),
+   * not full Button chrome.
+   */
   readonly cell?: (row: T) => ReactNode;
 };
 
 export type DataTableDensity = 'compact' | 'comfortable';
+
+export type DataTableSelectionMode = 'none' | 'multiple';
 
 export type DataTableProps<T> = {
   readonly columns: readonly DataTableColumn<T>[];
@@ -53,6 +59,13 @@ export type DataTableProps<T> = {
   readonly emptyBody?: ReactNode;
   readonly onRowPress?: (row: T) => void;
   readonly density?: DataTableDensity;
+  /**
+   * Controlled multi-select. When `"multiple"`, pass `selectedKeys` and
+   * `onSelectedKeysChange` (parent owns selection state).
+   */
+  readonly selectionMode?: DataTableSelectionMode;
+  readonly selectedKeys?: readonly string[];
+  readonly onSelectedKeysChange?: (keys: readonly string[]) => void;
   readonly frameSx?: SxProps;
   readonly sx?: SxProps;
   readonly dataSet?: ComponentDataSet;

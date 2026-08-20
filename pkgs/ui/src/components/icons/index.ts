@@ -8,6 +8,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   CircleCheck,
   Code,
   Copy,
@@ -62,6 +64,8 @@ export const SendIcon = createIcon(Send);
 export const CodeIcon = createIcon(Code);
 export const ChevronRightIcon = createIcon(ChevronRight);
 export const ChevronLeftIcon = createIcon(ChevronLeft);
+export const ChevronsLeftIcon = createIcon(ChevronsLeft);
+export const ChevronsRightIcon = createIcon(ChevronsRight);
 export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);

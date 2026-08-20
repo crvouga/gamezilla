@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { asKeyword } from '@pkgs/keyword';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
 import {
@@ -12,8 +12,7 @@ import { InMemoryClientStorage } from '../adapters/storage/memory';
 import { Room } from './room';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
 
-const io = wallIo();
-const timers = io.timers;
+const timers = wallTimers;
 
 /**
  * Records outbound frames; delivers only what the test injects (no auto welcome).
@@ -74,7 +73,9 @@ class ManualClientTransport implements ClientTransport {
 describe('Room server-reset recovery', () => {
   it('ignores a duplicate committed broadcast at or below the local tip', async () => {
     const { room, transport } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-reset-broadcast',
       module: TestCounterModule,
     });
@@ -101,7 +102,9 @@ describe('Room server-reset recovery', () => {
 
   it('recovers from a welcome whose lastSeq is behind our local tail', async () => {
     const { room, transport } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-reset-welcome',
       module: TestCounterModule,
     });
@@ -136,9 +139,9 @@ describe('Room server-reset recovery', () => {
       storage: new InMemoryClientStorage(),
       transport,
       identity: 'test-user',
-      clock: io.clock,
-      timers: io.timers,
-      createId: io.createId,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
     });
 
     // onOpen already sent sync(fromSeq=0). Deliver a tip-sync welcome that
@@ -176,7 +179,9 @@ describe('Room server-reset recovery', () => {
 
   it('is idempotent against a duplicate welcome that re-delivers known entries', async () => {
     const { room, transport } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-reset-duplicate-welcome',
       module: TestCounterModule,
     });

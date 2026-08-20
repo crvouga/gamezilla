@@ -3,7 +3,15 @@ import type { LayoutChangeEvent } from 'react-native';
 
 import { DataTableReadyBody } from './data-table-body';
 import { DataTableHeader } from './data-table-header';
-import { resolveColumnLayout } from './data-table-metrics';
+import {
+  DATA_TABLE_SELECTION_COL_WIDTH,
+  resolveColumnLayout,
+} from './data-table-metrics';
+import {
+  pageSelectionState,
+  setPageKeysSelected,
+  toggleSelectedKey,
+} from './data-table-selection';
 import {
   DataTableEmptyBody,
   DataTableErrorBody,
@@ -28,6 +36,9 @@ const DEFAULT_PAGE_SIZE = 50;
  *
  * Declared column `width` values are minimums; leftover frame space is
  * distributed proportionally so columns always fill the table.
+ *
+ * For compact row actions prefer quiet IconButton (~28px), not full Button.
+ * Enable bulk select with `selectionMode="multiple"` + controlled keys.
  */
 export function DataTable<T>(props: DataTableProps<T>): ReactNode {
   const {
@@ -42,6 +53,9 @@ export function DataTable<T>(props: DataTableProps<T>): ReactNode {
     emptyBody,
     onRowPress,
     density = 'comfortable',
+    selectionMode = 'none',
+    selectedKeys = [],
+    onSelectedKeysChange,
     frameSx,
     sx,
     dataSet,
@@ -56,6 +70,8 @@ export function DataTable<T>(props: DataTableProps<T>): ReactNode {
   });
   const shellSx = dataTableShellSx(frameSx, sx);
   const rootDataSet = { component: 'DataTable', ...dataSet };
+  const selectionEnabled =
+    selectionMode === 'multiple' && onSelectedKeysChange != null;
 
   return (
     <DataTableView
@@ -68,11 +84,14 @@ export function DataTable<T>(props: DataTableProps<T>): ReactNode {
       emptyBody={emptyBody}
       shellSx={shellSx}
       dataSet={rootDataSet}
+      selectionEnabled={selectionEnabled}
+      selectedKeys={selectedKeys}
+      onSelectedKeysChange={onSelectedKeysChange}
     />
   );
 }
 
-function DataTableView<T>(props: {
+type DataTableViewProps<T> = {
   readonly cache: UseDataTablePageCacheResult<T>;
   readonly columns: DataTableProps<T>['columns'];
   readonly density: NonNullable<DataTableProps<T>['density']>;
@@ -82,17 +101,52 @@ function DataTableView<T>(props: {
   readonly emptyBody: ReactNode | undefined;
   readonly shellSx: ReturnType<typeof dataTableShellSx>;
   readonly dataSet: { component: string };
-}): ReactNode {
-  const { cache, columns, density, getRowId, onRowPress } = props;
+  readonly selectionEnabled: boolean;
+  readonly selectedKeys: readonly string[];
+  readonly onSelectedKeysChange:
+    | ((keys: readonly string[]) => void)
+    | undefined;
+};
+
+function DataTableView<T>(props: DataTableViewProps<T>): ReactNode {
+  const layout = useDataTableLayout(props);
+  if (props.cache.view.status !== 'ready') {
+    return (
+      <DataTableStatusShell
+        shellSx={props.shellSx}
+        dataSet={props.dataSet}
+        header={layout.header}
+        onLayout={layout.onLayout}
+      >
+        <DataTableStatusContent
+          view={props.cache.view}
+          onRetry={props.cache.retry}
+          emptyTitle={props.emptyTitle}
+          emptyBody={props.emptyBody}
+        />
+      </DataTableStatusShell>
+    );
+  }
+  return <DataTableReadyView {...props} layout={layout} />;
+}
+
+function useDataTableLayout<T>(props: DataTableViewProps<T>) {
+  const { cache, columns, selectionEnabled } = props;
   const [frameWidth, setFrameWidth] = useState(0);
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     setFrameWidth(e.nativeEvent.layout.width);
   }, []);
-  const layout = useMemo(
-    () => resolveColumnLayout(columns, frameWidth),
-    [columns, frameWidth]
-  );
-
+  const selectionPad = selectionEnabled ? DATA_TABLE_SELECTION_COL_WIDTH : 0;
+  const layout = useMemo(() => {
+    const data = resolveColumnLayout(
+      columns,
+      Math.max(0, frameWidth - selectionPad)
+    );
+    return {
+      widths: data.widths,
+      tableWidth: data.tableWidth + selectionPad,
+    };
+  }, [columns, frameWidth, selectionPad]);
   const header = (
     <DataTableHeader
       columns={columns}
@@ -103,29 +157,39 @@ function DataTableView<T>(props: {
       onToggleSort={cache.toggleSort}
     />
   );
+  return { ...layout, header, onLayout };
+}
 
-  if (cache.view.status !== 'ready') {
-    return (
-      <DataTableStatusShell
-        shellSx={props.shellSx}
-        dataSet={props.dataSet}
-        header={header}
-        onLayout={onLayout}
-      >
-        <DataTableStatusContent
-          view={cache.view}
-          onRetry={cache.retry}
-          emptyTitle={props.emptyTitle}
-          emptyBody={props.emptyBody}
-        />
-      </DataTableStatusShell>
-    );
+function DataTableReadyView<T>(
+  props: DataTableViewProps<T> & {
+    readonly layout: ReturnType<typeof useDataTableLayout<T>>;
   }
+): ReactNode {
+  const {
+    cache,
+    columns,
+    density,
+    getRowId,
+    onRowPress,
+    selectionEnabled,
+    selectedKeys,
+    onSelectedKeysChange,
+    layout,
+  } = props;
+  const rows = cache.view.status === 'ready' ? cache.view.rows : [];
+  const totalCount = cache.view.status === 'ready' ? cache.view.totalCount : 0;
+  const selection = usePageSelection({
+    rows,
+    getRowId,
+    selectionEnabled,
+    selectedKeys,
+    onSelectedKeysChange,
+  });
 
   return (
     <DataTableReadyBody
-      rows={cache.view.rows}
-      totalCount={cache.view.totalCount}
+      rows={rows}
+      totalCount={totalCount}
       columns={columns}
       widths={layout.widths}
       tableWidth={layout.tableWidth}
@@ -137,13 +201,64 @@ function DataTableView<T>(props: {
       onToggleSort={cache.toggleSort}
       pageIndex={cache.pageIndex}
       pageCount={cache.pageCount}
-      onPrev={() => cache.setPageIndex(cache.pageIndex - 1)}
-      onNext={() => cache.setPageIndex(cache.pageIndex + 1)}
+      onPageChange={cache.setPageIndex}
       shellSx={props.shellSx}
       dataSet={props.dataSet}
-      onLayout={onLayout}
+      onLayout={layout.onLayout}
+      {...selection}
     />
   );
+}
+
+function usePageSelection<T>(args: {
+  readonly rows: readonly T[];
+  readonly getRowId: DataTableProps<T>['getRowId'];
+  readonly selectionEnabled: boolean;
+  readonly selectedKeys: readonly string[];
+  readonly onSelectedKeysChange:
+    | ((keys: readonly string[]) => void)
+    | undefined;
+}) {
+  const {
+    rows,
+    getRowId,
+    selectionEnabled,
+    selectedKeys,
+    onSelectedKeysChange,
+  } = args;
+  const selectedKeySet = useMemo(
+    () => (selectionEnabled ? new Set(selectedKeys) : undefined),
+    [selectionEnabled, selectedKeys]
+  );
+  const pageKeys = useMemo(
+    () => rows.map((row, index) => getRowId(row, index)),
+    [rows, getRowId]
+  );
+  const pageSel = pageSelectionState(pageKeys, selectedKeys);
+  const selectionHeader =
+    selectionEnabled && onSelectedKeysChange != null
+      ? {
+          checked: pageSel.all,
+          indeterminate: pageSel.some,
+          onToggle: (next: boolean) => {
+            onSelectedKeysChange(
+              setPageKeysSelected(selectedKeys, pageKeys, next)
+            );
+          },
+        }
+      : undefined;
+  const onToggleRowKey =
+    selectionEnabled && onSelectedKeysChange != null
+      ? (key: string, selected: boolean) => {
+          onSelectedKeysChange(toggleSelectedKey(selectedKeys, key, selected));
+        }
+      : undefined;
+
+  return {
+    ...(selectionHeader != null ? { selectionHeader } : {}),
+    ...(selectedKeySet != null ? { selectedKeySet } : {}),
+    ...(onToggleRowKey != null ? { onToggleRowKey } : {}),
+  };
 }
 
 function DataTableStatusContent<T>(props: {

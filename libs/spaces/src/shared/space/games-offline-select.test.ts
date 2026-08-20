@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { assertRoomModuleName, Room, RoomMetaAttr } from '@pkgs/room';
 import { InMemoryClientStorage } from '@pkgs/room/client/adapters/storage/memory';
 
@@ -7,8 +7,6 @@ import type { GameDefinition } from './game';
 import { GamesRoomAttr, SelectGame } from './games';
 import { createSpaceModule } from './space-module';
 import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
-
-const io = wallIo();
 
 /** Never-connected transport — Connecting… / offline. */
 class DisconnectedTransport {
@@ -46,7 +44,7 @@ describe('SelectGame offline-first', () => {
     const module = createSpaceModule(
       assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
       [chessStub],
-      io.clock.now
+      wallClock.now
     );
     const transport = new DisconnectedTransport();
     const room = await Room.open({
@@ -55,9 +53,9 @@ describe('SelectGame offline-first', () => {
       storage: new InMemoryClientStorage(),
       transport,
       identity: 'host-1',
-      clock: io.clock,
-      timers: io.timers,
-      createId: io.createId,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
     });
 
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(false);

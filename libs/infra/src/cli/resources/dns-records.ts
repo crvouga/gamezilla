@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 import { info, ok, warn } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { cfHeaders } from '../secrets/cloudflare';
@@ -25,7 +25,7 @@ export class DnsRecordsResource extends ResourceBase {
     const zoneId = await this.findZoneId(headers);
     if (!zoneId) return;
 
-    const res = await cliIo.http.fetch(
+    const res = await cliHttp.fetch(
       `${CF_API}/zones/${zoneId}/dns_records?per_page=100`,
       { headers }
     );
@@ -38,7 +38,7 @@ export class DnsRecordsResource extends ResourceBase {
     if (records.length === 0) return;
 
     for (const rec of records) {
-      const del = await cliIo.http.fetch(
+      const del = await cliHttp.fetch(
         `${CF_API}/zones/${zoneId}/dns_records/${rec.id}`,
         { method: 'DELETE', headers }
       );
@@ -53,7 +53,7 @@ export class DnsRecordsResource extends ResourceBase {
   private async findZoneId(
     headers: Record<string, string>
   ): Promise<string | null> {
-    const res = await cliIo.http.fetch(
+    const res = await cliHttp.fetch(
       `${CF_API}/zones?name=${PROJECT_CONFIG.domain}&per_page=1`,
       { headers }
     );

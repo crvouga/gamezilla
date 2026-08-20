@@ -1,4 +1,5 @@
-import type { SimIo } from '@pkgs/io';
+import type { SimClock, Timers } from '@pkgs/clock';
+import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import { Room } from '../client/core/room';
@@ -32,7 +33,10 @@ export type WorldKernel<
   readonly seed: bigint;
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
-  readonly io: SimIo;
+  readonly clock: SimClock;
+  readonly timers: Timers;
+  readonly createId: CreateId;
+  readonly rng: SeededRng;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;
   readonly network: SimRoomNetwork;
@@ -54,7 +58,7 @@ export async function attachClient<
   E extends RoomEvent,
 >(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
   if (slot.room !== null) return;
-  const connectionId = `conn-${slot.key}-${k.io.createId()}`;
+  const connectionId = `conn-${slot.key}-${k.createId()}`;
   slot.connectionId = connectionId;
   const transport = new SimLoopbackRoomTransport<S, C, E>({
     server: k.server,
@@ -73,9 +77,9 @@ export async function attachClient<
     { id: slot.identity, clientId: slot.clientId }
   );
   const clientSchedule = createTimerScheduleStack({
-    clock: k.io.clock,
-    timers: k.io.timers,
-    createId: k.io.createId,
+    clock: k.clock,
+    timers: k.timers,
+    createId: k.createId,
     topic: k.topic,
   });
   const room = await Room.open<S, C, E, string>({
@@ -84,9 +88,9 @@ export async function attachClient<
     storage: new InMemoryClientStorage(),
     transport,
     identity: slot.identity,
-    clock: k.io.clock,
-    timers: k.io.timers,
-    createId: k.io.createId,
+    clock: k.clock,
+    timers: k.timers,
+    createId: k.createId,
     effectHandlers: [clientSchedule.handler],
   });
   clientSchedule.bindInject((cmd) => {
@@ -137,7 +141,7 @@ export async function softReconnectClient<
     await attachClient(k, slot);
     return;
   }
-  const connectionId = `conn-${slot.key}-${k.io.createId()}`;
+  const connectionId = `conn-${slot.key}-${k.createId()}`;
   slot.connectionId = connectionId;
   const transport = slot.transport;
   transport.setConnectionId(connectionId);
@@ -168,7 +172,7 @@ export async function takeOverClient<
     k.server.unregisterConnection(slot.connectionId);
   }
   unregisterActorPeers(k, slot);
-  const connectionId = `conn-${slot.key}-${k.io.createId()}`;
+  const connectionId = `conn-${slot.key}-${k.createId()}`;
   slot.connectionId = connectionId;
   transport.setConnectionId(connectionId);
   k.server.registerConnection(
@@ -215,10 +219,10 @@ async function drainKernel<
 >(k: WorldKernel<S, C, E>): Promise<void> {
   await drainRoomSim({
     seed: k.seed,
-    now: () => k.io.clock.now(),
+    now: () => k.clock.now(),
     network: k.network,
     serverQueue: k.serverQueue,
-    clockAdvance: (ms) => k.io.clock.advance(ms),
+    clockAdvance: (ms) => k.clock.advance(ms),
     clients: k.slots,
   });
 }
@@ -295,7 +299,7 @@ export function buildNodeHandle<
   E extends RoomEvent,
 >(k: WorldKernel<S, C, E>, key: string): RoomSimNodeHandle {
   return {
-    now: () => k.io.clock.now(),
+    now: () => k.clock.now(),
     disconnect: async () => {
       const slot = k.slots.get(key);
       if (slot === undefined) {

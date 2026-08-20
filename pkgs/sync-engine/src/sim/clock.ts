@@ -6,6 +6,8 @@ export type SimClock = {
   readonly advance: (ms: number) => void;
   /** Jump to absolute time (must be >= now). */
   readonly set: (ms: number) => void;
+  /** Set absolute time (may go backwards). Does not run scheduled work. */
+  readonly reset: (ms: number) => void;
 };
 
 export function createSimClock(startMs = 0): SimClock {
@@ -21,6 +23,12 @@ export function createSimClock(startMs = 0): SimClock {
     set(ms: number): void {
       if (!(ms >= t) || !Number.isFinite(ms)) {
         throw new Error(`SimClock.set: cannot go backwards (${ms} < ${t})`);
+      }
+      t = ms;
+    },
+    reset(ms: number): void {
+      if (!Number.isFinite(ms)) {
+        throw new Error(`SimClock.reset: bad time ${ms}`);
       }
       t = ms;
     },

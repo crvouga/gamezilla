@@ -423,6 +423,9 @@ config.server.rewriteRequestUrl = (/** @type {string} */ url) =>
 
 // Add wasm asset support
 config.resolver.assetExts.push('wasm');
+if (!config.resolver.sourceExts.includes('mjs')) {
+  config.resolver.sourceExts.push('mjs');
+}
 
 // expo-sqlite on web needs wasm assets (above) and cross-origin isolation so
 // SharedArrayBuffer is available to the expo-sqlite worker.

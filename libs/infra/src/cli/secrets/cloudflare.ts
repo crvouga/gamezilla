@@ -1,4 +1,4 @@
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 export const HEX32_RE = /^[0-9a-f]{32}$/;
 
 export function cfHeaders(token?: string): Record<string, string> {
@@ -26,7 +26,7 @@ export async function probeCfPermission(
   try {
     const opts: RequestInit = { method, headers };
     if (jsonBody !== undefined) opts.body = JSON.stringify(jsonBody);
-    const res = await cliIo.http.fetch(url, opts);
+    const res = await cliHttp.fetch(url, opts);
     await res.arrayBuffer();
     return res.status !== 403;
   } catch {

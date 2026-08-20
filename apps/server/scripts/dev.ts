@@ -1,7 +1,8 @@
 // @io-wall-ok
+
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
-import { wallIo } from '@pkgs/io';
+import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
 import { migratePostgresApp } from '../src/db/migrate';
@@ -10,10 +11,8 @@ import {
   startLocalReportConsole,
 } from './local-report-server';
 
-const io = wallIo();
-
 /**
- * Foreground entry for `@apps/api dev`. Runs migrate → local report console
+ * Foreground entry for `@apps/server dev`. Runs migrate → local report console
  * → wrangler under one Node process so turbo SIGINT/SIGTERM tear down the
  * whole tree instead of leaving a shell background job alive. Client config
  * materializes on the first non-health API request from Worker secrets.
@@ -49,7 +48,7 @@ function killChildren(): void {
   for (const child of children) {
     killChild(child, 'SIGTERM');
   }
-  io.timers.setTimeout(() => {
+  wallTimers.setTimeout(() => {
     for (const child of children) {
       killChild(child, 'SIGKILL');
     }

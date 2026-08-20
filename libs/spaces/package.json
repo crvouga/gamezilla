@@ -31,7 +31,6 @@
     "@pkgs/collab-ui": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/i18n": "workspace:*",
-    "@pkgs/io": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",

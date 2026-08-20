@@ -1,15 +1,16 @@
 // @io-wall-ok — process entry: Bun.serve + wall Node-FS report store for local Console.
 /**
- * Local report console sidecar for `@apps/api` `dev`. Serves
+ * Local report console sidecar for `@apps/server` `dev`. Serves
  * `<repo>/system-console-data` so Jest UI sims (`openSim`) show up in the
  * product Console → Reports tab. The API Worker `/system-console` mount
  * (MinIO / B2) stays for non-local / production browsing.
  */
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { resolveLocalReportDataDir } from '@pkgs/system-console/local-data-dir';
 import { createSystemConsoleApp } from '@pkgs/system-console/server';
+import { bunSqliteDumpToSqlm } from '@pkgs/system-console/server/bun-sqlite-dump-to-sqlm';
 import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
 import { wallPathExists } from '@pkgs/system-console/wall-path-exists';
 
@@ -42,7 +43,6 @@ function withCors(req: Request, res: Response): Response {
 }
 
 export function startLocalReportConsole(): LocalReportConsoleHandle {
-  const io = wallIo();
   const dataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
   const store = createNodeFsObjectStore({
     rootDir: dataDir,
@@ -52,8 +52,10 @@ export function startLocalReportConsole(): LocalReportConsoleHandle {
 
   const { app, stop: stopApp } = createSystemConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],
-    timers: io.timers,
-    now: () => io.clock.now(),
+    timers: wallTimers,
+    now: () => wallClock.now(),
+    convertSqliteDumpToSqlm: ({ bytes, nowMs }) =>
+      bunSqliteDumpToSqlm(bytes, nowMs),
   });
 
   const server = Bun.serve({

@@ -59,7 +59,7 @@ function scanSourceFile(sourceFile: ts.SourceFile): DiViolation[] {
         key: `${path}:class:${className}`,
         path,
         line,
-        message: `Container/registry class '${className}' is not used. Pass primitives (SqlClient, Io) and construct on demand; use a factory function if wiring repeats. See docs/dependency-injection.md.`,
+        message: `Container/registry class '${className}' is not used. Pass primitives (SqlClient, Clock, createId) and construct on demand; use a factory function if wiring repeats. See docs/dependency-injection.md.`,
       });
       continue;
     }

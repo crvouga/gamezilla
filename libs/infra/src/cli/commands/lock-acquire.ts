@@ -1,6 +1,6 @@
 import { LockHeldError } from '@pkgs/distributed-lock/interface';
 import { buildDistributedLock } from '../lib/build-distributed-lock';
-import { cliIo } from '../lib/cli-io';
+import { cliClock } from '../lib/cli-io';
 import { banner, fail, fmtMs, info, kv, ok } from '../lib/fmt';
 import { encodeGithubJobOutputValue } from '../lib/github-job-output-codec';
 import type { CiPlatform } from '../platform/platform';
@@ -63,7 +63,7 @@ function printLockHeld(e: LockHeldError): void {
   const c = e.current;
   const started = Date.parse(c.startedAt);
   const age = Number.isFinite(started)
-    ? fmtMs(cliIo.clock.now() - started)
+    ? fmtMs(cliClock.now() - started)
     : '(unknown)';
   fail('Global lock', `held — ${c.holder} (${c.operation})`);
   kv('holder', c.holder);

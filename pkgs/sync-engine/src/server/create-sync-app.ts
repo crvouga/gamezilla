@@ -20,7 +20,7 @@ export type CreateSyncAppDeps = {
   readonly getSql: () => SqlClient;
   readonly queries: QueryRegistry;
   readonly mutations: MutationRegistry;
-  /** Epoch ms for checkpoints / auth.now (composition root injects getIo()). */
+  /** Epoch ms for checkpoints / auth.now (composition root injects clock.now). */
   readonly now: () => number;
   readonly createId: CreateId;
   /** Optional push transport; omit to keep upload correct without pubsub. */

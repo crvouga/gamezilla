@@ -2,37 +2,27 @@
  * Keep playground snapshot SQL dumps consistent across server + clients.
  */
 
-import {
-  clientNamespace,
-  type PlaygroundSqlHandle,
-} from '@apps/client/host/playground-provide';
-import type { Io } from '@pkgs/io';
+import type { Client } from '@apps/client/product/create-client';
+import type { SimSqlHandle } from '@apps/client/sim/sim-sql';
+import type { SimClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 
-type DrainEngine = {
-  readonly wakeUploads: () => void;
-  readonly pendingMutationCount: () => Promise<number>;
-};
-
-type DrainLive = {
-  readonly id: string;
-  readonly syncEnginePool: {
-    readonly peekReady: (databaseName: string) => DrainEngine | null;
-  };
-};
-
 type DrainCtx = {
-  readonly io: Io;
-  readonly serverHandle: PlaygroundSqlHandle;
-  readonly clientSqlByAddress: Map<string, PlaygroundSqlHandle>;
+  readonly clock: SimClock;
+  readonly serverHandle: SimSqlHandle;
+  readonly sim: { clientSql(id: string): SimSqlHandle | undefined };
+  readonly clientSqlByAddress: Map<string, SimSqlHandle>;
   readonly maps: {
-    readonly lives: Map<string, DrainLive>;
+    readonly lives: {
+      readonly get: (id: string) => Client | undefined;
+      readonly values: () => IterableIterator<Client>;
+    };
   };
 };
 
-function advanceSimClock(io: Io, ms: number): void {
-  const clock = io.clock as { advance?: (delta: number) => void };
-  clock.advance?.(ms);
+function peekEngine(live: Client) {
+  const ns = live.env.resolveDatabaseName({ userId: '' });
+  return live.syncEnginePool.peekReady(ns);
 }
 
 async function pendingMutationTotal(
@@ -43,7 +33,7 @@ async function pendingMutationTotal(
   for (const clientId of clientIds) {
     const live = ctx.maps.lives.get(clientId);
     if (live === undefined) continue;
-    const engine = live.syncEnginePool.peekReady(clientNamespace(live.id));
+    const engine = peekEngine(live);
     if (engine === null) continue;
     total += await engine.pendingMutationCount();
   }
@@ -52,8 +42,7 @@ async function pendingMutationTotal(
 
 function wakeAllUploads(ctx: DrainCtx): void {
   for (const live of ctx.maps.lives.values()) {
-    const engine = live.syncEnginePool.peekReady(clientNamespace(live.id));
-    engine?.wakeUploads();
+    peekEngine(live)?.wakeUploads();
   }
 }
 
@@ -68,7 +57,7 @@ export async function awaitPlaygroundMutationDrain(
   for (let i = 0; i < 200; i += 1) {
     wakeAllUploads(ctx);
     if ((await pendingMutationTotal(ctx, clientIds)) === 0) return;
-    advanceSimClock(ctx.io, 25);
+    ctx.clock.advance(25);
     await Promise.resolve();
   }
 }
@@ -84,6 +73,13 @@ type ProfileSnapRow = {
   readonly username_norm: string | null;
 };
 
+function clientSqlHandle(
+  ctx: DrainCtx,
+  clientId: string
+): SimSqlHandle | undefined {
+  return ctx.clientSqlByAddress.get(clientId) ?? ctx.sim.clientSql(clientId);
+}
+
 /**
  * Client dumps are what the UI showed when the snapshot was taken. Push those
  * profile rows onto the restored server so hydrate cannot regress usernames
@@ -94,7 +90,7 @@ export async function reconcileServerProfilesFromClients(
   clientIds: readonly string[]
 ): Promise<void> {
   for (const clientId of clientIds) {
-    const handle = ctx.clientSqlByAddress.get(`client:${clientId}.db`);
+    const handle = clientSqlHandle(ctx, clientId);
     if (handle === undefined) continue;
     const rows = await handle.sqlClient.query(sql<ProfileSnapRow>`
       SELECT

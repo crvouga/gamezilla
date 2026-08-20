@@ -5,7 +5,7 @@
 #
 # 1. Turbo-cacheable tasks fan out across parallel jobs — `check-gates`
 #    (root `ci:*` + `check:secrets`), `check-verify` (`tc`/`test` + root
-#    Biome `ci:lint`), `check-build` (`@apps/api|minio|postgres#build`).
+#    Biome `ci:lint`), `check-build` (`@apps/server|minio|postgres#build`).
 #    Each job uses per-job `actions/cache` on `.turbo`
 #    (`.github/actions/turbo-cache`). `check-gates` / `check-verify` also
 #    persist Jest transform caches via `.github/actions/jest-cache`.
@@ -279,13 +279,13 @@ jobs:
       # log instead of a silent background death that only shows up as a
       # health-wait timeout. Then start wrangler only (`preview:serve`).
       - name: Setup and migrate API
-        run: bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts setup migrate --filter=@apps/api
+        run: bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts setup migrate --filter=@apps/server
       - name: Start API preview
         env:
           # Wrangler-only boot is usually seconds; keep headroom for cold starts.
           API_HEALTH_WAIT_MS: 240000
         run: |
-          nohup bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/api preview:serve > /tmp/api-preview.log 2>&1 &
+          nohup bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server preview:serve > /tmp/api-preview.log 2>&1 &
           echo $! > /tmp/api-preview.pid
           API_PREVIEW_PID="$(cat /tmp/api-preview.pid)"
           export API_PREVIEW_PID

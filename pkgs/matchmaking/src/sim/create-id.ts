@@ -1,4 +1,4 @@
-/** Seeded UUID-v4-shaped id mint (same shape as createSimIo's createId). */
+/** Seeded UUID-v4-shaped id mint (same shape as createSimAdapters createId). */
 
 export function createSeededCreateId(random: () => number): () => string {
   return () => {

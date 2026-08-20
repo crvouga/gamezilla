@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
 import { createInMemoryPubSub } from '@pkgs/pubsub/testing';
 import { raw, sql } from '@pkgs/sql';
+import { createSimAdapters } from '@pkgs/uuid';
 import { SqlClientWithPubSub } from './impl-with-pub-sub';
 import type { SqlClient } from './interface';
 import { SqlClientImplBunSqlite } from './sqlite/impl-bun-sqlite';
 import { SqlClientImplSqliteMem } from './sqlite/impl-sqlite-mem';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 type ClientFactory = () => Promise<SqlClient>;
 
@@ -35,7 +35,7 @@ async function loadImplementations(): Promise<
           new SqlClientWithPubSub(
             SqlClientImplBunSqlite.open(':memory:'),
             createInMemoryPubSub(),
-            io.clock.now
+            adapters.clock.now
           )
         ),
     },
@@ -46,7 +46,8 @@ async function loadImplementations(): Promise<
     );
     impls.push({
       name: 'SqlClientImplExpoSqlite',
-      createClient: () => SqlClientImplExpoSqlite.open(':memory:', io.timers),
+      createClient: () =>
+        SqlClientImplExpoSqlite.open(':memory:', adapters.timers),
     });
   } catch {
     // expo-sqlite requires React Native runtime; skip in Bun test env

@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/io": "workspace:*"
+    "@pkgs/clock": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

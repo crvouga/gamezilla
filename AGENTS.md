@@ -2,7 +2,7 @@
 
 ## Hard Rules
 
-- **All nondeterministic I/O goes through `@pkgs/io`.** Product runtime (`apps/client`, `apps/api`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Use a single injected `Io` bag (`io.clock`, `io.timers`, `io.http`, `io.createId`, `io.random`) from composition roots (`IoProvider` / `runWithIo` / `createSimIo` / `wallIo` at process entry). Inject via React context (`useIo` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks and never module-level `wallIo()` in helpers/libraries. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom` — wall RNG/UUID lives only inside `wallIo()`. `wallIo()` / `wallClock` / `wallTimers` / `createGlobalHttpClient()` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `api` / `cli-io` / `app-io-provider` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). Wall clock/timers live in `@pkgs/clock`; wall HTTP in `@pkgs/http-client`; composition `wallIo()` in `@pkgs/io`. **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` / `expo-file-system` only in `@io-wall-ok` adapters (`wall-node-fs.ts`, `wall-expo-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: `bun run ci:no-bare-io`, `bun run ci:no-bare-fs`, `bun run ci:no-resolve-wall-defaults`, `bun run ci:no-sql-wall-io`, `bun run ci:hard-determinism`, and `bun run ci:sim-determinism`. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid` `createSimAdapters`) from composition roots (`createClient(env)` / `createServer(env)` / `createSim` / wall adapters at process entry). Inject via React context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks and never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` / `expo-file-system` only in `@io-wall-ok` adapters (`wall-node-fs.ts`, `wall-expo-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: `bun run ci:no-bare-io`, `bun run ci:no-bare-fs`, `bun run ci:no-resolve-wall-defaults`, `bun run ci:no-sql-wall-io`, `bun run ci:hard-determinism`, and `bun run ci:sim-determinism`. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md).
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree. CI enforces this via `bun run check:no-patches`.
 
@@ -83,7 +83,7 @@ Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks fan out across parallel jobs** — `check-gates` (root `ci:*` + `check:secrets:validate`), `check-verify` (`tc` / `test` + root `ci:lint` via Biome), `check-build` (package-scoped `@apps/api#build` — not Expo client build). Root `ci:*` / `check:*` scripts and per-package tasks live in `turbo.json`. Local `bun run check` is one offline `turbo-ci-run` graph (`tc` / `test` / `ci:lint` / gate `ci:*` / `check:static` / those app `#build`s) — no Infisical, no `check:secrets:validate`, no registry audit. `bun run check:ci` / `check:ci:gates` still include secrets validate (Infisical fingerprint + live probes). Live `check:api` is CI / opt-in only. `check:secrets:validate` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`). GHA keeps parallel jobs as thin subsets (`check:ci:gates|verify|build`). On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>] --filter=//` (affected packages plus root tasks such as `ci:lint`). Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`.
+1. **Turbo-cacheable tasks fan out across parallel jobs** — `check-gates` (root `ci:*` + `check:secrets:validate`), `check-verify` (`tc` / `test` + root `ci:lint` via Biome), `check-build` (package-scoped `@apps/server#build` — not Expo client build). Root `ci:*` / `check:*` scripts and per-package tasks live in `turbo.json`. Local `bun run check` is one offline `turbo-ci-run` graph (`tc` / `test` / `ci:lint` / gate `ci:*` / `check:static` / those app `#build`s) — no Infisical, no `check:secrets:validate`, no registry audit. `bun run check:ci` / `check:ci:gates` still include secrets validate (Infisical fingerprint + live probes). Live `check:api` is CI / opt-in only. `check:secrets:validate` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`). GHA keeps parallel jobs as thin subsets (`check:ci:gates|verify|build`). On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>] --filter=//` (affected packages plus root tasks such as `ci:lint`). Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`.
 2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `check-static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `check-api` runs `check:api` against a live preview Worker. Locally that script remains a root Turbo task (`//#check:api`) but is not in `bun check`.
 3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`: provision and `db:migrate` run before the Postgres-backed global lock is acquired (avoids holding a direct slot during migrate); the lock then covers deploy-resources → stripe-sync → smoke → ensure-destroyed. `db:migrate` retries on Postgres `53300` / “too many clients”. A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
 
@@ -112,7 +112,7 @@ Server SQL migrations are expressed only as `DatabaseMigration` classes (interfa
 
 **Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking, Better Auth) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`.
 
-Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain** schema — implement `defineTable` + register in app-schema (or a `DatabaseMigration` at the compose site for framework/infra). `@apps/api` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/api/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
+Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain** schema — implement `defineTable` + register in app-schema (or a `DatabaseMigration` at the compose site for framework/infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
 ### Database safety (Tiger policy)
 
@@ -131,7 +131,7 @@ Workspace packages live under four top-level tier directories with matching npm 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
 | Test | `test/` | `@test/` | System tests / DST (may import apps+libs+pkgs). |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `api`).                       |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room`). |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -175,7 +175,7 @@ Do **not** export `use-cases/` or `shared/`. Do **not** add a god barrel that mi
 
 Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<tier>/<name>/scripts/` and are wired up via the package's `scripts` block in `package.json` (e.g. `bun run --filter @libs/<name> seed:<x>`). Root Biome still formats/lints package sources; `**/scripts/**` overrides relax console + cognitive-complexity noise for long CLI orchestrators. Add `./scripts/**/*.ts` to the package `tsconfig.tc.json` `include` and the root `tsconfig.json` `include` so type-checking covers them. Package `"tc"` scripts use `tsc --noEmit -p ./tsconfig.tc.json` so scoped CI checks stay fast while the IDE language service uses the root mega-project (Rename Symbol / Find All References across packages). Do not name the package config `tsconfig.json` — that steals file ownership from the root and breaks cross-package rename. Exception: `apps/client/tsconfig.json` (Expo).
 
-`apps/client/src/app/**` (Expo Router) and `apps/api/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Room` Durable Object class binding stable.
+`apps/client/src/app/**` (Expo Router) and `apps/server/src/api.ts` (worker entry) stay as 1-line re-export stubs that point at the feature packages — that keeps URL routes and the `Room` Durable Object class binding stable.
 
 ### Current feature packages
 
@@ -208,7 +208,7 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 5. Register the game in spaces `shared/` games registry and `space-module.ts` (top-level router). Other libs consume the game via `@libs/<game>/public/…`.
 6. Add client hooks under `libs/<game>/src/use-cases/<slice>/client/` that call domain mutation definitions under `use-cases/<slice>/shared/`. Prefer domain mutation writes over new REST.
 7. Wire the client entry in spaces `root/client` games menu so the new game shows up in the games list.
-   `apps/api` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
+   `apps/server` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
 
@@ -216,20 +216,20 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ```text
 test  →  apps, libs, pkgs, tools  (system tests / DST)
-apps  →  apps, libs, pkgs (never @test/*; cross-app OK e.g. client → api)
+apps  →  apps, libs, pkgs (never @test/*; cross-app OK e.g. client → server)
 libs  →  pkgs only
 pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 ```
 
-`pkgs/` packages are the foundation: they must work in any monorepo, with no references to `gamezilla`, `apps/api`, `@libs/*`, or any product surface (in code, comments, or default config strings).
+`pkgs/` packages are the foundation: they must work in any monorepo, with no references to `gamezilla`, `apps/server`, `@libs/*`, or any product surface (in code, comments, or default config strings).
 
 **Other layering rules:**
 
 - `@test/<name>` may import `@apps/*`, `@libs/*`, `@pkgs/*`, and tools. Product apps/libs/pkgs must not import `@test/*`.
-- `@apps/<name>` may import other `@apps/<other>` (e.g. client composing api’s in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
-- **`@apps/api` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenRequestDb`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:api-isomorphic`.
+- `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
+- **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:server-isomorphic`.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/` (`ci:use-case-isolation`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
 - Other `@libs/*` may import a product lib only through `@libs/<pkg>/public/…`. Apps and tests may also import `@libs/<pkg>/root/…` (`ci:libs-import-surface`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.
-- `apps/client` cannot reach any feature's `server/`; `apps/api` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).
+- `apps/client` cannot reach any feature's `server/`; `apps/server` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).

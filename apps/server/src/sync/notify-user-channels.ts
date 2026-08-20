@@ -25,7 +25,7 @@ export async function notifyUserChannels(
     ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
     label,
     schedulePublish: (run) => {
-      store.io.timers.setTimeout(run, 0);
+      store.timers.setTimeout(run, 0);
     },
   });
 }

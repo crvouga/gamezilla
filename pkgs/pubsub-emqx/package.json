@@ -22,7 +22,6 @@
     "mqtt": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

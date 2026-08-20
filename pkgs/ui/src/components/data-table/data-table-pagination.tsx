@@ -1,17 +1,16 @@
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';
-import { Button } from '../button';
+import { PaginationControls } from '../pagination-controls';
 import { Text } from '../text';
 
 export function DataTablePagination(props: {
   readonly pageIndex: number;
   readonly pageCount: number;
   readonly totalCount: number;
-  readonly onPrev: () => void;
-  readonly onNext: () => void;
+  readonly onPageChange: (pageIndex: number) => void;
 }): ReactNode {
-  const { pageIndex, pageCount, totalCount, onPrev, onNext } = props;
+  const { pageIndex, pageCount, totalCount, onPageChange } = props;
   if (totalCount === 0) {
     return null;
   }
@@ -21,7 +20,7 @@ export function DataTablePagination(props: {
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         gap: 2,
         paddingVertical: 8,
         paddingHorizontal: 12,
@@ -31,21 +30,10 @@ export function DataTablePagination(props: {
       }}
     >
       <Text sx={{ color: 'textSecondary', fontSize: 12 }} label={pageLabel} />
-      <Button
-        title="Prev"
-        size="sm"
-        intent="neutral"
-        variant="outline"
-        disabled={pageIndex <= 0}
-        onPress={onPrev}
-      />
-      <Button
-        title="Next"
-        size="sm"
-        intent="neutral"
-        variant="outline"
-        disabled={pageIndex >= pageCount - 1}
-        onPress={onNext}
+      <PaginationControls
+        pageIndex={pageIndex}
+        pageCount={pageCount}
+        onPageChange={onPageChange}
       />
     </Box>
   );

@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 import {
@@ -9,10 +9,9 @@ import {
   EMQX_SESSION_EXPIRY_SEC,
 } from './create-emqx-pubsub';
 
-const io = wallIo();
-const now = io.clock.now;
-const timers = io.timers;
-const random = io.random;
+const now = wallClock.now;
+const timers = wallTimers;
+const random = Math.random;
 
 class FakeMqttClient extends EventEmitter {
   connected = false;

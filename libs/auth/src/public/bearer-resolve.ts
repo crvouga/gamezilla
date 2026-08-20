@@ -3,8 +3,9 @@ import {
   buildAppAuthContext,
 } from '@libs/auth/public/auth-context';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId, assertUuid } from '../shared/auth/device-id';
 
 import { AnonUserService } from './anon-user-service';
@@ -53,7 +54,10 @@ export class BearerAuthResolver {
   constructor(
     private readonly sql: SqlClient,
     private readonly authServer: AuthServerPort,
-    private readonly io: Io
+    private readonly time: {
+      readonly clock: Clock;
+      readonly createId: CreateId;
+    }
   ) {}
 
   async resolveAccountId(
@@ -68,24 +72,24 @@ export class BearerAuthResolver {
     if (session === null) return null;
 
     const cacheKey = accountCacheKey(deviceId, session.externalUserId);
-    const cached = readCachedAccountId(cacheKey, this.io.clock.now);
+    const cached = readCachedAccountId(cacheKey, this.time.clock.now);
     if (cached !== null) return cached;
 
     const upgradeUserId = await new AnonUserService(
       this.sql,
-      this.io
+      this.time
     ).findUserIdByDeviceId(deviceId);
 
     const accountId = await new EnsureInternalAccountUseCase(
       this.sql,
-      this.io,
+      this.time,
       this.authServer
     ).execute({
       externalUserId: session.externalUserId,
       upgradeUserId,
     });
     if (accountId !== null) {
-      writeCachedAccountId(cacheKey, accountId, this.io.clock.now);
+      writeCachedAccountId(cacheKey, accountId, this.time.clock.now);
     }
     return accountId;
   }

@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { asKeyword } from '@pkgs/keyword';
 import { Increment, TestCounterModule } from './tests/fixtures/counter-module';
 import { openLoopbackRoom } from './tests/harness/simulator';
 import { ROOM_ERROR_TYPE } from './types';
 
-const io = wallIo();
-const timers = io.timers;
+const timers = wallTimers;
 
 describe('server-authoritative room (loopback)', () => {
   it('converges after welcome + increment', async () => {
     const { room } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-inc',
       module: TestCounterModule,
     });
@@ -27,7 +28,9 @@ describe('server-authoritative room (loopback)', () => {
   it('local validation rejects unknown command before queue', async () => {
     const errs: unknown[] = [];
     const { room } = await openLoopbackRoom({
-      io,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
       topic: 't-local-err',
       module: TestCounterModule,
       onError: (e) => {

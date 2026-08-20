@@ -1,4 +1,4 @@
-import type { SeededRng } from '@pkgs/io';
+import type { SeededRng } from '@pkgs/uuid';
 import type {
   RoomCommandPayload,
   RoomEvent,

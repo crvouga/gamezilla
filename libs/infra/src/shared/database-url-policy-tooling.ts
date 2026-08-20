@@ -1,6 +1,6 @@
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createToolingSecretStore } from '@pkgs/secret-provider';
-import { cliIo } from '../cli/lib/cli-io';
+import { cliHttp } from '../cli/lib/cli-io';
 import { REPO_ROOT } from '../cli/paths';
 import {
   assertNonProdDatabaseUrl,
@@ -19,7 +19,7 @@ export async function resolveProductionDatabaseUrlFromSecretStore(): Promise<
       configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
       envOverride: PRODUCTION_SECRETS_ENV,
       token,
-      fetchFn: cliIo.http.fetch.bind(cliIo.http),
+      fetchFn: cliHttp.fetch.bind(cliHttp),
     });
     const raw =
       (await store.getOptional('DATABASE_URL'))?.readSecretValue() ?? '';

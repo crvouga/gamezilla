@@ -1,7 +1,8 @@
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
+import type { CreateId } from '@pkgs/uuid';
 import type { FriendRequest } from '../../shared/friendship/friends-types';
 import { applyAcceptFriendRequest } from '../../use-cases/friend-request-accept/server/apply-accept-friend-request';
 import { applyCancelFriendRequest } from '../../use-cases/friend-request-cancel/server/apply-cancel-friend-request';
@@ -18,7 +19,10 @@ export type FriendsNotificationsActionArgs = {
 export class FriendsNotificationsActionHandler {
   constructor(
     private readonly tx: SqlTx,
-    private readonly io: Io
+    private readonly time: {
+      readonly clock: Clock;
+      readonly createId: CreateId;
+    }
   ) {}
 
   private mutationEnv(args: FriendsNotificationsActionArgs): MutationEnv {
@@ -27,8 +31,8 @@ export class FriendsNotificationsActionHandler {
       deviceId: args.deviceId,
       accountId: args.actorId,
       isAnon: false,
-      now: () => new Date(this.io.clock.now()),
-      createId: this.io.createId,
+      now: () => new Date(this.time.clock.now()),
+      createId: this.time.createId,
     };
   }
 

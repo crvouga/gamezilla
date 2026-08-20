@@ -4,7 +4,7 @@
  */
 import { assert } from '@pkgs/assert';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
-import { cliIo } from './cli-io';
+import { cliHttp, cliTimers } from './cli-io';
 
 const B2_AUTH_URL = 'https://api.backblazeb2.com/b2api/v4/b2_authorize_account';
 
@@ -133,7 +133,7 @@ export function authorizeB2(
       {
         headers: { Authorization: basicAuthHeader(id, key) },
       },
-      { fetch: cliIo.http.fetch, timers: cliIo.timers }
+      { fetch: cliHttp.fetch, timers: cliTimers }
     );
     const body = await readB2Json<AuthorizeBody>(res, 'b2_authorize_account');
     return parseAuthorizeBody(body);
@@ -177,7 +177,7 @@ async function listBucketByName(
         bucketName,
       }),
     },
-    { fetch: cliIo.http.fetch, timers: cliIo.timers }
+    { fetch: cliHttp.fetch, timers: cliTimers }
   );
   const body = await readB2Json<{ buckets?: BucketRow[] }>(
     res,
@@ -207,7 +207,7 @@ export async function ensureB2Bucket(
         bucketType: 'allPrivate',
       }),
     },
-    { fetch: cliIo.http.fetch, timers: cliIo.timers }
+    { fetch: cliHttp.fetch, timers: cliTimers }
   );
   const body = await readB2Json<{ bucketId?: string }>(
     res,
@@ -241,7 +241,7 @@ async function listAllKeys(auth: B2Auth): Promise<KeyRow[]> {
             : {}),
         }),
       },
-      { fetch: cliIo.http.fetch, timers: cliIo.timers }
+      { fetch: cliHttp.fetch, timers: cliTimers }
     );
     const body = await readB2Json<{
       keys?: KeyRow[];
@@ -270,7 +270,7 @@ async function deleteKeysNamed(auth: B2Auth, keyName: string): Promise<void> {
         headers: authHeaders(auth),
         body: JSON.stringify({ applicationKeyId: key.applicationKeyId }),
       },
-      { fetch: cliIo.http.fetch, timers: cliIo.timers }
+      { fetch: cliHttp.fetch, timers: cliTimers }
     );
     await readB2Json(res, `b2_delete_key(${keyName})`);
   }
@@ -300,7 +300,7 @@ export async function mintB2S3Credentials(options: {
         bucketIds: [bucketId],
       }),
     },
-    { fetch: cliIo.http.fetch, timers: cliIo.timers }
+    { fetch: cliHttp.fetch, timers: cliTimers }
   );
   const body = await readB2Json<{
     applicationKeyId?: string;

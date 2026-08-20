@@ -2,7 +2,7 @@
  * Deterministic matchmaking sim world: N Matchmaking replicas, one shared DB.
  */
 
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 import { bootReplicaOnStore, type ReplicaBootConfig } from './boot-replica';
 import { buildReplicaHandle, joinOnWorld, resolveReplica } from './handles';
 import { resolveSeed } from './seed';
@@ -28,14 +28,14 @@ function defaultReplicaIds(n: number): string[] {
 
 async function createWorldKernel(args: OpenMatchmakingSimWorldArgs): Promise<{
   readonly seed: bigint;
-  readonly io: ReturnType<typeof createSimIo>;
+  readonly adapters: ReturnType<typeof createSimAdapters>;
   readonly store: SimStore;
   readonly config: ReplicaBootConfig;
   readonly replicas: Map<string, ReplicaHandle>;
   readonly firstId: string;
 }> {
   const seed = resolveSeed(args.seed);
-  const io = createSimIo({
+  const adapters = createSimAdapters({
     seed: args.seed,
     startMs: args.startMs ?? DEFAULT_START_MS,
   });
@@ -53,10 +53,16 @@ async function createWorldKernel(args: OpenMatchmakingSimWorldArgs): Promise<{
     defaultReplicaId: ids[0]!,
   };
   for (const id of ids) {
-    const mm = await bootReplicaOnStore({ store, io, replicaId: id, config });
+    const mm = await bootReplicaOnStore({
+      store,
+      clock: adapters.clock,
+      rng: adapters.rng,
+      replicaId: id,
+      config,
+    });
     replicas.set(id, buildReplicaHandle(ops, id, mm));
   }
-  return { seed, io, store, config, replicas, firstId: ids[0]! };
+  return { seed, adapters, store, config, replicas, firstId: ids[0]! };
 }
 
 /**
@@ -67,20 +73,20 @@ export async function openMatchmakingSimWorld(
   args: OpenMatchmakingSimWorldArgs
 ): Promise<MatchmakingSimWorld> {
   const kernel = await createWorldKernel(args);
-  const { seed, io, store, config, replicas, firstId } = kernel;
+  const { seed, adapters, store, config, replicas, firstId } = kernel;
   const ops = {
     getMm: (replicaId: string) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
 
   async function step(ms: number): Promise<void> {
-    io.clock.advance(ms);
+    adapters.clock.advance(ms);
     await Promise.all(
       [...replicas.values()].map((r) => r.tick({ maxPassesPerPartition: 4 }))
     );
   }
 
-  const untilCtx = { clock: io.clock, seed, step };
+  const untilCtx = { clock: adapters.clock, seed, step };
 
   let disposed = false;
   async function dispose(): Promise<void> {
@@ -91,8 +97,8 @@ export async function openMatchmakingSimWorld(
 
   const world: MatchmakingSimWorld = {
     seed,
-    io,
-    clock: io.clock,
+    rng: adapters.rng,
+    clock: adapters.clock,
     replicas,
     replica: (id) => resolveReplica(replicas, id),
     addReplica: async (id) => {
@@ -101,7 +107,8 @@ export async function openMatchmakingSimWorld(
       }
       const mm = await bootReplicaOnStore({
         store,
-        io,
+        clock: adapters.clock,
+        rng: adapters.rng,
         replicaId: id,
         config,
       });
@@ -119,7 +126,7 @@ export async function openMatchmakingSimWorld(
     tickAll: (opts) =>
       Promise.all([...replicas.values()].map((r) => r.tick(opts))),
     runFor: async (ms) => {
-      io.clock.advance(ms);
+      adapters.clock.advance(ms);
     },
     until: (target: UntilTarget, opts?: UntilOpts) =>
       runWorldUntil(untilCtx, target, opts),

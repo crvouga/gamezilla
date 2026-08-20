@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import {
   clearAllSpaceOpenSessions,
@@ -8,7 +8,7 @@ import {
   SpaceOpenSessionStore,
 } from '../../../public/room/space-open-session-store';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 afterEach(() => {
   clearAllSpaceOpenSessions();
@@ -16,11 +16,11 @@ afterEach(() => {
 
 describe('space-open-session-store', () => {
   it('reuses the same clientId for a space until the session is cleared', () => {
-    const a = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const a = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'install-a'
     );
-    const b = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const b = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'install-a'
     );
@@ -29,7 +29,7 @@ describe('space-open-session-store', () => {
 
     clearSpaceOpenSession('space-1', 'install-a');
     expect(readSpaceClientId('space-1', 'install-a')).toBeNull();
-    const c = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const c = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'install-a'
     );
@@ -37,11 +37,11 @@ describe('space-open-session-store', () => {
   });
 
   it('keeps distinct clientIds per space', () => {
-    const a = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const a = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-a',
       'install-a'
     );
-    const b = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const b = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-b',
       'install-a'
     );
@@ -49,11 +49,11 @@ describe('space-open-session-store', () => {
   });
 
   it('isolates clientIds across install ids (playground multi-actor)', () => {
-    const alice = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const alice = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'alice-device'
     );
-    const bob = new SpaceOpenSessionStore(io.createId).getOrCreate(
+    const bob = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'bob-device'
     );

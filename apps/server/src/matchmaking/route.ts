@@ -22,7 +22,6 @@
 import { appAuth } from '@libs/auth/public/auth-context';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { assert } from '@pkgs/assert';
-import { getIo } from '@pkgs/io/als';
 import { MatchmakingImplSql } from '@pkgs/matchmaking/impl-sql';
 import type { Matchmaking } from '@pkgs/matchmaking/interface';
 import type { Sql } from '@pkgs/sql';
@@ -98,10 +97,17 @@ export function createMatchmakingSubApp(): Hono {
     schema: MATCHMAKING_SCHEMA,
     tuning: {
       ...MATCHMAKING_TUNING,
-      // Request middleware installs `runWithIo`; resolve per call so
-      // tests / sim hosts can override the ALS bag.
-      now: () => getIo().clock.now(),
-      createId: () => getIo().createId(),
+      // Per-request clock/ids from the request store.
+      now: () => {
+        const store = apiRequestAsyncLocalStorage.getStore();
+        assert.defined(store, 'matchmaking: request store missing');
+        return store.clock.now();
+      },
+      createId: () => {
+        const store = apiRequestAsyncLocalStorage.getStore();
+        assert.defined(store, 'matchmaking: request store missing');
+        return store.createId();
+      },
     },
   });
   return matchmaking.app({ requireAuth });

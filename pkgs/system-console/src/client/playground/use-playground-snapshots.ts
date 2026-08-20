@@ -6,7 +6,7 @@ import type {
 } from '../../shared/ports';
 
 /** List + mutate ObjectStore playground snapshots (busy/error included). */
-export function usePlaygroundSnapshots<R>(session: PlaygroundSession<R>) {
+export function usePlaygroundSnapshots(session: PlaygroundSession) {
   const [snaps, setSnaps] = useState<readonly PlaygroundSnapshotInfo[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

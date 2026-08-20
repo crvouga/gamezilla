@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
 import type { RoomCommand, RoomState } from '@pkgs/room';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { ChessModule } from './chess-module';
 import {
@@ -30,7 +30,7 @@ function reduceAll(state: RoomState, events: readonly unknown[]): RoomState {
 }
 
 function playOnce(seed: number): { hash: string; status: string | null } {
-  const io = createSimIo({ seed, startMs: 1_000 });
+  const adapters = createSimAdapters({ seed, startMs: 1_000 });
   let state = ChessModule.initialState();
   const start = ChessModule.handle(
     state,
@@ -40,8 +40,8 @@ function playOnce(seed: number): { hash: string; status: string | null } {
         fen: VALID_FEN,
         moves: VALID_MOVES,
       }),
-      io.createId,
-      io.clock.now()
+      adapters.createId,
+      adapters.clock.now()
     ),
     HOST
   );
@@ -51,7 +51,11 @@ function playOnce(seed: number): { hash: string; status: string | null } {
   // After Start, the first opponent UCI (`e8d7`) is already applied; host plays next.
   const move = ChessModule.handle(
     state,
-    cmd(SubmitChessPuzzleMove({ uci: 'e1f2' }), io.createId, io.clock.now()),
+    cmd(
+      SubmitChessPuzzleMove({ uci: 'e1f2' }),
+      adapters.createId,
+      adapters.clock.now()
+    ),
     HOST
   );
   if (!move.ok) throw new Error(JSON.stringify(move.error));

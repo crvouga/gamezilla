@@ -224,9 +224,9 @@
     },
     "//#ci:database-url-policy": {
       "inputs": [
-        "apps/api/scripts/setup-dev-vars.ts",
-        "apps/api/src/db/migrate.ts",
-        "apps/api/src/app/request-db-middleware.ts",
+        "apps/server/scripts/setup-dev-vars.ts",
+        "apps/server/src/db/migrate.ts",
+        "apps/server/src/app/request-db-middleware.ts",
         "libs/stripe/src/shared/stripe/script-runtime.ts",
         "libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
         "tools/scripts/check-database-url-policy.ts"
@@ -236,8 +236,8 @@
     },
     "//#ci:local-dev-self-contained": {
       "inputs": [
-        "apps/api/scripts/setup-dev-vars.ts",
-        "apps/api/scripts/dev-vars.ts",
+        "apps/server/scripts/setup-dev-vars.ts",
+        "apps/server/scripts/dev-vars.ts",
         "apps/client/scripts/setup-env.ts",
         "tools/scripts/check-local-dev-self-contained.ts"
       ],
@@ -463,8 +463,8 @@
     },
     "//#ci:channel-exhaustiveness": {
       "inputs": [
-        "apps/api/src/sync/app-mutations.ts",
-        "apps/api/src/sync/app-queries.ts",
+        "apps/server/src/sync/app-mutations.ts",
+        "apps/server/src/sync/app-queries.ts",
         "libs/**/mutations/**/*.ts",
         "libs/**/queries/**/*.ts",
         "pkgs/**/mutations/**/*.ts",
@@ -479,7 +479,7 @@
       "inputs": [
         "pkgs/sync-engine/**",
         "apps/client/src/sync/**",
-        "apps/api/src/sync/**",
+        "apps/server/src/sync/**",
         "libs/**/shared/mutations/**",
         "libs/runtime/src/public/sync-topics.ts",
         "libs/runtime/src/root/app-topic-map.ts",
@@ -552,11 +552,11 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:api-isomorphic": {
+    "//#ci:server-isomorphic": {
       "inputs": [
-        "tools/scripts/check-api-isomorphic.ts",
-        "apps/api/src/**/*.ts",
-        "apps/api/src/**/*.tsx"
+        "tools/scripts/check-server-isomorphic.ts",
+        "apps/server/src/**/*.ts",
+        "apps/server/src/**/*.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"

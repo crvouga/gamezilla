@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert';
 import { PROJECT_CONFIG } from '../../project-config';
-import { cliIo } from '../lib/cli-io';
+import { cliCreateId } from '../lib/cli-io';
 import { ok, warn } from '../lib/fmt';
 import {
   applySeededS3ToEnv,
@@ -33,7 +33,7 @@ import {
 } from '../secrets/secrets';
 import { type InfraContext, ResourceBase } from './types';
 
-assert.notThrows(() => cliIo.createId(), 'cliIo.createId must be available');
+assert.notThrows(() => cliCreateId(), 'cliCreateId must be available');
 
 const legacyWwwApiOrigin = (): string => `https://www.${PROJECT_CONFIG.domain}`;
 

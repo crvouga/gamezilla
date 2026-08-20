@@ -8,6 +8,7 @@ import {
   appDefaultEntryChannel,
   appTopicMap,
 } from '@libs/runtime/root/app-topic-map';
+import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -57,17 +58,6 @@ const SESSION_QUERIES = [
   'chessPuzzleInteractions',
 ] as const;
 
-/**
- * Opens the local SQLite client for an identity. Sims inject a Node/Bun
- * `:memory:` client so they skip OPFS / expo-sqlite.
- */
-export type OpenLocalSqlClient = (args: {
-  readonly userId: string;
-  readonly databaseName: string;
-  readonly createId: CreateId;
-  readonly timers: Timers;
-}) => Promise<SqlClient>;
-
 export type CreateAppLocalSyncEngineArgs = {
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
@@ -75,13 +65,13 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly databaseName: string;
   readonly getFreshAuthToken: GetFreshAuthToken;
   readonly auth: SyncClientAuth;
-  /** Required nondeterminism ports from composition-root {@link Io}. */
+  /** Required nondeterminism ports from {@link ClientEnv}. */
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random: Random;
   /** Sim override; defaults to the platform OPFS / expo-sqlite client. */
-  readonly openSqlClient?: OpenLocalSqlClient;
+  readonly openSqlClient?: OpenSqlClient;
   /** Sim override; defaults to EMQX from client_config URL. */
   readonly createPubSub?: () => PubSub;
   readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
@@ -174,8 +164,6 @@ async function openAppLocalDb(
     return args.openSqlClient({
       userId: args.userId,
       databaseName: args.databaseName,
-      createId: args.createId,
-      timers: args.timers,
     });
   }
   return openMainSqlClient(args.userId, args.createId, args.timers);

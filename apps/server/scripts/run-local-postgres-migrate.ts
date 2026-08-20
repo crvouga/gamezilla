@@ -6,13 +6,11 @@
 
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-
-const io = wallIo();
 
 /** Schema migrate only — Better Auth DDL does not call this origin. */
 const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
@@ -21,7 +19,7 @@ const MIN_BETTER_AUTH_SECRET_LENGTH = 32;
 function randomBytesBase64Url(byteLength: number): string {
   const bytes = new Uint8Array(byteLength);
   for (let i = 0; i < byteLength; i++) {
-    bytes[i] = Math.floor(io.random() * 256);
+    bytes[i] = Math.floor(Math.random() * 256);
   }
   return Buffer.from(bytes).toString('base64url');
 }
@@ -55,7 +53,7 @@ export async function runLocalMigrate(): Promise<void> {
   const dbScope = appPostgresDbScope();
   const logger = createLogger({
     name: 'postgres:migrate',
-    now: io.clock.now,
+    now: wallClock.now,
   });
   const { pool, sqlClient } = createPgPool({
     connectionString: LOCAL_DATABASE_URL,

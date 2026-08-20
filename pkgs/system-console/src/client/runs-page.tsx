@@ -1,23 +1,27 @@
 import {
   Badge,
   Box,
-  Button,
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
   type DataTableOrderDir,
+  IconButton,
   Pressable,
   ScrollView,
   Text,
-  TextInput,
+  Trash2Icon,
+  useTheme,
 } from '@pkgs/ui';
-import { useCallback, useMemo, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 
-import type { RunSummary, SuiteTestSummary } from '../types';
-import type { BucketInfo } from './api-client';
-import { NavBreadcrumb } from './nav-breadcrumb';
+import type { RunSummary } from '../types';
 import { ReportHeader } from './report-header';
-import type { ReportNavState } from './router';
 import {
   appBodyFrameSx,
   appShellSx,
@@ -51,36 +55,60 @@ function compareRuns(
   return a.id.localeCompare(b.id) * dir;
 }
 
+function clearSelectedKey(
+  setSelectedKeys: Dispatch<SetStateAction<readonly string[]>>,
+  runId: string
+): void {
+  setSelectedKeys((prev) => prev.filter((k) => k !== runId));
+}
+
 export function RunsPage(props: {
-  readonly nav: ReportNavState;
-  readonly buckets: readonly BucketInfo[];
-  readonly tests: readonly SuiteTestSummary[];
   readonly bucketId: string;
   readonly runs: readonly RunSummary[];
   readonly generation: number;
-  readonly onBack: () => void;
-  readonly onNav: (nav: ReportNavState) => void;
   readonly onOpenRun: (runId: string) => void;
-  readonly onOpenLatest: () => void;
   readonly onDeleteRun: (runId: string) => Promise<void>;
-  readonly onKeepLast: (n: number) => Promise<void>;
 }) {
-  const {
-    nav,
-    buckets,
-    tests,
-    bucketId,
-    runs,
-    generation,
-    onNav,
-    onOpenRun,
-    onOpenLatest,
-    onDeleteRun,
-    onKeepLast,
-  } = props;
-  const [keepLast, setKeepLast] = useState(5);
-  const [busy, setBusy] = useState(false);
   const bodySx = useAppBodyContentSx();
+  const state = useRunsPageState(props);
+
+  return (
+    <Box sx={appShellSx}>
+      <ReportHeader
+        meta={`${props.bucketId} · ${props.runs.length} run${props.runs.length === 1 ? '' : 's'} · gen ${props.generation}`}
+      />
+      <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
+        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
+          <DataTable
+            columns={state.columns}
+            loadPage={state.loadPage}
+            getRowId={(r) => r.id}
+            sourceKey={props.generation}
+            pageSize={50}
+            defaultOrderBy="updated"
+            defaultOrderDir="desc"
+            emptyTitle="No runs yet"
+            emptyBody="Write reports with report:"
+            density="compact"
+            selectionMode="multiple"
+            selectedKeys={state.selectedKeys}
+            onSelectedKeysChange={state.setSelectedKeys}
+          />
+        </Box>
+      </ScrollView>
+    </Box>
+  );
+}
+
+function useRunsPageState(props: {
+  readonly runs: readonly RunSummary[];
+  readonly onOpenRun: (runId: string) => void;
+  readonly onDeleteRun: (runId: string) => Promise<void>;
+}) {
+  const { runs, onOpenRun, onDeleteRun } = props;
+  const theme = useTheme();
+  const [busy, setBusy] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<readonly string[]>([]);
 
   const loadPage = useMemo(
     () => createMemoryPageLoader(() => runs, compareRuns),
@@ -90,68 +118,39 @@ export function RunsPage(props: {
   const handleDelete = useCallback(
     (runId: string) => {
       setBusy(true);
-      void onDeleteRun(runId).finally(() => setBusy(false));
+      void onDeleteRun(runId)
+        .then(() => clearSelectedKey(setSelectedKeys, runId))
+        .finally(() => setBusy(false));
     },
     [onDeleteRun]
   );
 
   const columns = useMemo(
-    () => buildRunColumns({ busy, onOpenRun, onDeleteRun: handleDelete }),
-    [busy, onOpenRun, handleDelete]
+    () =>
+      buildRunColumns({
+        busy,
+        iconColor: theme.colors.icon,
+        onOpenRun,
+        onDeleteRun: handleDelete,
+      }),
+    [busy, theme.colors.icon, onOpenRun, handleDelete]
   );
 
-  return (
-    <Box sx={appShellSx}>
-      <ReportHeader
-        breadcrumb={
-          <NavBreadcrumb
-            nav={nav}
-            buckets={buckets}
-            runs={runs}
-            tests={tests}
-            onNav={onNav}
-          />
-        }
-        meta={`${bucketId} · ${runs.length} run${runs.length === 1 ? '' : 's'} · gen ${generation}`}
-      />
-      <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
-          <Button title="Open latest run" size="sm" onPress={onOpenLatest} />
-        </Box>
-        <PruneBar
-          keepLast={keepLast}
-          busy={busy}
-          onKeepLastChange={setKeepLast}
-          onPrune={() => {
-            setBusy(true);
-            void onKeepLast(keepLast).finally(() => setBusy(false));
-          }}
-        />
-        <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>
-          <DataTable
-            columns={columns}
-            loadPage={loadPage}
-            getRowId={(r) => r.id}
-            sourceKey={generation}
-            pageSize={50}
-            defaultOrderBy="updated"
-            defaultOrderDir="desc"
-            emptyTitle="No runs yet"
-            emptyBody="Write reports with report:"
-            density="compact"
-          />
-        </Box>
-      </ScrollView>
-    </Box>
-  );
+  return {
+    selectedKeys,
+    setSelectedKeys,
+    loadPage,
+    columns,
+  };
 }
 
 function buildRunColumns(args: {
   readonly busy: boolean;
+  readonly iconColor: string;
   readonly onOpenRun: (runId: string) => void;
   readonly onDeleteRun: (runId: string) => void;
 }): DataTableColumn<RunSummary>[] {
-  const { busy, onOpenRun, onDeleteRun } = args;
+  const { busy, iconColor, onOpenRun, onDeleteRun } = args;
   return [
     {
       id: 'run',
@@ -201,45 +200,20 @@ function buildRunColumns(args: {
     {
       id: 'action',
       header: '',
-      width: 88,
+      width: 44,
+      align: 'end',
       cell: (r) => (
-        <Button
-          title="Delete"
-          size="sm"
-          intent="danger"
-          variant="outline"
+        <IconButton
+          label="Delete"
+          size={28}
+          background="surface"
+          tooltip="hover"
           disabled={busy}
           onPress={() => onDeleteRun(r.id)}
-        />
+        >
+          <Trash2Icon size={14} color={iconColor} />
+        </IconButton>
       ),
     },
   ];
-}
-
-function PruneBar(props: {
-  readonly keepLast: number;
-  readonly busy: boolean;
-  readonly onKeepLastChange: (n: number) => void;
-  readonly onPrune: () => void;
-}) {
-  const { keepLast, busy, onKeepLastChange, onPrune } = props;
-  return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
-      <Text sx={{ color: 'text', fontSize: 12 }} label="Keep last" />
-      <TextInput
-        keyboardType="number-pad"
-        value={String(keepLast)}
-        sx={{ width: 64 }}
-        onChangeText={(text) => onKeepLastChange(Number(text) || 0)}
-      />
-      <Button
-        title="Prune"
-        size="sm"
-        intent="neutral"
-        variant="outline"
-        disabled={busy}
-        onPress={onPrune}
-      />
-    </Box>
-  );
 }

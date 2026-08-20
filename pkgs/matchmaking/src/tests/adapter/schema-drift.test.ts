@@ -5,7 +5,7 @@
 
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
 import { MatchmakingImplSql } from '../../impl-sql';
 import { MatchmakingSchemaDriftError } from '../../interface/errors';
@@ -24,18 +24,23 @@ describe('MatchmakingImplSql - schema drift', () => {
     const db = new Database(':memory:');
     const sqlClient = new SqlClientImplBunSqlite(db);
     try {
-      const io = wallIo();
       const mm = new MatchmakingImplSql({
         sqlClient,
         schema: { partitionKeys: ['mmtest/region'] },
-        tuning: { now: () => io.clock.now(), createId: () => io.createId() },
+        tuning: {
+          now: () => wallClock.now(),
+          createId: () => crypto.randomUUID(),
+        },
       });
       await mm.ready();
 
       const mm2 = new MatchmakingImplSql({
         sqlClient,
         schema: { partitionKeys: ['mmtest/mode'] },
-        tuning: { now: () => io.clock.now(), createId: () => io.createId() },
+        tuning: {
+          now: () => wallClock.now(),
+          createId: () => crypto.randomUUID(),
+        },
       });
       await mm2.ready();
       await expect(

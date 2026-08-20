@@ -25,6 +25,7 @@ const ENTRY_BASENAMES = new Set([
   'wall-io.ts',
   'sim-io.ts',
   'wall.ts',
+  'wall-client-env.ts',
   'wall-node-fs.ts',
   'wall-os-fs.ts',
   'wall-expo-fs.ts',

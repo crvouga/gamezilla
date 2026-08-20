@@ -23,18 +23,6 @@ export function writeHostNavUrl(
   }
 }
 
-function isClientViews(
-  value: unknown
-): value is Readonly<Record<string, string>> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return false;
-  }
-  for (const v of Object.values(value as Record<string, unknown>)) {
-    if (typeof v !== 'string') return false;
-  }
-  return true;
-}
-
 export function readHostNavFromPopState(
   event: PopStateEvent
 ): HostNavState | null {
@@ -42,7 +30,9 @@ export function readHostNavFromPopState(
   if (raw === null || typeof raw !== 'object') return null;
   const hostNav = (raw as { hostNav?: unknown }).hostNav;
   if (hostNav === null || typeof hostNav !== 'object') return null;
-  const h = hostNav as Partial<HostNavState>;
+  const h = hostNav as Partial<HostNavState> & {
+    readonly clientViews?: unknown;
+  };
   if (
     typeof h.host !== 'string' ||
     typeof h.section !== 'string' ||
@@ -51,13 +41,16 @@ export function readHostNavFromPopState(
   ) {
     return null;
   }
-  const clientViews = isClientViews(h.clientViews) ? h.clientViews : {};
+  const instance =
+    typeof h.instance === 'string'
+      ? h.instance
+      : firstLegacyClientId(h.clientViews);
   return {
     host: h.host as HostNavState['host'],
     section: h.section as HostNavState['section'],
     kind: coerceKind(h.kind),
-    view: h.view,
-    clientViews,
+    instance,
+    view: h.view as HostNavState['view'],
   };
 }
 
@@ -71,4 +64,16 @@ export function subscribeHostNavPopState(
 
 export function isHostNavWeb(): boolean {
   return typeof window !== 'undefined';
+}
+
+function firstLegacyClientId(clientViews: unknown): string {
+  if (
+    clientViews === null ||
+    typeof clientViews !== 'object' ||
+    Array.isArray(clientViews)
+  ) {
+    return '';
+  }
+  const keys = Object.keys(clientViews as Record<string, unknown>).sort();
+  return keys[0] ?? '';
 }

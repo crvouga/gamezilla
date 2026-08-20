@@ -1,4 +1,4 @@
-# Room Durable Object Worker — owns the Room DO class (not @apps/api).
+# Room Durable Object Worker — owns the Room DO class (not @apps/server).
 name = "gamezilla-room"
 main = "src/room.ts"
 compatibility_date = "2025-01-01"

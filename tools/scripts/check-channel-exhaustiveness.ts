@@ -5,7 +5,7 @@ import { assertChannelExhaustiveness } from '@pkgs/sync-engine/shared';
  * Fail CI when a query hydrates a table with no topic map entry
  * (unless reconcile-only). Hydrates are resolved via stub run.
  */
-import { APP_QUERIES } from '../../apps/api/src/sync/app-queries';
+import { APP_QUERIES } from '../../apps/server/src/sync/app-queries';
 
 const queries = Object.values(APP_QUERIES);
 

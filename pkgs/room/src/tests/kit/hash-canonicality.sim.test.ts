@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import {
   counterValue,
@@ -10,7 +10,7 @@ import { assertHashCanonical } from './assert-hash-canonical';
 
 describe('kit: hash canonicality (M-F02)', () => {
   test('counter states hash independent of key insertion order', () => {
-    const io = createSimIo({
+    const adapters = createSimAdapters({
       seed: process.env['SIM_SEED'] ?? '42',
       startMs: 1,
     });
@@ -18,7 +18,11 @@ describe('kit: hash canonicality (M-F02)', () => {
     for (let i = 0; i < 3; i += 1) {
       const res = TestCounterModule.handle(
         state,
-        { id: io.createId(), ts: io.clock.now(), payload: Increment({}) },
+        {
+          id: adapters.createId(),
+          ts: adapters.clock.now(),
+          payload: Increment({}),
+        },
         'alice'
       );
       if (!res.ok) throw new Error('expected ok');

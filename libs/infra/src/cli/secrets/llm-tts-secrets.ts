@@ -1,4 +1,4 @@
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 import {
   requireHttpsUrl,
   requireNonEmpty,
@@ -10,7 +10,7 @@ async function validateElevenLabsApiKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, 'ELEVEN_LABS_API_KEY');
   try {
-    const res = await cliIo.http.fetch('https://api.elevenlabs.io/v1/user', {
+    const res = await cliHttp.fetch('https://api.elevenlabs.io/v1/user', {
       headers: { 'xi-api-key': v },
     });
     if (res.status === 401 || res.status === 403) {
@@ -36,7 +36,7 @@ async function validateOpenAiApiKey(input: SecretInput): Promise<void> {
     input.secrets.get('OPENAI_BASE_URL')?.trim() || 'https://api.openai.com';
   try {
     const origin = base.replace(/\/$/, '');
-    const res = await cliIo.http.fetch(`${origin}/v1/models`, {
+    const res = await cliHttp.fetch(`${origin}/v1/models`, {
       headers: { Authorization: `Bearer ${key}` },
     });
     if (res.status === 401 || res.status === 403) {

@@ -29,13 +29,11 @@ const ALLOWED_PG_FILES = new Set([
  * pg-mem instead.
  */
 const ALLOWED_CONNECT_IMPORT_FILES = new Set([
-  join('apps', 'api', 'src', 'db', 'migrate.ts'),
-  join('apps', 'api', 'src', 'db', 'open-request-db-postgres.ts'),
-  join('apps', 'api', 'scripts', 'wipe-dev-db.ts'),
-  join('apps', 'api', 'scripts', 'run-local-postgres-migrate.ts'),
-  join('apps', 'api', 'scripts', 'run-local-postgres-seed.ts'),
-  join('apps', 'postgres', 'scripts', 'migrate.ts'),
-  join('apps', 'postgres', 'scripts', 'seed.ts'),
+  join('apps', 'server', 'src', 'db', 'migrate.ts'),
+  join('apps', 'server', 'src', 'db', 'open-request-db-postgres.ts'),
+  join('apps', 'server', 'scripts', 'wipe-dev-db.ts'),
+  join('apps', 'server', 'scripts', 'run-local-postgres-migrate.ts'),
+  join('apps', 'server', 'scripts', 'run-local-postgres-seed.ts'),
   join(
     'libs',
     'chess',
@@ -149,6 +147,6 @@ for (const v of violations) {
   console.error(`  - ${v.file}: ${v.statement}`);
 }
 console.error(
-  '\nOpen TCP via `@pkgs/sql-client/postgres/connect` only from allowlisted scripts/API openers. For Pool/Client types use `@pkgs/sql-client/postgres/pg-types`. For migrate/sims schema ensure use `@pkgs/sql-client/postgres/ensure-schema` (never `connect` — Metro would load real `pg`).'
+  '\nOpen TCP via `@pkgs/sql-client/postgres/connect` only from allowlisted scripts/server openers. For Pool/Client types use `@pkgs/sql-client/postgres/pg-types`. For migrate/sims schema ensure use `@pkgs/sql-client/postgres/ensure-schema` (never `connect` — Metro would load real `pg`).'
 );
 process.exit(1);

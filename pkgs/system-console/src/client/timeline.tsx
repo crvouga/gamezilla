@@ -48,7 +48,7 @@ export function Timeline(props: {
               {index + 1}
             </Text>
             <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
-              {frame.step.kind}
+              {frame.step.title}
             </Text>
             <Text sx={{ color: 'textSecondary', fontSize: 11 }}>
               {formatMs(frame.durationMs)}

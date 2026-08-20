@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   type PubSubContractEnv,
   runPubSubContractTests,
@@ -16,11 +16,10 @@ const API_SECRET = process.env['EMQX_TEST_API_SECRET'] ?? 'pubsub-test-secret';
 const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? 'pubsub';
 const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? 'pubsub';
 
-const io = wallIo();
-const http = io.http;
-const now = io.clock.now;
-const timers = io.timers;
-const random = io.random;
+const http = { fetch: globalThis.fetch };
+const now = wallClock.now;
+const timers = wallTimers;
+const random = Math.random;
 
 function waitMs(ms: number): Promise<void> {
   return new Promise((resolve) => {

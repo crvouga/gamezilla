@@ -6,24 +6,25 @@ identical logic. Hidden nondeterminism is a production correctness bug.
 
 ## Core rule
 
-**Same seed → same path.** Given the same `Io` seed (and the same command /
+**Same seed → same path.** Given the same `createSimAdapters` seed (and the same command /
 mutation inputs), reducers, merges, and derived game/social state must match
 bit-for-bit across clients and runs.
 
-## What `@pkgs/io` covers
+## What injected ports cover
 
-Inject one `Io` bag from a composition root (`IoProvider` / `runWithIo` /
-`createSimIo` / `wallIo` at process entry):
+Inject clock, timers, ids, RNG, and HTTP from a composition root
+(`createClient(env)` / `createServer(env)` / `createSim` / `createSimAdapters`
+/ wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `io.clock` / `io.timers` | Time and scheduling |
-| `io.createId` | UUIDs / ids |
-| `io.random` | RNG |
-| `io.http` | Network |
+| `clock` / `timers` (`@pkgs/clock`) | Time and scheduling |
+| `createId` (`@pkgs/uuid`) | UUIDs / ids |
+| `random` (`@pkgs/uuid`) | RNG |
+| HTTP (`@pkgs/http-client`) | Network |
 
-Domain and game-logic code take required `io` (or `now` / `createId` slices).
-Never default to wall implementations inside libraries.
+Domain and game-logic code take required `clock` / `createId` (or `now` slices).
+Never default to wall implementations inside libraries. Never construct an `Io` bag.
 
 ## What `@pkgs/object-store` covers (filesystem / blobs)
 
@@ -56,7 +57,7 @@ Do not call bare:
 - `fetch` / `globalThis.fetch`
 - `crypto.randomUUID`, `Math.random`, `crypto.getRandomValues`
 
-Wall construction (`wallIo()`, `wallClock`, …) only in **tests** or
+Wall construction (`wallClock`, `wallTimers`, `crypto.randomUUID`) only in **tests** or
 **entry-shaped** files marked `// @io-wall-ok` (see
 `tools/scripts/io-scan-pragma.ts`).
 

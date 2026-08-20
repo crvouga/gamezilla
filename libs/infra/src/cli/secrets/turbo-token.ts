@@ -1,4 +1,4 @@
-import { cliIo } from '../lib/cli-io';
+import { cliHttp } from '../lib/cli-io';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const TEAM_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
@@ -21,7 +21,7 @@ async function validateTurboToken(input: SecretInput): Promise<void> {
   const team = (input.secrets.get('TURBO_TEAM') ?? '').trim();
   if (team === '') return;
   try {
-    const res = await cliIo.http.fetch(buildArtifactsStatusUrl(team), {
+    const res = await cliHttp.fetch(buildArtifactsStatusUrl(team), {
       headers: { Authorization: `Bearer ${value}` },
     });
     if (res.status === 401 || res.status === 403) {
@@ -70,18 +70,18 @@ export const TURBO_LOG_ORDER = new Secret({
 
 export const TURBO_CACHE = new Secret({
   name: 'TURBO_CACHE',
-  hint: 'local:rw for local-only; remote:rw (or local:rw,remote:rw) to opt into Vercel Remote Cache locally. CI always uses local:rw,remote:rw when TURBO_TOKEN/TURBO_TEAM are set.',
+  hint: 'local:rw for local-only; local:rw,remote:rw (or remote:rw) for Vercel Remote Cache. CI uses local:rw,remote:rw when TURBO_TOKEN/TURBO_TEAM are set.',
   optional: true,
   mirrorToDev: true,
   validate: async (input) => {
     const value = input.secretValue.trim();
     if (!/^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/.test(value)) {
       throw new Error(
-        `Invalid TURBO_CACHE value: ${value} (expected e.g. "local:rw")`
+        `Invalid TURBO_CACHE value: ${value} (expected e.g. "local:rw,remote:rw")`
       );
     }
   },
-  seed: async () => 'local:rw',
+  seed: async () => 'local:rw,remote:rw',
 });
 
 export const TURBO_TELEMETRY_DISABLED = new Secret({

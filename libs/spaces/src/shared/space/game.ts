@@ -21,7 +21,7 @@ export type GameDescribeRouterEntry = {
  * Shared definition of a playable game inside a space. Implementations live
  * in feature packages (e.g. `@libs/chess/shared/chess-game`) and are
  * wired into the composed `SpaceModule` at the composition root
- * (`apps/api/src/api.ts`) — `@libs/spaces` itself never imports a
+ * (`apps/server/src/api.ts`) — `@libs/spaces` itself never imports a
  * specific game.
  */
 export type GameDefinition = {

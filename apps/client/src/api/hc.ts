@@ -14,7 +14,7 @@ export type CreateApiClientOptions = {
  * origin (no legacy path suffix).
  *
  * Delegates to `@libs/client-config` so the client has no value/`package.json`
- * edge on `@apps/api` or a direct `hono` import (Metro resolves `hono/client`
+ * edge on `@apps/server` or a direct `hono` import (Metro resolves `hono/client`
  * from client-config's own dependency tree).
  */
 export function createApiClient(

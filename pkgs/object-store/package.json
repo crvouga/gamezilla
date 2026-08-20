@@ -22,7 +22,6 @@
     "react-native": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/io": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",

@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { TimeoutError } from './errors';
 import { waitUntil } from './wait';
-
-const io = wallIo();
 
 describe('waitUntil', () => {
   it('resolves when the condition becomes truthy', async () => {
@@ -16,8 +14,8 @@ describe('waitUntil', () => {
       {
         timeoutMs: 500,
         intervalMs: 1,
-        now: io.clock.now,
-        timers: io.timers,
+        now: wallClock.now,
+        timers: wallTimers,
       }
     );
     expect(value).toBe('ok');
@@ -29,8 +27,8 @@ describe('waitUntil', () => {
         timeoutMs: 30,
         intervalMs: 5,
         description: 'never',
-        now: io.clock.now,
-        timers: io.timers,
+        now: wallClock.now,
+        timers: wallTimers,
       })
     ).rejects.toBeInstanceOf(TimeoutError);
   });

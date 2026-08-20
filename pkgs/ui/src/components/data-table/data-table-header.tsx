@@ -1,13 +1,21 @@
 import type { ReactNode } from 'react';
 
 import { Box } from '../box';
+import { Checkbox } from '../checkbox';
 import { Pressable } from '../pressable';
 import { Text } from '../text';
 import {
   DATA_TABLE_HEADER_HEIGHT,
   DATA_TABLE_ROW_PAD_X,
+  DATA_TABLE_SELECTION_COL_WIDTH,
 } from './data-table-metrics';
 import type { DataTableColumn, DataTableOrderDir } from './data-table-types';
+
+export type DataTableSelectionHeader = {
+  readonly checked: boolean;
+  readonly indeterminate: boolean;
+  readonly onToggle: (next: boolean) => void;
+};
 
 export function DataTableHeader<T>(props: {
   readonly columns: readonly DataTableColumn<T>[];
@@ -16,9 +24,17 @@ export function DataTableHeader<T>(props: {
   readonly orderBy: string | null;
   readonly orderDir: DataTableOrderDir;
   readonly onToggleSort: (columnId: string) => void;
+  readonly selection?: DataTableSelectionHeader;
 }): ReactNode {
-  const { columns, widths, tableWidth, orderBy, orderDir, onToggleSort } =
-    props;
+  const {
+    columns,
+    widths,
+    tableWidth,
+    orderBy,
+    orderDir,
+    onToggleSort,
+    selection,
+  } = props;
   return (
     <Box
       sx={{
@@ -32,6 +48,23 @@ export function DataTableHeader<T>(props: {
         borderColor: 'border',
       }}
     >
+      {selection != null ? (
+        <Box
+          sx={{
+            width: DATA_TABLE_SELECTION_COL_WIDTH,
+            flexShrink: 0,
+            flexGrow: 0,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Checkbox
+            checked={selection.checked}
+            indeterminate={selection.indeterminate}
+            onToggle={selection.onToggle}
+          />
+        </Box>
+      ) : null}
       {columns.map((col, i) => (
         <HeaderCell
           key={col.id}

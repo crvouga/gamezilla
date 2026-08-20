@@ -2,7 +2,7 @@
  * Virtual-time until / never helpers for the matchmaking sim world.
  */
 
-import type { SimClock } from '@pkgs/io';
+import type { SimClock } from '@pkgs/clock';
 
 export type UntilOpts = {
   readonly budgetMs?: number;

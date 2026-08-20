@@ -1,4 +1,5 @@
-import type { SimClock, SimIo } from '@pkgs/io';
+import type { SimClock } from '@pkgs/clock';
+import type { SeededRng } from '@pkgs/uuid';
 import type { Room } from '../client/core/room';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -66,7 +67,7 @@ export type RoomSimWorld<
   readonly seed: bigint;
   readonly topic: string;
   readonly module: RoomModule<S, C, E, string>;
-  readonly io: SimIo;
+  readonly rng: SeededRng;
   readonly clock: SimClock;
   readonly storage: InMemoryRoomStorage;
   readonly server: RoomServer<S, C, E, string>;

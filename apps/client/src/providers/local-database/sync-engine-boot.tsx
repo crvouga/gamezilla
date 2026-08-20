@@ -1,3 +1,8 @@
+import {
+  useClientEnv,
+  useSyncEnginePool,
+} from '@apps/client/product/client-env-provider';
+import { SIM_SERVER_URL } from '@apps/server/system/migrate-sim-sqlite';
 import { useConfigService } from '@libs/auth/public/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/public/use-current-account-id';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
@@ -5,11 +10,7 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/public/use-fresh-auth-token';
-import {
-  useHttpClient,
-  useOptionalOriginAvailability,
-} from '@pkgs/http-client';
-import { useIo } from '@pkgs/io';
+import { useOptionalOriginAvailability } from '@pkgs/http-client';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
 import { useObservability } from '@pkgs/observability/client/observability-provider';
 import { SqlClientProvider } from '@pkgs/sql-client/react-context';
@@ -19,14 +20,8 @@ import {
   SyncEngineProvider,
 } from '@pkgs/sync-engine/client';
 import { type ReactNode, useMemo, useRef } from 'react';
-
-import { getMainSqliteDbName } from '../../storage/open-main-sql-client';
 import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';
-import {
-  type AppSyncEnginePool,
-  defaultAppSyncEnginePool,
-} from '../../sync/sync-engine-pool';
-import { useClientSystemResources } from '../client-system-resources';
+import type { AppSyncEnginePool } from '../../sync/sync-engine-pool';
 import { useEmbeddedApp } from '../embedded-app-context';
 import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
@@ -37,15 +32,8 @@ import { SyncEmqxPushFromClientConfig } from './sync-emqx-push-from-client-confi
 import { useSyncEngineBootState } from './use-sync-engine-boot-state';
 
 function useIdentitySqliteDbName(userId: string): string {
-  const createId = useIo().createId;
-  const resolveDatabaseName = useClientSystemResources().resolveDatabaseName;
-  return useMemo(
-    () =>
-      resolveDatabaseName !== undefined
-        ? resolveDatabaseName({ userId, createId })
-        : getMainSqliteDbName(userId, createId),
-    [userId, createId, resolveDatabaseName]
-  );
+  const env = useClientEnv();
+  return useMemo(() => env.resolveDatabaseName({ userId }), [userId, env]);
 }
 
 function useSyncClientAuthRef(): SyncClientAuth {
@@ -73,55 +61,37 @@ function useSyncEnginePromise(
   userId: string,
   pool: AppSyncEnginePool
 ): Promise<SyncEngine> {
-  const resources = useClientSystemResources();
-  const { openSqlClient, createPubSub, syncEnginePool } = resources;
+  const env = useClientEnv();
   const embedded = useEmbeddedApp();
   const config = useConfigService();
   const observability = useObservability();
-  const io = useIo();
-  const { fetch: httpFetch } = useHttpClient();
   const originAvailability = useOptionalOriginAvailability();
   const getFreshAuthToken = useGetFreshAuthToken();
   const auth = useSyncClientAuthRef();
   const fetchFn = useMemo(
-    () => instrumentFetch(observability, httpFetch) as SyncApiFetch,
-    [observability, httpFetch]
+    () => instrumentFetch(observability, env.server) as SyncApiFetch,
+    [observability, env]
   );
   const configRef = useRef(config);
   const fetchFnRef = useRef(fetchFn);
   const getFreshAuthTokenRef = useRef(getFreshAuthToken);
   const authRef = useRef(auth);
-  const ioRef = useRef(io);
-  const createPubSubRef = useRef(createPubSub);
+  const envRef = useRef(env);
   configRef.current = config;
   fetchFnRef.current = fetchFn;
   getFreshAuthTokenRef.current = getFreshAuthToken;
   authRef.current = auth;
-  ioRef.current = io;
-  createPubSubRef.current = createPubSub;
+  envRef.current = env;
 
-  if (
-    (embedded || syncEnginePool !== undefined) &&
-    openSqlClient === undefined
-  ) {
-    throw new Error(
-      'SyncEngineBoot: embedded / sim hosts must inject openSqlClient (never fall through to OPFS)'
-    );
-  }
+  const simEvents = env.serverUrl === SIM_SERVER_URL;
 
   return useMemo(
     () =>
       pool.getOrCreate({
-        ...(openSqlClient !== undefined ? { openSqlClient } : {}),
-        ...(createPubSub !== undefined
+        openSqlClient: (args) => envRef.current.openSqlClient(args),
+        ...(simEvents
           ? {
-              createPubSub: () => {
-                const factory = createPubSubRef.current;
-                if (factory === undefined) {
-                  throw new Error('createPubSub override missing');
-                }
-                return factory();
-              },
+              createPubSub: () => envRef.current.events,
             }
           : {}),
         get config() {
@@ -134,16 +104,16 @@ function useSyncEnginePromise(
           return authRef.current;
         },
         get clock() {
-          return ioRef.current.clock;
+          return envRef.current.clock;
         },
         get timers() {
-          return ioRef.current.timers;
+          return envRef.current.timers;
         },
         get createId() {
-          return ioRef.current.createId;
+          return envRef.current.createId;
         },
         get random() {
-          return ioRef.current.random;
+          return envRef.current.random;
         },
         getFreshAuthToken: (options) => getFreshAuthTokenRef.current(options),
         databaseName: dbName,
@@ -155,7 +125,7 @@ function useSyncEnginePromise(
             }
           : {}),
       }),
-    [dbName, userId, pool, openSqlClient, createPubSub, originAvailability]
+    [dbName, userId, pool, simEvents, originAvailability, embedded]
   );
 }
 
@@ -212,8 +182,7 @@ function SyncEngineBootWithUser({
 }): ReactNode {
   const embedded = useEmbeddedApp();
   const dbName = useIdentitySqliteDbName(userId);
-  const pool =
-    useClientSystemResources().syncEnginePool ?? defaultAppSyncEnginePool;
+  const pool = useSyncEnginePool();
   const warmEngine = pool.peekReady(dbName);
   const lastReadyEngineRef = useRef<SyncEngine | null>(warmEngine);
   const lastDbNameRef = useRef(dbName);

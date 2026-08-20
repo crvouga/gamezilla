@@ -36,6 +36,7 @@ import { default as ModalExample } from '../modal/modal.example';
 import { default as MultiSelectSwatchGridExample } from '../multi-select-swatch/multi-select-swatch-grid.example';
 import { default as MutationModalExample } from '../mutation-modal/mutation-modal.example';
 import { default as NumberStepperExample } from '../number-stepper/number-stepper.example';
+import { default as PaginationControlsExample } from '../pagination-controls/pagination-controls.example';
 import { default as PickerExample } from '../picker/picker.example';
 import { default as PickerSectionExample } from '../picker-section/picker-section.example';
 import { default as PressableExample } from '../pressable/pressable.example';
@@ -138,6 +139,11 @@ const builtInEntries: ComponentEntry[] = [
   // Data Display
   { name: 'Card', category: 'Data Display', Example: CardExample },
   { name: 'DataTable', category: 'Data Display', Example: DataTableExample },
+  {
+    name: 'PaginationControls',
+    category: 'Data Display',
+    Example: PaginationControlsExample,
+  },
   { name: 'Avatar', category: 'Data Display', Example: AvatarExample },
   {
     name: 'AvatarHero',

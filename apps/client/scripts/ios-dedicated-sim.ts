@@ -1,13 +1,12 @@
 // @io-wall-ok
+
 import { execFileSync, spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { APP_IDENTITY } from '@libs/auth/public/app-identity';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { ensurePodsMatchNodeModules } from './ios-pods';
-
-const io = wallIo();
 
 /**
  * Shared helpers for pinning Expo iOS dev to a project-dedicated simulator
@@ -135,7 +134,7 @@ export function openSimulatorApp(): void {
 
 async function pingDevServer(url: URL, signal: AbortSignal): Promise<boolean> {
   try {
-    const res = await io.http.fetch(url, { signal });
+    const res = await globalThis.fetch(url, { signal });
     return res.status > 0;
   } catch {
     return false;
@@ -164,8 +163,8 @@ export async function waitForDevServer(
   timeoutMs: number,
   abort: AbortSignal
 ): Promise<void> {
-  const deadline = io.clock.now() + timeoutMs;
-  while (io.clock.now() < deadline) {
+  const deadline = wallClock.now() + timeoutMs;
+  while (wallClock.now() < deadline) {
     if (abort.aborted) return;
     const probe = AbortSignal.any([abort, AbortSignal.timeout(1500)]);
     if (await pingDevServer(url, probe)) return;

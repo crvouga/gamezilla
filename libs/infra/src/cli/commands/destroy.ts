@@ -1,4 +1,4 @@
-import { cliIo } from '../lib/cli-io';
+import { cliClock } from '../lib/cli-io';
 import { banner, ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { runStep } from '../platform/platform';
@@ -16,7 +16,7 @@ export class DestroyCommand implements Command {
   constructor(private readonly platform: CiPlatform) {}
 
   async execute(): Promise<void> {
-    const t0 = cliIo.clock.now();
+    const t0 = cliClock.now();
     banner('Destroy');
 
     const resources = topoSort(createRegistry()).reverse();
@@ -27,7 +27,7 @@ export class DestroyCommand implements Command {
       );
     }
 
-    banner('Destroy Complete', cliIo.clock.now() - t0);
+    banner('Destroy Complete', cliClock.now() - t0);
     ok('All managed infrastructure has been torn down');
   }
 }

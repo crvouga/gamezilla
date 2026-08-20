@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { asKeyword } from '@pkgs/keyword';
 
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '../../protocol/wire';
@@ -12,8 +12,7 @@ import { Room } from './room';
 import { RoomMetaAttr } from './room-meta';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
 
-const io = wallIo();
-const timers = io.timers;
+const timers = wallTimers;
 
 /**
  * Transport that never opens — simulates Connecting… / offline.
@@ -86,9 +85,9 @@ describe('Room offline-first dispatch', () => {
       storage: new InMemoryClientStorage(),
       transport,
       identity: 'u1',
-      clock: io.clock,
-      timers: io.timers,
-      createId: io.createId,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
     });
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(false);
     expect(RoomMetaAttr.isSynced.from(room.getSnapshot())).toBe(false);
@@ -105,9 +104,9 @@ describe('Room offline-first dispatch', () => {
       storage,
       transport,
       identity: 'u1',
-      clock: io.clock,
-      timers: io.timers,
-      createId: io.createId,
+      clock: wallClock,
+      timers: wallTimers,
+      createId: () => crypto.randomUUID(),
     });
 
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(false);

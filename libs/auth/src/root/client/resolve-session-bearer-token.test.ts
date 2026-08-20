@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 describe('SessionBearerTokenResolver', () => {
   test('returns cached bearer without minting', async () => {
     const calls: Array<boolean | undefined> = [];
-    const token = await new SessionBearerTokenResolver(io.timers).resolve(
+    const token = await new SessionBearerTokenResolver(adapters.timers).resolve(
       {
         getFreshToken: async (options) => {
           calls.push(options?.skipCache);
@@ -23,7 +23,7 @@ describe('SessionBearerTokenResolver', () => {
 
   test('mints when cache is empty', async () => {
     const calls: Array<boolean | undefined> = [];
-    const token = await new SessionBearerTokenResolver(io.timers).resolve(
+    const token = await new SessionBearerTokenResolver(adapters.timers).resolve(
       {
         getFreshToken: async (options) => {
           calls.push(options?.skipCache);
@@ -37,7 +37,7 @@ describe('SessionBearerTokenResolver', () => {
   });
 
   test('returns null after retries exhaust', async () => {
-    const token = await new SessionBearerTokenResolver(io.timers).resolve(
+    const token = await new SessionBearerTokenResolver(adapters.timers).resolve(
       { getFreshToken: async () => null },
       { delaysMs: [0, 0] }
     );

@@ -36,7 +36,7 @@ function ensureNotificationsHandlers(): void {
     assert.defined(store, 'friends notifications: request store missing');
     const result = await new HandleFriendsNotificationsActionUseCase(
       store.sqlClient,
-      store.io
+      { clock: store.clock, createId: store.createId }
     ).execute({
       actorId: ctx.actorId,
       deviceId: actor.deviceId,
@@ -44,7 +44,11 @@ function ensureNotificationsHandlers(): void {
       requestId,
     });
     const { drainAndNotifyOutbox } = await import('../sync/outbox-drain');
-    await drainAndNotifyOutbox({ db: store.sqlClient, io: store.io });
+    await drainAndNotifyOutbox({
+      db: store.sqlClient,
+      clock: store.clock,
+      createId: store.createId,
+    });
     await notifyUserChannels(
       result.userIds,
       `friends-notifications:${ctx.actionId}`,
@@ -94,10 +98,14 @@ function getNotificationsApp(): NotificationsApp {
   return notificationsApp;
 }
 
-export function createNotificationsSubApp() {
+export function createNotificationsSubApp(now: () => number) {
   ensureNotificationsHandlers();
   const shell = getNotificationsApp();
-  const app = shell.app({ requireAuth, requestContext: lazyRequestContext });
+  const app = shell.app({
+    requireAuth,
+    requestContext: lazyRequestContext,
+    now,
+  });
 
   app.use('*', async (_c, next) => {
     await shell.ready();

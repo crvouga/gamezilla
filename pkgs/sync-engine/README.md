@@ -178,7 +178,7 @@ bun run ci:channel-exhaustiveness
                             │ POST /api/query, POST /api/mutations
                             │ MQTT pushes (EMQX)
 ┌───────────────────────────▼─────────────────────────────────┐
-│ apps/api  createSyncApp (package mounts /query, /mutations)  │
+│ apps/server  createSyncApp (package mounts /query, /mutations)  │
 │  runQuery / processMutationsBatch / notifyChannels           │
 │  Postgres (domain + sync_engine_mutations_applied + sync_engine_write_rejections)   │
 │  product opts rowImageFanout: true                           │
@@ -703,7 +703,7 @@ single-flight (it does) — mainly HTTP/server load then.
 4. Feature: `useQuery(sql\`… AND deleted_at IS NULL\`)` +
    `useMutationClient().mutate(def, args)`
 
-**API** (`apps/api/src/sync/sync-app.ts`)
+**API** (`apps/server/src/sync/sync-app.ts`)
 
 1. `applyFrameworkServerDdl` during migrate (opaque; no DDL text import)
 2. `createSyncApp({ resolveAuth, getSql, queries, mutations, pubsub,
@@ -1201,7 +1201,7 @@ Three distinct monotonic sequences — do not conflate them:
 - Root [`AGENTS.md`](../../AGENTS.md) — monorepo hard rules
 - Product defs: `libs/<feature>/src/shared/{queries,mutations}/`
 - Product client wiring: `apps/client/src/sync/create-local-sync-engine.ts`
-- Product API wiring: `apps/api/src/sync/sync-app.ts`
+- Product API wiring: `apps/server/src/sync/sync-app.ts`
 - Topics: `libs/runtime/src/root/sync-topics.ts`
 - Schema: `libs/runtime/src/root/app-schema.ts`
 

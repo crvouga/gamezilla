@@ -1,7 +1,7 @@
 import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
 import { raw, unsafe } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
-import { cliIo } from '../lib/cli-io';
+import { cliClock } from '../lib/cli-io';
 import { ok } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
 import { fetchSecret } from '../secrets/secrets';
@@ -32,13 +32,13 @@ export interface DatabasePingResult {
  * Read-only and safe to call from health checks.
  */
 export async function pingDatabase(): Promise<DatabasePingResult> {
-  const start = cliIo.clock.now();
+  const start = cliClock.now();
   try {
     const url = (process.env['DATABASE_URL'] ?? '').trim();
     if (!url) {
       return {
         ok: false,
-        durationMs: cliIo.clock.now() - start,
+        durationMs: cliClock.now() - start,
         error:
           'DATABASE_URL not set — run `bun run infra deploy` or ensure secret store exposes DATABASE_URL',
       };
@@ -46,7 +46,7 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
     if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
       return {
         ok: false,
-        durationMs: cliIo.clock.now() - start,
+        durationMs: cliClock.now() - start,
         error:
           'DATABASE_URL is malformed (expected postgres:// or postgresql://)',
       };
@@ -57,15 +57,15 @@ export async function pingDatabase(): Promise<DatabasePingResult> {
       return {
         ok: false,
         host,
-        durationMs: cliIo.clock.now() - start,
+        durationMs: cliClock.now() - start,
         error: probe.error,
       };
     }
-    return { ok: true, host, durationMs: cliIo.clock.now() - start };
+    return { ok: true, host, durationMs: cliClock.now() - start };
   } catch (e) {
     return {
       ok: false,
-      durationMs: cliIo.clock.now() - start,
+      durationMs: cliClock.now() - start,
       error: e instanceof Error ? e.message : String(e),
     };
   }

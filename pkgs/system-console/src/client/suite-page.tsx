@@ -10,12 +10,9 @@ import {
 } from '@pkgs/ui';
 import { useMemo } from 'react';
 
-import type { RunSummary, SuiteTestSummary } from '../types';
-import type { BucketInfo } from './api-client';
+import type { SuiteTestSummary } from '../types';
 import { formatMs } from './frames';
-import { NavBreadcrumb } from './nav-breadcrumb';
 import { ReportHeader } from './report-header';
-import type { ReportNavState } from './router';
 import {
   appBodyFrameSx,
   appShellSx,
@@ -83,17 +80,12 @@ const TEST_COLUMNS: DataTableColumn<SuiteTestSummary>[] = [
 ];
 
 export function SuitePage(props: {
-  readonly nav: ReportNavState;
-  readonly buckets: readonly BucketInfo[];
-  readonly runs: readonly RunSummary[];
   readonly bucketId: string;
   readonly runId: string;
   readonly tests: readonly SuiteTestSummary[];
-  readonly onNav: (nav: ReportNavState) => void;
   readonly onOpenTest: (testId: string) => void;
 }) {
-  const { nav, buckets, runs, bucketId, runId, tests, onNav, onOpenTest } =
-    props;
+  const { bucketId, runId, tests, onOpenTest } = props;
   const passed = tests.filter((tt) => tt.status === 'passed').length;
   const bodySx = useAppBodyContentSx();
 
@@ -105,15 +97,6 @@ export function SuitePage(props: {
   return (
     <Box sx={appShellSx}>
       <ReportHeader
-        breadcrumb={
-          <NavBreadcrumb
-            nav={nav}
-            buckets={buckets}
-            runs={runs}
-            tests={tests}
-            onNav={onNav}
-          />
-        }
         meta={`${bucketId} · ${runId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
       />
       <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>

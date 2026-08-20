@@ -5,7 +5,6 @@ import {
   coerceView,
   DEFAULT_HOST_NAV,
   parseHostNav,
-  setClientView,
 } from '@apps/client/host/host-nav';
 
 describe('parseHostNav', () => {
@@ -21,21 +20,41 @@ describe('parseHostNav', () => {
       host: 'console',
       section: 'playground',
       kind: 'api',
+      instance: '',
       view: 'commands',
-      clientViews: {},
     });
   });
 
-  test('parses per-client views from cv', () => {
+  test('legacy cv becomes instance and view', () => {
     expect(
       parseHostNav('?host=console&kind=client&cv=alice:db,bob:logs')
     ).toEqual({
       host: 'console',
       section: 'reports',
       kind: 'client',
-      view: 'ui',
-      clientViews: { alice: 'db', bob: 'logs' },
+      instance: 'alice',
+      view: 'db',
     });
+  });
+
+  test('instance query wins over legacy cv', () => {
+    expect(
+      parseHostNav('?host=console&kind=client&instance=bob&cv=alice:db')
+    ).toEqual({
+      host: 'console',
+      section: 'reports',
+      kind: 'client',
+      instance: 'bob',
+      view: 'ui',
+    });
+  });
+
+  test('aliases html/sqlite/logs views', () => {
+    expect(parseHostNav('?host=console&kind=client&view=html').view).toBe('ui');
+    expect(parseHostNav('?host=console&kind=api&view=sqlite').view).toBe('db');
+    expect(parseHostNav('?host=console&kind=events&view=logs').view).toBe(
+      'events'
+    );
   });
 
   test('ignores unknown enum values', () => {
@@ -43,8 +62,8 @@ describe('parseHostNav', () => {
       host: 'main',
       section: 'reports',
       kind: 'client',
+      instance: '',
       view: 'ui',
-      clientViews: {},
     });
   });
 
@@ -53,18 +72,8 @@ describe('parseHostNav', () => {
       host: 'console',
       section: 'reports',
       kind: 'api',
+      instance: '',
       view: 'db',
-      clientViews: {},
-    });
-  });
-
-  test('coerces illegal client views in cv', () => {
-    expect(parseHostNav('?host=console&cv=alice:commands,bob:ui')).toEqual({
-      host: 'console',
-      section: 'reports',
-      kind: 'client',
-      view: 'ui',
-      clientViews: {},
     });
   });
 
@@ -77,12 +86,12 @@ describe('parseHostNav', () => {
     );
   });
 
-  test('round-trips cv', () => {
+  test('round-trips instance', () => {
     const state = parseHostNav(
-      '?host=console&kind=client&cv=bob:logs,alice:db'
+      '?host=console&kind=client&instance=bob&view=events'
     );
     expect(buildHostSearch(state)).toBe(
-      '?host=console&cv=alice%3Adb%2Cbob%3Alogs'
+      '?host=console&instance=bob&view=events'
     );
   });
 });
@@ -98,8 +107,8 @@ describe('buildHostSearch', () => {
         host: 'console',
         section: 'reports',
         kind: 'client',
+        instance: '',
         view: 'ui',
-        clientViews: {},
       })
     ).toBe('?host=console');
   });
@@ -108,17 +117,17 @@ describe('buildHostSearch', () => {
     expect(
       buildHostSearch(
         DEFAULT_HOST_NAV,
-        '?host=console&section=playground&cv=alice:db&x=1'
+        '?host=console&section=playground&cv=alice:db&instance=bob&x=1'
       )
     ).toBe('?x=1');
   });
 });
 
-describe('coerceView / applyHostNavPatch / setClientView', () => {
+describe('coerceView / applyHostNavPatch', () => {
   test('coerceView picks kind default when illegal', () => {
     expect(coerceView('client', 'commands')).toBe('ui');
     expect(coerceView('api', 'topics')).toBe('db');
-    expect(coerceView('events', 'ui')).toBe('logs');
+    expect(coerceView('events', 'ui')).toBe('events');
     expect(coerceView('room', 'commands')).toBe('db');
   });
 
@@ -127,23 +136,23 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
       host: 'console',
       section: 'reports',
       kind: 'api',
+      instance: '',
       view: 'commands',
-      clientViews: {},
     });
     expect(parseHostNav('?host=console&kind=pubsub&view=topics')).toEqual({
       host: 'console',
       section: 'reports',
       kind: 'events',
+      instance: '',
       view: 'topics',
-      clientViews: {},
     });
     expect(
       buildHostSearch({
         host: 'console',
         section: 'playground',
         kind: 'api',
+        instance: '',
         view: 'commands',
-        clientViews: {},
       })
     ).toBe('?host=console&section=playground&kind=api&view=commands');
   });
@@ -153,19 +162,19 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
       host: 'console',
       section: 'reports',
       kind: 'room',
+      instance: '',
       view: 'db',
-      clientViews: {},
     });
   });
 
-  test('kind change coerces view and keeps clientViews', () => {
+  test('kind change coerces view and clears singleton instance', () => {
     const next = applyHostNavPatch(
       {
         host: 'console',
         section: 'playground',
         kind: 'client',
+        instance: 'alice',
         view: 'ui',
-        clientViews: { alice: 'db' },
       },
       { kind: 'api' }
     );
@@ -173,8 +182,8 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
       host: 'console',
       section: 'playground',
       kind: 'api',
+      instance: '',
       view: 'db',
-      clientViews: { alice: 'db' },
     });
   });
 
@@ -184,40 +193,11 @@ describe('coerceView / applyHostNavPatch / setClientView', () => {
         host: 'console',
         section: 'playground',
         kind: 'client',
+        instance: '',
         view: 'ui',
-        clientViews: {},
       },
       { kind: 'api', view: 'logs' }
     );
-    expect(next.view).toBe('logs');
-  });
-
-  test('setClientView updates one client without touching others', () => {
-    const base = {
-      host: 'console' as const,
-      section: 'playground' as const,
-      kind: 'client' as const,
-      view: 'ui',
-      clientViews: { alice: 'db' },
-    };
-    expect(setClientView(base, 'bob', 'logs').clientViews).toEqual({
-      alice: 'db',
-      bob: 'logs',
-    });
-    expect(setClientView(base, 'alice', 'ui').clientViews).toEqual({});
-  });
-
-  test('clientView patch merges via applyHostNavPatch', () => {
-    const next = applyHostNavPatch(
-      {
-        host: 'console',
-        section: 'playground',
-        kind: 'client',
-        view: 'ui',
-        clientViews: { alice: 'db' },
-      },
-      { clientView: { id: 'bob', view: 'logs' } }
-    );
-    expect(next.clientViews).toEqual({ alice: 'db', bob: 'logs' });
+    expect(next.view).toBe('events');
   });
 });

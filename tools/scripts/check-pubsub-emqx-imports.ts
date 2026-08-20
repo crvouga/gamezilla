@@ -4,7 +4,7 @@
  *
  * Allowlist:
  * - pkgs/pubsub-emqx/**
- * - apps/api/src/sync/**
+ * - apps/server/src/sync/**
  * - apps/client/src/sync/**
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -14,7 +14,7 @@ const ROOT = join(import.meta.dir, '../../..');
 
 const ALLOW_PREFIXES = [
   'pkgs/pubsub-emqx/',
-  'apps/api/src/sync/',
+  'apps/server/src/sync/',
   'apps/client/src/sync/',
 ];
 

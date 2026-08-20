@@ -1,4 +1,4 @@
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 import { openRoomSimWorld } from '../../sim/world';
 import type { RoomSimClientHandle, RoomSimWorld } from '../../sim/world-api';
 import type {
@@ -84,7 +84,7 @@ export async function runModuleConformance<
   }
   await world.assertConverged();
 
-  const rng = world.io.rng.fork('kit-fuzz');
+  const rng = world.rng.fork('kit-fuzz');
   for (let step = 0; step < steps; step += 1) {
     const client = clients[rng.int(clients.length)]!;
     const payload = args.generateCommand({
@@ -120,21 +120,21 @@ function purePlay<
   identity: string,
   steps: number
 ): string {
-  const io = createSimIo({ seed: args.seed, startMs: 1_000 });
+  const adapters = createSimAdapters({ seed: args.seed, startMs: 1_000 });
   let state = args.module.initialState();
-  const rng = io.rng.fork('pure');
+  const rng = adapters.rng.fork('pure');
   for (let step = 0; step < steps; step += 1) {
     const payload = args.generateCommand({
       rng,
       state,
       identity,
-      now: io.clock.now(),
+      now: adapters.clock.now(),
       step,
     });
     if (payload === null) continue;
     const command: RoomCommand<C> = {
-      id: io.createId(),
-      ts: io.clock.now(),
+      id: adapters.createId(),
+      ts: adapters.clock.now(),
       payload,
     };
     const result = args.module.handle(state, command, identity);
@@ -143,7 +143,7 @@ function purePlay<
         state = args.module.reduce(state, ev);
       }
     }
-    io.clock.advance(10);
+    adapters.clock.advance(10);
   }
   return args.module.hash(state);
 }
@@ -157,23 +157,23 @@ function collectStates<
   identity: string,
   steps: number
 ): { states: S[]; commands: RoomCommand<C>[] } {
-  const io = createSimIo({ seed: args.seed, startMs: 1_000 });
+  const adapters = createSimAdapters({ seed: args.seed, startMs: 1_000 });
   let state = args.module.initialState();
   const states: S[] = [state];
   const commands: RoomCommand<C>[] = [];
-  const rng = io.rng.fork('corpus');
+  const rng = adapters.rng.fork('corpus');
   for (let step = 0; step < steps; step += 1) {
     const payload = args.generateCommand({
       rng,
       state,
       identity,
-      now: io.clock.now(),
+      now: adapters.clock.now(),
       step,
     });
     if (payload === null) continue;
     const command: RoomCommand<C> = {
-      id: io.createId(),
-      ts: io.clock.now(),
+      id: adapters.createId(),
+      ts: adapters.clock.now(),
       payload,
     };
     commands.push(command);
@@ -184,7 +184,7 @@ function collectStates<
       }
       states.push(state);
     }
-    io.clock.advance(10);
+    adapters.clock.advance(10);
   }
   return { states, commands };
 }

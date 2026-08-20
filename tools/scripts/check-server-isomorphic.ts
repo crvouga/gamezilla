@@ -2,19 +2,19 @@
 // @io-wall-ok — tools composition root
 
 /**
- * Pit of success: `@apps/api` Hono/runtime source is isomorphic by default.
+ * Pit of success: `@apps/server` Hono/runtime source is isomorphic by default.
  *
  * Node-only / engine deps are allowed only in `@api-wall-ok` modules (injected
  * adapters + composition roots). Isomorphic files must not import those wall
  * modules — ports stay as types / constructor params.
  *
- *   bun run ci:api-isomorphic
+ *   bun run ci:server-isomorphic
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
-const API_SRC = join(REPO_ROOT, 'apps', 'api', 'src');
+const SERVER_SRC = join(REPO_ROOT, 'apps', 'server', 'src');
 const SKIP_DIR = new Set(['node_modules', 'dist', '.turbo', 'coverage']);
 
 const API_WALL_PRAGMA =
@@ -102,7 +102,7 @@ function isForbiddenSpecifier(spec: string): boolean {
   return FORBIDDEN_SPECIFIERS.has(base);
 }
 
-/** Resolve relative import within apps/api/src to an absolute .ts path. */
+/** Resolve relative import within apps/server/src to an absolute .ts path. */
 function resolveLocalImport(fromFile: string, spec: string): string | null {
   if (!spec.startsWith('.')) return null;
   const base = join(fromFile, '..', spec);
@@ -125,7 +125,7 @@ function resolveLocalImport(fromFile: string, spec: string): string | null {
 
 function main(): void {
   const files: string[] = [];
-  walk(API_SRC, files);
+  walk(SERVER_SRC, files);
 
   const wallFiles = new Set<string>();
   const contents = new Map<string, string>();
@@ -172,12 +172,12 @@ function main(): void {
 
   if (violations.length === 0) {
     console.log(
-      `ci:api-isomorphic OK — ${String(files.length)} files, ${String(wallFiles.size)} @api-wall-ok`
+      `ci:server-isomorphic OK — ${String(files.length)} files, ${String(wallFiles.size)} @api-wall-ok`
     );
     return;
   }
 
-  console.error('ci:api-isomorphic FAILED\n');
+  console.error('ci:server-isomorphic FAILED\n');
   for (const v of violations) {
     console.error(`  ${v.file}: ${v.kind} (${v.detail})`);
   }

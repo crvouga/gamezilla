@@ -5,7 +5,7 @@ import { runAsync } from '../../subprocess';
 import { withLockDbSuspended } from '../lock-db-session';
 
 /**
- * Runs root `bun run db:migrate` (`@apps/api/db` migrate CLI). Loads
+ * Runs root `bun run db:migrate` (`@apps/server/db` migrate CLI). Loads
  * `DATABASE_URL` from the secret store via `SecretStore`; CI just needs secrets
  * auth in place (already true for any infra subcommand).
  *

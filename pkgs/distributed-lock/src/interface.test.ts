@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
 import { asKeyword } from '@pkgs/keyword/keyword';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
+import { createSimAdapters } from '@pkgs/uuid';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import { DistributedLockImplKv } from './impl-kv';
 import { LockHeldError } from './interface';
 
-const io = createSimIo({ seed: 1 });
+const adapters = createSimAdapters({ seed: 1 });
 
 export function runDistributedLockContractTests(
   factory: () =>
@@ -65,8 +65,8 @@ describe('DistributedLockImplKv + KvImplInMemory (contract)', () => {
     return new DistributedLockImplKv(kv, {
       key: asKeyword('test/distributed-lock-contract'),
       identity: new DefaultLockIdentityProvider({
-        now: io.clock.now,
-        createId: io.createId,
+        now: adapters.clock.now,
+        createId: adapters.createId,
       }),
     });
   });

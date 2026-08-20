@@ -6,7 +6,7 @@ import { AppLogger } from './infrastructure/logger';
 import { AppObservability } from './infrastructure/observability';
 import { AppSecureStorage } from './infrastructure/secure-storage';
 
-/** Io is mounted in `_layout` around `RootErrorBoundary`. */
+/** Clock / ids / HTTP come from {@link ClientEnvProvider} above this stack. */
 const infrastructureProviders = [
   AppSecureStorage,
   AppLogger,

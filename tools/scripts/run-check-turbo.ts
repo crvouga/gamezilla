@@ -6,7 +6,7 @@
  * - `ci` — turbo-only lanes including secrets validate (no static/api/browser)
  * - `gates` / `verify` / `build` — GHA job subsets
  *
- * Builds use package-scoped entrypoints (`@apps/api#build` etc.) so
+ * Builds use package-scoped entrypoints (`@apps/server#build` etc.) so
  * `@apps/client` still gets `tc`/`test` without Expo `build`, in one
  * `turbo run` (no second filtered pass).
  * Live-server checks (`check:api`) stay opt-in / CI-only.
@@ -44,7 +44,7 @@ const CI_GATE_TASKS = [
   'ci:sync-engine-protocol-freeze',
   'ci:sync-engine-public-api',
   'ci:no-provider-leaks',
-  'ci:api-isomorphic',
+  'ci:server-isomorphic',
   'ci:no-bare-io',
   'ci:no-bare-fs',
   'ci:no-resolve-wall-defaults',
@@ -65,7 +65,7 @@ const CI_GATE_TASKS = [
 ] as const;
 
 /** No-op app builds only — never `@apps/client#build` (Expo export). */
-const CHECK_BUILD_TASKS = ['@apps/api#build'] as const;
+const CHECK_BUILD_TASKS = ['@apps/server#build'] as const;
 
 const SECRETS_VALIDATE_TASK = 'check:secrets:validate';
 

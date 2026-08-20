@@ -20,7 +20,7 @@
  */
 import type { PriceSpecEntry } from './catalog-sync-shared';
 
-export const STRIPE_CATALOG_SPEC = {
+export const CATALOG_SPEC = {
   products: {
     subscription: {
       /** Value stored in Product metadata — durable identity in Stripe. */
@@ -88,12 +88,13 @@ export const STRIPE_CATALOG_SPEC = {
 };
 
 /** Stable identifier for a SPEC product (also used as `metadata.catalog_product_id`). */
-export type StripeCatalogProductKey = keyof typeof STRIPE_CATALOG_SPEC.products;
+export type StripeCatalogProductKey = keyof typeof CATALOG_SPEC.products;
 
 /** Stable identifier for a SPEC price (also used as Stripe `lookup_key` and checkout `priceKey`). */
-export type StripeCatalogPriceKey = keyof typeof STRIPE_CATALOG_SPEC.prices;
+export type StripeCatalogPriceKey = keyof typeof CATALOG_SPEC.prices;
 
 /** All SPEC price keys, typed as a non-empty tuple for consumers like `z.enum`. */
-export const STRIPE_CATALOG_PRICE_KEYS = Object.keys(
-  STRIPE_CATALOG_SPEC.prices
-) as [StripeCatalogPriceKey, ...StripeCatalogPriceKey[]];
+export const STRIPE_CATALOG_PRICE_KEYS = Object.keys(CATALOG_SPEC.prices) as [
+  StripeCatalogPriceKey,
+  ...StripeCatalogPriceKey[],
+];

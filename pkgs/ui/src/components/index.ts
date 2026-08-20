@@ -155,6 +155,7 @@ export {
   type DataTableLoadPageResult,
   type DataTableOrderDir,
   type DataTableProps,
+  type DataTableSelectionMode,
 } from './data-table';
 export {
   DismissibleBanner,
@@ -283,6 +284,12 @@ export { NumberStepper, type NumberStepperProps } from './number-stepper';
 export * from './overflow-menu-button';
 // Cross-stacking-context overlay portal
 export * from './overlay-portal';
+export {
+  buildPaginationWindow,
+  PaginationControls,
+  type PaginationControlsProps,
+  type PaginationWindowItem,
+} from './pagination-controls';
 export * from './picker';
 export { PickerSection, type PickerSectionProps } from './picker-section';
 // Portal context bridge (ResponsiveSurface / bottom-sheet)

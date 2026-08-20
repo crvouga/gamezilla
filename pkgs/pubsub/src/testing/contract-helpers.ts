@@ -1,13 +1,11 @@
 import { expect } from 'bun:test';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 import type { PubSub } from '../interface';
 
-const io = wallIo();
-
 export function waitMs(ms: number): Promise<void> {
   return new Promise((resolve) => {
-    io.timers.setTimeout(resolve, ms);
+    wallTimers.setTimeout(resolve, ms);
   });
 }
 
@@ -16,7 +14,7 @@ export async function waitUntil(
   timeoutMs = 2000,
   intervalMs = 20
 ): Promise<void> {
-  const now = io.clock.now;
+  const now = wallClock.now;
   const deadline = now() + timeoutMs;
   while (now() < deadline) {
     if (predicate()) return;

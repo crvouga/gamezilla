@@ -19,7 +19,7 @@ void preventSplashAutoHide();
 /**
  * App-wide provider stack (outermost → innermost).
  *
- * Must sit under {@link SystemProvider} (Io + optional client resources).
+ * Must sit under {@link ClientEnvProvider} (`createClient(env)`).
  *
  * Ordering constraints:
  * - Infrastructure (config, secure storage) before auth and services.

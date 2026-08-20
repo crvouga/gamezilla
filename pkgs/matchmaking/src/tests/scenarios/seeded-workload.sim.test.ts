@@ -15,7 +15,7 @@ async function runWorkload(seed: string): Promise<string> {
   });
   const replicaIds = [...world.replicas.keys()];
   const participants = [];
-  const rng = world.io.rng.fork('workload');
+  const rng = world.rng.fork('workload');
   for (let i = 0; i < 10; i += 1) {
     world.clock.advance(1);
     const rid = replicaIds[i % replicaIds.length]!;

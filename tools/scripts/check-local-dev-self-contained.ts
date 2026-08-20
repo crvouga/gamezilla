@@ -33,7 +33,7 @@ function main(): void {
     throw new Error('apps/client must define a daily "dev" script');
   }
 
-  for (const pkg of ['apps/api', 'apps/room'] as const) {
+  for (const pkg of ['apps/server', 'apps/room'] as const) {
     const json = readJson(`${pkg}/package.json`);
     const pkgScripts = json['scripts'] as Record<string, string> | undefined;
     if (pkgScripts !== undefined && 'dev' in pkgScripts) {

@@ -8,7 +8,7 @@
 #
 # The seed itself does not run schema migrations (that would couple
 # `@libs/chess` to `@libs/auth` / legacy auth and create a
-# workspace-level dependency cycle). We run `@apps/api db:migrate`
+# workspace-level dependency cycle). We run `@apps/server db:migrate`
 # as a separate step first so the `patches` / `snapshots` tables and the
 # `pdb_idx_chess_puzzle__*` declarative indexes exist before the seed
 # starts pumping rows in.
@@ -113,7 +113,7 @@ jobs:
         run: |
           set -euo pipefail
           bun run tools/scripts/secrets-run.ts -- \
-            bun run --filter '@apps/api' db:migrate
+            bun run --filter '@apps/server' db:migrate
 
       - name: Seed chess puzzles → secrets env `${{ env.SECRETS_ENV }}` Postgres
         env:
@@ -147,4 +147,4 @@ jobs:
         run: |
           set -euo pipefail
           bun run tools/scripts/secrets-run.ts -- \
-            bun run --filter '@apps/api' db:migrate
+            bun run --filter '@apps/server' db:migrate

@@ -15,7 +15,7 @@ const SCAN_GLOBS = [
   'libs/notifications/src/**/*.{ts,tsx}',
   'pkgs/pubsub/README.md',
   'apps/client/src/sync/**/*.{ts,tsx}',
-  'apps/api/src/sync/**/*.{ts,tsx}',
+  'apps/server/src/sync/**/*.{ts,tsx}',
   'libs/**/use-cases/**/shared/**/*.{ts,tsx}',
   'libs/runtime/src/public/sync-topics.ts',
   'libs/runtime/src/root/app-topic-map.ts',

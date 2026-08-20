@@ -2,16 +2,17 @@
  * Injected ports so `@pkgs/system-console` never imports apps/libs/test.
  */
 
-import type { Io } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { World } from '@pkgs/system';
 import type { ComponentType } from 'react';
 
-export type EmbeddedProductAppProps<R = unknown> = {
-  readonly io: Io;
-  readonly resources: R;
-  readonly embedded: true;
-};
+import type { SystemCheckpoint } from './system-checkpoint';
+
+export type {
+  SystemCheckpoint,
+  SystemCheckpointRoomDump,
+  SystemCheckpointSqlFormat,
+} from './system-checkpoint';
 
 export type PlaygroundLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -38,9 +39,8 @@ export type PlaygroundSqlNode = PlaygroundNode & {
   readonly sqlClient: SqlClient;
 };
 
-export type PlaygroundActor<R = unknown> = PlaygroundSqlNode & {
-  readonly io: Io;
-  readonly resources: R;
+export type PlaygroundActor = PlaygroundSqlNode & {
+  readonly App: ComponentType<{ readonly embedded?: boolean }>;
 };
 
 export type PlaygroundRoomSnapshot = {
@@ -71,11 +71,9 @@ export type PlaygroundPubSubNode = PlaygroundNode & {
 
 export type PlaygroundCommandContext = {
   readonly serverSql: SqlClient;
-  readonly io: Io;
-  /**
-   * Best-effort sync wake after non-mutation DOMAIN writes.
-   * Host (apps/client playground) wires pubsub + pushSeq allocate.
-   */
+  readonly now: () => number;
+  readonly createId: () => string;
+  readonly setTimeout: (fn: () => void, ms: number) => unknown;
   readonly notifySyncWake?: (args: {
     readonly topics: readonly string[];
     readonly tables?: readonly string[];
@@ -103,7 +101,6 @@ export type PlaygroundSnapshotInfo = {
   readonly id: string;
   readonly label: string;
   readonly createdAtMs: number;
-  /** False when local SyncEngine schema version no longer matches. */
   readonly compatible: boolean;
   readonly incompatibleReason?: string;
 };
@@ -128,75 +125,61 @@ export type PlaygroundSnapshotManifest = {
   };
 };
 
-export type PlaygroundSession<R = unknown> = {
-  readonly world: World;
-  readonly io: Io;
-  /** Live product clients keyed by instance id (`alice`, `bob`, …). */
-  readonly clients: ReadonlyMap<string, PlaygroundActor<R>>;
+export type PlaygroundClock = {
+  readonly now: () => number;
+  readonly advance: (ms: number) => void;
+  readonly reset: (ms: number) => void;
+};
+
+export type PlaygroundSession = {
+  readonly clock: PlaygroundClock;
+  crash(id: string): void;
+  restart(id: string): void;
+  partition(a: string, b: string): void;
+  heal(a?: string, b?: string): void;
+  readonly clients: ReadonlyMap<string, PlaygroundActor>;
   readonly server: PlaygroundSqlNode;
   readonly pubsub: PlaygroundPubSubNode;
-  /** Live room topics from the in-process room node. */
   readonly rooms: ReadonlyMap<string, PlaygroundRoomNode>;
-  /**
-   * Monotonic UI revision — bumps on every session notify (client/room map
-   * changes, end of snapshot restore, etc.).
-   */
   readonly revision: number;
-  /**
-   * Bumps only after snapshot restore (`runQuiet`). Use for remounting
-   * embedded ProductApp so room/client notifies do not tear down live UI.
-   */
   readonly snapshotEpoch: number;
-  /**
-   * True while a snapshot load is tearing down / restoring clients. UI should
-   * paint no ProductApps until restore finishes.
-   */
   readonly snapshotRestoring: boolean;
-  /** Subscribe to client / room map changes. */
   subscribe(listener: () => void): () => void;
-  addClient(id?: string): Promise<PlaygroundActor<R>>;
+  addClient(id?: string): Promise<PlaygroundActor>;
   removeClient(id: string): Promise<void>;
   listCommands(): readonly PlaygroundCommand[];
   runCommand(id: string): Promise<void>;
-  /** Fault / clock / snapshot entries for the command palette. */
   listPaletteCommands(): readonly PlaygroundPaletteCommand[];
-  /** Refresh async snapshot-load palette entries from ObjectStore. */
   refreshSnapshotPaletteCommands(): Promise<void>;
   listSnapshots(): Promise<readonly PlaygroundSnapshotInfo[]>;
   saveSnapshot(label?: string): Promise<PlaygroundSnapshotInfo>;
   loadSnapshot(id: string): Promise<void>;
   deleteSnapshot(id: string): Promise<void>;
-  /** Delete many snapshots in one ObjectStore pass. */
   deleteSnapshots(ids: readonly string[]): Promise<void>;
-  /** Delete snapshots whose schema version no longer matches the app. */
   purgeIncompatibleSnapshots(): Promise<number>;
-  /** Pause / resume wall→sim clock advance. */
   setClockPaused(paused: boolean): void;
   isClockPaused(): boolean;
-  /**
-   * Tear down the live in-memory session (SQL handles + World).
-   * Snapshots in ObjectStore are kept. Caller should remount with
-   * `skipSnapshotLoad: true` for a blank reboot.
-   */
+  exportSqlBytes(): Promise<Readonly<Record<string, Uint8Array>>>;
+  captureCheckpoint(label?: string): Promise<SystemCheckpoint>;
+  restoreCheckpoint(checkpoint: SystemCheckpoint): Promise<void>;
+  subscribeDomainWake(listener: (label: string) => void): () => void;
   wipe(): Promise<void>;
   dispose(): Promise<void>;
 };
 
 export type BootPlaygroundOptions = {
-  /** Reboot blank without auto-loading the newest ObjectStore snapshot. */
   readonly skipSnapshotLoad?: boolean;
 };
 
-export type SystemConsolePorts<R = unknown> = {
-  readonly ProductApp: ComponentType<EmbeddedProductAppProps<R>>;
+export type SystemConsolePorts = {
   readonly bootPlayground: (
     opts?: BootPlaygroundOptions
-  ) => Promise<PlaygroundSession<R>>;
-  /** Process I/O for report HTTP (and playground actor Io is separate). */
-  readonly io: Io;
-  /**
-   * Base path for the mounted console Hono app (no trailing slash).
-   * Default `/system-console`.
-   */
+  ) => Promise<PlaygroundSession>;
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly fetch: (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => Promise<Response>;
   readonly reportApiBasePath?: string;
 };

@@ -2,9 +2,10 @@
 /**
  * Foreground entry for `@apps/client` `dev`: local report console + Expo web.
  */
+
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
-import { wallIo } from '@pkgs/io';
+import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
 
@@ -13,7 +14,6 @@ import {
   startLocalReportConsole,
 } from './local-report-server';
 
-const io = wallIo();
 const CLIENT_DIR = join(import.meta.dirname, '..');
 const EXPO_PORT = 5173;
 
@@ -36,7 +36,7 @@ function killChildren(): void {
   for (const child of children) {
     killChild(child, 'SIGTERM');
   }
-  io.timers.setTimeout(() => {
+  wallTimers.setTimeout(() => {
     for (const child of children) {
       killChild(child, 'SIGKILL');
     }

@@ -18,23 +18,23 @@ const AUTH_BETTER_AUTH_PKG_ALLOW_PREFIXES = ['pkgs/auth-better-auth/'];
 
 const AUTH_BETTER_AUTH_PKG_ALLOW_FILES = new Set([
   'apps/client/src/providers/app-auth-provider.tsx',
-  // Sim DI seam: types `authClientStorage` for injected AuthClientStorage.
-  'apps/client/src/providers/client-system-resources.ts',
-  // In-process playground: wires namespaced auth client storage for World clients.
-  'apps/client/src/host/playground-impls.ts',
-  // Playground snapshot restore clears namespaced auth client storage.
-  'apps/client/src/host/playground-snapshots.ts',
-  'apps/api/src/api.ts',
-  'apps/api/src/app/request-db-middleware.ts',
-  'apps/api/src/app/create-app.ts',
-  'apps/api/src/auth/better-auth-routes.ts',
-  'apps/api/src/config/better-auth-boot.ts',
+  // ClientEnv.authStorage is the injected Better Auth storage port.
+  'apps/client/src/product/client-env.ts',
+  'apps/client/src/product/wall-client-env.ts',
+  'apps/client/src/sim/create-sim.ts',
+  // Playground checkpoint restore clears namespaced auth client storage.
+  'apps/client/src/host/playground-checkpoint-durable.ts',
+  'apps/server/src/api.ts',
+  'apps/server/src/app/request-db-middleware.ts',
+  'apps/server/src/app/create-server.ts',
+  'apps/server/src/auth/better-auth-routes.ts',
+  'apps/server/src/config/better-auth-boot.ts',
   // Sim SQLite migrate: runBetterAuthMigrations for product UI sims.
-  'apps/api/src/system/migrate-sim-sqlite.ts',
+  'apps/server/src/system/migrate-sim-sqlite.ts',
   'libs/runtime/src/server/run-postgres-migrations.ts',
-  'apps/api/src/db/migrate.ts',
-  'apps/api/src/request-scope.ts',
-  'apps/api/scripts/wipe-dev-db.ts',
+  'apps/server/src/db/migrate.ts',
+  'apps/server/src/request-scope.ts',
+  'apps/server/scripts/wipe-dev-db.ts',
   'tools/scripts/run-postgres-migrations-secrets.ts',
 ]);
 

@@ -1,23 +1,38 @@
-import type { WorldTopology } from '@pkgs/system';
-
 import type { SimulationReportTopology } from '../types';
 
 const CLIENT_ATTRS = ['html', 'sqlite', 'ingress', 'egress'] as const;
-const API_ATTRS = ['sqlite', 'ingress', 'egress'] as const;
+const SERVER_ATTRS = ['sqlite', 'ingress', 'egress'] as const;
 const DEFAULT_ATTRS = ['ingress', 'egress'] as const;
+
+export type SimTopologyNode = {
+  readonly id: string;
+  readonly kind: string;
+  readonly down?: boolean;
+};
+
+export type SimTopologyEdge = {
+  readonly from: string;
+  readonly to: string;
+  readonly kind: string;
+  readonly partitioned?: boolean;
+};
+
+export type SimTopology = {
+  readonly nodes: readonly SimTopologyNode[];
+  readonly edges: readonly SimTopologyEdge[];
+};
 
 function attributesFor(kind: string): readonly string[] {
   if (kind === 'client') return CLIENT_ATTRS;
-  if (kind === 'api' || kind === 'db') return API_ATTRS;
+  if (kind === 'server' || kind === 'db') return SERVER_ATTRS;
   return DEFAULT_ATTRS;
 }
 
 /**
- * Map a system-native {@link WorldTopology} into the persisted console
- * `topology.json` shape (attributes, zeroed network fields, seed/fuzz).
+ * Map the explicit sim client/server/room graph into persisted topology.json.
  */
 export function projectReportTopology(
-  topology: WorldTopology,
+  topology: SimTopology,
   seed: string
 ): SimulationReportTopology {
   const kinds = new Map<string, readonly string[]>();
@@ -26,12 +41,24 @@ export function projectReportTopology(
   }
 
   const nodes = topology.nodes.map((n) => ({
-    id: n.address,
+    id: n.id,
     kind: n.kind,
-    status: n.down ? 'down' : 'ok',
+    status: n.down === true ? 'down' : 'ok',
     attributes: [...attributesFor(n.kind)],
     clockSkewMs: 0,
   }));
+
+  const spawn = Object.fromEntries(
+    [...kinds.keys()].map((kind) => {
+      if (kind === 'client') {
+        return [kind, { edges: [{ to: 'server', kind: 'server' }] }];
+      }
+      if (kind === 'server') {
+        return [kind, { edges: [{ to: 'events', kind: 'events' }] }];
+      }
+      return [kind, { edges: [] }];
+    })
+  );
 
   return {
     seed,
@@ -49,14 +76,14 @@ export function projectReportTopology(
         to: e.to,
         kind: e.kind,
       })),
-      spawn: topology.spawn,
+      spawn,
     },
     nodes,
     edges: topology.edges.map((e) => ({
       from: e.from,
       to: e.to,
       kind: e.kind,
-      state: e.partitioned ? 'down' : 'up',
+      state: e.partitioned === true ? 'down' : 'up',
       latencyMs: 0,
       jitterMs: 0,
       dropRate: 0,

@@ -6,7 +6,7 @@ import { assert } from '@pkgs/assert';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
 import type { TadaDocumentNode } from 'gql.tada';
 import { print } from 'graphql';
-import { cliIo } from './cli-io';
+import { cliHttp, cliTimers } from './cli-io';
 import { MeIdQuery } from './railway-graphql/documents';
 
 const RAILWAY_GQL = 'https://backboard.railway.com/graphql/v2';
@@ -35,7 +35,7 @@ export async function railwayGql<TResult, TVariables>(
         variables: variables ?? undefined,
       }),
     },
-    { fetch: cliIo.http.fetch, timers: cliIo.timers }
+    { fetch: cliHttp.fetch, timers: cliTimers }
   );
   const text = await res.text();
   if (!res.ok) {

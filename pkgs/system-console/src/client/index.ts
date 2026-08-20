@@ -1,7 +1,6 @@
 export { createPlaygroundLogBuffer } from '../shared/playground-log-buffer';
 export type {
   BootPlaygroundOptions,
-  EmbeddedProductAppProps,
   PlaygroundActor,
   PlaygroundCommand,
   PlaygroundLogBuffer,
@@ -15,6 +14,8 @@ export type {
   PlaygroundSnapshotInfo,
   PlaygroundSnapshotManifest,
   PlaygroundSqlNode,
+  SystemCheckpoint,
+  SystemCheckpointRoomDump,
   SystemConsolePorts,
 } from '../shared/ports';
 export type {

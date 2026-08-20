@@ -88,7 +88,7 @@ describe('parseReportNav', () => {
       testId: 'auth-login-logout',
       frame: 5,
       node: 'alice',
-      view: 'sqlite',
+      view: 'db',
     });
   });
 });
@@ -110,13 +110,13 @@ describe('buildReportUrl', () => {
         testId: 'demo',
         frame: 3,
         node: 'bob',
-        view: 'html',
+        view: 'ui',
       }
     );
     expect(url.pathname).toBe('/b/local/r/run1/t/demo');
     expect(url.search).toContain('frame=3');
     expect(url.search).toContain('node=bob');
-    expect(url.search).toContain('view=html');
+    expect(url.search).toContain('view=ui');
     expect(url.search).not.toContain('step=');
   });
 });
@@ -229,6 +229,16 @@ describe('SimulationReporter + ObjectStore', () => {
           { nodeId: 'alice', bytes: payload },
         ];
       },
+      snapshotCheckpoint: () => ({
+        clockMs: 42,
+        clockPaused: false,
+        clientIds: ['alice'],
+        roomTopics: [],
+        partitions: [],
+        skewByAddress: {},
+        downAddresses: [],
+        evictedAddresses: [],
+      }),
     });
     await reporter.record({
       actorId: 'alice',
@@ -266,6 +276,10 @@ describe('SimulationReporter + ObjectStore', () => {
     const obj = await store.get(`runs/run-db/tests/db-test/${rel}`);
     expect(obj).not.toBeNull();
     expect(obj?.contentType).toBe('application/gzip');
+    expect(frame0?.checkpoint?.clientIds).toEqual(['alice']);
+    expect(frame0?.checkpoint?.file).toMatch(
+      /^frames\/f-\d+\.checkpoint\.json$/
+    );
   });
 
   test('writes per-actor HTML views and primary file', async () => {
@@ -437,61 +451,57 @@ describe('LATEST_RUN_ID', () => {
 });
 
 describe('projectReportTopology', () => {
-  test('maps system WorldTopology into report JSON', async () => {
+  test('maps sim topology into report JSON', async () => {
     const { projectReportTopology } = await import('./writer/project-topology');
     const report = projectReportTopology(
       {
         nodes: [
-          { address: 'api', kind: 'api', down: true },
-          { address: 'client:alice', kind: 'client', down: false },
-          { address: 'events', kind: 'events', down: false },
+          { id: 'server', kind: 'server', down: true },
+          { id: 'alice', kind: 'client', down: false },
+          { id: 'events', kind: 'events', down: false },
         ],
         edges: [
           {
-            from: 'client:alice',
-            to: 'api',
-            kind: 'api',
+            from: 'alice',
+            to: 'server',
+            kind: 'server',
             partitioned: true,
           },
           {
-            from: 'api',
+            from: 'server',
             to: 'events',
             kind: 'events',
             partitioned: false,
           },
         ],
-        spawn: {
-          client: { edges: [{ to: 'api', kind: 'api' }] },
-          api: { edges: [{ to: 'events', kind: 'events' }] },
-        },
       },
       'seed-1'
     );
 
     expect(report.seed).toBe('seed-1');
     expect(report.fuzz).toBeNull();
-    expect(report.nodes.find((n) => n.id === 'api')).toMatchObject({
+    expect(report.nodes.find((n) => n.id === 'server')).toMatchObject({
       status: 'down',
       attributes: ['sqlite', 'ingress', 'egress'],
       clockSkewMs: 0,
     });
-    expect(report.nodes.find((n) => n.id === 'client:alice')).toMatchObject({
+    expect(report.nodes.find((n) => n.id === 'alice')).toMatchObject({
       status: 'ok',
       attributes: ['html', 'sqlite', 'ingress', 'egress'],
     });
     expect(
-      report.edges.find((e) => e.from === 'client:alice' && e.to === 'api')
+      report.edges.find((e) => e.from === 'alice' && e.to === 'server')
     ).toMatchObject({
       state: 'down',
       latencyMs: 0,
       dropRate: 0,
     });
     expect(
-      report.edges.find((e) => e.from === 'api' && e.to === 'events')
+      report.edges.find((e) => e.from === 'server' && e.to === 'events')
     ).toMatchObject({ state: 'up' });
     expect(report.definition.kinds['client']?.attributes).toContain('html');
     expect(report.definition.spawn['client']?.edges).toEqual([
-      { to: 'api', kind: 'api' },
+      { to: 'server', kind: 'server' },
     ]);
   });
 });

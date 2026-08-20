@@ -275,14 +275,14 @@ function SnapshotChromeActions(props: {
 }
 
 /** TabStrip trailing: snapshot Select + save / reload / palette icon buttons. */
-export function PlaygroundSnapshotChrome<R>(props: {
-  readonly session: PlaygroundSession<R>;
+export function PlaygroundSnapshotChrome(props: {
+  readonly session: PlaygroundSession;
 }) {
   const { session } = props;
   const list = usePlaygroundSnapshots(session);
   const state = useSnapshotChromeState(list);
   const { open: openPalette } = useCommandPalette();
-  const nowMs = session.io.clock.now();
+  const nowMs = session.clock.now();
   const deleteCount = state.pendingDeleteIds?.length ?? 0;
 
   return (

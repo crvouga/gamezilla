@@ -2,15 +2,13 @@
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
-import { wallIo } from '@pkgs/io';
+import { wallClock } from '@pkgs/clock';
 import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
 
-const roomIo = wallIo();
-
 export const Room = createDurableObjectAdapter({
-  modules: composeRoomModules(GAME_DEFINITIONS, roomIo.clock.now),
-  clock: roomIo.clock,
-  createId: roomIo.createId,
+  modules: composeRoomModules(GAME_DEFINITIONS, wallClock.now),
+  clock: wallClock,
+  createId: () => crypto.randomUUID(),
 });
 
 /** Minimal fetch so the Worker script boots; clients reach rooms via API gateway. */

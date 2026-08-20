@@ -1,4 +1,4 @@
-import type { SeededRng } from '@pkgs/io';
+import type { SeededRng } from '@pkgs/uuid';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
 export type RoomFaultProfile = {

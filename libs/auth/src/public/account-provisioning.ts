@@ -1,5 +1,5 @@
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { Io } from '@pkgs/io';
+import type { Clock } from '@pkgs/clock';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { assertUuid } from '../shared/auth/device-id';
@@ -11,7 +11,10 @@ import { ExternalAccountRepository } from './external-account-repository';
 export class AccountProvisioningService {
   constructor(
     private readonly tx: SqlTx,
-    private readonly io: Io,
+    private readonly time: {
+      readonly clock: Clock;
+      readonly createId: CreateId;
+    },
     private readonly authServer: AuthServerPort
   ) {}
 
@@ -35,12 +38,12 @@ export class AccountProvisioningService {
     createId?: CreateId;
   }): Promise<string> {
     const { externalUserId, upgradeUserId } = args;
-    const now = args.now ?? this.io.clock.now;
-    const createId = args.createId ?? this.io.createId;
+    const now = args.now ?? this.time.clock.now;
+    const createId = args.createId ?? this.time.createId;
     const provider = this.authServer.providerLabel;
 
     const externalAccounts = new ExternalAccountRepository(this.tx);
-    const anonUsers = new AnonUserService(this.tx, this.io);
+    const anonUsers = new AnonUserService(this.tx, this.time);
 
     const existingUserId =
       await externalAccounts.findUserIdByPrimaryAuthExternalId(

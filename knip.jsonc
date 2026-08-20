@@ -44,7 +44,7 @@
     "@total-typescript/ts-reset",
     "turbo",
     "typescript-eslint",
-    "@apps/api",
+    "@apps/server",
     "@pkgs/assistant",
     "@libs/chess",
     "@libs/profile",

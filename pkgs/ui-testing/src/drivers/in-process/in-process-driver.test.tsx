@@ -1,11 +1,10 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
-import { wallIo } from '@pkgs/io';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { createDriver } from '../../driver/create-driver';
 import { demoHarness } from './demo-app';
 import { InProcessDriver } from './in-process-driver';
 
-const io = wallIo();
-const clockOpts = { now: io.clock.now, timers: io.timers };
+const clockOpts = { now: wallClock.now, timers: wallTimers };
 
 describe('InProcessDriver', () => {
   let driver: InProcessDriver;

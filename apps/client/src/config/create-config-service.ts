@@ -1,6 +1,6 @@
 import type { ConfigService } from '@libs/auth/public/config-service-types';
 
-import { getApiBaseUrl } from './api-servers';
+import { getServerBaseUrl } from './api-servers';
 
 export type CreateConfigServiceArgs = {
   /** Override the API base URL (sims wire an in-process origin, e.g. `'http://sim.local'`). */
@@ -13,7 +13,7 @@ export function createConfigService(
   const apiUrl = args.apiUrl;
   return {
     getApiUrl(): string {
-      return apiUrl ?? getApiBaseUrl();
+      return apiUrl ?? getServerBaseUrl();
     },
   };
 }

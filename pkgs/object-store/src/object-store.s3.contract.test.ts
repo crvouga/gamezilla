@@ -2,8 +2,9 @@
  * Dual-backend contract: same suite against live S3-compatible storage
  * (local MinIO / B2) when `S3_ENDPOINT` + credentials are present.
  */
+
 import { describe } from 'bun:test';
-import { createSimIo } from '@pkgs/io';
+import { createSimAdapters } from '@pkgs/uuid';
 
 import { createS3ObjectStore } from './impl-s3';
 import { runObjectStoreContractTests } from './object-store-contract';
@@ -21,9 +22,9 @@ const HAS_S3 =
   bucket.length > 0;
 
 describe.skipIf(!HAS_S3)('ObjectStore S3/MinIO (contract)', () => {
-  const io = createSimIo({ seed: 1 });
+  const adapters = createSimAdapters({ seed: 1 });
   const prefix = normalizeObjectStoreRootPrefix(
-    `dst-contract/${io.createId()}/`
+    `dst-contract/${adapters.createId()}/`
   );
 
   runObjectStoreContractTests(() =>

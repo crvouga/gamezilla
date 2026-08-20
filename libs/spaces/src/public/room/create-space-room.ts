@@ -1,4 +1,4 @@
-import type { Io } from '@pkgs/io';
+import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import {
   type ClientTransport,
@@ -11,6 +11,7 @@ import {
   KeyValueClientRoomStorage,
   keyValueRoomClientKeywords,
 } from '@pkgs/room/client/adapters/storage/key-value';
+import type { CreateId, Random } from '@pkgs/uuid';
 
 import type { SpaceRoomModule } from '../module/space-module-context';
 import {
@@ -56,7 +57,12 @@ export type CreateSpaceRoomResult = {
 };
 
 export class SpaceRoomFactory {
-  constructor(private readonly io: Io) {}
+  constructor(
+    private readonly clock: Clock,
+    private readonly timers: Timers,
+    private readonly createId: CreateId,
+    private readonly random: Random
+  ) {}
 
   /**
    * Opens a space room client for local-first UI. Returns after local hydrate;
@@ -77,8 +83,8 @@ export class SpaceRoomFactory {
     } = params;
     const topic = `space:${spaceId}`;
     const wsFactory = new WebSocketRoomTransportFactory(
-      this.io.timers,
-      this.io.random
+      this.timers,
+      this.random
     );
     const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
       spaceId,
@@ -87,8 +93,8 @@ export class SpaceRoomFactory {
       installId,
       clientId,
       getSessionToken,
-      timers: this.io.timers,
-      random: this.io.random,
+      timers: this.timers,
+      random: this.random,
     });
     const { committed, queue } = keyValueRoomClientKeywords(spaceId);
     const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
@@ -101,9 +107,9 @@ export class SpaceRoomFactory {
       storage: clientStorage,
       transport,
       identity: myId,
-      clock: this.io.clock,
-      timers: this.io.timers,
-      createId: this.io.createId,
+      clock: this.clock,
+      timers: this.timers,
+      createId: this.createId,
     });
 
     return { room, transport };

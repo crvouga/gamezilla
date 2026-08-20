@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { assert } from '@pkgs/assert';
-import { cliIo } from './lib/cli-io';
+import { cliClock } from './lib/cli-io';
 import { fmtMs } from './lib/fmt';
 import type { CiPlatform } from './platform/platform';
 
@@ -80,14 +80,14 @@ export function run(
 
   const fullCmd = `${cmd} ${args.join(' ')}`;
   const label = opts?.label ?? fullCmd;
-  const t0 = cliIo.clock.now();
+  const t0 = cliClock.now();
 
   const r = spawnSync(cmd, args, {
     env: opts?.env ?? process.env,
     cwd: opts?.cwd,
     stdio: ['ignore', 'inherit', 'inherit'],
   });
-  const elapsed = fmtMs(cliIo.clock.now() - t0);
+  const elapsed = fmtMs(cliClock.now() - t0);
 
   if (r.error) {
     platform.error(
@@ -228,7 +228,7 @@ export async function runAsync(
 
   const fullCmd = `${cmd} ${args.join(' ')}`;
   const label = opts?.label ?? fullCmd;
-  const t0 = cliIo.clock.now();
+  const t0 = cliClock.now();
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -253,7 +253,7 @@ export async function runAsync(
       });
     });
   } catch (e: unknown) {
-    const elapsed = fmtMs(cliIo.clock.now() - t0);
+    const elapsed = fmtMs(cliClock.now() - t0);
     const err = e instanceof Error ? e.message : String(e);
     const detail = [
       `Command:  ${fullCmd}`,
@@ -286,7 +286,7 @@ export async function runTeeAsync(
 
   const fullCmd = `${cmd} ${args.join(' ')}`;
   const label = opts?.label ?? fullCmd;
-  const t0 = cliIo.clock.now();
+  const t0 = cliClock.now();
 
   return new Promise<string>((resolve, reject) => {
     const child = spawn(cmd, args, {
@@ -313,7 +313,7 @@ export async function runTeeAsync(
       reject(new Error(`${label} — ${err.message}`));
     });
     child.on('close', (code, signal) => {
-      const elapsed = fmtMs(cliIo.clock.now() - t0);
+      const elapsed = fmtMs(cliClock.now() - t0);
       if (signal) {
         reject(new Error(`${label} killed by signal ${signal} (${elapsed})`));
         return;

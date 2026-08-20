@@ -1,10 +1,9 @@
 import { ANON_ID_HEADER, BearerAuthResolver } from '@libs/auth/root/server';
-import { getIo } from '@pkgs/io/als';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-
 import type { ApiHonoEnv } from '../app/api-hono-types';
+import { requireRequestStore } from '../request-scope';
 
 /**
  * Header the room Durable Object adapter reads to learn the actor id for an
@@ -85,7 +84,7 @@ async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
     return anonId;
   }
   if (anonId !== null) return anonId;
-  return getIo().createId();
+  return requireRequestStore().createId();
 }
 
 async function tryResolveAccount(
@@ -94,11 +93,11 @@ async function tryResolveAccount(
   deviceId: string
 ): Promise<string | null> {
   try {
-    const io = getIo();
+    const { clock, createId } = requireRequestStore();
     return await new BearerAuthResolver(
       c.get('sqlClient'),
       c.get('authServer'),
-      io
+      { clock, createId }
     ).resolveAccountId(bearerToken, deviceId);
   } catch {
     // Any auth resolution failure (invalid token, DB hiccup, etc.) falls back

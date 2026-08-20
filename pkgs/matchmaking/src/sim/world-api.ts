@@ -2,7 +2,8 @@
  * Public types for the matchmaking deterministic simulator.
  */
 
-import type { SimClock, SimIo } from '@pkgs/io';
+import type { SimClock } from '@pkgs/clock';
+import type { SeededRng } from '@pkgs/uuid';
 import type {
   Matchmaking,
   MatchmakingTuning,
@@ -54,7 +55,7 @@ export type ReplicaHandle = {
 
 export type MatchmakingSimWorld = {
   readonly seed: bigint;
-  readonly io: SimIo;
+  readonly rng: SeededRng;
   readonly clock: SimClock;
   readonly replicas: ReadonlyMap<string, ReplicaHandle>;
   readonly replica: (id: string) => ReplicaHandle;

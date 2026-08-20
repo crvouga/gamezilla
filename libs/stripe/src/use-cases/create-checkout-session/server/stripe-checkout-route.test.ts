@@ -17,7 +17,8 @@ describe('StripeCheckoutRoutes', () => {
       null,
       async () => {
         throw new Error('should not be called');
-      }
+      },
+      () => 0
     ).build();
 
     const res = await app.request('/stripe/checkout', {
