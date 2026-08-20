@@ -11,6 +11,7 @@ import {
 } from '@libs/infra/cli/secrets/secrets';
 import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import { wallTimers } from '@pkgs/clock';
 import {
   EMQX_API_KEY,
@@ -64,8 +65,8 @@ const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
 const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
   'WEB_CLIENT_GOOGLE_CLIENT_ID',
   'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
-  'STRIPE_SECRET_KEY',
-  'STRIPE_PUBLISHABLE_KEY',
+  StripeSecretKeys.secretKey,
+  StripeSecretKeys.publishableKey,
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',

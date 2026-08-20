@@ -59,9 +59,9 @@ export const AccountAttr = {
   /** Indexed: the account ABAC read policy scopes every query to `id = accountId`. */
   id: accountNs.text('id', readString).indexed(),
   createdAt: accountNs.timestamp('created-at', readString),
-  /** Stripe customer id (`cus_…`) for this account — set by checkout in the API. */
-  stripeCustomerId: accountNs.textOrNull(
-    'stripe-customer-id',
+  /** Billing customer id for this account — set by checkout in the API. */
+  billingCustomerId: accountNs.textOrNull(
+    'billing-customer-id',
     readOptionalString
   ),
 } as const;

@@ -22,7 +22,7 @@
 # 3. The production deploy is a single atomic `deploy` job: one checkout,
 #    one `infra-setup` install of wrangler + Stripe, and the
 #    `infra deploy` CLI runs every phase (provision → migrate →
-#    deploy-resources → stripe-sync → smoke →
+#    deploy-resources → billing-sync → smoke →
 #    ensure-destroyed) in one process so `InfraContext` flows
 #    in-memory between phases. A tiny always-run `lock-release` job is
 #    the safety net for the Postgres-backed global lock when `deploy`
@@ -316,7 +316,7 @@ jobs:
   # ── Atomic production deploy ─────────────────────────────────────────
   # One job, one checkout, one `infra-setup`. `bun run infra deploy`
   # acquires the global Postgres lock, runs every phase in-process
-  # (provision → migrate → deploy-resources → stripe-sync → smoke →
+  # (provision → migrate → deploy-resources → billing-sync → smoke →
   # publish-client-eas-update → ensure-destroyed), and
   # emits `lock_id` / deploy URLs / nameservers as step outputs for the
   # report and the always-run `lock-release` safety net below.
@@ -374,7 +374,7 @@ jobs:
           wrangler: 'true'
           eas: 'true'
           watchman: 'true'
-      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → stripe-sync → smoke → publish-client-eas-update → ensure-destroyed)
+      - name: Deploy (lock-acquire → provision → migrate → deploy-resources → billing-sync → smoke → publish-client-eas-update → ensure-destroyed)
         id: deploy
         working-directory: libs/infra
         env:

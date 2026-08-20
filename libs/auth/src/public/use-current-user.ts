@@ -4,7 +4,7 @@ import { sql } from '@pkgs/sql';
 import { useQuery } from '@pkgs/sync-engine/client';
 import { useAuthClientPort } from './auth-client-provider';
 import { SESSION_TOKEN_KEY } from './auth-storage-keys';
-import { EXTERNAL_ACCOUNT_PROVIDER_STRIPE } from './external-account-providers';
+import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from './external-account-providers';
 import { parseMetadataEmail } from './linked-account-providers';
 import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
 import { resolveHasAuthSession } from './session-capability';
@@ -17,7 +17,7 @@ export type CurrentUser = {
   readonly id: string;
   readonly isAnon: boolean;
   readonly createdAt: string | null;
-  readonly stripeCustomerId: string | null;
+  readonly billingCustomerId: string | null;
 };
 
 type UserRow = {
@@ -25,7 +25,7 @@ type UserRow = {
   readonly is_anon: number | boolean | string | null;
 };
 
-type StripeLinkRow = {
+type BillingLinkRow = {
   readonly external_id: string | null;
 };
 
@@ -53,13 +53,13 @@ export function useCurrentUser(): CurrentUser {
     WHERE id = ${userId}
   `);
   const userRow = userRows[0] ?? null;
-  const { rows: stripeRows } = useQuery(sql<StripeLinkRow>`
+  const { rows: billingRows } = useQuery(sql<BillingLinkRow>`
     SELECT external_id
     FROM auth_external_accounts
     WHERE user_id = ${userId}
-      AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_STRIPE}
+      AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_BILLING}
   `);
-  const stripeRow = stripeRows[0] ?? null;
+  const billingRow = billingRows[0] ?? null;
 
   const isAnon =
     !hasSession && (userRow === null ? true : readIsAnonFlag(userRow.is_anon));
@@ -68,7 +68,7 @@ export function useCurrentUser(): CurrentUser {
     id: userId,
     isAnon,
     createdAt: userRow?.created_at ?? null,
-    stripeCustomerId: stripeRow?.external_id ?? null,
+    billingCustomerId: billingRow?.external_id ?? null,
   };
 }
 

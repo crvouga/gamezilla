@@ -52,10 +52,10 @@ export function ClientConfigEntityCard() {
         />
       </Box>
       <Box sx={{ gap: 1 }}>
-        <Text variant="label" label={<Trans>Stripe / TTS / LLM</Trans>} />
+        <Text variant="label" label={<Trans>Billing / TTS / LLM</Trans>} />
         <Text
           variant="mono"
-          label={`stripe=${config.stripe_enabled ? 'on' : 'off'} tts=${
+          label={`billing=${config.billing_enabled ? 'on' : 'off'} tts=${
             config.tts_enabled ? 'on' : 'off'
           } llm=${config.llm_enabled ? 'on' : 'off'}`}
         />

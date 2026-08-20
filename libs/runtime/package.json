@@ -48,8 +48,7 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/tts": "workspace:*",
-    "stripe": "catalog:"
+    "@pkgs/tts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -28,7 +28,7 @@ const PRODUCT_LIBS = new Set([
   'profile',
   'search',
   'spaces',
-  'stripe',
+  'billing',
   'user-search',
 ]);
 

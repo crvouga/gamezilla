@@ -3,11 +3,12 @@ import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
+import { BillingApp } from '@libs/billing/root/server/billing-app';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import { FriendsApp } from '@libs/friends/root/server/create-friends-app';
-import { StripeApp } from '@libs/stripe/root/server/stripe-app';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
+import type { Billing } from '@pkgs/billing';
 import { createLlmAppFromBindings } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
@@ -17,7 +18,6 @@ import { createSystemConsoleApp } from '@pkgs/system-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import type Stripe from 'stripe';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
@@ -129,22 +129,22 @@ async function createLlmAppForServer(env: ServerEnv) {
   return result;
 }
 
-function createStripeSubApp(stripe: Stripe | null, now: () => number) {
-  return new StripeApp(
+function createBillingSubApp(billing: Billing | null, now: () => number) {
+  return new BillingApp(
     () => {
       const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'stripe: request store missing');
+      assert.defined(s, 'billing: request store missing');
       return s.sqlClient;
     },
-    stripe,
+    billing,
     async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'stripe auth: request store missing');
+      assert.defined(s, 'billing auth: request store missing');
       const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
       const auth = appAuth(ctx);
       if (auth === null || auth.accountId === null || auth.isAnon) {
         throw new UnauthorizedError(
-          'Stripe routes require a signed-in account'
+          'Billing routes require a signed-in account'
         );
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
@@ -193,7 +193,7 @@ async function resolveEmqxWssUrlForClientConfig(args: {
 async function buildDesiredClientConfig(args: {
   readonly secretStore: SecretStore;
   readonly betterAuth: ServerEnv['betterAuth'];
-  readonly stripeConfigured: boolean;
+  readonly billingConfigured: boolean;
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
@@ -214,7 +214,7 @@ async function buildDesiredClientConfig(args: {
   return {
     google: betterAuth.googleEnabled,
     emailPassword: betterAuth.enableEmailPassword,
-    stripe: args.stripeConfigured,
+    billing: args.billingConfigured,
     tts: args.ttsConfigured,
     llm: args.llmConfigured,
     googleWebClientId: betterAuth.googleClientId,
@@ -226,12 +226,12 @@ async function buildDesiredClientConfig(args: {
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly desiredClientConfig: DesiredClientConfig;
-  readonly stripe: Stripe | null;
+  readonly billing: Billing | null;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
-  const { env, desiredClientConfig, stripe, tts, llm, log } = args;
+  const { env, desiredClientConfig, billing, tts, llm, log } = args;
   const { secrets, observability, betterAuth, secretsEnv } = env;
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
@@ -294,7 +294,7 @@ function createServerRouter(args: {
     .route('/', llm.app)
     .route(
       '/',
-      createStripeSubApp(stripe, () => env.clock.now())
+      createBillingSubApp(billing, () => env.clock.now())
     )
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())
@@ -335,7 +335,7 @@ export async function createServer(env: ServerEnv) {
     setApiPubSubOverride(env.events);
   }
 
-  const stripe = env.payments;
+  const billing = env.billing;
   const [tts, llm] = await Promise.all([
     createTtsAppForServer(env),
     createLlmAppForServer(env),
@@ -350,7 +350,7 @@ export async function createServer(env: ServerEnv) {
   const desiredClientConfig = await buildDesiredClientConfig({
     secretStore: env.secrets,
     betterAuth,
-    stripeConfigured: stripe !== null,
+    billingConfigured: billing !== null,
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
     ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
@@ -361,7 +361,7 @@ export async function createServer(env: ServerEnv) {
   return new Hono()
     .route(
       '/api',
-      createServerRouter({ env, desiredClientConfig, stripe, tts, llm, log })
+      createServerRouter({ env, desiredClientConfig, billing, tts, llm, log })
     )
     .route('/system-console', consoleRouter);
 }

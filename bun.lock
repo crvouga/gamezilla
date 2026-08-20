@@ -41,7 +41,6 @@
         "@libs/runtime": "workspace:*",
         "@libs/search": "workspace:*",
         "@libs/spaces": "workspace:*",
-        "@libs/stripe": "workspace:*",
         "@libs/user-search": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
@@ -155,6 +154,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/billing": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/friends": "workspace:*",
@@ -163,12 +163,13 @@
         "@libs/profile": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/spaces": "workspace:*",
-        "@libs/stripe": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async-local": "workspace:*",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
@@ -198,7 +199,6 @@
         "hono": "catalog:",
         "jose": "catalog:",
         "pg": "catalog:",
-        "stripe": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -221,11 +221,11 @@
         "@libs/chess": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/spaces": "workspace:*",
-        "@libs/stripe": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/react": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth-better-auth": "workspace:*",
+        "@pkgs/billing": "workspace:*",
         "@pkgs/browser": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
@@ -313,6 +313,24 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/billing": {
+      "name": "@libs/billing",
+      "version": "0.0.0",
+      "dependencies": {
+        "@hono/zod-validator": "catalog:",
+        "@libs/auth": "workspace:*",
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "hono": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -454,6 +472,7 @@
         "@aws-sdk/client-s3": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/distributed-lock": "workspace:*",
         "@pkgs/git": "workspace:*",
@@ -563,7 +582,6 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/tts": "workspace:*",
-        "stripe": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -631,32 +649,6 @@
         "@types/react-test-renderer": "catalog:",
         "@typescript/native": "catalog:",
         "react-test-renderer": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/stripe": {
-      "name": "@libs/stripe",
-      "version": "0.0.0",
-      "dependencies": {
-        "@hono/zod-validator": "catalog:",
-        "@libs/auth": "workspace:*",
-        "@libs/infra": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/secret-provider": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
-        "@pkgs/secrets-config": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "hono": "catalog:",
-        "pg": "catalog:",
-        "stripe": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -789,6 +781,29 @@
       },
       "peerDependencies": {
         "react": "catalog:",
+      },
+    },
+    "pkgs/billing": {
+      "name": "@pkgs/billing",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/billing-stripe": {
+      "name": "@pkgs/billing-stripe",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "stripe": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "pkgs/browser": {
@@ -1335,6 +1350,7 @@
       "name": "@pkgs/secret-provider",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/os": "workspace:*",
@@ -2640,6 +2656,8 @@
 
     "@libs/auth": ["@libs/auth@workspace:libs/auth"],
 
+    "@libs/billing": ["@libs/billing@workspace:libs/billing"],
+
     "@libs/chess": ["@libs/chess@workspace:libs/chess"],
 
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
@@ -2661,8 +2679,6 @@
     "@libs/search": ["@libs/search@workspace:libs/search"],
 
     "@libs/spaces": ["@libs/spaces@workspace:libs/spaces"],
-
-    "@libs/stripe": ["@libs/stripe@workspace:libs/stripe"],
 
     "@libs/user-search": ["@libs/user-search@workspace:libs/user-search"],
 
@@ -2845,6 +2861,10 @@
     "@pkgs/auth": ["@pkgs/auth@workspace:pkgs/auth"],
 
     "@pkgs/auth-better-auth": ["@pkgs/auth-better-auth@workspace:pkgs/auth-better-auth"],
+
+    "@pkgs/billing": ["@pkgs/billing@workspace:pkgs/billing"],
+
+    "@pkgs/billing-stripe": ["@pkgs/billing-stripe@workspace:pkgs/billing-stripe"],
 
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
 

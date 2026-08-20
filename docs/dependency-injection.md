@@ -110,7 +110,7 @@ Do not reintroduce a container/registry class. Factory functions are the only wi
 
 ## Do convert
 
-Exported helpers whose parameters include an injected dependency (positional or args bag): DB clients, ID generators, loggers, config services, Stripe clients, publishers, and so on — put them on a class constructor (Layer B or C as appropriate).
+Exported helpers whose parameters include an injected dependency (positional or args bag): DB clients, ID generators, loggers, config services, billing clients, publishers, and so on — put them on a class constructor (Layer B or C as appropriate).
 
 ## Do not convert
 

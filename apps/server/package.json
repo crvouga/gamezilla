@@ -11,6 +11,8 @@
     ]
   },
   "scripts": {
+    "billing:check": "bun run scripts/check-billing-catalog.ts",
+    "billing:sync": "bun run scripts/sync-billing-catalog.ts",
     "build": "bun -e \"process.exit(0)\"",
     "db:migrate": "bun run src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
@@ -19,14 +21,13 @@
     "preview": "bun run scripts/preview.ts",
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
-    "stripe:check": "bun run --filter @libs/stripe check",
-    "stripe:sync": "bun run --filter @libs/stripe sync",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test src/integration/"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/billing": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/friends": "workspace:*",
@@ -35,12 +36,13 @@
     "@libs/profile": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/spaces": "workspace:*",
-    "@libs/stripe": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async-local": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-better-auth": "workspace:*",
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
@@ -70,7 +72,6 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "pg": "catalog:",
-    "stripe": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

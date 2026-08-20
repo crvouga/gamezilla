@@ -395,7 +395,6 @@
         "!**/apps/server/scripts/run-local-postgres-seed.ts",
         "!**/libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
         "!**/libs/chess/src/root/server/seed-chess-puzzles/export-chess-puzzles-load.ts",
-        "!**/libs/stripe/src/shared/stripe/script-runtime.ts",
         "!**/libs/infra/src/cli/secrets/db-url.ts"
       ]
     },
@@ -719,16 +718,9 @@
       }
     },
     {
-      "includes": [
-        "libs/stripe/scripts/**/*.ts",
-        "libs/stripe/src/use-cases/sync-catalog/server/sync/**/*.ts"
-      ],
+      "includes": ["pkgs/billing-stripe/src/catalog-sync.ts"],
       "linter": {
         "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": "off",
-            "noExcessiveLinesPerFunction": "off"
-          },
           "suspicious": {
             "noConsole": "off"
           }

@@ -9,9 +9,9 @@ import type { PackageManager } from './package-manager';
  * class (`tap`, `unlink`, `linkOverwrite`, `binDirFor`) exist for the handful
  * of formulas with non-standard install layouts:
  *
- * - `tap(name)` for third-party formulas (e.g. `stripe/stripe-cli`).
+ * - `tap(name)` for third-party formulas (e.g. `example/tap-name`).
  * - `unlink(pkg)` / `linkOverwrite(pkg)` to resolve legacy-formula collisions
- *   (e.g. moving from `stripe-cli` to `stripe`).
+ *   (e.g. moving from `example-cli` to `example`).
  * - `binDirFor(pkg)` to discover the bin dir of keg-only formulas like
  *   `postgresql@18` that aren't on the default PATH after install.
  */

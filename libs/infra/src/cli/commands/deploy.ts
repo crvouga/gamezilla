@@ -3,6 +3,7 @@ import { cliClock } from '../lib/cli-io';
 import { banner, ok } from '../lib/fmt';
 import { runWithGlobalLock } from '../lib/global-lock-session';
 import { infraOutputs } from '../lib/infra-outputs';
+import { runBillingSyncPhase } from '../lib/phases/billing-sync';
 import {
   runCheckDepsPhase,
   runWranglerAuthPhase,
@@ -13,7 +14,6 @@ import { runMigratePhase } from '../lib/phases/migrate';
 import { runDryRunPhase, runProvisionPhase } from '../lib/phases/provision';
 import { runPublishClientEasUpdatePhase } from '../lib/phases/publish-client-eas-update';
 import { runSmokePhase } from '../lib/phases/smoke';
-import { runStripeSyncPhase } from '../lib/phases/stripe-sync';
 import type { CiPlatform } from '../platform/platform';
 import type { InfraContext } from '../resources/types';
 import type { Command } from './types';
@@ -24,7 +24,7 @@ import type { Command } from './types';
  * migrate does not compete with the lock connection for Neon direct
  * slots. CI also has
  * per-phase commands (`provision`, `migrate`, `deploy-resources`,
- * `stripe-sync`, `smoke`) that share these same phase
+ * `billing-sync`, `smoke`) that share these same phase
  * functions but can run as separate jobs with the lock held externally
  * by `lock-acquire` / `lock-release`.
  *
@@ -60,7 +60,7 @@ export class DeployCommand implements Command {
     await runWithGlobalLock(p, this.id, async () => {
       await runDryRunPhase(p, ctx);
       await runDeployResourcesPhase(p, ctx);
-      await runStripeSyncPhase(p);
+      await runBillingSyncPhase(p);
 
       const outputs = infraOutputs(ctx);
       await runSmokePhase(p, outputs);

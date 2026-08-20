@@ -13,7 +13,7 @@ export type ClientRuntimeConfig = {
   readonly google_enabled: boolean;
   readonly google_web_client_id: string | null;
   readonly email_password_enabled: boolean;
-  readonly stripe_enabled: boolean;
+  readonly billing_enabled: boolean;
   readonly tts_enabled: boolean;
   readonly llm_enabled: boolean;
   readonly emqx_wss_url: string | null;
@@ -24,7 +24,7 @@ export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
   google_enabled: false,
   google_web_client_id: null,
   email_password_enabled: false,
-  stripe_enabled: false,
+  billing_enabled: false,
   tts_enabled: false,
   llm_enabled: false,
   emqx_wss_url: null,
@@ -111,8 +111,8 @@ export function parseClientConfigRows(
       liveValue(byId, ClientConfigKey.emailPasswordEnabled),
       false
     ),
-    stripe_enabled: parseBool(
-      liveValue(byId, ClientConfigKey.stripeEnabled),
+    billing_enabled: parseBool(
+      liveValue(byId, ClientConfigKey.billingEnabled),
       false
     ),
     tts_enabled: parseBool(liveValue(byId, ClientConfigKey.ttsEnabled), false),

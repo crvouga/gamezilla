@@ -93,7 +93,6 @@
     "@libs/runtime": "workspace:*",
     "@libs/search": "workspace:*",
     "@libs/spaces": "workspace:*",
-    "@libs/stripe": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

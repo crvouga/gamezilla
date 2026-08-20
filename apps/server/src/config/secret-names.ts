@@ -1,13 +1,8 @@
 /**
  * Secret names — same keys in `dev` and `prd` configs.
  *
- * Stripe key names are duplicated here (rather than imported from
- * `@libs/stripe/secret-keys`) to avoid a turbo build cycle: the stripe
- * feature package depends on auth, which must not depend on stripe for these
- * literals.
- *
- * Keep `stripeSecretKey` literal here aligned with
- * `libs/stripe/src/secret-keys.ts` (covered by a smoke test in stripe).
+ * Billing vendor secret names live in `@pkgs/billing-stripe` and are read
+ * only via `createStripeBillingFromSecretStore` (not listed here).
  */
 export const ApiSecretName = {
   betterAuthSecret: 'BETTER_AUTH_SECRET',
@@ -15,7 +10,6 @@ export const ApiSecretName = {
   webClientGoogleClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   dbUrl: 'DATABASE_URL',
   apiUrl: 'API_URL',
-  stripeSecretKey: 'STRIPE_SECRET_KEY',
   /**
    * ElevenLabs API key for TTS synthesis. Required when the TTS sub-app
    * is mounted; the secret store crashes if it's missing.

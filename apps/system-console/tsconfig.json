@@ -28,7 +28,7 @@
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@libs/profile/*": ["../../libs/profile/src/*"],
       "@libs/spaces/*": ["../../libs/spaces/src/*"],
-      "@libs/stripe/*": ["../../libs/stripe/src/*"],
+      "@libs/billing/*": ["../../libs/billing/src/*"],
       "@libs/user-search/*": ["../../libs/user-search/src/*"],
       "@pkgs/tts/*": ["../../pkgs/tts/src/*"],
       "@pkgs/assert": ["../../pkgs/assert/src/index.ts"],

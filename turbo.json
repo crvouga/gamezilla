@@ -214,7 +214,6 @@
         "apps/server/scripts/setup-dev-vars.ts",
         "apps/server/src/db/migrate.ts",
         "apps/server/src/app/request-db-middleware.ts",
-        "libs/stripe/src/shared/stripe/script-runtime.ts",
         "libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
         "tools/scripts/check-database-url-policy.ts"
       ],

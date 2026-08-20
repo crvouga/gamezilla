@@ -11,6 +11,10 @@ import {
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from './auth-secrets';
 import { B2_MASTER_KEY, B2_MASTER_KEY_ID } from './b2-credentials';
+import {
+  BILLING_VENDOR_PUBLISHABLE_KEY,
+  BILLING_VENDOR_SECRET_KEY,
+} from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
@@ -40,7 +44,6 @@ import {
   S3_REGION,
 } from './s3-credentials';
 import type { Secret } from './secret';
-import { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } from './stripe-secrets';
 import {
   TURBO_CACHE,
   TURBO_LOG_ORDER,
@@ -60,8 +63,8 @@ export const SECRETS: readonly Secret[] = [
   BETTER_AUTH_SECRET,
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
-  STRIPE_SECRET_KEY,
-  STRIPE_PUBLISHABLE_KEY,
+  BILLING_VENDOR_SECRET_KEY,
+  BILLING_VENDOR_PUBLISHABLE_KEY,
   TURBO_TOKEN,
   TURBO_TEAM,
   TURBO_CACHE,

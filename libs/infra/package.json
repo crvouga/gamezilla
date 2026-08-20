@@ -22,6 +22,7 @@
     "@aws-sdk/client-s3": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
+    "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
     "@pkgs/git": "workspace:*",

@@ -24,7 +24,7 @@ const PRODUCT_LIBS = [
   'profile',
   'search',
   'spaces',
-  'stripe',
+  'billing',
   'user-search',
 ] as const;
 

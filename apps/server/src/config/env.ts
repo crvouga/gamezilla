@@ -22,7 +22,6 @@ export type ApiWorkerEnv = {
   BETTER_AUTH_SECRET?: string;
   WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
   WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
-  STRIPE_SECRET_KEY?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;

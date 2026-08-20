@@ -38,7 +38,7 @@ const EXACT_INJECTABLE = new Set([
   'Observability',
   'MutationClient',
   'AuthServerPort',
-  'Stripe',
+  'Billing',
   'SecureStorageStore',
   'PostgresDbScope',
   'Io',

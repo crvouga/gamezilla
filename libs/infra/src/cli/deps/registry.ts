@@ -42,7 +42,7 @@ export const PROVISION_DEPS: readonly Dep[] = [wrangler, bun, secretBackend];
  * OTA `eas update`; the manual `build-client-native` command reuses the same
  * dep).
  *
- * Stripe catalog sync (`runStripeSyncPhase`) uses the npm `stripe` SDK via
- * Bun and does not require a native Stripe CLI.
+ * Billing catalog sync (`runBillingSyncPhase`) uses the vendor adapter via
+ * Bun and does not require a native vendor CLI.
  */
 export const DEPLOY_DEPS: readonly Dep[] = [wrangler, bun, secretBackend, eas];

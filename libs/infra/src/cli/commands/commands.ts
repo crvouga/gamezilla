@@ -1,5 +1,6 @@
 import { fmt } from '../lib/fmt';
 import type { CiPlatform } from '../platform/platform';
+import { BillingSyncCommand } from './billing-sync';
 import { BuildClientNativeCommand } from './build-client-native';
 import { DeployCommand } from './deploy';
 import { DeployResourcesCommand } from './deploy-resources';
@@ -12,7 +13,6 @@ import { ProvisionCommand } from './provision';
 import { SetupCommand } from './setup';
 import { SmokeCommand } from './smoke';
 import { StatusCommand } from './status';
-import { StripeSyncCommand } from './stripe-sync';
 import type { Command, CommandGroup } from './types';
 import { UnlockCommand } from './unlock';
 import { UpdateClientEasCommand } from './update-client-eas';
@@ -46,7 +46,7 @@ export function createCommandRegistry(platform: CiPlatform): Command[] {
     new DeployResourcesCommand(platform),
     new BuildClientNativeCommand(platform),
     new UpdateClientEasCommand(platform),
-    new StripeSyncCommand(platform),
+    new BillingSyncCommand(platform),
     new SmokeCommand(platform),
     new PipelineReportCommand(platform),
   ];

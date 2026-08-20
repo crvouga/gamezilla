@@ -11,9 +11,9 @@ import {
   SIM_SQLITE_DATABASE_URL,
 } from '@apps/server/system/migrate-sim-sqlite';
 import { createInProcessRoomNode } from '@apps/system-console/playground/in-process-room-node';
-import { createInMemoryStripe } from '@libs/stripe/root/in-memory-stripe';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
+import { InMemoryBilling } from '@pkgs/billing';
 import type { SimClock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -108,7 +108,7 @@ async function buildServerEnv(args: {
     events: createInMemoryPubSub({ bus: pubSubBus }),
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
-    payments: createInMemoryStripe({ baseUrl: SIM_SERVER_URL }),
+    billing: new InMemoryBilling({ baseUrl: SIM_SERVER_URL }),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,

@@ -12,7 +12,7 @@ import { ClientConfigRepository } from './client-config-repository';
 export type DesiredClientConfig = {
   readonly google: boolean;
   readonly emailPassword: boolean;
-  readonly stripe: boolean;
+  readonly billing: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
@@ -46,8 +46,8 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: desired.emailPassword,
     },
     {
-      id: ClientConfigKey.stripeEnabled,
-      value: desired.stripe,
+      id: ClientConfigKey.billingEnabled,
+      value: desired.billing,
     },
     {
       id: ClientConfigKey.ttsEnabled,

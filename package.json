@@ -10,6 +10,8 @@
     "tools"
   ],
   "scripts": {
+    "billing:check": "bun run --filter @apps/server billing:check",
+    "billing:sync": "bun run --filter @apps/server billing:sync",
     "check": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- env LOCAL_SECRETS=1 bun run tools/scripts/turbo-ci-run.ts tc test ci:lint ci:syncpack ci:database-url-policy ci:local-dev-self-contained ci:no-local-tables ci:no-raw-schema-sql ci:domain-table-prefixes ci:dst-selector-discipline ci:no-domain-hard-delete ci:no-top-level-di-functions ci:no-eager-di-construction ci:layer-c-sql-tx ci:fanout-rows-from-reads ci:mutation-determinism ci:channel-exhaustiveness ci:sync-engine-terminology ci:sync-engine-blackbox-tests ci:matchmaking-blackbox-tests ci:sync-engine-protocol-freeze ci:sync-engine-public-api ci:server-isomorphic ci:no-sql-wall-io ci:no-vendor-sql ci:sim-determinism ci:depcruise ci:circular-deps ci:tier-imports ci:use-case-isolation ci:libs-import-surface ci:component-ids ci:no-rn-style-api ci:no-size-limit-overrides ci:audit check:static @apps/server#build",
     "check:actionlint": "actionlint -color",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-api.ts",
@@ -78,8 +80,6 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
-    "stripe:check": "bun run --filter '@libs/stripe' check",
-    "stripe:sync": "bun run --filter '@libs/stripe' sync",
     "wipe": "git clean -xfd"
   },
   "overrides": {

@@ -1,4 +1,4 @@
-/** Provider slug for Stripe customer id. */
-export const EXTERNAL_ACCOUNT_PROVIDER_STRIPE = 'stripe' as const;
+/** Provider slug for the billing customer id on an account. */
+export const EXTERNAL_ACCOUNT_PROVIDER_BILLING = 'billing' as const;
 
-export type ExternalAccountProvider = typeof EXTERNAL_ACCOUNT_PROVIDER_STRIPE;
+export type ExternalAccountProvider = typeof EXTERNAL_ACCOUNT_PROVIDER_BILLING;

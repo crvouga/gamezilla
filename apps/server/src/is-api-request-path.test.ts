@@ -10,7 +10,7 @@ describe('isApiRequestPath', () => {
     expect(isApiRequestPath('/api/mutations')).toBe(true);
     expect(isApiRequestPath('/api/room')).toBe(true);
     expect(isApiRequestPath('/api/matchmaking/join')).toBe(true);
-    expect(isApiRequestPath('/api/stripe/checkout')).toBe(true);
+    expect(isApiRequestPath('/api/billing/checkout')).toBe(true);
     expect(isApiRequestPath('/api/llm/structured')).toBe(true);
     expect(isApiRequestPath('/api/tts/synthesize')).toBe(true);
   });

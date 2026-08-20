@@ -28,7 +28,7 @@ describe('parseClientConfigRows', () => {
         deleted_at: null,
       },
       {
-        id: ClientConfigKey.stripeEnabled,
+        id: ClientConfigKey.billingEnabled,
         value: false,
         deleted_at: null,
       },
@@ -36,7 +36,7 @@ describe('parseClientConfigRows', () => {
     expect(config.google_enabled).toBe(true);
     expect(config.google_web_client_id).toBe('abc.apps.googleusercontent.com');
     expect(config.email_password_enabled).toBe(true);
-    expect(config.stripe_enabled).toBe(false);
+    expect(config.billing_enabled).toBe(false);
     expect(config.tts_enabled).toBe(false);
   });
 

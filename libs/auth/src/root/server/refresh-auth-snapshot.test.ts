@@ -236,7 +236,7 @@ describe('AuthSnapshotRefresher', () => {
         metadata,
         created_at
       )
-      VALUES (${'stripe:cus_1'}, ${ACCOUNT_ID}, ${'stripe'}, ${'cus_1'}, ${'{}'}, ${now})
+      VALUES (${'billing:cus_1'}, ${ACCOUNT_ID}, ${'billing'}, ${'cus_1'}, ${'{}'}, ${now})
     `);
 
     await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
@@ -248,15 +248,15 @@ describe('AuthSnapshotRefresher', () => {
       createId: adapters.createId,
     });
 
-    const stripeRows = await sqlClient.query(sql<{
+    const billingRows = await sqlClient.query(sql<{
       external_id: string | null;
     }>`
       SELECT external_id
       FROM auth_external_accounts
       WHERE user_id = ${ACCOUNT_ID}
-        AND provider = ${'stripe'}
+        AND provider = ${'billing'}
     `);
-    expect(stripeRows[0]?.external_id).toBe('cus_1');
+    expect(billingRows[0]?.external_id).toBe('cus_1');
 
     const primaryRows = await sqlClient.query(sql<{ metadata: string }>`
       SELECT metadata

@@ -186,7 +186,7 @@ bun run ci:channel-exhaustiveness
                             │
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
-   Room DO             Stripe/etc            REST exceptions
+   Room DO             billing/etc            REST exceptions
    (realtime play)     (external)            friends/search
 ```
 
@@ -196,7 +196,7 @@ bun run ci:channel-exhaustiveness
 the same routes at different layers.
 
 **Absolute REST exceptions** (do not casually grow — see `AGENTS.md`):
-`POST /friends/search`, Stripe/external APIs.
+`POST /friends/search`, billing/external APIs.
 Username claims and profile bootstrap are **mutations**, not REST.
 
 ---

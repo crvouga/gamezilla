@@ -9,14 +9,14 @@ const UA = 'pkgs-os-github-release-installer';
 const FETCH_TIMEOUT_MS = 15_000;
 
 export interface GithubReleaseArchive {
-  /** Archive filename inside the release (`stripe_1.42.0_linux_x86_64.tar.gz`). */
+  /** Archive filename inside the release (`tool_1.0.0_linux_x86_64.tar.gz`). */
   readonly name: string;
   /** Archive format. Drives the extraction command. */
   readonly format: 'tar.gz' | 'zip';
 }
 
 export interface GithubReleaseTarballInstallerOptions {
-  /** Repo `owner/name` (e.g. `stripe/stripe-cli`). */
+  /** Repo `owner/name` (e.g. `owner/tool-cli`). */
   readonly repo: string;
   /** Bin name to chmod +x and verify presence of after extraction. */
   readonly binName: string;
@@ -100,7 +100,7 @@ function shellQuote(s: string): string {
 }
 
 /**
- * Sync version of the existing async pattern in `bun.ts` / `stripe.ts` /
+ * Sync version of the existing async pattern in `bun.ts` / install helpers /
  * `pgweb.ts`. We need a sync API because `Installer.install()` is sync (it's
  * called from `Dep.install()`, which `setup` invokes synchronously).
  *

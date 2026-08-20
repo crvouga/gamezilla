@@ -10,11 +10,11 @@ import {
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/infra/shared/database-url-policy';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
+import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { isSecretStoreError } from '@pkgs/secret-store';
-import Stripe from 'stripe';
 import { createServer } from './app/create-server';
 import type { ServerEnv } from './app/server-env';
 import { loadBetterAuthBootConfig } from './config/better-auth-boot';
@@ -141,19 +141,9 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     secretsEnv,
   });
 
-  const stripeKey = (
-    await secretStore.getOptional(ApiSecretName.stripeSecretKey)
-  )
-    ?.readSecretValue()
-    ?.trim();
-  const payments =
-    stripeKey !== undefined && stripeKey.length > 0
-      ? new Stripe(stripeKey, {
-          httpClient: Stripe.createFetchHttpClient(),
-        })
-      : null;
-  if (payments === null) {
-    log.warn('stripe secret key missing; Stripe routes will return 503');
+  const billing = await createStripeBillingFromSecretStore(secretStore);
+  if (billing === null) {
+    log.warn('billing secret key missing; billing routes will return 503');
   }
 
   const serverEnv: ServerEnv = {
@@ -176,7 +166,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     events: null,
     kv: null,
     blob: objectStore,
-    payments,
+    billing,
     tts: null,
     llm: null,
     secrets: secretStore,

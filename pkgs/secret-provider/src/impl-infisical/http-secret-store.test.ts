@@ -62,16 +62,16 @@ function createStore(fetchFn: InfisicalFetch): InfisicalSecretStore {
 describe('InfisicalSecretStore.setSecret', () => {
   it('POSTs to create when the secret does not exist', async () => {
     const { fetchFn, calls } = createRecordingFetch(() =>
-      jsonResponse(200, { secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' } })
+      jsonResponse(200, { secret: { secretKey: 'EXAMPLE_WEBHOOK_SECRET' } })
     );
     const store = createStore(fetchFn);
 
-    await store.setSecret('STRIPE_WEBHOOK_SECRET', 'whsec_new');
+    await store.setSecret('EXAMPLE_WEBHOOK_SECRET', 'whsec_new');
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.method).toBe('POST');
     expect(calls[0]?.url).toContain(
-      '/api/v3/secrets/raw/STRIPE_WEBHOOK_SECRET'
+      '/api/v3/secrets/raw/EXAMPLE_WEBHOOK_SECRET'
     );
     expect(JSON.parse(calls[0]?.body ?? '{}')).toMatchObject({
       workspaceId: 'ws-1',
@@ -87,12 +87,12 @@ describe('InfisicalSecretStore.setSecret', () => {
         return textResponse(409, 'Secret already exist');
       }
       return jsonResponse(200, {
-        secret: { secretKey: 'STRIPE_WEBHOOK_SECRET' },
+        secret: { secretKey: 'EXAMPLE_WEBHOOK_SECRET' },
       });
     });
     const store = createStore(fetchFn);
 
-    await store.setSecret('STRIPE_WEBHOOK_SECRET', 'whsec_updated');
+    await store.setSecret('EXAMPLE_WEBHOOK_SECRET', 'whsec_updated');
 
     expect(calls.map((c) => c.method)).toEqual(['POST', 'PATCH']);
     expect(JSON.parse(calls[1]?.body ?? '{}')).toMatchObject({
