@@ -18,9 +18,7 @@ export const SIM_CHROME_KINDS = ['client', 'api', 'events', 'room'] as const;
 
 export type SimChromeKind = (typeof SIM_CHROME_KINDS)[number];
 
-export const SIM_NODE_KIND_ALIASES: Readonly<
-  Record<string, SimNodeKind>
-> = {
+export const SIM_NODE_KIND_ALIASES: Readonly<Record<string, SimNodeKind>> = {
   server: 'api',
   pubsub: 'events',
   actor: 'room',
@@ -77,8 +75,7 @@ export function formatSimNodeLabel(args: {
 }): string {
   const fromId = parseSimNodeAddress(args.id);
   if (fromId.instanceId !== null) return fromId.instanceId;
-  const kind =
-    coerceSimNodeKind(args.kind) ?? coerceSimNodeKind(fromId.kind);
+  const kind = coerceSimNodeKind(args.kind) ?? coerceSimNodeKind(fromId.kind);
   if (kind !== null) return SIM_NODE_LABELS[kind];
   return args.id;
 }

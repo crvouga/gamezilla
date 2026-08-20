@@ -1,10 +1,7 @@
 import { Box, TabStrip } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../../shared/debugger-views';
-import {
-  coerceSimChromeKind,
-  type SimChromeKind,
-} from '../../shared/sim-node';
+import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';
 import {
   DEBUGGER_KIND_TABS,
   debuggerInstanceTabItem,

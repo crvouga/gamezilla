@@ -1,7 +1,4 @@
-import {
-  coerceSimNodeKind,
-  fallbackReportNodes,
-} from '../shared/sim-node';
+import { coerceSimNodeKind, fallbackReportNodes } from '../shared/sim-node';
 import type { SimulationReportTopology } from '../types';
 import type { FlatFrame } from './frames';
 import type { NodeViewKind } from './router';

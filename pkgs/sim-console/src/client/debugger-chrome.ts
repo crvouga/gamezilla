@@ -41,12 +41,13 @@ const VIEW_CHROME: Readonly<
   topics: { label: 'Topics', icon: CodeIcon },
 };
 
-export const DEBUGGER_KIND_TABS: readonly TabStripItem[] =
-  SIM_CHROME_KINDS.map((id: SimChromeKind) => ({
+export const DEBUGGER_KIND_TABS: readonly TabStripItem[] = SIM_CHROME_KINDS.map(
+  (id: SimChromeKind) => ({
     id,
     label: SIM_NODE_LABELS[id],
     icon: systemNodeIcon(id),
-  }));
+  })
+);
 
 export function debuggerViewTabItem(view: DebuggerViewId): TabStripItem {
   const chrome = VIEW_CHROME[view];
