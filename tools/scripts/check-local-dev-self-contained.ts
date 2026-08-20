@@ -55,11 +55,7 @@ function main(): void {
     }
   }
 
-  for (const gone of [
-    'apps/postgres',
-    'apps/minio',
-    'apps/emqx',
-  ] as const) {
+  for (const gone of ['apps/postgres', 'apps/minio', 'apps/emqx'] as const) {
     try {
       readJson(`${gone}/package.json`);
       throw new Error(`${gone} must not exist`);

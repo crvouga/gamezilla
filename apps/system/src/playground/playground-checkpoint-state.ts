@@ -9,14 +9,8 @@ import {
   restorePlaygroundClientDurable,
 } from '@apps/system/playground/playground-checkpoint-durable';
 import { reconcileServerProfilesFromClients } from '@apps/system/playground/playground-snapshot-sync';
-import {
-  type Sim,
-  simClientNamespace,
-} from '@apps/system/sim/create-sim';
-import {
-  openFreshSimSql,
-  type SimSqlHandle,
-} from '@apps/system/sim/sim-sql';
+import { type Sim, simClientNamespace } from '@apps/system/sim/create-sim';
+import { openFreshSimSql, type SimSqlHandle } from '@apps/system/sim/sim-sql';
 import type { SimClock } from '@pkgs/clock';
 import type {
   SystemCheckpoint,
