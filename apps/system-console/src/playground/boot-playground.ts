@@ -7,7 +7,10 @@ import {
 import { createPlaygroundSnapshotStore } from '@apps/system-console/playground/playground-snapshot-store';
 import { createSim, type Sim } from '@apps/system-console/sim/create-sim';
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { createPlaygroundLogBuffer } from '@pkgs/system-console/client';
+import {
+  createPlaygroundLogBuffer,
+  type PlaygroundSession,
+} from '@pkgs/system-console/client';
 
 function startSimClockTick(sim: Sim): {
   readonly disposeTick: () => void;
@@ -37,7 +40,7 @@ function startSimClockTick(sim: Sim): {
 
 export async function bootPlaygroundSession(
   opts?: BootPlaygroundOptions
-): Promise<import('@pkgs/system-console/client').PlaygroundSession> {
+): Promise<PlaygroundSession> {
   const sim = await createSim({ seed: 1, startMs: wallClock.now() });
   await sim.spawnServer();
   const clock = startSimClockTick(sim);
@@ -49,7 +52,9 @@ export async function bootPlaygroundSession(
     serverLogs: createPlaygroundLogBuffer(),
     pubsubLogs: createPlaygroundLogBuffer(),
     roomLogs: createPlaygroundLogBuffer(),
-    snapshotStore: createPlaygroundSnapshotStore(wallTimers),
+    snapshotStore: createPlaygroundSnapshotStore(wallTimers, {
+      fetch: (input, init) => globalThis.fetch(input, init),
+    }),
     disposeTick: clock.disposeTick,
     getClockPaused: clock.getClockPaused,
     setClockPaused: clock.setClockPaused,

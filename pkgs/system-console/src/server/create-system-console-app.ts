@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { Hono } from 'hono';
 
 import {
@@ -7,6 +8,7 @@ import {
   handleApi,
 } from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
+import { handlePlaygroundSnapshotObjectRequest } from './playground-snapshot-object-routes';
 import { SseHub } from './sse-hub';
 import type { ReportBucket } from './types';
 
@@ -22,6 +24,12 @@ export type CreateSystemConsoleAppOptions = {
    * servers). Workers leave this unset — Expo cannot load sqlite-wasm.
    */
   readonly convertSqliteDumpToSqlm?: ConvertSqliteDumpToSqlm;
+  /**
+   * Optional playground snapshot ObjectStore (S3). Pass `null` when secrets
+   * are missing so the HTTP proxy returns 503 instead of a silent miss.
+   * Omit when this host does not serve playground snapshots.
+   */
+  readonly playgroundSnapshotStore?: ObjectStore | null;
 };
 
 export type SystemConsoleAppHandle = {
@@ -60,6 +68,9 @@ export function createSystemConsoleApp(
     convertSqliteDumpToSqlm: options.convertSqliteDumpToSqlm,
   };
 
+  const snapshotStore = options.playgroundSnapshotStore;
+  const serveSnapshots = snapshotStore !== undefined;
+
   const app = new Hono();
   app.all('*', async (c) => {
     const url = new URL(c.req.url);
@@ -69,6 +80,25 @@ export function createSystemConsoleApp(
     const fullPath = c.req.path;
     const apiIdx = fullPath.indexOf('/api');
     url.pathname = apiIdx >= 0 ? fullPath.slice(apiIdx) : fullPath;
+    if (serveSnapshots) {
+      const method = c.req.method;
+      const snapReq =
+        method === 'GET' || method === 'HEAD'
+          ? new Request(url.toString(), {
+              method,
+              headers: c.req.raw.headers,
+            })
+          : new Request(url.toString(), {
+              method,
+              headers: c.req.raw.headers,
+              body: await c.req.arrayBuffer(),
+            });
+      const snapRes = await handlePlaygroundSnapshotObjectRequest(
+        snapReq,
+        snapshotStore
+      );
+      if (snapRes !== null) return snapRes;
+    }
     const res = await handleApi(c.req.raw, url, ctx);
     if (res) return res;
     return c.json({ error: 'not found' }, 404);

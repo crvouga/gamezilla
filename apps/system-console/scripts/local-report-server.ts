@@ -1,11 +1,16 @@
-// @io-wall-ok — process entry: Bun.serve + wall Node-FS report store.
+// @io-wall-ok — process entry: Bun.serve + wall Node-FS report store + S3 snapshots.
 /**
  * Local report console for `@apps/system-console` `dev`. Serves
  * `<repo>/system-console-data` so Jest UI sims (`openSim`) show up in Reports.
+ * Playground snapshots use S3 from secrets-run (B2_APP_* / S3_*), not Node-FS.
  */
+import { createApiObjectStore } from '@apps/server/config/object-store';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
+import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveLocalReportDataDir } from '@pkgs/system-console/local-data-dir';
 import { createSystemConsoleApp } from '@pkgs/system-console/server';
 import { bunSqliteDumpToSqlm } from '@pkgs/system-console/server/bun-sqlite-dump-to-sqlm';
@@ -24,7 +29,7 @@ function withCors(req: Request, res: Response): Response {
   headers.set('Access-Control-Allow-Credentials', 'true');
   headers.set(
     'Access-Control-Allow-Methods',
-    'GET, HEAD, POST, DELETE, OPTIONS'
+    'GET, HEAD, PUT, POST, DELETE, OPTIONS'
   );
   const requested = req.headers.get('Access-Control-Request-Headers');
   headers.set(
@@ -40,13 +45,30 @@ function withCors(req: Request, res: Response): Response {
   });
 }
 
-export function startLocalReportConsole(): LocalReportConsoleHandle {
+async function createPlaygroundSnapshotS3Store(): Promise<ObjectStore | null> {
+  try {
+    const root = await createApiObjectStore(createScriptSecretStore(), {
+      now: () => wallClock.now(),
+      requireCredentials: true,
+    });
+    return root.withPrefix(ObjectStorePrefix.playgroundSnapshots);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    process.stderr.write(
+      `[system-console] playground snapshots S3 unavailable: ${message}\n`
+    );
+    return null;
+  }
+}
+
+export async function startLocalReportConsole(): Promise<LocalReportConsoleHandle> {
   const dataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
   const store = createNodeFsObjectStore({
     rootDir: dataDir,
     fs: wallNodeFs(),
     layout: 'sidecar',
   });
+  const snapshotStore = await createPlaygroundSnapshotS3Store();
 
   const { app, stop: stopApp } = createSystemConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],
@@ -54,6 +76,7 @@ export function startLocalReportConsole(): LocalReportConsoleHandle {
     now: () => wallClock.now(),
     convertSqliteDumpToSqlm: ({ bytes, nowMs }) =>
       bunSqliteDumpToSqlm(bytes, nowMs),
+    playgroundSnapshotStore: snapshotStore,
   });
 
   const server = Bun.serve({
@@ -71,6 +94,11 @@ export function startLocalReportConsole(): LocalReportConsoleHandle {
   process.stdout.write(
     `[system-console] local reports http://127.0.0.1:${String(DEFAULT_REPORT_SERVER_PORT)} ← ${dataDir}\n`
   );
+  if (snapshotStore !== null) {
+    process.stdout.write(
+      `[system-console] playground snapshots → S3 (${ObjectStorePrefix.playgroundSnapshots})\n`
+    );
+  }
 
   return {
     stop: () => {

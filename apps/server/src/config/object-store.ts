@@ -31,6 +31,11 @@ export type CreateApiObjectStoreOptions = {
   readonly secretsEnv?: string | null;
   /** Injected clock from the worker composition root. */
   readonly now: () => number;
+  /**
+   * When true, missing S3 secrets throw instead of falling back to in-memory.
+   * Use for durable stores (playground snapshots); leave unset for API caches.
+   */
+  readonly requireCredentials?: boolean;
 };
 
 export async function createApiObjectStore(
@@ -42,6 +47,12 @@ export async function createApiObjectStore(
   const missing = S3_SECRET_NAMES.filter((name) => secrets[name] === null);
 
   if (missing.length > 0) {
+    if (options.requireCredentials === true) {
+      throw new Error(
+        `S3 credentials required but missing: ${missing.join(', ')}. ` +
+          'Run under `bun run tools/scripts/secrets-run.ts` with SECRETS_ENV=dev.'
+      );
+    }
     log.warn('S3 credentials missing — using in-memory object store', {
       missing,
     });

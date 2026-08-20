@@ -11,3 +11,7 @@ export {
   createSystemConsoleApp,
   type SystemConsoleAppHandle,
 } from './create-system-console-app';
+export {
+  handlePlaygroundSnapshotObjectRequest,
+  PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
+} from './playground-snapshot-object-routes';

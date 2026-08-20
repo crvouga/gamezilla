@@ -19,6 +19,7 @@ export {
   isLatestRunId,
   LATEST_RUN_ID,
   mintRunId,
+  PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
   type RunSummary,
   type RunsIndex,
   resolveReportOptions,

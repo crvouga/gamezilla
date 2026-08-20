@@ -265,8 +265,8 @@ function SnapshotChromeActions(props: {
       </IconButton>
       {list.error !== null ? (
         <Text
-          sx={{ color: 'danger', fontSize: 11, maxWidth: 80 }}
-          numberOfLines={1}
+          sx={{ color: 'danger', fontSize: 11, maxWidth: 220 }}
+          numberOfLines={2}
           label={list.error}
         />
       ) : null}

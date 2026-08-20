@@ -62,7 +62,7 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
   });
 }
 
-reportConsole = startLocalReportConsole();
+reportConsole = await startLocalReportConsole();
 
 const expo = spawn(
   'bunx',

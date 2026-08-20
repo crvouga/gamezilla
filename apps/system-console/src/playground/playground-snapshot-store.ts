@@ -1,15 +1,36 @@
 /**
- * Playground snapshots are in-memory. Durable S3 is a contract/fidelity-max
- * concern — not part of `bun dev`.
+ * Playground snapshots persist via HTTP ObjectStore → Bun local report server →
+ * S3 (B2) using secrets injected by `secrets-run` on `bun run dev`.
  */
 
 import type { Timers } from '@pkgs/clock';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import {
+  createHttpObjectStore,
+  type ObjectStoreHttpFetch,
+} from '@pkgs/object-store/impl-http';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
+import {
+  DEFAULT_REPORT_SERVER_PORT,
+  PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
+} from '@pkgs/system-console/types';
 
-export function createPlaygroundSnapshotStore(_timers: Timers): ObjectStore {
-  return new ObjectStoreImplInMemory().withPrefix(
-    ObjectStorePrefix.playgroundSnapshots
-  );
+export function playgroundSnapshotObjectsBaseUrl(
+  port: number = DEFAULT_REPORT_SERVER_PORT
+): string {
+  return `http://127.0.0.1:${String(port)}${PLAYGROUND_SNAPSHOT_OBJECTS_PATH}`;
+}
+
+export type CreatePlaygroundSnapshotStoreOptions = {
+  readonly fetch: ObjectStoreHttpFetch;
+  readonly baseUrl?: string;
+};
+
+export function createPlaygroundSnapshotStore(
+  _timers: Timers,
+  options: CreatePlaygroundSnapshotStoreOptions
+): ObjectStore {
+  return createHttpObjectStore({
+    baseUrl: options.baseUrl ?? playgroundSnapshotObjectsBaseUrl(),
+    fetch: options.fetch,
+  });
 }

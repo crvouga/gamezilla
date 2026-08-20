@@ -76,7 +76,7 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 
 await migratePostgresApp({ wait: true });
 
-reportConsole = startLocalReportConsole();
+reportConsole = await startLocalReportConsole();
 
 const wrangler = spawn(
   'wrangler',

@@ -1,5 +1,6 @@
 /**
- * Full-runtime playground snapshot save / list / load via ObjectStore (MinIO).
+ * Full-runtime playground snapshot save / list / load via ObjectStore
+ * (HTTP → Bun local report server → S3/B2 under playground-snapshots/).
  */
 
 import {
