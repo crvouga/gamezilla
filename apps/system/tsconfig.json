@@ -7,6 +7,7 @@
     "./scripts/**/*.ts"
   ],
   "compilerOptions": {
+    "types": ["jest", "bun"],
     "paths": {
       "@apps/system/*": ["../../apps/system/src/*"],
       "@apps/server/*": ["../../apps/server/src/*"],
@@ -39,6 +40,12 @@
       "@pkgs/browser/*": ["../../pkgs/browser/src/*"],
       "@pkgs/db-schema": ["../../pkgs/db-schema/src/index.ts"],
       "@pkgs/db-schema/*": ["../../pkgs/db-schema/src/*"],
+      "@pkgs/emqx-server": ["../../pkgs/emqx-server/src/index.ts"],
+      "@pkgs/emqx-server/*": ["../../pkgs/emqx-server/src/*"],
+      "@pkgs/minio-server": ["../../pkgs/minio-server/src/index.ts"],
+      "@pkgs/minio-server/*": ["../../pkgs/minio-server/src/*"],
+      "@pkgs/postgres-embedded": ["../../pkgs/postgres-embedded/src/index.ts"],
+      "@pkgs/postgres-embedded/*": ["../../pkgs/postgres-embedded/src/*"],
       "@pkgs/distributed-lock/*": ["../../pkgs/distributed-lock/src/*"],
       "@pkgs/secrets-config": ["../../pkgs/secrets-config/src/index.ts"],
       "@pkgs/secrets-config/*": ["../../pkgs/secrets-config/src/*"],

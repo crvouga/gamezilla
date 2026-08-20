@@ -132,7 +132,6 @@
         "apps/**/*.{ts,tsx,js,jsx}",
         "libs/**/*.{ts,tsx,js,jsx}",
         "pkgs/**/*.{ts,tsx,js,jsx}",
-        "test/**/*.{ts,tsx,js,jsx}",
         "biome.json",
         "tools/biome-plugins/**"
       ],
@@ -182,8 +181,6 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "test/**/*.ts",
-        "test/**/*.tsx",
         ".dependency-cruiser.cjs"
       ],
       "outputs": [],
@@ -200,9 +197,6 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "test/**/*.ts",
-        "test/**/*.tsx",
-        "test/*/package.json",
         "tools/scripts/check-circular-deps.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -247,11 +241,6 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "test/**/*.ts",
-        "test/**/*.tsx",
-        "test/**/*.mts",
-        "test/**/*.cts",
-        "test/*/package.json",
         "tools/scripts/check-tier-imports.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -273,8 +262,6 @@
         "apps/**/*.tsx",
         "libs/**/*.ts",
         "libs/**/*.tsx",
-        "test/**/*.ts",
-        "test/**/*.tsx",
         "tools/scripts/check-libs-import-surface.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -299,8 +286,6 @@
         "libs/**/*.tsx",
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
-        "test/**/*.ts",
-        "test/**/*.tsx",
         "tools/scripts/check-no-rn-style-api.ts"
       ],
       "outputs": [],
@@ -322,7 +307,6 @@
         "libs/**/*.sql",
         "pkgs/**/*.sql",
         "apps/**/*.sql",
-        "test/**/*.sql",
         "tools/scripts/check-no-raw-schema-sql.ts"
       ],
       "outputs": [],
@@ -341,8 +325,8 @@
     },
     "//#ci:dst-selector-discipline": {
       "inputs": [
-        "test/system/src/**/*.ts",
-        "test/system/src/**/*.tsx",
+        "apps/system/src/dst/**/*.ts",
+        "apps/system/src/dst/**/*.tsx",
         "tools/scripts/check-dst-selector-discipline.ts"
       ],
       "outputs": [],
@@ -496,8 +480,8 @@
         "tools/scripts/run-sim-determinism.ts",
         "libs/**/*.sim.test.ts",
         "pkgs/**/*.sim.test.ts",
-        "test/**/*.sim.test.ts",
-        "test/**/*.sim.test.tsx"
+        "apps/system/**/*.sim.test.ts",
+        "apps/system/**/*.sim.test.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"

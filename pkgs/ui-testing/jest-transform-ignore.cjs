@@ -42,7 +42,6 @@ function bunAwareTransformIgnorePatterns(extraAllow = []) {
     '@pkgs/',
     '@apps/',
     '@libs/',
-    '@test/',
     ...extraAllow,
   ].join('|');
   // Prefix match (same as classic jest-expo): `expo(nent)?` covers `expo-modules-core`.

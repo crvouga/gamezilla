@@ -1,5 +1,5 @@
 /**
- * Jest mock for react-native-gesture-handler under @test/system.
+ * Jest mock for react-native-gesture-handler under @apps/system DST.
  * Real RNGH GestureHandlerRootView calls native `install()` under Fabric;
  * product AppShell only needs a flex View host in RNTL.
  */

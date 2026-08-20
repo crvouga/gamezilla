@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Fail-fast guardrail: forbid package-level circular dependencies between
- * `@apps|@libs|@pkgs|@test/*` workspace packages.
+ * `@apps|@libs|@pkgs/*` workspace packages.
  *
  * Why a custom script instead of `dependency-cruiser`'s `no-circular` rule:
  * - depcruise's `doNotFollow.path: 'node_modules'` skips workspace symlinks,
@@ -13,9 +13,9 @@
  *   workspace is structurally circular.
  *
  * Algorithm:
- * 1. Discover every workspace package (`apps|libs|pkgs|test/<name>/package.json`
- *    named `@apps|@libs|@pkgs|@test/<name>`).
- * 2. Scan each package's source files for `@apps|@libs|@pkgs|@test/<other>`
+ * 1. Discover every workspace package (`apps|libs|pkgs/<name>/package.json`
+ *    named `@apps|@libs|@pkgs/<name>`).
+ * 2. Scan each package's source files for `@apps|@libs|@pkgs/<other>`
  *    imports.
  * 3. Build a directed package -> package graph (edges annotated with sample
  *    importer files for actionable error reports).
@@ -120,7 +120,7 @@ function main(): never {
   const packages = discoverPackages();
   if (packages.size === 0) {
     console.error(
-      'check:circular-deps: no @apps|@libs|@pkgs|@test/* packages found under apps/, libs/, pkgs/, test/.'
+      'check:circular-deps: no @apps|@libs|@pkgs/* packages found under apps/, libs/, pkgs/.'
     );
     process.exit(1);
   }

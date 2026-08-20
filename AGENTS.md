@@ -93,7 +93,7 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 **Manual work is sim-only.** `bun run dev` starts **only `@apps/system`** (Reports + Playground, sqlite-mem World, reports on port 7789). It does **not** start Wrangler, Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
 
-Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@test/system` `openSim({ fidelity: 'max' })` / `SYSTEM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/system` `openSim({ fidelity: 'max' })` / `SYSTEM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
@@ -109,7 +109,7 @@ Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
 Server SQL migrations are expressed only as `DatabaseMigration` classes (interface + `ComposedDatabaseMigration.register` from `@pkgs/db-migrate`). Each package owns its unit (`SyncEngineDatabaseMigration`, `KvPostgresDatabaseMigration`, `PostgresSchemaDatabaseMigration`, …); `@libs/runtime/server/run-postgres-migrations` (`PostgresMigrationRunner`) composes them (including `PostgresAdvisoryLockedTransactionMigration` for the migrate mutex).
 
-**Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/` / `test/` — CI enforces `ci:no-raw-schema-sql`.
+**Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema/postgres` / `@pkgs/db-schema/sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/` — CI enforces `ci:no-raw-schema-sql`.
 
 **Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking, Better Auth) stay as package-owned TypeScript `DatabaseMigration` DDL units — they are not soft-delete domain sync tables and do not use `defineTable`.
 
@@ -127,12 +127,11 @@ Non-deploy contexts must never reach production Postgres. Guards live in `@libs/
 
 ## Per-feature package layout
 
-Workspace packages live under four top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
+Workspace packages live under three top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Test | `test/` | `@test/` | System tests / DST (may import apps+libs+pkgs). |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`). |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`, `system`). System DST (`openSim`) lives in `@apps/system` `src/dst/`. |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -213,11 +212,10 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
 
-**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`, `apps|libs|pkgs-not-test`:
+**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`:
 
 ```text
-test  →  apps, libs, pkgs, tools  (system tests / DST)
-apps  →  apps, libs, pkgs (never @test/*; cross-app OK e.g. client → server)
+apps  →  apps, libs, pkgs (cross-app OK e.g. client → server)
 libs  →  pkgs only
 pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 ```
@@ -226,11 +224,10 @@ pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@test/<name>` may import `@apps/*`, `@libs/*`, `@pkgs/*`, and tools. Product apps/libs/pkgs must not import `@test/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:server-isomorphic`.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/` (`ci:use-case-isolation`).
 - Within and across feature packages, `client/` cannot import from `server/` and vice-versa (`client-not-server`, `server-not-client`).
-- Other `@libs/*` may import a product lib only through `@libs/<pkg>/public/…`. Apps and tests may also import `@libs/<pkg>/root/…` (`ci:libs-import-surface`).
+- Other `@libs/*` may import a product lib only through `@libs/<pkg>/public/…`. Apps may also import `@libs/<pkg>/root/…` (`ci:libs-import-surface`).
 - Every `@pkgs/<utility>` micro-package (`assert`, `keyword`, `attribute`, `message`, `kv`, `sql-client`, `logger`, etc.) stays runtime-agnostic and feature-agnostic — no imports from `spaces`, `chess`, or any other product package.
 - `apps/client` cannot reach any feature's `server/`; `apps/server` cannot reach any feature's `client/` (`apps-client-no-server`, `apps-api-no-client`).

@@ -1,5 +1,5 @@
 /**
- * Jest setupAfterEnv for @test/system product simulations.
+ * Jest setupAfterEnv for @apps/system product simulations.
  * Real timers: renderRouter enables fake timers; we need wall async for I/O.
  */
 jest.useRealTimers();

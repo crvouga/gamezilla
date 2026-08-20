@@ -1,9 +1,9 @@
 // @io-wall-ok — warm UI-sim SQLite seed cache before Jest
 /**
- * Builds `test/system/.cache/sim-backend-seed.sqlite` when missing or fingerprint-
+ * Builds `apps/system/.cache/sim-backend-seed.sqlite` when missing or fingerprint-
  * stale. The harness rebuilds lazily if this is skipped.
  *
- * Usage: `bun run --filter @test/system seed:sim-db`
+ * Usage: `bun run --filter @apps/system seed:sim-db`
  * (runs under Node via tsx — better-sqlite3 NAPI is unreliable under Bun)
  */
 
@@ -12,8 +12,8 @@ import {
   computeSimSeedFingerprint,
   ensureSimSeedBuffer,
   SIM_SEED_SQLITE_PATH,
-} from '../src/setup/boot-sim-sqlite';
-import { migrateSimSqlite } from '../src/setup/migrate-sim-sqlite';
+} from '../src/dst/setup/boot-sim-sqlite';
+import { migrateSimSqlite } from '../src/dst/setup/migrate-sim-sqlite';
 
 async function main(): Promise<void> {
   const fingerprint = await computeSimSeedFingerprint();

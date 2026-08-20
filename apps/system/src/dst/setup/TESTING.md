@@ -1,13 +1,13 @@
 # System tests (DST)
 
 Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
-`test/system/src/setup/open-sim.ts`.
+`apps/system/src/dst/setup/open-sim.ts`.
 
 **Fidelity** (`openSim(id, { fidelity })` or `SYSTEM_FIDELITY`):
 
 - `sim` (default) — sqlite-mem / in-memory leaves / in-process RNTL driver.
   World mesh (`partition`, crash) is first-class.
-- `max` — `SYSTEM_FIDELITY=max` / `bun run --filter @test/system test:max`.
+- `max` — `SYSTEM_FIDELITY=max` / `bun run --filter @apps/system test:max`.
   World-mesh scenarios skip. Use this lane plus port contract matrices (and
   `tools/scripts/boot-local-stack.ts` when you need real Postgres/MinIO/EMQX).
   Playwright needs an injected page (`PLAYWRIGHT_BASE_URL` / driver wiring);

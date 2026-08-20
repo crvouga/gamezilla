@@ -1,4 +1,4 @@
-/** Canonical actors / credentials for `@test/system` scenarios. */
+/** Canonical actors / credentials for `@apps/system` DST scenarios. */
 
 export const aliceCreds = {
   email: 'alice@sim.local',

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Jest transform cache
 description: >-
-  Restore or save Jest transform caches for jest-expo packages (`@test/system`,
+  Restore or save Jest transform caches for jest-expo packages (`@apps/system`,
   `@pkgs/ui-testing`) so cold CI runs skip babel-jest work.
 inputs:
   mode:
@@ -16,9 +16,9 @@ runs:
       uses: actions/cache/restore@v5
       with:
         path: |
-          test/system/.cache/jest
+          apps/system/.cache/jest
           pkgs/ui-testing/.cache/jest
-        key: ${{ runner.os }}-jest-${{ hashFiles('bun.lock', 'test/system/jest.config.cjs', 'test/system/babel.config.js', 'pkgs/ui-testing/jest.config.cjs', 'pkgs/ui-testing/jest-transform-ignore.cjs') }}
+        key: ${{ runner.os }}-jest-${{ hashFiles('bun.lock', 'apps/system/jest.config.cjs', 'apps/system/babel.jest.config.js', 'pkgs/ui-testing/jest.config.cjs', 'pkgs/ui-testing/jest-transform-ignore.cjs') }}
         restore-keys: |
           ${{ runner.os }}-jest-
 
@@ -28,6 +28,6 @@ runs:
       uses: actions/cache/save@v5
       with:
         path: |
-          test/system/.cache/jest
+          apps/system/.cache/jest
           pkgs/ui-testing/.cache/jest
-        key: ${{ runner.os }}-jest-${{ hashFiles('bun.lock', 'test/system/jest.config.cjs', 'test/system/babel.config.js', 'pkgs/ui-testing/jest.config.cjs', 'pkgs/ui-testing/jest-transform-ignore.cjs') }}
+        key: ${{ runner.os }}-jest-${{ hashFiles('bun.lock', 'apps/system/jest.config.cjs', 'apps/system/babel.jest.config.js', 'pkgs/ui-testing/jest.config.cjs', 'pkgs/ui-testing/jest-transform-ignore.cjs') }}

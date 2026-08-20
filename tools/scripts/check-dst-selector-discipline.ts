@@ -2,16 +2,16 @@
 // @io-wall-ok — tools composition root
 
 /**
- * Residual DST layout gate: `@test/system` may only contain
- * sim.test files under `src/scenarios/`.
+ * Residual DST layout gate: `@apps/system` DST may only contain
+ * sim.test files under `src/dst/scenarios/`.
  * Selector / ui-testing bans live in Biome plugin `no-dst-raw-selectors.grit`.
  */
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
-const SYSTEM_SRC_DIR = join(REPO_ROOT, 'test/system/src');
-const SCENARIOS_DIR = join(REPO_ROOT, 'test/system/src/scenarios');
+const SYSTEM_DST_DIR = join(REPO_ROOT, 'apps/system/src/dst');
+const SCENARIOS_DIR = join(REPO_ROOT, 'apps/system/src/dst/scenarios');
 
 function walk(dir: string): string[] {
   const out: string[] = [];
@@ -31,11 +31,11 @@ const SIM_TEST_RE = /\.sim\.test\.tsx?$/;
 const ANY_TEST_RE = /\.test\.tsx?$/;
 const violations: string[] = [];
 
-for (const file of walk(SYSTEM_SRC_DIR)) {
+for (const file of walk(SYSTEM_DST_DIR)) {
   if (!ANY_TEST_RE.test(file)) continue;
   if (!file.startsWith(`${SCENARIOS_DIR}/`) || !SIM_TEST_RE.test(file)) {
     violations.push(
-      `${relative(REPO_ROOT, file)}: @test/system may only contain src/scenarios/**/*.sim.test.ts(x)`
+      `${relative(REPO_ROOT, file)}: @apps/system DST may only contain src/dst/scenarios/**/*.sim.test.ts(x)`
     );
   }
 }

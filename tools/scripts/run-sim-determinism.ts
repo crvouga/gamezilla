@@ -20,7 +20,9 @@ for await (const file of new Glob('{libs,pkgs}/**/*.sim.test.ts').scan({
   if (!isRunnableSimTest(file)) continue;
   files.push(file);
 }
-for await (const file of new Glob('test/**/*.sim.test.{ts,tsx}').scan({
+for await (const file of new Glob(
+  'apps/system/**/*.sim.test.{ts,tsx}'
+).scan({
   cwd: REPO_ROOT,
   absolute: true,
 })) {
@@ -67,7 +69,7 @@ function runSimTest(
   absFile: string
 ): ReturnType<typeof spawnSync> {
   const env = { ...process.env, SIM_SEED: SEED };
-  if (rel.startsWith('test/system/')) {
+  if (rel.startsWith('apps/system/')) {
     return spawnSync(
       'bunx',
       [
@@ -79,7 +81,7 @@ function runSimTest(
         absFile,
       ],
       {
-        cwd: join(REPO_ROOT, 'test/system'),
+        cwd: join(REPO_ROOT, 'apps/system'),
         env,
         encoding: 'utf8',
       }

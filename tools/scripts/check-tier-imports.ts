@@ -4,9 +4,8 @@
 /**
  * Fail-fast guardrail: enforce the workspace tier import pyramid.
  *
- *   test -> apps, libs, pkgs  (system tests / DST)
- *   apps -> apps, libs, pkgs  (never @test/*; cross-app OK e.g. client → api)
- *   libs -> pkgs only    (libs may not import apps or test; @libs/runtime may import other @libs/*)
+ *   apps -> apps, libs, pkgs  (cross-app OK e.g. client → api)
+ *   libs -> pkgs only    (libs may not import apps; @libs/runtime may import other @libs/*)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
  * Why a custom script (not `dependency-cruiser` alone): depcruise's
@@ -42,10 +41,9 @@ import {
 
 /** Tiers that the key tier is forbidden to import from. */
 const FORBIDDEN_FROM: Record<Tier, ReadonlySet<Tier>> = {
-  test: new Set<Tier>(),
-  apps: new Set<Tier>(['test']),
-  libs: new Set<Tier>(['apps', 'test']),
-  pkgs: new Set<Tier>(['apps', 'libs', 'test']),
+  apps: new Set<Tier>(),
+  libs: new Set<Tier>(['apps']),
+  pkgs: new Set<Tier>(['apps', 'libs']),
 };
 
 type ImportViolation = {
@@ -175,7 +173,7 @@ function main(): never {
   const packages = discoverPackagesWithTier();
   if (packages.size === 0) {
     console.error(
-      `check:tier-imports: no @apps|@libs|@pkgs|@test/* packages found under ${TIER_DIRS.join(', ')}.`
+      `check:tier-imports: no @apps|@libs|@pkgs/* packages found under ${TIER_DIRS.join(', ')}.`
     );
     process.exit(1);
   }
@@ -190,7 +188,7 @@ function main(): never {
   const total = importViolations.length + manifestViolations.length;
   if (total === 0) {
     console.log(
-      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (test -> apps -> libs -> pkgs; apps may compose apps).`
+      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (apps -> libs -> pkgs; apps may compose apps).`
     );
     process.exit(0);
   }
@@ -220,12 +218,11 @@ function main(): never {
   }
 
   console.error('Tier import law:');
-  console.error('  test/  -> apps/, libs/, pkgs/  (system tests / DST)');
   console.error(
-    '  apps/  -> libs/, pkgs/   (never other @apps/*; never @test/*)'
+    '  apps/  -> apps/, libs/, pkgs/   (cross-app OK e.g. client → server)'
   );
   console.error(
-    '  libs/  -> pkgs/ only     (@libs/runtime may import other @libs/*; no apps/test)'
+    '  libs/  -> pkgs/ only     (@libs/runtime may import other @libs/*; no apps)'
   );
   console.error(
     '  pkgs/  -> pkgs/ only     (leaf tier: reusable, app-agnostic)'

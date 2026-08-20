@@ -10,8 +10,8 @@ const repoRoot = path.join(__dirname, '../..');
 module.exports = {
   preset: 'jest-expo',
   testMatch: [
-    '<rootDir>/src/scenarios/**/*.sim.test.ts',
-    '<rootDir>/src/scenarios/**/*.sim.test.tsx',
+    '<rootDir>/src/dst/scenarios/**/*.sim.test.ts',
+    '<rootDir>/src/dst/scenarios/**/*.sim.test.tsx',
   ],
   setupFiles: ['<rootDir>/jest.setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
@@ -27,7 +27,7 @@ module.exports = {
       {
         // Let babel-preset-expo apply CJS transforms (do not claim metro ESM).
         caller: { name: 'babel-jest', bundler: 'jest', platform: 'ios' },
-        configFile: path.join(__dirname, 'babel.config.js'),
+        configFile: path.join(__dirname, 'babel.jest.config.js'),
       },
     ],
   },
@@ -68,8 +68,6 @@ module.exports = {
     '^@libs/([^/]+)/(.*)$': `${repoRoot}/libs/$1/src/$2`,
     '^@pkgs/([^/]+)$': `${repoRoot}/pkgs/$1/src/index.ts`,
     '^@pkgs/([^/]+)/(.*)$': `${repoRoot}/pkgs/$1/src/$2`,
-    '^@test/([^/]+)$': `${repoRoot}/test/$1/src/index.ts`,
-    '^@test/([^/]+)/(.*)$': `${repoRoot}/test/$1/src/$2`,
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json'],
   // Pin under the package (not OS /tmp) so CI can persist it and so macOS

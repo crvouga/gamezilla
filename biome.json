@@ -328,7 +328,8 @@
         "**/libs/**/mutations/**/*.{ts,tsx}",
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/*.{test,spec}.{ts,tsx}",
-        "!**/test/**"
+        "!**/test/**",
+        "!**/apps/system/src/dst/**"
       ]
     },
     {
@@ -495,6 +496,7 @@
         "!**/__tests__/**",
         "!**/testing/**",
         "!**/test/**",
+        "!**/apps/system/src/dst/**",
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
@@ -564,6 +566,7 @@
         "!**/__tests__/**",
         "!**/testing/**",
         "!**/test/**",
+        "!**/apps/system/src/dst/**",
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
@@ -620,7 +623,7 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "**/test/**/*.{tsx}",
+        "**/apps/system/src/dst/**/*.{tsx}",
         "!**/pkgs/ui/src/components/box/box.tsx",
         "!**/pkgs/ui/src/components/text/text.tsx",
         "!**/pkgs/ui/src/components/pressable/pressable.tsx",
@@ -660,8 +663,8 @@
     {
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/test/system/src/scenarios/**/*.{ts,tsx}",
-        "**/test/system/src/drivers/**/*.{ts,tsx}"
+        "**/apps/system/src/dst/scenarios/**/*.{ts,tsx}",
+        "**/apps/system/src/dst/drivers/**/*.{ts,tsx}"
       ]
     }
   ],
@@ -827,7 +830,7 @@
       }
     },
     {
-      "includes": ["test/system/src/scenarios/**"],
+      "includes": ["apps/system/src/dst/scenarios/**"],
       "linter": {
         "rules": {
           "style": {
@@ -836,7 +839,7 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "message": "Scenarios must use AppDriver / openSim (see test/system/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
+                    "message": "Scenarios must use AppDriver / openSim (see apps/system/src/dst/setup/TESTING.md). Do not import @pkgs/ui-testing."
                   }
                 }
               }

@@ -21,7 +21,7 @@ import type { Database as BetterSqliteDatabase } from 'better-sqlite3';
 /** Placeholder URL for secret-store / config (SQLite has no TCP listener). */
 export const SIM_SQLITE_DATABASE_URL = 'sqlite://sim';
 
-const CACHE_DIR = join(__dirname, '../../.cache');
+const CACHE_DIR = join(__dirname, '../../../.cache');
 const SEED_KEY = 'sim-backend-seed.sqlite';
 export const SIM_SEED_SQLITE_PATH = join(CACHE_DIR, SEED_KEY);
 

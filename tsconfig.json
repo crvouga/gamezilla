@@ -22,8 +22,6 @@
       "@apps/server/*": ["./apps/server/src/*"],
       "@apps/client/*": ["./apps/client/src/*"],
       "@apps/system/*": ["./apps/system/src/*"],
-      "@test/system": ["./test/system/src/index.ts"],
-      "@test/system/*": ["./test/system/src/*"],
       "@pkgs/billing": ["./pkgs/billing/src/index.ts"],
       "@pkgs/billing/*": ["./pkgs/billing/src/*"],
       "@pkgs/billing-stripe": ["./pkgs/billing-stripe/src/index.ts"],
@@ -306,7 +304,6 @@
     "pkgs/system-console/src/**/*.tsx",
     "libs/runtime/src/**/*.ts",
     "apps/room-server/src/**/*.ts",
-    "test/system/scripts/**/*.ts",
     "tools/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]

@@ -18,7 +18,7 @@ import {
 } from '@pkgs/minio-server';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
 
-import { bootLocalStack } from '../../../../tools/scripts/boot-local-stack';
+import { bootLocalStack } from '../../../../../tools/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 
