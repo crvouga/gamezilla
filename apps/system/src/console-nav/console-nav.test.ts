@@ -5,7 +5,7 @@ import {
   coerceView,
   DEFAULT_CONSOLE_NAV,
   parseConsoleNav,
-} from '@apps/system-console/console-nav/console-nav';
+} from '@apps/system/console-nav/console-nav';
 
 describe('parseConsoleNav', () => {
   test('defaults when search empty', () => {

@@ -3,10 +3,10 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
-import type { InProcessRoomNode } from '@apps/system-console/playground/in-process-room-node';
-import { makePlaygroundRoomNode } from '@apps/system-console/playground/playground-session-nodes';
-import type { Sim } from '@apps/system-console/sim/create-sim';
-import type { SimSqlHandle } from '@apps/system-console/sim/sim-sql';
+import type { InProcessRoomNode } from '@apps/system/playground/in-process-room-node';
+import { makePlaygroundRoomNode } from '@apps/system/playground/playground-session-nodes';
+import type { Sim } from '@apps/system/sim/create-sim';
+import type { SimSqlHandle } from '@apps/system/sim/sim-sql';
 import type {
   createPlaygroundLogBuffer,
   PlaygroundActor,

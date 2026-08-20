@@ -68,7 +68,7 @@
     "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run apps/server/src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
-    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/system-console",
+    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/system",
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"test/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",

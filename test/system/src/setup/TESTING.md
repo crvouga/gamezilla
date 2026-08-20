@@ -13,7 +13,7 @@ Product system graph lives in `@libs/runtime`. Open a world with `openSim` from
   Playwright needs an injected page (`PLAYWRIGHT_BASE_URL` / driver wiring);
   default max still uses the in-process driver until that URL is set.
 
-View captured timelines in **`bun run dev`** (`@apps/system-console` → Reports).
+View captured timelines in **`bun run dev`** (`@apps/system` → Reports).
 Reports are served from `<repo>/system-console-data` on port 7789.
 `openSim` writes into that directory. Production browsing of reports stays on
 the API Worker `/system-console` mount (B2).

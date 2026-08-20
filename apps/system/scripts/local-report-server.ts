@@ -1,6 +1,6 @@
 // @io-wall-ok — process entry: Bun.serve + wall Node-FS report store + S3 snapshots.
 /**
- * Local report console for `@apps/system-console` `dev`. Serves
+ * Local report console for `@apps/system` `dev`. Serves
  * `<repo>/system-console-data` so Jest UI sims (`openSim`) show up in Reports.
  * Playground snapshots use S3 from secrets-run (B2_APP_* / S3_*), not Node-FS.
  */

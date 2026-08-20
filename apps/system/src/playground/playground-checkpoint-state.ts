@@ -3,20 +3,20 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
-import type { InProcessRoomNode } from '@apps/system-console/playground/in-process-room-node';
+import type { InProcessRoomNode } from '@apps/system/playground/in-process-room-node';
 import {
   dumpPlaygroundClientDurable,
   restorePlaygroundClientDurable,
-} from '@apps/system-console/playground/playground-checkpoint-durable';
-import { reconcileServerProfilesFromClients } from '@apps/system-console/playground/playground-snapshot-sync';
+} from '@apps/system/playground/playground-checkpoint-durable';
+import { reconcileServerProfilesFromClients } from '@apps/system/playground/playground-snapshot-sync';
 import {
   type Sim,
   simClientNamespace,
-} from '@apps/system-console/sim/create-sim';
+} from '@apps/system/sim/create-sim';
 import {
   openFreshSimSql,
   type SimSqlHandle,
-} from '@apps/system-console/sim/sim-sql';
+} from '@apps/system/sim/sim-sql';
 import type { SimClock } from '@pkgs/clock';
 import type {
   SystemCheckpoint,

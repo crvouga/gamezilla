@@ -7,7 +7,7 @@ import {
   type CheckpointSessionCtx,
   captureCheckpoint,
   restoreCheckpoint,
-} from '@apps/system-console/playground/playground-checkpoint';
+} from '@apps/system/playground/playground-checkpoint';
 import {
   deleteSnapshotTree,
   INDEX_KEY,
@@ -19,14 +19,14 @@ import {
   readText,
   snapshotCompatibility,
   toSnapshotInfo,
-} from '@apps/system-console/playground/playground-snapshot-prune';
+} from '@apps/system/playground/playground-snapshot-prune';
 import {
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
   playgroundClientKvDumpSchema,
   playgroundSnapshotManifestSchema,
   playgroundSqliteMemDumpSchema,
-} from '@apps/system-console/playground/playground-snapshot-schema';
+} from '@apps/system/playground/playground-snapshot-schema';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   PlaygroundSnapshotInfo,

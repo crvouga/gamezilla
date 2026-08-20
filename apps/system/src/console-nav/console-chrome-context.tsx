@@ -1,7 +1,7 @@
 import type {
   ConsoleNavPatch,
   ConsoleNavState,
-} from '@apps/system-console/console-nav/console-nav';
+} from '@apps/system/console-nav/console-nav';
 import { createContext, useContext } from 'react';
 
 export type ConsoleChromeContextValue = {

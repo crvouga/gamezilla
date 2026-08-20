@@ -6,12 +6,12 @@ import type { Client } from '@apps/client/product/create-client';
 import {
   captureCheckpoint,
   restoreCheckpoint,
-} from '@apps/system-console/playground/playground-checkpoint';
-import { createPlaygroundChessCommands } from '@apps/system-console/playground/playground-chess-seed';
-import { buildSnapshotLoadCommands } from '@apps/system-console/playground/playground-fault-commands';
-import { loggingFetch } from '@apps/system-console/playground/playground-logging-fetch';
-import { makePlaygroundPubSubNode } from '@apps/system-console/playground/playground-session-nodes';
-import { snapshotSessionMethods } from '@apps/system-console/playground/playground-session-snapshot-api';
+} from '@apps/system/playground/playground-checkpoint';
+import { createPlaygroundChessCommands } from '@apps/system/playground/playground-chess-seed';
+import { buildSnapshotLoadCommands } from '@apps/system/playground/playground-fault-commands';
+import { loggingFetch } from '@apps/system/playground/playground-logging-fetch';
+import { makePlaygroundPubSubNode } from '@apps/system/playground/playground-session-nodes';
+import { snapshotSessionMethods } from '@apps/system/playground/playground-session-snapshot-api';
 import {
   detachClientsForSnapshotLoad,
   disposeSession,
@@ -22,13 +22,13 @@ import {
   runQuiet,
   type SessionMaps,
   wipeSession,
-} from '@apps/system-console/playground/playground-session-teardown';
+} from '@apps/system/playground/playground-session-teardown';
 import {
   listPlaygroundSnapshots,
   loadPlaygroundSnapshot,
   type SnapshotSessionCtx,
-} from '@apps/system-console/playground/playground-snapshots';
-import type { Sim } from '@apps/system-console/sim/create-sim';
+} from '@apps/system/playground/playground-snapshots';
+import type { Sim } from '@apps/system/sim/create-sim';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { Topic } from '@pkgs/pubsub/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/testing/in-memory';

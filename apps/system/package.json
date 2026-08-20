@@ -1,5 +1,5 @@
 {
-  "name": "@apps/system-console",
+  "name": "@apps/system",
   "version": "1.0.0",
   "private": true,
   "exports": {

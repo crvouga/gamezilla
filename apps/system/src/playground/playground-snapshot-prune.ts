@@ -11,7 +11,7 @@ import {
   playgroundSnapshotInfoSchema,
   playgroundSnapshotManifestSchema,
   playgroundSqliteMemDumpSchema,
-} from '@apps/system-console/playground/playground-snapshot-schema';
+} from '@apps/system/playground/playground-snapshot-schema';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import type { PlaygroundSnapshotInfo } from '@pkgs/system-console/client';

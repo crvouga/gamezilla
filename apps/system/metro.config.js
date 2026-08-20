@@ -28,7 +28,7 @@ const metroCacheRoot = path.join(
 );
 config.cacheStores = [new FileStore({ root: metroCacheRoot })];
 
-// Watchman on `apps/system-console` when available (see setup-env.ts → EXPO_USE_WATCHMAN).
+// Watchman on `apps/system` when available (see setup-env.ts → EXPO_USE_WATCHMAN).
 // Node crawl must not watch `node_modules` — Bun symlinks resolve into
 // `node_modules/.bun` (~340k files) and hit EMFILE on macOS.
 config.resolver = {
@@ -37,7 +37,7 @@ config.resolver = {
 };
 
 // Workspace sources for HMR. With Watchman, also include the Bun store so Metro
-// can SHA-1 deps resolved via `apps/system-console/node_modules` symlinks. Node crawl
+// can SHA-1 deps resolved via `apps/system/node_modules` symlinks. Node crawl
 // must never watch `node_modules` directly (symlinks fan out into `.bun`).
 /** @type {string[]} */
 const watchFolders = [
@@ -86,13 +86,13 @@ config.resolver.unstable_conditionsByPlatform = {
 
 // 3a. Dedupe singletons-by-module-path to a single instance.
 //     Bun's content-addressed deduper produces distinct physical paths for the
-//     same version of a package across workspaces (e.g. `apps/system-console` vs
+//     same version of a package across workspaces (e.g. `apps/system` vs
 //     `{apps,libs,pkgs}/*`), which Metro treats as separate modules. For libraries that
 //     keep singleton state in a module-level closure, that yields multiple
 //     copies of the singleton — symptoms include:
 //       - `@lingui/core` / `@lingui/react`: "Lingui: Attempted to call a
 //         translation function without setting a locale." (the `i18n` activated
-//         by `apps/system-console/src/i18n/i18n.ts` is a different object than the
+//         by `apps/system/src/i18n/i18n.ts` is a different object than the
 //         one the `@lingui/core/macro` `t` template imports from inside
 //         `{apps,libs,pkgs}/*`).
 //       - `expo-router`: "Cannot read properties of undefined (reading
@@ -124,7 +124,7 @@ const fs = require('fs');
 const useWatchman = process.env['EXPO_USE_WATCHMAN'] === '1';
 const previousResolveRequest = config.resolver.resolveRequest;
 
-/** Watchman indexes Bun store targets, not `apps/system-console/node_modules` symlink paths. */
+/** Watchman indexes Bun store targets, not `apps/system/node_modules` symlink paths. */
 function metroResolvedPath(filePath) {
   if (!useWatchman) {
     return filePath;
@@ -136,7 +136,7 @@ function metroResolvedPath(filePath) {
   }
 }
 
-/** Prefer `apps/system-console/node_modules` symlinks over Bun store realpaths for Watchman SHA-1. */
+/** Prefer `apps/system/node_modules` symlinks over Bun store realpaths for Watchman SHA-1. */
 function resolveViaClientNodeModules(moduleName) {
   if (
     moduleName === 'canvaskit-wasm' ||

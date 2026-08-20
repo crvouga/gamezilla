@@ -2,7 +2,7 @@
 import {
   type ConsoleNavState,
   coerceKind,
-} from '@apps/system-console/console-nav/console-nav';
+} from '@apps/system/console-nav/console-nav';
 
 export type ConsoleNavHistoryMode = 'push' | 'replace';
 

@@ -2,11 +2,11 @@
  * Snapshot + palette methods attached onto a playground session façade.
  */
 
-import type { createPlaygroundChessCommands } from '@apps/system-console/playground/playground-chess-seed';
+import type { createPlaygroundChessCommands } from '@apps/system/playground/playground-chess-seed';
 import {
   buildPlaygroundPaletteCommands,
   buildSnapshotLoadCommands,
-} from '@apps/system-console/playground/playground-fault-commands';
+} from '@apps/system/playground/playground-fault-commands';
 import {
   deletePlaygroundSnapshot,
   deletePlaygroundSnapshots,
@@ -15,7 +15,7 @@ import {
   purgeIncompatiblePlaygroundSnapshotsFromStore,
   type SnapshotSessionCtx,
   savePlaygroundSnapshot,
-} from '@apps/system-console/playground/playground-snapshots';
+} from '@apps/system/playground/playground-snapshots';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   PlaygroundPaletteCommand,

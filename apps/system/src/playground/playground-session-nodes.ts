@@ -2,7 +2,7 @@
  * Playground console node adapters (room + pubsub inspect façades).
  */
 
-import type { InProcessRoomNode } from '@apps/system-console/playground/in-process-room-node';
+import type { InProcessRoomNode } from '@apps/system/playground/in-process-room-node';
 import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import type {
   createPlaygroundLogBuffer,

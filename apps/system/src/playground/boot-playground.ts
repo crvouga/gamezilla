@@ -3,9 +3,9 @@
 import {
   type BootPlaygroundOptions,
   buildPlaygroundSession,
-} from '@apps/system-console/playground/playground-session';
-import { createPlaygroundSnapshotStore } from '@apps/system-console/playground/playground-snapshot-store';
-import { createSim, type Sim } from '@apps/system-console/sim/create-sim';
+} from '@apps/system/playground/playground-session';
+import { createPlaygroundSnapshotStore } from '@apps/system/playground/playground-snapshot-store';
+import { createSim, type Sim } from '@apps/system/sim/create-sim';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createPlaygroundLogBuffer,

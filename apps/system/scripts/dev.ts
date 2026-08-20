@@ -1,6 +1,6 @@
 // @io-wall-ok
 /**
- * Foreground entry for `@apps/system-console` `dev`: local report console + Expo web.
+ * Foreground entry for `@apps/system` `dev`: local report console + Expo web.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';

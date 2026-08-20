@@ -3,7 +3,7 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
-import type { SimSqlHandle } from '@apps/system-console/sim/sim-sql';
+import type { SimSqlHandle } from '@apps/system/sim/sim-sql';
 import type { SimClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 

@@ -10,7 +10,7 @@ import {
   SIM_SERVER_URL,
   SIM_SQLITE_DATABASE_URL,
 } from '@apps/server/system/migrate-sim-sqlite';
-import { createInProcessRoomNode } from '@apps/system-console/playground/in-process-room-node';
+import { createInProcessRoomNode } from '@apps/system/playground/in-process-room-node';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
 import { InMemoryBilling } from '@pkgs/billing';

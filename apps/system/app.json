@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "system-console",
-    "slug": "system-console",
+    "name": "system",
+    "slug": "system",
     "owner": "crvouga",
     "version": "1.0.0",
     "orientation": "portrait",

@@ -4,7 +4,7 @@
  * into the Expo web bundle.
  */
 
-import { PLAYGROUND_CHESS_PUZZLES_CSV } from '@apps/system-console/playground/playground-chess-fixture';
+import { PLAYGROUND_CHESS_PUZZLES_CSV } from '@apps/system/playground/playground-chess-fixture';
 import { chessPuzzlesTopic } from '@libs/chess/public/sync-topics';
 import { PuzzleSeedFastPath } from '@libs/chess/root/server/seed-chess-puzzles/fast-path';
 import type { PuzzleTableRow } from '@libs/chess/root/server/seed-chess-puzzles/row';

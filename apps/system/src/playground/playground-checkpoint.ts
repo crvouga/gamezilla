@@ -2,7 +2,7 @@
  * In-memory playground World checkpoint capture / restore.
  */
 
-import type { CheckpointSessionCtx } from '@apps/system-console/playground/playground-checkpoint-state';
+import type { CheckpointSessionCtx } from '@apps/system/playground/playground-checkpoint-state';
 import {
   applyCheckpointFaults,
   collectFaultFields,
@@ -12,12 +12,12 @@ import {
   resetSimClock,
   restoreCheckpointKv,
   restoreCheckpointRooms,
-} from '@apps/system-console/playground/playground-checkpoint-state';
-import { awaitPlaygroundMutationDrain } from '@apps/system-console/playground/playground-snapshot-sync';
+} from '@apps/system/playground/playground-checkpoint-state';
+import { awaitPlaygroundMutationDrain } from '@apps/system/playground/playground-snapshot-sync';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import type { SystemCheckpoint } from '@pkgs/system-console/client';
 
-export type { CheckpointSessionCtx } from '@apps/system-console/playground/playground-checkpoint-state';
+export type { CheckpointSessionCtx } from '@apps/system/playground/playground-checkpoint-state';
 
 export async function captureCheckpoint(
   ctx: CheckpointSessionCtx,

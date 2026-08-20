@@ -6,7 +6,7 @@ import {
   consoleNavEqual,
   DEFAULT_CONSOLE_NAV,
   parseConsoleNav,
-} from '@apps/system-console/console-nav/console-nav';
+} from '@apps/system/console-nav/console-nav';
 import {
   type ConsoleNavHistoryMode,
   isConsoleNavWeb,
@@ -14,7 +14,7 @@ import {
   readConsoleNavSearch,
   subscribeConsoleNavPopState,
   writeConsoleNavUrl,
-} from '@apps/system-console/console-nav/console-nav-wall';
+} from '@apps/system/console-nav/console-nav-wall';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 

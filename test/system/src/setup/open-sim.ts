@@ -2,11 +2,11 @@
  * Open a client UI simulation on createSim.
  */
 
-import { createSim, type Sim } from '@apps/system-console/sim/create-sim';
+import { createSim, type Sim } from '@apps/system/sim/create-sim';
 import {
   type SimSqlHandle,
   sharedSqlClient,
-} from '@apps/system-console/sim/sim-sql';
+} from '@apps/system/sim/sim-sql';
 import { type Timers, wallClock } from '@pkgs/clock';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';

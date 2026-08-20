@@ -5,9 +5,9 @@ import { AppUiPortals } from '@apps/client/providers/ui/portals';
 import {
   ConsoleChromeProvider,
   useConsoleChrome,
-} from '@apps/system-console/console-nav/console-chrome-context';
-import { useConsoleNav } from '@apps/system-console/console-nav/use-console-nav';
-import { bootPlaygroundSession } from '@apps/system-console/playground/boot-playground';
+} from '@apps/system/console-nav/console-chrome-context';
+import { useConsoleNav } from '@apps/system/console-nav/use-console-nav';
+import { bootPlaygroundSession } from '@apps/system/playground/boot-playground';
 import {
   ClockProvider,
   useClock,
