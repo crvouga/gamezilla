@@ -41,7 +41,7 @@ yarn-error.*
 
 # Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
 **/.jest-cache/
-apps/system/.cache/
+sim/test/.cache/
 pkgs/ui-testing/.cache/
 pkgs/simulation/.cache/
 
@@ -106,3 +106,6 @@ apps/client/android/
 **/simulation-report-data/
 /system-console-data/
 **/system-console-data/
+
+/.data/
+**/.data/

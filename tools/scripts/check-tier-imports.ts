@@ -4,13 +4,14 @@
 /**
  * Fail-fast guardrail: enforce the workspace tier import pyramid.
  *
- *   apps -> apps, libs, pkgs  (cross-app OK e.g. client → api)
- *   libs -> pkgs only    (libs may not import apps; @libs/runtime may import other @libs/*)
+ *   sim  -> apps, libs, pkgs  (composition hub; not imported by product)
+ *   apps -> apps, libs, pkgs  (cross-app OK e.g. client → api; not @sim/*)
+ *   libs -> pkgs only    (libs may not import apps/sim; @libs/runtime may import other @libs/*)
  *   pkgs -> pkgs only    (pkgs is the leaf; no upward imports)
  *
  * Why a custom script (not `dependency-cruiser` alone): depcruise's
  * `doNotFollow.path: 'node_modules'` skips workspace symlinks, so cross-package
- * `@apps|@libs|@pkgs/<name>` imports are never traversed (bun resolves
+ * `@apps|@libs|@pkgs|@sim/<name>` imports are never traversed (bun resolves
  * workspace packages through node_modules symlinks). Same reason
  * `tools/scripts/check-circular-deps.ts` exists.
  *
@@ -41,9 +42,10 @@ import {
 
 /** Tiers that the key tier is forbidden to import from. */
 const FORBIDDEN_FROM: Record<Tier, ReadonlySet<Tier>> = {
-  apps: new Set<Tier>(),
-  libs: new Set<Tier>(['apps']),
-  pkgs: new Set<Tier>(['apps', 'libs']),
+  sim: new Set<Tier>(),
+  apps: new Set<Tier>(['sim']),
+  libs: new Set<Tier>(['apps', 'sim']),
+  pkgs: new Set<Tier>(['apps', 'libs', 'sim']),
 };
 
 type ImportViolation = {
@@ -142,7 +144,7 @@ function scanManifestDeps(
     const block = manifest[depKind];
     if (!block) continue;
     for (const [depName] of Object.entries(block)) {
-      const match = /^@(apps|libs|pkgs|test)\/([^/]+)$/.exec(depName);
+      const match = /^@(apps|libs|pkgs|sim)\/([^/]+)$/.exec(depName);
       if (!match) continue;
       const targetTier = match[1] as Tier;
       const targetPkg = match[2]!;
@@ -173,7 +175,7 @@ function main(): never {
   const packages = discoverPackagesWithTier();
   if (packages.size === 0) {
     console.error(
-      `check:tier-imports: no @apps|@libs|@pkgs/* packages found under ${TIER_DIRS.join(', ')}.`
+      `check:tier-imports: no @apps|@libs|@pkgs|@sim/* packages found under ${TIER_DIRS.join(', ')}.`
     );
     process.exit(1);
   }
@@ -188,7 +190,7 @@ function main(): never {
   const total = importViolations.length + manifestViolations.length;
   if (total === 0) {
     console.log(
-      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (apps -> libs -> pkgs; apps may compose apps).`
+      `check:tier-imports OK -- ${packages.size} packages scanned, tier pyramid intact (sim -> apps -> libs -> pkgs; apps may compose apps).`
     );
     process.exit(0);
   }
@@ -219,10 +221,13 @@ function main(): never {
 
   console.error('Tier import law:');
   console.error(
-    '  apps/  -> apps/, libs/, pkgs/   (cross-app OK e.g. client → server)'
+    '  sim/   -> apps/, libs/, pkgs/   (composition hub; product must not import sim)'
   );
   console.error(
-    '  libs/  -> pkgs/ only     (@libs/runtime may import other @libs/*; no apps)'
+    '  apps/  -> apps/, libs/, pkgs/   (cross-app OK e.g. client → server; not @sim/*)'
+  );
+  console.error(
+    '  libs/  -> pkgs/ only     (@libs/runtime may import other @libs/*; no apps/sim)'
   );
   console.error(
     '  pkgs/  -> pkgs/ only     (leaf tier: reusable, app-agnostic)'

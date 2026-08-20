@@ -28,6 +28,7 @@ const BASELINE_PATH = join(
 const SCAN_GLOBS = [
   'libs/*/src/**/*.{ts,tsx}',
   'apps/*/src/**/*.{ts,tsx}',
+  'sim/*/src/**/*.{ts,tsx}',
 ] as const;
 
 const LAYER_C_SUFFIX = /(?:Repository|Service|Publisher|Handler)$/;

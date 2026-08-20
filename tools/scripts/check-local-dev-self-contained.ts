@@ -1,6 +1,6 @@
 // @io-wall-ok — tools composition root
 /**
- * Guard: `bun dev` is `@apps/system` only (Reports + Playground) — no
+ * Guard: `bun dev` is `@sim/console` only (Reports + Playground) — no
  * sidecar apps, no Wrangler/API `dev` scripts. Product client is `dev:client`.
  */
 
@@ -21,9 +21,9 @@ function main(): void {
   const root = readJson('package.json');
   const scripts = root['scripts'] as Record<string, string>;
   const dev = scripts['dev'] ?? '';
-  if (!dev.includes('--filter=@apps/system')) {
+  if (!dev.includes('--filter=@sim/console')) {
     throw new Error(
-      `root "dev" must filter @apps/system (got ${JSON.stringify(dev)})`
+      `root "dev" must filter @sim/console (got ${JSON.stringify(dev)})`
     );
   }
   const devClient = scripts['dev:client'] ?? '';
@@ -33,12 +33,12 @@ function main(): void {
     );
   }
 
-  const consolePkg = readJson('apps/system/package.json');
+  const consolePkg = readJson('sim/console/package.json');
   const consoleScripts = consolePkg['scripts'] as
     | Record<string, string>
     | undefined;
   if (consoleScripts === undefined || !('dev' in consoleScripts)) {
-    throw new Error('apps/system must define a daily "dev" script');
+    throw new Error('sim/console must define a daily "dev" script');
   }
 
   const client = readJson('apps/client/package.json');
@@ -67,7 +67,7 @@ function main(): void {
   }
 
   console.log(
-    'ci:local-dev-self-contained: bun dev is @apps/system only; sidecar apps removed.'
+    'ci:local-dev-self-contained: bun dev is @sim/console only; sidecar apps removed.'
   );
 }
 

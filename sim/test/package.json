@@ -1,0 +1,53 @@
+{
+  "name": "@sim/test",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
+    "tc": "tsc --noEmit -p tsconfig.json",
+    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
+    "test:max": "SYSTEM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
+  },
+  "dependencies": {
+    "@apps/client": "workspace:*",
+    "@apps/server": "workspace:*",
+    "@libs/dst-handles": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/minio-server": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/system-console": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@sim/console": "workspace:*",
+    "@testing-library/react-native": "catalog:",
+    "better-sqlite3": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-native": "catalog:",
+    "react-native-gesture-handler": "catalog:",
+    "react-native-reanimated": "catalog:",
+    "react-native-worklets": "catalog:",
+    "react-test-renderer": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-explicit-resource-management": "catalog:",
+    "@babel/runtime": "catalog:",
+    "@jest/globals": "catalog:",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/better-sqlite3": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/jest": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
+    "babel-jest": "catalog:",
+    "babel-plugin-macros": "catalog:",
+    "jest": "catalog:",
+    "jest-expo": "catalog:",
+    "typescript": "catalog:"
+  }
+}

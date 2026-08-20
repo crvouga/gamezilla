@@ -89,6 +89,11 @@ export async function collectIoScanFiles(
         files.push(key);
       }
     }
+    if (key.startsWith('sim/') && hasExt(key, TS_JS_EXTS)) {
+      if (/\/src\//.test(key) || /\/scripts\//.test(key)) {
+        files.push(key);
+      }
+    }
   }
 
   files.push(
@@ -117,7 +122,9 @@ export async function collectSqlWallScanFiles(
   const allKeys = await store.listKeys();
   for (const key of allKeys) {
     if (
-      (key.startsWith('libs/') || key.startsWith('pkgs/')) &&
+      (key.startsWith('libs/') ||
+        key.startsWith('pkgs/') ||
+        key.startsWith('sim/')) &&
       hasExt(key, TS_SQL_EXTS)
     ) {
       files.push(key);

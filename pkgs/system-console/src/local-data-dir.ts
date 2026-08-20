@@ -5,7 +5,7 @@
 import { dirname, join, resolve } from 'node:path';
 
 /** Repo-root directory name for local Node-FS report artifacts. */
-export const LOCAL_REPORT_DATA_DIRNAME = 'system-console-data';
+export const LOCAL_REPORT_DATA_DIRNAME = '.cache/system-console-data';
 
 export type PathExists = (absolutePath: string) => boolean;
 

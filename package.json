@@ -6,6 +6,7 @@
     "apps/*",
     "libs/*",
     "pkgs/*",
+    "sim/*",
     "tools"
   ],
   "scripts": {
@@ -33,7 +34,7 @@
     "ci:circular-deps": "bun run tools/scripts/check-circular-deps.ts",
     "ci:component-ids": "bun run tools/scripts/check-component-ids.ts",
     "ci:database-url-policy": "bun run tools/scripts/check-database-url-policy.ts",
-    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs test --validate .dependency-cruiser.cjs --output-type err",
+    "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs sim --validate .dependency-cruiser.cjs --output-type err",
     "ci:domain-table-prefixes": "bun run tools/scripts/check-domain-table-prefixes.ts",
     "ci:dst-selector-discipline": "bun run tools/scripts/check-dst-selector-discipline.ts",
     "ci:fanout-rows-from-reads": "bun run tools/scripts/check-fanout-rows-from-reads.ts",
@@ -67,9 +68,9 @@
     "db:migrate": "bun run tools/scripts/secrets-run.ts -- bun run apps/server/src/db/migrate-cli.ts --wait",
     "db:wipe:dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server db:wipe:dev",
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
-    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/system",
+    "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@sim/console",
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
-    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
+    "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"sim/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",

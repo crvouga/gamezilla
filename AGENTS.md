@@ -2,7 +2,7 @@
 
 ## Hard Rules
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/system`, `apps/server`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid` `createSimAdapters`) from composition roots (`createClient(env)` / `createServer(env)` / `createSim` / wall adapters at process entry). Inject via React context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks and never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` / `expo-file-system` only in `@io-wall-ok` adapters (`wall-node-fs.ts`, `wall-expo-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `ci:lint`) for bare I/O / FS / wall defaults / hard-determinism; `bun run ci:no-sql-wall-io`, `bun run ci:sim-determinism`. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `sim/console`, `sim/test`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid` `createSimAdapters`) from composition roots (`createClient(env)` / `createServer(env)` / `createSim` / wall adapters at process entry). Inject via React context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks and never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `tools/scripts/io-scan-pragma.ts`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` / `expo-file-system` only in `@io-wall-ok` adapters (`wall-node-fs.ts`, `wall-expo-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `ci:lint`) for bare I/O / FS / wall defaults / hard-determinism; `bun run ci:no-sql-wall-io`, `bun run ci:sim-determinism`. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`DETERMINISM.md`](DETERMINISM.md).
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree. CI enforces this via `bun run check:no-patches`.
 
@@ -91,13 +91,13 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 ## Local development
 
-**Manual work is sim-only.** `bun run dev` starts **only `@apps/system`** (Reports + Playground, sqlite-mem World, reports on port 7789). It does **not** start Wrangler, Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
+**Manual work is sim-only.** `bun run dev` starts **only `@sim/console`** (Reports + Playground, sqlite-mem World, reports on port 7789). It does **not** start Wrangler, Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
 
-Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/system` `openSim({ fidelity: 'max' })` / `SYSTEM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@sim/test` `openSim({ fidelity: 'max' })` / `SYSTEM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
-- **`bun run dev`** — `@apps/system` (Reports + Playground). Feature work happens here.
+- **`bun run dev`** — `@sim/console` (Reports + Playground). Feature work happens here.
 - **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
 - **Sign-in in the playground** — email/password against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
@@ -127,11 +127,12 @@ Non-deploy contexts must never reach production Postgres. Guards live in `@libs/
 
 ## Per-feature package layout
 
-Workspace packages live under three top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
+Workspace packages live under four top-level tier directories with matching npm scopes — pick the tier that fits the package's role:
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`, `system`). System DST (`openSim`) lives in `@apps/system` `src/dst/`. |
+| Sim  | `sim/`  | `@sim/`  | Composition hub: `@sim/console` (`bun dev` Reports + Playground) and `@sim/test` (DST / `openSim`). |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`).     |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -212,9 +213,10 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 
 ### Layering rules (enforced by depcruise + ci:tier-imports)
 
-**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`:
+**Tier pyramid** — one-way dependencies between tiers, enforced by `bun run ci:tier-imports` (authoritative; scans `@<tier>/<name>` imports + workspace `package.json` deps) and depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps`, `apps-not-sim`:
 
 ```text
+sim   →  apps, libs, pkgs (composition hub; product must not import @sim/*)
 apps  →  apps, libs, pkgs (cross-app OK e.g. client → server)
 libs  →  pkgs only
 pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
@@ -224,6 +226,7 @@ pkgs  →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
+- `@sim/*` composes product apps (`createSim`, playground, DST). Apps/libs/pkgs must not import `@sim/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules. CI: `bun run ci:server-isomorphic`.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/` (`ci:use-case-isolation`).

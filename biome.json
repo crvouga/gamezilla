@@ -329,7 +329,7 @@
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/*.{test,spec}.{ts,tsx}",
         "!**/test/**",
-        "!**/apps/system/src/dst/**"
+        "!**/sim/test/src/**"
       ]
     },
     {
@@ -429,8 +429,8 @@
         "!**/apps/client/src/providers/app-auth-provider.tsx",
         "!**/apps/client/src/product/client-env.ts",
         "!**/apps/client/src/product/wall-client-env.ts",
-        "!**/apps/system/src/sim/create-sim.ts",
-        "!**/apps/system/src/playground/playground-checkpoint-durable.ts",
+        "!**/sim/console/src/sim/create-sim.ts",
+        "!**/sim/console/src/playground/playground-checkpoint-durable.ts",
         "!**/apps/server/src/api.ts",
         "!**/apps/server/src/app/request-db-middleware.ts",
         "!**/apps/server/src/app/create-server.ts",
@@ -496,7 +496,7 @@
         "!**/__tests__/**",
         "!**/testing/**",
         "!**/test/**",
-        "!**/apps/system/src/dst/**",
+        "!**/sim/test/src/**",
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
@@ -566,7 +566,7 @@
         "!**/__tests__/**",
         "!**/testing/**",
         "!**/test/**",
-        "!**/apps/system/src/dst/**",
+        "!**/sim/test/src/**",
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
@@ -623,7 +623,7 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "**/apps/system/src/dst/**/*.{tsx}",
+        "**/sim/test/src/**/*.{tsx}",
         "!**/pkgs/ui/src/components/box/box.tsx",
         "!**/pkgs/ui/src/components/text/text.tsx",
         "!**/pkgs/ui/src/components/pressable/pressable.tsx",
@@ -663,8 +663,8 @@
     {
       "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/apps/system/src/dst/scenarios/**/*.{ts,tsx}",
-        "**/apps/system/src/dst/drivers/**/*.{ts,tsx}"
+        "**/sim/test/src/scenarios/**/*.{ts,tsx}",
+        "**/sim/test/src/drivers/**/*.{ts,tsx}"
       ]
     }
   ],
@@ -830,7 +830,7 @@
       }
     },
     {
-      "includes": ["apps/system/src/dst/scenarios/**"],
+      "includes": ["sim/test/src/scenarios/**"],
       "linter": {
         "rules": {
           "style": {
@@ -839,7 +839,7 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "message": "Scenarios must use AppDriver / openSim (see apps/system/src/dst/setup/TESTING.md). Do not import @pkgs/ui-testing."
+                    "message": "Scenarios must use AppDriver / openSim (see sim/test/src/setup/TESTING.md). Do not import @pkgs/ui-testing."
                   }
                 }
               }

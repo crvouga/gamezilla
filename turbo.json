@@ -160,6 +160,7 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "sim/*/package.json",
         "tools/package.json",
         ".syncpackrc.cjs",
         "tools/scripts/check-catalog-deps.ts",
@@ -197,6 +198,7 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "sim/*/package.json",
         "tools/scripts/check-circular-deps.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -219,6 +221,8 @@
         "apps/server/scripts/setup-dev-vars.ts",
         "apps/server/scripts/dev-vars.ts",
         "apps/client/scripts/setup-env.ts",
+        "sim/console/package.json",
+        "package.json",
         "tools/scripts/check-local-dev-self-contained.ts"
       ],
       "outputs": [],
@@ -238,9 +242,14 @@
         "pkgs/**/*.tsx",
         "pkgs/**/*.mts",
         "pkgs/**/*.cts",
+        "sim/**/*.ts",
+        "sim/**/*.tsx",
+        "sim/**/*.mts",
+        "sim/**/*.cts",
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
+        "sim/*/package.json",
         "tools/scripts/check-tier-imports.ts",
         "tools/scripts/workspace-package-import-graph.ts"
       ],
@@ -325,8 +334,8 @@
     },
     "//#ci:dst-selector-discipline": {
       "inputs": [
-        "apps/system/src/dst/**/*.ts",
-        "apps/system/src/dst/**/*.tsx",
+        "sim/test/src/**/*.ts",
+        "sim/test/src/**/*.tsx",
         "tools/scripts/check-dst-selector-discipline.ts"
       ],
       "outputs": [],
@@ -480,8 +489,8 @@
         "tools/scripts/run-sim-determinism.ts",
         "libs/**/*.sim.test.ts",
         "pkgs/**/*.sim.test.ts",
-        "apps/system/**/*.sim.test.ts",
-        "apps/system/**/*.sim.test.tsx"
+        "sim/test/**/*.sim.test.ts",
+        "sim/test/**/*.sim.test.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"

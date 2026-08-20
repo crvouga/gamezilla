@@ -35,6 +35,8 @@ const EXTRA_ALLOW = new Set([
   'apps/client/src/providers/root-error-boundary.tsx',
   'apps/client/src/i18n/i18n-provider.tsx',
   'apps/client/src/providers/shell/gesture-handler.tsx',
+  'apps/client/src/product/wall-gesture-root.tsx',
+  'apps/client/src/product/sim-gesture-root.tsx',
   'pkgs/ui/src/theme/app-status-bar.tsx',
   'pkgs/ui/src/components/avatar/avatar.tsx',
   'pkgs/ui/src/components/skeleton/skeleton.tsx',
