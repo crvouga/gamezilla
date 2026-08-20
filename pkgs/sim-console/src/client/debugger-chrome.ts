@@ -17,7 +17,7 @@ import {
   type SimChromeKind,
   type SimNodeKind,
 } from '../shared/sim-node';
-import { systemNodeIcon } from './sim-node-chrome';
+import { simNodeIcon } from './sim-node-chrome';
 
 export type DebuggerChromeNav = {
   readonly kind: SimChromeKind;
@@ -45,7 +45,7 @@ export const DEBUGGER_KIND_TABS: readonly TabStripItem[] = SIM_CHROME_KINDS.map(
   (id: SimChromeKind) => ({
     id,
     label: SIM_NODE_LABELS[id],
-    icon: systemNodeIcon(id),
+    icon: simNodeIcon(id),
   })
 );
 
@@ -64,6 +64,6 @@ export function debuggerInstanceTabItem(args: {
   return {
     id: args.id,
     label: formatSimNodeLabel({ id: args.id, kind: kind ?? args.kind }),
-    ...(kind !== null ? { icon: systemNodeIcon(kind as SimNodeKind) } : {}),
+    ...(kind !== null ? { icon: simNodeIcon(kind as SimNodeKind) } : {}),
   };
 }

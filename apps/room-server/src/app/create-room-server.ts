@@ -1,5 +1,5 @@
 /**
- * Session-scoped in-process room node for the system playground.
+ * In-process multi-topic room host for sim / playground.
  * Clients share one {@link RoomServer} per `space:<id>` topic via
  * {@link LoopbackRoomTransport} — no browser WebSocket / Durable Object.
  */
@@ -7,7 +7,6 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeSpaceRoomModule } from '@libs/spaces/public/load-game-plugins';
 import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
-import type { Clock, Timers } from '@pkgs/clock';
 import type { Message } from '@pkgs/message';
 import {
   type ClientTransport,
@@ -23,13 +22,9 @@ import {
   type RoomStorageTopicReplace,
   type RoomStorageTopicSnapshot,
 } from '@pkgs/room/server/adapters/memory';
-import type { CreateId } from '@pkgs/uuid';
 
-type RoomTime = {
-  readonly clock: Clock;
-  readonly timers: Timers;
-  readonly createId: CreateId;
-};
+import type { RoomServerEnv } from './room-server-env';
+
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
 
 type TopicEntry = {
@@ -39,17 +34,18 @@ type TopicEntry = {
   readonly ready: Promise<void>;
 };
 
-export type InProcessRoomInspect = {
+export type RoomServerInspect = {
   readonly topic: string;
   readonly committedState: RoomState;
   readonly roster: readonly RoomActor[];
   readonly storage: RoomStorageTopicSnapshot | null;
 };
 
-export type InProcessRoomNode = {
+export type RoomServerApp = {
+  readonly env: RoomServerEnv;
   readonly createTransport: CreateRoomTransport;
   listTopics(): readonly string[];
-  inspect(topic: string): InProcessRoomInspect | null;
+  inspect(topic: string): RoomServerInspect | null;
   exportTopic(topic: string): RoomStorageTopicSnapshot | null;
   replaceTopic(topic: string, next: RoomStorageTopicReplace): Promise<void>;
   dropTopic(topic: string): void;
@@ -86,21 +82,21 @@ function withReadyGate(
 
 function createTopicEntry(
   topic: string,
-  time: RoomTime,
+  env: RoomServerEnv,
   module: SpaceModule
 ): TopicEntry {
   const storage = new InMemoryRoomStorage();
   const schedule = createTimerScheduleStack({
-    clock: time.clock,
-    timers: time.timers,
-    createId: time.createId,
+    clock: env.clock,
+    timers: env.timers,
+    createId: env.createId,
     topic,
   });
   const server = new RoomServer<RoomState, Message, Message, string>({
     topic,
     module,
     storage,
-    clock: time.clock,
+    clock: env.clock,
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -119,11 +115,11 @@ function createTopicEntry(
 }
 
 function buildLoopbackTransport(
-  time: RoomTime,
+  env: RoomServerEnv,
   entry: TopicEntry,
   args: Parameters<CreateRoomTransport>[0]
 ): ClientTransport {
-  const connectionId = time.createId();
+  const connectionId = env.createId();
   const transport = new LoopbackRoomTransport({
     server: {
       registerConnection(id, send, actor, options) {
@@ -150,14 +146,16 @@ function buildLoopbackTransport(
 }
 
 /**
- * Shared room node for one playground session.
+ * The only room-server constructor for the in-process host — wall and sim
+ * pass different {@link RoomServerEnv} implementations. Wall DO path uses
+ * `createRoomServerDurableObject` instead.
  */
-export function createInProcessRoomNode(time: RoomTime): InProcessRoomNode {
+export function createRoomServer(env: RoomServerEnv): RoomServerApp {
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
   const module = composeSpaceRoomModule(GAME_DEFINITIONS, () =>
-    time.clock.now()
+    env.clock.now()
   );
 
   const notify = () => {
@@ -173,17 +171,18 @@ export function createInProcessRoomNode(time: RoomTime): InProcessRoomNode {
   const getOrCreate = (topic: string): TopicEntry => {
     const existing = topics.get(topic);
     if (existing !== undefined) return existing;
-    const entry = createTopicEntry(topic, time, module);
+    const entry = createTopicEntry(topic, env, module);
     topics.set(topic, entry);
     notify();
     return entry;
   };
 
   return {
+    env,
     createTransport: (args) => {
-      if (disposed) throw new Error('InProcessRoomNode: disposed');
+      if (disposed) throw new Error('RoomServerApp: disposed');
       return buildLoopbackTransport(
-        time,
+        env,
         getOrCreate(`space:${args.spaceId}`),
         args
       );
@@ -205,7 +204,7 @@ export function createInProcessRoomNode(time: RoomTime): InProcessRoomNode {
       return entry.storage.exportTopic(topic);
     },
     async replaceTopic(topic, next) {
-      if (disposed) throw new Error('InProcessRoomNode: disposed');
+      if (disposed) throw new Error('RoomServerApp: disposed');
       const entry = getOrCreate(topic);
       entry.storage.replaceTopic(topic, next);
       await entry.server.hydrateFromStorage();

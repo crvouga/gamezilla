@@ -3,12 +3,12 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
+import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type { SimClock } from '@pkgs/clock';
 import type {
   SimCheckpoint,
   SimCheckpointRoomDump,
 } from '@pkgs/sim-console/client';
-import type { InProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 import {
   dumpPlaygroundClientDurable,
   restorePlaygroundClientDurable,
@@ -32,7 +32,7 @@ export type CheckpointSessionMaps = {
 export type CheckpointSessionCtx = {
   readonly sim: Sim;
   readonly clock: SimClock;
-  readonly roomNode: InProcessRoomNode;
+  readonly roomNode: RoomServerApp;
   readonly serverHandle: SimSqlHandle;
   readonly clientSqlByAddress: Map<string, SimSqlHandle>;
   readonly maps: CheckpointSessionMaps;
@@ -180,6 +180,6 @@ export function applyCheckpointFaults(
   }
   for (const addr of checkpoint.downAddresses) {
     const id = addr.startsWith('client:') ? addr.slice('client:'.length) : addr;
-    sim.crash(id === 'api' ? 'server' : id);
+    sim.crash(id === 'server' || id === 'api' ? 'server' : id);
   }
 }

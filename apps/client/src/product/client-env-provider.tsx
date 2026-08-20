@@ -42,7 +42,7 @@ export function useClientEnv(): ClientEnv {
   return env;
 }
 
-/** Soft read for trees that may mount without createClient (system console). */
+/** Soft read for trees that may mount without createClient (sim console). */
 export function useOptionalClientEnv(): ClientEnv | null {
   return useContext(EnvCtx);
 }

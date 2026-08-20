@@ -2,7 +2,7 @@ import {
   useClientEnv,
   useSyncEnginePool,
 } from '@apps/client/product/client-env-provider';
-import { SIM_SERVER_URL } from '@apps/server/system/migrate-sim-sqlite';
+import { SIM_SERVER_URL } from '@apps/server/sim/migrate-sim-sqlite';
 import { useConfigService } from '@libs/auth/public/config-service-context';
 import { useCurrentAccountId } from '@libs/auth/public/use-current-account-id';
 import { useDeviceId } from '@libs/auth/public/use-device-id';

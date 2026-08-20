@@ -225,7 +225,7 @@ describe('SimulationReporter + ObjectStore', () => {
       snapshotDatabases: async () => {
         calls += 1;
         return [
-          { nodeId: 'api', bytes: payload },
+          { nodeId: 'server', bytes: payload },
           { nodeId: 'alice', bytes: payload },
         ];
       },
@@ -260,7 +260,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const frame1 = data.steps[1]?.frames?.[0];
     expect(frame0?.databases?.map((d) => d.nodeId).sort()).toEqual([
       'alice',
-      'api',
+      'server',
     ]);
     expect(frame0?.databases?.[0]?.file).toMatch(
       /^frames\/db\/[a-f0-9]{64}\.sqlite\.gz$/

@@ -1,15 +1,11 @@
 // @io-wall-ok — Room server Worker composition root (Durable Object isolate).
 
-import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
-import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
-import { wallClock } from '@pkgs/clock';
-import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
+import { createRoomServerDurableObject } from './app/create-room-server-durable-object';
+import { wallRoomServerEnv } from './app/wall-room-server-env';
 
-export const RoomServerDurableObject = createDurableObjectAdapter({
-  modules: composeRoomModules(GAME_DEFINITIONS, wallClock.now),
-  clock: wallClock,
-  createId: () => crypto.randomUUID(),
-});
+const env = wallRoomServerEnv();
+
+export const RoomServerDurableObject = createRoomServerDurableObject(env);
 
 /** Minimal fetch so the Worker script boots; clients reach rooms via API gateway. */
 export default {

@@ -19,7 +19,7 @@ import type { ReportReplay } from './use-report-replay';
 export function ReportKindPane(props: {
   readonly ports: SimConsolePorts;
   readonly replay: ReportReplay;
-  readonly kind: 'client' | 'api' | 'events' | 'room';
+  readonly kind: 'client' | 'server' | 'events' | 'room';
   readonly view: DebuggerViewId;
   readonly instances: readonly TopologyNodeInfo[];
   readonly selected: TopologyNodeInfo | null;
@@ -45,7 +45,7 @@ export function ReportKindPane(props: {
       />
     );
   }
-  if (props.kind === 'api' && props.view === 'db') {
+  if (props.kind === 'server' && props.view === 'db') {
     return <ReportApiDbPane {...props} />;
   }
   return (

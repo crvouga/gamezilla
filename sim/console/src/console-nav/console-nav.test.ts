@@ -15,10 +15,10 @@ describe('parseConsoleNav', () => {
 
   test('parses playground chrome', () => {
     expect(
-      parseConsoleNav('?section=playground&kind=api&view=commands')
+      parseConsoleNav('?section=playground&kind=server&view=commands')
     ).toEqual({
       section: 'playground',
-      kind: 'api',
+      kind: 'server',
       instance: '',
       view: 'commands',
     });
@@ -44,7 +44,7 @@ describe('parseConsoleNav', () => {
 
   test('aliases html/sqlite/logs views', () => {
     expect(parseConsoleNav('?kind=client&view=html').view).toBe('ui');
-    expect(parseConsoleNav('?kind=api&view=sqlite').view).toBe('db');
+    expect(parseConsoleNav('?kind=server&view=sqlite').view).toBe('db');
     expect(parseConsoleNav('?kind=events&view=logs').view).toBe('events');
   });
 
@@ -58,9 +58,9 @@ describe('parseConsoleNav', () => {
   });
 
   test('coerces illegal view for kind', () => {
-    expect(parseConsoleNav('?kind=api&view=ui')).toEqual({
+    expect(parseConsoleNav('?kind=server&view=ui')).toEqual({
       section: 'reports',
-      kind: 'api',
+      kind: 'server',
       instance: '',
       view: 'db',
     });
@@ -119,15 +119,15 @@ describe('buildConsoleSearch', () => {
 describe('coerceView / applyConsoleNavPatch', () => {
   test('coerceView picks kind default when illegal', () => {
     expect(coerceView('client', 'commands')).toBe('ui');
-    expect(coerceView('api', 'topics')).toBe('db');
+    expect(coerceView('server', 'topics')).toBe('db');
     expect(coerceView('events', 'ui')).toBe('events');
     expect(coerceView('room', 'commands')).toBe('db');
   });
 
-  test('legacy kind=server/pubsub map to api/events', () => {
-    expect(parseConsoleNav('?kind=server&view=commands')).toEqual({
+  test('legacy kind=api/pubsub map to server/events', () => {
+    expect(parseConsoleNav('?kind=api&view=commands')).toEqual({
       section: 'reports',
-      kind: 'api',
+      kind: 'server',
       instance: '',
       view: 'commands',
     });
@@ -140,11 +140,11 @@ describe('coerceView / applyConsoleNavPatch', () => {
     expect(
       buildConsoleSearch({
         section: 'playground',
-        kind: 'api',
+        kind: 'server',
         instance: '',
         view: 'commands',
       })
-    ).toBe('?section=playground&kind=api&view=commands');
+    ).toBe('?section=playground&kind=server&view=commands');
   });
 
   test('legacy kind=actor maps to room', () => {
@@ -164,11 +164,11 @@ describe('coerceView / applyConsoleNavPatch', () => {
         instance: 'alice',
         view: 'ui',
       },
-      { kind: 'api' }
+      { kind: 'server' }
     );
     expect(next).toEqual({
       section: 'playground',
-      kind: 'api',
+      kind: 'server',
       instance: '',
       view: 'db',
     });
@@ -182,7 +182,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
         instance: '',
         view: 'ui',
       },
-      { kind: 'api', view: 'logs' }
+      { kind: 'server', view: 'logs' }
     );
     expect(next.view).toBe('events');
   });

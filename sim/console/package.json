@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@apps/client": "workspace:*",
+    "@apps/room-server": "workspace:*",
     "@apps/server": "workspace:*",
     "@expo/metro-runtime": "catalog:",
     "@libs/chess": "workspace:*",

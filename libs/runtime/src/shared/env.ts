@@ -10,7 +10,10 @@ export type OpenSqlClient = (args?: {
   readonly databaseName?: string;
 }) => Promise<SqlClient>;
 
-/** Shared time / entropy fields on both {@link ClientEnv} and {@link ServerEnv}. */
+/**
+ * Shared time / entropy fields on {@link ClientEnv}, {@link ServerEnv}, and
+ * {@link RoomServerEnv}.
+ */
 export type EnvTime = {
   readonly clock: Clock;
   readonly timers: Timers;

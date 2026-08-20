@@ -142,7 +142,7 @@ function parseSection(raw: string | null): ConsoleSection {
 }
 
 function normalizeInstance(kind: ConsoleKind, raw: string): string {
-  if (kind === 'api' || kind === 'events') return '';
+  if (kind === 'server' || kind === 'events') return '';
   return raw.trim();
 }
 

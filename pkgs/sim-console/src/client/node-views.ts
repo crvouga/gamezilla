@@ -9,7 +9,7 @@ export type TopologyNodeInfo = {
   readonly attributes: readonly string[];
 };
 
-/** Prefer topology nodes; else api/events + actors while topology loads. */
+/** Prefer topology nodes; else server/events + actors while topology loads. */
 export function resolveNodeList(args: {
   readonly topology: SimulationReportTopology | null;
   readonly actorIds: readonly string[];

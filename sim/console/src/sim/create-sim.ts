@@ -3,6 +3,11 @@ import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-ne
 import type { ClientEnv } from '@apps/client/product/client-env';
 import { type Client, createClient } from '@apps/client/product/create-client';
 import { SimGestureRoot } from '@apps/client/product/sim-gesture-root';
+import {
+  createRoomServer,
+  type RoomServerApp,
+} from '@apps/room-server/app/create-room-server';
+import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import { loadBetterAuthBootConfig } from '@apps/server/config/better-auth-boot';
 import {
@@ -10,7 +15,7 @@ import {
   SIM_BETTER_AUTH_SECRET,
   SIM_SERVER_URL,
   SIM_SQLITE_DATABASE_URL,
-} from '@apps/server/system/migrate-sim-sqlite';
+} from '@apps/server/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
@@ -30,7 +35,6 @@ import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createPassthroughBottomSheetHost } from '@pkgs/ui';
 import { createSimAdapters } from '@pkgs/uuid';
-import { createInProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {
@@ -66,7 +70,7 @@ export type Sim = {
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
   dispose(): Promise<void>;
-  readonly roomNode: ReturnType<typeof createInProcessRoomNode>;
+  readonly roomNode: RoomServerApp;
   readonly serverSql: SimSqlHandle;
   clientSql(id: string): SimSqlHandle | undefined;
 };
@@ -125,13 +129,27 @@ async function buildServerEnv(args: {
   };
 }
 
+function buildRoomServerEnv(args: {
+  readonly adapters: ReturnType<typeof createSimAdapters>;
+  readonly timers: Timers;
+}): RoomServerEnv {
+  const { adapters, timers } = args;
+  return {
+    clock: adapters.clock,
+    timers,
+    createId: adapters.createId,
+    random: adapters.random,
+    seed: adapters.seed,
+  };
+}
+
 type SimKernel = {
   readonly adapters: ReturnType<typeof createSimAdapters>;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   readonly serverSql: SimSqlHandle;
-  readonly roomNode: ReturnType<typeof createInProcessRoomNode>;
+  readonly roomNode: RoomServerApp;
   readonly serverEnv: ServerEnv;
 };
 
@@ -151,11 +169,8 @@ async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
       now: adapters.clock.now,
     });
   }
-  const roomNode = createInProcessRoomNode({
-    clock: adapters.clock,
-    timers,
-    createId: adapters.createId,
-  });
+  const roomServerEnv = buildRoomServerEnv({ adapters, timers });
+  const roomNode = createRoomServer(roomServerEnv);
   const serverEnv = await buildServerEnv({
     adapters,
     timers,
@@ -225,7 +240,7 @@ function makeSimClientEnv(
 async function disposeSim(args: {
   disposed: { value: boolean };
   liveClients: Map<string, Client>;
-  roomNode: ReturnType<typeof createInProcessRoomNode>;
+  roomNode: RoomServerApp;
   clientSql: Map<string, SimSqlHandle>;
   serverSql: SimSqlHandle;
 }): Promise<void> {

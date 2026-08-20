@@ -180,7 +180,7 @@ function LiveKindPane(props: {
       />
     );
   }
-  if (kind === 'api') {
+  if (kind === 'server') {
     return (
       <ServerPlaygroundPanel
         session={session}

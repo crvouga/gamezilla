@@ -3,12 +3,12 @@
  */
 
 import type { Client } from '@apps/client/product/create-client';
+import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type {
   createPlaygroundLogBuffer,
   PlaygroundActor,
   PlaygroundRoomNode,
 } from '@pkgs/sim-console/client';
-import type { InProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 import { makePlaygroundRoomNode } from '@sim/console/playground/playground-session-nodes';
 import type { Sim } from '@sim/console/sim/create-sim';
 import type { SimSqlHandle } from '@sim/console/sim/sim-sql';
@@ -112,7 +112,7 @@ export async function detachClientsForSnapshotLoad(
 }
 
 export function refreshRoomMap(
-  roomNode: InProcessRoomNode,
+  roomNode: RoomServerApp,
   maps: SessionMaps,
   roomLogs: ReturnType<typeof createPlaygroundLogBuffer>
 ): void {

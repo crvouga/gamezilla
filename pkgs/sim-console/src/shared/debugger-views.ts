@@ -27,7 +27,7 @@ export const VIEWS_BY_KIND: Readonly<
   Record<SimChromeKind, readonly DebuggerViewId[]>
 > = {
   client: ['ui', 'db', 'events'],
-  api: ['db', 'events', 'commands'],
+  server: ['db', 'events', 'commands'],
   events: ['events', 'topics'],
   room: ['db', 'events'],
 };
@@ -36,7 +36,7 @@ export const DEFAULT_VIEW_BY_KIND: Readonly<
   Record<SimChromeKind, DebuggerViewId>
 > = {
   client: 'ui',
-  api: 'db',
+  server: 'db',
   events: 'events',
   room: 'db',
 };
@@ -51,15 +51,16 @@ export function aliasDebuggerView(raw: string): string {
 }
 
 export function coerceDebuggerView(
-  kind: SimChromeKind,
+  kind: string,
   raw: string | null | undefined
 ): DebuggerViewId {
+  const chrome = coerceSimChromeKind(kind);
   const aliased = aliasDebuggerView(raw ?? '');
-  const allowed = VIEWS_BY_KIND[kind];
+  const allowed = VIEWS_BY_KIND[chrome];
   if (VIEW_SET.has(aliased) && allowed.includes(aliased as DebuggerViewId)) {
     return aliased as DebuggerViewId;
   }
-  return DEFAULT_VIEW_BY_KIND[kind];
+  return DEFAULT_VIEW_BY_KIND[chrome];
 }
 
 export function defaultViewForKind(kind: SimChromeKind): DebuggerViewId {

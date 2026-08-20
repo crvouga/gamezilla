@@ -1,6 +1,6 @@
 /**
  * Group World topology nodes into debugger chrome kinds.
- * World `db` is folded into API (DB pane), not its own kind tab.
+ * World `db` is folded into Server (DB pane), not its own kind tab.
  */
 
 import {
@@ -18,7 +18,7 @@ export type DebuggerNode = {
 
 export function chromeKindForNodeKind(kind: string): SimChromeKind {
   const coerced = coerceSimNodeKind(kind);
-  if (coerced === 'db') return 'api';
+  if (coerced === 'db') return 'server';
   return coerceSimChromeKind(coerced);
 }
 
@@ -39,7 +39,7 @@ export function nodeIdForKindInstance(
   instance: string | null | undefined
 ): string {
   const raw = instance?.trim() ?? '';
-  if (kind === 'api') return 'api';
+  if (kind === 'server') return 'server';
   if (kind === 'events') return 'events';
   if (raw.length === 0) return kind;
   const parsed = parseSimNodeAddress(raw);
@@ -74,9 +74,9 @@ export function findNodeForInstance<T extends DebuggerNode>(
   );
 }
 
-export function sqliteNodeIdForApi(nodes: readonly DebuggerNode[]): string {
-  const api = nodes.find((n) => coerceSimNodeKind(n.kind) === 'api');
-  if (api !== undefined) return api.id;
+export function sqliteNodeIdForServer(nodes: readonly DebuggerNode[]): string {
+  const server = nodes.find((n) => coerceSimNodeKind(n.kind) === 'server');
+  if (server !== undefined) return server.id;
   const db = nodes.find((n) => coerceSimNodeKind(n.kind) === 'db');
-  return db?.id ?? 'api';
+  return db?.id ?? 'server';
 }

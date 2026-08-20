@@ -15,7 +15,7 @@ Scripts live under [`tools/scripts/check-*.ts`](../tools/scripts/). These gates 
 
 ### Layer A — Primitives (long-lived)
 
-Only `SqlClient` plus injected time/entropy (`Clock`, `createId`, `Timers`, HTTP). Created at process/request entry (`createClient(env)` / `createServer(env)` / `createSim`) and threaded through request context. **No `Io` bag, no repositories, no services, no container class.**
+Only `SqlClient` plus injected time/entropy (`Clock`, `createId`, `Timers`, HTTP). Created at process/request entry (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim`) and threaded through request context. **No `Io` bag, no repositories, no services, no container class.**
 
 ```typescript
 export interface AppContext {
@@ -103,7 +103,7 @@ The following patterns are **outdated** — do not copy them:
 | ---------- | ------------ |
 | `ApiRequestContainer` eagerly holding repos/services | Request ALS carries `sqlClient` + `clock` / `createId`; `new SomeUseCase(db, clock).execute(…)` |
 | `constructor(private readonly db: SqlClient)` on a repository/service/publisher | `constructor(private readonly tx: SqlTx, private readonly clock: Clock)` |
-| An `Io` bag (`wallIo` / `createSimIo` / `getIo`) | Pass `clock` / `createId` / `timers` / HTTP from `ClientEnv` / `ServerEnv` |
+| An `Io` bag (`wallIo` / `createSimIo` / `getIo`) | Pass `clock` / `createId` / `timers` / HTTP from `ClientEnv` / `ServerEnv` / `RoomServerEnv` |
 | Wiring new server classes into a central container | Construct Layer C at the point of use inside the use case |
 
 Do not reintroduce a container/registry class. Factory functions are the only wiring escape hatch.

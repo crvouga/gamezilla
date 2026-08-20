@@ -57,7 +57,7 @@ function ConsoleBody(): ReactNode {
   );
 }
 
-/** Expo root: Sim Console only (no product Client|System host chrome). */
+/** Expo root: Sim Console only (no product Client|Sim host chrome). */
 export function RootApp(): ReactNode {
   const consoleNav = useConsoleNav();
   const createId = useMemo(() => () => crypto.randomUUID(), []);

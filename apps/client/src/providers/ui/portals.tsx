@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
  * (e.g. CloseIconButton) silently no-op. Overlay host z-index stays above
  * surfaces; banners stay under overlay.
  *
- * Pass `host` when not under {@link ClientEnvProvider} (system console).
+ * Pass `host` when not under {@link ClientEnvProvider} (sim console).
  * Product trees omit it and read `env.bottomSheetHost`.
  */
 export function AppUiPortals({

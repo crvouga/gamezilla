@@ -5,7 +5,7 @@
 
 export const SIM_NODE_KINDS = [
   'client',
-  'api',
+  'server',
   'events',
   'room',
   'db',
@@ -13,20 +13,20 @@ export const SIM_NODE_KINDS = [
 
 export type SimNodeKind = (typeof SIM_NODE_KINDS)[number];
 
-/** Playground kind tabs (DB is a pane under API, not its own tab). */
-export const SIM_CHROME_KINDS = ['client', 'api', 'events', 'room'] as const;
+/** Playground kind tabs (DB is a pane under Server, not its own tab). */
+export const SIM_CHROME_KINDS = ['client', 'server', 'events', 'room'] as const;
 
 export type SimChromeKind = (typeof SIM_CHROME_KINDS)[number];
 
 export const SIM_NODE_KIND_ALIASES: Readonly<Record<string, SimNodeKind>> = {
-  server: 'api',
+  api: 'server',
   pubsub: 'events',
   actor: 'room',
 };
 
 export const SIM_NODE_LABELS: Readonly<Record<SimNodeKind, string>> = {
   client: 'Client',
-  api: 'API',
+  server: 'Server',
   events: 'Events',
   room: 'Room server',
   db: 'DB',
@@ -92,8 +92,8 @@ export function fallbackReportNodes(
 ): readonly FallbackReportNode[] {
   const out: FallbackReportNode[] = [
     {
-      id: 'api',
-      kind: 'api',
+      id: 'server',
+      kind: 'server',
       attributes: ['sqlite', 'ingress', 'egress'],
     },
     { id: 'events', kind: 'events', attributes: ['ingress', 'egress'] },

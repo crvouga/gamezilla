@@ -2,17 +2,17 @@
  * Playground console node adapters (room + pubsub inspect façades).
  */
 
+import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type { InMemoryBus } from '@pkgs/pubsub/testing/in-memory';
 import type {
   createPlaygroundLogBuffer,
   PlaygroundPubSubNode,
   PlaygroundRoomNode,
 } from '@pkgs/sim-console/client';
-import type { InProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 
 export function makePlaygroundRoomNode(
   topic: string,
-  roomNode: InProcessRoomNode,
+  roomNode: RoomServerApp,
   logs: ReturnType<typeof createPlaygroundLogBuffer>
 ): PlaygroundRoomNode {
   return {

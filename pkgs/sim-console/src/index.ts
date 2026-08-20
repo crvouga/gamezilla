@@ -1,5 +1,5 @@
 /**
- * `@pkgs/sim-console` — capture system/DST timelines into an ObjectStore.
+ * `@pkgs/sim-console` — capture sim/DST timelines into an ObjectStore.
  * Browse them via `SimConsoleApp` (`@pkgs/sim-console/client`) and
  * `createSimConsoleApp` (`@pkgs/sim-console/server`).
  */

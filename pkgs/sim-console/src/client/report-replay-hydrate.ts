@@ -33,14 +33,14 @@ export async function checkpointFromReportFrame(args: {
       atMs: args.frame.capturedAtMs,
       fetch: args.fetch,
     });
-    if (dump.nodeId === 'api') {
+    if (dump.nodeId === 'server' || dump.nodeId === 'api') {
       serverSql = sqlm;
       continue;
     }
     clientSql[clientIdFromNode(dump.nodeId)] = sqlm;
   }
   if (serverSql === undefined) {
-    throw new Error('report frame has no API sqlite dump');
+    throw new Error('report frame has no server sqlite dump');
   }
   return mergeCheckpointMeta(args.frame, serverSql, clientSql);
 }

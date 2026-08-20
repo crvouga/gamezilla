@@ -5,7 +5,7 @@ import {
   findNodeForInstance,
   instanceParamForNodeId,
   instancesForKind,
-  sqliteNodeIdForApi,
+  sqliteNodeIdForServer,
 } from '../shared/debugger-nodes';
 import {
   coerceDebuggerView,
@@ -217,8 +217,8 @@ function paneNodeId(args: {
   readonly nodeId: string | null;
   readonly nodes: readonly TopologyNodeInfo[];
 }): string | null {
-  if (args.view === 'db' && args.kind === 'api') {
-    return sqliteNodeIdForApi(args.nodes);
+  if (args.view === 'db' && args.kind === 'server') {
+    return sqliteNodeIdForServer(args.nodes);
   }
   return args.nodeId;
 }

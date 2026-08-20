@@ -10,13 +10,13 @@ import {
 
 describe('coerceSimNodeKind', () => {
   test('maps legacy aliases onto World kinds', () => {
-    expect(coerceSimNodeKind('server')).toBe('api');
+    expect(coerceSimNodeKind('api')).toBe('server');
     expect(coerceSimNodeKind('pubsub')).toBe('events');
     expect(coerceSimNodeKind('actor')).toBe('room');
   });
 
   test('passes through World kinds', () => {
-    expect(coerceSimNodeKind('api')).toBe('api');
+    expect(coerceSimNodeKind('server')).toBe('server');
     expect(coerceSimNodeKind('events')).toBe('events');
     expect(coerceSimNodeKind('client')).toBe('client');
     expect(coerceSimNodeKind('db')).toBe('db');
@@ -32,15 +32,16 @@ describe('coerceSimChromeKind', () => {
   test('defaults unknown and db to client', () => {
     expect(coerceSimChromeKind('nope')).toBe('client');
     expect(coerceSimChromeKind('db')).toBe('client');
-    expect(coerceSimChromeKind('server')).toBe('api');
+    expect(coerceSimChromeKind('api')).toBe('server');
+    expect(coerceSimChromeKind('server')).toBe('server');
   });
 });
 
 describe('parseSimNodeAddress / formatSimNodeLabel', () => {
   test('singletons use catalog labels', () => {
-    expect(formatSimNodeLabel({ id: 'api', kind: 'api' })).toBe('API');
+    expect(formatSimNodeLabel({ id: 'server', kind: 'server' })).toBe('Server');
     expect(formatSimNodeLabel({ id: 'events' })).toBe('Events');
-    expect(formatSimNodeLabel({ id: 'server' })).toBe('API');
+    expect(formatSimNodeLabel({ id: 'api' })).toBe('Server');
     expect(formatSimNodeLabel({ id: 'db', kind: 'db' })).toBe('DB');
   });
 
@@ -59,16 +60,24 @@ describe('parseSimNodeAddress / formatSimNodeLabel', () => {
       instanceId: 'bob',
     });
     expect(parseSimNodeAddress('api')).toEqual({
-      kind: 'api',
+      kind: 'server',
+      instanceId: null,
+    });
+    expect(parseSimNodeAddress('server')).toEqual({
+      kind: 'server',
       instanceId: null,
     });
   });
 });
 
 describe('fallbackReportNodes', () => {
-  test('uses api/events not server/pubsub', () => {
+  test('uses server/events not api/pubsub', () => {
     const nodes = fallbackReportNodes(['client:alice']);
-    expect(nodes.map((n) => n.id)).toEqual(['api', 'events', 'client:alice']);
-    expect(nodes.map((n) => n.kind)).toEqual(['api', 'events', 'client']);
+    expect(nodes.map((n) => n.id)).toEqual([
+      'server',
+      'events',
+      'client:alice',
+    ]);
+    expect(nodes.map((n) => n.kind)).toEqual(['server', 'events', 'client']);
   });
 });

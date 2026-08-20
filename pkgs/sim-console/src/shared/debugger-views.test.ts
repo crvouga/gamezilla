@@ -6,7 +6,7 @@ import {
   instanceParamForNodeId,
   instancesForKind,
   nodeIdForKindInstance,
-  sqliteNodeIdForApi,
+  sqliteNodeIdForServer,
 } from './debugger-nodes';
 import {
   aliasDebuggerView,
@@ -20,12 +20,12 @@ describe('debugger-views', () => {
     expect(aliasDebuggerView('sqlite')).toBe('db');
     expect(aliasDebuggerView('logs')).toBe('events');
     expect(coerceDebuggerView('client', 'html')).toBe('ui');
-    expect(coerceDebuggerView('api', 'sqlite')).toBe('db');
+    expect(coerceDebuggerView('server', 'sqlite')).toBe('db');
     expect(coerceDebuggerView('events', 'logs')).toBe('events');
   });
 
   test('hides commands/topics when flags are false', () => {
-    expect(viewsForKind('api', { hasCommands: false })).toEqual([
+    expect(viewsForKind('server', { hasCommands: false })).toEqual([
       'db',
       'events',
     ]);
@@ -35,28 +35,31 @@ describe('debugger-views', () => {
 });
 
 describe('debugger-nodes', () => {
-  test('folds db into api chrome kind', () => {
-    expect(chromeKindForNodeKind('db')).toBe('api');
-    expect(chromeKindForNodeKind('server')).toBe('api');
+  test('folds db into server chrome kind', () => {
+    expect(chromeKindForNodeKind('db')).toBe('server');
+    expect(chromeKindForNodeKind('api')).toBe('server');
+    expect(chromeKindForNodeKind('server')).toBe('server');
     const nodes = [
-      { id: 'api', kind: 'api' },
+      { id: 'server', kind: 'server' },
       { id: 'db', kind: 'db' },
       { id: 'client:alice', kind: 'client' },
       { id: 'events', kind: 'events' },
     ];
-    expect(instancesForKind(nodes, 'api').map((n) => n.id)).toEqual(['api']);
+    expect(instancesForKind(nodes, 'server').map((n) => n.id)).toEqual([
+      'server',
+    ]);
     expect(instancesForKind(nodes, 'client').map((n) => n.id)).toEqual([
       'client:alice',
     ]);
-    expect(sqliteNodeIdForApi(nodes)).toBe('api');
+    expect(sqliteNodeIdForServer(nodes)).toBe('server');
   });
 
   test('kind + instance round-trip', () => {
     expect(nodeIdForKindInstance('client', 'alice')).toBe('client:alice');
     expect(nodeIdForKindInstance('client', 'client:bob')).toBe('client:bob');
-    expect(nodeIdForKindInstance('api', 'anything')).toBe('api');
+    expect(nodeIdForKindInstance('server', 'anything')).toBe('server');
     expect(instanceParamForNodeId('client:alice')).toBe('alice');
-    expect(instanceParamForNodeId('api')).toBe('api');
+    expect(instanceParamForNodeId('server')).toBe('server');
   });
 
   test('findNodeForInstance accepts short or full ids', () => {
