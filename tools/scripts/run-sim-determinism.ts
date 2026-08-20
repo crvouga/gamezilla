@@ -20,9 +20,7 @@ for await (const file of new Glob('{libs,pkgs}/**/*.sim.test.ts').scan({
   if (!isRunnableSimTest(file)) continue;
   files.push(file);
 }
-for await (const file of new Glob(
-  'apps/system/**/*.sim.test.{ts,tsx}'
-).scan({
+for await (const file of new Glob('apps/system/**/*.sim.test.{ts,tsx}').scan({
   cwd: REPO_ROOT,
   absolute: true,
 })) {

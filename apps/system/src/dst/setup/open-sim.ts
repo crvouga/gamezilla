@@ -2,8 +2,6 @@
  * Open a client UI simulation on createSim.
  */
 
-import { createSim, type Sim } from '../../sim/create-sim';
-import { type SimSqlHandle, sharedSqlClient } from '../../sim/sim-sql';
 import { type Timers, wallClock } from '@pkgs/clock';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
@@ -21,6 +19,8 @@ import { createDriver, createRenderedAppFromRntl } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 import { render } from '@testing-library/react-native';
 import { createElement } from 'react';
+import { createSim, type Sim } from '../../sim/create-sim';
+import { type SimSqlHandle, sharedSqlClient } from '../../sim/sim-sql';
 
 import '@apps/client/i18n/i18n';
 

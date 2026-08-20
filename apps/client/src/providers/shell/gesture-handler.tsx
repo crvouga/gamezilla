@@ -1,14 +1,15 @@
+import { useClientEnv } from '@apps/client/product/client-env-provider';
 import type { ReactNode } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export function AppGestureHandler({
   children,
 }: {
   children: ReactNode;
 }): ReactNode {
+  const { gestureRoot: GestureRoot } = useClientEnv();
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} testID="app-root">
+    <GestureRoot style={{ flex: 1 }} testID="app-root">
       {children}
-    </GestureHandlerRootView>
+    </GestureRoot>
   );
 }

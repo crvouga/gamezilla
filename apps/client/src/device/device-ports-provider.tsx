@@ -13,54 +13,40 @@ import type { DevMenuPort, NetworkState, NetworkStatePort } from './ports';
 const NetworkStateContext = createContext<NetworkStatePort | null>(null);
 const DevMenuContext = createContext<DevMenuPort | null>(null);
 
-let defaultNetwork: NetworkStatePort | null = null;
-let defaultDevMenu: DevMenuPort | null = null;
-
-function getDefaultNetwork(): NetworkStatePort {
-  if (defaultNetwork === null) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createExpoNetworkStatePort } =
-      require('./expo-network-state-port') as {
-        createExpoNetworkStatePort: () => NetworkStatePort;
-      };
-    defaultNetwork = createExpoNetworkStatePort();
-  }
-  return defaultNetwork;
-}
-
-function getDefaultDevMenu(): DevMenuPort {
-  if (defaultDevMenu === null) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createExpoDevMenuPort } = require('./expo-dev-menu-port') as {
-      createExpoDevMenuPort: () => DevMenuPort;
-    };
-    defaultDevMenu = createExpoDevMenuPort();
-  }
-  return defaultDevMenu;
-}
-
 export function DevicePortsProvider({
   children,
   network,
   devMenu,
 }: {
   children: ReactNode;
-  network?: NetworkStatePort;
-  devMenu?: DevMenuPort;
+  network: NetworkStatePort;
+  devMenu: DevMenuPort;
 }): ReactElement {
   return createElement(
     NetworkStateContext.Provider,
-    { value: network ?? null },
-    createElement(DevMenuContext.Provider, { value: devMenu ?? null }, children)
+    { value: network },
+    createElement(DevMenuContext.Provider, { value: devMenu }, children)
   );
 }
 
 export function useNetworkStatePort(): NetworkStatePort {
-  return useContext(NetworkStateContext) ?? getDefaultNetwork();
+  const port = useContext(NetworkStateContext);
+  if (port === null) {
+    throw new Error(
+      'useNetworkStatePort: DevicePortsProvider missing — wrap with createClient / AppShellProvider'
+    );
+  }
+  return port;
 }
 
 export function useDevMenuPort(): DevMenuPort {
-  return useContext(DevMenuContext) ?? getDefaultDevMenu();
+  const port = useContext(DevMenuContext);
+  if (port === null) {
+    throw new Error(
+      'useDevMenuPort: DevicePortsProvider missing — wrap with createClient / AppShellProvider'
+    );
+  }
+  return port;
 }
 
 /** React hook mirroring `expo-network`'s `useNetworkState`. */

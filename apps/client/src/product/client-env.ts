@@ -1,4 +1,5 @@
 import type { DevMenuPort, NetworkStatePort } from '@apps/client/device/ports';
+import type { GestureRootProps } from '@apps/client/product/gesture-root-props';
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { CreateRoomTransport } from '@libs/spaces/root/client/room/room-transport-factory';
 import type { AuthClientStorage } from '@pkgs/auth-better-auth/client';
@@ -8,6 +9,8 @@ import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
+import type { BottomSheetHost } from '@pkgs/ui';
+import type { ComponentType } from 'react';
 
 /** HTTP to the server app only — not a generic fetch. */
 export type ServerHttp = (
@@ -37,6 +40,16 @@ export type ClientEnv = {
   readonly network: NetworkStatePort;
   readonly audio: AudioPlaybackPort;
   readonly devMenu: DevMenuPort;
+  /**
+   * App shell root view. Wall: RNGH GestureHandlerRootView; sim: RN View
+   * (avoids Fabric native install under RNTL).
+   */
+  readonly gestureRoot: ComponentType<GestureRootProps>;
+  /**
+   * Bottom-sheet primitives for ResponsiveSurface / portals. Wall: gorhom;
+   * sim: passthrough host (no reanimated sheet).
+   */
+  readonly bottomSheetHost: BottomSheetHost;
   readonly observability: Observability;
   readonly serverUrl: string;
   readonly authBaseURL: string;

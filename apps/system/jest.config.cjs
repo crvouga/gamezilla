@@ -49,15 +49,10 @@ module.exports = {
       'react-native-worklets/lib/module/mock',
       { paths: [path.join(repoRoot, 'apps/client')] }
     ),
-    '^@gorhom/bottom-sheet$': '<rootDir>/jest-bottom-sheet-stub.cjs',
-    '^react-native-gesture-handler$': '<rootDir>/jest-gesture-handler-stub.cjs',
     // Expo.fx requires `./async-require/messageSocket` (resolves .native).
     // Map every copy so Metro HMR never opens ws://localhost:8081/message.
     'async-require[/\\\\]messageSocket(\\.native)?$':
       '<rootDir>/jest-expo-message-socket-stub.cjs',
-    // Better Auth (not product code) dynamically imports expo-network and
-    // requires subscription.remove(); keep a minimal shim for that path only.
-    '^expo-network$': '<rootDir>/jest-expo-network-better-auth-shim.cjs',
     // Force one Lingui core singleton (Bun nests two hashes otherwise).
     '^@lingui/core$': require.resolve('@lingui/core', {
       paths: [path.join(repoRoot, 'apps/client')],

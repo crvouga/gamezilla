@@ -9,21 +9,22 @@
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView} /
  * {@link FlatList} scrollbars sit flush with the surface edges (padding lives
  * inside the scrollable area).
+ *
+ * Mobile sheets require {@link BottomSheetHostProvider} (wired from ClientEnv).
  */
 
-import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
-import type { PropsWithChildren, ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode, RefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { OnColorReset, useTheme } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
 import { spacing } from '../../theme/scale';
+import type {
+  BottomSheetHostBackdropProps,
+  BottomSheetModalMethods,
+} from '../bottom-sheet-host';
+import { useBottomSheetHost } from '../bottom-sheet-host';
 import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
@@ -152,11 +153,11 @@ function useBottomSheetModalVisibility(
   visible: boolean,
   onClose: () => void
 ): {
-  sheetRef: React.RefObject<React.ElementRef<typeof BottomSheetModal> | null>;
+  sheetRef: RefObject<BottomSheetModalMethods | null>;
   onDismiss: () => void;
   onChange: (index: number) => void;
 } {
-  const sheetRef = useRef<React.ElementRef<typeof BottomSheetModal>>(null);
+  const sheetRef = useRef<BottomSheetModalMethods | null>(null);
   const hasPresentedRef = useRef(false);
 
   useEffect(() => {
@@ -185,9 +186,10 @@ function useBottomSheetModalVisibility(
 }
 
 function useBottomSheetBackdrop() {
+  const { Backdrop } = useBottomSheetHost();
   return useCallback(
-    (backdropProps: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
+    (backdropProps: BottomSheetHostBackdropProps) => (
+      <Backdrop
         {...backdropProps}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
@@ -195,7 +197,7 @@ function useBottomSheetBackdrop() {
         pressBehavior="close"
       />
     ),
-    []
+    [Backdrop]
   );
 }
 
@@ -222,8 +224,9 @@ function MobileSheetBody({
   onDismissSheet,
   children,
 }: MobileSheetBodyProps) {
+  const { View: SheetView } = useBottomSheetHost();
   return (
-    <BottomSheetView
+    <SheetView
       {...componentDataSet('ResponsiveSurface', dataSet)}
       style={{
         paddingHorizontal: edgePadPx,
@@ -244,7 +247,7 @@ function MobileSheetBody({
           {children}
         </SurfaceChrome>
       </FocusTrap>
-    </BottomSheetView>
+    </SheetView>
   );
 }
 
@@ -259,6 +262,7 @@ function MobileSheet({
   dataSet,
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
+  const { Modal } = useBottomSheetHost();
   const { height: windowHeight } = useWindowDimensions();
   const { sheetRef, onDismiss, onChange } = useBottomSheetModalVisibility(
     visible,
@@ -281,7 +285,7 @@ function MobileSheet({
   const renderBackdrop = useBottomSheetBackdrop();
 
   return (
-    <BottomSheetModal
+    <Modal
       ref={sheetRef}
       {...(dynamicSizing
         ? {
@@ -315,7 +319,7 @@ function MobileSheet({
       >
         {children}
       </MobileSheetBody>
-    </BottomSheetModal>
+    </Modal>
   );
 }
 

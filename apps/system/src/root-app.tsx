@@ -1,6 +1,7 @@
 // @io-wall-ok — Expo composition root for System Console (Reports + Playground).
 
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
+import { wallBottomSheetHost } from '@apps/client/product/wall-bottom-sheet-host';
 import { AppUiPortals } from '@apps/client/providers/ui/portals';
 import {
   ConsoleChromeProvider,
@@ -39,7 +40,7 @@ function ConsoleBody(): ReactNode {
   }, [clock, timers]);
   return (
     <AppI18nProvider>
-      <AppUiPortals>
+      <AppUiPortals host={wallBottomSheetHost}>
         <SystemConsoleApp
           ports={ports}
           section={state.section}

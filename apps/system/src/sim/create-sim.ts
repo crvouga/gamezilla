@@ -2,6 +2,7 @@ import { createInMemoryDevMenuPort } from '@apps/client/device/in-memory-dev-men
 import { createInMemoryNetworkStatePort } from '@apps/client/device/in-memory-network-state-port';
 import type { ClientEnv } from '@apps/client/product/client-env';
 import { type Client, createClient } from '@apps/client/product/create-client';
+import { SimGestureRoot } from '@apps/client/product/sim-gesture-root';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import { loadBetterAuthBootConfig } from '@apps/server/config/better-auth-boot';
 import {
@@ -28,6 +29,7 @@ import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import { createPassthroughBottomSheetHost } from '@pkgs/ui';
 import { createSimAdapters } from '@pkgs/uuid';
 import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
@@ -211,6 +213,8 @@ function makeSimClientEnv(
     network: createInMemoryNetworkStatePort(),
     audio: createInMemoryAudioPlaybackPort(),
     devMenu: createInMemoryDevMenuPort(),
+    gestureRoot: SimGestureRoot,
+    bottomSheetHost: createPassthroughBottomSheetHost(),
     observability: createNoopObservability(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,

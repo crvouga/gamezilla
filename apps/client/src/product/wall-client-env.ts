@@ -24,6 +24,8 @@ import * as SecureStore from 'expo-secure-store';
 
 import type { ClientEnv } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
+import { wallBottomSheetHost } from './wall-bottom-sheet-host';
+import { WallGestureRoot } from './wall-gesture-root';
 
 function mintWallSeed(): bigint {
   const bytes = new Uint8Array(8);
@@ -85,6 +87,8 @@ export function wallClientEnv(args?: {
     network: createExpoNetworkStatePort(),
     audio: createExpoAudioPlaybackPort(),
     devMenu: createExpoDevMenuPort(),
+    gestureRoot: WallGestureRoot,
+    bottomSheetHost: wallBottomSheetHost,
     observability: createNoopObservability('gamezilla-client'),
     serverUrl,
     authBaseURL: serverUrl,

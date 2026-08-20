@@ -1,5 +1,7 @@
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useOptionalClientEnv } from '@apps/client/product/client-env-provider';
 import {
+  type BottomSheetHost,
+  BottomSheetHostProvider,
   DismissibleBannerPortalProvider,
   OverlayPortalProvider,
   SurfaceStackProvider,
@@ -12,15 +14,34 @@ import type { ReactNode } from 'react';
  * OverlayPortal context when Overlay is outside. Otherwise modal tooltips
  * (e.g. CloseIconButton) silently no-op. Overlay host z-index stays above
  * surfaces; banners stay under overlay.
+ *
+ * Pass `host` when not under {@link ClientEnvProvider} (system console).
+ * Product trees omit it and read `env.bottomSheetHost`.
  */
-export function AppUiPortals({ children }: { children: ReactNode }): ReactNode {
+export function AppUiPortals({
+  children,
+  host: hostProp,
+}: {
+  children: ReactNode;
+  host?: BottomSheetHost;
+}): ReactNode {
+  const env = useOptionalClientEnv();
+  const host = hostProp ?? env?.bottomSheetHost;
+  if (host === undefined) {
+    throw new Error(
+      'AppUiPortals: BottomSheetHost required — pass host or wrap with createClient'
+    );
+  }
+  const { Provider: SheetProvider } = host;
   return (
-    <OverlayPortalProvider>
-      <SurfaceStackProvider>
-        <DismissibleBannerPortalProvider>
-          <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-        </DismissibleBannerPortalProvider>
-      </SurfaceStackProvider>
-    </OverlayPortalProvider>
+    <BottomSheetHostProvider host={host}>
+      <OverlayPortalProvider>
+        <SurfaceStackProvider>
+          <DismissibleBannerPortalProvider>
+            <SheetProvider>{children}</SheetProvider>
+          </DismissibleBannerPortalProvider>
+        </SurfaceStackProvider>
+      </OverlayPortalProvider>
+    </BottomSheetHostProvider>
   );
 }

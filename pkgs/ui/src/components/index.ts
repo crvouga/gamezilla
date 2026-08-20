@@ -44,6 +44,16 @@ export {
   type BottomActionBarItem,
   type BottomActionBarProps,
 } from './bottom-action-bar';
+export {
+  type BottomSheetHost,
+  type BottomSheetHostBackdropProps,
+  type BottomSheetHostModalProps,
+  BottomSheetHostProvider,
+  type BottomSheetHostViewProps,
+  type BottomSheetModalMethods,
+  createPassthroughBottomSheetHost,
+  useBottomSheetHost,
+} from './bottom-sheet-host';
 export { Box, type BoxProps } from './box';
 export {
   BrandIcon,
