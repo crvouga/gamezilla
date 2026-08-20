@@ -56,7 +56,8 @@ async function readText(
 ): Promise<string | null> {
   const obj = await store.get(key);
   if (obj === null) return null;
-  return new TextDecoder().decode(await readBody(obj.body));
+  const body = await readBody(obj.body);
+  return new TextDecoder().decode(body);
 }
 
 async function deleteSnapshotTree(

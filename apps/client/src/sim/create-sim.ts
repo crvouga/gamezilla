@@ -296,5 +296,6 @@ function createSimHandle(kernel: SimKernel): Sim {
  * Playground + openSim fabric. Production never calls this.
  */
 export async function createSim(opts?: CreateSimOptions): Promise<Sim> {
-  return createSimHandle(await bootSimKernel(opts));
+  const kernel = await bootSimKernel(opts);
+  return createSimHandle(kernel);
 }

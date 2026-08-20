@@ -32,6 +32,6 @@ Do not convert `defineMutation` / `defineQuery` `run` handlers, React hooks, or
 correct.
 
 CI: `ci:no-top-level-di-functions`, `ci:no-eager-di-construction`,
-`ci:layer-c-sql-tx`, `ci:no-di-container`.
+`ci:layer-c-sql-tx`; Biome `no-di-container.grit` (via `ci:lint`).
 
 Full rationale: docs/dependency-injection.md

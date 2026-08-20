@@ -1,0 +1,13 @@
+language js
+
+or {
+  `wallClock` as $id where {
+    register_diagnostic(span=$id, message="wallClock only in tests or @io-wall-ok entry roots — inject Clock elsewhere.", severity="error")
+  },
+  `wallTimers` as $id where {
+    register_diagnostic(span=$id, message="wallTimers only in tests or @io-wall-ok entry roots — inject Timers elsewhere.", severity="error")
+  },
+  `createGlobalHttpClient()` as $call where {
+    register_diagnostic(span=$call, message="createGlobalHttpClient only in tests or @io-wall-ok entry roots — inject HttpClient elsewhere.", severity="error")
+  }
+}

@@ -209,19 +209,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:no-direct-pg-imports": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "tools/scripts/check-no-direct-pg-imports.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:database-url-policy": {
       "inputs": [
         "apps/server/scripts/setup-dev-vars.ts",
@@ -355,29 +342,9 @@
     },
     "//#ci:dst-selector-discipline": {
       "inputs": [
-        "test/system/src/scenarios/**/*.ts",
-        "test/system/src/scenarios/**/*.tsx",
-        "test/system/src/drivers/**/*.ts",
+        "test/system/src/**/*.ts",
+        "test/system/src/**/*.tsx",
         "tools/scripts/check-dst-selector-discipline.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-legacy-writes": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "pkgs/**/*.js",
-        "pkgs/**/*.cjs",
-        "pkgs/**/*.mjs",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "tools/scripts/check-no-legacy-writes.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -428,18 +395,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:no-di-container": {
-      "inputs": [
-        "libs/**/src/**/*.ts",
-        "libs/**/src/**/*.tsx",
-        "apps/**/src/**/*.ts",
-        "apps/**/src/**/*.tsx",
-        "tools/scripts/check-no-di-container.ts",
-        "tools/scripts/di-baseline-ratchet.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:fanout-rows-from-reads": {
       "inputs": [
         "pkgs/sync-engine/src/server/**/*.ts",
@@ -455,7 +410,6 @@
         "libs/**/mutations/**/*.tsx",
         "pkgs/**/mutations/**/*.ts",
         "pkgs/**/mutations/**/*.tsx",
-        "tools/scripts/check-mutation-determinism.ts",
         "tools/scripts/check-mutation-idempotency.ts"
       ],
       "outputs": [],
@@ -508,16 +462,6 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:sync-engine-framework-leak": {
-      "inputs": [
-        "apps/**/*.{ts,tsx}",
-        "libs/**/*.{ts,tsx}",
-        "libs/notifications/**/*.{ts,tsx}",
-        "tools/scripts/check-sync-engine-framework-leak.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:sync-engine-protocol-freeze": {
       "inputs": [
         "pkgs/sync-engine/src/protocol/v1.ts",
@@ -539,75 +483,11 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:no-provider-leaks": {
-      "inputs": [
-        "tools/scripts/check-no-provider-leaks.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "//#ci:server-isomorphic": {
       "inputs": [
         "tools/scripts/check-server-isomorphic.ts",
         "apps/server/src/**/*.ts",
         "apps/server/src/**/*.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-bare-io": {
-      "inputs": [
-        "tools/scripts/check-no-bare-io.ts",
-        "tools/scripts/io-scan-roots.ts",
-        "tools/scripts/io-scan-pragma.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-bare-fs": {
-      "inputs": [
-        "tools/scripts/check-no-bare-fs.ts",
-        "tools/scripts/io-scan-roots.ts",
-        "tools/scripts/io-scan-pragma.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "apps/**/*.js",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        "pkgs/**/*.js",
-        "test/**/*.ts",
-        "test/**/*.tsx",
-        "tools/**/*.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:hard-determinism": {
-      "inputs": [
-        "tools/scripts/check-hard-determinism.ts",
-        "libs/**/src/shared/**/*.ts",
-        "libs/**/src/shared/**/*.tsx",
-        "pkgs/sync-engine/src/mutations/**/*.ts",
-        "pkgs/sync-engine/src/client/**/*.ts",
-        "pkgs/sync-engine/src/sim/**/*.ts",
-        "pkgs/room/src/client/core/**/*.ts",
-        "pkgs/room/src/server/core/**/*.ts",
-        "pkgs/room/src/types.ts",
-        "pkgs/room/src/hash-room-state.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -619,21 +499,6 @@
         "pkgs/**/*.sim.test.ts",
         "test/**/*.sim.test.ts",
         "test/**/*.sim.test.tsx"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:no-resolve-wall-defaults": {
-      "inputs": [
-        "tools/scripts/check-no-resolve-wall-defaults.ts",
-        "tools/scripts/io-scan-roots.ts",
-        "tools/scripts/io-scan-pragma.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -670,19 +535,6 @@
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
         "pkgs/**/*.sql"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:pubsub-emqx-imports": {
-      "inputs": [
-        "tools/scripts/check-pubsub-emqx-imports.ts",
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx"
       ],
       "outputs": [],
       "outputLogs": "new-only"

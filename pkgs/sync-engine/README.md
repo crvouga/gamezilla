@@ -158,7 +158,7 @@ These must be possible with zero edits outside `pkgs/sync-engine/src/`:
 ```bash
 bun run ci:sync-engine-public-api      # api-reports/*.txt
 bun run ci:sync-engine-protocol-freeze # protocol-v2.sha256
-bun run ci:sync-engine-framework-leak  # no framework names in apps/libs/inbox
+bun run ci:lint  # no-sync-engine-framework-leak plugin  # no framework names in apps/libs/inbox
 bun run ci:sync-engine-blackbox-tests
 bun run ci:no-local-tables
 bun run ci:channel-exhaustiveness

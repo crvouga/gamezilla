@@ -200,7 +200,7 @@ Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (af
 
 | Change | Guaranteeing contract |
 |--------|----------------------|
-| Rename/restructure framework tables | Code API observables + opaque migrate; CI `ci:sync-engine-framework-leak` |
+| Rename/restructure framework tables | Code API observables + opaque migrate; CI `Biome `no-sync-engine-framework-leak.grit` (ci:lint)` |
 | Rewrite merge/rebase/subscription/upload | Code API + Extension + Host ports only |
 | Swap pubsub transport | Host `pubsub` / `push.createPubSub` ports |
 | Change coalesce/batching/retry/single-flight | Internal (bounds constants are Wire if they change wire caps) |
@@ -218,7 +218,7 @@ Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (af
 |------|--------|
 | `ci:sync-engine-public-api` | `api-reports/{client,server,shared,test}.txt` |
 | `ci:sync-engine-protocol-freeze` | `api-reports/protocol-v2.sha256` |
-| `ci:sync-engine-framework-leak` | No framework table/DDL symbols in apps/libs/inbox/tools |
+| `Biome `no-sync-engine-framework-leak.grit` (ci:lint)` | No framework table/DDL symbols in apps/libs/inbox/tools |
 | `ci:sync-engine-terminology` | Ban retired authoring names (`hydrates:`, `declaredWrites`, …) |
 | `ci:sync-engine-blackbox-tests` | Scenarios stay black-box |
 | `ci:no-local-tables` | Opaque domain↔framework collision |

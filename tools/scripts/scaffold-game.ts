@@ -87,5 +87,5 @@ Next steps (not auto-applied):
   3. bun install
   4. Register a GameDefinition in libs/spaces (games registry) + client menu
   5. bun run --filter @libs/${game} test
-  6. bun run ci:hard-determinism && bun run ci:sim-determinism
+  6. bun run ci:lint && bun run ci:sim-determinism
 `);

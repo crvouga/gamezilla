@@ -1,0 +1,37 @@
+language js
+
+or {
+  `sync_engine_push_applied` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_push_applied must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `sync_engine_mutations_applied` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_mutations_applied must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `sync_engine_mutations` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_mutations must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `sync_engine_scope_meta` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_scope_meta must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `sync_engine_write_rejections` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_write_rejections must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `sync_engine_topic_seq` as $id where {
+    register_diagnostic(span=$id, message="Framework table sync_engine_topic_seq must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `FRAMEWORK_SERVER_DDL` as $id where {
+    register_diagnostic(span=$id, message="FRAMEWORK_SERVER_DDL must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `FRAMEWORK_TABLE_NAMES` as $id where {
+    register_diagnostic(span=$id, message="FRAMEWORK_TABLE_NAMES must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `FRAMEWORK_CACHE_TABLE_NAMES` as $id where {
+    register_diagnostic(span=$id, message="FRAMEWORK_CACHE_TABLE_NAMES must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `FRAMEWORK_DURABLE_TABLE_NAMES` as $id where {
+    register_diagnostic(span=$id, message="FRAMEWORK_DURABLE_TABLE_NAMES must stay inside pkgs/sync-engine.", severity="error")
+  },
+  `allocateTopicPushSeq` as $id where {
+    register_diagnostic(span=$id, message="allocateTopicPushSeq must stay inside pkgs/sync-engine.", severity="error")
+  }
+}

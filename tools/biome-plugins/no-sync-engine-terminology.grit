@@ -1,0 +1,31 @@
+language js
+
+or {
+  `topicCheckpoints` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: topicCheckpoints. See sync-engine CONTRACTS.md.", severity="error")
+  },
+  `NudgePayload` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: NudgePayload.", severity="error")
+  },
+  `attachNudges` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: attachNudges.", severity="error")
+  },
+  `declaredWrites` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: declaredWrites.", severity="error")
+  },
+  `affectedRows` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: affectedRows.", severity="error")
+  },
+  `spaceListChannels` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: spaceListChannels.", severity="error")
+  },
+  `spacePartyInvalidates` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: spacePartyInvalidates.", severity="error")
+  },
+  `_topic_applied` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: _topic_applied.", severity="error")
+  },
+  `_sync_topic_checkpoint` as $id where {
+    register_diagnostic(span=$id, message="Retired sync terminology: _sync_topic_checkpoint.", severity="error")
+  }
+}

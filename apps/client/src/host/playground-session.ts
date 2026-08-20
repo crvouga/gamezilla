@@ -292,7 +292,8 @@ async function bootClients(
         }
         await loadPlaygroundSnapshot(makeSnapshotCtx(args, maps)(), newest.id);
       }
-      setSnapshotLoads(await buildSnapshotLoadCommands(session));
+      const cmds = await buildSnapshotLoadCommands(session);
+      setSnapshotLoads(cmds);
     } catch {
       // Snapshot store down/slow — fall through to fresh default clients.
     }

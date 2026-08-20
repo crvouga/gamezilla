@@ -1,0 +1,28 @@
+language js
+
+or {
+  `from '@pkgs/ui-testing'` as $imp where {
+    register_diagnostic(span=$imp, message="Scenarios/drivers must use AppDriver / openSim — do not import @pkgs/ui-testing.", severity="error")
+  },
+  `from "@pkgs/ui-testing"` as $imp where {
+    register_diagnostic(span=$imp, message="Scenarios/drivers must use AppDriver / openSim — do not import @pkgs/ui-testing.", severity="error")
+  },
+  `from '@pkgs/ui-testing/$rest'` as $imp where {
+    register_diagnostic(span=$imp, message="Scenarios/drivers must use AppDriver / openSim — do not import @pkgs/ui-testing.", severity="error")
+  },
+  `from "@pkgs/ui-testing/$rest"` as $imp where {
+    register_diagnostic(span=$imp, message="Scenarios/drivers must use AppDriver / openSim — do not import @pkgs/ui-testing.", severity="error")
+  },
+  `by.text($args)` as $call where {
+    register_diagnostic(span=$call, message="DST scenarios/drivers must not use by.text — use AppDriver.", severity="error")
+  },
+  `by.nth($args)` as $call where {
+    register_diagnostic(span=$call, message="DST scenarios/drivers must not use by.nth — use AppDriver.", severity="error")
+  },
+  `by.role($args)` as $call where {
+    register_diagnostic(span=$call, message="DST scenarios/drivers must not use by.role — use AppDriver.", severity="error")
+  },
+  `by.label($args)` as $call where {
+    register_diagnostic(span=$call, message="DST scenarios/drivers must not use by.label — use AppDriver.", severity="error")
+  }
+}

@@ -79,5 +79,6 @@ export async function fetchPubSubToken(args: {
   if (!res.ok) {
     throw new Error(`pubsub token HTTP ${String(res.status)}`);
   }
-  return parsePubSubTokenBody(await res.json());
+  const body = await res.json();
+  return parsePubSubTokenBody(body);
 }

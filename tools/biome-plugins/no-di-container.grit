@@ -1,0 +1,10 @@
+language js
+
+JsClassDeclaration(id=$id) as $cls where {
+  $id <: or {
+    r".*Container",
+    r".*Registry",
+    r".*ServiceLocator"
+  },
+  register_diagnostic(span=$cls, message="Container/registry/service-locator classes are forbidden. Pass primitives (SqlClient, Clock, createId) and construct on demand; use a factory function if wiring repeats. See docs/dependency-injection.md.", severity="error")
+}

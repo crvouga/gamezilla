@@ -46,7 +46,7 @@ Wall `node:fs` / `expo-file-system` live only in `@io-wall-ok` adapters
 - Pure path math (`node:path`)
 - Path roots (`cwd` / `homedir` / `tmpdir`) as constructor `rootDir` only
 
-CI: `bun run ci:no-bare-fs` in addition to `ci:no-bare-io`.
+CI: Biome plugins `no-bare-fs.grit` / `no-bare-io.grit` (via `ci:lint`).
 
 ## Banned APIs (product runtime)
 
@@ -61,8 +61,8 @@ Wall construction (`wallClock`, `wallTimers`, `crypto.randomUUID`) only in **tes
 **entry-shaped** files marked `// @io-wall-ok` (see
 `tools/scripts/io-scan-pragma.ts`).
 
-CI: `bun run ci:no-bare-io`, `ci:no-resolve-wall-defaults`, `ci:no-sql-wall-io`,
-`ci:mutation-determinism`, `ci:hard-determinism`, `ci:sim-determinism`.
+CI: Biome Grit plugins (via `ci:lint`) for bare I/O, wall defaults, and hard-determinism;
+`ci:no-sql-wall-io`, `ci:mutation-determinism` (idempotency), `ci:sim-determinism`.
 
 ## Hard-determinism gotchas
 
@@ -102,7 +102,7 @@ Beyond bare I/O:
 - [ ] No `localeCompare` / `Intl` in `**/shared/**` game or sync paths
 - [ ] Mutations take time/ids from `env` / args, not wall APIs
 - [ ] Added or updated `*.sim.test.ts` when changing reduce/merge behavior
-- [ ] `bun run ci:hard-determinism` and `bun run ci:sim-determinism` pass
+- [ ] `bun run ci:lint` (hard-determinism plugins) and `bun run ci:sim-determinism` pass
 
 ## Scaffolding
 

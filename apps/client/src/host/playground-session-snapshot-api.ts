@@ -38,7 +38,8 @@ async function refreshSnapshotLoads(
   setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void,
   notify: () => void
 ): Promise<void> {
-  setSnapshotLoads(await buildSnapshotLoadCommands(session));
+  const cmds = await buildSnapshotLoadCommands(session);
+  setSnapshotLoads(cmds);
   notify();
 }
 

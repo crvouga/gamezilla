@@ -1,0 +1,13 @@
+language js
+
+or {
+  `$x.localeCompare($args)` as $call where {
+    register_diagnostic(span=$call, message="Do not use localeCompare in shared/domain/sync — use code-unit compares (a < b). See DETERMINISM.md.", severity="error")
+  },
+  `Intl.$method` as $intl where {
+    register_diagnostic(span=$intl, message="Do not use Intl in shared/domain/sync — locale APIs are nondeterministic. See DETERMINISM.md.", severity="error")
+  },
+  `$x.toLocaleString($args)` as $call where {
+    register_diagnostic(span=$call, message="Do not use toLocaleString in shared/domain/sync — locale APIs are nondeterministic. See DETERMINISM.md.", severity="error")
+  }
+}

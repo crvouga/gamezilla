@@ -1,0 +1,52 @@
+language js
+
+or {
+  `Date.now()` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use Date.now — pass time via env.now().", severity="error")
+  },
+  `Date.now` as $id where {
+    register_diagnostic(span=$id, message="Mutations must not use Date.now — pass time via env.now().", severity="error")
+  },
+  `performance.now()` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use performance.now — pass time via env.now().", severity="error")
+  },
+  `performance.now` as $id where {
+    register_diagnostic(span=$id, message="Mutations must not use performance.now — pass time via env.now().", severity="error")
+  },
+  `new Date()` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use new Date() — pass time via env.now().", severity="error")
+  },
+  `Math.random()` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use Math.random — pass ids via args / createId.", severity="error")
+  },
+  `Math.random` as $id where {
+    register_diagnostic(span=$id, message="Mutations must not use Math.random — pass ids via args / createId.", severity="error")
+  },
+  `fetch($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not call fetch — no network in mutation run bodies.", severity="error")
+  },
+  `isoNow($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use isoNow — pass time via env.now().", severity="error")
+  },
+  `crypto.randomUUID()` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use crypto.randomUUID — pass ids via args / createId.", severity="error")
+  },
+  `crypto.randomUUID` as $id where {
+    register_diagnostic(span=$id, message="Mutations must not use crypto.randomUUID — pass ids via args / createId.", severity="error")
+  },
+  `crypto.getRandomValues($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use crypto.getRandomValues — pass ids via args / createId.", severity="error")
+  },
+  `setTimeout($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use setTimeout — inject Timers.", severity="error")
+  },
+  `setInterval($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use setInterval — inject Timers.", severity="error")
+  },
+  `$x.localeCompare($args)` as $call where {
+    register_diagnostic(span=$call, message="Mutations must not use localeCompare — use code-unit compares.", severity="error")
+  },
+  `Intl.$method` as $intl where {
+    register_diagnostic(span=$intl, message="Mutations must not use Intl — locale APIs are nondeterministic.", severity="error")
+  }
+}

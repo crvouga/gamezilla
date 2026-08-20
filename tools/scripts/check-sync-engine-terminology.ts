@@ -2,8 +2,8 @@
 // @io-wall-ok — tools composition root
 
 /**
- * Fail if retired sync-engine terminology remains in the monorepo.
- * Hard cutover: no aliases, no dual wire fields, no dead names.
+ * Residual sync-engine terminology gate (MD / line-regex / glossary).
+ * Identifier bans live in Biome plugin `no-sync-engine-terminology.grit`.
  */
 import { join } from 'node:path';
 import { Glob } from 'bun';
@@ -38,41 +38,6 @@ const RULES: readonly Rule[] = [
     re: /\bre-?appl(?:y|ies|ied|ying)\b/i,
   },
   {
-    name: '_topic_applied',
-    re: /_topic_applied/,
-    allow: (rel) => rel.endsWith('local-schema.ts'),
-  },
-  {
-    name: '_sync_topic_checkpoint',
-    re: /_sync_topic_checkpoint/,
-    allow: (rel) => rel.endsWith('framework-server-ddl.ts'),
-  },
-  {
-    name: 'topicCheckpoints',
-    re: /topicCheckpoints/,
-  },
-  {
-    name: 'NudgePayload',
-    re: /NudgePayload/,
-  },
-  {
-    name: 'attach-nudges / attachNudges',
-    re: /attach-nudges|attachNudges/,
-  },
-  {
-    name: 'retired declaredWrites field',
-    re: /\bdeclaredWrites\b/,
-    allow: (rel) =>
-      isTerminologyScript(rel) ||
-      rel.includes('/api-reports/') ||
-      rel.endsWith('CONTRACTS.md'),
-  },
-  {
-    name: 'retired affectedRows field',
-    re: /\baffectedRows\b/,
-    allow: (rel) => isTerminologyScript(rel) || rel.endsWith('CONTRACTS.md'),
-  },
-  {
     name: 'retired invalidates field',
     re: /\binvalidates\s*:/,
     allow: (rel) => isTerminologyScript(rel),
@@ -82,19 +47,8 @@ const RULES: readonly Rule[] = [
     re: /\bhydrates\s*:/,
     allow: (rel) =>
       isTerminologyScript(rel) ||
-      // Runtime-resolved field on QueryDef (not authoring).
       rel.endsWith('queries/core/types.ts') ||
       rel.endsWith('CONTRACTS.md'),
-  },
-  {
-    name: 'retired spaceListChannels helper',
-    re: /\bspaceListChannels\b/,
-    allow: (rel) => isTerminologyScript(rel),
-  },
-  {
-    name: 'retired spacePartyInvalidates helper',
-    re: /\bspacePartyInvalidates\b/,
-    allow: (rel) => isTerminologyScript(rel),
   },
   {
     name: 'retired query channels field',
