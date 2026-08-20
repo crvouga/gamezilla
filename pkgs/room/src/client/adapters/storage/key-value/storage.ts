@@ -89,15 +89,15 @@ function parseQueuedCommandArray(v: unknown): QueuedCommand[] {
   return out;
 }
 
-const RoomClientStorageAttr = {
+const RoomStorageAttr = {
   lastSeq: Committed.integer('last-seq', parseNonNegativeInt),
   entries: Committed.array('entries', parseLogEntryArray),
   commands: Queue.array('commands', parseQueuedCommandArray),
 } as const;
 
-const LAST_SEQ_KEY = RoomClientStorageAttr.lastSeq.key;
-const ENTRIES_KEY = RoomClientStorageAttr.entries.key;
-const COMMANDS_KEY = RoomClientStorageAttr.commands.key;
+const LAST_SEQ_KEY = RoomStorageAttr.lastSeq.key;
+const ENTRIES_KEY = RoomStorageAttr.entries.key;
+const COMMANDS_KEY = RoomStorageAttr.commands.key;
 
 /** Soft parse — never calls Tiger crash asserts (those exit the process). */
 function softLoadCommitted(
@@ -161,7 +161,7 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     }
     const parsed = softLoadCommitted(raw);
     if (parsed !== null) return parsed;
-    // Local cache is a recovery aid only — wipe unreadable blobs so Room.open
+    // Local cache is a recovery aid only — wipe unreadable blobs so RoomClient.open
     // can resync from the server instead of failing the whole session.
     await this.kv.zap(this.committedKey);
     return { lastSeq: 0, entries: [] };
@@ -169,8 +169,8 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
 
   async saveCommitted(lastSeq: number, entries: LogEntry[]): Promise<void> {
     await this.kv.put(this.committedKey, {
-      ...RoomClientStorageAttr.lastSeq(lastSeq),
-      ...RoomClientStorageAttr.entries(entries),
+      ...RoomStorageAttr.lastSeq(lastSeq),
+      ...RoomStorageAttr.entries(entries),
     });
   }
 
@@ -189,7 +189,7 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     const cur = await this.loadQueued();
     cur.push(cmd);
     await this.kv.put(this.queueKey, {
-      ...RoomClientStorageAttr.commands(cur),
+      ...RoomStorageAttr.commands(cur),
     });
   }
 
@@ -197,7 +197,7 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     const cur = await this.loadQueued();
     const next = cur.filter((c) => c.id !== id);
     await this.kv.put(this.queueKey, {
-      ...RoomClientStorageAttr.commands(next),
+      ...RoomStorageAttr.commands(next),
     });
   }
 }

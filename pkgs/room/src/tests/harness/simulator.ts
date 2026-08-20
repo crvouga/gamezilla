@@ -2,7 +2,7 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../../client/adapters/storage/memory';
-import { Room } from '../../client/core/room';
+import { RoomClient } from '../../client/core/room-client';
 import { createTimerScheduleStack } from '../../effects/timer-schedule-stack';
 import { InMemoryRoomStorage } from '../../server/adapters/memory';
 import { RoomServer } from '../../server/core/room-server';
@@ -22,7 +22,7 @@ export type LoopbackRoomSystem<
   E extends RoomEvent,
 > = {
   server: RoomServer<S, C, E, string>;
-  room: Room<S, C, E, string>;
+  room: RoomClient<S, C, E, string>;
   transport: LoopbackRoomTransport;
 };
 
@@ -101,7 +101,7 @@ export async function openLoopbackRoom<
     topic: args.topic,
   });
   const clientStorage = new InMemoryClientStorage();
-  const room = await Room.open<S, C, E, string>({
+  const room = await RoomClient.open<S, C, E, string>({
     topic: args.topic,
     module: args.module,
     storage: clientStorage,

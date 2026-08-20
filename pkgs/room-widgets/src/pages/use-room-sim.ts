@@ -1,6 +1,6 @@
 import { asKeyword } from '@pkgs/keyword';
 import {
-  Room,
+  RoomClient,
   type RoomCommandPayload,
   type RoomEvent,
   type RoomState,
@@ -22,7 +22,7 @@ const COUNT_KEY = asKeyword('counter/count');
 export type SimClient = {
   id: string;
   label: string;
-  room: Room<RoomState, RoomCommandPayload, RoomEvent, string>;
+  room: RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 };
 
 export type RoomSim = {
@@ -44,7 +44,7 @@ async function connectClient(
     identity,
     clientId: id,
   });
-  return Room.open({
+  return RoomClient.open({
     topic: TOPIC,
     module: TestCounterModule,
     storage: new InMemoryClientStorage(),

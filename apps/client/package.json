@@ -22,11 +22,6 @@
       "./src/product/*.tsx",
       "./src/product/*/index.ts"
     ],
-    "./host/*": [
-      "./src/host/*.ts",
-      "./src/host/*.tsx",
-      "./src/host/*/index.ts"
-    ],
     "./navigation/*": [
       "./src/navigation/*.ts",
       "./src/navigation/*.tsx",
@@ -46,11 +41,6 @@
       "./src/device/*.ts",
       "./src/device/*.tsx",
       "./src/device/*/index.ts"
-    ],
-    "./system/*": [
-      "./src/system/*.ts",
-      "./src/system/*.tsx",
-      "./src/system/*/index.ts"
     ],
     "./i18n/*": [
       "./src/i18n/*.ts",

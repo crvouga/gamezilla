@@ -1,4 +1,4 @@
-import type { Room } from '../client/core/room';
+import type { RoomClient } from '../client/core/room-client';
 import { RoomMetaAttr, roomAttrNamespace } from '../client/core/room-meta';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
@@ -21,7 +21,7 @@ export type RoomSimClientSlot<
   E extends RoomEvent,
 > = {
   readonly key: string;
-  room: Room<S, C, E, string> | null;
+  room: RoomClient<S, C, E, string> | null;
   transport: SimLoopbackRoomTransport<S, C, E> | null;
   connectionId: string;
   identity: string;
@@ -41,7 +41,10 @@ export function clientDomainHash<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(module: RoomModule<S, C, E, string>, room: Room<S, C, E, string>): string {
+>(
+  module: RoomModule<S, C, E, string>,
+  room: RoomClient<S, C, E, string>
+): string {
   return module.hash(stripRoomMeta(room.getSnapshot()) as S);
 }
 

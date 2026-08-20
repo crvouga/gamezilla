@@ -7,7 +7,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '../../types';
-import type { Room } from '../core/room';
+import type { RoomClient } from '../core/room-client';
 
 const noop = (): void => {};
 
@@ -17,7 +17,7 @@ const EMPTY_ROSTER: readonly RoomActor[] = Object.freeze([]);
 export const EMPTY_ROOM_STATE: Readonly<RoomState> = Object.freeze({});
 
 /**
- * React-friendly read of {@link Room}. Built on `useSyncExternalStore` so:
+ * React-friendly read of {@link RoomClient}. Built on `useSyncExternalStore` so:
  * - The first render reads the current `getSnapshot()` synchronously, even if
  *   `welcome` arrived before this component mounted.
  * - Every `notify()` triggers a re-render with a fresh snapshot reference.
@@ -31,7 +31,7 @@ export function useRoomSnapshot<
   C extends RoomCommandPayload,
   E extends RoomEvent,
   Identity,
->(room: Room<S, C, E, Identity> | null): S {
+>(room: RoomClient<S, C, E, Identity> | null): S {
   const subscribe = useCallback(
     (listener: () => void): (() => void) => {
       if (room === null) return noop;
@@ -56,7 +56,7 @@ export function useRoomSnapshotSelector<
   E extends RoomEvent,
   Identity,
   R,
->(room: Room<S, C, E, Identity> | null, selector: (state: S) => R): R {
+>(room: RoomClient<S, C, E, Identity> | null, selector: (state: S) => R): R {
   const state = useRoomSnapshot(room);
   return selector(state);
 }
@@ -67,7 +67,7 @@ export function useRoomLog<
   C extends RoomCommandPayload,
   E extends RoomEvent,
   Identity,
->(room: Room<S, C, E, Identity> | null): readonly LogEntry<E>[] {
+>(room: RoomClient<S, C, E, Identity> | null): readonly LogEntry<E>[] {
   const subscribe = useCallback(
     (listener: () => void): (() => void) => {
       if (room === null) return noop;
@@ -89,7 +89,7 @@ export function useRoomRoster<
   C extends RoomCommandPayload,
   E extends RoomEvent,
   Identity,
->(room: Room<S, C, E, Identity> | null): readonly RoomActor[] {
+>(room: RoomClient<S, C, E, Identity> | null): readonly RoomActor[] {
   const subscribe = useCallback(
     (listener: () => void): (() => void) => {
       if (room === null) return noop;

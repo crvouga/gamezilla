@@ -1,4 +1,4 @@
-import { type AnyRoom, RoomClientsProvider } from '@pkgs/room';
+import { type AnyRoomClient, RoomClientsProvider } from '@pkgs/room';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 import { SPACE_ROOM_MODULE_NAME } from '../../shared/space/space-room-module-name';
@@ -36,10 +36,10 @@ export function SpaceRoomProvider({
   children,
 }: SpaceRoomProviderProps): ReactNode {
   const entry = useSpaceOpenRoomEntry(spaceId);
-  const roomMap = useMemo((): ReadonlyMap<string, AnyRoom> | null => {
+  const roomMap = useMemo((): ReadonlyMap<string, AnyRoomClient> | null => {
     if (entry === null) return null;
-    const m = new Map<string, AnyRoom>();
-    m.set(SPACE_ROOM_MODULE_NAME, entry.room as AnyRoom);
+    const m = new Map<string, AnyRoomClient>();
+    m.set(SPACE_ROOM_MODULE_NAME, entry.room as AnyRoomClient);
     return m;
   }, [entry]);
   const session = useMemo((): SpaceRoomSession => {

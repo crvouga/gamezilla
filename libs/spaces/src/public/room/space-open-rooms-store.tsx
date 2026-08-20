@@ -1,5 +1,5 @@
 import type {
-  Room,
+  RoomClient,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
@@ -16,7 +16,7 @@ import {
 
 import { createSpaceOpenRoomsPending } from './space-open-rooms-pending';
 
-type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
+type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 export type SpaceOpenRoomEntry = {
   readonly room: SpaceRoom;

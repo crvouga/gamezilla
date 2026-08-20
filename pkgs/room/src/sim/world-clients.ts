@@ -2,7 +2,7 @@ import type { SimClock, Timers } from '@pkgs/clock';
 import type { CreateId, SeededRng } from '@pkgs/uuid';
 
 import { InMemoryClientStorage } from '../client/adapters/storage/memory';
-import { Room } from '../client/core/room';
+import { RoomClient } from '../client/core/room-client';
 import { RoomMetaAttr } from '../client/core/room-meta';
 import { createTimerScheduleStack } from '../effects/timer-schedule-stack';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
@@ -82,7 +82,7 @@ export async function attachClient<
     createId: k.createId,
     topic: k.topic,
   });
-  const room = await Room.open<S, C, E, string>({
+  const room = await RoomClient.open<S, C, E, string>({
     topic: k.topic,
     module: k.module,
     storage: new InMemoryClientStorage(),

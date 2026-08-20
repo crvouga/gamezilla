@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "system-console",
+    "slug": "system-console",
+    "owner": "crvouga",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["web"],
+    "web": {
+      "output": "single"
+    },
+    "plugins": ["expo-sqlite", "expo-secure-store", "expo-web-browser"],
+    "experiments": {
+      "reactCompiler": true
+    }
+  }
+}

@@ -34,7 +34,7 @@ effects on the wire, real chess competition UI clocks.
 
 ```text
 ┌──────────── client ────────────┐         ┌──────── server (RoomServer) ────────┐
-│ Room.open + ClientTransport    │  wire   │ authenticate / authorize            │
+│ RoomClient.open + ClientTransport    │  wire   │ authenticate / authorize            │
 │ optimistic fold + command queue│◄───────►│ append events (seq), dedup commandId│
 │ ClientRoomStorage (local cache)│         │ RoomStorage (committed log)         │
 │ display = committed ⊕ queued   │         │ broadcast welcome / committed       │
@@ -61,7 +61,7 @@ by game modules in product.
 
 1. **Space / game sessions** — `@libs/spaces` opens a WebSocket room per space,
    injects composed game modules, reads `useRoomSnapshot` / selectors.
-2. **Offline-first open** — `Room.open` hydrates local storage and attaches
+2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
 3. **Playgrounds / widgets** — `@pkgs/room-widgets` and tests use
    `@pkgs/room/tests` (`openLoopbackRoom`, `TestCounterModule`) for in-process
@@ -80,7 +80,7 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 
 | Import | Purpose |
 |--------|---------|
-| `@pkgs/room` | Client core: `Room`, `RoomMetaAttr`, React hooks/registry, ports, wire helpers, effect builtins / handlers |
+| `@pkgs/room` | Client core: `RoomClient`, `RoomMetaAttr`, React hooks/registry, ports, wire helpers, effect builtins / handlers |
 | `@pkgs/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth`, effect types/builtins |
 | `@pkgs/room/client/adapters/transport/websocket` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`) |
 | `@pkgs/room/client/adapters/storage/memory` | `InMemoryClientStorage` |
@@ -100,7 +100,7 @@ tests). Games should import `openRoomSimWorld` from `@pkgs/room/tests`, not deep
 
 ```text
 pkgs/room/src/
-├── client/core/          Room engine, fold, meta, ports, optimistic effects
+├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
 ├── client/adapters/      websocket transport; memory/web/key-value storage
 ├── client/react/         snapshot + registry hooks
 ├── server/core/          RoomServer, auth/storage ports, injectCommand
@@ -203,7 +203,7 @@ Helper stacks:
 |------|------|-------------|
 | Cloudflare DO | `storage.setAlarm` → `alarm()` | `RoomServer.injectCommand` |
 | Sim / loopback server | `io.timers` (+ sim `serverQueue`) | `RoomServer.injectCommand` |
-| Client optimistic | `io.timers` | `Room.dispatch(payload)` (local UX) |
+| Client optimistic | `io.timers` | `RoomClient.dispatch(payload)` (local UX) |
 
 Server inject is socket-less: dedup by `commandId`, authorize, `handle`, commit,
 broadcast, then apply nested effects. Actor metadata uses
@@ -280,7 +280,7 @@ replays are idempotent.
 
 | Tool | When to use |
 |------|-------------|
-| **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `Room` + `RoomServer`, no net faults; Schedule via timers |
+| **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
 | **`openRoomSimWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, hash converge, seed replay, Schedule wakes |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -503,7 +503,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 |------|------|--------------------|
 | `room.test.ts` | Loopback | Welcome + increment converges; unknown command rejected locally |
 | `room-roster.test.ts` | Loopback | Roster grow/shrink; multi-tab same actor; actor+ts stamped on log |
-| `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `Room.open` survives connect throw; optimistic queue while disconnected |
+| `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `RoomClient.open` survives connect throw; optimistic queue while disconnected |
 | `client/core/room-server-reset.test.ts` | Loopback / reset | Ignore duplicate committed ≤ tip; recover short/stale welcome; idempotent re-welcome |
 
 ### Server core

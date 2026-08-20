@@ -1,24 +1,29 @@
 import { createContext, type ReactNode, useContext } from 'react';
 
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
-import type { Room } from '../core/room';
+import type { RoomClient } from '../core/room-client';
 
-/** Type-erased room instance for multi-room React registries. */
-export type AnyRoom = Room<RoomState, RoomCommandPayload, RoomEvent, unknown>;
+/** Type-erased room client instance for multi-room React registries. */
+export type AnyRoomClient = RoomClient<
+  RoomState,
+  RoomCommandPayload,
+  RoomEvent,
+  unknown
+>;
 
-const EMPTY_MAP: ReadonlyMap<string, AnyRoom> = new Map();
+const EMPTY_MAP: ReadonlyMap<string, AnyRoomClient> = new Map();
 
 const RoomClientsContext =
-  createContext<ReadonlyMap<string, AnyRoom>>(EMPTY_MAP);
+  createContext<ReadonlyMap<string, AnyRoomClient>>(EMPTY_MAP);
 
 export type RoomClientsProviderProps = {
-  /** Map of logical room name → open {@link Room}. Pass `null` when none. */
-  rooms: ReadonlyMap<string, AnyRoom> | null;
+  /** Map of logical room name → open {@link RoomClient}. Pass `null` when none. */
+  rooms: ReadonlyMap<string, AnyRoomClient> | null;
   children: ReactNode;
 };
 
 /**
- * Supplies named {@link Room} clients to {@link useRoomSelector} /
+ * Supplies named {@link RoomClient} instances to {@link useRoomSelector} /
  * {@link useRoomDispatch} descendants.
  */
 export function RoomClientsProvider({
@@ -33,7 +38,7 @@ export function RoomClientsProvider({
   );
 }
 
-export function useRoomFromRegistry(roomName: string): AnyRoom | null {
+export function useRoomFromRegistry(roomName: string): AnyRoomClient | null {
   const map = useContext(RoomClientsContext);
   return map.get(roomName) ?? null;
 }

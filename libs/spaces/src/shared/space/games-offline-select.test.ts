@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
-import { assertRoomModuleName, Room, RoomMetaAttr } from '@pkgs/room';
+import { assertRoomModuleName, RoomClient, RoomMetaAttr } from '@pkgs/room';
 import { InMemoryClientStorage } from '@pkgs/room/client/adapters/storage/memory';
 
 import type { GameDefinition } from './game';
@@ -47,7 +47,7 @@ describe('SelectGame offline-first', () => {
       wallClock.now
     );
     const transport = new DisconnectedTransport();
-    const room = await Room.open({
+    const room = await RoomClient.open({
       topic: 'space:test-offline-select',
       module,
       storage: new InMemoryClientStorage(),

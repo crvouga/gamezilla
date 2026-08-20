@@ -8,7 +8,7 @@ import {
   TestCounterModule,
 } from '../../tests/fixtures/counter-module';
 import { InMemoryClientStorage } from '../adapters/storage/memory';
-import { Room } from './room';
+import { RoomClient } from './room-client';
 import { RoomMetaAttr } from './room-meta';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
 
@@ -16,7 +16,7 @@ const timers = wallTimers;
 
 /**
  * Transport that never opens — simulates Connecting… / offline.
- * `connect()` can optionally throw to prove Room.open still returns.
+ * `connect()` can optionally throw to prove RoomClient.open still returns.
  */
 class OfflineClientTransport implements ClientTransport {
   readonly sent: unknown[] = [];
@@ -75,11 +75,11 @@ class OfflineClientTransport implements ClientTransport {
   }
 }
 
-describe('Room offline-first dispatch', () => {
-  it('returns a usable Room when transport.connect throws', async () => {
+describe('RoomClient offline-first dispatch', () => {
+  it('returns a usable RoomClient when transport.connect throws', async () => {
     const transport = new OfflineClientTransport();
     transport.throwOnConnect = true;
-    const room = await Room.open({
+    const room = await RoomClient.open({
       topic: 't-connect-throw',
       module: TestCounterModule,
       storage: new InMemoryClientStorage(),
@@ -98,7 +98,7 @@ describe('Room offline-first dispatch', () => {
   it('applies optimistic domain state while disconnected and queues outbound', async () => {
     const transport = new OfflineClientTransport();
     const storage = new InMemoryClientStorage();
-    const room = await Room.open({
+    const room = await RoomClient.open({
       topic: 't-offline-dispatch',
       module: TestCounterModule,
       storage,

@@ -7,7 +7,7 @@ import {
 import { useKv } from '@pkgs/kv/kv-context';
 import type {
   ClientTransport,
-  Room,
+  RoomClient,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
@@ -20,7 +20,7 @@ import type { SpaceRoomConnectionBootstrap } from './space-room-connection-boots
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 
-type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
+type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 export type SpaceRoomUiState = {
   /**

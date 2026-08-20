@@ -5,7 +5,7 @@ export type ClientTransportHandlers = {
 };
 
 /**
- * Network port the {@link Room} engine pushes/pulls JSON wire frames over.
+ * Network port the {@link RoomClient} engine pushes/pulls JSON wire frames over.
  * Every transport adapter (browser WebSocket, loopback test double,
  * future WebRTC, etc.) must satisfy this contract.
  */

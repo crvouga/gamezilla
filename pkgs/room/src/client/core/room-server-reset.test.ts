@@ -9,7 +9,7 @@ import {
 } from '../../tests/fixtures/counter-module';
 import { openLoopbackRoom } from '../../tests/harness/simulator';
 import { InMemoryClientStorage } from '../adapters/storage/memory';
-import { Room } from './room';
+import { RoomClient } from './room-client';
 import type { ClientTransport, ClientTransportHandlers } from './transport';
 
 const timers = wallTimers;
@@ -70,7 +70,7 @@ class ManualClientTransport implements ClientTransport {
  * on those caused an infinite reset loop when the outbound queue re-flushed
  * already-applied commands.
  */
-describe('Room server-reset recovery', () => {
+describe('RoomClient server-reset recovery', () => {
   it('ignores a duplicate committed broadcast at or below the local tip', async () => {
     const { room, transport } = await openLoopbackRoom({
       clock: wallClock,
@@ -133,7 +133,7 @@ describe('Room server-reset recovery', () => {
 
   it('recovers from a stale empty tip-welcome while local lastSeq is 0', async () => {
     const transport = new ManualClientTransport();
-    const room = await Room.open({
+    const room = await RoomClient.open({
       topic: 't-reset-stale-tip-welcome',
       module: TestCounterModule,
       storage: new InMemoryClientStorage(),

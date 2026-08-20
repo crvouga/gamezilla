@@ -91,7 +91,7 @@ function useSyncEnginePromise(
         openSqlClient: (args) => envRef.current.openSqlClient(args),
         ...(simEvents
           ? {
-              createPubSub: () => envRef.current.events,
+              createPubSub: () => envRef.current.createPubSub(),
             }
           : {}),
         get config() {

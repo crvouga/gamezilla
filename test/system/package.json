@@ -18,6 +18,7 @@
   "dependencies": {
     "@apps/client": "workspace:*",
     "@apps/server": "workspace:*",
+    "@apps/system-console": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",

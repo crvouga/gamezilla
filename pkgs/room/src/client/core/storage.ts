@@ -11,7 +11,7 @@ export type QueuedCommand = {
  *
  * This interface is the only contract every client storage adapter
  * (in-memory, `localStorage`, async key-value, future SQLite, etc.) must
- * satisfy. The {@link Room} engine never knows where bytes actually live.
+ * satisfy. The {@link RoomClient} engine never knows where bytes actually live.
  */
 export interface ClientRoomStorage {
   loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }>;

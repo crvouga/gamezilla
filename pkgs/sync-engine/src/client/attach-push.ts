@@ -106,14 +106,10 @@ function clearTopicState(bag: PushBag): void {
 }
 
 function subscribeTopic(bag: PushBag, topic: Topic): void {
-  try {
-    const unsub = bag.pubsub.subscribe(topic, (data) => {
-      void handlePush(bag, topic, data);
-    });
-    bag.topicUnsubs.set(topic, unsub);
-  } catch (error) {
-    console.warn('[push] subscribe failed', topic, error);
-  }
+  const unsub = bag.pubsub.subscribe(topic, (data) => {
+    void handlePush(bag, topic, data);
+  });
+  bag.topicUnsubs.set(topic, unsub);
 }
 
 /**

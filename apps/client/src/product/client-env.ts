@@ -23,6 +23,12 @@ export type ClientEnv = {
   readonly seed: bigint;
   readonly server: ServerHttp;
   readonly events: PubSub;
+  /**
+   * Mint a fresh PubSub for sync push. Remake closes the previous instance —
+   * must not return a closed singleton (see attachPush remake contract).
+   * Sim: shared in-memory bus; wall: unused (EMQX path owns createPubSub).
+   */
+  readonly createPubSub: () => PubSub;
   readonly openSqlClient: OpenSqlClient;
   readonly kv: Kv;
   readonly authStorage: AuthClientStorage;

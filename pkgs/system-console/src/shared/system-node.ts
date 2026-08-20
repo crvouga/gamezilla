@@ -30,7 +30,7 @@ export const SYSTEM_NODE_LABELS: Readonly<Record<SystemNodeKind, string>> = {
   client: 'Client',
   api: 'API',
   events: 'Events',
-  room: 'Room',
+  room: 'Room server',
   db: 'DB',
 };
 

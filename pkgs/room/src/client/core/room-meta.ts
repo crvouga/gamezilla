@@ -24,7 +24,7 @@ const readRoomErrorOrNull = (v: unknown): RoomError | Error | null => {
 };
 
 /**
- * Client-only metadata merged into {@link Room.getSnapshot} flat state.
+ * Client-only metadata merged into {@link RoomClient.getSnapshot} flat state.
  * Domain module state must not use the `room/` prefix.
  *
  * `last-error` carries a `RoomError | Error | null` shape. We declare it as

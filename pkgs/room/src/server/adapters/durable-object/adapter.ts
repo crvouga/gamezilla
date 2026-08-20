@@ -141,7 +141,7 @@ function resolveOptions<
  * import { APP_ROOM_MODULES } from './shared/rooms';
  * import { createDurableObjectAdapter } from '@pkgs/room/server/adapters/durable-object';
  *
- * export const Room = createDurableObjectAdapter({
+ * export const RoomServerDurableObject = createDurableObjectAdapter({
  *   modules: APP_ROOM_MODULES,
  *   clock,
  *   createId,

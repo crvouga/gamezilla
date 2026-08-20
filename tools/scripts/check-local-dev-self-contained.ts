@@ -1,7 +1,7 @@
 // @io-wall-ok — tools composition root
 /**
- * Guard: `bun dev` is `@apps/client` only (Main + Console playground) — no
- * sidecar apps, no Wrangler/API `dev` scripts.
+ * Guard: `bun dev` is `@apps/system-console` only (Reports + Playground) — no
+ * sidecar apps, no Wrangler/API `dev` scripts. Product client is `dev:client`.
  */
 
 import { readFileSync } from 'node:fs';
@@ -21,19 +21,33 @@ function main(): void {
   const root = readJson('package.json');
   const scripts = root['scripts'] as Record<string, string>;
   const dev = scripts['dev'] ?? '';
-  if (!dev.includes('--filter=@apps/client')) {
+  if (!dev.includes('--filter=@apps/system-console')) {
     throw new Error(
-      `root "dev" must filter @apps/client (got ${JSON.stringify(dev)})`
+      `root "dev" must filter @apps/system-console (got ${JSON.stringify(dev)})`
     );
+  }
+  const devClient = scripts['dev:client'] ?? '';
+  if (!devClient.includes('--filter=@apps/client')) {
+    throw new Error(
+      `root "dev:client" must filter @apps/client (got ${JSON.stringify(devClient)})`
+    );
+  }
+
+  const consolePkg = readJson('apps/system-console/package.json');
+  const consoleScripts = consolePkg['scripts'] as
+    | Record<string, string>
+    | undefined;
+  if (consoleScripts === undefined || !('dev' in consoleScripts)) {
+    throw new Error('apps/system-console must define a daily "dev" script');
   }
 
   const client = readJson('apps/client/package.json');
   const clientScripts = client['scripts'] as Record<string, string> | undefined;
   if (clientScripts === undefined || !('dev' in clientScripts)) {
-    throw new Error('apps/client must define a daily "dev" script');
+    throw new Error('apps/client must define a "dev" script for dev:client');
   }
 
-  for (const pkg of ['apps/server', 'apps/room'] as const) {
+  for (const pkg of ['apps/server', 'apps/room-server'] as const) {
     const json = readJson(`${pkg}/package.json`);
     const pkgScripts = json['scripts'] as Record<string, string> | undefined;
     if (pkgScripts !== undefined && 'dev' in pkgScripts) {
@@ -58,7 +72,7 @@ function main(): void {
   }
 
   console.log(
-    'ci:local-dev-self-contained: bun dev is @apps/client only; sidecar apps removed.'
+    'ci:local-dev-self-contained: bun dev is @apps/system-console only; sidecar apps removed.'
   );
 }
 

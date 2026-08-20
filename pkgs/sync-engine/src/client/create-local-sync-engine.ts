@@ -290,44 +290,37 @@ function attachPushIfConfigured(state: LocalEngineState): void {
   if (push === undefined || state.disposePush !== null) {
     return;
   }
-  try {
-    let pubsub = push.createPubSub();
-    state.pushPubSub = pubsub;
-    const topicMap = withFrameworkTopicMap(push.topicMap);
-    state.disposePush = attachPush({
-      pubsub,
-      runtime: state.runtime,
-      queryRegistry: push.queryRegistry,
-      getChannelsCtx: push.getChannelsCtx,
-      db: state.options.db,
-      getMergeDeps: () => mergeDeps(state),
-      ...(push.rowImageFanout === true ? { rowImageFanout: true } : {}),
-      remakePubSub: () => {
-        pubsub = push.createPubSub();
-        return pubsub;
-      },
-      onPubSubChanged: (next) => {
-        state.pushPubSub = next;
-        flushOutboundLive(state);
-      },
-      onBindTopicRefresh: (refresh) => {
-        state.refreshTopics = refresh;
-        push.onBindTopicRefresh?.(refresh);
-      },
-      ...(topicMap !== undefined ? { topicMap } : {}),
-      ...(push.defaultEntryChannel !== undefined
-        ? { defaultEntryChannel: push.defaultEntryChannel }
-        : {}),
-      timers: state.options.timers,
-      onTablesChanged: (listener) => state.bus.subscribe(listener),
-    });
-    flushOutboundLive(state);
-  } catch (error) {
-    console.warn(
-      '[sync] attachPush failed; continuing without live push',
-      error
-    );
-  }
+  let pubsub = push.createPubSub();
+  state.pushPubSub = pubsub;
+  const topicMap = withFrameworkTopicMap(push.topicMap);
+  state.disposePush = attachPush({
+    pubsub,
+    runtime: state.runtime,
+    queryRegistry: push.queryRegistry,
+    getChannelsCtx: push.getChannelsCtx,
+    db: state.options.db,
+    getMergeDeps: () => mergeDeps(state),
+    ...(push.rowImageFanout === true ? { rowImageFanout: true } : {}),
+    remakePubSub: () => {
+      pubsub = push.createPubSub();
+      return pubsub;
+    },
+    onPubSubChanged: (next) => {
+      state.pushPubSub = next;
+      flushOutboundLive(state);
+    },
+    onBindTopicRefresh: (refresh) => {
+      state.refreshTopics = refresh;
+      push.onBindTopicRefresh?.(refresh);
+    },
+    ...(topicMap !== undefined ? { topicMap } : {}),
+    ...(push.defaultEntryChannel !== undefined
+      ? { defaultEntryChannel: push.defaultEntryChannel }
+      : {}),
+    timers: state.options.timers,
+    onTablesChanged: (listener) => state.bus.subscribe(listener),
+  });
+  flushOutboundLive(state);
 }
 
 function detachPush(state: LocalEngineState): void {

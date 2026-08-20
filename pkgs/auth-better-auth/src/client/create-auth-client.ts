@@ -48,6 +48,7 @@ export function createBetterAuthReactClient(
 
   return createAuthClient({
     baseURL,
+    // @ts-ignore better-auth / @better-auth/expo plugin typings disagree under exactOptionalPropertyTypes
     plugins,
     ...(args.storage !== undefined
       ? {

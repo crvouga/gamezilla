@@ -4,7 +4,7 @@ import { useClock, useTimers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type {
   ClientTransport,
-  Room,
+  RoomClient,
   RoomCommandPayload,
   RoomEvent,
   RoomState,
@@ -27,7 +27,7 @@ import {
 import { useCreateRoomTransport } from './room-transport-factory';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
-type SpaceRoom = Room<RoomState, RoomCommandPayload, RoomEvent, string>;
+type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 function normalizeSessionToken(t: string | null): string | null {
   if (typeof t !== 'string') return null;
@@ -146,7 +146,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         createTransport: args.createTransport,
       });
     } catch {
-      // Room.open is hardened to avoid this; if it still throws, clear the
+      // RoomClient.open is hardened to avoid this; if it still throws, clear the
       // latch so a later bootstrap key change / remount can retry.
       clearOpeningKey(args);
       return;

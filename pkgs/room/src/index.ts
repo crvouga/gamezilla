@@ -1,7 +1,7 @@
 /**
  * `@pkgs/room` — server-authoritative sessions + optimistic client queue.
  *
- * This entrypoint exposes only the **core** client surface: the {@link Room}
+ * This entrypoint exposes only the **core** client surface: the {@link RoomClient}
  * engine, its React binding, the wire protocol helpers, and the abstract
  * ports (`ClientTransport`, `ClientRoomStorage`) that any adapter must
  * satisfy. Adapters (browser WebSocket, in-memory storage, `localStorage`,
@@ -25,8 +25,8 @@
 
 export { createAttrNamespace } from '@pkgs/attribute';
 export { asKeyword, assertKeywordRecord } from '@pkgs/keyword';
-export type { RoomClientConfig } from './client/core/room';
-export { Room } from './client/core/room';
+export type { RoomClientConfig } from './client/core/room-client';
+export { RoomClient } from './client/core/room-client';
 export { RoomMetaAttr, roomAttrNamespace } from './client/core/room-meta';
 export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';
 export type {
@@ -34,7 +34,7 @@ export type {
   ClientTransportHandlers,
 } from './client/core/transport';
 export {
-  type AnyRoom,
+  type AnyRoomClient,
   RoomClientsProvider,
   useRoomFromRegistry,
 } from './client/react/room-clients-context';

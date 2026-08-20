@@ -69,6 +69,7 @@ export function wallClientEnv(args?: {
     seed: mintWallSeed(),
     server,
     events: createInMemoryPubSub(),
+    createPubSub: () => createInMemoryPubSub(),
     openSqlClient: async (openArgs) => {
       const userId = openArgs?.userId ?? 'pending';
       return openMainSqlClient(userId, createId, wallTimers);

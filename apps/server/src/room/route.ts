@@ -19,7 +19,7 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
 export const ROOM_ACTOR_CLIENT_ID_HEADER = 'x-actor-client-id';
 
 /**
- * Generic Room WebSocket-upgrade gateway. Open to anyone — never blocks on
+ * Generic room-server WebSocket-upgrade gateway. Open to anyone — never blocks on
  * auth. Resolves the best available actor id from the request and forwards
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
  * logic from there.

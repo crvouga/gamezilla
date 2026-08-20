@@ -2,7 +2,7 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import {
   type ClientTransport,
-  Room,
+  RoomClient,
   type RoomCommandPayload,
   type RoomEvent,
   type RoomState,
@@ -52,7 +52,7 @@ export type CreateSpaceRoomParams = {
 };
 
 export type CreateSpaceRoomResult = {
-  room: Room<RoomState, RoomCommandPayload, RoomEvent, string>;
+  room: RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
   transport: ClientTransport;
 };
 
@@ -67,7 +67,7 @@ export class SpaceRoomFactory {
   /**
    * Opens a space room client for local-first UI. Returns after local hydrate;
    * the WebSocket may still be connecting (or offline). Callers must register
-   * the Room immediately so optimistic commands work while Connecting… shows.
+   * the room client immediately so optimistic commands work while Connecting… shows.
    */
   async create(params: CreateSpaceRoomParams): Promise<CreateSpaceRoomResult> {
     const {
@@ -99,9 +99,9 @@ export class SpaceRoomFactory {
     const { committed, queue } = keyValueRoomClientKeywords(spaceId);
     const clientStorage = new KeyValueClientRoomStorage(kv, committed, queue);
 
-    // Room.open is offline-first: hydrate + attach, connect in background.
-    // Connect failures do not reject — the Room stays usable locally.
-    const room = await Room.open({
+    // RoomClient.open is offline-first: hydrate + attach, connect in background.
+    // Connect failures do not reject — the room client stays usable locally.
+    const room = await RoomClient.open({
       topic,
       module,
       storage: clientStorage,

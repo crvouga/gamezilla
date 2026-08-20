@@ -24,6 +24,35 @@ describe('createInMemoryPubSub', () => {
     await expect(ps.publish('t', 1)).rejects.toBeInstanceOf(PubSubClosedError);
   });
 
+  test('remaking factory returns open instance after close', async () => {
+    const bus = createInMemoryBus();
+    let live: ReturnType<typeof createInMemoryPubSub> | null = null;
+    const createPubSub = () => {
+      live?.close();
+      live = createInMemoryPubSub({ bus });
+      return live;
+    };
+    const first = createPubSub();
+    first.close();
+    const second = createPubSub();
+    expect(second).not.toBe(first);
+    const got: unknown[] = [];
+    second.subscribe('t', (d) => got.push(d));
+    const peer = createInMemoryPubSub({ bus, offlineBuffer: false });
+    await peer.publish('t', { ok: true });
+    expect(got).toEqual([{ ok: true }]);
+    peer.close();
+    second.close();
+  });
+
+  test('returning a closed singleton fails subscribe', () => {
+    const singleton = createInMemoryPubSub();
+    singleton.close();
+    expect(() => singleton.subscribe('t', () => undefined)).toThrow(
+      PubSubClosedError
+    );
+  });
+
   test('buffers while down and flushes on reconnect', async () => {
     const bus = createInMemoryBus();
     const pub = createInMemoryPubSub({ bus, offlineBuffer: false });

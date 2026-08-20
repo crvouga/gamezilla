@@ -1,26 +1,20 @@
 // @io-wall-ok
 /**
- * Foreground entry for `@apps/client` `dev`: local report console + Expo web.
+ * Foreground entry for `@apps/client` `dev`: Expo web only (product app).
+ * System Console + local reports live in `@apps/system-console`.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
-
-import {
-  type LocalReportConsoleHandle,
-  startLocalReportConsole,
-} from './local-report-server';
 
 const CLIENT_DIR = join(import.meta.dirname, '..');
 const EXPO_PORT = 5173;
 
-killListenersOnPorts([EXPO_PORT, DEFAULT_REPORT_SERVER_PORT]);
+killListenersOnPorts([EXPO_PORT]);
 
 const children: ChildProcess[] = [];
-let reportConsole: LocalReportConsoleHandle | undefined;
 let shuttingDown = false;
 
 function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
@@ -46,7 +40,6 @@ function killChildren(): void {
 function shutdown(exitCode: number): void {
   if (shuttingDown) return;
   shuttingDown = true;
-  reportConsole?.stop();
   killChildren();
   process.exit(exitCode);
 }
@@ -62,8 +55,6 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
   });
 }
 
-reportConsole = startLocalReportConsole();
-
 const expo = spawn(
   'bunx',
   ['expo', 'start', '--web', '--port', String(EXPO_PORT)],
@@ -77,8 +68,4 @@ children.push(expo);
 
 expo.on('exit', (code) => {
   shutdown(code ?? 1);
-});
-expo.on('error', (err) => {
-  process.stderr.write(`[client] expo failed: ${String(err)}\n`);
-  shutdown(1);
 });

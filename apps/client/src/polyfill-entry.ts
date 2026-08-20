@@ -7,10 +7,6 @@ import { wallTimers } from '@pkgs/clock';
 import { polyfill } from '@pkgs/polyfill';
 import * as WebBrowser from 'expo-web-browser';
 
-import { suppressThirdPartyWarnings } from './suppress-third-party-warnings';
-
-suppressThirdPartyWarnings();
-
 WebBrowser.maybeCompleteAuthSession();
 
 // Check / canary seam: lets a production-flavor build re-enable hot-path

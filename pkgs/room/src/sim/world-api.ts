@@ -1,6 +1,6 @@
 import type { SimClock } from '@pkgs/clock';
 import type { SeededRng } from '@pkgs/uuid';
-import type { Room } from '../client/core/room';
+import type { RoomClient } from '../client/core/room-client';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
 import type { RoomServer } from '../server/core/room-server';
 import type {
@@ -34,7 +34,7 @@ export type RoomSimClientHandle<
   readonly hash: () => string;
   readonly isSynced: () => boolean;
   readonly isConnected: () => boolean;
-  readonly room: () => Room<S, C, E, string> | null;
+  readonly room: () => RoomClient<S, C, E, string> | null;
   readonly disconnect: () => Promise<void>;
   readonly connect: () => Promise<void>;
   /** Most recent RoomError from a rejected wire frame (or null). */
@@ -53,7 +53,7 @@ export type RoomSimNodeHandle = {
   readonly reconnect: () => Promise<void>;
   /**
    * Replace the live socket for this client's `(identity, clientId)` without
-   * destroying the Room (session take-over).
+   * destroying the room client (session take-over).
    */
   readonly takeOver: () => Promise<void>;
   readonly now: () => number;
