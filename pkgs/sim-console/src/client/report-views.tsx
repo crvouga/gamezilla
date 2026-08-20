@@ -1,6 +1,6 @@
 import { Box, ScrollView, Text } from '@pkgs/ui';
 import { useEffect } from 'react';
-import type { SystemConsolePorts } from '../shared/ports';
+import type { SimConsolePorts } from '../shared/ports';
 import { isLatestRunId } from '../types';
 import type { ReportApiClient } from './api-client';
 import type { DebuggerChromeNav } from './debugger-chrome';
@@ -26,7 +26,7 @@ export function ReportViews(props: {
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
 }) {
   const { nav, data, generation, onNav, api, chrome, ports } = props;
   const concreteRunId = data.resolvedRunId;
@@ -127,7 +127,7 @@ function TestOrLoading(props: {
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
 }) {
   const { nav, data, concreteRunId, onNav, api, chrome, ports } = props;
   const bodySx = useAppBodyContentSx();

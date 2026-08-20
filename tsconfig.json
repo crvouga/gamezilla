@@ -162,11 +162,9 @@
       "@pkgs/emqx-server": ["./pkgs/emqx-server/src/index.ts"],
       "@pkgs/ui-testing": ["./pkgs/ui-testing/src/index.ts"],
       "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"],
-      "@pkgs/system-console": ["./pkgs/system-console/src/index.ts"],
-      "@pkgs/system-console/server": [
-        "./pkgs/system-console/src/server/index.ts"
-      ],
-      "@pkgs/system-console/*": ["./pkgs/system-console/src/*"]
+      "@pkgs/sim-console": ["./pkgs/sim-console/src/index.ts"],
+      "@pkgs/sim-console/server": ["./pkgs/sim-console/src/server/index.ts"],
+      "@pkgs/sim-console/*": ["./pkgs/sim-console/src/*"]
     }
   },
   "include": [
@@ -304,8 +302,8 @@
     "pkgs/os/src/**/*.ts",
     "pkgs/ui-testing/src/**/*.ts",
     "pkgs/ui-testing/src/**/*.tsx",
-    "pkgs/system-console/src/**/*.ts",
-    "pkgs/system-console/src/**/*.tsx",
+    "pkgs/sim-console/src/**/*.ts",
+    "pkgs/sim-console/src/**/*.tsx",
     "libs/runtime/src/**/*.ts",
     "apps/room-server/src/**/*.ts",
     "tools/**/*.ts"

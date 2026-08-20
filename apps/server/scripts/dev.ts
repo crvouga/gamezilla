@@ -4,7 +4,7 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
+import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
 import { migratePostgresApp } from '../src/db/migrate';
 import {
   type LocalReportConsoleHandle,

@@ -14,13 +14,13 @@ export type {
   PlaygroundSnapshotInfo,
   PlaygroundSnapshotManifest,
   PlaygroundSqlNode,
-  SystemCheckpoint,
-  SystemCheckpointRoomDump,
-  SystemConsolePorts,
+  SimCheckpoint,
+  SimCheckpointRoomDump,
+  SimConsolePorts,
 } from '../shared/ports';
 export type {
-  SystemChromeKind,
-  SystemChromeKind as PlaygroundKindId,
-} from '../shared/system-node';
+  SimChromeKind,
+  SimChromeKind as PlaygroundKindId,
+} from '../shared/sim-node';
 export { DEFAULT_REPORT_SERVER_PORT } from '../types';
-export { type ConsoleSection, SystemConsoleApp } from './system-console-app';
+export { type ConsoleSection, SimConsoleApp } from './sim-console-app';

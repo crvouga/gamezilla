@@ -14,7 +14,7 @@ import type { ReportBucket } from './types';
 
 export type { ConvertSqliteDumpToSqlm };
 
-export type CreateSystemConsoleAppOptions = {
+export type CreateSimConsoleAppOptions = {
   readonly buckets: readonly ReportBucket[];
   readonly timers: Timers;
   /** Clock for prune `olderThanMs` (inject from composition root). */
@@ -32,25 +32,25 @@ export type CreateSystemConsoleAppOptions = {
   readonly playgroundSnapshotStore?: ObjectStore | null;
 };
 
-export type SystemConsoleAppHandle = {
+export type SimConsoleAppHandle = {
   readonly app: Hono;
   readonly stop: () => void;
 };
 
 /**
  * Library Hono app for simulation report buckets (SSE + REST).
- * Mount under `/system-console` (or any prefix); routes are `/api/*`.
+ * Mount under `/sim-console` (or any prefix); routes are `/api/*`.
  */
-export function createSystemConsoleApp(
-  options: CreateSystemConsoleAppOptions
-): SystemConsoleAppHandle {
+export function createSimConsoleApp(
+  options: CreateSimConsoleAppOptions
+): SimConsoleAppHandle {
   const buckets = options.buckets;
   if (buckets.length === 0) {
-    throw new Error('createSystemConsoleApp: buckets must be non-empty');
+    throw new Error('createSimConsoleApp: buckets must be non-empty');
   }
   const ids = new Set(buckets.map((b) => b.id));
   if (ids.size !== buckets.length) {
-    throw new Error('createSystemConsoleApp: bucket ids must be unique');
+    throw new Error('createSimConsoleApp: bucket ids must be unique');
   }
 
   const hub = new SseHub();
@@ -75,7 +75,7 @@ export function createSystemConsoleApp(
   app.all('*', async (c) => {
     const url = new URL(c.req.url);
     // Hono keeps the full request path on `c.req.path` even when mounted via
-    // `.route('/system-console', app)`. Route matching expects `/api/*`, so
+    // `.route('/sim-console', app)`. Route matching expects `/api/*`, so
     // slice from the `/api` segment (works at root or under any mount prefix).
     const fullPath = c.req.path;
     const apiIdx = fullPath.indexOf('/api');

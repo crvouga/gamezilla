@@ -7,8 +7,8 @@ import {
   useState,
 } from 'react';
 
-import type { SystemConsolePorts } from '../shared/ports';
-import type { SystemChromeKind } from '../shared/system-node';
+import type { SimConsolePorts } from '../shared/ports';
+import type { SimChromeKind } from '../shared/sim-node';
 import { createReportApiClient } from './api-client';
 import { PlaygroundScreen } from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
@@ -24,23 +24,23 @@ const SECTIONS = [
   { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
 ] as const;
 
-const DEFAULT_BASE_PATH = '/system-console';
+const DEFAULT_BASE_PATH = '/sim-console';
 
 /**
  * Root console screen. Injects everything product-specific through `ports`
- * so `@pkgs/system-console` never imports apps/libs/test.
+ * so `@pkgs/sim-console` never imports apps/libs/test.
  *
  * Section / playground kind / panel view are controlled by the host so they
  * can sync to browser history.
  */
-export function SystemConsoleApp(props: {
-  readonly ports: SystemConsolePorts;
+export function SimConsoleApp(props: {
+  readonly ports: SimConsolePorts;
   readonly section: ConsoleSection;
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly instance: string;
   readonly view: string;
   readonly onSectionChange: (section: ConsoleSection) => void;
-  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
 }): ReactNode {
@@ -116,11 +116,11 @@ export function SystemConsoleApp(props: {
 
 function ReportsSection(props: {
   readonly api: ReturnType<typeof createReportApiClient>;
-  readonly ports: SystemConsolePorts;
-  readonly kind: SystemChromeKind;
+  readonly ports: SimConsolePorts;
+  readonly kind: SimChromeKind;
   readonly instance: string;
   readonly view: string;
-  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
 }) {

@@ -1,7 +1,7 @@
 // @io-wall-ok — process entry: Bun.serve + wall Node-FS report store + S3 snapshots.
 /**
  * Local report console sidecar for `@apps/server` `dev`. Serves
- * `<repo>/system-console-data` so Jest UI sims (`openSim`) show up in the
+ * `<repo>/.cache/sim-console-data` so Jest UI sims (`openSim`) show up in the
  * product Console → Reports tab. Playground snapshots use S3 from secrets-run.
  */
 import { createApiObjectStore } from '@apps/server/config/object-store';
@@ -11,11 +11,11 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import { createScriptSecretStore } from '@pkgs/secret-store';
-import { resolveLocalReportDataDir } from '@pkgs/system-console/local-data-dir';
-import { createSystemConsoleApp } from '@pkgs/system-console/server';
-import { bunSqliteDumpToSqlm } from '@pkgs/system-console/server/bun-sqlite-dump-to-sqlm';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
-import { wallPathExists } from '@pkgs/system-console/wall-path-exists';
+import { resolveLocalReportDataDir } from '@pkgs/sim-console/local-data-dir';
+import { createSimConsoleApp } from '@pkgs/sim-console/server';
+import { bunSqliteDumpToSqlm } from '@pkgs/sim-console/server/bun-sqlite-dump-to-sqlm';
+import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
+import { wallPathExists } from '@pkgs/sim-console/wall-path-exists';
 
 export type LocalReportConsoleHandle = {
   readonly stop: () => void;
@@ -70,7 +70,7 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
   });
   const snapshotStore = await createPlaygroundSnapshotS3Store();
 
-  const { app, stop: stopApp } = createSystemConsoleApp({
+  const { app, stop: stopApp } = createSimConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],
     timers: wallTimers,
     now: () => wallClock.now(),

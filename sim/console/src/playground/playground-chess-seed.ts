@@ -7,8 +7,8 @@
 import { chessPuzzlesTopic } from '@libs/chess/public/sync-topics';
 import { PuzzleSeedFastPath } from '@libs/chess/root/server/seed-chess-puzzles/fast-path';
 import type { PuzzleTableRow } from '@libs/chess/root/server/seed-chess-puzzles/row';
+import type { PlaygroundCommand } from '@pkgs/sim-console/client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PlaygroundCommand } from '@pkgs/system-console/client';
 import { PLAYGROUND_CHESS_PUZZLES_CSV } from '@sim/console/playground/playground-chess-fixture';
 
 const BATCH_SIZE = 50;

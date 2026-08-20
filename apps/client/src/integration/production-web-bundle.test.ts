@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { ProductionBundleGuard } from '@libs/client-config/public/production-client-bundle-guard';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
-import { wallPathExists } from '@pkgs/system-console';
+import { wallPathExists } from '@pkgs/sim-console';
 
 import { runPackageScriptOnce } from './run-package-script-once';
 

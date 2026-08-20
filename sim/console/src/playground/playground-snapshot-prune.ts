@@ -4,8 +4,8 @@
  */
 
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { PlaygroundSnapshotInfo } from '@pkgs/sim-console/client';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
-import type { PlaygroundSnapshotInfo } from '@pkgs/system-console/client';
 import {
   type PlaygroundSnapshotIndex,
   parseJsonBytesWithSchema,

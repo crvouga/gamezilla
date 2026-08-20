@@ -2,7 +2,7 @@
  * Dump sim sqlite + checkpoint metadata for report frames.
  */
 
-import type { SimulationFrameCheckpoint } from '@pkgs/system-console';
+import type { SimulationFrameCheckpoint } from '@pkgs/sim-console';
 import type { Sim } from '@sim/console/sim/create-sim';
 
 export type SimSnapshotDatabase = {

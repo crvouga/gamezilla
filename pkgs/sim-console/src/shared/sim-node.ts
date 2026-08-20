@@ -3,7 +3,7 @@
  * Addresses are `kind` or `kind:instanceId` (`client:alice`, `room:<topic>`).
  */
 
-export const SYSTEM_NODE_KINDS = [
+export const SIM_NODE_KINDS = [
   'client',
   'api',
   'events',
@@ -11,22 +11,22 @@ export const SYSTEM_NODE_KINDS = [
   'db',
 ] as const;
 
-export type SystemNodeKind = (typeof SYSTEM_NODE_KINDS)[number];
+export type SimNodeKind = (typeof SIM_NODE_KINDS)[number];
 
 /** Playground kind tabs (DB is a pane under API, not its own tab). */
-export const SYSTEM_CHROME_KINDS = ['client', 'api', 'events', 'room'] as const;
+export const SIM_CHROME_KINDS = ['client', 'api', 'events', 'room'] as const;
 
-export type SystemChromeKind = (typeof SYSTEM_CHROME_KINDS)[number];
+export type SimChromeKind = (typeof SIM_CHROME_KINDS)[number];
 
-export const SYSTEM_NODE_KIND_ALIASES: Readonly<
-  Record<string, SystemNodeKind>
+export const SIM_NODE_KIND_ALIASES: Readonly<
+  Record<string, SimNodeKind>
 > = {
   server: 'api',
   pubsub: 'events',
   actor: 'room',
 };
 
-export const SYSTEM_NODE_LABELS: Readonly<Record<SystemNodeKind, string>> = {
+export const SIM_NODE_LABELS: Readonly<Record<SimNodeKind, string>> = {
   client: 'Client',
   api: 'API',
   events: 'Events',
@@ -34,58 +34,58 @@ export const SYSTEM_NODE_LABELS: Readonly<Record<SystemNodeKind, string>> = {
   db: 'DB',
 };
 
-const NODE_KIND_SET: ReadonlySet<string> = new Set(SYSTEM_NODE_KINDS);
-const CHROME_KIND_SET: ReadonlySet<string> = new Set(SYSTEM_CHROME_KINDS);
+const NODE_KIND_SET: ReadonlySet<string> = new Set(SIM_NODE_KINDS);
+const CHROME_KIND_SET: ReadonlySet<string> = new Set(SIM_CHROME_KINDS);
 
-export function coerceSystemNodeKind(
+export function coerceSimNodeKind(
   raw: string | null | undefined
-): SystemNodeKind | null {
+): SimNodeKind | null {
   if (raw === null || raw === undefined) return null;
-  const aliased = SYSTEM_NODE_KIND_ALIASES[raw] ?? raw;
-  return NODE_KIND_SET.has(aliased) ? (aliased as SystemNodeKind) : null;
+  const aliased = SIM_NODE_KIND_ALIASES[raw] ?? raw;
+  return NODE_KIND_SET.has(aliased) ? (aliased as SimNodeKind) : null;
 }
 
-export function coerceSystemChromeKind(
+export function coerceSimChromeKind(
   raw: string | null | undefined
-): SystemChromeKind {
-  const kind = coerceSystemNodeKind(raw);
+): SimChromeKind {
+  const kind = coerceSimNodeKind(raw);
   if (kind !== null && CHROME_KIND_SET.has(kind)) {
-    return kind as SystemChromeKind;
+    return kind as SimChromeKind;
   }
   return 'client';
 }
 
-export function parseSystemNodeAddress(id: string): {
+export function parseSimNodeAddress(id: string): {
   readonly kind: string;
   readonly instanceId: string | null;
 } {
   const colon = id.indexOf(':');
   if (colon <= 0) {
-    return { kind: coerceSystemNodeKind(id) ?? id, instanceId: null };
+    return { kind: coerceSimNodeKind(id) ?? id, instanceId: null };
   }
   const prefix = id.slice(0, colon);
   const instanceId = id.slice(colon + 1);
   return {
-    kind: coerceSystemNodeKind(prefix) ?? prefix,
+    kind: coerceSimNodeKind(prefix) ?? prefix,
     instanceId: instanceId.length > 0 ? instanceId : null,
   };
 }
 
-export function formatSystemNodeLabel(args: {
+export function formatSimNodeLabel(args: {
   readonly id: string;
   readonly kind?: string;
 }): string {
-  const fromId = parseSystemNodeAddress(args.id);
+  const fromId = parseSimNodeAddress(args.id);
   if (fromId.instanceId !== null) return fromId.instanceId;
   const kind =
-    coerceSystemNodeKind(args.kind) ?? coerceSystemNodeKind(fromId.kind);
-  if (kind !== null) return SYSTEM_NODE_LABELS[kind];
+    coerceSimNodeKind(args.kind) ?? coerceSimNodeKind(fromId.kind);
+  if (kind !== null) return SIM_NODE_LABELS[kind];
   return args.id;
 }
 
 export type FallbackReportNode = {
   readonly id: string;
-  readonly kind: SystemNodeKind;
+  readonly kind: SimNodeKind;
   readonly attributes: readonly string[];
 };
 

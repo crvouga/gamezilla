@@ -2,7 +2,7 @@ import { Box, EmptyState, ErrorState, LoadingState, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { useSyncExternalStore } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
-import type { PlaygroundSession, SystemConsolePorts } from '../shared/ports';
+import type { PlaygroundSession, SimConsolePorts } from '../shared/ports';
 import type { ReportApiClient } from './api-client';
 import { DebuggerColumn, DebuggerColumns } from './debugger/debugger-columns';
 import { EventsPane } from './events-pane';
@@ -17,7 +17,7 @@ import { emptySx, paneSx } from './tokens';
 import type { ReportReplay } from './use-report-replay';
 
 export function ReportKindPane(props: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly replay: ReportReplay;
   readonly kind: 'client' | 'api' | 'events' | 'room';
   readonly view: DebuggerViewId;
@@ -60,7 +60,7 @@ export function ReportKindPane(props: {
 }
 
 function ReportClientPane(props: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly replay: ReportReplay;
   readonly view: DebuggerViewId;
   readonly instances: readonly TopologyNodeInfo[];
@@ -135,7 +135,7 @@ function ReportApiDbPane(props: {
 }
 
 function LiveClientColumns(props: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly session: PlaygroundSession;
   readonly view: string;
 }): ReactNode {

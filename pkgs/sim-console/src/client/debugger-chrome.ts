@@ -10,20 +10,20 @@ import {
 
 import type { DebuggerViewId } from '../shared/debugger-views';
 import {
-  coerceSystemNodeKind,
-  formatSystemNodeLabel,
-  SYSTEM_CHROME_KINDS,
-  SYSTEM_NODE_LABELS,
-  type SystemChromeKind,
-  type SystemNodeKind,
-} from '../shared/system-node';
-import { systemNodeIcon } from './system-node-chrome';
+  coerceSimNodeKind,
+  formatSimNodeLabel,
+  SIM_CHROME_KINDS,
+  SIM_NODE_LABELS,
+  type SimChromeKind,
+  type SimNodeKind,
+} from '../shared/sim-node';
+import { systemNodeIcon } from './sim-node-chrome';
 
 export type DebuggerChromeNav = {
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly instance: string;
   readonly view: string;
-  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
 };
@@ -42,9 +42,9 @@ const VIEW_CHROME: Readonly<
 };
 
 export const DEBUGGER_KIND_TABS: readonly TabStripItem[] =
-  SYSTEM_CHROME_KINDS.map((id: SystemChromeKind) => ({
+  SIM_CHROME_KINDS.map((id: SimChromeKind) => ({
     id,
-    label: SYSTEM_NODE_LABELS[id],
+    label: SIM_NODE_LABELS[id],
     icon: systemNodeIcon(id),
   }));
 
@@ -58,11 +58,11 @@ export function debuggerInstanceTabItem(args: {
   readonly kind: string;
 }): TabStripItem {
   const kind =
-    coerceSystemNodeKind(args.kind) ??
-    coerceSystemNodeKind(args.id.split(':')[0] ?? '');
+    coerceSimNodeKind(args.kind) ??
+    coerceSimNodeKind(args.id.split(':')[0] ?? '');
   return {
     id: args.id,
-    label: formatSystemNodeLabel({ id: args.id, kind: kind ?? args.kind }),
-    ...(kind !== null ? { icon: systemNodeIcon(kind as SystemNodeKind) } : {}),
+    label: formatSimNodeLabel({ id: args.id, kind: kind ?? args.kind }),
+    ...(kind !== null ? { icon: systemNodeIcon(kind as SimNodeKind) } : {}),
   };
 }

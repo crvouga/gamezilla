@@ -6,14 +6,14 @@ import type { Client } from '@apps/client/product/create-client';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { Topic } from '@pkgs/pubsub/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/testing/in-memory';
-import { notifyChannels } from '@pkgs/sync-engine/server';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundActor,
   type PlaygroundPaletteCommand,
   type PlaygroundSession,
   type PlaygroundSqlNode,
-} from '@pkgs/system-console/client';
+} from '@pkgs/sim-console/client';
+import { notifyChannels } from '@pkgs/sync-engine/server';
 import {
   captureCheckpoint,
   restoreCheckpoint,

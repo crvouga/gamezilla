@@ -6,7 +6,7 @@
     "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
-    "test:max": "SYSTEM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
+    "test:max": "SIM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@apps/client": "workspace:*",
@@ -19,8 +19,8 @@
     "@pkgs/minio-server": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/sim-console": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/system-console": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@sim/console": "workspace:*",
     "@testing-library/react-native": "catalog:",

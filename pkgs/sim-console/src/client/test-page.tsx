@@ -12,8 +12,8 @@ import {
   type DebuggerViewId,
   viewsForKind,
 } from '../shared/debugger-views';
-import type { SystemConsolePorts } from '../shared/ports';
-import type { SystemChromeKind } from '../shared/system-node';
+import type { SimConsolePorts } from '../shared/ports';
+import type { SimChromeKind } from '../shared/sim-node';
 import type { SimulationReportData, SimulationReportTopology } from '../types';
 import type { ReportApiClient } from './api-client';
 import { DebuggerShell } from './debugger/debugger-shell';
@@ -43,7 +43,7 @@ export function TestPage(props: {
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
 }) {
   const { data, nav, bucketId, runId, onNav, api, chrome, ports } = props;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
@@ -128,7 +128,7 @@ type ReportDebuggerShellProps = {
   readonly bucketId: string;
   readonly runId: string;
   readonly frame: ReturnType<typeof flattenFrames>[number] | null;
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly replay: ReturnType<typeof useReportReplay>;
 };
 
@@ -200,7 +200,7 @@ function ReportTestHeader(props: ReportDebuggerShellProps) {
 function patchChrome(args: {
   readonly nodes: readonly TopologyNodeInfo[];
   readonly chrome: DebuggerChromeNav;
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly view: DebuggerViewId;
 }): void {
   const next = findNodeForInstance(args.nodes, args.kind, null);
@@ -212,7 +212,7 @@ function patchChrome(args: {
 }
 
 function paneNodeId(args: {
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly view: DebuggerViewId;
   readonly nodeId: string | null;
   readonly nodes: readonly TopologyNodeInfo[];

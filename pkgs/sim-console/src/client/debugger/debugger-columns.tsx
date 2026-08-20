@@ -1,7 +1,7 @@
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { formatSystemNodeLabel } from '../../shared/system-node';
+import { formatSimNodeLabel } from '../../shared/sim-node';
 
 /** Side-by-side instance columns (clients). Rooms stay on instance tabs. */
 export function DebuggerColumns(props: {
@@ -18,7 +18,7 @@ export function DebuggerColumn(props: {
   return (
     <Box sx={colSx}>
       <Text sx={labelSx}>
-        {formatSystemNodeLabel({ id: props.id, kind: props.kind })}
+        {formatSimNodeLabel({ id: props.id, kind: props.kind })}
       </Text>
       <Box sx={bodySx}>{props.children}</Box>
     </Box>

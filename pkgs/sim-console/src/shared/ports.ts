@@ -1,18 +1,18 @@
 /**
- * Injected ports so `@pkgs/system-console` never imports apps/libs/test.
+ * Injected ports so `@pkgs/sim-console` never imports apps/libs/test.
  */
 
 import type { Clock, Timers } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { ComponentType } from 'react';
 
-import type { SystemCheckpoint } from './system-checkpoint';
+import type { SimCheckpoint } from './sim-checkpoint';
 
 export type {
-  SystemCheckpoint,
-  SystemCheckpointRoomDump,
-  SystemCheckpointSqlFormat,
-} from './system-checkpoint';
+  SimCheckpoint,
+  SimCheckpointRoomDump,
+  SimCheckpointSqlFormat,
+} from './sim-checkpoint';
 
 export type PlaygroundLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -160,8 +160,8 @@ export type PlaygroundSession = {
   setClockPaused(paused: boolean): void;
   isClockPaused(): boolean;
   exportSqlBytes(): Promise<Readonly<Record<string, Uint8Array>>>;
-  captureCheckpoint(label?: string): Promise<SystemCheckpoint>;
-  restoreCheckpoint(checkpoint: SystemCheckpoint): Promise<void>;
+  captureCheckpoint(label?: string): Promise<SimCheckpoint>;
+  restoreCheckpoint(checkpoint: SimCheckpoint): Promise<void>;
   subscribeDomainWake(listener: (label: string) => void): () => void;
   wipe(): Promise<void>;
   dispose(): Promise<void>;
@@ -171,7 +171,7 @@ export type BootPlaygroundOptions = {
   readonly skipSnapshotLoad?: boolean;
 };
 
-export type SystemConsolePorts = {
+export type SimConsolePorts = {
   readonly bootPlayground: (
     opts?: BootPlaygroundOptions
   ) => Promise<PlaygroundSession>;

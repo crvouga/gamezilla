@@ -1,4 +1,4 @@
-// @io-wall-ok — Expo composition root for System Console (Reports + Playground).
+// @io-wall-ok — Expo composition root for Sim Console (Reports + Playground).
 
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
 import { wallBottomSheetHost } from '@apps/client/product/wall-bottom-sheet-host';
@@ -12,9 +12,9 @@ import {
 } from '@pkgs/clock';
 import {
   DEFAULT_REPORT_SERVER_PORT,
-  SystemConsoleApp,
-  type SystemConsolePorts,
-} from '@pkgs/system-console/client';
+  SimConsoleApp,
+  type SimConsolePorts,
+} from '@pkgs/sim-console/client';
 import { AppThemeRoot, Box } from '@pkgs/ui';
 import { IdProvider } from '@pkgs/uuid';
 import {
@@ -29,7 +29,7 @@ function ConsoleBody(): ReactNode {
   const clock = useClock();
   const timers = useTimers();
   const { state, patch } = useConsoleChrome();
-  const ports = useMemo((): SystemConsolePorts => {
+  const ports = useMemo((): SimConsolePorts => {
     return {
       bootPlayground: bootPlaygroundSession,
       clock,
@@ -41,7 +41,7 @@ function ConsoleBody(): ReactNode {
   return (
     <AppI18nProvider>
       <AppUiPortals host={wallBottomSheetHost}>
-        <SystemConsoleApp
+        <SimConsoleApp
           ports={ports}
           section={state.section}
           kind={state.kind}
@@ -57,7 +57,7 @@ function ConsoleBody(): ReactNode {
   );
 }
 
-/** Expo root: System Console only (no product Client|System host chrome). */
+/** Expo root: Sim Console only (no product Client|System host chrome). */
 export function RootApp(): ReactNode {
   const consoleNav = useConsoleNav();
   const createId = useMemo(() => () => crypto.randomUUID(), []);

@@ -1,6 +1,6 @@
-// @io-wall-ok — composition-root wall FS for Expo env (system-console).
+// @io-wall-ok — composition-root wall FS for Expo env (sim-console).
 /**
- * Minimal `.env.local` for the system-console Expo shell. Playground uses
+ * Minimal `.env.local` for the sim-console Expo shell. Playground uses
  * in-process sim URLs; product embeds do not need a live API origin.
  */
 import { writeFileSync } from 'node:fs';
@@ -24,4 +24,4 @@ const lines = [
 ];
 
 writeFileSync(outPath, `${lines.join('\n')}\n`, 'utf8');
-process.stdout.write(`[system-console] wrote ${outPath}\n`);
+process.stdout.write(`[sim-console] wrote ${outPath}\n`);

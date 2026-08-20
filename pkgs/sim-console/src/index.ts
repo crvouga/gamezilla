@@ -1,7 +1,7 @@
 /**
- * `@pkgs/system-console` — capture system/DST timelines into an ObjectStore.
- * Browse them via `SystemConsoleApp` (`@pkgs/system-console/client`) and
- * `createSystemConsoleApp` (`@pkgs/system-console/server`).
+ * `@pkgs/sim-console` — capture system/DST timelines into an ObjectStore.
+ * Browse them via `SimConsoleApp` (`@pkgs/sim-console/client`) and
+ * `createSimConsoleApp` (`@pkgs/sim-console/server`).
  */
 
 export {

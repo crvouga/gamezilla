@@ -29,7 +29,7 @@
     "SECRETS_ADDR",
     "SECRETS_TOKEN",
     "TURBO_*",
-    "SYSTEM_FIDELITY",
+    "SIM_FIDELITY",
     "PLAYWRIGHT_BASE_URL",
     "TMPDIR"
   ],

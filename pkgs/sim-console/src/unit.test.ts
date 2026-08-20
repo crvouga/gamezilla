@@ -27,19 +27,19 @@ import {
 describe('resolveLocalReportDataDir', () => {
   test('resolves under monorepo root', () => {
     const dir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
-    expect(dir.endsWith('/system-console-data')).toBe(true);
-    expect(existsSync(join(dir, '..', 'turbo.json'))).toBe(true);
+    expect(dir.endsWith('/.cache/sim-console-data')).toBe(true);
+    expect(existsSync(join(dir, '../..', 'turbo.json'))).toBe(true);
   });
 
   test('ignores package-level turbo.json under apps/', () => {
     const fromApp = resolveLocalReportDataDir(
-      join(import.meta.dir, '../../../pkgs/system-console'),
+      join(import.meta.dir, '../../../pkgs/sim-console'),
       wallPathExists
     );
     const fromPkg = resolveLocalReportDataDir(import.meta.dir, wallPathExists);
     expect(fromApp).toBe(fromPkg);
-    expect(fromApp.endsWith('/system-console-data')).toBe(true);
-    expect(fromApp.includes('/pkgs/system-console/')).toBe(false);
+    expect(fromApp.endsWith('/.cache/sim-console-data')).toBe(true);
+    expect(fromApp.includes('/pkgs/sim-console/')).toBe(false);
   });
 });
 

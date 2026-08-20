@@ -6,7 +6,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   PlaygroundPaletteCommand,
   PlaygroundSession,
-} from '@pkgs/system-console/client';
+} from '@pkgs/sim-console/client';
 import type { createPlaygroundChessCommands } from '@sim/console/playground/playground-chess-seed';
 import {
   buildPlaygroundPaletteCommands,

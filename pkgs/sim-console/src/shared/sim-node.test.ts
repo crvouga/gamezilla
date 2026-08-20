@@ -1,64 +1,64 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  coerceSystemChromeKind,
-  coerceSystemNodeKind,
+  coerceSimChromeKind,
+  coerceSimNodeKind,
   fallbackReportNodes,
-  formatSystemNodeLabel,
-  parseSystemNodeAddress,
-} from './system-node';
+  formatSimNodeLabel,
+  parseSimNodeAddress,
+} from './sim-node';
 
-describe('coerceSystemNodeKind', () => {
+describe('coerceSimNodeKind', () => {
   test('maps legacy aliases onto World kinds', () => {
-    expect(coerceSystemNodeKind('server')).toBe('api');
-    expect(coerceSystemNodeKind('pubsub')).toBe('events');
-    expect(coerceSystemNodeKind('actor')).toBe('room');
+    expect(coerceSimNodeKind('server')).toBe('api');
+    expect(coerceSimNodeKind('pubsub')).toBe('events');
+    expect(coerceSimNodeKind('actor')).toBe('room');
   });
 
   test('passes through World kinds', () => {
-    expect(coerceSystemNodeKind('api')).toBe('api');
-    expect(coerceSystemNodeKind('events')).toBe('events');
-    expect(coerceSystemNodeKind('client')).toBe('client');
-    expect(coerceSystemNodeKind('db')).toBe('db');
+    expect(coerceSimNodeKind('api')).toBe('api');
+    expect(coerceSimNodeKind('events')).toBe('events');
+    expect(coerceSimNodeKind('client')).toBe('client');
+    expect(coerceSimNodeKind('db')).toBe('db');
   });
 
   test('rejects unknown', () => {
-    expect(coerceSystemNodeKind('y')).toBeNull();
-    expect(coerceSystemNodeKind(null)).toBeNull();
+    expect(coerceSimNodeKind('y')).toBeNull();
+    expect(coerceSimNodeKind(null)).toBeNull();
   });
 });
 
-describe('coerceSystemChromeKind', () => {
+describe('coerceSimChromeKind', () => {
   test('defaults unknown and db to client', () => {
-    expect(coerceSystemChromeKind('nope')).toBe('client');
-    expect(coerceSystemChromeKind('db')).toBe('client');
-    expect(coerceSystemChromeKind('server')).toBe('api');
+    expect(coerceSimChromeKind('nope')).toBe('client');
+    expect(coerceSimChromeKind('db')).toBe('client');
+    expect(coerceSimChromeKind('server')).toBe('api');
   });
 });
 
-describe('parseSystemNodeAddress / formatSystemNodeLabel', () => {
+describe('parseSimNodeAddress / formatSimNodeLabel', () => {
   test('singletons use catalog labels', () => {
-    expect(formatSystemNodeLabel({ id: 'api', kind: 'api' })).toBe('API');
-    expect(formatSystemNodeLabel({ id: 'events' })).toBe('Events');
-    expect(formatSystemNodeLabel({ id: 'server' })).toBe('API');
-    expect(formatSystemNodeLabel({ id: 'db', kind: 'db' })).toBe('DB');
+    expect(formatSimNodeLabel({ id: 'api', kind: 'api' })).toBe('API');
+    expect(formatSimNodeLabel({ id: 'events' })).toBe('Events');
+    expect(formatSimNodeLabel({ id: 'server' })).toBe('API');
+    expect(formatSimNodeLabel({ id: 'db', kind: 'db' })).toBe('DB');
   });
 
   test('instances drop the kind prefix', () => {
-    expect(formatSystemNodeLabel({ id: 'client:alice', kind: 'client' })).toBe(
+    expect(formatSimNodeLabel({ id: 'client:alice', kind: 'client' })).toBe(
       'alice'
     );
-    expect(formatSystemNodeLabel({ id: 'room:lobby', kind: 'room' })).toBe(
+    expect(formatSimNodeLabel({ id: 'room:lobby', kind: 'room' })).toBe(
       'lobby'
     );
   });
 
   test('parse coerces address prefix', () => {
-    expect(parseSystemNodeAddress('client:bob')).toEqual({
+    expect(parseSimNodeAddress('client:bob')).toEqual({
       kind: 'client',
       instanceId: 'bob',
     });
-    expect(parseSystemNodeAddress('api')).toEqual({
+    expect(parseSimNodeAddress('api')).toEqual({
       kind: 'api',
       instanceId: null,
     });

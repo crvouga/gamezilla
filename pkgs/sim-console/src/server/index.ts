@@ -7,10 +7,10 @@ export {
 } from './create-server';
 export {
   type ConvertSqliteDumpToSqlm,
-  type CreateSystemConsoleAppOptions,
-  createSystemConsoleApp,
-  type SystemConsoleAppHandle,
-} from './create-system-console-app';
+  type CreateSimConsoleAppOptions,
+  createSimConsoleApp,
+  type SimConsoleAppHandle,
+} from './create-sim-console-app';
 export {
   handlePlaygroundSnapshotObjectRequest,
   PLAYGROUND_SNAPSHOT_OBJECTS_PATH,

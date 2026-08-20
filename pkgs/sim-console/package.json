@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/system-console",
+  "name": "@pkgs/sim-console",
   "version": "0.0.0",
   "private": true,
   "exports": {

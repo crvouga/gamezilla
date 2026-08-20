@@ -7,9 +7,9 @@ import {
   ServerIcon,
 } from '@pkgs/ui';
 
-import type { SystemNodeKind } from '../shared/system-node';
+import type { SimNodeKind } from '../shared/sim-node';
 
-const NODE_ICONS: Readonly<Record<SystemNodeKind, IconComponent>> = {
+const NODE_ICONS: Readonly<Record<SimNodeKind, IconComponent>> = {
   client: MonitorIcon,
   api: ServerIcon,
   events: RadioIcon,
@@ -17,6 +17,6 @@ const NODE_ICONS: Readonly<Record<SystemNodeKind, IconComponent>> = {
   db: DatabaseIcon,
 };
 
-export function systemNodeIcon(kind: SystemNodeKind): IconComponent {
+export function systemNodeIcon(kind: SimNodeKind): IconComponent {
   return NODE_ICONS[kind];
 }

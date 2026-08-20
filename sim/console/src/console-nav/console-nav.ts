@@ -11,14 +11,14 @@ import {
   coerceDebuggerView,
   type DebuggerViewId,
   defaultViewForKind,
-} from '@pkgs/system-console/shared/debugger-views';
+} from '@pkgs/sim-console/shared/debugger-views';
 import {
-  coerceSystemChromeKind,
-  type SystemChromeKind,
-} from '@pkgs/system-console/shared/system-node';
+  coerceSimChromeKind,
+  type SimChromeKind,
+} from '@pkgs/sim-console/shared/sim-node';
 
 export type ConsoleSection = 'reports' | 'playground';
-export type ConsoleKind = SystemChromeKind;
+export type ConsoleKind = SimChromeKind;
 export type ConsoleView = DebuggerViewId;
 
 export type ConsoleNavState = {
@@ -60,7 +60,7 @@ export function coerceView(kind: ConsoleKind, view: string): ConsoleView {
 }
 
 export function coerceKind(kindRaw: string | null | undefined): ConsoleKind {
-  return coerceSystemChromeKind(kindRaw);
+  return coerceSimChromeKind(kindRaw);
 }
 
 export function applyConsoleNavPatch(

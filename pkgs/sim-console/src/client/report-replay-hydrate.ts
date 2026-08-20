@@ -3,7 +3,7 @@
  */
 
 import type { HttpFetch } from '@pkgs/http-client';
-import type { SystemCheckpoint } from '../shared/system-checkpoint';
+import type { SimCheckpoint } from '../shared/sim-checkpoint';
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
 
@@ -19,7 +19,7 @@ export async function checkpointFromReportFrame(args: {
   readonly runId: string;
   readonly testId: string;
   readonly fetch: HttpFetch;
-}): Promise<SystemCheckpoint> {
+}): Promise<SimCheckpoint> {
   const clientSql: Record<string, Uint8Array> = {};
   let serverSql: Uint8Array | undefined;
   for (const dump of args.frame.databases ?? []) {
@@ -76,7 +76,7 @@ function mergeCheckpointMeta(
   frame: FlatFrame,
   serverSql: Uint8Array,
   clientSql: Record<string, Uint8Array>
-): SystemCheckpoint {
+): SimCheckpoint {
   const meta = frame.checkpoint;
   const clientIds =
     meta?.clientIds ??

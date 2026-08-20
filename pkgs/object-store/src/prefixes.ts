@@ -1,7 +1,7 @@
 /** Feature-relative prefixes composed under the injected root namespace. */
 export const ObjectStorePrefix = {
   ttsAudio: 'tts-audio/',
-  systemConsole: 'system-console/',
+  simConsole: 'sim-console/',
   playgroundSnapshots: 'playground-snapshots/',
 } as const;
 

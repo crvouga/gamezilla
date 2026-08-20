@@ -5,7 +5,7 @@
 import type {
   PlaygroundPaletteCommand,
   PlaygroundSession,
-} from '@pkgs/system-console/client';
+} from '@pkgs/sim-console/client';
 
 function collectIds(session: PlaygroundSession): string[] {
   const ids = ['server'];

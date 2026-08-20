@@ -4,11 +4,11 @@
  */
 
 import {
-  coerceSystemChromeKind,
-  coerceSystemNodeKind,
-  parseSystemNodeAddress,
-  type SystemChromeKind,
-} from './system-node';
+  coerceSimChromeKind,
+  coerceSimNodeKind,
+  parseSimNodeAddress,
+  type SimChromeKind,
+} from './sim-node';
 
 export type DebuggerNode = {
   readonly id: string;
@@ -16,34 +16,34 @@ export type DebuggerNode = {
   readonly attributes?: readonly string[];
 };
 
-export function chromeKindForNodeKind(kind: string): SystemChromeKind {
-  const coerced = coerceSystemNodeKind(kind);
+export function chromeKindForNodeKind(kind: string): SimChromeKind {
+  const coerced = coerceSimNodeKind(kind);
   if (coerced === 'db') return 'api';
-  return coerceSystemChromeKind(coerced);
+  return coerceSimChromeKind(coerced);
 }
 
 /** Nodes shown as instance tabs for a chrome kind (`db` omitted). */
 export function instancesForKind<T extends DebuggerNode>(
   nodes: readonly T[],
-  kind: SystemChromeKind
+  kind: SimChromeKind
 ): readonly T[] {
   return nodes.filter((n) => {
-    if (coerceSystemNodeKind(n.kind) === 'db') return false;
+    if (coerceSimNodeKind(n.kind) === 'db') return false;
     return chromeKindForNodeKind(n.kind) === kind;
   });
 }
 
 /** Full World address from chrome kind + instance URL param. */
 export function nodeIdForKindInstance(
-  kind: SystemChromeKind,
+  kind: SimChromeKind,
   instance: string | null | undefined
 ): string {
   const raw = instance?.trim() ?? '';
   if (kind === 'api') return 'api';
   if (kind === 'events') return 'events';
   if (raw.length === 0) return kind;
-  const parsed = parseSystemNodeAddress(raw);
-  if (parsed.kind === kind || coerceSystemNodeKind(raw) === kind) {
+  const parsed = parseSimNodeAddress(raw);
+  if (parsed.kind === kind || coerceSimNodeKind(raw) === kind) {
     return raw.includes(':') ? raw : `${kind}:${raw}`;
   }
   if (raw.includes(':')) return raw;
@@ -52,14 +52,14 @@ export function nodeIdForKindInstance(
 
 /** Short instance id for URL (`client:alice` → `alice`). */
 export function instanceParamForNodeId(nodeId: string): string {
-  const parsed = parseSystemNodeAddress(nodeId);
+  const parsed = parseSimNodeAddress(nodeId);
   return parsed.instanceId ?? parsed.kind;
 }
 
 /** Resolve a topology node from a URL instance param (short or full id). */
 export function findNodeForInstance<T extends DebuggerNode>(
   nodes: readonly T[],
-  kind: SystemChromeKind,
+  kind: SimChromeKind,
   instance: string | null | undefined
 ): T | undefined {
   const list = instancesForKind(nodes, kind);
@@ -75,8 +75,8 @@ export function findNodeForInstance<T extends DebuggerNode>(
 }
 
 export function sqliteNodeIdForApi(nodes: readonly DebuggerNode[]): string {
-  const api = nodes.find((n) => coerceSystemNodeKind(n.kind) === 'api');
+  const api = nodes.find((n) => coerceSimNodeKind(n.kind) === 'api');
   if (api !== undefined) return api.id;
-  const db = nodes.find((n) => coerceSystemNodeKind(n.kind) === 'db');
+  const db = nodes.find((n) => coerceSimNodeKind(n.kind) === 'db');
   return db?.id ?? 'api';
 }

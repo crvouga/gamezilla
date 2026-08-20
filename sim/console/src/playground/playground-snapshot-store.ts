@@ -12,7 +12,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   DEFAULT_REPORT_SERVER_PORT,
   PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
-} from '@pkgs/system-console/types';
+} from '@pkgs/sim-console/types';
 
 export function playgroundSnapshotObjectsBaseUrl(
   port: number = DEFAULT_REPORT_SERVER_PORT

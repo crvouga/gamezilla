@@ -14,7 +14,7 @@ import { createLogger } from '@pkgs/logger';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import type { SecretStore } from '@pkgs/secret-store';
-import { createSystemConsoleApp } from '@pkgs/system-console/server';
+import { createSimConsoleApp } from '@pkgs/sim-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts/server';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -308,13 +308,13 @@ function createServerRouter(args: {
 }
 
 async function createConsoleRouter(env: ServerEnv) {
-  const reportConsole = createSystemConsoleApp({
+  const reportConsole = createSimConsoleApp({
     buckets: [
       {
         id: 'local',
         label: 'Local',
         store: await Promise.resolve(
-          env.blob.withPrefix(ObjectStorePrefix.systemConsole)
+          env.blob.withPrefix(ObjectStorePrefix.simConsole)
         ),
       },
     ],
@@ -363,5 +363,5 @@ export async function createServer(env: ServerEnv) {
       '/api',
       createServerRouter({ env, desiredClientConfig, billing, tts, llm, log })
     )
-    .route('/system-console', consoleRouter);
+    .route('/sim-console', consoleRouter);
 }

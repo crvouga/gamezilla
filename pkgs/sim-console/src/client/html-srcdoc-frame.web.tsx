@@ -5,7 +5,7 @@ import { Box, Text } from '@pkgs/ui';
 
 import { emptySx, paneSx } from './tokens';
 
-const PREVIEW_IFRAME_CLASS = 'system-console-html-preview';
+const PREVIEW_IFRAME_CLASS = 'sim-console-html-preview';
 
 const PREVIEW_IFRAME_CSS = `
 .${PREVIEW_IFRAME_CLASS} {

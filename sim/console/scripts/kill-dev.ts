@@ -1,5 +1,5 @@
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
+import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
 
 function readPort(name: string, fallback: number): number {
   const raw = process.env[name]?.trim();

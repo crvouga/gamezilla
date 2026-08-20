@@ -1,5 +1,5 @@
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/system-console/types';
+import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
 
 const API_PORT = 8788;
 /** Matches `scripts/dev.ts` / `preview:serve` (`--inspector-port 9231`). */

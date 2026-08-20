@@ -7,7 +7,7 @@ import type {
   createPlaygroundLogBuffer,
   PlaygroundPubSubNode,
   PlaygroundRoomNode,
-} from '@pkgs/system-console/client';
+} from '@pkgs/sim-console/client';
 import type { InProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 
 export function makePlaygroundRoomNode(

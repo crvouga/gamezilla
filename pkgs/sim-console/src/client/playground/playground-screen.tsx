@@ -15,7 +15,7 @@ import type {
   PlaygroundPaletteCommand,
   PlaygroundSession,
 } from '../../shared/ports';
-import type { SystemChromeKind } from '../../shared/system-node';
+import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn, DebuggerColumns } from '../debugger/debugger-columns';
 import { DebuggerShell } from '../debugger/debugger-shell';
 import type { DebuggerChromeNav } from '../debugger-chrome';
@@ -28,14 +28,14 @@ import {
 import { PlaygroundSnapshotChrome } from './playground-snapshot-chrome';
 import type { PlaygroundSessionState } from './use-playground-session';
 
-export type { SystemChromeKind as PlaygroundKindId } from '../../shared/system-node';
+export type { SimChromeKind as PlaygroundKindId } from '../../shared/sim-node';
 
 export function PlaygroundScreen(props: {
   readonly state: PlaygroundSessionState;
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly instance: string;
   readonly view: string;
-  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
 }) {
@@ -148,7 +148,7 @@ function ReadyPlaygroundScreen(props: {
 }
 
 function instancesForPlayground(
-  kind: SystemChromeKind,
+  kind: SimChromeKind,
   clients: readonly import('../../shared/ports').PlaygroundActor[],
   roomIds: readonly string[]
 ): readonly { readonly id: string; readonly kind: string }[] {
@@ -163,7 +163,7 @@ function instancesForPlayground(
 
 function LiveKindPane(props: {
   readonly session: PlaygroundSession;
-  readonly kind: SystemChromeKind;
+  readonly kind: SimChromeKind;
   readonly view: string;
   readonly instanceId: string;
   readonly clients: readonly import('../../shared/ports').PlaygroundActor[];

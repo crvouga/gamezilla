@@ -7,8 +7,8 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   PlaygroundSnapshotInfo,
   PlaygroundSnapshotManifest,
-  SystemCheckpoint,
-} from '@pkgs/system-console/client';
+  SimCheckpoint,
+} from '@pkgs/sim-console/client';
 import {
   type CheckpointSessionCtx,
   captureCheckpoint,
@@ -132,7 +132,7 @@ export async function savePlaygroundSnapshot(
 async function putCheckpointBlobs(
   store: ObjectStore,
   prefix: string,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): Promise<{ serverSql: string; clientSql: Record<string, string> }> {
   const serverSql = `${prefix}sql/server.bin`;
   await store.put(serverSql, checkpoint.serverSql, 'application/json');
@@ -151,7 +151,7 @@ async function putCheckpointBlobs(
 async function putKvAndRooms(
   store: ObjectStore,
   prefix: string,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): Promise<void> {
   for (const clientId of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[clientId];
@@ -172,7 +172,7 @@ function manifestFromCheckpoint(args: {
   readonly id: string;
   readonly label: string;
   readonly createdAtMs: number;
-  readonly checkpoint: SystemCheckpoint;
+  readonly checkpoint: SimCheckpoint;
   readonly keys: { serverSql: string; clientSql: Record<string, string> };
 }): PlaygroundSnapshotManifest {
   const { id, label, createdAtMs, checkpoint, keys } = args;
@@ -211,7 +211,7 @@ async function checkpointFromStore(
   store: ObjectStore,
   prefix: string,
   manifest: PlaygroundSnapshotManifest
-): Promise<SystemCheckpoint> {
+): Promise<SimCheckpoint> {
   const clientSql: Record<string, Uint8Array> = {};
   const clientKv: Record<string, Record<string, string>> = {};
   for (const id of manifest.clientIds) {
@@ -247,8 +247,8 @@ async function readRoomDumps(
   store: ObjectStore,
   prefix: string,
   roomTopics: readonly string[]
-): Promise<SystemCheckpoint['rooms']> {
-  const rooms: Record<string, SystemCheckpoint['rooms'][string]> = {};
+): Promise<SimCheckpoint['rooms']> {
+  const rooms: Record<string, SimCheckpoint['rooms'][string]> = {};
   for (const topic of roomTopics) {
     const text = await readText(
       store,

@@ -1,11 +1,11 @@
 import {
-  type CreateSystemConsoleAppOptions,
-  createSystemConsoleApp,
-} from './create-system-console-app';
+  type CreateSimConsoleAppOptions,
+  createSimConsoleApp,
+} from './create-sim-console-app';
 
 export type { ReportBucket } from './types';
 
-export type CreateSimulationReportServerOptions = CreateSystemConsoleAppOptions;
+export type CreateSimulationReportServerOptions = CreateSimConsoleAppOptions;
 
 export type SimulationReportServer = {
   readonly fetch: (req: Request) => Promise<Response>;
@@ -13,13 +13,13 @@ export type SimulationReportServer = {
 };
 
 /**
- * Fetch-handler wrapper around {@link createSystemConsoleApp} for tests
+ * Fetch-handler wrapper around {@link createSimConsoleApp} for tests
  * and non-Hono hosts.
  */
 export function createSimulationReportServer(
   options: CreateSimulationReportServerOptions
 ): SimulationReportServer {
-  const { app, stop } = createSystemConsoleApp(options);
+  const { app, stop } = createSimConsoleApp(options);
   return {
     fetch: async (req) => app.fetch(req),
     stop,

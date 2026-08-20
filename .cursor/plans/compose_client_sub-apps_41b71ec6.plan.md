@@ -1,6 +1,6 @@
 ---
 name: Compose client sub-apps
-overview: Fold playground into @pkgs/system-console as extra RN screens, keep that package library-only (RN UI + Hono, no entry), and have @apps/client compose Main vs Console by injecting product/API ports. First-party react-dom rendering goes away; Expo web still keeps react-dom as react-native-web’s peer.
+overview: Fold playground into @pkgs/sim-console as extra RN screens, keep that package library-only (RN UI + Hono, no entry), and have @apps/client compose Main vs Console by injecting product/API ports. First-party react-dom rendering goes away; Expo web still keeps react-dom as react-native-web’s peer.
 todos:
   - id: console-ports-screens
     content: Define pkgs-level ports; add Console screens for Reports + Playground; delete @test/system-playground
@@ -26,10 +26,10 @@ flowchart TB
   entry["apps/client/index.js"]
   host["ClientHost Main or Console"]
   product["ProductApp isolated"]
-  consoleApp["SystemConsoleApp pkgs"]
+  consoleApp["SimConsoleApp pkgs"]
   reports["Reports screens"]
   playground["Playground screens"]
-  hono["createSystemConsoleApp Hono"]
+  hono["createSimConsoleApp Hono"]
   api["apps/api mounts Hono"]
 
   entry -->|"injects ports"| consoleApp
@@ -44,13 +44,13 @@ flowchart TB
 
 Two host tabs only: **Main | Console**. Playground is not a peer app — it is more screens inside the console.
 
-`@pkgs/system-console` stays in **pkgs**. It never imports `@apps/*`, `@libs/*`, or `@test/*`. Product App, actor seams, and in-process/live API boot are **injected ports**.
+`@pkgs/sim-console` stays in **pkgs**. It never imports `@apps/*`, `@libs/*`, or `@test/*`. Product App, actor seams, and in-process/live API boot are **injected ports**.
 
 Delete [`test/system-playground/`](test/system-playground/) (Expo entry, Metro, polyfill). No `apps → test` exception.
 
 ## 1. Ports in pkgs (the only coupling)
 
-[`pkgs/system-console/src/shared/ports.ts`](pkgs/system-console/src/shared/ports.ts) — interfaces only, pkgs-legal types (`Io`, React component types, opaque `resources`):
+[`pkgs/sim-console/src/shared/ports.ts`](pkgs/sim-console/src/shared/ports.ts) — interfaces only, pkgs-legal types (`Io`, React component types, opaque `resources`):
 
 ```ts
 export type EmbeddedProductAppProps<R = unknown> = {
@@ -70,13 +70,13 @@ export type PlaygroundSession<R = unknown> = {
   dispose(): Promise<void>
 }
 
-export type SystemConsolePorts<R = unknown> = {
+export type SimConsolePorts<R = unknown> = {
   readonly ProductApp: ComponentType<EmbeddedProductAppProps<R>>
   readonly bootPlayground: () => Promise<PlaygroundSession<R>>
 }
 ```
 
-`SystemConsoleApp` takes `ports: SystemConsolePorts`. No silent wall fallbacks; missing boot → playground screens show an empty/error state.
+`SimConsoleApp` takes `ports: SimConsolePorts`. No silent wall fallbacks; missing boot → playground screens show an empty/error state.
 
 Writer/report APIs stay as they are (ObjectStore + Hono). The RN UI uses injected `Io.http` against the mounted console Hono.
 
@@ -90,18 +90,18 @@ Internal console nav (not host tabs), using `@pkgs/ui` + in-memory nav:
 
 Reuse the existing console header/tab-bar pattern, rewritten to `Box`/`Text`/`Pressable` + `sx`.
 
-## 3. `@pkgs/system-console` — library only (RN + Hono)
+## 3. `@pkgs/sim-console` — library only (RN + Hono)
 
-**Delete entry / DOM SPA:** `scripts/dev-server.ts`, `kill-dev.ts`, `ports.ts`, `src/web/index.html`, `src/web/main.tsx`, `src/build-web.ts`, `dev`/`build`/`kill`, root `system:console`. Drop `react-dom`. Add `@pkgs/ui` + `react-native`. Remove the `pkgs/system-console/` exemption in [`tools/scripts/check-no-rn-style-api.ts`](tools/scripts/check-no-rn-style-api.ts).
+**Delete entry / DOM SPA:** `scripts/dev-server.ts`, `kill-dev.ts`, `ports.ts`, `src/web/index.html`, `src/web/main.tsx`, `src/build-web.ts`, `dev`/`build`/`kill`, root `system:console`. Drop `react-dom`. Add `@pkgs/ui` + `react-native`. Remove the `pkgs/sim-console/` exemption in [`tools/scripts/check-no-rn-style-api.ts`](tools/scripts/check-no-rn-style-api.ts).
 
-**Server → Hono:** `createSystemConsoleApp(options): Hono` from today’s [`api-routes.ts`](pkgs/system-console/src/server/api-routes.ts) (health, SSE, prune, delete run, frame data). No SPA `distStore`. Mount on [`apps/api/src/app/create-app.ts`](apps/api/src/app/create-app.ts) at `/system-console`.
+**Server → Hono:** `createSimConsoleApp(options): Hono` from today’s [`api-routes.ts`](pkgs/sim-console/src/server/api-routes.ts) (health, SSE, prune, delete run, frame data). No SPA `distStore`. Mount on [`apps/api/src/app/create-app.ts`](apps/api/src/app/create-app.ts) at `/sim-console`.
 
 **Client → `src/client/`:** convert `src/web/**` to RN + `sx`. History/document out; parse/serialize nav helpers stay. HTML preview web-only; sqlite-wasm web-only. Bare `fetch` / `EventSource` → `io.http`.
 
 Exports:
 
 - `.` — writer / types (unchanged for [`test/system/src/setup/open-sim.ts`](test/system/src/setup/open-sim.ts))
-- `./client` — `SystemConsoleApp` + ports types
+- `./client` — `SimConsoleApp` + ports types
 - `./server` — Hono factory
 
 ## 4. Injected playground boot (stays out of pkgs)
@@ -134,18 +134,18 @@ export type HostedSubApp = {
 Composition root ([`apps/client/index.js`](apps/client/index.js) + `compose-sub-apps.ts`):
 
 ```ts
-const ports: SystemConsolePorts<ClientSystemResources> = {
+const ports: SimConsolePorts<ClientSystemResources> = {
   ProductApp,
   bootPlayground: () => bootTwoActorSessions({ ProductApp seams... }),
 }
 
 return [
   { id: 'main', title: 'Main', App: ProductApp },
-  { id: 'console', title: 'Console', App: () => <SystemConsoleApp ports={ports} /> },
+  { id: 'console', title: 'Console', App: () => <SimConsoleApp ports={ports} /> },
 ]
 ```
 
-Host depends only on `HostedSubApp[]`. Console depends only on `SystemConsolePorts`. No circular package edge: pkgs never imports client; client imports pkgs.
+Host depends only on `HostedSubApp[]`. Console depends only on `SimConsolePorts`. No circular package edge: pkgs never imports client; client imports pkgs.
 
 ## 6. Delete `@test/system-playground`
 

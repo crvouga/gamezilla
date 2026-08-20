@@ -2,9 +2,9 @@ import { Box, TabStrip } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import {
-  coerceSystemChromeKind,
-  type SystemChromeKind,
-} from '../../shared/system-node';
+  coerceSimChromeKind,
+  type SimChromeKind,
+} from '../../shared/sim-node';
 import {
   DEBUGGER_KIND_TABS,
   debuggerInstanceTabItem,
@@ -27,8 +27,8 @@ export type DebuggerShellProps = {
   readonly frames: readonly FlatFrame[];
   readonly selectedFrameIndex: number;
   readonly onSelectFrame: (index: number) => void;
-  readonly kind: SystemChromeKind;
-  readonly onKindChange: (kind: SystemChromeKind) => void;
+  readonly kind: SimChromeKind;
+  readonly onKindChange: (kind: SimChromeKind) => void;
   readonly instances: readonly DebuggerInstance[];
   readonly instanceId: string | null;
   readonly onInstanceChange: (id: string) => void;
@@ -72,7 +72,7 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
         accessibilityLabel="Node kinds"
         items={[...DEBUGGER_KIND_TABS]}
         selectedId={kind}
-        onSelect={(id) => onKindChange(coerceSystemChromeKind(id))}
+        onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
         keyboardScope
         {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
       />

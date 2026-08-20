@@ -5,9 +5,9 @@
 import type { Client } from '@apps/client/product/create-client';
 import type { SimClock } from '@pkgs/clock';
 import type {
-  SystemCheckpoint,
-  SystemCheckpointRoomDump,
-} from '@pkgs/system-console/client';
+  SimCheckpoint,
+  SimCheckpointRoomDump,
+} from '@pkgs/sim-console/client';
 import type { InProcessRoomNode } from '@sim/console/playground/in-process-room-node';
 import {
   dumpPlaygroundClientDurable,
@@ -93,8 +93,8 @@ export async function collectSqlAndKv(
 export function collectRooms(
   ctx: CheckpointSessionCtx,
   roomTopics: readonly string[]
-): Record<string, SystemCheckpointRoomDump> {
-  const rooms: Record<string, SystemCheckpointRoomDump> = {};
+): Record<string, SimCheckpointRoomDump> {
+  const rooms: Record<string, SimCheckpointRoomDump> = {};
   for (const topic of roomTopics) {
     const exported = ctx.roomNode.exportTopic(topic);
     if (exported === null) continue;
@@ -126,7 +126,7 @@ async function ensureClientSqlHandle(
 
 export async function importCheckpointSql(
   ctx: CheckpointSessionCtx,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): Promise<void> {
   await ctx.serverHandle.importBytes(checkpoint.serverSql);
   for (const id of checkpoint.clientIds) {
@@ -140,7 +140,7 @@ export async function importCheckpointSql(
   }
 }
 
-export function restoreCheckpointKv(checkpoint: SystemCheckpoint): void {
+export function restoreCheckpointKv(checkpoint: SimCheckpoint): void {
   for (const id of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[id];
     if (kv === undefined) continue;
@@ -150,7 +150,7 @@ export function restoreCheckpointKv(checkpoint: SystemCheckpoint): void {
 
 export async function restoreCheckpointRooms(
   ctx: CheckpointSessionCtx,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): Promise<void> {
   const keep = new Set(checkpoint.roomTopics);
   for (const topic of ctx.roomNode.listTopics()) {
@@ -168,7 +168,7 @@ export async function restoreCheckpointRooms(
 
 export function applyCheckpointFaults(
   sim: Sim,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): void {
   sim.heal();
   for (const part of checkpoint.partitions) {

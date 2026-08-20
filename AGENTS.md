@@ -93,7 +93,7 @@ When adding a new check, default to a turbo task under `ci:*` (or extend an exis
 
 **Manual work is sim-only.** `bun run dev` starts **only `@sim/console`** (Reports + Playground, sqlite-mem World, reports on port 7789). It does **not** start Wrangler, Postgres, MinIO, or EMQX. The product Expo app is separate (`bun run dev:client` → `@apps/client`).
 
-Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@sim/test` `openSim({ fidelity: 'max' })` / `SYSTEM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (sqlite-mem vs PGlite, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@sim/test` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 

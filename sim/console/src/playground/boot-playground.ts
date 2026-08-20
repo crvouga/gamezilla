@@ -4,7 +4,7 @@ import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createPlaygroundLogBuffer,
   type PlaygroundSession,
-} from '@pkgs/system-console/client';
+} from '@pkgs/sim-console/client';
 import {
   type BootPlaygroundOptions,
   buildPlaygroundSession,

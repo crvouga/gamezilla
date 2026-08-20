@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { PlaygroundSession, SystemConsolePorts } from '../shared/ports';
+import type { PlaygroundSession, SimConsolePorts } from '../shared/ports';
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
 import {
@@ -22,7 +22,7 @@ export type ReportReplay = {
 };
 
 export function useReportReplay(args: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly frame: FlatFrame | null;
   readonly api: ReportApiClient;
   readonly bucketId: string;
@@ -55,7 +55,7 @@ export function useReportReplay(args: {
 }
 
 function useBootReplaySession(args: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly setSession: (s: PlaygroundSession | null) => void;
   readonly setStatus: (s: ReportReplayStatus) => void;
   readonly setError: (e: string | null) => void;
@@ -89,7 +89,7 @@ function useBootReplaySession(args: {
 }
 
 function useHydrateReplayFrame(args: {
-  readonly ports: SystemConsolePorts;
+  readonly ports: SimConsolePorts;
   readonly session: PlaygroundSession | null;
   readonly frame: FlatFrame | null;
   readonly api: ReportApiClient;
@@ -161,7 +161,7 @@ async function hydrateFrame(args: {
   readonly bucketId: string;
   readonly runId: string;
   readonly testId: string;
-  readonly fetch: SystemConsolePorts['fetch'];
+  readonly fetch: SimConsolePorts['fetch'];
 }): Promise<void> {
   const checkpoint = await checkpointFromReportFrame(args);
   await args.session.restoreCheckpoint(checkpoint);

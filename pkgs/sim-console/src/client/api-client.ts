@@ -43,7 +43,7 @@ export type EventSourceHandle = {
 };
 
 export type CreateReportApiClientOptions = {
-  /** Mounted console Hono base path (no trailing slash), e.g. `/system-console`. */
+  /** Mounted console Hono base path (no trailing slash), e.g. `/sim-console`. */
   readonly basePath: string;
   /** Injected fetch (from ClientEnv / HttpClient); never a bare global. */
   readonly fetch: HttpFetch;

@@ -1,6 +1,6 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { PathExists } from '@pkgs/system-console';
+import type { PathExists } from '@pkgs/sim-console';
 import type { Subprocess } from 'bun';
 
 function resolveWorkspaceRoot(pathExists: PathExists): string {

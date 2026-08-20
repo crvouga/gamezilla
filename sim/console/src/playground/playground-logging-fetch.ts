@@ -1,5 +1,5 @@
 import type { ServerHttp } from '@apps/client/product/client-env';
-import type { PlaygroundLogBuffer } from '@pkgs/system-console/client';
+import type { PlaygroundLogBuffer } from '@pkgs/sim-console/client';
 
 function requestMethod(input: RequestInfo | URL, init?: RequestInit): string {
   if (init?.method != null) return init.method.toUpperCase();

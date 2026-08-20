@@ -3,7 +3,7 @@
  * Persisted report aliases: html → ui, sqlite → db, logs → events.
  */
 
-import { coerceSystemChromeKind, type SystemChromeKind } from './system-node';
+import { coerceSimChromeKind, type SimChromeKind } from './sim-node';
 
 export const DEBUGGER_VIEW_IDS = [
   'ui',
@@ -24,7 +24,7 @@ const VIEW_ALIASES: Readonly<Record<string, DebuggerViewId>> = {
 };
 
 export const VIEWS_BY_KIND: Readonly<
-  Record<SystemChromeKind, readonly DebuggerViewId[]>
+  Record<SimChromeKind, readonly DebuggerViewId[]>
 > = {
   client: ['ui', 'db', 'events'],
   api: ['db', 'events', 'commands'],
@@ -33,7 +33,7 @@ export const VIEWS_BY_KIND: Readonly<
 };
 
 export const DEFAULT_VIEW_BY_KIND: Readonly<
-  Record<SystemChromeKind, DebuggerViewId>
+  Record<SimChromeKind, DebuggerViewId>
 > = {
   client: 'ui',
   api: 'db',
@@ -51,7 +51,7 @@ export function aliasDebuggerView(raw: string): string {
 }
 
 export function coerceDebuggerView(
-  kind: SystemChromeKind,
+  kind: SimChromeKind,
   raw: string | null | undefined
 ): DebuggerViewId {
   const aliased = aliasDebuggerView(raw ?? '');
@@ -62,15 +62,15 @@ export function coerceDebuggerView(
   return DEFAULT_VIEW_BY_KIND[kind];
 }
 
-export function defaultViewForKind(kind: SystemChromeKind): DebuggerViewId {
+export function defaultViewForKind(kind: SimChromeKind): DebuggerViewId {
   return DEFAULT_VIEW_BY_KIND[kind];
 }
 
 export function viewsForKind(
-  kind: SystemChromeKind,
+  kind: SimChromeKind,
   options?: ViewsForKindOptions
 ): readonly DebuggerViewId[] {
-  const chrome = coerceSystemChromeKind(kind);
+  const chrome = coerceSimChromeKind(kind);
   const all = VIEWS_BY_KIND[chrome];
   return all.filter((view) => {
     if (view === 'commands' && options?.hasCommands === false) return false;

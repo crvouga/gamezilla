@@ -1,13 +1,13 @@
-# `@pkgs/system-console`
+# `@pkgs/sim-console`
 
-Capture system/DST timelines into an ObjectStore and browse them in
-`@sim/console` (`SystemConsoleApp`).
+Capture sim/DST timelines into an ObjectStore and browse them in
+`@sim/console` (`SimConsoleApp`).
 
-- **Client:** `@pkgs/system-console/client` — RN UI (`Reports` / `Playground` / `Session`)
-- **Server:** `@pkgs/system-console/server` — Hono factory mounted at `/system-console` on `@apps/server` (MinIO / B2)
-- **Local reports (`bun run dev`):** `@sim/console` serves `<repo>/system-console-data` on port `7789` so Jest UI sims appear in Reports
-- **Writer:** `@pkgs/system-console` — `SimulationReporter` / `createReportingDriver` for DST
+- **Client:** `@pkgs/sim-console/client` — RN UI (`Reports` / `Playground` / `Session`)
+- **Server:** `@pkgs/sim-console/server` — Hono factory mounted at `/sim-console` on `@apps/server` (MinIO / B2)
+- **Local reports (`bun run dev`):** `@sim/console` serves `<repo>/.cache/sim-console-data` on port `7789` so Jest UI sims appear in Reports
+- **Writer:** `@pkgs/sim-console` — `SimulationReporter` / `createReportingDriver` for DST
 
-Product App and playground boot are injected through `SystemConsolePorts`
+Product App and playground boot are injected through `SimConsolePorts`
 (wired by `@sim/console`). Local artifacts land in
-`<repo>/system-console-data` when writers use the local ObjectStore path helpers.
+`<repo>/.cache/sim-console-data` when writers use the local ObjectStore path helpers.

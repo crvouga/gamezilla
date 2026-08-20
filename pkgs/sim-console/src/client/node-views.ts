@@ -1,7 +1,7 @@
 import {
-  coerceSystemNodeKind,
+  coerceSimNodeKind,
   fallbackReportNodes,
-} from '../shared/system-node';
+} from '../shared/sim-node';
 import type { SimulationReportTopology } from '../types';
 import type { FlatFrame } from './frames';
 import type { NodeViewKind } from './router';
@@ -34,7 +34,7 @@ export function viewsForNode(node: TopologyNodeInfo | null): NodeViewKind[] {
   if (
     attrs.has('html') ||
     attrs.has('ui') ||
-    coerceSystemNodeKind(node.kind) === 'client'
+    coerceSimNodeKind(node.kind) === 'client'
   ) {
     views.push('ui');
   }
@@ -76,7 +76,7 @@ export function resolveHtmlFile(
   const wantsHtml =
     node != null &&
     (node.attributes.includes('html') ||
-      coerceSystemNodeKind(node.kind) === 'client');
+      coerceSimNodeKind(node.kind) === 'client');
   if (wantsHtml && frame.file) return frame.file;
   return null;
 }
@@ -86,7 +86,7 @@ export function defaultNodeId(
 ): string | null {
   const withHtml = nodes.find(
     (n) =>
-      n.attributes.includes('html') || coerceSystemNodeKind(n.kind) === 'client'
+      n.attributes.includes('html') || coerceSimNodeKind(n.kind) === 'client'
   );
   return withHtml?.id ?? nodes[0]?.id ?? null;
 }

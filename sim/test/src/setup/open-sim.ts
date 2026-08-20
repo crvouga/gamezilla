@@ -13,7 +13,7 @@ import {
   resolveLocalReportDataDir,
   SimulationReporter,
   wallPathExists,
-} from '@pkgs/system-console';
+} from '@pkgs/sim-console';
 import type { Driver } from '@pkgs/ui-testing';
 import { createDriver, createRenderedAppFromRntl } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';

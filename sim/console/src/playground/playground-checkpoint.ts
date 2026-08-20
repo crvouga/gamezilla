@@ -2,8 +2,8 @@
  * In-memory playground World checkpoint capture / restore.
  */
 
+import type { SimCheckpoint } from '@pkgs/sim-console/client';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
-import type { SystemCheckpoint } from '@pkgs/system-console/client';
 import type { CheckpointSessionCtx } from '@sim/console/playground/playground-checkpoint-state';
 import {
   applyCheckpointFaults,
@@ -22,7 +22,7 @@ export type { CheckpointSessionCtx } from '@sim/console/playground/playground-ch
 export async function captureCheckpoint(
   ctx: CheckpointSessionCtx,
   label?: string
-): Promise<SystemCheckpoint> {
+): Promise<SimCheckpoint> {
   const clientIds = [...ctx.maps.clients.keys()];
   const roomTopics = [...ctx.roomNode.listTopics()];
   await awaitPlaygroundMutationDrain(ctx, clientIds);
@@ -45,7 +45,7 @@ export async function captureCheckpoint(
 
 export async function restoreCheckpoint(
   ctx: CheckpointSessionCtx,
-  checkpoint: SystemCheckpoint
+  checkpoint: SimCheckpoint
 ): Promise<void> {
   if (checkpoint.sqlFormat !== 'sqlm') {
     throw new Error(

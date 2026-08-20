@@ -5,7 +5,7 @@
 import { dirname, join, resolve } from 'node:path';
 
 /** Repo-root directory name for local Node-FS report artifacts. */
-export const LOCAL_REPORT_DATA_DIRNAME = '.cache/system-console-data';
+export const LOCAL_REPORT_DATA_DIRNAME = '.cache/sim-console-data';
 
 export type PathExists = (absolutePath: string) => boolean;
 
@@ -29,7 +29,7 @@ export function findMonorepoRoot(
 }
 
 /**
- * Absolute path to `<repo>/system-console-data` (or `<startDir>/…`
+ * Absolute path to `<repo>/.cache/sim-console-data` (or `<startDir>/…`
  * when no monorepo root is found).
  */
 export function resolveLocalReportDataDir(

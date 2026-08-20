@@ -8,7 +8,7 @@ export function resolveOpenSimFidelity(
   options?: OpenSimOptions
 ): OpenSimFidelity {
   if (options?.fidelity !== undefined) return options.fidelity;
-  const fromEnv = process.env['SYSTEM_FIDELITY']?.trim();
+  const fromEnv = process.env['SIM_FIDELITY']?.trim();
   if (fromEnv === 'max') return 'max';
   return 'sim';
 }
