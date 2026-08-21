@@ -1,4 +1,5 @@
 import { BunDep } from './bun';
+import { DuckdbDep } from './duckdb';
 import { EasDep } from './eas';
 import { PgDumpDep } from './pg-dump';
 import { SecretBackendDep } from './secret-backend';
@@ -12,6 +13,7 @@ const bun = new BunDep();
 const secretBackend = new SecretBackendDep();
 const eas = new EasDep();
 const pgDump = new PgDumpDep();
+const duckdb = new DuckdbDep();
 
 /**
  * Every CLI dep the toolchain knows about. Used by `setup` (installs
@@ -28,6 +30,7 @@ export const ALL_DEPS: readonly Dep[] = [
   secretBackend,
   eas,
   pgDump,
+  duckdb,
 ];
 
 /**

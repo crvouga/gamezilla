@@ -39,9 +39,11 @@ import { RAILWAY_TOKEN } from './railway-token';
 import {
   B2_APP_KEY,
   B2_APP_KEY_ID,
+  S3_ACCESS_KEY_ID,
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
+  S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
 import {
@@ -75,6 +77,8 @@ export const SECRETS: readonly Secret[] = [
   B2_MASTER_KEY,
   B2_APP_KEY_ID,
   B2_APP_KEY,
+  S3_ACCESS_KEY_ID,
+  S3_SECRET_ACCESS_KEY,
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,

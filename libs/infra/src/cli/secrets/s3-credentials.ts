@@ -79,6 +79,22 @@ export const B2_APP_KEY = new Secret({
   seed: (input) => seedS3Field(input, 'secretAccessKey'),
 });
 
+export const S3_ACCESS_KEY_ID = new Secret({
+  name: 'S3_ACCESS_KEY_ID',
+  hint: 'AWS-style alias of B2_APP_KEY_ID (DuckDB inspect / S3 SDK defaults)',
+  pushToApiWorker: false,
+  validate: (input) => validateS3NonEmpty(input, 'S3_ACCESS_KEY_ID'),
+  seed: (input) => seedS3Field(input, 'accessKeyId'),
+});
+
+export const S3_SECRET_ACCESS_KEY = new Secret({
+  name: 'S3_SECRET_ACCESS_KEY',
+  hint: 'AWS-style alias of B2_APP_KEY (DuckDB inspect / S3 SDK defaults)',
+  pushToApiWorker: false,
+  validate: (input) => validateS3NonEmpty(input, 'S3_SECRET_ACCESS_KEY'),
+  seed: (input) => seedS3Field(input, 'secretAccessKey'),
+});
+
 export const S3_BUCKET = new Secret({
   name: 'S3_BUCKET',
   hint: 'S3-compatible object storage bucket name',

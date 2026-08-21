@@ -58,6 +58,25 @@ async function writeSeeded(
   await setSecretIn(env, 'S3_REGION', seeded.region);
   await setSecretIn(env, 'B2_APP_KEY_ID', seeded.accessKeyId);
   await setSecretIn(env, 'B2_APP_KEY', seeded.secretAccessKey);
+  // AWS-style aliases for DuckDB / tools that expect S3_* key names.
+  await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
+  await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
+}
+
+/** Copy B2 app keys into S3_* aliases when missing or stale (no remint). */
+async function ensureAwsStyleAliases(
+  env: SecretsEnv,
+  seeded: SeededObjectStoreS3,
+  stored: ReadonlyMap<string, string>
+): Promise<void> {
+  const accessKeyId = (stored.get('S3_ACCESS_KEY_ID') ?? '').trim();
+  const secretAccessKey = (stored.get('S3_SECRET_ACCESS_KEY') ?? '').trim();
+  if (accessKeyId !== seeded.accessKeyId) {
+    await setSecretIn(env, 'S3_ACCESS_KEY_ID', seeded.accessKeyId);
+  }
+  if (secretAccessKey !== seeded.secretAccessKey) {
+    await setSecretIn(env, 'S3_SECRET_ACCESS_KEY', seeded.secretAccessKey);
+  }
 }
 
 async function mintAndWrite(
@@ -113,6 +132,7 @@ export function seedObjectStoreS3ForEnv(
     };
 
     if (matchesTarget(secrets, targetBase)) {
+      await ensureAwsStyleAliases(env, targetBase, secrets);
       return targetBase;
     }
     return mintAndWrite(env, auth);
@@ -133,6 +153,8 @@ export function applySeededS3ToEnv(seeded: SeededObjectStoreS3): void {
   process.env['S3_REGION'] = seeded.region;
   process.env['B2_APP_KEY_ID'] = seeded.accessKeyId;
   process.env['B2_APP_KEY'] = seeded.secretAccessKey;
+  process.env['S3_ACCESS_KEY_ID'] = seeded.accessKeyId;
+  process.env['S3_SECRET_ACCESS_KEY'] = seeded.secretAccessKey;
 }
 
 export { DEVELOPMENT_SECRETS_ENV, PRODUCTION_SECRETS_ENV };
