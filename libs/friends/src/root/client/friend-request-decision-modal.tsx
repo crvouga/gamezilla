@@ -91,6 +91,10 @@ function DeclineButton({
 }): ReactNode {
   const { t } = useLingui();
   const decline = findAction(interaction, 'decline');
+  const username =
+    typeof interaction.payload['fromUsername'] === 'string'
+      ? interaction.payload['fromUsername']
+      : '';
   const mutation = useMutationButton({
     operation: useCallback(async () => {
       await actions.performAction(interaction.id, 'decline');
@@ -111,6 +115,9 @@ function DeclineButton({
       intent="neutral"
       variant="ghost"
       size="md"
+      {...(username.length > 0
+        ? { testID: Handles.notificationsFriendRequestDecline(username) }
+        : {})}
     />
   );
 }

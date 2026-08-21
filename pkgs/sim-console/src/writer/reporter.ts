@@ -247,6 +247,8 @@ export class SimulationReporter {
    * watchers update the SPA mid-run.
    */
   private async maybePublishProgress(): Promise<void> {
+    // Infinity = flush/failure only (DST under Jest has no live SSE watchers).
+    if (!Number.isFinite(this.publishThrottleMs)) return;
     const now = this.now();
     if (
       this.lastPublishAtMs > 0 &&
@@ -331,8 +333,10 @@ export class SimulationReporter {
 
   private async runRecorded(args: RecordArgs): Promise<StepOutcome> {
     const wantSnapshot = args.skipSnapshot !== true;
+    // With maxFrames=1 mid-wait polling only burns wall time (delay after stop).
     const pollFrames =
       wantSnapshot &&
+      this.maxFramesPerStep > 1 &&
       (args.pollFrames === true ||
         (args.pollFrames !== false && shouldPollKind(args.kind)));
     const state: FrameCaptureState = { frames: [], lastHash: '' };

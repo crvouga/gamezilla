@@ -1,10 +1,25 @@
-import { Pressable, ScrollView, Text } from '@pkgs/ui';
-import { type RefObject, useEffect, useRef } from 'react';
-import type { ScrollView as RNScrollView } from 'react-native';
+import { Box, Pressable, ScrollView, Text } from '@pkgs/ui';
+import {
+  memo,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import type {
+  GestureResponderEvent,
+  LayoutChangeEvent,
+  ScrollView as RNScrollView,
+} from 'react-native';
 
+import { frameIndexFromX, scrubThumbFraction } from './frame-scrubber';
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
 import { scrollOffsetToReveal } from './timeline-scroll';
+
+const THUMB_SIZE = 16;
+const SCRUB_HIT_HEIGHT = 28;
 
 export function Timeline(props: {
   readonly frames: readonly FlatFrame[];
@@ -21,42 +36,118 @@ export function Timeline(props: {
   }
 
   return (
-    <ScrollView
-      ref={scroll.scrollRef}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      frameSx={railSx}
-      sx={chipRowSx}
-      accessibilityLabel="Frames"
-      scrollEventThrottle={16}
-      onLayout={(e) => {
-        scroll.onViewportWidth(e.nativeEvent.layout.width);
-      }}
-      onScroll={(e) => {
-        scroll.onScrollX(e.nativeEvent.contentOffset.x);
-      }}
-    >
-      {props.frames.map((frame, index) => (
-        <FrameChip
-          key={`${frame.file}-${index}`}
-          index={index}
-          title={frame.step.title}
-          durationMs={frame.durationMs}
-          selected={index === props.selectedIndex}
-          onPress={() => props.onSelect(index)}
-          onLayout={scroll.onChipLayout}
-        />
-      ))}
-    </ScrollView>
+    <Box sx={timelineColumnSx}>
+      <FrameScrubber
+        frameCount={props.frames.length}
+        selectedIndex={props.selectedIndex}
+        onSelect={props.onSelect}
+      />
+      <ScrollView
+        ref={scroll.scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        frameSx={railSx}
+        sx={chipRowSx}
+        accessibilityLabel="Frames"
+        scrollEventThrottle={100}
+        onLayout={(e) => {
+          scroll.onViewportWidth(e.nativeEvent.layout.width);
+        }}
+        onScroll={(e) => {
+          scroll.onScrollX(e.nativeEvent.contentOffset.x);
+        }}
+      >
+        {props.frames.map((frame, index) => (
+          <FrameChip
+            key={`${frame.file}-${index}`}
+            index={index}
+            title={frame.step.title}
+            durationMs={frame.durationMs}
+            selected={index === props.selectedIndex}
+            onSelect={props.onSelect}
+            onLayout={scroll.onChipLayout}
+          />
+        ))}
+      </ScrollView>
+    </Box>
   );
 }
 
-function FrameChip(props: {
+function FrameScrubber(props: {
+  readonly frameCount: number;
+  readonly selectedIndex: number;
+  readonly onSelect: (index: number) => void;
+}) {
+  const { frameCount, selectedIndex, onSelect } = props;
+  const widthRef = useRef(0);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const fraction = scrubThumbFraction({ selectedIndex, frameCount });
+  const thumbLeft =
+    trackWidth <= 0 ? 0 : fraction * Math.max(0, trackWidth - THUMB_SIZE);
+
+  const selectFromX = useCallback(
+    (x: number) => {
+      onSelect(
+        frameIndexFromX({ x, width: widthRef.current, frameCount })
+      );
+    },
+    [frameCount, onSelect]
+  );
+
+  const onTrackLayout = useCallback((e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    widthRef.current = width;
+    setTrackWidth(width);
+  }, []);
+
+  const onGrantOrMove = useCallback(
+    (e: GestureResponderEvent) => {
+      selectFromX(e.nativeEvent.locationX);
+    },
+    [selectFromX]
+  );
+
+  return (
+    <Box
+      accessibilityLabel="Frame scrubber"
+      accessibilityRole="adjustable"
+      accessibilityValue={{
+        min: 1,
+        max: frameCount,
+        now: selectedIndex + 1,
+      }}
+      sx={scrubHitSx}
+      onLayout={onTrackLayout}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={onGrantOrMove}
+      onResponderMove={onGrantOrMove}
+    >
+      <Box sx={scrubTrackSx}>
+        <Box
+          sx={{
+            ...scrubFillSx,
+            width: `${fraction * 100}%`,
+          }}
+        />
+      </Box>
+      <Box
+        pointerEvents="none"
+        sx={{
+          ...scrubThumbSx,
+          left: thumbLeft,
+        }}
+      />
+    </Box>
+  );
+}
+
+const FrameChip = memo(function FrameChip(props: {
   readonly index: number;
   readonly title: string;
   readonly durationMs: number;
   readonly selected: boolean;
-  readonly onPress: () => void;
+  readonly onSelect: (index: number) => void;
   readonly onLayout: (index: number, x: number, width: number) => void;
 }) {
   const { index, selected } = props;
@@ -75,7 +166,9 @@ function FrameChip(props: {
         borderColor: selected ? 'tint' : 'border',
         borderRadius: 'md',
       }}
-      onPress={props.onPress}
+      onPress={() => {
+        props.onSelect(index);
+      }}
       onLayout={(e) => {
         const { x, width } = e.nativeEvent.layout;
         props.onLayout(index, x, width);
@@ -104,7 +197,7 @@ function FrameChip(props: {
       />
     </Pressable>
   );
-}
+});
 
 function useTimelineScroll(selectedIndex: number): {
   readonly scrollRef: RefObject<RNScrollView | null>;
@@ -119,35 +212,74 @@ function useTimelineScroll(selectedIndex: number): {
   const selectedRef = useRef(selectedIndex);
   selectedRef.current = selectedIndex;
 
-  const reveal = (animated: boolean) => {
+  const reveal = () => {
     const x = scrollOffsetToReveal({
       layout: layoutsRef.current.get(selectedRef.current),
       viewportWidth: viewportWidthRef.current,
       scrollX: scrollXRef.current,
     });
     if (x == null) return;
-    scrollRef.current?.scrollTo({ x, animated });
+    scrollRef.current?.scrollTo({ x, animated: false });
   };
 
   useEffect(() => {
-    reveal(true);
+    reveal();
   }, [selectedIndex]);
 
   return {
     scrollRef,
     onViewportWidth: (width) => {
       viewportWidthRef.current = width;
-      reveal(false);
+      reveal();
     },
     onScrollX: (x) => {
       scrollXRef.current = x;
     },
     onChipLayout: (index, x, width) => {
       layoutsRef.current.set(index, { x, width });
-      if (index === selectedRef.current) reveal(false);
+      if (index === selectedRef.current) reveal();
     },
   };
 }
+
+const timelineColumnSx = {
+  flexDirection: 'column',
+  gap: 1,
+  flexGrow: 0,
+} as const;
+
+const scrubHitSx = {
+  height: SCRUB_HIT_HEIGHT,
+  justifyContent: 'center',
+  position: 'relative',
+  marginTop: 4,
+  marginBottom: 2,
+  cursor: 'pointer',
+} as const;
+
+const scrubTrackSx = {
+  height: 4,
+  borderRadius: 2,
+  background: 'outline',
+  overflow: 'hidden',
+} as const;
+
+const scrubFillSx = {
+  height: 4,
+  borderRadius: 2,
+  background: 'tint',
+} as const;
+
+const scrubThumbSx = {
+  position: 'absolute',
+  top: (SCRUB_HIT_HEIGHT - THUMB_SIZE) / 2,
+  width: THUMB_SIZE,
+  height: THUMB_SIZE,
+  borderRadius: THUMB_SIZE / 2,
+  background: 'tint',
+  borderWidth: 2,
+  borderColor: 'surface',
+} as const;
 
 const railSx = {
   paddingTop: 6,

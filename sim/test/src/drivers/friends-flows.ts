@@ -22,4 +22,11 @@ export class FriendsFlows {
       timeoutMs: 20_000,
     });
   }
+
+  async expectNotFriend(username: string): Promise<void> {
+    await this.openList();
+    await this.ui.expect.hidden(Handles.friendsListRow(username), {
+      timeoutMs: 15_000,
+    });
+  }
 }

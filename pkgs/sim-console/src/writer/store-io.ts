@@ -62,7 +62,7 @@ export async function storePutJson(
   await storePutText(
     store,
     key,
-    JSON.stringify(value, null, 2),
+    JSON.stringify(value),
     'application/json; charset=utf-8'
   );
 }

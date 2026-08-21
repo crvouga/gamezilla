@@ -58,4 +58,9 @@ export type BottomSheetHost = {
   >;
   readonly View: ComponentType<BottomSheetHostViewProps>;
   readonly Backdrop: ComponentType<BottomSheetHostBackdropProps>;
+  /**
+   * When `false`, {@link ResponsiveSurface} never uses the mobile sheet path
+   * (passthrough hosts mount sheets in-place with no backdrop). Default `true`.
+   */
+  readonly supportsSheetPresentation?: boolean;
 };

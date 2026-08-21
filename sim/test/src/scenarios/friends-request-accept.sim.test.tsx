@@ -36,6 +36,7 @@ describe('friends request → accept', () => {
     await alice.park();
 
     await bob.resume();
+    await bob.notifications.expectIncomingFriendRequest(aliceUsername);
     await bob.notifications.acceptFriendRequest(aliceUsername);
     await bob.park();
 

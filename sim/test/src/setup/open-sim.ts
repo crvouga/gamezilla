@@ -172,7 +172,8 @@ async function bootSim(
     now: () => wallClock.now(),
     maxFramesPerStep: 1,
     frameIntervalMs: 250,
-    publishThrottleMs: 50,
+    // Flush / failure only — Jest has no live report SSE watchers.
+    publishThrottleMs: Number.POSITIVE_INFINITY,
     ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'in-process',
     snapshotTopology: () => projectReportTopology(simReportTopology(sim), '1'),
   });

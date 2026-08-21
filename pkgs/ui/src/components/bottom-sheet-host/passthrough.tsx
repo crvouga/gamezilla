@@ -62,5 +62,6 @@ export function createPassthroughBottomSheetHost(): BottomSheetHost {
     Modal: PassthroughModal,
     View: PassthroughView,
     Backdrop: PassthroughBackdrop,
+    supportsSheetPresentation: false,
   };
 }

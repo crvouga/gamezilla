@@ -64,6 +64,9 @@ export const Handles = {
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,
+  /** Notifications Decline for an incoming friend-request modal (fromUsername). */
+  notificationsFriendRequestDecline: (fromUsername: string) =>
+    `notifications-friend-request-decline-${fromUsername}`,
 } as const;
 
 export type Handle = {

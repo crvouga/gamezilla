@@ -45,4 +45,5 @@ export const wallBottomSheetHost: BottomSheetHost = {
   Modal: GorhomModal,
   View: GorhomView,
   Backdrop: GorhomBackdrop,
+  supportsSheetPresentation: true,
 };

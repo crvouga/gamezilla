@@ -7,3 +7,4 @@ export {
   ResponsiveSurfaceHeader,
   type ResponsiveSurfaceHeaderProps,
 } from './responsive-surface-header';
+export { shouldUseMobileSheet } from './should-use-mobile-sheet';

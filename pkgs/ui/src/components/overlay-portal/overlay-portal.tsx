@@ -136,7 +136,11 @@ export function OverlayPortalProvider({
       <OverlayPortalHostFrameContext.Provider value={frame}>
         <Box
           ref={hostRef}
-          sx={{ flex: 1 }}
+          sx={{
+            flex: 1,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
           collapsable={false}
           onLayout={onLayout}
         >

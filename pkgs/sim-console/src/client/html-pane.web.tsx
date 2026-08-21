@@ -10,8 +10,15 @@ import type { FlatFrame } from './frames';
 import { HtmlSrcdocFrame } from './html-srcdoc-frame';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
 import { loadPreviewFontCss, SNAPSHOT_SHELL_CSS } from './preview-fonts';
-import { patchPreviewHtml } from './preview-html';
+import {
+  isBlankSnapshotBody,
+  patchPreviewHtml,
+  snapshotBodyHtml,
+} from './preview-html';
 import { emptySx, paneSx } from './tokens';
+
+/** Patched srcdoc keyed by frame URL — survives scrub across panes. */
+const patchedSrcdocCache = new Map<string, string>();
 
 export function HtmlPane(props: {
   readonly api: ReportApiClient;
@@ -40,6 +47,24 @@ export function HtmlPane(props: {
       props.testId,
       file
     );
+
+    const applyPatched = (patched: string) => {
+      if (cancelled) return;
+      if (isBlankSnapshotBody(snapshotBodyHtml(patched))) {
+        // Hold the previous paint instead of flashing an empty shell.
+        setError(null);
+        return;
+      }
+      setSrcdoc((prev) => (prev === patched ? prev : patched));
+      setError(null);
+    };
+
+    const cached = patchedSrcdocCache.get(url);
+    if (cached !== undefined) {
+      applyPatched(cached);
+      return;
+    }
+
     void (async () => {
       try {
         const [res, fontCss] = await Promise.all([
@@ -49,16 +74,15 @@ export function HtmlPane(props: {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         if (cancelled) return;
-        setSrcdoc(
-          patchPreviewHtml(html, {
-            shellCss: SNAPSHOT_SHELL_CSS,
-            fontCss,
-          })
-        );
-        setError(null);
+        const patched = patchPreviewHtml(html, {
+          shellCss: SNAPSHOT_SHELL_CSS,
+          fontCss,
+        });
+        patchedSrcdocCache.set(url, patched);
+        applyPatched(patched);
       } catch (err) {
         if (cancelled) return;
-        setSrcdoc(null);
+        // Keep prior srcdoc on transient fetch errors while scrubbing.
         setError(err instanceof Error ? err.message : String(err));
       }
     })();
@@ -76,7 +100,7 @@ export function HtmlPane(props: {
       </Box>
     );
   }
-  if (error != null) {
+  if (srcdoc == null && error != null) {
     return (
       <Box sx={paneSx}>
         <Text sx={emptySx}>Failed to load snapshot: {error}</Text>

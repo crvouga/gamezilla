@@ -15,7 +15,6 @@
 
 import type { PropsWithChildren, ReactNode, RefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useWindowDimensions } from 'react-native';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { OnColorReset, useTheme } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
@@ -38,6 +37,7 @@ import { ModalRoot } from '../modal/modal-root';
 import { usePortalContentWrap } from '../portal-content-bridge';
 import { bottomSheetModalContainer } from './bottom-sheet-modal-container';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
+import { shouldUseMobileSheet } from './should-use-mobile-sheet';
 
 export type ResponsiveSurfacePresentation = 'responsive' | 'modal';
 
@@ -87,13 +87,17 @@ export type ResponsiveSurfaceProps = PropsWithChildren<{
 
 export function ResponsiveSurface(props: ResponsiveSurfaceProps) {
   const theme = useTheme();
+  const host = useBottomSheetHost();
   const wrapPortalContent = usePortalContentWrap();
   const bridgedProps = {
     ...props,
     children: wrapPortalContent(props.children),
   };
-  const useSheet =
-    props.presentation !== 'modal' && theme.breakpoint === 'mobile';
+  const useSheet = shouldUseMobileSheet({
+    presentation: props.presentation,
+    breakpoint: theme.breakpoint,
+    supportsSheetPresentation: host.supportsSheetPresentation,
+  });
   if (useSheet) return <MobileSheet {...bridgedProps} />;
   return <DesktopModal {...bridgedProps} />;
 }
@@ -263,7 +267,6 @@ function MobileSheet({
 }: ResponsiveSurfaceProps) {
   const theme = useTheme();
   const { Modal } = useBottomSheetHost();
-  const { height: windowHeight } = useWindowDimensions();
   const { sheetRef, onDismiss, onChange } = useBottomSheetModalVisibility(
     visible,
     onClose
@@ -275,9 +278,11 @@ function MobileSheet({
     () => (dynamicSizing ? undefined : snapPointsProp),
     [dynamicSizing, snapPointsProp]
   );
+  // Panel-local height (ThemeProvider onLayout), not window — nested playground
+  // roots must not size sheets from the browser viewport.
   const maxDynamicContentSize = useMemo(
-    () => Math.round(windowHeight * 0.9),
-    [windowHeight]
+    () => Math.round(theme.layout.height * 0.9),
+    [theme.layout.height]
   );
   const dismissSheet = useCallback(() => {
     sheetRef.current?.dismiss();

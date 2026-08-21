@@ -6,7 +6,7 @@ import {
   IconButton,
   Text,
 } from '@pkgs/ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   findNodeForInstance,
@@ -134,14 +134,18 @@ type ReportDebuggerShellProps = {
 
 function ReportDebuggerShell(props: ReportDebuggerShellProps) {
   const { nav, chrome, view, nodes, onNav } = props;
+  const onSelectFrame = useCallback(
+    (index: number) => {
+      onNav(navigateReport(nav, { frame: index + 1 }));
+    },
+    [nav, onNav]
+  );
   return (
     <DebuggerShell
       header={<ReportTestHeader {...props} />}
       frames={props.frames}
       selectedFrameIndex={Math.max(0, props.selectedIdx)}
-      onSelectFrame={(index) => {
-        onNav(navigateReport(nav, { frame: index + 1 }));
-      }}
+      onSelectFrame={onSelectFrame}
       kind={chrome.kind}
       onKindChange={(kind) => {
         const next = findNodeForInstance(nodes, kind, null);
