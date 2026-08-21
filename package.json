@@ -76,7 +76,7 @@
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",
     "infra": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run libs/infra/src/bin/cli.ts",
-    "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run scripts/inspect.ts",
+    "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/inspect.ts",
     "kill": "bun run tools/scripts/kill-dev-stack.ts",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",

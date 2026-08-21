@@ -168,7 +168,6 @@
     }
   },
   "include": [
-    "scripts/**/*.ts",
     "pkgs/ts-reset/src/index.ts",
     "apps/server/src/**/*.ts",
     "apps/server/src/**/*.d.ts",
