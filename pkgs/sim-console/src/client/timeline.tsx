@@ -7,16 +7,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import type {
-  GestureResponderEvent,
-  LayoutChangeEvent,
-  ScrollView as RNScrollView,
-} from 'react-native';
+import type { LayoutChangeEvent, ScrollView as RNScrollView } from 'react-native';
 
-import { frameIndexFromX, scrubThumbFraction } from './frame-scrubber';
+import { scrubThumbFraction } from './frame-scrubber';
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
 import { scrollOffsetToReveal } from './timeline-scroll';
+import { useScrubSelect } from './use-scrub-select';
 
 const THUMB_SIZE = 16;
 const SCRUB_HIT_HEIGHT = 28;
@@ -79,32 +76,19 @@ function FrameScrubber(props: {
   readonly onSelect: (index: number) => void;
 }) {
   const { frameCount, selectedIndex, onSelect } = props;
-  const widthRef = useRef(0);
   const [trackWidth, setTrackWidth] = useState(0);
+  const scrub = useScrubSelect(frameCount, onSelect);
   const fraction = scrubThumbFraction({ selectedIndex, frameCount });
   const thumbLeft =
     trackWidth <= 0 ? 0 : fraction * Math.max(0, trackWidth - THUMB_SIZE);
 
-  const selectFromX = useCallback(
-    (x: number) => {
-      onSelect(
-        frameIndexFromX({ x, width: widthRef.current, frameCount })
-      );
+  const onTrackLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      const width = e.nativeEvent.layout.width;
+      scrub.setWidth(width);
+      setTrackWidth(width);
     },
-    [frameCount, onSelect]
-  );
-
-  const onTrackLayout = useCallback((e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    widthRef.current = width;
-    setTrackWidth(width);
-  }, []);
-
-  const onGrantOrMove = useCallback(
-    (e: GestureResponderEvent) => {
-      selectFromX(e.nativeEvent.locationX);
-    },
-    [selectFromX]
+    [scrub]
   );
 
   return (
@@ -116,28 +100,21 @@ function FrameScrubber(props: {
         max: frameCount,
         now: selectedIndex + 1,
       }}
-      sx={scrubHitSx}
+      sx={{
+        ...scrubHitSx,
+        cursor: scrub.scrubbing ? 'grabbing' : 'grab',
+      }}
       onLayout={onTrackLayout}
-      onStartShouldSetResponder={() => true}
-      onMoveShouldSetResponder={() => true}
-      onResponderGrant={onGrantOrMove}
-      onResponderMove={onGrantOrMove}
+      onPointerDown={scrub.onPointerDown}
+      onPointerMove={scrub.onPointerMove}
+      onPointerUp={scrub.onPointerUp}
+      onPointerCancel={scrub.onPointerCancel}
+      {...{ onLostPointerCapture: scrub.onLostPointerCapture }}
     >
       <Box sx={scrubTrackSx}>
-        <Box
-          sx={{
-            ...scrubFillSx,
-            width: `${fraction * 100}%`,
-          }}
-        />
+        <Box sx={{ ...scrubFillSx, width: `${fraction * 100}%` }} />
       </Box>
-      <Box
-        pointerEvents="none"
-        sx={{
-          ...scrubThumbSx,
-          left: thumbLeft,
-        }}
-      />
+      <Box pointerEvents="none" sx={{ ...scrubThumbSx, left: thumbLeft }} />
     </Box>
   );
 }
@@ -254,7 +231,8 @@ const scrubHitSx = {
   position: 'relative',
   marginTop: 4,
   marginBottom: 2,
-  cursor: 'pointer',
+  userSelect: 'none',
+  cursor: 'grab',
 } as const;
 
 const scrubTrackSx = {
