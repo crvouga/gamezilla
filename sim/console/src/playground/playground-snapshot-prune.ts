@@ -1,6 +1,7 @@
 /**
- * Validate playground snapshots and delete ones that fail the sqlite-mem schema.
- * Schema-version mismatches stay listed as incompatible (not auto-deleted).
+ * Validate playground snapshots and delete ones that fail the dump schema
+ * (postgres-mem server + sqlite-mem clients). Schema-version mismatches stay
+ * listed as incompatible (not auto-deleted).
  */
 
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -10,6 +11,7 @@ import {
   type PlaygroundSnapshotIndex,
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
+  playgroundPostgresMemDumpSchema,
   playgroundSnapshotIndexSchema,
   playgroundSnapshotInfoSchema,
   playgroundSnapshotManifestSchema,
@@ -104,6 +106,19 @@ async function isSqliteMemBlob(
   return dump !== null;
 }
 
+async function isPostgresMemBlob(
+  store: ObjectStore,
+  key: string
+): Promise<boolean> {
+  const obj = await store.get(key);
+  if (obj === null) return false;
+  const dump = parseJsonBytesWithSchema(
+    await readBody(obj.body),
+    playgroundPostgresMemDumpSchema
+  );
+  return dump !== null;
+}
+
 /** Structural integrity only — schema version is annotated separately. */
 async function isStructurallyValidSnapshot(
   store: ObjectStore,
@@ -113,7 +128,7 @@ async function isStructurallyValidSnapshot(
   if (text === null) return false;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null || manifest.id !== info.id) return false;
-  if (!(await isSqliteMemBlob(store, manifest.keys.serverSql))) return false;
+  if (!(await isPostgresMemBlob(store, manifest.keys.serverSql))) return false;
   for (const clientId of manifest.clientIds) {
     const key = manifest.keys.clientSql[clientId];
     if (key === undefined) return false;
@@ -215,7 +230,8 @@ function indexEntryShape(info: PlaygroundSnapshotInfo): {
 }
 
 /**
- * Drop index / object trees that fail the sqlite-mem snapshot schema.
+ * Drop index / object trees that fail the mixed postgres-mem / sqlite-mem
+ * snapshot schema.
  * Recovers orphan trees with a valid manifest into the index.
  * Schema-mismatched dumps are kept and marked incompatible.
  */

@@ -37,7 +37,7 @@ export async function captureCheckpoint(
     clientIds,
     roomTopics,
     ...collectFaultFields(ctx),
-    sqlFormat: 'sqlm',
+    sqlFormat: 'mixed-pgmm-sqlm',
     ...blobs,
     rooms: collectRooms(ctx, roomTopics),
   };
@@ -47,9 +47,17 @@ export async function restoreCheckpoint(
   ctx: CheckpointSessionCtx,
   checkpoint: SimCheckpoint
 ): Promise<void> {
-  if (checkpoint.sqlFormat !== 'sqlm') {
+  if (
+    checkpoint.sqlFormat !== 'mixed-pgmm-sqlm' &&
+    checkpoint.sqlFormat !== 'sqlm'
+  ) {
     throw new Error(
-      `restoreCheckpoint: expected sqlm blobs, got '${checkpoint.sqlFormat}'`
+      `restoreCheckpoint: expected mixed-pgmm-sqlm or sqlm blobs, got '${checkpoint.sqlFormat}'`
+    );
+  }
+  if (checkpoint.sqlFormat === 'sqlm') {
+    throw new Error(
+      'restoreCheckpoint: legacy all-sqlm checkpoints are incompatible with postgres-mem server'
     );
   }
   ctx.setClockPaused(true);

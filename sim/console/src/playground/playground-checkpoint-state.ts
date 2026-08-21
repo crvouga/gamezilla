@@ -15,7 +15,7 @@ import {
 } from '@sim/console/playground/playground-checkpoint-durable';
 import { reconcileServerProfilesFromClients } from '@sim/console/playground/playground-snapshot-sync';
 import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
-import { openFreshSimSql, type SimSqlHandle } from '@sim/console/sim/sim-sql';
+import { openFreshSimClientSql, type SimSqlHandle } from '@sim/console/sim/sim-sql';
 
 export type CheckpointSessionMaps = {
   readonly clients: {
@@ -116,7 +116,7 @@ async function ensureClientSqlHandle(
   await ctx.sim.client(clientId).openSqlClient();
   const handle = ctx.sim.clientSql(clientId);
   if (handle === undefined) {
-    const opened = await openFreshSimSql(`sim_client_${clientId}`, ctx.clock);
+    const opened = await openFreshSimClientSql(`sim_client_${clientId}`, ctx.clock);
     ctx.clientSqlByAddress.set(clientId, opened);
     return opened;
   }

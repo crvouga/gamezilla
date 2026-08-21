@@ -7,6 +7,8 @@
  * Real Postgres / PGlite: {@link installPostgresSqliteCompat} (PL/pgSQL DDL).
  * pg-mem: {@link installPgMemSqliteCompat} (JS `registerFunction` — also
  * applied automatically by {@link createPgMemSqlClient}).
+ * postgres-mem: {@link installPostgresMemSqliteCompat} (`LANGUAGE sql` — also
+ * applied automatically by {@link createPostgresMemSqlClient}).
  */
 
 export {
@@ -17,4 +19,6 @@ export {
 export {
   type InstallPgMemSqliteCompatOptions,
   installPgMemSqliteCompat,
+  type InstallPostgresMemSqliteCompatOptions,
+  installPostgresMemSqliteCompat,
 } from './install-pg-mem';

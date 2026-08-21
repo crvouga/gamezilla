@@ -42,6 +42,7 @@ export function PlayerStrip(props: {
         onCycleSpeed={playback.onCycleSpeed}
       />
       <Timeline
+        mode="discrete"
         frames={props.frames}
         selectedIndex={Math.max(0, props.selectedIndex)}
         onSelect={playback.onPickFrame}

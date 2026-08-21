@@ -30,6 +30,7 @@ import {
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
   playgroundClientKvDumpSchema,
+  playgroundPostgresMemDumpSchema,
   playgroundSnapshotManifestSchema,
   playgroundSqliteMemDumpSchema,
 } from '@sim/console/playground/playground-snapshot-schema';
@@ -254,7 +255,7 @@ function manifestFromCheckpoint(args: {
   };
 }
 
-async function readSqlBlob(
+async function readSqliteMemBlob(
   store: ObjectStore,
   key: string
 ): Promise<Uint8Array> {
@@ -263,6 +264,21 @@ async function readSqlBlob(
   const bytes = await readBody(obj.body);
   if (parseJsonBytesWithSchema(bytes, playgroundSqliteMemDumpSchema) === null) {
     throw new Error(`invalid sqlite-mem snapshot blob '${key}'`);
+  }
+  return bytes;
+}
+
+async function readPostgresMemBlob(
+  store: ObjectStore,
+  key: string
+): Promise<Uint8Array> {
+  const obj = await store.get(key);
+  if (obj === null) throw new Error(`missing sql blob '${key}'`);
+  const bytes = await readBody(obj.body);
+  if (
+    parseJsonBytesWithSchema(bytes, playgroundPostgresMemDumpSchema) === null
+  ) {
+    throw new Error(`invalid postgres-mem snapshot blob '${key}'`);
   }
   return bytes;
 }
@@ -276,7 +292,9 @@ async function checkpointFromStore(
   const clientKv: Record<string, Record<string, string>> = {};
   for (const id of manifest.clientIds) {
     const sqlKey = manifest.keys.clientSql[id];
-    if (sqlKey !== undefined) clientSql[id] = await readSqlBlob(store, sqlKey);
+    if (sqlKey !== undefined) {
+      clientSql[id] = await readSqliteMemBlob(store, sqlKey);
+    }
     const text = await readText(store, `${prefix}kv/client_${id}.json`);
     if (text !== null) {
       const kv = parseJsonWithSchema(text, playgroundClientKvDumpSchema);
@@ -295,8 +313,8 @@ async function checkpointFromStore(
     skewByAddress: manifest.skewByAddress,
     downAddresses: manifest.downAddresses,
     evictedAddresses: manifest.evictedAddresses,
-    sqlFormat: 'sqlm',
-    serverSql: await readSqlBlob(store, manifest.keys.serverSql),
+    sqlFormat: 'mixed-pgmm-sqlm',
+    serverSql: await readPostgresMemBlob(store, manifest.keys.serverSql),
     clientSql,
     clientKv,
     rooms: await readRoomDumps(store, prefix, manifest.roomTopics),

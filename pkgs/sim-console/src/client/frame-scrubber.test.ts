@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
-import { frameIndexFromX, scrubThumbFraction } from './frame-scrubber';
+import {
+  frameIndexFromX,
+  scrubThumbFraction,
+  scrubTickFractions,
+} from './frame-scrubber';
 
 describe('frameIndexFromX', () => {
   test('returns 0 for empty or single-frame timelines', () => {
@@ -30,5 +34,19 @@ describe('scrubThumbFraction', () => {
     expect(scrubThumbFraction({ selectedIndex: 0, frameCount: 5 })).toBe(0);
     expect(scrubThumbFraction({ selectedIndex: 2, frameCount: 5 })).toBe(0.5);
     expect(scrubThumbFraction({ selectedIndex: 4, frameCount: 5 })).toBe(1);
+  });
+});
+
+describe('scrubTickFractions', () => {
+  test('returns empty for zero frames', () => {
+    expect(scrubTickFractions(0)).toEqual([]);
+  });
+
+  test('returns a single stop for one frame', () => {
+    expect(scrubTickFractions(1)).toEqual([0]);
+  });
+
+  test('places one tick per discrete state from 0…1', () => {
+    expect(scrubTickFractions(5)).toEqual([0, 0.25, 0.5, 0.75, 1]);
   });
 });

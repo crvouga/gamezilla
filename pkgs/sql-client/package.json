@@ -23,6 +23,7 @@
     "test:e2e": "bun ./scripts/build-web-workers.ts && playwright test -c ./e2e/playwright.config.mjs"
   },
   "dependencies": {
+    "@crvouga/postgres-mem": "catalog:",
     "@crvouga/sqlite-mem": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",

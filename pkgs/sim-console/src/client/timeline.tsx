@@ -9,7 +9,11 @@ import {
 } from 'react';
 import type { LayoutChangeEvent, ScrollView as RNScrollView } from 'react-native';
 
-import { scrubThumbFraction } from './frame-scrubber';
+import {
+  type ScrubMode,
+  scrubThumbFraction,
+  scrubTickFractions,
+} from './frame-scrubber';
 import type { FlatFrame } from './frames';
 import { formatMs } from './frames';
 import { scrollOffsetToReveal } from './timeline-scroll';
@@ -17,11 +21,14 @@ import { useScrubSelect } from './use-scrub-select';
 
 const THUMB_SIZE = 16;
 const SCRUB_HIT_HEIGHT = 28;
+const TICK_WIDTH = 2;
+const TICK_HEIGHT = 10;
 
 export function Timeline(props: {
   readonly frames: readonly FlatFrame[];
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
+  readonly mode?: ScrubMode;
 }) {
   const scroll = useTimelineScroll(props.selectedIndex);
   if (props.frames.length === 0) {
@@ -35,6 +42,7 @@ export function Timeline(props: {
   return (
     <Box sx={timelineColumnSx}>
       <FrameScrubber
+        mode={props.mode ?? 'continuous'}
         frameCount={props.frames.length}
         selectedIndex={props.selectedIndex}
         onSelect={props.onSelect}
@@ -71,11 +79,12 @@ export function Timeline(props: {
 }
 
 function FrameScrubber(props: {
+  readonly mode: ScrubMode;
   readonly frameCount: number;
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
 }) {
-  const { frameCount, selectedIndex, onSelect } = props;
+  const { mode, frameCount, selectedIndex, onSelect } = props;
   const [trackWidth, setTrackWidth] = useState(0);
   const scrub = useScrubSelect(frameCount, onSelect);
   const fraction = scrubThumbFraction({ selectedIndex, frameCount });
@@ -114,7 +123,33 @@ function FrameScrubber(props: {
       <Box sx={scrubTrackSx}>
         <Box sx={{ ...scrubFillSx, width: `${fraction * 100}%` }} />
       </Box>
+      {mode === 'discrete' ? (
+        <DiscreteTicks frameCount={frameCount} trackWidth={trackWidth} />
+      ) : null}
       <Box pointerEvents="none" sx={{ ...scrubThumbSx, left: thumbLeft }} />
+    </Box>
+  );
+}
+
+function DiscreteTicks(props: {
+  readonly frameCount: number;
+  readonly trackWidth: number;
+}) {
+  const { frameCount, trackWidth } = props;
+  if (trackWidth <= 0 || frameCount <= 0) return null;
+  const travel = Math.max(0, trackWidth - THUMB_SIZE);
+  const ticks = scrubTickFractions(frameCount);
+  return (
+    <Box pointerEvents="none" sx={ticksLayerSx}>
+      {ticks.map((fraction, index) => (
+        <Box
+          key={index}
+          sx={{
+            ...scrubTickSx,
+            left: fraction * travel + THUMB_SIZE / 2 - TICK_WIDTH / 2,
+          }}
+        />
+      ))}
     </Box>
   );
 }
@@ -257,6 +292,23 @@ const scrubThumbSx = {
   background: 'tint',
   borderWidth: 2,
   borderColor: 'surface',
+} as const;
+
+const ticksLayerSx = {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+} as const;
+
+const scrubTickSx = {
+  position: 'absolute',
+  top: (SCRUB_HIT_HEIGHT - TICK_HEIGHT) / 2,
+  width: TICK_WIDTH,
+  height: TICK_HEIGHT,
+  borderRadius: 1,
+  background: 'border',
 } as const;
 
 const railSx = {

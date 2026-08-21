@@ -184,6 +184,7 @@
     "pgcrypto",
     "pgdata",
     "pglite",
+    "pgmm",
     "Pgweb",
     "pids",
     "pillsburys",

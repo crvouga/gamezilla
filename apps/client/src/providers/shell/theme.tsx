@@ -3,12 +3,15 @@ import type { ReactNode } from 'react';
 
 import { useAppFonts } from './fonts-context';
 
+/**
+ * Always apply Nunito stacks (do not wait for `fontsLoaded`).
+ *
+ * Gating on load left Platform iOS `ui-rounded` on navigation titles during
+ * remounts / brief unload windows. Sim report HTML then falls back to Times in
+ * browsers. Splash already covers native until faces are ready.
+ */
 export function AppTheme({ children }: { children: ReactNode }): ReactNode {
-  const { fontsLoaded, fontStacks } = useAppFonts();
+  const { fontStacks } = useAppFonts();
 
-  return (
-    <AppThemeRoot {...(fontsLoaded ? { fonts: fontStacks } : {})}>
-      {children}
-    </AppThemeRoot>
-  );
+  return <AppThemeRoot fonts={fontStacks}>{children}</AppThemeRoot>;
 }

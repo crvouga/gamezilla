@@ -233,6 +233,16 @@ export function Button(props: ButtonProps) {
   );
 }
 
+/** Blank strings do not reserve width; treat them as missing labels. */
+function coalesceButtonLabel(
+  label: ReactNode | undefined,
+  fallback: ReactNode
+): ReactNode {
+  if (label === undefined || label === null) return fallback;
+  if (typeof label === 'string' && label.trim() === '') return fallback;
+  return label;
+}
+
 function ButtonContent({
   props,
   phase,
@@ -241,6 +251,84 @@ function ButtonContent({
 }: {
   props: ButtonProps;
   phase: ButtonFeedback;
+  size: SizeSpec;
+  foregroundColor: string;
+}) {
+  const idle = (
+    <ButtonIdleContent
+      title={props.title}
+      size={size}
+      foregroundColor={foregroundColor}
+      startIcon={props.startIcon}
+      endIcon={props.endIcon}
+    />
+  );
+  if (phase === 'idle') return idle;
+  return (
+    <ButtonFeedbackWidthLock size={size} idle={idle}>
+      <ButtonFeedbackFace
+        props={props}
+        phase={phase}
+        size={size}
+        foregroundColor={foregroundColor}
+      />
+    </ButtonFeedbackWidthLock>
+  );
+}
+
+/**
+ * Keep the idle label's width while feedback content (spinner / check) is
+ * shorter — otherwise success collapses to an icon-only square.
+ */
+function ButtonFeedbackWidthLock({
+  size,
+  idle,
+  children,
+}: {
+  size: SizeSpec;
+  idle: ReactNode;
+  children: ReactNode;
+}) {
+  const rowSx = {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: size.iconGap,
+  };
+  return (
+    <Box sx={{ position: 'relative', ...rowSx }}>
+      <Box
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        pointerEvents="none"
+        sx={{ ...rowSx, opacity: 0 }}
+      >
+        {idle}
+      </Box>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          ...rowSx,
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+}
+
+function ButtonFeedbackFace({
+  props,
+  phase,
+  size,
+  foregroundColor,
+}: {
+  props: ButtonProps;
+  phase: Exclude<ButtonFeedback, 'idle'>;
   size: SizeSpec;
   foregroundColor: string;
 }) {
@@ -254,24 +342,16 @@ function ButtonContent({
       />
     );
   }
-  if (phase === 'success' || phase === 'error') {
-    const label = phase === 'success' ? props.successLabel : props.errorLabel;
-    return (
-      <ButtonStatusContent
-        icon={MUTATION_FEEDBACK_ICONS[phase]}
-        size={size}
-        foregroundColor={foregroundColor}
-        label={label ?? props.title}
-      />
-    );
-  }
+  const label = coalesceButtonLabel(
+    phase === 'success' ? props.successLabel : props.errorLabel,
+    props.title
+  );
   return (
-    <ButtonIdleContent
-      title={props.title}
+    <ButtonStatusContent
+      icon={MUTATION_FEEDBACK_ICONS[phase]}
       size={size}
       foregroundColor={foregroundColor}
-      startIcon={props.startIcon}
-      endIcon={props.endIcon}
+      label={label}
     />
   );
 }

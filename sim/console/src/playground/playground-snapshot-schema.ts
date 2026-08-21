@@ -1,5 +1,6 @@
 /**
- * Zod schemas for playground ObjectStore snapshots (sqlite-mem SQLM dumps).
+ * Zod schemas for playground ObjectStore snapshots
+ * (postgres-mem server PGMM + sqlite-mem client SQLM dumps).
  */
 
 import { z } from 'zod';
@@ -63,14 +64,28 @@ function hasSqlmMagic(bytes: Uint8Array): boolean {
   );
 }
 
-function sqlmB64HasMagic(b64: string): boolean {
+/** postgres-mem exportDatabaseBytes payload (PGMM envelope). */
+function hasPgmmMagic(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0x50 &&
+    bytes[1] === 0x47 &&
+    bytes[2] === 0x4d &&
+    bytes[3] === 0x4d
+  );
+}
+
+function b64HasMagic(
+  b64: string,
+  hasMagic: (bytes: Uint8Array) => boolean
+): boolean {
   try {
     const binary = atob(b64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
-    return hasSqlmMagic(bytes);
+    return hasMagic(bytes);
   } catch {
     return false;
   }
@@ -80,7 +95,13 @@ export const playgroundSqliteMemDumpSchema = z.object({
   v: z.literal(1),
   kind: z.literal('sqlite-mem'),
   userVersion: z.number().int(),
-  sqlmB64: z.string().min(1).refine(sqlmB64HasMagic),
+  sqlmB64: z.string().min(1).refine((b64) => b64HasMagic(b64, hasSqlmMagic)),
+});
+
+export const playgroundPostgresMemDumpSchema = z.object({
+  v: z.literal(1),
+  kind: z.literal('postgres-mem'),
+  pgmmB64: z.string().min(1).refine((b64) => b64HasMagic(b64, hasPgmmMagic)),
 });
 
 /** Namespaced client KV dump (`dumpNamespacedKvWeb`). */
@@ -91,6 +112,9 @@ export type PlaygroundSnapshotIndex = z.infer<
 >;
 export type PlaygroundSqliteMemDump = z.infer<
   typeof playgroundSqliteMemDumpSchema
+>;
+export type PlaygroundPostgresMemDump = z.infer<
+  typeof playgroundPostgresMemDumpSchema
 >;
 export type PlaygroundSnapshotManifestParsed = z.infer<
   typeof playgroundSnapshotManifestSchema

@@ -1,7 +1,9 @@
 # SQLite everywhere vs Postgres server
 
-**Decision (2026-08-19):** SQLite on the client; PostgreSQL on the server. Do not
-move production to Turso. Do not write a postgres-mem emulator.
+**Decision (2026-08-19, amended 2026-08-21):** SQLite on the client; PostgreSQL
+on the server. Do not move production to Turso. Do **not** write an in-tree
+postgres-mem emulator — consume published `@crvouga/postgres-mem` for the
+default sim/playground **server** SqlClient.
 
 **One sentence:** Keep Postgres as the server because it is already the
 irreplaceable replica, DST’s job is the sync protocol not MVCC, and Turso is an
@@ -21,14 +23,15 @@ This was not a greenfield engine pick. Option B is already in tree:
 - Portable SQL: `assertAgnosticSql` / `ci:no-vendor-sql` plus
   `@pkgs/postgres-sqlite-compat` (JSON1-shaped APIs on Postgres).
 - Dual schema: `defineTable` → SQLite + Postgres migrations.
-- Daily `bun dev` / DST default / playground API: **SQLite** (`migrateSimSqlite`,
-  sqlite-mem). Representativeness of Postgres is contract matrices +
-  `openSim` fidelity `max`, not a second stack for clicking.
+- Daily `bun dev` / DST default / playground API **server**:
+  `@crvouga/postgres-mem` (`migrateSimPostgres`). Clients stay sqlite-mem.
+  Real Postgres sidecars remain `openSim({ fidelity: 'max' })` / contract
+  matrices — not required for daily clicking.
 - Cross-user friend search: REST `POST /friends/search` with portable prefix
   `LIKE` on username — not FTS5 vs `tsvector` query-driven sync.
 
-sqlite-mem stays the client / playground / sim-**client** engine. That asset
-does not require Turso in production.
+sqlite-mem stays the client / sim-**client** engine. That asset does not
+require Turso in production.
 
 ---
 
@@ -38,7 +41,7 @@ does not require Turso in production.
 | --- | --- |
 | **B — SQLite client + Postgres server** | **Chosen.** Keep Neon (or interchangeable Postgres). |
 | A — SQLite everywhere (Turso / libSQL) | Rejected for the source of truth. |
-| Write postgres-mem | Rejected. Project-killing detour; use PGlite if closing the DST gap. |
+| Write an in-tree postgres-mem | Rejected. Use published `@crvouga/postgres-mem` for default sim server; `fidelity: 'max'` for embedded real Postgres. |
 
 Workload is local-first social CRUD; multiplayer game state is a separate
 realtime path. Server reads are not the bottleneck. Scale at 1M DAU does not
@@ -54,9 +57,9 @@ converge on self-hosting at extremes.
 
 1. Treat portable SQL + `postgres-sqlite-compat` as the product, not a temporary
    hack.
-2. Write down the DST gap: default sim/playground server is SQLite; prod is
-   Postgres. Close it with **contract matrices** and `openSim({ fidelity: 'max' })`
-   (PGlite / embedded Postgres), not postgres-mem or pg-mem as the fidelity story.
+2. Default sim/playground server uses `@crvouga/postgres-mem`. Close remaining
+   oracle gaps with **contract matrices** and `openSim({ fidelity: 'max' })`
+   (embedded Postgres). Do not reintroduce an in-tree emulator.
 3. Keep search as REST / portable `LIKE` (or server-computed match sets). Do not
    run FTS5 SQL as the canonical sync query on both engines.
 4. Keep sqlite-mem for clients. Do not “complete the vision” by putting Turso in
@@ -75,7 +78,8 @@ What the SQLite-everywhere case overweighted:
 
 - **DST fidelity ceiling.** True as research (Postgres MVCC is not fully
   reproducible in a deterministic single-process sim). Weak as a decision here:
-  DST already uses a SQLite server; the bugs DST exists for are mutation replay,
+  DST already uses a postgres-mem server by default (clients stay sqlite-mem);
+  the bugs DST exists for are mutation replay,
   merge, tombstones, retries, partitions, clocks — sync protocol, not
   `SERIALIZABLE` anomalies. Turso-with-replicas also diverges from vanilla
   sqlite-mem.
@@ -95,10 +99,10 @@ What the Postgres case correctly valued (and the SQLite case undervalued):
 - Innovation budget is already on sqlite-mem, the sync engine, and DST. A third
   database company under the SoT is the wrong spend.
 
-**postgres-mem:** sqlite-mem worked because SQLite is a small single-writer
-dialect, differentially tested against 3.51. Postgres MVCC/catalogs/types are
-research. PGlite is already in-process real Postgres. Do not spend months on a
-second in-memory engine.
+**postgres-mem:** Default sim/playground **server** uses published
+`@crvouga/postgres-mem` (not an in-tree emulator). sqlite-mem remains the
+client half. Close remaining oracle gaps with PGlite / embedded Postgres
+(`fidelity: 'max'`), not a second in-repo engine.
 
 **Oscillation:** The Postgres pull without a “new” technical argument was still
 technical: refuse Turso as SoT, plus sunk dual-stack. The SQLite pull was DST
@@ -137,9 +141,9 @@ libSQL, not the pre-1.0 Rust rewrite); pinned-region primary + replicas;
 queue-and-batch; Litestream/self-host drill; portable SQL + Postgres corpus as
 escape hatch.
 
-**Option B (chosen).** SQLite client; managed Postgres. DST default stays SQLite;
-representativeness is contract matrices + `fidelity: 'max'` (embedded Postgres /
-PGlite), not pg-mem or postgres-mem.
+**Option B (chosen).** SQLite client; managed Postgres. DST default server uses
+`@crvouga/postgres-mem`; clients stay sqlite-mem. Representativeness of real
+Postgres is contract matrices + `fidelity: 'max'` (embedded Postgres / PGlite).
 
 ---
 

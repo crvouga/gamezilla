@@ -1,10 +1,18 @@
 import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  adaptPostgresMemAsPool,
+  SqlClientImplPostgresMem,
+} from '@pkgs/sql-client/postgres/impl-postgres-mem';
+import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
 
 export type SimSqlHandle = {
   readonly sqlClient: SqlClient;
   readonly databaseName: string;
+  /** Present for postgres-mem server handles (Better Auth migrate). */
+  readonly pool?: Pool;
   disconnect(): Promise<void>;
   reset(): Promise<void>;
   exportBytes(): Promise<Uint8Array>;
@@ -26,6 +34,19 @@ function openSqliteMem(clock: Clock): SqlClientImplSqliteMem {
   });
 }
 
+function openPostgresMem(clock: Clock): {
+  client: SqlClientImplPostgresMem;
+  pool: Pool;
+} {
+  const client = SqlClientImplPostgresMem.open({
+    seed: 1,
+    now: () => new Date(clock.now()),
+    dbScope: createPostgresDbScope('public'),
+  });
+  return { client, pool: adaptPostgresMemAsPool(client.rawDb) };
+}
+
+/** Client / actor SQLite handle (sqlite-mem). */
 export function openSimSqlHandle(
   logicalName: string,
   clock: Clock
@@ -54,11 +75,60 @@ export function openSimSqlHandle(
   };
 }
 
+/** Server Postgres handle (postgres-mem). */
+export function openSimServerSqlHandle(
+  logicalName: string,
+  clock: Clock
+): SimSqlHandle {
+  let databaseName = uniqueName(logicalName);
+  let live = openPostgresMem(clock);
+  return {
+    get sqlClient() {
+      return live.client;
+    },
+    get databaseName() {
+      return databaseName;
+    },
+    get pool() {
+      return live.pool;
+    },
+    disconnect: () => live.client.disconnect(),
+    reset: async () => {
+      const prev = live;
+      databaseName = uniqueName(logicalName);
+      live = openPostgresMem(clock);
+      await live.client.connect();
+      await prev.client.disconnect();
+    },
+    exportBytes: async () => live.client.exportDatabaseBytes(),
+    importBytes: async (bytes) => {
+      live.client.importDatabaseBytes(bytes);
+    },
+  };
+}
+
+/** @deprecated Prefer {@link openFreshSimClientSql} — alias for client sqlite-mem. */
 export async function openFreshSimSql(
   logicalName: string,
   clock: Clock
 ): Promise<SimSqlHandle> {
+  return openFreshSimClientSql(logicalName, clock);
+}
+
+export async function openFreshSimClientSql(
+  logicalName: string,
+  clock: Clock
+): Promise<SimSqlHandle> {
   const handle = openSimSqlHandle(logicalName, clock);
+  await handle.sqlClient.connect();
+  return handle;
+}
+
+export async function openFreshSimServerSql(
+  logicalName: string,
+  clock: Clock
+): Promise<SimSqlHandle> {
+  const handle = openSimServerSqlHandle(logicalName, clock);
   await handle.sqlClient.connect();
   return handle;
 }

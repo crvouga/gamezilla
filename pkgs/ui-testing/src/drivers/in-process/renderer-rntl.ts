@@ -252,15 +252,34 @@ function readHostText(element: ReactTestInstance): string | null {
   return null;
 }
 
+/**
+ * Skip subtrees that are not user-visible. Matches {@link isHostVisible}
+ * signals so width-lock / aria-hidden spacers (e.g. Button feedback) do not
+ * concatenate idle labels into `getText` (`Save` + `Saved` → `SaveSaved`).
+ */
+function nodeOmitsFromTextRead(instance: ReactTestInstance): boolean {
+  const props = instance.props as {
+    style?: unknown;
+    accessibilityElementsHidden?: boolean;
+    importantForAccessibility?: string;
+  };
+  if (props.accessibilityElementsHidden === true) return true;
+  if (props.importantForAccessibility === 'no-hide-descendants') return true;
+  if (styleHides(props.style)) return true;
+  return false;
+}
+
 /** Walk the RNTL host tree (nested Text nodes under Pressable, etc.). */
 function collectInstanceText(element: ReactTestInstance): string {
   let out = '';
   for (const child of element.children) {
     if (typeof child === 'string') {
       out += child;
-    } else {
-      out += collectInstanceText(child);
+      continue;
     }
+    const instance = child as ReactTestInstance;
+    if (nodeOmitsFromTextRead(instance)) continue;
+    out += collectInstanceText(instance);
   }
   return out;
 }

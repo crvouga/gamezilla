@@ -1,6 +1,12 @@
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 
+/**
+ * Snapshot must include inactive rows. Deactivate sets `active = false` (not
+ * soft-delete); merge has no absence GC, so filtering `active IS TRUE` here
+ * leaves stale live cards on clients after accept/decline. Client inbox SQL
+ * still filters `active IS TRUE` for display.
+ */
 export const notificationsActive = defineQuery({
   name: 'notificationsActive',
   limit: 500,
@@ -14,8 +20,8 @@ export const notificationsActive = defineQuery({
         expires_at, read_at, archived_at, dismissed_at,
         active, created_at, updated_at, deleted_at
       FROM notifications
-      WHERE user_id = ${ctx.env.actorId} AND active IS TRUE
-`);
+      WHERE user_id = ${ctx.env.actorId}
+    `);
     return { notifications: rows };
   },
 });

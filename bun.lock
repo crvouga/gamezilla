@@ -1420,6 +1420,7 @@
       "name": "@pkgs/sql-client",
       "version": "0.0.0",
       "dependencies": {
+        "@crvouga/postgres-mem": "catalog:",
         "@crvouga/sqlite-mem": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -1805,6 +1806,7 @@
     "@babel/runtime": "^7.29.7",
     "@better-auth/expo": "1.6.26",
     "@biomejs/biome": "2.5.7",
+    "@crvouga/postgres-mem": "^1.0.1",
     "@crvouga/sqlite-mem": "^1.2.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
@@ -2298,6 +2300,8 @@
     "@cloudflare/workerd-linux-arm64": ["@cloudflare/workerd-linux-arm64@1.20260430.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-hMdapNAzNQZDXGGkg4Slydc3fRJP5FUZLJVVcZCW/+imhhJro9Z1rv5n/wfR+txKoSWhTYR8eOp8Pyi2bzLzlw=="],
 
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20260430.1", "", { "os": "win32", "cpu": "x64" }, "sha512-jS3ffixjb5USOwz4frw4WzCz0HrjVxkgyU3WiYb06N7hBAfN6eOrveAJ4QRef0+suK4V1vQFoB1oKdRBsXe9Dw=="],
+
+    "@crvouga/postgres-mem": ["@crvouga/postgres-mem@1.0.1", "", {}, "sha512-uC9PJ/GgBPXRYVCXZihiK1IrkfJts43VOWlaG4ypXd2Ny9ZY2qkej9shBeSkpxjmdTCFw+dqZ7+NPF+L1FpMTA=="],
 
     "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.2.0", "", {}, "sha512-SA0Kj4k35dfGPfHGwCfq9aiRavqCVQBOMLqdZJLfLy4fVAR28ET3rk+JMTXwhQgpqiog0fFHvLeQkKc2ykbqdw=="],
 

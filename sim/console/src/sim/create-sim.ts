@@ -11,11 +11,11 @@ import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import { loadBetterAuthBootConfig } from '@apps/server/config/better-auth-boot';
 import {
-  migrateSimSqlite,
+  migrateSimPostgres,
   SIM_BETTER_AUTH_SECRET,
+  SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
-  SIM_SQLITE_DATABASE_URL,
-} from '@apps/server/sim/migrate-sim-sqlite';
+} from '@apps/server/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
@@ -41,7 +41,8 @@ import { serializeFetch } from './sim-fetch';
 import { createSimNet } from './sim-net';
 import {
   handleBoundSqlClient,
-  openFreshSimSql,
+  openFreshSimClientSql,
+  openFreshSimServerSql,
   type SimSqlHandle,
   sharedSqlClient,
 } from './sim-sql';
@@ -55,7 +56,7 @@ export type CreateSimOptions = {
   readonly startMs?: number;
   /** Override virtual timers (openSim injects node timers for RNTL). */
   readonly timers?: Timers;
-  /** Max-fidelity host injects Postgres; playground omits this. */
+  /** Max-fidelity host injects embedded Postgres; playground uses postgres-mem. */
   readonly serverSql?: SimSqlHandle;
 };
 
@@ -102,7 +103,7 @@ async function buildServerEnv(args: {
   const shared = sharedSqlClient(serverSql.sqlClient);
   const secrets = createRecordSecretStore({
     BETTER_AUTH_SECRET: SIM_BETTER_AUTH_SECRET,
-    DATABASE_URL: SIM_SQLITE_DATABASE_URL,
+    DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
   });
   const betterAuth = await loadBetterAuthBootConfig({
@@ -168,10 +169,13 @@ async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
   const net = createSimNet();
   const pubSubBus = createInMemoryBus();
   const serverSql =
-    opts?.serverSql ?? (await openFreshSimSql('sim_server', adapters.clock));
+    opts?.serverSql ?? (await openFreshSimServerSql('sim_server', adapters.clock));
   if (opts?.serverSql === undefined) {
-    await migrateSimSqlite({
+    const pool = serverSql.pool;
+    assert.defined(pool, 'createSim: postgres-mem server handle requires pool');
+    await migrateSimPostgres({
       sqlClient: serverSql.sqlClient,
+      pool,
       now: adapters.clock.now,
     });
   }
@@ -219,7 +223,7 @@ function makeSimClientEnv(
     openSqlClient: async () => {
       let handle = clientSql.get(id);
       if (handle === undefined) {
-        handle = await openFreshSimSql(`sim_client_${id}`, adapters.clock);
+        handle = await openFreshSimClientSql(`sim_client_${id}`, adapters.clock);
         clientSql.set(id, handle);
       }
       return handleBoundSqlClient(handle);

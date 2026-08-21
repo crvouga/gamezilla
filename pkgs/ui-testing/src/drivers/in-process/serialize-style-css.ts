@@ -119,6 +119,19 @@ function rnTransformToCss(list: unknown[]): string {
   return parts.join(' ');
 }
 
+/**
+ * RN Platform.select font names that are not real CSS families in Chromium
+ * (sim report iframes). Map to Nunito so titles do not fall back to Times.
+ */
+const PLATFORM_FONT_TO_NUNITO: Record<string, string> = {
+  'ui-rounded': '700',
+  'sans-serif-medium': '500',
+  'ui-serif': '400',
+  'ui-monospace': '400',
+  /** RN default placeholder — invalid as a CSS family; browsers use Times. */
+  normal: '400',
+};
+
 function pushFontDecls(
   decls: string[],
   fontFamily: string,
@@ -129,6 +142,13 @@ function pushFontDecls(
     ctx.fonts.add(parsed.family);
     decls.push(`font-family:${cssFontFamily(parsed.family)}`);
     decls.push(`font-weight:${parsed.weight}`);
+    return;
+  }
+  const platformWeight = PLATFORM_FONT_TO_NUNITO[fontFamily];
+  if (platformWeight !== undefined) {
+    ctx.fonts.add('Nunito');
+    decls.push('font-family:Nunito');
+    decls.push(`font-weight:${platformWeight}`);
     return;
   }
   decls.push(`font-family:${cssFontFamily(fontFamily)}`);

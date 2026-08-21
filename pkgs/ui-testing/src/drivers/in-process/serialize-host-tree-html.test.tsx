@@ -212,6 +212,21 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
   });
 
+  it('rewrites Platform ui-rounded to Nunito (avoids Times fallback)', () => {
+    const result = render(
+      createElement(
+        Text,
+        { style: { fontFamily: 'ui-rounded', fontSize: 18 } },
+        'Spaces'
+      )
+    );
+
+    const html = serializeHostTreeHtml(result.toJSON());
+    expect(html).toContain('font-family:Nunito');
+    expect(html).toContain('font-weight:700');
+    expect(html).not.toContain('ui-rounded');
+  });
+
   it('maps RNSVG hosts to real svg/path markup', () => {
     const html = serializeHostTreeHtml({
       type: 'RNSVGSvgView',
