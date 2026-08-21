@@ -1,16 +1,16 @@
-// @io-wall-ok — process entry: Bun.serve + wall Node-FS report store + S3 snapshots.
+// @io-wall-ok — process entry: Bun.serve + wall Node-FS report + snapshot stores.
 /**
  * Local report console sidecar for `@apps/server` `dev`. Serves
  * `<repo>/.cache/sim-console-data` so Jest UI sims (`openSim`) show up in the
- * product Console → Reports tab. Playground snapshots use S3 from secrets-run.
+ * product Console → Reports tab. Playground snapshots use the same Node-FS
+ * root under `playground-snapshots/`.
  */
-import { createApiObjectStore } from '@apps/server/config/object-store';
+import { join } from 'node:path';
+
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
-import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveLocalReportDataDir } from '@pkgs/sim-console/local-data-dir';
 import { createSimConsoleApp } from '@pkgs/sim-console/server';
 import { bunSqliteDumpToSqlm } from '@pkgs/sim-console/server/bun-sqlite-dump-to-sqlm';
@@ -45,22 +45,6 @@ function withCors(req: Request, res: Response): Response {
   });
 }
 
-async function createPlaygroundSnapshotS3Store(): Promise<ObjectStore | null> {
-  try {
-    const root = await createApiObjectStore(createScriptSecretStore(), {
-      now: () => wallClock.now(),
-      requireCredentials: true,
-    });
-    return root.withPrefix(ObjectStorePrefix.playgroundSnapshots);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    process.stderr.write(
-      `[api] playground snapshots S3 unavailable: ${message}\n`
-    );
-    return null;
-  }
-}
-
 export async function startLocalReportConsole(): Promise<LocalReportConsoleHandle> {
   const dataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
   const store = createNodeFsObjectStore({
@@ -68,7 +52,7 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
     fs: wallNodeFs(),
     layout: 'sidecar',
   });
-  const snapshotStore = await createPlaygroundSnapshotS3Store();
+  const snapshotStore = store.withPrefix(ObjectStorePrefix.playgroundSnapshots);
 
   const { app, stop: stopApp } = createSimConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],
@@ -94,11 +78,9 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
   process.stdout.write(
     `[api] local reports http://127.0.0.1:${String(DEFAULT_REPORT_SERVER_PORT)} ← ${dataDir}\n`
   );
-  if (snapshotStore !== null) {
-    process.stdout.write(
-      `[api] playground snapshots → S3 (${ObjectStorePrefix.playgroundSnapshots})\n`
-    );
-  }
+  process.stdout.write(
+    `[api] playground snapshots → ${join(dataDir, ObjectStorePrefix.playgroundSnapshots.replace(/\/$/, ''))}\n`
+  );
 
   return {
     stop: () => {

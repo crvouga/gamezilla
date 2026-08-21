@@ -1,6 +1,6 @@
 /**
  * Playground snapshots persist via HTTP ObjectStore → Bun local report server →
- * S3 (B2) using secrets injected by `secrets-run` on `bun run dev`.
+ * Node-FS under `.cache/sim-console-data/playground-snapshots/`.
  */
 
 import type { Timers } from '@pkgs/clock';

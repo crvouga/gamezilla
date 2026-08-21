@@ -25,8 +25,8 @@ export type CreateSimConsoleAppOptions = {
    */
   readonly convertSqliteDumpToSqlm?: ConvertSqliteDumpToSqlm;
   /**
-   * Optional playground snapshot ObjectStore (S3). Pass `null` when secrets
-   * are missing so the HTTP proxy returns 503 instead of a silent miss.
+   * Optional playground snapshot ObjectStore (Node-FS locally). Pass `null`
+   * when unavailable so the HTTP proxy returns 503 instead of a silent miss.
    * Omit when this host does not serve playground snapshots.
    */
   readonly playgroundSnapshotStore?: ObjectStore | null;

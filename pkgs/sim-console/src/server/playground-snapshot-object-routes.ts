@@ -1,6 +1,7 @@
 /**
  * HTTP ObjectStore proxy for playground snapshots.
- * Bun local report servers hold S3 credentials; Expo web uses impl-http.
+ * Bun local report servers hold the backing store (Node-FS locally);
+ * Expo web uses impl-http against this proxy.
  */
 
 import { readBytes } from '@pkgs/object-store/helpers';
@@ -18,6 +19,11 @@ function json(data: unknown, status = 200): Response {
       'cache-control': 'no-store',
     },
   });
+}
+
+function storeError(err: unknown): Response {
+  const message = err instanceof Error ? err.message : String(err);
+  return json({ error: message }, 502);
 }
 
 function decodeObjectKey(pathname: string): string | null {
@@ -41,6 +47,7 @@ function decodeObjectKey(pathname: string): string | null {
  * Returns `null` when the path is not for this proxy.
  *
  * When `store` is `null`, every matched request returns 503 with a clear error.
+ * Store throws become JSON 502 with the underlying message.
  */
 export async function handlePlaygroundSnapshotObjectRequest(
   req: Request,
@@ -58,15 +65,22 @@ export async function handlePlaygroundSnapshotObjectRequest(
   }
 
   if (store === null) {
-    return json(
-      {
-        error:
-          'Playground snapshot S3 store unavailable. Missing B2_APP_* / S3_* secrets — run under secrets-run (bun run dev).',
-      },
-      503
-    );
+    return json({ error: 'Playground snapshot store unavailable.' }, 503);
   }
 
+  try {
+    return await dispatchStoreRequest(req, store, pathname, url);
+  } catch (err) {
+    return storeError(err);
+  }
+}
+
+async function dispatchStoreRequest(
+  req: Request,
+  store: ObjectStore,
+  pathname: string,
+  url: URL
+): Promise<Response> {
   if (
     pathname === PLAYGROUND_SNAPSHOT_OBJECTS_PATH &&
     url.searchParams.get('list') === '1'

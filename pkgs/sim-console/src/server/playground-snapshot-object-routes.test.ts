@@ -27,7 +27,29 @@ describe('handlePlaygroundSnapshotObjectRequest', () => {
     expect(res).not.toBeNull();
     expect(res!.status).toBe(503);
     const body = (await res!.json()) as { error: string };
-    expect(body.error).toMatch(/S3/);
+    expect(body.error).toMatch(/unavailable/i);
+  });
+
+  test('502 when store throws', async () => {
+    const store = new ObjectStoreImplInMemory();
+    const res = await handlePlaygroundSnapshotObjectRequest(
+      new Request(`${BASE}/index.json`),
+      {
+        get: async () => {
+          throw new Error('boom get');
+        },
+        put: store.put.bind(store),
+        head: store.head.bind(store),
+        delete: store.delete.bind(store),
+        getUri: store.getUri.bind(store),
+        listKeys: store.listKeys.bind(store),
+        withPrefix: store.withPrefix.bind(store),
+      }
+    );
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(502);
+    const body = (await res!.json()) as { error: string };
+    expect(body.error).toBe('boom get');
   });
 
   test('put get list delete', async () => {

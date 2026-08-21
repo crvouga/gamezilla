@@ -218,7 +218,7 @@ function ClientLiveColumns(props: {
   return (
     <DebuggerColumns>
       {clients.map((actor) => (
-        <DebuggerColumn key={actor.id} id={actor.id} kind="client">
+        <DebuggerColumn key={actor.id}>
           <ClientPlaygroundPanel
             actor={actor}
             snapshotEpoch={snapshotEpoch}

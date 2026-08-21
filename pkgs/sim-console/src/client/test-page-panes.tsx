@@ -74,7 +74,7 @@ function ReportClientPane(props: {
     return (
       <DebuggerColumns>
         {props.instances.map((node) => (
-          <DebuggerColumn key={node.id} id={node.id} kind={node.kind}>
+          <DebuggerColumn key={node.id}>
             <EventsPane
               api={props.api}
               bucketId={props.bucketId}
@@ -157,7 +157,7 @@ function LiveClientColumns(props: {
   return (
     <DebuggerColumns>
       {clients.map((actor) => (
-        <DebuggerColumn key={actor.id} id={actor.id} kind="client">
+        <DebuggerColumn key={actor.id}>
           <ClientPlaygroundPanel
             actor={actor}
             snapshotEpoch={props.session.snapshotEpoch}
