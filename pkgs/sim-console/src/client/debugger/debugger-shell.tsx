@@ -21,6 +21,8 @@ export type DebuggerShellProps = {
   readonly kindTrailing?: ReactNode;
   /** When false, hide the frame player (playground). Default true. */
   readonly showPlayer?: boolean;
+  /** Fires on pointer-down on player / tab chrome (not the pane body). */
+  readonly onChromePointerDown?: () => void;
   readonly frames: readonly FlatFrame[];
   readonly selectedFrameIndex: number;
   readonly onSelectFrame: (index: number) => void;
@@ -40,6 +42,7 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
     header,
     kindTrailing,
     showPlayer = true,
+    onChromePointerDown,
     frames,
     selectedFrameIndex,
     onSelectFrame,
@@ -58,37 +61,39 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
   return (
     <Box sx={shellSx}>
       {header}
-      {showPlayer ? (
-        <PlayerStrip
-          frames={frames}
-          selectedIndex={Math.max(0, selectedFrameIndex)}
-          onSelect={onSelectFrame}
-        />
-      ) : null}
-      <TabStrip
-        accessibilityLabel="Node kinds"
-        items={[...DEBUGGER_KIND_TABS]}
-        selectedId={kind}
-        onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
-        keyboardScope
-        {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
-      />
-      {showInstances ? (
+      <Box onPointerDown={onChromePointerDown}>
+        {showPlayer ? (
+          <PlayerStrip
+            frames={frames}
+            selectedIndex={Math.max(0, selectedFrameIndex)}
+            onSelect={onSelectFrame}
+          />
+        ) : null}
         <TabStrip
-          accessibilityLabel="Node instances"
-          items={instances.map((n) =>
-            debuggerInstanceTabItem({ id: n.id, kind: n.kind })
-          )}
-          selectedId={instanceId}
-          onSelect={onInstanceChange}
+          accessibilityLabel="Node kinds"
+          items={[...DEBUGGER_KIND_TABS]}
+          selectedId={kind}
+          onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
+          keyboardScope
+          {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
         />
-      ) : null}
-      <TabStrip
-        accessibilityLabel="Views"
-        items={views.map((v) => debuggerViewTabItem(v))}
-        selectedId={view}
-        onSelect={(id) => onViewChange(id as DebuggerViewId)}
-      />
+        {showInstances ? (
+          <TabStrip
+            accessibilityLabel="Node instances"
+            items={instances.map((n) =>
+              debuggerInstanceTabItem({ id: n.id, kind: n.kind })
+            )}
+            selectedId={instanceId}
+            onSelect={onInstanceChange}
+          />
+        ) : null}
+        <TabStrip
+          accessibilityLabel="Views"
+          items={views.map((v) => debuggerViewTabItem(v))}
+          selectedId={view}
+          onSelect={(id) => onViewChange(id as DebuggerViewId)}
+        />
+      </Box>
       <Box sx={paneSx}>{children}</Box>
     </Box>
   );

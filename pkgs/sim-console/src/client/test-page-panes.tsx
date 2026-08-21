@@ -1,6 +1,13 @@
-import { Box, EmptyState, ErrorState, LoadingState, Text } from '@pkgs/ui';
+import {
+  Box,
+  EmptyState,
+  ErrorState,
+  KeyboardShortcutScope,
+  LoadingState,
+  Text,
+} from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { PlaygroundSession, SimConsolePorts } from '../shared/ports';
 import type { ReportApiClient } from './api-client';
@@ -140,6 +147,7 @@ function LiveClientColumns(props: {
   readonly view: string;
 }): ReactNode {
   const session = props.session;
+  const [focusedClientId, setFocusedClientId] = useState<string | null>(null);
   const tick = useSyncExternalStore(
     session.subscribe,
     () => session.revision,
@@ -156,16 +164,25 @@ function LiveClientColumns(props: {
   }
   return (
     <DebuggerColumns>
-      {clients.map((actor) => (
-        <DebuggerColumn key={actor.id}>
-          <ClientPlaygroundPanel
-            actor={actor}
-            snapshotEpoch={props.session.snapshotEpoch}
-            reloadToken={props.session.revision}
-            view={props.view}
-          />
-        </DebuggerColumn>
-      ))}
+      {clients.map((actor) => {
+        const focused = focusedClientId === actor.id;
+        return (
+          <DebuggerColumn
+            key={actor.id}
+            focused={focused}
+            onActivate={() => setFocusedClientId(actor.id)}
+          >
+            <KeyboardShortcutScope active={focused}>
+              <ClientPlaygroundPanel
+                actor={actor}
+                snapshotEpoch={props.session.snapshotEpoch}
+                reloadToken={props.session.revision}
+                view={props.view}
+              />
+            </KeyboardShortcutScope>
+          </DebuggerColumn>
+        );
+      })}
     </DebuggerColumns>
   );
 }

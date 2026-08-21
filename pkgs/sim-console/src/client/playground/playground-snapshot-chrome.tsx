@@ -30,8 +30,8 @@ import {
   useSnapshotChromeState,
 } from './use-snapshot-chrome-state';
 
-const ICON_SIZE = 40;
-const GLYPH_SIZE = 20;
+const ICON_SIZE = 32;
+const GLYPH_SIZE = 16;
 const SELECT_WIDTH = 150;
 
 type SnapshotListApi = ReturnType<typeof usePlaygroundSnapshots>;
@@ -222,7 +222,14 @@ function SnapshotSelect(props: {
     sortedSnaps.length > 0 && sortedSnaps.every((s) => checkedIds.has(s.id));
   const someChecked = sortedSnaps.some((s) => checkedIds.has(s.id));
   return (
-    <Box sx={{ width: SELECT_WIDTH, flexShrink: 0, minWidth: 0 }}>
+    <Box
+      sx={{
+        width: SELECT_WIDTH,
+        flexShrink: 0,
+        minWidth: 0,
+        alignSelf: 'center',
+      }}
+    >
       <Select
         size="sm"
         options={sortedSnaps.map((s) => ({
@@ -360,6 +367,7 @@ export function PlaygroundSnapshotChrome(props: {
         justifyContent: 'flex-end',
         gap: 0.5,
         flexShrink: 0,
+        alignSelf: 'stretch',
       }}
     >
       <SnapshotSelect

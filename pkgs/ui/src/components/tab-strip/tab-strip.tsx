@@ -20,8 +20,8 @@ import {
 import type { ComponentDataSet } from '../../component-id';
 import { useTheme } from '../../theme';
 import { Box } from '../box';
-import type { WebKeyboardEventLike } from '../command-palette/keyboard-shortcut';
 import { PlusIcon } from '../icons';
+import type { WebKeyboardEventLike } from '../keyboard-shortcuts';
 import { Pressable } from '../pressable';
 import { ScrollView } from '../scroll-view';
 import { handleTabStripKeyDown } from './tab-strip-keyboard';
@@ -249,7 +249,7 @@ const stripSx = {
   gap: 2,
   minHeight: TAB_MIN_HEIGHT + 4,
   paddingLeft: 4,
-  paddingRight: 3,
+  paddingRight: 4,
   paddingTop: 2,
   paddingBottom: 0,
   borderBottomWidth: 1,
@@ -263,11 +263,13 @@ const leadingSx = {
   alignSelf: 'center',
 } as const;
 
+/** Stretch to the full strip (cancel top pad) so trailing controls sit equal / flush. */
 const trailingSx = {
   flexShrink: 0,
-  paddingLeft: 2,
-  paddingRight: 2,
-  alignSelf: 'center',
+  alignSelf: 'stretch',
+  marginTop: -2,
+  justifyContent: 'center',
+  paddingLeft: 4,
 } as const;
 
 const scrollFrameSx = {

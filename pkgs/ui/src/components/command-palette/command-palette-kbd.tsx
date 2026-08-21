@@ -1,7 +1,7 @@
 import { borderRadius } from '../../theme/scale';
 import { Box } from '../box';
+import { isMacPlatform } from '../keyboard-shortcuts';
 import { Text } from '../text';
-import { isMacPlatform } from './keyboard-shortcut';
 
 const STATIC_TOKEN_MAP: Readonly<Record<string, string>> = {
   shift: '⇧',

@@ -4,14 +4,16 @@ import {
   CommandRegistryProvider,
   EmptyState,
   ErrorState,
+  KeyboardShortcutScope,
   LoadingState,
   OverlayPortalProvider,
   RegisterCommand,
   SurfaceStackProvider,
 } from '@pkgs/ui';
-import { useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { coerceDebuggerView, viewsForKind } from '../../shared/debugger-views';
 import type {
+  PlaygroundActor,
   PlaygroundPaletteCommand,
   PlaygroundSession,
 } from '../../shared/ports';
@@ -19,6 +21,7 @@ import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn, DebuggerColumns } from '../debugger/debugger-columns';
 import { DebuggerShell } from '../debugger/debugger-shell';
 import type { DebuggerChromeNav } from '../debugger-chrome';
+import { PlaygroundAppearanceCommands } from './playground-appearance-commands';
 import {
   ClientPlaygroundPanel,
   PubSubPlaygroundPanel,
@@ -59,30 +62,54 @@ export function PlaygroundScreen(props: {
   return (
     <OverlayPortalProvider>
       <SurfaceStackProvider>
-        <CommandRegistryProvider>
-          <ReadyPlaygroundScreen
-            session={state.session}
-            chrome={{
-              kind,
-              instance,
-              view,
-              onKindChange: props.onKindChange,
-              onInstanceChange: props.onInstanceChange,
-              onViewChange: props.onViewChange,
-            }}
-          />
-          <CommandPalette />
-        </CommandRegistryProvider>
+        <FocusedPlaygroundScreen
+          session={state.session}
+          chrome={{
+            kind,
+            instance,
+            view,
+            onKindChange: props.onKindChange,
+            onInstanceChange: props.onInstanceChange,
+            onViewChange: props.onViewChange,
+          }}
+        />
       </SurfaceStackProvider>
     </OverlayPortalProvider>
+  );
+}
+
+function FocusedPlaygroundScreen(props: {
+  readonly session: PlaygroundSession;
+  readonly chrome: DebuggerChromeNav;
+}) {
+  const { session, chrome } = props;
+  const [focusedClientId, setFocusedClientId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (chrome.kind !== 'client') setFocusedClientId(null);
+  }, [chrome.kind]);
+
+  return (
+    <CommandRegistryProvider enableDefaultShortcuts={focusedClientId === null}>
+      <PlaygroundAppearanceCommands />
+      <ReadyPlaygroundScreen
+        session={session}
+        chrome={chrome}
+        focusedClientId={focusedClientId}
+        onFocusedClientIdChange={setFocusedClientId}
+      />
+      <CommandPalette />
+    </CommandRegistryProvider>
   );
 }
 
 function ReadyPlaygroundScreen(props: {
   readonly session: PlaygroundSession;
   readonly chrome: DebuggerChromeNav;
+  readonly focusedClientId: string | null;
+  readonly onFocusedClientIdChange: (id: string | null) => void;
 }) {
-  const { session, chrome } = props;
+  const { session, chrome, focusedClientId, onFocusedClientIdChange } = props;
   const tick = useSyncExternalStore(
     session.subscribe,
     () => session.revision,
@@ -124,6 +151,7 @@ function ReadyPlaygroundScreen(props: {
         frames={[]}
         selectedFrameIndex={0}
         onSelectFrame={() => undefined}
+        onChromePointerDown={() => onFocusedClientIdChange(null)}
         kindTrailing={<PlaygroundSnapshotChrome session={session} />}
         kind={chrome.kind}
         onKindChange={chrome.onKindChange}
@@ -141,6 +169,8 @@ function ReadyPlaygroundScreen(props: {
           instanceId={instanceId}
           clients={clients}
           snapshotEpoch={snapshotEpoch}
+          focusedClientId={focusedClientId}
+          onFocusedClientIdChange={onFocusedClientIdChange}
         />
       </DebuggerShell>
     </Box>
@@ -149,7 +179,7 @@ function ReadyPlaygroundScreen(props: {
 
 function instancesForPlayground(
   kind: SimChromeKind,
-  clients: readonly import('../../shared/ports').PlaygroundActor[],
+  clients: readonly PlaygroundActor[],
   roomIds: readonly string[]
 ): readonly { readonly id: string; readonly kind: string }[] {
   if (kind === 'client') {
@@ -166,10 +196,21 @@ function LiveKindPane(props: {
   readonly kind: SimChromeKind;
   readonly view: string;
   readonly instanceId: string;
-  readonly clients: readonly import('../../shared/ports').PlaygroundActor[];
+  readonly clients: readonly PlaygroundActor[];
   readonly snapshotEpoch: number;
+  readonly focusedClientId: string | null;
+  readonly onFocusedClientIdChange: (id: string | null) => void;
 }) {
-  const { session, kind, view, instanceId, clients, snapshotEpoch } = props;
+  const {
+    session,
+    kind,
+    view,
+    instanceId,
+    clients,
+    snapshotEpoch,
+    focusedClientId,
+    onFocusedClientIdChange,
+  } = props;
   if (kind === 'client') {
     return (
       <ClientLiveColumns
@@ -177,6 +218,8 @@ function LiveKindPane(props: {
         clients={clients}
         view={view}
         snapshotEpoch={snapshotEpoch}
+        focusedClientId={focusedClientId}
+        onFocusedClientIdChange={onFocusedClientIdChange}
       />
     );
   }
@@ -207,26 +250,44 @@ function LiveKindPane(props: {
 
 function ClientLiveColumns(props: {
   readonly session: PlaygroundSession;
-  readonly clients: readonly import('../../shared/ports').PlaygroundActor[];
+  readonly clients: readonly PlaygroundActor[];
   readonly view: string;
   readonly snapshotEpoch: number;
+  readonly focusedClientId: string | null;
+  readonly onFocusedClientIdChange: (id: string | null) => void;
 }) {
-  const { session, clients, view, snapshotEpoch } = props;
+  const {
+    session,
+    clients,
+    view,
+    snapshotEpoch,
+    focusedClientId,
+    onFocusedClientIdChange,
+  } = props;
   if (clients.length === 0) {
     return <EmptyKind body="No clients in this session." />;
   }
   return (
     <DebuggerColumns>
-      {clients.map((actor) => (
-        <DebuggerColumn key={actor.id}>
-          <ClientPlaygroundPanel
-            actor={actor}
-            snapshotEpoch={snapshotEpoch}
-            reloadToken={session.revision}
-            view={view}
-          />
-        </DebuggerColumn>
-      ))}
+      {clients.map((actor) => {
+        const focused = focusedClientId === actor.id;
+        return (
+          <DebuggerColumn
+            key={actor.id}
+            focused={focused}
+            onActivate={() => onFocusedClientIdChange(actor.id)}
+          >
+            <KeyboardShortcutScope active={focused}>
+              <ClientPlaygroundPanel
+                actor={actor}
+                snapshotEpoch={snapshotEpoch}
+                reloadToken={session.revision}
+                view={view}
+              />
+            </KeyboardShortcutScope>
+          </DebuggerColumn>
+        );
+      })}
     </DebuggerColumns>
   );
 }

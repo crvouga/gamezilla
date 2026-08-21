@@ -111,13 +111,22 @@ const dedupeAliasPrefixes = [
 ];
 const clientPkgRequire = require('module').createRequire(dedupeAliasOrigin);
 /** CanvasKit JS loader ABI must match the WASM copied in bundle-skia-canvaskit-wasm.ts. */
+const skiaResolveOrigins = [
+  dedupeAliasOrigin,
+  path.join(monorepoRoot, 'apps/client/package.json'),
+  path.join(monorepoRoot, 'pkgs/ui/package.json'),
+];
 let skiaWebOrigin = dedupeAliasOrigin;
-try {
-  skiaWebOrigin = clientPkgRequire.resolve(
-    '@shopify/react-native-skia/lib/module/web/LoadSkiaWeb.js'
-  );
-} catch {
-  // Skia not installed — resolve from client root until deps are present.
+for (const origin of skiaResolveOrigins) {
+  try {
+    const req = require('module').createRequire(origin);
+    skiaWebOrigin = req.resolve(
+      '@shopify/react-native-skia/lib/module/web/LoadSkiaWeb.js'
+    );
+    break;
+  } catch {
+    // Try next workspace that declares Skia.
+  }
 }
 const skiaPinnedPrefixes = ['canvaskit-wasm'];
 const fs = require('fs');

@@ -22,6 +22,7 @@ const SKIP_FOLDERS = new Set([
   'explorer',
   'focus-trap',
   'icons',
+  'keyboard-shortcuts',
   'optional-props',
   'overlay-portal',
   'portal-content-bridge',

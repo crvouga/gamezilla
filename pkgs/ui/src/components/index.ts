@@ -248,6 +248,18 @@ export {
   KeyboardAvoidingView,
   type KeyboardAvoidingViewProps,
 } from './keyboard-avoiding-view';
+export {
+  isMacPlatform,
+  KeyboardShortcutScope,
+  matchesWebShortcut,
+  type NormalizedShortcut,
+  parseShortcutString,
+  toWebKeyboardEventLike,
+  useDocumentShortcuts,
+  useKeyboardShortcutScopeOptional,
+  useKeyboardShortcutsEnabled,
+  type WebKeyboardEventLike,
+} from './keyboard-shortcuts';
 export { List, ListItem, type ListItemProps, type ListProps } from './list';
 export { LoadingState, type LoadingStateProps } from './loading-state';
 export * from './main-menu-screen';

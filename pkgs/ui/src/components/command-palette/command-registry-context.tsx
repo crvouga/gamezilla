@@ -13,14 +13,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Platform } from 'react-native';
 
-import { CommandRegistryStore } from './command-registry-store';
-import { HistoryStore } from './history-store';
 import {
   matchesWebShortcut,
+  useDocumentShortcuts,
+  useKeyboardShortcutsEnabled,
   type WebKeyboardEventLike,
-} from './keyboard-shortcut';
+} from '../keyboard-shortcuts';
+import { CommandRegistryStore } from './command-registry-store';
+import { HistoryStore } from './history-store';
 import type { CommandId } from './types';
 import { isCommandEnabled, isCommandVisible, normalizeShortcut } from './types';
 
@@ -208,19 +209,6 @@ function useInvoke(
   );
 }
 
-function toKeyboardEventLike(ev: KeyboardEvent): WebKeyboardEventLike {
-  return {
-    key: ev.key,
-    code: ev.code,
-    metaKey: ev.metaKey,
-    ctrlKey: ev.ctrlKey,
-    altKey: ev.altKey,
-    shiftKey: ev.shiftKey,
-    repeat: ev.repeat,
-    preventDefault: () => ev.preventDefault(),
-  };
-}
-
 function matchOpenShortcut(
   like: WebKeyboardEventLike,
   openShortcuts: string[]
@@ -246,7 +234,7 @@ function findCommandForShortcut(
   return undefined;
 }
 
-function useGlobalShortcuts({
+function useRegistryDocumentShortcuts({
   enabled,
   openShortcuts,
   store,
@@ -259,25 +247,23 @@ function useGlobalShortcuts({
   toggle: () => void;
   invoke: (id: CommandId) => Promise<void>;
 }) {
-  useEffect(() => {
-    if (Platform.OS !== 'web' || !enabled) return;
-    const onKeyDown = (ev: KeyboardEvent) => {
-      const like = toKeyboardEventLike(ev);
-      if (like.repeat) return;
+  const onKeyDown = useCallback(
+    (like: WebKeyboardEventLike): boolean => {
+      if (like.repeat) return false;
       if (matchOpenShortcut(like, openShortcuts)) {
-        ev.preventDefault();
         toggle();
-        return;
+        return true;
       }
       const cmd = findCommandForShortcut(store, like);
       if (cmd !== undefined) {
-        ev.preventDefault();
         void invoke(cmd.id);
+        return true;
       }
-    };
-    document.addEventListener('keydown', onKeyDown, true);
-    return () => document.removeEventListener('keydown', onKeyDown, true);
-  }, [enabled, invoke, openShortcuts, store, toggle]);
+      return false;
+    },
+    [invoke, openShortcuts, store, toggle]
+  );
+  useDocumentShortcuts({ enabled, onKeyDown });
 }
 
 export function CommandRegistryProvider({
@@ -337,13 +323,18 @@ export function CommandRegistryProvider({
     ]
   );
 
-  useGlobalShortcuts({
+  const shortcutsActive = useKeyboardShortcutsEnabled(enableDefaultShortcuts);
+  useRegistryDocumentShortcuts({
     enabled: enableDefaultShortcuts,
     openShortcuts,
     store,
     toggle,
     invoke,
   });
+
+  useEffect(() => {
+    if (!shortcutsActive && state.isOpen) close();
+  }, [close, shortcutsActive, state.isOpen]);
 
   return (
     <CommandRegistryContext.Provider value={value}>

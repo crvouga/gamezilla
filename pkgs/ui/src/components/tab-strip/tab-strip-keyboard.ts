@@ -1,7 +1,7 @@
 import {
   matchesWebShortcut,
   type WebKeyboardEventLike,
-} from '../command-palette/keyboard-shortcut';
+} from '../keyboard-shortcuts';
 import type { TabStripItem } from './tab-strip-types';
 
 function selectByIndex(

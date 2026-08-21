@@ -10,8 +10,21 @@ export function DebuggerColumns(props: {
 
 export function DebuggerColumn(props: {
   readonly children: ReactNode;
+  readonly focused?: boolean;
+  readonly onActivate?: () => void;
 }): ReactNode {
-  return <Box sx={colSx}>{props.children}</Box>;
+  const focused = props.focused === true;
+  return (
+    <Box
+      sx={focused ? colFocusedSx : colSx}
+      {...(props.onActivate !== undefined
+        ? { onPointerDown: props.onActivate }
+        : {})}
+      {...(focused ? { dataSet: { debuggerColumnFocused: '1' } } : {})}
+    >
+      {props.children}
+    </Box>
+  );
 }
 
 const rowSx = {
@@ -23,12 +36,24 @@ const rowSx = {
   overflow: 'hidden',
 } as const;
 
-const colSx = {
+const colBaseSx = {
   flex: 1,
   flexBasis: 0,
   minWidth: 0,
   minHeight: 0,
   overflow: 'hidden',
-  borderRightWidth: 1,
+  borderTopWidth: 'hairline',
+  borderRightWidth: 'hairline',
+  borderBottomWidth: 'hairline',
+  borderLeftWidth: 'hairline',
+} as const;
+
+const colSx = {
+  ...colBaseSx,
   borderColor: 'border',
+} as const;
+
+const colFocusedSx = {
+  ...colBaseSx,
+  borderColor: 'tint',
 } as const;
