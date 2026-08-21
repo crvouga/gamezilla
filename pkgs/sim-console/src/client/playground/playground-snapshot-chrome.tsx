@@ -339,7 +339,7 @@ function SnapshotChromeActions(props: {
       {list.error !== null ? (
         <Text
           variant="caption"
-          sx={{ color: 'danger', maxWidth: 220 }}
+          sx={{ color: 'destructive', maxWidth: 220 }}
           numberOfLines={2}
           label={list.error}
         />

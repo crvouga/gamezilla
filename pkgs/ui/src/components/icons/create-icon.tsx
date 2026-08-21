@@ -1,6 +1,11 @@
 import type { ComponentType } from 'react';
 
-import { type SxInput, useOnColor } from '../../theme';
+import {
+  resolveColor,
+  type SxInput,
+  useOnColor,
+  useTheme,
+} from '../../theme';
 import { Box } from '../box';
 
 export type IconProps = {
@@ -33,8 +38,12 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
     accessibilityLabel,
     testID,
   }: IconProps) {
+    const theme = useTheme();
     const onColor = useOnColor();
-    const resolvedColor = color ?? onColor.icon;
+    const resolvedColor =
+      (color !== undefined
+        ? resolveColor(color, theme.colors)
+        : undefined) ?? onColor.icon;
     return (
       <Box
         sx={[{ alignItems: 'center', justifyContent: 'center' }, sx]}

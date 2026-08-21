@@ -17,7 +17,7 @@
 import type { ReactNode } from 'react';
 
 import type { ComponentDataSet } from '../../component-id';
-import { type ColorTokens, useTheme } from '../../theme';
+import { resolveColor, useTheme } from '../../theme';
 import { Box } from '../box';
 import { Text } from '../text';
 
@@ -35,19 +35,13 @@ export type AppLogoProps = {
 /** Width:height ratio used when rendering the wordmark text element. */
 const WORDMARK_HEIGHT_RATIO = 0.7;
 
-function resolveColor(color: string | undefined, colors: ColorTokens): string {
-  if (color === undefined) return colors.tint;
-  if (color in colors) return colors[color as keyof ColorTokens];
-  return color;
-}
-
 export function AppLogo({
   size = 28,
   color,
   dataSet,
 }: AppLogoProps): ReactNode {
   const theme = useTheme();
-  const fill = resolveColor(color, theme.colors);
+  const fill = resolveColor(color, theme.colors) ?? theme.colors.tint;
   const wordmarkFontSize = Math.round(size * WORDMARK_HEIGHT_RATIO);
   return (
     <Box

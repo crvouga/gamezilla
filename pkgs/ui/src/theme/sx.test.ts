@@ -38,6 +38,17 @@ describe('createSx', () => {
     expect(out['borderColor']).toBe(colors.border);
   });
 
+  test('aliases intent color names to palette tokens', () => {
+    expect(sx({ color: 'danger' })['color']).toBe(colors.destructive);
+    expect(sx({ color: 'error' })['color']).toBe(colors.destructive);
+    expect(sx({ color: 'primary' })['color']).toBe(colors.tint);
+  });
+
+  test('drops unknown token-like colors instead of emitting invalid CSS', () => {
+    expect(sx({ color: 'notAToken' })['color']).toBeUndefined();
+    expect(sx({ background: 'notAToken' })['backgroundColor']).toBeUndefined();
+  });
+
   test('resolves radius and fontSize tokens', () => {
     const out = sx({ borderRadius: 'md', fontSize: 'sm', lineHeight: 18 });
     expect(out['borderRadius']).toBe(10);

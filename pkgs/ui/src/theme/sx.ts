@@ -162,16 +162,21 @@ function applyColors(
   colors: ColorTokens
 ): void {
   const bg = props.background ?? props.backgroundColor;
-  if (bg !== undefined)
-    set(result, 'backgroundColor', resolveColor(bg, colors));
+  if (bg !== undefined) {
+    const resolved = resolveColor(bg, colors);
+    if (resolved !== undefined) set(result, 'backgroundColor', resolved);
+  }
   if (props.color !== undefined) {
-    set(result, 'color', resolveColor(props.color, colors));
+    const resolved = resolveColor(props.color, colors);
+    if (resolved !== undefined) set(result, 'color', resolved);
   }
   if (props.borderColor !== undefined) {
-    set(result, 'borderColor', resolveColor(props.borderColor, colors));
+    const resolved = resolveColor(props.borderColor, colors);
+    if (resolved !== undefined) set(result, 'borderColor', resolved);
   }
   if (props.outlineColor !== undefined) {
-    set(result, 'outlineColor', resolveColor(props.outlineColor, colors));
+    const resolved = resolveColor(props.outlineColor, colors);
+    if (resolved !== undefined) set(result, 'outlineColor', resolved);
   }
   const sides = [
     ['borderTopColor', 'borderTopColor'],
@@ -181,7 +186,9 @@ function applyColors(
   ] as const;
   for (const [from, to] of sides) {
     const v = props[from];
-    if (v !== undefined) result[to] = resolveColor(v, colors);
+    if (v === undefined) continue;
+    const resolved = resolveColor(v, colors);
+    if (resolved !== undefined) result[to] = resolved;
   }
 }
 

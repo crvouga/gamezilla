@@ -11,6 +11,7 @@
  * ```tsx
  * <Text variant="heading" label="Page Title" />
  * <Text variant="caption" sx={{ color: 'textSecondary' }} label="Footnote" />
+ * <Text variant="caption" sx={{ color: 'destructive' }} label="Error" />
  * ```
  */
 
@@ -18,7 +19,9 @@ import { forwardRef, type ReactNode } from 'react';
 import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
 import {
+  flattenSx,
   type OnColorSet,
+  resolveColor,
   type SxInput,
   type SxProps,
   type Theme,
@@ -141,6 +144,13 @@ export type TextProps = Omit<RNTextProps, 'style'> & {
   dataSet?: ComponentDataSet;
 };
 
+function sxWithoutColor(sx: SxProps | undefined): SxProps | false {
+  if (sx === undefined) return false;
+  if (sx.color === undefined) return sx;
+  const { color: _ignored, ...rest } = sx;
+  return Object.keys(rest).length > 0 ? rest : false;
+}
+
 export const Text = forwardRef<RNText, TextProps>(function Text(
   { variant = 'body', sx: sxProp, label, children, dataSet, ...rest },
   ref
@@ -148,6 +158,11 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
   const theme = useTheme();
   const onColor = useOnColor();
   const defaultColor = defaultColorForVariant(variant, onColor);
+  const flatSx = flattenSx(sxProp);
+  const sxColor =
+    flatSx?.color !== undefined
+      ? resolveColor(flatSx.color, theme.colors)
+      : undefined;
   const host = useHostSx(
     'Text',
     [
@@ -156,8 +171,11 @@ export const Text = forwardRef<RNText, TextProps>(function Text(
       CASING_VARIANTS.has(variant)
         ? textCasingToStyle(theme.textCasing)
         : false,
-      defaultColor !== undefined ? { color: defaultColor } : false,
-      sxProp,
+      sxWithoutColor(flatSx),
+      {
+        color:
+          sxColor ?? defaultColor ?? variantStyles[variant].color ?? 'text',
+      },
     ],
     dataSet
   );

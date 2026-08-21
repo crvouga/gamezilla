@@ -71,6 +71,7 @@ export {
   type SxInput,
   type SxProps,
 } from './sx';
+export { resolveColor } from './sx-resolve';
 export type {
   SxAlign,
   SxCompileOptions,
