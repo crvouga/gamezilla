@@ -7,7 +7,7 @@ import {
   Text,
 } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { useState, useSyncExternalStore } from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { PlaygroundSession, SimConsolePorts } from '../shared/ports';
 import type { ReportApiClient } from './api-client';
@@ -148,6 +148,9 @@ function LiveClientColumns(props: {
 }): ReactNode {
   const session = props.session;
   const [focusedClientId, setFocusedClientId] = useState<string | null>(null);
+  const clearFocus = useCallback(() => {
+    setFocusedClientId(null);
+  }, []);
   const tick = useSyncExternalStore(
     session.subscribe,
     () => session.revision,
@@ -163,7 +166,11 @@ function LiveClientColumns(props: {
     );
   }
   return (
-    <DebuggerColumns>
+    <DebuggerColumns
+      {...(focusedClientId !== null
+        ? { onOutsidePointerDown: clearFocus }
+        : {})}
+    >
       {clients.map((actor) => {
         const focused = focusedClientId === actor.id;
         return (

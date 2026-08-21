@@ -10,7 +10,13 @@ import {
   RegisterCommand,
   SurfaceStackProvider,
 } from '@pkgs/ui';
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { coerceDebuggerView, viewsForKind } from '../../shared/debugger-views';
 import type {
   PlaygroundActor,
@@ -264,11 +270,18 @@ function ClientLiveColumns(props: {
     focusedClientId,
     onFocusedClientIdChange,
   } = props;
+  const clearFocus = useCallback(() => {
+    onFocusedClientIdChange(null);
+  }, [onFocusedClientIdChange]);
   if (clients.length === 0) {
     return <EmptyKind body="No clients in this session." />;
   }
   return (
-    <DebuggerColumns>
+    <DebuggerColumns
+      {...(focusedClientId !== null
+        ? { onOutsidePointerDown: clearFocus }
+        : {})}
+    >
       {clients.map((actor) => {
         const focused = focusedClientId === actor.id;
         return (

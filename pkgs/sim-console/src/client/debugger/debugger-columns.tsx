@@ -1,11 +1,29 @@
 import { Box } from '@pkgs/ui';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
+
+/** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */
+export const DEBUGGER_CLIENT_PANELS_NATIVE_ID = 'sim-debugger-client-panels';
 
 /** Side-by-side instance columns (clients). Rooms stay on instance tabs. */
 export function DebuggerColumns(props: {
   readonly children: ReactNode;
+  /**
+   * When set, pointer-down outside these columns invokes the callback
+   * (e.g. clear focused client). No-ops for presses inside the columns,
+   * including nested client modals / palettes.
+   */
+  readonly onOutsidePointerDown?: () => void;
 }): ReactNode {
-  return <Box sx={rowSx}>{props.children}</Box>;
+  useOutsideClientPanelsPointerDown(props.onOutsidePointerDown);
+  return (
+    <Box
+      nativeID={DEBUGGER_CLIENT_PANELS_NATIVE_ID}
+      collapsable={false}
+      sx={rowSx}
+    >
+      {props.children}
+    </Box>
+  );
 }
 
 export function DebuggerColumn(props: {
@@ -25,6 +43,25 @@ export function DebuggerColumn(props: {
       {props.children}
     </Box>
   );
+}
+
+function useOutsideClientPanelsPointerDown(onOutside?: () => void): void {
+  useEffect(() => {
+    if (onOutside === undefined) return;
+    if (typeof document === 'undefined') return;
+    const onPointerDown = (ev: PointerEvent) => {
+      const root = document.getElementById(DEBUGGER_CLIENT_PANELS_NATIVE_ID);
+      const target = ev.target;
+      if (!(target instanceof Node)) {
+        onOutside();
+        return;
+      }
+      if (root !== null && root.contains(target)) return;
+      onOutside();
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, [onOutside]);
 }
 
 const rowSx = {
