@@ -21,6 +21,7 @@ import { createNamespacedAuthClientStorage } from '@pkgs/auth-better-auth/client
 import { InMemoryBilling } from '@pkgs/billing';
 import type { SimClock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
+import { KvImplWebNamespaced } from '@pkgs/kv/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
@@ -30,6 +31,7 @@ import {
 } from '@pkgs/pubsub/testing/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
+import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage/impl-web';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
@@ -43,6 +45,10 @@ import {
   type SimSqlHandle,
   sharedSqlClient,
 } from './sim-sql';
+
+function hasWebLocalStorage(): boolean {
+  return typeof globalThis.localStorage !== 'undefined';
+}
 
 export type CreateSimOptions = {
   readonly seed?: number | bigint | string;
@@ -218,9 +224,15 @@ function makeSimClientEnv(
       }
       return handleBoundSqlClient(handle);
     },
-    kv: new KvImplInMemory(),
+    kv: hasWebLocalStorage()
+      ? new KvImplWebNamespaced(ns)
+      : new KvImplInMemory(),
     authStorage: createNamespacedAuthClientStorage(ns),
-    secureStorage: createSecureStorageStore(createInMemorySecureStorage()),
+    secureStorage: createSecureStorageStore(
+      hasWebLocalStorage()
+        ? createNamespacedWebSecureStorage(ns)
+        : createInMemorySecureStorage()
+    ),
     room: (roomArgs) => {
       net.assertReachable(id, 'server');
       return roomNode.createTransport(roomArgs);

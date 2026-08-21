@@ -70,7 +70,7 @@
     "deps:graph": "bun run tools/scripts/render-package-deps-graph.ts",
     "dev": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@sim/console",
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
-    "do": "clear && bun run format && bun run check",
+    "fc": "clear && bun run format && bun run check",
     "format": "sort-package-json \"package.json\" \"apps/*/package.json\" \"libs/*/package.json\" \"pkgs/*/package.json\" \"sim/*/package.json\" \"tools/package.json\" && bunx biome check --write . && bun run tools/scripts/remove-empty-dirs.ts",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",

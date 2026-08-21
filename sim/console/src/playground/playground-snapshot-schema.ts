@@ -10,6 +10,7 @@ export const playgroundSnapshotInfoSchema = z.object({
   createdAtMs: z.number().finite(),
   compatible: z.boolean().optional(),
   incompatibleReason: z.string().optional(),
+  totalBytes: z.number().finite().nonnegative().optional(),
 });
 
 const playgroundSnapshotManifestShared = {

@@ -224,6 +224,9 @@ export async function createAppLocalSyncEngine(
       timers: args.timers,
       createId: args.createId,
       enableMutationUpload: syncLease.isOwner,
+      // Injected openSqlClient marks sim/playground — use the short reconcile
+      // safety net so missed OOB notifies heal inside DST wait budgets.
+      ...(args.openSqlClient !== undefined ? { reconcileIntervalMs: 500 } : {}),
       ...(args.waitUntilAvailable !== undefined
         ? { waitUntilAvailable: args.waitUntilAvailable }
         : {}),

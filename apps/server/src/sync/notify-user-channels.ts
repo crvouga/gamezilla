@@ -4,11 +4,21 @@ import { notifyChannels } from '@pkgs/sync-engine/server';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { getApiPubSub } from './api-pubsub';
 
+export type NotifyUserChannelsOptions = {
+  readonly tables?: readonly string[];
+  /**
+   * When true, publish on the request timers after allocate (avoids re-entering
+   * an open Hono/pg-mem request). Prefer false for OOB paths that already
+   * finished their write txn — DST sims need the push before the next tick.
+   */
+  readonly deferPublish?: boolean;
+};
+
 /** Best-effort user-topic push after a non-replay DOMAIN write. */
 export async function notifyUserChannels(
   userIds: readonly string[],
   label: string,
-  tables?: readonly string[]
+  options: NotifyUserChannelsOptions = {}
 ): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
@@ -18,14 +28,20 @@ export async function notifyUserChannels(
   if (topics.length === 0) return;
   const pubsub = await getApiPubSub(store.secretStore);
   if (pubsub === undefined) return;
+  const tables = options.tables;
+  const deferPublish = options.deferPublish !== false;
   await notifyChannels({
     pubsub,
     sql: store.sqlClient,
     topics,
     ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
     label,
-    schedulePublish: (run) => {
-      store.timers.setTimeout(run, 0);
-    },
+    ...(deferPublish
+      ? {
+          schedulePublish: (run: () => void) => {
+            store.timers.setTimeout(run, 0);
+          },
+        }
+      : {}),
   });
 }

@@ -3,8 +3,8 @@ import {
   Button,
   Checkbox,
   IconButton,
-  ListItem,
   MutationModal,
+  Pressable,
   RotateCcwIcon,
   SaveIcon,
   SearchIcon,
@@ -21,6 +21,7 @@ import type {
 } from '../../shared/ports';
 import {
   formatSnapshotAge,
+  formatSnapshotBytes,
   formatSnapshotTitle,
 } from './playground-snapshot-format';
 import { usePlaygroundSnapshots } from './use-playground-snapshots';
@@ -35,12 +36,100 @@ const SELECT_WIDTH = 150;
 
 type SnapshotListApi = ReturnType<typeof usePlaygroundSnapshots>;
 
-function snapshotOptionLabel(
-  snap: PlaygroundSnapshotInfo,
-  nowMs: number
-): string {
-  const age = formatSnapshotAge(snap.createdAtMs, nowMs);
-  return snap.compatible ? age : `${age} · outdated`;
+function SnapshotRowMeta(props: {
+  readonly snap: PlaygroundSnapshotInfo;
+  readonly nowMs: number;
+}) {
+  const { snap, nowMs } = props;
+  return (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1,
+        flexWrap: 'wrap',
+      }}
+    >
+      <Text
+        variant="caption"
+        label={formatSnapshotAge(snap.createdAtMs, nowMs)}
+      />
+      {snap.totalBytes !== undefined ? (
+        <Text
+          variant="caption"
+          label={`· ${formatSnapshotBytes(snap.totalBytes)}`}
+        />
+      ) : null}
+      {snap.compatible ? null : (
+        <Text variant="caption" sx={{ color: 'warning' }} label="· outdated" />
+      )}
+    </Box>
+  );
+}
+
+function SnapshotOptionRow(props: {
+  readonly snap: PlaygroundSnapshotInfo;
+  readonly nowMs: number;
+  readonly selected: boolean;
+  readonly outdated: boolean;
+  readonly busy: boolean;
+  readonly checked: boolean;
+  readonly onToggleChecked: (next: boolean) => void;
+  readonly onPick: () => void;
+}) {
+  const {
+    snap,
+    nowMs,
+    selected,
+    outdated,
+    busy,
+    checked,
+    onToggleChecked,
+    onPick,
+  } = props;
+  const body = (
+    <Box
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+        gap: 0.5,
+      }}
+    >
+      <Text variant="body" label={formatSnapshotTitle(snap.createdAtMs)} />
+      <SnapshotRowMeta snap={snap} nowMs={nowMs} />
+    </Box>
+  );
+  return (
+    <Box
+      sx={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 1,
+        opacity: outdated ? 0.55 : 1,
+        ...(selected && !outdated
+          ? { backgroundColor: 'tintSubtle' as const }
+          : {}),
+      }}
+    >
+      <Checkbox checked={checked} onToggle={onToggleChecked} disabled={busy} />
+      {outdated ? (
+        body
+      ) : (
+        <Pressable sx={{ flex: 1, minWidth: 0 }} onPress={onPick}>
+          {body}
+        </Pressable>
+      )}
+      {selected && !outdated ? (
+        <Text
+          variant="label"
+          sx={{ color: 'tint', paddingRight: 2 }}
+          label="✓"
+        />
+      ) : null}
+    </Box>
+  );
 }
 
 function SnapshotSurfaceExtra(props: {
@@ -138,7 +227,7 @@ function SnapshotSelect(props: {
         size="sm"
         options={sortedSnaps.map((s) => ({
           value: s.id,
-          label: snapshotOptionLabel(s, nowMs),
+          label: formatSnapshotAge(s.createdAtMs, nowMs),
           disabled: !s.compatible,
         }))}
         value={selectValue}
@@ -167,32 +256,16 @@ function SnapshotSelect(props: {
           if (snap === undefined) return null;
           const outdated = !snap.compatible;
           return (
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 1,
-                opacity: outdated ? 0.4 : 1,
-              }}
-            >
-              <Checkbox
-                checked={checkedIds.has(snap.id)}
-                onToggle={(next) => onToggleChecked(snap.id, next)}
-                disabled={list.busy}
-              />
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <ListItem
-                  title={formatSnapshotTitle(snap.createdAtMs)}
-                  subtitle={snapshotOptionLabel(snap, nowMs)}
-                  trailing={
-                    selected && !outdated ? (
-                      <Text sx={{ color: 'tint', fontSize: 16 }} label="✓" />
-                    ) : undefined
-                  }
-                  {...(outdated ? {} : { onPress: onPick })}
-                />
-              </Box>
-            </Box>
+            <SnapshotOptionRow
+              snap={snap}
+              nowMs={nowMs}
+              selected={selected}
+              outdated={outdated}
+              busy={list.busy}
+              checked={checkedIds.has(snap.id)}
+              onToggleChecked={(next) => onToggleChecked(snap.id, next)}
+              onPick={onPick}
+            />
           );
         }}
       />
@@ -265,7 +338,8 @@ function SnapshotChromeActions(props: {
       </IconButton>
       {list.error !== null ? (
         <Text
-          sx={{ color: 'danger', fontSize: 11, maxWidth: 220 }}
+          variant="caption"
+          sx={{ color: 'danger', maxWidth: 220 }}
           numberOfLines={2}
           label={list.error}
         />

@@ -45,9 +45,26 @@ async function putJson(
   store: ObjectStore,
   key: string,
   value: unknown
-): Promise<void> {
-  const text = JSON.stringify(value);
-  await store.put(key, new TextEncoder().encode(text), 'application/json');
+): Promise<number> {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  await store.put(key, bytes, 'application/json');
+  return bytes.byteLength;
+}
+
+/** Sum `StoredObject.size` for every key under `snapshots/{id}/`. */
+export async function measureSnapshotTreeBytes(
+  store: ObjectStore,
+  id: string
+): Promise<number> {
+  const keys = await store.listKeys(`snapshots/${id}/`);
+  let total = 0;
+  for (const key of keys) {
+    const obj = await store.get(key);
+    if (obj === null) continue;
+    total += obj.size;
+    await obj.body.cancel().catch(() => undefined);
+  }
+  return total;
 }
 
 async function readText(
@@ -125,13 +142,16 @@ export function snapshotCompatibility(manifest: {
   return { compatible: true };
 }
 
-export function toSnapshotInfo(manifest: {
-  readonly version: 1 | 2;
-  readonly localSchemaVersion?: number;
-  readonly id: string;
-  readonly label: string;
-  readonly createdAtMs: number;
-}): PlaygroundSnapshotInfo {
+export function toSnapshotInfo(
+  manifest: {
+    readonly version: 1 | 2;
+    readonly localSchemaVersion?: number;
+    readonly id: string;
+    readonly label: string;
+    readonly createdAtMs: number;
+  },
+  totalBytes?: number
+): PlaygroundSnapshotInfo {
   const compat = snapshotCompatibility(manifest);
   return {
     id: manifest.id,
@@ -141,6 +161,7 @@ export function toSnapshotInfo(manifest: {
     ...(compat.incompatibleReason !== undefined
       ? { incompatibleReason: compat.incompatibleReason }
       : {}),
+    ...(totalBytes !== undefined ? { totalBytes } : {}),
   };
 }
 
@@ -156,14 +177,17 @@ async function readIndex(store: ObjectStore): Promise<PlaygroundSnapshotIndex> {
 
 async function infoFromManifest(
   store: ObjectStore,
-  id: string
+  id: string,
+  knownTotalBytes?: number
 ): Promise<PlaygroundSnapshotInfo | null> {
   const text = await readText(store, `snapshots/${id}/manifest.json`);
   if (text === null) return null;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null || manifest.id !== id) return null;
   if (!(await isStructurallyValidSnapshot(store, { id }))) return null;
-  return toSnapshotInfo(manifest);
+  const totalBytes =
+    knownTotalBytes ?? (await measureSnapshotTreeBytes(store, id));
+  return toSnapshotInfo(manifest, totalBytes);
 }
 
 async function discoverSnapshotIds(store: ObjectStore): Promise<string[]> {
@@ -180,11 +204,13 @@ function indexEntryShape(info: PlaygroundSnapshotInfo): {
   id: string;
   label: string;
   createdAtMs: number;
+  totalBytes?: number;
 } {
   return {
     id: info.id,
     label: info.label,
     createdAtMs: info.createdAtMs,
+    ...(info.totalBytes !== undefined ? { totalBytes: info.totalBytes } : {}),
   };
 }
 
@@ -210,12 +236,13 @@ export async function pruneInvalidPlaygroundSnapshots(
       await deleteSnapshotTree(store, raw.id);
       continue;
     }
-    const recovered = await infoFromManifest(store, raw.id);
+    const recovered = await infoFromManifest(store, raw.id, raw.totalBytes);
     if (recovered === null) {
       changed = true;
       await deleteSnapshotTree(store, raw.id);
       continue;
     }
+    if (raw.totalBytes !== recovered.totalBytes) changed = true;
     byId.set(recovered.id, recovered);
   }
 

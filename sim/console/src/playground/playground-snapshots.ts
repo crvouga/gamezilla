@@ -38,6 +38,9 @@ export type SnapshotSessionCtx = CheckpointSessionCtx & {
   readonly store: ObjectStore;
 };
 
+/** Fixed ObjectStore id overwritten by playground sticky auto-save. */
+export const PLAYGROUND_STICKY_SNAPSHOT_ID = 'latest';
+
 const MANIFEST_VERSION = 2 as const;
 
 function slugLabel(label: string | undefined, now: number): string {
@@ -100,72 +103,129 @@ export async function purgeIncompatiblePlaygroundSnapshotsFromStore(
   return purgeIncompatiblePlaygroundSnapshots(store);
 }
 
+async function writePlaygroundSnapshot(
+  ctx: SnapshotSessionCtx,
+  args: {
+    readonly id: string;
+    readonly label: string;
+    readonly createdAtMs: number;
+  }
+): Promise<PlaygroundSnapshotInfo> {
+  const checkpoint = await captureCheckpoint(ctx, args.label);
+  await deleteSnapshotTree(ctx.store, args.id);
+  const prefix = `snapshots/${args.id}/`;
+  const { keys, blobBytes } = await putCheckpointBlobs(
+    ctx.store,
+    prefix,
+    checkpoint
+  );
+  const manifest = manifestFromCheckpoint({
+    id: args.id,
+    label: args.label,
+    createdAtMs: args.createdAtMs,
+    checkpoint,
+    keys,
+  });
+  const manifestBytes = await putJson(
+    ctx.store,
+    `${prefix}manifest.json`,
+    manifest
+  );
+  const totalBytes = blobBytes + manifestBytes;
+  const info = toSnapshotInfo(manifest, totalBytes);
+  const index = await readIndex(ctx.store);
+  await putJson(ctx.store, INDEX_KEY, {
+    snapshots: [
+      {
+        id: info.id,
+        label: info.label,
+        createdAtMs: info.createdAtMs,
+        totalBytes,
+      },
+      ...index.snapshots.filter((s) => s.id !== args.id),
+    ],
+  });
+  return info;
+}
+
 export async function savePlaygroundSnapshot(
   ctx: SnapshotSessionCtx,
   label?: string
 ): Promise<PlaygroundSnapshotInfo> {
   const now = ctx.clock.now();
   const displayLabel = label?.trim() || defaultSnapshotLabel(now);
-  const checkpoint = await captureCheckpoint(ctx, displayLabel);
-  const id = slugLabel(label, now);
-  const prefix = `snapshots/${id}/`;
-  const keys = await putCheckpointBlobs(ctx.store, prefix, checkpoint);
-  const manifest = manifestFromCheckpoint({
-    id,
+  return writePlaygroundSnapshot(ctx, {
+    id: slugLabel(label, now),
     label: displayLabel,
     createdAtMs: now,
-    checkpoint,
-    keys,
   });
-  await putJson(ctx.store, `${prefix}manifest.json`, manifest);
-  const info = toSnapshotInfo(manifest);
-  const index = await readIndex(ctx.store);
-  await putJson(ctx.store, INDEX_KEY, {
-    snapshots: [
-      { id: info.id, label: info.label, createdAtMs: info.createdAtMs },
-      ...index.snapshots.filter((s) => s.id !== id),
-    ],
+}
+
+/** Upsert the sticky `latest` snapshot used for refresh auto-restore. */
+export async function savePlaygroundStickySnapshot(
+  ctx: SnapshotSessionCtx
+): Promise<PlaygroundSnapshotInfo> {
+  const now = ctx.clock.now();
+  return writePlaygroundSnapshot(ctx, {
+    id: PLAYGROUND_STICKY_SNAPSHOT_ID,
+    label: 'Latest (auto)',
+    createdAtMs: now,
   });
-  return info;
 }
 
 async function putCheckpointBlobs(
   store: ObjectStore,
   prefix: string,
   checkpoint: SimCheckpoint
-): Promise<{ serverSql: string; clientSql: Record<string, string> }> {
+): Promise<{
+  readonly keys: { serverSql: string; clientSql: Record<string, string> };
+  readonly blobBytes: number;
+}> {
+  let blobBytes = 0;
   const serverSql = `${prefix}sql/server.bin`;
   await store.put(serverSql, checkpoint.serverSql, 'application/json');
+  blobBytes += checkpoint.serverSql.byteLength;
   const clientSql: Record<string, string> = {};
   for (const clientId of checkpoint.clientIds) {
     const bytes = checkpoint.clientSql[clientId];
     if (bytes === undefined) continue;
     const key = `${prefix}sql/client_${clientId}.bin`;
     await store.put(key, bytes, 'application/json');
+    blobBytes += bytes.byteLength;
     clientSql[clientId] = key;
   }
-  await putKvAndRooms(store, prefix, checkpoint);
-  return { serverSql, clientSql };
+  blobBytes += await putKvAndRooms(store, prefix, checkpoint);
+  return { keys: { serverSql, clientSql }, blobBytes };
 }
 
 async function putKvAndRooms(
   store: ObjectStore,
   prefix: string,
   checkpoint: SimCheckpoint
-): Promise<void> {
+): Promise<number> {
+  let blobBytes = 0;
   for (const clientId of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[clientId];
     if (kv === undefined) continue;
-    await putJson(store, `${prefix}kv/client_${clientId}.json`, kv);
+    blobBytes += await putJson(
+      store,
+      `${prefix}kv/client_${clientId}.json`,
+      kv
+    );
   }
   for (const topic of checkpoint.roomTopics) {
     const room = checkpoint.rooms[topic];
     if (room === undefined) continue;
-    await putJson(store, `${prefix}rooms/${encodeURIComponent(topic)}.json`, {
-      entries: room.entries,
-      dedup: room.dedup,
-    });
+    blobBytes += await putJson(
+      store,
+      `${prefix}rooms/${encodeURIComponent(topic)}.json`,
+      {
+        entries: room.entries,
+        dedup: room.dedup,
+      }
+    );
   }
+  return blobBytes;
 }
 
 function manifestFromCheckpoint(args: {

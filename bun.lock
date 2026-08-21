@@ -1343,6 +1343,8 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/keyword": "workspace:*",
+        "@pkgs/kv": "workspace:*",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
         "@typescript/native": "catalog:",

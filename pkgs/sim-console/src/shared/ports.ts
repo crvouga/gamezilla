@@ -103,6 +103,8 @@ export type PlaygroundSnapshotInfo = {
   readonly createdAtMs: number;
   readonly compatible: boolean;
   readonly incompatibleReason?: string;
+  /** Total ObjectStore bytes under `snapshots/{id}/` (SQL + KV + rooms + manifest). */
+  readonly totalBytes?: number;
 };
 
 export type PlaygroundSnapshotManifest = {

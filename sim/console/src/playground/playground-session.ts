@@ -18,6 +18,7 @@ import {
   captureCheckpoint,
   restoreCheckpoint,
 } from '@sim/console/playground/playground-checkpoint';
+import { clearPlaygroundClientDurable } from '@sim/console/playground/playground-checkpoint-durable';
 import { createPlaygroundChessCommands } from '@sim/console/playground/playground-chess-seed';
 import { buildSnapshotLoadCommands } from '@sim/console/playground/playground-fault-commands';
 import { loggingFetch } from '@sim/console/playground/playground-logging-fetch';
@@ -35,11 +36,14 @@ import {
   wipeSession,
 } from '@sim/console/playground/playground-session-teardown';
 import {
+  deletePlaygroundSnapshot,
   listPlaygroundSnapshots,
   loadPlaygroundSnapshot,
+  PLAYGROUND_STICKY_SNAPSHOT_ID,
   type SnapshotSessionCtx,
 } from '@sim/console/playground/playground-snapshots';
-import type { Sim } from '@sim/console/sim/create-sim';
+import { installPlaygroundStickyAutosave } from '@sim/console/playground/playground-sticky-autosave';
+import { type Sim, simClientNamespace } from '@sim/console/sim/create-sim';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
@@ -205,8 +209,23 @@ type SessionApiAttachArgs = {
   readonly setSnapshotLoads: (cmds: PlaygroundPaletteCommand[]) => void;
   readonly markDisposed: () => void;
   readonly unsubRooms: () => void;
+  readonly stopAutosave: () => void;
   readonly disposed: () => boolean;
 };
+
+function clearLiveClientDurables(clientIds: Iterable<string>): void {
+  for (const id of clientIds) {
+    clearPlaygroundClientDurable(simClientNamespace(id));
+  }
+}
+
+async function deleteStickySnapshot(store: ObjectStore): Promise<void> {
+  try {
+    await deletePlaygroundSnapshot(store, PLAYGROUND_STICKY_SNAPSHOT_ID);
+  } catch {
+    // Missing or store down — wipe still proceeds.
+  }
+}
 
 function attachSessionApi(api: SessionApiAttachArgs): PlaygroundSession {
   const { args: buildArgs, maps, commands, server, disposed } = api;
@@ -255,10 +274,15 @@ function attachSessionApi(api: SessionApiAttachArgs): PlaygroundSession {
     exportSqlBytes: () => exportPlaygroundSqlBytes(buildArgs.sim, maps),
     async wipe() {
       if (disposed()) return;
+      api.stopAutosave();
+      const clientIds = [...maps.clients.keys()];
+      clearLiveClientDurables(clientIds);
+      await deleteStickySnapshot(buildArgs.snapshotStore);
       await wipeSession(buildArgs, maps, api.markDisposed);
     },
     async dispose() {
       if (disposed()) return;
+      api.stopAutosave();
       await disposeSession(buildArgs, maps, api.unsubRooms, api.markDisposed);
     },
     ...snapshotSessionMethods({
@@ -331,7 +355,9 @@ export async function buildPlaygroundSession(
   const commands = createPlaygroundChessCommands();
   let snapshotLoadCommands: PlaygroundPaletteCommand[] = [];
   const sessionRef: { current: PlaygroundSession | null } = { current: null };
+  let stopAutosave = (): void => {};
 
+  const snapshotCtx = makeSnapshotCtx(args, maps);
   const session = attachSessionApi({
     args,
     maps,
@@ -343,18 +369,27 @@ export async function buildPlaygroundSession(
       logs: args.serverLogs,
     },
     sessionRef,
-    snapshotCtx: makeSnapshotCtx(args, maps),
+    snapshotCtx,
     getSnapshotLoads: () => snapshotLoadCommands,
     setSnapshotLoads: (cmds) => {
       snapshotLoadCommands = cmds;
     },
     markDisposed,
     unsubRooms,
+    stopAutosave: () => {
+      stopAutosave();
+    },
     disposed: () => disposed,
   });
   sessionRef.current = session;
   await bootClients(args, maps, session, (cmds) => {
     snapshotLoadCommands = cmds;
+  });
+  stopAutosave = installPlaygroundStickyAutosave({
+    session,
+    timers: args.sim.server.timers,
+    snapshotCtx,
+    disposed: () => disposed,
   });
   return session;
 }

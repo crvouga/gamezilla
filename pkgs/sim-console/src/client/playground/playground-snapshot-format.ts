@@ -21,3 +21,12 @@ export function formatSnapshotAge(createdAtMs: number, nowMs: number): string {
   const days = Math.floor(hr / 24);
   return `${String(days)}d ago`;
 }
+
+/** Human-readable ObjectStore byte size (B / KiB / MiB / GiB). */
+export function formatSnapshotBytes(n: number): string {
+  if (!(n >= 0) || !Number.isFinite(n)) return '0 B';
+  if (n < 1024) return `${String(Math.round(n))} B`;
+  if (n < 1024 ** 2) return `${(n / 1024).toFixed(1)} KiB`;
+  if (n < 1024 ** 3) return `${(n / 1024 ** 2).toFixed(1)} MiB`;
+  return `${(n / 1024 ** 3).toFixed(2)} GiB`;
+}

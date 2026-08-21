@@ -30,7 +30,7 @@
     "prestart": "bun run --filter @pkgs/sql-client build:web-workers",
     "start": "expo start --web",
     "tc": "tsc --noEmit -p tsconfig.json",
-    "test": "bun test src/console-nav",
+    "test": "bun test src/console-nav src/playground/playground-snapshot-prune.test.ts",
     "preweb": "bun run --filter @pkgs/sql-client build:web-workers",
     "web": "expo start --web"
   },
