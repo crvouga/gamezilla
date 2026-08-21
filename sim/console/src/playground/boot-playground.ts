@@ -52,9 +52,7 @@ export async function bootPlaygroundSession(
     serverLogs: createPlaygroundLogBuffer(),
     pubsubLogs: createPlaygroundLogBuffer(),
     roomLogs: createPlaygroundLogBuffer(),
-    snapshotStore: createPlaygroundSnapshotStore(wallTimers, {
-      fetch: (input, init) => globalThis.fetch(input, init),
-    }),
+    snapshotStore: createPlaygroundSnapshotStore(),
     disposeTick: clock.disposeTick,
     getClockPaused: clock.getClockPaused,
     setClockPaused: clock.setClockPaused,

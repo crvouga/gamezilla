@@ -70,5 +70,6 @@ module.exports = {
   // Pin under the package (not OS /tmp) so CI can persist it and so macOS
   // tmp purge mid-run cannot ENOENT write-file-atomic renames.
   cacheDirectory: path.join(__dirname, '.cache/jest'),
+  globalSetup: '<rootDir>/jest.global-setup.cjs',
   forceExit: true,
 };

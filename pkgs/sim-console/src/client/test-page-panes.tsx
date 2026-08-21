@@ -1,31 +1,17 @@
-import {
-  Box,
-  EmptyState,
-  ErrorState,
-  KeyboardShortcutScope,
-  LoadingState,
-  Text,
-} from '@pkgs/ui';
+import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
-import { useCallback, useState, useSyncExternalStore } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
-import type { PlaygroundSession, SimConsolePorts } from '../shared/ports';
 import type { ReportApiClient } from './api-client';
 import { DebuggerColumn, DebuggerColumns } from './debugger/debugger-columns';
 import { EventsPane } from './events-pane';
 import type { FlatFrame } from './frames';
+import { resolveFrameForNode } from './frames';
+import { HtmlPane } from './html-pane';
 import type { TopologyNodeInfo } from './node-views';
-import {
-  ClientPlaygroundPanel,
-  ServerPlaygroundPanel,
-} from './playground/playground-panel';
 import { SqlitePane } from './sqlite-pane';
 import { emptySx, paneSx } from './tokens';
-import type { ReportReplay } from './use-report-replay';
 
 export function ReportKindPane(props: {
-  readonly ports: SimConsolePorts;
-  readonly replay: ReportReplay;
   readonly kind: 'client' | 'server' | 'events' | 'room';
   readonly view: DebuggerViewId;
   readonly instances: readonly TopologyNodeInfo[];
@@ -36,6 +22,8 @@ export function ReportKindPane(props: {
   readonly runId: string;
   readonly testId: string;
   readonly frame: FlatFrame | null;
+  readonly frames: readonly FlatFrame[];
+  readonly selectedIdx: number;
 }): ReactNode {
   if (props.kind === 'client') {
     return <ReportClientPane {...props} />;
@@ -52,9 +40,6 @@ export function ReportKindPane(props: {
       />
     );
   }
-  if (props.kind === 'server' && props.view === 'db') {
-    return <ReportApiDbPane {...props} />;
-  }
   return (
     <SqlitePane
       bucketId={props.bucketId}
@@ -67,175 +52,94 @@ export function ReportKindPane(props: {
 }
 
 function ReportClientPane(props: {
-  readonly ports: SimConsolePorts;
-  readonly replay: ReportReplay;
   readonly view: DebuggerViewId;
   readonly instances: readonly TopologyNodeInfo[];
+  readonly selected: TopologyNodeInfo | null;
   readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
   readonly testId: string;
-  readonly frame: FlatFrame | null;
+  readonly frames: readonly FlatFrame[];
+  readonly selectedIdx: number;
 }): ReactNode {
   if (props.view === 'events') {
     return (
       <DebuggerColumns>
-        {props.instances.map((node) => (
+        {props.instances.map((node) => {
+          const nodeFrame = resolveFrameForNode(
+            props.frames,
+            props.selectedIdx,
+            node.id
+          );
+          return (
+            <DebuggerColumn key={node.id}>
+              <EventsPane
+                api={props.api}
+                bucketId={props.bucketId}
+                runId={props.runId}
+                testId={props.testId}
+                frame={nodeFrame}
+                nodeId={node.id}
+              />
+            </DebuggerColumn>
+          );
+        })}
+      </DebuggerColumns>
+    );
+  }
+  if (props.view === 'db') {
+    return (
+      <DebuggerColumns>
+        {props.instances.map((node) => {
+          const nodeFrame = resolveFrameForNode(
+            props.frames,
+            props.selectedIdx,
+            node.id
+          );
+          return (
+            <DebuggerColumn key={node.id}>
+              <SqlitePane
+                bucketId={props.bucketId}
+                runId={props.runId}
+                testId={props.testId}
+                frame={nodeFrame}
+                nodeId={node.id}
+              />
+            </DebuggerColumn>
+          );
+        })}
+      </DebuggerColumns>
+    );
+  }
+  if (props.instances.length === 0) {
+    return (
+      <Box sx={paneSx}>
+        <Text sx={emptySx}>No client nodes for this frame.</Text>
+      </Box>
+    );
+  }
+  return (
+    <DebuggerColumns>
+      {props.instances.map((node) => {
+        const nodeFrame = resolveFrameForNode(
+          props.frames,
+          props.selectedIdx,
+          node.id
+        );
+        return (
           <DebuggerColumn key={node.id}>
-            <EventsPane
+            <HtmlPane
               api={props.api}
               bucketId={props.bucketId}
               runId={props.runId}
               testId={props.testId}
-              frame={props.frame}
+              frame={nodeFrame}
               nodeId={node.id}
+              node={node}
             />
-          </DebuggerColumn>
-        ))}
-      </DebuggerColumns>
-    );
-  }
-  const gate = replayGate(props.replay, true);
-  if (gate !== null) return gate;
-  const session = props.replay.session;
-  if (session == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Replay session is not ready.</Text>
-      </Box>
-    );
-  }
-  return (
-    <LiveClientColumns
-      ports={props.ports}
-      session={session}
-      view={props.view}
-    />
-  );
-}
-
-function ReportApiDbPane(props: {
-  readonly replay: ReportReplay;
-  readonly bucketId: string;
-  readonly runId: string;
-  readonly testId: string;
-  readonly frame: FlatFrame | null;
-  readonly nodeId: string | null;
-}): ReactNode {
-  const gate = replayGate(props.replay, false);
-  if (gate !== null) return gate;
-  const session = props.replay.session;
-  if (session == null) {
-    return (
-      <SqlitePane
-        bucketId={props.bucketId}
-        runId={props.runId}
-        testId={props.testId}
-        frame={props.frame}
-        nodeId={props.nodeId}
-      />
-    );
-  }
-  return (
-    <ServerPlaygroundPanel session={session} node={session.server} view="db" />
-  );
-}
-
-function LiveClientColumns(props: {
-  readonly ports: SimConsolePorts;
-  readonly session: PlaygroundSession;
-  readonly view: string;
-}): ReactNode {
-  const session = props.session;
-  const [focusedClientId, setFocusedClientId] = useState<string | null>(null);
-  const clearFocus = useCallback(() => {
-    setFocusedClientId(null);
-  }, []);
-  const tick = useSyncExternalStore(
-    session.subscribe,
-    () => session.revision,
-    () => session.revision
-  );
-  void tick;
-  const clients = [...session.clients.values()];
-  if (clients.length === 0) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>No clients in this checkpoint.</Text>
-      </Box>
-    );
-  }
-  return (
-    <DebuggerColumns
-      {...(focusedClientId !== null
-        ? { onOutsidePointerDown: clearFocus }
-        : {})}
-    >
-      {clients.map((actor) => {
-        const focused = focusedClientId === actor.id;
-        return (
-          <DebuggerColumn
-            key={actor.id}
-            focused={focused}
-            onActivate={() => setFocusedClientId(actor.id)}
-          >
-            <KeyboardShortcutScope active={focused}>
-              <ClientPlaygroundPanel
-                actor={actor}
-                snapshotEpoch={props.session.snapshotEpoch}
-                reloadToken={props.session.revision}
-                view={props.view}
-              />
-            </KeyboardShortcutScope>
           </DebuggerColumn>
         );
       })}
     </DebuggerColumns>
   );
 }
-
-function replayGate(
-  replay: ReportReplay,
-  requireReady: boolean
-): ReactNode | null {
-  if (replay.status === 'booting' || replay.status === 'hydrating') {
-    return (
-      <Box sx={paneSx}>
-        <LoadingState caption="Hydrating checkpoint…" />
-      </Box>
-    );
-  }
-  if (replay.status === 'error') {
-    return (
-      <Box sx={paneSx}>
-        <ErrorState title="Failed to hydrate frame" body={replay.error ?? ''} />
-      </Box>
-    );
-  }
-  if (replay.status === 'unrestorable') {
-    return (
-      <Box sx={centerSx}>
-        <EmptyState
-          variant="compact"
-          title="Cannot hydrate this frame"
-          body="Postgres / empty sqlite dumps cannot restore into the live playground."
-        />
-      </Box>
-    );
-  }
-  if (requireReady && replay.session == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Replay session is not ready.</Text>
-      </Box>
-    );
-  }
-  return null;
-}
-
-const centerSx = {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 4,
-} as const;

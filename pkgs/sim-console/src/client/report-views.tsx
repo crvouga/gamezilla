@@ -1,12 +1,10 @@
 import { Box, ScrollView, Text } from '@pkgs/ui';
 import { useEffect } from 'react';
-import type { SimConsolePorts } from '../shared/ports';
-import { isLatestRunId } from '../types';
+import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';
 import type { DebuggerChromeNav } from './debugger-chrome';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
-import { RunsPage } from './runs-page';
 import { SuitePage } from './suite-page';
 import { TestPage } from './test-page';
 import {
@@ -26,49 +24,47 @@ export function ReportViews(props: {
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SimConsolePorts;
 }) {
-  const { nav, data, generation, onNav, api, chrome, ports } = props;
+  const { nav, data, onNav, api, chrome } = props;
   const concreteRunId = data.resolvedRunId;
 
   useEffect(() => {
     if (nav.bucketId) return;
     if (!data.buckets.some((b) => b.id === LOCAL_BUCKET)) return;
     onNav(
-      navigateReport(nav, clearPlayerNav({ bucketId: LOCAL_BUCKET }), 'replace')
+      navigateReport(
+        nav,
+        clearPlayerNav({ bucketId: LOCAL_BUCKET, runId: LATEST_RUN_ID }),
+        'replace'
+      )
     );
   }, [data.buckets, nav, onNav]);
 
-  if (!nav.bucketId) {
+  useEffect(() => {
+    if (!nav.bucketId || nav.runId) return;
+    onNav(
+      navigateReport(nav, clearPlayerNav({ runId: LATEST_RUN_ID }), 'replace')
+    );
+  }, [nav, onNav]);
+
+  if (!nav.bucketId || !nav.runId) {
     return (
       <Box sx={appShellSx}>
         <Box sx={appBodyFrameSx}>
           <Text sx={emptySx}>
             {data.buckets.length === 0
               ? 'Waiting for report bucket…'
-              : 'Opening local bucket…'}
+              : 'Opening latest reports…'}
           </Text>
         </Box>
       </Box>
     );
   }
 
-  if (!nav.runId) {
-    return (
-      <RunsListView
-        nav={nav}
-        data={data}
-        generation={generation}
-        onNav={onNav}
-        api={api}
-      />
-    );
-  }
-
   const runLabel = isLatestRunId(nav.runId)
     ? concreteRunId
       ? `latest → ${concreteRunId}`
-      : 'latest (waiting…)'
+      : 'latest'
     : nav.runId;
 
   if (nav.testId) {
@@ -80,8 +76,20 @@ export function ReportViews(props: {
         onNav={onNav}
         api={api}
         chrome={chrome}
-        ports={ports}
       />
+    );
+  }
+
+  if (data.runs.length === 0 && data.tests.length === 0) {
+    return (
+      <Box sx={appShellSx}>
+        <Box sx={appBodyFrameSx}>
+          <Text sx={emptySx}>
+            No report dump yet. Run `@sim/test` to write the latest results into
+            `sim/console/public/reports`.
+          </Text>
+        </Box>
+      </Box>
     );
   }
 
@@ -97,29 +105,6 @@ export function ReportViews(props: {
   );
 }
 
-function RunsListView(props: {
-  readonly nav: ReportNavState;
-  readonly data: ReportDataApi;
-  readonly generation: number;
-  readonly onNav: (nav: ReportNavState) => void;
-  readonly api: ReportApiClient;
-}) {
-  const { nav, data, generation, onNav, api } = props;
-  return (
-    <RunsPage
-      bucketId={nav.bucketId!}
-      runs={data.runs}
-      generation={generation}
-      onOpenRun={(runId) => {
-        onNav(navigateReport(nav, clearPlayerNav({ runId })));
-      }}
-      onDeleteRun={async (runId) => {
-        await api.deleteRunApi(nav.bucketId!, runId);
-      }}
-    />
-  );
-}
-
 function TestOrLoading(props: {
   readonly nav: ReportNavState;
   readonly data: ReportDataApi;
@@ -127,17 +112,16 @@ function TestOrLoading(props: {
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SimConsolePorts;
 }) {
-  const { nav, data, concreteRunId, onNav, api, chrome, ports } = props;
+  const { nav, data, concreteRunId, onNav, api, chrome } = props;
   const bodySx = useAppBodyContentSx();
   if (!concreteRunId) {
     return (
       <Box sx={appShellSx}>
         <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
           <Text sx={emptySx}>
-            {isLatestRunId(nav.runId)
-              ? 'Waiting for the latest run…'
+            {data.runs.length === 0
+              ? 'No report dump yet. Run `@sim/test` to generate reports.'
               : data.error
                 ? `Failed to resolve run: ${data.error}`
                 : 'Loading run…'}
@@ -162,13 +146,13 @@ function TestOrLoading(props: {
   return (
     <TestPage
       data={data.testData}
+      tests={data.tests}
       nav={nav}
       bucketId={nav.bucketId!}
       runId={concreteRunId}
       onNav={onNav}
       api={api}
       chrome={chrome}
-      ports={ports}
     />
   );
 }

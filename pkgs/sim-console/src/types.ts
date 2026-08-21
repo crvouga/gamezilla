@@ -20,9 +20,9 @@ export type SimulationStepKind =
 export type SimulationFrameDatabase = {
   /** Sim address (`server`, `client:alice`). */
   readonly nodeId: string;
-  /** Path relative to the test report dir, e.g. `frames/db/<sha>.sqlite.gz`. */
+  /** Path relative to the test report dir, e.g. `frames/db/<sha>.sqlm`. */
   readonly file: string;
-  /** SHA-256 of the uncompressed SQLite bytes. */
+  /** SHA-256 of the SQLM / SQLite bytes. */
   readonly sha256: string;
   /** Uncompressed byte length. */
   readonly byteLength: number;
@@ -76,7 +76,7 @@ export type SimulationFrame = {
   readonly views?: readonly SimulationFrameView[];
   /** Topology-aware attribute bags (preferred over views/databases). */
   readonly attributes?: readonly SimulationFrameAttribute[];
-  /** Per-frame World checkpoint metadata (hydrate path for the player). */
+  /** Optional per-frame World checkpoint metadata (legacy hydrate path). */
   readonly checkpoint?: SimulationFrameCheckpoint;
 };
 

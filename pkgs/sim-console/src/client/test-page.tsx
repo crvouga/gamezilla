@@ -1,4 +1,11 @@
-import { Box } from '@pkgs/ui';
+import {
+  BackIconButton,
+  Box,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  IconButton,
+  Text,
+} from '@pkgs/ui';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -12,9 +19,12 @@ import {
   type DebuggerViewId,
   viewsForKind,
 } from '../shared/debugger-views';
-import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';
-import type { SimulationReportData, SimulationReportTopology } from '../types';
+import type {
+  SimulationReportData,
+  SimulationReportTopology,
+  SuiteTestSummary,
+} from '../types';
 import type { ReportApiClient } from './api-client';
 import { DebuggerShell } from './debugger/debugger-shell';
 import type { DebuggerChromeNav } from './debugger-chrome';
@@ -30,22 +40,22 @@ import {
 } from './node-views';
 import { ReportHeader } from './report-header';
 import type { ReportNavState } from './router';
-import { navigateReport } from './router';
+import { clearPlayerNav, navigateReport } from './router';
+import { resolveTestNeighbor, type TestNeighbor } from './test-neighbors';
 import { ReportKindPane } from './test-page-panes';
 import { appShellSx } from './tokens';
-import { useReportReplay } from './use-report-replay';
 
 export function TestPage(props: {
   readonly data: SimulationReportData;
+  readonly tests: readonly SuiteTestSummary[];
   readonly nav: ReportNavState;
   readonly bucketId: string;
   readonly runId: string;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly chrome: DebuggerChromeNav;
-  readonly ports: SimConsolePorts;
 }) {
-  const { data, nav, bucketId, runId, onNav, api, chrome, ports } = props;
+  const { data, tests, nav, bucketId, runId, onNav, api, chrome } = props;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
   const selectedIdx =
     resolveSelectedFrameIndex(frames, data.steps, nav) ??
@@ -70,14 +80,6 @@ export function TestPage(props: {
     hasTopics: false,
   });
   const view = coerceDebuggerView(chrome.kind, chrome.view);
-  const replay = useReportReplay({
-    ports,
-    frame,
-    api,
-    bucketId,
-    runId,
-    testId: data.meta.testId,
-  });
 
   useDefaultNav({
     framesLen: frames.length,
@@ -99,14 +101,13 @@ export function TestPage(props: {
         instances={instances}
         selected={selected}
         nodes={nodes}
+        tests={tests}
         chrome={chrome}
         onNav={onNav}
         api={api}
         bucketId={bucketId}
         runId={runId}
         frame={frame}
-        ports={ports}
-        replay={replay}
       />
     </Box>
   );
@@ -122,14 +123,13 @@ type ReportDebuggerShellProps = {
   readonly instances: readonly TopologyNodeInfo[];
   readonly selected: TopologyNodeInfo | null;
   readonly nodes: readonly TopologyNodeInfo[];
+  readonly tests: readonly SuiteTestSummary[];
   readonly chrome: DebuggerChromeNav;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
   readonly frame: ReturnType<typeof flattenFrames>[number] | null;
-  readonly ports: SimConsolePorts;
-  readonly replay: ReturnType<typeof useReportReplay>;
 };
 
 function ReportDebuggerShell(props: ReportDebuggerShellProps) {
@@ -167,8 +167,6 @@ function ReportDebuggerShell(props: ReportDebuggerShellProps) {
       }}
     >
       <ReportKindPane
-        ports={props.ports}
-        replay={props.replay}
         kind={chrome.kind}
         view={view}
         instances={props.instances}
@@ -184,18 +182,95 @@ function ReportDebuggerShell(props: ReportDebuggerShellProps) {
         runId={props.runId}
         testId={props.data.meta.testId}
         frame={props.frame}
+        frames={props.frames}
+        selectedIdx={props.selectedIdx}
       />
     </DebuggerShell>
   );
 }
 
 function ReportTestHeader(props: ReportDebuggerShellProps) {
+  const { nav, onNav, tests, data, frames } = props;
+  const neighbor = resolveTestNeighbor(tests, data.meta.testId);
   return (
     <ReportHeader
-      meta={`${props.data.meta.status} · ${props.frames.length} frames · seed ${props.data.meta.seed}`}
+      leading={
+        <BackIconButton
+          size={36}
+          onPress={() => onNav(navigateReport(nav, clearPlayerNav()))}
+        />
+      }
+      title={
+        <Text
+          variant="navigationTitle"
+          numberOfLines={1}
+          sx={testTitleSx}
+          label={data.meta.testId}
+        />
+      }
+      meta={`${data.meta.status} · ${frames.length} frames · seed ${data.meta.seed}`}
+      end={
+        <TestNeighborButtons
+          neighbor={neighbor}
+          onPrev={() => goToNeighborTest({ nav, onNav, testId: neighbor.prev })}
+          onNext={() => goToNeighborTest({ nav, onNav, testId: neighbor.next })}
+        />
+      }
     />
   );
 }
+
+function TestNeighborButtons(props: {
+  readonly neighbor: TestNeighbor;
+  readonly onPrev: () => void;
+  readonly onNext: () => void;
+}) {
+  return (
+    <>
+      <IconButton
+        label="Previous test"
+        size={36}
+        disabled={props.neighbor.prev == null}
+        onPress={props.onPrev}
+        background="surface"
+      >
+        <ChevronLeftIcon size={18} />
+      </IconButton>
+      <IconButton
+        label="Next test"
+        size={36}
+        disabled={props.neighbor.next == null}
+        onPress={props.onNext}
+        background="surface"
+      >
+        <ChevronRightIcon size={18} />
+      </IconButton>
+    </>
+  );
+}
+
+function goToNeighborTest(args: {
+  readonly nav: ReportNavState;
+  readonly onNav: (nav: ReportNavState) => void;
+  readonly testId: string | null;
+}): void {
+  if (args.testId == null) return;
+  args.onNav(
+    navigateReport(
+      args.nav,
+      clearPlayerNav({
+        testId: args.testId,
+        node: args.nav.node,
+        view: args.nav.view,
+      })
+    )
+  );
+}
+
+const testTitleSx = {
+  flexShrink: 1,
+  minWidth: 0,
+} as const;
 
 function patchChrome(args: {
   readonly nodes: readonly TopologyNodeInfo[];

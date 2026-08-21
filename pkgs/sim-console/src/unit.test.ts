@@ -4,6 +4,12 @@ import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { buildReportUrl, parseReportNav } from './client/router';
+import {
+  frameOwnedByNode,
+  type FlatFrame,
+  resolveFrameForNode,
+} from './client/frames';
+import { resolveHtmlFile } from './client/node-views';
 import { resolveLocalReportDataDir } from './local-data-dir';
 import { createSimulationReportServer } from './server/create-server';
 import type { SimulationReportData } from './types';
@@ -145,6 +151,42 @@ describe('storeGetJson', () => {
 });
 
 describe('SimulationReporter + ObjectStore', () => {
+  test('skips null/empty HTML snapshots on close', async () => {
+    const store = new ObjectStoreImplInMemory();
+    const reporter = new SimulationReporter({
+      seed: '1',
+      ui: 'in-process',
+      store,
+      runId: 'run-empty',
+      testId: 'empty-frame',
+      now: () => 1000,
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'tap',
+      title: 'real ui',
+      run: async () => undefined,
+      snapshot: async () => '<html>friends</html>',
+      pollFrames: false,
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'close',
+      title: 'close',
+      run: async () => undefined,
+      snapshot: async () => null,
+      snapshotBefore: true,
+      pollFrames: false,
+    });
+    const data = await reporter.flush();
+    const files = data.steps.flatMap((s) =>
+      (s.frames ?? []).map((f) => f.file)
+    );
+    expect(files).toEqual(['frames/f-00001.html']);
+    const emptyClose = data.steps.find((s) => s.kind === 'close');
+    expect(emptyClose?.frames?.length ?? 0).toBe(0);
+  });
+
   test('writes steps, run manifest, and runs index', async () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
@@ -205,7 +247,7 @@ describe('SimulationReporter + ObjectStore', () => {
     expect(index.runs[0]?.testCount).toBe(2);
   });
 
-  test('attaches gzip SQLite dumps with content-hash reuse', async () => {
+  test('attaches SQLM dumps with content-hash reuse', async () => {
     const store = new ObjectStoreImplInMemory();
     const payload = new Uint8Array([0x53, 0x51, 0x4c, 0x69, 0x74, 0x65]);
     let calls = 0;
@@ -263,7 +305,7 @@ describe('SimulationReporter + ObjectStore', () => {
       'server',
     ]);
     expect(frame0?.databases?.[0]?.file).toMatch(
-      /^frames\/db\/[a-f0-9]{64}\.sqlite\.gz$/
+      /^frames\/db\/[a-f0-9]{64}\.sqlm$/
     );
     // Identical bytes → same content-addressed blob across frames/nodes.
     const files = new Set(
@@ -275,7 +317,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const rel = frame0!.databases![0]!.file;
     const obj = await store.get(`runs/run-db/tests/db-test/${rel}`);
     expect(obj).not.toBeNull();
-    expect(obj?.contentType).toBe('application/gzip');
+    expect(obj?.contentType).toBe('application/octet-stream');
     expect(frame0?.checkpoint?.clientIds).toEqual(['alice']);
     expect(frame0?.checkpoint?.file).toMatch(
       /^frames\/f-\d+\.checkpoint\.json$/
@@ -505,3 +547,120 @@ describe('projectReportTopology', () => {
     ]);
   });
 });
+
+describe('resolveFrameForNode', () => {
+  test('interleaved actors: parked client keeps last frame', () => {
+    const frames = [
+      flatFrame({ globalIndex: 0, actorId: 'alice', file: 'frames/f-00001.html' }),
+      flatFrame({ globalIndex: 1, actorId: 'alice', file: 'frames/f-00002.html' }),
+      flatFrame({ globalIndex: 2, actorId: 'bob', file: 'frames/f-00003.html' }),
+      flatFrame({ globalIndex: 3, actorId: 'bob', file: 'frames/f-00004.html' }),
+    ];
+    expect(resolveFrameForNode(frames, 3, 'alice')?.file).toBe(
+      'frames/f-00002.html'
+    );
+    expect(resolveFrameForNode(frames, 3, 'bob')?.file).toBe(
+      'frames/f-00004.html'
+    );
+    expect(resolveFrameForNode(frames, 2, 'alice')?.file).toBe(
+      'frames/f-00002.html'
+    );
+    expect(resolveFrameForNode(frames, 2, 'bob')?.file).toBe(
+      'frames/f-00003.html'
+    );
+  });
+
+  test('playhead before a client exists returns null', () => {
+    const frames = [
+      flatFrame({ globalIndex: 0, actorId: 'alice', file: 'frames/f-00001.html' }),
+      flatFrame({ globalIndex: 1, actorId: 'bob', file: 'frames/f-00002.html' }),
+    ];
+    expect(resolveFrameForNode(frames, 0, 'bob')).toBeNull();
+    expect(resolveFrameForNode(frames, 0, 'alice')?.file).toBe(
+      'frames/f-00001.html'
+    );
+  });
+
+  test('explicit views own the frame for both nodes', () => {
+    const frames = [
+      flatFrame({
+        globalIndex: 0,
+        actorId: 'bob',
+        file: 'frames/f-00001.bob.html',
+        views: [
+          { nodeId: 'alice', file: 'frames/f-00001.alice.html' },
+          { nodeId: 'bob', file: 'frames/f-00001.bob.html' },
+        ],
+      }),
+    ];
+    expect(resolveFrameForNode(frames, 0, 'alice')?.file).toBe(
+      'frames/f-00001.bob.html'
+    );
+    expect(resolveFrameForNode(frames, 0, 'bob')?.file).toBe(
+      'frames/f-00001.bob.html'
+    );
+    expect(frameOwnedByNode(frames[0]!, 'alice')).toBe(true);
+    expect(frameOwnedByNode(frames[0]!, 'bob')).toBe(true);
+  });
+});
+
+describe('resolveHtmlFile', () => {
+  const clientNode = {
+    id: 'alice',
+    kind: 'client',
+    attributes: ['html', 'sqlite'],
+  } as const;
+
+  test('legacy file fallback only for matching actorId', () => {
+    const bobFrame = flatFrame({
+      globalIndex: 0,
+      actorId: 'bob',
+      file: 'frames/f-00001.html',
+    });
+    expect(resolveHtmlFile(bobFrame, 'bob', { ...clientNode, id: 'bob' })).toBe(
+      'frames/f-00001.html'
+    );
+    expect(resolveHtmlFile(bobFrame, 'alice', clientNode)).toBeNull();
+  });
+
+  test('views entry wins over legacy file', () => {
+    const frame = flatFrame({
+      globalIndex: 0,
+      actorId: 'bob',
+      file: 'frames/f-00001.bob.html',
+      views: [
+        { nodeId: 'alice', file: 'frames/f-00001.alice.html' },
+        { nodeId: 'bob', file: 'frames/f-00001.bob.html' },
+      ],
+    });
+    expect(resolveHtmlFile(frame, 'alice', clientNode)).toBe(
+      'frames/f-00001.alice.html'
+    );
+  });
+});
+
+function flatFrame(args: {
+  readonly globalIndex: number;
+  readonly actorId: string;
+  readonly file: string;
+  readonly views?: readonly { readonly nodeId: string; readonly file: string }[];
+}): FlatFrame {
+  return {
+    file: args.file,
+    capturedAtMs: args.globalIndex * 10,
+    durationMs: 10,
+    stepIndex: args.globalIndex,
+    globalIndex: args.globalIndex,
+    step: {
+      index: args.globalIndex + 1,
+      actorId: args.actorId,
+      kind: 'tap',
+      title: args.actorId,
+      status: 'passed',
+      startedAtMs: args.globalIndex * 10,
+      endedAtMs: args.globalIndex * 10 + 10,
+      durationMs: 10,
+    },
+    ...(args.views !== undefined ? { views: args.views } : {}),
+  };
+}

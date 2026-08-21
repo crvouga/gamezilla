@@ -1,5 +1,5 @@
 /**
- * Injectable Expo / OPFS surface used by {@link ./impl-expo-file-system.ts}.
+ * Injectable Expo / OPFS surface used by object-store FS adapters.
  * Composition roots pass {@link ./wall-expo-fs.ts wallExpoFs()}.
  */
 
@@ -14,11 +14,16 @@ export type ExpoFsFile = {
   textSync(): string;
 };
 
+export type ExpoFsDirEntry = {
+  readonly name: string;
+  readonly kind: 'file' | 'directory';
+};
+
 export type ExpoFsDirectory = {
   readonly exists: boolean;
   create(options: { intermediates: boolean; idempotent: boolean }): void;
   /** Present on native expo-file-system Directory; may be missing in stubs. */
-  list?: () => readonly { readonly name?: string; readonly exists?: boolean }[];
+  list?: () => readonly ExpoFsDirEntry[];
 };
 
 export type ExpoFsPaths = {
@@ -53,7 +58,11 @@ export type ExpoFsOpfsDirHandle = {
 export type ExpoFs = {
   readonly paths: ExpoFsPaths;
   readonly platformOs: string;
-  createDirectory(root: unknown, baseDir: string): ExpoFsDirectory;
+  /**
+   * Create a directory under `root` for the given path segments
+   * (e.g. `['object-store', 'a', 'b']`).
+   */
+  createDirectory(root: unknown, ...segments: string[]): ExpoFsDirectory;
   createFile(dir: ExpoFsDirectory, name: string): ExpoFsFile;
   getOpfsRoot(): Promise<ExpoFsOpfsDirHandle>;
 };

@@ -5,9 +5,8 @@ import type { FlatFrame } from './frames';
 import { emptySx, paneSx } from './tokens';
 
 /**
- * SQLite dump browser placeholder. Report Client UI replay converts dumps to
- * SQLM on the Bun report server (`?format=sqlm`); interactive SQL browse is
- * not wired yet.
+ * SQLite dump browser placeholder. Interactive SQL browse is not wired;
+ * report playback uses HTML frames only.
  */
 export function SqlitePane(props: {
   readonly bucketId: string;

@@ -113,3 +113,44 @@ export function playheadFrameIndex(
   }
   return 0;
 }
+
+/**
+ * Whether this frame carries content for `nodeId` (views / attributes /
+ * databases) or was captured under that actor (legacy single-file dumps).
+ */
+export function frameOwnedByNode(
+  frame: FlatFrame,
+  nodeId: string
+): boolean {
+  if (frame.views?.some((v) => v.nodeId === nodeId)) return true;
+  if (
+    frame.attributes?.some(
+      (a) =>
+        a.nodeId === nodeId &&
+        (a.kind === 'html' || a.kind === 'sqlite')
+    )
+  ) {
+    return true;
+  }
+  if (frame.databases?.some((d) => d.nodeId === nodeId)) return true;
+  return frame.step.actorId === nodeId;
+}
+
+/**
+ * Latest frame at or before `playheadIdx` owned by `nodeId`.
+ * Used so parked clients keep their last snapshot while the playhead
+ * advances through another actor's frames.
+ */
+export function resolveFrameForNode(
+  frames: readonly FlatFrame[],
+  playheadIdx: number,
+  nodeId: string
+): FlatFrame | null {
+  if (frames.length === 0 || playheadIdx < 0) return null;
+  const end = Math.min(playheadIdx, frames.length - 1);
+  for (let i = end; i >= 0; i--) {
+    const frame = frames[i]!;
+    if (frameOwnedByNode(frame, nodeId)) return frame;
+  }
+  return null;
+}

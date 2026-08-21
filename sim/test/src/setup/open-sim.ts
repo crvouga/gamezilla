@@ -3,14 +3,13 @@
  */
 
 import { type Timers, wallClock } from '@pkgs/clock';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store/wall-node-fs';
 import {
   createReportingDriver,
-  mintRunId,
   projectReportTopology,
-  resolveLocalReportDataDir,
+  resolveSimConsoleReportsDir,
   SimulationReporter,
   wallPathExists,
 } from '@pkgs/sim-console';
@@ -30,51 +29,35 @@ import {
   resolveOpenSimFidelity,
 } from './fidelity';
 import { simNodeTimers } from './sim-actor-overrides';
-import {
-  simReportTopology,
-  snapshotSimCheckpoint,
-  snapshotSimDatabases,
-} from './sim-world-snapshot';
+import { simReportTopology } from './sim-world-snapshot';
 
-const reportDataDir = resolveLocalReportDataDir(process.cwd(), wallPathExists);
+const reportFs = wallNodeFs();
+const reportDataDir = resolveSimConsoleReportsDir(
+  process.cwd(),
+  wallPathExists
+);
 
 const reportStore = createNodeFsObjectStore({
   rootDir: reportDataDir,
-  fs: wallNodeFs(),
-  layout: 'sidecar',
+  fs: reportFs,
+  layout: 'tree',
 });
 
-const RUN_MARKER_KEY = '.jest-open-sim-run.json';
+/**
+ * Fixed on-disk run id for the static console dump. Must not be the SPA alias
+ * `latest` — sanitizeRunId remaps that reserved id to `latest_run`.
+ * Wipe happens once in `jest.global-setup.cjs` (not per openSim / test file).
+ */
+const STATIC_REPORT_RUN_ID = 'latest_run';
 
-type RunMarker = {
-  readonly pid: number;
-  readonly runId: string;
-};
-
-async function resolveProcessRunId(): Promise<string> {
-  const fromEnv = process.env['SIM_REPORT_RUN_ID'];
-  if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
-
-  try {
-    const text = await readUtf8(reportStore, RUN_MARKER_KEY);
-    if (text !== null) {
-      const marker = JSON.parse(text) as RunMarker;
-      if (marker.pid === process.pid && marker.runId.length > 0) {
-        return marker.runId;
-      }
-    }
-  } catch {
-    // Missing or corrupt — mint below.
-  }
-
-  const runId = mintRunId(wallClock.now());
+async function writeKeysIndex(): Promise<void> {
+  const keys = await reportStore.listKeys();
   await writeUtf8(
     reportStore,
-    RUN_MARKER_KEY,
-    `${JSON.stringify({ pid: process.pid, runId } satisfies RunMarker)}\n`,
+    'keys.json',
+    JSON.stringify(keys),
     'application/json'
   );
-  return runId;
 }
 
 export type SimActorHandle = {
@@ -171,6 +154,7 @@ async function bootSim(
   readonly sim: Sim;
   readonly reporter: SimulationReporter;
 }> {
+  await reportFs.mkdir(reportDataDir, { recursive: true });
   const sim = await createSim({
     seed: 1,
     startMs: Date.parse('2024-06-01T00:00:00.000Z'),
@@ -183,15 +167,13 @@ async function bootSim(
   const reporter = new SimulationReporter({
     seed: '1',
     store: reportStore,
-    runId: await resolveProcessRunId(),
+    runId: STATIC_REPORT_RUN_ID,
     testId,
     now: () => wallClock.now(),
     maxFramesPerStep: 1,
     frameIntervalMs: 250,
     publishThrottleMs: 50,
     ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'in-process',
-    snapshotDatabases: () => snapshotSimDatabases(sim),
-    snapshotCheckpoint: () => snapshotSimCheckpoint(sim, wallClock.now()),
     snapshotTopology: () => projectReportTopology(simReportTopology(sim), '1'),
   });
   return { sim, reporter };
@@ -203,7 +185,7 @@ export async function openSim(
 ): Promise<OpenSimHandle> {
   const fidelity = resolveOpenSimFidelity(options);
   const { sim, reporter } = await bootSim(testId, fidelity);
-  const actors = new Map<string, SimActorHandle>();
+  const actors = new Map<string, { handle: SimActorHandle; raw: Driver }>();
   let disposed = false;
 
   const handle: OpenSimHandle = {
@@ -212,23 +194,25 @@ export async function openSim(
     async actor(id: string) {
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
-      if (existing) return existing;
+      if (existing) return existing.handle;
       const raw = createClientDriver({ fidelity, sim, id });
       const ui = createReportingDriver(raw, {
         actorId: id,
         reporter,
       });
       await ui.launch();
-      const actor = { id, ui };
-      actors.set(id, actor);
-      return actor;
+      const actorHandle = { id, ui };
+      actors.set(id, { handle: actorHandle, raw });
+      return actorHandle;
     },
     async dispose() {
       if (disposed) return;
       disposed = true;
+      // Close the raw driver so teardown does not append reported close
+      // frames (parked actors would snapshot as empty HTML).
       for (const a of actors.values()) {
         try {
-          await a.ui.close();
+          await a.raw.close();
         } catch {
           // ignore teardown races
         }
@@ -236,6 +220,7 @@ export async function openSim(
       actors.clear();
       try {
         await reporter.flush();
+        await writeKeysIndex();
       } catch {
         // report flush should not mask sim teardown
       }

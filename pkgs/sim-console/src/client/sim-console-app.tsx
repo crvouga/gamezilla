@@ -9,7 +9,9 @@ import {
 
 import type { SimConsolePorts } from '../shared/ports';
 import type { SimChromeKind } from '../shared/sim-node';
+import type { ReportApiClient } from './api-client';
 import { createReportApiClient } from './api-client';
+import { createObjectStoreReportApiClient } from './object-store-report-api';
 import { PlaygroundScreen } from './playground/playground-screen';
 import { usePlaygroundSession } from './playground/use-playground-session';
 import { ReportViews } from './report-views';
@@ -25,6 +27,7 @@ const SECTIONS = [
 ] as const;
 
 const DEFAULT_BASE_PATH = '/sim-console';
+const DEFAULT_REPORTS_PUBLIC_BASE = '/reports';
 
 /**
  * Root console screen. Injects everything product-specific through `ports`
@@ -59,14 +62,27 @@ export function SimConsoleApp(props: {
   // when this console root unmounts (live state is lost; snapshots remain).
   const [playgroundPinned, setPlaygroundPinned] = useState(false);
 
-  const api = useMemo(
-    () =>
-      createReportApiClient({
-        basePath: ports.reportApiBasePath ?? DEFAULT_BASE_PATH,
+  const api = useMemo((): ReportApiClient => {
+    if (ports.reportsStore) {
+      return createObjectStoreReportApiClient({
+        store: ports.reportsStore,
+        publicBaseUrl:
+          ports.reportsPublicBaseUrl ?? DEFAULT_REPORTS_PUBLIC_BASE,
         fetch: (input, init) => ports.fetch(input, init),
-      }),
-    [ports.fetch, ports.reportApiBasePath]
-  );
+        timers: ports.timers,
+      });
+    }
+    return createReportApiClient({
+      basePath: ports.reportApiBasePath ?? DEFAULT_BASE_PATH,
+      fetch: (input, init) => ports.fetch(input, init),
+    });
+  }, [
+    ports.fetch,
+    ports.reportApiBasePath,
+    ports.reportsPublicBaseUrl,
+    ports.reportsStore,
+    ports.timers,
+  ]);
 
   useEffect(() => {
     if (section === 'playground') setPlaygroundPinned(true);
@@ -89,7 +105,6 @@ export function SimConsoleApp(props: {
         {section === 'reports' ? (
           <ReportsSection
             api={api}
-            ports={ports}
             kind={kind}
             instance={instance}
             view={view}
@@ -115,8 +130,7 @@ export function SimConsoleApp(props: {
 }
 
 function ReportsSection(props: {
-  readonly api: ReturnType<typeof createReportApiClient>;
-  readonly ports: SimConsolePorts;
+  readonly api: ReportApiClient;
   readonly kind: SimChromeKind;
   readonly instance: string;
   readonly view: string;
@@ -124,7 +138,7 @@ function ReportsSection(props: {
   readonly onInstanceChange: (instance: string) => void;
   readonly onViewChange: (view: string) => void;
 }) {
-  const { api, ports } = props;
+  const { api } = props;
   const [nav, setNav] = useState<ReportNavState>(DEFAULT_NAV);
   const onNav = useCallback((next: ReportNavState) => setNav(next), []);
   const data = useReportData(nav, onNav, api);
@@ -143,7 +157,6 @@ function ReportsSection(props: {
         onInstanceChange: props.onInstanceChange,
         onViewChange: props.onViewChange,
       }}
-      ports={ports}
     />
   );
 }

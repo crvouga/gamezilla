@@ -242,9 +242,9 @@ export class ObjectStoreImplExpoFileSystem implements ObjectStore {
     if (!dir.exists || typeof dir.list !== 'function') return [];
     const keys: string[] = [];
     for (const entry of dir.list()) {
+      if (entry.kind === 'directory') continue;
       const name = entry.name;
-      if (typeof name !== 'string') continue;
-      if (name.endsWith(META_SUFFIX)) continue;
+      if (name.length === 0 || name.endsWith(META_SUFFIX)) continue;
       const key = name.replace(/\.[^.]+$/, '');
       if (KEY_PATTERN.test(key)) keys.push(key);
     }

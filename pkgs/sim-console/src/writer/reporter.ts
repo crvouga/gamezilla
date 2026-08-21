@@ -221,8 +221,10 @@ export class SimulationReporter {
     state: FrameCaptureState
   ): Promise<void> {
     if (state.frames.length >= this.maxFramesPerStep) return;
-    const html =
-      (await snapshot({ stylesheetHref: FRAME_STYLESHEET_HREF })) ?? '';
+    const html = await snapshot({ stylesheetHref: FRAME_STYLESHEET_HREF });
+    // Unmounted / parked clients return null; do not write blank frames that
+    // would overwrite the actor's last real UI in multi-client reports.
+    if (html == null || html.trim() === '') return;
     if (this.snapshotDatabases === undefined) {
       const hash = hashString(html);
       if (hash === state.lastHash) return;
@@ -410,10 +412,10 @@ export class SimulationReporter {
     state: FrameCaptureState
   ): Promise<void> {
     if (!wantSnapshot || state.frames.length > 0) return;
-    const html =
-      (await args.snapshot({
-        stylesheetHref: FRAME_STYLESHEET_HREF,
-      })) ?? '';
+    const html = await args.snapshot({
+      stylesheetHref: FRAME_STYLESHEET_HREF,
+    });
+    if (html == null || html.trim() === '') return;
     state.frames.push(await this.writeFrame(html));
   }
 

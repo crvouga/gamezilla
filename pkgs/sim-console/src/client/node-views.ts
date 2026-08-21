@@ -74,7 +74,10 @@ export function resolveHtmlFile(
     node != null &&
     (node.attributes.includes('html') ||
       coerceSimNodeKind(node.kind) === 'client');
-  if (wantsHtml && frame.file) return frame.file;
+  // Legacy single-file dumps: only the acting actor owns frame.file.
+  if (wantsHtml && frame.file && frame.step.actorId === nodeId) {
+    return frame.file;
+  }
   return null;
 }
 

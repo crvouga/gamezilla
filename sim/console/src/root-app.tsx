@@ -10,11 +10,8 @@ import {
   wallClock,
   wallTimers,
 } from '@pkgs/clock';
-import {
-  DEFAULT_REPORT_SERVER_PORT,
-  SimConsoleApp,
-  type SimConsolePorts,
-} from '@pkgs/sim-console/client';
+import { createStaticObjectStore } from '@pkgs/object-store/impl-static';
+import { SimConsoleApp, type SimConsolePorts } from '@pkgs/sim-console/client';
 import { AppThemeRoot, Box } from '@pkgs/ui';
 import { IdProvider } from '@pkgs/uuid';
 import {
@@ -25,17 +22,25 @@ import { useConsoleNav } from '@sim/console/console-nav/use-console-nav';
 import { bootPlaygroundSession } from '@sim/console/playground/boot-playground';
 import { type ReactNode, useMemo } from 'react';
 
+const REPORTS_PUBLIC_BASE = '/reports';
+
 function ConsoleBody(): ReactNode {
   const clock = useClock();
   const timers = useTimers();
   const { state, patch } = useConsoleChrome();
   const ports = useMemo((): SimConsolePorts => {
+    const fetchFn = (input: RequestInfo | URL, init?: RequestInit) =>
+      globalThis.fetch(input, init);
     return {
       bootPlayground: bootPlaygroundSession,
       clock,
       timers,
-      fetch: (input, init) => globalThis.fetch(input, init),
-      reportApiBasePath: `http://localhost:${String(DEFAULT_REPORT_SERVER_PORT)}`,
+      fetch: fetchFn,
+      reportsStore: createStaticObjectStore({
+        baseUrl: REPORTS_PUBLIC_BASE,
+        fetch: fetchFn,
+      }),
+      reportsPublicBaseUrl: REPORTS_PUBLIC_BASE,
     };
   }, [clock, timers]);
   return (

@@ -9,6 +9,8 @@ export {
   LOCAL_REPORT_DATA_DIRNAME,
   type PathExists,
   resolveLocalReportDataDir,
+  resolveSimConsoleReportsDir,
+  SIM_CONSOLE_REPORTS_DIRNAME,
   toRepoRelativePath,
 } from './local-data-dir';
 export {

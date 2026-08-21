@@ -1,6 +1,6 @@
 /**
  * Full-runtime playground snapshot save / list / load via ObjectStore
- * (HTTP → Bun local report server → Node-FS under playground-snapshots/).
+ * (ClientFs — OPFS on web / Expo FS on native).
  */
 
 import type { ObjectStore } from '@pkgs/object-store/interface';

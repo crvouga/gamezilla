@@ -3,6 +3,7 @@
  */
 
 import type { Clock, Timers } from '@pkgs/clock';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { ComponentType } from 'react';
 
@@ -183,5 +184,13 @@ export type SimConsolePorts = {
     input: RequestInfo | URL,
     init?: RequestInit
   ) => Promise<Response>;
+  /**
+   * Static / ObjectStore-backed report artifacts (Expo `public/reports`).
+   * When set, the console reads reports client-side with no report server.
+   */
+  readonly reportsStore?: ObjectStore;
+  /** Public URL base for report assets (default `/reports`). */
+  readonly reportsPublicBaseUrl?: string;
+  /** @deprecated Prefer `reportsStore` for the pure client-side console. */
   readonly reportApiBasePath?: string;
 };

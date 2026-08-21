@@ -4,8 +4,14 @@
  */
 import { dirname, join, resolve } from 'node:path';
 
-/** Repo-root directory name for local Node-FS report artifacts. */
+/** Repo-root directory name for local Node-FS report artifacts (legacy). */
 export const LOCAL_REPORT_DATA_DIRNAME = '.cache/sim-console-data';
+
+/**
+ * Expo static assets directory for the latest sim test report dump
+ * (`@sim/console` `public/reports`).
+ */
+export const SIM_CONSOLE_REPORTS_DIRNAME = 'sim/console/public/reports';
 
 export type PathExists = (absolutePath: string) => boolean;
 
@@ -38,6 +44,18 @@ export function resolveLocalReportDataDir(
 ): string {
   const root = findMonorepoRoot(startDir, exists) ?? resolve(startDir);
   return join(root, LOCAL_REPORT_DATA_DIRNAME);
+}
+
+/**
+ * Absolute path to `<repo>/sim/console/public/reports` for the static-bundle
+ * report dump consumed by the Expo client.
+ */
+export function resolveSimConsoleReportsDir(
+  startDir: string,
+  exists: PathExists
+): string {
+  const root = findMonorepoRoot(startDir, exists) ?? resolve(startDir);
+  return join(root, SIM_CONSOLE_REPORTS_DIRNAME);
 }
 
 /** Repo-relative POSIX path, or null when outside the monorepo / invalid. */

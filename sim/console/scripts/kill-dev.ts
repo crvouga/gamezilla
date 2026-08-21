@@ -1,5 +1,4 @@
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
 
 function readPort(name: string, fallback: number): number {
   const raw = process.env[name]?.trim();
@@ -11,5 +10,4 @@ function readPort(name: string, fallback: number): number {
 killListenersOnPorts([
   readPort('EXPO_METRO_PORT', 5173),
   readPort('PREVIEW_PORT', 5173),
-  DEFAULT_REPORT_SERVER_PORT,
 ]);

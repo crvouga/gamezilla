@@ -23,10 +23,18 @@ export const appHeaderSx: SxProps = {
   flexShrink: 0,
 };
 
+export const appHeaderMiddleSx: SxProps = {
+  flex: 1,
+  minWidth: 0,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 2,
+};
+
 export const appHeaderTrailingSx: SxProps = {
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 2.5,
+  gap: 1,
 };
 
 /** Scroll frame for list/table screens. */

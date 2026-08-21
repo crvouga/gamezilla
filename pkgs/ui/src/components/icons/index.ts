@@ -28,6 +28,7 @@ import {
   Menu,
   Monitor,
   Paintbrush,
+  Pause,
   Play,
   Plus,
   Radio,
@@ -70,6 +71,7 @@ export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
+export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
 export const SettingsIcon = createIcon(Settings);

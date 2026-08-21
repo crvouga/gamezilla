@@ -1,26 +1,19 @@
 // @io-wall-ok
 /**
- * Foreground entry for `@sim/console` `dev`: local report console + Expo web.
+ * Foreground entry for `@sim/console` `dev`: Expo web only (pure client-side).
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { DEFAULT_REPORT_SERVER_PORT } from '@pkgs/sim-console/types';
-
-import {
-  type LocalReportConsoleHandle,
-  startLocalReportConsole,
-} from './local-report-server';
 
 const APP_DIR = join(import.meta.dirname, '..');
 const EXPO_PORT = 5173;
 
-killListenersOnPorts([EXPO_PORT, DEFAULT_REPORT_SERVER_PORT]);
+killListenersOnPorts([EXPO_PORT]);
 
 const children: ChildProcess[] = [];
-let reportConsole: LocalReportConsoleHandle | undefined;
 let shuttingDown = false;
 
 function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
@@ -46,7 +39,6 @@ function killChildren(): void {
 function shutdown(exitCode: number): void {
   if (shuttingDown) return;
   shuttingDown = true;
-  reportConsole?.stop();
   killChildren();
   process.exit(exitCode);
 }
@@ -61,8 +53,6 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
     shutdown(codes[sig] ?? 1);
   });
 }
-
-reportConsole = await startLocalReportConsole();
 
 const expo = spawn(
   'bunx',
