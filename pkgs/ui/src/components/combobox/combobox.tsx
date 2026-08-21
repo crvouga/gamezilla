@@ -92,6 +92,7 @@ export function Combobox<T extends string | number = string>(
           onSearchKeyDown={c.onKey}
           renderOption={props.renderOption}
           loading={props.loading ?? false}
+          error={props.error}
           emptyMessage={props.emptyMessage}
         />
       </ResponsiveSurface>

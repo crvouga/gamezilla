@@ -1,6 +1,9 @@
 /**
  * `Picker` — trigger row that opens a {@link ResponsiveSurface} with a
  * scrollable option list (single select).
+ *
+ * Pass `loading` / `error` for async option lists — status renders inside the
+ * open surface; the trigger stays pressable unless `disabled` is set.
  */
 
 import { useLingui } from '@lingui/react/macro';
@@ -11,8 +14,10 @@ import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
 import type { SxProps } from '../../theme/sx-props';
 import { Box } from '../box';
+import { ErrorState } from '../error-state';
 import { FlatList } from '../flat-list';
 import { List, ListItem } from '../list';
+import { LoadingState } from '../loading-state';
 import { Pressable } from '../pressable';
 import { ResponsiveSurface } from '../responsive-surface';
 import { Text } from '../text';
@@ -38,6 +43,16 @@ export type PickerProps<T extends string | number = string> = {
   /** Content rendered at the top of the surface body (below the title). */
   surfaceExtra?: ReactNode;
   disabled?: boolean;
+  /**
+   * When true, the open surface shows a spinner instead of options.
+   * Does not disable the trigger.
+   */
+  loading?: boolean;
+  /**
+   * When set (and not loading), the open surface shows a compact error above
+   * the option list. Does not disable the trigger.
+   */
+  error?: ReactNode;
   placeholder?: LocalizedString;
   /** Compact trigger for dense chrome (e.g. tab bars). Default `'md'`. */
   size?: PickerSize;
@@ -59,6 +74,8 @@ export function Picker<T extends string | number = string>({
   surfaceTitle,
   surfaceExtra,
   disabled = false,
+  loading = false,
+  error,
   placeholder,
   size = 'md',
   renderOption,
@@ -97,13 +114,49 @@ export function Picker<T extends string | number = string>({
         {surfaceExtra !== undefined && surfaceExtra !== null ? (
           <Box sx={{ mb: 2 }}>{surfaceExtra}</Box>
         ) : null}
-        <PickerOptions
+        <PickerSurfaceBody
+          loading={loading}
+          error={error}
           options={options}
           value={value}
           onPick={handlePick}
           renderOption={renderOption}
         />
       </ResponsiveSurface>
+    </Box>
+  );
+}
+
+function PickerSurfaceBody<T extends string | number>({
+  loading,
+  error,
+  options,
+  value,
+  onPick,
+  renderOption,
+}: {
+  loading: boolean;
+  error: ReactNode | undefined;
+  options: PickerOption<T>[];
+  value: T;
+  onPick: (next: T) => void;
+  renderOption: PickerProps<T>['renderOption'];
+}) {
+  const { t } = useLingui();
+  if (loading) {
+    return <LoadingState size="small" />;
+  }
+  return (
+    <Box sx={{ gap: 2 }}>
+      {error != null && error !== '' ? (
+        <ErrorState variant="compact" title={t`Failed to load`} body={error} />
+      ) : null}
+      <PickerOptions
+        options={options}
+        value={value}
+        onPick={onPick}
+        renderOption={renderOption}
+      />
     </Box>
   );
 }

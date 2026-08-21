@@ -27,6 +27,7 @@ export function ComboboxBody<T extends string | number>({
   onSearchKeyDown,
   renderOption,
   loading,
+  error,
   emptyMessage,
 }: {
   query: string;
@@ -46,6 +47,7 @@ export function ComboboxBody<T extends string | number>({
   onSearchKeyDown: ((event: ComboboxKeyEvent) => void) | undefined;
   renderOption: ComboboxProps<T>['renderOption'];
   loading: boolean;
+  error: ReactNode | undefined;
   emptyMessage: ReactNode | undefined;
 }) {
   return (
@@ -67,6 +69,7 @@ export function ComboboxBody<T extends string | number>({
         onPick={onPick}
         renderOption={renderOption}
         loading={loading}
+        error={error}
         emptyMessage={emptyMessage}
       />
       {multiple ? (

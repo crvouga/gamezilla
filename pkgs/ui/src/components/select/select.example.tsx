@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ExampleRoot } from '../explorer/example-root';
 import { Stack } from '../stack';
+import { Text } from '../text';
 import { Select } from './select';
 
 const FRUITS = [
@@ -36,6 +37,28 @@ export default function SelectExample() {
           options={DELAYS}
           value={delay}
           onValueChange={setDelay}
+        />
+
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label="Open these to see in-surface status (trigger stays enabled):"
+        />
+
+        <Select
+          label="Loading"
+          options={FRUITS}
+          value={fruit}
+          onValueChange={setFruit}
+          loading
+        />
+
+        <Select
+          label="Error"
+          options={FRUITS}
+          value={fruit}
+          onValueChange={setFruit}
+          error="ObjectStore HTTP get failed (500): Internal Server Error"
         />
 
         <Select

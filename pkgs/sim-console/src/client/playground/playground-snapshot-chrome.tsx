@@ -250,7 +250,8 @@ function SnapshotSelect(props: {
             onDeleteChecked={onDeleteChecked}
           />
         }
-        disabled={list.busy || list.snaps.length === 0}
+        loading={list.busy}
+        error={list.error}
         renderOption={(option, selected, onPick) => {
           const snap = snapById.get(option.value);
           if (snap === undefined) return null;
@@ -336,14 +337,6 @@ function SnapshotChromeActions(props: {
       >
         <SearchIcon size={GLYPH_SIZE} />
       </IconButton>
-      {list.error !== null ? (
-        <Text
-          variant="caption"
-          sx={{ color: 'destructive', maxWidth: 220 }}
-          numberOfLines={2}
-          label={list.error}
-        />
-      ) : null}
     </>
   );
 }

@@ -156,6 +156,13 @@ function applyPassthrough(props: SxProps, result: ResolvedRnStyle): void {
   }
 }
 
+const BORDER_SIDES = [
+  ['borderTopColor', 'borderTopColor'],
+  ['borderRightColor', 'borderRightColor'],
+  ['borderBottomColor', 'borderBottomColor'],
+  ['borderLeftColor', 'borderLeftColor'],
+] as const;
+
 function applyColors(
   props: SxProps,
   result: ResolvedRnStyle,
@@ -178,13 +185,8 @@ function applyColors(
     const resolved = resolveColor(props.outlineColor, colors);
     if (resolved !== undefined) set(result, 'outlineColor', resolved);
   }
-  const sides = [
-    ['borderTopColor', 'borderTopColor'],
-    ['borderRightColor', 'borderRightColor'],
-    ['borderBottomColor', 'borderBottomColor'],
-    ['borderLeftColor', 'borderLeftColor'],
-  ] as const;
-  for (const [from, to] of sides) {
+
+  for (const [from, to] of BORDER_SIDES) {
     const v = props[from];
     if (v === undefined) continue;
     const resolved = resolveColor(v, colors);
@@ -192,32 +194,32 @@ function applyColors(
   }
 }
 
+const BORDER_RADIUS_KEYS = [
+  'borderRadius',
+  'borderTopLeftRadius',
+  'borderTopRightRadius',
+  'borderBottomLeftRadius',
+  'borderBottomRightRadius',
+] as const;
 function applyRadius(props: SxProps, result: ResolvedRnStyle): void {
-  const keys = [
-    'borderRadius',
-    'borderTopLeftRadius',
-    'borderTopRightRadius',
-    'borderBottomLeftRadius',
-    'borderBottomRightRadius',
-  ] as const;
-  for (const key of keys) {
+  for (const key of BORDER_RADIUS_KEYS) {
     const n = resolveRadius(props[key]);
     if (n !== undefined) result[key] = n;
   }
 }
+const BORDER_SIDE_KEYS = [
+  'borderTopWidth',
+  'borderRightWidth',
+  'borderBottomWidth',
+  'borderLeftWidth',
+] as const;
 
 function applyBorderWidths(
   props: SxProps,
   result: ResolvedRnStyle,
   hairlineWidth: number
 ): void {
-  const sides = [
-    'borderTopWidth',
-    'borderRightWidth',
-    'borderBottomWidth',
-    'borderLeftWidth',
-  ] as const;
-  for (const key of sides) {
+  for (const key of BORDER_SIDE_KEYS) {
     const v = props[key];
     if (v === undefined) continue;
     result[key] = v === 'hairline' ? hairlineWidth : v;
@@ -226,10 +228,10 @@ function applyBorderWidths(
 
 function applyTypography(props: SxProps, result: ResolvedRnStyle): void {
   if (props.fontSize !== undefined) {
-    set(result, 'fontSize', resolveFontSize(props.fontSize));
+    result['fontSize'] = resolveFontSize(props.fontSize);
   }
   if (props.lineHeight !== undefined) {
-    set(result, 'lineHeight', resolveLineHeight(props.lineHeight));
+    result['lineHeight'] = resolveLineHeight(props.lineHeight);
   }
 }
 

@@ -71,7 +71,6 @@ export {
   type SxInput,
   type SxProps,
 } from './sx';
-export { resolveColor } from './sx-resolve';
 export type {
   SxAlign,
   SxCompileOptions,
@@ -79,6 +78,7 @@ export type {
   SxJustify,
   SxRadius,
 } from './sx-props';
+export { resolveColor } from './sx-resolve';
 export { sxToCss } from './sx-to-css';
 export {
   defaultTextCasing,

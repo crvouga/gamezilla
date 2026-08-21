@@ -58,6 +58,30 @@ export default function ComboboxExample() {
           onValueChange={setFruit}
           disabled
         />
+
+        <Text
+          variant="caption"
+          sx={{ color: 'textSecondary' }}
+          label="Open these to see in-surface status (trigger stays enabled):"
+        />
+
+        <Combobox
+          label="Loading"
+          options={FRUITS}
+          value={fruit}
+          onValueChange={setFruit}
+          loading
+          emptyMessage="No matching fruits"
+        />
+
+        <Combobox
+          label="Error"
+          options={FRUITS}
+          value={fruit}
+          onValueChange={setFruit}
+          error="User search failed (503): Service Unavailable"
+          emptyMessage="No matching fruits"
+        />
       </Stack>
     </ExampleRoot>
   );

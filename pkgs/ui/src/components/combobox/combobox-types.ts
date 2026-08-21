@@ -25,6 +25,11 @@ type ComboboxSharedProps<T extends string | number> = {
   placeholder?: LocalizedString;
   searchPlaceholder?: LocalizedString;
   loading?: boolean;
+  /**
+   * When set (and not loading), the open surface shows a compact error above
+   * the option list. Does not disable the trigger.
+   */
+  error?: ReactNode;
   emptyMessage?: ReactNode;
   /** Controlled query for async parents (e.g. remote user search). */
   query?: string;
