@@ -1,5 +1,11 @@
 import { expect, type Page, test } from '@playwright/test';
 
+declare global {
+  interface Window {
+    __sqlHarness: unknown;
+  }
+}
+
 async function harness(page: Page) {
   return page.evaluateHandle(() => window.__sqlHarness);
 }
