@@ -45,7 +45,13 @@ function mintWallSeed(): bigint {
   return n === 0n ? 1n : n;
 }
 
-const wallSeed = mintWallSeed();
+let wallSeed: bigint | undefined;
+
+function getWallSeed(): bigint {
+  wallSeed ??= mintWallSeed();
+  return wallSeed;
+}
+
 const log = createLogger({ name: 'server', now: wallClock.now });
 
 type App = Awaited<ReturnType<typeof createServer>>;
@@ -151,7 +157,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     timers: wallTimers,
     createId: () => crypto.randomUUID(),
     random: () => Math.random(),
-    seed: wallSeed,
+    seed: getWallSeed(),
     openSqlClient: async () => {
       const override = databaseUrlOverride?.trim();
       const url =
