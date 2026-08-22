@@ -3,12 +3,33 @@ import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
+
 export class SqlClientImplBunSqlite implements SqlClient {
   constructor(private db: Database) {}
 
   static open(databasePath: string): SqlClientImplBunSqlite {
     const db = new Database(databasePath);
     return new SqlClientImplBunSqlite(db);
+  }
+
+  /** Ephemeral in-memory DB for Bun-hosted sim clients. */
+  static openMemory(): SqlClientImplBunSqlite {
+    return new SqlClientImplBunSqlite(new Database(':memory:'));
+  }
+
+  /** Restore from a prior {@link serializeBytes} image. */
+  static openFromBytes(bytes: Uint8Array): SqlClientImplBunSqlite {
+    // bun:sqlite accepts Uint8Array at runtime; typings only list string paths.
+    return new SqlClientImplBunSqlite(new Database(bytes as unknown as string));
+  }
+
+  serializeBytes(): Uint8Array {
+    return new Uint8Array(this.db.serialize());
+  }
+
+  importBytes(bytes: Uint8Array): void {
+    this.db.close(false);
+    this.db = new Database(bytes as unknown as string);
   }
 
   async connect(): Promise<void> {

@@ -1,22 +1,34 @@
-import { describe, test } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, describe, test } from '@jest/globals';
 import { Handles } from '@libs/dst-handles';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceAvatarCreds, aliceUserCreds } from '../fixtures/fixtures';
-import { openSim } from '../setup/open-sim';
+import { openSim, type OpenSimHandle } from '../setup/open-sim';
 
 describe('profile edit', () => {
+  let world: OpenSimHandle;
+
+  beforeAll(async () => {
+    world = await openSim('profile-edit');
+  });
+
+  afterAll(async () => {
+    await world.dispose();
+  });
+
+  afterEach(async () => {
+    await world.resetActor('alice');
+  });
+
   test('guest updates username', async () => {
-    await using sim = await openSim('profile-guest-username');
-    const app = await AppDriver.forActor(sim, 'alice');
+    const app = await AppDriver.forActor(world, 'alice');
     await app.profile.openEdit();
     await app.profile.setUsername('guest_user_1');
     await app.profile.expectUsername('guest_user_1');
   });
 
   test('guest updates avatar', async () => {
-    await using sim = await openSim('profile-guest-avatar');
-    const app = await AppDriver.forActor(sim, 'alice');
+    const app = await AppDriver.forActor(world, 'alice');
     await app.profile.openEdit();
     await app.profile.openAvatarEditor();
     await app.profile.setAvatarSeed('sim-seed-guest');
@@ -31,8 +43,7 @@ describe('profile edit', () => {
   });
 
   test('signed-in updates username', async () => {
-    await using sim = await openSim('profile-signed-in-username');
-    const app = await AppDriver.forActor(sim, 'alice');
+    const app = await AppDriver.forActor(world, 'alice');
     await app.auth.signUpWithEmail(aliceUserCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();
@@ -41,8 +52,7 @@ describe('profile edit', () => {
   });
 
   test('signed-in updates avatar', async () => {
-    await using sim = await openSim('profile-signed-in-avatar');
-    const app = await AppDriver.forActor(sim, 'alice');
+    const app = await AppDriver.forActor(world, 'alice');
     await app.auth.signUpWithEmail(aliceAvatarCreds);
     await app.auth.returnToTabs();
     await app.profile.openEdit();

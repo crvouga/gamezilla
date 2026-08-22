@@ -3,6 +3,9 @@
  * Postgres. Ordered so helpers exist before dependents. Each statement is
  * run via {@link unsafe} (function bodies contain `;`).
  *
+ * `LANGUAGE sql` over `#>` / `jsonb_set` / `jsonb_each` — works on real
+ * Postgres, PGlite, and `@crvouga/postgres-mem` (no PL/pgSQL / jsonpath).
+ *
  * Common call shapes match SQLite (`json_extract(col, '$.a')`). Postgres
  * type-name collisions (`json`) and VARIADIC quirks are avoided.
  *
@@ -13,21 +16,35 @@ export const SQLITE_JSON_INSTALL_STATEMENTS: readonly string[] = [
   `
 CREATE OR REPLACE FUNCTION sqlite_json_atom_text(v jsonb)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-BEGIN
-  IF v IS NULL THEN
-    RETURN NULL;
-  END IF;
-  CASE jsonb_typeof(v)
-    WHEN 'null' THEN RETURN NULL;
-    WHEN 'string' THEN RETURN trim(both '"' from v::text);
-    WHEN 'number' THEN RETURN v::text;
-    WHEN 'boolean' THEN RETURN v::text;
-    ELSE RETURN v::text;
-  END CASE;
-END;
+  SELECT CASE
+    WHEN v IS NULL THEN NULL
+    WHEN jsonb_typeof(v) = 'null' THEN NULL
+    WHEN jsonb_typeof(v) = 'string' THEN trim(both '"' from v::text)
+    ELSE v::text
+  END
+$fn$
+`.trim(),
+  `
+CREATE OR REPLACE FUNCTION sqlite_json_path_to_text_array(p_path text)
+RETURNS text[]
+LANGUAGE sql
+IMMUTABLE
+AS $fn$
+  SELECT array_remove(
+    string_to_array(
+      regexp_replace(
+        regexp_replace(COALESCE(p_path, ''), '^\\$\\.?', ''),
+        '\\[([0-9]+)\\]',
+        '.\\1',
+        'g'
+      ),
+      '.'
+    ),
+    ''
+  )
 $fn$
 `.trim(),
   `
@@ -51,37 +68,24 @@ $fn$
   `
 CREATE OR REPLACE FUNCTION json_type(p_text text, p_path text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  v_path text;
-BEGIN
-  IF p_text IS NULL THEN
-    RETURN NULL;
-  END IF;
-  v := p_text::jsonb;
-  v_path := COALESCE(NULLIF(p_path, ''), '$');
-  IF v_path <> '$' THEN
-    v := jsonb_path_query_first(v, v_path::jsonpath);
-  END IF;
-  IF v IS NULL THEN
-    RETURN NULL;
-  END IF;
-  CASE jsonb_typeof(v)
-    WHEN 'object' THEN RETURN 'object';
-    WHEN 'array' THEN RETURN 'array';
-    WHEN 'string' THEN RETURN 'text';
-    WHEN 'number' THEN RETURN 'real';
-    WHEN 'boolean' THEN RETURN 'true';
-    WHEN 'null' THEN RETURN 'null';
-    ELSE RETURN jsonb_typeof(v);
-  END CASE;
-EXCEPTION
-  WHEN others THEN
-    RETURN NULL;
-END;
+  SELECT CASE jsonb_typeof(
+    CASE
+      WHEN p_text IS NULL THEN NULL
+      WHEN COALESCE(NULLIF(p_path, ''), '$') = '$' THEN p_text::jsonb
+      ELSE p_text::jsonb #> sqlite_json_path_to_text_array(p_path)
+    END
+  )
+    WHEN 'object' THEN 'object'
+    WHEN 'array' THEN 'array'
+    WHEN 'string' THEN 'text'
+    WHEN 'number' THEN 'real'
+    WHEN 'boolean' THEN 'true'
+    WHEN 'null' THEN 'null'
+    ELSE NULL
+  END
 $fn$
 `.trim(),
   `
@@ -90,33 +94,30 @@ RETURNS text
 LANGUAGE sql
 IMMUTABLE
 AS $fn$
-  SELECT json_type(p_text, '$');
+  SELECT json_type(p_text, '$')
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_array_length(p_text text, p_path text)
 RETURNS integer
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-BEGIN
-  IF p_text IS NULL THEN
-    RETURN NULL;
-  END IF;
-  v := p_text::jsonb;
-  IF p_path IS NOT NULL AND p_path <> '$' THEN
-    v := jsonb_path_query_first(v, p_path::jsonpath);
-  END IF;
-  IF v IS NULL OR jsonb_typeof(v) <> 'array' THEN
-    RETURN NULL;
-  END IF;
-  RETURN jsonb_array_length(v);
-EXCEPTION
-  WHEN others THEN
-    RETURN NULL;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL THEN NULL
+    WHEN jsonb_typeof(
+      CASE
+        WHEN p_path IS NULL OR p_path = '' OR p_path = '$' THEN p_text::jsonb
+        ELSE p_text::jsonb #> sqlite_json_path_to_text_array(p_path)
+      END
+    ) <> 'array' THEN NULL
+    ELSE jsonb_array_length(
+      CASE
+        WHEN p_path IS NULL OR p_path = '' OR p_path = '$' THEN p_text::jsonb
+        ELSE p_text::jsonb #> sqlite_json_path_to_text_array(p_path)
+      END
+    )
+  END
 $fn$
 `.trim(),
   `
@@ -125,32 +126,22 @@ RETURNS integer
 LANGUAGE sql
 IMMUTABLE
 AS $fn$
-  SELECT json_array_length(p_text, NULL::text);
+  SELECT json_array_length(p_text, NULL::text)
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_extract(p_text text, p_path text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  extracted jsonb;
-BEGIN
-  IF p_text IS NULL OR p_path IS NULL THEN
-    RETURN NULL;
-  END IF;
-  v := p_text::jsonb;
-  IF p_path = '$' THEN
-    RETURN sqlite_json_atom_text(v);
-  END IF;
-  extracted := jsonb_path_query_first(v, p_path::jsonpath);
-  RETURN sqlite_json_atom_text(extracted);
-EXCEPTION
-  WHEN others THEN
-    RETURN NULL;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL OR p_path IS NULL THEN NULL
+    WHEN p_path = '$' THEN sqlite_json_atom_text(p_text::jsonb)
+    ELSE sqlite_json_atom_text(
+      p_text::jsonb #> sqlite_json_path_to_text_array(p_path)
+    )
+  END
 $fn$
 `.trim(),
   `
@@ -159,138 +150,82 @@ RETURNS text
 LANGUAGE sql
 IMMUTABLE
 AS $fn$
-  SELECT to_jsonb(p_value)::text;
-$fn$
-`.trim(),
-  `
-CREATE OR REPLACE FUNCTION sqlite_json_path_to_text_array(p_path text)
-RETURNS text[]
-LANGUAGE plpgsql
-IMMUTABLE
-AS $fn$
-DECLARE
-  cleaned text;
-  jp text[];
-BEGIN
-  cleaned := regexp_replace(
-    regexp_replace(COALESCE(p_path, ''), '^\\$', ''),
-    '\\[([0-9]+)\\]',
-    ',\\1',
-    'g'
-  );
-  jp := string_to_array(cleaned, '.');
-  RETURN array_remove(jp, '');
-END;
+  SELECT to_jsonb(p_value)::text
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_set(p_text text, p_path text, p_value text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  jp text[];
-BEGIN
-  IF p_text IS NULL THEN RETURN NULL; END IF;
-  v := p_text::jsonb;
-  jp := sqlite_json_path_to_text_array(p_path);
-  IF cardinality(jp) = 0 THEN RETURN v::text; END IF;
-  BEGIN
-    v := jsonb_set(v, jp, p_value::jsonb, true);
-  EXCEPTION
-    WHEN others THEN
-      v := jsonb_set(v, jp, to_jsonb(p_value), true);
-  END;
-  RETURN v::text;
-EXCEPTION
-  WHEN others THEN
-    RETURN p_text;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL THEN NULL
+    WHEN cardinality(sqlite_json_path_to_text_array(p_path)) = 0
+      THEN p_text::jsonb::text
+    ELSE jsonb_set(
+      p_text::jsonb,
+      sqlite_json_path_to_text_array(p_path),
+      p_value::jsonb,
+      true
+    )::text
+  END
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_insert(p_text text, p_path text, p_value text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  jp text[];
-  existing jsonb;
-BEGIN
-  IF p_text IS NULL THEN RETURN NULL; END IF;
-  v := p_text::jsonb;
-  jp := sqlite_json_path_to_text_array(p_path);
-  IF cardinality(jp) = 0 THEN RETURN v::text; END IF;
-  existing := v #> jp;
-  IF existing IS NOT NULL THEN RETURN v::text; END IF;
-  BEGIN
-    v := jsonb_set(v, jp, p_value::jsonb, true);
-  EXCEPTION
-    WHEN others THEN
-      v := jsonb_set(v, jp, to_jsonb(p_value), true);
-  END;
-  RETURN v::text;
-EXCEPTION
-  WHEN others THEN
-    RETURN p_text;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL THEN NULL
+    WHEN cardinality(sqlite_json_path_to_text_array(p_path)) = 0
+      THEN p_text::jsonb::text
+    WHEN (p_text::jsonb #> sqlite_json_path_to_text_array(p_path)) IS NOT NULL
+      THEN p_text::jsonb::text
+    ELSE jsonb_set(
+      p_text::jsonb,
+      sqlite_json_path_to_text_array(p_path),
+      p_value::jsonb,
+      true
+    )::text
+  END
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_replace(p_text text, p_path text, p_value text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  jp text[];
-  existing jsonb;
-BEGIN
-  IF p_text IS NULL THEN RETURN NULL; END IF;
-  v := p_text::jsonb;
-  jp := sqlite_json_path_to_text_array(p_path);
-  IF cardinality(jp) = 0 THEN RETURN v::text; END IF;
-  existing := v #> jp;
-  IF existing IS NULL THEN RETURN v::text; END IF;
-  BEGIN
-    v := jsonb_set(v, jp, p_value::jsonb, false);
-  EXCEPTION
-    WHEN others THEN
-      v := jsonb_set(v, jp, to_jsonb(p_value), false);
-  END;
-  RETURN v::text;
-EXCEPTION
-  WHEN others THEN
-    RETURN p_text;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL THEN NULL
+    WHEN cardinality(sqlite_json_path_to_text_array(p_path)) = 0
+      THEN p_text::jsonb::text
+    WHEN (p_text::jsonb #> sqlite_json_path_to_text_array(p_path)) IS NULL
+      THEN p_text::jsonb::text
+    ELSE jsonb_set(
+      p_text::jsonb,
+      sqlite_json_path_to_text_array(p_path),
+      p_value::jsonb,
+      false
+    )::text
+  END
 $fn$
 `.trim(),
   `
 CREATE OR REPLACE FUNCTION json_remove(p_text text, p_path text)
 RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  jp text[];
-BEGIN
-  IF p_text IS NULL THEN RETURN NULL; END IF;
-  v := p_text::jsonb;
-  jp := sqlite_json_path_to_text_array(p_path);
-  IF cardinality(jp) > 0 THEN
-    v := v #- jp;
-  END IF;
-  RETURN v::text;
-EXCEPTION
-  WHEN others THEN
-    RETURN p_text;
-END;
+  SELECT CASE
+    WHEN p_text IS NULL THEN NULL
+    WHEN cardinality(sqlite_json_path_to_text_array(p_path)) = 0
+      THEN p_text::jsonb::text
+    ELSE (p_text::jsonb #- sqlite_json_path_to_text_array(p_path))::text
+  END
 $fn$
 `.trim(),
   `
@@ -302,7 +237,7 @@ AS $fn$
   SELECT CASE
     WHEN p_target IS NULL OR p_patch IS NULL THEN NULL
     ELSE (p_target::jsonb || p_patch::jsonb)::text
-  END;
+  END
 $fn$
 `.trim(),
   `
@@ -317,73 +252,61 @@ RETURNS TABLE (
   fullkey text,
   path text
 )
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $fn$
-DECLARE
-  v jsonb;
-  v_path text;
-  el jsonb;
-  obj_key text;
-  idx int := 0;
-  row_id bigint := 1;
-BEGIN
-  IF p_text IS NULL THEN
-    RETURN;
-  END IF;
-  v := p_text::jsonb;
-  v_path := COALESCE(NULLIF(p_path, ''), '$');
-  IF v_path <> '$' THEN
-    v := jsonb_path_query_first(v, v_path::jsonpath);
-  END IF;
-  IF v IS NULL THEN
-    RETURN;
-  END IF;
-  IF jsonb_typeof(v) = 'array' THEN
-    FOR el IN SELECT * FROM jsonb_array_elements(v) LOOP
-      key := idx::text;
-      value := el::text;
-      type := CASE jsonb_typeof(el)
-        WHEN 'object' THEN 'object'
-        WHEN 'array' THEN 'array'
-        WHEN 'string' THEN 'text'
-        WHEN 'number' THEN 'real'
-        WHEN 'boolean' THEN 'true'
-        WHEN 'null' THEN 'null'
-        ELSE jsonb_typeof(el)
-      END;
-      atom := sqlite_json_atom_text(el);
-      id := row_id;
-      parent := 0;
-      fullkey := v_path || '[' || idx::text || ']';
-      path := v_path;
-      RETURN NEXT;
-      idx := idx + 1;
-      row_id := row_id + 1;
-    END LOOP;
-  ELSIF jsonb_typeof(v) = 'object' THEN
-    FOR obj_key, el IN SELECT * FROM jsonb_each(v) LOOP
-      key := obj_key;
-      value := el::text;
-      type := CASE jsonb_typeof(el)
-        WHEN 'object' THEN 'object'
-        WHEN 'array' THEN 'array'
-        WHEN 'string' THEN 'text'
-        WHEN 'number' THEN 'real'
-        WHEN 'boolean' THEN 'true'
-        WHEN 'null' THEN 'null'
-        ELSE jsonb_typeof(el)
-      END;
-      atom := sqlite_json_atom_text(el);
-      id := row_id;
-      parent := 0;
-      fullkey := v_path || '.' || obj_key;
-      path := v_path;
-      RETURN NEXT;
-      row_id := row_id + 1;
-    END LOOP;
-  END IF;
-END;
+  WITH root AS (
+    SELECT CASE
+      WHEN p_text IS NULL THEN NULL::jsonb
+      WHEN COALESCE(NULLIF(p_path, ''), '$') = '$' THEN p_text::jsonb
+      ELSE p_text::jsonb #> sqlite_json_path_to_text_array(p_path)
+    END AS v,
+    COALESCE(NULLIF(p_path, ''), '$') AS v_path
+  ),
+  arr AS (
+    SELECT
+      (ordinality - 1)::text AS key,
+      el AS el,
+      v_path
+    FROM root,
+      LATERAL jsonb_array_elements(root.v) WITH ORDINALITY AS t(el, ordinality)
+    WHERE root.v IS NOT NULL AND jsonb_typeof(root.v) = 'array'
+  ),
+  obj AS (
+    SELECT
+      obj_key AS key,
+      el AS el,
+      v_path
+    FROM root,
+      LATERAL jsonb_each(root.v) AS t(obj_key, el)
+    WHERE root.v IS NOT NULL AND jsonb_typeof(root.v) = 'object'
+  ),
+  combined AS (
+    SELECT * FROM arr
+    UNION ALL
+    SELECT * FROM obj
+  )
+  SELECT
+    key,
+    el::text AS value,
+    CASE jsonb_typeof(el)
+      WHEN 'object' THEN 'object'
+      WHEN 'array' THEN 'array'
+      WHEN 'string' THEN 'text'
+      WHEN 'number' THEN 'real'
+      WHEN 'boolean' THEN 'true'
+      WHEN 'null' THEN 'null'
+      ELSE jsonb_typeof(el)
+    END AS type,
+    sqlite_json_atom_text(el) AS atom,
+    row_number() OVER ()::bigint AS id,
+    0::bigint AS parent,
+    CASE
+      WHEN key ~ '^[0-9]+$' THEN v_path || '[' || key || ']'
+      ELSE v_path || '.' || key
+    END AS fullkey,
+    v_path AS path
+  FROM combined
 $fn$
 `.trim(),
   `
@@ -401,7 +324,35 @@ RETURNS TABLE (
 LANGUAGE sql
 IMMUTABLE
 AS $fn$
-  SELECT * FROM json_each(p_text, '$');
+  SELECT * FROM json_each(p_text, '$')
 $fn$
 `.trim(),
 ];
+
+/**
+ * `json_valid` needs PL/pgSQL `EXCEPTION` on real Postgres. postgres-mem has
+ * no PL/pgSQL — use this `LANGUAGE sql` stand-in (invalid JSON may throw at
+ * call sites instead of returning false).
+ */
+export const SQLITE_JSON_VALID_SQL_FOR_MEM = `
+CREATE OR REPLACE FUNCTION json_valid(p_text text)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+AS $fn$
+  SELECT CASE
+    WHEN p_text IS NULL THEN false
+    ELSE length(p_text::jsonb::text) >= 0
+  END
+$fn$
+`.trim();
+
+/** Statements safe to `exec` on `@crvouga/postgres-mem` (no PL/pgSQL). */
+export function sqliteJsonInstallStatementsForPostgresMem(): readonly string[] {
+  return SQLITE_JSON_INSTALL_STATEMENTS.map((statement) =>
+    statement.includes('LANGUAGE plpgsql') &&
+    statement.includes('json_valid(p_text text)')
+      ? SQLITE_JSON_VALID_SQL_FOR_MEM
+      : statement
+  );
+}

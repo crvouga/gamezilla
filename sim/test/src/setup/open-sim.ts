@@ -23,6 +23,8 @@ import { createElement } from 'react';
 
 import '@apps/client/i18n/i18n';
 
+import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
+import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import {
   type OpenSimFidelity,
   type OpenSimOptions,
@@ -30,6 +32,7 @@ import {
 } from './fidelity';
 import { simNodeTimers } from './sim-actor-overrides';
 import { simReportTopology } from './sim-world-snapshot';
+import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 
 const reportFs = wallNodeFs();
 const reportDataDir = resolveSimConsoleReportsDir(
@@ -50,6 +53,11 @@ const reportStore = createNodeFsObjectStore({
  */
 const STATIC_REPORT_RUN_ID = 'latest_run';
 
+/** HTML dumps for sim console. Off only when `SIM_REPORT=0`. */
+function simReportEnabled(): boolean {
+  return process.env['SIM_REPORT'] !== '0';
+}
+
 async function writeKeysIndex(): Promise<void> {
   const keys = await reportStore.listKeys();
   await writeUtf8(
@@ -69,6 +77,11 @@ export type OpenSimHandle = {
   readonly sim: Sim;
   readonly fidelity: OpenSimFidelity;
   actor(id: string): Promise<SimActorHandle>;
+  /**
+   * Close UI + client for `id` and bump durable client epoch so the next
+   * {@link actor} call mounts a fresh client SQL namespace (shared server).
+   */
+  resetActor(id: string): Promise<void>;
   dispose(): Promise<void>;
   [Symbol.asyncDispose](): Promise<void>;
 };
@@ -152,18 +165,30 @@ async function bootSim(
   fidelity: OpenSimFidelity
 ): Promise<{
   readonly sim: Sim;
-  readonly reporter: SimulationReporter;
+  readonly reporter: SimulationReporter | null;
 }> {
-  await reportFs.mkdir(reportDataDir, { recursive: true });
+  const startMs = Date.parse('2024-06-01T00:00:00.000Z');
+  const backend = resolveSimSqlBackend();
   const sim = await createSim({
     seed: 1,
-    startMs: Date.parse('2024-06-01T00:00:00.000Z'),
+    startMs,
     // Keep virtual sim timers on the product — wall timers here stick RNTL
     // `act` on product setIntervals (reconcile / ping). Driver waits use wall
     // time in createClientDriver and advance this clock while sleeping.
-    ...(fidelity === 'max' ? { serverSql: await postgresServerSql() } : {}),
+    ...(fidelity === 'max'
+      ? { serverSql: await postgresServerSql() }
+      : {
+          serverSqlSeedBytes:
+            backend === 'mem'
+              ? (await ensureSimPostgresMemSeed()).seedBytes
+              : (await ensureSimPgliteSeed()).seedBytes,
+        }),
   });
   await sim.spawnServer();
+  if (!simReportEnabled()) {
+    return { sim, reporter: null };
+  }
+  await reportFs.mkdir(reportDataDir, { recursive: true });
   const reporter = new SimulationReporter({
     seed: '1',
     store: reportStore,
@@ -197,14 +222,31 @@ export async function openSim(
       const existing = actors.get(id);
       if (existing) return existing.handle;
       const raw = createClientDriver({ fidelity, sim, id });
-      const ui = createReportingDriver(raw, {
-        actorId: id,
-        reporter,
-      });
+      const ui =
+        reporter === null
+          ? raw
+          : createReportingDriver(raw, {
+              actorId: id,
+              reporter,
+            });
       await ui.launch();
       const actorHandle = { id, ui };
       actors.set(id, { handle: actorHandle, raw });
       return actorHandle;
+    },
+    async resetActor(id: string) {
+      if (disposed) return;
+      const existing = actors.get(id);
+      if (existing !== undefined) {
+        try {
+          await existing.raw.close();
+        } catch {
+          // ignore teardown races
+        }
+        actors.delete(id);
+      }
+      await sim.dropClient(id);
+      sim.bumpClientEpoch();
     },
     async dispose() {
       if (disposed) return;
@@ -219,11 +261,13 @@ export async function openSim(
         }
       }
       actors.clear();
-      try {
-        await reporter.flush();
-        await writeKeysIndex();
-      } catch {
-        // report flush should not mask sim teardown
+      if (reporter !== null) {
+        try {
+          await reporter.flush();
+          await writeKeysIndex();
+        } catch {
+          // report flush should not mask sim teardown
+        }
       }
       await sim.dispose();
     },

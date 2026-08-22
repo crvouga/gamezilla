@@ -15,12 +15,11 @@
     "test": "bun test --pass-with-no-tests --parallel=1 --timeout 120000"
   },
   "dependencies": {
+    "@crvouga/postgres-mem": "catalog:",
     "@pkgs/assert": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*"
+    "@pkgs/sql": "workspace:*"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

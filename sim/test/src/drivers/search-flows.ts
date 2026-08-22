@@ -29,7 +29,7 @@ export class SearchFlows {
     let lastError: unknown;
     let lastQueryAt = 0;
     while (wallClock.now() < deadline) {
-      if (wallClock.now() - lastQueryAt >= 3_000) {
+      if (wallClock.now() - lastQueryAt >= 750) {
         await this.searchUsername(username);
         lastQueryAt = wallClock.now();
       }

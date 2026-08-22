@@ -186,7 +186,12 @@ function isHostVisible(element: ReactTestInstance): boolean {
     };
     if (props.accessibilityElementsHidden === true) return false;
     if (props.importantForAccessibility === 'no-hide-descendants') return false;
-    if (props.pointerEvents === 'none') return false;
+    if (
+      props.pointerEvents === 'none' ||
+      stylePointerEvents(props.style) === 'none'
+    ) {
+      return false;
+    }
     if (styleHides(props.style)) return false;
     current = current.parent;
   }
@@ -204,6 +209,18 @@ function styleHides(style: unknown): boolean {
     if (record['width'] === 0 && record['height'] === 0) return true;
   }
   return false;
+}
+
+function stylePointerEvents(style: unknown): string | undefined {
+  if (style == null) return undefined;
+  const list = flattenStyleList(style);
+  for (let i = list.length - 1; i >= 0; i -= 1) {
+    const entry = list[i];
+    if (entry == null || typeof entry !== 'object') continue;
+    const pe = (entry as Record<string, unknown>)['pointerEvents'];
+    if (typeof pe === 'string') return pe;
+  }
+  return undefined;
 }
 
 /** Flatten RN style arrays without assuming `Array.prototype.flat` on proxies. */

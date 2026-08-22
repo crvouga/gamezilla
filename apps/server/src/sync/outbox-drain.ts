@@ -49,13 +49,17 @@ export async function drainAndNotifyOutbox(args: {
   if (result.notifyUserIds.length === 0) return result.processed;
 
   const store = apiRequestAsyncLocalStorage.getStore();
-  if (store === undefined) return result.processed;
+  if (store === undefined) {
+    return result.processed;
+  }
   const topics = result.notifyUserIds
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return result.processed;
   const pubsub = await getApiPubSub(store.secretStore);
-  if (pubsub === undefined) return result.processed;
+  if (pubsub === undefined) {
+    return result.processed;
+  }
   await notifyChannels({
     pubsub,
     sql: store.sqlClient,

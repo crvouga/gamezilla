@@ -10,6 +10,7 @@
 
 import { Database } from '@crvouga/postgres-mem';
 import { assert } from '@pkgs/assert';
+import { installPostgresMemSqliteCompat } from '@pkgs/postgres-sqlite-compat/install-postgres-mem';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
   PostgresSqlClient,
@@ -20,7 +21,6 @@ import type {
 import { questionMarkParamsToDollarParams } from '../positional-params';
 import { readLastInsertRowid } from './impl-pg-shared';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
-import { installPostgresMemSqliteCompat } from './postgres-mem-sqlite-compat';
 import {
   createPostgresDbScope,
   type PostgresDbScope,

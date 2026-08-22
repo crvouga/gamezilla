@@ -21,6 +21,7 @@ import {
   type SxInput,
   useHostSx,
   useTheme,
+  withPointerEvents,
 } from '../../theme';
 import { linearGradientCss, mergeCss } from './gradient-css';
 
@@ -59,6 +60,7 @@ export function GradientBox({
   onColor,
   children,
   dataSet,
+  pointerEvents,
   ...rest
 }: GradientBoxProps) {
   const theme = useTheme();
@@ -68,7 +70,11 @@ export function GradientBox({
   ];
   const origin = start ?? { x: 0, y: 0.5 };
   const dest = end ?? { x: 1, y: 0.5 };
-  const host = useHostSx('GradientBox', sxProp, dataSet);
+  const host = useHostSx(
+    'GradientBox',
+    withPointerEvents(sxProp, pointerEvents),
+    dataSet
+  );
   const onColorValue = useMemo(
     (): OnColorSet =>
       onColor !== undefined

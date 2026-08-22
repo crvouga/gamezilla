@@ -234,7 +234,9 @@ async function runMerge(
   let applied = false;
   const changed = new Set<string>();
   await deps.db.transaction(async (tx) => {
-    if (await isStale(tx, input.scopeHash, input.checkpoint)) return;
+    if (await isStale(tx, input.scopeHash, input.checkpoint)) {
+      return;
+    }
     for (const [table, rows] of Object.entries(input.tables)) {
       const ok = await mergeTable(tx, table, rows, deps.env);
       if (ok) changed.add(table);

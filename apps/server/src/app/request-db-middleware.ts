@@ -71,6 +71,11 @@ export type RequestDbMiddlewareOptions = {
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
   readonly openSqlClient: OpenSqlClient;
+  /**
+   * Prefer Postgres-dialect Better Auth when a pool/DB handle is available
+   * (sim PGlite). Defaults to SqlClient-as-SQLite for postgres-mem / Worker.
+   */
+  readonly betterAuthDatabase?: import('@pkgs/auth-better-auth/server').BetterAuthDatabase;
   readonly skipDatabaseUrlPolicy?: boolean;
 };
 
@@ -115,13 +120,19 @@ async function openObservedSqlClient(
 
 function createRequestBetterAuth(
   boot: BetterAuthBootConfig,
-  sqlClient: SqlClient
+  sqlClient: SqlClient,
+  betterAuthDatabase:
+    | import('@pkgs/auth-better-auth/server').BetterAuthDatabase
+    | undefined
 ): BetterAuthInstance {
   return createBetterAuth(
-    betterAuthConfigForDatabase(boot, {
-      kind: 'sql-client',
-      client: sqlClient,
-    })
+    betterAuthConfigForDatabase(
+      boot,
+      betterAuthDatabase ?? {
+        kind: 'sql-client',
+        client: sqlClient,
+      }
+    )
   );
 }
 
@@ -151,7 +162,11 @@ async function attachRequestDatabase(
   const { betterAuth: boot, observability, clock, timers, createId } = options;
   const raw = await openObservedSqlClient(observability, options.openSqlClient);
   const sqlClient = wrapSqlClientForObservability(observability, raw);
-  const betterAuth = createRequestBetterAuth(boot, sqlClient);
+  const betterAuth = createRequestBetterAuth(
+    boot,
+    sqlClient,
+    options.betterAuthDatabase
+  );
   const authServer = createBetterAuthServerAdapter(betterAuth);
   const kv = new KvImplPostgres(sqlClient, clock.now);
   const sessionAuth = new SessionAuth(authServer, { clock, createId });

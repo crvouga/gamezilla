@@ -15,6 +15,7 @@ import type {
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import { createSqlWatch } from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
+import { resolveQueryHydrates } from '../queries/core/define-query';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
@@ -285,11 +286,20 @@ function flushOutboundLive(state: LocalEngineState): void {
   void buf.flush(pubsub);
 }
 
-function attachPushIfConfigured(state: LocalEngineState): void {
+async function resolvePushQueryHydrates(
+  registry: QueryRegistry
+): Promise<void> {
+  await Promise.all(
+    Object.values(registry).map((query) => resolveQueryHydrates(query))
+  );
+}
+
+async function attachPushIfConfigured(state: LocalEngineState): Promise<void> {
   const push = state.options.push;
   if (push === undefined || state.disposePush !== null) {
     return;
   }
+  await resolvePushQueryHydrates(push.queryRegistry);
   let pubsub = push.createPubSub();
   state.pushPubSub = pubsub;
   const topicMap = withFrameworkTopicMap(push.topicMap);
@@ -377,7 +387,7 @@ async function connectState(state: LocalEngineState): Promise<void> {
     state.uploadQueue.start();
   }
   state.runtime.start();
-  attachPushIfConfigured(state);
+  await attachPushIfConfigured(state);
   state.status.patch({ connection: 'syncing' });
 }
 
@@ -453,7 +463,7 @@ function toEngine(state: LocalEngineState): SyncEngine {
       notifyLocalMutation(state, mutation, args, capture),
     ensurePush: () => {
       if (!state.connected) return;
-      attachPushIfConfigured(state);
+      void attachPushIfConfigured(state);
     },
   };
 }

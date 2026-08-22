@@ -30,6 +30,8 @@ require('@pkgs/logger').setDefaultLogLevel('error');
 // Product sims unmount in `sim.dispose()`. RNTL afterEach `cleanup()` would
 // call the same async `act(unmount)` again and hang (180s hook timeout).
 process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
+// Reports write to sim/console/public/reports by default (sim console UI).
+// Set SIM_REPORT=0 to skip HTML frame I/O for a faster suite.
 const { Appearance, Dimensions, NativeModules } = require('react-native');
 
 // Phone frame matching the simulation report iframe (390×844).

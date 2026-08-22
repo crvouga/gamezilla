@@ -9,7 +9,7 @@
 import { type ComponentProps, forwardRef } from 'react';
 import { Animated, type View } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { type SxInput, useHostSx } from '../../theme';
+import { type SxInput, useHostSx, withPointerEvents } from '../../theme';
 
 export type AnimatedBoxProps = Omit<
   ComponentProps<typeof Animated.View>,
@@ -20,8 +20,12 @@ export type AnimatedBoxProps = Omit<
 };
 
 export const AnimatedBox = forwardRef<View, AnimatedBoxProps>(
-  function AnimatedBox({ sx, dataSet, ...rest }, ref) {
-    const host = useHostSx('AnimatedBox', sx, dataSet);
+  function AnimatedBox({ sx, dataSet, pointerEvents, ...rest }, ref) {
+    const host = useHostSx(
+      'AnimatedBox',
+      withPointerEvents(sx, pointerEvents),
+      dataSet
+    );
     return (
       <Animated.View ref={ref} style={host.style} {...rest} {...host.dataSet} />
     );

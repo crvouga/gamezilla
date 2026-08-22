@@ -16,6 +16,7 @@ import {
   restoreCheckpointRooms,
 } from '@sim/console/playground/playground-checkpoint-state';
 import { awaitPlaygroundMutationDrain } from '@sim/console/playground/playground-snapshot-sync';
+import { getSimSqlFabric } from '@sim/console/sim/sim-sql-fabric';
 
 export type { CheckpointSessionCtx } from '@sim/console/playground/playground-checkpoint-state';
 
@@ -37,7 +38,7 @@ export async function captureCheckpoint(
     clientIds,
     roomTopics,
     ...collectFaultFields(ctx),
-    sqlFormat: 'mixed-pgmm-sqlm',
+    sqlFormat: getSimSqlFabric().checkpointSqlFormat,
     ...blobs,
     rooms: collectRooms(ctx, roomTopics),
   };
@@ -47,17 +48,15 @@ export async function restoreCheckpoint(
   ctx: CheckpointSessionCtx,
   checkpoint: SimCheckpoint
 ): Promise<void> {
-  if (
-    checkpoint.sqlFormat !== 'mixed-pgmm-sqlm' &&
-    checkpoint.sqlFormat !== 'sqlm'
-  ) {
-    throw new Error(
-      `restoreCheckpoint: expected mixed-pgmm-sqlm or sqlm blobs, got '${checkpoint.sqlFormat}'`
-    );
-  }
+  const expected = getSimSqlFabric().checkpointSqlFormat;
   if (checkpoint.sqlFormat === 'sqlm') {
     throw new Error(
-      'restoreCheckpoint: legacy all-sqlm checkpoints are incompatible with postgres-mem server'
+      'restoreCheckpoint: legacy all-sqlm checkpoints are incompatible with the current server SQL fabric'
+    );
+  }
+  if (checkpoint.sqlFormat !== expected) {
+    throw new Error(
+      `restoreCheckpoint: checkpoint sqlFormat '${checkpoint.sqlFormat}' does not match active fabric '${expected}' (clear sticky snapshot or switch SIM_SQL_BACKEND)`
     );
   }
   ctx.setClockPaused(true);

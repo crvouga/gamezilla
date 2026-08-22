@@ -13,6 +13,9 @@ module.exports = function (api) {
         {
           web: {
             enableBabelRuntime: false,
+            // Hermes classic scripts cannot parse `import.meta` (PGlite CJS
+            // still pulls chunks that may retain it; polyfill as belt/suspenders).
+            unstable_transformImportMeta: true,
           },
         },
       ],

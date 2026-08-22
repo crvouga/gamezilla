@@ -4,7 +4,8 @@
  * pg-mem does not run real PL/pgSQL, so {@link installPostgresSqliteCompat}'s
  * SQL DDL would install no-op bodies. Register JS implementations instead.
  *
- * Public re-export: `@pkgs/postgres-sqlite-compat` → `installPgMemSqliteCompat`.
+ * Lives here (not `@pkgs/postgres-sqlite-compat`) so that package stays a
+ * leaf and does not pull `pg-mem` into real-Postgres consumers.
  */
 
 import { DataType, type IMemoryDb, type ISchema } from 'pg-mem';

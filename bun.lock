@@ -1195,12 +1195,11 @@
       "name": "@pkgs/postgres-sqlite-compat",
       "version": "0.0.0",
       "dependencies": {
+        "@crvouga/postgres-mem": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
       },
       "devDependencies": {
-        "@electric-sql/pglite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1422,11 +1421,14 @@
       "dependencies": {
         "@crvouga/postgres-mem": "catalog:",
         "@crvouga/sqlite-mem": "catalog:",
+        "@electric-sql/pglite": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/object-store": "workspace:*",
+        "@pkgs/postgres-sqlite-compat": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
+        "@sqlite.org/sqlite-wasm": "catalog:",
         "better-sqlite3": "catalog:",
         "expo-sqlite": "catalog:",
         "pg": "catalog:",
@@ -1435,7 +1437,6 @@
         "react-native": "catalog:",
       },
       "devDependencies": {
-        "@electric-sql/pglite": "catalog:",
         "@playwright/test": "catalog:",
         "@types/better-sqlite3": "catalog:",
         "@types/bun": "catalog:",
@@ -1832,6 +1833,7 @@
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/native-stack": "^7.3.16",
     "@shopify/react-native-skia": "2.4.21",
+    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react-native": "^13.3.3",
     "@testing-library/user-event": "^14.6.1",
@@ -3086,6 +3088,8 @@
     "@smithy/util-utf8": ["@smithy/util-utf8@2.3.0", "", { "dependencies": { "@smithy/util-buffer-from": "^2.2.0", "tslib": "^2.6.2" } }, "sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A=="],
 
     "@speed-highlight/core": ["@speed-highlight/core@1.2.15", "", {}, "sha512-BMq1K3DsElxDWawkX6eLg9+CKJrTVGCBAWVuHXVUV2u0s2711qiChLSId6ikYPfxhdYocLNt3wWwSvDiTvFabw=="],
+
+    "@sqlite.org/sqlite-wasm": ["@sqlite.org/sqlite-wasm@3.53.0-build1", "", {}, "sha512-PfWPWN2n+/37doa8oh2/oUXk4OOsRYZsxc1W1sDXIGb/Pu5Yrb+f2eyYpgQMGITVX7HVgxhs9P18Rc6I97ym/g=="],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 

@@ -34,8 +34,9 @@ export function ModalBackdrop({
         feedback="none"
       />
       {/*
-        pointerEvents must be a View prop — style.pointerEvents is ignored on
-        RN Web, so the flex:1 centering layer would eat backdrop presses.
+        pointerEvents is compiled onto style by Box (RN Web deprecates the
+        View prop). box-none lets backdrop presses pass through the centering
+        layer.
       */}
       <Box
         pointerEvents="box-none"

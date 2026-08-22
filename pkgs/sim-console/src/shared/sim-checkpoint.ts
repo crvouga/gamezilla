@@ -1,14 +1,17 @@
 /**
  * Full World checkpoint for playground time travel and DST report replay.
- * Playground capture stores postgres-mem PGMM for the server and sqlite-mem
- * SQLM for clients (`mixed-pgmm-sqlm`). DST reports may still store native
- * sqlite images; the console converts those to SQLM before restore.
+ * Playground capture stores opaque server/client bytes:
+ * - `mixed-pglite-sqlite` — PGlite dump + real SQLite serialize (default `real`)
+ * - `mixed-pgmm-sqlm` — postgres-mem PGMM + sqlite-mem SQLM (`mem` fabric)
+ * DST reports may still store native sqlite images; the console converts those
+ * to SQLM before restore when on the mem fabric.
  */
 
 export type SimCheckpointSqlFormat =
   | 'sqlm'
   | 'sqlite3-image'
-  | 'mixed-pgmm-sqlm';
+  | 'mixed-pgmm-sqlm'
+  | 'mixed-pglite-sqlite';
 
 export type SimCheckpointRoomDump = {
   readonly entries: readonly unknown[];

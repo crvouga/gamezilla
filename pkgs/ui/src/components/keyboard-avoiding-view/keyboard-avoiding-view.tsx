@@ -10,7 +10,7 @@ import {
   type KeyboardAvoidingViewProps as RNKeyboardAvoidingViewProps,
 } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { type SxInput, useHostSx } from '../../theme';
+import { type SxInput, useHostSx, withPointerEvents } from '../../theme';
 
 export type KeyboardAvoidingViewProps = Omit<
   RNKeyboardAvoidingViewProps,
@@ -25,10 +25,14 @@ export const KeyboardAvoidingView = forwardRef<
   RNKeyboardAvoidingView,
   KeyboardAvoidingViewProps
 >(function KeyboardAvoidingView(
-  { sx, behavior: behaviorProp, dataSet, ...rest },
+  { sx, behavior: behaviorProp, dataSet, pointerEvents, ...rest },
   ref
 ) {
-  const host = useHostSx('KeyboardAvoidingView', sx, dataSet);
+  const host = useHostSx(
+    'KeyboardAvoidingView',
+    withPointerEvents(sx, pointerEvents),
+    dataSet
+  );
   const behavior =
     behaviorProp ?? (Platform.OS === 'ios' ? 'padding' : 'height');
 

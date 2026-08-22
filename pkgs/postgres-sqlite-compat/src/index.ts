@@ -4,21 +4,22 @@
  * Install once per database so shared SQL can target SQLite-shaped APIs
  * (JSON1 first) on both engines. No-ops on SQLite.
  *
- * Real Postgres / PGlite: {@link installPostgresSqliteCompat} (PL/pgSQL DDL).
- * pg-mem: {@link installPgMemSqliteCompat} (JS `registerFunction` — also
- * applied automatically by {@link createPgMemSqlClient}).
- * postgres-mem: {@link installPostgresMemSqliteCompat} (`LANGUAGE sql` — also
- * applied automatically by {@link createPostgresMemSqlClient}).
+ * Real Postgres / PGlite: {@link installPostgresSqliteCompat} (DDL from
+ * `json-functions-sql.ts`).
+ * postgres-mem: {@link installPostgresMemSqliteCompat} (same statement list,
+ * mem-safe `json_valid` — also applied by SqlClientImplPostgresMem.open).
+ * pg-mem: JS `registerFunction` lives in
+ * `@pkgs/sql-client/postgres/pg-mem-sqlite-compat` (avoids pulling `pg-mem`
+ * into every compat consumer; applied by createPgMemSqlClient).
  */
 
 export {
   type InstallPostgresSqliteCompatOptions,
+  type PostgresSqliteCompatSqlClient,
   installPostgresSqliteCompat,
   isPostgresSqlClient,
 } from './install';
 export {
-  type InstallPgMemSqliteCompatOptions,
-  installPgMemSqliteCompat,
   type InstallPostgresMemSqliteCompatOptions,
   installPostgresMemSqliteCompat,
-} from './install-pg-mem';
+} from './install-postgres-mem';

@@ -101,6 +101,12 @@ export {
   useActionBarChrome,
 } from './use-action-bar-chrome';
 export { useBreakpoint } from './use-breakpoint';
-export { type HostSx, useHostSx } from './use-host-sx';
+export {
+  type HostStyle,
+  type HostSx,
+  toRnHostStyle,
+  useHostSx,
+  withPointerEvents,
+} from './use-host-sx';
 export { useHoverCapable } from './use-hover-capable';
 export { WebScrollbarTheme } from './web-scrollbar-theme';

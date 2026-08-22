@@ -253,6 +253,9 @@ function createServerRouter(args: {
         createId: env.createId,
         desiredClientConfig,
         openSqlClient: env.openSqlClient,
+        ...(env.betterAuthDatabase !== undefined
+          ? { betterAuthDatabase: env.betterAuthDatabase }
+          : {}),
         ...(env.skipDatabaseUrlPolicy ? { skipDatabaseUrlPolicy: true } : {}),
       })
     )
@@ -340,12 +343,6 @@ export async function createServer(env: ServerEnv) {
     createTtsAppForServer(env),
     createLlmAppForServer(env),
   ]);
-
-  if (!betterAuth.googleEnabled) {
-    log.warn(
-      'Google OAuth credentials missing; Google sign-in disabled (email/password and anon still available when enabled)'
-    );
-  }
 
   const desiredClientConfig = await buildDesiredClientConfig({
     secretStore: env.secrets,

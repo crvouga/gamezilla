@@ -99,24 +99,30 @@ async function isSqliteMemBlob(
 ): Promise<boolean> {
   const obj = await store.get(key);
   if (obj === null) return false;
-  const dump = parseJsonBytesWithSchema(
-    await readBody(obj.body),
-    playgroundSqliteMemDumpSchema
-  );
-  return dump !== null;
+  const bytes = await readBody(obj.body);
+  if (bytes.byteLength === 0) return false;
+  if (parseJsonBytesWithSchema(bytes, playgroundSqliteMemDumpSchema) !== null) {
+    return true;
+  }
+  // Real SQLite serialize / WASM export — opaque image
+  return bytes.byteLength >= 16;
 }
 
-async function isPostgresMemBlob(
+async function isServerSqlBlob(
   store: ObjectStore,
   key: string
 ): Promise<boolean> {
   const obj = await store.get(key);
   if (obj === null) return false;
-  const dump = parseJsonBytesWithSchema(
-    await readBody(obj.body),
-    playgroundPostgresMemDumpSchema
-  );
-  return dump !== null;
+  const bytes = await readBody(obj.body);
+  if (bytes.byteLength === 0) return false;
+  if (
+    parseJsonBytesWithSchema(bytes, playgroundPostgresMemDumpSchema) !== null
+  ) {
+    return true;
+  }
+  // PGlite gzip dump (opaque)
+  return bytes.byteLength >= 16;
 }
 
 /** Structural integrity only — schema version is annotated separately. */
@@ -128,7 +134,7 @@ async function isStructurallyValidSnapshot(
   if (text === null) return false;
   const manifest = parseJsonWithSchema(text, playgroundSnapshotManifestSchema);
   if (manifest === null || manifest.id !== info.id) return false;
-  if (!(await isPostgresMemBlob(store, manifest.keys.serverSql))) return false;
+  if (!(await isServerSqlBlob(store, manifest.keys.serverSql))) return false;
   for (const clientId of manifest.clientIds) {
     const key = manifest.keys.clientSql[clientId];
     if (key === undefined) return false;

@@ -20,9 +20,11 @@ import {
   flattenSx,
   type SxInput,
   type SxRadius,
+  toRnHostStyle,
   useHostSx,
   useHoverCapable,
   useTheme,
+  withPointerEvents,
 } from '../../theme';
 import { resolveRadius } from '../../theme/sx-resolve';
 import { Box } from '../box';
@@ -67,6 +69,7 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
     onHoverIn,
     onHoverOut,
     dataSet,
+    pointerEvents,
     ...rest
   },
   ref
@@ -74,7 +77,11 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
   const theme = useTheme();
   const hoverCapable = useHoverCapable();
   const [hovered, setHovered] = useState(false);
-  const host = useHostSx('Pressable', restSx(sxProp), dataSet);
+  const host = useHostSx(
+    'Pressable',
+    withPointerEvents(restSx(sxProp), pointerEvents),
+    dataSet
+  );
   const overlayRadius = resolveRadius(
     flattenSx(restSx(sxProp))?.borderRadius as SxRadius | undefined
   );
@@ -100,7 +107,9 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
           feedback === 'opacity' && state.pressed
             ? { opacity: PRESSED_OPACITY }
             : false;
-        return theme.sx([resolved, pressed]);
+        return toRnHostStyle(
+          theme.sx(withPointerEvents([resolved, pressed], pointerEvents))
+        );
       }}
       {...rest}
       {...host.dataSet}

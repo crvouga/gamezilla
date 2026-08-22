@@ -122,6 +122,7 @@ export type PlaygroundSnapshotManifest = {
   readonly skewByAddress: Readonly<Record<string, number>>;
   readonly downAddresses: readonly string[];
   readonly evictedAddresses: readonly string[];
+  readonly sqlFormat?: import('./sim-checkpoint').SimCheckpointSqlFormat | undefined;
   readonly keys: {
     readonly serverSql: string;
     readonly clientSql: Readonly<Record<string, string>>;

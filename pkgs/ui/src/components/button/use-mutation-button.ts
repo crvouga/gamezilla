@@ -30,6 +30,7 @@ import { useMutationPhaseSoundHandler } from '../../expo/mutation-sounds';
 import type { FloatingActionButtonProps } from '../floating-action-button/floating-action-button';
 import { useMutationLifecycle } from '../mutation-modal/use-mutation-lifecycle';
 import type { ButtonFeedback, ButtonProps } from './button';
+import { useMutationSuccessHoldMs } from './mutation-success-hold';
 
 export type MutationButtonLabels = {
   /** Resting label (the action prompt). */
@@ -125,10 +126,13 @@ export function useMutationButton({
   labels,
   onSuccess,
   onError,
-  successHoldMs = DEFAULT_SUCCESS_HOLD_MS,
+  successHoldMs: successHoldMsProp,
   disabled = false,
   sounds,
 }: UseMutationButtonParams): UseMutationButtonResult {
+  const envHoldMs = useMutationSuccessHoldMs();
+  const successHoldMs =
+    successHoldMsProp ?? envHoldMs ?? DEFAULT_SUCCESS_HOLD_MS;
   const onPhaseChange = useMutationPhaseSoundHandler(sounds);
   const { phase, error, run, reset } = useMutationLifecycle({
     operation,

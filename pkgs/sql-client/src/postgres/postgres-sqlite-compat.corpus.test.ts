@@ -1,15 +1,14 @@
 /**
  * Portable SQL corpus: the same DML runs on sqlite-mem and PGlite (+ JSON1
- * compat). Lives here so `@pkgs/sql-client` does not depend on this package.
+ * compat). Lives here so `@pkgs/postgres-sqlite-compat` stays a leaf.
  */
 import { afterAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
+import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem';
-
-import { installPostgresSqliteCompat } from './install';
+import type { SqlClient } from '../interface';
+import { SqlClientImplSqliteMem } from '../sqlite/impl-sqlite-mem';
+import { createPgliteSqlClient } from './impl-pglite';
 
 type Backend = {
   readonly name: string;

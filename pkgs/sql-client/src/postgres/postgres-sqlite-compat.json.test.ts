@@ -6,11 +6,11 @@
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
+import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPgliteSqlClient } from '@pkgs/sql-client/postgres/impl-pglite';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
-import { installPostgresSqliteCompat } from './install';
+import type { SqlClient } from '../interface';
+import { SqlClientImplBunSqlite } from '../sqlite/impl-bun-sqlite';
+import { createPgliteSqlClient } from './impl-pglite';
 
 type Backend = {
   readonly name: string;

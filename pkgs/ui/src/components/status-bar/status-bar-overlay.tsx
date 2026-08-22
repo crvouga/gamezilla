@@ -119,7 +119,6 @@ export function StatusBarOverlay({
           onRequestClose();
         }
       }}
-      pointerEvents={interactive ? 'auto' : 'none'}
       style={[
         {
           position: 'absolute',
@@ -128,6 +127,7 @@ export function StatusBarOverlay({
           bottom: 0,
           left: 0,
           zIndex: 1,
+          pointerEvents: interactive ? 'auto' : 'none',
         },
         surfaceStyle,
       ]}

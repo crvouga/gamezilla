@@ -5,7 +5,8 @@
   "scripts": {
     "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
     "tc": "tsc --noEmit -p tsconfig.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
+    "test": "bunx jest --config ./jest.config.cjs --runInBand",
+    "test:debug-handles": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:max": "SIM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand"
   },
   "dependencies": {

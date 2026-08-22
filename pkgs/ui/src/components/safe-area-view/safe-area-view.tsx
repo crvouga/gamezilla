@@ -16,7 +16,7 @@ import {
   type ViewProps,
 } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { type SxInput, useHostSx } from '../../theme';
+import { type SxInput, useHostSx, withPointerEvents } from '../../theme';
 
 export type SafeAreaViewProps = Omit<ViewProps, 'style'> & {
   /** Utility-first style shorthand. */
@@ -26,8 +26,12 @@ export type SafeAreaViewProps = Omit<ViewProps, 'style'> & {
 };
 
 export const SafeAreaView = forwardRef<View, SafeAreaViewProps>(
-  function SafeAreaView({ sx, dataSet, ...rest }, ref) {
-    const host = useHostSx('SafeAreaView', sx, dataSet);
+  function SafeAreaView({ sx, dataSet, pointerEvents, ...rest }, ref) {
+    const host = useHostSx(
+      'SafeAreaView',
+      withPointerEvents(sx, pointerEvents),
+      dataSet
+    );
     return (
       <RNSafeAreaView
         ref={ref}

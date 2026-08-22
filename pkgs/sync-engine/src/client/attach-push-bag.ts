@@ -128,7 +128,13 @@ export function filterScopesByTables(
     if (!scopes.has(sub.scope)) continue;
     const query = bag.options.queryRegistry[sub.name];
     if (query === undefined) continue;
-    if (query.hydrates.some((table) => tableSet.has(table))) {
+    // Client never runs defineQuery.run locally, so hydrates stay [] until
+    // eagerly resolved. Unresolved → cannot prove non-overlap; wake the scope
+    // or table-filtered OOB pushes (e.g. outbox notifications) are dropped.
+    if (
+      query.hydrates.length === 0 ||
+      query.hydrates.some((table) => tableSet.has(table))
+    ) {
       out.add(sub.scope);
     }
   }

@@ -157,9 +157,16 @@ function injectUpdate(
   env: MutationEnv,
   setCols: readonly string[]
 ): Sql<unknown> {
-  if (setCols.includes('updated_at')) return query;
-  const nowIso = env.now().toISOString();
   const text = query.sql;
+  // Prefer AST column list; also scan SQL text so we never double-assign
+  // `updated_at` (real Postgres / PGlite reject that; postgres-mem did not).
+  if (
+    setCols.includes('updated_at') ||
+    /\bupdated_at\s*=/i.test(text)
+  ) {
+    return query;
+  }
+  const nowIso = env.now().toISOString();
   const setMatch = text.match(/\bSET\b/i);
   if (setMatch === null || setMatch.index === undefined) return query;
   const insertAt = setMatch.index + setMatch[0].length;

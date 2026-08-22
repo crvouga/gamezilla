@@ -10,15 +10,33 @@ import type { PreparedStatement, RunResult, SqlClient } from '../interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
 export class SqlClientImplBetterSqlite implements SqlClient {
-  constructor(private readonly db: BetterSqlite3.Database) {}
+  constructor(private db: BetterSqlite3.Database) {}
 
   static open(databasePath: string): SqlClientImplBetterSqlite {
     return new SqlClientImplBetterSqlite(new BetterSqlite3(databasePath));
   }
 
+  /** Ephemeral in-memory DB (sim / Jest clients). */
+  static openMemory(): SqlClientImplBetterSqlite {
+    return new SqlClientImplBetterSqlite(new BetterSqlite3(':memory:'));
+  }
+
+  /** Restore from a prior {@link serializeBytes} image. */
+  static openFromBytes(bytes: Uint8Array): SqlClientImplBetterSqlite {
+    return new SqlClientImplBetterSqlite(
+      new BetterSqlite3(Buffer.from(bytes))
+    );
+  }
+
   /** Native sqlite image for DST frame dumps (`Database.serialize()`). */
   serializeBytes(): Uint8Array {
     return new Uint8Array(this.db.serialize());
+  }
+
+  /** Replace live contents from a serialize image (keeps this handle). */
+  importBytes(bytes: Uint8Array): void {
+    this.db.close();
+    this.db = new BetterSqlite3(Buffer.from(bytes));
   }
 
   async connect(): Promise<void> {

@@ -93,6 +93,7 @@ export function wallClientEnv(args?: {
     serverUrl,
     authBaseURL: serverUrl,
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId, createId),
+    mutationSuccessHoldMs: 900,
   };
   setOriginAvailability(env, availability);
   return env;

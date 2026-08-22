@@ -43,6 +43,7 @@ import {
   handleBoundSqlClient,
   openFreshSimClientSql,
   openFreshSimServerSql,
+  openSimServerSqlFromSeedBytes,
   type SimSqlHandle,
   sharedSqlClient,
 } from './sim-sql';
@@ -56,8 +57,13 @@ export type CreateSimOptions = {
   readonly startMs?: number;
   /** Override virtual timers (openSim injects node timers for RNTL). */
   readonly timers?: Timers;
-  /** Max-fidelity host injects embedded Postgres; playground uses postgres-mem. */
+  /** Max-fidelity host injects embedded Postgres; playground uses fabric server SQL. */
   readonly serverSql?: SimSqlHandle;
+  /**
+   * Post-migrate server seed bytes (PGlite dump or PGMM). When set (and
+   * `serverSql` is not), opens by import and skips {@link migrateSimPostgres}.
+   */
+  readonly serverSqlSeedBytes?: Uint8Array;
 };
 
 export type Server = Awaited<ReturnType<typeof createServer>>;
@@ -127,6 +133,14 @@ async function buildServerEnv(args: {
     secrets,
     observability: createNoopObservability('sim-server'),
     betterAuth,
+    ...(serverSql.pool !== undefined
+      ? {
+          betterAuthDatabase: {
+            kind: 'postgres' as const,
+            pool: serverSql.pool,
+          },
+        }
+      : {}),
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,
@@ -168,11 +182,19 @@ async function bootSimKernel(opts?: CreateSimOptions): Promise<SimKernel> {
   const timers = opts?.timers ?? adapters.timers;
   const net = createSimNet();
   const pubSubBus = createInMemoryBus();
-  const serverSql =
-    opts?.serverSql ?? (await openFreshSimServerSql('sim_server', adapters.clock));
-  if (opts?.serverSql === undefined) {
+  let serverSql: SimSqlHandle;
+  if (opts?.serverSql !== undefined) {
+    serverSql = opts.serverSql;
+  } else if (opts?.serverSqlSeedBytes !== undefined) {
+    serverSql = await openSimServerSqlFromSeedBytes(
+      'sim_server',
+      adapters.clock,
+      opts.serverSqlSeedBytes
+    );
+  } else {
+    serverSql = await openFreshSimServerSql('sim_server', adapters.clock);
     const pool = serverSql.pool;
-    assert.defined(pool, 'createSim: postgres-mem server handle requires pool');
+    assert.defined(pool, 'createSim: server handle requires pool for migrate');
     await migrateSimPostgres({
       sqlClient: serverSql.sqlClient,
       pool,
@@ -250,6 +272,7 @@ function makeSimClientEnv(
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
     resolveDatabaseName: () => ns,
+    mutationSuccessHoldMs: 0,
   };
 }
 

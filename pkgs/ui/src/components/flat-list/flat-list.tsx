@@ -12,7 +12,12 @@ import {
   type FlatListProps as RNFlatListProps,
 } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { flattenSx, type SxInput, useHostSx } from '../../theme';
+import {
+  flattenSx,
+  type SxInput,
+  useHostSx,
+  withPointerEvents,
+} from '../../theme';
 import { Box } from '../box';
 import {
   resolveFlushEdgeStyles,
@@ -44,13 +49,16 @@ function requestsFlexFill(frameSx: SxInput): boolean {
 // biome-ignore lint/suspicious/noExplicitAny: RN FlatList ref/component generics are invariant; item type flows via props
 export const FlatList = forwardRef<RNFlatList<any>, FlatListProps<any>>(
   function FlatList(
-    { sx: sxProp, frameSx, dataSet, flushEdge = true, ...rest },
+    { sx: sxProp, frameSx, dataSet, flushEdge = true, pointerEvents, ...rest },
     ref
   ) {
     const edge = useContentEdgePadding();
     const { contentSx, wrapperSx } = resolveFlushEdgeStyles(edge, flushEdge);
     const content = useHostSx('FlatList', [contentSx, sxProp], dataSet);
-    const frame = useHostSx('FlatListFrame', frameSx);
+    const frame = useHostSx(
+      'FlatListFrame',
+      withPointerEvents(frameSx, pointerEvents)
+    );
     const list = (
       <RNFlatList
         ref={ref}

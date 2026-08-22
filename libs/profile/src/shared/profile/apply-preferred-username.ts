@@ -31,9 +31,6 @@ export async function applyPreferredUsernameIfAvailable(
     SET username = ${username},
         username_norm = ${username}
     WHERE id = ${profileId}
-      AND (
-        username_changed_at IS NULL
-        OR username_changed_at = ''
-      )
+      AND username_changed_at IS NULL
   `);
 }

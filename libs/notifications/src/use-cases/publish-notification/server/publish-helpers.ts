@@ -86,7 +86,7 @@ type InteractionInsertValues = {
   readonly actions: string;
   readonly payload: string;
   readonly expires_at: string | null;
-  readonly active: number;
+  readonly active: boolean;
   readonly created_at: string;
   readonly updated_at: string;
 };
@@ -118,7 +118,7 @@ function upsertNotificationValues(
     actions: JSON.stringify(input.actions),
     payload: JSON.stringify(payload),
     expires_at: input.expiresAt ?? null,
-    active: 1,
+    active: true,
     created_at: managed.created_at,
     updated_at: managed.updated_at,
   };

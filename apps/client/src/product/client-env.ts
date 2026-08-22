@@ -55,4 +55,9 @@ export type ClientEnv = {
   readonly authBaseURL: string;
   /** Sync-engine pool key / local DB name (sim: per-actor; prod: per-user). */
   readonly resolveDatabaseName: (args: { readonly userId: string }) => string;
+  /**
+   * Default success-face hold (ms) for mutation buttons when the call site
+   * omits `successHoldMs`. Wall: 900; sim: 0 (ClientEnvProvider projects this).
+   */
+  readonly mutationSuccessHoldMs: number;
 };

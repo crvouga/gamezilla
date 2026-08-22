@@ -10,12 +10,20 @@
  */
 
 import { assert } from '@pkgs/assert';
-import { sql, unsafe } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import { type Sql, sql, unsafe } from '@pkgs/sql';
 import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 
+/**
+ * Query/run surface for the installer. Structural so this package stays a
+ * leaf — any `@pkgs/sql-client` `SqlClient` satisfies it.
+ */
+export type PostgresSqliteCompatSqlClient = {
+  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]>;
+  run(query: Sql<unknown>): Promise<unknown>;
+};
+
 export type InstallPostgresSqliteCompatOptions = {
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: PostgresSqliteCompatSqlClient;
 };
 
 /**
@@ -24,7 +32,7 @@ export type InstallPostgresSqliteCompatOptions = {
  * (or other). Avoids `pg_catalog` so probes work under agnostic SQL bans.
  */
 export async function isPostgresSqlClient(
-  sqlClient: SqlClient
+  sqlClient: PostgresSqliteCompatSqlClient
 ): Promise<boolean> {
   try {
     await sqlClient.query(sql<{ v: string }>`SELECT sqlite_version() AS v`);

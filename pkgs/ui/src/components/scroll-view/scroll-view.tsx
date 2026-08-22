@@ -13,7 +13,12 @@ import {
   type ScrollViewProps as RNScrollViewProps,
 } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { flattenSx, type SxInput, useHostSx } from '../../theme';
+import {
+  flattenSx,
+  type SxInput,
+  useHostSx,
+  withPointerEvents,
+} from '../../theme';
 import { Box } from '../box';
 import {
   resolveFlushEdgeStyles,
@@ -44,13 +49,16 @@ function requestsFlexFill(frameSx: SxInput): boolean {
 
 export const ScrollView = forwardRef<RNScrollView, ScrollViewProps>(
   function ScrollView(
-    { sx: sxProp, frameSx, dataSet, flushEdge = true, ...rest },
+    { sx: sxProp, frameSx, dataSet, flushEdge = true, pointerEvents, ...rest },
     ref
   ) {
     const edge = useContentEdgePadding();
     const { contentSx, wrapperSx } = resolveFlushEdgeStyles(edge, flushEdge);
     const content = useHostSx('ScrollView', [contentSx, sxProp], dataSet);
-    const frame = useHostSx('ScrollViewFrame', frameSx);
+    const frame = useHostSx(
+      'ScrollViewFrame',
+      withPointerEvents(frameSx, pointerEvents)
+    );
     const scroll = (
       <RNScrollView
         ref={ref}

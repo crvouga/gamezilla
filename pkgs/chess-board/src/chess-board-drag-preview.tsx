@@ -62,7 +62,6 @@ function DragGhostVisual(props: GhostVisualProps): ReactNode {
   const { pieceCode, pieceSize, style } = props;
   return (
     <Animated.View
-      pointerEvents="none"
       style={[
         {
           position: 'absolute',
@@ -71,6 +70,7 @@ function DragGhostVisual(props: GhostVisualProps): ReactNode {
           zIndex: 1,
           width: pieceSize,
           height: pieceSize,
+          pointerEvents: 'none',
         },
         style,
       ]}

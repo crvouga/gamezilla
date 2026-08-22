@@ -27,12 +27,9 @@ import {
   toSnapshotInfo,
 } from '@sim/console/playground/playground-snapshot-prune';
 import {
-  parseJsonBytesWithSchema,
   parseJsonWithSchema,
   playgroundClientKvDumpSchema,
-  playgroundPostgresMemDumpSchema,
   playgroundSnapshotManifestSchema,
-  playgroundSqliteMemDumpSchema,
 } from '@sim/console/playground/playground-snapshot-schema';
 
 export type SnapshotSessionCtx = CheckpointSessionCtx & {
@@ -184,14 +181,14 @@ async function putCheckpointBlobs(
 }> {
   let blobBytes = 0;
   const serverSql = `${prefix}sql/server.bin`;
-  await store.put(serverSql, checkpoint.serverSql, 'application/json');
+  await store.put(serverSql, checkpoint.serverSql, 'application/octet-stream');
   blobBytes += checkpoint.serverSql.byteLength;
   const clientSql: Record<string, string> = {};
   for (const clientId of checkpoint.clientIds) {
     const bytes = checkpoint.clientSql[clientId];
     if (bytes === undefined) continue;
     const key = `${prefix}sql/client_${clientId}.bin`;
-    await store.put(key, bytes, 'application/json');
+    await store.put(key, bytes, 'application/octet-stream');
     blobBytes += bytes.byteLength;
     clientSql[clientId] = key;
   }
@@ -251,34 +248,20 @@ function manifestFromCheckpoint(args: {
     skewByAddress: { ...checkpoint.skewByAddress },
     downAddresses: [...checkpoint.downAddresses],
     evictedAddresses: [...checkpoint.evictedAddresses],
+    sqlFormat: checkpoint.sqlFormat,
     keys,
   };
 }
 
-async function readSqliteMemBlob(
+async function readOpaqueSqlBlob(
   store: ObjectStore,
   key: string
 ): Promise<Uint8Array> {
   const obj = await store.get(key);
   if (obj === null) throw new Error(`missing sql blob '${key}'`);
   const bytes = await readBody(obj.body);
-  if (parseJsonBytesWithSchema(bytes, playgroundSqliteMemDumpSchema) === null) {
-    throw new Error(`invalid sqlite-mem snapshot blob '${key}'`);
-  }
-  return bytes;
-}
-
-async function readPostgresMemBlob(
-  store: ObjectStore,
-  key: string
-): Promise<Uint8Array> {
-  const obj = await store.get(key);
-  if (obj === null) throw new Error(`missing sql blob '${key}'`);
-  const bytes = await readBody(obj.body);
-  if (
-    parseJsonBytesWithSchema(bytes, playgroundPostgresMemDumpSchema) === null
-  ) {
-    throw new Error(`invalid postgres-mem snapshot blob '${key}'`);
+  if (bytes.byteLength === 0) {
+    throw new Error(`empty sql blob '${key}'`);
   }
   return bytes;
 }
@@ -293,7 +276,7 @@ async function checkpointFromStore(
   for (const id of manifest.clientIds) {
     const sqlKey = manifest.keys.clientSql[id];
     if (sqlKey !== undefined) {
-      clientSql[id] = await readSqliteMemBlob(store, sqlKey);
+      clientSql[id] = await readOpaqueSqlBlob(store, sqlKey);
     }
     const text = await readText(store, `${prefix}kv/client_${id}.json`);
     if (text !== null) {
@@ -313,8 +296,8 @@ async function checkpointFromStore(
     skewByAddress: manifest.skewByAddress,
     downAddresses: manifest.downAddresses,
     evictedAddresses: manifest.evictedAddresses,
-    sqlFormat: 'mixed-pgmm-sqlm',
-    serverSql: await readPostgresMemBlob(store, manifest.keys.serverSql),
+    sqlFormat: manifest.sqlFormat ?? 'mixed-pgmm-sqlm',
+    serverSql: await readOpaqueSqlBlob(store, manifest.keys.serverSql),
     clientSql,
     clientKv,
     rooms: await readRoomDumps(store, prefix, manifest.roomTopics),

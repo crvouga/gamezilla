@@ -15,7 +15,7 @@
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
 import type { ComponentDataSet } from '../../component-id';
-import { type SxInput, useHostSx } from '../../theme';
+import { type SxInput, useHostSx, withPointerEvents } from '../../theme';
 
 export type BoxProps = Omit<ViewProps, 'style'> & {
   /** Utility-first style shorthand resolved against the current theme. */
@@ -25,9 +25,9 @@ export type BoxProps = Omit<ViewProps, 'style'> & {
 };
 
 export const Box = forwardRef<View, BoxProps>(function Box(
-  { sx, dataSet, ...rest },
+  { sx, dataSet, pointerEvents, ...rest },
   ref
 ) {
-  const host = useHostSx('Box', sx, dataSet);
+  const host = useHostSx('Box', withPointerEvents(sx, pointerEvents), dataSet);
   return <View ref={ref} style={host.style} {...rest} {...host.dataSet} />;
 });

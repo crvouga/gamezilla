@@ -134,6 +134,7 @@
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",
+    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/metro-runtime": "~55.0.12",
     "@gorhom/bottom-sheet": "^5.1.6",

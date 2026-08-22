@@ -1,6 +1,7 @@
 import type { AppSyncEnginePool } from '@apps/client/sync/sync-engine-pool';
 import { ClockProvider } from '@pkgs/clock';
 import { HttpClientProvider } from '@pkgs/http-client';
+import { MutationSuccessHoldProvider } from '@pkgs/ui/components/button/mutation-success-hold';
 import { IdProvider } from '@pkgs/uuid';
 import { createContext, type ReactNode, useContext, useMemo } from 'react';
 import type { ClientEnv } from './client-env';
@@ -23,7 +24,11 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): ReactNode {
         <ClockProvider clock={env.clock} timers={env.timers}>
           <HttpClientProvider client={http}>
             <IdProvider createId={env.createId} random={env.random}>
-              {children}
+              <MutationSuccessHoldProvider
+                successHoldMs={env.mutationSuccessHoldMs}
+              >
+                {children}
+              </MutationSuccessHoldProvider>
             </IdProvider>
           </HttpClientProvider>
         </ClockProvider>

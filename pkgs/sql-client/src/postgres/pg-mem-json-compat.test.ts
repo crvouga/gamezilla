@@ -5,8 +5,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { createPgMemSqlClient } from '@pkgs/sql-client/postgres/impl-pg-mem';
-import { installPgMemSqliteCompat } from './install-pg-mem';
+import { createPgMemSqlClient } from './impl-pg-mem';
+import { installPgMemSqliteCompat } from './pg-mem-sqlite-compat';
 
 const SAMPLE = '{"a":2,"c":[4,5,{"f":7}],"s":"xyz","n":null}';
 
