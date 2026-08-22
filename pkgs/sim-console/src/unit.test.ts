@@ -3,13 +3,13 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { buildReportUrl, parseReportNav } from './client/router';
 import {
-  frameOwnedByNode,
   type FlatFrame,
+  frameOwnedByNode,
   resolveFrameForNode,
 } from './client/frames';
 import { resolveHtmlFile } from './client/node-views';
+import { buildReportUrl, parseReportNav } from './client/router';
 import { resolveLocalReportDataDir } from './local-data-dir';
 import { createSimulationReportServer } from './server/create-server';
 import type { SimulationReportData } from './types';
@@ -551,10 +551,26 @@ describe('projectReportTopology', () => {
 describe('resolveFrameForNode', () => {
   test('interleaved actors: parked client keeps last frame', () => {
     const frames = [
-      flatFrame({ globalIndex: 0, actorId: 'alice', file: 'frames/f-00001.html' }),
-      flatFrame({ globalIndex: 1, actorId: 'alice', file: 'frames/f-00002.html' }),
-      flatFrame({ globalIndex: 2, actorId: 'bob', file: 'frames/f-00003.html' }),
-      flatFrame({ globalIndex: 3, actorId: 'bob', file: 'frames/f-00004.html' }),
+      flatFrame({
+        globalIndex: 0,
+        actorId: 'alice',
+        file: 'frames/f-00001.html',
+      }),
+      flatFrame({
+        globalIndex: 1,
+        actorId: 'alice',
+        file: 'frames/f-00002.html',
+      }),
+      flatFrame({
+        globalIndex: 2,
+        actorId: 'bob',
+        file: 'frames/f-00003.html',
+      }),
+      flatFrame({
+        globalIndex: 3,
+        actorId: 'bob',
+        file: 'frames/f-00004.html',
+      }),
     ];
     expect(resolveFrameForNode(frames, 3, 'alice')?.file).toBe(
       'frames/f-00002.html'
@@ -572,8 +588,16 @@ describe('resolveFrameForNode', () => {
 
   test('playhead before a client exists returns null', () => {
     const frames = [
-      flatFrame({ globalIndex: 0, actorId: 'alice', file: 'frames/f-00001.html' }),
-      flatFrame({ globalIndex: 1, actorId: 'bob', file: 'frames/f-00002.html' }),
+      flatFrame({
+        globalIndex: 0,
+        actorId: 'alice',
+        file: 'frames/f-00001.html',
+      }),
+      flatFrame({
+        globalIndex: 1,
+        actorId: 'bob',
+        file: 'frames/f-00002.html',
+      }),
     ];
     expect(resolveFrameForNode(frames, 0, 'bob')).toBeNull();
     expect(resolveFrameForNode(frames, 0, 'alice')?.file).toBe(
@@ -643,7 +667,10 @@ function flatFrame(args: {
   readonly globalIndex: number;
   readonly actorId: string;
   readonly file: string;
-  readonly views?: readonly { readonly nodeId: string; readonly file: string }[];
+  readonly views?: readonly {
+    readonly nodeId: string;
+    readonly file: string;
+  }[];
 }): FlatFrame {
   return {
     file: args.file,

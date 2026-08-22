@@ -5,7 +5,7 @@
  * sqlite-mem SQLM blobs wrapped with `PRAGMA user_version` (not encoded in SQLM).
  */
 
-import { Database } from '@crvouga/sqlite-mem';
+import { Database, Snapshot } from '@crvouga/sqlite-mem';
 import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
 import type { PreparedStatement, RunResult, SqlClient } from '../interface';
@@ -141,15 +141,28 @@ function parseSnapshotPayload(bytes: Uint8Array): {
   return { userVersion: payload.userVersion, sqlm };
 }
 
+function applyImportedSqliteMemPragmas(
+  db: Database,
+  userVersion: number
+): void {
+  db.exec('PRAGMA foreign_keys = ON');
+  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec('PRAGMA journal_mode = MEMORY');
+  db.exec('PRAGMA temp_store = MEMORY');
+  db.prepare('PRAGMA user_version = ?').run(userVersion);
+}
+
 export class SqlClientImplSqliteMem implements SqlClient {
   private db: Database | null;
+  private readonly openOptions: SqliteMemOpenOptions | undefined;
 
-  private constructor(db: Database) {
+  private constructor(db: Database, openOptions?: SqliteMemOpenOptions) {
     this.db = db;
+    this.openOptions = openOptions;
   }
 
   static open(options?: SqliteMemOpenOptions): SqlClientImplSqliteMem {
-    return new SqlClientImplSqliteMem(new Database(options));
+    return new SqlClientImplSqliteMem(new Database(options), options);
   }
 
   private requireDb(): Database {
@@ -187,7 +200,7 @@ export class SqlClientImplSqliteMem implements SqlClient {
       v: 1 as const,
       kind: SNAPSHOT_KIND,
       userVersion: readUserVersion(db),
-      sqlmB64: bytesToBase64(db.snapshot()),
+      sqlmB64: bytesToBase64(db.snapshot().encode()),
     };
     return new TextEncoder().encode(JSON.stringify(payload));
   }
@@ -197,9 +210,11 @@ export class SqlClientImplSqliteMem implements SqlClient {
    */
   importDatabaseBytes(bytes: Uint8Array): void {
     const { userVersion, sqlm } = parseSnapshotPayload(bytes);
-    const db = this.requireDb();
-    db.restore(sqlm);
-    db.prepare('PRAGMA user_version = ?').run(userVersion);
+    const next = Snapshot.decode(sqlm).open(this.openOptions);
+    const prev = this.requireDb();
+    this.db = next;
+    prev.close();
+    applyImportedSqliteMemPragmas(next, userVersion);
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {

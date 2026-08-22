@@ -60,7 +60,8 @@ function useOutsideClientPanelsPointerDown(onOutside?: () => void): void {
       onOutside();
     };
     document.addEventListener('pointerdown', onPointerDown, true);
-    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+    return () =>
+      document.removeEventListener('pointerdown', onPointerDown, true);
   }, [onOutside]);
 }
 

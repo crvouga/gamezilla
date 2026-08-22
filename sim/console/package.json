@@ -21,8 +21,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "bundle:skia-canvaskit-wasm": "bun run scripts/bundle-skia-canvaskit-wasm.ts",
     "bundle:sim-sql-wasm": "bun run scripts/bundle-sim-sql-wasm.ts",
+    "bundle:skia-canvaskit-wasm": "bun run scripts/bundle-skia-canvaskit-wasm.ts",
     "predev": "bun run bundle:skia-canvaskit-wasm && bun run bundle:sim-sql-wasm && cd ../.. && bun run i18n:compile",
     "dev": "bun run scripts/dev.ts",
     "install:deps": "CI=1 npx expo install --check || true",

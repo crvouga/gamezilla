@@ -15,9 +15,9 @@
 
 export {
   type InstallPostgresSqliteCompatOptions,
-  type PostgresSqliteCompatSqlClient,
   installPostgresSqliteCompat,
   isPostgresSqlClient,
+  type PostgresSqliteCompatSqlClient,
 } from './install';
 export {
   type InstallPostgresMemSqliteCompatOptions,

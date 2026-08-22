@@ -1,3 +1,4 @@
+import { releaseWebFocus } from '../../web/release-web-focus';
 import {
   matchesWebShortcut,
   type WebKeyboardEventLike,
@@ -10,7 +11,10 @@ function selectByIndex(
   index: number
 ): void {
   const item = items[index];
-  if (item !== undefined) onSelect(item.id);
+  if (item !== undefined) {
+    releaseWebFocus();
+    onSelect(item.id);
+  }
 }
 
 function selectRelative(
@@ -23,6 +27,7 @@ function selectRelative(
   const cur =
     selectedId === null ? -1 : items.findIndex((i) => i.id === selectedId);
   const next = cur < 0 ? 0 : (cur + delta + items.length * 10) % items.length;
+  releaseWebFocus();
   onSelect(items[next]!.id);
 }
 

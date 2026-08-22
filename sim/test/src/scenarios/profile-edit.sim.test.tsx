@@ -3,7 +3,7 @@ import { Handles } from '@libs/dst-handles';
 
 import { AppDriver } from '../drivers/app-driver';
 import { aliceAvatarCreds, aliceUserCreds } from '../fixtures/fixtures';
-import { openSim, type OpenSimHandle } from '../setup/open-sim';
+import { type OpenSimHandle, openSim } from '../setup/open-sim';
 
 describe('profile edit', () => {
   let world: OpenSimHandle;

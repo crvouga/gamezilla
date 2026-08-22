@@ -50,6 +50,7 @@ const ENTRY_BASENAMES = new Set([
   'serve-harness.ts',
   'example-root.tsx',
   'impl-pg-mem.ts',
+  'impl-pglite.ts',
   'app.tsx',
   'boot-playground.ts',
   'root-app.tsx',

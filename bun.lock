@@ -1808,7 +1808,7 @@
     "@better-auth/expo": "1.6.26",
     "@biomejs/biome": "2.5.7",
     "@crvouga/postgres-mem": "^1.0.1",
-    "@crvouga/sqlite-mem": "^1.2.0",
+    "@crvouga/sqlite-mem": "^1.9.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@electric-sql/pglite": "^0.4.3",
@@ -2305,7 +2305,7 @@
 
     "@crvouga/postgres-mem": ["@crvouga/postgres-mem@1.0.1", "", {}, "sha512-uC9PJ/GgBPXRYVCXZihiK1IrkfJts43VOWlaG4ypXd2Ny9ZY2qkej9shBeSkpxjmdTCFw+dqZ7+NPF+L1FpMTA=="],
 
-    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.2.0", "", {}, "sha512-SA0Kj4k35dfGPfHGwCfq9aiRavqCVQBOMLqdZJLfLy4fVAR28ET3rk+JMTXwhQgpqiog0fFHvLeQkKc2ykbqdw=="],
+    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.9.0", "", {}, "sha512-ZcKBoH8bFzTAAfA4ubqKSV4bedEyVsRt1VkOBkW/KFGxlfguue1dF2DlwLIaC1jKx3ODCyL0fkHYcHmBLny9PQ=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 

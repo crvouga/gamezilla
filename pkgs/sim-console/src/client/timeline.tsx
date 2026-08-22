@@ -7,7 +7,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { LayoutChangeEvent, ScrollView as RNScrollView } from 'react-native';
+import type {
+  LayoutChangeEvent,
+  ScrollView as RNScrollView,
+} from 'react-native';
 
 import {
   type ScrubMode,

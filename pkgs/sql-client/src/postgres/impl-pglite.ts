@@ -9,6 +9,7 @@
  * package. Nested `transaction()` on a tx handle is rejected — PGlite has
  * no savepoint nesting through this surface.
  */
+// @io-wall-ok — browser PGlite WASM boot uses wall fetch for `/generated/pglite`
 
 import { PGlite } from '@electric-sql/pglite';
 import type { Sql, Value } from '@pkgs/sql';
@@ -31,9 +32,7 @@ type PgliteQueryable = {
 type PgliteLike = PgliteQueryable & {
   transaction<T>(fn: (tx: PgliteQueryable) => Promise<T>): Promise<T>;
   close(): Promise<void>;
-  dumpDataDir(
-    compression?: 'auto' | 'gzip' | 'none'
-  ): Promise<File | Blob>;
+  dumpDataDir(compression?: 'auto' | 'gzip' | 'none'): Promise<File | Blob>;
 };
 
 function runResultFrom(result: PgliteQueryResult<unknown>): RunResult {
@@ -220,9 +219,7 @@ async function createBrowserPglite(seedBytes?: Uint8Array): Promise<PGlite> {
     pgliteWasmModule,
     initdbWasmModule,
     fsBundle,
-    ...(seedBytes !== undefined
-      ? { loadDataDir: bytesAsBlob(seedBytes) }
-      : {}),
+    ...(seedBytes !== undefined ? { loadDataDir: bytesAsBlob(seedBytes) } : {}),
   }) as Promise<PGlite>;
 }
 
@@ -285,7 +282,9 @@ export async function openPgliteSqlClient(
         return live.pool;
       },
       get raw(): PGlite {
-        throw new Error('PGlite raw handle is not available on the worker path');
+        throw new Error(
+          'PGlite raw handle is not available on the worker path'
+        );
       },
       disconnect: () => live.disconnect(),
       exportBytes: () => live.exportBytes(),

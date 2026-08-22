@@ -1,3 +1,4 @@
+import { releaseWebFocus } from '@pkgs/ui';
 import {
   applyConsoleNavPatch,
   buildConsoleSearch,
@@ -62,6 +63,7 @@ export function useConsoleNav(): UseConsoleNavResult {
     (partial: ConsoleNavPatch, mode: ConsoleNavHistoryMode = 'push') => {
       const next = applyConsoleNavPatch(stateRef.current, partial);
       if (consoleNavEqual(stateRef.current, next)) return;
+      releaseWebFocus();
       if (Platform.OS === 'web' && isConsoleNavWeb()) {
         writeConsoleNavUrl(
           buildConsoleSearch(next, readConsoleNavSearch()),

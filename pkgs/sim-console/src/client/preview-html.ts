@@ -6,6 +6,13 @@ const GOOGLE_FONT_LINK_RE =
 const SNAPSHOT_SHELL_LINK_RE =
   /<link\b[^>]*href=["'][^"']*snapshot-shell\.css["'][^>]*>\s*/gi;
 
+/** Sandbox iframe previews use opaque origin (no allow-same-origin) — strip executable tags. */
+const SCRIPT_TAG_RE = /<script\b[^>]*>[\s\S]*?<\/script>/gi;
+
+function stripSnapshotScripts(html: string): string {
+  return html.replace(SCRIPT_TAG_RE, '');
+}
+
 export type PatchPreviewHtmlOptions = {
   readonly fontCss?: string;
   readonly shellCss?: string;
@@ -60,9 +67,9 @@ export function prepareSnapshotHtml(
   html: string,
   options: PatchPreviewHtmlOptions = {}
 ): SnapshotPayload {
-  const cleaned = html
-    .replace(GOOGLE_FONT_LINK_RE, '')
-    .replace(SNAPSHOT_SHELL_LINK_RE, '');
+  const cleaned = stripSnapshotScripts(
+    html.replace(GOOGLE_FONT_LINK_RE, '').replace(SNAPSHOT_SHELL_LINK_RE, '')
+  );
   const bodyHtml = extractBodyHtml(cleaned);
   const styles: string[] = [];
   const shell = options.shellCss?.trim() ?? '';
@@ -86,9 +93,9 @@ export function patchPreviewHtml(
     typeof fontCssOrOptions === 'string'
       ? { fontCss: fontCssOrOptions }
       : fontCssOrOptions;
-  const cleaned = html
-    .replace(GOOGLE_FONT_LINK_RE, '')
-    .replace(SNAPSHOT_SHELL_LINK_RE, '');
+  const cleaned = stripSnapshotScripts(
+    html.replace(GOOGLE_FONT_LINK_RE, '').replace(SNAPSHOT_SHELL_LINK_RE, '')
+  );
   const bodyHtml = extractBodyHtml(cleaned);
   const styles: string[] = [];
   const shell = options.shellCss?.trim() ?? '';

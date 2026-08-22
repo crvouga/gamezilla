@@ -118,16 +118,11 @@ export function playheadFrameIndex(
  * Whether this frame carries content for `nodeId` (views / attributes /
  * databases) or was captured under that actor (legacy single-file dumps).
  */
-export function frameOwnedByNode(
-  frame: FlatFrame,
-  nodeId: string
-): boolean {
+export function frameOwnedByNode(frame: FlatFrame, nodeId: string): boolean {
   if (frame.views?.some((v) => v.nodeId === nodeId)) return true;
   if (
     frame.attributes?.some(
-      (a) =>
-        a.nodeId === nodeId &&
-        (a.kind === 'html' || a.kind === 'sqlite')
+      (a) => a.nodeId === nodeId && (a.kind === 'html' || a.kind === 'sqlite')
     )
   ) {
     return true;

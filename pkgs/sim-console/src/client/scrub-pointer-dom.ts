@@ -48,9 +48,7 @@ export function lockBodyUserSelect(saved: { current: string | null }): void {
   document.body.style.userSelect = 'none';
 }
 
-export function restoreBodyUserSelect(saved: {
-  current: string | null;
-}): void {
+export function restoreBodyUserSelect(saved: { current: string | null }): void {
   if (typeof document === 'undefined') return;
   if (saved.current === null) return;
   document.body.style.userSelect = saved.current;

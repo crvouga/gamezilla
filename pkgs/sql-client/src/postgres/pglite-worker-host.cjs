@@ -37,70 +37,91 @@ function coercePgParams(params) {
   return params.map(coercePgParam);
 }
 
-async function handle(req) {
-  switch (req.op) {
-    case 'create': {
-      const { PGlite } = await import('@electric-sql/pglite');
-      if (db !== null) await db.close();
-      db =
-        req.seedB64 !== undefined
-          ? await PGlite.create({
-              loadDataDir: bytesAsBlob(b64ToBytes(req.seedB64)),
-            })
-          : await PGlite.create();
-      return { ok: true };
-    }
-    case 'query': {
-      if (db === null) throw new Error('pglite worker: not created');
-      const coerced = coercePgParams(req.params);
-      const result = await db.query(req.sql ?? '', coerced);
-      return {
-        rows: result.rows,
-        affectedRows: result.affectedRows ?? result.rows.length,
-      };
-    }
-    case 'begin': {
-      if (db === null) throw new Error('pglite worker: not created');
-      await db.query('BEGIN');
-      return { ok: true };
-    }
-    case 'commit': {
-      if (db === null) throw new Error('pglite worker: not created');
-      await db.query('COMMIT');
-      return { ok: true };
-    }
-    case 'rollback': {
-      if (db === null) throw new Error('pglite worker: not created');
-      await db.query('ROLLBACK');
-      return { ok: true };
-    }
-    case 'dump': {
-      if (db === null) throw new Error('pglite worker: not created');
-      const blob = await db.dumpDataDir('gzip');
-      const bytes = new Uint8Array(await blob.arrayBuffer());
-      return { dumpB64: bytesToB64(bytes) };
-    }
-    case 'replace': {
-      const { PGlite } = await import('@electric-sql/pglite');
-      if (req.dumpB64 === undefined) {
-        throw new Error('pglite worker: replace requires dumpB64');
-      }
-      if (db !== null) await db.close();
-      db = await PGlite.create({
-        loadDataDir: bytesAsBlob(b64ToBytes(req.dumpB64)),
-      });
-      return { ok: true };
-    }
-    case 'close': {
-      if (db !== null) {
-        await db.close();
-        db = null;
-      }
-      return { ok: true };
-    }
-    default:
-      throw new Error(`pglite worker: unknown op ${req.op}`);
+function requireDb() {
+  if (db === null) throw new Error('pglite worker: not created');
+  return db;
+}
+
+async function opCreate(req) {
+  const { PGlite } = await import('@electric-sql/pglite');
+  if (db !== null) await db.close();
+  db =
+    req.seedB64 !== undefined
+      ? await PGlite.create({
+          loadDataDir: bytesAsBlob(b64ToBytes(req.seedB64)),
+        })
+      : await PGlite.create();
+  return { ok: true };
+}
+
+async function opQuery(req) {
+  const live = requireDb();
+  const coerced = coercePgParams(req.params);
+  const result = await live.query(req.sql ?? '', coerced);
+  return {
+    rows: result.rows,
+    affectedRows: result.affectedRows ?? result.rows.length,
+  };
+}
+
+async function opBegin() {
+  await requireDb().query('BEGIN');
+  return { ok: true };
+}
+
+async function opCommit() {
+  await requireDb().query('COMMIT');
+  return { ok: true };
+}
+
+async function opRollback() {
+  await requireDb().query('ROLLBACK');
+  return { ok: true };
+}
+
+async function opDump() {
+  const blob = await requireDb().dumpDataDir('gzip');
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  return { dumpB64: bytesToB64(bytes) };
+}
+
+async function opReplace(req) {
+  const { PGlite } = await import('@electric-sql/pglite');
+  if (req.dumpB64 === undefined) {
+    throw new Error('pglite worker: replace requires dumpB64');
   }
+  if (db !== null) await db.close();
+  db = await PGlite.create({
+    loadDataDir: bytesAsBlob(b64ToBytes(req.dumpB64)),
+  });
+  return { ok: true };
+}
+
+async function opClose() {
+  if (db !== null) {
+    await db.close();
+    db = null;
+  }
+  return { ok: true };
+}
+
+const OPS = {
+  create: opCreate,
+  query: opQuery,
+  begin: opBegin,
+  commit: opCommit,
+  rollback: opRollback,
+  dump: opDump,
+  replace: opReplace,
+  close: opClose,
+};
+
+async function handle(req) {
+  const fn = OPS[req.op];
+  if (fn === undefined) {
+    throw new Error(`pglite worker: unknown op ${req.op}`);
+  }
+  return await fn(req);
 }
 
 parentPort.on('message', (req) => {

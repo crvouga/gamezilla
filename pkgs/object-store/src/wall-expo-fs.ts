@@ -10,8 +10,8 @@ import { Platform } from 'react-native';
 
 import type {
   ExpoFs,
-  ExpoFsDirectory,
   ExpoFsDirEntry,
+  ExpoFsDirectory,
   ExpoFsFile,
   ExpoFsOpfsDirHandle,
 } from './expo-fs';

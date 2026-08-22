@@ -160,10 +160,7 @@ function injectUpdate(
   const text = query.sql;
   // Prefer AST column list; also scan SQL text so we never double-assign
   // `updated_at` (real Postgres / PGlite reject that; postgres-mem did not).
-  if (
-    setCols.includes('updated_at') ||
-    /\bupdated_at\s*=/i.test(text)
-  ) {
+  if (setCols.includes('updated_at') || /\bupdated_at\s*=/i.test(text)) {
     return query;
   }
   const nowIso = env.now().toISOString();

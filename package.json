@@ -127,7 +127,7 @@
     "@babel/runtime": "^7.29.7",
     "@better-auth/expo": "1.6.26",
     "@crvouga/postgres-mem": "^1.0.1",
-    "@crvouga/sqlite-mem": "^1.2.0",
+    "@crvouga/sqlite-mem": "^1.9.0",
     "babel-jest": "^29.7.0",
     "better-auth": "1.6.26",
     "better-sqlite3": "^13.0.3",

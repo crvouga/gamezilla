@@ -65,6 +65,14 @@ describe('patchPreviewHtml', () => {
     expect(out).toContain('<body>ok</body>');
   });
 
+  test('strips script tags for sandboxed iframe previews', () => {
+    const html =
+      '<body><script>alert(1)</script><div class="rn-root">ok</div></body>';
+    const out = patchPreviewHtml(html);
+    expect(out).not.toContain('<script');
+    expect(out).toContain('class="rn-root"');
+  });
+
   test('strips snapshot-shell.css and injects shell + font CSS', () => {
     const html = [
       '<head>',

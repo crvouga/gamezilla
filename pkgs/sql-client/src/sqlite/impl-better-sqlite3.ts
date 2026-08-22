@@ -23,9 +23,7 @@ export class SqlClientImplBetterSqlite implements SqlClient {
 
   /** Restore from a prior {@link serializeBytes} image. */
   static openFromBytes(bytes: Uint8Array): SqlClientImplBetterSqlite {
-    return new SqlClientImplBetterSqlite(
-      new BetterSqlite3(Buffer.from(bytes))
-    );
+    return new SqlClientImplBetterSqlite(new BetterSqlite3(Buffer.from(bytes)));
   }
 
   /** Native sqlite image for DST frame dumps (`Database.serialize()`). */

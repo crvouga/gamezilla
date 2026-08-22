@@ -5,10 +5,7 @@
 
 import type { Clock } from '@pkgs/clock';
 import type { SimCheckpointSqlFormat } from '@pkgs/sim-console/shared/sim-checkpoint';
-import {
-  resolveSimSqlBackend,
-  type SimSqlBackend,
-} from './sim-sql-backend';
+import { resolveSimSqlBackend, type SimSqlBackend } from './sim-sql-backend';
 import {
   MEM_CHECKPOINT_SQL_FORMAT,
   openMemClientSql,

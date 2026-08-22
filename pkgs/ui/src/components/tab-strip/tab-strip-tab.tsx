@@ -10,6 +10,7 @@ import { useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
 
 import { useHoverCapable, useTheme } from '../../theme';
+import { releaseWebFocus } from '../../web/release-web-focus';
 import { Box } from '../box';
 import { XIcon } from '../icons';
 import { Pressable } from '../pressable';
@@ -65,7 +66,10 @@ export function TabStripTab(props: {
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: active }}
-          onPress={() => onSelect(item.id)}
+          onPress={() => {
+            releaseWebFocus();
+            onSelect(item.id);
+          }}
           onHoverIn={() => setHovered(true)}
           onHoverOut={() => setHovered(false)}
           sx={{

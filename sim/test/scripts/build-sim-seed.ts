@@ -9,15 +9,15 @@
 
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 import {
-  computeSimPostgresMemSeedFp,
-  ensureSimPostgresMemSeed,
-  SIM_SEED_PGMM_PATH,
-} from '../src/setup/boot-sim-postgres-mem';
-import {
   computeSimPgliteSeedFp,
   ensureSimPgliteSeed,
   SIM_SEED_PGLITE_PATH,
 } from '../src/setup/boot-sim-pglite';
+import {
+  computeSimPostgresMemSeedFp,
+  ensureSimPostgresMemSeed,
+  SIM_SEED_PGMM_PATH,
+} from '../src/setup/boot-sim-postgres-mem';
 
 async function main(): Promise<void> {
   const backend = resolveSimSqlBackend();

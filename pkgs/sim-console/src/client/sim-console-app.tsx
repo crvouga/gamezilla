@@ -102,17 +102,7 @@ export function SimConsoleApp(props: {
         onSelect={(id) => onSectionChange(id as ConsoleSection)}
       />
       <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
-        {section === 'reports' ? (
-          <ReportsSection
-            api={api}
-            kind={kind}
-            instance={instance}
-            view={view}
-            onKindChange={onKindChange}
-            onInstanceChange={onInstanceChange}
-            onViewChange={onViewChange}
-          />
-        ) : null}
+        {section === 'reports' ? <ReportsSection api={api} /> : null}
         {section === 'playground' ? (
           <PlaygroundScreen
             state={sessionState}
@@ -129,15 +119,7 @@ export function SimConsoleApp(props: {
   );
 }
 
-function ReportsSection(props: {
-  readonly api: ReportApiClient;
-  readonly kind: SimChromeKind;
-  readonly instance: string;
-  readonly view: string;
-  readonly onKindChange: (kind: SimChromeKind) => void;
-  readonly onInstanceChange: (instance: string) => void;
-  readonly onViewChange: (view: string) => void;
-}) {
+function ReportsSection(props: { readonly api: ReportApiClient }) {
   const { api } = props;
   const [nav, setNav] = useState<ReportNavState>(DEFAULT_NAV);
   const onNav = useCallback((next: ReportNavState) => setNav(next), []);
@@ -149,14 +131,6 @@ function ReportsSection(props: {
       generation={data.generation}
       onNav={onNav}
       api={api}
-      chrome={{
-        kind: props.kind,
-        instance: props.instance,
-        view: props.view,
-        onKindChange: props.onKindChange,
-        onInstanceChange: props.onInstanceChange,
-        onViewChange: props.onViewChange,
-      }}
     />
   );
 }

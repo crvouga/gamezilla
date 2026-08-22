@@ -14,4 +14,7 @@ export function releaseWebFocus(): void {
   };
   blurActive();
   queueMicrotask(blurActive);
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(blurActive);
+  }
 }

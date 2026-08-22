@@ -100,13 +100,19 @@ export const playgroundSqliteMemDumpSchema = z.object({
   v: z.literal(1),
   kind: z.literal('sqlite-mem'),
   userVersion: z.number().int(),
-  sqlmB64: z.string().min(1).refine((b64) => b64HasMagic(b64, hasSqlmMagic)),
+  sqlmB64: z
+    .string()
+    .min(1)
+    .refine((b64) => b64HasMagic(b64, hasSqlmMagic)),
 });
 
 export const playgroundPostgresMemDumpSchema = z.object({
   v: z.literal(1),
   kind: z.literal('postgres-mem'),
-  pgmmB64: z.string().min(1).refine((b64) => b64HasMagic(b64, hasPgmmMagic)),
+  pgmmB64: z
+    .string()
+    .min(1)
+    .refine((b64) => b64HasMagic(b64, hasPgmmMagic)),
 });
 
 /** Namespaced client KV dump (`dumpNamespacedKvWeb`). */

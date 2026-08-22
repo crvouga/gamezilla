@@ -23,8 +23,9 @@ import { createElement } from 'react';
 
 import '@apps/client/i18n/i18n';
 
-import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
+import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
+import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
 import {
   type OpenSimFidelity,
   type OpenSimOptions,
@@ -32,7 +33,6 @@ import {
 } from './fidelity';
 import { simNodeTimers } from './sim-actor-overrides';
 import { simReportTopology } from './sim-world-snapshot';
-import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 
 const reportFs = wallNodeFs();
 const reportDataDir = resolveSimConsoleReportsDir(

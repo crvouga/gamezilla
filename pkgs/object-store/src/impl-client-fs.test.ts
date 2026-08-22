@@ -23,7 +23,8 @@ function createMemoryExpoFs(): ExpoFs {
     children: new Map(),
   };
 
-  function makeFileHandle(    parent: Extract<Node, { kind: 'dir' }>,
+  function makeFileHandle(
+    parent: Extract<Node, { kind: 'dir' }>,
     name: string
   ): ExpoFsOpfsFileHandle {
     return {

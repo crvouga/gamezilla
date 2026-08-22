@@ -10,16 +10,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   findNodeForInstance,
-  instanceParamForNodeId,
   instancesForKind,
-  sqliteNodeIdForServer,
 } from '../shared/debugger-nodes';
-import {
-  coerceDebuggerView,
-  type DebuggerViewId,
-  viewsForKind,
-} from '../shared/debugger-views';
-import type { SimChromeKind } from '../shared/sim-node';
+import type { DebuggerViewId } from '../shared/debugger-views';
 import type {
   SimulationReportData,
   SimulationReportTopology,
@@ -27,7 +20,6 @@ import type {
 } from '../types';
 import type { ReportApiClient } from './api-client';
 import { DebuggerShell } from './debugger/debugger-shell';
-import type { DebuggerChromeNav } from './debugger-chrome';
 import {
   flattenFrames,
   playheadFrameIndex,
@@ -53,9 +45,8 @@ export function TestPage(props: {
   readonly runId: string;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
-  readonly chrome: DebuggerChromeNav;
 }) {
-  const { data, tests, nav, bucketId, runId, onNav, api, chrome } = props;
+  const { data, tests, nav, bucketId, runId, onNav, api } = props;
   const frames = useMemo(() => flattenFrames(data.steps), [data.steps]);
   const selectedIdx =
     resolveSelectedFrameIndex(frames, data.steps, nav) ??
@@ -70,23 +61,17 @@ export function TestPage(props: {
     () => resolveNodeList({ topology, actorIds: data.meta.actorIds }),
     [topology, data.meta.actorIds]
   );
-  const instances = instancesForKind(nodes, chrome.kind);
+  const instances = instancesForKind(nodes, 'client');
   const selected =
-    findNodeForInstance(nodes, chrome.kind, chrome.instance) ??
-    instances[0] ??
-    null;
-  const views = viewsForKind(chrome.kind, {
-    hasCommands: false,
-    hasTopics: false,
-  });
-  const view = coerceDebuggerView(chrome.kind, chrome.view);
+    findNodeForInstance(nodes, 'client', null) ?? instances[0] ?? null;
+  const reportView: DebuggerViewId = 'ui';
 
   useDefaultNav({
     framesLen: frames.length,
     nav,
     onNav,
     fallbackNode: selected?.id ?? defaultNodeId(nodes),
-    view,
+    view: reportView,
   });
 
   return (
@@ -96,13 +81,9 @@ export function TestPage(props: {
         nav={nav}
         frames={frames}
         selectedIdx={selectedIdx}
-        view={view}
-        views={views}
         instances={instances}
         selected={selected}
-        nodes={nodes}
         tests={tests}
-        chrome={chrome}
         onNav={onNav}
         api={api}
         bucketId={bucketId}
@@ -118,13 +99,9 @@ type ReportDebuggerShellProps = {
   readonly nav: ReportNavState;
   readonly frames: ReturnType<typeof flattenFrames>;
   readonly selectedIdx: number;
-  readonly view: DebuggerViewId;
-  readonly views: readonly DebuggerViewId[];
   readonly instances: readonly TopologyNodeInfo[];
   readonly selected: TopologyNodeInfo | null;
-  readonly nodes: readonly TopologyNodeInfo[];
   readonly tests: readonly SuiteTestSummary[];
-  readonly chrome: DebuggerChromeNav;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
   readonly bucketId: string;
@@ -133,54 +110,38 @@ type ReportDebuggerShellProps = {
 };
 
 function ReportDebuggerShell(props: ReportDebuggerShellProps) {
-  const { nav, chrome, view, nodes, onNav } = props;
+  const { nav, onNav } = props;
   const onSelectFrame = useCallback(
     (index: number) => {
       onNav(navigateReport(nav, { frame: index + 1 }));
     },
     [nav, onNav]
   );
+  const reportView = 'ui' as const;
   return (
     <DebuggerShell
       header={<ReportTestHeader {...props} />}
+      kindTabs={[]}
       frames={props.frames}
       selectedFrameIndex={Math.max(0, props.selectedIdx)}
       onSelectFrame={onSelectFrame}
-      kind={chrome.kind}
-      onKindChange={(kind) => {
-        const next = findNodeForInstance(nodes, kind, null);
-        patchChrome({ nodes, chrome, kind, view });
-        onNav(
-          navigateReport(nav, {
-            node: next?.id ?? null,
-            view: coerceDebuggerView(kind, view),
-          })
-        );
-      }}
+      kind="client"
+      onKindChange={() => undefined}
       instances={props.instances}
       instanceId={props.selected?.id ?? null}
       onInstanceChange={(id) => {
-        chrome.onInstanceChange(instanceParamForNodeId(id));
         onNav(navigateReport(nav, { node: id }));
       }}
-      views={props.views}
-      view={view}
-      onViewChange={(next) => {
-        chrome.onViewChange(next);
-        onNav(navigateReport(nav, { view: next }));
-      }}
+      views={[reportView]}
+      view={reportView}
+      onViewChange={() => undefined}
     >
       <ReportKindPane
-        kind={chrome.kind}
-        view={view}
+        kind="client"
+        view={reportView}
         instances={props.instances}
         selected={props.selected}
-        nodeId={paneNodeId({
-          kind: chrome.kind,
-          view,
-          nodeId: props.selected?.id ?? null,
-          nodes,
-        })}
+        nodeId={props.selected?.id ?? null}
         api={props.api}
         bucketId={props.bucketId}
         runId={props.runId}
@@ -275,32 +236,6 @@ const testTitleSx = {
   flexShrink: 1,
   minWidth: 0,
 } as const;
-
-function patchChrome(args: {
-  readonly nodes: readonly TopologyNodeInfo[];
-  readonly chrome: DebuggerChromeNav;
-  readonly kind: SimChromeKind;
-  readonly view: DebuggerViewId;
-}): void {
-  const next = findNodeForInstance(args.nodes, args.kind, null);
-  args.chrome.onKindChange(args.kind);
-  args.chrome.onInstanceChange(
-    next !== undefined ? instanceParamForNodeId(next.id) : ''
-  );
-  args.chrome.onViewChange(coerceDebuggerView(args.kind, args.view));
-}
-
-function paneNodeId(args: {
-  readonly kind: SimChromeKind;
-  readonly view: DebuggerViewId;
-  readonly nodeId: string | null;
-  readonly nodes: readonly TopologyNodeInfo[];
-}): string | null {
-  if (args.view === 'db' && args.kind === 'server') {
-    return sqliteNodeIdForServer(args.nodes);
-  }
-  return args.nodeId;
-}
 
 function useTopology(
   api: ReportApiClient,

@@ -1,4 +1,4 @@
-import { Box, TabStrip } from '@pkgs/ui';
+import { Box, TabStrip, type TabStripItem } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';
@@ -19,6 +19,11 @@ export type DebuggerShellProps = {
   readonly header?: ReactNode;
   /** Kind-strip trailing chrome (e.g. playground snapshot controls). */
   readonly kindTrailing?: ReactNode;
+  /**
+   * Kind tabs. Default: client/server/events/room. Pass `[]` (or one item)
+   * to hide the strip — trailing chrome still renders.
+   */
+  readonly kindTabs?: readonly TabStripItem[];
   /** When false, hide the frame player (playground). Default true. */
   readonly showPlayer?: boolean;
   /** Fires on pointer-down on player / tab chrome (not the pane body). */
@@ -41,6 +46,7 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
   const {
     header,
     kindTrailing,
+    kindTabs = DEBUGGER_KIND_TABS,
     showPlayer = true,
     onChromePointerDown,
     frames,
@@ -56,7 +62,9 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
     onViewChange,
     children,
   } = props;
+  const showKindStrip = kindTabs.length > 1;
   const showInstances = kind !== 'client' && instances.length > 1;
+  const showViewStrip = views.length > 1;
 
   return (
     <Box sx={shellSx}>
@@ -69,13 +77,12 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
             onSelect={onSelectFrame}
           />
         ) : null}
-        <TabStrip
-          accessibilityLabel="Node kinds"
-          items={[...DEBUGGER_KIND_TABS]}
-          selectedId={kind}
-          onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
-          keyboardScope
-          {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
+        <KindChrome
+          showStrip={showKindStrip}
+          kindTabs={kindTabs}
+          kind={kind}
+          onKindChange={onKindChange}
+          kindTrailing={kindTrailing}
         />
         {showInstances ? (
           <TabStrip
@@ -87,16 +94,42 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
             onSelect={onInstanceChange}
           />
         ) : null}
-        <TabStrip
-          accessibilityLabel="Views"
-          items={views.map((v) => debuggerViewTabItem(v))}
-          selectedId={view}
-          onSelect={(id) => onViewChange(id as DebuggerViewId)}
-        />
+        {showViewStrip ? (
+          <TabStrip
+            accessibilityLabel="Views"
+            items={views.map((v) => debuggerViewTabItem(v))}
+            selectedId={view}
+            onSelect={(id) => onViewChange(id as DebuggerViewId)}
+          />
+        ) : null}
       </Box>
       <Box sx={paneSx}>{children}</Box>
     </Box>
   );
+}
+
+function KindChrome(props: {
+  readonly showStrip: boolean;
+  readonly kindTabs: readonly TabStripItem[];
+  readonly kind: SimChromeKind;
+  readonly onKindChange: (kind: SimChromeKind) => void;
+  readonly kindTrailing: ReactNode;
+}): ReactNode {
+  const { showStrip, kindTabs, kind, onKindChange, kindTrailing } = props;
+  if (showStrip) {
+    return (
+      <TabStrip
+        accessibilityLabel="Node kinds"
+        items={[...kindTabs]}
+        selectedId={kind}
+        onSelect={(id) => onKindChange(coerceSimChromeKind(id))}
+        keyboardScope
+        {...(kindTrailing !== undefined ? { trailing: kindTrailing } : {})}
+      />
+    );
+  }
+  if (kindTrailing === undefined) return null;
+  return <Box sx={trailingOnlySx}>{kindTrailing}</Box>;
 }
 
 const shellSx = {
@@ -109,4 +142,17 @@ const paneSx = {
   flex: 1,
   minHeight: 0,
   background: 'background',
+} as const;
+
+const trailingOnlySx = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  paddingLeft: 4,
+  paddingRight: 4,
+  paddingTop: 2,
+  paddingBottom: 2,
+  borderBottomWidth: 1,
+  borderColor: 'border',
+  background: 'surfaceMuted',
 } as const;

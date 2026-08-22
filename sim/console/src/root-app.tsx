@@ -1,7 +1,6 @@
 // @io-wall-ok — Expo composition root for Sim Console (Reports + Playground).
 
 import { AppI18nProvider } from '@apps/client/i18n/i18n-provider';
-import { wallBottomSheetHost } from '@apps/client/product/wall-bottom-sheet-host';
 import { AppUiPortals } from '@apps/client/providers/ui/portals';
 import {
   ClockProvider,
@@ -12,7 +11,7 @@ import {
 } from '@pkgs/clock';
 import { createStaticObjectStore } from '@pkgs/object-store/impl-static';
 import { SimConsoleApp, type SimConsolePorts } from '@pkgs/sim-console/client';
-import { AppThemeRoot, Box } from '@pkgs/ui';
+import { AppThemeRoot, Box, createPassthroughBottomSheetHost } from '@pkgs/ui';
 import { IdProvider } from '@pkgs/uuid';
 import {
   ConsoleChromeProvider,
@@ -23,6 +22,7 @@ import { bootPlaygroundSession } from '@sim/console/playground/boot-playground';
 import { type ReactNode, useMemo } from 'react';
 
 const REPORTS_PUBLIC_BASE = '/reports';
+const simConsoleBottomSheetHost = createPassthroughBottomSheetHost();
 
 function ConsoleBody(): ReactNode {
   const clock = useClock();
@@ -45,7 +45,7 @@ function ConsoleBody(): ReactNode {
   }, [clock, timers]);
   return (
     <AppI18nProvider>
-      <AppUiPortals host={wallBottomSheetHost}>
+      <AppUiPortals host={simConsoleBottomSheetHost}>
         <SimConsoleApp
           ports={ports}
           section={state.section}

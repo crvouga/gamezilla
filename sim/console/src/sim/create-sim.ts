@@ -245,7 +245,10 @@ function makeSimClientEnv(
     openSqlClient: async () => {
       let handle = clientSql.get(id);
       if (handle === undefined) {
-        handle = await openFreshSimClientSql(`sim_client_${id}`, adapters.clock);
+        handle = await openFreshSimClientSql(
+          `sim_client_${id}`,
+          adapters.clock
+        );
         clientSql.set(id, handle);
       }
       return handleBoundSqlClient(handle);

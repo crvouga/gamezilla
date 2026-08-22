@@ -2,7 +2,6 @@ import { Box, ScrollView, Text } from '@pkgs/ui';
 import { useEffect } from 'react';
 import { isLatestRunId, LATEST_RUN_ID } from '../types';
 import type { ReportApiClient } from './api-client';
-import type { DebuggerChromeNav } from './debugger-chrome';
 import type { ReportNavState } from './router';
 import { clearPlayerNav, navigateReport } from './router';
 import { SuitePage } from './suite-page';
@@ -23,9 +22,8 @@ export function ReportViews(props: {
   readonly generation: number;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
-  readonly chrome: DebuggerChromeNav;
 }) {
-  const { nav, data, onNav, api, chrome } = props;
+  const { nav, data, onNav, api } = props;
   const concreteRunId = data.resolvedRunId;
 
   useEffect(() => {
@@ -75,7 +73,6 @@ export function ReportViews(props: {
         concreteRunId={concreteRunId}
         onNav={onNav}
         api={api}
-        chrome={chrome}
       />
     );
   }
@@ -111,9 +108,8 @@ function TestOrLoading(props: {
   readonly concreteRunId: string | null;
   readonly onNav: (nav: ReportNavState) => void;
   readonly api: ReportApiClient;
-  readonly chrome: DebuggerChromeNav;
 }) {
-  const { nav, data, concreteRunId, onNav, api, chrome } = props;
+  const { nav, data, concreteRunId, onNav, api } = props;
   const bodySx = useAppBodyContentSx();
   if (!concreteRunId) {
     return (
@@ -152,7 +148,6 @@ function TestOrLoading(props: {
       runId={concreteRunId}
       onNav={onNav}
       api={api}
-      chrome={chrome}
     />
   );
 }
