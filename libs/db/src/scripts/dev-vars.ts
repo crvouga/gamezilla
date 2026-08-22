@@ -3,8 +3,9 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-export const DEV_VARS_PATH = join(apiRoot, '.dev.vars');
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../../..');
+/** Wrangler worker secrets written by `apps/server/scripts/setup-dev-vars.ts`. */
+export const DEV_VARS_PATH = join(REPO_ROOT, 'apps/server/.dev.vars');
 
 /** Decode a value written by {@link encodeDevVarValue}. */
 export function decodeDevVarValue(raw: string): string {

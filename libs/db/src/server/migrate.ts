@@ -9,12 +9,12 @@
  */
 
 import { join } from 'node:path';
-import { appPostgresDbScope } from '@libs/db/public/scope';
 import {
   assertDevSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
 import { wallClock, wallTimers } from '@pkgs/clock';
@@ -24,6 +24,7 @@ import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import { readDevVar, readDevVarsDatabaseUrl } from '../scripts/dev-vars';
+import { fetchSecret } from '../shared/secret-io';
 import {
   isPostgresTransientMigrateError,
   transientMigrateRetryReason,
@@ -47,9 +48,14 @@ const BETTER_AUTH_MIGRATE_BASE_URL = 'https://migrate.local';
 export type MigratePostgresAppOptions = {
   /** Wait until DATABASE_URL accepts connections (local embedded boot). */
   readonly wait?: boolean;
-  /** Override URL resolution (`.dev.vars` → env → secret store). */
+  /** Override URL resolution (env → Infisical dev → `.dev.vars`). */
   readonly databaseUrl?: string;
 };
+
+function preferLocalSecretsOnly(): boolean {
+  const raw = process.env['LOCAL_SECRETS']?.trim().toLowerCase() ?? '';
+  return raw === '1' || raw === 'true';
+}
 
 function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
@@ -72,13 +78,23 @@ async function resolveDatabaseUrlForMigrate(
   if (fromOverride.length > 0 && isPostgresUrl(fromOverride)) {
     return fromOverride;
   }
-  const fromDevVars = readDevVarsDatabaseUrl();
-  if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
-    return fromDevVars;
-  }
   const fromEnv = (process.env['DATABASE_URL'] ?? '').trim();
   if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
     return fromEnv;
+  }
+  if (!preferLocalSecretsOnly()) {
+    try {
+      const fromSecrets = (await fetchSecret('DATABASE_URL')).trim();
+      if (fromSecrets.length > 0 && isPostgresUrl(fromSecrets)) {
+        return fromSecrets;
+      }
+    } catch {
+      // Infisical unavailable — fall through to local `.dev.vars`.
+    }
+  }
+  const fromDevVars = readDevVarsDatabaseUrl();
+  if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
+    return fromDevVars;
   }
   const store = createScriptSecretStore();
   return (await store.getRequired('DATABASE_URL')).readSecretValue();

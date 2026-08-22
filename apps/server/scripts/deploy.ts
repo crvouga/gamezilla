@@ -1,14 +1,8 @@
 #!/usr/bin/env bun
-// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assert } from '@pkgs/assert';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
-import { REPO_ROOT } from '@libs/secrets/shared/paths';
-import { ok } from '@libs/secrets/shared/fmt';
-import { runAsync } from '@libs/secrets/shared/subprocess';
-import { wranglerEnv, wranglerArgs } from '@libs/secrets/shared/wrangler-env';
+// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import {
   deleteLegacyWorkerScripts,
   deleteProductionWorker,
@@ -20,10 +14,18 @@ import {
   assertExpoTokenPresent,
   resolveEasProfile,
 } from '@libs/secrets/shared/eas-mobile';
+import { ok } from '@libs/secrets/shared/fmt';
+import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import {
   activeSecretsEnv,
   getApiWorkerSecrets,
+  loadSecretsIntoEnv,
 } from '@libs/secrets/shared/secrets/secrets';
+import { runAsync } from '@libs/secrets/shared/subprocess';
+import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
+import { assert } from '@pkgs/assert';
+import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const apiDir = join(REPO_ROOT, 'apps/server');
 
@@ -33,7 +35,32 @@ const WORKER_EXTRA_ENV_KEYS = [
   'OBSERVABILITY_COLLECTOR_URL',
 ] as const;
 
+let deploySecretsLoaded = false;
+
+function preferLocalSecretsOnly(): boolean {
+  const raw = process.env['LOCAL_SECRETS']?.trim().toLowerCase() ?? '';
+  return raw === '1' || raw === 'true';
+}
+
+/** Infisical dev (or `.dev.vars` under LOCAL_SECRETS) before wrangler secret bulk. */
+async function ensureDeploySecretsLoaded(): Promise<void> {
+  if (deploySecretsLoaded) return;
+  deploySecretsLoaded = true;
+
+  if (!preferLocalSecretsOnly()) {
+    await loadSecretsIntoEnv();
+  }
+
+  if (!(process.env['DATABASE_URL'] ?? '').trim()) {
+    const fromDevVars = readDevVarsDatabaseUrl();
+    if (fromDevVars !== null && fromDevVars.trim().length > 0) {
+      process.env['DATABASE_URL'] = fromDevVars.trim();
+    }
+  }
+}
+
 async function buildWorkerSecretBulkPayload(): Promise<Record<string, string>> {
+  await ensureDeploySecretsLoaded();
   const scope = activeSecretsEnv();
   const payload: Record<string, string> = {
     SECRETS_ENV: scope,

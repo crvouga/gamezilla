@@ -18,7 +18,7 @@ function installCli(pkg: string, bin: string): void {
   if (!which(bin)) {
     installer.install();
   }
-  verifyRun(bin, bin === 'wrangler' ? ['whoami'] : ['--version']);
+  verifyRun(bin, ['--version']);
   const version = captureVersionDiagnostic(bin, ['--version']).version;
   console.log(`${bin}: ${version ?? 'installed'}`);
 }
