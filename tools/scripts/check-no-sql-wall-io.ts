@@ -23,22 +23,34 @@ type Ban = {
 };
 
 const BANS: readonly Ban[] = [
-  { kind: 'DEFAULT now()', re: /DEFAULT\s+now\s*\(\s*\)/i },
+  {
+    kind: 'DEFAULT now()',
+    re: /DEFAULT\s+now\s*\(\s*\)/i,
+  },
   {
     kind: 'DEFAULT gen_random_uuid()',
     re: /DEFAULT\s+gen_random_uuid\s*\(\s*\)/i,
   },
-  { kind: 'randomblob(', re: /\brandomblob\s*\(/i },
+  {
+    kind: 'randomblob(',
+    re: /\brandomblob\s*\(/i,
+  },
   {
     kind: "strftime('now')",
     re: /strftime\s*\([^)]*['"]now['"]/i,
   },
-  { kind: "datetime('now')", re: /datetime\s*\(\s*['"]now['"]\s*\)/i },
+  {
+    kind: "datetime('now')",
+    re: /datetime\s*\(\s*['"]now['"]\s*\)/i,
+  },
   {
     kind: 'COALESCE(..., now())',
     re: /COALESCE\s*\([^;]*?(?<![.\w])now\s*\(\s*\)/i,
   },
-  { kind: 'sql now()', re: /(?<![.\w])now\s*\(\s*\)/i },
+  {
+    kind: 'sql now()',
+    re: /(?<![.\w])now\s*\(\s*\)/i,
+  },
   {
     kind: 'gen_random_uuid()',
     re: /(?<!DEFAULT\s)(?<![.\w])gen_random_uuid\s*\(\s*\)/i,

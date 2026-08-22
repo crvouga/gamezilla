@@ -12,12 +12,15 @@
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
+    "deploy": "bun run scripts/deploy.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/db": "workspace:*",
     "@libs/games": "workspace:*",
     "@libs/runtime": "workspace:*",
+    "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/message": "workspace:*",

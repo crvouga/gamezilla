@@ -21,11 +21,11 @@ const ENTRYPOINTS: readonly EntrypointRule[] = [
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/server/src/db/migrate.ts',
+    file: 'libs/db/src/server/migrate.ts',
     mustInclude: ['assertDevSecretsEnv', 'assertNonProdDatabaseUrlForTooling'],
   },
   {
-    file: 'apps/server/scripts/wipe-dev-db.ts',
+    file: 'libs/db/src/scripts/wipe-dev-db.ts',
     mustInclude: [
       'assertDevSecretsEnv',
       'ALLOW_PRODUCTION_DATABASE_URL',

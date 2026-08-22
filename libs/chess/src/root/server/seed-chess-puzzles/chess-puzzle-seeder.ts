@@ -50,12 +50,13 @@
  * Profiles pick batch size / throttling; explicit flags override the preset.
  */
 
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { join } from 'node:path';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
-} from '@libs/infra/shared/database-url-policy';
-import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+} from '@pkgs/database-url-policy';
+import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import { createLogger, type Logger } from '@pkgs/logger';
@@ -87,6 +88,8 @@ import {
 import { PuzzleSeedReporter } from './reporter';
 import { rowToPuzzleBatchEntry } from './row';
 import { PuzzleArchiveCache, type ResolvedSource } from './streaming';
+
+const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 
 type StreamContext = {
   cli: Cli;
@@ -193,7 +196,7 @@ export class ChessPuzzleSeeder {
   async #createSqlClient(databaseUrl: string): Promise<{ db: SqlClient }> {
     const { sqlClient } = await openPgClient({
       connectionString: databaseUrl,
-      dbScope: appPostgresDbScope(),
+      dbScope: createPostgresDbScope('public'),
       clientOptions: {
         keepAlive: true,
         keepAliveInitialDelayMillis: 10_000,
@@ -533,8 +536,10 @@ export class ChessPuzzleSeeder {
       databaseUrl,
       secretsEnv,
       {
-        surface: 'chess:seed-puzzles',
-      }
+        repoRoot: REPO_ROOT,
+        fetchFn: (input, init) => this.#http.fetch(input, init),
+      },
+      { surface: 'chess:seed-puzzles' }
     );
     const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
     const fastPath = new PuzzleSeedFastPath(sqlClient, {

@@ -34,18 +34,21 @@ if (files.length === 0) {
   process.exit(1);
 }
 
+console.log(
+  `ci:sim-determinism: ${String(files.length)} files ×2 (seed=${SEED})`
+);
+
 let failed = false;
 for (const file of files) {
   const rel = file.slice(REPO_ROOT.length + 1);
   for (const pass of [1, 2] as const) {
-    const result = runSimTest(rel, file);
-    if (result.status !== 0) {
+    console.log(`ci:sim-determinism: ${rel} pass ${String(pass)}/2…`);
+    const status = runSimTest(rel, file);
+    if (status !== 0) {
       failed = true;
       console.error(
         `ci:sim-determinism FAILED: ${rel} (pass ${String(pass)}, seed=${SEED})`
       );
-      if (result.stdout) console.error(result.stdout);
-      if (result.stderr) console.error(result.stderr);
       break;
     }
   }
@@ -62,10 +65,7 @@ function isRunnableSimTest(absFile: string): boolean {
   return !absFile.includes('.template.');
 }
 
-function runSimTest(
-  rel: string,
-  absFile: string
-): ReturnType<typeof spawnSync> {
+function runSimTest(rel: string, absFile: string): number {
   const env = {
     ...process.env,
     SIM_SEED: SEED,
@@ -73,7 +73,7 @@ function runSimTest(
     SIM_REPORT: '0',
   };
   if (rel.startsWith('sim/test/')) {
-    return spawnSync(
+    const result = spawnSync(
       'bunx',
       [
         'jest',
@@ -86,13 +86,15 @@ function runSimTest(
       {
         cwd: join(REPO_ROOT, 'sim/test'),
         env,
-        encoding: 'utf8',
+        stdio: 'inherit',
       }
     );
+    return result.status ?? 1;
   }
-  return spawnSync('bun', ['test', absFile], {
+  const result = spawnSync('bun', ['test', absFile], {
     cwd: REPO_ROOT,
     env,
-    encoding: 'utf8',
+    stdio: 'inherit',
   });
+  return result.status ?? 1;
 }

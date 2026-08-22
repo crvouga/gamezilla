@@ -20,8 +20,8 @@
       "!apps/client/src/i18n/locales/*/messages.ts",
       "!apps/client/public/sql-workers/**/*.js",
       "!apps/client/expo-env.d.ts",
-      "!libs/infra/src/cli/lib/railway-graphql/schema.graphql",
-      "!libs/infra/src/cli/lib/railway-graphql/graphql-env.d.ts",
+      "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
+      "!pkgs/emqx-server/src/railway/railway-graphql/graphql-env.d.ts",
       "!qa",
       "!!pkgs/postgres/.postgres",
       "!!pkgs/postgres/.pglite"
@@ -352,7 +352,7 @@
       "includes": [
         "**/libs/*/src/**/*.{ts,tsx}",
         "**/apps/*/src/**/*.{ts,tsx}",
-        "!**/libs/infra/**",
+        "!**/libs/secrets/src/shared/**",
         "!**/*.{test,spec}.{ts,tsx}",
         "!**/*.types.test.*"
       ]
@@ -396,7 +396,7 @@
         "!**/apps/server/scripts/run-local-postgres-seed.ts",
         "!**/libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
         "!**/libs/chess/src/root/server/seed-chess-puzzles/export-chess-puzzles-load.ts",
-        "!**/libs/infra/src/cli/secrets/db-url.ts"
+        "!**/libs/secrets/src/shared/secrets/db-url.ts"
       ]
     },
     {
@@ -462,7 +462,7 @@
         "!**/testing/**",
         "!**/testkit/**",
         "!**/scripts/**",
-        "!**/libs/infra/src/cli/**",
+        "!**/libs/secrets/src/shared/**",
         "!**/wall-node-fs.ts",
         "!**/wall-expo-fs.ts",
         "!**/wall-path-exists.ts",
@@ -501,7 +501,7 @@
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
-        "!**/libs/infra/src/cli/**",
+        "!**/libs/secrets/src/shared/**",
         "!**/public/**",
         "!**/e2e/public/**",
         "!**/apps/server/src/server.ts",
@@ -573,7 +573,7 @@
         "!**/tests/**",
         "!**/testkit/**",
         "!**/scripts/**",
-        "!**/libs/infra/src/cli/**",
+        "!**/libs/secrets/src/shared/**",
         "!**/public/**",
         "!**/e2e/public/**",
         "!**/apps/server/src/server.ts",
@@ -709,7 +709,7 @@
       }
     },
     {
-      "includes": ["libs/infra/src/cli/**/*.ts"],
+      "includes": ["libs/secrets/src/shared/**/*.ts", "pkgs/emqx-server/src/railway/**/*.ts"],
       "linter": {
         "rules": {
           "complexity": {

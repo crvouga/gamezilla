@@ -19,8 +19,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@pkgs/database-url-policy": "workspace:*",
     "@libs/auth": "workspace:*",
-    "@libs/infra": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:",

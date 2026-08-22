@@ -6,13 +6,13 @@
  */
 
 import { join } from 'node:path';
-import { fetchSecretFrom } from '@libs/infra/cli/secrets/secrets';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { fetchSecretFrom } from '@libs/secrets/public/secrets';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import {
   assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
   normalizeDatabaseUrlForCompare,
-} from '@libs/infra/shared/database-url-policy';
+} from '@libs/db/public/database-url-policy';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';

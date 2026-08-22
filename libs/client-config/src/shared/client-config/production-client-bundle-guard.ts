@@ -4,7 +4,7 @@ import { assert } from '@pkgs/assert';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-/** Production API origin — must match `productionApiOrigin()` in `@libs/infra`. */
+/** Production API origin — must match `productionApiOrigin()` in `@libs/secrets`. */
 export function productionClientApiOrigin(): string {
   return `https://${APP_IDENTITY.apiHost}`;
 }

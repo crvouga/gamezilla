@@ -4,7 +4,7 @@
  * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
  */
 
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';

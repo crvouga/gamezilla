@@ -1,18 +1,18 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
-name: Setup repo + infra deploy tooling
-description: Wraps ./.github/actions/setup with optional wrangler / EAS CLI
+name: Setup repo + deploy CLI tooling
+description: Wraps ./.github/actions/setup and installs wrangler / EAS / static-check CLIs via @tools
 
 inputs:
   wrangler:
-    description: Install the latest wrangler CLI globally (npm install -g wrangler)
+    description: Install wrangler via @tools install:cli
     required: false
     default: 'false'
   eas:
-    description: Install the latest EAS CLI globally (npm install -g eas-cli)
+    description: Install EAS CLI via @tools install:cli
     required: false
     default: 'false'
   watchman:
-    description: Install Watchman for Metro client bundling (EAS OTA / web export)
+    description: Install Watchman for Metro client bundling
     required: false
     default: 'false'
 
@@ -23,18 +23,7 @@ runs:
       with:
         watchman: ${{ inputs.watchman }}
 
-    # Keep CLI tool versions in sync with `infra setup` (no pinned versions in YAML).
-    # Requires secrets OIDC auth (`secrets-auth` action) before this step so `infra setup`
-    # can load secrets before running auth-gated verifications.
-    - name: infra setup (wrangler/eas)
+    - name: Install deploy CLI tools
       if: inputs.wrangler == 'true' || inputs.eas == 'true'
       shell: bash
-      working-directory: libs/infra
-      run: |
-        set -euo pipefail
-        export NPM_CONFIG_PREFIX="$HOME/.local/share/npm-global"
-        mkdir -p "$NPM_CONFIG_PREFIX/bin" "$HOME/.local/bin"
-        echo "$NPM_CONFIG_PREFIX/bin" >> "$GITHUB_PATH"
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-        export PATH="$NPM_CONFIG_PREFIX/bin:$HOME/.local/bin:$PATH"
-        bun run infra setup
+      run: bun run --filter @tools install:cli

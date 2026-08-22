@@ -44,7 +44,6 @@
     "@libs/chess": "workspace:*",
     "@libs/dst-handles": "workspace:*",
     "@libs/games": "workspace:*",
-    "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/spaces": "workspace:*",

@@ -1,5 +1,4 @@
-# Nightly fuzz: many random seeds for *.sim.test.ts. PR gate is
-# ci:sim-determinism (fixed seed ×2). See DETERMINISM.md.
+# Nightly fuzz: many random seeds for *.sim.test.ts
 name: Determinism Fuzz
 
 permissions:
@@ -27,28 +26,4 @@ jobs:
         uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Fuzz *.sim.test.ts across seeds
-        shell: bash
-        run: |
-          set -euo pipefail
-          N="${{ github.event.inputs.seed_count || '32' }}"
-          mapfile -t FILES < <(find libs pkgs -name '*.sim.test.ts' | sort)
-          if [[ ${#FILES[@]} -eq 0 ]]; then
-            echo "No *.sim.test.ts files found"
-            exit 1
-          fi
-          FAILED=0
-          for i in $(seq 1 "$N"); do
-            SEED=$(( (RANDOM << 16) ^ RANDOM ^ i ))
-            echo "::group::seed=${SEED} (${i}/${N})"
-            for f in "${FILES[@]}"; do
-              if ! SIM_SEED="$SEED" bun test "$f"; then
-                echo "::error::determinism fuzz failed seed=${SEED} file=${f}"
-                FAILED=1
-              fi
-            done
-            echo "::endgroup::"
-            if [[ "$FAILED" -ne 0 ]]; then
-              exit 1
-            fi
-          done
-          echo "determinism fuzz OK (${N} seeds × ${#FILES[@]} files)"
+        run: bun run --filter @sim/test test:fuzz -- --seed-count ${{ github.event.inputs.seed_count || '32' }}

@@ -7,14 +7,14 @@ import { spawnSync } from 'node:child_process';
 import {
   CHECK_SECRETS_FINGERPRINT_ENV,
   computeCheckSecretsFingerprint,
-} from '../../libs/infra/src/cli/secrets/check-secrets-fingerprint';
+} from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
 
 const fingerprint = await computeCheckSecretsFingerprint();
 process.env[CHECK_SECRETS_FINGERPRINT_ENV] = fingerprint;
 
 const result = spawnSync(
-  'bun',
-  ['run', 'tools/scripts/turbo-ci-run.ts', 'check:secrets:validate'],
+  'bunx',
+  ['turbo', 'run', 'check', '--filter=@libs/secrets'],
   { stdio: 'inherit', env: process.env }
 );
 

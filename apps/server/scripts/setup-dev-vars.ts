@@ -8,9 +8,9 @@ import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/public/loc
 import {
   getApiWorkerSecrets,
   loadSecretsIntoEnv,
-} from '@libs/infra/cli/secrets/secrets';
-import { assertDevSecretsEnv } from '@libs/infra/shared/database-url-policy';
-import { assertNonProdDatabaseUrlForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+} from '@libs/secrets/public/secrets';
+import { assertDevSecretsEnv } from '@libs/db/public/database-url-policy';
+import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
 import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import { wallTimers } from '@pkgs/clock';
 import {

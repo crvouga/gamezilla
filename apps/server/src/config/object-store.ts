@@ -1,4 +1,4 @@
-import { appObjectStoreRootPrefix } from '@libs/infra/namespace-bindings';
+import { appObjectStoreRootPrefix } from '@libs/db/public/scope';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createS3ObjectStore } from '@pkgs/object-store/impl-s3';

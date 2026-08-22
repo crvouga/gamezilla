@@ -281,7 +281,7 @@ function shouldSkipFile(rel: string): boolean {
   if (rel.includes('.test.')) return true;
   if (rel.includes('.types.test.')) return true;
   // Infra CLI uses a different composition model (CiPlatform / InfraContext).
-  if (rel.startsWith('libs/infra/')) return true;
+  if (rel.startsWith('libs/db/')) return true;
   return false;
 }
 

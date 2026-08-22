@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/user-search": "workspace:*",

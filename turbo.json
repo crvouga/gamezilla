@@ -127,6 +127,139 @@
       "outputLogs": "new-only",
       "outputs": []
     },
+    "lint": {
+      "inputs": [
+        "apps/**/*.{ts,tsx,js,jsx}",
+        "libs/**/*.{ts,tsx,js,jsx}",
+        "pkgs/**/*.{ts,tsx,js,jsx}",
+        "biome.json",
+        "tools/biome-plugins/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#check": {
+      "dependsOn": [
+        "//#ci:syncpack",
+        "//#ci:database-url-policy",
+        "//#ci:local-dev-self-contained",
+        "//#ci:no-local-tables",
+        "//#ci:no-raw-schema-sql",
+        "//#ci:domain-table-prefixes",
+        "//#ci:dst-selector-discipline",
+        "//#ci:no-domain-hard-delete",
+        "//#ci:no-top-level-di-functions",
+        "//#ci:no-eager-di-construction",
+        "//#ci:layer-c-sql-tx",
+        "//#ci:fanout-rows-from-reads",
+        "//#ci:mutation-determinism",
+        "//#ci:channel-exhaustiveness",
+        "//#ci:sync-engine-terminology",
+        "//#ci:sync-engine-blackbox-tests",
+        "//#ci:matchmaking-blackbox-tests",
+        "//#ci:sync-engine-protocol-freeze",
+        "//#ci:sync-engine-public-api",
+        "//#ci:server-isomorphic",
+        "//#ci:no-sql-wall-io",
+        "//#ci:no-vendor-sql",
+        "//#ci:sim-determinism",
+        "//#ci:depcruise",
+        "//#ci:circular-deps",
+        "//#ci:tier-imports",
+        "//#ci:use-case-isolation",
+        "//#ci:libs-import-surface",
+        "//#ci:component-ids",
+        "//#ci:no-rn-style-api",
+        "//#ci:no-size-limit-overrides",
+        "//#ci:audit"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@tools#install:cli": {
+      "cache": false,
+      "outputLogs": "new-only"
+    },
+    "@tools#check:static": {
+      "cache": false,
+      "outputLogs": "new-only"
+    },
+    "@apps/server#check:api": {
+      "cache": false,
+      "outputLogs": "new-only"
+    },
+    "@libs/secrets#provision": {
+      "cache": false
+    },
+    "@libs/db#provision": {
+      "cache": false,
+      "dependsOn": ["@libs/secrets#provision"]
+    },
+    "@pkgs/object-store#provision": {
+      "cache": false,
+      "dependsOn": ["@libs/secrets#provision"]
+    },
+    "@pkgs/emqx-server#provision": {
+      "cache": false,
+      "dependsOn": ["@libs/secrets#provision"]
+    },
+    "@libs/db#migrate": {
+      "cache": false,
+      "dependsOn": [
+        "@libs/db#provision",
+        "@pkgs/object-store#provision",
+        "@pkgs/emqx-server#provision"
+      ]
+    },
+    "@libs/secrets#check": {
+      "env": ["CHECK_SECRETS_FINGERPRINT"],
+      "inputs": [
+        "libs/secrets/src/bin/check-secrets.ts",
+        "libs/secrets/src/shared/secrets/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@apps/room-server#deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/db#migrate"]
+    },
+    "@apps/server#deploy": {
+      "cache": false,
+      "dependsOn": ["@apps/room-server#deploy"]
+    },
+    "@apps/client#deploy": {
+      "cache": false,
+      "dependsOn": ["@apps/server#deploy"]
+    },
+    "@apps/server#billing:sync": {
+      "cache": false,
+      "dependsOn": ["@apps/server#deploy"]
+    },
+    "@apps/server#smoke": {
+      "cache": false,
+      "dependsOn": ["@apps/client#deploy", "@apps/server#billing:sync"]
+    },
+    "@apps/client#deploy:ota": {
+      "cache": false,
+      "dependsOn": ["@apps/server#smoke"]
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": [
+        "lint",
+        "tc",
+        "test",
+        "build",
+        "//#check",
+        "@tools#check:static",
+        "@apps/server#check:api",
+        "@libs/secrets#check",
+        "@tools#install:cli",
+        "@apps/server#billing:sync",
+        "@apps/client#deploy:ota"
+      ]
+    },
     "//#ci:lint": {
       "inputs": [
         "apps/**/*.{ts,tsx,js,jsx}",
@@ -540,18 +673,6 @@
     "//#check:static": {
       "cache": false,
       "outputLogs": "new-only"
-    },
-    "//#check:secrets:validate": {
-      "env": ["CHECK_SECRETS_FINGERPRINT"],
-      "inputs": [
-        "libs/infra/src/bin/check-secrets.ts",
-        "libs/infra/src/cli/secrets/**"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#check:api": {
-      "cache": false
     }
   }
 }

@@ -37,7 +37,7 @@ function shouldSkipFile(rel: string): boolean {
   if (rel.includes('/dist/')) return true;
   if (rel.includes('.test.')) return true;
   if (rel.includes('.types.test.')) return true;
-  if (rel.startsWith('libs/infra/')) return true;
+  if (rel.startsWith('libs/db/')) return true;
   return false;
 }
 

@@ -60,6 +60,9 @@
     "check:production-native": "bun run scripts/production-bundle-guard-cli.ts check-native-dir",
     "predev": "bun run bundle:skia-canvaskit-wasm && cd ../.. && bun run i18n:compile",
     "dev": "bun run scripts/dev.ts",
+    "deploy": "bun run scripts/deploy.ts",
+    "deploy:ota": "bun run scripts/deploy-ota.ts",
+    "deploy:native": "bun run scripts/deploy-native.ts",
     "dev:ios": "bun run scripts/run-ios-dedicated-sim.ts",
     "eas-build-post-install": "bun run prebuild",
     "install:deps": "CI=1 npx expo install --check || true",
@@ -78,6 +81,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@libs/db": "workspace:*",
     "@apps/server": "workspace:*",
     "@expo-google-fonts/nunito": "catalog:",
     "@expo/metro-runtime": "catalog:",
@@ -91,6 +95,7 @@
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/runtime": "workspace:*",
+    "@libs/secrets": "workspace:*",
     "@libs/search": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/user-search": "workspace:*",
@@ -169,7 +174,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@libs/infra": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",

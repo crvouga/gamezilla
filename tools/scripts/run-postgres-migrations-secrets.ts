@@ -8,13 +8,13 @@
  * sync holds replication locks commonly surfaces `40P01`.
  */
 
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
-import { resolveDatabaseUrl } from '../../libs/infra/src/cli/resources/postgres';
-import { loadSecretsIntoEnv } from '../../libs/infra/src/cli/secrets/secrets';
+import { resolveDatabaseUrl } from '../../libs/db/src/shared/postgres-ping-source';
+import { loadSecretsIntoEnv } from '../../libs/secrets/src/shared/secrets/secrets';
 
 const MIGRATE_RETRY_DELAYS_MS = [0, 3_000, 8_000, 15_000, 30_000] as const;
 

@@ -4,7 +4,7 @@
  * skipped (postgres-mem has no PL/pgSQL; JSON1 shims install at SqlClient open).
  */
 
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';

@@ -8,14 +8,15 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
-} from '@libs/infra/shared/database-url-policy';
-import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@libs/infra/shared/database-url-policy-tooling';
+} from '@pkgs/database-url-policy';
+import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store';
@@ -106,13 +107,17 @@ export async function exportChessPuzzlesLoadFile(
   await assertDatabaseUrlAllowedForSecretsEnvForTooling(
     databaseUrl,
     secretsEnv,
+    {
+      repoRoot: REPO_ROOT,
+      fetchFn: (input, init) => createGlobalHttpClient().fetch(input, init),
+    },
     { surface: 'chess:export-puzzles-load' }
   );
 
   const outPath = resolveChessPuzzlesLoadFilePath();
   const { sqlClient } = await openPgClient({
     connectionString: databaseUrl,
-    dbScope: appPostgresDbScope(),
+    dbScope: createPostgresDbScope('public'),
     clientOptions: { application_name: 'export:puzzles-load' },
   });
   try {

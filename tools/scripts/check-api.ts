@@ -130,6 +130,9 @@ async function main(): Promise<void> {
     process.exit(runIntegrationTests());
   }
 
+  // Reclaim stale wrangler listeners from prior local check runs.
+  killListenersOnPorts([API_PORT, 9231, 9229]);
+
   process.stdout.write('[check-api] API preview not running — starting…\n');
   const preview = startApiPreview();
   let code = 1;

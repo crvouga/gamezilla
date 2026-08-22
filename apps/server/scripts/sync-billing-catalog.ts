@@ -3,7 +3,7 @@
  * Billing catalog sync — reconcile CATALOG_SPEC onto the billing vendor adapter.
  */
 import { CATALOG_SPEC } from '@libs/billing/public/catalog';
-import { cliClock, cliHttp } from '@libs/infra/cli/lib/cli-io';
+import { cliClock, cliHttp } from '@libs/secrets/shared/cli-io';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 

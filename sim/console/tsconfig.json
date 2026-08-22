@@ -25,7 +25,6 @@
       "@libs/chess/*": ["../../libs/chess/src/*"],
       "@libs/client-config/*": ["../../libs/client-config/src/*"],
       "@libs/friends/*": ["../../libs/friends/src/*"],
-      "@libs/infra/*": ["../../libs/infra/src/*"],
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@libs/profile/*": ["../../libs/profile/src/*"],
       "@libs/spaces/*": ["../../libs/spaces/src/*"],

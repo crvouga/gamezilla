@@ -5,7 +5,7 @@ import { EnsureClientConfigMaterialized } from '@libs/client-config/root/server/
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
-} from '@libs/infra/shared/database-url-policy';
+} from '@libs/db/public/database-url-policy';
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import { assert } from '@pkgs/assert';
 import {

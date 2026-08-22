@@ -1,4 +1,4 @@
-import { DEPLOYMENT_PIPELINE_CHECK_STEPS } from '../../../libs/infra/src/cli/lib/deployment-pipeline-check-steps';
+import { DEPLOYMENT_PIPELINE_CHECK_STEPS } from '../deployment-pipeline-check-steps';
 
 export interface CheckHealStep {
   readonly stepId: string;

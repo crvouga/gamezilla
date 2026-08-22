@@ -17,7 +17,7 @@ import { spawnSync } from 'node:child_process';
 import {
   CHECK_SECRETS_FINGERPRINT_ENV,
   computeCheckSecretsFingerprint,
-} from '../../libs/infra/src/cli/secrets/check-secrets-fingerprint';
+} from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
 
 const CI_GATE_TASKS = [
   'ci:syncpack',

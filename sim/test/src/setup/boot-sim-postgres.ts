@@ -1,7 +1,7 @@
 /**
  * Live embedded Postgres handle for fidelity-max DST (migrated by the stack boot).
  */
-import { appPostgresDbScope } from '@libs/infra/namespace-bindings';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';

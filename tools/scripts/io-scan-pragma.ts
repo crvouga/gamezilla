@@ -63,7 +63,7 @@ const ENTRY_BASENAMES = new Set([
 export function isIoCompositionEntryPath(rel: string): boolean {
   if (rel.includes('/scripts/')) return true;
   // Infra CLI is a process composition root (secrets seed, deploy, GHA).
-  if (rel.startsWith('libs/infra/src/cli/')) return true;
+  if (rel.startsWith('libs/secrets/src/shared/')) return true;
   // Expo crypto wall polyfill (RNG/UUID for RN).
   if (rel === 'pkgs/polyfill/src/crypto.ts') return true;
   const base = rel.split('/').pop() ?? '';

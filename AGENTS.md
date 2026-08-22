@@ -75,17 +75,17 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching in CI is **local + remote**: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `tools/scripts/turbo-ci-run.ts` uses `--cache=local:rw,remote:rw` when `TURBO_TOKEN` / `TURBO_TEAM` are present from secrets-auth (Vercel Remote Cache). Local developers default to `local:rw` and may opt into remote via `TURBO_CACHE=remote:rw` (or `local:rw,remote:rw`) from secrets env `dev`. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from `infra provision`. Look for `cache hit` / `cache miss` in Turbo output.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **always local + remote**: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `tools/scripts/turbo-ci-run.ts` always passes `--cache=local:rw,remote:rw` (Vercel Remote Cache via `TURBO_TOKEN` / `TURBO_TEAM` from secrets-auth / `secrets-run`). `TURBO_CACHE` may tighten modes but cannot drop remote. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from provision. Look for `cache hit` / `cache miss` in Turbo output.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker reads `B2_APP_KEY_ID` / `B2_APP_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PROJECT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Backblaze B2 (`gamezilla-production`). Operator-supplied `B2_MASTER_KEY_ID` / `B2_MASTER_KEY` authorize provision only. Every secret the app needs is defined in `libs/infra/src/cli/secrets/registry.ts`; `bun run check:secrets` (part of `check:ci`) validates both `dev` and `prd`.
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store/impl-s3`. The API Worker reads `B2_APP_KEY_ID` / `B2_APP_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Backblaze B2 (`gamezilla-production`). Operator-supplied `B2_MASTER_KEY_ID` / `B2_MASTER_KEY` authorize provision only. Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check` / `bun deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
 
 ## CI/CD job layout
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **Turbo-cacheable tasks fan out across parallel jobs** — `check-gates` (root `ci:*` + `check:secrets:validate`), `check-verify` (`tc` / `test` + root `ci:lint` via Biome), `check-build` (package-scoped `@apps/server#build` — not Expo client build). Root `ci:*` / `check:*` scripts and per-package tasks live in `turbo.json`. Local `bun run check` is one offline `turbo-ci-run` graph (`tc` / `test` / `ci:lint` / gate `ci:*` / `check:static` / those app `#build`s) — no Infisical, no `check:secrets:validate`, no registry audit. `bun run check:ci` / `check:ci:gates` still include secrets validate (Infisical fingerprint + live probes). Live `check:api` is CI / opt-in only. `check:secrets:validate` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`). GHA keeps parallel jobs as thin subsets (`check:ci:gates|verify|build`). On `pull_request`, verify/build set `TURBO_AFFECTED_BASE` so `turbo-ci-run` adds `--filter=...[<base>] --filter=//` (affected packages plus root tasks such as `ci:lint`). Root `turbo.json` sets `"ui": "stream"` (not `tui`) so CI logs stream live — `bun run dev` still passes `--ui=tui`.
-2. **Non-Turbo tasks get their own job only when they need a different runner shape.** `check-static` runs actionlint + gitleaks (gitleaks needs `fetch-depth: 0`); `check-api` runs `check:api` against a live preview Worker. Locally that script remains a root Turbo task (`//#check:api`) but is not in `bun check`.
-3. **The production deploy is one atomic `deploy` job.** A single checkout + `infra-setup` runs `bun run infra deploy`: provision and `db:migrate` run before the Postgres-backed global lock is acquired (avoids holding a direct slot during migrate); the lock then covers deploy-resources → billing-sync → smoke → ensure-destroyed. `db:migrate` retries on Postgres `53300` / “too many clients”. A tiny always-run `lock-release` job is the safety net for crashed / cancelled deploys.
+1. **One GitHub Actions job runs `bun deploy`.** The turbo graph includes the full check set (`lint`, `tc`, `test`, `build`, `//#check`, `@tools#check:static`, `@apps/server#check:api`, `@libs/secrets#check`) plus provision/migrate/deploy/smoke/OTA. Local `bun check` runs the check half only; `bun deploy` runs checks then deploy tasks. `check:secrets:validate` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`). PRs and main use the same `bun deploy` command; `SECRETS_ENV` (OIDC-injected in CI) controls dry-run vs apply.
+2. **Non-Turbo tasks are folded into package turbo tasks.** `@tools#check:static` runs actionlint + gitleaks; `@apps/server#check:api` boots embedded Postgres + wrangler preview and runs integration tests. Both are in the `bun check` / `bun deploy` graph.
+3. **The production deploy is one atomic `deploy` job.** Checkout + setup + secrets-auth, then `bun deploy` (same command locally). Turbo runs the full check graph, then provision/migrate/deploy/smoke/OTA. `SECRETS_ENV=prd` applies; anything else dry-runs remotes.
 
 When adding a new check, default to a turbo task under `ci:*` (or extend an existing one). Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.
 
@@ -119,7 +119,7 @@ Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new **domain**
 
 ### Database safety (Tiger policy)
 
-Non-deploy contexts must never reach production Postgres. Guards live in `@libs/infra/shared/database-url-policy`:
+Non-deploy contexts must never reach production Postgres. Guards live in `@libs/db/public/database-url-policy`:
 
 1. **`assertDevSecretsEnv`** — scripts exit unless `SECRETS_ENV === 'dev'`.
 2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to secrets env `prd` `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@pkgs/postgres-embedded`) is allowed for `dev`.
@@ -151,7 +151,7 @@ libs/<feature>/
     public/             # cross-lib contract
 ```
 
-Exempt (no request to trace; keep their current trees): `@libs/infra`, `@libs/games`, `@libs/runtime`, `@libs/dst-handles`.
+Exempt (no request to trace; keep their current trees): `@libs/db`, `@libs/secrets`, `@libs/games`, `@libs/runtime`, `@libs/dst-handles`.
 
 Lint/format is root-only Biome ([`biome.json`](biome.json) + [`tools/biome-plugins/`](tools/biome-plugins/)); packages do not ship per-package lint configs.
 

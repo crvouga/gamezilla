@@ -8,13 +8,14 @@
  * Pin >= 8.25: top-level [[allowlists]] work with [extend].useDefault (8.24.3 bug).
  */
 import { spawnSync } from 'node:child_process';
-import { accessSync, constants, mkdtempSync, rmSync } from 'node:fs';
-import { arch, platform, tmpdir } from 'node:os';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { arch, homedir, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const GITLEAKS_VERSION = process.env['GITLEAKS_VERSION']?.trim() || '8.30.1';
+const DEFAULT_INSTALL_DIR = join(homedir(), '.local', 'bin');
 const INSTALL_DIR =
-  process.env['GITLEAKS_INSTALL_DIR']?.trim() || '/usr/local/bin';
+  process.env['GITLEAKS_INSTALL_DIR']?.trim() || DEFAULT_INSTALL_DIR;
 
 function resolvePlatform(): string {
   const plat = platform();
@@ -25,15 +26,6 @@ function resolvePlatform(): string {
   if (plat === 'darwin' && cpu === 'x64') return 'darwin_x64';
   console.error(`unsupported platform: ${plat}/${cpu}`);
   process.exit(1);
-}
-
-function installDirWritable(dir: string): boolean {
-  try {
-    accessSync(dir, constants.W_OK);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function sleepMs(ms: number): Promise<void> {
@@ -61,15 +53,10 @@ function downloadWithCurl(url: string, dest: string): boolean {
   return r.status === 0;
 }
 
-function extractArchive(
-  archive: string,
-  installDir: string,
-  useSudo: boolean
-): boolean {
-  const tarArgs = ['-xzf', archive, '-C', installDir, 'gitleaks'];
-  const r = useSudo
-    ? spawnSync('sudo', ['tar', ...tarArgs], { stdio: 'inherit' })
-    : spawnSync('tar', tarArgs, { stdio: 'inherit' });
+function extractArchive(archive: string, installDir: string): boolean {
+  const r = spawnSync('tar', ['-xzf', archive, '-C', installDir, 'gitleaks'], {
+    stdio: 'inherit',
+  });
   return r.status === 0;
 }
 
@@ -84,7 +71,7 @@ async function installGitleaks(): Promise<void> {
   const plat = resolvePlatform();
   const archive = `gitleaks_${GITLEAKS_VERSION}_${plat}.tar.gz`;
   const url = `https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}`;
-  const useSudo = !installDirWritable(INSTALL_DIR);
+  mkdirSync(INSTALL_DIR, { recursive: true });
   const workdir = mkdtempSync(join(tmpdir(), 'gitleaks-'));
   const archivePath = join(workdir, 'gitleaks.tar.gz');
 
@@ -92,7 +79,7 @@ async function installGitleaks(): Promise<void> {
     for (let attempt = 1; attempt <= 3; attempt++) {
       if (
         downloadWithCurl(url, archivePath) &&
-        extractArchive(archivePath, INSTALL_DIR, useSudo) &&
+        extractArchive(archivePath, INSTALL_DIR) &&
         printInstalledVersion(INSTALL_DIR)
       ) {
         return;

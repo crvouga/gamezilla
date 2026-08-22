@@ -1,24 +1,31 @@
 /**
- * Shared Turbo flags for CI / `check:ci*` / local `check`.
+ * Shared Turbo flags for CI / `check:ci*` / local `check` / `deploy`.
  *
- * - CI: `local:rw,remote:rw` when `TURBO_TOKEN` + `TURBO_TEAM` are present
- *   (injected by secrets-auth); otherwise `local:rw`. Local disk under
- *   `.turbo` is persisted via per-job `actions/cache`; remote is Vercel.
- * - Local: honor `TURBO_CACHE` when set. Otherwise use `local:rw,remote:rw`
- *   when `TURBO_TOKEN` + `TURBO_TEAM` are present (secrets-run / shell),
- *   else `local:rw` only.
+ * - Cache is always `local:rw,remote:rw` (Vercel Remote Cache). Local disk
+ *   under `.turbo` is also persisted in CI via per-job `actions/cache`.
+ *   `TURBO_CACHE` may tighten local/remote modes but cannot drop `remote:`.
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
- *   override Vercel's default cache endpoint for local remote use.
+ *   override Vercel's default cache endpoint.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
  *   packages but still execute named root tasks (`ci:lint`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
  *   `min(32, max(cpus * 2, 10))`.
+ * - Log order: `auto` locally (turbo streams); `grouped` in CI. Override with
+ *   `TURBO_LOG_ORDER`. `//#check` in argv is expanded to its `dependsOn` ci
+ *   tasks so turbo does not nest them under a `//:check` prefix (stream mode
+ *   stacks prefixes on nested umbrella tasks).
  */
+import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { availableParallelism } from 'node:os';
+import { join } from 'node:path';
+
+const REPO_ROOT = join(import.meta.dirname, '../..');
+const CHECK_AGGREGATOR = '//#check';
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
+const DEFAULT_CACHE = 'local:rw,remote:rw';
 const MAX_CHECK_CONCURRENCY = 32;
 const MIN_CHECK_CONCURRENCY = 10;
 const CACHE_WORKERS = 16;
@@ -40,23 +47,24 @@ function hasRemoteCreds(env: NodeJS.ProcessEnv): boolean {
   );
 }
 
-function resolveCacheFlag(env: NodeJS.ProcessEnv): string {
-  if (inCi()) {
-    return hasRemoteCreds(env) ? 'local:rw,remote:rw' : 'local:rw';
-  }
+function ensureRemoteCache(cache: string): string {
+  if (cache.includes('remote:')) return cache;
+  return `${cache},remote:rw`;
+}
 
+function resolveCacheFlag(env: NodeJS.ProcessEnv): string {
   const fromEnv = env['TURBO_CACHE']?.trim();
   if (
     fromEnv !== undefined &&
     fromEnv.length > 0 &&
     TURBO_CACHE_RE.test(fromEnv)
   ) {
-    if (fromEnv.includes(',')) return fromEnv;
+    if (fromEnv.includes(',')) return ensureRemoteCache(fromEnv);
     if (fromEnv.startsWith('remote:')) return `local:rw,${fromEnv}`;
-    return fromEnv;
+    return ensureRemoteCache(fromEnv);
   }
 
-  return hasRemoteCreds(env) ? 'local:rw,remote:rw' : 'local:rw';
+  return DEFAULT_CACHE;
 }
 
 function resolveConcurrency(): string {
@@ -73,7 +81,7 @@ function turboChildEnv(): NodeJS.ProcessEnv {
   const orphan = env['TURBO_API'];
   if (typeof orphan === 'string' && orphan.trim().length > 0) {
     console.warn(
-      'turbo-ci-run: ignoring orphan TURBO_API (set TURBO_CACHE=remote:rw to use Vercel Remote Cache)'
+      'turbo-ci-run: ignoring orphan TURBO_API (Vercel Remote Cache is the default)'
     );
   }
   delete env['TURBO_API'];
@@ -90,6 +98,44 @@ function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
   return [`--filter=...[${base}]`, '--filter=//'];
 }
 
+function loadCheckCiTasks(): string[] {
+  const turboJson = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
+  ) as {
+    tasks?: Record<string, { dependsOn?: unknown }>;
+  };
+  const deps = turboJson.tasks?.[CHECK_AGGREGATOR]?.dependsOn;
+  if (!Array.isArray(deps)) {
+    throw new Error(`turbo.json missing ${CHECK_AGGREGATOR} dependsOn`);
+  }
+  return deps.filter((dep): dep is string => typeof dep === 'string');
+}
+
+function isCheckAggregator(arg: string): boolean {
+  return arg === CHECK_AGGREGATOR || arg === '//:check';
+}
+
+/** Flatten `//#check` so ci gates are root turbo tasks (avoids nested log prefixes). */
+function flattenCheckAggregator(taskArgs: readonly string[]): string[] {
+  const ciTasks = loadCheckCiTasks();
+  const out: string[] = [];
+  let expanded = false;
+  for (const arg of taskArgs) {
+    if (isCheckAggregator(arg)) {
+      expanded = true;
+      out.push(...ciTasks);
+    } else {
+      out.push(arg);
+    }
+  }
+  if (expanded) {
+    console.log(
+      `turbo-ci-run: expanded ${CHECK_AGGREGATOR} to ${String(ciTasks.length)} root ci tasks`
+    );
+  }
+  return out;
+}
+
 const env = turboChildEnv();
 const cache = resolveCacheFlag(env);
 const concurrency = resolveConcurrency();
@@ -98,33 +144,37 @@ const TURBO_OUTPUT_LOGS =
   process.env['TURBO_OUTPUT_LOGS']?.trim() ||
   (inCi() ? 'hash-only' : 'new-only');
 
+const TURBO_LOG_ORDER =
+  process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
+
 const TURBO_CI_FLAGS = [
   `--concurrency=${concurrency}`,
   `--cache-workers=${String(CACHE_WORKERS)}`,
   `--cache=${cache}`,
   '--summarize',
   `--output-logs=${TURBO_OUTPUT_LOGS}`,
-  '--log-order=grouped',
+  `--log-order=${TURBO_LOG_ORDER}`,
 ] as const;
 
-const taskArgs = process.argv.slice(2);
-if (taskArgs.length === 0) {
+const rawTaskArgs = process.argv.slice(2);
+if (rawTaskArgs.length === 0) {
   console.error(
     'usage: bun run tools/scripts/turbo-ci-run.ts <turbo run args…>'
   );
   process.exit(1);
 }
 
+const taskArgs = flattenCheckAggregator(rawTaskArgs);
 const affected = resolveAffectedFilter(taskArgs);
 if (affected.length > 0) {
   console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
 }
-if (inCi() || hasRemoteCreds(env)) {
-  console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${concurrency}` +
-      (hasRemoteCreds(env) ? ' (remote creds present)' : ' (local only)')
-  );
-}
+console.log(
+  `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
+    (hasRemoteCreds(env)
+      ? ' (remote creds present)'
+      : ' (remote enabled; TURBO_TOKEN/TURBO_TEAM missing)')
+);
 
 const result = spawnSync(
   'turbo',
