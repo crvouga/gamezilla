@@ -4,6 +4,7 @@ import { ClientWorkerResource } from './client-worker';
 import { DnsRecordsResource } from './dns-records';
 import { EmqxResource } from './emqx';
 import { PostgresResource } from './postgres';
+import { RoomWorkerResource } from './room-worker';
 import { S3BucketResource } from './s3-bucket';
 import { SecretsResource } from './secrets';
 import type { Resource } from './types';
@@ -17,6 +18,7 @@ export function createRegistry(): readonly Resource[] {
   const dnsRecords = new DnsRecordsResource();
   const clientRedirectRule = new ClientRedirectRuleResource();
   const emqx = new EmqxResource();
+  const roomWorker = new RoomWorkerResource();
   const apiWorker = new ApiWorkerResource();
   const clientWorker = new ClientWorkerResource();
 
@@ -26,9 +28,10 @@ export function createRegistry(): readonly Resource[] {
   dnsRecords.needs(zone);
   clientRedirectRule.needs(zone);
   emqx.needs(secrets, zone);
-  // API first so www/apex custom domains detach before the assets-only Worker
+  // Room DO worker must exist before the API Worker's cross-script ROOM binding.
+  // API before www/apex so custom domains detach before the assets-only Worker
   // claims them.
-  apiWorker.needs(postgres, dnsRecords, s3Bucket);
+  apiWorker.needs(roomWorker, postgres, dnsRecords, s3Bucket);
   clientWorker.needs(apiWorker);
 
   return [
@@ -39,6 +42,7 @@ export function createRegistry(): readonly Resource[] {
     dnsRecords,
     clientRedirectRule,
     emqx,
+    roomWorker,
     apiWorker,
     clientWorker,
   ];
