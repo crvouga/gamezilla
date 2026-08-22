@@ -228,6 +228,36 @@ describe('planServer', () => {
     expect(plan.ok).toBe(true);
   });
 
+  test('int4 physical type matches declared integer', () => {
+    const schema = defineSchema({
+      tables: {
+        puzzles: {
+          rating: 'integer',
+          body: 'text',
+        },
+      },
+    });
+    const catalog: IntrospectedCatalog = {
+      tables: new Map([
+        [
+          'puzzles',
+          tableWithColumns('puzzles', [
+            { name: 'id', type: 'text', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'timestamp' },
+            { name: 'updated_at', type: 'timestamp' },
+            { name: 'deleted_at', type: 'timestamp' },
+            { name: 'rating', type: 'integer', nullable: true },
+            { name: 'body', type: 'text', nullable: true },
+          ]),
+        ],
+      ]),
+      indexes: [],
+      allTableNames: new Set(['puzzles']),
+    };
+    const plan = planServer(schema._declared, catalog);
+    expect(plan.ok).toBe(true);
+  });
+
   test('index fingerprint add/drop', () => {
     const schema = defineSchema({
       tables: {

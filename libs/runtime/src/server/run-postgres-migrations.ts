@@ -14,6 +14,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
 import { PostgresSqliteCompatMigration } from './postgres-sqlite-compat-migration';
 import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-accounts-migration';
@@ -66,6 +67,7 @@ export class PostgresMigrationRunner {
       .register(new HardCutoverDropLegacyTablesMigration())
       .register(new SyncEngineDatabaseMigration())
       .register(new OutboxDatabaseMigration())
+      .register(new DomainSchemaNullabilityMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,

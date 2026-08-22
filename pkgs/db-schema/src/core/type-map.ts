@@ -30,6 +30,7 @@ export function pgTypeToToken(
   if (u === 'uuid' || d === 'uuid') return 'uuid';
   if (u === 'text' || d === 'text') return 'text';
   if (u === 'int8' || d === 'bigint') return 'integer';
+  if (u === 'int4' || d === 'integer') return 'integer';
   if (u === 'bool' || d === 'boolean') return 'boolean';
   if (u === 'timestamptz' || d === 'timestamp with time zone')
     return 'timestamp';

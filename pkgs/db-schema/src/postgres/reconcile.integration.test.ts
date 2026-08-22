@@ -160,6 +160,42 @@ describe('postgres reconcile integration', () => {
     expect(rows[0]?.table_schema).toBe('app_schema');
   });
 
+  test('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
+    await sqlClient.run(
+      raw(`
+CREATE TABLE IF NOT EXISTS legacy_puzzle_shape (
+  id text primary key,
+  rating integer not null,
+  body text not null
+)`)
+    );
+
+    await sqlClient.run(
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating DROP NOT NULL`)
+    );
+    await sqlClient.run(
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body DROP NOT NULL`)
+    );
+
+    const schema = defineSchema({
+      tables: {
+        legacy_puzzle_shape: { rating: 'integer', body: 'text' },
+      },
+    });
+    await postgres(schema, sqlClient).reconcile();
+
+    const catalog = await readPostgresCatalog(sqlClient, schema._declared);
+    const rating = catalog.tables
+      .get('legacy_puzzle_shape')
+      ?.columns.find((c) => c.name === 'rating');
+    const body = catalog.tables
+      .get('legacy_puzzle_shape')
+      ?.columns.find((c) => c.name === 'body');
+    expect(rating?.type).toBe('integer');
+    expect(rating?.nullable).toBe(true);
+    expect(body?.nullable).toBe(true);
+  });
+
   test('concurrent reconcile serializes via advisory lock', async () => {
     const schema = defineSchema({
       tables: { concurrent_t: { v: 'text' } },
