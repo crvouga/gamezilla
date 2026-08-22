@@ -19,10 +19,41 @@ function findMonorepoRoot(startDir) {
   }
 }
 
+function rmRecursiveWithRetry(targetPath) {
+  if (!fs.existsSync(targetPath)) return;
+  const rmOpts = {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 200,
+  };
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    try {
+      fs.rmSync(targetPath, rmOpts);
+      return;
+    } catch (err) {
+      const code =
+        err && typeof err === 'object' && 'code' in err ? err.code : undefined;
+      const retryable =
+        code === 'ENOTEMPTY' || code === 'EBUSY' || code === 'EPERM';
+      if (!retryable || attempt === 10) throw err;
+      const waitMs = 50 * attempt;
+      const deadline = Date.now() + waitMs;
+      while (Date.now() < deadline) {
+        // spin — globalSetup must stay sync
+      }
+    }
+  }
+}
+
 module.exports = () => {
   const root = findMonorepoRoot(__dirname);
   const reportsDir = path.join(root, 'sim/console/public/reports');
-  fs.rmSync(reportsDir, { recursive: true, force: true });
+  rmRecursiveWithRetry(path.join(reportsDir, 'runs'));
+  const keysFile = path.join(reportsDir, 'keys.json');
+  if (fs.existsSync(keysFile)) {
+    fs.rmSync(keysFile, { force: true, maxRetries: 5, retryDelay: 100 });
+  }
   fs.mkdirSync(reportsDir, { recursive: true });
 
   const seedScript = path.join(__dirname, 'scripts/build-sim-seed.ts');

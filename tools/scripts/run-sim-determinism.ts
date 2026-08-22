@@ -66,7 +66,12 @@ function runSimTest(
   rel: string,
   absFile: string
 ): ReturnType<typeof spawnSync> {
-  const env = { ...process.env, SIM_SEED: SEED };
+  const env = {
+    ...process.env,
+    SIM_SEED: SEED,
+    // Determinism gate asserts hashes — skip HTML frame I/O (faster, no wipe races).
+    SIM_REPORT: '0',
+  };
   if (rel.startsWith('sim/test/')) {
     return spawnSync(
       'bunx',
