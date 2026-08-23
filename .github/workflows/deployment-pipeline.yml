@@ -63,7 +63,7 @@ jobs:
       - name: Deploy
         env:
           SECRETS_ENV: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-        run: bun deploy
+        run: bun run deploy
 
       - uses: ./.github/actions/jest-cache
         if: always() && !cancelled()
