@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
-import { REPO_ROOT } from './paths';
 import { productionApiOrigin } from './deploy-origins';
 import { ok } from './fmt';
+import { REPO_ROOT } from './paths';
 import { runAsync, runCapture } from './subprocess';
 
 export type EasProfile = 'production' | 'development';

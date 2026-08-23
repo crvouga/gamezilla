@@ -1,6 +1,6 @@
 import { Resolver, resolve4, resolve6, resolveNs } from 'node:dns/promises';
-import { assert } from '@pkgs/assert';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { assert } from '@pkgs/assert';
 import { cliClock, cliTimers } from './cli-io';
 import type { DeployOutputs } from './deploy-origins';
 import { fmtElapsed, ok, warn } from './fmt';
@@ -281,7 +281,10 @@ async function checkHttpEndpoint(opts: {
     if (isFatalApiMisconfiguration(result)) {
       let reason = '(unknown)';
       try {
-        const parsed = JSON.parse(result.body ?? '{}') as Record<string, unknown>;
+        const parsed = JSON.parse(result.body ?? '{}') as Record<
+          string,
+          unknown
+        >;
         if (typeof parsed['reason'] === 'string') reason = parsed['reason'];
       } catch {
         /* best-effort */
@@ -322,9 +325,15 @@ export async function runHttpSmokeTests(outputs: DeployOutputs): Promise<void> {
       label: ep.label,
       rawUrl: ep.url,
       ...(ep.probePath !== undefined ? { probePath: ep.probePath } : {}),
-      ...(ep.gatewayCheck !== undefined ? { gatewayCheck: ep.gatewayCheck } : {}),
-      ...(ep.fallbackUrl !== undefined ? { fallbackRawUrl: ep.fallbackUrl } : {}),
-      ...(ep.fallbackLabel !== undefined ? { fallbackLabel: ep.fallbackLabel } : {}),
+      ...(ep.gatewayCheck !== undefined
+        ? { gatewayCheck: ep.gatewayCheck }
+        : {}),
+      ...(ep.fallbackUrl !== undefined
+        ? { fallbackRawUrl: ep.fallbackUrl }
+        : {}),
+      ...(ep.fallbackLabel !== undefined
+        ? { fallbackLabel: ep.fallbackLabel }
+        : {}),
     });
   }
 

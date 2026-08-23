@@ -51,13 +51,12 @@
  */
 
 import { join } from 'node:path';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import type { Clock, Timers } from '@pkgs/clock';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
 } from '@pkgs/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
-import type { Clock, Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import { createLogger, type Logger } from '@pkgs/logger';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -66,6 +65,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import type { CreateId } from '@pkgs/uuid';
 import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '../../../shared/chess/chess-puzzle-entities';
 import type { Cli } from './cli';
@@ -536,10 +536,12 @@ export class ChessPuzzleSeeder {
       databaseUrl,
       secretsEnv,
       {
-        repoRoot: REPO_ROOT,
-        fetchFn: (input, init) => this.#http.fetch(input, init),
-      },
-      { surface: 'chess:seed-puzzles' }
+        deps: {
+          repoRoot: REPO_ROOT,
+          fetchFn: (input, init) => this.#http.fetch(input, init),
+        },
+        context: { surface: 'chess:seed-puzzles' },
+      }
     );
     const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
     const fastPath = new PuzzleSeedFastPath(sqlClient, {

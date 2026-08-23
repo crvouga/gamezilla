@@ -3,16 +3,24 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./public/*": ["./src/public/*.ts"],
-    "./shared/*": ["./src/shared/*.ts"],
-    "./server/*": ["./src/server/*.ts"],
-    "./bin/*": ["./src/bin/*.ts"]
+    "./public/*": [
+      "./src/public/*.ts"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./server/*": [
+      "./src/server/*.ts"
+    ],
+    "./bin/*": [
+      "./src/bin/*.ts"
+    ]
   },
   "scripts": {
     "check": "bun run src/bin/check-migrate-policy.ts",
+    "db:wipe:dev": "bun run src/scripts/wipe-dev-db.ts",
     "migrate": "bun run src/bin/migrate-cli.ts --wait",
     "provision": "bun run src/scripts/provision-postgres.ts",
-    "db:wipe:dev": "bun run src/scripts/wipe-dev-db.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },

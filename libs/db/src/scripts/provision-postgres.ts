@@ -1,5 +1,5 @@
-import { pingDatabase } from '../shared/postgres-ping-source';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { pingDatabase } from '../shared/postgres-ping-source';
 
 async function main(): Promise<void> {
   if (!isProductionSecretsEnv()) {

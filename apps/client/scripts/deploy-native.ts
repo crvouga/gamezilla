@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
-// @io-wall-ok
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 import {
   buildAndSubmitClientNative,
   requireEasProfile,
 } from '@libs/secrets/shared/eas-mobile';
+// @io-wall-ok
+import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 
 if (!isProductionSecretsEnv()) {
   console.log('[client:deploy:native] dry-run (SECRETS_ENV is not prd)');
@@ -14,7 +14,9 @@ if (!isProductionSecretsEnv()) {
       `[client:deploy:native] would run EAS native build + submit (${profile})`
     );
   } catch {
-    console.log('[client:deploy:native] set EAS_PROFILE=production|development');
+    console.log(
+      '[client:deploy:native] set EAS_PROFILE=production|development'
+    );
   }
   process.exit(0);
 }

@@ -709,7 +709,10 @@
       }
     },
     {
-      "includes": ["libs/secrets/src/shared/**/*.ts", "pkgs/emqx-server/src/railway/**/*.ts"],
+      "includes": [
+        "libs/secrets/src/shared/**/*.ts",
+        "pkgs/emqx-server/src/railway/**/*.ts"
+      ],
       "linter": {
         "rules": {
           "complexity": {

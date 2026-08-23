@@ -4,11 +4,11 @@
 // Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
 import './install-native-als';
 
-import { appPostgresDbScope } from '@libs/db/public/scope';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';

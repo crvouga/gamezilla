@@ -2,13 +2,16 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
 import { createToolingSecretStore } from '@pkgs/secret-provider';
 import {
   assertNonProdDatabaseUrl,
-  PRODUCTION_SECRETS_ENV,
   type DatabaseUrlPolicyOptions,
+  PRODUCTION_SECRETS_ENV,
 } from './database-url-policy';
 
 export type ToolingDatabaseUrlPolicyDeps = {
   readonly repoRoot: string;
-  readonly fetchFn: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  readonly fetchFn: (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => Promise<Response>;
 };
 
 /** Tooling-only: fetch secrets env `prd` `DATABASE_URL` for Tiger dual-compare guards. */
@@ -50,14 +53,23 @@ export async function assertNonProdDatabaseUrlForTooling(
   });
 }
 
+export type ToolingDatabaseUrlPolicyCall = {
+  readonly deps: ToolingDatabaseUrlPolicyDeps;
+  readonly context?: Record<string, unknown>;
+  readonly options?: DatabaseUrlPolicyOptions;
+};
+
 /** Like {@link assertDatabaseUrlAllowedForSecretsEnv} with secret-store prod dual-fetch. */
 export async function assertDatabaseUrlAllowedForSecretsEnvForTooling(
   url: string,
   secretsEnv: string,
-  deps: ToolingDatabaseUrlPolicyDeps,
-  context: Record<string, unknown> = {},
-  options?: DatabaseUrlPolicyOptions
+  call: ToolingDatabaseUrlPolicyCall
 ): Promise<void> {
   if (secretsEnv === PRODUCTION_SECRETS_ENV) return;
-  await assertNonProdDatabaseUrlForTooling(url, deps, { ...context, secretsEnv }, options);
+  await assertNonProdDatabaseUrlForTooling(
+    url,
+    call.deps,
+    { ...call.context, secretsEnv },
+    call.options
+  );
 }

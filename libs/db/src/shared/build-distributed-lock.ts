@@ -7,8 +7,8 @@ import { KvImplPostgres } from '@pkgs/kv/impl-postgres';
 import { createLogger } from '@pkgs/logger';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
-import { resolveDatabaseUrl } from './postgres-ping-source';
 import { cliClock, cliCreateId } from './cli-io';
+import { resolveDatabaseUrl } from './postgres-ping-source';
 
 export interface DistributedLockConnection {
   readonly lock: DistributedLock;

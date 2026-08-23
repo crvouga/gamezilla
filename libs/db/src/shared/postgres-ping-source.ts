@@ -1,8 +1,8 @@
-import { appPostgresDbScope } from '../public/scope';
-import { fetchSecret } from './secret-io';
 import { raw, unsafe } from '@pkgs/sql';
 import { SqlClientImplPostgresTcp } from '@pkgs/sql-client/postgres/impl-postgres-tcp';
+import { appPostgresDbScope } from '../public/scope';
 import { cliClock } from './cli-io';
+import { fetchSecret } from './secret-io';
 
 export interface DatabasePingResult {
   readonly ok: boolean;
@@ -94,11 +94,15 @@ async function readDbUrlFromSecrets(): Promise<string> {
     }
   }
   if (typeof rawUrl !== 'string' || rawUrl.trim().length === 0) {
-    throw new Error('DATABASE_URL is not set and could not be read from the secret store');
+    throw new Error(
+      'DATABASE_URL is not set and could not be read from the secret store'
+    );
   }
   const url = rawUrl.trim();
   if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
-    throw new Error('DATABASE_URL must start with postgres:// or postgresql://');
+    throw new Error(
+      'DATABASE_URL must start with postgres:// or postgresql://'
+    );
   }
   return url;
 }
@@ -125,7 +129,9 @@ export async function resolveDatabaseUrl(): Promise<string> {
   const url = await readDbUrlFromSecrets();
   const probe = await verifyDatabaseAndClaimOwnership(url);
   if (!probe.ok) {
-    throw new Error(`DATABASE_URL connectivity check failed (SELECT 1): ${probe.error}`);
+    throw new Error(
+      `DATABASE_URL connectivity check failed (SELECT 1): ${probe.error}`
+    );
   }
 
   process.env['DATABASE_URL'] = url;

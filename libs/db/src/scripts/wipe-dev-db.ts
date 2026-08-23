@@ -6,13 +6,12 @@
  */
 
 import { join } from 'node:path';
-import { fetchSecretFrom } from '../shared/secret-io';
-import { appPostgresDbScope } from '@libs/db/public/scope';
 import {
   assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
   normalizeDatabaseUrlForCompare,
 } from '@libs/db/public/database-url-policy';
+import { appPostgresDbScope } from '@libs/db/public/scope';
 import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
@@ -22,6 +21,7 @@ import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client/postgres/connect';
 import { readDevVarsDatabaseUrl } from '../scripts/dev-vars';
+import { fetchSecretFrom } from '../shared/secret-io';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });

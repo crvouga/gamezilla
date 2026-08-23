@@ -30,8 +30,9 @@ function collectSimTests(): string[] {
 }
 
 const seedCount = Number(
-  process.argv.find((a) => a.startsWith('--seed-count='))?.slice('--seed-count='.length) ??
-    '32'
+  process.argv
+    .find((a) => a.startsWith('--seed-count='))
+    ?.slice('--seed-count='.length) ?? '32'
 );
 
 const files = collectSimTests();
@@ -50,7 +51,9 @@ for (let i = 1; i <= seedCount; i++) {
       env: { ...process.env, SIM_SEED: String(seed) },
     });
     if (result.status !== 0) {
-      console.error(`::error::determinism fuzz failed seed=${seed} file=${file}`);
+      console.error(
+        `::error::determinism fuzz failed seed=${seed} file=${file}`
+      );
       process.exit(1);
     }
   }

@@ -19,7 +19,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/database-url-policy": "workspace:*",
     "@libs/auth": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
@@ -30,6 +29,7 @@
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
+    "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",

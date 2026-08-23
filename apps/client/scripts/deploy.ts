@@ -2,16 +2,16 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { assert } from '@pkgs/assert';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { deleteLegacyWorkerScripts } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
 import { productionApiOrigin } from '@libs/secrets/shared/deploy-origins';
 import { ok } from '@libs/secrets/shared/fmt';
-import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
-import { wranglerEnv, wranglerArgs } from '@libs/secrets/shared/wrangler-env';
-import { deleteLegacyWorkerScripts } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
+import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
+import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
+import { assert } from '@pkgs/assert';
+import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 
 const clientDir = join(import.meta.dirname, '..');
 

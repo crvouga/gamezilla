@@ -15,11 +15,11 @@ const policyOptions = {
 } as const;
 
 export {
-  DEVELOPMENT_SECRETS_ENV,
-  PRODUCTION_SECRETS_ENV,
-  normalizeDatabaseUrlForCompare,
-  productionDatabaseUrlTigerExceptionEnabled,
   assertDevSecretsEnv,
+  DEVELOPMENT_SECRETS_ENV,
+  normalizeDatabaseUrlForCompare,
+  PRODUCTION_SECRETS_ENV,
+  productionDatabaseUrlTigerExceptionEnabled,
 };
 
 export async function assertNonProdDatabaseUrlForProduct(
@@ -38,11 +38,16 @@ export async function assertDatabaseUrlAllowedForSecretsEnvForProduct(
   secretsEnv: string,
   context: Record<string, unknown> = {}
 ): Promise<void> {
-  await assertDatabaseUrlAllowedForSecretsEnv(url, secretsEnv, context, policyOptions);
+  await assertDatabaseUrlAllowedForSecretsEnv(
+    url,
+    secretsEnv,
+    context,
+    policyOptions
+  );
 }
 
 // Re-export with product naming used by callers
 export {
-  assertNonProdDatabaseUrlForProduct as assertNonProdDatabaseUrl,
   assertDatabaseUrlAllowedForSecretsEnvForProduct as assertDatabaseUrlAllowedForSecretsEnv,
+  assertNonProdDatabaseUrlForProduct as assertNonProdDatabaseUrl,
 };

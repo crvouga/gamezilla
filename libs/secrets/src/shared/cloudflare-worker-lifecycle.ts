@@ -4,19 +4,24 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { currentPlatform } from '@pkgs/os';
-import { REPO_ROOT } from './paths';
-import { runSafe } from './subprocess';
-import { cfAccountId } from './secrets/cloudflare';
 import { ok, warn } from './fmt';
+import { REPO_ROOT } from './paths';
+import { cfAccountId } from './secrets/cloudflare';
+import { runSafe } from './subprocess';
 import { WRANGLER_ENV, wranglerEnv } from './wrangler-env';
 
 const NOT_FOUND_CODES = [10000, 10007, 10090];
 export const DO_MIGRATION_STATE_ERROR = '[code: 10074]';
+const DO_MISSING_EXPORT_ERROR = '[code: 10064]';
+const DO_DELETE_BINDING_ERROR = '[code: 10061]';
 
 export function isDoMigrationStateError(output: string): boolean {
   return (
     output.includes(DO_MIGRATION_STATE_ERROR) ||
-    output.includes('was not exported in the previous version of the script')
+    output.includes(DO_MISSING_EXPORT_ERROR) ||
+    output.includes(DO_DELETE_BINDING_ERROR) ||
+    output.includes('was not exported in the previous version of the script') ||
+    output.includes('does not export class')
   );
 }
 

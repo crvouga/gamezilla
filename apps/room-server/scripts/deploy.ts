@@ -2,10 +2,10 @@
 // @io-wall-ok
 import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 import { ok } from '@libs/secrets/shared/fmt';
 import { runAsync } from '@libs/secrets/shared/subprocess';
-import { wranglerEnv, wranglerArgs } from '@libs/secrets/shared/wrangler-env';
+import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
+import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 
 const roomDir = join(import.meta.dirname, '..');
 
@@ -28,7 +28,9 @@ async function deploy(dryRun: boolean): Promise<void> {
     return;
   }
 
-  console.log(`Room Worker deployed (${PRODUCT_CONFIG.cloudflare.roomWorker}).`);
+  console.log(
+    `Room Worker deployed (${PRODUCT_CONFIG.cloudflare.roomWorker}).`
+  );
 }
 
 const dryRun = !isProductionSecretsEnv();

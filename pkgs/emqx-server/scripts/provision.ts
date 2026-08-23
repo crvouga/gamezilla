@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 // @io-wall-ok
 import { assert } from '@pkgs/assert';
-import { EMQX_PRODUCT_CONFIG } from '../src/emqx-config';
 import {
   ensureCustomDomain,
   ensureProject,
@@ -14,7 +13,8 @@ import {
 import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
 import { upsertDnsRecord } from '../src/cf-dns';
 import { cliHttp } from '../src/cli-io';
-import { info, ok } from '../src/fmt';
+import { EMQX_PRODUCT_CONFIG } from '../src/emqx-config';
+import { info, ok } from './fmt';
 
 function cfHeaders(): Record<string, string> {
   return {
@@ -39,12 +39,17 @@ async function findZoneId(): Promise<string | null> {
   const body = (await res.json()) as {
     result?: Array<{ id: string; name: string }>;
   };
-  return body.result?.find((z) => z.name === EMQX_PRODUCT_CONFIG.domain)?.id ?? null;
+  return (
+    body.result?.find((z) => z.name === EMQX_PRODUCT_CONFIG.domain)?.id ?? null
+  );
 }
 
 async function provision(): Promise<void> {
   const zoneId = await findZoneId();
-  assert.ok(zoneId !== null, 'emqx: Cloudflare zone must exist for DNS provisioning');
+  assert.ok(
+    zoneId !== null,
+    'emqx: Cloudflare zone must exist for DNS provisioning'
+  );
 
   const token = await railwayToken();
   const cfg = EMQX_PRODUCT_CONFIG.emqx;

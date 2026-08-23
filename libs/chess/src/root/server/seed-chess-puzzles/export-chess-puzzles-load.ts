@@ -8,14 +8,13 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
+import { assert } from '@pkgs/assert';
+import { wallClock } from '@pkgs/clock';
 import {
   assertDevSecretsEnv,
   PRODUCTION_SECRETS_ENV,
 } from '@pkgs/database-url-policy';
 import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
-import { assert } from '@pkgs/assert';
-import { wallClock } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store/repo-tree-store';
@@ -23,6 +22,7 @@ import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { openPgClient } from '@pkgs/sql-client/postgres/connect';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres/schema';
 import {
   CHESS_PUZZLES_LOAD_CSV_COLUMNS,
   CHESS_PUZZLES_LOAD_EXPORT_SQL,
@@ -108,10 +108,12 @@ export async function exportChessPuzzlesLoadFile(
     databaseUrl,
     secretsEnv,
     {
-      repoRoot: REPO_ROOT,
-      fetchFn: (input, init) => createGlobalHttpClient().fetch(input, init),
-    },
-    { surface: 'chess:export-puzzles-load' }
+      deps: {
+        repoRoot: REPO_ROOT,
+        fetchFn: (input, init) => createGlobalHttpClient().fetch(input, init),
+      },
+      context: { surface: 'chess:export-puzzles-load' },
+    }
   );
 
   const outPath = resolveChessPuzzlesLoadFilePath();

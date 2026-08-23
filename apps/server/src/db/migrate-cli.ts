@@ -1,7 +1,8 @@
 // @io-wall-ok
 // @api-wall-ok
-import { assert } from '@pkgs/assert';
+
 import { migratePostgresApp } from '@libs/db/server/migrate';
+import { assert } from '@pkgs/assert';
 
 const wait = process.argv.includes('--wait');
 const databaseUrlFlag = process.argv.find((arg) =>

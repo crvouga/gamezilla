@@ -11,7 +11,10 @@ function cfHeaders(): Record<string, string> {
 }
 
 type CfListBody = {
-  readonly result?: ReadonlyArray<{ readonly id: string; readonly content: string }>;
+  readonly result?: ReadonlyArray<{
+    readonly id: string;
+    readonly content: string;
+  }>;
 };
 
 async function listRecords(
@@ -25,7 +28,8 @@ async function listRecords(
   url.searchParams.set('type', type);
   url.searchParams.set('per_page', '50');
   const res = await cliHttp.fetch(url, { headers });
-  if (!res.ok) throw new Error(`CF DNS list failed: HTTP ${String(res.status)}`);
+  if (!res.ok)
+    throw new Error(`CF DNS list failed: HTTP ${String(res.status)}`);
   const body = (await res.json()) as CfListBody;
   return (body.result ?? []).map((r) => ({ id: r.id, content: r.content }));
 }
@@ -38,7 +42,11 @@ export async function upsertDnsRecord(options: {
   readonly proxied?: boolean;
 }): Promise<void> {
   const headers = cfHeaders();
-  const existing = await listRecords(options.zoneId, options.name, options.type);
+  const existing = await listRecords(
+    options.zoneId,
+    options.name,
+    options.type
+  );
   const payload = {
     type: options.type,
     name: options.name,
@@ -55,10 +63,13 @@ export async function upsertDnsRecord(options: {
     assert.ok(res.ok, `CF DNS update failed: HTTP ${String(res.status)}`);
     return;
   }
-  const res = await cliHttp.fetch(`${CF_API}/zones/${options.zoneId}/dns_records`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
-  });
+  const res = await cliHttp.fetch(
+    `${CF_API}/zones/${options.zoneId}/dns_records`,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    }
+  );
   assert.ok(res.ok, `CF DNS create failed: HTTP ${String(res.status)}`);
 }

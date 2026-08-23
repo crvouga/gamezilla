@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
+import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 // @io-wall-ok
 import { assert } from '@pkgs/assert';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
 import { ok, warn } from '../shared/fmt';
 import {

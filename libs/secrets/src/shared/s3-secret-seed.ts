@@ -2,14 +2,13 @@
  * Memoized per-env object-store secret seed: ensure B2 bucket + mint app key
  * once, then each Secret.seed() picks its field.
  */
-import { assert } from '@pkgs/assert';
+
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { assert } from '@pkgs/assert';
 import {
   DEVELOPMENT_SECRETS_ENV,
   PRODUCTION_SECRETS_ENV,
 } from '@pkgs/database-url-policy';
-import type { SecretsEnv } from './secrets/secret';
-import { setSecretIn } from './secrets/secrets-io';
 import {
   authorizeB2FromEnv,
   type B2Auth,
@@ -19,6 +18,8 @@ import {
   ensureB2Bucket,
   mintB2S3Credentials,
 } from '@pkgs/object-store/b2-api';
+import type { SecretsEnv } from './secrets/secret';
+import { setSecretIn } from './secrets/secrets-io';
 
 export type SeededObjectStoreS3 = {
   readonly accessKeyId: string;

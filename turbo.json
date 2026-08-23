@@ -17,6 +17,7 @@
     "LOCAL_SECRETS",
     "STRIPE_*",
     "CLOUDFLARE_*",
+    "RAILWAY_*",
     "B2_*",
     "S3_*",
     "ELEVEN_LABS_*",

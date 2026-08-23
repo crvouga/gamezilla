@@ -1,9 +1,9 @@
+import { join } from 'node:path';
 import {
   assertDatabaseUrlAllowedForSecretsEnvForTooling as assertToolingAllowed,
   assertNonProdDatabaseUrlForTooling as assertToolingNonProd,
 } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import { createGlobalHttpClient } from '@pkgs/http-client';
-import { join } from 'node:path';
 
 import { PRODUCT_CONFIG } from '../shared/product-config';
 
@@ -31,5 +31,9 @@ export async function assertDatabaseUrlAllowedForSecretsEnvForTooling(
   secretsEnv: string,
   context: Record<string, unknown> = {}
 ): Promise<void> {
-  await assertToolingAllowed(url, secretsEnv, toolingDeps, context, policyOptions);
+  await assertToolingAllowed(url, secretsEnv, {
+    deps: toolingDeps,
+    context,
+    options: policyOptions,
+  });
 }

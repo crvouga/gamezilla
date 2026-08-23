@@ -51,11 +51,14 @@ function ensureActionlint(): void {
 ensureActionlint();
 run('bun', ['run', 'tools/scripts/install-gitleaks.ts'], pathWithLocalBin());
 
-const ghEvent = process.env['GH_EVENT'] ?? process.env['GITHUB_EVENT_NAME'] ?? '';
+const ghEvent =
+  process.env['GH_EVENT'] ?? process.env['GITHUB_EVENT_NAME'] ?? '';
 const prBase = process.env['PR_BASE'] ?? '';
 const prHead = process.env['PR_HEAD'] ?? '';
 const logOpts =
-  ghEvent === 'pull_request' && prBase && prHead ? `${prBase}..${prHead}` : '-1';
+  ghEvent === 'pull_request' && prBase && prHead
+    ? `${prBase}..${prHead}`
+    : '-1';
 
 run(
   'gitleaks',

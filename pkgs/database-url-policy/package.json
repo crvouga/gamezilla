@@ -4,7 +4,9 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./*": ["./src/*.ts"]
+    "./*": [
+      "./src/*.ts"
+    ]
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",

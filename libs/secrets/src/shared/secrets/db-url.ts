@@ -1,8 +1,8 @@
-import { pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import {
   assertNonProdDatabaseUrl,
   DEVELOPMENT_SECRETS_ENV,
 } from '@pkgs/database-url-policy';
+import { pingPostgres } from '@pkgs/sql-client/postgres/connect';
 import { cliTimers } from '../cli-io';
 import { Secret, type SecretInput } from './secret';
 import { fetchSecretFrom } from './secrets-io';

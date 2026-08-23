@@ -15,9 +15,11 @@
  *   `TURBO_LOG_ORDER`. `//#check` in argv is expanded to its `dependsOn` ci
  *   tasks so turbo does not nest them under a `//:check` prefix (stream mode
  *   stacks prefixes on nested umbrella tasks).
+ * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
+ *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  */
-import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,6 +27,7 @@ const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
+const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
 const MAX_CHECK_CONCURRENCY = 32;
 const MIN_CHECK_CONCURRENCY = 10;
@@ -74,6 +77,18 @@ function resolveConcurrency(): string {
   return String(
     Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus * 2, MIN_CHECK_CONCURRENCY))
   );
+}
+
+function resolveUi(): string | undefined {
+  const fromEnv = process.env['TURBO_UI']?.trim();
+  if (
+    fromEnv !== undefined &&
+    fromEnv.length > 0 &&
+    TURBO_UI_VALUES.has(fromEnv)
+  ) {
+    return fromEnv;
+  }
+  return undefined;
 }
 
 function turboChildEnv(): NodeJS.ProcessEnv {
@@ -147,6 +162,8 @@ const TURBO_OUTPUT_LOGS =
 const TURBO_LOG_ORDER =
   process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
 
+const ui = resolveUi();
+
 const TURBO_CI_FLAGS = [
   `--concurrency=${concurrency}`,
   `--cache-workers=${String(CACHE_WORKERS)}`,
@@ -154,6 +171,7 @@ const TURBO_CI_FLAGS = [
   '--summarize',
   `--output-logs=${TURBO_OUTPUT_LOGS}`,
   `--log-order=${TURBO_LOG_ORDER}`,
+  ...(ui !== undefined ? [`--ui=${ui}`] : []),
 ] as const;
 
 const rawTaskArgs = process.argv.slice(2);
@@ -171,6 +189,7 @@ if (affected.length > 0) {
 }
 console.log(
   `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
+    (ui !== undefined ? ` ui=${ui}` : '') +
     (hasRemoteCreds(env)
       ? ' (remote creds present)'
       : ' (remote enabled; TURBO_TOKEN/TURBO_TEAM missing)')
