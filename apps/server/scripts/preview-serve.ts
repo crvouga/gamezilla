@@ -27,10 +27,17 @@ let shuttingDown = false;
 
 function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
   if (child.exitCode !== null || child.killed) return;
+  const pid = child.pid;
+  if (pid === undefined) return;
   try {
-    child.kill(signal);
+    // Negative PID = process group (spawned detached so wrangler + esbuild die together).
+    process.kill(-pid, signal);
   } catch {
-    // already gone
+    try {
+      child.kill(signal);
+    } catch {
+      // already gone
+    }
   }
 }
 
@@ -106,10 +113,24 @@ function runWranglerOnce(): Promise<WranglerRun> {
         '--inspector-port',
         String(INSPECTOR_PORT),
       ],
-      { cwd: API_DIR, stdio: 'inherit' }
+      {
+        cwd: API_DIR,
+        stdio: 'inherit',
+        // New process group so shutdown can SIGTERM/SIGKILL wrangler + its esbuild children.
+        detached: true,
+      }
     );
     children.push(child);
     child.on('exit', (code) => {
+      // Reap the process group so a crashed wrangler cannot leave esbuild behind.
+      const pid = child.pid;
+      if (pid !== undefined) {
+        try {
+          process.kill(-pid, 'SIGKILL');
+        } catch {
+          // group already gone
+        }
+      }
       resolve({ code: code ?? 1, elapsedMs: wallClock.now() - startedAt });
     });
   });

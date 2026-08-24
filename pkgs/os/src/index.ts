@@ -27,6 +27,7 @@ export type {
 export { GithubReleaseTarballInstaller } from './github-release-installer';
 export { Homebrew } from './homebrew';
 export type { Installer } from './installer';
+export { killAllEsbuildServices, killOrphanEsbuildServices } from './kill-orphan-esbuild';
 export { killListenersOnPort, killListenersOnPorts } from './kill-port';
 export { LinuxOs } from './linux-os';
 export { MacOs } from './mac-os';

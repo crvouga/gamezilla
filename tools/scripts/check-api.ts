@@ -8,8 +8,8 @@
  * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
  * "Start API preview" step), runs tests immediately. Otherwise starts
  * `preview:serve` locally, waits, runs tests, then frees the API port.
- * Also a root Turbo task (`//#check:api`) for CI / opt-in local runs
- * (not part of `bun check`).
+ * Deploy / opt-in only (`@apps/server#check:api` in the deploy graph;
+ * not part of local `bun check`).
  *
  * Invoked via `bun run check:api` (wraps `secrets-run` for dev secrets).
  */
@@ -17,6 +17,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, openSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
 /** Loopback origin for `wrangler dev` in this repo (`apps/server` uses port 8788). */
@@ -77,12 +78,26 @@ async function waitForApiHealth(
   );
 }
 
+function killProcessGroup(pid: number, signal: NodeJS.Signals): void {
+  try {
+    process.kill(-pid, signal);
+  } catch {
+    try {
+      process.kill(pid, signal);
+    } catch {
+      // already gone
+    }
+  }
+}
+
 function startApiPreview(): {
   readonly stop: () => void;
   readonly exited: Promise<number>;
 } {
   const logPath = join(REPO_ROOT, '.check-api-preview.log');
   const logFd = openSync(logPath, 'w');
+  // Detached = own process group so we can kill wrangler + esbuild together.
+  // Do NOT unref — keep a handle and tear the group down in `stop`.
   const child = spawn(
     'bun',
     ['run', '--filter', '@apps/server', 'preview:serve'],
@@ -97,11 +112,17 @@ function startApiPreview(): {
   const exited = new Promise<number>((resolve) => {
     child.once('exit', (code) => resolve(code ?? 1));
   });
-  child.unref();
   return {
     stop: () => {
       if (process.env['CI']) return;
+      const pid = child.pid;
+      if (pid !== undefined) {
+        killProcessGroup(pid, 'SIGTERM');
+        killProcessGroup(pid, 'SIGKILL');
+      }
+      // Fallback if the group leader already exited but listeners remain.
       killListenersOnPorts([API_PORT, 9231, 9229]);
+      killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
     },
     exited,
   };

@@ -8,7 +8,7 @@
  *   override Vercel's default cache endpoint.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
- *   packages but still execute named root tasks (`ci:lint`).
+ *   packages but still execute named root tasks (`ci:depcruise`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
  *   `min(32, max(cpus * 2, 10))`.
  * - Log order: `auto` locally (turbo streams); `grouped` in CI. Override with
@@ -22,6 +22,8 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
+
+import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -204,4 +206,6 @@ const result = spawnSync(
   }
 );
 
+// Reap any esbuild --service workers orphaned by force-exited tasks.
+killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
 process.exit(result.status ?? 1);

@@ -305,9 +305,8 @@ function createServerRouter(args: {
     .route(
       '/notifications',
       createNotificationsSubApp(() => env.clock.now())
-    );
-
-  apiRouter.onError(createApiErrorHandler(log));
+    )
+    .onError(createApiErrorHandler(log));
   return apiRouter;
 }
 

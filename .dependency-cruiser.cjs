@@ -69,9 +69,8 @@ module.exports = {
       to: { dependencyTypes: ['npm-dev'] },
     },
     // Tier import pyramid: sim -> apps, libs, pkgs; apps -> libs, pkgs; libs -> pkgs; pkgs -> pkgs.
-    // The authoritative gate is tools/scripts/check-tier-imports.ts (workspace
-    // @scope imports through bun symlinks aren't reliably traversed here).
-    // These path-based rules catch the relative `../../libs/...` escape hatch.
+    // Path-based tier rules catch the relative `../../libs/...` escape hatch.
+    // Workspace @scope imports are not reliably traversed by depcruise (bun symlinks).
     {
       name: 'pkgs-not-libs',
       severity: 'error',

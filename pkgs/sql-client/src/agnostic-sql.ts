@@ -1,6 +1,6 @@
 /**
  * Portable (SQLite-shaped) SQL bans shared by runtime {@link assertAgnosticSql}
- * and `ci:no-vendor-sql`. Application SQL must run on SQLite and on Postgres
+ * Application SQL must run on SQLite and on Postgres
  * with `@pkgs/postgres-sqlite-compat` installed — no vendor casts, locks, or
  * engine-only helpers.
  */

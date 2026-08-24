@@ -290,7 +290,6 @@ Scripts:
 ```bash
 bun run --filter @pkgs/room test       # all package tests
 bun run --filter @pkgs/room test:sim   # DST scenarios + kit only
-bun run ci:sim-determinism             # every *.sim.test.ts ×2 same seed
 ```
 
 ### DST five concepts (room-shaped)
@@ -487,7 +486,7 @@ File: `tests/scenarios/match-clock-schedule.sim.test.ts` (`MatchClockFixtureModu
 |------|----|--------------------|
 | `tests/fixtures/counter-module.sim.test.ts` | M8 | Pure `TestCounterModule` under `createSimAdapters` seed-stable |
 
-### Game-layer DST (outside this package; still under `ci:sim-determinism`)
+### Game-layer DST (outside this package)
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|

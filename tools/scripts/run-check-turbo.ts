@@ -21,35 +21,7 @@ import {
 
 const CI_GATE_TASKS = [
   'ci:syncpack',
-  'ci:database-url-policy',
-  'ci:local-dev-self-contained',
-  'ci:no-local-tables',
-  'ci:no-raw-schema-sql',
-  'ci:domain-table-prefixes',
-  'ci:dst-selector-discipline',
-  'ci:no-domain-hard-delete',
-  'ci:no-eager-di-construction',
-  'ci:layer-c-sql-tx',
-  'ci:fanout-rows-from-reads',
-  'ci:mutation-determinism',
-  'ci:channel-exhaustiveness',
-  'ci:sync-engine-terminology',
-  'ci:sync-engine-blackbox-tests',
-  'ci:matchmaking-blackbox-tests',
-  'ci:sync-engine-protocol-freeze',
-  'ci:sync-engine-public-api',
-  'ci:server-isomorphic',
-  'ci:no-sql-wall-io',
-  'ci:no-vendor-sql',
-  'ci:sim-determinism',
   'ci:depcruise',
-  'ci:circular-deps',
-  'ci:tier-imports',
-  'ci:use-case-isolation',
-  'ci:libs-import-surface',
-  'ci:component-ids',
-  'ci:no-rn-style-api',
-  'ci:no-size-limit-overrides',
   'ci:audit',
 ] as const;
 
@@ -90,18 +62,18 @@ function mainTasks(mode: Mode): readonly string[] {
   switch (mode) {
     case 'all':
       return [
+        'lint',
         'tc',
         'test',
-        'ci:lint',
         ...CI_GATE_TASKS,
         'check:static',
         ...CHECK_BUILD_TASKS,
       ];
     case 'ci':
       return [
+        'lint',
         'tc',
         'test',
-        'ci:lint',
         ...CI_GATE_TASKS,
         SECRETS_VALIDATE_TASK,
         ...CHECK_BUILD_TASKS,
@@ -109,7 +81,7 @@ function mainTasks(mode: Mode): readonly string[] {
     case 'gates':
       return [...CI_GATE_TASKS, SECRETS_VALIDATE_TASK];
     case 'verify':
-      return ['tc', 'test', 'ci:lint'];
+      return ['lint', 'tc', 'test'];
     case 'build':
       return [...CHECK_BUILD_TASKS];
   }

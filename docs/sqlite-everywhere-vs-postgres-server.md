@@ -20,7 +20,7 @@ This was not a greenfield engine pick. Option B is already in tree:
 - Client / Expo: SQLite (`sqlite-mem`, bun/better-sqlite, OPFS). No production
   Postgres on Hermes or iOS.
 - Production: Postgres (Neon-shaped). Tests/CI may boot `@pkgs/postgres-embedded`.
-- Portable SQL: `assertAgnosticSql` / `ci:no-vendor-sql` plus
+- Portable SQL: `assertAgnosticSql` at call sites.
   `@pkgs/postgres-sqlite-compat` (JSON1-shaped APIs on Postgres).
 - Dual schema: `defineTable` → SQLite + Postgres migrations.
 - Daily `bun dev` / DST default / playground API **server**:

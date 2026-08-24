@@ -97,8 +97,7 @@ await world.tickAll({ maxPassesPerPartition: 4 });
 | Port | `join` / `status` / `leave` / `updateFormulas` / `mm.app()` |
 
 Scenarios assert only port observables — never SQL tables or claim
-columns. CI: `bun run ci:matchmaking-blackbox-tests` and
-`bun run ci:sim-determinism` (every `*.sim.test.ts` ×2).
+columns. CI: `bun run --filter @pkgs/matchmaking test`.
 
 ```bash
 bun run --filter @pkgs/matchmaking test

@@ -57,7 +57,9 @@ module.exports = () => {
   fs.mkdirSync(reportsDir, { recursive: true });
 
   const seedScript = path.join(__dirname, 'scripts/build-sim-seed.ts');
-  execFileSync('bunx', ['tsx', seedScript], {
+  // Use Bun's TS runner — not `bunx tsx` (tsx wraps esbuild and leaves
+  // orphan `esbuild --service` processes when Jest force-exits).
+  execFileSync('bun', [seedScript], {
     cwd: __dirname,
     stdio: 'inherit',
     env: process.env,

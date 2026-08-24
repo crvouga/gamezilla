@@ -6,6 +6,7 @@
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
+import { killAllEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
@@ -58,3 +59,4 @@ function pkillOrphans(): void {
 runTurboKill();
 pkillOrphans();
 killListenersOnPorts([...DEV_PORTS]);
+killAllEsbuildServices({ commandIncludes: REPO_ROOT });

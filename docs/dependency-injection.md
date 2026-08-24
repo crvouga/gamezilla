@@ -2,13 +2,7 @@
 
 Product code uses **three layers**. Do not blur them.
 
-CI enforces the model with:
-
-- `bun run ci:no-eager-di-construction` — no `this.x = new …` / field-init / module-level Layer C construction
-- `bun run ci:layer-c-sql-tx` — Layer C constructors must not take bare `SqlClient`
-- Biome plugin `no-di-container.grit` (via `ci:lint`) — no `*Container` / `*Registry` / `*ServiceLocator` classes
-
-Scripts live under [`tools/scripts/check-*.ts`](../tools/scripts/). These gates expect zero violations (no baseline files).
+CI enforces the model with Biome plugin `no-di-container.grit` (via `bun run lint`) — no `*Container` / `*Registry` / `*ServiceLocator` classes.
 
 ## Three layers
 

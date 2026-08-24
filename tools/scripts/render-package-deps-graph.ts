@@ -3,7 +3,7 @@
 
 /**
  * Writes tmp/package-deps-graph.html — Mermaid flowchart (DAG-style layout)
- * of @apps|@libs|@pkgs/* runtime imports. Same graph model as ci:circular-deps.
+ * of @apps|@libs|@pkgs/* runtime imports.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -204,8 +204,7 @@ function buildHtml(mermaidBody: string): string {
       <h1>workspace — package import graph</h1>
       <p class="sub">
         Directed edges from runtime <code>@apps|@libs|@pkgs/*</code> imports in TypeScript
-        under <code>{apps,libs,pkgs}/*/src</code> (type-only imports omitted). Same model as
-        <code>bun run ci:circular-deps</code>. Packages with no workspace package imports in or out are omitted.
+        under <code>{apps,libs,pkgs}/*/src</code> (type-only imports omitted). Packages with no workspace package imports in or out are omitted.
       </p>
     </div>
     <div class="legend" aria-label="tier colors">

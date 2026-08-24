@@ -31,6 +31,9 @@ await esbuild.build({
   target: ['es2022'],
 });
 
+// Builds are done; stop the service so it does not outlive this long-lived server.
+await esbuild.stop();
+
 writeFileSync(
   join(outDir, 'index.html'),
   readFileSync(join(here, 'harness/index.html'), 'utf8')

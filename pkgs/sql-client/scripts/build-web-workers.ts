@@ -67,4 +67,9 @@ async function main(): Promise<void> {
   }
 }
 
-await main();
+try {
+  await main();
+} finally {
+  // Stop the persistent native service so it cannot outlive this script.
+  await esbuild.stop();
+}

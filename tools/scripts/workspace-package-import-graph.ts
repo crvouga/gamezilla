@@ -1,7 +1,7 @@
 // @io-wall-ok — tools composition root
 /**
  * Package-level graph of @apps|@libs|@pkgs|@sim / * imports discovered from source.
- * Shared by ci:circular-deps, ci:tier-imports, and deps:graph.
+ * Shared by deps:graph.
  *
  * Graph keys are full scoped names (`@pkgs/ui`, `@sim/console`) so short-name
  * collisions across tiers do not merge unrelated packages.

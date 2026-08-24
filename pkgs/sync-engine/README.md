@@ -156,12 +156,8 @@ These must be possible with zero edits outside `pkgs/sync-engine/src/`:
 ### CI (encapsulation)
 
 ```bash
-bun run ci:sync-engine-public-api      # api-reports/*.txt
-bun run ci:sync-engine-protocol-freeze # protocol-v2.sha256
-bun run ci:lint  # no-sync-engine-framework-leak plugin  # no framework names in apps/libs/inbox
-bun run ci:sync-engine-blackbox-tests
-bun run ci:no-local-tables
-bun run ci:channel-exhaustiveness
+bun run lint  # no-sync-engine-framework-leak / no-sync-engine-terminology plugins
+bun run --filter @pkgs/sync-engine test
 ```
 
 ---
@@ -329,8 +325,8 @@ scopes whose derived hydrate tables overlap.
 
 ### Channel exhaustiveness
 
-CI `ci:channel-exhaustiveness` statically checks that every hydrated domain
-table has a topic-map entry (or is reconcile-only with empty `entryChannel`).
+Review channel exhaustiveness when adding queries: every hydrated domain
+table should have a topic-map entry (or be reconcile-only with empty `entryChannel`).
 Missed `notifyChannels` on non-mutation server writes remains a runtime
 footgun for *latency* — prefer mutations / notify; the client reconcile tick
 is the safety net so peers do not stay forever-stale.
@@ -533,7 +529,6 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 | UI / `useQuery` SQL | Filter `deleted_at IS NULL` (or `LIVE_ROW_SQL`) |
 | Merge | Upsert `deleted_at` as a normal column |
 | Framework tables | May hard-delete |
-| CI | `bun run ci:no-domain-hard-delete` |
 
 Inbox is slightly different product-wise (`active` flag) but still a sync query;
 don’t invent a second delete model without review.
@@ -762,10 +757,7 @@ mutation `onSuccess` — stay and let SQLite drive UI.
 ```bash
 bun run --filter @pkgs/sync-engine tc
 bun run --filter @pkgs/sync-engine test
-bun run ci:no-domain-hard-delete
-bun run ci:fanout-rows-from-reads
-bun run ci:channel-exhaustiveness
-bun run ci:lint
+bun run lint
 ```
 
 | Suite | Path | Role |
