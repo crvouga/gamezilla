@@ -6,11 +6,13 @@
  * - Local: silently skip when secret store / key is unavailable.
  */
 import { CATALOG_SPEC } from '@libs/billing/public/catalog';
-import { cliClock, cliHttp } from '@libs/secrets/shared/cli-io';
+import { wallClock } from '@pkgs/clock';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 
 const SCRIPT_TAG = 'billing check';
+const cliHttp = createGlobalHttpClient();
 
 function isCi(): boolean {
   const ci = process.env['CI'];
@@ -24,7 +26,7 @@ async function main(): Promise<void> {
   try {
     store = await createBillingScriptSecretStore({
       fetchFn: cliHttp.fetch.bind(cliHttp),
-      now: cliClock.now,
+      now: wallClock.now,
     });
   } catch {
     if (isCi()) {

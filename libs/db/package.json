@@ -18,6 +18,7 @@
   },
   "scripts": {
     "check": "bun run src/bin/check-migrate-policy.ts",
+    "db:migrate": "bun run src/bin/migrate-cli.ts --wait",
     "db:wipe:dev": "bun run src/scripts/wipe-dev-db.ts",
     "migrate": "bun run src/bin/migrate-cli.ts --wait",
     "provision": "bun run src/scripts/provision-postgres.ts",

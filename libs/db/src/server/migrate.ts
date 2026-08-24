@@ -1,11 +1,10 @@
 // @api-wall-ok
 // @io-wall-ok
 /**
- * Programmatic app Postgres migrate orchestration — owned by `@apps/server/db`.
+ * Programmatic app Postgres migrate orchestration — owned by `@libs/db`.
  * Compose site is `@libs/runtime/server/run-postgres-migrations`. Same-package
  * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
- * shell out to `migrate-cli.ts`. Tests/CI boot `@pkgs/postgres-embedded` then
- * run migrate scripts (apps must not import other `@apps/*` packages).
+ * shell out to `@libs/db` `migrate-cli.ts`. Tests/CI boot `@pkgs/postgres-embedded`
  */
 
 import { join } from 'node:path';

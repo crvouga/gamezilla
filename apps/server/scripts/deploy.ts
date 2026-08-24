@@ -178,7 +178,7 @@ async function deploy(): Promise<void> {
 
   await runAsync(
     'bun',
-    ['run', '--filter', '@apps/server', '--elide-lines=0', 'billing:sync'],
+    ['run', '--filter', '@libs/billing', '--elide-lines=0', 'billing:sync'],
     {
       cwd: REPO_ROOT,
       label: 'billing: catalog reconcile',

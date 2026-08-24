@@ -10,8 +10,8 @@
     "tools"
   ],
   "scripts": {
-    "billing:check": "bun run --filter @apps/server billing:check",
-    "billing:sync": "bun run --filter @apps/server billing:sync",
+    "billing:check": "bun run --filter @libs/billing billing:check",
+    "billing:sync": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/billing billing:sync",
     "check": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts lint tc test //#check @tools#check:static @apps/server#check:api @libs/secrets#check",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server check:api",
     "check:ci": "echo 'deprecated: use bun check' && exit 1",

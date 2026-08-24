@@ -235,13 +235,13 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
-    "@apps/server#billing:sync": {
+    "@libs/billing#billing:sync": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
     "@apps/server#smoke": {
       "cache": false,
-      "dependsOn": ["@apps/client#deploy", "@apps/server#billing:sync"]
+      "dependsOn": ["@apps/client#deploy", "@libs/billing#billing:sync"]
     },
     "@apps/client#deploy:ota": {
       "cache": false,
@@ -259,7 +259,7 @@
         "@apps/server#check:api",
         "@libs/secrets#check",
         "@tools#install:cli",
-        "@apps/server#billing:sync",
+        "@libs/billing#billing:sync",
         "@apps/client#deploy:ota"
       ]
     },

@@ -3,16 +3,18 @@
  * Billing catalog sync — reconcile CATALOG_SPEC onto the billing vendor adapter.
  */
 import { CATALOG_SPEC } from '@libs/billing/public/catalog';
-import { cliClock, cliHttp } from '@libs/secrets/shared/cli-io';
+import { wallClock } from '@pkgs/clock';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 
 const SCRIPT_TAG = 'billing sync';
+const cliHttp = createGlobalHttpClient();
 
 async function main(): Promise<void> {
   const store = await createBillingScriptSecretStore({
     fetchFn: cliHttp.fetch.bind(cliHttp),
-    now: cliClock.now,
+    now: wallClock.now,
   });
   const billing = await createStripeBillingFromSecretStore(store);
   if (billing === null) {

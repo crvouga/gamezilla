@@ -391,7 +391,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/apps/server/src/db/migrate.ts",
         "!**/apps/server/src/db/open-request-db-postgres.ts",
-        "!**/apps/server/scripts/wipe-dev-db.ts",
+        "!**/libs/db/src/scripts/wipe-dev-db.ts",
         "!**/apps/server/scripts/run-local-postgres-migrate.ts",
         "!**/apps/server/scripts/run-local-postgres-seed.ts",
         "!**/libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
@@ -440,7 +440,7 @@
         "!**/libs/runtime/src/server/run-postgres-migrations.ts",
         "!**/apps/server/src/db/migrate.ts",
         "!**/apps/server/src/request-scope.ts",
-        "!**/apps/server/scripts/wipe-dev-db.ts"
+        "!**/libs/db/src/scripts/wipe-dev-db.ts"
       ]
     },
     {

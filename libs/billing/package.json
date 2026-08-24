@@ -13,6 +13,8 @@
     ]
   },
   "scripts": {
+    "billing:check": "bun run scripts/check-billing-catalog.ts",
+    "billing:sync": "bun run scripts/sync-billing-catalog.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },
@@ -20,7 +22,13 @@
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
+    "@pkgs/billing-stripe": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
     "zod": "catalog:"
