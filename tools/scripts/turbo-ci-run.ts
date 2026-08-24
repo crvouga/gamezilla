@@ -14,13 +14,15 @@
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
  *   packages but still execute named root tasks (`ci:depcruise`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
- *   `min(32, max(cpus * 2, 10))`.
- * - Log order: `auto` locally (turbo streams); `grouped` in CI. Override with
+ *   `min(32, max(cpus * 2, 10))` locally. In CI the floor is 2 so a 2-core /
+ *   7GB GitHub-hosted runner does not launch 10 Node heaps.
+ * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
+ *   task stdout until completion, which looks like a hang). Override with
  *   `TURBO_LOG_ORDER`. `//#check` in argv is expanded to its `dependsOn` ci
- *   tasks so turbo does not nest them under a `//:check` prefix (stream mode
- *   stacks prefixes on nested umbrella tasks).
- * - Output logs: `errors-only` in CI (failed task stderr in the job log /
- *   LLM fix prompt); `new-only` locally. Override with `TURBO_OUTPUT_LOGS`.
+ *   tasks so turbo does not nest them under a `//:check` prefix.
+ * - Output logs: `new-only` (cache misses stream). Override with
+ *   `TURBO_OUTPUT_LOGS`. Do not default CI to `errors-only`: a silent pipe is
+ *   SIGTERM'd (~10 min, exit 143) by GitHub Actions.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  */
@@ -89,9 +91,8 @@ function resolveConcurrency(): string {
   const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
   const cpus = availableParallelism();
-  return String(
-    Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus * 2, MIN_CHECK_CONCURRENCY))
-  );
+  const min = inCi() ? 2 : MIN_CHECK_CONCURRENCY;
+  return String(Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus * 2, min)));
 }
 
 function resolveUi(): string | undefined {
@@ -195,10 +196,9 @@ async function main(): Promise<void> {
   const cache = resolveCacheFlag(env);
   const concurrency = resolveConcurrency();
   const TURBO_OUTPUT_LOGS =
-    process.env['TURBO_OUTPUT_LOGS']?.trim() ||
-    (inCi() ? 'errors-only' : 'new-only');
+    process.env['TURBO_OUTPUT_LOGS']?.trim() || 'new-only';
   const TURBO_LOG_ORDER =
-    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
+    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'stream' : 'auto');
   const ui = resolveUi();
 
   const TURBO_CI_FLAGS = [

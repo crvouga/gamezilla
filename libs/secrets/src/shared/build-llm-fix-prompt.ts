@@ -318,7 +318,7 @@ const CI_DEPLOY_FAILURE_PROMPT: LocalPromptOptions = {
 
 /**
  * Collapsed markdown LLM prompt for a CI deploy-job failure, built from
- * locally captured step output (tee / turbo errors-only logs) rather than the
+ * locally captured step output (tee / turbo new-only logs) rather than the
  * GitHub Jobs API. Use from an always-run workflow step in the same job.
  */
 export function buildCiDeployFailureLlmFixPromptMarkdown(

@@ -22,6 +22,8 @@ on:
 
 env:
   TURBO_UI: stream
+  TURBO_LOG_ORDER: stream
+  TURBO_OUTPUT_LOGS: new-only
 
 jobs:
   deploy:
@@ -29,7 +31,9 @@ jobs:
     environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || '' }}
     env:
       EXPO_USE_WATCHMAN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '1' || '' }}
-      NODE_OPTIONS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '--max-old-space-size=8192' || '' }}
+      # Private ubuntu-latest is ~7GB. 8192 let V8 grow past RAM and the
+      # runner SIGTERM'd bun/turbo (exit 143) after a silent hang.
+      NODE_OPTIONS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '--max-old-space-size=4096' || '' }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     concurrency:
       group: deploy-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
@@ -66,10 +70,19 @@ jobs:
           SECRETS_ENV: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
         run: |
           set -euo pipefail
+          # Heartbeat: turbo cache restore / long tasks can go quiet.
+          # GitHub SIGTERM's a step with no log output (~10 min, exit 143).
+          (
+            while sleep 120; do
+              echo "deploy: still running $(date -u +%H:%M:%SZ)"
+            done
+          ) &
+          heartbeat_pid=$!
+          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
       - name: Write pipeline summary
-        if: always() && !cancelled()
+        if: always()
         env:
           DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
           DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
@@ -78,12 +91,12 @@ jobs:
         run: bun run tools/scripts/write-pipeline-summary.ts
 
       - uses: ./.github/actions/jest-cache
-        if: always() && !cancelled()
+        if: always()
         with:
           mode: save
 
       - uses: ./.github/actions/turbo-cache
-        if: always() && !cancelled()
+        if: always()
         with:
           job: deploy
           mode: save
