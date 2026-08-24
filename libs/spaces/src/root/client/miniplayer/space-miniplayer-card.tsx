@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 import { SpaceField, useSpaceColumn } from '../../../public/use-space-column';
@@ -35,6 +36,7 @@ export function SpaceMiniplayerCard({
   }
   return (
     <SpaceCardGradientBox
+      testID={Handles.spaceMiniplayer}
       sx={{
         borderRadius: 0,
         flexDirection: 'row',

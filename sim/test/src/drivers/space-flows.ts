@@ -58,11 +58,19 @@ export class SpaceFlows {
   }
 
   async ensureLobby(): Promise<void> {
-    // Probe with isVisible — not recorded by SimulationReporter (unlike expect.visible).
-    if (await this.ui.isVisible(SCREEN_SPACES)) {
+    if (await this.ui.isVisible(Handles.spaceClose)) {
+      await this.returnToLobby();
       return;
     }
-    await this.returnToLobby();
+    if (!(await this.ui.isVisible(SCREEN_SPACES))) {
+      await this.openTab();
+    }
+  }
+
+  async expectNotInActiveSpace(): Promise<void> {
+    await this.ui.expect.hidden(Handles.spaceMiniplayer, { timeoutMs: 30_000 });
+    await this.ui.expect.hidden(Handles.spaceLeave, { timeoutMs: 15_000 });
+    await this.ui.expect.hidden(Handles.spaceClose, { timeoutMs: 15_000 });
   }
 
   async leaveSpace(): Promise<void> {

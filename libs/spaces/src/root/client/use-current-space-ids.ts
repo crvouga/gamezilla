@@ -51,7 +51,11 @@ export function buildCurrentSpaceEntries(
   return entries;
 }
 
-function currentSpacesSql(enabled: boolean, deviceId: string): Sql<SpaceRow> {
+function currentSpacesSql(
+  enabled: boolean,
+  deviceId: string,
+  memberId: string
+): Sql<SpaceRow> {
   if (!enabled) {
     return sql<SpaceRow>`
       SELECT s.id, s.host_member_id, s.host_account_id, s.ended_at
@@ -67,6 +71,16 @@ function currentSpacesSql(enabled: boolean, deviceId: string): Sql<SpaceRow> {
       AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
     WHERE s.ended_at IS NULL
+      AND (
+        s.host_member_id = ${memberId}
+        OR s.host_account_id = ${memberId}
+        OR EXISTS (
+          SELECT 1 FROM spaces_users AS u
+          WHERE u.space_id = s.id
+            AND u.user_id = ${memberId}
+            AND u.deleted_at IS NULL
+        )
+      )
     ORDER BY o.opened_at DESC
   `;
 }
@@ -84,8 +98,8 @@ export function useCurrentSpaceIds(): {
   const { paintReady } = useSyncEngine();
   const enabled = paintReady && myId.length > 0;
   const query = useMemo(
-    () => currentSpacesSql(enabled, deviceId),
-    [enabled, deviceId]
+    () => currentSpacesSql(enabled, deviceId, myId),
+    [enabled, deviceId, myId]
   );
   const { rows, isLoading } = useQuery(query);
   if (!paintReady) {

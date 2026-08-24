@@ -17,12 +17,14 @@ type PresenceRow = {
   readonly host_account_id: string | null;
   readonly ended_at: string | null;
   readonly is_open: number | null;
+  readonly is_member: number | null;
 };
 
 function presenceSql(
   spaceId: string,
   enabled: boolean,
-  deviceId: string
+  deviceId: string,
+  memberId: string
 ): Sql<PresenceRow> {
   if (!enabled) {
     return sql<PresenceRow>`
@@ -30,7 +32,8 @@ function presenceSql(
         CAST(NULL AS TEXT) AS host_member_id,
         CAST(NULL AS TEXT) AS host_account_id,
         CAST(NULL AS TEXT) AS ended_at,
-        CAST(NULL AS INTEGER) AS is_open
+        CAST(NULL AS INTEGER) AS is_open,
+        CAST(NULL AS INTEGER) AS is_member
       WHERE false
     `;
   }
@@ -39,7 +42,19 @@ function presenceSql(
       s.host_member_id,
       s.host_account_id,
       s.ended_at,
-      CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open
+      CASE WHEN o.space_id IS NOT NULL THEN 1 ELSE 0 END AS is_open,
+      CASE
+        WHEN s.host_member_id = ${memberId}
+          OR s.host_account_id = ${memberId}
+          OR EXISTS (
+            SELECT 1 FROM spaces_users AS u
+            WHERE u.space_id = s.id
+              AND u.user_id = ${memberId}
+              AND u.deleted_at IS NULL
+          )
+        THEN 1
+        ELSE 0
+      END AS is_member
     FROM spaces AS s
     LEFT JOIN spaces_open_sessions AS o
       ON o.space_id = s.id
@@ -54,13 +69,13 @@ function presenceSql(
  * One SQL watch joins `spaces` + this device's `spaces_open_sessions`.
  */
 export function useSpacePresence(spaceId: string): SpacePresence {
-  const accountId = useMyAccountId();
+  const accountId = useMyAccountId() ?? '';
   const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
   const spaceEnabled = paintReady && spaceId.length > 0;
   const query = useMemo(
-    () => presenceSql(spaceId, spaceEnabled, deviceId),
-    [spaceId, spaceEnabled, deviceId]
+    () => presenceSql(spaceId, spaceEnabled, deviceId, accountId),
+    [spaceId, spaceEnabled, deviceId, accountId]
   );
   const { rows, isLoading } = useQuery(query);
   const row = rows[0] ?? null;
@@ -79,7 +94,8 @@ export function useSpacePresence(spaceId: string): SpacePresence {
             ended_at: row.ended_at,
           },
     isOpenLocally: row?.is_open === 1,
-    myId: accountId ?? '',
+    isMember: row?.is_member === 1,
+    myId: accountId,
   });
   return presence;
 }

@@ -35,6 +35,9 @@ describe('space leave', () => {
     await bob.space.reenterActiveSpace(aliceUsername);
     await bob.space.leaveSpace();
     await bob.space.ensureLobby();
+    await bob.space.expectNotInActiveSpace();
+    await bob.space.openLobbyCard(aliceUsername);
+    await bob.space.expectJoinPrompt();
     await bob.park();
 
     await alice.resume();

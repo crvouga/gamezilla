@@ -115,7 +115,8 @@ export async function closeSession(
   await tx.run(sql`
     UPDATE spaces_open_sessions
     SET deleted_at = ${now}
-    WHERE id = ${spaceOpenSessionEntityId(env.deviceId, spaceId)}
+    WHERE space_id = ${spaceId}
+      AND device_id = ${env.deviceId}
       AND deleted_at IS NULL
   `);
 }

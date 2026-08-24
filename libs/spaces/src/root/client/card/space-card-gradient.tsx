@@ -20,11 +20,13 @@ export function useSpaceCardGradientColors(): readonly [string, string] {
 export type SpaceCardGradientBoxProps = {
   children: ReactNode;
   sx?: SxInput;
+  testID?: string;
 };
 
 export function SpaceCardGradientBox({
   children,
   sx,
+  testID,
 }: SpaceCardGradientBoxProps): ReactNode {
   const colors = useSpaceCardGradientColors();
 
@@ -33,6 +35,7 @@ export function SpaceCardGradientBox({
       colors={colors}
       start={SPACE_CARD_GRADIENT_START}
       end={SPACE_CARD_GRADIENT_END}
+      {...(testID !== undefined ? { testID } : {})}
       {...(sx !== undefined ? { sx } : {})}
     >
       {children}

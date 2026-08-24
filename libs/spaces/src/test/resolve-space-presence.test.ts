@@ -15,6 +15,7 @@ describe('resolveSpacePresence', () => {
         spaceLoading: true,
         spaceRow: hostSpaceRow,
         isOpenLocally: true,
+        isMember: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
@@ -27,6 +28,7 @@ describe('resolveSpacePresence', () => {
         spaceLoading: false,
         spaceRow: { host_member_id: 'other', ended_at: null },
         isOpenLocally: true,
+        isMember: true,
         myId: 'user-2',
       })
     ).toEqual({ status: 'active', role: 'guest' });
@@ -39,7 +41,21 @@ describe('resolveSpacePresence', () => {
         spaceLoading: false,
         spaceRow: hostSpaceRow,
         isOpenLocally: false,
+        isMember: true,
         myId: 'user-1',
+      })
+    ).toEqual({ status: 'join', ended: false });
+  });
+
+  test('resolves join when open locally but membership is gone', () => {
+    expect(
+      resolveSpacePresence({
+        spaceEnabled: true,
+        spaceLoading: false,
+        spaceRow: { host_member_id: 'other', ended_at: null },
+        isOpenLocally: true,
+        isMember: false,
+        myId: 'user-2',
       })
     ).toEqual({ status: 'join', ended: false });
   });
@@ -55,6 +71,7 @@ describe('resolveSpacePresence', () => {
           ended_at: null,
         },
         isOpenLocally: true,
+        isMember: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
@@ -71,6 +88,7 @@ describe('resolveSpacePresence', () => {
           ended_at: undefined as unknown as null,
         },
         isOpenLocally: true,
+        isMember: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'active', role: 'host' });
@@ -83,6 +101,7 @@ describe('resolveSpacePresence', () => {
         spaceLoading: false,
         spaceRow: hostSpaceRow,
         isOpenLocally: false,
+        isMember: false,
         myId: 'user-2',
       })
     ).toEqual({ status: 'join', ended: false });
@@ -98,6 +117,7 @@ describe('resolveSpacePresence', () => {
           ended_at: '2026-07-13T00:00:00.000Z',
         },
         isOpenLocally: true,
+        isMember: true,
         myId: 'user-1',
       })
     ).toEqual({ status: 'join', ended: true });
@@ -110,6 +130,7 @@ describe('resolveSpacePresence', () => {
         spaceLoading: true,
         spaceRow: null,
         isOpenLocally: false,
+        isMember: false,
         myId: 'user-1',
       })
     ).toEqual({ status: 'loading' });

@@ -36,6 +36,7 @@ export function resolveSpacePresence(args: {
   readonly spaceLoading: boolean;
   readonly spaceRow: SpaceRow | null;
   readonly isOpenLocally: boolean;
+  readonly isMember: boolean;
   readonly myId: string;
 }): SpacePresence {
   if (!args.spaceEnabled) {
@@ -48,7 +49,7 @@ export function resolveSpacePresence(args: {
   if (args.spaceLoading && args.spaceRow === null) {
     return { status: 'loading' };
   }
-  if (args.isOpenLocally) {
+  if (args.isOpenLocally && args.isMember) {
     return {
       status: 'active',
       role: isViewerSpaceHost(args.spaceRow, args.myId) ? 'host' : 'guest',

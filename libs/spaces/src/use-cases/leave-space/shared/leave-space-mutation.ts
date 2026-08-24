@@ -1,11 +1,15 @@
+import { Handles } from '@libs/dst-handles';
+import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
+import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
   closeSession,
   endSpace,
   getSpaceHost,
   isHost,
+  memberId,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
 export const leaveSpaceMutation = defineMutation({
@@ -23,6 +27,14 @@ export const leaveSpaceMutation = defineMutation({
       await endSpace(tx, env, spaceId);
       return;
     }
+    const now = env.now().toISOString();
+    const actorMemberId = memberId(env);
+    await tx.run(sql`
+      UPDATE spaces_users
+      SET deleted_at = ${now}
+      WHERE id = ${spaceUserEntityId(spaceId, actorMemberId)}
+        AND deleted_at IS NULL
+    `);
     await closeSession(tx, env, spaceId);
   },
 });
