@@ -28,9 +28,10 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || '' }}
     env:
+      NODE_OPTIONS: --max-old-space-size=8192
       EXPO_USE_WATCHMAN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '1' || '' }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     concurrency:
