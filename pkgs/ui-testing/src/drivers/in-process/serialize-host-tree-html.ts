@@ -193,6 +193,7 @@ function serializeJson(
   const hideNode =
     screenHidden ||
     opts.ancestorHidden === true ||
+    opts.coveredByStack === true ||
     stylePropHidesNode(props['style']);
   const childOpts: SerializeNodeOpts = {
     ...(hideNode ? { ancestorHidden: true } : {}),
@@ -221,11 +222,6 @@ function serializeJsonChildren(
   return children.map((child) => serializeJson(child, ctx, opts)).join('');
 }
 
-function isRnScreenNode(node: JsonNode): boolean {
-  if (typeof node === 'string') return false;
-  return hostTypeName(node.type) === 'RNSScreen';
-}
-
 function serializeScreenStackChildren(
   children: JsonNode[] | null,
   ctx: SerializeCtx,
@@ -237,7 +233,7 @@ function serializeScreenStackChildren(
     .map((child, index) =>
       serializeJson(child, ctx, {
         ...opts,
-        coveredByStack: top !== null && isRnScreenNode(child) && index !== top,
+        coveredByStack: top !== null && index !== top,
       })
     )
     .join('');

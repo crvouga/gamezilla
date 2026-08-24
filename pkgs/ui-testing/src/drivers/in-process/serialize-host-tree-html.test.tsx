@@ -668,6 +668,107 @@ describe('serializeHostTreeHtml', () => {
     expect(html).not.toMatch(/data-testid="ended-body"[^>]*display:none/);
   });
 
+  it('hides covered stack entries wrapped in RNSScreenContainer', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSScreenStack',
+      props: {},
+      children: [
+        {
+          type: 'RNSScreenContainer',
+          props: {},
+          children: [
+            {
+              type: 'RNSScreen',
+              props: { activityState: 2, testID: 'screen-spaces' },
+              children: [
+                {
+                  type: 'View',
+                  props: { testID: 'screen-spaces-header' },
+                  children: ['Spaces'],
+                },
+                {
+                  type: 'Pressable',
+                  props: {
+                    testID: 'space-create',
+                    accessibilityRole: 'button',
+                    style: { position: 'absolute', bottom: 24, right: 24 },
+                  },
+                  children: [{ type: 'Text', props: {}, children: ['New space'] }],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'RNSScreenContainer',
+          props: {},
+          children: [
+            {
+              type: 'RNSScreen',
+              props: { activityState: 2, testID: 'screen-space-detail' },
+              children: [
+                {
+                  type: 'View',
+                  props: { testID: 'space-games' },
+                  children: ['Pick a game to play.'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('Pick a game to play.');
+    expect(html).toMatch(/data-testid="screen-spaces-header"[^>]*display:none/);
+    expect(html).toMatch(/data-testid="space-create"[^>]*display:none/);
+    expect(html).not.toMatch(/data-testid="space-games"[^>]*display:none/);
+  });
+
+  it('shows RNSModalScreen on top and hides covered RNSScreen (fullScreenModal)', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSScreenStack',
+      props: {},
+      children: [
+        {
+          type: 'RNSScreen',
+          props: { activityState: 2, testID: 'screen-tabs' },
+          children: [
+            {
+              type: 'View',
+              props: { testID: 'screen-spaces' },
+              children: ['Spaces'],
+            },
+            {
+              type: 'Pressable',
+              props: {
+                testID: 'space-create',
+                accessibilityRole: 'button',
+                style: { position: 'absolute', bottom: 24, right: 24 },
+              },
+              children: [{ type: 'Text', props: {}, children: ['New space'] }],
+            },
+          ],
+        },
+        {
+          type: 'RNSModalScreen',
+          props: { activityState: 2, testID: 'screen-space-modal' },
+          children: [
+            {
+              type: 'View',
+              props: { testID: 'game-menu-chess' },
+              children: ['Pick a game to play.'],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('Pick a game to play.');
+    expect(html).toMatch(/data-testid="screen-spaces"[^>]*display:none/);
+    expect(html).toMatch(/data-testid="space-create"[^>]*display:none/);
+    expect(html).not.toMatch(/data-testid="game-menu-chess"[^>]*display:none/);
+    expect(html).not.toMatch(/data-testid="screen-space-modal"[^>]*display:none/);
+  });
+
   it('fills absolute overlay hosts and keeps centered modal content', () => {
     const html = serializeHostTreeHtml({
       type: 'View',

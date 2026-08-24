@@ -13,7 +13,7 @@ type JsonNode =
     };
 
 export function isRnScreenHost(typeName: string): boolean {
-  return typeName === 'RNSScreen';
+  return typeName === 'RNSScreen' || typeName === 'RNSModalScreen';
 }
 
 export function isRnScreenStackHost(typeName: string): boolean {
@@ -31,15 +31,28 @@ function screenHostTypeName(type: unknown): string {
 }
 
 export function isJsonRnScreen(node: JsonNode): boolean {
-  return typeof node !== 'string' && screenHostTypeName(node.type) === 'RNSScreen';
+  if (typeof node === 'string') return false;
+  return isRnScreenHost(screenHostTypeName(node.type));
 }
 
-/** Last RNSScreen sibling index (top of native stack). */
+/** True when `node` is or contains a native stack screen (entries are often wrapped). */
+export function containsJsonRnScreen(node: JsonNode): boolean {
+  if (typeof node === 'string') return false;
+  if (isJsonRnScreen(node)) return true;
+  const children = node.children;
+  if (children === null) return false;
+  for (const child of children) {
+    if (containsJsonRnScreen(child)) return true;
+  }
+  return false;
+}
+
+/** Last stack-child index whose subtree includes a native stack screen (top of stack). */
 export function topRnScreenIndex(children: readonly JsonNode[]): number | null {
   let top: number | null = null;
   for (let i = 0; i < children.length; i++) {
     const child = children[i];
-    if (child !== undefined && isJsonRnScreen(child)) top = i;
+    if (child !== undefined && containsJsonRnScreen(child)) top = i;
   }
   return top;
 }
