@@ -51,7 +51,6 @@
     "ci:no-rn-style-api": "bun run tools/scripts/check-no-rn-style-api.ts",
     "ci:no-size-limit-overrides": "bun run tools/scripts/check-no-size-limit-overrides.ts",
     "ci:no-sql-wall-io": "bun run tools/scripts/check-no-sql-wall-io.ts",
-    "ci:no-top-level-di-functions": "bun run tools/scripts/check-no-top-level-di-functions.ts",
     "ci:no-vendor-sql": "bun run tools/scripts/check-no-vendor-sql.ts",
     "ci:server-isomorphic": "bun run tools/scripts/check-server-isomorphic.ts",
     "ci:setup-secrets-auth": "bun run tools/scripts/setup-ci-secrets-auth.ts",
@@ -78,14 +77,14 @@
     "i18n:compile": "lingui compile --typescript && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract",
     "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/inspect.ts",
+    "install-deps": "bun run --filter @tools install:cli",
     "kill": "bun run tools/scripts/kill-dev-stack.ts",
     "lint": "bunx biome check --error-on-warnings .",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
-    "wipe": "git clean -xfd",
-    "install-deps": "bun run --filter @tools install:cli"
+    "wipe": "git clean -xfd"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",

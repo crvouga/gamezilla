@@ -3,6 +3,7 @@ import {
   friendRequestClosedNotifyConsumer,
   friendRequestSentNotifyConsumer,
 } from '@libs/friends/root/server/friends-outbox-consumers';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { userTopic } from '@libs/runtime/public/sync-topics';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
@@ -10,9 +11,7 @@ import { drainOutbox, OutboxConsumerRegistry } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
-
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 
 let registry: OutboxConsumerRegistry | null = null;
 

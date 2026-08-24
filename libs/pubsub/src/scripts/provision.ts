@@ -1,10 +1,6 @@
 #!/usr/bin/env bun
 // @io-wall-ok
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import {
-  cfHeadersForZones,
-  upsertDnsRecord,
-} from '../shared/provision/cf-dns';
 import { assert } from '@pkgs/assert';
 import {
   ensureCustomDomain,
@@ -15,7 +11,11 @@ import {
   upsertVariables,
   validateRailwayToken,
 } from '@pkgs/emqx-server/railway/railway-api';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { cfHeadersForZones, upsertDnsRecord } from '../shared/provision/cf-dns';
+
+const http = createGlobalHttpClient();
 
 async function railwayToken(): Promise<string> {
   const t = (process.env['RAILWAY_TOKEN'] ?? '').trim();
@@ -26,7 +26,7 @@ async function railwayToken(): Promise<string> {
 
 async function findZoneId(): Promise<string | null> {
   const domain = PRODUCT_CONFIG.domain;
-  const res = await fetch(
+  const res = await http.fetch(
     `https://api.cloudflare.com/client/v4/zones?name=${domain}&per_page=1`,
     { headers: cfHeadersForZones() }
   );
@@ -103,7 +103,7 @@ async function provision(): Promise<void> {
   });
 
   const cnameTarget = domain.cnameTarget ?? `${service.name}.up.railway.app`;
-  await upsertDnsRecord({
+  await upsertDnsRecord(http, {
     zoneId,
     type: 'CNAME',
     name: cfg.hostname,
@@ -113,7 +113,7 @@ async function provision(): Promise<void> {
   console.log(`· DNS CNAME — ${cfg.hostname} → ${cnameTarget}`);
 
   if (domain.verificationToken) {
-    await upsertDnsRecord({
+    await upsertDnsRecord(http, {
       zoneId,
       type: 'TXT',
       name: `_railway-verify.${cfg.hostname}`,

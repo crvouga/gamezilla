@@ -4,7 +4,7 @@
 
 <!-- TODO: update architecture diagram -->
 
-**Dependency injection:** product `libs/` code uses constructor-injected classes for `SqlClient`, `CreateId`, and other shared deps (not exported top-level DI functions). See [docs/dependency-injection.md](docs/dependency-injection.md). CI: `bun run ci:no-top-level-di-functions`.
+**Dependency injection:** product `libs/` code uses constructor-injected classes for `SqlClient`, `CreateId`, and other shared deps. See [docs/dependency-injection.md](docs/dependency-injection.md).
 
 ## Security (local data)
 

@@ -18,13 +18,6 @@ import {
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
-import {
-  EMQX_API_KEY,
-  EMQX_API_SECRET,
-  EMQX_API_URL,
-  EMQX_JWT_SECRET,
-  EMQX_WSS_URL,
-} from './pubsub-emqx-secrets';
 import { EXPO_TOKEN } from './expo-token';
 import {
   ELEVEN_LABS_API_KEY,
@@ -35,6 +28,13 @@ import {
   EXPO_PUBLIC_OBSERVABILITY_BACKEND,
   OBSERVABILITY_BACKEND,
 } from './observability-secrets';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_API_URL,
+  EMQX_JWT_SECRET,
+  EMQX_WSS_URL,
+} from './pubsub-emqx-secrets';
 import { RAILWAY_TOKEN } from './railway-token';
 import {
   B2_APP_KEY,

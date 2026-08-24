@@ -1,11 +1,10 @@
+import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
+import { mintPubSubToken } from '@libs/pubsub/root/server/mint-pubsub-token';
 import { MySpaceIdsLoader } from '@libs/spaces/root/server/load-my-space-ids-sql';
 import { assert } from '@pkgs/assert';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import { Hono } from 'hono';
-
-import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
-import { mintPubSubToken } from '@libs/pubsub/root/server/mint-pubsub-token';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { resolveSessionReplayAuth } from './query-auth';
 

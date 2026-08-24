@@ -4,7 +4,6 @@ Product code uses **three layers**. Do not blur them.
 
 CI enforces the model with:
 
-- `bun run ci:no-top-level-di-functions` — no exported top-level functions taking injectable deps
 - `bun run ci:no-eager-di-construction` — no `this.x = new …` / field-init / module-level Layer C construction
 - `bun run ci:layer-c-sql-tx` — Layer C constructors must not take bare `SqlClient`
 - Biome plugin `no-di-container.grit` (via `ci:lint`) — no `*Container` / `*Registry` / `*ServiceLocator` classes

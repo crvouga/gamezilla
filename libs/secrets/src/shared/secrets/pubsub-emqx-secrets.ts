@@ -23,13 +23,7 @@ function wrapDefs(): Secret[] {
   });
 }
 
-const [
-  apiUrl,
-  wssUrl,
-  apiKey,
-  apiSecret,
-  jwtSecret,
-] = wrapDefs();
+const [apiUrl, wssUrl, apiKey, apiSecret, jwtSecret] = wrapDefs();
 
 /** Re-exported for registry — names/validation owned by `@libs/pubsub`. */
 export const EMQX_API_URL = apiUrl!;

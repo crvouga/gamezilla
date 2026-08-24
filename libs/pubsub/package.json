@@ -25,6 +25,7 @@
     "@libs/runtime": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
@@ -33,8 +34,8 @@
     "jose": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "catalog:",
     "@pkgs/clock": "workspace:*",
+    "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

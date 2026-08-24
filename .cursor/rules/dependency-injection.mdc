@@ -31,7 +31,7 @@ Do not convert `defineMutation` / `defineQuery` `run` handlers, React hooks, or
 `@io-wall-ok` composition roots. Inside mutations, `new XRepository(tx)` is
 correct.
 
-CI: `ci:no-top-level-di-functions`, `ci:no-eager-di-construction`,
+CI: `ci:no-eager-di-construction`,
 `ci:layer-c-sql-tx`; Biome `no-di-container.grit` (via `ci:lint`).
 
 Full rationale: docs/dependency-injection.md

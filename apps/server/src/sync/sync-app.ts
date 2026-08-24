@@ -1,12 +1,11 @@
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { appTopicMap } from '@libs/runtime/root/app-topic-map';
 import { assert } from '@pkgs/assert';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server';
-
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';

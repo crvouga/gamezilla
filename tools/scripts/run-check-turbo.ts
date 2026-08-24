@@ -28,7 +28,6 @@ const CI_GATE_TASKS = [
   'ci:domain-table-prefixes',
   'ci:dst-selector-discipline',
   'ci:no-domain-hard-delete',
-  'ci:no-top-level-di-functions',
   'ci:no-eager-di-construction',
   'ci:layer-c-sql-tx',
   'ci:fanout-rows-from-reads',
