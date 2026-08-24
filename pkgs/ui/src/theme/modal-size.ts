@@ -38,3 +38,15 @@ export function resolveModalLayoutWidth(
   const clamped = Math.min(bucket, available);
   return Math.max(MIN_MODAL_WIDTH_PX, clamped);
 }
+
+/**
+ * Max modal body height in px for the given layout height and edge margin.
+ * Keeps centered modals inset equally from the top and bottom.
+ */
+export function resolveModalLayoutMaxHeight(
+  layoutHeight: number,
+  marginPx: number
+): number {
+  const gutter = marginPx * 2;
+  return Math.max(MIN_MODAL_WIDTH_PX, layoutHeight - gutter);
+}

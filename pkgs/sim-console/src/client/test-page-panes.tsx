@@ -128,18 +128,46 @@ function ReportClientPane(props: {
         );
         return (
           <DebuggerColumn key={node.id}>
-            <HtmlPane
-              api={props.api}
-              bucketId={props.bucketId}
-              runId={props.runId}
-              testId={props.testId}
-              frame={nodeFrame}
-              nodeId={node.id}
-              node={node}
-            />
+            <Box sx={columnSx}>
+              <Text sx={columnLabelSx}>{node.id}</Text>
+              <Box sx={previewSx}>
+                <HtmlPane
+                  api={props.api}
+                  bucketId={props.bucketId}
+                  runId={props.runId}
+                  testId={props.testId}
+                  frame={nodeFrame}
+                  nodeId={node.id}
+                  node={node}
+                />
+              </Box>
+            </Box>
           </DebuggerColumn>
         );
       })}
     </DebuggerColumns>
   );
 }
+
+const columnSx = {
+  flex: 1,
+  flexDirection: 'column',
+  minHeight: 0,
+  minWidth: 0,
+} as const;
+
+const previewSx = {
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+} as const;
+
+const columnLabelSx = {
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  fontSize: 12,
+  fontWeight: '600',
+  color: 'textSecondary',
+  borderBottomWidth: 'hairline',
+  borderBottomColor: 'border',
+} as const;

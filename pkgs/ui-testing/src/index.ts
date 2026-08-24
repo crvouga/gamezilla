@@ -58,16 +58,19 @@ export {
   createRntlRenderAdapter,
 } from './drivers/in-process/renderer-rntl';
 export {
-  createMultiAppRntlSession,
-  type MultiAppRntlSession,
-  type MultiAppRntlSessionOptions,
-} from './drivers/in-process/multi-app-rntl-session';
-export {
   actorShellTestId,
+  MULTI_APP_ACTOR_FRAME,
   MULTI_APP_ACTOR_SHELL_PREFIX,
   MULTI_APP_HOST_TEST_ID,
   MultiAppHost,
 } from './drivers/in-process/multi-app-rntl-host';
+export {
+  createMultiAppRntlSession,
+  type FocusedRenderedApp,
+  type MultiAppRntlSession,
+  type MultiAppRntlSessionOptions,
+  type SnapshotAllActorsOptions,
+} from './drivers/in-process/multi-app-rntl-session';
 export {
   type SerializeHostTreeHtmlOptions,
   SNAPSHOT_SHELL_CSS,

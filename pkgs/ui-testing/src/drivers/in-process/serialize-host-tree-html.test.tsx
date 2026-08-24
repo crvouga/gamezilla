@@ -66,10 +66,10 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toContain('font-family:Nunito');
     expect(html).toContain('fonts.googleapis.com/css2?family=Nunito');
     expect(html).toContain(
-      'html,body,.rn-root{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:relative;'
+      'html,body{width:390px;height:844px;margin:0;padding:0;overflow:hidden;position:relative;'
     );
     expect(html).toContain(
-      '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;}'
+      '.rn-root{width:390px;height:844px;display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;overflow:hidden;}'
     );
     expect(html).toContain(
       'input,textarea,button,span{font:inherit;color:inherit;}'
@@ -609,5 +609,116 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toMatch(
       /data-testid="tab-spaces"[^>]*style="[^"]*display:none/
     );
+  });
+
+  it('hides nested chrome from a covered root-stack screen (tabs FAB under modal)', () => {
+    const html = serializeHostTreeHtml({
+      type: 'RNSScreenStack',
+      props: {},
+      children: [
+        {
+          type: 'RNSScreen',
+          props: { activityState: 2, testID: 'screen-tabs' },
+          children: [
+            {
+              type: 'RNSScreenStack',
+              props: {},
+              children: [
+                {
+                  type: 'RNSScreen',
+                  props: { activityState: 2, testID: 'tab-spaces-list' },
+                  children: [
+                    {
+                      type: 'View',
+                      props: { testID: 'spaces-header' },
+                      children: ['Spaces'],
+                    },
+                    {
+                      type: 'Pressable',
+                      props: {
+                        testID: 'space-create-fab',
+                        accessibilityRole: 'button',
+                        style: { position: 'absolute', bottom: 24, right: 24 },
+                      },
+                      children: [{ type: 'Text', props: {}, children: ['+'] }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'RNSScreen',
+          props: { activityState: 2, testID: 'screen-space-ended' },
+          children: [
+            {
+              type: 'View',
+              props: { testID: 'ended-body' },
+              children: ['This space has ended'],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('This space has ended');
+    expect(html).toMatch(/data-testid="space-create-fab"[^>]*display:none/);
+    expect(html).toMatch(/data-testid="spaces-header"[^>]*display:none/);
+    expect(html).toMatch(/data-testid="screen-tabs"[^>]*display:none/);
+    expect(html).not.toMatch(/data-testid="ended-body"[^>]*display:none/);
+  });
+
+  it('fills absolute overlay hosts and keeps centered modal content', () => {
+    const html = serializeHostTreeHtml({
+      type: 'View',
+      props: {
+        testID: 'modal-root',
+        style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+        dataSet: { component: 'ModalRoot' },
+      },
+      children: [
+        {
+          type: 'View',
+          props: {
+            testID: 'modal-backdrop',
+            dataSet: { component: 'ModalBackdrop' },
+            style: { flex: 1, width: '100%', height: '100%' },
+          },
+          children: [
+            {
+              type: 'View',
+              props: {
+                style: {
+                  flex: 1,
+                  width: '100%',
+                  height: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  padding: 16,
+                },
+              },
+              children: [
+                {
+                  type: 'View',
+                  props: {
+                    testID: 'modal-content',
+                    dataSet: { component: 'ModalContent' },
+                    style: { width: '100%', maxWidth: 358 },
+                  },
+                  children: ['Choose a sign-in method'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(html).toContain('[data-component="ModalRoot"]');
+    expect(html).toMatch(/data-testid="modal-root"[^>]*width:100%/);
+    expect(html).toMatch(/data-testid="modal-root"[^>]*height:100%/);
+    expect(html).toContain('justify-content:center');
+    expect(html).toContain('align-items:center');
+    expect(html).toContain('max-width:358px');
+    expect(html).toContain('Choose a sign-in method');
   });
 });

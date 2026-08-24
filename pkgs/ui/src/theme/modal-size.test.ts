@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   MODAL_WIDTH_PX,
   type ModalSize,
+  resolveModalLayoutMaxHeight,
   resolveModalLayoutWidth,
 } from './modal-size';
 
@@ -35,5 +36,15 @@ describe('resolveModalLayoutWidth', () => {
     for (const size of sizes) {
       expect(resolveModalLayoutWidth(size, WIDE, MARGIN)).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('resolveModalLayoutMaxHeight', () => {
+  test('subtracts vertical gutters from layout height', () => {
+    expect(resolveModalLayoutMaxHeight(844, MARGIN)).toBe(812);
+  });
+
+  test('returns a readable minimum on tiny layouts', () => {
+    expect(resolveModalLayoutMaxHeight(40, MARGIN)).toBe(200);
   });
 });

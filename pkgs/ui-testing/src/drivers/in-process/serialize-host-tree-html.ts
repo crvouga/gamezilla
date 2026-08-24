@@ -1,6 +1,7 @@
 import {
   isRnScreenStackHost,
   shouldHideRnScreen,
+  stylePropHidesNode,
   topRnScreenIndex,
   withRnScreenHiddenCss,
 } from './serialize-rn-screen';
@@ -13,10 +14,12 @@ import {
 } from './serialize-rnsvg';
 import {
   collectFontsFromCss,
+  ensureAbsoluteFillSizing,
   rewriteFlexZero,
   stripBrokenTransform,
   styleToCss,
 } from './serialize-style-css';
+import { MULTI_APP_ACTOR_FRAME } from './snapshot-frame';
 
 type JsonNode =
   | string
@@ -33,6 +36,8 @@ type SerializeCtx = {
 type SerializeNodeOpts = {
   /** Covered by a later RNSScreen in the same RNSScreenStack. */
   readonly coveredByStack?: boolean;
+  /** An ancestor RNSScreen (or hidden branch) is not visible. */
+  readonly ancestorHidden?: boolean;
 };
 
 /**
@@ -68,13 +73,47 @@ export type SerializeHostTreeHtmlOptions = {
 };
 
 /** Shell CSS shared by report frames when using `stylesheetHref`. */
+const SNAPSHOT_FRAME_W = MULTI_APP_ACTOR_FRAME.width;
+const SNAPSHOT_FRAME_H = MULTI_APP_ACTOR_FRAME.height;
+
+/** Overlay hosts must fill the snapshot frame for centered modal layout. */
+const OVERLAY_SNAPSHOT_CSS = [
+  '[data-component="ModalRoot"],[role="dialog"]{width:100%;height:100%;min-height:100%}',
+  '[data-component="ModalBackdrop"]{width:100%;height:100%;min-height:100%}',
+].join('');
+
 export const SNAPSHOT_SHELL_CSS = [
-  `html,body,.rn-root{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:relative;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
+  `html,body{width:${SNAPSHOT_FRAME_W}px;height:${SNAPSHOT_FRAME_H}px;margin:0;padding:0;overflow:hidden;position:relative;color-scheme:dark;background:${SNAPSHOT_BG};color:${SNAPSHOT_FG};font-family:${BODY_FONT};}`,
   '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
   "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
-  '.rn-root{display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;}',
+  `.rn-root{width:${SNAPSHOT_FRAME_W}px;height:${SNAPSHOT_FRAME_H}px;display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;overflow:hidden;}`,
+  OVERLAY_SNAPSHOT_CSS,
   'input,textarea,button,span{font:inherit;color:inherit;}',
 ].join('');
+
+/** Launch/nav shells are ~3KB of empty flex chrome with no visible copy. */
+const SHELL_ONLY_BODY_MAX = 4000;
+
+/**
+ * True when serialized snapshot HTML has no visible text (empty / spinner shell).
+ * Used to avoid caching or writing blank parked-actor report views.
+ */
+export function isBlankSnapshotHtml(html: string | undefined): boolean {
+  if (html === undefined || html.trim() === '') return true;
+  const bodyMatch = /<body[^>]*>([\s\S]*)<\/body>/i.exec(html);
+  const bodyHtml = bodyMatch?.[1] ?? html;
+  const text = bodyHtml
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\u00a0/g, ' ')
+    .trim();
+  if (text.length === 0) return true;
+  if (bodyHtml.length < SHELL_ONLY_BODY_MAX && text.length < 8) return true;
+  return false;
+}
+
 export function serializeHostTreeHtml(
   tree: unknown,
   options: SerializeHostTreeHtmlOptions = {}
@@ -116,12 +155,18 @@ function googleFontLinks(families: string[]): string[] {
   return links;
 }
 
-function serializeTree(tree: unknown, ctx: SerializeCtx): string {
+function serializeTree(
+  tree: unknown,
+  ctx: SerializeCtx,
+  opts: SerializeNodeOpts = {}
+): string {
   if (tree == null) return '';
   if (Array.isArray(tree)) {
-    return tree.map((node) => serializeJson(node as JsonNode, ctx)).join('');
+    return tree
+      .map((node) => serializeJson(node as JsonNode, ctx, opts))
+      .join('');
   }
-  return serializeJson(tree as JsonNode, ctx);
+  return serializeJson(tree as JsonNode, ctx, opts);
 }
 
 function serializeJson(
@@ -135,20 +180,27 @@ function serializeJson(
 
   const typeName = hostTypeName(node.type);
   if (typeName === '' || typeName === 'Fragment') {
-    return serializeJsonChildren(node.children, ctx);
+    return serializeJsonChildren(node.children, ctx, opts);
   }
 
   const props = node.props ?? {};
   const tag = mapHostTag(typeName, props);
-  const hideScreen = shouldHideRnScreen(
+  const screenHidden = shouldHideRnScreen(
     typeName,
     props,
     opts.coveredByStack === true
   );
-  const attrs = buildAttrs({ typeName, props, tag, ctx, hideScreen });
+  const hideNode =
+    screenHidden ||
+    opts.ancestorHidden === true ||
+    stylePropHidesNode(props['style']);
+  const childOpts: SerializeNodeOpts = {
+    ...(hideNode ? { ancestorHidden: true } : {}),
+  };
+  const attrs = buildAttrs({ typeName, props, tag, ctx, hideScreen: hideNode });
   const childrenHtml = isRnScreenStackHost(typeName)
-    ? serializeScreenStackChildren(node.children, ctx)
-    : serializeJsonChildren(node.children, ctx);
+    ? serializeScreenStackChildren(node.children, ctx, childOpts)
+    : serializeJsonChildren(node.children, ctx, childOpts);
 
   if (
     tag === 'input' ||
@@ -162,26 +214,30 @@ function serializeJson(
 
 function serializeJsonChildren(
   children: JsonNode[] | null,
-  ctx: SerializeCtx
+  ctx: SerializeCtx,
+  opts: SerializeNodeOpts = {}
 ): string {
   if (!children || children.length === 0) return '';
-  return children.map((child) => serializeJson(child, ctx)).join('');
+  return children.map((child) => serializeJson(child, ctx, opts)).join('');
+}
+
+function isRnScreenNode(node: JsonNode): boolean {
+  if (typeof node === 'string') return false;
+  return hostTypeName(node.type) === 'RNSScreen';
 }
 
 function serializeScreenStackChildren(
   children: JsonNode[] | null,
-  ctx: SerializeCtx
+  ctx: SerializeCtx,
+  opts: SerializeNodeOpts = {}
 ): string {
   if (!children || children.length === 0) return '';
   const top = topRnScreenIndex(children);
   return children
     .map((child, index) =>
       serializeJson(child, ctx, {
-        coveredByStack:
-          top !== null &&
-          typeof child !== 'string' &&
-          child.type === 'RNSScreen' &&
-          index !== top,
+        ...opts,
+        coveredByStack: top !== null && isRnScreenNode(child) && index !== top,
       })
     )
     .join('');
@@ -313,6 +369,7 @@ function pushStyleAttr(args: {
     }
   }
   styleCss = rewriteFlexZero(styleCss);
+  styleCss = ensureAbsoluteFillSizing(styleCss);
   const base = hostBaseCss(typeName, tag);
   let css = base;
   if (styleCss) {

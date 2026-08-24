@@ -11,6 +11,30 @@ describe('createMultiAppRntlSession', () => {
     session?.dispose();
   });
 
+  it('mounts only the active actor shell in the RNTL tree', () => {
+    session = createMultiAppRntlSession();
+    const alice = session.mountActor('alice', createElement(DemoApp));
+    const bob = session.mountActor('bob', createElement(DemoApp));
+
+    expect(session.activeActorId()).toBe('bob');
+    expect(bob.query('email')).not.toBeNull();
+    expect(alice.query('email')).toBeNull();
+  });
+
+  it('returns null from an inactive facade until activate()', async () => {
+    session = createMultiAppRntlSession();
+    const alice = session.mountActor('alice', createElement(DemoApp));
+    const bob = session.mountActor('bob', createElement(DemoApp));
+
+    expect(alice.query('email')).toBeNull();
+    await alice.activate();
+    expect(alice.query('email')).not.toBeNull();
+    expect(bob.query('email')).toBeNull();
+
+    await bob.activate();
+    expect(alice.query('email')).toBeNull();
+  });
+
   it('focuses each actor for input without manual park/resume', async () => {
     session = createMultiAppRntlSession();
     const alice = session.mountActor('alice', createElement(DemoApp));
@@ -27,6 +51,32 @@ describe('createMultiAppRntlSession', () => {
     await bob.typeText(bobEmail!, 'bob@example.com');
 
     expect(bob.getText(bobEmail!)).toBe('bob@example.com');
+  });
+
+  it('snapshotAllActors captures every mounted actor and restores focus', async () => {
+    session = createMultiAppRntlSession();
+    session.mountActor('alice', createElement(DemoApp));
+    const bob = session.mountActor('bob', createElement(DemoApp));
+
+    await bob.activate();
+    await bob.typeText(bob.query('email')!, 'bob@example.com');
+
+    const snapshots = await session.snapshotAllActors();
+    expect(snapshots.get('alice')).toBeDefined();
+    expect(snapshots.get('bob')).toContain('bob@example.com');
+    expect(session.activeActorId()).toBe('bob');
+  });
+
+  it('snapshotAllActors does not invoke onActorFocus while cycling actors', async () => {
+    const onActorFocus = jest.fn();
+    session = createMultiAppRntlSession({ onActorFocus });
+    session.mountActor('alice', createElement(DemoApp));
+    session.mountActor('bob', createElement(DemoApp));
+    onActorFocus.mockClear();
+
+    await session.snapshotAllActors();
+
+    expect(onActorFocus).not.toHaveBeenCalled();
   });
 
   it('keeps the remaining actor interactive after one unmounts', async () => {

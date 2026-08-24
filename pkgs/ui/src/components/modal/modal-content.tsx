@@ -8,7 +8,8 @@
  * card off the page.
  *
  * Width is controlled only via {@link ModalSize} buckets (see
- * {@link resolveModalLayoutWidth}), clamped to the layout width.
+ * {@link resolveModalLayoutWidth}), clamped to the layout width. The card
+ * uses `width: 100%` with `maxWidth` so it shrinks on narrow viewports.
  */
 
 import type { PropsWithChildren } from 'react';
@@ -17,6 +18,7 @@ import { useTheme } from '../../theme';
 import {
   MODAL_CONTENT_MARGIN_STEP,
   type ModalSize,
+  resolveModalLayoutMaxHeight,
   resolveModalLayoutWidth,
 } from '../../theme/modal-size';
 import { borderRadius, spacing } from '../../theme/scale';
@@ -49,7 +51,19 @@ export function ModalContent({
 }: ModalContentProps) {
   const theme = useTheme();
   const marginPx = spacing[MODAL_CONTENT_MARGIN_STEP];
-  const widthPx = resolveModalLayoutWidth(size, theme.layout.width, marginPx);
+  const maxWidthPx = resolveModalLayoutWidth(
+    size,
+    theme.layout.width,
+    marginPx
+  );
+  const viewportMaxHeight = resolveModalLayoutMaxHeight(
+    theme.layout.height,
+    marginPx
+  );
+  const resolvedMaxHeight =
+    maxHeight === undefined
+      ? viewportMaxHeight
+      : Math.min(maxHeight, viewportMaxHeight);
   const body = padded ? (
     <ContentEdgePaddingProvider
       step={MODAL_CONTENT_PADDING_STEP}
@@ -65,16 +79,17 @@ export function ModalContent({
     <Box
       {...componentDataSet('ModalContent', dataSet)}
       sx={{
-        m: MODAL_CONTENT_MARGIN_STEP,
         ...(padded ? { p: MODAL_CONTENT_PADDING_STEP } : {}),
         borderRadius: borderRadius.xl,
-        width: widthPx,
+        width: '100%',
+        maxWidth: maxWidthPx,
         alignSelf: 'center',
+        maxHeight: resolvedMaxHeight,
+        overflow: 'hidden',
         backgroundColor: 'surfaceOverlay',
         borderWidth: 1,
         borderColor: 'border',
         elevation: 4,
-        ...(maxHeight === undefined ? {} : { maxHeight }),
       }}
     >
       {body}

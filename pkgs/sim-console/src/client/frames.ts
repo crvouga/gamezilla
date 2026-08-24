@@ -145,6 +145,10 @@ export function resolveFrameForNode(
   const end = Math.min(playheadIdx, frames.length - 1);
   for (let i = end; i >= 0; i--) {
     const frame = frames[i]!;
+    if (frame.step.actorId === nodeId) return frame;
+  }
+  for (let i = end; i >= 0; i--) {
+    const frame = frames[i]!;
     if (frameOwnedByNode(frame, nodeId)) return frame;
   }
   return null;

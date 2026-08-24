@@ -12,6 +12,7 @@
 
 import type { PropsWithChildren } from 'react';
 import type { ComponentDataSet } from '../../component-id';
+import { MODAL_CONTENT_MARGIN_STEP } from '../../theme/modal-size';
 import { Box } from '../box';
 import { Pressable } from '../pressable';
 
@@ -27,7 +28,10 @@ export function ModalBackdrop({
   dataSet,
 }: ModalBackdropProps) {
   return (
-    <Box sx={{ flex: 1 }} dataSet={{ component: 'ModalBackdrop', ...dataSet }}>
+    <Box
+      sx={{ flex: 1, width: '100%', height: '100%' }}
+      dataSet={{ component: 'ModalBackdrop', ...dataSet }}
+    >
       <Pressable
         onPress={onPress}
         sx={{ absoluteFill: true, backgroundColor: 'scrim' }}
@@ -40,9 +44,18 @@ export function ModalBackdrop({
       */}
       <Box
         pointerEvents="box-none"
-        sx={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        sx={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: MODAL_CONTENT_MARGIN_STEP,
+        }}
       >
-        <Box pointerEvents="auto">{children}</Box>
+        <Box pointerEvents="auto" sx={{ width: '100%', maxWidth: '100%' }}>
+          {children}
+        </Box>
       </Box>
     </Box>
   );

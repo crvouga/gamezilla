@@ -71,6 +71,21 @@ export function stripBrokenTransform(css: string): string {
     .join(';');
 }
 
+/** Absolute-fill hosts need explicit 100% sizing in static HTML snapshots. */
+export function ensureAbsoluteFillSizing(css: string): string {
+  if (!css.includes('position:absolute')) return css;
+  if (!/top:\s*0/.test(css) || !/bottom:\s*0/.test(css)) return css;
+  const parts = css
+    .split(';')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  const hasWidth = parts.some((part) => part.startsWith('width:'));
+  const hasHeight = parts.some((part) => part.startsWith('height:'));
+  if (!hasWidth) parts.push('width:100%');
+  if (!hasHeight) parts.push('height:100%');
+  return parts.join(';');
+}
+
 function pushStyleDecl(
   decls: string[],
   key: string,

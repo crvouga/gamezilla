@@ -6,8 +6,19 @@ const GOOGLE_FONT_LINK_RE =
 const SNAPSHOT_SHELL_LINK_RE =
   /<link\b[^>]*href=["'][^"']*snapshot-shell\.css["'][^>]*>\s*/gi;
 
+/** Inline fixed-frame shell from serializeHostTreeHtml (replaced by preview stretch CSS). */
+const SNAPSHOT_SHELL_STYLE_RE =
+  /<style>\s*html,body\{width:\s*390px[\s\S]*?<\/style>\s*/gi;
+
 /** Sandbox iframe previews use opaque origin (no allow-same-origin) — strip executable tags. */
 const SCRIPT_TAG_RE = /<script\b[^>]*>[\s\S]*?<\/script>/gi;
+
+function stripSnapshotChrome(html: string): string {
+  return html
+    .replace(GOOGLE_FONT_LINK_RE, '')
+    .replace(SNAPSHOT_SHELL_LINK_RE, '')
+    .replace(SNAPSHOT_SHELL_STYLE_RE, '');
+}
 
 function stripSnapshotScripts(html: string): string {
   return html.replace(SCRIPT_TAG_RE, '');
@@ -67,9 +78,7 @@ export function prepareSnapshotHtml(
   html: string,
   options: PatchPreviewHtmlOptions = {}
 ): SnapshotPayload {
-  const cleaned = stripSnapshotScripts(
-    html.replace(GOOGLE_FONT_LINK_RE, '').replace(SNAPSHOT_SHELL_LINK_RE, '')
-  );
+  const cleaned = stripSnapshotScripts(stripSnapshotChrome(html));
   const bodyHtml = extractBodyHtml(cleaned);
   const styles: string[] = [];
   const shell = options.shellCss?.trim() ?? '';
@@ -93,9 +102,7 @@ export function patchPreviewHtml(
     typeof fontCssOrOptions === 'string'
       ? { fontCss: fontCssOrOptions }
       : fontCssOrOptions;
-  const cleaned = stripSnapshotScripts(
-    html.replace(GOOGLE_FONT_LINK_RE, '').replace(SNAPSHOT_SHELL_LINK_RE, '')
-  );
+  const cleaned = stripSnapshotScripts(stripSnapshotChrome(html));
   const bodyHtml = extractBodyHtml(cleaned);
   const styles: string[] = [];
   const shell = options.shellCss?.trim() ?? '';
@@ -107,7 +114,5 @@ export function patchPreviewHtml(
 
 /** Body-only fingerprint for blank / identical checks (iframe or in-DOM). */
 export function snapshotBodyHtml(html: string): string {
-  return extractBodyHtml(
-    html.replace(GOOGLE_FONT_LINK_RE, '').replace(SNAPSHOT_SHELL_LINK_RE, '')
-  );
+  return extractBodyHtml(stripSnapshotChrome(html));
 }

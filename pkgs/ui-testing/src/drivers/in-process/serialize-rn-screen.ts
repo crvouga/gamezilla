@@ -20,8 +20,18 @@ export function isRnScreenStackHost(typeName: string): boolean {
   return typeName === 'RNSScreenStack';
 }
 
+function screenHostTypeName(type: unknown): string {
+  if (typeof type === 'string') return type;
+  if (typeof type === 'function') {
+    const named = (type as { displayName?: string; name?: string }).displayName;
+    if (typeof named === 'string' && named.length > 0) return named;
+    if (typeof type.name === 'string' && type.name.length > 0) return type.name;
+  }
+  return '';
+}
+
 export function isJsonRnScreen(node: JsonNode): boolean {
-  return typeof node !== 'string' && node.type === 'RNSScreen';
+  return typeof node !== 'string' && screenHostTypeName(node.type) === 'RNSScreen';
 }
 
 /** Last RNSScreen sibling index (top of native stack). */
@@ -52,9 +62,18 @@ export function shouldHideRnScreen(
 
 export function withRnScreenHiddenCss(css: string, hide: boolean): string {
   if (!hide) return css;
-  return css.includes('display:none')
-    ? css
-    : css
-      ? `${css};display:none`
-      : 'display:none';
+  const hidden = 'display:none;visibility:hidden;pointer-events:none';
+  if (css.includes('display:none')) {
+    return css.includes('visibility:hidden') ? css : `${css};visibility:hidden;pointer-events:none`;
+  }
+  return css ? `${css};${hidden}` : hidden;
+}
+
+/** True when inline style already hides the node (RN-web inactive screens). */
+export function stylePropHidesNode(style: unknown): boolean {
+  if (style == null || typeof style !== 'object') return false;
+  const record = style as Record<string, unknown>;
+  if (record['display'] === 'none') return true;
+  if (record['opacity'] === 0) return true;
+  return false;
 }

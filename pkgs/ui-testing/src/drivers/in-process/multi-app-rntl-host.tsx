@@ -1,14 +1,12 @@
 import { createElement, type ReactElement } from 'react';
 import { type StyleProp, View, type ViewStyle } from 'react-native';
 
+import { MULTI_APP_ACTOR_FRAME } from './snapshot-frame';
+
+export { MULTI_APP_ACTOR_FRAME } from './snapshot-frame';
+
 export const MULTI_APP_HOST_TEST_ID = 'ui-testing:multi-app-host';
 export const MULTI_APP_ACTOR_SHELL_PREFIX = 'ui-testing:actor:';
-
-/** Phone frame used by sim DST / Jest safe-area fallback (390×844). */
-export const MULTI_APP_ACTOR_FRAME = {
-  width: 390,
-  height: 844,
-} as const;
 
 export function actorShellTestId(actorId: string): string {
   return `${MULTI_APP_ACTOR_SHELL_PREFIX}${actorId}`;
@@ -16,7 +14,7 @@ export function actorShellTestId(actorId: string): string {
 
 export type MultiAppHostProps = {
   readonly actors: ReadonlyMap<string, ReactElement>;
-  /** Only this actor is mounted in the RNTL tree (one full-screen app at a time). */
+  /** Only this actor is mounted in the RNTL tree; others stay registered but parked. */
   readonly activeActorId?: string;
 };
 
@@ -28,18 +26,13 @@ const hostStyle: StyleProp<ViewStyle> = {
 };
 
 const actorShellStyle: StyleProp<ViewStyle> = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
   width: MULTI_APP_ACTOR_FRAME.width,
   height: MULTI_APP_ACTOR_FRAME.height,
   overflow: 'hidden',
 };
 
 /**
- * Single RNTL mount that hosts one active app root at a time.
- * Inactive actors stay registered in the session but unmounted so each
- * `ProductApp` gets full layout bounds and an isolated sync tree.
+ * Single RNTL mount for one active actor shell at a time.
  */
 export function MultiAppHost(props: MultiAppHostProps): ReactElement {
   const { actors, activeActorId } = props;

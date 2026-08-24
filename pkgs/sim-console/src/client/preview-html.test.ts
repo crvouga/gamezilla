@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import { formatMsStable } from './frames';
+import { PREVIEW_STRETCH_SHELL_CSS } from './preview-frame-css';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
@@ -52,6 +53,23 @@ describe('prepareSnapshotHtml', () => {
 });
 
 describe('patchPreviewHtml', () => {
+  test('PREVIEW_STRETCH_SHELL_CSS fits snapshots inside the iframe viewport', () => {
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('min(calc(100vw /');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('390px');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('844px');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform:scale');
+    expect(PREVIEW_STRETCH_SHELL_CSS).not.toMatch(/html,body\{[^}]*\d+px/);
+  });
+
+  test('injects stretch shell CSS into preview documents', () => {
+    const html = '<body><div class="rn-root">ok</div></body>';
+    const out = patchPreviewHtml(html, {
+      shellCss: PREVIEW_STRETCH_SHELL_CSS,
+    });
+    expect(out).toContain('min(calc(100vw /');
+    expect(out).toContain('class="rn-root"');
+  });
+
   test('strips Google Fonts links and injects font CSS', () => {
     const html = [
       '<!DOCTYPE html><html><head>',
@@ -88,6 +106,18 @@ describe('patchPreviewHtml', () => {
     expect(out).toContain('html{height:100%}');
     expect(out).toContain('@font-face{font-family:Nunito}');
     expect(out).not.toContain('.snapshot-host');
+  });
+
+  test('strips inline fixed-frame snapshot shell styles before inject', () => {
+    const html = [
+      '<head><style>html,body{width:390px;height:844px;margin:0}</style></head>',
+      '<body><div class="rn-root">ok</div></body>',
+    ].join('');
+    const out = patchPreviewHtml(html, {
+      shellCss: PREVIEW_STRETCH_SHELL_CSS,
+    });
+    expect(out).not.toContain('html,body{width:390px;height:844px;margin:0}');
+    expect(out).toContain('min(calc(100vw /');
   });
 });
 

@@ -1,7 +1,7 @@
 import { describe, test } from '@jest/globals';
 
-import { openSim } from '../setup/open-sim';
 import { setupFriendsPair } from '../fixtures/setup-friends-pair';
+import { openSim } from '../setup/open-sim';
 
 describe('friends request → accept', () => {
   test('alice sends request; bob accepts from notifications; both see friends', async () => {

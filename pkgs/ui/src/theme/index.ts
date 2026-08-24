@@ -32,6 +32,7 @@ export {
   MODAL_CONTENT_MARGIN_STEP,
   MODAL_WIDTH_PX,
   type ModalSize,
+  resolveModalLayoutMaxHeight,
   resolveModalLayoutWidth,
 } from './modal-size';
 export {

@@ -52,6 +52,9 @@ const reportStore = createNodeFsObjectStore({
  */
 const STATIC_REPORT_RUN_ID = 'latest_run';
 
+/** Relative to `tests/<id>/frames/` → run `snapshot-shell.css`. */
+const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
+
 /** HTML dumps for sim console. Off only when `SIM_REPORT=0`. */
 function simReportEnabled(): boolean {
   return process.env['SIM_REPORT'] !== '0';
@@ -165,12 +168,8 @@ async function postgresServerSql(): Promise<SimSqlHandle> {
 }
 
 async function bootSim(
-  testId: string,
   fidelity: OpenSimFidelity
-): Promise<{
-  readonly sim: Sim;
-  readonly reporter: SimulationReporter | null;
-}> {
+): Promise<{ readonly sim: Sim }> {
   const startMs = Date.parse('2024-06-01T00:00:00.000Z');
   const backend = resolveSimSqlBackend();
   const sim = await createSim({
@@ -189,11 +188,16 @@ async function bootSim(
         }),
   });
   await sim.spawnServer();
-  if (!simReportEnabled()) {
-    return { sim, reporter: null };
-  }
-  await reportFs.mkdir(reportDataDir, { recursive: true });
-  const reporter = new SimulationReporter({
+  return { sim };
+}
+
+function createSimReporter(
+  testId: string,
+  sim: Sim,
+  multiAppSession: ReturnType<typeof createMultiAppRntlSession>
+): SimulationReporter | null {
+  if (!simReportEnabled()) return null;
+  return new SimulationReporter({
     seed: '1',
     store: reportStore,
     runId: STATIC_REPORT_RUN_ID,
@@ -205,8 +209,16 @@ async function bootSim(
     publishThrottleMs: Number.POSITIVE_INFINITY,
     ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'in-process',
     snapshotTopology: () => projectReportTopology(simReportTopology(sim), '1'),
+    snapshotViews: async () => {
+      const snapshots = await multiAppSession.snapshotAllActors({
+        stylesheetHref: FRAME_STYLESHEET_HREF,
+      });
+      return [...snapshots.entries()].map(([nodeId, html]) => ({
+        nodeId,
+        html,
+      }));
+    },
   });
-  return { sim, reporter };
 }
 
 export async function openSim(
@@ -214,7 +226,7 @@ export async function openSim(
   options?: OpenSimOptions
 ): Promise<OpenSimHandle> {
   const fidelity = resolveOpenSimFidelity(options);
-  const { sim, reporter } = await bootSim(testId, fidelity);
+  const { sim } = await bootSim(fidelity);
   const actors = new Map<string, { handle: SimActorHandle; raw: Driver }>();
   const multiAppSession = createMultiAppRntlSession({
     onActorFocus: () => {
@@ -223,6 +235,10 @@ export async function openSim(
       }
     },
   });
+  if (simReportEnabled()) {
+    await reportFs.mkdir(reportDataDir, { recursive: true });
+  }
+  const reporter = createSimReporter(testId, sim, multiAppSession);
   let disposed = false;
 
   const handle: OpenSimHandle = {
