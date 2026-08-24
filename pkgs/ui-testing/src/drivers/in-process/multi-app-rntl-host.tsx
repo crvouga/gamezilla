@@ -42,12 +42,16 @@ const actorShellStyle: StyleProp<ViewStyle> = {
  * `ProductApp` gets full layout bounds and an isolated sync tree.
  */
 export function MultiAppHost(props: MultiAppHostProps): ReactElement {
-  const activeActorId = props.activeActorId;
-  const element =
-    activeActorId !== undefined
-      ? props.actors.get(activeActorId)
-      : undefined;
+  const { actors, activeActorId } = props;
 
+  if (activeActorId === undefined) {
+    return createElement(View, {
+      testID: MULTI_APP_HOST_TEST_ID,
+      style: hostStyle,
+    });
+  }
+
+  const element = actors.get(activeActorId);
   if (element === undefined) {
     return createElement(View, {
       testID: MULTI_APP_HOST_TEST_ID,

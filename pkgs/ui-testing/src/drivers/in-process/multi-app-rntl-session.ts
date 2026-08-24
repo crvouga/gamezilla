@@ -27,9 +27,14 @@ export type MultiAppRntlSessionOptions = {
   readonly onActorBlur?: (actorId: string) => void;
 };
 
+/** {@link RenderedApp} from a multi-actor session — always has {@link RenderedApp.activate}. */
+export type FocusedRenderedApp = RenderedApp & {
+  activate(): void | Promise<void>;
+};
+
 export type MultiAppRntlSession = {
-  /** Mount or remount an actor subtree; returns a scoped {@link RenderedApp}. */
-  mountActor(actorId: string, element: ReactElement): RenderedApp;
+  /** Mount or remount an actor subtree; returns a scoped {@link FocusedRenderedApp}. */
+  mountActor(actorId: string, element: ReactElement): FocusedRenderedApp;
   /** Remove one actor subtree without tearing down siblings. */
   unmountActor(actorId: string): void;
   /** Unmount the active actor from the RNTL tree without dropping registration. */
@@ -72,7 +77,7 @@ function createActorFacade(
     ) => RntlWithinRoot | null;
     readonly unmountActor: (id: string) => void;
   }
-): RenderedApp {
+): FocusedRenderedApp {
   return createRenderedAppFromQueryScope({
     query: (testId) => {
       const scope = deps.requireResult();
@@ -96,14 +101,14 @@ function createActorFacade(
           : {}),
       });
     },
-  });
+  }) as FocusedRenderedApp;
 }
 
 export function createMultiAppRntlSession(
   options: MultiAppRntlSessionOptions = {}
 ): MultiAppRntlSession {
   const actors = new Map<string, ReactElement>();
-  const facades = new Map<string, RenderedApp>();
+  const facades = new Map<string, FocusedRenderedApp>();
   let result: RenderResult | undefined;
 
   const focusState: FocusState = {
@@ -142,7 +147,7 @@ export function createMultiAppRntlSession(
     return scope.queryByTestId(actorShellTestId(actorId));
   };
 
-  const createActorFacadeFor = (actorId: string): RenderedApp =>
+  const createActorFacadeFor = (actorId: string): FocusedRenderedApp =>
     createActorFacade(actorId, {
       focus,
       requireResult,

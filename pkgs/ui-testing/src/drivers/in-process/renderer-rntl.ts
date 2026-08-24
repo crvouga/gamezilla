@@ -132,7 +132,9 @@ export function createRenderedAppFromQueryScope(
       await user.scrollTo(instance, { x });
     },
     unmount: options.unmount,
-    snapshotHtml: options.snapshotHtml,
+    ...(options.snapshotHtml !== undefined
+      ? { snapshotHtml: options.snapshotHtml }
+      : {}),
     /**
      * Flush pending React updates (AuthBridge / sync / stores). Required
      * between wait polls — without this, async setState stays invisible

@@ -174,10 +174,12 @@ export class InProcessDriver<TContext = void> implements Driver {
   }): Promise<string | null> {
     const app = this.app;
     if (!app?.snapshotHtml) return null;
-    return app.snapshotHtml(
-      options?.stylesheetHref !== undefined
-        ? { stylesheetHref: options.stylesheetHref }
-        : undefined
+    return (
+      app.snapshotHtml(
+        options?.stylesheetHref !== undefined
+          ? { stylesheetHref: options.stylesheetHref }
+          : undefined
+      ) ?? null
     );
   }
 
