@@ -26,6 +26,15 @@ export type CreateRenderedAppFromRntlOptions = {
   readonly activate?: () => void | Promise<void>;
 };
 
+export type CreateRenderedAppFromQueryScopeOptions =
+  CreateRenderedAppFromRntlOptions & {
+    readonly query: (testId: string) => HostNode | null;
+    readonly unmount: () => void | Promise<void>;
+    readonly snapshotHtml?: (options?: {
+      readonly stylesheetHref?: string;
+    }) => string | undefined;
+  };
+
 /**
  * Build a {@link RenderedApp} from an already-mounted RNTL tree
  * (e.g. `expo-router/testing-library` `renderRouter`).
@@ -37,9 +46,25 @@ export function createRenderedAppFromRntl(
   result: RenderResult,
   options: CreateRenderedAppFromRntlOptions = {}
 ): RenderedApp {
+  return createRenderedAppFromQueryScope({
+    ...options,
+    query: (testId) => queryNode(result, testId),
+    unmount: () => result.unmount(),
+    snapshotHtml: (snapshotOptions) =>
+      serializeHostTreeHtml(result.toJSON(), {
+        ...(snapshotOptions?.stylesheetHref !== undefined
+          ? { stylesheetHref: snapshotOptions.stylesheetHref }
+          : {}),
+      }),
+  });
+}
+
+export function createRenderedAppFromQueryScope(
+  options: CreateRenderedAppFromQueryScopeOptions
+): RenderedApp {
   const user = options.user ?? userEvent.setup({ delay: 0 });
   const app: RenderedApp = {
-    query: (testId) => queryNode(result, testId),
+    query: options.query,
     isVisible: (element) => {
       try {
         return isHostVisible(asInstance(element));
@@ -106,13 +131,8 @@ export function createRenderedAppFromRntl(
       const x = direction === 'right' ? amount : -amount;
       await user.scrollTo(instance, { x });
     },
-    unmount: () => result.unmount(),
-    snapshotHtml: (options) =>
-      serializeHostTreeHtml(result.toJSON(), {
-        ...(options?.stylesheetHref !== undefined
-          ? { stylesheetHref: options.stylesheetHref }
-          : {}),
-      }),
+    unmount: options.unmount,
+    snapshotHtml: options.snapshotHtml,
     /**
      * Flush pending React updates (AuthBridge / sync / stores). Required
      * between wait polls — without this, async setState stays invisible

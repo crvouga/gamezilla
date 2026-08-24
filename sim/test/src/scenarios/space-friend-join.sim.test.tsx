@@ -9,11 +9,8 @@ describe('space friend join', () => {
     await using sim = await openSim('space-friend-join');
     const { alice, bob } = await setupFriendsPair(sim);
 
-    await alice.resume();
     await alice.space.createSpace();
-    await alice.park();
 
-    await bob.resume();
     await bob.space.openTab();
     await bob.space.expectLobbyCard(aliceUsername);
     await bob.space.openLobbyCard(aliceUsername);

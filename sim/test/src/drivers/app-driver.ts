@@ -10,11 +10,7 @@ import { SpaceFlows } from './space-flows';
 
 type OpenSimResult = Awaited<ReturnType<typeof openSim>>;
 
-/**
- * Product UI flows for one sim actor. Dual-actor DST must {@link park} the
- * inactive actor before driving the other — RNTL only delivers text input to
- * the latest mounted tree.
- */
+/** Product UI flows for one sim actor. */
 export class AppDriver {
   readonly auth: AuthFlows;
   readonly profile: ProfileFlows;
@@ -23,7 +19,7 @@ export class AppDriver {
   readonly friends: FriendsFlows;
   readonly space: SpaceFlows;
 
-  private constructor(private readonly ui: Driver) {
+  private constructor(ui: Driver) {
     this.auth = new AuthFlows(ui);
     this.profile = new ProfileFlows(ui);
     this.search = new SearchFlows(ui);
@@ -38,15 +34,5 @@ export class AppDriver {
   ): Promise<AppDriver> {
     const actor = await sim.actor(actorId);
     return new AppDriver(actor.ui);
-  }
-
-  /** Unmount this actor’s App so the other actor can receive text input. */
-  async park(): Promise<void> {
-    await this.ui.close();
-  }
-
-  /** Remount after {@link park} (same client seams / local DB). */
-  async resume(): Promise<void> {
-    await this.ui.launch();
   }
 }

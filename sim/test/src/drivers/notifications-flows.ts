@@ -23,8 +23,8 @@ export class NotificationsFlows {
     });
     const accept = Handles.notificationsFriendRequestAccept(fromUsername);
     await this.ui.tap(accept, { timeoutMs: 15_000 });
-    // Wait for the mutation button to finish (modal closes) before park/resume
-    // so Alice's connect wake cannot snapshot pre-accept friendships.
+    // Wait for the mutation button to finish (modal closes) so sync can settle
+    // before the next actor assertion.
     await this.ui.expect.hidden(accept, { timeoutMs: 30_000 });
     await this.ui.expect.hidden(
       Handles.notificationsFriendRequestCard(fromUsername),

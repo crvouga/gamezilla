@@ -14,11 +14,10 @@ import {
   wallPathExists,
 } from '@pkgs/sim-console';
 import type { Driver } from '@pkgs/ui-testing';
-import { createDriver, createRenderedAppFromRntl } from '@pkgs/ui-testing';
+import { createDriver, createMultiAppRntlSession } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
 import { createSim, type Sim } from '@sim/console/sim/create-sim';
 import { type SimSqlHandle, sharedSqlClient } from '@sim/console/sim/sim-sql';
-import { render } from '@testing-library/react-native';
 import { createElement } from 'react';
 
 import '@apps/client/i18n/i18n';
@@ -77,6 +76,8 @@ export type OpenSimHandle = {
   readonly sim: Sim;
   readonly fidelity: OpenSimFidelity;
   actor(id: string): Promise<SimActorHandle>;
+  /** Drop the in-process RNTL focus without closing sim clients. */
+  clearUiFocus(): void;
   /**
    * Close UI + client for `id` and bump durable client epoch so the next
    * {@link actor} call mounts a fresh client SQL namespace (shared server).
@@ -95,6 +96,7 @@ function createClientDriver(args: {
   readonly fidelity: OpenSimFidelity;
   readonly sim: Sim;
   readonly id: string;
+  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
 }): Driver {
   const page = injectedPlaywrightPage();
   const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
@@ -133,10 +135,12 @@ function createClientDriver(args: {
     timers,
     harness: {
       mount: async () => {
-        // Isolated nav tree — URL linking suspends forever under Jest/RNTL.
-        const result = render(createElement(live.App, { embedded: true }));
+        const app = args.multiAppSession.mountActor(
+          args.id,
+          createElement(live.App, { embedded: true })
+        );
         args.sim.clock.advance(0);
-        return createRenderedAppFromRntl(result);
+        return app;
       },
     },
   });
@@ -212,6 +216,13 @@ export async function openSim(
   const fidelity = resolveOpenSimFidelity(options);
   const { sim, reporter } = await bootSim(testId, fidelity);
   const actors = new Map<string, { handle: SimActorHandle; raw: Driver }>();
+  const multiAppSession = createMultiAppRntlSession({
+    onActorFocus: () => {
+      for (let i = 0; i < 20; i += 1) {
+        sim.clock.advance(50);
+      }
+    },
+  });
   let disposed = false;
 
   const handle: OpenSimHandle = {
@@ -221,7 +232,12 @@ export async function openSim(
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
       if (existing) return existing.handle;
-      const raw = createClientDriver({ fidelity, sim, id });
+      const raw = createClientDriver({
+        fidelity,
+        sim,
+        id,
+        multiAppSession,
+      });
       const ui =
         reporter === null
           ? raw
@@ -233,6 +249,9 @@ export async function openSim(
       const actorHandle = { id, ui };
       actors.set(id, { handle: actorHandle, raw });
       return actorHandle;
+    },
+    clearUiFocus() {
+      multiAppSession.clearFocus();
     },
     async resetActor(id: string) {
       if (disposed) return;
@@ -251,8 +270,6 @@ export async function openSim(
     async dispose() {
       if (disposed) return;
       disposed = true;
-      // Close the raw driver so teardown does not append reported close
-      // frames (parked actors would snapshot as empty HTML).
       for (const a of actors.values()) {
         try {
           await a.raw.close();
@@ -261,6 +278,7 @@ export async function openSim(
         }
       }
       actors.clear();
+      multiAppSession.dispose();
       if (reporter !== null) {
         try {
           await reporter.flush();

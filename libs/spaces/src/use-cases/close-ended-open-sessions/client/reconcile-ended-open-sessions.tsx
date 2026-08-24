@@ -1,5 +1,6 @@
 import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
+import { useTimers } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import { useQuery, useSyncEngine } from '@pkgs/sync-engine/client';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
@@ -18,6 +19,7 @@ export function ReconcileEndedOpenSessions(): ReactNode {
   const { paintReady } = useSyncEngine();
   const deviceId = useDeviceId();
   const mutationClient = useMutationClient();
+  const timers = useTimers();
   const runningRef = useRef(false);
   const query = useMemo(
     () =>
@@ -40,12 +42,21 @@ export function ReconcileEndedOpenSessions(): ReactNode {
   useEffect(() => {
     if (!paintReady || rows.length === 0 || runningRef.current) return;
     runningRef.current = true;
-    void mutationClient
-      .mutate(closeEndedOpenSessionsMutation, {})
-      .finally(() => {
-        runningRef.current = false;
-      });
-  }, [paintReady, rows, mutationClient]);
+    let cancelled = false;
+    const timeoutId = timers.setTimeout(() => {
+      if (cancelled) return;
+      void mutationClient
+        .mutate(closeEndedOpenSessionsMutation, {})
+        .finally(() => {
+          if (!cancelled) runningRef.current = false;
+        });
+    }, 0);
+    return () => {
+      cancelled = true;
+      timers.clearTimeout(timeoutId);
+      runningRef.current = false;
+    };
+  }, [paintReady, rows, mutationClient, timers]);
 
   return null;
 }

@@ -12,16 +12,12 @@ async function setupBothInActiveSpace(
 }> {
   const { alice, bob } = await setupFriendsPair(sim);
 
-  await alice.resume();
   await alice.space.createSpace();
-  await alice.park();
 
-  await bob.resume();
   await bob.space.openTab();
   await bob.space.expectLobbyCard(aliceUsername);
   await bob.space.openLobbyCard(aliceUsername);
   await bob.space.joinFromPrompt();
-  await bob.park();
 
   return { alice, bob };
 }
@@ -31,12 +27,9 @@ describe('space end', () => {
     await using sim = await openSim('space-end');
     const { alice, bob } = await setupBothInActiveSpace(sim);
 
-    await alice.resume();
     await alice.space.reenterActiveSpace(aliceUsername);
     await alice.space.endSpace();
-    await alice.park();
 
-    await bob.resume();
     await bob.space.expectLobbyCardGone(aliceUsername);
   }, 180_000);
 });

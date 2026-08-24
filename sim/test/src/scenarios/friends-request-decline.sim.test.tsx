@@ -20,7 +20,6 @@ describe('friends request → decline', () => {
     await alice.profile.openEdit();
     await alice.profile.setUsername(aliceUsername);
     await alice.profile.expectUsername(aliceUsername);
-    await alice.park();
 
     const bob = await AppDriver.forActor(sim, 'bob');
     await bob.auth.signUpWithEmail(bobCreds);
@@ -28,23 +27,15 @@ describe('friends request → decline', () => {
     await bob.profile.openEdit();
     await bob.profile.setUsername(bobUsername);
     await bob.profile.expectUsername(bobUsername);
-    await bob.park();
 
-    await alice.resume();
     await alice.search.expectUserVisible(bobUsername);
     await alice.search.addFriend(bobUsername);
-    await alice.park();
 
-    await bob.resume();
     await bob.notifications.expectIncomingFriendRequest(aliceUsername);
     await bob.notifications.declineFriendRequest(aliceUsername);
-    await bob.park();
 
-    await alice.resume();
     await alice.friends.expectNotFriend(bobUsername);
-    await alice.park();
 
-    await bob.resume();
     await bob.friends.expectNotFriend(aliceUsername);
   }, 180_000);
 });

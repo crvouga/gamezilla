@@ -10,7 +10,7 @@ export class SpaceFlows {
   constructor(private readonly ui: Driver) {}
 
   async openTab(): Promise<void> {
-    await this.ui.tap(Handles.tabSpaces);
+    await this.ui.tap(Handles.tabSpaces, { timeoutMs: 15_000 });
     await this.ui.expect.visible(SCREEN_SPACES, { timeoutMs: 15_000 });
   }
 
@@ -38,6 +38,10 @@ export class SpaceFlows {
   }
 
   async reenterActiveSpace(hostUsername: string): Promise<void> {
+    if (await this.ui.isVisible(Handles.spaceClose)) {
+      await this.expectActiveSpace();
+      return;
+    }
     await this.openTab();
     await this.openLobbyCard(hostUsername, { expectJoinPrompt: false });
     await this.expectActiveSpace();
