@@ -14,9 +14,10 @@ import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
 import type { SxProps } from '../../theme/sx-props';
 import { Box } from '../box';
+import { CONTENT_EDGE_PADDING_STEP } from '../content-edge-padding';
 import { ErrorState } from '../error-state';
 import { FlatList } from '../flat-list';
-import { List, ListItem } from '../list';
+import { ListItem } from '../list';
 import { LoadingState } from '../loading-state';
 import { Pressable } from '../pressable';
 import { ResponsiveSurface } from '../responsive-surface';
@@ -240,6 +241,38 @@ function triggerSx(compact: boolean): SxProps {
   };
 }
 
+/** Bleeds option rows to the surface edge; selection fill spans full width. */
+function PickerOptionShell({
+  selected,
+  children,
+}: {
+  selected: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Box
+      sx={{
+        mx: -CONTENT_EDGE_PADDING_STEP,
+        ...(selected ? { backgroundColor: 'tintSubtle' as const } : {}),
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function PickerOptionSeparator() {
+  return (
+    <Box
+      sx={{
+        borderBottomWidth: 'hairline',
+        borderColor: 'border',
+        marginLeft: 16,
+      }}
+    />
+  );
+}
+
 function PickerOptions<T extends string | number>({
   options,
   value,
@@ -282,29 +315,29 @@ function PickerOptions<T extends string | number>({
     onPick(item.value);
   };
 
-  if (renderOption !== undefined) {
-    return (
-      <FlatList
-        data={options}
-        extraData={value}
-        keyExtractor={(item) => String(item.value)}
-        frameSx={{ maxHeight: 360 }}
-        renderItem={({ item }) => {
-          const row = renderOption(item, item.value === value, () =>
-            pickIfEnabled(item)
-          );
-          return row ?? <Box />;
-        }}
-      />
-    );
-  }
   return (
-    <List separator>
-      {options.map((item, index) => (
-        <Box key={String(item.value) + String(index)}>
-          {defaultRender(item, item.value === value, () => pickIfEnabled(item))}
-        </Box>
-      ))}
-    </List>
+    <FlatList
+      data={options}
+      extraData={value}
+      keyExtractor={(item) => String(item.value)}
+      frameSx={{ maxHeight: 360 }}
+      sx={{ px: 0 }}
+      ItemSeparatorComponent={PickerOptionSeparator}
+      renderItem={({ item }) => {
+        const isSelected = item.value === value;
+        const inner =
+          renderOption !== undefined
+            ? renderOption(item, isSelected, () => pickIfEnabled(item))
+            : defaultRender(item, isSelected, () => pickIfEnabled(item));
+        if (inner === null) return <Box />;
+        return (
+          <PickerOptionShell
+            selected={isSelected && item.disabled !== true}
+          >
+            {inner}
+          </PickerOptionShell>
+        );
+      }}
+    />
   );
 }

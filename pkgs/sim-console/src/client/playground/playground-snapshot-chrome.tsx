@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CONTENT_EDGE_PADDING_STEP,
   IconButton,
   MutationModal,
   Pressable,
@@ -93,7 +94,6 @@ function SnapshotOptionRow(props: {
         flex: 1,
         minWidth: 0,
         paddingVertical: 12,
-        paddingHorizontal: 8,
         gap: 0.5,
       }}
     >
@@ -106,14 +106,13 @@ function SnapshotOptionRow(props: {
       sx={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 1,
+        gap: 3,
         opacity: outdated ? 0.55 : 1,
-        ...(selected && !outdated
-          ? { backgroundColor: 'tintSubtle' as const }
-          : {}),
       }}
     >
-      <Checkbox checked={checked} onToggle={onToggleChecked} disabled={busy} />
+      <Box sx={{ pl: CONTENT_EDGE_PADDING_STEP }}>
+        <Checkbox checked={checked} onToggle={onToggleChecked} disabled={busy} />
+      </Box>
       {outdated ? (
         body
       ) : (
@@ -122,11 +121,9 @@ function SnapshotOptionRow(props: {
         </Pressable>
       )}
       {selected && !outdated ? (
-        <Text
-          variant="label"
-          sx={{ color: 'tint', paddingRight: 2 }}
-          label="✓"
-        />
+        <Box sx={{ pr: CONTENT_EDGE_PADDING_STEP }}>
+          <Text variant="label" sx={{ color: 'tint' }} label="✓" />
+        </Box>
       ) : null}
     </Box>
   );
