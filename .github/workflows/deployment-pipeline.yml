@@ -61,9 +61,21 @@ jobs:
           environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
 
       - name: Deploy
+        id: deploy
         env:
           SECRETS_ENV: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-        run: bun run deploy
+        run: |
+          set -euo pipefail
+          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+
+      - name: Write pipeline summary
+        if: always() && !cancelled()
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
+          SECRETS_ENV: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run tools/scripts/write-pipeline-summary.ts
 
       - uses: ./.github/actions/jest-cache
         if: always() && !cancelled()

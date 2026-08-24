@@ -285,16 +285,17 @@ function renderPromptBody(
  * Wraps the body in a collapsed `<details>` block so the report summary stays
  * readable when there are many failures. The body is fenced with FOUR
  * backticks so the inner three-backtick code blocks render correctly when the
- * user copies the contents into an LLM.
+ * user copies the contents into an LLM. GitHub's job-summary UI shows a
+ * copy-to-clipboard control on fenced blocks.
  */
 function renderMarkdownSection(
   body: string,
-  expandSummary = 'Click to expand. Copy the entire fenced block into an LLM to fix all CI failures.'
+  expandSummary = 'Click to expand, then use the copy button on the fenced block to paste into an LLM.'
 ): string {
   const lines: string[] = [];
   lines.push('### LLM fix prompt');
   lines.push('');
-  lines.push('<details>');
+  lines.push('<details open>');
   lines.push(`<summary>${expandSummary}</summary>`);
   lines.push('');
   lines.push('````markdown');
@@ -304,6 +305,53 @@ function renderMarkdownSection(
   lines.push('</details>');
   lines.push('');
   return lines.join('\n');
+}
+
+const CI_DEPLOY_FAILURE_PROMPT: LocalPromptOptions = {
+  title: `Fix Deployment Pipeline failure for ${PRODUCT_CONFIG.domain}`,
+  failureIntro:
+    'The GitHub Actions Deployment Pipeline failed. An agent should fix every failing step below in one pass.',
+  fixInstructions:
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run deploy` (or the matching package script, e.g. `bun run --filter @apps/server deploy`) locally with `SECRETS_ENV=dev` dry-run when safe, or push and let CI verify.',
+  constraints: LOCAL_CHECK_CONSTRAINTS,
+};
+
+/**
+ * Collapsed markdown LLM prompt for a CI deploy-job failure, built from
+ * locally captured step output (tee / turbo errors-only logs) rather than the
+ * GitHub Jobs API. Use from an always-run workflow step in the same job.
+ */
+export function buildCiDeployFailureLlmFixPromptMarkdown(
+  failures: ReadonlyArray<{ readonly stepId: string; readonly output: string }>
+): string {
+  if (failures.length === 0) return '';
+  const mapped = failures.map((f) => ({
+    jobId: f.stepId,
+    output: f.output,
+  }));
+  const ctxLines: string[] = [];
+  const repo = (process.env['GITHUB_REPOSITORY'] ?? '').trim();
+  const runId = (process.env['GITHUB_RUN_ID'] ?? '').trim();
+  const serverUrl = (
+    process.env['GITHUB_SERVER_URL'] ?? 'https://github.com'
+  ).trim();
+  const sha = (process.env['GITHUB_SHA'] ?? '').trim();
+  const ref = (process.env['GITHUB_REF_NAME'] ?? '').trim();
+  if (repo !== '' && runId !== '') {
+    ctxLines.push(`Workflow run: ${serverUrl}/${repo}/actions/runs/${runId}`);
+  }
+  if (sha !== '') {
+    ctxLines.push(`Commit: \`${sha.slice(0, 7)}\` on \`${ref}\``);
+  }
+  const body = renderLocalPromptBody(mapped, CI_DEPLOY_FAILURE_PROMPT);
+  const withCtx =
+    ctxLines.length === 0
+      ? body
+      : body.replace(
+          `# ${CI_DEPLOY_FAILURE_PROMPT.title}\n\n`,
+          `# ${CI_DEPLOY_FAILURE_PROMPT.title}\n\n${ctxLines.join('\n')}\n\n`
+        );
+  return renderMarkdownSection(withCtx);
 }
 
 export async function buildLlmFixPromptMarkdown(

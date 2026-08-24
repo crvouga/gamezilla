@@ -15,6 +15,8 @@
  *   `TURBO_LOG_ORDER`. `//#check` in argv is expanded to its `dependsOn` ci
  *   tasks so turbo does not nest them under a `//:check` prefix (stream mode
  *   stacks prefixes on nested umbrella tasks).
+ * - Output logs: `errors-only` in CI (failed task stderr in the job log /
+ *   LLM fix prompt); `new-only` locally. Override with `TURBO_OUTPUT_LOGS`.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  */
@@ -157,9 +159,11 @@ const env = turboChildEnv();
 const cache = resolveCacheFlag(env);
 const concurrency = resolveConcurrency();
 
-const TURBO_OUTPUT_LOGS =
+// CI defaults to errors-only so failed task stderr (e.g. @apps/server#deploy)
+  // lands in the job log / LLM fix prompt. Override with TURBO_OUTPUT_LOGS.
+  const TURBO_OUTPUT_LOGS =
   process.env['TURBO_OUTPUT_LOGS']?.trim() ||
-  (inCi() ? 'hash-only' : 'new-only');
+  (inCi() ? 'errors-only' : 'new-only');
 
 const TURBO_LOG_ORDER =
   process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
