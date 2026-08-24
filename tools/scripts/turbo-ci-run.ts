@@ -4,6 +4,10 @@
  * - Cache is always `local:rw,remote:rw` (Vercel Remote Cache). Local disk
  *   under `.turbo` is also persisted in CI via per-job `actions/cache`.
  *   `TURBO_CACHE` may tighten local/remote modes but cannot drop `remote:`.
+ * - Requires `TURBO_TOKEN` + `TURBO_TEAM` so local warms upload and CI
+ *   reuses the same remote artifacts.
+ * - Disables framework inference so only explicit `turbo.json` `env` /
+ *   `globalEnv` enter the hash (avoids Expo `EXPO_PUBLIC_*` skew).
  * - Unsets orphan `TURBO_API` so a leftover self-hosted origin cannot
  *   override Vercel's default cache endpoint.
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
@@ -27,8 +31,15 @@ import { join } from 'node:path';
 
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
 
+import {
+  CHECK_SECRETS_FINGERPRINT_ENV,
+  computeCheckSecretsFingerprint,
+} from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
+
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
+const SECRETS_CHECK_TASK = '@libs/secrets#check';
+const DEPLOY_TASK = 'deploy';
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
@@ -155,61 +166,85 @@ function flattenCheckAggregator(taskArgs: readonly string[]): string[] {
   return out;
 }
 
-const env = turboChildEnv();
-const cache = resolveCacheFlag(env);
-const concurrency = resolveConcurrency();
-
-// CI defaults to errors-only so failed task stderr (e.g. @apps/server#deploy)
-  // lands in the job log / LLM fix prompt. Override with TURBO_OUTPUT_LOGS.
-  const TURBO_OUTPUT_LOGS =
-  process.env['TURBO_OUTPUT_LOGS']?.trim() ||
-  (inCi() ? 'errors-only' : 'new-only');
-
-const TURBO_LOG_ORDER =
-  process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
-
-const ui = resolveUi();
-
-const TURBO_CI_FLAGS = [
-  `--concurrency=${concurrency}`,
-  `--cache-workers=${String(CACHE_WORKERS)}`,
-  `--cache=${cache}`,
-  '--summarize',
-  `--output-logs=${TURBO_OUTPUT_LOGS}`,
-  `--log-order=${TURBO_LOG_ORDER}`,
-  ...(ui !== undefined ? [`--ui=${ui}`] : []),
-] as const;
-
-const rawTaskArgs = process.argv.slice(2);
-if (rawTaskArgs.length === 0) {
-  console.error(
-    'usage: bun run tools/scripts/turbo-ci-run.ts <turbo run args…>'
+function needsSecretsFingerprint(taskArgs: readonly string[]): boolean {
+  return taskArgs.some(
+    (arg) => arg === SECRETS_CHECK_TASK || arg === DEPLOY_TASK
   );
-  process.exit(1);
 }
 
-const taskArgs = flattenCheckAggregator(rawTaskArgs);
-const affected = resolveAffectedFilter(taskArgs);
-if (affected.length > 0) {
-  console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
+async function ensureSecretsFingerprint(
+  env: NodeJS.ProcessEnv,
+  taskArgs: readonly string[]
+): Promise<void> {
+  if (!needsSecretsFingerprint(taskArgs)) return;
+  console.log('turbo-ci-run: computing secrets fingerprint (Infisical)…');
+  env[CHECK_SECRETS_FINGERPRINT_ENV] = await computeCheckSecretsFingerprint();
+  console.log('turbo-ci-run: secrets fingerprint ready.');
 }
-console.log(
-  `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
-    (ui !== undefined ? ` ui=${ui}` : '') +
-    (hasRemoteCreds(env)
-      ? ' (remote creds present)'
-      : ' (remote enabled; TURBO_TOKEN/TURBO_TEAM missing)')
-);
 
-const result = spawnSync(
-  'turbo',
-  ['run', ...taskArgs, ...affected, ...TURBO_CI_FLAGS],
-  {
-    stdio: 'inherit',
-    env,
+async function main(): Promise<void> {
+  const env = turboChildEnv();
+  if (!hasRemoteCreds(env)) {
+    console.error(
+      'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for Vercel Remote Cache. ' +
+        'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
+    );
+    process.exit(1);
   }
-);
 
-// Reap any esbuild --service workers orphaned by force-exited tasks.
-killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-process.exit(result.status ?? 1);
+  const cache = resolveCacheFlag(env);
+  const concurrency = resolveConcurrency();
+  const TURBO_OUTPUT_LOGS =
+    process.env['TURBO_OUTPUT_LOGS']?.trim() ||
+    (inCi() ? 'errors-only' : 'new-only');
+  const TURBO_LOG_ORDER =
+    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
+  const ui = resolveUi();
+
+  const TURBO_CI_FLAGS = [
+    `--concurrency=${concurrency}`,
+    `--cache-workers=${String(CACHE_WORKERS)}`,
+    `--cache=${cache}`,
+    '--framework-inference=false',
+    '--summarize',
+    `--output-logs=${TURBO_OUTPUT_LOGS}`,
+    `--log-order=${TURBO_LOG_ORDER}`,
+    ...(ui !== undefined ? [`--ui=${ui}`] : []),
+  ] as const;
+
+  const rawTaskArgs = process.argv.slice(2);
+  if (rawTaskArgs.length === 0) {
+    console.error(
+      'usage: bun run tools/scripts/turbo-ci-run.ts <turbo run args…>'
+    );
+    process.exit(1);
+  }
+
+  const taskArgs = flattenCheckAggregator(rawTaskArgs);
+  await ensureSecretsFingerprint(env, taskArgs);
+
+  const affected = resolveAffectedFilter(taskArgs);
+  if (affected.length > 0) {
+    console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
+  }
+  console.log(
+    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
+      (ui !== undefined ? ` ui=${ui}` : '') +
+      ' (remote creds present)'
+  );
+
+  const result = spawnSync(
+    'turbo',
+    ['run', ...taskArgs, ...affected, ...TURBO_CI_FLAGS],
+    {
+      stdio: 'inherit',
+      env,
+    }
+  );
+
+  // Reap any esbuild --service workers orphaned by force-exited tasks.
+  killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
+  process.exit(result.status ?? 1);
+}
+
+await main();

@@ -142,11 +142,7 @@
       "outputLogs": "new-only"
     },
     "//#check": {
-      "dependsOn": [
-        "//#ci:syncpack",
-        "//#ci:depcruise",
-        "//#ci:audit"
-      ],
+      "dependsOn": ["//#ci:syncpack", "//#ci:depcruise", "//#ci:audit"],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -263,7 +259,6 @@
       "outputLogs": "new-only"
     },
     "//#ci:audit": {
-      "env": ["CI", "GITHUB_ACTIONS"],
       "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
       "outputs": [],
       "outputLogs": "new-only"

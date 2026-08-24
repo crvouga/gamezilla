@@ -5,16 +5,18 @@
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,
  * then runs `@apps/server` `test:integration`.
  *
- * When `/api/health` is already OK (`bun dev`, `bun preview`, or CI's prior
- * "Start API preview" step), runs tests immediately. Otherwise starts
- * `preview:serve` locally, waits, runs tests, then frees the API port.
+ * When `/api/health` is already OK (`bun dev` / `bun preview`), runs tests
+ * immediately. Otherwise starts `preview:serve`, waits, runs tests, then
+ * frees the API port. Self-contained for CI and local — the deploy turbo
+ * graph no longer has a separate "Start API preview" workflow step.
+ *
  * Deploy / opt-in only (`@apps/server#check:api` in the deploy graph;
  * not part of local `bun check`).
  *
- * Invoked via `bun run check:api` (wraps `secrets-run` for dev secrets).
+ * Invoked via `bun run check:api` (wraps `secrets-run` for secrets).
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { closeSync, openSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
@@ -26,13 +28,9 @@ const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const API_PORT = Number(new URL(DEFAULT_LOCAL_PREVIEW_API_ORIGIN).port);
 const HEALTH_URL = `${DEFAULT_LOCAL_PREVIEW_API_ORIGIN}/api/health`;
+const PREVIEW_LOG_PATH = join(REPO_ROOT, '.check-api-preview.log');
 const DEFAULT_WAIT_MS = 240_000;
 const POLL_MS = 500;
-
-function isCi(): boolean {
-  const ci = process.env['CI']?.trim();
-  return ci === '1' || ci === 'true';
-}
 
 function probeApiHealth(): boolean {
   try {
@@ -60,6 +58,24 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function readPreviewLogTail(maxLines = 200): string {
+  if (!existsSync(PREVIEW_LOG_PATH)) return '';
+  try {
+    const text = readFileSync(PREVIEW_LOG_PATH, { encoding: 'utf8' });
+    const lines = text.split('\n');
+    return lines.slice(-maxLines).join('\n').trimEnd();
+  } catch {
+    return '';
+  }
+}
+
+function formatPreviewLog(): string {
+  const tail = readPreviewLogTail();
+  return tail.length > 0
+    ? `\n--- ${PREVIEW_LOG_PATH} (last 200 lines) ---\n${tail}`
+    : `\n(preview log empty or missing: ${PREVIEW_LOG_PATH})`;
+}
+
 async function waitForApiHealth(
   timeoutMs: number = Number(
     process.env['API_HEALTH_WAIT_MS'] ?? DEFAULT_WAIT_MS
@@ -74,7 +90,7 @@ async function waitForApiHealth(
     await sleep(POLL_MS);
   }
   throw new Error(
-    `[check-api] timed out waiting for ${HEALTH_URL} (${String(timeoutMs)}ms)`
+    `[check-api] timed out waiting for ${HEALTH_URL} (${String(timeoutMs)}ms)${formatPreviewLog()}`
   );
 }
 
@@ -94,8 +110,7 @@ function startApiPreview(): {
   readonly stop: () => void;
   readonly exited: Promise<number>;
 } {
-  const logPath = join(REPO_ROOT, '.check-api-preview.log');
-  const logFd = openSync(logPath, 'w');
+  const logFd = openSync(PREVIEW_LOG_PATH, 'w');
   // Detached = own process group so we can kill wrangler + esbuild together.
   // Do NOT unref — keep a handle and tear the group down in `stop`.
   const child = spawn(
@@ -114,7 +129,6 @@ function startApiPreview(): {
   });
   return {
     stop: () => {
-      if (process.env['CI']) return;
       const pid = child.pid;
       if (pid !== undefined) {
         killProcessGroup(pid, 'SIGTERM');
@@ -135,7 +149,7 @@ async function waitForApiOrExit(preview: {
     waitForApiHealth(),
     preview.exited.then((code) => {
       throw new Error(
-        `[check-api] API preview exited early (code ${String(code)}); see .check-api-preview.log`
+        `[check-api] API preview exited early (code ${String(code)}); see ${PREVIEW_LOG_PATH}${formatPreviewLog()}`
       );
     }),
   ]);
@@ -146,12 +160,7 @@ async function main(): Promise<void> {
     process.exit(runIntegrationTests());
   }
 
-  if (isCi()) {
-    await waitForApiHealth();
-    process.exit(runIntegrationTests());
-  }
-
-  // Reclaim stale wrangler listeners from prior local check runs.
+  // Reclaim stale wrangler listeners from prior local / CI check runs.
   killListenersOnPorts([API_PORT, 9231, 9229]);
 
   process.stdout.write('[check-api] API preview not running — starting…\n');

@@ -1,23 +1,14 @@
 /**
- * Runs `bun audit --audit-level high` in CI only.
+ * Runs `bun audit --audit-level high` (local and CI).
  *
- * Outside CI (`bun check`), skip immediately so the local offline graph
- * never dials the audit registry. In CI (`CI` / `GITHUB_ACTIONS`) any
- * non-zero exit from audit still fails the job.
+ * Always dials the registry so local and CI share one Turbo remote-cache
+ * hash for `//#ci:audit`. Any non-zero exit still fails the check/deploy.
  *
  * Ignored CVEs must stay empty unless there is no published patched release
  * (`first_patched_version: null`). Revisit when image-size ships a fix past
  * 2.0.2 (metro → expo transitive).
  */
 import { spawnSync } from 'node:child_process';
-
-const inCi =
-  process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';
-
-if (!inCi) {
-  console.log('[ci:audit] skipped outside CI (offline local check).');
-  process.exit(0);
-}
 
 /** Unpatched highs with no fixed version yet — drop once a release exists. */
 const IGNORE_ADVISORIES = [

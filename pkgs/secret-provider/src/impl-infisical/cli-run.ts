@@ -14,6 +14,58 @@ function prepareChildEnv(): NodeJS.ProcessEnv {
   return childEnv;
 }
 
+function infisicalCliEnv(): NodeJS.ProcessEnv {
+  const env = prepareChildEnv();
+  env['INFISICAL_DISABLE_MIGRATION_NOTICE'] = '1';
+  return env;
+}
+
+function infisicalProjectArgs(args: {
+  readonly workspaceId: string;
+  readonly env: string;
+  readonly domain: string;
+}): string[] {
+  return [
+    '--projectId',
+    args.workspaceId,
+    '--env',
+    args.env,
+    '--domain',
+    args.domain,
+  ];
+}
+
+/**
+ * True when the Infisical CLI can fetch secrets for this project/env.
+ * Used so a later `infisical run` child failure is not mistaken for
+ * Infisical auth/network failure (and re-run without secrets).
+ */
+function canFetchInfisicalSecrets(args: {
+  readonly repoRoot: string;
+  readonly workspaceId: string;
+  readonly env: string;
+  readonly domain: string;
+}): boolean {
+  const result = spawnSync(
+    INFISICAL_CLI_BIN,
+    ['export', ...infisicalProjectArgs(args), '--format=json'],
+    {
+      cwd: args.repoRoot,
+      env: infisicalCliEnv(),
+      encoding: 'utf8',
+      maxBuffer: 10 * 1024 * 1024,
+    }
+  );
+  if (result.error !== undefined || result.status !== 0) return false;
+  const raw = (result.stdout ?? '').trim();
+  if (raw.length === 0) return false;
+  try {
+    return Array.isArray(JSON.parse(raw));
+  } catch {
+    return false;
+  }
+}
+
 function runWithInfisicalCli(args: {
   readonly repoRoot: string;
   readonly workspaceId: string;
@@ -21,25 +73,12 @@ function runWithInfisicalCli(args: {
   readonly domain: string;
   readonly childArgs: string[];
 }): number {
-  const childEnv = prepareChildEnv();
-  childEnv['INFISICAL_DISABLE_MIGRATION_NOTICE'] = '1';
-
   const result = spawnSync(
     INFISICAL_CLI_BIN,
-    [
-      'run',
-      '--projectId',
-      args.workspaceId,
-      '--env',
-      args.env,
-      '--domain',
-      args.domain,
-      '--',
-      ...args.childArgs,
-    ],
+    ['run', ...infisicalProjectArgs(args), '--', ...args.childArgs],
     {
       cwd: args.repoRoot,
-      env: childEnv,
+      env: infisicalCliEnv(),
       stdio: 'inherit',
     }
   );
@@ -155,22 +194,29 @@ export async function runWithInfisicalSecrets(
     return runWithInjectedEnv(repoRoot, args);
   }
 
-  const infisicalStatus = runWithInfisicalCli({
+  const coords = {
     repoRoot,
     workspaceId: scope.projectId,
     env: scope.env,
     domain: endpoint,
-    childArgs: args,
-  });
-  if (infisicalStatus === 0) {
-    return 0;
-  }
-  // Local `dev` must stay self-contained when Infisical login/network fails.
-  if (scope.env === 'dev') {
-    process.stderr.write(
-      'secrets-run: Infisical failed; falling back to local/injected env for SECRETS_ENV=dev.\n'
+  };
+
+  if (!canFetchInfisicalSecrets(coords)) {
+    // Local `dev` must stay self-contained when Infisical login/network fails.
+    if (scope.env === 'dev') {
+      process.stderr.write(
+        'secrets-run: Infisical unavailable; falling back to local/injected env for SECRETS_ENV=dev.\n'
+      );
+      return runWithInjectedEnv(repoRoot, args);
+    }
+    console.error(
+      'secrets-run: Infisical unavailable (login/network/project). ' +
+        'Run `infisical login` or use LOCAL_SECRETS=1 with injected env.'
     );
-    return runWithInjectedEnv(repoRoot, args);
+    return 1;
   }
-  return infisicalStatus;
+
+  // Child non-zero exits must not trigger a second run without secrets —
+  // that masked real failures and dropped TURBO_TOKEN/TURBO_TEAM.
+  return runWithInfisicalCli({ ...coords, childArgs: args });
 }

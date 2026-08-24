@@ -4,7 +4,7 @@ import { SECRETS } from './registry';
 import { SECRETS_ENVS } from './secret';
 import { exportSecretsMap } from './secrets-io';
 
-/** Env var Turbo hashes for `//#check:secrets:validate` cache keys. */
+/** Env var Turbo hashes for `@libs/secrets#check` cache keys. */
 export const CHECK_SECRETS_FINGERPRINT_ENV = 'CHECK_SECRETS_FINGERPRINT';
 
 /**
