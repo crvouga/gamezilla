@@ -2,7 +2,7 @@
  * Portable SQL corpus: the same DML runs on sqlite-mem and PGlite (+ JSON1
  * compat). Lives here so `@pkgs/postgres-sqlite-compat` stays a leaf.
  */
-import { afterAll, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { PGlite } from '@electric-sql/pglite';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { sql } from '@pkgs/sql';
@@ -42,16 +42,22 @@ async function openPglite(): Promise<Backend> {
 describe('portable SQL corpus', () => {
   const backends: Backend[] = [];
 
+  // PGlite WASM + plpgsql install exceeds bun's 5s default under CI load.
+  beforeAll(async () => {
+    backends.push(await openSqliteMem(), await openPglite());
+  }, 120_000);
+
   afterAll(async () => {
     for (const b of backends) await b.close();
-  });
+  }, 120_000);
 
   test('insert/select/soft-delete timestamps agree', async () => {
-    const sqlite = await openSqliteMem();
-    const pg = await openPglite();
-    backends.push(sqlite, pg);
+    const [sqlite, pg] = backends;
+    if (!sqlite || !pg) {
+      throw new Error('backends not opened');
+    }
 
-    for (const b of [sqlite, pg]) {
+    for (const b of backends) {
       await b.client.run(sql`
         CREATE TABLE notes (
           id TEXT PRIMARY KEY,
