@@ -10,7 +10,7 @@ import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client/postgres/pg-types';
 
-import { SIM_BETTER_AUTH_SECRET, SIM_SERVER_URL } from './migrate-sim-sqlite';
+import { SIM_BETTER_AUTH_SECRET, SIM_SERVER_URL } from './sim-constants';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
 export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
@@ -18,7 +18,7 @@ export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
 export {
   SIM_BETTER_AUTH_SECRET,
   SIM_SERVER_URL,
-} from './migrate-sim-sqlite';
+} from './sim-constants';
 
 /** Applies framework + domain + kv/entity/outbox + Better Auth (Postgres dialect). */
 export async function migrateSimPostgres(args: {

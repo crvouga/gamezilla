@@ -12,13 +12,13 @@ import { createLogger } from '@pkgs/logger';
 import { migrateOutbox } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { SIM_BETTER_AUTH_SECRET, SIM_SERVER_URL } from './sim-constants';
 
-/** Fixed sim Better Auth secret (32+ chars — Better Auth requires length). */
-export const SIM_BETTER_AUTH_SECRET = 'sim-better-auth-secret-0123456789abcdef';
-/** Placeholder auth origin used during migrate (no network is used). */
-export const SIM_SERVER_URL = 'http://sim.local';
-/** Placeholder DATABASE_URL for secret-store / config (SQLite has no TCP listener). */
-export const SIM_SQLITE_DATABASE_URL = 'sqlite://sim';
+export {
+  SIM_BETTER_AUTH_SECRET,
+  SIM_SERVER_URL,
+  SIM_SQLITE_DATABASE_URL,
+} from './sim-constants';
 
 /** Applies portable framework + domain + kv/entity/outbox + Better Auth (sqlite). */
 export async function migrateSimSqlite(args: {

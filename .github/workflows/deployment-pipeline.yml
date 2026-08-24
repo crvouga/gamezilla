@@ -24,6 +24,7 @@ env:
   TURBO_UI: stream
   TURBO_LOG_ORDER: stream
   TURBO_OUTPUT_LOGS: new-only
+  TURBO_CONCURRENCY: "8"
 
 jobs:
   deploy:
@@ -31,9 +32,6 @@ jobs:
     environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || '' }}
     env:
       EXPO_USE_WATCHMAN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '1' || '' }}
-      # Private ubuntu-latest is ~7GB. 8192 let V8 grow past RAM and the
-      # runner SIGTERM'd bun/turbo (exit 143) after a silent hang.
-      NODE_OPTIONS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '--max-old-space-size=4096' || '' }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     concurrency:
       group: deploy-${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}

@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { deleteLegacyWorkerScripts } from '@libs/secrets/shared/cloudflare-worker-lifecycle';
 import { productionApiOrigin } from '@libs/secrets/shared/deploy-origins';
+import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
@@ -42,17 +43,22 @@ function cleanupClientDist(): void {
   });
 }
 
+const CLIENT_EXPORT_MAX_OLD_SPACE_MB = 8192;
+
 async function buildClientWeb(
   commitHash: string,
   commitDate: string
 ): Promise<void> {
   const apiUrl = productionApiOrigin();
-  const buildEnv: NodeJS.ProcessEnv = {
-    ...process.env,
-    EXPO_PUBLIC_API_URL: apiUrl,
-    EXPO_PUBLIC_COMMIT_HASH: commitHash,
-    EXPO_PUBLIC_COMMIT_DATE: commitDate,
-  };
+  const buildEnv = withNodeMaxOldSpaceSize(
+    {
+      ...process.env,
+      EXPO_PUBLIC_API_URL: apiUrl,
+      EXPO_PUBLIC_COMMIT_HASH: commitHash,
+      EXPO_PUBLIC_COMMIT_DATE: commitDate,
+    },
+    CLIENT_EXPORT_MAX_OLD_SPACE_MB
+  );
 
   await runAsync('bun', ['run', 'check:production-env'], {
     cwd: clientDir,
