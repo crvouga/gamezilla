@@ -6,7 +6,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { getApiPubSub } from './api-pubsub';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { APP_MUTATIONS } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';
@@ -23,7 +23,9 @@ function createRequestScopedPubSub(): PubSub {
     async publish(topic, data) {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
-      const pubsub = await getApiPubSub(store.secretStore);
+      const pubsub = await new HttpPubSubFromSecretStore(
+        store.secretStore
+      ).get();
       if (pubsub === undefined) return;
       await pubsub.publish(topic, data);
     },

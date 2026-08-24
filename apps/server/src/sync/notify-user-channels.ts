@@ -2,7 +2,7 @@ import { userTopic } from '@libs/runtime/public/sync-topics';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { getApiPubSub } from './api-pubsub';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 
 export type NotifyUserChannelsOptions = {
   readonly tables?: readonly string[];
@@ -26,7 +26,7 @@ export async function notifyUserChannels(
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return;
-  const pubsub = await getApiPubSub(store.secretStore);
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
   if (pubsub === undefined) return;
   const tables = options.tables;
   const deferPublish = options.deferPublish !== false;

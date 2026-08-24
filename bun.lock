@@ -164,6 +164,7 @@
         "@libs/friends": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/profile": "workspace:*",
+        "@libs/pubsub": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/secrets": "workspace:*",
         "@libs/spaces": "workspace:*",
@@ -459,6 +460,20 @@
         "typescript": "catalog:",
       },
     },
+    "libs/object-store": {
+      "name": "@libs/object-store",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/db": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/profile": {
       "name": "@libs/profile",
       "version": "0.0.0",
@@ -485,6 +500,30 @@
       },
       "devDependencies": {
         "@types/react": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/pubsub": {
+      "name": "@libs/pubsub",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/client-config": "workspace:*",
+        "@libs/db": "workspace:*",
+        "@libs/runtime": "workspace:*",
+        "@libs/secrets": "workspace:*",
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/pubsub": "workspace:*",
+        "@pkgs/pubsub-emqx": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "jose": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/clock": "workspace:*",
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -551,6 +590,8 @@
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
         "@libs/db": "workspace:*",
+        "@libs/object-store": "workspace:*",
+        "@libs/pubsub": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
@@ -2729,7 +2770,11 @@
 
     "@libs/notifications": ["@libs/notifications@workspace:libs/notifications"],
 
+    "@libs/object-store": ["@libs/object-store@workspace:libs/object-store"],
+
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
+
+    "@libs/pubsub": ["@libs/pubsub@workspace:libs/pubsub"],
 
     "@libs/runtime": ["@libs/runtime@workspace:libs/runtime"],
 

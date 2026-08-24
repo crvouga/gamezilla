@@ -1,0 +1,25 @@
+{
+  "name": "@libs/object-store",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ]
+  },
+  "scripts": {
+    "provision": "bun run src/scripts/provision.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@libs/db": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/object-store": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

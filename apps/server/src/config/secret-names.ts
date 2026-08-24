@@ -24,12 +24,5 @@ export const ApiSecretName = {
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',
-  emqxApiUrl: 'EMQX_API_URL',
-  emqxApiKey: 'EMQX_API_KEY',
-  emqxApiSecret: 'EMQX_API_SECRET',
-  emqxJwtSecret: 'EMQX_JWT_SECRET',
-  /** Client MQTT WSS URL materialized into synced `client_config`. */
-  emqxWssUrl: 'EMQX_WSS_URL',
-  /** Client observability backend materialized into synced `client_config`. */
   expoPublicObservabilityBackend: 'EXPO_PUBLIC_OBSERVABILITY_BACKEND',
 } as const;

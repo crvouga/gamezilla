@@ -1,0 +1,41 @@
+{
+  "name": "@libs/pubsub",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./public/*": [
+      "./src/public/*.ts"
+    ],
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./root/*": [
+      "./src/root/*.ts",
+      "./src/root/*.tsx"
+    ]
+  },
+  "scripts": {
+    "provision": "bun run src/scripts/provision.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@libs/client-config": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/runtime": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/pubsub-emqx": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "jose": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -5,7 +5,7 @@
   "scripts": {
     "seed:sim-db": "bunx tsx scripts/build-sim-seed.ts",
     "tc": "tsc --noEmit -p tsconfig.json",
-    "test": "bunx jest --config ./jest.config.cjs --runInBand",
+    "test": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:debug-handles": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "SIM_FIDELITY=max bunx jest --config ./jest.config.cjs --runInBand"

@@ -24,7 +24,7 @@ import {
   EMQX_API_URL,
   EMQX_JWT_SECRET,
   EMQX_WSS_URL,
-} from './emqx-secrets';
+} from './pubsub-emqx-secrets';
 import { EXPO_TOKEN } from './expo-token';
 import {
   ELEVEN_LABS_API_KEY,

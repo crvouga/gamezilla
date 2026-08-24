@@ -12,7 +12,7 @@ import { notifyChannels } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { getApiPubSub } from './api-pubsub';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 
 let registry: OutboxConsumerRegistry | null = null;
 
@@ -56,7 +56,7 @@ export async function drainAndNotifyOutbox(args: {
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return result.processed;
-  const pubsub = await getApiPubSub(store.secretStore);
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
   if (pubsub === undefined) {
     return result.processed;
   }

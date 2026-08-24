@@ -1,4 +1,4 @@
-import type { PubSub, Topic } from '@pkgs/pubsub/interface';
+import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -15,15 +15,15 @@ import type {
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import { createSqlWatch } from '../queries/client/sql-watch';
 import { createTableChangeBus } from '../queries/client/table-change-bus';
-import { resolveQueryHydrates } from '../queries/core/define-query';
-import type { QueryRegistry, QueryResponse } from '../queries/core/types';
+import type { QueryResponse } from '../queries/core/types';
 import '../queries/shared/tiger-invariants';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
-import type { QueryChannelsCtx } from '../shared/push-payload';
-import type { TopicMap } from '../shared/topic-map';
 import type { WriteCaptureSnapshot } from '../sql-ast';
 import type { AppLifecycle } from './app-lifecycle';
-import { attachPush } from './attach-push';
+import {
+  attachPushIfConfigured,
+  type SyncEnginePushOptions,
+} from './attach-configured-push';
 import {
   clearLocalCache,
   type LocalDomainSchema,
@@ -57,24 +57,7 @@ import {
 import type { SyncEngine } from './sync-engine-port';
 import { createTableChangeSqlClient } from './table-change-sql-client';
 
-export type SyncEnginePushOptions = {
-  readonly queryRegistry: QueryRegistry;
-  readonly createPubSub: () => PubSub;
-  readonly getChannelsCtx: () => QueryChannelsCtx;
-  readonly onBindTopicRefresh?: (refresh: () => void) => void;
-  /** When true, apply contiguous push row images (default false). */
-  readonly rowImageFanout?: boolean;
-  /**
-   * When true, queue optimistic fanout while pubsub is detached / down and
-   * flush on attach. Default false = skip (peers wait for upload/sync).
-   */
-  readonly bufferOutboundLive?: boolean;
-  readonly topicMap?: TopicMap;
-  readonly defaultEntryChannel?: (
-    params: unknown,
-    ctx: QueryChannelsCtx
-  ) => readonly Topic[];
-};
+export type { SyncEnginePushOptions };
 
 export type CreateLocalSyncEngineOptions = {
   readonly db: SqlClient;
@@ -286,53 +269,6 @@ function flushOutboundLive(state: LocalEngineState): void {
   void buf.flush(pubsub);
 }
 
-async function resolvePushQueryHydrates(
-  registry: QueryRegistry
-): Promise<void> {
-  await Promise.all(
-    Object.values(registry).map((query) => resolveQueryHydrates(query))
-  );
-}
-
-async function attachPushIfConfigured(state: LocalEngineState): Promise<void> {
-  const push = state.options.push;
-  if (push === undefined || state.disposePush !== null) {
-    return;
-  }
-  await resolvePushQueryHydrates(push.queryRegistry);
-  let pubsub = push.createPubSub();
-  state.pushPubSub = pubsub;
-  const topicMap = withFrameworkTopicMap(push.topicMap);
-  state.disposePush = attachPush({
-    pubsub,
-    runtime: state.runtime,
-    queryRegistry: push.queryRegistry,
-    getChannelsCtx: push.getChannelsCtx,
-    db: state.options.db,
-    getMergeDeps: () => mergeDeps(state),
-    ...(push.rowImageFanout === true ? { rowImageFanout: true } : {}),
-    remakePubSub: () => {
-      pubsub = push.createPubSub();
-      return pubsub;
-    },
-    onPubSubChanged: (next) => {
-      state.pushPubSub = next;
-      flushOutboundLive(state);
-    },
-    onBindTopicRefresh: (refresh) => {
-      state.refreshTopics = refresh;
-      push.onBindTopicRefresh?.(refresh);
-    },
-    ...(topicMap !== undefined ? { topicMap } : {}),
-    ...(push.defaultEntryChannel !== undefined
-      ? { defaultEntryChannel: push.defaultEntryChannel }
-      : {}),
-    timers: state.options.timers,
-    onTablesChanged: (listener) => state.bus.subscribe(listener),
-  });
-  flushOutboundLive(state);
-}
-
 function detachPush(state: LocalEngineState): void {
   state.disposePush?.();
   state.disposePush = null;
@@ -387,7 +323,7 @@ async function connectState(state: LocalEngineState): Promise<void> {
     state.uploadQueue.start();
   }
   state.runtime.start();
-  await attachPushIfConfigured(state);
+  await attachPushIfConfigured(state, () => mergeDeps(state));
   state.status.patch({ connection: 'syncing' });
 }
 
@@ -463,7 +399,7 @@ function toEngine(state: LocalEngineState): SyncEngine {
       notifyLocalMutation(state, mutation, args, capture),
     ensurePush: () => {
       if (!state.connected) return;
-      void attachPushIfConfigured(state);
+      void attachPushIfConfigured(state, () => mergeDeps(state));
     },
   };
 }

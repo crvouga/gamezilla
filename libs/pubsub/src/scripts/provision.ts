@@ -1,5 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok
+import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import {
+  cfHeadersForZones,
+  upsertDnsRecord,
+} from '../shared/provision/cf-dns';
 import { assert } from '@pkgs/assert';
 import {
   ensureCustomDomain,
@@ -10,18 +15,7 @@ import {
   upsertVariables,
   validateRailwayToken,
 } from '@pkgs/emqx-server/railway/railway-api';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
-import { upsertDnsRecord } from '../src/cf-dns';
-import { cliHttp } from '../src/cli-io';
-import { EMQX_PRODUCT_CONFIG } from '../src/emqx-config';
-import { info, ok } from './fmt';
-
-function cfHeaders(): Record<string, string> {
-  return {
-    Authorization: `Bearer ${process.env['CLOUDFLARE_API_TOKEN'] ?? ''}`,
-    'Content-Type': 'application/json',
-  };
-}
+import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
 
 async function railwayToken(): Promise<string> {
   const t = (process.env['RAILWAY_TOKEN'] ?? '').trim();
@@ -31,17 +25,16 @@ async function railwayToken(): Promise<string> {
 }
 
 async function findZoneId(): Promise<string | null> {
-  const res = await cliHttp.fetch(
-    `https://api.cloudflare.com/client/v4/zones?name=${EMQX_PRODUCT_CONFIG.domain}&per_page=1`,
-    { headers: cfHeaders() }
+  const domain = PRODUCT_CONFIG.domain;
+  const res = await fetch(
+    `https://api.cloudflare.com/client/v4/zones?name=${domain}&per_page=1`,
+    { headers: cfHeadersForZones() }
   );
   if (!res.ok) return null;
   const body = (await res.json()) as {
     result?: Array<{ id: string; name: string }>;
   };
-  return (
-    body.result?.find((z) => z.name === EMQX_PRODUCT_CONFIG.domain)?.id ?? null
-  );
+  return body.result?.find((z) => z.name === domain)?.id ?? null;
 }
 
 async function provision(): Promise<void> {
@@ -52,11 +45,19 @@ async function provision(): Promise<void> {
   );
 
   const token = await railwayToken();
-  const cfg = EMQX_PRODUCT_CONFIG.emqx;
-  const githubRepo = `${EMQX_PRODUCT_CONFIG.github.owner}/${EMQX_PRODUCT_CONFIG.github.repo}`;
+  const cfg = PRODUCT_CONFIG.emqx;
+  const githubRepo = `${PRODUCT_CONFIG.github.owner}/${PRODUCT_CONFIG.github.repo}`;
+  const preferredWorkspace =
+    cfg.railwayWorkspaceName.length > 0 ? cfg.railwayWorkspaceName : undefined;
 
-  const project = await ensureProject(token, cfg.railwayProjectName);
-  ok('Railway project', `${project.name} (${project.id})`);
+  const project = await ensureProject(
+    token,
+    cfg.railwayProjectName,
+    preferredWorkspace === undefined
+      ? undefined
+      : { preferredWorkspaceName: preferredWorkspace }
+  );
+  console.log(`✓ Railway project — ${project.name} (${project.id})`);
 
   const service = await ensureService({
     token,
@@ -65,7 +66,7 @@ async function provision(): Promise<void> {
     githubRepo,
     rootDirectory: cfg.githubRootDirectory,
   });
-  ok('Railway service', `${service.name} (${service.id})`);
+  console.log(`✓ Railway service — ${service.name} (${service.id})`);
 
   await upsertVariables({
     token,
@@ -109,7 +110,7 @@ async function provision(): Promise<void> {
     content: cnameTarget,
     proxied: false,
   });
-  info('DNS CNAME', `${cfg.hostname} → ${cnameTarget}`);
+  console.log(`· DNS CNAME — ${cfg.hostname} → ${cnameTarget}`);
 
   if (domain.verificationToken) {
     await upsertDnsRecord({
@@ -118,14 +119,14 @@ async function provision(): Promise<void> {
       name: `_railway-verify.${cfg.hostname}`,
       content: domain.verificationToken,
     });
-    info('DNS TXT', `_railway-verify.${cfg.hostname}`);
+    console.log(`· DNS TXT — _railway-verify.${cfg.hostname}`);
   }
 
-  ok('EMQX domain', cfg.hostname);
+  console.log(`✓ EMQX domain — ${cfg.hostname}`);
 }
 
 if (!isProductionSecretsEnv()) {
-  console.log('[emqx-server:provision] dry-run (SECRETS_ENV is not prd)');
+  console.log('[pubsub:provision] dry-run (SECRETS_ENV is not prd)');
   process.exit(0);
 }
 

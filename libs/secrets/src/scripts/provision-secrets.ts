@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { ensureObjectStoreBuckets } from '@libs/object-store/shared/ensure-buckets';
 // @io-wall-ok
 import { assert } from '@pkgs/assert';
 import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
@@ -83,6 +84,15 @@ async function loadSecrets(): Promise<void> {
 async function seedSecrets(): Promise<void> {
   clearS3SecretSeedCache();
   const active = activeSecretsEnv();
+
+  try {
+    await ensureObjectStoreBuckets();
+    ok('B2 buckets', 'ensured (dev + prd)');
+  } catch (e) {
+    console.warn(
+      `B2 bucket ensure failed: ${e instanceof Error ? e.message : String(e)}`
+    );
+  }
 
   for (const env of SECRETS_ENVS) {
     const stored = await exportSecretsMap(env);

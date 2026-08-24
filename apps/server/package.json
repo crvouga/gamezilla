@@ -37,6 +37,7 @@
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/pubsub": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",

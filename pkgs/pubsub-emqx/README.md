@@ -7,7 +7,7 @@ EMQX adapter for `@pkgs/pubsub`. Two factories, **one** returned type (`PubSub`)
 
 ## Broker config expectations (EMQX 5.x)
 
-Preferred local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083). Production: Railway (provisioned by `@pkgs/emqx-server#provision`).
+Preferred local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083). Production: Railway (provisioned by `@libs/pubsub#provision`).
 
 Operators / broker should configure:
 

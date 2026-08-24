@@ -20,12 +20,13 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { createBetterAuthRoutes } from '../auth/better-auth-routes';
 import { ApiSecretName } from '../config/secret-names';
+import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { createNotificationsSubApp } from '../notifications/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
-import { setApiPubSubOverride } from '../sync/api-pubsub';
+import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { notifyUserChannels } from '../sync/notify-user-channels';
 import { drainAndNotifyOutbox } from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
@@ -187,7 +188,7 @@ async function resolveEmqxWssUrlForClientConfig(args: {
   if (apiUrl.length > 0 && isLocalApiOrigin(apiUrl)) {
     return LOCAL_EMQX_WSS_URL;
   }
-  return readOptionalSecretValue(args.secretStore, ApiSecretName.emqxWssUrl);
+  return readOptionalSecretValue(args.secretStore, PubsubSecretName.wssUrl);
 }
 
 async function buildDesiredClientConfig(args: {
@@ -335,7 +336,7 @@ export async function createServer(env: ServerEnv) {
   const log = createAppLogger(env);
 
   if (env.events !== null) {
-    setApiPubSubOverride(env.events);
+    setHttpPubSubOverride(env.events);
   }
 
   const billing = env.billing;

@@ -1,6 +1,5 @@
 import { assert } from '@pkgs/assert';
 import { print } from 'graphql';
-import { EMQX_PRODUCT_CONFIG } from '../emqx-config';
 import {
   pickProductionEnv,
   type RailwayProject,
@@ -21,7 +20,7 @@ export function listProjectsQuerySource(): string {
 
 /**
  * Railway now requires `workspaceId` on `projectCreate`. Prefer an explicit
- * workspace name from EMQX_PRODUCT_CONFIG; otherwise require a single workspace.
+ * workspace name from `preferredWorkspaceName`; otherwise require a single workspace.
  */
 export function pickRailwayWorkspaceId(
   workspaces: ReadonlyArray<{ readonly id: string; readonly name: string }>,
@@ -42,7 +41,7 @@ export function pickRailwayWorkspaceId(
     return workspaces[0]!.id;
   }
   throw new Error(
-    `Railway account has ${String(workspaces.length)} workspaces; set EMQX_PRODUCT_CONFIG.emqx.railwayWorkspaceName. Available: ${workspaces
+    `Railway account has ${String(workspaces.length)} workspaces; set preferredWorkspaceName. Available: ${workspaces
       .map((w) => w.name)
       .join(', ')}`
   );
@@ -79,7 +78,8 @@ export async function listProjects(token: string): Promise<
 
 export async function ensureProject(
   token: string,
-  name: string
+  name: string,
+  options?: { readonly preferredWorkspaceName?: string }
 ): Promise<RailwayProject> {
   const data = await railwayGql(token, ListProjectsQuery);
   for (const ws of data.me.workspaces) {
@@ -93,10 +93,9 @@ export async function ensureProject(
     }
   }
 
-  const preferredWorkspace = EMQX_PRODUCT_CONFIG.emqx.railwayWorkspaceName;
   const workspaceId = pickRailwayWorkspaceId(
     data.me.workspaces.map((w) => ({ id: w.id, name: w.name })),
-    preferredWorkspace.length > 0 ? preferredWorkspace : undefined
+    options?.preferredWorkspaceName
   );
   const created = await railwayGql(token, ProjectCreateMutation, {
     input: { name, workspaceId },

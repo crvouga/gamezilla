@@ -43,6 +43,6 @@ describe('pickRailwayWorkspaceId', () => {
         { id: 'ws-a', name: 'Other' },
         { id: 'ws-b', name: 'gamezilla' },
       ])
-    ).toThrow(/railwayWorkspaceName/);
+    ).toThrow(/preferredWorkspaceName/);
   });
 });

@@ -55,7 +55,7 @@ export const PRODUCT_CONFIG = {
      */
     railwayWorkspaceName: "Chris Vouga's Projects",
     railwayServiceName: 'emqx',
-    githubRootDirectory: 'pkgs/emqx-server/emqx-deploy',
+    githubRootDirectory: 'libs/pubsub/emqx-deploy',
     /** Container public listen port (Caddy → Railway `$PORT`). */
     targetPort: 8080,
   },

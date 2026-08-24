@@ -127,8 +127,9 @@ function pushOptions(
           return args.createPubSub();
         }
         const url = emqxUrlHolder.url?.trim() ?? '';
+        // Cold start / missing broker: poll-only until client_config hydrates.
         if (url.length === 0) {
-          throw new Error('pubsub unavailable');
+          return null;
         }
         return createClientPubSub({
           url,

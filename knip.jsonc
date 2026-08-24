@@ -58,8 +58,11 @@
     "apps/client": {
       "entry": ["src/integration/*.test.ts"]
     },
-    "libs/infra": {
-      "entry": "src/bin/cli.ts"
+    "libs/object-store": {
+      "entry": "src/scripts/provision.ts"
+    },
+    "libs/pubsub": {
+      "entry": "src/scripts/provision.ts"
     }
   }
 }

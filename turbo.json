@@ -28,6 +28,9 @@
     "SECRETS_*",
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
+    "WEB_CLIENT_*",
+    "EMQX_*",
+    "OBSERVABILITY_*",
     "TURBO_*",
     "SIM_FIDELITY",
     "PLAYWRIGHT_BASE_URL",
@@ -195,11 +198,11 @@
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
-    "@pkgs/object-store#provision": {
+    "@libs/object-store#provision": {
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
-    "@pkgs/emqx-server#provision": {
+    "@libs/pubsub#provision": {
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
@@ -207,8 +210,8 @@
       "cache": false,
       "dependsOn": [
         "@libs/db#provision",
-        "@pkgs/object-store#provision",
-        "@pkgs/emqx-server#provision"
+        "@libs/object-store#provision",
+        "@libs/pubsub#provision"
       ]
     },
     "@libs/secrets#check": {
@@ -271,7 +274,7 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:format": {
+    "//#ci:fmt": {
       "inputs": ["$TURBO_DEFAULT$", "biome.json", "tools/biome-plugins/**"],
       "outputs": [],
       "outputLogs": "new-only"

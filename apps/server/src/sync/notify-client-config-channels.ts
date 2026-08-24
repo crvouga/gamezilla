@@ -2,13 +2,13 @@ import { clientConfigTopic } from '@libs/client-config/public/sync-topics';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { getApiPubSub } from './api-pubsub';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 
 /** Best-effort system-topic push after client_config DOMAIN write. */
 export async function notifyClientConfigChannels(label: string): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
-  const pubsub = await getApiPubSub(store.secretStore);
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
   if (pubsub === undefined) return;
   await notifyChannels({
     pubsub,

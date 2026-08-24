@@ -4,7 +4,6 @@
  */
 
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { assert } from '@pkgs/assert';
 import {
   DEVELOPMENT_SECRETS_ENV,
   PRODUCTION_SECRETS_ENV,
@@ -100,19 +99,6 @@ async function mintAndWrite(
   };
   await writeSeeded(env, seeded);
   return seeded;
-}
-
-/**
- * Ensure both B2 buckets exist (dev + prd). Called from S3BucketResource
- * and as a side effect of seeding.
- */
-export async function ensureObjectStoreBuckets(): Promise<void> {
-  const auth = await authorizeB2FromEnv();
-  assert.ok(auth.accountId.length > 0, 'B2 account ID required');
-  const buckets = PRODUCT_CONFIG.objectStore.buckets;
-  for (const name of [buckets.development, buckets.production]) {
-    await ensureB2Bucket(auth, name);
-  }
 }
 
 export function seedObjectStoreS3ForEnv(

@@ -4,9 +4,9 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import { Hono } from 'hono';
 
-import { ApiSecretName } from '../config/secret-names';
+import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
+import { mintPubSubToken } from '@libs/pubsub/root/server/mint-pubsub-token';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { mintPubSubToken } from './mint-pubsub-token';
 import { resolveSessionReplayAuth } from './query-auth';
 
 function openRequestSqlClient(): SqlClient {
@@ -29,7 +29,7 @@ export function createPubSubTokenRoutes() {
     const store = apiRequestAsyncLocalStorage.getStore();
     assert.defined(store, 'pubsub token: request store missing');
     const secret = (
-      await store.secretStore.getOptional(ApiSecretName.emqxJwtSecret)
+      await store.secretStore.getOptional(PubsubSecretName.jwtSecret)
     )?.readSecretValue();
     if (typeof secret !== 'string' || secret.trim().length === 0) {
       return c.json({ error: 'pubsub_unavailable' }, 503);

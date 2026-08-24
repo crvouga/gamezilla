@@ -10,7 +10,6 @@
     ]
   },
   "scripts": {
-    "provision": "bun run scripts/provision.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
     "test:contract": "bun test src/object-store.s3.contract.test.ts"

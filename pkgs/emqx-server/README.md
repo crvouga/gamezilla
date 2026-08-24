@@ -1,6 +1,8 @@
 # `@pkgs/emqx-server`
 
-Process runner for a local EMQX broker. Tests call {@link startEmqxServer}.
+Local EMQX broker process runner for dev, sim, and CI. Tests call {@link startEmqxServer}.
+
+Production Railway deployment and provisioning live in `@libs/pubsub`.
 
 | Port | Role |
 | --- | --- |

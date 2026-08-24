@@ -11,7 +11,6 @@
     ]
   },
   "scripts": {
-    "provision": "bun run scripts/provision.ts",
     "setup": "bun run scripts/setup.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
