@@ -31,7 +31,10 @@ export function ScreenBasePrimaryActionMutation({
 
   return children({
     buttonProps: mutation.buttonProps,
-    fabProps: mutation.fabProps,
+    fabProps: {
+      ...mutation.fabProps,
+      ...(config.testID !== undefined ? { testID: config.testID } : {}),
+    },
     icon: config.icon,
   });
 }

@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { useLingui } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
@@ -38,5 +39,11 @@ export function SpaceJoinButton({
     },
   });
 
-  return <Button {...join.buttonProps} {...optionalProps({ flex })} />;
+  return (
+    <Button
+      {...join.buttonProps}
+      {...optionalProps({ flex })}
+      testID={Handles.spaceJoin}
+    />
+  );
 }

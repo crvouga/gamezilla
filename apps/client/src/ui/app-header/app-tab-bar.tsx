@@ -25,6 +25,9 @@ function tabTestID(routeName: string): string | undefined {
   if (routeName === 'Notifications') {
     return Handles.tabNotifications;
   }
+  if (routeName === 'Spaces') {
+    return Handles.tabSpaces;
+  }
   return undefined;
 }
 

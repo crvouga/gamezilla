@@ -27,6 +27,7 @@ export function actionBarItemToOverflowAction(
       : {}),
     ...(item.endsGroup === true ? { endsGroup: true } : {}),
     ...(item.trailing !== undefined ? { trailing: item.trailing } : {}),
+    ...(item.testID !== undefined ? { testID: item.testID } : {}),
     ...(isActionBarAvatarItem(item) ? { leading: item.children } : {}),
   };
   if (item.accessibilityLabel !== undefined) {

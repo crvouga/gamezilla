@@ -6,6 +6,7 @@ import { FriendsFlows } from './friends-flows';
 import { NotificationsFlows } from './notifications-flows';
 import { ProfileFlows } from './profile-flows';
 import { SearchFlows } from './search-flows';
+import { SpaceFlows } from './space-flows';
 
 type OpenSimResult = Awaited<ReturnType<typeof openSim>>;
 
@@ -20,6 +21,7 @@ export class AppDriver {
   readonly search: SearchFlows;
   readonly notifications: NotificationsFlows;
   readonly friends: FriendsFlows;
+  readonly space: SpaceFlows;
 
   private constructor(private readonly ui: Driver) {
     this.auth = new AuthFlows(ui);
@@ -27,6 +29,7 @@ export class AppDriver {
     this.search = new SearchFlows(ui);
     this.notifications = new NotificationsFlows(ui);
     this.friends = new FriendsFlows(ui);
+    this.space = new SpaceFlows(ui);
   }
 
   static async forActor(

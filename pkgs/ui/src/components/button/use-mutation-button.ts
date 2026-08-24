@@ -84,6 +84,7 @@ export type MutationFabProps = Pick<
   | 'loadingLabel'
   | 'successLabel'
   | 'errorLabel'
+  | 'testID'
 >;
 
 export type UseMutationButtonResult = {

@@ -41,6 +41,7 @@ export function buildOverflowMenuContent(
       ...(action.accessibilityLabel !== undefined
         ? { accessibilityLabel: action.accessibilityLabel }
         : {}),
+      ...(action.testID !== undefined ? { testID: action.testID } : {}),
     });
     if (action.endsGroup === true && idx < actions.length - 1) {
       rows.push({ type: 'divider', id: `${action.id}-end-group` });

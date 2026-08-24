@@ -20,7 +20,9 @@ module.exports = {
   // Narrow allowlist (shared with @pkgs/ui-testing): transform RN/Expo/Bun-nested
   // ESM that Jest cannot load as-is. Everything else — including better-sqlite3
   // (native addon) — stays untransformed.
-  transformIgnorePatterns: bunAwareTransformIgnorePatterns(),
+  transformIgnorePatterns: bunAwareTransformIgnorePatterns([
+    '@shopify/react-native-skia',
+  ]),
   transform: {
     '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': [
       require.resolve('babel-jest'),
@@ -57,6 +59,7 @@ module.exports = {
     '^@lingui/core$': require.resolve('@lingui/core', {
       paths: [path.join(repoRoot, 'apps/client')],
     }),
+    '^@shopify/react-native-skia$': '<rootDir>/jest-skia-mock.cjs',
     '^@apps/([^/]+)$': `${repoRoot}/apps/$1/src/index.ts`,
     '^@apps/([^/]+)/(.*)$': `${repoRoot}/apps/$1/src/$2`,
     '^@sim/([^/]+)$': `${repoRoot}/sim/$1/src/index.ts`,

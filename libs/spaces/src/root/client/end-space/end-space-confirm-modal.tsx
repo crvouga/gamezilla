@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans } from '@lingui/react/macro';
 import { MutationModal } from '@pkgs/ui';
 import type { ReactNode } from 'react';
@@ -35,6 +36,8 @@ export function EndSpaceConfirmModal({
       successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
       errorTitle={<Trans>Couldn't end space</Trans>}
       stackId="end-space-confirm"
+      submitTestID={Handles.spaceEndConfirm}
+      dismissTestID={Handles.spaceMutationDismiss}
     />
   );
 }

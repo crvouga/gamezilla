@@ -26,6 +26,7 @@ export type FloatingMenuItemRow = {
   onPress?: () => void;
   disabled?: boolean;
   accessibilityLabel?: LocalizedString;
+  testID?: string;
 };
 
 export type FloatingMenuDividerRow = {

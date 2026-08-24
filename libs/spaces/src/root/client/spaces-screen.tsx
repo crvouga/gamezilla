@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
@@ -91,6 +92,7 @@ export function SpacesScreen() {
       successHoldMs: 0,
       icon: PlusIcon,
       disabled: !canCreateSpace,
+      testID: Handles.spaceCreate,
     };
   }, [canCreateSpace, createSpace, router, t]);
 

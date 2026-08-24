@@ -18,6 +18,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: false,
         row: null,
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -31,6 +32,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: true,
         row: null,
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -44,6 +46,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: false,
         row: null,
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -57,6 +60,7 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: false,
         row: { ...liveRow, ended_at: '2026-01-01T00:00:00.000Z' },
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -70,19 +74,21 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: false,
         row: liveRow,
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
     ).toEqual({ status: 'live', joinable: true });
   });
 
-  test('private live row joinable only with spaces_users', () => {
+  test('private live row joinable with spaces_users or friendship', () => {
     expect(
       resolveSpaceJoinSnapshot({
         enabled: true,
         rowLoading: false,
         row: { ...liveRow, visibility: 'private' },
         hasSpaceUser: false,
+        isFriendOfHost: false,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })
@@ -93,6 +99,18 @@ describe('resolveSpaceJoinSnapshot', () => {
         rowLoading: false,
         row: { ...liveRow, visibility: 'private' },
         hasSpaceUser: true,
+        isFriendOfHost: false,
+        viewerAccountId: 'viewer',
+        viewerDeviceId: 'device',
+      })
+    ).toEqual({ status: 'live', joinable: true });
+    expect(
+      resolveSpaceJoinSnapshot({
+        enabled: true,
+        rowLoading: false,
+        row: { ...liveRow, visibility: 'private' },
+        hasSpaceUser: false,
+        isFriendOfHost: true,
         viewerAccountId: 'viewer',
         viewerDeviceId: 'device',
       })

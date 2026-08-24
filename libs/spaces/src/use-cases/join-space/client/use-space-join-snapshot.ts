@@ -13,6 +13,7 @@ import {
   type SpaceJoinSnapshot,
 } from '../shared/resolve-space-join-snapshot';
 import { useHasSpaceUserLocal } from './use-space-join-access-flags';
+import { useIsFriendOfHostLocal } from './use-is-friend-of-host-local';
 
 export type {
   SpaceJoinSnapshot,
@@ -30,6 +31,11 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
   `);
   const row = rows[0] ?? null;
   const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
+  const isFriendOfHost = useIsFriendOfHostLocal(
+    row?.host_account_id ?? null,
+    row?.host_member_id ?? null,
+    viewerAccountId
+  );
 
   return useMemo(
     () =>
@@ -38,9 +44,18 @@ export function useSpaceJoinSnapshot(spaceId: string): SpaceJoinSnapshot {
         rowLoading: isLoading,
         row,
         hasSpaceUser,
+        isFriendOfHost,
         viewerAccountId,
         viewerDeviceId,
       }),
-    [enabled, isLoading, row, hasSpaceUser, viewerAccountId, viewerDeviceId]
+    [
+      enabled,
+      isLoading,
+      row,
+      hasSpaceUser,
+      isFriendOfHost,
+      viewerAccountId,
+      viewerDeviceId,
+    ]
   );
 }

@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { useLingui } from '@lingui/react/macro';
 import {
   ActionBar,
@@ -62,6 +63,7 @@ function buildLeadingItems(args: {
       onPress: callbacks.onPressHome,
       overflow: 'never',
       priority: 100,
+      testID: Handles.spaceClose,
     },
     {
       id: 'back',
@@ -125,7 +127,9 @@ function buildTrailingItems(args: {
           shortLabel: labels.end,
           icon: XIcon,
           onPress: callbacks.onPressEnd,
-          overflow: 'always',
+          overflow: 'never',
+          priority: 95,
+          testID: Handles.spaceEnd,
         }
       : {
           id: 'leave-space',
@@ -133,7 +137,9 @@ function buildTrailingItems(args: {
           shortLabel: labels.leave,
           icon: LogOutIcon,
           onPress: callbacks.onPressLeave,
-          overflow: 'always',
+          overflow: 'never',
+          priority: 95,
+          testID: Handles.spaceLeave,
         }
   );
 

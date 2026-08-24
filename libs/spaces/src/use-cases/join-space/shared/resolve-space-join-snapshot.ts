@@ -26,6 +26,7 @@ export type ResolveSpaceJoinSnapshotInput = {
   readonly rowLoading: boolean;
   readonly row: SpaceJoinLocalRow | null;
   readonly hasSpaceUser: boolean;
+  readonly isFriendOfHost: boolean;
   readonly viewerAccountId: string | null;
   readonly viewerDeviceId: string;
 };
@@ -49,6 +50,7 @@ function snapshotFromLiveRow(
     viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: resolveSpaceMemberId(viewerAccountId),
     hasSpaceUser: input.hasSpaceUser,
+    isFriendOfHost: input.isFriendOfHost,
   });
   return { status: 'live', joinable: decision.allowed };
 }
@@ -67,8 +69,8 @@ function snapshotFromResolvedRow(
 }
 
 /**
- * Derives join-screen status from local SQLite. Private spaces only appear
- * after the host adds the viewer to spaces_users (auto-subscribe).
+ * Derives join-screen status from local SQLite. Private spaces appear for
+ * hosts, ACL members, and friends of the host.
  */
 export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput

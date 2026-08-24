@@ -84,6 +84,8 @@ export type MutationModalProps = {
   submitTestID?: string | undefined;
   /** `testID` for the success-state block (title region). */
   successTestID?: string | undefined;
+  /** `testID` for the success-phase dismiss button. */
+  dismissTestID?: string | undefined;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
 };
@@ -242,6 +244,9 @@ function MutationSuccess({
         <ModalButton
           label={props.dismissLabel ?? t`Done`}
           onPress={onDismiss}
+          {...(props.dismissTestID !== undefined
+            ? { testID: props.dismissTestID }
+            : {})}
         />
       </FooterSlot>
     </>

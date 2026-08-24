@@ -9,6 +9,7 @@ import { buildCurrentSpaceEntries } from './use-current-space-ids';
 
 const HOST_SPACE = 'space-host-1';
 const SHARED_SPACE = 'space-shared-1';
+const FRIEND_HOST_SPACE = 'space-friend-host-1';
 const DEVICE_ID = 'device-aaaaaaaa-0000';
 const ACCOUNT_ID = 'account-bbbbbbbb-1111';
 const OTHER_ACCOUNT = 'account-other-cccc-2222';
@@ -39,6 +40,15 @@ async function migrate(db: SqlClient): Promise<void> {
       created_at TEXT,
       created_by_account_id TEXT,
       deleted_at TEXT
+    )
+  `);
+  await db.run(sql<void>`
+    CREATE TABLE friends_friendships (
+      id TEXT PRIMARY KEY,
+      user_low TEXT,
+      user_high TEXT,
+      deleted_at TEXT,
+      created_at TEXT
     )
   `);
 }
@@ -149,6 +159,26 @@ describe('my-live-space-seat-sql — host / spaces_users lobby', () => {
       sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
     );
     expect(sharedIds).toContain(SHARED_SPACE);
+  });
+
+  test('friend-hosted live private space appears in shared list', async () => {
+    await seedSpace(db, {
+      id: FRIEND_HOST_SPACE,
+      hostAccountId: OTHER_ACCOUNT,
+      visibility: 'private',
+      endedAt: null,
+      createdAt: '2026-01-04T00:00:00.000Z',
+    });
+    await db.run(sql<void>`
+      INSERT INTO friends_friendships (id, user_low, user_high, deleted_at, created_at)
+      VALUES ('friendship-1', ${ACCOUNT_ID}, ${OTHER_ACCOUNT}, ${null}, ${'2026-01-01T00:00:00.000Z'})
+    `);
+
+    const sharedIds = await queryIds(
+      db,
+      sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
+    );
+    expect(sharedIds).toContain(FRIEND_HOST_SPACE);
   });
 
   test('buildCurrentSpaceEntries uses live joined rows', () => {

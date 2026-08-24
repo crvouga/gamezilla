@@ -51,6 +51,7 @@ export type ScreenBasePrimaryAction = {
   disabled?: boolean;
   successHoldMs?: number;
   icon?: IconComponent;
+  testID?: string;
 };
 
 export type ScreenBaseProps = {

@@ -5,7 +5,7 @@ import { resolveSpaceMemberId } from './participation-ids';
 export type SpaceAccessDecision =
   | {
       readonly allowed: true;
-      readonly reason: 'open' | 'space_user' | 'host' | 'already';
+      readonly reason: 'open' | 'space_user' | 'host' | 'already' | 'friend';
     }
   | { readonly allowed: false; readonly code: SpacesError['code'] };
 
@@ -19,6 +19,8 @@ export type SpaceAccessInput = {
   readonly viewerMemberId: string;
   /** Viewer already has a spaces_users ACL row. */
   readonly hasSpaceUser: boolean;
+  /** Viewer is friends with the space host. */
+  readonly isFriendOfHost: boolean;
 };
 
 export type EndSpaceDecision =
@@ -82,6 +84,9 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
   if (input.hasSpaceUser) {
     return { allowed: true, reason: 'space_user' };
   }
+  if (input.isFriendOfHost) {
+    return { allowed: true, reason: 'friend' };
+  }
   return { allowed: false, code: 'SPACE_VISIBILITY_DENIED' };
 }
 
@@ -90,7 +95,8 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
  *
  * Space owners (member / creating device / host account) may always reopen.
  * Existing ACL (`spaces_users`) may reopen. Public is open to signed-in users
- * (self-grant on join). Private requires an ACL row (or host).
+ * (self-grant on join). Private requires an ACL row, friendship with the host,
+ * or host identity.
  */
 export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
   if (

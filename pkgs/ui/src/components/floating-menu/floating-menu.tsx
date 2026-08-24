@@ -184,6 +184,7 @@ function FloatingMenuRowItem({
       {...(row.accessibilityLabel !== undefined
         ? { accessibilityLabel: row.accessibilityLabel }
         : {})}
+      {...(row.testID !== undefined ? { testID: row.testID } : {})}
     />
   );
 }

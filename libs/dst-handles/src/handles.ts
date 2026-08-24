@@ -10,6 +10,20 @@ export const Handles = {
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',
   tabNotifications: 'tab-notifications',
+  tabSpaces: 'tab-spaces',
+
+  // spaces
+  spaceCreate: 'space-create',
+  /** Lobby card for a host's live space (scoped by host username). */
+  spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
+  spaceJoin: 'space-join',
+  spaceClose: 'space-close',
+  spaceLeave: 'space-leave',
+  spaceEnd: 'space-end',
+  spaceLeaveConfirm: 'space-leave-confirm',
+  spaceEndConfirm: 'space-end-confirm',
+  /** MutationModal success-state dismiss (Done) for space leave/end flows. */
+  spaceMutationDismiss: 'space-mutation-dismiss',
 
   // account
   accountSignIn: 'account-sign-in',

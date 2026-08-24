@@ -115,6 +115,7 @@ function ActionBarIconFace(p: {
         slotWidth={p.slotWidth}
         disabled={disabled}
         onPress={onPress}
+        {...(p.item.testID !== undefined ? { testID: p.item.testID } : {})}
       >
         {iconNode}
       </ActionBarLabeledControl>
@@ -129,6 +130,7 @@ function ActionBarIconFace(p: {
       tooltip="hover"
       flashTooltipOnPress={feedback !== undefined}
       disabled={disabled}
+      {...(p.item.testID !== undefined ? { testID: p.item.testID } : {})}
     >
       {iconNode}
     </IconButton>

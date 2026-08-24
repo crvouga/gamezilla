@@ -93,6 +93,7 @@ describe('decideJoin', () => {
     viewerDeviceId: 'guest-device',
     viewerMemberId: 'guest-acct',
     hasSpaceUser: false,
+    isFriendOfHost: false,
   };
 
   test('allows public signed-in join', () => {
@@ -164,6 +165,7 @@ describe('decideJoin', () => {
         ...base,
         visibility: 'private',
         hasSpaceUser: false,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
     expect(
@@ -171,8 +173,20 @@ describe('decideJoin', () => {
         ...base,
         visibility: 'private',
         hasSpaceUser: true,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: true, reason: 'already' });
+  });
+
+  test('private allows friends of the host', () => {
+    expect(
+      decideJoin({
+        ...base,
+        visibility: 'private',
+        hasSpaceUser: false,
+        isFriendOfHost: true,
+      })
+    ).toEqual({ allowed: true, reason: 'friend' });
   });
 });
 

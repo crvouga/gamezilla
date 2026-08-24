@@ -37,6 +37,47 @@ async function partyUserTopics(
     .map((id) => `user:${id}` as Topic);
 }
 
+async function hostFriendTopics(
+  db: MutationDb,
+  hostAccountId: string,
+  hostMemberId: string
+): Promise<Topic[]> {
+  const hostIds = [...new Set([hostAccountId, hostMemberId].filter((id) => id.length > 0))];
+  if (hostIds.length === 0) {
+    return [];
+  }
+  const [hostA, hostB] = hostIds;
+  const rows = await db.query(sql<{
+    readonly user_low: string;
+    readonly user_high: string;
+  }>`
+    SELECT user_low, user_high
+    FROM friends_friendships
+    WHERE deleted_at IS NULL
+      AND (
+        user_low IN (${hostA}, ${hostB ?? hostA})
+        OR user_high IN (${hostA}, ${hostB ?? hostA})
+      )
+  `);
+  const topics: Topic[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    for (const hostId of hostIds) {
+      const friendId =
+        row.user_low === hostId
+          ? row.user_high
+          : row.user_high === hostId
+            ? row.user_low
+            : '';
+      if (friendId.length > 0 && !seen.has(friendId)) {
+        seen.add(friendId);
+        topics.push(`user:${friendId}` as Topic);
+      }
+    }
+  }
+  return topics;
+}
+
 export const SPACES_TOPIC_MAP = {
   spaces: {
     async topics(row, ctx, db) {
@@ -46,11 +87,19 @@ export const SPACES_TOPIC_MAP = {
         `user:${ctx.actorId}`,
         ...hostTopics(row),
       ];
-      if (row['ended_at'] == null || db === undefined) {
+      if (db === undefined) {
         return [...new Set(base)];
       }
-      const party = await partyUserTopics(db, id);
-      return [...new Set([...base, ...party])];
+      if (row['ended_at'] != null) {
+        const party = await partyUserTopics(db, id);
+        return [...new Set([...base, ...party])];
+      }
+      const friendTopics = await hostFriendTopics(
+        db,
+        String(row['host_account_id'] ?? ''),
+        String(row['host_member_id'] ?? '')
+      );
+      return [...new Set([...base, ...friendTopics])];
     },
   },
   spaces_users: {

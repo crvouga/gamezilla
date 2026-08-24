@@ -1,3 +1,4 @@
+import { Handles } from '@libs/dst-handles';
 import { Trans } from '@lingui/react/macro';
 import { Sounds } from '@pkgs/sounds';
 import { MutationModal } from '@pkgs/ui';
@@ -47,6 +48,8 @@ export function LeaveSpaceConfirmModal({
         successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
         stackId="leave-space-confirm-as-host"
+        submitTestID={Handles.spaceEndConfirm}
+        dismissTestID={Handles.spaceMutationDismiss}
       />
     );
   }
@@ -78,6 +81,8 @@ export function LeaveSpaceConfirmModal({
       }
       errorTitle={<Trans>Couldn't leave space</Trans>}
       stackId="leave-space-confirm"
+      submitTestID={Handles.spaceLeaveConfirm}
+      dismissTestID={Handles.spaceMutationDismiss}
     />
   );
 }

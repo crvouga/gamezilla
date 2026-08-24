@@ -18,6 +18,7 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'public',
         viewerAccountId: 'viewer-account',
         hasSpaceUser: false,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: true, reason: 'open' });
   });
@@ -29,6 +30,7 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'private',
         viewerAccountId: 'viewer-account',
         hasSpaceUser: true,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: true, reason: 'already' });
     expect(
@@ -37,8 +39,21 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'private',
         viewerAccountId: 'viewer-account',
         hasSpaceUser: false,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_VISIBILITY_DENIED' });
+  });
+
+  test('private allows friends of the host', () => {
+    expect(
+      decideSpaceJoinAccess({
+        ...base,
+        visibility: 'private',
+        viewerAccountId: 'viewer-account',
+        hasSpaceUser: false,
+        isFriendOfHost: true,
+      })
+    ).toEqual({ allowed: true, reason: 'friend' });
   });
 
   test('unsigned-in is denied', () => {
@@ -48,6 +63,7 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'public',
         viewerAccountId: null,
         hasSpaceUser: false,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: false, code: 'SPACE_NOT_SIGNED_IN' });
   });
@@ -60,6 +76,7 @@ describe('decideSpaceJoinAccess', () => {
         viewerAccountId: 'host-account',
         viewerMemberId: 'host-account',
         hasSpaceUser: false,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: true, reason: 'host' });
   });
@@ -71,6 +88,7 @@ describe('decideSpaceJoinAccess', () => {
         visibility: 'private',
         viewerAccountId: 'viewer-account',
         hasSpaceUser: true,
+        isFriendOfHost: false,
       })
     ).toEqual({ allowed: true, reason: 'already' });
   });

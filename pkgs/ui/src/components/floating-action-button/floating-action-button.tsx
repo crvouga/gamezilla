@@ -42,6 +42,7 @@ export type FloatingActionButtonProps = {
   errorLabel?: ReactNode;
   /** Web DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet;
+  testID?: string;
 };
 
 function buildPressableInput(
@@ -215,6 +216,7 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
     successLabel,
     errorLabel,
     dataSet,
+    testID,
   } = props;
   const extended = label !== undefined;
   const theme = useTheme();
@@ -234,6 +236,7 @@ export function FloatingActionButton(props: FloatingActionButtonProps) {
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
       dataSet={{ component: 'FloatingActionButton', ...dataSet }}
+      {...(testID !== undefined ? { testID } : {})}
       sx={[
         { borderRadius: borderRadius.full, overflow: 'hidden' },
         fabContainerSx({ extended, face, shadow }),

@@ -28,6 +28,7 @@ type ActionBarItemBase = {
   trailing?: ReactNode;
   /** Overflow-menu a11y label; defaults to string `label` when omitted. */
   accessibilityLabel?: LocalizedString;
+  testID?: string;
 };
 
 export type ActionBarIconItem = ActionBarItemBase & {

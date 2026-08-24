@@ -55,6 +55,7 @@ export type OverflowMenuAction = {
   /** When true, inserts a divider row after this action. */
   endsGroup?: boolean;
   accessibilityLabel?: LocalizedString;
+  testID?: string;
 };
 
 export type OverflowMenuHeader = {
@@ -109,6 +110,7 @@ function buildContent(
       ...(a.accessibilityLabel !== undefined
         ? { accessibilityLabel: a.accessibilityLabel }
         : {}),
+      ...(a.testID !== undefined ? { testID: a.testID } : {}),
     });
     if (a.endsGroup === true && idx < actions.length - 1) {
       rows.push({ type: 'divider', id: `${a.id}-end-group` });

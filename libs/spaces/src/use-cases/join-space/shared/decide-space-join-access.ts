@@ -21,6 +21,7 @@ export type SpaceAccessInput = {
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   readonly hasSpaceUser: boolean;
+  readonly isFriendOfHost: boolean;
 };
 
 /**
@@ -43,6 +44,7 @@ export function decideSpaceJoinAccess(
     viewerDeviceId: input.viewerDeviceId,
     viewerMemberId: input.viewerMemberId,
     hasSpaceUser: input.hasSpaceUser,
+    isFriendOfHost: input.isFriendOfHost,
   });
 }
 
