@@ -176,14 +176,10 @@ async function deploy(): Promise<void> {
   await pushWorkerSecrets(env);
   await deployProductionWorker(env, false);
 
-  await runAsync(
-    'bun',
-    ['run', '--filter', '@libs/billing', 'billing:sync'],
-    {
-      cwd: REPO_ROOT,
-      label: 'billing: catalog reconcile',
-    }
-  );
+  await runAsync('bun', ['run', '--filter', '@libs/billing', 'billing:sync'], {
+    cwd: REPO_ROOT,
+    label: 'billing: catalog reconcile',
+  });
 
   console.log(
     'API Worker deployed on api.gamezilla.app (Hono + Durable Objects).'

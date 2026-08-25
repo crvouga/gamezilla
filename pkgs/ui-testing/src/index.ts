@@ -53,11 +53,6 @@ export {
   type InProcessDriverOptions,
 } from './drivers/in-process/in-process-driver';
 export {
-  createRenderedAppFromRntl,
-  createRenderedAppFromQueryScope,
-  createRntlRenderAdapter,
-} from './drivers/in-process/renderer-rntl';
-export {
   actorShellTestId,
   MULTI_APP_ACTOR_FRAME,
   MULTI_APP_ACTOR_SHELL_PREFIX,
@@ -71,6 +66,11 @@ export {
   type MultiAppRntlSessionOptions,
   type SnapshotAllActorsOptions,
 } from './drivers/in-process/multi-app-rntl-session';
+export {
+  createRenderedAppFromQueryScope,
+  createRenderedAppFromRntl,
+  createRntlRenderAdapter,
+} from './drivers/in-process/renderer-rntl';
 export {
   type SerializeHostTreeHtmlOptions,
   SNAPSHOT_SHELL_CSS,

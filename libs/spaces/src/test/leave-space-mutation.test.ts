@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import type { MutationEnv } from '@pkgs/sync-engine/shared';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client/sqlite/impl-bun-sqlite';
+import type { MutationEnv } from '@pkgs/sync-engine/shared';
 import { spaceOpenSessionEntityId } from '../shared/space/participation/participation-ids';
 import { createSpaceMutation } from '../use-cases/create-space/shared/create-space-mutation';
 import { joinSpaceMutation } from '../use-cases/join-space/shared/join-space-mutation';
@@ -14,10 +14,7 @@ const ALICE_ACCOUNT = 'account-alice';
 const BOB_ACCOUNT = 'account-bob';
 const NOW = () => new Date('2026-01-01T00:00:00.000Z');
 
-function env(args: {
-  deviceId: string;
-  accountId: string;
-}): MutationEnv {
+function env(args: { deviceId: string; accountId: string }): MutationEnv {
   return {
     actorId: args.accountId,
     deviceId: args.deviceId,
@@ -72,7 +69,10 @@ describe('leaveSpaceMutation', () => {
 
   test('guest leave tombstones membership and closes this device open session', async () => {
     await createSpaceMutation.run(
-      { tx: db, env: env({ deviceId: ALICE_DEVICE, accountId: ALICE_ACCOUNT }) },
+      {
+        tx: db,
+        env: env({ deviceId: ALICE_DEVICE, accountId: ALICE_ACCOUNT }),
+      },
       { spaceId: SPACE_ID, visibility: 'public' }
     );
     await joinSpaceMutation.run(

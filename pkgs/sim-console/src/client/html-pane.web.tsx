@@ -3,14 +3,14 @@
  * `html-pane.tsx` ("HTML preview requires web.").
  */
 import { Box, Text } from '@pkgs/ui';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
 import { HtmlSrcdocFrame } from './html-srcdoc-frame';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
-import { PREVIEW_STRETCH_SHELL_CSS } from './preview-frame-css';
 import { loadPreviewFontCss } from './preview-fonts';
+import { PREVIEW_STRETCH_SHELL_CSS } from './preview-frame-css';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
@@ -23,22 +23,28 @@ const patchedSrcdocCache = new Map<string, string>();
 /** Last non-blank patched srcdoc per frame URL (hold while parked actor omits a view). */
 const lastGoodSrcdocCache = new Map<string, string>();
 
-export function HtmlPane(props: {
+function HtmlPaneMessage(props: { readonly message: ReactNode }) {
+  return (
+    <Box sx={paneSx}>
+      <Text sx={emptySx} label={props.message} />
+    </Box>
+  );
+}
+
+function useHtmlPaneSrcdoc(args: {
+  readonly file: string | null;
+  readonly fetchFn: ReportApiClient['fetch'];
   readonly api: ReportApiClient;
   readonly bucketId: string;
   readonly runId: string;
   readonly testId: string;
-  readonly frame: FlatFrame | null;
-  readonly nodeId: string | null;
-  readonly node: TopologyNodeInfo | null;
 }) {
-  const fetchFn = props.api.fetch;
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [blankSnapshot, setBlankSnapshot] = useState(false);
-  const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
 
   useEffect(() => {
+    const { file, fetchFn, api, bucketId, runId, testId } = args;
     if (file == null) {
       setSrcdoc(null);
       setError(null);
@@ -46,12 +52,7 @@ export function HtmlPane(props: {
       return;
     }
     let cancelled = false;
-    const url = props.api.testFrameUrl(
-      props.bucketId,
-      props.runId,
-      props.testId,
-      file
-    );
+    const url = api.testFrameUrl(bucketId, runId, testId, file);
 
     const applyPatched = (patched: string) => {
       if (cancelled) return;
@@ -103,39 +104,58 @@ export function HtmlPane(props: {
     return () => {
       cancelled = true;
     };
-  }, [file, fetchFn, props.api, props.bucketId, props.runId, props.testId]);
+  }, [
+    args.file,
+    args.fetchFn,
+    args.api,
+    args.bucketId,
+    args.runId,
+    args.testId,
+  ]);
+
+  return { srcdoc, error, blankSnapshot };
+}
+
+export function HtmlPane(props: {
+  readonly api: ReportApiClient;
+  readonly bucketId: string;
+  readonly runId: string;
+  readonly testId: string;
+  readonly frame: FlatFrame | null;
+  readonly nodeId: string | null;
+  readonly node: TopologyNodeInfo | null;
+}) {
+  const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
+  const { srcdoc, error, blankSnapshot } = useHtmlPaneSrcdoc({
+    file,
+    fetchFn: props.api.fetch,
+    api: props.api,
+    bucketId: props.bucketId,
+    runId: props.runId,
+    testId: props.testId,
+  });
 
   if (file == null) {
     return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>
-          No snapshot for `{props.nodeId ?? '—'}` on this step.
-        </Text>
-      </Box>
+      <HtmlPaneMessage
+        message={<>No snapshot for `{props.nodeId ?? '—'}` on this step.</>}
+      />
     );
   }
   if (blankSnapshot && srcdoc == null) {
     return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>
-          Snapshot for `{props.nodeId ?? '—'}` is empty on this step.
-        </Text>
-      </Box>
+      <HtmlPaneMessage
+        message={
+          <>Snapshot for `{props.nodeId ?? '—'}` is empty on this step.</>
+        }
+      />
     );
   }
   if (srcdoc == null && error != null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Failed to load snapshot: {error}</Text>
-      </Box>
-    );
+    return <HtmlPaneMessage message={`Failed to load snapshot: ${error}`} />;
   }
   if (srcdoc == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>Loading snapshot…</Text>
-      </Box>
-    );
+    return <HtmlPaneMessage message="Loading snapshot…" />;
   }
 
   return <HtmlSrcdocFrame title={`frame ${file}`} srcdoc={srcdoc} />;

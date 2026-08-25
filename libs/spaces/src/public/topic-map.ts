@@ -42,7 +42,9 @@ async function hostFriendTopics(
   hostAccountId: string,
   hostMemberId: string
 ): Promise<Topic[]> {
-  const hostIds = [...new Set([hostAccountId, hostMemberId].filter((id) => id.length > 0))];
+  const hostIds = [
+    ...new Set([hostAccountId, hostMemberId].filter((id) => id.length > 0)),
+  ];
   if (hostIds.length === 0) {
     return [];
   }

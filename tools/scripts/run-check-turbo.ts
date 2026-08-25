@@ -19,11 +19,7 @@ import {
   computeCheckSecretsFingerprint,
 } from '../../libs/secrets/src/shared/secrets/check-secrets-fingerprint';
 
-const CI_GATE_TASKS = [
-  'ci:syncpack',
-  'ci:depcruise',
-  'ci:audit',
-] as const;
+const CI_GATE_TASKS = ['ci:syncpack', 'ci:depcruise', 'ci:audit'] as const;
 
 /** No-op app builds only — never `@apps/client#build` (Expo export). */
 const CHECK_BUILD_TASKS = [

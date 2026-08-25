@@ -14,7 +14,6 @@ import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { borderRadius } from '../../theme/scale';
 import type { SxProps } from '../../theme/sx-props';
 import { Box } from '../box';
-import { CONTENT_EDGE_PADDING_STEP } from '../content-edge-padding';
 import { ErrorState } from '../error-state';
 import { FlatList } from '../flat-list';
 import { ListItem } from '../list';
@@ -241,7 +240,7 @@ function triggerSx(compact: boolean): SxProps {
   };
 }
 
-/** Bleeds option rows to the surface edge; selection fill spans full width. */
+/** Full-width option row; selection fill spans the flushed list width. */
 function PickerOptionShell({
   selected,
   children,
@@ -252,7 +251,7 @@ function PickerOptionShell({
   return (
     <Box
       sx={{
-        mx: -CONTENT_EDGE_PADDING_STEP,
+        minWidth: 0,
         ...(selected ? { backgroundColor: 'tintSubtle' as const } : {}),
       }}
     >
@@ -331,9 +330,7 @@ function PickerOptions<T extends string | number>({
             : defaultRender(item, isSelected, () => pickIfEnabled(item));
         if (inner === null) return <Box />;
         return (
-          <PickerOptionShell
-            selected={isSelected && item.disabled !== true}
-          >
+          <PickerOptionShell selected={isSelected && item.disabled !== true}>
             {inner}
           </PickerOptionShell>
         );

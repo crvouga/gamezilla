@@ -12,8 +12,8 @@ import {
   type SpaceJoinLocalRow,
   type SpaceJoinSnapshot,
 } from '../shared/resolve-space-join-snapshot';
-import { useHasSpaceUserLocal } from './use-space-join-access-flags';
 import { useIsFriendOfHostLocal } from './use-is-friend-of-host-local';
+import { useHasSpaceUserLocal } from './use-space-join-access-flags';
 
 export type {
   SpaceJoinSnapshot,

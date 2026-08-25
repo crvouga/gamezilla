@@ -693,7 +693,9 @@ describe('serializeHostTreeHtml', () => {
                     accessibilityRole: 'button',
                     style: { position: 'absolute', bottom: 24, right: 24 },
                   },
-                  children: [{ type: 'Text', props: {}, children: ['New space'] }],
+                  children: [
+                    { type: 'Text', props: {}, children: ['New space'] },
+                  ],
                 },
               ],
             },
@@ -766,7 +768,9 @@ describe('serializeHostTreeHtml', () => {
     expect(html).toMatch(/data-testid="screen-spaces"[^>]*display:none/);
     expect(html).toMatch(/data-testid="space-create"[^>]*display:none/);
     expect(html).not.toMatch(/data-testid="game-menu-chess"[^>]*display:none/);
-    expect(html).not.toMatch(/data-testid="screen-space-modal"[^>]*display:none/);
+    expect(html).not.toMatch(
+      /data-testid="screen-space-modal"[^>]*display:none/
+    );
   });
 
   it('fills absolute overlay hosts and keeps centered modal content', () => {

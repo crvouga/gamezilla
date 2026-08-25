@@ -86,7 +86,7 @@ describe('createMultiAppRntlSession', () => {
 
     await alice.activate();
     await alice.typeText(alice.query('email')!, 'alice@example.com');
-    bob.unmount();
+    await bob.unmount();
 
     await alice.typeText(alice.query('password')!, 'secret');
     const submit = alice.query('submit');

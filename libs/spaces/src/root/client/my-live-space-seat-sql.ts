@@ -5,7 +5,9 @@ export type LiveSpaceIdRow = {
   readonly id: string;
 };
 
-function friendIdsForMemberSql(memberId: string): Sql<{ readonly friend_id: string }> {
+function friendIdsForMemberSql(
+  memberId: string
+): Sql<{ readonly friend_id: string }> {
   return sql<{ readonly friend_id: string }>`
     SELECT CASE
       WHEN f.user_low = ${memberId} THEN f.user_high

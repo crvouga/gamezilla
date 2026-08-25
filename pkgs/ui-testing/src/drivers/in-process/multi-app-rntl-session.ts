@@ -282,7 +282,11 @@ function readCachedSnapshots(
       if (prior !== undefined) continue;
       await deps.focusForSnapshot(actorId);
       const html = deps.facades.get(actorId)?.snapshotHtml?.(options);
-      const remembered = rememberSnapshotHtml(deps.snapshotCache, actorId, html);
+      const remembered = rememberSnapshotHtml(
+        deps.snapshotCache,
+        actorId,
+        html
+      );
       if (remembered !== undefined) {
         out.set(actorId, remembered);
       }

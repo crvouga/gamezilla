@@ -108,7 +108,12 @@ export const Pressable = forwardRef<RNView, PressableProps>(function Pressable(
             ? { opacity: PRESSED_OPACITY }
             : false;
         return toRnHostStyle(
-          theme.sx(withPointerEvents([resolved, pressed], pointerEvents))
+          theme.sx(
+            withPointerEvents(
+              [{ userSelect: 'none' }, resolved, pressed],
+              pointerEvents
+            )
+          )
         );
       }}
       {...rest}

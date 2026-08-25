@@ -107,11 +107,17 @@ function SnapshotOptionRow(props: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 3,
+        minWidth: 0,
         opacity: outdated ? 0.55 : 1,
+        ...(selected && !outdated ? {} : { pr: CONTENT_EDGE_PADDING_STEP }),
       }}
     >
       <Box sx={{ pl: CONTENT_EDGE_PADDING_STEP }}>
-        <Checkbox checked={checked} onToggle={onToggleChecked} disabled={busy} />
+        <Checkbox
+          checked={checked}
+          onToggle={onToggleChecked}
+          disabled={busy}
+        />
       </Box>
       {outdated ? (
         body

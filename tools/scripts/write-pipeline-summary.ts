@@ -47,7 +47,9 @@ function buildStatusMarkdown(outcome: string): string {
   const lines: string[] = [];
   const repo = (process.env['GITHUB_REPOSITORY'] ?? '').trim();
   const runId = (process.env['GITHUB_RUN_ID'] ?? '').trim();
-  const server = (process.env['GITHUB_SERVER_URL'] ?? 'https://github.com').trim();
+  const server = (
+    process.env['GITHUB_SERVER_URL'] ?? 'https://github.com'
+  ).trim();
   const sha = (process.env['GITHUB_SHA'] ?? '').trim();
   const ref = (process.env['GITHUB_REF_NAME'] ?? '').trim();
   const event = (process.env['GITHUB_EVENT_NAME'] ?? '').trim();
@@ -70,7 +72,9 @@ function buildStatusMarkdown(outcome: string): string {
   if (sha !== '') {
     const short = sha.slice(0, 7);
     const commitLink =
-      repo !== '' ? `[${short}](${server}/${repo}/commit/${sha})` : `\`${short}\``;
+      repo !== ''
+        ? `[${short}](${server}/${repo}/commit/${sha})`
+        : `\`${short}\``;
     lines.push(`- **commit:** ${commitLink}`);
   }
   if (actor !== '') lines.push(`- **actor:** @${actor}`);
@@ -94,7 +98,8 @@ function writeSummary(markdown: string): void {
 }
 
 try {
-  const outcome = (process.env['DEPLOY_OUTCOME'] ?? 'unknown').trim() || 'unknown';
+  const outcome =
+    (process.env['DEPLOY_OUTCOME'] ?? 'unknown').trim() || 'unknown';
   const status = buildStatusMarkdown(outcome);
 
   let llm = '';

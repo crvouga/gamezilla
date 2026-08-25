@@ -60,7 +60,9 @@ export interface RenderedApp {
    * In-process RNTL serializes RN hosts to readable HTML; DOM adapters may
    * return `document.documentElement.outerHTML`.
    */
-  snapshotHtml?(options?: { readonly stylesheetHref?: string }): string | undefined;
+  snapshotHtml?(options?: {
+    readonly stylesheetHref?: string;
+  }): string | undefined;
 }
 
 /**

@@ -1,6 +1,6 @@
+import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, test } from 'bun:test';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 
@@ -20,7 +20,10 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
   const marker = 'turbo-ci-run.ts';
   const idx = checkScript.indexOf(marker);
   expect(idx).toBeGreaterThanOrEqual(0);
-  return checkScript.slice(idx + marker.length).trim().split(/\s+/);
+  return checkScript
+    .slice(idx + marker.length)
+    .trim()
+    .split(/\s+/);
 }
 
 describe('turbo deploy graph invariants', () => {

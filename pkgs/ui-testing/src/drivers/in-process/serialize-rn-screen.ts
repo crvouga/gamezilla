@@ -77,7 +77,9 @@ export function withRnScreenHiddenCss(css: string, hide: boolean): string {
   if (!hide) return css;
   const hidden = 'display:none;visibility:hidden;pointer-events:none';
   if (css.includes('display:none')) {
-    return css.includes('visibility:hidden') ? css : `${css};visibility:hidden;pointer-events:none`;
+    return css.includes('visibility:hidden')
+      ? css
+      : `${css};visibility:hidden;pointer-events:none`;
   }
   return css ? `${css};${hidden}` : hidden;
 }
