@@ -49,7 +49,8 @@ const reportStore = createNodeFsObjectStore({
 /**
  * Fixed on-disk run id for the static console dump. Must not be the SPA alias
  * `latest` — sanitizeRunId remaps that reserved id to `latest_run`.
- * Wipe happens once in `jest.global-setup.cjs` (not per openSim / test file).
+ * Wipe happens once in `jest.global-setup.cjs` when `SIM_REPORT` is on
+ * (not per openSim / test file; skipped when reports are off).
  */
 const STATIC_REPORT_RUN_ID = 'latest_run';
 

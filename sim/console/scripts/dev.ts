@@ -56,7 +56,8 @@ for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 
 const expo = spawn(
   'bunx',
-  ['expo', 'start', '--web', '--port', String(EXPO_PORT)],
+  // `--web` also opens a browser tab; Metro still serves web without it.
+  ['expo', 'start', '--port', String(EXPO_PORT)],
   {
     cwd: APP_DIR,
     stdio: 'inherit',

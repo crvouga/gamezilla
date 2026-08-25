@@ -6,6 +6,14 @@ const {
 
 const repoRoot = path.join(__dirname, '../..');
 
+// Bun nests multiple `react-native@0.83.10+<hash>` copies. jest-expo mocks
+// NativeModules on the copy this package resolves; `@react-native/virtualized-lists`
+// otherwise loads a different copy and crashes with
+// `__fbBatchedBridgeConfig is not set` (Reanimated mock → FlatList).
+const reactNativeRoot = path.dirname(
+  require.resolve('react-native/package.json', { paths: [__dirname] })
+);
+
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
@@ -35,6 +43,8 @@ module.exports = {
   },
   // Jest 29 does not honor package.json "exports" the way Bun/Metro do.
   moduleNameMapper: {
+    '^react-native$': require.resolve('react-native', { paths: [__dirname] }),
+    '^react-native/(.*)$': `${reactNativeRoot}/$1`,
     // expo-router/testing-library jest.mocks reanimated → `…/mock`. Bun's
     // nested install can fail that subpath (factory falls back to `{}`).
     // Bridge file ≠ `/mock` module id (avoids circular empty exports) but both

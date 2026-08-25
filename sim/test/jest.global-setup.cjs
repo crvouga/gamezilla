@@ -1,8 +1,10 @@
 /**
- * Runs once before the Jest suite. Wipes `@sim/console` static report assets so
- * the run accumulates every scenario under `runs/latest_run/` (module-level
- * wipe flags reset between test files under jest-expo). Also warms the
- * sim SQL migrate seed (PGlite or postgres-mem) so tests clone instead of re-migrating.
+ * Runs once before the Jest suite. When `SIM_REPORT` is on (any value other
+ * than `"0"`), wipes `@sim/console` static report assets so the recording run
+ * accumulates every scenario under `runs/latest_run/`. When reports are off
+ * (`SIM_REPORT=0` or unset — Jest `setupFiles` defaults unset to `"0"`), leave
+ * the previous dump in place. Also warms the sim SQL migrate seed (PGlite or
+ * postgres-mem) so tests clone instead of re-migrating.
  */
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
@@ -46,15 +48,22 @@ function rmRecursiveWithRetry(targetPath) {
   }
 }
 
+function simReportEnabled() {
+  const value = process.env.SIM_REPORT;
+  return value != null && value !== '0';
+}
+
 module.exports = () => {
-  const root = findMonorepoRoot(__dirname);
-  const reportsDir = path.join(root, 'sim/console/public/reports');
-  rmRecursiveWithRetry(path.join(reportsDir, 'runs'));
-  const keysFile = path.join(reportsDir, 'keys.json');
-  if (fs.existsSync(keysFile)) {
-    fs.rmSync(keysFile, { force: true, maxRetries: 5, retryDelay: 100 });
+  if (simReportEnabled()) {
+    const root = findMonorepoRoot(__dirname);
+    const reportsDir = path.join(root, 'sim/console/public/reports');
+    rmRecursiveWithRetry(path.join(reportsDir, 'runs'));
+    const keysFile = path.join(reportsDir, 'keys.json');
+    if (fs.existsSync(keysFile)) {
+      fs.rmSync(keysFile, { force: true, maxRetries: 5, retryDelay: 100 });
+    }
+    fs.mkdirSync(reportsDir, { recursive: true });
   }
-  fs.mkdirSync(reportsDir, { recursive: true });
 
   const seedScript = path.join(__dirname, 'scripts/build-sim-seed.ts');
   // Use Bun's TS runner — not `bunx tsx` (tsx wraps esbuild and leaves
