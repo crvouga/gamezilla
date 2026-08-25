@@ -1,9 +1,27 @@
 import { join, sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 
+type SpaceRow = {
+  readonly id: string;
+  readonly title: string;
+  readonly owner_id: string;
+  readonly deleted_at: string | null;
+};
+
+function dedupeSpacesById(rows: readonly SpaceRow[]): SpaceRow[] {
+  const byId = new Map<string, SpaceRow>();
+  for (const row of rows) {
+    if (!byId.has(row.id)) byId.set(row.id, row);
+  }
+  return [...byId.values()].sort((a, b) =>
+    a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+  );
+}
+
 /**
  * Membership-scoped hydrate — wakes follow live held rows via topic-map
- * plus host default entry (user topic).
+ * plus host default entry (user topic). Also includes friend-owned spaces
+ * so cold hydrate matches friend topic wakes on createSpace.
  */
 export const spaceMembershipQuery = defineQuery({
   name: 'spaceMembership',
@@ -26,35 +44,54 @@ export const spaceMembershipQuery = defineQuery({
       if (deletedAt !== null) continue;
       liveSpaceIds.push(spaceId);
     }
-    if (liveSpaceIds.length === 0) {
-      return { spaces: [], spaces_users: memberships, notes: [] };
+
+    const friendPeers = (await db.query(sql<{ readonly friend_id: string }>`
+      SELECT CASE
+        WHEN user_low = ${env.actorId} THEN user_high
+        ELSE user_low
+      END AS friend_id
+      FROM friends_friendships
+      WHERE user_low = ${env.actorId} OR user_high = ${env.actorId}
+    `)) as unknown as readonly { readonly friend_id: string }[];
+    const peerIds: string[] = [
+      ...new Set(
+        friendPeers
+          .map((r) => r.friend_id)
+          .filter((id) => id.length > 0 && id !== env.actorId)
+      ),
+    ];
+
+    let memberSpaces: SpaceRow[] = [];
+    let notes: readonly Record<string, unknown>[] = [];
+    if (liveSpaceIds.length > 0) {
+      const idList = join(liveSpaceIds);
+      memberSpaces = (await db.query(sql<SpaceRow>`
+        SELECT id, title, owner_id, deleted_at FROM spaces
+        WHERE id IN (${idList})
+        ORDER BY id ASC
+      `)) as SpaceRow[];
+      notes = await db.query(sql`
+        SELECT id, folder_id, space_id, title, body, owner_id, deleted_at
+        FROM notes
+        WHERE space_id IN (${idList})
+        ORDER BY id ASC
+      `);
     }
-    const idList = join(liveSpaceIds);
-    const spaces = await db.query(sql<{
-      id: string;
-      title: string;
-      owner_id: string;
-      deleted_at: string | null;
-    }>`
-      SELECT id, title, owner_id, deleted_at FROM spaces
-      WHERE id IN (${idList})
-      ORDER BY id ASC
-`);
-    const notes = await db.query(sql<{
-      id: string;
-      folder_id: string | null;
-      space_id: string | null;
-      title: string;
-      body: string;
-      owner_id: string;
-      deleted_at: string | null;
-    }>`
-      SELECT id, folder_id, space_id, title, body, owner_id, deleted_at
-      FROM notes
-      WHERE space_id IN (${idList})
-      ORDER BY id ASC
-`);
-    return { spaces, spaces_users: memberships, notes };
+
+    let friendSpaces: SpaceRow[] = [];
+    if (peerIds.length > 0) {
+      friendSpaces = (await db.query(sql<SpaceRow>`
+        SELECT id, title, owner_id, deleted_at FROM spaces
+        WHERE owner_id IN (${join(peerIds)})
+        ORDER BY id ASC
+      `)) as SpaceRow[];
+    }
+
+    return {
+      spaces: dedupeSpacesById([...memberSpaces, ...friendSpaces]),
+      spaces_users: memberships,
+      notes,
+    };
   },
 });
 

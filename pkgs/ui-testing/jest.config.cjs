@@ -15,5 +15,4 @@ module.exports = {
   testTimeout: 30_000,
   transformIgnorePatterns: bunAwareTransformIgnorePatterns(),
   cacheDirectory: path.join(__dirname, '.cache/jest'),
-  forceExit: true,
 };

@@ -53,6 +53,7 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
+    "test:sim": "turbo test -F @sim/test --force",
     "wipe": "git clean -xfd"
   },
   "overrides": {

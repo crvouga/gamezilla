@@ -3,14 +3,17 @@ export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknow
 export {
   expectFoldersMatchServer,
   expectLiveNote,
+  expectLiveSpace,
   expectNoForeignOpenSessions,
   expectNoteNotLive,
   expectNotesMatchServer,
   expectOpenSession,
   isLiveNote,
+  isLiveSpace,
   type LiveFolder,
   type LiveNote,
   type LiveOpenSession,
+  type LiveSpace,
   readLiveFolders,
   readLiveNotes,
   readLiveOpenSessions,
@@ -26,6 +29,7 @@ export { notesDomainPack } from './domain-pack';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
 export { runNotesSeed, runSeed, seedsFromEnv } from './replay';
+export { befriend } from './shared/friendship-mutations';
 export {
   ghostMutation,
   notesAuthorizeThrowQuery,

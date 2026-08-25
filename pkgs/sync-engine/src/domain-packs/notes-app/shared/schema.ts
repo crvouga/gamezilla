@@ -57,6 +57,13 @@ export const notesAppSchema = registerTables([
     columns: { username: 'text', username_norm: 'text' },
     indexes: ['username_norm'],
   }),
+  defineTable({
+    domain: 'friends',
+    name: 'friends_friendships',
+    columns: { user_low: 'text', user_high: 'text' },
+    indexes: ['user_low', 'user_high'],
+    uniqueIndexes: [['user_low', 'user_high']],
+  }),
 ]);
 
 export const NOTES_APP_TABLES = [
@@ -66,4 +73,5 @@ export const NOTES_APP_TABLES = [
   'spaces_users',
   'spaces_open_sessions',
   'profile',
+  'friends_friendships',
 ] as const;

@@ -1,23 +1,11 @@
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 
+import { friendIdsForMemberSql } from '../../shared/space/actor-visible-spaces-sql';
+
 export type LiveSpaceIdRow = {
   readonly id: string;
 };
-
-function friendIdsForMemberSql(
-  memberId: string
-): Sql<{ readonly friend_id: string }> {
-  return sql<{ readonly friend_id: string }>`
-    SELECT CASE
-      WHEN f.user_low = ${memberId} THEN f.user_high
-      ELSE f.user_low
-    END AS friend_id
-    FROM friends_friendships AS f
-    WHERE f.deleted_at IS NULL
-      AND (f.user_low = ${memberId} OR f.user_high = ${memberId})
-  `;
-}
 
 /**
  * Shared lobby live ids: host of the space, spaces_users ACL, or a friend's live space.

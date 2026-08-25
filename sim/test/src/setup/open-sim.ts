@@ -107,19 +107,22 @@ function createClientDriver(args: {
     return createDriver({ kind: 'playwright', page, baseUrl });
   }
   const live = args.sim.spawnClient(args.id);
-  // Product keeps virtual sim timers (createSim default). Driver waits use wall
-  // time so waitUntil deadlines progress; each sleep also advances the sim clock
-  // so product setTimeout(0) / retries flush while polling.
+  // Product keeps virtual sim timers (createSim default). Poll sleeps use a
+  // short wall delay so waitUntil does not burn 50ms real time per poll, but
+  // only advance the sim clock by that same wall amount — advancing by the
+  // full interval (e.g. 50ms) on a 1ms sleep races Better Auth past dispose.
   const timers: Timers = {
-    setTimeout: (fn, ms) =>
-      simNodeTimers.setTimeout(() => {
+    setTimeout: (fn, ms) => {
+      const wallMs = ms <= 0 ? 0 : Math.min(ms, 1);
+      return simNodeTimers.setTimeout(() => {
         try {
-          args.sim.clock.advance(Math.max(0, ms));
+          args.sim.clock.advance(wallMs);
         } catch {
           // clock may have been reset/disposed mid-wait
         }
         fn();
-      }, ms),
+      }, wallMs);
+    },
     clearTimeout: simNodeTimers.clearTimeout,
     setInterval: (fn, ms) =>
       simNodeTimers.setInterval(() => {
@@ -176,8 +179,8 @@ async function bootSim(
     seed: 1,
     startMs,
     // Keep virtual sim timers on the product — wall timers here stick RNTL
-    // `act` on product setIntervals (reconcile / ping). Driver waits use wall
-    // time in createClientDriver and advance this clock while sleeping.
+    // `act` on product setIntervals (reconcile / ping). Driver poll sleeps use
+    // 1ms wall delay + full sim clock advance (see createClientDriver).
     ...(fidelity === 'max'
       ? { serverSql: await postgresServerSql() }
       : {
@@ -221,13 +224,72 @@ function createSimReporter(
   });
 }
 
+type ActorEntry = {
+  readonly handle: SimActorHandle;
+  readonly raw: Driver;
+};
+
+async function launchActor(args: {
+  readonly fidelity: OpenSimFidelity;
+  readonly sim: Sim;
+  readonly id: string;
+  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly reporter: SimulationReporter | null;
+}): Promise<ActorEntry> {
+  const raw = createClientDriver({
+    fidelity: args.fidelity,
+    sim: args.sim,
+    id: args.id,
+    multiAppSession: args.multiAppSession,
+  });
+  const ui =
+    args.reporter === null
+      ? raw
+      : createReportingDriver(raw, {
+          actorId: args.id,
+          reporter: args.reporter,
+        });
+  await ui.launch();
+  return { handle: { id: args.id, ui }, raw };
+}
+
+async function closeActorEntry(entry: ActorEntry): Promise<void> {
+  try {
+    await entry.raw.close();
+  } catch {
+    // ignore teardown races
+  }
+}
+
+async function disposeOpenSim(args: {
+  readonly actors: Map<string, ActorEntry>;
+  readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
+  readonly reporter: SimulationReporter | null;
+  readonly sim: Sim;
+}): Promise<void> {
+  for (const a of args.actors.values()) {
+    await closeActorEntry(a);
+  }
+  args.actors.clear();
+  args.multiAppSession.dispose();
+  if (args.reporter !== null) {
+    try {
+      await args.reporter.flush();
+      await writeKeysIndex();
+    } catch {
+      // report flush should not mask sim teardown
+    }
+  }
+  await args.sim.dispose();
+}
+
 export async function openSim(
   testId: string,
   options?: OpenSimOptions
 ): Promise<OpenSimHandle> {
   const fidelity = resolveOpenSimFidelity(options);
   const { sim } = await bootSim(fidelity);
-  const actors = new Map<string, { handle: SimActorHandle; raw: Driver }>();
+  const actors = new Map<string, ActorEntry>();
   const multiAppSession = createMultiAppRntlSession({
     onActorFocus: () => {
       for (let i = 0; i < 20; i += 1) {
@@ -248,23 +310,15 @@ export async function openSim(
       if (disposed) throw new Error('openSim: already disposed');
       const existing = actors.get(id);
       if (existing) return existing.handle;
-      const raw = createClientDriver({
+      const entry = await launchActor({
         fidelity,
         sim,
         id,
         multiAppSession,
+        reporter,
       });
-      const ui =
-        reporter === null
-          ? raw
-          : createReportingDriver(raw, {
-              actorId: id,
-              reporter,
-            });
-      await ui.launch();
-      const actorHandle = { id, ui };
-      actors.set(id, { handle: actorHandle, raw });
-      return actorHandle;
+      actors.set(id, entry);
+      return entry.handle;
     },
     clearUiFocus() {
       multiAppSession.clearFocus();
@@ -273,11 +327,7 @@ export async function openSim(
       if (disposed) return;
       const existing = actors.get(id);
       if (existing !== undefined) {
-        try {
-          await existing.raw.close();
-        } catch {
-          // ignore teardown races
-        }
+        await closeActorEntry(existing);
         actors.delete(id);
       }
       await sim.dropClient(id);
@@ -286,24 +336,7 @@ export async function openSim(
     async dispose() {
       if (disposed) return;
       disposed = true;
-      for (const a of actors.values()) {
-        try {
-          await a.raw.close();
-        } catch {
-          // ignore teardown races
-        }
-      }
-      actors.clear();
-      multiAppSession.dispose();
-      if (reporter !== null) {
-        try {
-          await reporter.flush();
-          await writeKeysIndex();
-        } catch {
-          // report flush should not mask sim teardown
-        }
-      }
-      await sim.dispose();
+      await disposeOpenSim({ actors, multiAppSession, reporter, sim });
     },
     async [Symbol.asyncDispose]() {
       await handle.dispose();

@@ -1,5 +1,39 @@
+import type { Topic } from '@pkgs/pubsub/interface';
+import { sql } from '@pkgs/sql';
+import type { MutationDb } from '../../../mutations/core/types';
 import { defineTopicMap } from '../../../shared/topic-map';
 import { NOTES_WORLD_TOPIC, roomTopic, userTopic } from './topics';
+
+async function ownerFriendTopics(
+  db: MutationDb,
+  ownerId: string
+): Promise<readonly Topic[]> {
+  if (ownerId.length === 0) return [];
+  const rows = await db.query(sql<{
+    readonly user_low: string;
+    readonly user_high: string;
+  }>`
+    SELECT user_low, user_high
+    FROM friends_friendships
+    WHERE deleted_at IS NULL
+      AND (user_low = ${ownerId} OR user_high = ${ownerId})
+  `);
+  const topics: Topic[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const friendId =
+      row.user_low === ownerId
+        ? row.user_high
+        : row.user_high === ownerId
+          ? row.user_low
+          : '';
+    if (friendId.length > 0 && !seen.has(friendId)) {
+      seen.add(friendId);
+      topics.push(userTopic(friendId));
+    }
+  }
+  return topics;
+}
 
 export const notesTopicMap = defineTopicMap({
   notes: {
@@ -25,8 +59,15 @@ export const notesTopicMap = defineTopicMap({
   spaces: {
     // Room subscribe/publish for membership comes from spaces_users images.
     // Holding a stale spaces row after leave must not keep room:{id}.
-    topics(_row, ctx) {
-      return [userTopic(ctx.actorId)];
+    // topic-map-db: wake friends of owner so lobby peers see live spaces
+    async topics(row, ctx, db) {
+      const base = [userTopic(ctx.actorId)];
+      if (row['deleted_at'] != null || db === undefined) {
+        return base;
+      }
+      const ownerId = String(row['owner_id'] ?? '');
+      const friends = await ownerFriendTopics(db, ownerId);
+      return [...new Set([...base, ...friends])];
     },
   },
   spaces_users: {
@@ -54,6 +95,16 @@ export const notesTopicMap = defineTopicMap({
   profile: {
     topics(row, ctx) {
       return [userTopic(String(row['id'] ?? ctx.actorId))];
+    },
+  },
+  friends_friendships: {
+    topics(row) {
+      const low = String(row['user_low'] ?? '');
+      const high = String(row['user_high'] ?? '');
+      const out: Topic[] = [];
+      if (low.length > 0) out.push(userTopic(low));
+      if (high.length > 0) out.push(userTopic(high));
+      return out;
     },
   },
 });

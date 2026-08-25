@@ -285,11 +285,15 @@ async function disposeSim(args: {
   roomNode: RoomServerApp;
   clientSql: Map<string, SimSqlHandle>;
   serverSql: SimSqlHandle;
+  /** Drop HTTP after clients close so late auth cannot hit a closed DB. */
+  stopServerFetch: () => void;
 }): Promise<void> {
   if (args.disposed.value) return;
   args.disposed.value = true;
+  // Close clients first so AuthBridge / session refresh stop scheduling work.
   for (const live of args.liveClients.values()) await live.close();
   args.liveClients.clear();
+  args.stopServerFetch();
   args.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
@@ -305,8 +309,8 @@ function createSimHandle(kernel: SimKernel): Sim {
   let hono: Server | null = null;
   const serverFetch: ClientEnv['server'] = serializeFetch(
     async (input, init) => {
-      if (rawServerFetch === null) {
-        throw new Error('createSim: spawnServer before client HTTP');
+      if (disposed.value || rawServerFetch === null) {
+        throw new Error('createSim: server disposed or not spawned');
       }
       return rawServerFetch(input, init);
     }
@@ -358,7 +362,17 @@ function createSimHandle(kernel: SimKernel): Sim {
       net.heal(a, b);
     },
     dispose: () =>
-      disposeSim({ disposed, liveClients, roomNode, clientSql, serverSql }),
+      disposeSim({
+        disposed,
+        liveClients,
+        roomNode,
+        clientSql,
+        serverSql,
+        stopServerFetch: () => {
+          rawServerFetch = null;
+          hono = null;
+        },
+      }),
     roomNode,
     serverSql,
     clientSql: (id) => clientSql.get(id),

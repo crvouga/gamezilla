@@ -124,12 +124,8 @@ export class SpaceFlows {
     const handle = Handles.spaceCard(hostUsername);
     const deadline = wallClock.now() + opts.timeoutMs;
     let lastError: unknown;
-    let lastRefreshAt = 0;
     while (wallClock.now() < deadline) {
-      if (wallClock.now() - lastRefreshAt >= 750) {
-        await this.openTab();
-        lastRefreshAt = wallClock.now();
-      }
+      await this.openTab();
       try {
         await this.ui.expect.visible(handle, { timeoutMs: 1_200 });
         return handle;

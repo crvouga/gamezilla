@@ -253,4 +253,4 @@ are gone. Historical misses (e.g. `endSpace` omitting sessions from
 | Hydrate tables | Derived from `run` return keys (`resolveQueryHydrates` for CI) |
 | Limit | Default 2000; no inline `LIMIT`; explicit overrides for real budgets |
 | Channels | `entryChannel` ∪ topic-map(held rows); `entryChannel: false` = reconcile-only |
-| Equivalence | spaces queries ≡ `userTopic(actor)` entry ∪ topic-map(held); empty / N rooms / host-only covered by leave/join + entry-channel scenarios |
+| Equivalence | spaces queries ≡ `userTopic(actor)` entry ∪ topic-map(held); empty / N rooms / host-only covered by leave/join + entry-channel scenarios. Topic-map wake peers for a table must be cold-hydratable by some `defineQuery` (`friend-hosted-space-cold-hydrate`) |

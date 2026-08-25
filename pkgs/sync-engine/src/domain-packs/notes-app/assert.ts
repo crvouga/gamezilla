@@ -148,6 +148,39 @@ export async function expectNoForeignOpenSessions(
   expect(rows).toEqual([]);
 }
 
+export type LiveSpace = {
+  readonly id: string;
+  readonly title: string;
+  readonly owner_id: string;
+};
+
+/** True when space id is live (present and not tombstoned). */
+export async function isLiveSpace(db: SqlClient, id: string): Promise<boolean> {
+  const rows = await db.query(sql<{ id: string }>`
+    SELECT id FROM spaces WHERE id = ${id} AND deleted_at IS NULL
+  `);
+  return rows.length > 0;
+}
+
+/** Assert one live space exists (optional title / owner). */
+export async function expectLiveSpace(
+  db: SqlClient,
+  id: string,
+  expected?: { readonly title?: string; readonly owner_id?: string }
+): Promise<void> {
+  const rows = await db.query(sql<LiveSpace>`
+    SELECT id, title, owner_id FROM spaces
+    WHERE id = ${id} AND deleted_at IS NULL
+  `);
+  expect(rows.length).toBe(1);
+  if (expected?.title !== undefined) {
+    expect(rows[0]?.title).toBe(expected.title);
+  }
+  if (expected?.owner_id !== undefined) {
+    expect(rows[0]?.owner_id).toBe(expected.owner_id);
+  }
+}
+
 /** Live username for a profile id, or null if missing / empty. */
 export async function readProfileUsername(
   db: SqlClient,

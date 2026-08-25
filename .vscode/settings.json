@@ -276,6 +276,7 @@
     "tfstate",
     "TIMEDOUT",
     "TIMESTAMPTZ",
+    "tombstoned",
     "toon",
     "topo",
     "Tpng",

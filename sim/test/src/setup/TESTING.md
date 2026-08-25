@@ -34,9 +34,9 @@ wired into `predev` / `setup`) so Metro’s Hermes classic bundle never sees
 
 **Reports** (`SIM_REPORT`):
 
-- Default: on — HTML frames land under `sim/console/public/reports` /
-  `runs/latest_run/` and show in **`bun run dev`** → Reports.
-- Set `SIM_REPORT=0` to skip frame I/O (faster suite; console stays empty).
+- Default in Jest: **off** — faster `turbo test -F @sim/test`. Set `SIM_REPORT=1`
+  to write HTML frames under `sim/console/public/reports` / `runs/latest_run/`
+  (visible in **`bun run dev`** → Reports).
 
 View captured timelines in **`bun run dev`** (`@sim/console` → Reports).
 Production browsing of reports stays on the API Worker `/sim-console` mount

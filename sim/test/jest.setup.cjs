@@ -18,11 +18,23 @@ if (i18n.locale == null || i18n.locale === '') {
 
 // Product async (AuthBridge, health ping) updates outside act by design under
 // this harness — drown-out act noise so scenario logs stay readable.
+// Also ignore late Better Auth / closed-DB noise after openSim.dispose.
 const origError = console.error.bind(console);
 console.error = (...args) => {
-  const first = args[0];
-  if (typeof first === 'string' && first.includes('not wrapped in act(...)')) {
+  const text = args
+    .map((a) =>
+      typeof a === 'string' ? a : a instanceof Error ? a.message : ''
+    )
+    .join(' ');
+  if (text.includes('not wrapped in act(...)')) return;
+  if (text.includes('Cannot log after tests are done')) return;
+  if (text.includes('Database is closed')) return;
+  if (text.includes('createSim: server disposed')) return;
+  if (
+    text.includes(
+      'You are trying to `import` a file after the Jest environment'
+    )
+  )
     return;
-  }
   origError(...args);
 };

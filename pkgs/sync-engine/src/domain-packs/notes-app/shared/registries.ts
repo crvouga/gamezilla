@@ -1,4 +1,5 @@
 import { mutationRegistry, queryRegistry } from '@pkgs/sync-engine/shared';
+import { befriend } from './friendship-mutations';
 import {
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
@@ -61,6 +62,7 @@ export const notesMutationRegistry = mutationRegistry([
   leaveSpace,
   endSpace,
   setSpaceNote,
+  befriend,
   setProfileUsername,
   ensureProfileEmpty,
   setNoteArgsTight,
