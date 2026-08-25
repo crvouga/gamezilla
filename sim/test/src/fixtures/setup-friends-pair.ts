@@ -12,6 +12,7 @@ export async function setupFriendsPair(sim: OpenSimResult): Promise<{
   const alice = await AppDriver.forActor(sim, 'alice');
   await alice.auth.signUpWithEmail(aliceCreds);
   await alice.auth.returnToTabs();
+
   // Signup username matches aliceUsername — ensureProfile already claimed it.
 
   const bob = await AppDriver.forActor(sim, 'bob');
