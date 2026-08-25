@@ -14,7 +14,7 @@ describe('keyword properties', () => {
       'arbNamespacedKeyword ⇒ isNamespacedKeyword',
       fc.property(arbNamespacedKeyword(), (key) => {
         expect(isNamespacedKeyword(key)).toBe(true);
-        expect(asKeyword(key)).toBe(key);
+        expect(asKeyword(key) as string).toBe(key);
       })
     );
   });

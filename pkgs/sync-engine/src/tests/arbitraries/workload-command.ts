@@ -16,107 +16,83 @@ export type WorkloadReal = {
   readonly actions: WorkloadAction[];
 };
 
+type WorkloadCmd = AsyncCommand<WorkloadModel, WorkloadReal>;
+
 const clientArb = fc.constantFrom('c0', 'c1', 'c2');
 
-class MutateCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  constructor(
-    readonly clientId: string,
-    readonly noteId: string,
-    readonly body: string
-  ) {}
-  check(m: WorkloadModel): boolean {
-    return m.online.has(this.clientId) && !m.crashed.has(this.clientId);
-  }
-  async run(m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    m.mutations += 1;
-    r.actions.push({
-      kind: 'mutate',
-      clientId: this.clientId,
-      noteId: this.noteId,
-      body: this.body,
-    });
-  }
-  toString(): string {
-    return `mutate(${this.clientId},${this.noteId})`;
-  }
+function mutateCmd(
+  clientId: string,
+  noteId: string,
+  body: string
+): WorkloadCmd {
+  return {
+    check: (m) => m.online.has(clientId) && !m.crashed.has(clientId),
+    run: async (m, r) => {
+      m.mutations += 1;
+      r.actions.push({ kind: 'mutate', clientId, noteId, body });
+    },
+    toString: () => `mutate(${clientId},${noteId})`,
+  };
 }
 
-class OfflineCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  constructor(readonly clientId: string) {}
-  check(m: WorkloadModel): boolean {
-    return m.online.has(this.clientId) && !m.crashed.has(this.clientId);
-  }
-  async run(m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    m.online.delete(this.clientId);
-    r.actions.push({ kind: 'offline', clientId: this.clientId });
-  }
-  toString(): string {
-    return `offline(${this.clientId})`;
-  }
+function offlineCmd(clientId: string): WorkloadCmd {
+  return {
+    check: (m) => m.online.has(clientId) && !m.crashed.has(clientId),
+    run: async (m, r) => {
+      m.online.delete(clientId);
+      r.actions.push({ kind: 'offline', clientId });
+    },
+    toString: () => `offline(${clientId})`,
+  };
 }
 
-class OnlineCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  constructor(readonly clientId: string) {}
-  check(m: WorkloadModel): boolean {
-    return !m.online.has(this.clientId) && !m.crashed.has(this.clientId);
-  }
-  async run(m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    m.online.add(this.clientId);
-    r.actions.push({ kind: 'online', clientId: this.clientId });
-  }
-  toString(): string {
-    return `online(${this.clientId})`;
-  }
+function onlineCmd(clientId: string): WorkloadCmd {
+  return {
+    check: (m) => !m.online.has(clientId) && !m.crashed.has(clientId),
+    run: async (m, r) => {
+      m.online.add(clientId);
+      r.actions.push({ kind: 'online', clientId });
+    },
+    toString: () => `online(${clientId})`,
+  };
 }
 
-class PartitionCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  constructor(readonly nodeId: string) {}
-  check(m: WorkloadModel): boolean {
-    return !m.partitioned.has(this.nodeId);
-  }
-  async run(m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    m.partitioned.add(this.nodeId);
-    r.actions.push({
-      kind: 'partition',
-      nodeId: this.nodeId,
-      traffic: 'live',
-    });
-  }
-  toString(): string {
-    return `partition(${this.nodeId})`;
-  }
+function partitionCmd(nodeId: string): WorkloadCmd {
+  return {
+    check: (m) => !m.partitioned.has(nodeId),
+    run: async (m, r) => {
+      m.partitioned.add(nodeId);
+      r.actions.push({ kind: 'partition', nodeId, traffic: 'live' });
+    },
+    toString: () => `partition(${nodeId})`,
+  };
 }
 
-class HealCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  check(m: WorkloadModel): boolean {
-    return m.partitioned.size > 0 || m.held.size > 0;
-  }
-  async run(m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    m.partitioned.clear();
-    m.held.clear();
-    r.actions.push({ kind: 'heal' });
-  }
-  toString(): string {
-    return 'heal';
-  }
+function healCmd(): WorkloadCmd {
+  return {
+    check: (m) => m.partitioned.size > 0 || m.held.size > 0,
+    run: async (m, r) => {
+      m.partitioned.clear();
+      m.held.clear();
+      r.actions.push({ kind: 'heal' });
+    },
+    toString: () => 'heal',
+  };
 }
 
-class IdleCmd implements AsyncCommand<WorkloadModel, WorkloadReal> {
-  constructor(readonly ms: number) {}
-  check(_m: WorkloadModel): boolean {
-    return true;
-  }
-  async run(_m: WorkloadModel, r: WorkloadReal): Promise<void> {
-    r.actions.push({ kind: 'idle', ms: this.ms });
-  }
-  toString(): string {
-    return `idle(${this.ms})`;
-  }
+function idleCmd(ms: number): WorkloadCmd {
+  return {
+    check: () => true,
+    run: async (_m, r) => {
+      r.actions.push({ kind: 'idle', ms });
+    },
+    toString: () => `idle(${ms})`,
+  };
 }
 
 export const workloadCommands = (
   maxCommands = 12
-): fc.Arbitrary<Iterable<AsyncCommand<WorkloadModel, WorkloadReal>>> =>
+): fc.Arbitrary<Iterable<WorkloadCmd>> =>
   fc.commands(
     [
       fc
@@ -125,12 +101,12 @@ export const workloadCommands = (
           fc.constantFrom('n0', 'n1', 'n2'),
           fc.string({ maxLength: 8 })
         )
-        .map(([c, n, b]) => new MutateCmd(c, n, b)),
-      clientArb.map((c) => new OfflineCmd(c)),
-      clientArb.map((c) => new OnlineCmd(c)),
-      clientArb.map((c) => new PartitionCmd(c)),
-      fc.constant(new HealCmd()),
-      fc.integer({ min: 1, max: 50 }).map((ms) => new IdleCmd(ms)),
+        .map(([c, n, b]) => mutateCmd(c, n, b)),
+      clientArb.map((c) => offlineCmd(c)),
+      clientArb.map((c) => onlineCmd(c)),
+      clientArb.map((c) => partitionCmd(c)),
+      fc.constant(healCmd()),
+      fc.integer({ min: 1, max: 50 }).map((ms) => idleCmd(ms)),
     ],
     { maxCommands, size: 'small' }
   );
