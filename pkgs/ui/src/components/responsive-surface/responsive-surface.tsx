@@ -8,7 +8,9 @@
  * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset, via
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView} /
  * {@link FlatList} scrollbars sit flush with the surface edges (padding lives
- * inside the scrollable area).
+ * inside the scrollable area). Centered modals without a fixed `bodyHeight`
+ * wrap their chrome in a {@link ScrollView} capped to the viewport so short
+ * panels (e.g. nested debugger hosts) can scroll instead of clipping.
  *
  * Mobile sheets require {@link BottomSheetHostProvider} (wired from ClientEnv).
  */
@@ -17,7 +19,11 @@ import type { PropsWithChildren, ReactNode, RefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { type ComponentDataSet, componentDataSet } from '../../component-id';
 import { OnColorReset, useTheme } from '../../theme';
-import type { ModalSize } from '../../theme/modal-size';
+import {
+  MODAL_CONTENT_MARGIN_STEP,
+  type ModalSize,
+  resolveModalLayoutMaxHeight,
+} from '../../theme/modal-size';
 import { spacing } from '../../theme/scale';
 import type {
   BottomSheetHostBackdropProps,
@@ -35,6 +41,7 @@ import { ModalBackdrop } from '../modal/modal-backdrop';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
 import { usePortalContentWrap } from '../portal-content-bridge';
+import { ScrollView } from '../scroll-view';
 import { bottomSheetModalContainer } from './bottom-sheet-modal-container';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 import { shouldUseMobileSheet } from './should-use-mobile-sheet';
@@ -328,6 +335,24 @@ function MobileSheet({
   );
 }
 
+const desktopSurfacePaddingSx = {
+  px: CONTENT_EDGE_PADDING_STEP,
+  pt: CONTENT_EDGE_PADDING_STEP,
+  pb: SURFACE_BOTTOM_PADDING_STEP,
+} as const;
+
+function useDesktopModalMaxHeight(maxHeight: number | undefined): number {
+  const theme = useTheme();
+  const marginPx = spacing[MODAL_CONTENT_MARGIN_STEP];
+  const viewportMaxHeight = resolveModalLayoutMaxHeight(
+    theme.layout.height,
+    marginPx
+  );
+  return maxHeight === undefined
+    ? viewportMaxHeight
+    : Math.min(maxHeight, viewportMaxHeight);
+}
+
 function DesktopModal({
   visible,
   onClose,
@@ -340,6 +365,34 @@ function DesktopModal({
   closeTestID,
   dataSet,
 }: ResponsiveSurfaceProps) {
+  const resolvedMaxHeight = useDesktopModalMaxHeight(maxHeight);
+  const chrome = (
+    <SurfaceChrome
+      title={title}
+      bodyHeight={bodyHeight}
+      fillParent={false}
+      onClose={onClose}
+      closeTestID={closeTestID}
+    >
+      {children}
+    </SurfaceChrome>
+  );
+  // Fixed-height bodies (inspectors) own their own scroll. Otherwise wrap so
+  // short viewports can scroll — ModalContent only clips via maxHeight.
+  const body =
+    bodyHeight !== undefined ? (
+      <Box sx={desktopSurfacePaddingSx}>{chrome}</Box>
+    ) : (
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        flushEdge={false}
+        frameSx={{ maxHeight: resolvedMaxHeight }}
+        sx={desktopSurfacePaddingSx}
+      >
+        {chrome}
+      </ScrollView>
+    );
+
   return (
     <ModalRoot
       visible={visible}
@@ -355,23 +408,7 @@ function DesktopModal({
           padded={false}
           {...(maxHeight !== undefined ? { maxHeight } : {})}
         >
-          <Box
-            sx={{
-              px: CONTENT_EDGE_PADDING_STEP,
-              pt: CONTENT_EDGE_PADDING_STEP,
-              pb: SURFACE_BOTTOM_PADDING_STEP,
-            }}
-          >
-            <SurfaceChrome
-              title={title}
-              bodyHeight={bodyHeight}
-              fillParent={false}
-              onClose={onClose}
-              closeTestID={closeTestID}
-            >
-              {children}
-            </SurfaceChrome>
-          </Box>
+          {body}
         </ModalContent>
       </ModalBackdrop>
     </ModalRoot>
