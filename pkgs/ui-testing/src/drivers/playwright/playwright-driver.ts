@@ -1,24 +1,26 @@
 import type { Locator, Page } from '@playwright/test';
 import {
-  type AssertionOptions,
   runExpectHidden,
   runExpectText,
   runExpectVisible,
 } from '../../assertions/driver-expect';
 import { ElementNotFoundError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import type { WaitPollOptions } from '../../core/wait';
 import type {
+  AssertionOptions,
   Driver,
+  DriverWaitOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
   WaitState,
+  WaitTextCondition,
 } from '../../driver/driver';
+import { isWaitTextCondition } from '../../driver/driver';
 import { formatTestId } from '../../selector/format';
 
 export type PlaywrightDriverOptions = {
-  /** Injected Playwright page — the framework never launches a browser. */
+  /** Injected Playwright {@link Page} — the framework never launches a browser. */
   page: Page;
   /** Optional URL to open on `launch()`. Omit when the page is already loaded. */
   baseUrl?: string;
@@ -26,7 +28,8 @@ export type PlaywrightDriverOptions = {
 
 /**
  * Driver over an injected Playwright {@link Page}.
- * `@playwright/test` is a type-only dependency of this package.
+ * Waits use Playwright’s event-driven `waitFor` / `waitForFunction` — no
+ * shared poll interval.
  */
 export class PlaywrightDriver implements Driver {
   readonly kind = 'playwright';
@@ -106,9 +109,13 @@ export class PlaywrightDriver implements Driver {
 
   async wait(
     testId: string,
-    state: WaitState,
-    options?: WaitPollOptions
+    state: WaitState | WaitTextCondition,
+    options?: DriverWaitOptions
   ): Promise<void> {
+    if (isWaitTextCondition(state)) {
+      await this.waitText(testId, state, options);
+      return;
+    }
     const waitState = state === 'visible' ? 'visible' : 'hidden';
     if (options?.timeoutMs !== undefined) {
       await this.locator(testId).waitFor({
@@ -138,6 +145,23 @@ export class PlaywrightDriver implements Driver {
 
   async snapshotHtml(): Promise<string | null> {
     return this.page.content();
+  }
+
+  private async waitText(
+    testId: string,
+    state: WaitTextCondition,
+    options?: DriverWaitOptions
+  ): Promise<void> {
+    const exact = state.exact !== false;
+    const arg = { id: testId, text: state.text, exact };
+    // Event-driven DOM check (input value or textContent) — no fixed interval.
+    if (options?.timeoutMs !== undefined) {
+      await this.page.waitForFunction(textConditionInPage, arg, {
+        timeout: options.timeoutMs,
+      });
+      return;
+    }
+    await this.page.waitForFunction(textConditionInPage, arg);
   }
 
   private async expectVisible(
@@ -178,6 +202,21 @@ export class PlaywrightDriver implements Driver {
   private locator(testId: string): Locator {
     return this.page.getByTestId(testId);
   }
+}
+
+/** Runs in the browser; must stay serializable (no closures over outer scope). */
+function textConditionInPage(args: {
+  id: string;
+  text: string;
+  exact: boolean;
+}): boolean {
+  const el = document.querySelector(`[data-testid="${CSS.escape(args.id)}"]`);
+  if (!el) return false;
+  const value =
+    el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement
+      ? el.value
+      : (el.textContent ?? '');
+  return args.exact ? value === args.text : value.includes(args.text);
 }
 
 function scrollDelta(

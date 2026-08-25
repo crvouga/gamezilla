@@ -1,13 +1,14 @@
-import type { AssertionOptions } from '../../assertions/driver-expect';
 import { NotImplementedError } from '../../core/errors';
 import type { DriverKey } from '../../core/keys';
-import type { WaitPollOptions } from '../../core/wait';
 import type {
+  AssertionOptions,
   Driver,
+  DriverWaitOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
   WaitState,
+  WaitTextCondition,
 } from '../../driver/driver';
 
 /**
@@ -22,8 +23,9 @@ import type {
  * - clearText → `element(matcher).clearText()`
  * - pressKey → platform key APIs (limited)
  * - scroll → `element(matcher).scroll(amount, direction)`
- * - waitFor visible → `waitFor(element(matcher)).toBeVisible()`
- * - waitFor hidden → `waitFor(element(matcher)).not.toBeVisible()`
+ * - wait visible → `waitFor(element(matcher)).toBeVisible()`
+ * - wait hidden → `waitFor(element(matcher)).not.toBeVisible()`
+ * - wait text → unsupported in classic Detox (no text read-back API)
  * - getText → **unsupported** in classic Detox (no text read-back API)
  */
 export type DetoxLike = {
@@ -100,11 +102,11 @@ export class DetoxDriver implements Driver {
 
   async wait(
     _testId: string,
-    _state: WaitState,
-    _options?: WaitPollOptions
+    _state: WaitState | WaitTextCondition,
+    _options?: DriverWaitOptions
   ): Promise<void> {
     this.unsupported(
-      'waitFor',
+      'wait',
       'waitFor(element(matcher)).toBeVisible() / not.toBeVisible()'
     );
   }

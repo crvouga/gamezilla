@@ -1,6 +1,5 @@
 import type { Timers } from '@pkgs/clock';
 import {
-  type AssertionOptions,
   runExpectHidden,
   runExpectText,
   runExpectVisible,
@@ -11,20 +10,20 @@ import type {
   RenderAdapter,
   RenderedApp,
 } from '../../bootstrap/render-adapter';
-import { ElementNotFoundError } from '../../core/errors';
+import { ElementNotFoundError, UiTestError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import {
-  type WaitPollOptions,
-  type WaitPump,
-  waitUntil,
-} from '../../core/wait';
+import { type WaitPump, waitUntil } from '../../core/wait';
 import type {
+  AssertionOptions,
   Driver,
+  DriverWaitOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
   WaitState,
+  WaitTextCondition,
 } from '../../driver/driver';
+import { isWaitTextCondition } from '../../driver/driver';
 import { formatTestId } from '../../selector/format';
 import { createRntlRenderAdapter } from './renderer-rntl';
 
@@ -35,8 +34,8 @@ export type InProcessDriverOptions<TContext = void> = {
   readonly now: () => number;
   readonly timers: Timers;
   /**
-   * Virtual-time / event drain between wait polls. When set, replaces the
-   * default wall 50ms sleep in {@link waitUntil}.
+   * Virtual-time / event drain between wait checks. When set, replaces the
+   * default wall 50ms sleep. Constructor-only — not a {@link Driver.wait} option.
    */
   readonly pump?: WaitPump;
 };
@@ -45,6 +44,9 @@ export type InProcessDriverOptions<TContext = void> = {
  * Boots an application entirely in-process via a {@link RenderAdapter}
  * (or a harness-owned {@link AppHarness.mount}).
  * No browser, emulator, IPC, or HTTP server.
+ *
+ * Waits use an internal virtual-clock pump + React flush — not RNTL
+ * `findBy` / `waitFor` (those wall-sleep ~50ms per miss).
  */
 export class InProcessDriver<TContext = void> implements Driver {
   readonly kind = 'in-process';
@@ -143,41 +145,14 @@ export class InProcessDriver<TContext = void> implements Driver {
 
   async wait(
     testId: string,
-    state: WaitState,
-    options?: WaitPollOptions
+    state: WaitState | WaitTextCondition,
+    options?: DriverWaitOptions
   ): Promise<void> {
-    const description =
-      options?.description ?? `${state} ${formatTestId(testId)}`;
-    const pump = options?.pump ?? this.pump;
-    // With a drain pump: one activate up front (focus + flush), then read-only
-    // polls; pump runs clock then activate between misses. Without a pump:
-    // flush only inside the predicate so an already-true first poll is one act.
-    if (pump !== undefined) {
-      await this.activate();
+    if (isWaitTextCondition(state)) {
+      await this.waitText(testId, state, options);
+      return;
     }
-    await waitUntil(
-      async () => {
-        if (pump === undefined) {
-          await this.activate();
-        }
-        const visible = await this.isVisible(testId);
-        return state === 'visible' ? visible : !visible;
-      },
-      {
-        ...options,
-        description,
-        now: this.now,
-        timers: this.timers,
-        ...(pump !== undefined
-          ? {
-              pump: async () => {
-                await pump();
-                await this.activate();
-              },
-            }
-          : {}),
-      }
-    );
+    await this.waitVisibility(testId, state, options);
   }
 
   async isVisible(testId: string): Promise<boolean> {
@@ -206,6 +181,96 @@ export class InProcessDriver<TContext = void> implements Driver {
           : undefined
       ) ?? null
     );
+  }
+
+  private async waitVisibility(
+    testId: string,
+    state: WaitState,
+    options?: DriverWaitOptions
+  ): Promise<void> {
+    const description =
+      options?.description ?? `${state} ${formatTestId(testId)}`;
+    const pump = this.pump;
+    // With a drain pump: one activate up front, then read-only checks; pump
+    // runs clock then activate between misses. Without a pump: flush only
+    // inside the predicate so an already-true first check is one act.
+    if (pump !== undefined) {
+      await this.activate();
+    }
+    await waitUntil(
+      async () => {
+        if (pump === undefined) {
+          await this.activate();
+        }
+        const visible = await this.isVisible(testId);
+        return state === 'visible' ? visible : !visible;
+      },
+      {
+        ...(options?.timeoutMs !== undefined
+          ? { timeoutMs: options.timeoutMs }
+          : {}),
+        description,
+        now: this.now,
+        timers: this.timers,
+        ...(pump !== undefined
+          ? {
+              pump: async () => {
+                await pump();
+                await this.activate();
+              },
+            }
+          : {}),
+      }
+    );
+  }
+
+  private async waitText(
+    testId: string,
+    state: WaitTextCondition,
+    options?: DriverWaitOptions
+  ): Promise<void> {
+    const exact = state.exact !== false;
+    const description =
+      options?.description ??
+      `text ${exact ? 'equals' : 'contains'} "${state.text}" on ${formatTestId(testId)}`;
+    const pump = this.pump;
+    if (pump !== undefined) {
+      await this.activate();
+    }
+
+    let lastActual: string | null = null;
+    try {
+      await waitUntil(
+        async () => {
+          if (pump === undefined) {
+            await this.activate();
+          }
+          lastActual = await this.getText(testId);
+          return textMatches(lastActual, state.text, exact) ? true : null;
+        },
+        {
+          ...(options?.timeoutMs !== undefined
+            ? { timeoutMs: options.timeoutMs }
+            : {}),
+          description,
+          now: this.now,
+          timers: this.timers,
+          ...(pump !== undefined
+            ? {
+                pump: async () => {
+                  await pump();
+                  await this.activate();
+                },
+              }
+            : {}),
+        }
+      );
+    } catch (error) {
+      throw new UiTestError(
+        `Expected text ${exact ? 'equals' : 'contains'} "${state.text}" on ${formatTestId(testId)}, got ${JSON.stringify(lastActual)}`,
+        { cause: error }
+      );
+    }
   }
 
   private async expectVisible(
@@ -262,4 +327,12 @@ export class InProcessDriver<TContext = void> implements Driver {
     }
     return element;
   }
+}
+
+function textMatches(
+  actual: string | null,
+  expected: string,
+  exact: boolean
+): boolean {
+  return exact ? actual === expected : (actual?.includes(expected) ?? false);
 }

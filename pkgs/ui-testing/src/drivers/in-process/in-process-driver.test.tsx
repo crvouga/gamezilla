@@ -68,4 +68,45 @@ describe('InProcessDriver', () => {
     await driver.tap('email');
     await driver.key('tab');
   });
+
+  it('wait text uses pump then activate so React commits before the next check', async () => {
+    let committed = 'before';
+    let pending = 'before';
+    let activates = 0;
+    let pumps = 0;
+
+    const harness = {
+      mount: async () => ({
+        query: () => ({}) as never,
+        isVisible: () => true,
+        getText: () => committed,
+        tap: async () => undefined,
+        tapAt: async () => undefined,
+        typeText: async () => undefined,
+        clearText: async () => undefined,
+        pressKey: async () => undefined,
+        scroll: async () => undefined,
+        unmount: () => undefined,
+        activate: async () => {
+          activates += 1;
+          committed = pending;
+        },
+      }),
+    };
+
+    driver = new InProcessDriver({
+      harness,
+      ...clockOpts,
+      pump: () => {
+        pumps += 1;
+        pending = 'after';
+      },
+    });
+    await driver.launch();
+    await driver.wait('label', { text: 'after' }, { timeoutMs: 500 });
+
+    expect(committed).toBe('after');
+    expect(activates).toBe(2);
+    expect(pumps).toBe(1);
+  });
 });

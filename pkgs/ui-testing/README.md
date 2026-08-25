@@ -187,10 +187,15 @@ first-class text read-back — `getText` remains unsupported by design.
 | `clear` | yes | yes | stub → `clearText` |
 | `key` | yes (no-op host) | yes | stub (platform-limited) |
 | `scroll` | yes | yes | stub → `element().scroll` |
-| `wait` / `isVisible` | yes | yes | stub → `waitFor` / `toBeVisible` |
-| `expect.visible` / `hidden` / `text` | yes | yes | stub |
+| `wait` / `isVisible` | virtual pump + query | `locator.waitFor` / `waitForFunction` | stub → native `waitFor` |
+| `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same | stub |
 | `getText` | yes | yes | unsupported in Detox |
 | `snapshotHtml` | RN host → HTML | `page.content()` | returns `null` |
+
+`Driver.wait` is host-native for speed: Playwright uses event-driven waits;
+in-process uses a constructor `pump` (sim virtual clock) instead of RNTL
+`findBy` / wall 50ms sleeps. Public options are only `timeoutMs` /
+`description` — no shared poll interval.
 
 ### UI snapshots for reports
 
@@ -199,8 +204,8 @@ produce a readable HTML preview of the current UI. In-process serializes the
 `react-test-renderer` host tree (component tags + inline styles from `style`
 props) — not a browser DOM. Pass `stylesheetHref` to link shared shell CSS
 instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
-`WaitPollOptions.onPoll` lets callers snapshot mid-wait without forking wait
-logic.
+Reporting wraps waits with `pollFrames` on the simulation recorder (not a
+Driver poll hook).
 
 ## Adding a future driver (Maestro, Appium, Cypress, …)
 
@@ -211,9 +216,10 @@ logic.
 
 ## Test runner independence
 
-Assertions and `waitUntil` throw plain `Error` subclasses
-(`TimeoutError`, `UiTestError`, …). There is no dependency on Vitest, Jest, or
-Bun's `expect` — use whatever runner you prefer.
+Assertions throw plain `Error` subclasses (`TimeoutError`, `UiTestError`, …).
+In-process may use an internal `waitUntil` helper; Playwright / Detox must not.
+There is no dependency on Vitest, Jest, or Bun's `expect` — use whatever
+runner you prefer.
 
 ## Package layout
 

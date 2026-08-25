@@ -2,10 +2,11 @@ import type {
   AssertionOptions,
   Driver,
   DriverKey,
+  DriverWaitOptions,
   ScrollDirection,
   UiWaitOptions,
-  WaitPollOptions,
   WaitState,
+  WaitTextCondition,
 } from '@pkgs/ui-testing';
 import { formatTestId } from '@pkgs/ui-testing';
 
@@ -86,12 +87,16 @@ export function createReportingDriver(
       }),
     scroll: (testId, direction: ScrollDirection, amount?) =>
       recordScroll({ record, driver, testId, direction, amount }),
-    wait: (testId, state: WaitState, options?: WaitPollOptions) =>
+    wait: (
+      testId,
+      state: WaitState | WaitTextCondition,
+      options?: DriverWaitOptions
+    ) =>
       record(
         'waitFor',
-        `waitFor ${state} ${formatTestId(testId)}`,
+        `waitFor ${waitDetail(state)} ${formatTestId(testId)}`,
         () => driver.wait(testId, state, options),
-        { testId, detail: state, pollFrames: true }
+        { testId, detail: waitDetail(state), pollFrames: true }
       ),
     expect: createExpectRecorder(driver, record),
     isVisible: (testId) => driver.isVisible(testId),
@@ -176,4 +181,9 @@ function recordScroll(args: {
     () => driver.scroll(testId, direction, amount),
     { testId, detail }
   );
+}
+
+function waitDetail(state: WaitState | WaitTextCondition): string {
+  if (typeof state === 'string') return state;
+  return `text=${JSON.stringify(state.text)}`;
 }

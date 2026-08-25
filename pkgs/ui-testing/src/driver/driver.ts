@@ -1,10 +1,29 @@
-import type { AssertionOptions } from '../assertions/driver-expect';
 import type { DriverKey } from '../core/keys';
-import type { WaitPollOptions } from '../core/wait';
 
 export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
 export type WaitState = 'visible' | 'hidden';
+
+/**
+ * Wait until `testId` shows (or contains) this text.
+ * Passed as the second argument to {@link Driver.wait}.
+ */
+export type WaitTextCondition = {
+  readonly text: string;
+  readonly exact?: boolean;
+};
+
+/**
+ * Wall fail-fast + error copy only.
+ * No interval / pump / onPoll — each driver uses its host’s fastest wait.
+ */
+export type DriverWaitOptions = {
+  readonly timeoutMs?: number;
+  readonly description?: string;
+};
+
+/** Alias for assert options — same slim surface as {@link DriverWaitOptions}. */
+export type AssertionOptions = DriverWaitOptions;
 
 export type UiWaitOptions = { readonly timeoutMs?: number };
 
@@ -14,12 +33,22 @@ export type TapPosition = {
   yRatio: number;
 };
 
+export function isWaitTextCondition(
+  state: WaitState | WaitTextCondition
+): state is WaitTextCondition {
+  return typeof state === 'object' && state !== null && 'text' in state;
+}
+
 /**
  * User-intent driver. Models what a person does with an app, not Playwright /
  * Detox / DOM primitives. Every concrete driver must satisfy this interface.
  *
  * All targets are `testId` strings. Assertions live on nested `expect`.
  * `tap` / `input` auto-wait until the target is visible before acting.
+ *
+ * {@link Driver.wait} is the sole waiting API — each implementation uses the
+ * host framework’s fastest mechanism (Playwright auto-wait, in-process virtual
+ * pump, Detox `waitFor`, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {
   /** Stable identifier for logs and capability errors (`"in-process"`, …). */
@@ -59,11 +88,14 @@ export interface Driver {
     amount?: number
   ): Promise<void>;
 
-  /** Poll until `testId` reaches `state`, or throw {@link TimeoutError}. */
+  /**
+   * Wait until `testId` satisfies `state` (visible / hidden / text).
+   * Host-native — not a shared poller. Throws {@link TimeoutError} on failure.
+   */
   wait(
     testId: string,
-    state: WaitState,
-    options?: WaitPollOptions
+    state: WaitState | WaitTextCondition,
+    options?: DriverWaitOptions
   ): Promise<void>;
 
   readonly expect: {
@@ -76,7 +108,7 @@ export interface Driver {
     ): Promise<void>;
   };
 
-  /** Snapshot whether `testId` is currently visible (no polling). */
+  /** Snapshot whether `testId` is currently visible (no waiting). */
   isVisible(testId: string): Promise<boolean>;
 
   /**

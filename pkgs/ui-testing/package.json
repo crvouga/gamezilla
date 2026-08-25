@@ -17,7 +17,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test src/core src/selector src/assertions src/drivers/playwright src/drivers/detox --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
+    "test": "bun test src/core src/selector src/drivers/playwright src/drivers/detox --pass-with-no-tests && bunx jest --config ./jest.config.cjs --runInBand"
   },
   "dependencies": {
     "@babel/runtime": "catalog:",

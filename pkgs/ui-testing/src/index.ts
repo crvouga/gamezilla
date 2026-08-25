@@ -10,7 +10,6 @@
  * when the factory is too coarse.
  */
 
-export type { AssertionOptions } from './assertions/driver-expect';
 export type { AppHarness } from './bootstrap/app-harness';
 export type {
   HostNode,
@@ -25,9 +24,8 @@ export {
 } from './core/errors';
 export { DRIVER_KEY_TO_DOM, type DriverKey } from './core/keys';
 export {
-  type WaitOptions,
-  type WaitPollOptions,
   type WaitPump,
+  type WaitUntilOptions,
   waitUntil,
 } from './core/wait';
 export {
@@ -38,12 +36,16 @@ export {
   type PlaywrightDriverConfig,
 } from './driver/create-driver';
 export type {
+  AssertionOptions,
   Driver,
+  DriverWaitOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
   WaitState,
+  WaitTextCondition,
 } from './driver/driver';
+export { isWaitTextCondition } from './driver/driver';
 export {
   DetoxDriver,
   type DetoxDriverOptions,

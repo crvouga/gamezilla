@@ -41,6 +41,7 @@ function createFakePage(locator: FakeLocator): Page {
     content: mock(() => Promise.resolve('<html><body>ok</body></html>')),
     keyboard: { press: mock(() => Promise.resolve()) },
     getByTestId: mock(() => locator as unknown as Locator),
+    waitForFunction: mock(() => Promise.resolve()),
   } as unknown as Page;
 }
 
@@ -84,6 +85,9 @@ describe('PlaywrightDriver', () => {
     await driver.wait('go', 'visible');
     expect(page.getByTestId).toHaveBeenCalledWith('go');
     expect(locator.waitFor).toHaveBeenCalledWith({ state: 'visible' });
+
+    await driver.wait('label', { text: 'hello' });
+    expect(page.waitForFunction).toHaveBeenCalled();
 
     expect(await driver.isVisible('hi')).toBe(true);
     expect(await driver.getText('email')).toBe('typed');
