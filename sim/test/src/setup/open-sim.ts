@@ -107,22 +107,19 @@ function createClientDriver(args: {
     return createDriver({ kind: 'playwright', page, baseUrl });
   }
   const live = args.sim.spawnClient(args.id);
-  // Product keeps virtual sim timers (createSim default). Poll sleeps use a
-  // short wall delay so waitUntil does not burn 50ms real time per poll, but
-  // only advance the sim clock by that same wall amount — advancing by the
-  // full interval (e.g. 50ms) on a 1ms sleep races Better Auth past dispose.
+  // Product keeps virtual sim timers (createSim default). Driver waits use wall
+  // time so waitUntil deadlines progress; each sleep also advances the sim clock
+  // so product setTimeout(0) / retries flush while polling.
   const timers: Timers = {
-    setTimeout: (fn, ms) => {
-      const wallMs = ms <= 0 ? 0 : Math.min(ms, 1);
-      return simNodeTimers.setTimeout(() => {
+    setTimeout: (fn, ms) =>
+      simNodeTimers.setTimeout(() => {
         try {
-          args.sim.clock.advance(wallMs);
+          args.sim.clock.advance(Math.max(0, ms));
         } catch {
           // clock may have been reset/disposed mid-wait
         }
         fn();
-      }, wallMs);
-    },
+      }, ms),
     clearTimeout: simNodeTimers.clearTimeout,
     setInterval: (fn, ms) =>
       simNodeTimers.setInterval(() => {
@@ -179,8 +176,8 @@ async function bootSim(
     seed: 1,
     startMs,
     // Keep virtual sim timers on the product — wall timers here stick RNTL
-    // `act` on product setIntervals (reconcile / ping). Driver poll sleeps use
-    // 1ms wall delay + full sim clock advance (see createClientDriver).
+    // `act` on product setIntervals (reconcile / ping). Driver waits use wall
+    // time in createClientDriver and advance this clock while sleeping.
     ...(fidelity === 'max'
       ? { serverSql: await postgresServerSql() }
       : {
