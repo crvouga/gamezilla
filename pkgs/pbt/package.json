@@ -1,0 +1,27 @@
+{
+  "name": "@pkgs/pbt",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test",
+    "test:pbt": "bun run --filter @pkgs/pbt test",
+    "test:pbt:random": "PBT_RANDOM=1 PBT_NUM_RUNS=200 bun run --filter @pkgs/pbt test"
+  },
+  "dependencies": {
+    "fast-check": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

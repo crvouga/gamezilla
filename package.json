@@ -53,6 +53,8 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
+    "test:pbt": "bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
+    "test:pbt:random": "PBT_RANDOM=1 PBT_NUM_RUNS=200 bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
     "test:sim": "turbo test -F @sim/test --force",
     "wipe": "git clean -xfd"
   },
@@ -172,6 +174,7 @@
     "expo-system-ui": "~55.0.19",
     "expo-updates": "~55.0.25",
     "expo-web-browser": "~55.0.19",
+    "fast-check": "^4.9.0",
     "fzstd": "^0.1.1",
     "gql.tada": "1.11.3",
     "graphql": "16.11.0",

@@ -18,8 +18,10 @@
     "@pkgs/assert": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/pbt": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

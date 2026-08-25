@@ -20,9 +20,11 @@
     "react": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/pbt": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }
