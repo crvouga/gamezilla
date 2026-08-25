@@ -31,5 +31,5 @@ describe('space end', () => {
     await alice.space.endSpace();
 
     await bob.space.expectLobbyCardGone(aliceUsername);
-  }, 180_000);
+  }, 30_000);
 });

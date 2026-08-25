@@ -2,12 +2,15 @@ import { Handles } from '@libs/dst-handles';
 import { wallClock } from '@pkgs/clock';
 import type { Driver } from '@pkgs/ui-testing';
 
+/** Fail-fast wall backstop; drain pump advances sim time between checks. */
+const WAIT_MS = 2_000;
+
 export class SearchFlows {
   constructor(private readonly ui: Driver) {}
 
   async openTab(): Promise<void> {
     await this.ui.tap(Handles.tabSearch);
-    await this.ui.expect.visible(Handles.searchInput, { timeoutMs: 15_000 });
+    await this.ui.expect.visible(Handles.searchInput, { timeoutMs: WAIT_MS });
   }
 
   async searchUsername(username: string): Promise<void> {
@@ -17,8 +20,8 @@ export class SearchFlows {
   }
 
   /**
-   * Re-query infrequently so username upload can land without burning the
-   * friend-search rate limit.
+   * Wait until any of `handles` is visible. Re-queries search when none match
+   * (rate limit is generous; pump drains sync between attempts).
    */
   private async waitForSearchHit(
     username: string,
@@ -27,19 +30,29 @@ export class SearchFlows {
   ): Promise<string> {
     const deadline = wallClock.now() + opts.timeoutMs;
     let lastError: unknown;
-    let lastQueryAt = 0;
+    let queried = false;
     while (wallClock.now() < deadline) {
-      if (wallClock.now() - lastQueryAt >= 750) {
+      if (!queried) {
         await this.searchUsername(username);
-        lastQueryAt = wallClock.now();
+        queried = true;
       }
       for (const handle of handles) {
-        try {
-          await this.ui.expect.visible(handle, { timeoutMs: 1_200 });
+        if (await this.ui.isVisible(handle)) {
           return handle;
-        } catch (error) {
-          lastError = error;
         }
+      }
+      const primary = handles[0];
+      if (primary === undefined) {
+        throw new Error(`Timed out waiting for ${opts.description}`);
+      }
+      try {
+        // Short wait drives the drain pump (virtual time), not a 1.2s wall burn.
+        await this.ui.wait(primary, 'visible', { timeoutMs: 100 });
+        return primary;
+      } catch (error) {
+        lastError = error;
+        // Re-type search so a late username hydrate can appear.
+        queried = false;
       }
     }
     throw lastError instanceof Error
@@ -56,7 +69,7 @@ export class SearchFlows {
         Handles.friendStatusFriends(username),
       ],
       {
-        timeoutMs: 60_000,
+        timeoutMs: WAIT_MS,
         description: `user ${username} visible in search`,
       }
     );
@@ -65,7 +78,7 @@ export class SearchFlows {
   async addFriend(username: string): Promise<void> {
     const handle = Handles.friendAdd(username);
     await this.waitForSearchHit(username, [handle], {
-      timeoutMs: 60_000,
+      timeoutMs: WAIT_MS,
       description: handle,
     });
     await this.ui.tap(handle);
@@ -73,7 +86,7 @@ export class SearchFlows {
 
   async expectIncomingRequest(username: string): Promise<void> {
     await this.waitForSearchHit(username, [Handles.friendConfirm(username)], {
-      timeoutMs: 60_000,
+      timeoutMs: WAIT_MS,
       description: Handles.friendConfirm(username),
     });
   }
@@ -86,7 +99,7 @@ export class SearchFlows {
   async expectFriendsStatus(username: string): Promise<void> {
     await this.searchUsername(username);
     await this.ui.expect.visible(Handles.friendStatusFriends(username), {
-      timeoutMs: 20_000,
+      timeoutMs: WAIT_MS,
     });
   }
 }

@@ -1,6 +1,9 @@
 import { Handles } from '@libs/dst-handles';
 import type { Driver } from '@pkgs/ui-testing';
 
+const WAIT_MS = 2_000;
+const HIDDEN_MS = 5_000;
+
 export class FriendsFlows {
   constructor(private readonly ui: Driver) {}
 
@@ -8,7 +11,7 @@ export class FriendsFlows {
   async openTab(): Promise<void> {
     await this.ui.tap(Handles.tabProfile);
     await this.ui.expect.visible(Handles.profileFriendsStats, {
-      timeoutMs: 15_000,
+      timeoutMs: WAIT_MS,
     });
   }
 
@@ -19,14 +22,14 @@ export class FriendsFlows {
 
   async expectFriend(username: string): Promise<void> {
     await this.ui.expect.visible(Handles.friendsListRow(username), {
-      timeoutMs: 20_000,
+      timeoutMs: WAIT_MS,
     });
   }
 
   async expectNotFriend(username: string): Promise<void> {
     await this.openList();
     await this.ui.expect.hidden(Handles.friendsListRow(username), {
-      timeoutMs: 15_000,
+      timeoutMs: HIDDEN_MS,
     });
   }
 }

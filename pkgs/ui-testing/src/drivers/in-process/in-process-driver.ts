@@ -13,7 +13,11 @@ import type {
 } from '../../bootstrap/render-adapter';
 import { ElementNotFoundError } from '../../core/errors';
 import { DRIVER_KEY_TO_DOM, type DriverKey } from '../../core/keys';
-import { type WaitPollOptions, waitUntil } from '../../core/wait';
+import {
+  type WaitPollOptions,
+  type WaitPump,
+  waitUntil,
+} from '../../core/wait';
 import type {
   Driver,
   ScrollDirection,
@@ -30,6 +34,11 @@ export type InProcessDriverOptions<TContext = void> = {
   renderer?: RenderAdapter;
   readonly now: () => number;
   readonly timers: Timers;
+  /**
+   * Virtual-time / event drain between wait polls. When set, replaces the
+   * default wall 50ms sleep in {@link waitUntil}.
+   */
+  readonly pump?: WaitPump;
 };
 
 /**
@@ -44,6 +53,7 @@ export class InProcessDriver<TContext = void> implements Driver {
   private readonly renderer: RenderAdapter;
   readonly now: () => number;
   readonly timers: Timers;
+  readonly pump: WaitPump | undefined;
   private context: TContext | undefined;
   private app: RenderedApp | undefined;
 
@@ -59,6 +69,7 @@ export class InProcessDriver<TContext = void> implements Driver {
     this.renderer = options.renderer ?? createRntlRenderAdapter();
     this.now = options.now;
     this.timers = options.timers;
+    this.pump = options.pump;
   }
 
   async launch(): Promise<void> {
@@ -88,14 +99,13 @@ export class InProcessDriver<TContext = void> implements Driver {
   }
 
   async tap(testId: string, options?: UiWaitOptions): Promise<void> {
+    // wait() already flushed React; skip a spare activate before fireEvent.
     await this.waitVisible(testId, options);
-    await this.activate();
     await this.requireApp().tap(await this.requireElement(testId));
   }
 
   async tapAt(testId: string, position: TapPosition): Promise<void> {
     await this.waitVisible(testId);
-    await this.activate();
     await this.requireApp().tapAt(await this.requireElement(testId), position);
   }
 
@@ -105,7 +115,6 @@ export class InProcessDriver<TContext = void> implements Driver {
     options?: UiWaitOptions
   ): Promise<void> {
     await this.waitVisible(testId, options);
-    await this.activate();
     await this.requireApp().typeText(await this.requireElement(testId), text);
   }
 
@@ -139,10 +148,18 @@ export class InProcessDriver<TContext = void> implements Driver {
   ): Promise<void> {
     const description =
       options?.description ?? `${state} ${formatTestId(testId)}`;
+    const pump = options?.pump ?? this.pump;
+    // With a drain pump: one activate up front (focus + flush), then read-only
+    // polls; pump runs clock then activate between misses. Without a pump:
+    // flush only inside the predicate so an already-true first poll is one act.
+    if (pump !== undefined) {
+      await this.activate();
+    }
     await waitUntil(
       async () => {
-        // Flush pending React updates before each poll (AuthBridge / sync).
-        await this.activate();
+        if (pump === undefined) {
+          await this.activate();
+        }
         const visible = await this.isVisible(testId);
         return state === 'visible' ? visible : !visible;
       },
@@ -151,6 +168,14 @@ export class InProcessDriver<TContext = void> implements Driver {
         description,
         now: this.now,
         timers: this.timers,
+        ...(pump !== undefined
+          ? {
+              pump: async () => {
+                await pump();
+                await this.activate();
+              },
+            }
+          : {}),
       }
     );
   }
@@ -225,7 +250,8 @@ export class InProcessDriver<TContext = void> implements Driver {
     return this.app;
   }
 
-  private async activate(): Promise<void> {
+  /** Flush pending React / focus the active multi-app root. */
+  async activate(): Promise<void> {
     await this.requireApp().activate?.();
   }
 

@@ -2,25 +2,36 @@ import type { Timers } from '@pkgs/clock';
 
 import { TimeoutError } from './errors';
 
+/**
+ * Advance product work between wait polls (virtual-time drain). When set,
+ * replaces the default wall `intervalMs` sleep.
+ */
+export type WaitPump = () => void | Promise<void>;
+
 /** Polling knobs shared by driver waitFor / assertions / waitUntil. */
 export type WaitPollOptions = {
-  /** Maximum time to poll. Default 5_000. */
+  /** Maximum wall time to poll. Default 5_000. */
   timeoutMs?: number;
-  /** Delay between polls. Default 50. */
+  /** Delay between polls when `pump` is unset. Default 50. */
   intervalMs?: number;
   /** Human-readable description used in the timeout error. */
   description?: string;
   /**
-   * Invoked after each unsuccessful poll attempt (before the sleep).
+   * Invoked after each unsuccessful poll attempt (before the sleep / pump).
    * Used by simulation reports to capture mid-wait UI frames.
    */
   onPoll?: () => void | Promise<void>;
+  /**
+   * Event / idle drain instead of wall sleep. In-process sim wires a virtual
+   * clock pump here; Playwright / Detox leave this unset.
+   */
+  pump?: WaitPump;
 };
 
 export type WaitOptions = WaitPollOptions & {
-  /** Epoch ms clock. */
+  /** Epoch ms clock (wall for deadlines). */
   now: () => number;
-  /** Timers for poll sleep. */
+  /** Timers for poll sleep when `pump` is unset. */
   timers: Timers;
 };
 
@@ -40,6 +51,7 @@ export async function waitUntil<T>(
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const intervalMs = options.intervalMs ?? DEFAULT_INTERVAL_MS;
   const description = options.description ?? 'condition';
+  const pump = options.pump;
   const deadline = now() + timeoutMs;
   let lastError: unknown;
 
@@ -55,7 +67,11 @@ export async function waitUntil<T>(
     if (options.onPoll) {
       await options.onPoll();
     }
-    await sleep(intervalMs, timers);
+    if (pump !== undefined) {
+      await pump();
+    } else {
+      await sleep(intervalMs, timers);
+    }
   }
 
   throw new TimeoutError(

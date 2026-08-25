@@ -36,5 +36,5 @@ describe('space leave', () => {
 
     await alice.space.reenterActiveSpace(aliceUsername);
     await alice.space.expectActiveSpace();
-  }, 180_000);
+  }, 30_000);
 });

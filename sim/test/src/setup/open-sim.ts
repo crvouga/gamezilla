@@ -31,6 +31,7 @@ import {
   resolveOpenSimFidelity,
 } from './fidelity';
 import { simNodeTimers } from './sim-actor-overrides';
+import { createSimWaitPump } from './sim-wait-pump';
 import { simReportTopology } from './sim-world-snapshot';
 
 const reportFs = wallNodeFs();
@@ -107,35 +108,16 @@ function createClientDriver(args: {
     return createDriver({ kind: 'playwright', page, baseUrl });
   }
   const live = args.sim.spawnClient(args.id);
-  // Product keeps virtual sim timers (createSim default). Driver waits use wall
-  // time so waitUntil deadlines progress; each sleep also advances the sim clock
-  // so product setTimeout(0) / retries flush while polling.
-  const timers: Timers = {
-    setTimeout: (fn, ms) =>
-      simNodeTimers.setTimeout(() => {
-        try {
-          args.sim.clock.advance(Math.max(0, ms));
-        } catch {
-          // clock may have been reset/disposed mid-wait
-        }
-        fn();
-      }, ms),
-    clearTimeout: simNodeTimers.clearTimeout,
-    setInterval: (fn, ms) =>
-      simNodeTimers.setInterval(() => {
-        try {
-          args.sim.clock.advance(Math.max(0, ms));
-        } catch {
-          // ignore
-        }
-        fn();
-      }, ms),
-    clearInterval: simNodeTimers.clearInterval,
-  };
+  // Product keeps virtual sim timers (createSim default). Driver wait deadlines
+  // use wall time as a fail-fast backstop; the drain pump advances the sim
+  // clock (one-shots / reconcile) without wall 50ms sleeps.
+  const pump = createSimWaitPump({ clock: args.sim.clock });
+  const timers: Timers = simNodeTimers;
   return createDriver({
     kind: 'in-process',
     now: wallClock.now,
     timers,
+    pump,
     harness: {
       mount: async () => {
         const app = args.multiAppSession.mountActor(
@@ -289,8 +271,11 @@ export async function openSim(
   const actors = new Map<string, ActorEntry>();
   const multiAppSession = createMultiAppRntlSession({
     onActorFocus: () => {
-      for (let i = 0; i < 20; i += 1) {
-        sim.clock.advance(50);
+      // Nudge product timers (upload idle / reconcile) after remount.
+      try {
+        sim.clock.advance(1_000);
+      } catch {
+        // ignore disposed clock
       }
     },
   });

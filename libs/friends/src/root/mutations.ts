@@ -15,3 +15,13 @@ export const FRIENDS_MUTATIONS = [
   blockUserMutation,
   unblockUserMutation,
 ] as const;
+
+export {
+  acceptFriendRequestMutation,
+  blockUserMutation,
+  cancelFriendRequestMutation,
+  declineFriendRequestMutation,
+  removeFriendMutation,
+  sendFriendRequestMutation,
+  unblockUserMutation,
+};

@@ -27,4 +27,25 @@ describe('createSimClock', () => {
     clock.advance(100);
     expect(hit).toBe(0);
   });
+
+  test('nextDueAt returns soonest pending timer', () => {
+    const { clock, timers } = createSimClock({ startMs: 0 });
+    expect(clock.nextDueAt()).toBeNull();
+    timers.setTimeout(() => undefined, 200);
+    timers.setTimeout(() => undefined, 50);
+    expect(clock.nextDueAt()).toBe(50);
+    clock.advance(50);
+    expect(clock.nextDueAt()).toBe(200);
+  });
+
+  test('pendingOneShotCount ignores intervals', () => {
+    const { clock, timers } = createSimClock({ startMs: 0 });
+    timers.setInterval(() => undefined, 500);
+    expect(clock.pendingOneShotCount()).toBe(0);
+    timers.setTimeout(() => undefined, 100);
+    timers.setTimeout(() => undefined, 200);
+    expect(clock.pendingOneShotCount()).toBe(2);
+    clock.advance(100);
+    expect(clock.pendingOneShotCount()).toBe(1);
+  });
 });

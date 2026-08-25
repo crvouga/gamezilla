@@ -22,11 +22,8 @@ export class AuthFlows {
     await this.ui.tap(Handles.authSubmitCreate);
     await this.ui.tap(Handles.authSignedInDone);
     // dismissModal can flash idle + Close before unmount; dismiss when present.
-    // `tap` already waits for visibility — short timeout avoids hanging if gone.
-    try {
-      await this.ui.tap(Handles.authModalClose, { timeoutMs: 1000 });
-    } catch {
-      // Auth logout path: account Sign out is already reachable.
+    if (await this.ui.isVisible(Handles.authModalClose)) {
+      await this.ui.tap(Handles.authModalClose);
     }
   }
 

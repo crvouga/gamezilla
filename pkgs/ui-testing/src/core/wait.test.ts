@@ -32,4 +32,39 @@ describe('waitUntil', () => {
       })
     ).rejects.toBeInstanceOf(TimeoutError);
   });
+
+  it('uses pump instead of wall sleep when provided', async () => {
+    let n = 0;
+    let pumps = 0;
+    const value = await waitUntil(
+      () => {
+        n += 1;
+        return n >= 3 ? 'pumped' : null;
+      },
+      {
+        timeoutMs: 500,
+        now: wallClock.now,
+        timers: wallTimers,
+        pump: () => {
+          pumps += 1;
+        },
+      }
+    );
+    expect(value).toBe('pumped');
+    expect(pumps).toBe(2);
+  });
+
+  it('resolves immediately when predicate is already true (no pump)', async () => {
+    let pumps = 0;
+    const value = await waitUntil(() => 'ready', {
+      timeoutMs: 500,
+      now: wallClock.now,
+      timers: wallTimers,
+      pump: () => {
+        pumps += 1;
+      },
+    });
+    expect(value).toBe('ready');
+    expect(pumps).toBe(0);
+  });
 });

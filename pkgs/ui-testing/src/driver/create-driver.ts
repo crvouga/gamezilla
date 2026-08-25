@@ -1,6 +1,7 @@
 import type { Timers } from '@pkgs/clock';
 import type { AppHarness } from '../bootstrap/app-harness';
 import type { RenderAdapter } from '../bootstrap/render-adapter';
+import type { WaitPump } from '../core/wait';
 import {
   DetoxDriver,
   type DetoxDriverOptions,
@@ -18,6 +19,7 @@ export type InProcessDriverConfig<TContext = void> = {
   renderer?: RenderAdapter;
   readonly now: () => number;
   readonly timers: Timers;
+  readonly pump?: WaitPump;
 };
 
 export type PlaywrightDriverConfig = {

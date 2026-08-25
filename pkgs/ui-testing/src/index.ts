@@ -27,6 +27,7 @@ export { DRIVER_KEY_TO_DOM, type DriverKey } from './core/keys';
 export {
   type WaitOptions,
   type WaitPollOptions,
+  type WaitPump,
   waitUntil,
 } from './core/wait';
 export {

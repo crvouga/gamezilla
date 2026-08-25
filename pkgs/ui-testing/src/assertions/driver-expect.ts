@@ -1,7 +1,11 @@
 import type { Timers } from '@pkgs/clock';
 
 import { UiTestError } from '../core/errors';
-import { type WaitPollOptions, waitUntil } from '../core/wait';
+import {
+  type WaitPollOptions,
+  type WaitPump,
+  waitUntil,
+} from '../core/wait';
 import { formatTestId } from '../selector/format';
 
 export type AssertionOptions = WaitPollOptions;
@@ -17,6 +21,13 @@ type ExpectHost = {
   /** When set with `timers`, `expect.text` polls until the value matches. */
   now?: () => number;
   timers?: Timers;
+  /** Optional drain pump (in-process sim). */
+  pump?: WaitPump | undefined;
+  /**
+   * Flush pending React / focus the active root. Used by the text wait loop
+   * the same way in-process `wait` wraps its pump.
+   */
+  activate?(): void | Promise<void>;
 };
 
 function textMatches(
@@ -61,10 +72,9 @@ export async function runExpectText(
     options?.description ??
     `text ${exact ? 'equals' : 'contains'} "${expected}" on ${formatTestId(testId)}`;
 
-  await driver.wait(testId, 'visible', { ...options, description });
-
   const { now, timers } = driver;
   if (now === undefined || timers === undefined) {
+    await driver.wait(testId, 'visible', { ...options, description });
     const actual = await driver.getText(testId);
     if (!textMatches(actual, expected, exact)) {
       throw new UiTestError(
@@ -74,10 +84,20 @@ export async function runExpectText(
     return;
   }
 
+  // One loop: element present (getText) + text matches. Same flush rules as
+  // in-process wait — do not wait-visible then wait-text (two budgets).
+  const pump = options?.pump ?? driver.pump;
+  if (pump !== undefined) {
+    await driver.activate?.();
+  }
+
   let lastActual: string | null = null;
   try {
     await waitUntil(
       async () => {
+        if (pump === undefined) {
+          await driver.activate?.();
+        }
         lastActual = await driver.getText(testId);
         return textMatches(lastActual, expected, exact) ? true : null;
       },
@@ -86,6 +106,14 @@ export async function runExpectText(
         description,
         now,
         timers,
+        ...(pump !== undefined
+          ? {
+              pump: async () => {
+                await pump();
+                await driver.activate?.();
+              },
+            }
+          : {}),
       }
     );
   } catch (error) {

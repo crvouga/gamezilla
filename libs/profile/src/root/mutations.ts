@@ -9,3 +9,10 @@ export const PROFILE_MUTATIONS = [
   claimUsernameMutation,
   patchAvatarMutation,
 ] as const;
+
+export {
+  applyEnsuredUsernameMutation,
+  claimUsernameMutation,
+  ensureProfileMutation,
+  patchAvatarMutation,
+};

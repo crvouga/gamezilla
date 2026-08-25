@@ -16,5 +16,5 @@ describe('space friend join', () => {
     await bob.space.openLobbyCard(aliceUsername);
     await bob.space.joinFromPrompt();
     await bob.space.expectActiveSpace();
-  }, 180_000);
+  }, 30_000);
 });

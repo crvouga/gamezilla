@@ -5,6 +5,10 @@ export type SimClock = Clock & {
   readonly set: (ms: number) => void;
   /** Set absolute time and drop pending sim timers (time-travel restore). */
   readonly reset: (ms: number) => void;
+  /** Absolute ms of the soonest pending timer, or null if the heap is empty. */
+  readonly nextDueAt: () => number | null;
+  /** Count of pending one-shot timers (intervals do not count). */
+  readonly pendingOneShotCount: () => number;
 };
 
 type TimerEntry = {
@@ -67,6 +71,20 @@ export function createSimClock(args: CreateSimClockArgs = {}): SimClockBundle {
       }
       now = ms;
       entries.clear();
+    },
+    nextDueAt(): number | null {
+      let soonest: number | null = null;
+      for (const e of entries.values()) {
+        if (soonest === null || e.at < soonest) soonest = e.at;
+      }
+      return soonest;
+    },
+    pendingOneShotCount(): number {
+      let n = 0;
+      for (const e of entries.values()) {
+        if (e.intervalMs === null) n += 1;
+      }
+      return n;
     },
   };
 

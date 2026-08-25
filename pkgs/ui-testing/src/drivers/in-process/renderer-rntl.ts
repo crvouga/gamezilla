@@ -76,47 +76,40 @@ export function createRenderedAppFromQueryScope(
     },
     getText: (element) => readHostText(asInstance(element)),
     tap: async (element) => {
-      // `act` flushes pending useSyncExternalStore updates (e.g. client_config
-      // SQL watch) before/with the press — otherwise SignInCapabilities can
-      // stay stale and the modal opens with “no methods configured”.
-      await act(async () => {
-        fireEvent.press(asInstance(element));
-      });
+      // fireEvent is already wrapped in `act` by RNTL — do not nest another
+      // `act` (Callstack common-mistakes: unnecessary act). Pending store
+      // updates are flushed by Driver.activate() before tap/input.
+      fireEvent.press(asInstance(element));
     },
     tapAt: async (element) => {
-      await act(async () => {
-        fireEvent.press(asInstance(element));
-      });
+      fireEvent.press(asInstance(element));
     },
     typeText: async (element, text) => {
       // Paste-shaped event sequence without user.paste's timer wait (can stall
       // ~15s under Jest). Includes `change` + `changeText` like RNTL paste.
+      // fireEvent is already act-wrapped — no outer act.
       const target = findHostTextInput(asInstance(element));
-      await act(async () => {
-        fireEvent(target, 'focus');
-        fireEvent(target, 'change', {
-          nativeEvent: { text, target: 0 },
-        });
-        fireEvent.changeText(target, text);
-        fireEvent(target, 'endEditing', {
-          nativeEvent: { text, target: 0 },
-        });
-        fireEvent(target, 'blur');
+      fireEvent(target, 'focus');
+      fireEvent(target, 'change', {
+        nativeEvent: { text, target: 0 },
       });
+      fireEvent.changeText(target, text);
+      fireEvent(target, 'endEditing', {
+        nativeEvent: { text, target: 0 },
+      });
+      fireEvent(target, 'blur');
     },
     clearText: async (element) => {
       const target = findHostTextInput(asInstance(element));
-      await act(async () => {
-        fireEvent(target, 'focus');
-        fireEvent(target, 'change', {
-          nativeEvent: { text: '', target: 0 },
-        });
-        fireEvent.changeText(target, '');
-        fireEvent(target, 'endEditing', {
-          nativeEvent: { text: '', target: 0 },
-        });
-        fireEvent(target, 'blur');
+      fireEvent(target, 'focus');
+      fireEvent(target, 'change', {
+        nativeEvent: { text: '', target: 0 },
       });
+      fireEvent.changeText(target, '');
+      fireEvent(target, 'endEditing', {
+        nativeEvent: { text: '', target: 0 },
+      });
+      fireEvent(target, 'blur');
     },
     pressKey: async () => {
       // Keyboard keys are DOM-oriented; no-op under RNTL host trees.
@@ -138,7 +131,7 @@ export function createRenderedAppFromQueryScope(
     /**
      * Flush pending React updates (AuthBridge / sync / stores). Required
      * between wait polls — without this, async setState stays invisible
-     * to queries until some other `act` (historically `router.push`).
+     * to queries until some other `act`.
      */
     activate: async () => {
       if (options.activate !== undefined) {
@@ -162,13 +155,10 @@ export function createRntlRenderAdapter(): RenderAdapter {
     async render(element: ReactElement): Promise<RenderedApp> {
       const user = userEvent.setup({ delay: 0 });
       const result = render(element);
-      return createRenderedAppFromRntl(result, {
-        user,
-        activate: () => {
-          // Rerender makes this root the latest so pointer events apply.
-          result.rerender(element);
-        },
-      });
+      // No per-poll rerender — activate is only the microtask act flush in
+      // createRenderedAppFromQueryScope. Multi-root focus lives in
+      // createMultiAppRntlSession's activate.
+      return createRenderedAppFromRntl(result, { user });
     },
   };
 }

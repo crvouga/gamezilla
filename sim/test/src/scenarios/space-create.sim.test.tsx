@@ -11,12 +11,10 @@ describe('space create', () => {
     const alice = await AppDriver.forActor(sim, 'alice');
     await alice.auth.signUpWithEmail(aliceCreds);
     await alice.auth.returnToTabs();
-    await alice.profile.openEdit();
-    await alice.profile.setUsername(aliceUsername);
-    await alice.profile.expectUsername(aliceUsername);
+    // Signup username matches aliceUsername — ensureProfile already claimed it.
 
     await alice.space.createSpace();
     await alice.space.returnToLobby();
     await alice.space.expectLobbyCard(aliceUsername);
-  }, 180_000);
+  }, 30_000);
 });

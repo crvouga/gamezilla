@@ -7,5 +7,5 @@ describe('friends request → accept', () => {
   test('alice sends request; bob accepts from notifications; both see friends', async () => {
     await using sim = await openSim('friends-request-accept');
     await setupFriendsPair(sim);
-  }, 180_000);
+  }, 30_000);
 });

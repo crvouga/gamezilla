@@ -37,5 +37,5 @@ describe('friends request → decline', () => {
     await alice.friends.expectNotFriend(bobUsername);
 
     await bob.friends.expectNotFriend(aliceUsername);
-  }, 180_000);
+  }, 30_000);
 });
