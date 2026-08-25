@@ -4,7 +4,7 @@ import type { RenderedApp } from './render-adapter';
 
 /**
  * Application-supplied bootstrap. The framework never imports an app —
- * consumers implement this port and pass it to the in-process driver.
+ * consumers implement this port and pass it to the rntl driver.
  *
  * `TContext` lets harnesses share setup state (fakes, DB handles, …) with
  * `createRoot` / `mount` and `teardown` without the framework knowing about it.

@@ -20,7 +20,7 @@ wired into `predev` / `setup`) so Metro’s Hermes classic bundle never sees
 
 **Fidelity** (`openSim(id, { fidelity })` or `SIM_FIDELITY`):
 
-- `sim` (default) — fabric above + in-memory leaves / in-process RNTL driver.
+- `sim` (default) — fabric above + in-memory leaves / RNTL driver.
   World mesh (`partition`, crash) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /
   `bun run --filter @sim/test seed:sim-db`); each `openSim` clones that seed
@@ -30,7 +30,7 @@ wired into `predev` / `setup`) so Metro’s Hermes classic bundle never sees
   `tools/scripts/boot-local-stack.ts` (plus MinIO/EMQX when needed). Clients
   still use the fabric’s real SQLite path. Playwright needs an injected page
   (`PLAYWRIGHT_BASE_URL` / driver wiring); default max still uses the
-  in-process driver until that URL is set.
+  rntl driver until that URL is set.
 
 **Reports** (`SIM_REPORT`):
 

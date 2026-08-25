@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/in-process/serialize-host-tree-html';
+import { SNAPSHOT_SHELL_CSS } from '@pkgs/ui-testing/drivers/rntl/serialize-host-tree-html';
 
 import type {
   SimulationFrame,

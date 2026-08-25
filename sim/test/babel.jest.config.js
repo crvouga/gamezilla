@@ -20,7 +20,7 @@ module.exports = function (api) {
       require.resolve('@babel/plugin-transform-explicit-resource-management'),
       // better-auth (and other ESM) use `await import()`; Node Jest needs require().
       require('./babel-plugin-dynamic-import-to-require.cjs'),
-      // Inject dataSet.src for in-process snapshot HTML (data-src in frames).
+      // Inject dataSet.src for rntl snapshot HTML (data-src in frames).
       path.resolve(__dirname, '../../pkgs/babel-plugins/jsx-source-attr.cjs'),
     ],
   };

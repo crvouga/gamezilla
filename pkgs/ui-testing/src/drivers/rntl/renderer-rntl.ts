@@ -21,7 +21,7 @@ export type CreateRenderedAppFromRntlOptions = {
   readonly user?: RntlUser;
   /**
    * Re-assert this tree as the active RNTL root before pointer/keyboard
-   * interactions. Required when multiple in-process actors are mounted.
+   * interactions. Required when multiple rntl actors are mounted.
    */
   readonly activate?: () => void | Promise<void>;
 };

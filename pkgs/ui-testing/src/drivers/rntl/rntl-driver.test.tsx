@@ -2,12 +2,12 @@ import { afterEach, describe, expect, it } from '@jest/globals';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createDriver } from '../../driver/create-driver';
 import { demoHarness } from './demo-app';
-import { InProcessDriver } from './in-process-driver';
+import { RntlDriver } from './rntl-driver';
 
 const clockOpts = { now: wallClock.now, timers: wallTimers };
 
-describe('InProcessDriver', () => {
-  let driver: InProcessDriver;
+describe('RntlDriver', () => {
+  let driver: RntlDriver;
 
   afterEach(async () => {
     await driver?.close();
@@ -15,10 +15,10 @@ describe('InProcessDriver', () => {
 
   it('boots via createDriver and exercises the public API', async () => {
     driver = createDriver({
-      kind: 'in-process',
+      kind: 'rntl',
       harness: demoHarness,
       ...clockOpts,
-    }) as InProcessDriver;
+    }) as RntlDriver;
 
     await driver.launch();
 
@@ -46,7 +46,7 @@ describe('InProcessDriver', () => {
   });
 
   it('supports tap on the counter and reports visibility', async () => {
-    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
+    driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
 
     expect(await driver.isVisible('count')).toBe(true);
@@ -57,13 +57,13 @@ describe('InProcessDriver', () => {
   });
 
   it('scrolls without throwing', async () => {
-    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
+    driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.scroll('login-scroll', 'down', 40);
   });
 
   it('pressKey does not throw when focus is on an input', async () => {
-    driver = new InProcessDriver({ harness: demoHarness, ...clockOpts });
+    driver = new RntlDriver({ harness: demoHarness, ...clockOpts });
     await driver.launch();
     await driver.tap('email');
     await driver.key('tab');
@@ -94,7 +94,7 @@ describe('InProcessDriver', () => {
       }),
     };
 
-    driver = new InProcessDriver({
+    driver = new RntlDriver({
       harness,
       ...clockOpts,
       pump: () => {

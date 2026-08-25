@@ -27,7 +27,7 @@ import { isWaitTextCondition } from '../../driver/driver';
 import { formatTestId } from '../../selector/format';
 import { createRntlRenderAdapter } from './renderer-rntl';
 
-export type InProcessDriverOptions<TContext = void> = {
+export type RntlDriverOptions<TContext = void> = {
   harness: AppHarness<TContext>;
   /** Defaults to the shipped React Native Testing Library renderer. */
   renderer?: RenderAdapter;
@@ -41,15 +41,15 @@ export type InProcessDriverOptions<TContext = void> = {
 };
 
 /**
- * Boots an application entirely in-process via a {@link RenderAdapter}
- * (or a harness-owned {@link AppHarness.mount}).
+ * Boots an application via a {@link RenderAdapter} (RNTL)
+ * or a harness-owned {@link AppHarness.mount}.
  * No browser, emulator, IPC, or HTTP server.
  *
  * Waits use an internal virtual-clock pump + React flush — not RNTL
  * `findBy` / `waitFor` (those wall-sleep ~50ms per miss).
  */
-export class InProcessDriver<TContext = void> implements Driver {
-  readonly kind = 'in-process';
+export class RntlDriver<TContext = void> implements Driver {
+  readonly kind = 'rntl';
 
   private readonly harness: AppHarness<TContext>;
   private readonly renderer: RenderAdapter;
@@ -66,7 +66,7 @@ export class InProcessDriver<TContext = void> implements Driver {
       this.expectText(testId, expected, options),
   };
 
-  constructor(options: InProcessDriverOptions<TContext>) {
+  constructor(options: RntlDriverOptions<TContext>) {
     this.harness = options.harness;
     this.renderer = options.renderer ?? createRntlRenderAdapter();
     this.now = options.now;
@@ -86,7 +86,7 @@ export class InProcessDriver<TContext = void> implements Driver {
       this.app = await this.renderer.render(this.harness.createRoot(ctx));
     } else {
       throw new Error(
-        'AppHarness must provide createRoot() or mount() for in-process launch'
+        'AppHarness must provide createRoot() or mount() for rntl launch'
       );
     }
   }

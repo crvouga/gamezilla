@@ -1,5 +1,5 @@
 /**
- * Virtual-time drain pump for in-process sim waits.
+ * Virtual-time drain pump for rntl sim waits.
  * Advances one-shot timers + microtasks without wall sleep.
  */
 

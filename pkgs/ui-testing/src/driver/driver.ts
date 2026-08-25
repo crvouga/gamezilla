@@ -47,11 +47,11 @@ export function isWaitTextCondition(
  * `tap` / `input` auto-wait until the target is visible before acting.
  *
  * {@link Driver.wait} is the sole waiting API — each implementation uses the
- * host framework’s fastest mechanism (Playwright auto-wait, in-process virtual
+ * host framework’s fastest mechanism (Playwright auto-wait, rntl virtual
  * pump, Detox `waitFor`, …). Do not reintroduce shared poll intervals here.
  */
 export interface Driver {
-  /** Stable identifier for logs and capability errors (`"in-process"`, …). */
+  /** Stable identifier for logs and capability errors (`"rntl"`, …). */
   readonly kind: string;
 
   /** Boot / attach to the application under test. */

@@ -7,7 +7,7 @@ const HIDDEN_MS = 5_000;
 export class FriendsFlows {
   constructor(private readonly ui: Driver) {}
 
-  /** Open Profile tab (needed once before a second in-process actor mounts). */
+  /** Open Profile tab (needed once before a second rntl actor mounts). */
   async openTab(): Promise<void> {
     await this.ui.tap(Handles.tabProfile);
     await this.ui.expect.visible(Handles.profileFriendsStats, {

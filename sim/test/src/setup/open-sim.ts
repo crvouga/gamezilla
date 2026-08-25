@@ -80,7 +80,7 @@ export type OpenSimHandle = {
   readonly sim: Sim;
   readonly fidelity: OpenSimFidelity;
   actor(id: string): Promise<SimActorHandle>;
-  /** Drop the in-process RNTL focus without closing sim clients. */
+  /** Drop the RNTL focus without closing sim clients. */
   clearUiFocus(): void;
   /**
    * Close UI + client for `id` and bump durable client epoch so the next
@@ -114,7 +114,7 @@ function createClientDriver(args: {
   const pump = createSimWaitPump({ clock: args.sim.clock });
   const timers: Timers = simNodeTimers;
   return createDriver({
-    kind: 'in-process',
+    kind: 'rntl',
     now: wallClock.now,
     timers,
     pump,
@@ -189,7 +189,7 @@ function createSimReporter(
     frameIntervalMs: 250,
     // Flush / failure only — Jest has no live report SSE watchers.
     publishThrottleMs: Number.POSITIVE_INFINITY,
-    ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'in-process',
+    ui: process.env['PLAYWRIGHT_BASE_URL'] ? 'playwright' : 'rntl',
     snapshotTopology: () => projectReportTopology(simReportTopology(sim), '1'),
     snapshotViews: async () => {
       const snapshots = await multiAppSession.snapshotAllActors({

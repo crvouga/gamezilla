@@ -8,8 +8,8 @@ const {
 module.exports = {
   preset: 'jest-expo',
   testMatch: [
-    '<rootDir>/src/drivers/in-process/**/*.test.ts',
-    '<rootDir>/src/drivers/in-process/**/*.test.tsx',
+    '<rootDir>/src/drivers/rntl/**/*.test.ts',
+    '<rootDir>/src/drivers/rntl/**/*.test.tsx',
   ],
   testPathIgnorePatterns: ['/node_modules/'],
   testTimeout: 30_000,

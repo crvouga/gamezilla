@@ -32,8 +32,8 @@ export {
   createDriver,
   type DetoxDriverConfig,
   type DriverConfig,
-  type InProcessDriverConfig,
   type PlaywrightDriverConfig,
+  type RntlDriverConfig,
 } from './driver/create-driver';
 export type {
   AssertionOptions,
@@ -52,37 +52,37 @@ export {
   type DetoxLike,
 } from './drivers/detox/detox-driver';
 export {
-  InProcessDriver,
-  type InProcessDriverOptions,
-} from './drivers/in-process/in-process-driver';
+  PlaywrightDriver,
+  type PlaywrightDriverOptions,
+} from './drivers/playwright/playwright-driver';
 export {
   actorShellTestId,
   MULTI_APP_ACTOR_FRAME,
   MULTI_APP_ACTOR_SHELL_PREFIX,
   MULTI_APP_HOST_TEST_ID,
   MultiAppHost,
-} from './drivers/in-process/multi-app-rntl-host';
+} from './drivers/rntl/multi-app-rntl-host';
 export {
   createMultiAppRntlSession,
   type FocusedRenderedApp,
   type MultiAppRntlSession,
   type MultiAppRntlSessionOptions,
   type SnapshotAllActorsOptions,
-} from './drivers/in-process/multi-app-rntl-session';
+} from './drivers/rntl/multi-app-rntl-session';
 export {
   createRenderedAppFromQueryScope,
   createRenderedAppFromRntl,
   createRntlRenderAdapter,
-} from './drivers/in-process/renderer-rntl';
+} from './drivers/rntl/renderer-rntl';
+export {
+  RntlDriver,
+  type RntlDriverOptions,
+} from './drivers/rntl/rntl-driver';
 export {
   type SerializeHostTreeHtmlOptions,
   SNAPSHOT_SHELL_CSS,
   serializeHostTreeHtml,
-} from './drivers/in-process/serialize-host-tree-html';
-export {
-  PlaywrightDriver,
-  type PlaywrightDriverOptions,
-} from './drivers/playwright/playwright-driver';
+} from './drivers/rntl/serialize-host-tree-html';
 export { formatTestId } from './selector/format';
 export {
   type TestIdSelector,

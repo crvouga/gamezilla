@@ -13,7 +13,7 @@ export type HostNode = unknown;
  */
 export interface RenderedApp {
   /**
-   * Make this tree the active interaction target when multiple in-process
+   * Make this tree the active interaction target when multiple rntl
    * roots are mounted (RNTL only delivers pointer events to the latest root).
    */
   activate?(): void | Promise<void>;
@@ -57,7 +57,7 @@ export interface RenderedApp {
 
   /**
    * Optional HTML preview of the current host tree for simulation reports.
-   * In-process RNTL serializes RN hosts to readable HTML; DOM adapters may
+   * RNTL serializes RN hosts to readable HTML; DOM adapters may
    * return `document.documentElement.outerHTML`.
    */
   snapshotHtml?(options?: {

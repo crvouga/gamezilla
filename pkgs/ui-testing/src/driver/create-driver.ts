@@ -6,15 +6,15 @@ import {
   DetoxDriver,
   type DetoxDriverOptions,
 } from '../drivers/detox/detox-driver';
-import type { InProcessDriverOptions } from '../drivers/in-process/in-process-driver';
 import {
   PlaywrightDriver,
   type PlaywrightDriverOptions,
 } from '../drivers/playwright/playwright-driver';
+import type { RntlDriverOptions } from '../drivers/rntl/rntl-driver';
 import type { Driver } from './driver';
 
-export type InProcessDriverConfig<TContext = void> = {
-  kind: 'in-process';
+export type RntlDriverConfig<TContext = void> = {
+  kind: 'rntl';
   harness: AppHarness<TContext>;
   renderer?: RenderAdapter;
   readonly now: () => number;
@@ -36,7 +36,7 @@ export type DetoxDriverConfig = {
  * change.
  */
 export type DriverConfig<TContext = void> =
-  | InProcessDriverConfig<TContext>
+  | RntlDriverConfig<TContext>
   | PlaywrightDriverConfig
   | DetoxDriverConfig;
 
@@ -45,11 +45,11 @@ export function createDriver<TContext = void>(
   config: DriverConfig<TContext>
 ): Driver {
   switch (config.kind) {
-    case 'in-process': {
+    case 'rntl': {
       // Lazy: playwright/detox bun tests must not load react-native.
-      const { InProcessDriver } =
-        require('../drivers/in-process/in-process-driver') as typeof import('../drivers/in-process/in-process-driver');
-      return new InProcessDriver(config as InProcessDriverOptions<TContext>);
+      const { RntlDriver } =
+        require('../drivers/rntl/rntl-driver') as typeof import('../drivers/rntl/rntl-driver');
+      return new RntlDriver(config as RntlDriverOptions<TContext>);
     }
     case 'playwright':
       return new PlaywrightDriver(config);

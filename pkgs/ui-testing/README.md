@@ -34,10 +34,10 @@ import {
 | `createDriver(config)` | Factory over a discriminated `DriverConfig` |
 | `driver.tap` / `input` / … | Actions take plain `testId` strings |
 | `driver.expect.visible` / `hidden` / `text` | Nested assertions |
-| `AppHarness` | App-supplied bootstrap port (in-process only) |
+| `AppHarness` | App-supplied bootstrap port (rntl only) |
 
 Direct driver constructors are also available under deep imports, e.g.
-`@pkgs/ui-testing/drivers/in-process/in-process-driver`.
+`@pkgs/ui-testing/drivers/rntl/rntl-driver`.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Consumer (app / e2e package)
   ├── page objects (LoginPage, …)  — live in the consumer
   ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })
-        ├── InProcessDriver  → RenderAdapter (RNTL) or harness.mount
+        ├── RntlDriver       → RenderAdapter (RNTL) or harness.mount
         ├── PlaywrightDriver → injected Playwright Page
         └── DetoxDriver      → stub (documented Detox mapping)
 ```
@@ -54,7 +54,7 @@ Consumer (app / e2e package)
 Dependency direction is always **apps → pkgs**. Drivers receive their underlying
 handles (`Page`, Detox device, harness) from the consumer.
 
-**No mocking of product deps.** In-process rendering uses
+**No mocking of product deps.** RNTL rendering uses
 [React Native Testing Library](https://oss.callstack.com/react-native-testing-library/)
 over a real React Native host (`react-test-renderer` / `test-renderer`). Inject
 alternate implementations via DI / harness setup — never `mock.module` or
@@ -94,9 +94,9 @@ class LoginPage {
 }
 ```
 
-## In-process driver
+## RNTL driver
 
-Boots a real React Native tree in-process via RNTL — no browser, emulator, IPC,
+Boots a real React Native tree via RNTL — no browser, emulator, IPC,
 or HTTP server, and no `react-native` → `react-native-web` remapping.
 
 ### 1. Implement an `AppHarness`
@@ -136,7 +136,7 @@ import { createDriver } from '@pkgs/ui-testing';
 import { harness } from './harness';
 
 const driver = createDriver({
-  kind: 'in-process',
+  kind: 'rntl',
   harness,
   now: () => Date.now(),
   timers,
@@ -179,7 +179,7 @@ first-class text read-back — `getText` remains unsupported by design.
 
 ## Driver capability matrix
 
-| Operation | In-process | Playwright | Detox (stub) |
+| Operation | RNTL | Playwright | Detox (stub) |
 | --- | --- | --- | --- |
 | `launch` / `close` | yes | yes (`baseUrl` optional) | stub → `device.launchApp` / `terminateApp` |
 | `tap` / `input` (auto-wait) | yes | yes | stub → `element().tap()` / `typeText` |
@@ -193,14 +193,14 @@ first-class text read-back — `getText` remains unsupported by design.
 | `snapshotHtml` | RN host → HTML | `page.content()` | returns `null` |
 
 `Driver.wait` is host-native for speed: Playwright uses event-driven waits;
-in-process uses a constructor `pump` (sim virtual clock) instead of RNTL
+rntl uses a constructor `pump` (sim virtual clock) instead of RNTL
 `findBy` / wall 50ms sleeps. Public options are only `timeoutMs` /
 `description` — no shared poll interval.
 
 ### UI snapshots for reports
 
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
-produce a readable HTML preview of the current UI. In-process serializes the
+produce a readable HTML preview of the current UI. RNTL serializes the
 `react-test-renderer` host tree (component tags + inline styles from `style`
 props) — not a browser DOM. Pass `stylesheetHref` to link shared shell CSS
 instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
@@ -217,7 +217,7 @@ Driver poll hook).
 ## Test runner independence
 
 Assertions throw plain `Error` subclasses (`TimeoutError`, `UiTestError`, …).
-In-process may use an internal `waitUntil` helper; Playwright / Detox must not.
+RNTL may use an internal `waitUntil` helper; Playwright / Detox must not.
 There is no dependency on Vitest, Jest, or Bun's `expect` — use whatever
 runner you prefer.
 
@@ -231,7 +231,7 @@ pkgs/ui-testing/src/
   assertions/     shared expect* helpers for Driver implementations
   bootstrap/      AppHarness + RenderAdapter ports
   drivers/
-    in-process/   InProcessDriver + RNTL renderer
+    rntl/         RntlDriver + RNTL renderer
     playwright/   PlaywrightDriver
     detox/        DetoxDriver stub
 ```

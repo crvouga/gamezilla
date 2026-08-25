@@ -4,12 +4,12 @@ import { TimeoutError } from './errors';
 
 /**
  * Advance product work between wait polls (virtual-time drain). When set on
- * an in-process driver constructor, replaces the default wall sleep between
+ * an rntl driver constructor, replaces the default wall sleep between
  * checks. Not part of the public {@link Driver.wait} options.
  */
 export type WaitPump = () => void | Promise<void>;
 
-/** Internal options for {@link waitUntil} (in-process helper only). */
+/** Internal options for {@link waitUntil} (rntl helper only). */
 export type WaitUntilOptions = {
   /** Maximum wall time to poll. Default 5_000. */
   timeoutMs?: number;
@@ -30,7 +30,7 @@ const DEFAULT_INTERVAL_MS = 50;
 
 /**
  * Poll `fn` until it returns a truthy value (or resolves to one).
- * In-process-only helper — Playwright / Detox must not call this.
+ * RNTL-only helper — Playwright / Detox must not call this.
  * Throws {@link TimeoutError} on failure.
  */
 export async function waitUntil<T>(

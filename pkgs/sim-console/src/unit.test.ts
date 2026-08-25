@@ -155,7 +155,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run-empty',
       testId: 'empty-frame',
@@ -191,7 +191,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run-a',
       testId: 'test-one',
@@ -220,7 +220,7 @@ describe('SimulationReporter + ObjectStore', () => {
 
     const second = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run-a',
       testId: 'test-two',
@@ -253,7 +253,7 @@ describe('SimulationReporter + ObjectStore', () => {
     let calls = 0;
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run-db',
       testId: 'db-test',
@@ -328,7 +328,7 @@ describe('SimulationReporter + ObjectStore', () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run-views',
       testId: 'views-test',
@@ -373,7 +373,7 @@ describe('prune', () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'old-run',
       testId: 't1',
@@ -402,7 +402,7 @@ describe('prune', () => {
     ] as const) {
       const r = new SimulationReporter({
         seed: '1',
-        ui: 'in-process',
+        ui: 'rntl',
         store,
         runId: id,
         testId: 't',
@@ -429,7 +429,7 @@ describe('createSimulationReportServer', () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
       seed: '1',
-      ui: 'in-process',
+      ui: 'rntl',
       store,
       runId: 'run1',
       testId: 'demo',
