@@ -33,6 +33,7 @@
     "OBSERVABILITY_*",
     "TURBO_*",
     "SIM_FIDELITY",
+    "SIM_REPORT",
     "PLAYWRIGHT_BASE_URL",
     "TMPDIR"
   ],
