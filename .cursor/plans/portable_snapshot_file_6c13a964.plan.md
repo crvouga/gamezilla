@@ -3,13 +3,13 @@ name: Portable snapshot file
 overview: Committed sim snapshots are one logical JSON file per world. Dump/load is first-class on SqlClient (and thin Sim/KV wrappers), so the same file restores into mem/PGlite, real Postgres, real SQLite, and Playwright.
 todos:
   - id: sql-client-dump-api
-    content: "Extend @pkgs/sql-client with portable SqlDataDump types + dumpData/loadData (or equivalent) on SqlClient; dialect adapters for Postgres + SQLite; contract tests across mem/real engines"
-    status: pending
+    content: Extend @pkgs/sql-client with portable SqlDataDump types + dumpData/loadData (or equivalent) on SqlClient; dialect adapters for Postgres + SQLite; contract tests across mem/real engines
+    status: in_progress
   - id: sim-snapshot-facade
-    content: "Add SimSystemSnapshot type + capture/restore on createSim (SQL dump via SqlClient + client KV + rooms + clock); playground/test share this path"
+    content: Add SimSystemSnapshot type + capture/restore on createSim (SQL dump via SqlClient + client KV + rooms + clock); playground/test share this path
     status: pending
   - id: snapshot-schema-file
-    content: "Zod-validate one JSON file per world under sim/test/fixtures/snapshots/<id>.json; cell codec aligned with db-schema type-map"
+    content: Zod-validate one JSON file per world under sim/test/fixtures/snapshots/<id>.json; cell codec aligned with db-schema type-map
     status: pending
   - id: node-kv-polyfill
     content: Install dumpable namespaced Storage in Node/Jest so client kv/auth round-trips; first-class dump/restore helpers for namespaced KV/auth

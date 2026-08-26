@@ -2,6 +2,8 @@ export type OpenSimFidelity = 'sim' | 'max';
 
 export type OpenSimOptions = {
   readonly fidelity?: OpenSimFidelity;
+  /** Committed fixture id under sim/test/fixtures/snapshots/<id>.json */
+  readonly snapshot?: string;
 };
 
 export function resolveOpenSimFidelity(

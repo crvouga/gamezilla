@@ -16,12 +16,21 @@ import {
 import type { Driver } from '@pkgs/ui-testing';
 import { createDriver, createMultiAppRntlSession } from '@pkgs/ui-testing';
 import type { Page } from '@playwright/test';
-import { createSim, type Sim } from '@sim/console/sim/create-sim';
+import {
+  createSim,
+  type Sim,
+  simClientNamespace,
+} from '@sim/console/sim/create-sim';
 import { type SimSqlHandle, sharedSqlClient } from '@sim/console/sim/sim-sql';
+import {
+  restoreSystemSnapshot,
+  type SystemSnapshotCtx,
+} from '@sim/console/sim/system-snapshot';
 import { createElement } from 'react';
 
 import '@apps/client/i18n/i18n';
 
+import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { resolveSimSqlBackend } from '@sim/console/sim/sim-sql-backend';
 import { ensureSimPgliteSeed } from './boot-sim-pglite';
 import { ensureSimPostgresMemSeed } from './boot-sim-postgres-mem';
@@ -30,7 +39,10 @@ import {
   type OpenSimOptions,
   resolveOpenSimFidelity,
 } from './fidelity';
+import { ensureNodeLocalStoragePolyfill } from './node-local-storage-polyfill';
+import { injectPlaywrightSnapshotAuth } from './playwright-snapshot-auth';
 import { simNodeTimers } from './sim-actor-overrides';
+import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 import { createSimWaitPump } from './sim-wait-pump';
 import { simReportTopology } from './sim-world-snapshot';
 
@@ -214,6 +226,7 @@ async function launchActor(args: {
   readonly id: string;
   readonly multiAppSession: ReturnType<typeof createMultiAppRntlSession>;
   readonly reporter: SimulationReporter | null;
+  readonly snapshot?: SimSystemSnapshot;
 }): Promise<ActorEntry> {
   const raw = createClientDriver({
     fidelity: args.fidelity,
@@ -221,6 +234,21 @@ async function launchActor(args: {
     id: args.id,
     multiAppSession: args.multiAppSession,
   });
+  const page = injectedPlaywrightPage();
+  const baseUrl = process.env['PLAYWRIGHT_BASE_URL'];
+  if (
+    args.snapshot !== undefined &&
+    args.fidelity === 'max' &&
+    page !== undefined &&
+    baseUrl !== undefined
+  ) {
+    await injectPlaywrightSnapshotAuth({
+      page,
+      actorId: args.id,
+      snapshot: args.snapshot,
+      namespace: simClientNamespace(args.id),
+    });
+  }
   const ui =
     args.reporter === null
       ? raw
@@ -266,8 +294,22 @@ export async function openSim(
   testId: string,
   options?: OpenSimOptions
 ): Promise<OpenSimHandle> {
+  ensureNodeLocalStoragePolyfill();
   const fidelity = resolveOpenSimFidelity(options);
   const { sim } = await bootSim(fidelity);
+  const clientSqlByAddress = new Map<string, SimSqlHandle>();
+  const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
+  let loadedSnapshot: SimSystemSnapshot | undefined;
+  if (options?.snapshot !== undefined) {
+    loadedSnapshot = readSimSystemSnapshot(options.snapshot);
+    const snapshotCtx: SystemSnapshotCtx = {
+      sim,
+      clientIds: loadedSnapshot.clientIds,
+      liveClients,
+      clientSqlByAddress,
+    };
+    await restoreSystemSnapshot(snapshotCtx, loadedSnapshot);
+  }
   const actors = new Map<string, ActorEntry>();
   const multiAppSession = createMultiAppRntlSession({
     onActorFocus: () => {
@@ -298,7 +340,9 @@ export async function openSim(
         id,
         multiAppSession,
         reporter,
+        snapshot: loadedSnapshot,
       });
+      liveClients.set(id, sim.spawnClient(id));
       actors.set(id, entry);
       return entry.handle;
     },
@@ -313,6 +357,7 @@ export async function openSim(
         actors.delete(id);
       }
       await sim.dropClient(id);
+      liveClients.delete(id);
       sim.bumpClientEpoch();
     },
     async dispose() {

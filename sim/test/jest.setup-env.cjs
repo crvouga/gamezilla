@@ -34,7 +34,47 @@ process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
 // speed; set SIM_REPORT=1 (or any non-"0") to enable console dumps.
 if (process.env.SIM_REPORT === undefined) {
   process.env.SIM_REPORT = '0';
-}const { Appearance, Dimensions, NativeModules } = require('react-native');
+}
+
+(function installNodeStoragePolyfill() {
+  if (typeof globalThis.localStorage !== 'undefined') return;
+  function makeStorage() {
+    const map = new Map();
+    return {
+      get length() {
+        return map.size;
+      },
+      clear() {
+        map.clear();
+      },
+      getItem(key) {
+        return map.get(key) ?? null;
+      },
+      key(index) {
+        const keys = [...map.keys()];
+        return keys[index] ?? null;
+      },
+      removeItem(key) {
+        map.delete(key);
+      },
+      setItem(key, value) {
+        map.set(key, value);
+      },
+    };
+  }
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    enumerable: true,
+    value: makeStorage(),
+  });
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    configurable: true,
+    enumerable: true,
+    value: makeStorage(),
+  });
+})();
+
+const { Appearance, Dimensions, NativeModules } = require('react-native');
 
 // Phone frame matching the simulation report iframe (390×844).
 const PHONE_WINDOW = {

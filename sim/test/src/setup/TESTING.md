@@ -18,25 +18,37 @@ libs. Playground web loads PGlite/SQLite WASM from
 wired into `predev` / `setup`) so Metro’s Hermes classic bundle never sees
 `import.meta`.
 
+**System snapshots** (committed fixtures; infrastructure only — scenarios still use UI setup):
+
+- One JSON file per world under `sim/test/fixtures/snapshots/<id>.json`
+  (portable logical dump: server/client SQL rows + client KV + rooms + clock).
+- `openSim(id, { snapshot: 'signed-in-alice' })` restores a fixture (not wired in
+  scenario tests yet).
+- Regenerate after schema or DSL changes:
+  `bun run --filter @sim/test snapshot` (separate Jest config; not part of `test`).
+- Stale `localSchemaVersion` fails restore with instructions to re-run `snapshot`.
+
+Builders live in `sim/test/src/snapshots/builders/` (same AppDriver DSL as scenarios).
+Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
+
 **Fidelity** (`openSim(id, { fidelity })` or `SIM_FIDELITY`):
 
 - `sim` (default) — fabric above + in-memory leaves / RNTL driver.
   World mesh (`partition`, crash) is first-class. Server schema is migrated
   **once** into the seed file (Jest `globalSetup` /
   `bun run --filter @sim/test seed:sim-db`); each `openSim` clones that seed
-  instead of re-running DDL.
+  instead of re-running DDL. Snapshot restore uses `@pkgs/sql-client` `loadData`.
 - `max` — `SIM_FIDELITY=max` / `bun run --filter @sim/test test:max`.
   World-mesh scenarios skip. Server is embedded real Postgres via
   `tools/scripts/boot-local-stack.ts` (plus MinIO/EMQX when needed). Clients
-  still use the fabric’s real SQLite path. Playwright needs an injected page
-  (`PLAYWRIGHT_BASE_URL` / driver wiring); default max still uses the
-  rntl driver until that URL is set.
+  still use the fabric’s real SQLite path. Same snapshot JSON restores via
+  `loadData` on real Postgres/SQLite. Playwright needs an injected page
+  (`PLAYWRIGHT_BASE_URL` / driver wiring); bearer token is injected from snapshot KV.
 
 **Reports** (`SIM_REPORT`):
 
-- Default: on — HTML frames land under `sim/console/public/reports` /
-  `runs/latest_run/` and show in **`bun run dev`** → Reports.
-- Set `SIM_REPORT=0` to skip frame I/O (faster suite; console stays empty).
+- Default: off in Jest (`SIM_REPORT=0`) for speed.
+- Set `SIM_REPORT=1` to write HTML frames under `sim/console/public/reports`.
 
 View captured timelines in **`bun run dev`** (`@sim/console` → Reports).
 Production browsing of reports stays on the API Worker `/sim-console` mount

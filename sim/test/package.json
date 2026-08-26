@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "seed:sim-db": "bun scripts/build-sim-seed.ts",
+    "snapshot": "bunx jest --config ./jest.snapshots.config.cjs --runInBand",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bunx jest --config ./jest.config.cjs --runInBand",
     "test:debug-handles": "bunx jest --config ./jest.config.cjs --runInBand --detectOpenHandles",

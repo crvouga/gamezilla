@@ -1,0 +1,996 @@
+{
+  "version": 1,
+  "localSchemaVersion": 10001,
+  "clockMs": 1717200001100,
+  "clockPaused": false,
+  "clientIds": ["alice"],
+  "roomTopics": [],
+  "partitions": [],
+  "skewByAddress": {},
+  "downAddresses": [],
+  "evictedAddresses": [],
+  "server": {
+    "version": 1,
+    "tables": {
+      "auth_devices": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "platform",
+          "os_name",
+          "os_version",
+          "device_model_name",
+          "device_brand",
+          "device_name",
+          "app_version",
+          "app_build_number",
+          "user_agent",
+          "first_seen_at",
+          "last_seen_at",
+          "account_id",
+          "user_id"
+        ],
+        "rows": [
+          [
+            "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01.1+00",
+            null,
+            "ios",
+            "mock",
+            "mock",
+            "mock",
+            "mock",
+            "mock",
+            null,
+            null,
+            null,
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01.1+00",
+            null,
+            "e9547fd5-9c96-4cb4-97be-92fc6b2a4441"
+          ]
+        ]
+      },
+      "auth_external_accounts": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "provider",
+          "external_id",
+          "metadata"
+        ],
+        "rows": [
+          [
+            "better-auth:UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+            "2024-06-01 00:00:01.1+00",
+            "2024-06-01 00:00:01.1+00",
+            null,
+            "e9547fd5-9c96-4cb4-97be-92fc6b2a4441",
+            "better-auth",
+            "UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+            "{\"email\": \"alice@sim.local\"}"
+          ]
+        ]
+      },
+      "auth_users": {
+        "columns": ["id", "created_at", "updated_at", "deleted_at", "is_anon"],
+        "rows": [
+          [
+            "e9547fd5-9c96-4cb4-97be-92fc6b2a4441",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01.1+00",
+            null,
+            false
+          ]
+        ]
+      },
+      "better_auth_account": {
+        "columns": [
+          "id",
+          "accountId",
+          "providerId",
+          "userId",
+          "accessToken",
+          "refreshToken",
+          "idToken",
+          "accessTokenExpiresAt",
+          "refreshTokenExpiresAt",
+          "scope",
+          "password",
+          "createdAt",
+          "updatedAt"
+        ],
+        "rows": [
+          [
+            "O0PiAgX0RZ9BlH6fq0o0OUWrF6xxMYOx",
+            "UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+            "credential",
+            "UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "e1cdc8b1123a7bbe0b9c1839e18e35d6:3be819b0fcef0df47d9df3edd0ca8cbd9126f55df060170cfb8cbf61f4a51de0cbe43e377148b2dd4e9ce12b5d62a8f0256cea78d211a57fb1eb67f458d0cf21",
+            "2026-08-26 17:46:55.098+00",
+            "2026-08-26 17:46:55.098+00"
+          ]
+        ]
+      },
+      "better_auth_session": {
+        "columns": [
+          "id",
+          "expiresAt",
+          "token",
+          "createdAt",
+          "updatedAt",
+          "ipAddress",
+          "userAgent",
+          "userId"
+        ],
+        "rows": [
+          [
+            "DGiorzTuJgUrO9X8lrmk2AWaU5QQrZFO",
+            "2026-09-02 17:46:55.099+00",
+            "3hK1tDRm7P0DJF5ag7uuMQ33DGOnIKJG",
+            "2026-08-26 17:46:55.099+00",
+            "2026-08-26 17:46:55.099+00",
+            "127.0.0.1",
+            "",
+            "UhpVg5cgufuULOWu8djYRUVqgcT6phOs"
+          ]
+        ]
+      },
+      "better_auth_user": {
+        "columns": [
+          "id",
+          "name",
+          "email",
+          "emailVerified",
+          "image",
+          "createdAt",
+          "updatedAt"
+        ],
+        "rows": [
+          [
+            "UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+            "alice@sim.local",
+            "alice@sim.local",
+            false,
+            null,
+            "2026-08-26 17:46:55.096+00",
+            "2026-08-26 17:46:55.096+00"
+          ]
+        ]
+      },
+      "better_auth_verification": {
+        "columns": [
+          "id",
+          "identifier",
+          "value",
+          "expiresAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "rows": []
+      },
+      "chess_puzzle_interactions": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "owner_id",
+          "puzzle_id",
+          "puzzle_rating",
+          "kind",
+          "solve_idx",
+          "uci",
+          "correct",
+          "rating_before",
+          "rating_after",
+          "at"
+        ],
+        "rows": []
+      },
+      "chess_puzzle_load": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "source_etag",
+          "cursor",
+          "finished_at"
+        ],
+        "rows": []
+      },
+      "chess_puzzle_profiles": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "owner_id",
+          "rating",
+          "rating_deviation",
+          "last_interaction_at"
+        ],
+        "rows": []
+      },
+      "chess_puzzles": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "fen",
+          "moves",
+          "rating",
+          "rating_deviation",
+          "popularity",
+          "nb_plays",
+          "themes",
+          "game_url",
+          "opening_tags"
+        ],
+        "rows": []
+      },
+      "client_config": {
+        "columns": ["id", "created_at", "updated_at", "deleted_at", "value"],
+        "rows": [
+          [
+            "google_enabled",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "false"
+          ],
+          [
+            "google_web_client_id",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "null"
+          ],
+          [
+            "email_password_enabled",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "true"
+          ],
+          [
+            "billing_enabled",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "true"
+          ],
+          [
+            "tts_enabled",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "true"
+          ],
+          [
+            "llm_enabled",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "true"
+          ],
+          [
+            "emqx_wss_url",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "null"
+          ],
+          [
+            "observability_backend",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01+00",
+            null,
+            "\"noop\""
+          ]
+        ]
+      },
+      "entity_store": {
+        "columns": [
+          "id",
+          "namespace",
+          "type",
+          "external_id",
+          "owner_id",
+          "data",
+          "created_at",
+          "updated_at"
+        ],
+        "rows": []
+      },
+      "friends_blocks": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "blocker_id",
+          "blocked_id"
+        ],
+        "rows": []
+      },
+      "friends_friendships": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_low",
+          "user_high",
+          "source_request_id"
+        ],
+        "rows": []
+      },
+      "friends_requests": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "from_user_id",
+          "to_user_id",
+          "status",
+          "message",
+          "responded_at"
+        ],
+        "rows": []
+      },
+      "kv": {
+        "columns": ["key", "value", "last_modified_at"],
+        "rows": []
+      },
+      "notifications": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "user_id",
+          "source_namespace",
+          "source_type",
+          "source_id",
+          "category",
+          "priority",
+          "group_key",
+          "title",
+          "subtitle",
+          "body",
+          "icon_key",
+          "avatar_fallback_label",
+          "avatar_config",
+          "deep_link_path",
+          "deep_link_params",
+          "actions",
+          "payload",
+          "expires_at",
+          "read_at",
+          "archived_at",
+          "dismissed_at",
+          "active"
+        ],
+        "rows": []
+      },
+      "outbox_deliveries": {
+        "columns": [
+          "event_id",
+          "consumer_id",
+          "attempts",
+          "available_at",
+          "processed_at",
+          "last_error"
+        ],
+        "rows": []
+      },
+      "outbox_events": {
+        "columns": ["id", "type", "payload", "created_at", "available_at"],
+        "rows": []
+      },
+      "profile": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "username",
+          "avatar_config",
+          "username_changed_at",
+          "username_norm"
+        ],
+        "rows": [
+          [
+            "e9547fd5-9c96-4cb4-97be-92fc6b2a4441",
+            "2024-06-01 00:00:01+00",
+            "2024-06-01 00:00:01.1+00",
+            null,
+            "alice",
+            "{\"seed\": \"e9547fd5-9c96-4cb4-97be-92fc6b2a4441\", \"style\": \"funEmoji\", \"options\": {}}",
+            null,
+            "alice"
+          ]
+        ]
+      },
+      "spaces": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "title",
+          "host_id",
+          "ended_at",
+          "visibility",
+          "host_account_id",
+          "host_member_id"
+        ],
+        "rows": []
+      },
+      "spaces_open_sessions": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "space_id",
+          "device_id",
+          "opened_at",
+          "join_announced"
+        ],
+        "rows": []
+      },
+      "spaces_users": {
+        "columns": [
+          "id",
+          "created_at",
+          "updated_at",
+          "deleted_at",
+          "space_id",
+          "user_id",
+          "created_by_account_id"
+        ],
+        "rows": []
+      },
+      "sync_engine_mutations_applied": {
+        "columns": ["mutation_id", "client_id", "seq", "status", "applied_at"],
+        "rows": [
+          [
+            "17e8ee80-5fdb-4720-83f2-e2a0e5c2d881",
+            "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
+            1,
+            "applied",
+            "2024-06-01T00:00:01.000Z"
+          ],
+          [
+            "eff0afc7-ec38-4420-ac30-c45f7c132034",
+            "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
+            1,
+            "applied",
+            "2024-06-01T00:00:01.100Z"
+          ]
+        ]
+      },
+      "sync_engine_topic_seq": {
+        "columns": ["topic", "n"],
+        "rows": [
+          ["system:client_config", 1],
+          ["user:e9547fd5-9c96-4cb4-97be-92fc6b2a4441", 5]
+        ]
+      },
+      "sync_engine_write_rejections": {
+        "columns": [
+          "id",
+          "mutation_id",
+          "client_id",
+          "code",
+          "message",
+          "meta",
+          "created_at",
+          "acknowledged"
+        ],
+        "rows": []
+      }
+    }
+  },
+  "clients": {
+    "alice": {
+      "tables": {
+        "version": 1,
+        "tables": {
+          "auth_devices": {
+            "columns": [
+              "account_id",
+              "app_build_number",
+              "app_version",
+              "created_at",
+              "deleted_at",
+              "device_brand",
+              "device_model_name",
+              "device_name",
+              "first_seen_at",
+              "id",
+              "last_seen_at",
+              "os_name",
+              "os_version",
+              "platform",
+              "updated_at",
+              "user_agent",
+              "user_id"
+            ],
+            "rows": [
+              [
+                null,
+                null,
+                null,
+                "2024-06-01 00:00:01+00",
+                null,
+                null,
+                null,
+                null,
+                "2024-06-01 00:00:01+00",
+                "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
+                "2024-06-01 00:00:01+00",
+                null,
+                null,
+                null,
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "e9547fd5-9c96-4cb4-97be-92fc6b2a4441"
+              ]
+            ]
+          },
+          "auth_external_accounts": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "external_id",
+              "id",
+              "metadata",
+              "provider",
+              "updated_at",
+              "user_id"
+            ],
+            "rows": []
+          },
+          "auth_users": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "id",
+              "is_anon",
+              "updated_at"
+            ],
+            "rows": [
+              [
+                "2024-06-01 00:00:01+00",
+                null,
+                "e9547fd5-9c96-4cb4-97be-92fc6b2a4441",
+                1,
+                "2024-06-01T00:00:01.000Z"
+              ]
+            ]
+          },
+          "chess_puzzle_interactions": {
+            "columns": [
+              "at",
+              "correct",
+              "created_at",
+              "deleted_at",
+              "id",
+              "kind",
+              "owner_id",
+              "puzzle_id",
+              "puzzle_rating",
+              "rating_after",
+              "rating_before",
+              "solve_idx",
+              "uci",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "chess_puzzle_load": {
+            "columns": [
+              "created_at",
+              "cursor",
+              "deleted_at",
+              "finished_at",
+              "id",
+              "source_etag",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "chess_puzzle_profiles": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "id",
+              "last_interaction_at",
+              "owner_id",
+              "rating",
+              "rating_deviation",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "chess_puzzles": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "fen",
+              "game_url",
+              "id",
+              "moves",
+              "nb_plays",
+              "opening_tags",
+              "popularity",
+              "rating",
+              "rating_deviation",
+              "themes",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "client_config": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "id",
+              "updated_at",
+              "value"
+            ],
+            "rows": [
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "google_enabled",
+                "2024-06-01T00:00:01.000Z",
+                "false"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "google_web_client_id",
+                "2024-06-01T00:00:01.000Z",
+                "null"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "email_password_enabled",
+                "2024-06-01T00:00:01.000Z",
+                "true"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "billing_enabled",
+                "2024-06-01T00:00:01.000Z",
+                "true"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "tts_enabled",
+                "2024-06-01T00:00:01.000Z",
+                "true"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "llm_enabled",
+                "2024-06-01T00:00:01.000Z",
+                "true"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "emqx_wss_url",
+                "2024-06-01T00:00:01.000Z",
+                "null"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                null,
+                "observability_backend",
+                "2024-06-01T00:00:01.000Z",
+                "\"noop\""
+              ]
+            ]
+          },
+          "friends_blocks": {
+            "columns": [
+              "blocked_id",
+              "blocker_id",
+              "created_at",
+              "deleted_at",
+              "id",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "friends_friendships": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "id",
+              "source_request_id",
+              "updated_at",
+              "user_high",
+              "user_low"
+            ],
+            "rows": []
+          },
+          "friends_requests": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "from_user_id",
+              "id",
+              "message",
+              "responded_at",
+              "status",
+              "to_user_id",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "notifications": {
+            "columns": [
+              "actions",
+              "active",
+              "archived_at",
+              "avatar_config",
+              "avatar_fallback_label",
+              "body",
+              "category",
+              "created_at",
+              "deep_link_params",
+              "deep_link_path",
+              "deleted_at",
+              "dismissed_at",
+              "expires_at",
+              "group_key",
+              "icon_key",
+              "id",
+              "payload",
+              "priority",
+              "read_at",
+              "source_id",
+              "source_namespace",
+              "source_type",
+              "subtitle",
+              "title",
+              "updated_at",
+              "user_id"
+            ],
+            "rows": []
+          },
+          "outbox_deliveries": {
+            "columns": [
+              "attempts",
+              "available_at",
+              "consumer_id",
+              "event_id",
+              "last_error",
+              "processed_at"
+            ],
+            "rows": []
+          },
+          "outbox_events": {
+            "columns": ["available_at", "created_at", "id", "payload", "type"],
+            "rows": []
+          },
+          "profile": {
+            "columns": [
+              "avatar_config",
+              "created_at",
+              "deleted_at",
+              "id",
+              "updated_at",
+              "username",
+              "username_changed_at",
+              "username_norm"
+            ],
+            "rows": [
+              [
+                "{\"seed\": \"e9547fd5-9c96-4cb4-97be-92fc6b2a4441\", \"style\": \"funEmoji\", \"options\": {}}",
+                "2024-06-01 00:00:01+00",
+                null,
+                "e9547fd5-9c96-4cb4-97be-92fc6b2a4441",
+                "2024-06-01T00:00:01.100Z",
+                "alice",
+                null,
+                "alice"
+              ]
+            ]
+          },
+          "spaces": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "ended_at",
+              "host_account_id",
+              "host_id",
+              "host_member_id",
+              "id",
+              "title",
+              "updated_at",
+              "visibility"
+            ],
+            "rows": []
+          },
+          "spaces_open_sessions": {
+            "columns": [
+              "created_at",
+              "deleted_at",
+              "device_id",
+              "id",
+              "join_announced",
+              "opened_at",
+              "space_id",
+              "updated_at"
+            ],
+            "rows": []
+          },
+          "spaces_users": {
+            "columns": [
+              "created_at",
+              "created_by_account_id",
+              "deleted_at",
+              "id",
+              "space_id",
+              "updated_at",
+              "user_id"
+            ],
+            "rows": []
+          },
+          "sync_engine_mutations": {
+            "columns": ["args", "client_id", "created_at", "id", "name", "seq"],
+            "rows": []
+          },
+          "sync_engine_push_applied": {
+            "columns": ["last_push_seq", "topic"],
+            "rows": [
+              ["5", "user:e9547fd5-9c96-4cb4-97be-92fc6b2a4441"],
+              ["1", "system:client_config"]
+            ]
+          },
+          "sync_engine_scope_meta": {
+            "columns": [
+              "last_active_at",
+              "last_checkpoint",
+              "last_hash",
+              "scope_hash"
+            ],
+            "rows": [
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000001",
+                "688dc66092d93c6330096a6fcd8dc7a81367923bd94af5eb01ca7355ae9db0f7",
+                "1324b187b6e0ea4440448e38564516f3a93549222b1e540fb1acce1847411bd2"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000002",
+                "ca4b40b182e94eb9a8da6b90ca924fc4ae3bce01a1b16b4d7f02254b7bea57d8",
+                "66517f2c75c26e10fd59c9d7a6631f00e006dad662181a558ab85588c258b7f3"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000003",
+                "f3a5d79dd97a1f27f673004bcdcc4791b95cffc778577eb4b5043cba8ea853ce",
+                "3c6cff6de2588891642bd14d50cb8decc15a97763a94115323aedda2995944ab"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000004",
+                "a4a76abaee6c15166ad01b618679012e0c52eaa4f63bcb0bc8c5a6d39cef2d3a",
+                "fb6a0f160bdbb61d77656e573f5b00ef8fdc43e10ea62d7dfaa5bcfc0e44cb70"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000005",
+                "cb8c82c423ab7d8d6984be7daa7c8907ed2d0598301495b8398054650bb058d1",
+                "d41dbcd7b7d2edf098dc23c164128b2ba73cf918ce016cc9c0bc998dc7be2a6e"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000006",
+                "1482f7c4db4095f87a66a8aaa27dc314e1aaaa73b639f9dd3a40b81c0a007ebe",
+                "e9cd75bd587dee709e963cadcbbde365a0e00c47cb5f563c7a10877e02f5c5b3"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000007",
+                "56f7be4643346a0f9874e03a8413b54bc92c1958f41f93c3c492f4dd88f2119d",
+                "f0e7c3dc4ce590b8e68a61e7aa77be11c1b6ad692e498dafe7104fe67e836583"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000008",
+                "2135d05238580d0d82b1877694b53aab7f5c44664d4796cad98a9aca8ebf20f4",
+                "f6323b3da5b3070dffb34bb1ebe87eaf8ad35808176466c7212ce32ff4a22e63"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000009",
+                "1a33383249741c4c0b2cdbebb9645b40f03ed6a1b376e932df9e5f903bdb8f2d",
+                "c23fde1c38ee2584c32ee1e24933ea2856a589123b3e7124def17224af3be2d8"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000010",
+                "809df2e47e98197490cf4afa5a4a93d02afd16771aaa531508456e66cfafc5bc",
+                "c648daca397642bc3e46f162dbadd2727b0c334a1cbf9616840e50ff369d9183"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000011",
+                "6d64b8f3f6fcf898d71bdad299f239ea5c47810d2ceb8fac5fcc86489f0e68eb",
+                "440b85eda6af57b8618d0b471c059b2e0de0b721e13d23b2eec4013ddb8a6df5"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000012",
+                "3258ccc425e6102e6862b52feec3876db58646a6f0ed6820c0a9635dda9bf744",
+                "765bfd9c22af32de9b52114f5d117dfee4b49da805d73415cba700af1865d8a7"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000013",
+                "32d7388c09a248db6e1a59a5b433ae02dea83b4e2599799c1860bed836ef0db0",
+                "190799bf2d27534cbb943a0ef26b77f8e4bcfb8e3e9785dd2834a6c2dd352695"
+              ],
+              [
+                "2024-06-01T00:00:01.000Z",
+                "1717200001000000014",
+                "ffcfdc67df25f62eb6ef4bcc95a8a9e65e358b56336f6b207493568bb5f9d8be",
+                "9d40934b3afd9d9708a12be45cb23ecf011d391113eddb0d411cac68879cbed6"
+              ]
+            ]
+          },
+          "sync_engine_write_rejections": {
+            "columns": [
+              "acknowledged",
+              "client_id",
+              "code",
+              "created_at",
+              "id",
+              "message",
+              "meta",
+              "mutation_id"
+            ],
+            "rows": []
+          }
+        }
+      },
+      "kv": {
+        "deviceId": "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
+        "sessionToken": "3hK1tDRm7P0DJF5ag7uuMQ33DGOnIKJG.rlDG0ijXnx+2fF6wSlEnR2n9P/UMW6FLN385lKeeZbc=",
+        "sessionExpiresAt": "2026-09-02T17:46:55.099Z",
+        "sessionExternalUserId": "UhpVg5cgufuULOWu8djYRUVqgcT6phOs",
+        "lastLocalAccountId": "e9547fd5-9c96-4cb4-97be-92fc6b2a4441"
+      }
+    }
+  },
+  "rooms": {}
+}

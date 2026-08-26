@@ -1486,6 +1486,7 @@
         "hono": "catalog:",
         "react": "catalog:",
         "react-native": "catalog:",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

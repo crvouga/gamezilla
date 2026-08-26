@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { raw, sql } from '@pkgs/sql';
+import { runSqlDataSnapshotContractTests } from '../sql-data-snapshot/contract';
 import {
   createPostgresMemSqlClient,
   SqlClientImplPostgresMem,
@@ -117,4 +118,8 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
     expect(typeof rows[0]?.n).toBe('number');
     expect(() => JSON.stringify(rows)).not.toThrow();
   });
+});
+
+describe('SqlDataSnapshot postgres-mem', () => {
+  runSqlDataSnapshotContractTests(() => SqlClientImplPostgresMem.open({ seed: 1 }));
 });

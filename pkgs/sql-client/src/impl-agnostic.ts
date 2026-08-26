@@ -5,7 +5,7 @@
  * Compat install must run against {@link getUnderlyingSqlClient} — shim DDL is
  * intentionally vendor SQL.
  */
-import type { Sql, Value } from '@pkgs/sql';
+import type { Sql } from '@pkgs/sql';
 import { assertAgnosticSql } from './agnostic-sql';
 import type { PreparedStatement, RunResult, SqlClient } from './interface';
 
@@ -41,11 +41,7 @@ export class SqlClientImplAgnostic implements SqlClient {
     query: Sql<T>
   ): PreparedStatement<T> {
     assertAgnosticSql(query.sql);
-    const stmt = this.client.prepare(query);
-    return {
-      query: async (params?: Value[]) => stmt.query(params),
-      run: async (params?: Value[]) => stmt.run(params),
-    };
+    return this.client.prepare(query);
   }
 
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
