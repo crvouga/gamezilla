@@ -4,13 +4,13 @@
 
 import type { Client } from '@apps/client/product/create-client';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
-import {
-  appSchema,
-  LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/runtime/root/app-schema';
-import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import { dumpData, loadData } from '@pkgs/sql-client/interface';
-import type { SqlDataDump } from '@pkgs/sql-client/sql-data-snapshot/types';
+import { LOCAL_DOMAIN_TABLE_NAMES } from '@libs/runtime/root/app-schema';
+import type {
+  SimSystemSnapshot,
+  SimSystemSnapshotClientSlice,
+} from '@pkgs/sim-console/shared/sim-system-snapshot';
+import { dumpData, loadData } from '@pkgs/sql-client/sql-data-snapshot';
+import type { SqlDataDump, SqlTableDump } from '@pkgs/sql-client/sql-data-snapshot/types';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 import {
@@ -89,7 +89,7 @@ function shouldSkipClientRestoreTable(name: string): boolean {
 
 /** Domain + sync cache re-hydrate from server; keep auth/durable rows. */
 function clientTablesForRestore(dump: SqlDataDump): SqlDataDump {
-  const tables: SqlDataDump['tables'] = {};
+  const tables: Record<string, SqlTableDump> = {};
   for (const [name, slice] of Object.entries(dump.tables)) {
     if (shouldSkipClientRestoreTable(name)) continue;
     tables[name] = slice;
@@ -105,7 +105,7 @@ export async function captureSystemSnapshot(
   await awaitPlaygroundMutationDrain(drainCtx(ctx), clientIds);
 
   const server = await dumpData(ctx.sim.serverSql.sqlClient);
-  const clients: SimSystemSnapshot['clients'] = {};
+  const clients: Record<string, SimSystemSnapshotClientSlice> = {};
 
   for (const clientId of clientIds) {
     const handle = await ensureClientSqlHandle(ctx, clientId);
@@ -195,7 +195,7 @@ export async function restoreSystemSnapshot(
       now: () => ctx.sim.clock.now(),
     });
     // Client domain/sync cache re-hydrates from server; auth + durable SQL restored.
-    await loadData(handle.sqlClient, slice.tables);
+    await loadData(handle.sqlClient, clientTablesForRestore(slice.tables));
   }
 
   await reconcileServerProfilesFromClients(drainCtx(ctx), snapshot.clientIds);

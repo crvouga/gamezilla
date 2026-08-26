@@ -15,11 +15,9 @@ import {
 export async function listSqliteUserTables(
   client: SqlClient
 ): Promise<readonly string[]> {
-  const rows = await client.query<{ name: string }>(raw(`
-    SELECT name FROM sqlite_master
-    WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
-    ORDER BY name COLLATE NOCASE
-  `));
+  const rows = await client.query<{ name: string }>(
+    sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name COLLATE NOCASE ASC`
+  );
   return rows.map((r) => r.name);
 }
 

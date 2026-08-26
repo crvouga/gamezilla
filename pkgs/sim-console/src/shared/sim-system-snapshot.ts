@@ -3,7 +3,7 @@
  * SQL slices use {@link SqlDataDump}; schema comes from migrate / seed only.
  */
 
-import type { SqlDataDump } from '@pkgs/sql-client/interface';
+import type { SqlDataDump } from '@pkgs/sql-client/sql-data-snapshot/types';
 import type { SimCheckpointRoomDump } from './sim-checkpoint';
 
 export const SIM_SYSTEM_SNAPSHOT_VERSION = 1 as const;

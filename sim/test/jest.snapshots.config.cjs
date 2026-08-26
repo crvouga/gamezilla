@@ -1,5 +1,3 @@
-const path = require('node:path');
-
 const base = require('./jest.config.cjs');
 
 /** @type {import('jest').Config} */

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { raw, sql } from '@pkgs/sql';
-import type { SqlClient } from '../../interface';
+import type { SqlClient } from '../interface';
 import { dumpData, loadData } from './port';
 
 /** Shared dump→load round-trip — run against every SqlClient adapter. */
@@ -37,7 +37,9 @@ export function runSqlDataSnapshotContractTests(
 
     const dump = await dumpData(client, { tables: ['snap_demo'] });
     await client.run(raw('DELETE FROM snap_demo'));
-    expect(await client.query(raw('SELECT * FROM snap_demo'))).toEqual([]);
+    expect(
+      await client.query(raw<Record<string, unknown>>('SELECT * FROM snap_demo'))
+    ).toEqual([]);
 
     await loadData(client, dump);
     const rows = await client.query<{ id: string; n: number; body: string }>(
@@ -62,7 +64,10 @@ export function runSqlDataSnapshotContractTests(
     );
 
     const dump = await dumpData(client, { tables: ['snap_camel'] });
-    expect(dump.tables.snap_camel?.columns).toEqual(['accountId', 'createdAt']);
+    expect(dump.tables['snap_camel']?.columns).toEqual([
+      'accountId',
+      'createdAt',
+    ]);
 
     await client.run(raw('DELETE FROM snap_camel'));
     await loadData(client, dump);

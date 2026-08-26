@@ -36,6 +36,10 @@
       "@pkgs/tts/*": ["../../pkgs/tts/src/*"],
       "@pkgs/assert": ["../../pkgs/assert/src/index.ts"],
       "@pkgs/assert/*": ["../../pkgs/assert/src/*"],
+      "@pkgs/auth-better-auth/client": [
+        "../../pkgs/auth-better-auth/src/client/index.ts"
+      ],
+      "@pkgs/auth-better-auth/*": ["../../pkgs/auth-better-auth/src/*"],
       "@pkgs/async/*": ["../../pkgs/async/src/*"],
       "@pkgs/attribute": ["../../pkgs/attribute/src/index.ts"],
       "@pkgs/attribute/*": ["../../pkgs/attribute/src/*"],

@@ -78,20 +78,6 @@ export interface PostgresSqlClient extends SqlClient {
   readonly dbScope: PostgresDbScope;
 }
 
-export type {
-  SqlDataDump,
-  SqlDataDumpOptions,
-  SqlDumpValue,
-  SqlTableDump,
-} from './sql-data-snapshot/types';
-export type { SqlDataSnapshotPort } from './sql-data-snapshot/port';
-export {
-  bindSqlDataSnapshot,
-  dumpData,
-  listUserTables,
-  loadData,
-} from './sql-data-snapshot/port';
-
 export function assertQuery(
   query: Sql<unknown>,
   sqlClient: SqlClient

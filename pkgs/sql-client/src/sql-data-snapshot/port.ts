@@ -9,11 +9,7 @@ import {
   listPostgresUserTables,
   loadPostgresData,
 } from './postgres';
-import {
-  dumpSqliteData,
-  listSqliteUserTables,
-  loadSqliteData,
-} from './sqlite';
+import { dumpSqliteData, listSqliteUserTables, loadSqliteData } from './sqlite';
 import type { SqlDataDump, SqlDataDumpOptions } from './types';
 
 /** Capability for portable table dump/load on any supported SqlClient. */

@@ -341,7 +341,7 @@ export async function openSim(
         id,
         multiAppSession,
         reporter,
-        snapshot: loadedSnapshot,
+        ...(loadedSnapshot !== undefined ? { snapshot: loadedSnapshot } : {}),
       });
       liveClients.set(id, sim.spawnClient(id));
       actors.set(id, entry);

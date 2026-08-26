@@ -121,5 +121,7 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
 });
 
 describe('SqlDataSnapshot postgres-mem', () => {
-  runSqlDataSnapshotContractTests(() => SqlClientImplPostgresMem.open({ seed: 1 }));
+  runSqlDataSnapshotContractTests(() =>
+    SqlClientImplPostgresMem.open({ seed: 1 })
+  );
 });

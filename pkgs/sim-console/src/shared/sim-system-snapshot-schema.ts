@@ -1,14 +1,11 @@
 import { z } from 'zod';
-import { SIM_SYSTEM_SNAPSHOT_VERSION } from './sim-system-snapshot';
+import type { SqlDumpValue } from '@pkgs/sql-client/sql-data-snapshot/types';
+import {
+  SIM_SYSTEM_SNAPSHOT_VERSION,
+  type SimSystemSnapshot,
+} from './sim-system-snapshot';
 
-const sqlDumpValueSchema: z.ZodType<
-  | null
-  | boolean
-  | number
-  | string
-  | readonly unknown[]
-  | Readonly<Record<string, unknown>>
-> = z.lazy(() =>
+const sqlDumpValueSchema: z.ZodType<SqlDumpValue> = z.lazy(() =>
   z.union([
     z.null(),
     z.boolean(),
@@ -56,11 +53,9 @@ export const simSystemSnapshotSchema = z.object({
   rooms: z.record(z.string(), roomDumpSchema),
 });
 
-export type ParsedSimSystemSnapshot = z.infer<typeof simSystemSnapshotSchema>;
+export type ParsedSimSystemSnapshot = SimSystemSnapshot;
 
-export function parseSimSystemSnapshotJson(
-  text: string
-): ParsedSimSystemSnapshot {
+export function parseSimSystemSnapshotJson(text: string): SimSystemSnapshot {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text) as unknown;
