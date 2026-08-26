@@ -6,7 +6,6 @@ import {
   Box,
   EmptyState,
   Gamepad2Icon,
-  LoadingState,
   PlusIcon,
   ScreenBase,
   type ScreenBasePrimaryAction,
@@ -32,16 +31,13 @@ function sortCurrentSpacesFirst(
 }
 
 function SpacesListBody() {
-  const { spaceIds, isLoading } = useJoinableLiveSpaceIds();
+  const { spaceIds } = useJoinableLiveSpaceIds();
   const { spaceIds: openSpaceIds } = useOpenSpaceSessionIds();
   const openSet = useMemo(() => new Set(openSpaceIds), [openSpaceIds]);
   const orderedIds = useMemo(
     () => sortCurrentSpacesFirst(spaceIds, openSet),
     [spaceIds, openSet]
   );
-  if (isLoading) {
-    return <LoadingState size="large" />;
-  }
   if (orderedIds.length === 0) {
     return (
       <EmptyState icon={Gamepad2Icon} title={<Trans>No shared spaces</Trans>} />

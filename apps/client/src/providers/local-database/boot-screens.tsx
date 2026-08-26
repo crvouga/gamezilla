@@ -8,8 +8,10 @@ import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
 } from '@pkgs/sql-client/sqlite/web';
-import { Center, ErrorState, LoadingState } from '@pkgs/ui';
+import { Center, ErrorState } from '@pkgs/ui';
 import type { ReactNode } from 'react';
+
+import { ThemedBlankShell } from '../shell/blank-shell';
 
 function isMultiTabOwnerLostError(error: Error): boolean {
   return (
@@ -57,17 +59,9 @@ function ThemedBootShell({ children }: { children: ReactNode }): ReactNode {
   return <Center sx={{ flex: 1, background: 'background' }}>{children}</Center>;
 }
 
-export function LocalDatabaseBootLoadingScreen(props: {
-  caption?: ReactNode;
-}): ReactNode {
-  return (
-    <ThemedBootShell>
-      <LoadingState
-        size="large"
-        {...(props.caption !== undefined ? { caption: props.caption } : {})}
-      />
-    </ThemedBootShell>
-  );
+/** Blank canvas while splash still covers native — never a spinner. */
+export function LocalDatabaseBootBlankScreen(): ReactNode {
+  return <ThemedBlankShell />;
 }
 
 export function LocalDatabaseBootErrorScreen({

@@ -179,10 +179,12 @@
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@types/react-test-renderer": "catalog:",
     "@typescript/native": "catalog:",
     "babel-plugin-macros": "catalog:",
     "esbuild": "catalog:",
     "react-scan": "catalog:",
+    "react-test-renderer": "catalog:",
     "typescript": "catalog:",
     "workbox-build": "catalog:"
   }

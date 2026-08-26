@@ -1,4 +1,4 @@
-import { Box, LoadingState, useRouter } from '@pkgs/ui';
+import { Box, useRouter } from '@pkgs/ui';
 import { type ReactNode, useCallback, useContext, useMemo } from 'react';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { DefineBackButton } from '../../public/nav/spaces-nav-context';
@@ -20,8 +20,9 @@ export type SpaceDetailInitialLoadingProps = {
 };
 
 /**
- * First-load shell for `/space/:id` — active-space chrome (home + back) with a
- * body spinner only. Avoids swapping to the bare "Spaces" ScreenBase header.
+ * First-load shell for `/space/:id` — active-space chrome (home + back) with an
+ * empty body. Avoids swapping to the bare "Spaces" ScreenBase header, and never
+ * mounts a full-viewport spinner.
  */
 export function SpaceDetailInitialLoading({
   spaceId,
@@ -53,7 +54,7 @@ export function SpaceDetailInitialLoading({
         <SpaceSessionUiProvider value={sessionUi}>
           <DefineBackButton onPress={onPressBack} />
           <SpaceActiveLayout>
-            <LoadingState size="large" />
+            <Box sx={{ flex: 1 }} />
           </SpaceActiveLayout>
         </SpaceSessionUiProvider>
       </Box>

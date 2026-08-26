@@ -8,7 +8,7 @@ import { useAppFonts } from './fonts-context';
  *
  * Gating on load left Platform iOS `ui-rounded` on navigation titles during
  * remounts / brief unload windows. Sim report HTML then falls back to Times in
- * browsers. Splash already covers native until faces are ready.
+ * browsers. Splash covers native until fonts and the local engine are ready.
  */
 export function AppTheme({ children }: { children: ReactNode }): ReactNode {
   const { fontStacks } = useAppFonts();

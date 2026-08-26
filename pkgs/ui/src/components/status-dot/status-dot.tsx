@@ -11,7 +11,7 @@
 import type { ComponentDataSet } from '../../component-id';
 import { Box } from '../box';
 
-export type StatusDotStatus = 'online' | 'offline' | 'warning';
+export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
 
 export type StatusDotProps = {
   status: StatusDotStatus;
@@ -25,6 +25,7 @@ const STATUS_COLOR = {
   online: 'success',
   offline: 'destructive',
   warning: 'warning',
+  pending: 'info',
 } as const;
 
 export function StatusDot({ status, size = 10, dataSet }: StatusDotProps) {

@@ -38,7 +38,9 @@ export function runSqlDataSnapshotContractTests(
     const dump = await dumpData(client, { tables: ['snap_demo'] });
     await client.run(raw('DELETE FROM snap_demo'));
     expect(
-      await client.query(raw<Record<string, unknown>>('SELECT * FROM snap_demo'))
+      await client.query(
+        raw<Record<string, unknown>>('SELECT * FROM snap_demo')
+      )
     ).toEqual([]);
 
     await loadData(client, dump);

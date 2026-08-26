@@ -23,6 +23,11 @@ export default function StatusDotExample() {
         </Stack>
 
         <Stack direction="horizontal" spacing={2} align="center">
+          <StatusDot status="pending" />
+          <Text variant="label" label="Pending" />
+        </Stack>
+
+        <Stack direction="horizontal" spacing={2} align="center">
           <StatusDot status="online" size={16} />
           <Text variant="label" label="Large (16px)" />
         </Stack>

@@ -1,12 +1,10 @@
 import { useLingui } from '@lingui/react/macro';
 import { useSyncEngine } from '@pkgs/sync-engine/client';
-import {
-  RegisterStatusBarItem,
-  StatusDot,
-  type StatusDotStatus,
-} from '@pkgs/ui';
+import { RegisterStatusBarItem, StatusDot } from '@pkgs/ui';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+
+import { resolveConnectivityStatus } from './resolve-connectivity-status';
 
 function useBrowserOnline(): boolean {
   const [online, setOnline] = useState(
@@ -28,16 +26,6 @@ function useBrowserOnline(): boolean {
   return online;
 }
 
-function connectivityStatus(
-  browserOnline: boolean,
-  syncOnline: boolean,
-  syncError: boolean
-): StatusDotStatus {
-  if (!browserOnline || !syncOnline) return 'offline';
-  if (syncError) return 'warning';
-  return 'online';
-}
-
 /**
  * Registers online / sync connectivity into the global status bar.
  */
@@ -47,19 +35,23 @@ export function ConnectivityStatusBarItem(): ReactNode {
   const browserOnline = useBrowserOnline();
   const syncError =
     syncStatus.lastError !== null && syncStatus.lastError.length > 0;
-  const status = connectivityStatus(
+  const status = resolveConnectivityStatus({
     browserOnline,
-    syncStatus.online,
-    syncError
-  );
+    syncOnline: syncStatus.online,
+    syncError,
+    connection: syncStatus.connection,
+    hasSynced: syncStatus.hasSynced,
+  });
   const label =
     status === 'online'
       ? t`Online`
       : status === 'offline'
         ? t`Offline`
-        : t`Sync issue`;
+        : status === 'pending'
+          ? t`Syncing`
+          : t`Sync issue`;
   const caption =
-    status === 'online'
+    status === 'pending' || status === 'online'
       ? syncStatus.connection
       : syncError && syncStatus.lastError !== null
         ? syncStatus.lastError
@@ -73,7 +65,7 @@ export function ConnectivityStatusBarItem(): ReactNode {
       id="connectivity"
       order={10}
       contentKey={`${status}:${syncStatus.connection}`}
-      title={t`Online`}
+      title={label}
       caption={caption}
       accessibilityLabel={label}
       active={status === 'online'}
