@@ -24,6 +24,33 @@ const ansi = {
   yellow: (s: string) => `\x1b[33m${s}\x1b[0m`,
 };
 
+/**
+ * Clip styled text so its visible width (ANSI escapes excluded) never exceeds
+ * maxWidth, including the trailing ellipsis. Lines wider than the terminal
+ * would soft-wrap onto extra rows and desync the cursor-up redraw math.
+ */
+function truncateToWidth(text: string, maxWidth: number): string {
+  if (maxWidth <= 1) return text;
+  const budget = maxWidth - 1;
+  let visible = 0;
+  let out = '';
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === '\x1b') {
+      const end = text.indexOf('m', i);
+      if (end === -1) break;
+      out += text.slice(i, end + 1);
+      i = end;
+      continue;
+    }
+    if (visible >= budget) {
+      return `${out}\x1b[0m…`;
+    }
+    out += text[i];
+    visible += 1;
+  }
+  return out;
+}
+
 export type PbtSessionOptions = {
   readonly totalFiles: number;
   readonly concurrency: number;
@@ -72,37 +99,34 @@ export class PbtSessionUi {
   private attemptsPassed = 0;
 
   constructor(private readonly options: PbtSessionOptions) {
-    this.useTty = Boolean(process.stderr.isTTY);
+    this.useTty = Boolean(process.stdout.isTTY);
   }
 
   startSession(): void {
     this.sessionStarted = Date.now();
     if (this.useTty) {
-      process.stderr.write('\x1b[?25l');
+      process.stdout.write('\x1b[?25l');
       this.spinnerTimer = setInterval(() => {
         this.spinnerIndex = (this.spinnerIndex + 1) % SPINNER_FRAMES.length;
         this.scheduleRender();
       }, 100);
     } else {
-      process.stderr.write(
+      process.stdout.write(
         `${ansi.bold('PBT random suite')} — ${String(this.options.totalFiles)} files, ${String(this.options.concurrency)} workers, ${String(this.options.numRuns)} runs/property\n`
       );
     }
   }
 
   stopSession(): void {
-    if (this.spinnerTimer !== null) {
-      clearInterval(this.spinnerTimer);
-      this.spinnerTimer = null;
-    }
+    this.stopSpinner();
     this.clearRendered();
     if (this.useTty) {
-      process.stderr.write('\x1b[?25h');
+      process.stdout.write('\x1b[?25h\n');
     }
     const elapsed = formatDuration(Date.now() - this.sessionStarted);
     if (this.options.attempts > 1) {
-      process.stderr.write(
-        `\n${ansi.green('✓')} ${String(this.attemptsPassed)}/${String(this.options.attempts)} attempts passed ${ansi.dim(`(${elapsed})`)}\n`
+      process.stdout.write(
+        `${ansi.green('✓')} ${String(this.attemptsPassed)}/${String(this.options.attempts)} attempts passed ${ansi.dim(`(${elapsed})`)}\n`
       );
     }
   }
@@ -142,7 +166,7 @@ export class PbtSessionUi {
           ? 'suite'
           : `attempt ${String(this.attempt)}/${String(this.options.attempts)}`;
       const glyph = ok ? ansi.green('✓') : ansi.red('✗');
-      process.stderr.write(
+      process.stdout.write(
         `  ${glyph} ${label} seed=${String(this.seed)} ${formatDuration(Date.now() - this.attemptStarted)}\n`
       );
       return;
@@ -153,8 +177,11 @@ export class PbtSessionUi {
   printFailures(results: readonly FileRunResult[]): void {
     const failed = results.filter((r) => r.code !== 0);
     if (failed.length === 0) return;
+    this.stopSpinner();
     this.clearRendered();
-    if (this.useTty) process.stderr.write('\x1b[?25h');
+    if (this.useTty) {
+      process.stdout.write('\x1b[?25h\n');
+    }
     process.stderr.write(
       `\n${ansi.red(ansi.bold('Failures'))} ${ansi.dim(`seed ${String(this.seed)}`)}\n`
     );
@@ -174,6 +201,13 @@ export class PbtSessionUi {
     process.stderr.write(
       `\n${ansi.dim('Replay:')} FC_SEED=${String(this.seed)} bun test <file>\n`
     );
+  }
+
+  private stopSpinner(): void {
+    if (this.spinnerTimer !== null) {
+      clearInterval(this.spinnerTimer);
+      this.spinnerTimer = null;
+    }
   }
 
   private scheduleRender(): void {
@@ -237,27 +271,28 @@ export class PbtSessionUi {
         ? `  ${ansi.dim('last —')}`
         : `  ${ansi.dim('last')} ${ansi.green('✓')} ${ansi.dim(shortName(this.lastCompleted.file))} ${ansi.dim(formatDuration(this.lastCompleted.ms))}`;
 
-    return [header, progress, active, last];
+    // Clip every line strictly under the terminal width so none soft-wraps.
+    const maxWidth = Math.max(20, (process.stdout.columns ?? 80) - 1);
+    return [header, progress, active, last].map((line) =>
+      truncateToWidth(line, maxWidth)
+    );
   }
 
   private doRender(): void {
     const lines = this.buildLines();
-    if (this.renderLines > 0) {
-      process.stderr.write(`\x1b[${String(this.renderLines)}A`);
-    }
-    for (const line of lines) {
-      process.stderr.write(`${line}\x1b[K\n`);
-    }
+    // Move to the top of the previous frame, erase it and everything below,
+    // then draw the new frame in one write to avoid flicker.
+    const moveUp =
+      this.renderLines > 0 ? `\x1b[${String(this.renderLines)}A` : '';
+    process.stdout.write(
+      `${moveUp}\x1b[G\x1b[0J${lines.map((line) => `${line}\n`).join('')}`
+    );
     this.renderLines = lines.length;
   }
 
   private clearRendered(): void {
     if (!this.useTty || this.renderLines === 0) return;
-    process.stderr.write(`\x1b[${String(this.renderLines)}A`);
-    for (let i = 0; i < this.renderLines; i += 1) {
-      process.stderr.write('\x1b[K\n');
-    }
-    process.stderr.write(`\x1b[${String(this.renderLines)}A`);
+    process.stdout.write(`\x1b[${String(this.renderLines)}A\x1b[G\x1b[0J`);
     this.renderLines = 0;
   }
 }

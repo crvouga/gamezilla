@@ -40,7 +40,7 @@ async function restartClientForConverge(
   clientId: string
 ): Promise<void> {
   world.node(clientId).auth('valid');
-  await world.node(clientId).restart();
+  await world.node(clientId).restart({ preserveLocalDb: true });
 }
 
 function actionCmd(app: DstApp, action: DstAction): WorldCmd {
@@ -103,13 +103,13 @@ export function worldCommands(
   const h = cmdHelpers(app);
   const sessionQuery = app.pack.sessionQuery;
 
-  const domainArbs = app.domainOpArbs({ clientIds: ids }).map((arb) =>
-    arb.map((op) => actionCmd(app, op))
-  );
+  const domainArbs = app
+    .domainOpArbs({ clientIds: ids })
+    .map((arb) => arb.map((op) => actionCmd(app, op)));
   const serverArbs =
-    app.serverOpArbs?.({ clientIds: ids }).map((arb) =>
-      arb.map((op) => actionCmd(app, op))
-    ) ?? [];
+    app
+      .serverOpArbs?.({ clientIds: ids })
+      .map((arb) => arb.map((op) => actionCmd(app, op))) ?? [];
 
   const all = [
     ...domainArbs,
@@ -128,7 +128,8 @@ export function worldCommands(
       httpFaultCmd: h.httpFaultCmd,
       crashAtCmd: h.crashAtCmd,
       publishCmd: (count) => actionCmd(app, { kind: 'publishFault', count }),
-      authCmd: (c, status) => actionCmd(app, { kind: 'auth', clientId: c, status }),
+      authCmd: (c, status) =>
+        actionCmd(app, { kind: 'auth', clientId: c, status }),
     }),
     ...serverArbs,
     ...lifecycleCommandArbs({
@@ -178,10 +179,17 @@ export async function replayActionsOnWorld(
 ): Promise<void> {
   const needsRestart = new Set<string>();
   for (const action of actions) {
+    const aliveBefore = new Set(world.clients.keys());
     if (action.kind === 'restart') {
       healNetworkForSettle(world);
     }
     await dispatchDstAction(world, app, action);
+
+    for (const id of aliveBefore) {
+      if (!world.clients.has(id)) {
+        needsRestart.add(id);
+      }
+    }
 
     if (action.kind === 'auth' && action.status === 'revoked') {
       needsRestart.add(action.clientId);
