@@ -14,6 +14,7 @@ export type SecretBackendCli = {
   fetchLatestVersion(): Promise<string | null>;
   install(): void;
   upgrade(): void;
+  installOrUpgrade(): Promise<void>;
   verify(): void;
 };
 

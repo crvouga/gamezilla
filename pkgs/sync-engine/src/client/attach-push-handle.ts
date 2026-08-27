@@ -35,7 +35,7 @@ async function tryApplyOptimisticRows(
       payload.rows as Record<string, readonly QueryRow[]>
     );
     if (Object.keys(rows).length === 0) return true;
-    await applyRowImages(getMergeDeps(), rows);
+    await applyRowImages(getMergeDeps(), rows, { optimistic: true });
   } catch (error) {
     warnPush('[push] optimistic fanout apply failed', topic, error);
   }

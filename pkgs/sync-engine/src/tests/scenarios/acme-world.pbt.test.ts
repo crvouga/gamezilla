@@ -136,6 +136,39 @@ describe('acme world PBT / DST', () => {
     }
   });
 
+  test('in-txn fail then auth revoke heals peer optimistic orphan', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 1037633887,
+      knobs: {
+        rowImageFanout: true,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: false,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        {
+          kind: 'armHttpFault',
+          clientId: 'c1',
+          fault: { kind: 'failMutationsInsideTxnAfter', after: 0 },
+        },
+        {
+          kind: 'domain',
+          clientId: 'c1',
+          mutation: 'setNote',
+          args: { id: 'n0', body: 'pbt', title: '' },
+        },
+        { kind: 'auth', clientId: 'c1', status: 'revoked' },
+        { kind: 'serverRestart' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test('auth revoked then setNote then restartWithSchema opens fresh db', async () => {
     const opened = await openPbtWorld({
       app: acmeDstApp,
@@ -160,6 +193,40 @@ describe('acme world PBT / DST', () => {
           kind: 'restartWithSchema',
           clientId: 'c0',
           variant: 'baseline',
+        },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
+  test('server skew backwards then peer setNote still converges', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 6593,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        {
+          kind: 'domain',
+          clientId: 'c1',
+          mutation: 'setNote',
+          args: { id: 'n2', body: 'b49', title: '' },
+        },
+        { kind: 'skew', nodeId: 'server', skewMs: -60_000 },
+        { kind: 'partition', nodeId: 'c1', traffic: 'live' },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n2', body: 'b70', title: '' },
         },
       ]);
       await opened.world.assertConverged();

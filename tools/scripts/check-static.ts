@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — tools composition root
 import { spawnSync } from 'node:child_process';
-import { accessSync, chmodSync, constants } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { ensureActionlint } from './cli-deps/actionlint';
+import { ensureGitleaks } from './cli-deps/gitleaks';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const LOCAL_BIN = join(homedir(), '.local', 'bin');
@@ -27,29 +28,12 @@ function pathWithLocalBin(): NodeJS.ProcessEnv {
     : { ...process.env, PATH: `${prefix}${path}` };
 }
 
-function ensureActionlint(): void {
-  const local = join(REPO_ROOT, 'actionlint');
-  try {
-    accessSync(local, constants.X_OK);
-    run(local, ['-color']);
-    return;
-  } catch {
-    /* install below */
-  }
+await ensureActionlint();
+await ensureGitleaks();
 
-  const plat = process.platform === 'darwin' ? 'darwin' : 'linux';
-  const arch = process.arch === 'arm64' ? 'arm64' : 'amd64';
-  const version = '1.7.7';
-  const asset = `actionlint_${version}_${plat}_${arch}.tar.gz`;
-  const url = `https://github.com/rhysd/actionlint/releases/download/v${version}/${asset}`;
-  run('curl', ['-fsSL', url, '-o', '/tmp/actionlint.tar.gz']);
-  run('tar', ['-xzf', '/tmp/actionlint.tar.gz', '-C', REPO_ROOT, 'actionlint']);
-  chmodSync(local, 0o755);
-  run(local, ['-color']);
-}
+const env = pathWithLocalBin();
 
-ensureActionlint();
-run('bun', ['run', 'tools/scripts/install-gitleaks.ts'], pathWithLocalBin());
+run('actionlint', ['-color'], env);
 
 const ghEvent =
   process.env['GH_EVENT'] ?? process.env['GITHUB_EVENT_NAME'] ?? '';
@@ -71,5 +55,5 @@ run(
     '1',
     `--log-opts=${logOpts}`,
   ],
-  pathWithLocalBin()
+  env
 );

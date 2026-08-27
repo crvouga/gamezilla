@@ -11,6 +11,11 @@ import type {
 import { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
+import {
+  clearOptimisticPeerRows,
+  healOptimisticPeerOrphans,
+  recordOptimisticPeerRows,
+} from './optimistic-peer-rows';
 import { compareCheckpoint } from './push-applied';
 
 export type MergeFullInput = {
@@ -241,6 +246,13 @@ async function runMerge(
       const ok = await mergeTable(tx, table, rows, deps.env);
       if (ok) changed.add(table);
     }
+    for (const table of await healOptimisticPeerOrphans(
+      tx,
+      input.tables,
+      deps.env.now().toISOString()
+    )) {
+      changed.add(table);
+    }
     await touchScopeMeta(tx, input, deps.env.now);
     await rebasePending(tx, deps, changed);
     applied = true;
@@ -258,14 +270,6 @@ export async function applyFullMerge(
 }
 
 /**
- * Apply post-replay row images from a push through the same upsert +
- * rebase path as a full snapshot merge.
- *
- * Intentionally does **not** update `sync_engine_scope_meta.last_hash`: the hash echoes
- * the server's last full-snapshot content so `not_modified` stays sound. A
- * rows-apply changes local content without claiming a full snapshot.
- */
-/**
  * Drop peer-install rows that declare `device_id` ownership. Device-private
  * tables (e.g. open sessions) must not land via user-topic fanout.
  */
@@ -282,9 +286,21 @@ function filterDeviceOwnedRows(
   });
 }
 
+/**
+ * Apply post-replay row images from a push through the same upsert +
+ * rebase path as a full snapshot merge.
+ *
+ * Intentionally does **not** update `sync_engine_scope_meta.last_hash`: the hash echoes
+ * the server's last full-snapshot content so `not_modified` stays sound. A
+ * rows-apply changes local content without claiming a full snapshot.
+ *
+ * When `optimistic` is true, ids are recorded so a later confirming snapshot
+ * can soft-delete orphans that never committed on the server.
+ */
 export async function applyRowImages(
   deps: MergeApplierDeps,
-  tables: Readonly<Record<string, readonly QueryRow[]>>
+  tables: Readonly<Record<string, readonly QueryRow[]>>,
+  opts?: { readonly optimistic?: boolean }
 ): Promise<void> {
   const filtered: Record<string, readonly QueryRow[]> = {};
   for (const [table, rows] of Object.entries(tables)) {
@@ -301,6 +317,11 @@ export async function applyRowImages(
         } catch {
           // Table absent from local schema — skip (mirrors snapshot tolerance).
         }
+      }
+      if (opts?.optimistic === true) {
+        await recordOptimisticPeerRows(tx, filtered);
+      } else {
+        await clearOptimisticPeerRows(tx, filtered);
       }
       await rebasePending(tx, deps, changed);
     });

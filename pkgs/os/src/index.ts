@@ -1,5 +1,7 @@
 export { Apt } from './apt';
 export { Chocolatey } from './chocolatey';
+export type { CliDep } from './cli-dep';
+export { installCliDeps, sortCliDeps } from './cli-dep';
 export type {
   CaptureResult,
   CaptureVersionDiagnostic,

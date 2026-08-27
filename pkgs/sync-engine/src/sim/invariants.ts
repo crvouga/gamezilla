@@ -17,7 +17,7 @@ export function isClosedDatabaseError(error: unknown): boolean {
 /** Auth revoke wipes close the handle; preserveLocalDb must not reuse it. */
 export async function isDbOpen(db: SqlClient): Promise<boolean> {
   try {
-    await db.query(sql`SELECT 1 AS ok`);
+    await db.query(sql<{ ok: number }>`SELECT 1 AS ok`);
     return true;
   } catch {
     return false;

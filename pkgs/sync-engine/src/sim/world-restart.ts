@@ -30,7 +30,7 @@ export async function restartClientImpl(
   // Revoke wipe closes SQLite; keepDb must not hand a dead handle to migrate.
   if (existingDb !== undefined && !(await isDbOpen(existingDb.serial))) {
     existingDb = undefined;
-    meta.lastDbBundle = undefined;
+    delete meta.lastDbBundle;
     preserve = false;
   }
   if (k.clients.has(id)) {

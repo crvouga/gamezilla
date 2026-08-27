@@ -8,13 +8,13 @@ import type { MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { QueryRegistry } from '../queries/core/types';
 import { notifyChannels } from '../server/notify-channels';
+import { createMonotonicCheckpoint } from '../shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { TopicMap } from '../shared/topic-map';
 import type { BoundaryFaultController } from './boundary-faults';
 import type { SimHttpServerHandlers } from './http-bridge';
 import { openSimSqliteServer } from './open-sim-sqlite';
 import {
-  commitCheckpoint,
   createHandleMutations,
   createHandleQuery,
   type SimServerAuth,
@@ -110,7 +110,6 @@ export async function openSimServer(
   // product-only; framework mutations merge at the host boundary.
   const mutations = withFrameworkMutations(args.mutationRegistry);
   const queries = args.queryRegistry;
-  let checkpointSeq = 0;
   let stickyAuth: SimServerAuth = {
     actorId: 'server',
     deviceId: 'server',
@@ -130,10 +129,7 @@ export async function openSimServer(
     setAuth: (auth) => {
       stickyAuth = auth;
     },
-    nextCheckpoint: () => {
-      checkpointSeq += 1;
-      return commitCheckpoint(args.now(), checkpointSeq);
-    },
+    nextCheckpoint: createMonotonicCheckpoint(args.now),
     rowImageFanout: args.rowImageFanout !== false,
     ...(args.topicMap !== undefined ? { topicMap: args.topicMap } : {}),
     ...(args.faults !== undefined ? { faults: args.faults } : {}),
