@@ -3,6 +3,11 @@
  * Named after observable behavior — never after internal engine modules.
  */
 
+import type { Topic } from '@pkgs/pubsub/topic';
+
+import { createPubsubFaultArms } from './boundary-fault-pubsub';
+import type { SimCorruptionVariant } from './corruption-faults';
+
 export type SimCrashEvent =
   | 'afterNextSyncResponseDelivered'
   | 'afterNextMutateResolved'
@@ -11,14 +16,48 @@ export type SimCrashEvent =
   | 'onNextEngineOpenAfterCacheWipe';
 
 export type SimHttpFault =
-  | { readonly kind: 'dropMutationsResponse' }
-  | { readonly kind: 'dropQueryResponse' }
-  | { readonly kind: 'failMutationsAfterCommit' }
-  | { readonly kind: 'failMutationsInsideTxnAfter'; readonly after: number }
-  | { readonly kind: 'invalidMutationsBody' }
+  | {
+      readonly kind: 'dropMutationsResponse';
+    }
+  | {
+      readonly kind: 'dropQueryResponse';
+    }
+  | {
+      readonly kind: 'failMutationsAfterCommit';
+    }
+  | {
+      readonly kind: 'failMutationsInsideTxnAfter';
+      readonly after: number;
+    }
+  | {
+      readonly kind: 'invalidMutationsBody';
+    }
   | {
       readonly kind: 'serverErrorOnNext';
       readonly route: 'mutations' | 'query';
+    }
+  | {
+      readonly kind: 'corruptMutationsResponse';
+      readonly variant: SimCorruptionVariant;
+    }
+  | {
+      readonly kind: 'corruptQueryResponse';
+      readonly variant: SimCorruptionVariant;
+    };
+
+export type SimPubsubFault =
+  | {
+      readonly kind: 'corruptPubsubPayload';
+      readonly variant: SimCorruptionVariant;
+    }
+  | {
+      readonly kind: 'dropTopic';
+      readonly topic: Topic;
+      readonly count: number;
+    }
+  | {
+      readonly kind: 'duplicatePublish';
+      readonly count: number;
     };
 
 export type BoundaryFaultController = {
@@ -39,6 +78,11 @@ export type BoundaryFaultController = {
   readonly clearPublishFault: () => void;
   /** Returns true when a publish should be suppressed / fail. */
   readonly takePublishFault: () => boolean;
+  readonly armPubsubFault: (fault: SimPubsubFault) => void;
+  readonly clearPubsubFaults: () => void;
+  readonly takePubsubCorruption: () => SimCorruptionVariant | undefined;
+  readonly shouldDropTopic: (topic: Topic) => boolean;
+  readonly duplicatePublishCount: () => number;
 };
 
 /** In-memory one-shot fault arms keyed by node id. */
@@ -46,6 +90,7 @@ export function createBoundaryFaultController(): BoundaryFaultController {
   const crashes = new Map<string, Set<SimCrashEvent>>();
   const httpFaults = new Map<string, SimHttpFault[]>();
   let publishRemaining = 0;
+  const pubsub = createPubsubFaultArms();
 
   return {
     armCrash(nodeId, event) {
@@ -107,5 +152,14 @@ export function createBoundaryFaultController(): BoundaryFaultController {
       publishRemaining -= 1;
       return true;
     },
+    armPubsubFault(fault) {
+      pubsub.arm(fault);
+    },
+    clearPubsubFaults() {
+      pubsub.clear();
+    },
+    takePubsubCorruption: () => pubsub.takeCorruption(),
+    shouldDropTopic: (topic) => pubsub.shouldDropTopic(topic),
+    duplicatePublishCount: () => pubsub.duplicatePublishCount(),
   };
 }

@@ -26,8 +26,8 @@ export async function bootSimKernel(args: {
   readonly worldArgs: WorldClientOpts;
 }): Promise<BootedSimKernel> {
   const rng = createSeededRng(args.seed);
-  const runtime = createBootRuntime(rng, args.worldArgs);
   const boundaryFaults = createBoundaryFaultController();
+  const runtime = createBootRuntime(rng, args.worldArgs, boundaryFaults);
   const domain = resolveBootDomain(args.worldArgs);
   const authByDevice = new Map<string, ClientMeta>();
   const authStatusByDevice = new Map<string, SimAuthStatus>();

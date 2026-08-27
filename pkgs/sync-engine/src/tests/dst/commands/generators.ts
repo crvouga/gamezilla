@@ -5,8 +5,12 @@ import type { WorldCmd } from './index-types';
 import {
   AUTH_STATUSES,
   CLIENT_IDS,
+  CORRUPTION_VARIANTS,
   HOLD_TRAFFIC,
   HTTP_FAULTS,
+  PUBSUB_FAULTS,
+  SCHEMA_VARIANTS,
+  STORAGE_TAMPERS,
   WORLD_PBT_CRASH_EVENTS,
 } from '../model';
 
@@ -100,18 +104,66 @@ export function lifecycleCommandArbs(args: {
   readonly clearCmd: (c: string) => WorldCmd;
   readonly subscribeCmd: (c: string) => WorldCmd;
   readonly skewCmd: (nodeId: string, ms: number) => WorldCmd;
+  readonly serverCrashCmd: WorldCmd;
+  readonly serverRestartCmd: WorldCmd;
 }): fc.Arbitrary<WorldCmd>[] {
   return [
     args.pickClient.map(args.crashCmd),
     args.pickClient.map(args.restartCmd),
     args.pickClient.map(args.clearCmd),
     args.pickClient.map(args.subscribeCmd),
+    fc.constant(args.serverCrashCmd),
+    fc.constant(args.serverRestartCmd),
     fc
       .tuple(
         fc.constantFrom(...args.ids, 'server'),
         fc.constantFrom(-60_000, 0, 60_000)
       )
       .map(([nodeId, skewMs]) => args.skewCmd(nodeId, skewMs)),
+  ];
+}
+
+export function chaosCommandArbs(args: {
+  readonly pickClient: PickClient;
+  readonly pubsubFaultCmd: (f: (typeof PUBSUB_FAULTS)[number]) => WorldCmd;
+  readonly tamperCmd: (
+    c: string,
+    t: (typeof STORAGE_TAMPERS)[number]
+  ) => WorldCmd;
+  readonly schemaCmd: (
+    c: string,
+    v: (typeof SCHEMA_VARIANTS)[number]
+  ) => WorldCmd;
+  readonly protocolCutCmd: (c: string) => WorldCmd;
+  readonly brokerCrashCmd: WorldCmd;
+  readonly brokerRestartCmd: WorldCmd;
+  readonly setFaultsCmd: (
+    nodeId: string,
+    traffic: 'live' | 'sync' | 'all'
+  ) => WorldCmd;
+}): fc.Arbitrary<WorldCmd>[] {
+  return [
+    fc.constantFrom(...PUBSUB_FAULTS).map(args.pubsubFaultCmd),
+    fc
+      .tuple(args.pickClient, fc.constantFrom(...STORAGE_TAMPERS))
+      .map(([c, t]) => args.tamperCmd(c, t)),
+    fc
+      .tuple(args.pickClient, fc.constantFrom(...SCHEMA_VARIANTS))
+      .map(([c, v]) => args.schemaCmd(c, v)),
+    args.pickClient.map(args.protocolCutCmd),
+    fc.constant(args.brokerCrashCmd),
+    fc.constant(args.brokerRestartCmd),
+    fc
+      .tuple(args.pickClient, trafficArb)
+      .map(([c, t]) => args.setFaultsCmd(c, t)),
+    fc
+      .tuple(args.pickClient, fc.constantFrom(...CORRUPTION_VARIANTS))
+      .map(([, variant]) =>
+        args.pubsubFaultCmd({
+          kind: 'corruptPubsubPayload',
+          variant,
+        })
+      ),
   ];
 }
 

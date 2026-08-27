@@ -18,6 +18,8 @@ export type AssertConvergedCtx = {
   readonly domain: SimDomainPack;
   readonly netEffects: NetEffectRegistry;
   readonly now: () => number;
+  /** Restore server/broker after chaos commands before settle. */
+  readonly healInfra?: () => Promise<void>;
 };
 
 function clientSnapshots(
@@ -59,6 +61,9 @@ export async function assertConvergedImpl(
   ctx.network.clearNodeFaults();
   ctx.network.setDefaultFaults(RELIABLE_FAULTS);
   ctx.netEffects.neutralizeAll();
+  if (ctx.healInfra !== undefined) {
+    await ctx.healInfra();
+  }
   for (const client of ctx.clients.values()) {
     client.lifecycle.setOnline(true);
     client.lifecycle.setForeground(true);

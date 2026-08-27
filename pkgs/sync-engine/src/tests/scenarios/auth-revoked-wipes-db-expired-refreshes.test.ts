@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   isLiveNote,
-  acmeDomainPack,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
@@ -150,5 +150,18 @@ describe('auth revoked wipes db expired refreshes', () => {
     await expectLiveNote(world.server.db, 'n-keep', {
       body: 'local-and-server',
     });
+  });
+
+  test('seq invariants skip a revoked client after server restart', async () => {
+    await using world = await openSimWorld({
+      domain: acmeDomainPack,
+      seed: 606,
+    });
+    const a = await world.addClient({ id: 'c0' });
+    await world.addClient({ id: 'c1' });
+    world.node('c0').auth('revoked');
+    await a.connect();
+    await world.node('server').restart({ preserveLocalDb: true });
+    expect(await world.checkInvariants()).toBeNull();
   });
 });

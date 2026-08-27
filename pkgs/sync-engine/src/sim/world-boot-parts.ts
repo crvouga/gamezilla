@@ -1,4 +1,5 @@
 import type { SimAuthStatus } from './client-factory';
+import type { BoundaryFaultController } from './boundary-faults';
 import { createSimClock, type SimClock } from './clock';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';
@@ -23,7 +24,11 @@ export function resolveBootDomain(worldArgs: WorldClientOpts): SimDomainPack {
   };
 }
 
-export function createBootRuntime(rng: SeededRng, worldArgs: WorldClientOpts) {
+export function createBootRuntime(
+  rng: SeededRng,
+  worldArgs: WorldClientOpts,
+  boundaryFaults?: BoundaryFaultController
+) {
   const clock = createSimClock(1_700_000_000_000);
   const clockSkew = createClockSkewTable();
   const nowFor = (nodeId: string): number =>
@@ -46,6 +51,8 @@ export function createBootRuntime(rng: SeededRng, worldArgs: WorldClientOpts) {
   const broker = createSimPubSubBroker({
     network,
     brokerId: BROKER,
+    ...(boundaryFaults !== undefined ? { faults: boundaryFaults } : {}),
+    rng: rng.fork('pubsub-faults'),
     liveResendOnReconnect: worldArgs.liveResendOnReconnect === true,
   });
   return { clock, clockSkew, nowFor, scheduler, timers, network, broker };

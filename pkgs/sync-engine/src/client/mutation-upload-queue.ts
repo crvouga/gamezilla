@@ -139,6 +139,43 @@ async function applyUploadResult(
 }
 
 /**
+ * Resolve `work` unless `signal` aborts first. Orphan the in-flight promise so
+ * disconnect / cache-clear is not blocked on partitioned HTTP (sim RPC waits
+ * on scheduler time that is not advancing).
+ */
+function raceUntilAborted<T>(
+  work: Promise<T>,
+  signal: AbortSignal | null
+): Promise<T | null> {
+  if (signal?.aborted === true) {
+    void work.then(
+      () => undefined,
+      () => undefined
+    );
+    return Promise.resolve(null);
+  }
+  if (signal === null) return work;
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener('abort', onAbort);
+      resolve(null);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    void work.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(signal.aborted ? null : value);
+      },
+      (error: unknown) => {
+        signal.removeEventListener('abort', onAbort);
+        if (signal.aborted) resolve(null);
+        else reject(error);
+      }
+    );
+  });
+}
+
+/**
  * Polling durable mutation uploader. Ack = delete local queue row.
  * `wake()` is sticky: a wake during drain (when no waiter is armed) still
  * forces an immediate re-drain instead of falling into the idle backstop.
@@ -204,10 +241,14 @@ export class MutationUploadQueue {
 
   private async drainOnce(): Promise<boolean> {
     const pending = await readPending(this.options.db, this.options.clientId());
-    if (pending.length === 0) return false;
+    if (!this.running || pending.length === 0) return false;
     await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
     if (!this.running) return false;
-    const result = await this.options.postBatch(pending.map(toWireRow));
+    const result = await raceUntilAborted(
+      this.options.postBatch(pending.map(toWireRow)),
+      this.availabilityAbort?.signal ?? null
+    );
+    if (result === null || !this.running) return false;
     await applyUploadResult(this.options, result, this.now);
     return true;
   }

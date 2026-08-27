@@ -1,8 +1,14 @@
-import type { SimCrashEvent, SimHttpFault } from '../../sim/boundary-faults';
+import type {
+  SimCrashEvent,
+  SimHttpFault,
+  SimPubsubFault,
+} from '../../sim/boundary-faults';
+import type { SimCorruptionVariant } from '../../sim/corruption-faults';
 import type { SimAuthStatus } from '../../sim/client-factory';
 import type { SimTraffic } from '../../sim/traffic';
 import type { DstAction, DomainOp, LibraryAction, ServerOp } from './actions';
 import type { DstApp } from './app';
+import { NOTES_WORLD_TOPIC } from '../apps/acme/shared/topics';
 
 export type WorldModel = {
   readonly clientIds: readonly string[];
@@ -44,7 +50,31 @@ export const HTTP_FAULTS: readonly SimHttpFault[] = [
   { kind: 'invalidMutationsBody' },
   { kind: 'serverErrorOnNext', route: 'mutations' },
   { kind: 'serverErrorOnNext', route: 'query' },
+  { kind: 'corruptMutationsResponse', variant: 'truncatedJson' },
+  { kind: 'corruptQueryResponse', variant: 'garbageString' },
 ];
+
+export const CORRUPTION_VARIANTS: readonly SimCorruptionVariant[] = [
+  'truncatedJson',
+  'garbageString',
+  'flipField',
+];
+
+export const PUBSUB_FAULTS: readonly SimPubsubFault[] = [
+  { kind: 'corruptPubsubPayload', variant: 'truncatedJson' },
+  { kind: 'corruptPubsubPayload', variant: 'flipField' },
+  { kind: 'dropTopic', topic: NOTES_WORLD_TOPIC, count: 1 },
+  { kind: 'duplicatePublish', count: 1 },
+];
+
+export const STORAGE_TAMPERS = ['corruptCheckpoint', 'flipDomainRow'] as const;
+
+export const SCHEMA_VARIANTS = [
+  'baseline',
+  'extraColumn',
+  'extraTable',
+  'epochBump',
+] as const;
 
 export const AUTH_STATUSES: readonly SimAuthStatus[] = [
   'valid',
@@ -122,6 +152,14 @@ function applyLibraryToModel(m: WorldModel, action: LibraryAction): void {
       m.sessionConnected.add(action.clientId);
       m.online.add(action.clientId);
       break;
+    case 'restartWithSchema':
+      m.crashed.delete(action.clientId);
+      m.authRevoked.delete(action.clientId);
+      m.sessionConnected.add(action.clientId);
+      m.online.add(action.clientId);
+      break;
+    case 'protocolCut':
+      break;
     case 'auth':
       if (action.status === 'revoked') {
         m.authRevoked.add(action.clientId);
@@ -195,6 +233,17 @@ function libraryAllowsAction(m: WorldModel, action: LibraryAction): boolean {
       return (
         m.crashed.has(action.clientId) || m.authRevoked.has(action.clientId)
       );
+    case 'restartWithSchema':
+      return !m.crashed.has(action.clientId);
+    case 'tamperLocalStorage':
+      return clientLive(m, action.clientId);
+    case 'protocolCut':
+      return clientLive(m, action.clientId);
+    case 'serverCrash':
+    case 'serverRestart':
+    case 'brokerCrash':
+    case 'brokerRestart':
+    case 'armPubsubFault':
     case 'publishFault':
     case 'idle':
     case 'skew':

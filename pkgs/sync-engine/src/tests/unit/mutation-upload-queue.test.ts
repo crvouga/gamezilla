@@ -144,4 +144,36 @@ describe('MutationUploadQueue origin availability', () => {
     expect(posts).toBe(2);
     await queue.stop();
   });
+
+  test('stop does not wait for in-flight postBatch', async () => {
+    const pending = [row];
+    let posts = 0;
+    let finishPost: () => void = () => undefined;
+    const queue = new MutationUploadQueue({
+      db: stubDb(pending),
+      bus: createTableChangeBus(),
+      clientId: () => 'c1',
+      postBatch: () => {
+        posts += 1;
+        return new Promise((resolve) => {
+          finishPost = () =>
+            resolve({
+              ok: true,
+              ackSeq: 1,
+              verdicts: [{ mutationId: 'm1', status: 'applied' }],
+            });
+        });
+      },
+      onError: () => undefined,
+      timers,
+      now: () => 0,
+    });
+    queue.start();
+    for (let i = 0; i < 20 && posts === 0; i += 1) {
+      await Promise.resolve();
+    }
+    expect(posts).toBe(1);
+    await queue.stop();
+    finishPost();
+  });
 });

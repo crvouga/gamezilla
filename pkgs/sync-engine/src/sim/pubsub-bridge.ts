@@ -1,12 +1,15 @@
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { Topic } from '@pkgs/pubsub/topic';
 
+import type { BoundaryFaultController } from './boundary-faults';
+import { corruptUnknownPayload } from './corruption-faults';
 import type { SimEndpointId, SimNetwork } from './network';
 import {
   createOfflineBuffers,
   type OfflineBuffers,
 } from './pubsub-bridge-resend';
 import { createPeerPubSub, type PubSubPeer } from './pubsub-peer';
+import type { SeededRng } from './rng';
 
 type PubWire = {
   readonly kind: 'pubsub';
@@ -43,6 +46,8 @@ export type SimPubSubBroker = {
 export type CreateSimPubSubBrokerArgs = {
   readonly network: SimNetwork;
   readonly brokerId: SimEndpointId;
+  readonly faults?: BoundaryFaultController;
+  readonly rng?: SeededRng;
   /**
    * When true, buffer publishes for a peer's last topics while closed and
    * flush on re-subscribe. Default false = QoS-0 drop on reconnect.
@@ -64,29 +69,55 @@ function deliverTo(args: {
   } satisfies DeliverWire);
 }
 
+function wireDataForDelivery(args: {
+  readonly faults?: BoundaryFaultController;
+  readonly rng?: SeededRng;
+  readonly topic: Topic;
+  readonly data: unknown;
+}): unknown | null {
+  if (args.faults?.shouldDropTopic(args.topic)) return null;
+  const corruption = args.faults?.takePubsubCorruption();
+  if (corruption !== undefined && args.rng !== undefined) {
+    return corruptUnknownPayload(args.data, corruption, args.rng);
+  }
+  return args.data;
+}
+
 function fanoutPublish(args: {
   readonly peers: Map<SimEndpointId, PubSubPeer>;
   readonly buffers: OfflineBuffers;
   readonly network: SimNetwork;
   readonly brokerId: SimEndpointId;
+  readonly faults?: BoundaryFaultController;
+  readonly rng?: SeededRng;
   readonly wire: PubWire;
 }): void {
-  const { peers, buffers, network, brokerId, wire } = args;
+  const { peers, buffers, network, brokerId, wire, faults, rng } = args;
+  const data = wireDataForDelivery({
+    ...(faults !== undefined ? { faults } : {}),
+    ...(rng !== undefined ? { rng } : {}),
+    topic: wire.topic,
+    data: wire.data,
+  });
+  if (data === null) return;
+  const dupes = 1 + (faults?.duplicatePublishCount() ?? 0);
   for (const peer of peers.values()) {
     if (peer.closed || peer.endpointId === wire.source) continue;
     if (peer.handlers.has(wire.topic)) {
-      deliverTo({
-        network,
-        brokerId,
-        endpointId: peer.endpointId,
-        topic: wire.topic,
-        data: wire.data,
-      });
+      for (let i = 0; i < dupes; i += 1) {
+        deliverTo({
+          network,
+          brokerId,
+          endpointId: peer.endpointId,
+          topic: wire.topic,
+          data,
+        });
+      }
       continue;
     }
-    buffers.bufferSoftOffline(peer, wire.topic, wire.data);
+    buffers.bufferSoftOffline(peer, wire.topic, data);
   }
-  buffers.bufferHardOffline(wire.source, peers, wire.topic, wire.data);
+  buffers.bufferHardOffline(wire.source, peers, wire.topic, data);
 }
 
 /** Build one peer with optional offline snapshot / flush hooks. */
@@ -134,6 +165,8 @@ export function createSimPubSubBroker(
       network: args.network,
       brokerId: args.brokerId,
       wire: payload,
+      ...(args.faults !== undefined ? { faults: args.faults } : {}),
+      ...(args.rng !== undefined ? { rng: args.rng } : {}),
     });
   });
 

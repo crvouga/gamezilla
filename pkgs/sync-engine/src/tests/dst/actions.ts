@@ -1,7 +1,14 @@
-import type { SimCrashEvent, SimHttpFault } from '../../sim/boundary-faults';
+import type {
+  SimCrashEvent,
+  SimHttpFault,
+  SimPubsubFault,
+} from '../../sim/boundary-faults';
 import type { SimAuthStatus } from '../../sim/client-factory';
+import type { SimCorruptionVariant } from '../../sim/corruption-faults';
 import type { SimFaultOptions } from '../../sim/faults';
+import type { LocalStorageTamper } from '../../sim/storage-faults';
 import type { SimTraffic } from '../../sim/traffic';
+import type { AcmeSchemaVariant } from '../apps/acme/schema-variants';
 
 export type DomainOp = {
   readonly kind: 'domain';
@@ -37,6 +44,8 @@ export type LibraryAction =
     }
   | { readonly kind: 'crash'; readonly clientId: string }
   | { readonly kind: 'restart'; readonly clientId: string }
+  | { readonly kind: 'serverCrash' }
+  | { readonly kind: 'serverRestart' }
   | {
       readonly kind: 'hold';
       readonly nodeId: string;
@@ -50,7 +59,7 @@ export type LibraryAction =
   | {
       readonly kind: 'setFaults';
       readonly nodeId: string;
-      readonly traffic: 'live';
+      readonly traffic: SimTraffic;
       readonly faults: Partial<SimFaultOptions>;
     }
   | {
@@ -64,6 +73,20 @@ export type LibraryAction =
       readonly event: SimCrashEvent;
     }
   | { readonly kind: 'publishFault'; readonly count: number | 'next' }
+  | { readonly kind: 'armPubsubFault'; readonly fault: SimPubsubFault }
+  | { readonly kind: 'brokerCrash' }
+  | { readonly kind: 'brokerRestart' }
+  | {
+      readonly kind: 'tamperLocalStorage';
+      readonly clientId: string;
+      readonly tamper: LocalStorageTamper;
+    }
+  | {
+      readonly kind: 'restartWithSchema';
+      readonly clientId: string;
+      readonly variant: AcmeSchemaVariant;
+    }
+  | { readonly kind: 'protocolCut'; readonly clientId: string }
   | { readonly kind: 'auth'; readonly clientId: string; readonly status: SimAuthStatus }
   | { readonly kind: 'clearLocalData'; readonly clientId: string; readonly reason: string }
   | {
@@ -74,6 +97,8 @@ export type LibraryAction =
     };
 
 export type DstAction = LibraryAction | DomainOp | ServerOp;
+
+export type { SimCorruptionVariant };
 
 export function isDomainOp(action: DstAction): action is DomainOp {
   return action.kind === 'domain';

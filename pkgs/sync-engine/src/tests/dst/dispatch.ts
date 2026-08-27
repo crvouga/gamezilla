@@ -1,4 +1,5 @@
 import type { SimWorld } from '../../sim/world-api';
+import { acmeRestartOptsForVariant } from '../apps/acme/schema-variants';
 import type { DstAction, DomainOp, LibraryAction, ServerOp } from './actions';
 import type { DstApp } from './app';
 
@@ -79,6 +80,12 @@ const LIBRARY_HANDLERS: {
     for (const id of world.clients.keys()) {
       world.net(id, 'all').set('ok');
     }
+    try {
+      await world.node('server').restart({ preserveLocalDb: true });
+    } catch {
+      // Server may already be running.
+    }
+    await world.brokerRestart();
   },
   idle: async (world, action) => {
     await world.runFor(action.ms);
@@ -114,6 +121,31 @@ const LIBRARY_HANDLERS: {
   },
   publishFault: async (world, action) => {
     world.node('server').publishFault(action.count);
+  },
+  armPubsubFault: async (world, action) => {
+    world.node('server').pubsubFault(action.fault);
+  },
+  brokerCrash: async (world) => {
+    world.brokerCrash();
+  },
+  brokerRestart: async (world) => {
+    await world.brokerRestart();
+  },
+  tamperLocalStorage: async (world, action) => {
+    await world.tamperLocalStorage(action.clientId, action.tamper);
+  },
+  restartWithSchema: async (world, action) => {
+    const opts = acmeRestartOptsForVariant(action.variant);
+    await world.node(action.clientId).restart(opts);
+  },
+  protocolCut: async (world, action) => {
+    world.node(action.clientId).auth('upgrade_required');
+  },
+  serverCrash: async (world) => {
+    await world.node('server').crash();
+  },
+  serverRestart: async (world) => {
+    await world.node('server').restart({ preserveLocalDb: true });
   },
   auth: async (world, action) => {
     world.node(action.clientId).auth(action.status);
@@ -172,6 +204,22 @@ async function dispatchLibraryAction(
       return LIBRARY_HANDLERS.armCrashAt(world, action);
     case 'publishFault':
       return LIBRARY_HANDLERS.publishFault(world, action);
+    case 'armPubsubFault':
+      return LIBRARY_HANDLERS.armPubsubFault(world, action);
+    case 'brokerCrash':
+      return LIBRARY_HANDLERS.brokerCrash(world, action);
+    case 'brokerRestart':
+      return LIBRARY_HANDLERS.brokerRestart(world, action);
+    case 'tamperLocalStorage':
+      return LIBRARY_HANDLERS.tamperLocalStorage(world, action);
+    case 'restartWithSchema':
+      return LIBRARY_HANDLERS.restartWithSchema(world, action);
+    case 'protocolCut':
+      return LIBRARY_HANDLERS.protocolCut(world, action);
+    case 'serverCrash':
+      return LIBRARY_HANDLERS.serverCrash(world, action);
+    case 'serverRestart':
+      return LIBRARY_HANDLERS.serverRestart(world, action);
     case 'auth':
       return LIBRARY_HANDLERS.auth(world, action);
     case 'clearLocalData':

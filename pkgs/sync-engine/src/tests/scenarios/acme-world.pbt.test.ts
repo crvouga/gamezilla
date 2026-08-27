@@ -2,6 +2,8 @@ import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
 import { runAcmeSeed } from '../apps/acme';
 import { acmeDstApp } from '../apps/acme/dst-app';
+import { replayActionsOnWorld } from '../dst/commands';
+import { openPbtWorld } from '../dst/world-config';
 import {
   runShrunkWorldProperty,
   worldPropertyInputs,
@@ -28,6 +30,28 @@ describe('acme world PBT / DST', () => {
     },
     { timeout: 120_000 }
   );
+
+  test('auth revoked then serverRestart skips closed-db seq checks', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 546326,
+      knobs: {
+        rowImageFanout: true,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: false,
+        clientCount: 3,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'auth', clientId: 'c0', status: 'revoked' },
+        { kind: 'serverRestart' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
 
   test(
     'runSeed is deterministic for a generated seed',

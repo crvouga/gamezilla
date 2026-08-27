@@ -32,8 +32,8 @@ export const DST_FAULTS: SimFaultOptions = {
   packetLossProbability: 0.02,
   packetReplayProbability: 0.01,
   reorderWindow: 2,
-  partitionProbability: 0,
-  unpartitionProbability: 0,
+  partitionProbability: 0.01,
+  unpartitionProbability: 0.05,
 };
 
 /** Sample fault options from RNG (bounded ranges suitable for sync tests). */

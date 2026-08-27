@@ -1,9 +1,15 @@
+import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { SimClientHandle } from './client-handle';
-import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
+import {
+  checkSeqMonotonicity,
+  type InvariantViolation,
+  isClosedDatabaseError,
+} from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 import { createSimNetHandle } from './net-effect';
 import { createSimNodeHandle } from './node-handle';
 import { unregisterSimWorld } from './scenario-dispose-hook';
+import { tamperClientLocalStorage } from './storage-faults';
 import type { UntilContext } from './until';
 import { runWorldNever, runWorldUntil } from './until';
 import type { SimWorld } from './world-api';
@@ -23,7 +29,13 @@ export async function checkClientSeqs(
   now: () => number
 ): Promise<InvariantViolation | null> {
   for (const c of clients.values()) {
-    const seq = await checkSeqMonotonicity(c.db);
+    let seq: InvariantViolation | null;
+    try {
+      seq = await checkSeqMonotonicity(c.db);
+    } catch (error) {
+      if (isClosedDatabaseError(error)) continue;
+      throw error;
+    }
     if (seq !== null) {
       return {
         ...seq,
@@ -151,7 +163,21 @@ export function bindWorldMethods(args: {
         domain,
         netEffects,
         now: () => k.clock.now(),
+        healInfra: async () => {
+          try {
+            await restartServerImpl(k, { preserveDb: true });
+          } catch {
+            // already running
+          }
+          await restartBrokerImpl(k);
+        },
       }),
+    tamperLocalStorage: (clientId, tamper) =>
+      tamperClientLocalStorage(k, clientId, tamper),
+    brokerCrash: () => {
+      crashBrokerImpl(k);
+    },
+    brokerRestart: () => restartBrokerImpl(k),
     dispose,
     async [Symbol.asyncDispose]() {
       await dispose();
