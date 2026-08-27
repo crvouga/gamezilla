@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool closes prior identity SQLite before next open', async () => {

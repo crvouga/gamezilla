@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveFolders,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {

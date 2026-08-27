@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('pubsub publish fails after commit heals by refetch', () => {
   // Pins Consistency table “Push lost”: commit acks, fanout drop, heal via refetch.

@@ -1,10 +1,6 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 /** Happy-path latency budget components (simulated ms). */
 const IMMEDIATE_DRAIN_MS = 0;

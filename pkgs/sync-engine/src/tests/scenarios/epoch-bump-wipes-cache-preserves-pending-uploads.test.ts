@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(

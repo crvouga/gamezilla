@@ -1,15 +1,10 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import type { DstAction, LibraryAction } from '../dst/actions';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
-import { SCHEMA_VARIANTS, replayActionsOnWorld } from '../dst/commands';
-import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
+import type { DstAction, LibraryAction } from '../dst/actions';
+import { replayActionsOnWorld, SCHEMA_VARIANTS } from '../dst/commands';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
 
@@ -61,26 +56,30 @@ describe('schema drift PBT', () => {
     async () => {
       await assertDstProperty(
         'protocol cut sequences converge',
-        fc.asyncProperty(arbWorldSeed(), arbWorldKnobs(), async (seed, knobs) => {
-          const actions: DstAction[] = [
-            TRIGGER,
-            { kind: 'protocolCut', clientId: 'c0' },
-            { kind: 'idle', ms: 20 },
-            { kind: 'auth', clientId: 'c0', status: 'valid' },
-            { kind: 'heal' },
-          ];
-          const opened = await openPbtWorld({
-            app: acmeDstApp,
-            seed,
-            knobs,
-          });
-          try {
-            await replayActionsOnWorld(acmeDstApp, opened.world, actions);
-            await opened.world.assertConverged();
-          } finally {
-            await opened.world.dispose();
+        fc.asyncProperty(
+          arbWorldSeed(),
+          arbWorldKnobs(),
+          async (seed, knobs) => {
+            const actions: DstAction[] = [
+              TRIGGER,
+              { kind: 'protocolCut', clientId: 'c0' },
+              { kind: 'idle', ms: 20 },
+              { kind: 'auth', clientId: 'c0', status: 'valid' },
+              { kind: 'heal' },
+            ];
+            const opened = await openPbtWorld({
+              app: acmeDstApp,
+              seed,
+              knobs,
+            });
+            try {
+              await replayActionsOnWorld(acmeDstApp, opened.world, actions);
+              await opened.world.assertConverged();
+            } finally {
+              await opened.world.dispose();
+            }
           }
-        }),
+        ),
         { numRuns: 6 }
       );
     },

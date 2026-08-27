@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('sim scenario API', () => {
   test('await using + net hold restore', async () => {

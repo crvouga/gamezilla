@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('tombstone row image deletes live row', () => {
   test('delete row image removes live peer row without waiting on sync', async () => {

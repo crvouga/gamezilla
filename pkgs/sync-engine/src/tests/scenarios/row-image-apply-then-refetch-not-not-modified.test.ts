@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('row image apply then refetch not not modified', () => {
   test('live row-image paint while sync held still converges after refetch', async () => {

@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
   setNoteStrictExists,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {

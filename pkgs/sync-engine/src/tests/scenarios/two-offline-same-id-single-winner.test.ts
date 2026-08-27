@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  acmeDomainPack,
-  readLiveNotes,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, readLiveNotes, setNote } from '../apps/acme';
 
 describe('two offline same id single winner', () => {
   test('two clients offline conflict then converge to one winner', async () => {

@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump mid offline session then drain', () => {
   test.each([720, 721, 722])(

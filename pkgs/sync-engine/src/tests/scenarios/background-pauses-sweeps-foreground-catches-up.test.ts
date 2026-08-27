@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {

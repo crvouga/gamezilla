@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  isLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { SYNC_PROTOCOL_VERSION } from '../../protocol';
 import { openSimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  isLiveNote,
+  setNote,
+} from '../apps/acme';
 
 describe('pending mutations across protocol cut drain', () => {
   test('offline queue drains under current protocol (preserve-and-drain)', async () => {

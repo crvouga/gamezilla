@@ -93,6 +93,9 @@ export async function prepareClientsForConverge(
   freshRestart: ReadonlySet<string> = new Set()
 ): Promise<void> {
   const ids = [...clientIds];
+  // Unfired armCrashAt (e.g. onNextEngineOpenAfterCacheWipe) must not hit
+  // revoke/fresh-DB migrate during heal — chaos ends before converge prep.
+  world.clearBoundaryFaults();
   restoreSettleAuth(world, freshRestart);
   if (ids.length === 0) return;
   await dispatchDstAction(world, app, { kind: 'heal' });

@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   isLiveNote,
   NOTES_AUTH_GATE_FOLDER_ID,
-  acmeDomainPack,
   readLiveNotes,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {

@@ -1,10 +1,6 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {

@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   setNoteWrongTopic,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('wrong topic map heals on refetch', () => {
   // Companion to channel-exhaustiveness: wrong topic-map wake ⇒ silent staleness.

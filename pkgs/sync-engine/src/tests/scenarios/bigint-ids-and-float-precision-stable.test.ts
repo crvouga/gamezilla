@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
 const BIG_IDS = [

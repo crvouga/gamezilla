@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
   acmeDomainPack,
   acmeMutationRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
   setNote,
   setNoteArgsLoose,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(

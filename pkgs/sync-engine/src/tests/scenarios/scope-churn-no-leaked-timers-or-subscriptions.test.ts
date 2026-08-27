@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  acmeDomainPack,
-  setFolder,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, setFolder, setNote } from '../apps/acme';
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {

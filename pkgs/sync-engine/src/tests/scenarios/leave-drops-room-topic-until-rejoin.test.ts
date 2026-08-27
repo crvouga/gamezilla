@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   endSpace,
   expectLiveNote,
   isLiveNote,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('leave drops room topic until rejoin', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {

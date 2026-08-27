@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('topic sync waits for mutations drain', () => {
   test('topic sync waits until pending mutations drain', async () => {

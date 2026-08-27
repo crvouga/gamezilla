@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('leave join topics without pubsub remake', () => {
   test('leave then join different room without pubsub remake', async () => {

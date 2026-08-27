@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld } from '../../sim/world';
 
 describe('push during inflight merge queues single flight', () => {
   test('pushes during merge leave no torn intermediate; final converge', async () => {

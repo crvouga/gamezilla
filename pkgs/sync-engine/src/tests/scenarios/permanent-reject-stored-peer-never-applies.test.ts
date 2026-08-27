@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
   acknowledgeWriteRejectionMutation,
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {

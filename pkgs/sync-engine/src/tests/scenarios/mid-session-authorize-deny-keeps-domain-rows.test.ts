@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   NOTES_AUTH_GATE_FOLDER_ID,
-  acmeDomainPack,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('mid session authorize deny keeps domain rows', () => {
   test('ownership flip denies scope; domain rows remain; other scopes sync', async () => {

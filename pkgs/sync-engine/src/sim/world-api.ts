@@ -53,6 +53,12 @@ export type SimWorld = {
   ) => Promise<void>;
   readonly brokerCrash: () => void;
   readonly brokerRestart: () => Promise<void>;
+  /**
+   * Drop armed crash / HTTP / pubsub / publish faults. Settle and DST
+   * converge prep call this so leftover one-shots cannot fire on heal
+   * restarts (e.g. revoke → fresh DB migrate + onNextEngineOpenAfterCacheWipe).
+   */
+  readonly clearBoundaryFaults: () => void;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };

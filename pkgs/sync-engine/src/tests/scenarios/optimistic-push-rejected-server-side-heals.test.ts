@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('optimistic push rejected server side heals', () => {
   test('optimistic live paint on peer heals to server truth after reject', async () => {

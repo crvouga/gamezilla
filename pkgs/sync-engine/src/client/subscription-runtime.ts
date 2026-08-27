@@ -2,7 +2,7 @@ import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
-import type { QueryResponse, QueryRegistry } from '../queries/core/types';
+import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {
   type AppLifecycle,
@@ -19,6 +19,13 @@ import {
 
 /** Host/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;
+
+function isHttpNetworkError(error: unknown): boolean {
+  return (
+    error instanceof HttpNetworkError ||
+    (error instanceof Error && error.name === 'HttpNetworkError')
+  );
+}
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
@@ -136,7 +143,7 @@ async function requestCacheKeys(
   db: SqlClient,
   entry: Entry,
   queryRegistry: QueryRegistry | undefined,
-  mergeDeps: MergeApplierDeps
+  getMergeDeps: () => MergeApplierDeps
 ): Promise<{ readonly lastHash?: string; readonly checkpoint?: string }> {
   const basis = await loadBasis(db, entry.scope);
   const checkpoint =
@@ -152,7 +159,7 @@ async function requestCacheKeys(
     db,
     query,
     params: entry.spec.params,
-    env: mergeDeps.env,
+    env: getMergeDeps().env,
   });
   if (localHash !== basis.last_hash) {
     // Local rows drifted from scope meta — omit lastHash to force full merge.
@@ -423,7 +430,7 @@ export class SubscriptionRuntime {
       await this.applySweepResponses({ active, gens, responses });
       this.afterSweep?.(active.map((e) => e.scope));
     } catch (error) {
-      if (error instanceof HttpNetworkError) {
+      if (isHttpNetworkError(error)) {
         this.markFirstOnNetworkError(active, gens);
       }
       this.options.onError(error);
@@ -445,14 +452,13 @@ export class SubscriptionRuntime {
   private async buildRequests(
     active: readonly Entry[]
   ): Promise<QueryRequest[]> {
-    const mergeDeps = this.options.getMergeDeps();
     const requests: QueryRequest[] = [];
     for (const entry of active) {
       const cache = await requestCacheKeys(
         this.options.db,
         entry,
         this.options.queryRegistry,
-        mergeDeps
+        this.options.getMergeDeps
       );
       requests.push({
         name: entry.spec.name,

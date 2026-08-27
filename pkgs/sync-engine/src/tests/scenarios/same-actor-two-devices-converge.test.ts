@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('same actor two devices converge', () => {
   test('two devices same actor converge concurrent writes', async () => {

@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
-import { acmeDomainPack, setNote } from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, setNote } from '../apps/acme';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {

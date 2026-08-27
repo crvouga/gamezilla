@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { acmeTopicMap, userTopic } from '../apps/acme';
 import type { MutationDb } from '../../mutations/core/types';
+import { acmeTopicMap, userTopic } from '../apps/acme';
 
 describe('friend space topic map wakes peers', () => {
   test('live space owned by alice wakes friend bob via topic-map-db', async () => {

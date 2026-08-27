@@ -3,12 +3,12 @@ import type {
   SimHttpFault,
   SimPubsubFault,
 } from '../../sim/boundary-faults';
-import type { SimCorruptionVariant } from '../../sim/corruption-faults';
 import type { SimAuthStatus } from '../../sim/client-factory';
+import type { SimCorruptionVariant } from '../../sim/corruption-faults';
 import type { SimTraffic } from '../../sim/traffic';
-import type { DstAction, DomainOp, LibraryAction, ServerOp } from './actions';
-import type { DstApp } from './app';
 import { NOTES_WORLD_TOPIC } from '../apps/acme/shared/topics';
+import type { DomainOp, DstAction, LibraryAction, ServerOp } from './actions';
+import type { DstApp } from './app';
 
 export type WorldModel = {
   readonly clientIds: readonly string[];

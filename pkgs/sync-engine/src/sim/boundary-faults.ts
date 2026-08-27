@@ -5,8 +5,13 @@
 
 import type { Topic } from '@pkgs/pubsub/topic';
 
-import { createPubsubFaultArms } from './boundary-fault-pubsub';
+import {
+  createPubsubFaultArms,
+  type SimPubsubFault,
+} from './boundary-fault-pubsub';
 import type { SimCorruptionVariant } from './corruption-faults';
+
+export type { SimPubsubFault } from './boundary-fault-pubsub';
 
 export type SimCrashEvent =
   | 'afterNextSyncResponseDelivered'
@@ -43,21 +48,6 @@ export type SimHttpFault =
   | {
       readonly kind: 'corruptQueryResponse';
       readonly variant: SimCorruptionVariant;
-    };
-
-export type SimPubsubFault =
-  | {
-      readonly kind: 'corruptPubsubPayload';
-      readonly variant: SimCorruptionVariant;
-    }
-  | {
-      readonly kind: 'dropTopic';
-      readonly topic: Topic;
-      readonly count: number;
-    }
-  | {
-      readonly kind: 'duplicatePublish';
-      readonly count: number;
     };
 
 export type BoundaryFaultController = {

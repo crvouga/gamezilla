@@ -21,6 +21,7 @@ export function buildSimWorldFacade(k: BootedSimKernel): SimWorld {
     netEffects,
     armCrashHook,
     crashServer,
+    faultApi,
     worldRef,
     markDisposed: () => {
       if (disposed) return true;

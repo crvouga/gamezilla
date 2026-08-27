@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   serverRejectNote,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('reject mid chain later pendings still apply', () => {
   test('applied/rejected/applied batch: reject rolls back; later survive', async () => {

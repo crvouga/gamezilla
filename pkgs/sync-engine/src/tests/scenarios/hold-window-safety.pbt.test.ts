@@ -1,14 +1,9 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import { acmeDstApp } from '../apps/acme/dst-app';
 import { isLiveNote, readLiveNotes } from '../apps/acme/assert';
+import { acmeDstApp } from '../apps/acme/dst-app';
 import { setNote } from '../apps/acme/shared/mutations';
-import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 describe('hold window safety PBT', () => {
   test(

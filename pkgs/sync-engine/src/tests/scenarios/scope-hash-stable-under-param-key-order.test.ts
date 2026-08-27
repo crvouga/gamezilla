@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('scope hash stable under param key order', () => {
   test.each([800, 801, 802])(

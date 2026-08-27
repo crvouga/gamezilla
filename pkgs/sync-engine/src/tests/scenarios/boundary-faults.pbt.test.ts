@@ -1,18 +1,10 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import type { DstAction, DomainOp, LibraryAction } from '../dst/actions';
-import { acmeDstApp } from '../apps/acme/dst-app';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
-import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
-import {
-  HTTP_FAULTS,
-  replayActionsOnWorld,
-} from '../dst/commands';
+import { acmeDstApp } from '../apps/acme/dst-app';
+import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
+import { HTTP_FAULTS, replayActionsOnWorld } from '../dst/commands';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 

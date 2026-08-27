@@ -1,15 +1,10 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import type { DstAction, LibraryAction } from '../dst/actions';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
+import type { DstAction, LibraryAction } from '../dst/actions';
 import { PUBSUB_FAULTS, replayActionsOnWorld } from '../dst/commands';
-import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
 

@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('online mutate no optimistic body flicker', () => {
   test('online mutate never reverts optimistic body before quiescence', async () => {

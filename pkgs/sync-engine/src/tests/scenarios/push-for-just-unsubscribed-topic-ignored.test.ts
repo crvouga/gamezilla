@@ -1,16 +1,16 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectLiveNote,
   isLiveNote,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {

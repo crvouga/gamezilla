@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {

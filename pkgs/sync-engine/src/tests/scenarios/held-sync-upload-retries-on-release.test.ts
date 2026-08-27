@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {

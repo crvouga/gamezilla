@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   requiresOnlineNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {

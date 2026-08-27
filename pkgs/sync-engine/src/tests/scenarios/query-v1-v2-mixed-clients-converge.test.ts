@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
   setNoteV2,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('query v1 v2 mixed clients converge', () => {
   test.each([760, 761, 762])(

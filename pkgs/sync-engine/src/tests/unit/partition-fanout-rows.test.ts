@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import type { Topic } from '@pkgs/pubsub/interface';
-import { acmeTopicMap, userTopic } from '../apps/acme';
 import { partitionFanoutRowsByTopic } from '../../shared/partition-fanout-rows';
 import { defineTopicMap } from '../../shared/topic-map';
+import { acmeTopicMap, userTopic } from '../apps/acme';
 
 describe('partitionFanoutRowsByTopic', () => {
   test('keeps device-private rows off user topic when map returns empty', async () => {

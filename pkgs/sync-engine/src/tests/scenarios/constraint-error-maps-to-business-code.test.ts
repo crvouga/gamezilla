@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   setNoteUniqueSlug,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(

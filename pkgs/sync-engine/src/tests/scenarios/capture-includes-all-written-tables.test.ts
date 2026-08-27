@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveFolders,
   setNoteUndeclaredFolderWrite,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('capture includes all written tables', () => {
   // Formerly "undeclared folder write misses table filter" — AST capture

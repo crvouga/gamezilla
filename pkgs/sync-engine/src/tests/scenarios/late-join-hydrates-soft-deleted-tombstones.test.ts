@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('late join hydrates soft deleted tombstones', () => {
   test('peer that joins after delete gets tombstone from snapshot', async () => {

@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectLiveNote,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {

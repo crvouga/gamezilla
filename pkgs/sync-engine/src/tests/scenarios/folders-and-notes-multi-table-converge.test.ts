@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteFolder,
   expectFoldersMatchServer,
   expectLiveNote,
   moveNote,
-  acmeDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {

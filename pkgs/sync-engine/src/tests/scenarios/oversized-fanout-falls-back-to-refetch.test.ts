@@ -1,10 +1,6 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 /** Over MAX_FANOUT_BYTES (32KiB) so fanoutRowsWithinCap drops row images. */
 const HUGE_BODY = 'x'.repeat(33 * 1024);

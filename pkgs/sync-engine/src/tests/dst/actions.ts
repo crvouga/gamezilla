@@ -87,8 +87,16 @@ export type LibraryAction =
       readonly variant: AcmeSchemaVariant;
     }
   | { readonly kind: 'protocolCut'; readonly clientId: string }
-  | { readonly kind: 'auth'; readonly clientId: string; readonly status: SimAuthStatus }
-  | { readonly kind: 'clearLocalData'; readonly clientId: string; readonly reason: string }
+  | {
+      readonly kind: 'auth';
+      readonly clientId: string;
+      readonly status: SimAuthStatus;
+    }
+  | {
+      readonly kind: 'clearLocalData';
+      readonly clientId: string;
+      readonly reason: string;
+    }
   | {
       readonly kind: 'subscribe';
       readonly clientId: string;

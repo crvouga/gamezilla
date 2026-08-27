@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 const EMOJI_RTL = 'hello 👋 مرحبا \u202Ertl';
 const WITH_NULL = `before\u0000after-${'x'.repeat(32)}`;

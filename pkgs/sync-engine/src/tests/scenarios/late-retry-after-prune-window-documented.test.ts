@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('late retry after prune window documented', () => {
   test.each([860, 861, 862])(

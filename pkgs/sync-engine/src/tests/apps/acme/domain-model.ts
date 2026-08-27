@@ -109,10 +109,7 @@ export function acmeLeaveSpaceOp(clientId: string, spaceId: string): DomainOp {
   return domainOp(clientId, 'leaveSpace', { spaceId });
 }
 
-export function acmeWriteBodySilentOp(
-  noteId: string,
-  body: string
-): ServerOp {
+export function acmeWriteBodySilentOp(noteId: string, body: string): ServerOp {
   return serverOp('writeNoteBodySilent', { noteId, body });
 }
 

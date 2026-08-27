@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
   acmeDomainPack,
   acmeMutationRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
   readLiveNotes,
   setNote,
   setNoteV2,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 /** Old-client registry: setNoteV2 not registered locally (server still has both). */
 function mutationRegistryV1Only(): typeof acmeMutationRegistry {

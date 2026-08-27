@@ -1,11 +1,7 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('dropped live repaired by refetch', () => {
   test('dropped fanout converges via refetch after heal', async () => {

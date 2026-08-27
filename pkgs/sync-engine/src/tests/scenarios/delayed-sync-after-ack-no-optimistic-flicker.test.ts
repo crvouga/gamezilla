@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {

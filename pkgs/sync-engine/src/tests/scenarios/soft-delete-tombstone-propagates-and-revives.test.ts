@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {

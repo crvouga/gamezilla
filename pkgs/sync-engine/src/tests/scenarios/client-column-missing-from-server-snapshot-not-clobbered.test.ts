@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
   acmeLocalSchemaExtraColumn,
+  expectLiveNote,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('client column missing from server snapshot not clobbered', () => {
   test.each([740, 741, 742])(

@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('push tables filter wakes overlapping scopes', () => {
   test('folders-only push does not wake notesOnly peer; foldersOnly peer wakes', async () => {

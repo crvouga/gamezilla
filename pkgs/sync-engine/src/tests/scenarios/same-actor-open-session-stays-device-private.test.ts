@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectNoForeignOpenSessions,
   expectOpenSession,
-  acmeDomainPack,
   readLiveOpenSessions,
   SPACE_MEMBERSHIP_SESSION,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 /**
  * Replicates the product bug: createSpace writes spaces + spaces_users (user

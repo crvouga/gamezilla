@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {

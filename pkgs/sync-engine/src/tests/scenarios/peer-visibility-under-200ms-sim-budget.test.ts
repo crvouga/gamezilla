@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { acmeDomainPack, setNote } from '../apps/acme';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, setNote } from '../apps/acme';
 
 const IMMEDIATE_DRAIN_MS = 0;
 const REPLAY_PUBLISH_MS = 40;

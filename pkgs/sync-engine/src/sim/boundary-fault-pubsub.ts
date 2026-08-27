@@ -1,7 +1,20 @@
 import type { Topic } from '@pkgs/pubsub/topic';
-
 import type { SimCorruptionVariant } from './corruption-faults';
-import type { SimPubsubFault } from './boundary-faults';
+
+export type SimPubsubFault =
+  | {
+      readonly kind: 'corruptPubsubPayload';
+      readonly variant: SimCorruptionVariant;
+    }
+  | {
+      readonly kind: 'dropTopic';
+      readonly topic: Topic;
+      readonly count: number;
+    }
+  | {
+      readonly kind: 'duplicatePublish';
+      readonly count: number;
+    };
 
 export type PubsubFaultArms = {
   readonly arm: (fault: SimPubsubFault) => void;

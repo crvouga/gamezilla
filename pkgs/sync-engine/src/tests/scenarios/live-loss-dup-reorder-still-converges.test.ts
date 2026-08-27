@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  expectNotesMatchServer,
+  setNote,
+} from '../apps/acme';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
   for (const client of world.clients.values()) {

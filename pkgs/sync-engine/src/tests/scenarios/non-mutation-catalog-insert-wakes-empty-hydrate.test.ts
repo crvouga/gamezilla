@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   insertCatalogNote,
   isLiveNote,
-  acmeDomainPack,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
   // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,

@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('invalid batch 400 no retry storm', () => {
   test.each([880, 881, 882])(

@@ -1,10 +1,6 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  acmeDomainPack,
-  setNoteNoFanout,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNoteNoFanout } from '../apps/acme';
 
 describe('push without row images wakes refetch', () => {
   test('mutation without capture images converges via wake+refetch with rowImageFanout', async () => {

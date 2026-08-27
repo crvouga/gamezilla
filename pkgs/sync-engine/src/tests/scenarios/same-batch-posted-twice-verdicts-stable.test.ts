@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { RELIABLE_FAULTS } from '../../sim/faults';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveNotes,
   setNote,
 } from '../apps/acme';
-import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld } from '../../sim/world';
 
 describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(

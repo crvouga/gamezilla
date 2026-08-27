@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  ensureProfileEmpty,
   acmeDomainPack,
+  ensureProfileEmpty,
   OWN_PROFILE_SESSION,
   readProfileUsername,
   setProfileUsername,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 /**
  * Replicates the product bug: ensureProfile-style empty username INSERT fans

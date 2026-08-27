@@ -1,15 +1,15 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectLiveNote,
   isLiveNote,
   joinSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('room live isolated until member joins', () => {
   test('live on room-B does not reach alice in room-A until join', async () => {

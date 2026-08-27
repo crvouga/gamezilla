@@ -1,4 +1,8 @@
-import type { SimCrashEvent, SimHttpFault, SimPubsubFault } from './boundary-faults';
+import type {
+  SimCrashEvent,
+  SimHttpFault,
+  SimPubsubFault,
+} from './boundary-faults';
 import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import type { RestartClientOpts } from './world-lifecycle';

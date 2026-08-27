@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   insertCatalogNote,
   isLiveNote,
-  acmeDomainPack,
   readLiveNotes,
   setNote,
   writeNoteBody,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('oob empty hydrate heals via reconcile tick', () => {
   // Chess-puzzle shaped: empty first sync, then silent catalog INSERT.

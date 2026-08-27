@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
+  acmeMutationRegistry,
   expectLiveNote,
   expectNotesMatchServer,
   ghostMutation,
-  acmeDomainPack,
-  acmeMutationRegistry,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(

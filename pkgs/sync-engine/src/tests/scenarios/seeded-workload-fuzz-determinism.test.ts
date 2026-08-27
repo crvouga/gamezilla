@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  acmeDomainPack,
-  runSeed,
-  seedsFromEnv,
-  setNote,
-} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, runSeed, seedsFromEnv, setNote } from '../apps/acme';
 
 describe('seeded workload fuzz determinism', () => {
   test('same seed runSeed is deterministic', async () => {

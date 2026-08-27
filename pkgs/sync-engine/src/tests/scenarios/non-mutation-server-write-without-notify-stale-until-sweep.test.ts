@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
+  expectLiveNote,
   readLiveNotes,
   setNote,
   writeNoteBody,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('non mutation server write without notify stale until sweep', () => {
   // Domain write outside mutation replay should notify; missed notify heals

@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
+  acmeTopicMap,
   createSpace,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
-  acmeTopicMap,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('tombstone membership wakes removed user topic', () => {
   test('spaces_users tombstone post-image still maps to removed user topic', async () => {

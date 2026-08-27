@@ -1,15 +1,16 @@
 import { describe, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import type { DstAction, LibraryAction } from '../dst/actions';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
-import { CORRUPTION_VARIANTS, HTTP_FAULTS, PUBSUB_FAULTS, STORAGE_TAMPERS, replayActionsOnWorld } from '../dst/commands';
+import type { DstAction, LibraryAction } from '../dst/actions';
 import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
+  CORRUPTION_VARIANTS,
+  HTTP_FAULTS,
+  PUBSUB_FAULTS,
+  replayActionsOnWorld,
+  STORAGE_TAMPERS,
+} from '../dst/commands';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
 
@@ -26,11 +27,13 @@ describe('corruption safety PBT', () => {
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
-          fc.constantFrom(...HTTP_FAULTS).filter(
-            (f) =>
-              f.kind === 'corruptMutationsResponse' ||
-              f.kind === 'corruptQueryResponse'
-          ),
+          fc
+            .constantFrom(...HTTP_FAULTS)
+            .filter(
+              (f) =>
+                f.kind === 'corruptMutationsResponse' ||
+                f.kind === 'corruptQueryResponse'
+            ),
           async (seed, knobs, fault) => {
             const arm: LibraryAction = {
               kind: 'armHttpFault',
@@ -68,9 +71,9 @@ describe('corruption safety PBT', () => {
         fc.asyncProperty(
           arbWorldSeed(),
           arbWorldKnobs(),
-          fc.constantFrom(...PUBSUB_FAULTS).filter(
-            (f) => f.kind === 'corruptPubsubPayload'
-          ),
+          fc
+            .constantFrom(...PUBSUB_FAULTS)
+            .filter((f) => f.kind === 'corruptPubsubPayload'),
           fc.constantFrom(...CORRUPTION_VARIANTS),
           async (seed, knobs, _fault, variant) => {
             const arm: LibraryAction = {

@@ -71,9 +71,7 @@ async function runWorkloadLoop(args: {
  * Run one seeded universe: N clients, random workload, heal + converge.
  * On failure returns seed for exact replay.
  */
-export async function runDstSeed(
-  opts: RunSeedOptions
-): Promise<RunSeedResult> {
+export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
   const world = await openSimWorld({

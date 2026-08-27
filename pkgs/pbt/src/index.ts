@@ -6,8 +6,8 @@ import { configurePbt } from './configure';
 configurePbt();
 
 export type { AssertDstPropertyParams } from './assert-dst-property';
-export type { AssertPropertyParams } from './assert-property';
 export { assertDstProperty } from './assert-dst-property';
+export type { AssertPropertyParams } from './assert-property';
 export { assertProperty, configurePbt, fc };
 export default fc;
 

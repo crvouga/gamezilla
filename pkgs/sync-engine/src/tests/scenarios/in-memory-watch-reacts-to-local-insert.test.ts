@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { acmeLocalSchema } from '../apps/acme';
 import { createInMemorySyncEngine } from '../../test/in-memory-sync-engine';
+import { acmeLocalSchema } from '../apps/acme';
 
 function waitForHydrated(sub: {
   getHydrated: () => boolean;

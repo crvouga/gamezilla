@@ -54,7 +54,8 @@ describe('useSyncEngineBootState', () => {
       },
     });
     const enginePromise = Promise.resolve(engine);
-    let latest: SyncEngineBootState | null = null;
+    // Box: CFA ignores closure writes to a bare `let … = null`.
+    const latest: { boot: SyncEngineBootState | null } = { boot: null };
 
     await act(async () => {
       TestRenderer.create(
@@ -62,7 +63,7 @@ describe('useSyncEngineBootState', () => {
           enginePromise,
           warmEngine: null,
           onBoot: (boot) => {
-            latest = boot;
+            latest.boot = boot;
           },
         })
       );
@@ -74,9 +75,9 @@ describe('useSyncEngineBootState', () => {
     });
 
     expect(waitForFirstSyncCalls).toBe(0);
-    expect(latest?.phase).toBe('ready');
-    if (latest?.phase === 'ready') {
-      expect(latest.engine).toBe(engine);
+    expect(latest.boot?.phase).toBe('ready');
+    if (latest.boot?.phase === 'ready') {
+      expect(latest.boot.engine).toBe(engine);
     }
   });
 
@@ -85,7 +86,7 @@ describe('useSyncEngineBootState', () => {
       connect: async () => undefined,
       onWaitForFirstSync: () => undefined,
     });
-    let latest: SyncEngineBootState | null = null;
+    const latest: { boot: SyncEngineBootState | null } = { boot: null };
 
     await act(async () => {
       TestRenderer.create(
@@ -93,12 +94,12 @@ describe('useSyncEngineBootState', () => {
           enginePromise: Promise.resolve(engine),
           warmEngine: engine,
           onBoot: (boot) => {
-            latest = boot;
+            latest.boot = boot;
           },
         })
       );
     });
 
-    expect(latest?.phase).toBe('ready');
+    expect(latest.boot?.phase).toBe('ready');
   });
 });

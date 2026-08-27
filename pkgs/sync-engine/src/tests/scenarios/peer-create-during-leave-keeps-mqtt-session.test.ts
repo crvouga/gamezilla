@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectLiveNote,
   joinSpace,
   leaveSpace,
-  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {

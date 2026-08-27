@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('crash during epoch migrate recovers', () => {
   test('crash after cache wipe mid migrate; next boot drains pending', async () => {

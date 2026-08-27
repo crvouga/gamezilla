@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   readLiveNotes,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 const TOMBSTONE_COUNT = 120;
 

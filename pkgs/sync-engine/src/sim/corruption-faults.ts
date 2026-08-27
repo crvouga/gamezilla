@@ -6,7 +6,10 @@ export type SimCorruptionVariant =
   | 'garbageString'
   | 'flipField';
 
-export function corruptJsonString(json: string, variant: SimCorruptionVariant): string {
+export function corruptJsonString(
+  json: string,
+  variant: SimCorruptionVariant
+): string {
   switch (variant) {
     case 'truncatedJson':
       return json.slice(0, Math.max(1, Math.floor(json.length / 3)));

@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
-  expectNotesMatchServer,
   acmeDomainPack,
   acmeLocalSchema,
   acmeLocalSchemaExtraColumn,
   acmeMutationRegistry,
   acmeQueryRegistry,
+  expectLiveNote,
+  expectNotesMatchServer,
   notesWorldWithColorQuery,
   setNoteColor,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(

@@ -1,18 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { assertDstProperty, fc } from '@pkgs/pbt';
-
-import { acmeDstApp } from '../apps/acme/dst-app';
 import {
   expectLiveNote,
   expectNoteNotLive,
   readNoteTombstone,
 } from '../apps/acme/assert';
+import { acmeDstApp } from '../apps/acme/dst-app';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import {
-  arbWorldKnobs,
-  arbWorldSeed,
-  openPbtWorld,
-} from '../dst/world-config';
+import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 type TombstoneStep =
   | { readonly kind: 'set'; readonly body: string }
@@ -101,9 +96,17 @@ describe('tombstone revive PBT', () => {
             const noteId = 'n0';
             try {
               const client = opened.world.clients.get('c0')!;
-              await client.mutate(setNote, { id: noteId, body: body1, title: '' });
+              await client.mutate(setNote, {
+                id: noteId,
+                body: body1,
+                title: '',
+              });
               await client.mutate(deleteNote, { id: noteId });
-              await client.mutate(setNote, { id: noteId, body: body2, title: '' });
+              await client.mutate(setNote, {
+                id: noteId,
+                body: body2,
+                title: '',
+              });
               await opened.world.assertConverged();
               await expectLiveNote(client.db, noteId, { body: body2 });
               for (const peer of opened.world.clients.values()) {

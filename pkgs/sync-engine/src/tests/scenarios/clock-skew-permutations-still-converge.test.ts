@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld, type SimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   readLiveNotes,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld, type SimWorld } from '../../sim/world';
 
 const BEHIND = -60_000;
 const MID = 0;

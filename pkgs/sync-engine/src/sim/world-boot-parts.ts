@@ -1,5 +1,5 @@
-import type { SimAuthStatus } from './client-factory';
 import type { BoundaryFaultController } from './boundary-faults';
+import type { SimAuthStatus } from './client-factory';
 import { createSimClock, type SimClock } from './clock';
 import { createClockSkewTable, SIM_SERVER_NODE_ID } from './clock-skew';
 import type { SimDomainPack } from './domain-pack';

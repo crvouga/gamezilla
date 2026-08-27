@@ -1,7 +1,6 @@
 import fc from 'fast-check';
 
 import type { LibraryAction } from '../actions';
-import type { WorldCmd } from './index-types';
 import {
   AUTH_STATUSES,
   CLIENT_IDS,
@@ -13,6 +12,7 @@ import {
   STORAGE_TAMPERS,
   WORLD_PBT_CRASH_EVENTS,
 } from '../model';
+import type { WorldCmd } from './index-types';
 
 const trafficArb = fc.constantFrom(...HOLD_TRAFFIC);
 

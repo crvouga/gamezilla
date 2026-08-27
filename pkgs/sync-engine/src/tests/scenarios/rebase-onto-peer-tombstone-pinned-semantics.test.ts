@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  acmeDomainPack,
   readNoteTombstone,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('rebase onto peer tombstone pinned semantics', () => {
   test('pending setNote rebases onto peer tombstone and revives after upload', async () => {

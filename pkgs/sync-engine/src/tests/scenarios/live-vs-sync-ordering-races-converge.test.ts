@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld, type SimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld, type SimWorld } from '../../sim/world';
 
 const BEHIND = -60_000;
 const MID = 0;

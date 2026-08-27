@@ -108,19 +108,57 @@ function bindNodeAndNet(args: {
   };
 }
 
+function clearBoundaryFaults(faultApi: WorldFaultApi): void {
+  faultApi.clearCrashArms();
+  faultApi.clearHttpFaults();
+  faultApi.clearPublishFault();
+  faultApi.clearPubsubFaults();
+}
+
+async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
+  try {
+    await restartServerImpl(k, { preserveDb: true });
+  } catch {
+    // already running
+  }
+  // Do not restart a healthy broker here — that remakes every client's MQTT
+  // session and drops in-flight row-image fanout (breaks partial-query peers
+  // and remake-count assertions). DST `heal` / prepareClientsForConverge
+  // still call brokerRestart after chaos.
+  restoreNonRevokedAuth(k);
+}
+
+function createWorldDispose(args: {
+  readonly k: BootedSimKernel;
+  readonly worldRef: { current: SimWorld | null };
+  readonly markDisposed: () => boolean;
+}): () => Promise<void> {
+  const { k, worldRef, markDisposed } = args;
+  return async () => {
+    if (markDisposed()) return;
+    const world = worldRef.current;
+    if (world !== null) unregisterSimWorld(world);
+    for (const c of [...k.clients.values()]) await c.dispose();
+    k.clients.clear();
+    k.unbindHttp();
+    k.broker.dispose();
+    await k.server.dispose();
+  };
+}
+
 export function bindWorldMethods(args: {
   readonly k: BootedSimKernel;
   readonly netEffects: NetEffectRegistry;
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
+  readonly faultApi: WorldFaultApi;
   readonly worldRef: { current: SimWorld | null };
   readonly markDisposed: () => boolean;
 }): Omit<SimWorld, typeof Symbol.asyncDispose> & {
   [Symbol.asyncDispose](): Promise<void>;
 } {
-  const { k, netEffects, armCrashHook, crashServer, worldRef, markDisposed } =
-    args;
-  const { clients, scheduler, network, broker, rng, domain } = k;
+  const { k, netEffects, armCrashHook, crashServer, faultApi } = args;
+  const { clients, scheduler, network, rng, domain } = k;
   const ctx = untilCtx(k);
   const { net, node } = bindNodeAndNet({
     k,
@@ -128,17 +166,7 @@ export function bindWorldMethods(args: {
     armCrashHook,
     crashServer,
   });
-
-  const dispose = async () => {
-    if (markDisposed()) return;
-    const world = worldRef.current;
-    if (world !== null) unregisterSimWorld(world);
-    for (const c of [...clients.values()]) await c.dispose();
-    clients.clear();
-    k.unbindHttp();
-    broker.dispose();
-    await k.server.dispose();
-  };
+  const dispose = createWorldDispose(args);
 
   return {
     seed: rng.seed,
@@ -172,15 +200,8 @@ export function bindWorldMethods(args: {
         domain,
         netEffects,
         now: () => k.clock.now(),
-        healInfra: async () => {
-          try {
-            await restartServerImpl(k, { preserveDb: true });
-          } catch {
-            // already running
-          }
-          await restartBrokerImpl(k);
-          restoreNonRevokedAuth(k);
-        },
+        clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
+        healInfra: () => healInfraForSettle(k),
       }),
     tamperLocalStorage: (clientId, tamper) =>
       tamperClientLocalStorage(k, clientId, tamper),
@@ -188,6 +209,7 @@ export function bindWorldMethods(args: {
       crashBrokerImpl(k);
     },
     brokerRestart: () => restartBrokerImpl(k),
+    clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
     dispose,
     async [Symbol.asyncDispose]() {
       await dispose();

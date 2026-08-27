@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  acmeDomainPack,
   readLiveNotes,
   retouchNotes,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 function noteIds(count: number): string[] {
   return Array.from(

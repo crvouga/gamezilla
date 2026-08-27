@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
-  acmeDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {

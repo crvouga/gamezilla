@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   befriend,
   createSpace,
   expectLiveSpace,
   isLiveSpace,
-  acmeDomainPack,
   SPACE_MEMBERSHIP_SESSION,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {

@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
-  expectLiveNote,
   acmeDomainPack,
   acmeLocalSchema,
   acmeLocalSchemaExtraTable,
   acmeMutationRegistry,
   acmeQueryRegistry,
+  expectLiveNote,
   setNote,
   setTag,
   tagsWorldQuery,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 describe('new domain table added mid life hydrates after migrate', () => {
   test.each([750, 751, 752])(

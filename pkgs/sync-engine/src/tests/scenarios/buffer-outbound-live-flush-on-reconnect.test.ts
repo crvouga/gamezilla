@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
-  acmeDomainPack,
   setNote,
 } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
 
 const PEER_VISIBLE_BUDGET_MS = 200;
 

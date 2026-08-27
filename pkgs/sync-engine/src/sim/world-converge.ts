@@ -20,6 +20,8 @@ export type AssertConvergedCtx = {
   readonly now: () => number;
   /** Restore server/broker after chaos commands before settle. */
   readonly healInfra?: () => Promise<void>;
+  /** Drop armed one-shot boundary faults before heal/settle. */
+  readonly clearBoundaryFaults?: () => void;
 };
 
 function clientSnapshots(
@@ -56,6 +58,7 @@ async function settleOnce(
 export async function assertConvergedImpl(
   ctx: AssertConvergedCtx
 ): Promise<void> {
+  ctx.clearBoundaryFaults?.();
   ctx.network.releaseAll();
   ctx.network.healAll();
   ctx.network.clearNodeFaults();

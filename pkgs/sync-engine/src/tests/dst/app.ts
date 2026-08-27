@@ -7,10 +7,7 @@ import type { DomainOp, ServerOp } from './actions';
 
 export type DomainModelHooks = {
   readonly initial: () => unknown;
-  readonly allows: (
-    model: unknown,
-    op: DomainOp | ServerOp
-  ) => boolean;
+  readonly allows: (model: unknown, op: DomainOp | ServerOp) => boolean;
   readonly apply: (model: unknown, op: DomainOp | ServerOp) => void;
   readonly clientAllows?: (
     model: unknown,
