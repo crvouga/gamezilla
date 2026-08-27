@@ -65,7 +65,7 @@ export type CreateLocalSyncEngineOptions = {
   readonly mutationRegistry: MutationRegistry;
   readonly getMutationEnv: () => MutationEnv;
   readonly getClientId: () => string;
-  /** Session-scoped queries held for the engine lifetime (paint gate waits). */
+  /** Session-scoped queries held for the engine lifetime (`waitForFirstSync`). */
   readonly sessionQueries: readonly QuerySubscriptionSpec[];
   readonly postQueries: (
     requests: readonly QueryRequest[]

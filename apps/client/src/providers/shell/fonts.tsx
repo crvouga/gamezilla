@@ -5,10 +5,10 @@ import {
   useFonts,
 } from '@expo-google-fonts/nunito';
 import type { FontStacks } from '@pkgs/ui';
-import { hideSplash } from '@pkgs/ui';
 import { type ReactNode, useEffect, useMemo } from 'react';
 
 import { AppFontsContext } from './fonts-context';
+import { useLocalPaintLatch } from './local-paint-latch';
 
 const nunitoFontStacks: Partial<FontStacks> = {
   sans: String('Nunito_400Regular'),
@@ -26,12 +26,13 @@ export function AppFontsProvider({
     Nunito_600SemiBold,
     Nunito_700Bold,
   });
+  const { markFontsReady } = useLocalPaintLatch();
 
   useEffect(() => {
     if (fontsLoaded || fontError !== null) {
-      void hideSplash();
+      markFontsReady();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, markFontsReady]);
 
   const value = useMemo(
     () => ({

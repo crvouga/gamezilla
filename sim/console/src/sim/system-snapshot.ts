@@ -10,7 +10,10 @@ import type {
   SimSystemSnapshotClientSlice,
 } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { dumpData, loadData } from '@pkgs/sql-client/sql-data-snapshot';
-import type { SqlDataDump, SqlTableDump } from '@pkgs/sql-client/sql-data-snapshot/types';
+import type {
+  SqlDataDump,
+  SqlTableDump,
+} from '@pkgs/sql-client/sql-data-snapshot/types';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine/shared';
 import {

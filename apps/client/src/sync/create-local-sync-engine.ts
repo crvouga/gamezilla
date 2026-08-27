@@ -40,7 +40,7 @@ import {
 } from './sync-api';
 import { tryAcquireSyncOwnerLease } from './sync-owner-lock';
 
-/** Session queries held for the engine lifetime (paint gate waits on all). */
+/** Session queries held for the engine lifetime (not a UI paint barrier). */
 const SESSION_QUERIES = [
   'ownUser',
   'ownDevices',

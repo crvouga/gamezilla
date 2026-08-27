@@ -19,17 +19,21 @@ import {
   SyncEnginePaintGateContext,
   SyncEngineProvider,
 } from '@pkgs/sync-engine/client';
-import { type ReactNode, useMemo, useRef } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import type { SyncApiFetch, SyncClientAuth } from '../../sync/sync-api';
 import type { AppSyncEnginePool } from '../../sync/sync-engine-pool';
 import { useEmbeddedApp } from '../embedded-app-context';
+import { useLocalPaintLatch } from '../shell/local-paint-latch';
 import { AppObservabilityFromClientConfig } from './app-observability-from-client-config';
 import {
+  LocalDatabaseBootBlankScreen,
   LocalDatabaseBootErrorScreen,
-  LocalDatabaseBootLoadingScreen,
 } from './boot-screens';
 import { SyncEmqxPushFromClientConfig } from './sync-emqx-push-from-client-config';
-import { useSyncEngineBootState } from './use-sync-engine-boot-state';
+import {
+  type SyncEngineBootState,
+  useSyncEngineBootState,
+} from './use-sync-engine-boot-state';
 
 function useIdentitySqliteDbName(userId: string): string {
   const env = useClientEnv();
@@ -152,11 +156,12 @@ function renderSyncEngineTree(args: {
 /**
  * Opens local SQLite for the active `users.id` and exposes the sync engine.
  *
- * Waits for AuthBridge anon ensure / refresh to bind `currentUserId`. After
+ * Waits for AuthBridge to bind `currentUserId` (local id, not HTTP). After
  * the first successful open, keeps the navigation tree mounted while the same
  * identity reconnects (sticky prior engine). Across identity / database-name
- * changes the prior engine is closed (web OPFS) so the tree shows loading
- * until the next engine is ready.
+ * changes the prior engine is closed (web OPFS) so the tree shows a blank
+ * themed shell until the next engine is ready — splash still covers first
+ * paint; later switches are local SQLite open only.
  */
 export function SyncEngineBoot({
   children,
@@ -165,12 +170,48 @@ export function SyncEngineBoot({
 }): ReactNode {
   const userId = useCurrentAccountId();
   if (userId === null) {
-    return <LocalDatabaseBootLoadingScreen />;
+    return <LocalDatabaseBootBlankScreen />;
   }
 
   return (
     <SyncEngineBootWithUser userId={userId}>{children}</SyncEngineBootWithUser>
   );
+}
+
+function resolveMountedEngine(
+  boot: SyncEngineBootState,
+  embedded: boolean,
+  lastReadyEngine: SyncEngine | null
+): SyncEngine | null {
+  if (boot.phase === 'ready') return boot.engine;
+  // Embedded playground: never paint a sticky prior engine — snapshot restore
+  // closes the prior sqlite-mem handle while React may still be remounting.
+  if (embedded) return null;
+  return lastReadyEngine;
+}
+
+function renderMountedEngine(args: {
+  readonly boot: SyncEngineBootState;
+  readonly engine: SyncEngine | null;
+  readonly paintReady: boolean;
+  readonly databaseName: string;
+  readonly children: ReactNode;
+}): ReactNode {
+  if (args.engine === null) {
+    if (args.boot.phase === 'error') {
+      return <LocalDatabaseBootErrorScreen error={args.boot.error} />;
+    }
+    return <LocalDatabaseBootBlankScreen />;
+  }
+  if (args.boot.phase === 'error') {
+    return <LocalDatabaseBootErrorScreen error={args.boot.error} />;
+  }
+  return renderSyncEngineTree({
+    paintReady: args.paintReady,
+    engine: args.engine,
+    databaseName: args.databaseName,
+    children: args.children,
+  });
 }
 
 function SyncEngineBootWithUser({
@@ -198,35 +239,29 @@ function SyncEngineBootWithUser({
   }
   const enginePromise = useSyncEnginePromise(dbName, userId, pool);
   const boot = useSyncEngineBootState(enginePromise, warmEngine);
+  const { markEngineReady } = useLocalPaintLatch();
 
   if (boot.phase === 'ready') {
     lastReadyEngineRef.current = boot.engine;
   }
 
   const paintReady = boot.phase === 'ready';
-  // Embedded playground: never paint a sticky prior engine — snapshot restore
-  // closes the prior sqlite-mem handle while React may still be remounting.
-  const engine =
-    boot.phase === 'ready'
-      ? boot.engine
-      : embedded
-        ? null
-        : lastReadyEngineRef.current;
+  const engine = resolveMountedEngine(
+    boot,
+    embedded,
+    lastReadyEngineRef.current
+  );
 
-  if (engine === null) {
-    if (boot.phase === 'error') {
-      return <LocalDatabaseBootErrorScreen error={boot.error} />;
+  useEffect(() => {
+    if (engine !== null || boot.phase === 'error') {
+      markEngineReady();
     }
-    return <LocalDatabaseBootLoadingScreen />;
-  }
+  }, [boot.phase, engine, markEngineReady]);
 
-  if (boot.phase === 'error') {
-    return <LocalDatabaseBootErrorScreen error={boot.error} />;
-  }
-
-  return renderSyncEngineTree({
-    paintReady,
+  return renderMountedEngine({
+    boot,
     engine,
+    paintReady,
     databaseName: dbName,
     children,
   });

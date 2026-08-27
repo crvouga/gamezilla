@@ -295,12 +295,15 @@ Rules:
 `getMutationEnv`, `getClientId`, `isAuthRevoked`, `deleteDatabase`, optional
 `push`, `lifecycle`, and sim-only `now` / `random` / `timers` / `createId`.
 
-**Session queries vs paint gate:**
+**Session queries vs product paint:**
 - `sessionQueries` are held for the engine lifetime; `waitForFirstSync()`
-  awaits their first successful sync.
-- `paintReady` is **not** computed inside the engine. Product boot provides
-  `SyncEnginePaintGateContext` (default `true`); `useSyncEngine().paintReady`
-  reads that context (identity-match gate during account switch).
+  awaits their first successful sync (sim / DST / `subscribeQueries`).
+- Product boot does **not** wait on first-sync. It paints as soon as the
+  identity-scoped SQLite engine is open and `connect()` has started session
+  watches. `paintReady` is **not** computed inside the engine. Product boot
+  provides `SyncEnginePaintGateContext` (default `true`);
+  `useSyncEngine().paintReady` reads that context (identity-match gate
+  during account switch).
 
 Product session list today (`apps/client` `SESSION_QUERIES`): `ownUser`,
 `ownDevices`, `ownExternalAccounts`, `ownProfile`, `clientConfig`,
@@ -504,6 +507,7 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 - Background (`AppLifecycle`) pauses sweeps; foreground resumes with `wakeAll`
 - Safety-net reconcile tick (`QUERY_RECONCILE_INTERVAL_MS`, sim shorter) → `wakeAll`
 - Session queries held for engine life; `waitForFirstSync` waits on them
+  (sim / DST / `subscribeQueries` — not product paint)
 
 ### `attachPush`
 
@@ -578,7 +582,6 @@ soft-ack + generation fence); see
 
 - Local **prune / size policy** for catalogs + old tombstones (chess puzzles)
 - Stronger CI that `defineQuery.run` selects `deleted_at` / omits live filters
-- Narrower sessionQueries / staged paint gate if first paint is too slow
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
 - Sim coverage expansion / fix stale `TIGER_INVARIANTS` name
@@ -617,9 +620,10 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 5. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
    remake). Waits for pending `sync_engine_mutations` drain; tiny subscribe-race window
    healed by `wakeAll`; true dispose still closes with sessionExpiry 0.
-6. **Paint waits on all session queries** — correct single lifetime model;
-   may delay first paint vs old boot/shell split. Product `paintReady` is a
-   separate identity-match context.
+6. **Product paint is local-open** — `waitForFirstSync` still waits on all
+   session queries for sim/DST/`subscribeQueries`. Product `paintReady` is an
+   identity-match context set once the local engine is mounted, not after
+   first-sync.
 7. **Rebase swallows errors** — pending mutation that fails against new
    server state stays queued until upload reject; UI may look “stuck”
    optimistic. Product should watch `sync_engine_write_rejections`.
@@ -1199,8 +1203,8 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 | Term | Definition |
 |------|------------|
 | Scope | One subscribed `(queryName, params)` identity (`scope_hash`) |
-| Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them |
-| Paint gate | Product `SyncEnginePaintGateContext` + session first-sync |
+| Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them (tests/sim) |
+| Paint gate | Product `SyncEnginePaintGateContext` after local SQLite open |
 | Tombstone | Domain row with `deleted_at` set; still synced |
 | Push | Pubsub message that wakes overlapping query scopes (formerly 'nudge') |
 | Row-image fanout | Lossy optional `rows` on push; snapshots remain truth |

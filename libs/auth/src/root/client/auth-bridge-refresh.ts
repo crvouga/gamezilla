@@ -115,7 +115,7 @@ export class AuthBridgeRefresh {
       });
       // Dead bearer + cold BA null skips signed-out clear
       // (`shouldClearCapabilityOnBaSignedOut`). Without this fallthrough,
-      // `lastLocalAccountId` never binds and SyncEngineBoot spins forever.
+      // `lastLocalAccountId` never binds and SyncEngineBoot never paints.
       if (isUnauthorizedRefreshError(e)) {
         await this.handleSignedOut({ rotateAccount: true });
         return;

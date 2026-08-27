@@ -1,11 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
-import {
-  Box,
-  EmptyState,
-  Gamepad2Icon,
-  LoadingState,
-  ScreenBase,
-} from '@pkgs/ui';
+import { Box, EmptyState, Gamepad2Icon, ScreenBase } from '@pkgs/ui';
 import { useBreadcrumbNav } from '@pkgs/ui/components/use-breadcrumb-nav';
 import type { ReactNode } from 'react';
 import { SpaceTitleText } from '../../../root/client/space-title-text';
@@ -66,7 +60,7 @@ function JoinPromptBody({
   const { t } = useLingui();
 
   if (snapshot.status === 'loading') {
-    return <LoadingState size="large" />;
+    return <Box sx={{ flex: 1 }} />;
   }
   if (snapshot.status === 'unavailable') {
     return (
