@@ -136,6 +136,38 @@ describe('acme world PBT / DST', () => {
     }
   });
 
+  test('auth revoked then setNote then restartWithSchema opens fresh db', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 956276660,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'auth', clientId: 'c0', status: 'revoked' },
+        {
+          kind: 'domain',
+          clientId: 'c1',
+          mutation: 'setNote',
+          args: { id: 'n0', body: 'pbt', title: '' },
+        },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'baseline',
+        },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test(
     'runSeed is deterministic for a generated seed',
     async () => {

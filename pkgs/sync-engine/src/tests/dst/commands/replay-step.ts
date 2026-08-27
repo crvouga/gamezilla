@@ -113,8 +113,9 @@ export async function finishReplayStep(
     await assertStep(world);
     return;
   }
-  if (action.kind === 'restart') {
+  if (action.kind === 'restart' || action.kind === 'restartWithSchema') {
     state.needsRestart.delete(action.clientId);
+    state.needsFreshRestart.delete(action.clientId);
     await assertStep(world);
     return;
   }

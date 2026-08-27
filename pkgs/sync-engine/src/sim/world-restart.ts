@@ -1,6 +1,7 @@
 import type { SimClientHandle } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import { bindSimHttpServer } from './http-bridge';
+import { isDbOpen } from './invariants';
 import { openSimServer } from './server';
 import { SERVER_HTTP } from './traffic';
 import {
@@ -19,13 +20,19 @@ export async function restartClientImpl(
   const meta = k.metas.get(id);
   if (meta === undefined) throw new Error(`unknown client meta ${id}`);
   const existing = k.clients.get(id);
-  const preserve = opts?.preserveLocalDb === true;
+  let preserve = opts?.preserveLocalDb === true;
   if (preserve && existing?.dbBundle !== undefined) {
     meta.lastDbBundle = existing.dbBundle;
   }
-  const existingDb = preserve
+  let existingDb = preserve
     ? (existing?.dbBundle ?? meta.lastDbBundle)
     : undefined;
+  // Revoke wipe closes SQLite; keepDb must not hand a dead handle to migrate.
+  if (existingDb !== undefined && !(await isDbOpen(existingDb.serial))) {
+    existingDb = undefined;
+    meta.lastDbBundle = undefined;
+    preserve = false;
+  }
   if (k.clients.has(id)) {
     await crashClientImpl(k, id, { keepDb: preserve });
   }
