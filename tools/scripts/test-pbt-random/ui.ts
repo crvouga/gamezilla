@@ -124,7 +124,12 @@ export class PbtSessionUi {
       process.stdout.write('\x1b[?25h\n');
     }
     const elapsed = formatDuration(Date.now() - this.sessionStarted);
-    if (this.options.attempts > 1) {
+    const allPassed = this.attemptsPassed === this.options.attempts;
+    if (allPassed && this.options.attempts === 1) {
+      process.stdout.write(
+        `${ansi.green('✓')} all ${String(this.options.totalFiles)} PBT files passed ${ansi.dim(`(${elapsed})`)}\n`
+      );
+    } else if (this.options.attempts > 1) {
       process.stdout.write(
         `${ansi.green('✓')} ${String(this.attemptsPassed)}/${String(this.options.attempts)} attempts passed ${ansi.dim(`(${elapsed})`)}\n`
       );

@@ -10,6 +10,7 @@ import {
   type QueryResponse,
   type QueryRow,
 } from '../core/types';
+import { applyHardLimit } from '../shared/apply-hard-limit';
 import { hashQueryTables } from '../shared/canonical';
 
 export type RunQueryInput = {
@@ -136,12 +137,18 @@ async function runDefinedQuery(
   }
 
   const tables = await def.run(ctx, params);
-  const limited = applyHardLimit(
-    tables,
-    limit,
-    def.name,
-    deps.strictQueryLimits === true && def.limitIsDefault === true
-  );
+  let total = 0;
+  for (const rows of Object.values(tables)) {
+    total += rows.length;
+  }
+  if (
+    deps.strictQueryLimits === true &&
+    def.limitIsDefault === true &&
+    total > limit
+  ) {
+    throw new QueryLimitExceeded(def.name, limit);
+  }
+  const limited = applyHardLimit(tables, limit);
   const hash = hashQueryTables(limited);
 
   if (input.lastHash !== undefined && input.lastHash === hash) {
@@ -156,29 +163,3 @@ async function runDefinedQuery(
   };
 }
 
-function applyHardLimit(
-  tables: Readonly<Record<string, readonly QueryRow[]>>,
-  limit: number,
-  queryName: string,
-  strict: boolean
-): Record<string, QueryRow[]> {
-  let total = 0;
-  for (const rows of Object.values(tables)) {
-    total += rows.length;
-  }
-  if (strict && total > limit) {
-    throw new QueryLimitExceeded(queryName, limit);
-  }
-
-  const out: Record<string, QueryRow[]> = {};
-  let remaining = limit;
-  for (const [name, rows] of Object.entries(tables)) {
-    if (remaining <= 0) {
-      out[name] = [];
-      continue;
-    }
-    out[name] = rows.slice(0, remaining).map((r) => ({ ...r }));
-    remaining -= out[name].length;
-  }
-  return out;
-}

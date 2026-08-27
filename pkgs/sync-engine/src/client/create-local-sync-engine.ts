@@ -202,6 +202,9 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const runtime = new SubscriptionRuntime({
     db: options.db,
     postQueries: options.postQueries,
+    ...(options.push?.queryRegistry !== undefined
+      ? { queryRegistry: options.push.queryRegistry }
+      : {}),
     ...(options.lifecycle !== undefined
       ? { lifecycle: options.lifecycle }
       : {}),

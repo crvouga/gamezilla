@@ -55,10 +55,12 @@ function parseCli(argv: ReadonlyArray<string>): Cli {
       printUsage();
       process.exit(0);
     }
-    if (arg.startsWith('-')) {
+    if (arg?.startsWith('-')) {
       throw new Error(`unknown option: ${arg}`);
     }
-    positional.push(arg);
+    if (typeof arg === 'string') {
+      positional.push(arg);
+    }
   }
 
   if (positional.length > 0) {

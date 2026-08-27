@@ -8,9 +8,18 @@ export function isPubSubClosedError(error: unknown): boolean {
   );
 }
 
-/** Skip expected closed-broker noise; still surface unexpected push failures. */
+/** Sim/client restart can close SQLite while push teardown is in flight. */
+export function isSqliteClosedError(error: unknown): boolean {
+  return (
+    error instanceof RangeError &&
+    (error.message.includes('closed database') ||
+      error.message.includes('database is locked'))
+  );
+}
+
+/** Skip expected closed-broker / closed-db noise; still surface unexpected push failures. */
 export function warnPush(message: string, ...details: unknown[]): void {
   const error = details[details.length - 1];
-  if (isPubSubClosedError(error)) return;
+  if (isPubSubClosedError(error) || isSqliteClosedError(error)) return;
   console.warn(message, ...details);
 }

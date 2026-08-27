@@ -32,6 +32,7 @@ async function flushTopicSync(bag: PushBag): Promise<void> {
   }
   bag.remakeFlushInFlight = true;
   try {
+    if (bag.disposed) return;
     const pending = await countPendingMutations(bag.options.db);
     if (bag.disposed) return;
     if (pending > 0) {
@@ -138,6 +139,7 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
   }
   void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
+      if (bag.disposed) return;
       warnPush('[push] clearRemovedPushApplied failed', error);
     }
   );
@@ -171,6 +173,7 @@ function syncTopicsIncremental(
   bag.lastTopicKey = topicKey(desired);
   void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
+      if (bag.disposed) return;
       warnPush('[push] clearRemovedPushApplied failed', error);
     }
   );

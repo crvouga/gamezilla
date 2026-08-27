@@ -2,13 +2,14 @@ import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
-import type { QueryResponse } from '../queries/core/types';
+import type { QueryResponse, QueryRegistry } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {
   type AppLifecycle,
   type AppLifecycleEvent,
   alwaysOnLifecycle,
 } from './app-lifecycle';
+import { computeLocalScopeHash } from './local-scope-hash';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
 import {
@@ -55,6 +56,8 @@ export type SubscriptionRuntimeOptions = {
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly getMergeDeps: () => MergeApplierDeps;
+  /** When set, local content hash is checked before sending `lastHash`. */
+  readonly queryRegistry?: QueryRegistry;
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
   readonly lifecycle?: AppLifecycle;
@@ -127,6 +130,35 @@ async function loadBasis(
     last_checkpoint: meta?.last_checkpoint ?? null,
     last_hash: meta?.last_hash ?? null,
   };
+}
+
+async function requestCacheKeys(
+  db: SqlClient,
+  entry: Entry,
+  queryRegistry: QueryRegistry | undefined,
+  mergeDeps: MergeApplierDeps
+): Promise<{ readonly lastHash?: string; readonly checkpoint?: string }> {
+  const basis = await loadBasis(db, entry.scope);
+  const checkpoint =
+    basis.last_checkpoint !== null ? { checkpoint: basis.last_checkpoint } : {};
+  if (basis.last_hash === null) return checkpoint;
+
+  const query = queryRegistry?.[entry.spec.name];
+  if (query === undefined) {
+    return { lastHash: basis.last_hash, ...checkpoint };
+  }
+
+  const localHash = await computeLocalScopeHash({
+    db,
+    query,
+    params: entry.spec.params,
+    env: mergeDeps.env,
+  });
+  if (localHash !== basis.last_hash) {
+    // Local rows drifted from scope meta — omit lastHash to force full merge.
+    return checkpoint;
+  }
+  return { lastHash: basis.last_hash, ...checkpoint };
 }
 
 /** Owns event-driven query scopes; applies responses to local SQLite. */
@@ -413,16 +445,19 @@ export class SubscriptionRuntime {
   private async buildRequests(
     active: readonly Entry[]
   ): Promise<QueryRequest[]> {
+    const mergeDeps = this.options.getMergeDeps();
     const requests: QueryRequest[] = [];
     for (const entry of active) {
-      const basis = await loadBasis(this.options.db, entry.scope);
+      const cache = await requestCacheKeys(
+        this.options.db,
+        entry,
+        this.options.queryRegistry,
+        mergeDeps
+      );
       requests.push({
         name: entry.spec.name,
         params: entry.spec.params,
-        ...(basis.last_hash !== null ? { lastHash: basis.last_hash } : {}),
-        ...(basis.last_checkpoint !== null
-          ? { checkpoint: basis.last_checkpoint }
-          : {}),
+        ...cache,
       });
     }
     return requests;
@@ -454,6 +489,8 @@ export class SubscriptionRuntime {
       return;
     }
     if (response.status === 'not_modified') {
+      const healed = await this.healNotModifiedIfDrifted(entry, response);
+      if (healed) return;
       markFirst(entry);
       this.options.onSynced();
       return;
@@ -466,6 +503,46 @@ export class SubscriptionRuntime {
     });
     markFirst(entry);
     this.options.onSynced();
+  }
+
+  /**
+   * Scope meta can outlive tampered local rows. If the server says
+   * `not_modified` but local content no longer matches `last_hash`, refetch.
+   */
+  private async healNotModifiedIfDrifted(
+    entry: Entry,
+    response: QueryResponse
+  ): Promise<boolean> {
+    if (response.status !== 'not_modified') return false;
+    const basis = await loadBasis(this.options.db, entry.scope);
+    if (basis.last_hash === null) return false;
+
+    const query = this.options.queryRegistry?.[entry.spec.name];
+    if (query === undefined) return false;
+
+    const mergeDeps = this.options.getMergeDeps();
+    const localHash = await computeLocalScopeHash({
+      db: this.options.db,
+      query,
+      params: entry.spec.params,
+      env: mergeDeps.env,
+    });
+    if (localHash === basis.last_hash) return false;
+
+    const [full] = await this.options.postQueries([
+      { name: entry.spec.name, params: entry.spec.params },
+    ]);
+    if (full === undefined || full.status !== 'ok') return false;
+
+    await applyFullMerge(mergeDeps, {
+      scopeHash: entry.scope,
+      checkpoint: full.checkpoint,
+      hash: full.hash,
+      tables: full.tables,
+    });
+    markFirst(entry);
+    this.options.onSynced();
+    return true;
   }
 
   private emitSubscriptionsChange(): void {
