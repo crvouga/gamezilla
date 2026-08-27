@@ -44,8 +44,9 @@ export async function prepareReplayAction(
   action: DstAction,
   state: ReplayRestartState
 ): Promise<void> {
-  if (action.kind === 'restart') {
+  if (action.kind === 'restart' || action.kind === 'restartWithSchema') {
     healNetworkForSettle(world);
+    await ensureServerUp(world);
   }
   if (action.kind === 'serverRestart' || action.kind === 'brokerRestart') {
     healNetworkForSettle(world);
@@ -78,6 +79,21 @@ export function trackRestartFromAction(
   }
   if (action.kind === 'crash' || action.kind === 'tamperLocalStorage') {
     state.needsRestart.add(action.clientId);
+  }
+  // Preserve pending mutations; settle remakes the engine after the cut.
+  if (action.kind === 'protocolCut') {
+    state.needsRestart.add(action.clientId);
+  }
+}
+
+/** `upgrade_required` / expired: restore so queued mutations can drain. */
+export function restoreSettleAuth(
+  world: SimWorld,
+  skip: ReadonlySet<string> = new Set()
+): void {
+  for (const id of world.clients.keys()) {
+    if (skip.has(id)) continue;
+    world.node(id).auth('valid');
   }
 }
 

@@ -1,3 +1,5 @@
+import { HttpNetworkError } from '@pkgs/http-client';
+
 import type { SimHttpRequestBody, SimHttpResponse } from './http-bridge-types';
 import type { SimEndpointId, SimNetwork } from './network';
 import type { SimScheduler } from './scheduler';
@@ -31,8 +33,8 @@ export function createSimHttpRpc(
         if (!args.pending.has(correlationId)) return;
         args.pending.delete(correlationId);
         reject(
-          new Error(
-            `sim http rpc timeout correlationId=${correlationId} seed-path`
+          new HttpNetworkError(
+            `sim http rpc timeout correlationId=${correlationId}`
           )
         );
       });

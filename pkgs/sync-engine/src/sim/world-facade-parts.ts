@@ -46,6 +46,14 @@ export async function checkClientSeqs(
   return null;
 }
 
+/** Protocol-cut / expired: restore so queued mutations can drain. */
+function restoreNonRevokedAuth(k: BootedSimKernel): void {
+  for (const meta of k.metas.values()) {
+    if (k.authStatusByDevice.get(meta.deviceId) === 'revoked') continue;
+    k.authStatusByDevice.set(meta.deviceId, 'valid');
+  }
+}
+
 export function createArmCrashHook(
   k: BootedSimKernel,
   faultApi: WorldFaultApi
@@ -90,7 +98,8 @@ function bindNodeAndNet(args: {
       }),
     node: (id) =>
       createSimNodeHandle(k, id, {
-        crashClient: (cid) => crashClientImpl(k, cid),
+        // Process crash keeps sqlite so settle can drain pending mutations.
+        crashClient: (cid) => crashClientImpl(k, cid, { keepDb: true }),
         restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
         crashServer,
         restartServer: (opts) => restartServerImpl(k, opts),
@@ -170,6 +179,7 @@ export function bindWorldMethods(args: {
             // already running
           }
           await restartBrokerImpl(k);
+          restoreNonRevokedAuth(k);
         },
       }),
     tamperLocalStorage: (clientId, tamper) =>

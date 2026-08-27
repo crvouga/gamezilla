@@ -31,6 +31,89 @@ describe('acme world PBT / DST', () => {
     { timeout: 120_000 }
   );
 
+  test('serverCrash then pending setNote drains after client crash', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 420184,
+      knobs: {
+        rowImageFanout: true,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: false,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'serverCrash' },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setNote',
+          args: { id: 'n0', body: 'pbt', title: '' },
+        },
+        { kind: 'crash', clientId: 'c0' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
+  test('serverCrash then restartWithSchema waits for HTTP again', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 1,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: false,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'serverCrash' },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'baseline',
+        },
+        { kind: 'publishFault', count: 1 },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
+  test('protocolCut then pending setFolder drains after settle', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 410988,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'protocolCut', clientId: 'c0' },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setFolder',
+          args: { id: 'f0', title: '' },
+        },
+        { kind: 'foreground', clientId: 'c0' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test('auth revoked then serverRestart skips closed-db seq checks', async () => {
     const opened = await openPbtWorld({
       app: acmeDstApp,

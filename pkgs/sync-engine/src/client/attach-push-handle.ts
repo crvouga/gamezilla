@@ -3,6 +3,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRow } from '../queries/core/types';
+import { warnPush } from '../shared/is-pubsub-closed-error';
 import type { PushMessage } from '../shared/push-payload';
 import {
   filterScopesByTables,
@@ -36,7 +37,7 @@ async function tryApplyOptimisticRows(
     if (Object.keys(rows).length === 0) return true;
     await applyRowImages(getMergeDeps(), rows);
   } catch (error) {
-    console.warn('[push] optimistic fanout apply failed', topic, error);
+    warnPush('[push] optimistic fanout apply failed', topic, error);
   }
   return true;
 }
@@ -99,7 +100,7 @@ async function tryApplyFanoutRows(
     await recordPushApplied(bag.options.db, topic, payload.pushSeq);
     return true;
   } catch (error) {
-    console.warn('[push] row fanout apply failed; falling back', topic, error);
+    warnPush('[push] row fanout apply failed; falling back', topic, error);
     return false;
   }
 }
@@ -125,7 +126,7 @@ async function tryApplyExactEcho(
     );
     return true;
   } catch (error) {
-    console.warn('[push] echo fanout apply failed; falling back', topic, error);
+    warnPush('[push] echo fanout apply failed; falling back', topic, error);
     return false;
   }
 }
@@ -160,7 +161,7 @@ export async function handlePush(
   try {
     lastPushSeq = await readLastPushSeq(bag.options.db, topic);
   } catch (error) {
-    console.warn('[push] pushSeq check failed', topic, error);
+    warnPush('[push] pushSeq check failed', topic, error);
     return;
   }
 
@@ -206,7 +207,7 @@ export async function commitPendingPushSeqs(
     try {
       await recordPushApplied(bag.options.db, topic, pushSeq);
     } catch (error) {
-      console.warn('[push] recordPushApplied failed', topic, error);
+      warnPush('[push] recordPushApplied failed', topic, error);
     }
     bag.pendingTopicPushSeqs.delete(topic);
   }

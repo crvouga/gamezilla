@@ -24,7 +24,7 @@ describe('hashRoomState properties', () => {
         fc.array(arbJsonValue(2), { minLength: 2, maxLength: 6 }),
         (items) => {
           const reversed = [...items].reverse();
-          fc.pre(JSON.stringify(items) !== JSON.stringify(reversed));
+          fc.pre(canonicalRoomJson(items) !== canonicalRoomJson(reversed));
           expect(hashRoomState({ xs: items } as never)).not.toBe(
             hashRoomState({ xs: reversed } as never)
           );

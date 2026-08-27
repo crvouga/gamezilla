@@ -2,6 +2,7 @@ import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { MutationEnv } from '../mutations/core/types';
+import { warnPush } from '../shared/is-pubsub-closed-error';
 import { partitionFanoutRowsByTopic } from '../shared/partition-fanout-rows';
 import { fanoutRowsWithinCap } from '../shared/select-fanout-rows';
 import {
@@ -120,7 +121,7 @@ async function publishItems(
   await Promise.all(
     items.map((item) =>
       pubsub.publish(item.topic, item.payload).catch((error: unknown) => {
-        console.warn('[push] optimistic publish failed', item.topic, error);
+        warnPush(`[push] optimistic publish failed ${item.topic}`, error);
       })
     )
   );

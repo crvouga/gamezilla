@@ -2,6 +2,7 @@ import type { PubSub, PubSubStatus, Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import { warnPush } from '../shared/is-pubsub-closed-error';
 import {
   type AttachPushOptions,
   createPushBag,
@@ -42,7 +43,7 @@ async function flushTopicSync(bag: PushBag): Promise<void> {
     bag.membershipRemakePending = false;
     syncTopics(bag);
   } catch (error) {
-    console.warn('[push] held-row topic refresh failed', error);
+    warnPush('[push] held-row topic refresh failed', error);
   } finally {
     bag.remakeFlushInFlight = false;
   }
@@ -137,7 +138,7 @@ function remake(bag: PushBag, desired: Map<Topic, Set<string>>): void {
   }
   void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
-      console.warn('[push] clearRemovedPushApplied failed', error);
+      warnPush('[push] clearRemovedPushApplied failed', error);
     }
   );
 }
@@ -170,7 +171,7 @@ function syncTopicsIncremental(
   bag.lastTopicKey = topicKey(desired);
   void clearRemovedPushApplied(bag.options.db, new Set(desired.keys())).catch(
     (error) => {
-      console.warn('[push] clearRemovedPushApplied failed', error);
+      warnPush('[push] clearRemovedPushApplied failed', error);
     }
   );
 

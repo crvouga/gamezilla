@@ -14,6 +14,7 @@ import {
   healNetworkForSettle,
   prepareReplayAction,
   restartClientForConverge,
+  restoreSettleAuth,
   trackRemovedClients,
   trackRestartFromAction,
 } from './replay-step';
@@ -84,7 +85,7 @@ async function assertStepInvariants(world: SimWorld): Promise<void> {
   await world.runFor(10);
 }
 
-/** Revoked/crashed clients may hold a closed DB — restart before settle. */
+/** Revoked/crashed/protocol-cut clients — restore auth, restart before settle. */
 export async function prepareClientsForConverge(
   app: DstApp,
   world: SimWorld,
@@ -92,6 +93,7 @@ export async function prepareClientsForConverge(
   freshRestart: ReadonlySet<string> = new Set()
 ): Promise<void> {
   const ids = [...clientIds];
+  restoreSettleAuth(world, freshRestart);
   if (ids.length === 0) return;
   await dispatchDstAction(world, app, { kind: 'heal' });
   healNetworkForSettle(world);

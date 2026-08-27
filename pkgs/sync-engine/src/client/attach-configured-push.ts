@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { resolveQueryHydrates } from '../queries/core/define-query';
 import type { QueryRegistry } from '../queries/core/types';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
+import { warnPush } from '../shared/is-pubsub-closed-error';
 import type { QueryChannelsCtx } from '../shared/push-payload';
 import type { TopicMap } from '../shared/topic-map';
 import { attachPush } from './attach-push';
@@ -72,10 +73,7 @@ function tryCreatePushPubSub(createPubSub: () => PubSub | null): PubSub | null {
   try {
     return createPubSub();
   } catch (error: unknown) {
-    console.warn(
-      '[push] pubsub unavailable; continuing without live push',
-      error
-    );
+    warnPush('[push] pubsub unavailable; continuing without live push', error);
     return null;
   }
 }
@@ -157,7 +155,7 @@ export async function attachPushIfConfigured(
     if (created === null) return;
     bindConfiguredPush(state, push, created, getMergeDeps);
   } catch (error: unknown) {
-    console.warn('[push] attach failed; continuing without live push', error);
+    warnPush('[push] attach failed; continuing without live push', error);
     abandonPushAttach(state);
   }
 }

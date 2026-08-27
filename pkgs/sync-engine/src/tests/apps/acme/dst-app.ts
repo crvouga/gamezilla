@@ -1,18 +1,18 @@
 import type { DstApp } from '../../dst/app';
-import { insertCatalogNote } from './insert-catalog-note';
-import { acmeDomainPack } from './domain-pack';
-import {
-  initialAcmeDomainModel,
-  acmeDomainAllows,
-  acmeDomainApply,
-  acmeDomainOnHeal,
-  type AcmeDomainModel,
-} from './domain-model';
 import {
   acmeDomainOpArbs,
   acmeServerOpArbs,
   pickAcmeDomainOrServerOp,
 } from './domain-arbs';
+import {
+  type AcmeDomainModel,
+  acmeDomainAllows,
+  acmeDomainApply,
+  acmeDomainOnHeal,
+  initialAcmeDomainModel,
+} from './domain-model';
+import { acmeDomainPack } from './domain-pack';
+import { insertCatalogNote } from './insert-catalog-note';
 import { writeNoteBody } from './write-note-body';
 
 export const acmeDstApp: DstApp = {
@@ -40,8 +40,7 @@ export const acmeDstApp: DstApp = {
   },
   domainModel: {
     initial: initialAcmeDomainModel,
-    allows: (model, op) =>
-      acmeDomainAllows(model as AcmeDomainModel, op),
+    allows: (model, op) => acmeDomainAllows(model as AcmeDomainModel, op),
     apply: (model, op) => acmeDomainApply(model as AcmeDomainModel, op),
     onHeal: (model) => acmeDomainOnHeal(model as AcmeDomainModel),
   },
