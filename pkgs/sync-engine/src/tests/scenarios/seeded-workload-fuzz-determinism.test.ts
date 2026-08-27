@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  notesDomainPack,
+  acmeDomainPack,
   runSeed,
   seedsFromEnv,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('seeded workload fuzz determinism', () => {
@@ -103,7 +103,7 @@ describe('seeded workload fuzz determinism', () => {
 
   test('single mutate then fuzz-style settle', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 88,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -4,17 +4,17 @@ import {
   expectLiveNote,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('membership revoked mid session scope denied topics dropped', () => {
   test('leave drops room topic; previously hydrated domain rows retained', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 970,
     });
     const a = await world.addClient({
@@ -66,7 +66,7 @@ describe('membership revoked mid session scope denied topics dropped', () => {
     'seed sweep leave drops room topic (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({

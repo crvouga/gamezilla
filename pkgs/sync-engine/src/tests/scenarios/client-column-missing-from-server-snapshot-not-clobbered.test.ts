@@ -2,10 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 import {
   expectLiveNote,
-  notesDomainPack,
-  notesLocalSchemaExtraColumn,
+  acmeDomainPack,
+  acmeLocalSchemaExtraColumn,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('client column missing from server snapshot not clobbered', () => {
@@ -14,12 +14,12 @@ describe('client column missing from server snapshot not clobbered', () => {
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({
         id: 'alice',
-        localSchema: notesLocalSchemaExtraColumn,
+        localSchema: acmeLocalSchemaExtraColumn,
       });
       const b = await world.addClient({ id: 'bob' });
 

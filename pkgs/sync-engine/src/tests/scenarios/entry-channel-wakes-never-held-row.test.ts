@@ -2,15 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('entry channel wakes never-held row', () => {
   test('world entryChannel delivers peer create before local ever held the row', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1220,
     });
     // notesWorld entryChannel = NOTES_WORLD_TOPIC (no prior row for n-fresh).

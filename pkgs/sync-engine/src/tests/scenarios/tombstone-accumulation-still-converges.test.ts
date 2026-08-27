@@ -3,11 +3,11 @@ import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 const TOMBSTONE_COUNT = 120;
@@ -16,7 +16,7 @@ describe('tombstone accumulation still converges', () => {
   // README known limitation 1 SQLite growth — soft-delete catalogs accumulate.
   test('hundreds of tombstones; live queries stay correct and converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1040,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -43,7 +43,7 @@ describe('tombstone accumulation still converges', () => {
     'seed sweep modest tombstone piles converge (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

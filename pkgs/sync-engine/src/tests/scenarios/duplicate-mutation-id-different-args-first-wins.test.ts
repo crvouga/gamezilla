@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('duplicate mutation id different args first wins', () => {
@@ -11,7 +11,7 @@ describe('duplicate mutation id different args first wins', () => {
     'hostile re-post same id keeps first body (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

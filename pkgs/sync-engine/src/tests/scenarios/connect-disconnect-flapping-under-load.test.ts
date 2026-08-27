@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1050,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -54,7 +54,7 @@ describe('connect disconnect flapping under load', () => {
     'seed sweep flap + mutate converges (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

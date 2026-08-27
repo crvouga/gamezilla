@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { notesDomainPack, setNote } from '../../domain-packs/notes-app';
+import { acmeDomainPack, setNote } from '../apps/acme';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
@@ -14,7 +14,7 @@ describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 19,
       faults: {
         ...RELIABLE_FAULTS,

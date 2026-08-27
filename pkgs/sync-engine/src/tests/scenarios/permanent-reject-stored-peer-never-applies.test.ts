@@ -3,17 +3,17 @@ import {
   acknowledgeWriteRejectionMutation,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   serverRejectNote,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 501,
       rowImageFanout: false,
     });

@@ -3,14 +3,14 @@ import { sql } from '@pkgs/sql';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
-  notesLocalSchema,
-  notesLocalSchemaExtraColumn,
-  notesMutationRegistry,
-  notesQueryRegistry,
+  acmeDomainPack,
+  acmeLocalSchema,
+  acmeLocalSchemaExtraColumn,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
   notesWorldWithColorQuery,
   setNoteColor,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('server snapshot with unknown column merges cleanly', () => {
@@ -18,26 +18,26 @@ describe('server snapshot with unknown column merges cleanly', () => {
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
-        localSchema: notesLocalSchemaExtraColumn,
+        localSchema: acmeLocalSchemaExtraColumn,
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [setNoteColor.name]: setNoteColor,
         },
         queryRegistry: {
-          ...notesQueryRegistry,
+          ...acmeQueryRegistry,
           [notesWorldWithColorQuery.name]: notesWorldWithColorQuery,
         },
         sessionQuery: { name: 'notesWorldWithColor', params: {} },
       });
       const a = await world.addClient({
         id: 'alice',
-        localSchema: notesLocalSchema,
+        localSchema: acmeLocalSchema,
       });
       const b = await world.addClient({
         id: 'bob',
-        localSchema: notesLocalSchemaExtraColumn,
+        localSchema: acmeLocalSchemaExtraColumn,
       });
 
       await b.mutate(setNoteColor, {

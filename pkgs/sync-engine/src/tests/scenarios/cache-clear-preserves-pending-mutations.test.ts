@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 610,
     });
     const a = await world.addClient({ id: 'alice' });

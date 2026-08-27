@@ -50,7 +50,6 @@ export function emptySimPushChannels(actorId: string): SimPushChannels {
   return {
     getChannelsCtx: () => ({
       actorId,
-      membershipSpaceIds: [],
     }),
     onBindTopicRefresh: () => undefined,
   };

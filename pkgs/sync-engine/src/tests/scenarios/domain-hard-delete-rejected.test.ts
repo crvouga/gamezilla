@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   illegalHardDeleteNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('domain hard delete rejected', () => {
   test('illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 60,
     });
     const a = await world.addClient({ id: 'alice' });

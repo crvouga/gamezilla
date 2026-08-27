@@ -2,15 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 import {
   expectLiveNote,
-  notesDomainPack,
-  notesLocalSchema,
-  notesLocalSchemaExtraTable,
-  notesMutationRegistry,
-  notesQueryRegistry,
+  acmeDomainPack,
+  acmeLocalSchema,
+  acmeLocalSchemaExtraTable,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
   setNote,
   setTag,
   tagsWorldQuery,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('new domain table added mid life hydrates after migrate', () => {
@@ -18,31 +18,31 @@ describe('new domain table added mid life hydrates after migrate', () => {
     'tags hydrate after client schema upgrade (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
-        localSchema: notesLocalSchemaExtraTable,
+        localSchema: acmeLocalSchemaExtraTable,
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [setTag.name]: setTag,
         },
         queryRegistry: {
-          ...notesQueryRegistry,
+          ...acmeQueryRegistry,
           [tagsWorldQuery.name]: tagsWorldQuery,
         },
       });
       const a = await world.addClient({
         id: 'alice',
-        localSchema: notesLocalSchema,
+        localSchema: acmeLocalSchema,
       });
       const b = await world.addClient({
         id: 'bob',
-        localSchema: notesLocalSchemaExtraTable,
+        localSchema: acmeLocalSchemaExtraTable,
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [setTag.name]: setTag,
         },
         queryRegistry: {
-          ...notesQueryRegistry,
+          ...acmeQueryRegistry,
           [tagsWorldQuery.name]: tagsWorldQuery,
         },
       });
@@ -57,13 +57,13 @@ describe('new domain table added mid life hydrates after migrate', () => {
 
       const alice2 = await world.node('alice').restart({
         preserveLocalDb: true,
-        localSchema: notesLocalSchemaExtraTable,
+        localSchema: acmeLocalSchemaExtraTable,
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [setTag.name]: setTag,
         },
         queryRegistry: {
-          ...notesQueryRegistry,
+          ...acmeQueryRegistry,
           [tagsWorldQuery.name]: tagsWorldQuery,
         },
       });

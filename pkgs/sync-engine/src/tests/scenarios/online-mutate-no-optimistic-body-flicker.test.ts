@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('online mutate no optimistic body flicker', () => {
   test('online mutate never reverts optimistic body before quiescence', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 700,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -4,15 +4,15 @@ import {
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('crash during epoch migrate recovers', () => {
   test('crash after cache wipe mid migrate; next boot drains pending', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 834,
     });
     const a = await world.addClient({ id: 'alice' });

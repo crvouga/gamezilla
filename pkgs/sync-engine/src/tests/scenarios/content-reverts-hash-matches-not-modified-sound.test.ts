@@ -2,15 +2,15 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('content reverts hash matches not modified sound', () => {
   test('A→B→A while peer partitioned leaves peer at A after heal', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 803,
     });
     const a = await world.addClient({ id: 'alice' });

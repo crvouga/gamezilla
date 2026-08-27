@@ -3,15 +3,15 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('sim scenario API', () => {
   test('await using + net hold restore', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 2,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -30,7 +30,7 @@ describe('sim scenario API', () => {
 
   test('until drives outcome promise', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 3,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -44,7 +44,7 @@ describe('sim scenario API', () => {
 
   test('never holds for negative window', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 7,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -61,7 +61,7 @@ describe('sim scenario API', () => {
 
   test('never fails when target becomes true', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 8,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -74,7 +74,7 @@ describe('sim scenario API', () => {
 
   test('assertConverged neutralizes net effects', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 4,
     });
     await world.addClient({ id: 'alice' });
@@ -89,7 +89,7 @@ describe('sim scenario API', () => {
 
   test('skewClock restores prior', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 5,
     });
     await world.addClient({ id: 'alice' });
@@ -103,7 +103,7 @@ describe('sim scenario API', () => {
 
   test('nested net set restore-prior LIFO', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 6,
     });
     await world.addClient({ id: 'alice' });

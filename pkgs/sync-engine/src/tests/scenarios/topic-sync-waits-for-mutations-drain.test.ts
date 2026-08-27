@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import {
   createSpace,
   leaveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('topic sync waits for mutations drain', () => {
   test('topic sync waits until pending mutations drain', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 803,
     });
     const a = await world.addClient({

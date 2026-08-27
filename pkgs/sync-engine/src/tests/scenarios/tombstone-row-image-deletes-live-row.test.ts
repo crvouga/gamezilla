@@ -3,16 +3,16 @@ import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('tombstone row image deletes live row', () => {
   test('delete row image removes live peer row without waiting on sync', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 806,
     });
     const a = await world.addClient({ id: 'alice' });

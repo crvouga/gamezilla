@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('upload response lost retry does not double apply', () => {
@@ -12,7 +12,7 @@ describe('upload response lost retry does not double apply', () => {
     'dropMutationsResponse still one row (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

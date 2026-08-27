@@ -3,16 +3,16 @@ import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 13,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -32,7 +32,7 @@ describe('soft delete tombstone propagates and revives', () => {
 
   test('setNote after delete revives the row', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 14,
     });
     const a = await world.addClient({ id: 'alice' });

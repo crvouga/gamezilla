@@ -2,15 +2,15 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('live resend on reconnect vs drop', () => {
   test('default: missed live is dropped; sync pull repairs', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 601,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -33,7 +33,7 @@ describe('live resend on reconnect vs drop', () => {
 
   test('liveResendOnReconnect: consistent from resent live while sync held', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 602,
       liveResendOnReconnect: true,
     });

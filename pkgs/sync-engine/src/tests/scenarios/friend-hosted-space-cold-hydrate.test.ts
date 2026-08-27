@@ -4,15 +4,15 @@ import {
   createSpace,
   expectLiveSpace,
   isLiveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   SPACE_MEMBERSHIP_SESSION,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('friend hosted space cold hydrate', () => {
   test('friend sees host space via push and again after wipe restart', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       sessionQuery: SPACE_MEMBERSHIP_SESSION,
       seed: 910,
     });

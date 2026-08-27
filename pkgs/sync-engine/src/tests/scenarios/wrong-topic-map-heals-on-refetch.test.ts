@@ -2,16 +2,16 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   setNoteWrongTopic,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('wrong topic map heals on refetch', () => {
   // Companion to channel-exhaustiveness: wrong topic-map wake ⇒ silent staleness.
   test('peer stays stale until explicit refetch after wrong topic wake', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1080,
       rowImageFanout: false,
     });
@@ -46,7 +46,7 @@ describe('wrong topic map heals on refetch', () => {
     'seed sweep wrong topic heals via refresh (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });

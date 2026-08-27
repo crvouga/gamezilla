@@ -2,15 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('background pauses sweeps foreground catches up', () => {
   test('background pauses query sweeps until foreground', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 507,
       rowImageFanout: false,
     });
@@ -31,7 +31,7 @@ describe('background pauses sweeps foreground catches up', () => {
 
   test('background does not block local mutate visibility', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 508,
     });
     const a = await world.addClient({ id: 'alice' });

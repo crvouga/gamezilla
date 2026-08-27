@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { notesLocalSchema } from '../../domain-packs/notes-app';
+import { acmeLocalSchema } from '../apps/acme';
 import { createInMemorySyncEngine } from '../../test/in-memory-sync-engine';
 
 function waitForHydrated(sub: {
@@ -23,7 +23,7 @@ function waitForHydrated(sub: {
 describe('in memory watch reacts to local insert', () => {
   test('in-memory engine watch reflects domain writes', async () => {
     const engine = await createInMemorySyncEngine({
-      schema: notesLocalSchema,
+      schema: acmeLocalSchema,
     });
     await engine.connect();
 

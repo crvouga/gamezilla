@@ -3,16 +3,16 @@ import {
   expectLiveNote,
   expectNoteNotLive,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('logout login same device no bleed', () => {
   test('actor B on same device id never sees A unuploaded optimistic', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 960,
     });
     const phoneA = await world.addClient({
@@ -60,7 +60,7 @@ describe('logout login same device no bleed', () => {
     'seed sweep logout/login same device id (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const phone = await world.addClient({

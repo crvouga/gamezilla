@@ -3,17 +3,17 @@ import {
   createSpace,
   expectLiveNote,
   joinSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('join paints peer space note via live', () => {
   test('after join, peer space note paints via live while sync held', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 805,
     });
     const a = await world.addClient({

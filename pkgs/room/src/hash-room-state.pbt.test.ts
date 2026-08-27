@@ -10,7 +10,10 @@ describe('hashRoomState properties', () => {
       fc.property(arbKeyOrderPair(), ({ a, b }) => {
         expect(hashRoomState(a as never)).toBe(hashRoomState(b as never));
         expect(canonicalRoomJson(a)).toBe(canonicalRoomJson(b));
-      })
+      }),
+      {
+        examples: [[{ a: { x: 1, y: 2, z: 3 }, b: { z: 3, y: 2, x: 1 } }]],
+      }
     );
   });
 

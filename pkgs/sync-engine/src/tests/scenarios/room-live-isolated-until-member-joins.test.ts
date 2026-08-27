@@ -4,17 +4,17 @@ import {
   expectLiveNote,
   isLiveNote,
   joinSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('room live isolated until member joins', () => {
   test('live on room-B does not reach alice in room-A until join', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 804,
     });
     const a = await world.addClient({

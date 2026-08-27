@@ -3,15 +3,15 @@ import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('non owner mutation denied owner converges', () => {
   test('non-owner delete is rejected; note stays live on peers', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 50,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -33,7 +33,7 @@ describe('non owner mutation denied owner converges', () => {
 
   test('owner delete succeeds', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 51,
     });
     const a = await world.addClient({ id: 'alice' });

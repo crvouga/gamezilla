@@ -4,10 +4,10 @@ import {
   createSpace,
   expectNoForeignOpenSessions,
   expectOpenSession,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveOpenSessions,
   SPACE_MEMBERSHIP_SESSION,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 /**
@@ -18,7 +18,7 @@ import { openSimWorld } from '../../sim/world';
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1401,
       rowImageFanout: true,
     });

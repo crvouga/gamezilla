@@ -1,6 +1,6 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import type { QueryChannelsCtx } from '../../shared/push-payload';
+import type { QueryChannelsCtx } from '../../../shared/push-payload';
 
 /**
  * Identity-only channels ctx. Room topics come from held-row topic-map

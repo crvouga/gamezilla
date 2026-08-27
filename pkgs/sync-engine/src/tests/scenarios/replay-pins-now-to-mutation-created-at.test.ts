@@ -3,16 +3,16 @@ import {
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 720,
     });
     using _sa = world.node('alice').skewClock(-60_000);
@@ -46,7 +46,7 @@ describe('replay pins now to mutation created at', () => {
   test('rebase env.now pinned to createdAt under skew before upload', async () => {
     // Offline pending delete + peer merge before upload: rebase uses createdAt.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 721,
     });
     using _sa = world.node('alice').skewClock(-120_000);

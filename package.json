@@ -54,7 +54,7 @@
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
     "test:pbt": "bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
-    "test:pbt:random": "PBT_RANDOM=1 PBT_NUM_RUNS=200 bun test $(find pkgs libs -name \"*.pbt.test.ts\")",
+    "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",
     "test:sim": "SIM_REPORT=0 turbo test -F @sim/test --force",
     "test:sim:report": "SIM_REPORT=1 turbo test -F @sim/test --force",
     "wipe": "git clean -xfd"

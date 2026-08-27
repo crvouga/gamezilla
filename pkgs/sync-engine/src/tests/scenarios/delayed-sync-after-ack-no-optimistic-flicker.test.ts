@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('delayed sync after ack no optimistic flicker', () => {
   test('optimistic body never reverts under delayed sync after upload ack', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 701,
       faults: {
         oneWayDelayMeanMs: 50,

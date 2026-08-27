@@ -3,10 +3,10 @@ import {
   expectLiveNote,
   expectNotesMatchServer,
   ghostMutation,
-  notesDomainPack,
-  notesMutationRegistry,
+  acmeDomainPack,
+  acmeMutationRegistry,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('unknown mutation name rejected and rolled back', () => {
@@ -14,14 +14,14 @@ describe('unknown mutation name rejected and rolled back', () => {
     'ghostMutation rejected; merge heals (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });
       const a = await world.addClient({
         id: 'alice',
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [ghostMutation.name]: ghostMutation,
         },
       });

@@ -14,7 +14,7 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test",
     "test:pbt": "bun run --filter @pkgs/pbt test",
-    "test:pbt:random": "PBT_RANDOM=1 PBT_NUM_RUNS=200 bun run --filter @pkgs/pbt test"
+    "test:pbt:random": "bun run ../../tools/scripts/test-pbt-random.ts"
   },
   "dependencies": {
     "fast-check": "catalog:"

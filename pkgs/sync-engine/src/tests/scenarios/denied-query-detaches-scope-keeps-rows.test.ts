@@ -2,15 +2,15 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('denied query detaches scope keeps rows', () => {
   test('denied query detaches scope without wiping domain', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 512,
     });
     const a = await world.addClient({ id: 'alice' });

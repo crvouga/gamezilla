@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('server 500 mid batch full retry idempotent', () => {
@@ -12,7 +12,7 @@ describe('server 500 mid batch full retry idempotent', () => {
     'in-txn fail rolls back then full apply (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });
@@ -37,7 +37,7 @@ describe('server 500 mid batch full retry idempotent', () => {
     'post-commit fail acks via retry dedupe (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed: seed + 10,
       });
       const a = await world.addClient({ id: 'alice' });

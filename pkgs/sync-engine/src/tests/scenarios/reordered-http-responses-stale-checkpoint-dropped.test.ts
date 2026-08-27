@@ -2,15 +2,15 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('reordered http responses stale checkpoint dropped', () => {
   test('reordered sync responses never regress newer domain rows', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 802,
     });
     const a = await world.addClient({ id: 'alice' });

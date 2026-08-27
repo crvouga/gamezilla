@@ -4,16 +4,16 @@ import {
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
   setNoteStrictExists,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('rebase throw hidden until upload reject', () => {
   test('strict update hidden after peer delete; upload rejects; converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 821,
       rowImageFanout: false,
     });

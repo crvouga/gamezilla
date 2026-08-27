@@ -1,7 +1,7 @@
 import type { Topic } from '@pkgs/pubsub/interface';
 import { sql } from '@pkgs/sql';
-import type { MutationDb } from '../../../mutations/core/types';
-import { defineTopicMap } from '../../../shared/topic-map';
+import type { MutationDb } from '../../../../mutations/core/types';
+import { defineTopicMap } from '../../../../shared/topic-map';
 import { NOTES_WORLD_TOPIC, roomTopic, userTopic } from './topics';
 
 async function ownerFriendTopics(
@@ -35,7 +35,7 @@ async function ownerFriendTopics(
   return topics;
 }
 
-export const notesTopicMap = defineTopicMap({
+export const acmeTopicMap = defineTopicMap({
   notes: {
     topics(row, ctx) {
       const spaceId = row['space_id'];
@@ -109,7 +109,7 @@ export const notesTopicMap = defineTopicMap({
   },
 });
 
-export function notesDefaultEntryChannel(
+export function acmeDefaultEntryChannel(
   _params: unknown,
   ctx: { readonly actorId: string }
 ) {

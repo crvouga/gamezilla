@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
-import { notesDomainPack, setNote } from '../../domain-packs/notes-app';
+import { acmeDomainPack, setNote } from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('remote fanout races local pending mutation', () => {
   test('fanout races local pending mutation on same row then converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 29,
     });
     const a = await world.addClient({ id: 'alice' });

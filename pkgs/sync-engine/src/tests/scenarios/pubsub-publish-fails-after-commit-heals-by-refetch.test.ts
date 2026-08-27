@@ -2,9 +2,9 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('pubsub publish fails after commit heals by refetch', () => {
@@ -12,7 +12,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
   test('lost publish leaves peers stale until foreground refetch', async () => {
     // rowImageFanout false: isolate server publish loss (no optimistic images).
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 901,
       rowImageFanout: false,
     });
@@ -45,7 +45,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
     'seed sweep: publish fault then reconnect heals (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });

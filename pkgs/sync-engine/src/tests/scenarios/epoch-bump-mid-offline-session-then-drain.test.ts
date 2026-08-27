@@ -3,9 +3,9 @@ import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('epoch bump mid offline session then drain', () => {
@@ -13,7 +13,7 @@ describe('epoch bump mid offline session then drain', () => {
     'offline upgrade drains after later connect (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

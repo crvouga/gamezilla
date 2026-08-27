@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveFolders,
   setNoteUndeclaredFolderWrite,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('capture includes all written tables', () => {
@@ -12,7 +12,7 @@ describe('capture includes all written tables', () => {
   // records both folders + notes, so foldersOnly peers wake immediately.
   test('foldersOnly peer receives folder write from multi-table mutation', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1070,
       rowImageFanout: true,
     });
@@ -43,7 +43,7 @@ describe('capture includes all written tables', () => {
     'seed sweep multi-table capture visible (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: true,
       });

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
 
@@ -13,7 +13,7 @@ describe('same batch posted twice verdicts stable', () => {
     'mesh replay of mutations POST is idempotent (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

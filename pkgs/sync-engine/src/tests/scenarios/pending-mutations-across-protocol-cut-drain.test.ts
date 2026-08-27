@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { SYNC_PROTOCOL_VERSION } from '../../protocol';
 import { openSimWorld } from '../../sim/world';
 
@@ -12,7 +12,7 @@ describe('pending mutations across protocol cut drain', () => {
   test('offline queue drains under current protocol (preserve-and-drain)', async () => {
     expect(SYNC_PROTOCOL_VERSION).toBe(3);
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1210,
     });
     const a = await world.addClient({ id: 'alice' });

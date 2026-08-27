@@ -2,15 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('authorize throw equals denied', () => {
   test('authorize throw detaches scope, keeps domain rows, stays healthy', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 930,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -36,7 +36,7 @@ describe('authorize throw equals denied', () => {
     'seed sweep authorize-throw stays healthy (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

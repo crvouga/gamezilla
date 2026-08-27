@@ -1,5 +1,5 @@
 /** Framework mutation — merged by createLocalSyncEngine / createSyncApp. */
-export { acknowledgeWriteRejectionMutation } from '../../mutations/shared/acknowledge-write-rejection';
+export { acknowledgeWriteRejectionMutation } from '../../../mutations/shared/acknowledge-write-rejection';
 export {
   expectFoldersMatchServer,
   expectLiveNote,
@@ -20,22 +20,22 @@ export {
   readNoteTombstone,
   readProfileUsername,
 } from './assert';
-export { notesLocalSchema } from './client/local-schema';
+export { acmeLocalSchema } from './client/local-schema';
 export {
   checkAllClientsConverged,
   checkClientDomainMatchServer,
 } from './converge';
-export { notesDomainPack } from './domain-pack';
+export { acmeDomainPack } from './domain-pack';
+export { acmeDstApp } from './dst-app';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
-export { runNotesSeed, runSeed, seedsFromEnv } from './replay';
 export { befriend } from './shared/friendship-mutations';
 export {
+  acmeLocalSchemaExtraColumn,
+  acmeLocalSchemaExtraTable,
   ghostMutation,
   notesAuthorizeThrowQuery,
   notesByFolderQuery,
-  notesLocalSchemaExtraColumn,
-  notesLocalSchemaExtraTable,
   notesWorldV2Query,
   notesWorldWithColorQuery,
   retouchNotes,
@@ -90,13 +90,13 @@ export {
   ownProfileQuery,
 } from './shared/queries';
 export {
-  notesMutationRegistry,
-  notesQueryRegistry,
+  acmeMutationRegistry,
+  acmeQueryRegistry,
 } from './shared/registries';
-export { NOTES_APP_TABLES, notesAppSchema } from './shared/schema';
+export { ACME_APP_TABLES, acmeAppSchema } from './shared/schema';
 export {
-  notesDefaultEntryChannel,
-  notesTopicMap,
+  acmeDefaultEntryChannel,
+  acmeTopicMap,
 } from './shared/topic-map';
 export {
   NOTES_WORLD_TOPIC,
@@ -104,3 +104,18 @@ export {
   userTopic,
 } from './shared/topics';
 export { writeNoteBody } from './write-note-body';
+
+import { runDstSeed, seedsFromEnv } from '../../dst/run-seed';
+import { acmeDstApp } from './dst-app';
+
+/** Seeded fuzz entrypoint bound to the acme fixture. */
+export async function runAcmeSeed(
+  opts: Omit<import('../../dst/run-seed').RunSeedOptions, 'app'>
+): Promise<import('../../dst/run-seed').RunSeedResult> {
+  return runDstSeed({ ...opts, app: acmeDstApp });
+}
+
+export { seedsFromEnv };
+
+/** @deprecated Alias for {@link runAcmeSeed}. */
+export const runSeed = runAcmeSeed;

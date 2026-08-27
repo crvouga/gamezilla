@@ -2,17 +2,17 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   serverRejectNote,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('pending reject surfaces write rejections', () => {
   test('pending rejectable mutate uploads after reconnect, surfaces write_rejection, domain rolls back', async () => {
     // rowImageFanout off: rejected optimistic must not poison peers via images.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 711,
       rowImageFanout: false,
     });

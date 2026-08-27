@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('push tables filter wakes overlapping scopes', () => {
@@ -14,7 +14,7 @@ describe('push tables filter wakes overlapping scopes', () => {
     // rowImageFanout false: table filter gates wake+refetch (optimistic images
     // bypass the filter when fanout is on).
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 690,
       rowImageFanout: false,
     });

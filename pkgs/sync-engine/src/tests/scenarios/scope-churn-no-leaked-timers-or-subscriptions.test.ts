@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  notesDomainPack,
+  acmeDomainPack,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1030,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -49,7 +49,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
     'seed sweep churn returns to session topics (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

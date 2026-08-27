@@ -762,9 +762,40 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openSimWorld` |
+| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openSimWorld` (named regression pins) |
+| Property / DST | `src/tests/scenarios/*.pbt.test.ts` | Shrinking `fc.commands` over `SimWorld` — hostile fault exploration |
+| Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
+
+**Two layers:** named scenarios document specific safety claims (`never`, authz,
+protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
+`assertDstProperty` + `worldCommands({ app })` (see `src/tests/dst/`).
+When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
+add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
+
+```bash
+# all sync-engine PBT (pinned seed)
+bun test pkgs/sync-engine/src/tests/scenarios/*.pbt.test.ts
+
+# replay one failure
+FC_SEED=<n> bun test pkgs/sync-engine/src/tests/scenarios/acme-world.pbt.test.ts
+
+# seeded fuzz harness (non-shrinking corpus)
+SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-fuzz-determinism.test.ts
+```
+
+| Action layer | Kinds (library kernel) |
+|--------------|------------------------|
+| Domain (injected `DstApp`) | `{ kind: 'domain', mutation, args }` — wire mutation name + JSON args |
+| Server OOB (injected `DstApp.serverOps`) | `{ kind: 'server', name, args }` |
+| Connectivity triad | `online`, `offline`, `connect`, `disconnect`, `background`, `foreground` |
+| Network | `partition`, `heal`, `hold`, `release`, `setFaults`, `idle` |
+| Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth` |
+| Lifecycle | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew` |
+
+App fixtures (e.g. acme) supply `domainOpArbs`, `pickDomainOrServerOp`, and
+`serverOps` under `src/tests/apps/<name>/` — the DST kernel has no app nouns.
 
 `queries/shared/tiger-invariants.ts` lists named invariants. Note:
 `scope-complete-membership` is a **stale name** from the retired `_row_scopes`
@@ -775,10 +806,10 @@ era — cleanup is open design space; do not reintroduce `_row_scopes` to
 
 TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
 identical timeline.** The harness is domain-agnostic: callers inject a
-`SimDomainPack`. Scenarios compose `openSimWorld` with
-`src/domain-packs/notes-app/` (`notesDomainPack`); fuzz calls `runNotesSeed` from
-that fixture. Assert **live domain rows only** — never framework tables or
-private modules.
+`SimDomainPack`. Scenarios compose `openSimWorld` with an app fixture from
+`src/tests/apps/acme/` (`acmeDomainPack`); PBT/DST inject `acmeDstApp` via
+`openPbtWorld({ app })`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert
+**live domain rows only** — never framework tables or private modules.
 
 ```text
 seed ──► SeededRng ──► SimNetwork (delay/loss/reorder/replay)
@@ -846,12 +877,12 @@ embed `seed=<hex>` and virtual `now=` for replay.
 
 ```ts
 import { describe, test } from 'bun:test';
-import { notesDomainPack, setNote } from '../domain-packs/notes-app';
+import { acmeDomainPack, setNote } from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using world = await openSimWorld({ seed: 42, domain: notesDomainPack });
+    await using world = await openSimWorld({ seed: 42, domain: acmeDomainPack });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'hi' });
     await world.assertConverged();
@@ -959,7 +990,7 @@ non-mutation path; reconcile tick heals).
 duplicate-mutation-id). Optional combinators `untilAll` / `untilAny` stay
 exported but are not core concepts.
 
-**Fuzz / replay** (`runNotesSeed` in `domain-packs/notes-app`):
+**Fuzz / replay** (`runDstSeed({ app: acmeDstApp })` or `runAcmeSeed` shorthand):
 
 | Knob | Default | Meaning |
 |------|---------|---------|
@@ -977,8 +1008,9 @@ SYNC_SIM_SEED=42 bun test pkgs/sync-engine/src/tests/scenarios/seeded-workload-f
 ```
 
 ```ts
-import { runNotesSeed } from '../domain-packs/notes-app';
-await runNotesSeed({ seed: 0x2a, steps: 16 });
+import { acmeDstApp } from '../apps/acme/dst-app';
+import { runDstSeed } from '../dst/run-seed';
+await runDstSeed({ app: acmeDstApp, seed: 0x2a, steps: 16 });
 ```
 
 #### Scenario-writing guide (patterns, not primitives)
@@ -1077,11 +1109,12 @@ src/sim/                             # domain-agnostic DST harness (not public)
   faults.ts invariants.ts until.ts replay-steps.ts
   test-driver.ts
 
-src/domain-packs/
-  notes-app/                         # scenario domain + notesDomainPack + fuzz
-
 src/tests/
-  scenarios/                         # black-box correctness suite (112 files)
+  dst/                               # app-agnostic PBT/DST kernel (LibraryAction + DstApp)
+  apps/
+    acme/                            # acme fixture: pack, asserts, acmeDstApp
+
+  scenarios/                         # black-box correctness suite
   harness/                           # sim kernel self-tests + scenario-api
 ```
 
@@ -1203,7 +1236,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 Black-box correctness under `src/tests/scenarios/` (**112** files) plus harness
 `src/tests/harness/kernel.test.ts`. Most scenarios compose `openSimWorld` with
-`notesDomainPack` + notes-app asserts from `src/domain-packs/notes-app/`.
+`acmeDomainPack` + domain asserts from `src/tests/apps/acme/`.
 Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
 describe the behavior under test. Production-hardening phases (schema drift
 through channel drift) extend the original suite; all scenarios stay

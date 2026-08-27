@@ -5,17 +5,17 @@ import {
   isLiveNote,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 812,
     });
     const a = await world.addClient({

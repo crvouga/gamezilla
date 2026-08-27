@@ -2,10 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld, type SimWorld } from '../../sim/world';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
@@ -17,7 +17,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 describe('offline crash partition lifecycle matrix', () => {
   test('A offline while B writes; A online matches', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 201,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -33,7 +33,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('B offline while A writes; B online matches', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 202,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -49,7 +49,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('both offline divergent writes then online converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 203,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -69,7 +69,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('A crash+restart after B wrote rehydrates', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 204,
     });
     await world.addClient({ id: 'alice' });
@@ -84,7 +84,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('B crash+restart after A wrote rehydrates', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 205,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -99,7 +99,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('sequential A then B crash/restart after shared state', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 206,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -118,7 +118,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('server unreachable: both mutate locally then heal converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 207,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -142,7 +142,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('staggered: A partitioned, B writes; heal A; B offline writes', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 208,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -169,7 +169,7 @@ describe('offline crash partition lifecycle matrix', () => {
 
   test('flip-flop offline and partition around contested note', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 209,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -3,11 +3,11 @@ import {
   expectLiveNote,
   insertCatalogNote,
   isLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
   writeNoteBody,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('oob empty hydrate heals via reconcile tick', () => {
@@ -16,7 +16,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1501,
     });
     const client = await world.addClient({ id: 'alice' });
@@ -37,7 +37,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
 
   test('silent catalog update heals without nudge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1502,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('not modified does not clobber pending', () => {
   test('not_modified refetch does not clobber pending optimistic; later hash miss rebases', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 640,
     });
     const a = await world.addClient({ id: 'alice' });

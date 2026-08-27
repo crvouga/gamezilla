@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 
-import type { SimServer } from '../../sim/server';
+import type { SimServer } from '../../../sim/server';
 import { NOTES_WORLD_TOPIC } from './shared/topics';
 
 /**

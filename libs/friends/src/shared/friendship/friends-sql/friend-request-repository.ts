@@ -36,7 +36,15 @@ export class FriendRequestRepository {
 
   async findById(requestId: string): Promise<FriendRequest | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
-      SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+      SELECT 
+        id, 
+        from_user_id, 
+        to_user_id, 
+        status, 
+        message, 
+        created_at, 
+        updated_at, 
+        responded_at
       FROM friends_requests
       WHERE id = ${requestId}
       LIMIT 1
@@ -50,7 +58,15 @@ export class FriendRequestRepository {
     toUserId: string
   ): Promise<FriendRequest | null> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
-      SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+      SELECT 
+        id, 
+        from_user_id, 
+        to_user_id, 
+        status, 
+        message, 
+        created_at, 
+        updated_at, 
+        responded_at
       FROM friends_requests
       WHERE from_user_id = ${fromUserId}
         AND to_user_id = ${toUserId}
@@ -66,7 +82,15 @@ export class FriendRequestRepository {
     userB: string
   ): Promise<readonly FriendRequest[]> {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
-      SELECT id, from_user_id, to_user_id, status, message, created_at, updated_at, responded_at
+      SELECT 
+        id, 
+        from_user_id, 
+        to_user_id, 
+        status, 
+        message, 
+        created_at, 
+        updated_at, 
+        responded_at
       FROM friends_requests
       WHERE status = 'pending'
         AND (

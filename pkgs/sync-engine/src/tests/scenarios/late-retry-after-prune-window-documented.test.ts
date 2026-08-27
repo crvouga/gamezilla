@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('late retry after prune window documented', () => {
@@ -14,7 +14,7 @@ describe('late retry after prune window documented', () => {
       // same mutation id apply again (setNote upsert → last write wins).
       // Retention jobs must keep the window longer than max client retry life.
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

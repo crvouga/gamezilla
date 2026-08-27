@@ -4,17 +4,17 @@ import {
   expectLiveNote,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 802,
     });
     const a = await world.addClient({

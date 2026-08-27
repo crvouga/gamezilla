@@ -1,14 +1,14 @@
 import { defineTable, registerTables } from '@pkgs/db-schema';
 
 /**
- * Tiny notes app domain schema for black-box sync-engine scenarios.
+ * Tiny acme app domain schema for black-box sync-engine scenarios.
  * Managed columns (`id`, `created_at`, `updated_at`, `deleted_at`) are
  * implicit via `@pkgs/db-schema`.
  *
  * `spaces` / `spaces_users` mirror product membership table names so
  * `attachPush` table-change hooks schedule topic sync.
  */
-export const notesAppSchema = registerTables([
+export const acmeAppSchema = registerTables([
   defineTable({
     domain: 'folders',
     name: 'folders',
@@ -66,7 +66,7 @@ export const notesAppSchema = registerTables([
   }),
 ]);
 
-export const NOTES_APP_TABLES = [
+export const ACME_APP_TABLES = [
   'folders',
   'notes',
   'spaces',

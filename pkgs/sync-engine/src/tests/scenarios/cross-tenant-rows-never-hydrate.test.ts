@@ -4,18 +4,18 @@ import {
   expectNoteNotLive,
   isLiveNote,
   NOTES_AUTH_GATE_FOLDER_ID,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 980,
       rowImageFanout: false,
     });
@@ -59,7 +59,7 @@ describe('cross tenant rows never hydrate', () => {
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });

@@ -2,18 +2,18 @@ import { describe, expect, test } from 'bun:test';
 import {
   deleteNote,
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 630,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -45,7 +45,7 @@ describe('hard query limit truncates hydrate', () => {
 
   test('multi-table truncate then shrink below limit eventually consistent', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 631,
     });
     const a = await world.addClient({ id: 'alice' });

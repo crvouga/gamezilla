@@ -1,9 +1,9 @@
 import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 /** Happy-path latency budget components (simulated ms). */
@@ -16,7 +16,7 @@ const PEER_VISIBLE_BUDGET_MS =
 describe('live fanout peer visibility within budget', () => {
   test('happy path: peer sees note without waiting for full settle', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 7,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -34,7 +34,7 @@ describe('live fanout peer visibility within budget', () => {
 
   test('crash + restart rehydrates from server', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 23,
     });
     const a = await world.addClient({ id: 'alice' });

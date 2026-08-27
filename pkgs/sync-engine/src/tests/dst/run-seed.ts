@@ -1,7 +1,9 @@
 import { bootClients, settleWorld } from '../../sim/replay-steps';
 import { openSimWorld } from '../../sim/world';
-import { notesDomainPack } from './domain-pack';
-import { applyWorkloadAction, generateWorkload } from './workload';
+import type { DstAction } from './actions';
+import type { DstApp } from './app';
+import { dispatchDstAction } from './dispatch';
+import { pickDstAction } from './pick-library-action';
 
 export type RunSeedResult =
   | { readonly ok: true; readonly seed: bigint; readonly steps: number }
@@ -13,6 +15,7 @@ export type RunSeedResult =
     };
 
 export type RunSeedOptions = {
+  readonly app: DstApp;
   readonly seed: number | bigint | string;
   readonly clientCount?: number;
   readonly steps?: number;
@@ -29,6 +32,7 @@ type WorkloadLoopFail = {
 };
 
 async function runWorkloadLoop(args: {
+  readonly app: DstApp;
   readonly world: Awaited<ReturnType<typeof openSimWorld>>;
   readonly ids: readonly string[];
   readonly steps: number;
@@ -38,8 +42,13 @@ async function runWorkloadLoop(args: {
 }> {
   const workRng = args.world.rng.fork('workload');
   let done = 0;
-  for (const action of generateWorkload(workRng, args.ids, args.steps)) {
-    await applyWorkloadAction(args.world, action);
+  for (let i = 0; i < args.steps; i += 1) {
+    const action: DstAction = pickDstAction(
+      workRng,
+      args.ids,
+      args.app.pickDomainOrServerOp
+    );
+    await dispatchDstAction(args.world, args.app, action);
     done += 1;
     const inv = await args.world.checkInvariants();
     if (inv !== null) {
@@ -59,18 +68,17 @@ async function runWorkloadLoop(args: {
 }
 
 /**
- * Run one seeded notes universe: N clients, random workload, heal + converge.
+ * Run one seeded universe: N clients, random workload, heal + converge.
  * On failure returns seed for exact replay.
  */
-export async function runNotesSeed(
+export async function runDstSeed(
   opts: RunSeedOptions
 ): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
   const world = await openSimWorld({
     seed: opts.seed,
-    domain: notesDomainPack,
-    // Boot on a reliable mesh; enable sampled faults after clients are up.
+    domain: opts.app.pack,
     sampleFaults: false,
   });
   let done = 0;
@@ -81,7 +89,12 @@ export async function runNotesSeed(
       sampleFaults: opts.sampleFaults === true,
       dstFaults: opts.dstFaults === true,
     });
-    const loop = await runWorkloadLoop({ world, ids, steps });
+    const loop = await runWorkloadLoop({
+      app: opts.app,
+      world,
+      ids,
+      steps,
+    });
     done = loop.done;
     if (loop.fail !== null) return loop.fail;
     await settleWorld({ world, ids });
@@ -98,9 +111,6 @@ export async function runNotesSeed(
     await world.dispose();
   }
 }
-
-/** @deprecated Prefer {@link runNotesSeed} */
-export const runSeed = runNotesSeed;
 
 /** Parse SYNC_SIM_SEED / SYNC_SIM_SEEDS env for CI / local replay. */
 export function seedsFromEnv(env: {

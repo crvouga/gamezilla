@@ -6,17 +6,17 @@ import {
   isLiveNote,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
+  acmeDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('leave drops room topic until rejoin', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 806,
     });
     const a = await world.addClient({
@@ -60,7 +60,7 @@ describe('leave drops room topic until rejoin', () => {
 
   test('endSpace drops room topic without remake', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 807,
     });
     const a = await world.addClient({

@@ -2,10 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('seq restart after wipe harmless', () => {
@@ -13,7 +13,7 @@ describe('seq restart after wipe harmless', () => {
     'cache clear then new mutates converge (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

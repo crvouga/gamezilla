@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('prune concurrent with replay safe', () => {
   test('prune interleaved with uploads; retries dedupe; world converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 940,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -54,7 +54,7 @@ describe('prune concurrent with replay safe', () => {
     'seed sweep prune + mutate converges (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

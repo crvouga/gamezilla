@@ -2,10 +2,10 @@ import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   setNote,
   setNoteV2,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('query v1 v2 mixed clients converge', () => {
@@ -13,7 +13,7 @@ describe('query v1 v2 mixed clients converge', () => {
     'notesWorld + notesWorldV2 clients match (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({

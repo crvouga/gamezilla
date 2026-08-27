@@ -2,16 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('crash mid merge restart rehydrates', () => {
   test('crash after sync delivery; restart never torn across tables', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 830,
       // Force sync refetch path so afterNextSyncResponseDelivered fires.
       rowImageFanout: false,

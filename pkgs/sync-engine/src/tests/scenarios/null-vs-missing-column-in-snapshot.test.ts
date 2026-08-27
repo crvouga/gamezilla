@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('null vs missing column in snapshot', () => {
   test('explicit null folderId and omitted folderId both yield null folder_id', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1000,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -41,7 +41,7 @@ describe('null vs missing column in snapshot', () => {
     'seed sweep null vs omitted folderId converge identically (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

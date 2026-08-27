@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
 import {
   expectLiveNote,
-  notesDomainPack,
+  acmeDomainPack,
   readLiveNotes,
   setNote,
   writeNoteBody,
-} from '../../domain-packs/notes-app';
+} from '../apps/acme';
 import { openSimWorld } from '../../sim/world';
 
 describe('non mutation server write without notify stale until sweep', () => {
@@ -13,7 +13,7 @@ describe('non mutation server write without notify stale until sweep', () => {
   // via the reconcile tick (safety net), not forever-stale.
   test('writeNoteBody notify false heals via reconcile tick', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1090,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -45,7 +45,7 @@ describe('non mutation server write without notify stale until sweep', () => {
     'silent write heals on reconcile tick (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });
