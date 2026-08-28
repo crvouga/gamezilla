@@ -7,7 +7,8 @@
   },
   "scripts": {
     "check:static": "bun run scripts/check-static.ts",
-    "install:cli": "bun run scripts/install-cli.ts"
+    "install:cli": "bun run scripts/install-cli.ts",
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@pkgs/object-store": "workspace:*",

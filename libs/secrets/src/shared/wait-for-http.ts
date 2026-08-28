@@ -11,7 +11,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => cliTimers.setTimeout(resolve, ms));
 }
 
-function isProbeHealthy(result: Awaited<ReturnType<typeof httpProbe>>): boolean {
+function isProbeHealthy(
+  result: Awaited<ReturnType<typeof httpProbe>>
+): boolean {
   const status = result.status;
   return result.ok && status !== undefined && status > 0;
 }
@@ -52,7 +54,9 @@ export async function waitForHttp(
         (result.status === undefined
           ? 'no HTTP status'
           : `HTTP ${String(result.status)}`);
-      assert.fail(`${label} not healthy at ${rawUrl} after ${elapsedStr}: ${detail}`);
+      assert.fail(
+        `${label} not healthy at ${rawUrl} after ${elapsedStr}: ${detail}`
+      );
     }
 
     const detail =

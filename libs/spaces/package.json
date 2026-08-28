@@ -48,12 +48,13 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "catalog:",
     "@pkgs/pbt": "workspace:*",
     "@types/react": "catalog:",
-    "@types/react-test-renderer": "catalog:",
+    "@types/react-dom": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "react-test-renderer": "catalog:",
+    "react-dom": "catalog:",
     "typescript": "catalog:"
   }
 }

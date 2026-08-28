@@ -83,9 +83,8 @@ const alias = `"@libs/${game}/*": ["./libs/${game}/src/*"]`;
 console.log(`
 Next steps (not auto-applied):
   1. Add path alias to root tsconfig.json: ${alias}
-  2. Add libs/${game}/src to lingui.config.cjs catalogs.include
-  3. bun install
-  4. Register a GameDefinition in libs/spaces (games registry) + client menu
-  5. bun run --filter @libs/${game} test
-  6. bun run lint
+  2. bun install
+  3. Register a GameDefinition in libs/spaces (games registry) + client menu
+  4. bun run --filter @libs/${game} test
+  5. bun run lint
 `);

@@ -1,0 +1,187 @@
+#!/usr/bin/env bun
+// @io-wall-ok — tools composition root
+/**
+ * Fail if Lingui catalogs are stale vs source macros, or if a `t` / `<Trans>`
+ * file sits outside `lingui.config.cjs` `catalogs.include`.
+ *
+ * Production Lingui looks up a hashed id (`iDNBZe`). A missing catalog key
+ * renders that hash instead of English — keep extract/compile in lockstep.
+ */
+import { spawnSync } from 'node:child_process';
+import { readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { join, relative, sep } from 'node:path';
+
+const REPO_ROOT = join(import.meta.dirname, '../..');
+const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
+const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
+const MACRO_FROM = /from\s+['"]@lingui\/(?:core|react)\/macro['"]/;
+const SCAN_ROOTS = ['apps', 'libs', 'pkgs', 'sim'] as const;
+const SKIP_DIR_NAMES = new Set([
+  'node_modules',
+  'dist',
+  '.turbo',
+  '.git',
+  '.expo',
+  'coverage',
+  'ios',
+  'android',
+  'Pods',
+  'generated',
+]);
+
+export type LinguiCatalogConfig = {
+  catalogs?: Array<{ include?: unknown }>;
+};
+
+export function catalogIncludeRelPaths(config: LinguiCatalogConfig): string[] {
+  const catalogs = config.catalogs;
+  if (catalogs === undefined) return [];
+  const out: string[] = [];
+  for (const catalog of catalogs) {
+    const include = catalog.include;
+    if (!Array.isArray(include)) continue;
+    for (const entry of include) {
+      if (typeof entry !== 'string') continue;
+      out.push(entry.replace(/^<rootDir>\//, ''));
+    }
+  }
+  return out;
+}
+
+export function posixUnderInclude(
+  relFile: string,
+  includes: readonly string[]
+): boolean {
+  const file = relFile.split(sep).join('/');
+  return includes.some((inc) => {
+    const prefix = inc.endsWith('/') ? inc : `${inc}/`;
+    return file === inc || file.startsWith(prefix);
+  });
+}
+
+function isSkippedDir(name: string): boolean {
+  return SKIP_DIR_NAMES.has(name);
+}
+
+function walkTsFiles(absDir: string, files: string[]): void {
+  let entries;
+  try {
+    entries = readdirSync(absDir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    if (entry.isSymbolicLink()) continue;
+    const name = entry.name;
+    if (entry.isDirectory()) {
+      if (isSkippedDir(name)) continue;
+      walkTsFiles(join(absDir, name), files);
+      continue;
+    }
+    if (!entry.isFile()) continue;
+    if (name.endsWith('.ts') || name.endsWith('.tsx')) {
+      files.push(join(absDir, name));
+    }
+  }
+}
+
+export function listLinguiMacroRelFiles(repoRoot: string): string[] {
+  const absFiles: string[] = [];
+  for (const root of SCAN_ROOTS) {
+    walkTsFiles(join(repoRoot, root), absFiles);
+  }
+  const rel: string[] = [];
+  for (const abs of absFiles) {
+    const text = readFileSync(abs, 'utf8');
+    if (!MACRO_FROM.test(text)) continue;
+    rel.push(relative(repoRoot, abs).split(sep).join('/'));
+  }
+  rel.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return rel;
+}
+
+export function macrosOutsideCatalogInclude(
+  relFiles: readonly string[],
+  includes: readonly string[]
+): string[] {
+  return relFiles.filter((file) => !posixUnderInclude(file, includes));
+}
+
+function run(cmd: string, args: string[]): void {
+  const result = spawnSync(cmd, args, {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: process.env,
+  });
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+}
+
+function loadLinguiConfig(): LinguiCatalogConfig {
+  const requireConfig = createRequire(join(REPO_ROOT, 'package.json'));
+  return requireConfig(
+    join(REPO_ROOT, 'lingui.config.cjs')
+  ) as LinguiCatalogConfig;
+}
+
+const BABEL_CONFIG_RELS = [
+  'apps/client/babel.config.js',
+  'sim/console/babel.config.js',
+  'sim/test/babel.jest.config.js',
+] as const;
+
+function assertStripMessageFieldKept(): void {
+  for (const rel of BABEL_CONFIG_RELS) {
+    const text = readFileSync(join(REPO_ROOT, rel), 'utf8');
+    if (text.includes('stripMessageField: false')) continue;
+    console.error(
+      `[ci:i18n] ${rel} must pass stripMessageField: false to ` +
+        `@lingui/babel-plugin-lingui-macro. Production otherwise strips ` +
+        `source text and missing catalog keys render hashed ids.`
+    );
+    process.exit(1);
+  }
+}
+
+function assertMacrosCovered(): void {
+  const includes = catalogIncludeRelPaths(loadLinguiConfig());
+  const outside = macrosOutsideCatalogInclude(
+    listLinguiMacroRelFiles(REPO_ROOT),
+    includes
+  );
+  if (outside.length === 0) return;
+  console.error(
+    '[ci:i18n] Lingui macro files are outside catalogs.include.\n' +
+      'Add the package src dir to lingui.config.cjs or they will render hashed ids in production:\n' +
+      outside.map((file) => `  ${file}`).join('\n')
+  );
+  process.exit(1);
+}
+
+function assertCatalogsFresh(): void {
+  const poBefore = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
+  const compiledBefore = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
+  run('bun', ['run', 'i18n:extract']);
+  run('bun', ['run', 'i18n:compile']);
+  const poAfter = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
+  const compiledAfter = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
+  if (poAfter === poBefore && compiledAfter === compiledBefore) {
+    console.log('[ci:i18n] catalogs match source macros');
+    return;
+  }
+  console.error(
+    '[ci:i18n] Lingui catalogs are stale. Production shows hashed ids ' +
+      '(e.g. "iDNBZe") for any string missing from the catalog.\n' +
+      'Run `bun run i18n:extract && bun run i18n:compile` and commit\n' +
+      'apps/client/src/i18n/locales/en/messages.{po,ts}'
+  );
+  process.exit(1);
+}
+
+if (import.meta.main) {
+  assertStripMessageFieldKept();
+  assertMacrosCovered();
+  assertCatalogsFresh();
+}

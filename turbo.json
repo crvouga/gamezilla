@@ -143,7 +143,12 @@
       "outputLogs": "new-only"
     },
     "//#check": {
-      "dependsOn": ["//#ci:syncpack", "//#ci:depcruise", "//#ci:audit"],
+      "dependsOn": [
+        "//#ci:syncpack",
+        "//#ci:depcruise",
+        "//#ci:audit",
+        "//#ci:i18n"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -235,6 +240,7 @@
         "//#ci:syncpack",
         "//#ci:depcruise",
         "//#ci:audit",
+        "//#ci:i18n",
         "@tools#check:static",
         "@apps/server#check:api",
         "@libs/secrets#check",
@@ -273,6 +279,26 @@
     },
     "//#ci:audit": {
       "inputs": ["bun.lock", "tools/scripts/ci-audit.ts"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:i18n": {
+      "inputs": [
+        "lingui.config.cjs",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "libs/**/*.ts",
+        "libs/**/*.tsx",
+        "pkgs/**/*.ts",
+        "pkgs/**/*.tsx",
+        "sim/**/*.ts",
+        "sim/**/*.tsx",
+        "apps/client/src/i18n/locales/**",
+        "apps/client/babel.config.js",
+        "sim/console/babel.config.js",
+        "sim/test/babel.jest.config.js",
+        "tools/scripts/ci-i18n.ts"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },

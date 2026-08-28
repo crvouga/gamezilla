@@ -13,22 +13,20 @@ module.exports = {
   catalogs: [
     {
       path: '<rootDir>/apps/client/src/i18n/locales/{locale}/messages',
+      // Whole product trees so a new package with `t` / `<Trans>` cannot ship
+      // hashed ids just because lingui.config.cjs was not updated.
       include: [
         '<rootDir>/apps/client/src',
-        '<rootDir>/pkgs/ui/src',
-        '<rootDir>/libs/notifications/src',
-        '<rootDir>/pkgs/chess-board/src',
-        '<rootDir>/pkgs/room-widgets/src',
-        '<rootDir>/libs/chess/src',
-        '<rootDir>/libs/profile/src',
-        '<rootDir>/libs/friends/src',
-        '<rootDir>/libs/search/src',
-        '<rootDir>/libs/user-search/src',
-        '<rootDir>/libs/auth/src',
-        '<rootDir>/libs/spaces/src',
-        '<rootDir>/pkgs/llm/src',
-        '<rootDir>/pkgs/tts/src',
-        '<rootDir>/libs/client-config/src',
+        '<rootDir>/libs',
+        '<rootDir>/pkgs',
+        '<rootDir>/sim/console/src',
+      ],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        '**/*.sim.test.ts',
       ],
     },
   ],

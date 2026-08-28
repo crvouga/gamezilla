@@ -35,6 +35,14 @@ describe('turbo deploy graph invariants', () => {
     expect(deps as string[]).toContain('//#ci:syncpack');
     expect(deps as string[]).toContain('//#ci:depcruise');
     expect(deps as string[]).toContain('//#ci:audit');
+    expect(deps as string[]).toContain('//#ci:i18n');
+  });
+
+  test('//#check expands to root ci gates including i18n catalogs', () => {
+    const turbo = loadTurboJson();
+    const deps = turbo.tasks?.['//#check']?.dependsOn;
+    expect(Array.isArray(deps)).toBe(true);
+    expect(deps as string[]).toContain('//#ci:i18n');
   });
 
   test('bun check never runs unscoped build or @apps/client#build', () => {

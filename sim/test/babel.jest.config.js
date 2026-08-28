@@ -15,7 +15,7 @@ module.exports = function (api) {
       ],
     ],
     plugins: [
-      '@lingui/babel-plugin-lingui-macro',
+      ['@lingui/babel-plugin-lingui-macro', { stripMessageField: false }],
       // `await using` / `using` → try/finally + babelHelpers.usingCtx().
       require.resolve('@babel/plugin-transform-explicit-resource-management'),
       // better-auth (and other ESM) use `await import()`; Node Jest needs require().
