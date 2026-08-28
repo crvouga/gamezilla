@@ -14,6 +14,8 @@ async function setupBothInActiveSpace(
 
   await alice.space.createSpace();
 
+  
+
   await bob.space.openTab();
   await bob.space.expectLobbyCard(aliceUsername);
   await bob.space.openLobbyCard(aliceUsername);
