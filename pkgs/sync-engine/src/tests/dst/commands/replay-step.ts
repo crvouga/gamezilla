@@ -111,6 +111,7 @@ export async function finishReplayStep(
   assertStep: (world: SimWorld) => Promise<void>
 ): Promise<void> {
   if (action.kind === 'connect' && state.needsRestart.has(action.clientId)) {
+    world.clearBoundaryFaults();
     healNetworkForSettle(world);
     await restartClientForConverge(world, action.clientId, {
       preserveLocalDb: !state.needsFreshRestart.has(action.clientId),
@@ -129,6 +130,9 @@ export async function finishReplayStep(
     return;
   }
   if (action.kind === 'tamperLocalStorage') {
+    // Disarm before heal so a pending upload cannot crash the live
+    // engine in the gap before restartClientForConverge clears arms.
+    world.clearBoundaryFaults();
     healNetworkForSettle(world);
     await restartClientForConverge(world, action.clientId);
     state.needsRestart.delete(action.clientId);

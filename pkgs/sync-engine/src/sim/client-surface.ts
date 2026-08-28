@@ -61,6 +61,15 @@ type ClientCore = Omit<
   | 'postMutations'
 >;
 
+/** In-flight sim HTTP only completes when the scheduler runs — abort first. */
+async function abortHttpThen(
+  handle: ClientCore,
+  op: () => Promise<void>
+): Promise<void> {
+  handle.http.abortPending();
+  await op();
+}
+
 /** Add flattened scenario-facing methods onto a built client handle. */
 export function decorateClientSurface(handle: ClientCore): SimClientHandle {
   const subscribe = (
@@ -85,16 +94,13 @@ export function decorateClientSurface(handle: ClientCore): SimClientHandle {
       handle.lifecycle.setForeground(v);
     },
     connect: () => handle.engine.connect(),
-    disconnect: async () => {
-      // In-flight query sweeps await sim HTTP, which only completes when the
-      // scheduler runs. Abort so stopAndDrain cannot deadlock on disconnect.
-      handle.http.abortPending();
-      await handle.engine.disconnect();
-    },
+    disconnect: () => abortHttpThen(handle, () => handle.engine.disconnect()),
     clearLocalData: (reason) =>
-      handle.engine.clearLocalData({
-        reason: reason === 'revoked' ? 'revoked' : 'cache',
-      }),
+      abortHttpThen(handle, () =>
+        handle.engine.clearLocalData({
+          reason: reason === 'revoked' ? 'revoked' : 'cache',
+        })
+      ),
     subscribe,
     outcome: (mutationId) => createOutcomePromise(handle.engine, mutationId),
     rejections: () =>
