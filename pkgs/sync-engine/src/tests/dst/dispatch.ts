@@ -5,6 +5,12 @@ import type { DstApp } from './app';
 
 const SUBS_KEY = Symbol('pbtSubs');
 
+/** Sim fault: epoch migrate throws after CACHE wipe; client is already torn down. */
+function isEpochMigrateCrash(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return msg.includes('crash during epoch migrate');
+}
+
 function subs(world: SimWorld): Set<Disposable> {
   const bag = (world as unknown as Record<symbol, Set<Disposable>>)[SUBS_KEY];
   if (bag !== undefined) return bag;
@@ -136,7 +142,12 @@ const LIBRARY_HANDLERS: {
   },
   restartWithSchema: async (world, action) => {
     const opts = acmeRestartOptsForVariant(action.variant);
-    await world.node(action.clientId).restart(opts);
+    try {
+      await world.node(action.clientId).restart(opts);
+    } catch (error) {
+      if (!isEpochMigrateCrash(error)) throw error;
+      // Client removed mid-restart; replay tracks needsRestart and heals at settle.
+    }
   },
   protocolCut: async (world, action) => {
     world.node(action.clientId).auth('upgrade_required');

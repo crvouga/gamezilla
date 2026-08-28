@@ -109,11 +109,12 @@ export function createSimHttpClient(args: {
     if (waiter === undefined) return;
     pending.delete(payload.correlationId);
     const finish = () => waiter.resolve(payload);
-    if (args.onSyncResponseDelivered === undefined || nodeId === undefined) {
-      finish();
-      return;
+    finish();
+    if (args.onSyncResponseDelivered !== undefined && nodeId !== undefined) {
+      // Resolve RPC before boundary crash hooks — crash dispose awaits
+      // stopAndDrain on the same in-flight query sweep.
+      void Promise.resolve(args.onSyncResponseDelivered());
     }
-    void Promise.resolve(args.onSyncResponseDelivered()).then(finish, finish);
   });
 
   const rpc = createSimHttpRpc({

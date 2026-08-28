@@ -117,8 +117,10 @@ export async function finishReplayStep(
     return;
   }
   if (action.kind === 'restart' || action.kind === 'restartWithSchema') {
-    state.needsRestart.delete(action.clientId);
-    state.needsFreshRestart.delete(action.clientId);
+    if (world.clients.has(action.clientId)) {
+      state.needsRestart.delete(action.clientId);
+      state.needsFreshRestart.delete(action.clientId);
+    }
     await assertStep(world);
     return;
   }
