@@ -1,5 +1,5 @@
 import { createSimPubSubBroker } from './pubsub-bridge';
-import { BROKER } from './traffic';
+import { BROKER, SERVER_PUB } from './traffic';
 import type { BootedSimKernel } from './world-types';
 
 function createBroker(k: BootedSimKernel) {
@@ -17,12 +17,34 @@ export function crashBrokerImpl(k: BootedSimKernel): void {
   k.broker.dispose();
 }
 
-/** Recreate broker and reconnect live clients. */
+/** Recreate broker, remake server pubsub, and reconnect live clients. */
 export async function restartBrokerImpl(k: BootedSimKernel): Promise<void> {
+  const clients = [...k.clients.values()];
+  for (const client of clients) {
+    await drainDisconnect(k, client.disconnect());
+  }
   k.broker.dispose();
   k.broker = createBroker(k);
-  for (const client of k.clients.values()) {
-    await client.disconnect();
+  k.serverPub = k.broker.createPubSub(SERVER_PUB);
+  for (const client of clients) {
     await client.connect();
   }
+}
+
+async function drainDisconnect(
+  k: BootedSimKernel,
+  disconnect: Promise<void>
+): Promise<void> {
+  let done = false;
+  void disconnect.finally(() => {
+    done = true;
+  });
+  const ok = await k.scheduler.runUntil(() => done, {
+    maxVirtualMs: 5_000,
+    maxSteps: 50_000,
+  });
+  if (!ok) {
+    throw new Error('SimWorld: disconnect timeout during broker restart');
+  }
+  await disconnect;
 }

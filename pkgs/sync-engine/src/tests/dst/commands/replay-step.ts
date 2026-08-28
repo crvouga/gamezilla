@@ -48,12 +48,15 @@ export async function prepareReplayAction(
     healNetworkForSettle(world);
     await ensureServerUp(world);
   }
-  if (action.kind === 'serverRestart' || action.kind === 'brokerRestart') {
+  if (action.kind === 'serverRestart') {
     healNetworkForSettle(world);
     for (const id of world.clients.keys()) {
       if (state.needsRestart.has(id)) continue;
       await world.clients.get(id)?.connect();
     }
+  }
+  if (action.kind === 'brokerRestart') {
+    healNetworkForSettle(world);
   }
 }
 

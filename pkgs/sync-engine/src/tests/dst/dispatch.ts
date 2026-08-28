@@ -80,12 +80,12 @@ const LIBRARY_HANDLERS: {
     for (const id of world.clients.keys()) {
       world.net(id, 'all').set('ok');
     }
+    await world.brokerRestart();
     try {
       await world.node('server').restart({ preserveLocalDb: true });
     } catch {
       // Server may already be running.
     }
-    await world.brokerRestart();
   },
   idle: async (world, action) => {
     await world.runFor(action.ms);

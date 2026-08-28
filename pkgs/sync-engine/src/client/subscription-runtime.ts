@@ -447,8 +447,11 @@ export class SubscriptionRuntime {
     const gens = new Map(active.map((e) => [e.scope, e.generation]));
     try {
       const requests = await this.buildRequests(active);
+      if (!this.running) return;
       const responses = await this.options.postQueries(requests);
+      if (!this.running) return;
       await this.applySweepResponses({ active, gens, responses });
+      if (!this.running) return;
       this.afterSweep?.(active.map((e) => e.scope));
     } catch (error) {
       if (isHttpNetworkError(error)) {

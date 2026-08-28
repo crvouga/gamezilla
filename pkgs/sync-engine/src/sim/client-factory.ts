@@ -95,6 +95,7 @@ function wireHttp(
       return http.postQueries(reqs);
     },
     postMutations: (mutations) => http.postMutations(mutations),
+    abortPending: () => http.abortPending(),
     dispose: () => http.dispose(),
   };
 }

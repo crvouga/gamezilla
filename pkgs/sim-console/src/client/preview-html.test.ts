@@ -77,11 +77,13 @@ describe('patchPreviewHtml', () => {
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('390px');
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('844px');
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform:scale(min(');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform-origin:0 0');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain(
+      'transform-origin:center center'
+    );
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('position:absolute');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('left:0;top:0');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('inset:0;margin:auto');
     expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('translate(-50%,-50%)');
-    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('transform-origin:center');
+    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('left:0;top:0');
     expect(PREVIEW_STRETCH_SHELL_CSS).not.toMatch(/html,body\{[^}]*\d+px/);
   });
 
@@ -89,7 +91,11 @@ describe('patchPreviewHtml', () => {
     expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('container-type:size');
     expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('100cqw');
     expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('100cqh');
-    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('transform-origin:0 0');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain(
+      'transform-origin:center center'
+    );
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('inset:0;margin:auto');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).not.toContain('left:0;top:0');
     expect(PREVIEW_IN_DOM_SHELL_CSS).not.toContain('100vw');
   });
 

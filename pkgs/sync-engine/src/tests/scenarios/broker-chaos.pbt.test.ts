@@ -14,6 +14,41 @@ function brokerSequence(arm: LibraryAction): DstAction[] {
 
 describe('broker chaos PBT', () => {
   test(
+    'brokerRestart then peer faults still converges',
+    async () => {
+      const opened = await openPbtWorld({
+        app: acmeDstApp,
+        seed: 1_000_000,
+        knobs: {
+          rowImageFanout: false,
+          liveResendOnReconnect: true,
+          bufferOutboundLive: true,
+          clientCount: 3,
+        },
+      });
+      try {
+        await replayActionsOnWorld(acmeDstApp, opened.world, [
+          { kind: 'brokerRestart' },
+          {
+            kind: 'setFaults',
+            nodeId: 'c1',
+            traffic: 'all',
+            faults: {
+              packetLossProbability: 0.05,
+              reorderWindow: 2,
+              partitionProbability: 0.02,
+            },
+          },
+        ]);
+        await opened.world.assertConverged();
+      } finally {
+        await opened.world.dispose();
+      }
+    },
+    { timeout: 30_000 }
+  );
+
+  test(
     'pubsub fault arms then mutate converges',
     async () => {
       await assertDstProperty(
