@@ -15,6 +15,8 @@ export type ReportDataApi = {
   readonly runs: readonly RunSummary[];
   readonly tests: readonly SuiteTestSummary[];
   readonly generation: number;
+  /** Manifest `updatedAtMs` for the resolved run (0 when unknown). */
+  readonly suiteUpdatedAtMs: number;
   /** Concrete run id when following `latest`, else nav.runId. */
   readonly resolvedRunId: string | null;
   readonly testData: SimulationReportData | null;
@@ -38,6 +40,7 @@ export function useReportData(
   const [runs, setRuns] = useState<readonly RunSummary[]>([]);
   const [tests, setTests] = useState<readonly SuiteTestSummary[]>([]);
   const [generation, setGeneration] = useState(0);
+  const [suiteUpdatedAtMs, setSuiteUpdatedAtMs] = useState(0);
   const [resolvedRunId, setResolvedRunId] = useState<string | null>(null);
   const [testData, setTestData] = useState<SimulationReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +67,7 @@ export function useReportData(
     setNav,
     setRuns,
     setGeneration,
+    setSuiteUpdatedAtMs,
     setTests,
     setTestData,
     setResolvedRunId,
@@ -75,6 +79,7 @@ export function useReportData(
     runs,
     tests,
     generation,
+    suiteUpdatedAtMs,
     resolvedRunId:
       resolvedRunId ??
       (nav.runId && !isLatestRunId(nav.runId) ? nav.runId : null),
@@ -92,6 +97,7 @@ function useBucketEvents(args: {
   readonly setNav: SetNav;
   readonly setRuns: (runs: readonly RunSummary[]) => void;
   readonly setGeneration: (n: number) => void;
+  readonly setSuiteUpdatedAtMs: (ms: number) => void;
   readonly setTests: (tests: readonly SuiteTestSummary[]) => void;
   readonly setTestData: (data: SimulationReportData | null) => void;
   readonly setResolvedRunId: (id: string | null) => void;
@@ -106,6 +112,7 @@ function useBucketEvents(args: {
     setNav,
     setRuns,
     setGeneration,
+    setSuiteUpdatedAtMs,
     setTests,
     setTestData,
     setResolvedRunId,
@@ -116,6 +123,7 @@ function useBucketEvents(args: {
     if (!bucketId) {
       setRuns([]);
       setGeneration(0);
+      setSuiteUpdatedAtMs(0);
       setTests([]);
       setTestData(null);
       setResolvedRunId(null);
@@ -132,6 +140,7 @@ function useBucketEvents(args: {
         setNav,
         setRuns,
         setGeneration,
+        setSuiteUpdatedAtMs,
         setTests,
         setTestData,
         setResolvedRunId,
@@ -149,6 +158,7 @@ function useBucketEvents(args: {
     setNav,
     setRuns,
     setGeneration,
+    setSuiteUpdatedAtMs,
     setTests,
     setTestData,
     setResolvedRunId,
@@ -162,6 +172,7 @@ function bucketEventHandlers(args: {
   readonly setNav: SetNav;
   readonly setRuns: (runs: readonly RunSummary[]) => void;
   readonly setGeneration: (n: number) => void;
+  readonly setSuiteUpdatedAtMs: (ms: number) => void;
   readonly setTests: (tests: readonly SuiteTestSummary[]) => void;
   readonly setTestData: (data: SimulationReportData | null) => void;
   readonly setResolvedRunId: (id: string | null) => void;
@@ -183,10 +194,12 @@ function bucketEventHandlers(args: {
     onManifest: (ev: {
       resolvedRunId: string | null;
       tests: readonly SuiteTestSummary[];
+      updatedAtMs: number;
       missing: boolean;
     }) => {
       args.setResolvedRunId(ev.resolvedRunId);
       args.setTests(ev.tests);
+      args.setSuiteUpdatedAtMs(ev.updatedAtMs);
       const current = args.navRef.current;
       if (ev.missing && current.runId && !isLatestRunId(current.runId)) {
         args.setNav(navigateReport(current, clearPlayerNav({ runId: null })));

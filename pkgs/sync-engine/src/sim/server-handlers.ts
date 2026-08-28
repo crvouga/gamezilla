@@ -269,6 +269,4 @@ export function createHandleQuery(
 }
 
 /** Query-response checkpoint (scope merge). Distinct from per-topic pushSeq. */
-export function commitCheckpoint(nowMs: number, seq: number): string {
-  return `${nowMs}${String(seq).padStart(6, '0')}`;
-}
+export { formatCheckpoint as commitCheckpoint } from '../shared/commit-checkpoint';

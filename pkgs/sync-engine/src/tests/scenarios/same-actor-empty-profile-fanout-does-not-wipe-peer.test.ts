@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   ensureProfileEmpty,
-  notesDomainPack,
   OWN_PROFILE_SESSION,
   readProfileUsername,
   setProfileUsername,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 /**
  * Replicates the product bug: ensureProfile-style empty username INSERT fans
@@ -16,7 +16,7 @@ import { openSimWorld } from '../../sim/world';
 describe('same actor empty profile fanout does not wipe peer', () => {
   test('empty ensureProfile seed does not blank peer username', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1501,
       rowImageFanout: true,
     });

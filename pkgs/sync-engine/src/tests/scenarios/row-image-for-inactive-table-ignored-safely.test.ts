@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
-  notesDomainPack,
   readLiveFolders,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('row image for inactive table ignored safely', () => {
   test('server folders push ignored by notesOnly peer; later note push applies', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 807,
     });
     const a = await world.addClient({ id: 'alice' });

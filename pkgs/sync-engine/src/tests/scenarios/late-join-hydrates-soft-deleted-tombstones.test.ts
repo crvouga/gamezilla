@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectNoteNotLive,
-  notesDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('late join hydrates soft deleted tombstones', () => {
   test('peer that joins after delete gets tombstone from snapshot', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 511,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -1,16 +1,16 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('push seq gap forces refetch not image apply', () => {
   test('lost live push creates gap; later push still converges via refetch', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 804,
     });
     const a = await world.addClient({ id: 'alice' });

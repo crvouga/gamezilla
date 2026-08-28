@@ -21,6 +21,7 @@ import {
   sanitizeTestId,
 } from './types';
 import { wallPathExists } from './wall-path-exists';
+import { mergeWithLastGoodViews } from './writer/frame-views';
 import { testStepsKey } from './writer/keys';
 import { deleteRun, pruneRuns } from './writer/prune';
 import { hashString, SimulationReporter } from './writer/reporter';
@@ -29,6 +30,30 @@ import {
   loadRunsIndex,
   storeGetJson,
 } from './writer/store-io';
+
+describe('mergeWithLastGoodViews', () => {
+  test('fills omitted actors from last-good HTML', () => {
+    const last = new Map([['alice', '<html>alice-ui</html>']]);
+    const merged = mergeWithLastGoodViews(
+      [{ nodeId: 'bob', html: '<html>bob</html>' }],
+      last
+    );
+    expect(merged.map((n) => n.nodeId).sort()).toEqual(['alice', 'bob']);
+    expect(merged.find((n) => n.nodeId === 'alice')?.html).toContain(
+      'alice-ui'
+    );
+  });
+
+  test('live snapshot wins over last-good', () => {
+    const last = new Map([['alice', '<html>stale</html>']]);
+    const merged = mergeWithLastGoodViews(
+      [{ nodeId: 'alice', html: '<html>fresh</html>' }],
+      last
+    );
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.html).toContain('fresh');
+  });
+});
 
 describe('resolveLocalReportDataDir', () => {
   test('resolves under monorepo root', () => {
@@ -366,6 +391,62 @@ describe('SimulationReporter + ObjectStore', () => {
     expect(await new Response(bob!.body).text()).toContain('bob');
     expect(await new Response(alice!.body).text()).toContain('alice');
   });
+
+  test('carries forward parked actor HTML when snapshotViews omits them', async () => {
+    const store = new ObjectStoreImplInMemory();
+    let round = 0;
+    const reporter = new SimulationReporter({
+      seed: '1',
+      ui: 'rntl',
+      store,
+      runId: 'run-carry',
+      testId: 'carry-test',
+      now: (() => {
+        let t = 1000;
+        return () => {
+          t += 1;
+          return t;
+        };
+      })(),
+      snapshotViews: async () => {
+        round += 1;
+        if (round === 1) {
+          return [
+            { nodeId: 'alice', html: '<html>alice-ui</html>' },
+            { nodeId: 'bob', html: '<html>bob-1</html>' },
+          ];
+        }
+        // Parked Alice omitted from live capture — must still get a view.
+        return [{ nodeId: 'bob', html: '<html>bob-2</html>' }];
+      },
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'tap',
+      title: 'alice acts',
+      run: async () => undefined,
+      snapshot: async () => '<html>legacy</html>',
+    });
+    await reporter.record({
+      actorId: 'bob',
+      kind: 'tap',
+      title: 'bob acts',
+      run: async () => undefined,
+      snapshot: async () => '<html>legacy</html>',
+    });
+    const data = await reporter.flush();
+    const frame2 = data.steps[1]?.frames?.[0];
+    expect(frame2?.views?.map((v) => v.nodeId).sort()).toEqual([
+      'alice',
+      'bob',
+    ]);
+    expect(frame2?.file).toBe('frames/f-00002.bob.html');
+    const alice = await store.get(
+      'runs/run-carry/tests/carry-test/frames/f-00002.alice.html'
+    );
+    expect(alice).not.toBeNull();
+    expect(await new Response(alice!.body).text()).toContain('alice-ui');
+  });
 });
 
 describe('prune', () => {
@@ -625,6 +706,35 @@ describe('resolveFrameForNode', () => {
     );
     expect(frameOwnedByNode(frames[0]!, 'alice')).toBe(true);
     expect(frameOwnedByNode(frames[0]!, 'bob')).toBe(true);
+  });
+
+  test('multi-view frames: parked client follows playhead views', () => {
+    const frames = [
+      flatFrame({
+        globalIndex: 0,
+        actorId: 'alice',
+        file: 'frames/f-00001.alice.html',
+        views: [
+          { nodeId: 'alice', file: 'frames/f-00001.alice.html' },
+          { nodeId: 'bob', file: 'frames/f-00001.bob.html' },
+        ],
+      }),
+      flatFrame({
+        globalIndex: 1,
+        actorId: 'bob',
+        file: 'frames/f-00002.bob.html',
+        views: [
+          { nodeId: 'bob', file: 'frames/f-00002.bob.html' },
+          { nodeId: 'alice', file: 'frames/f-00002.alice.html' },
+        ],
+      }),
+    ];
+    expect(resolveFrameForNode(frames, 1, 'alice')?.file).toBe(
+      'frames/f-00002.bob.html'
+    );
+    expect(resolveFrameForNode(frames, 1, 'bob')?.file).toBe(
+      'frames/f-00002.bob.html'
+    );
   });
 });
 

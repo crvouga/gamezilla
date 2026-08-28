@@ -284,11 +284,22 @@ async function disposeOpenSim(args: {
     try {
       await args.reporter.flush();
       await writeKeysIndex();
-    } catch {
-      // report flush should not mask sim teardown
+    } catch (err) {
+      // Report flush should not mask sim teardown, but silent loss leaves the
+      // console showing a prior FAILED run after a green Jest pass.
+      console.error(
+        '[openSim] report flush failed:',
+        err instanceof Error ? err.message : err
+      );
     }
   }
   await args.sim.dispose();
+  // better-auth/react schedules a wall 10ms setTimeout after auth routes
+  // (session-signal flip). Nanostores STORE_UNMOUNT_DELAY (1000ms) is unref'd
+  // in jest.setup-env so it does not keep Jest alive after this short drain.
+  await new Promise<void>((resolve) => {
+    simNodeTimers.setTimeout(resolve, 50);
+  });
 }
 
 export async function openSim(

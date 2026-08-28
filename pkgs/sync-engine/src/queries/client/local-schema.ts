@@ -2,6 +2,7 @@ import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   SYNC_ENGINE_MUTATIONS,
+  SYNC_ENGINE_OPTIMISTIC_PEER_ROWS,
   SYNC_ENGINE_PUSH_APPLIED,
   SYNC_ENGINE_SCOPE_META,
   SYNC_ENGINE_WRITE_REJECTIONS,
@@ -46,10 +47,15 @@ CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_client_id_idx
   ON ${SYNC_ENGINE_WRITE_REJECTIONS} (client_id);
 CREATE INDEX IF NOT EXISTS sync_engine_write_rejections_mutation_id_idx
   ON ${SYNC_ENGINE_WRITE_REJECTIONS} (mutation_id);
+CREATE TABLE IF NOT EXISTS ${SYNC_ENGINE_OPTIMISTIC_PEER_ROWS} (
+  table_name TEXT NOT NULL,
+  row_id TEXT NOT NULL,
+  PRIMARY KEY (table_name, row_id)
+);
 `;
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
-export const SCHEMA_EPOCH = 10;
+export const SCHEMA_EPOCH = 11;
 
 /** Retired local tables dropped on epoch migrate (legacy + pre-prefix names). */
 export const RETIRED_LOCAL_TABLES = [

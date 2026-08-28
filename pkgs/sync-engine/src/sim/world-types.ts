@@ -81,7 +81,7 @@ export type BootedSimKernel = {
   readonly timers: Timers;
   readonly network: SimNetwork;
   server: SimServer;
-  readonly broker: SimPubSubBroker;
+  broker: SimPubSubBroker;
   readonly clients: Map<string, SimClientHandle>;
   readonly metas: Map<string, ClientMeta>;
   readonly authByDevice: Map<string, ClientMeta>;

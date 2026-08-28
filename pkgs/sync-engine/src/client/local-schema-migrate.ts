@@ -139,6 +139,21 @@ async function runPendingMigrations(
   }
 }
 
+async function cacheTablesExist(
+  db: SqlClient,
+  schema: LocalDomainSchema
+): Promise<boolean> {
+  for (const name of allCacheTableNames(schema)) {
+    const rows = await db.query(
+      unsafe<{ name: string }>(
+        `SELECT name FROM sqlite_master WHERE type='table' AND name='${name}'`
+      )
+    );
+    if (rows.length === 0) return false;
+  }
+  return true;
+}
+
 export type LocalMigratePhase =
   | 'before'
   | 'afterCacheWipe'
@@ -168,6 +183,18 @@ export async function migrateLocalSchema(
 
   try {
     await onPhase?.('before');
+    // Interrupted epoch bump: CACHE wiped but user_version not advanced — heal in place.
+    if (
+      previousEpoch >= epoch &&
+      previous >= targetVersion &&
+      !(await cacheTablesExist(db, schema))
+    ) {
+      await createCurrentSchema(db, schema);
+      await onPhase?.('afterEnsure');
+      await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
+      await onPhase?.('done');
+      return;
+    }
     if (previousEpoch < epoch) {
       await dropCacheTables(db, schema);
       await onPhase?.('afterCacheWipe');

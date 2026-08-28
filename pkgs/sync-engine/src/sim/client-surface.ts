@@ -85,7 +85,12 @@ export function decorateClientSurface(handle: ClientCore): SimClientHandle {
       handle.lifecycle.setForeground(v);
     },
     connect: () => handle.engine.connect(),
-    disconnect: () => handle.engine.disconnect(),
+    disconnect: async () => {
+      // In-flight query sweeps await sim HTTP, which only completes when the
+      // scheduler runs. Abort so stopAndDrain cannot deadlock on disconnect.
+      handle.http.abortPending();
+      await handle.engine.disconnect();
+    },
     clearLocalData: (reason) =>
       handle.engine.clearLocalData({
         reason: reason === 'revoked' ? 'revoked' : 'cache',

@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld, type SimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 const BEHIND = -60_000;
 const MID = 0;
@@ -69,7 +69,7 @@ async function syncBeforeLive(world: SimWorld): Promise<void> {
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 301,
       rowImageFanout: false,
     });
@@ -78,7 +78,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('sync before live', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 302,
       rowImageFanout: false,
     });
@@ -88,7 +88,7 @@ describe('live vs sync ordering races converge', () => {
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed: 310,
         rowImageFanout: false,
       });
@@ -100,7 +100,7 @@ describe('live vs sync ordering races converge', () => {
 
     test(`sync before live skew ${order.label}`, async () => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed: 320,
         rowImageFanout: false,
       });
@@ -113,7 +113,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('stale sync after live fanout', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 303,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -133,7 +133,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('optimistic + held sync converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 304,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -154,7 +154,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('optimistic + held live converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 305,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -174,7 +174,7 @@ describe('live vs sync ordering races converge', () => {
 
   test('live-only partition then heal converges via sync', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 306,
     });
     const a = await world.addClient({ id: 'alice' });

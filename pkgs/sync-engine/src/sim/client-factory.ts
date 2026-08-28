@@ -95,6 +95,7 @@ function wireHttp(
       return http.postQueries(reqs);
     },
     postMutations: (mutations) => http.postMutations(mutations),
+    abortPending: () => http.abortPending(),
     dispose: () => http.dispose(),
   };
 }
@@ -202,8 +203,9 @@ export async function buildSimClient(
     pubsubRemakeCount: args.pubsubRemakeCount,
     subscribedTopics: args.subscribedTopics,
     dispose: async (opts?: { readonly keepDb?: boolean }) => {
-      http.dispose();
+      http.abortPending();
       await engine.disconnect();
+      http.dispose();
       if (opts?.keepDb === true) return;
       await rawDb.disconnect();
     },

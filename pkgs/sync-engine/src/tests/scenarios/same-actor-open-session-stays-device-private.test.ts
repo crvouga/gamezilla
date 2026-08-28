@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectNoForeignOpenSessions,
   expectOpenSession,
-  notesDomainPack,
   readLiveOpenSessions,
   SPACE_MEMBERSHIP_SESSION,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 /**
  * Replicates the product bug: createSpace writes spaces + spaces_users (user
@@ -18,7 +18,7 @@ import { openSimWorld } from '../../sim/world';
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1401,
       rowImageFanout: true,
     });

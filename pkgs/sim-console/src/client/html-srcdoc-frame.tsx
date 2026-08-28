@@ -1,7 +1,6 @@
-import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
-import { emptySx, paneSx } from './tokens';
+import { HtmlPaneEmpty } from './html-pane-empty';
 
 /** Native fallback — iframe srcdoc preview is web-only. */
 export function HtmlSrcdocFrame(props: {
@@ -9,9 +8,5 @@ export function HtmlSrcdocFrame(props: {
   readonly srcdoc: string | null;
 }): ReactNode {
   void props;
-  return (
-    <Box sx={paneSx}>
-      <Text sx={emptySx}>HTML preview requires web.</Text>
-    </Box>
-  );
+  return <HtmlPaneEmpty kind="unsupported" />;
 }

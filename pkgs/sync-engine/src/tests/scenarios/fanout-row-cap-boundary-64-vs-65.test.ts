@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { MAX_FANOUT_ROWS } from '@pkgs/sync-engine/shared';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
   readLiveNotes,
   retouchNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 function noteIds(count: number): string[] {
   return Array.from(
@@ -20,7 +20,7 @@ function noteIds(count: number): string[] {
 describe('fanout row cap boundary 64 vs 65', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 808,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -48,7 +48,7 @@ describe('fanout row cap boundary 64 vs 65', () => {
 
   test('MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 809,
     });
     const a = await world.addClient({ id: 'alice' });

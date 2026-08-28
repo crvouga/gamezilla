@@ -21,6 +21,7 @@ import {
 } from 'react';
 
 import type { RunSummary } from '../types';
+import { formatRunUpdatedAt } from './frames';
 import { ReportHeader } from './report-header';
 import {
   appBodyFrameSx,
@@ -29,17 +30,6 @@ import {
   testIdSx,
   useAppBodyContentSx,
 } from './tokens';
-
-function formatUpdated(ms: number): string {
-  try {
-    return new Date(ms)
-      .toISOString()
-      .replace('T', ' ')
-      .replace(/\.\d+Z$/, 'Z');
-  } catch {
-    return String(ms);
-  }
-}
 
 function compareRuns(
   a: RunSummary,
@@ -181,7 +171,8 @@ function buildRunColumns(args: {
       header: 'Updated',
       width: 180,
       sortable: true,
-      getValue: (r) => formatUpdated(r.updatedAtMs),
+      getValue: (r) =>
+        formatRunUpdatedAt(r.updatedAtMs) ?? String(r.updatedAtMs),
     },
     {
       id: 'tests',

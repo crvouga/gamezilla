@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('mutate local apply and queue atomic under crash', () => {
   test('crash after mutate resolves offline: write everywhere or nowhere', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 831,
     });
     const a = await world.addClient({ id: 'alice' });

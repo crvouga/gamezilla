@@ -1,19 +1,19 @@
 import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   isLiveNote,
-  notesDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('epoch bump wipes cache preserves pending uploads', () => {
   test.each([710, 711, 712])(
     'offline pending survives epoch bump (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

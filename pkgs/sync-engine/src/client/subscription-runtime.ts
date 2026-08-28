@@ -2,13 +2,14 @@ import { HttpNetworkError } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
-import type { QueryResponse } from '../queries/core/types';
+import type { QueryRegistry, QueryResponse } from '../queries/core/types';
 import { scopeHash } from '../queries/shared/canonical';
 import {
   type AppLifecycle,
   type AppLifecycleEvent,
   alwaysOnLifecycle,
 } from './app-lifecycle';
+import { computeLocalScopeHash } from './local-scope-hash';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import type { Timers } from './sim-ports';
 import {
@@ -18,6 +19,13 @@ import {
 
 /** Host/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;
+
+function isHttpNetworkError(error: unknown): boolean {
+  return (
+    error instanceof HttpNetworkError ||
+    (error instanceof Error && error.name === 'HttpNetworkError')
+  );
+}
 
 export type QuerySubscriptionSpec = {
   readonly name: string;
@@ -55,6 +63,8 @@ export type SubscriptionRuntimeOptions = {
     requests: readonly QueryRequest[]
   ) => Promise<readonly QueryResponse[]>;
   readonly getMergeDeps: () => MergeApplierDeps;
+  /** When set, local content hash is checked before sending `lastHash`. */
+  readonly queryRegistry?: QueryRegistry;
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
   readonly lifecycle?: AppLifecycle;
@@ -109,6 +119,12 @@ function mergePending(
   return set;
 }
 
+function resolveWaiters(waiters: Array<() => void>): void {
+  if (waiters.length === 0) return;
+  const pending = waiters.splice(0);
+  for (const resolve of pending) resolve();
+}
+
 async function loadBasis(
   db: SqlClient,
   scope: string
@@ -129,6 +145,35 @@ async function loadBasis(
   };
 }
 
+async function requestCacheKeys(
+  db: SqlClient,
+  entry: Entry,
+  queryRegistry: QueryRegistry | undefined,
+  getMergeDeps: () => MergeApplierDeps
+): Promise<{ readonly lastHash?: string; readonly checkpoint?: string }> {
+  const basis = await loadBasis(db, entry.scope);
+  const checkpoint =
+    basis.last_checkpoint !== null ? { checkpoint: basis.last_checkpoint } : {};
+  if (basis.last_hash === null) return checkpoint;
+
+  const query = queryRegistry?.[entry.spec.name];
+  if (query === undefined) {
+    return { lastHash: basis.last_hash, ...checkpoint };
+  }
+
+  const localHash = await computeLocalScopeHash({
+    db,
+    query,
+    params: entry.spec.params,
+    env: getMergeDeps().env,
+  });
+  if (localHash !== basis.last_hash) {
+    // Local rows drifted from scope meta — omit lastHash to force full merge.
+    return checkpoint;
+  }
+  return { lastHash: basis.last_hash, ...checkpoint };
+}
+
 /** Owns event-driven query scopes; applies responses to local SQLite. */
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
@@ -146,6 +191,8 @@ export class SubscriptionRuntime {
   private reconcileTimer: unknown = null;
   private inFlight = false;
   private flushWaiters: Array<() => void> = [];
+  /** Resolves when the current in-flight sweep finishes after {@link stop}. */
+  private inFlightDrain: Array<() => void> = [];
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
@@ -175,7 +222,19 @@ export class SubscriptionRuntime {
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
     for (const entry of this.entries.values()) entry.generation += 1;
-    this.resolveFlushWaiters();
+    resolveWaiters(this.flushWaiters);
+  }
+
+  /**
+   * Soft-stop, then wait for any in-flight sweep/merge to finish so callers can
+   * safely close the underlying SqlClient afterward.
+   */
+  async stopAndDrain(): Promise<void> {
+    this.stop();
+    if (!this.inFlight) return;
+    await new Promise<void>((resolve) => {
+      this.inFlightDrain.push(resolve);
+    });
   }
 
   reset(): void {
@@ -349,13 +408,13 @@ export class SubscriptionRuntime {
 
   private async flushPending(): Promise<void> {
     if (!this.running || !this.foregrounded) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     if (this.inFlight) return;
     const pending = this.pending;
     if (pending === null) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     this.pending = null;
@@ -364,7 +423,7 @@ export class SubscriptionRuntime {
         ? this.listSweepEntries()
         : this.listSweepEntries().filter((e) => pending.has(e.scope));
     if (active.length === 0) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     this.inFlight = true;
@@ -372,8 +431,9 @@ export class SubscriptionRuntime {
       await this.sweepEntries(active);
     } finally {
       this.inFlight = false;
+      resolveWaiters(this.inFlightDrain);
       if (this.pending !== null) this.scheduleFlush();
-      else this.resolveFlushWaiters();
+      else resolveWaiters(this.flushWaiters);
     }
   }
 
@@ -387,11 +447,14 @@ export class SubscriptionRuntime {
     const gens = new Map(active.map((e) => [e.scope, e.generation]));
     try {
       const requests = await this.buildRequests(active);
+      if (!this.running) return;
       const responses = await this.options.postQueries(requests);
+      if (!this.running) return;
       await this.applySweepResponses({ active, gens, responses });
+      if (!this.running) return;
       this.afterSweep?.(active.map((e) => e.scope));
     } catch (error) {
-      if (error instanceof HttpNetworkError) {
+      if (isHttpNetworkError(error)) {
         this.markFirstOnNetworkError(active, gens);
       }
       this.options.onError(error);
@@ -415,14 +478,16 @@ export class SubscriptionRuntime {
   ): Promise<QueryRequest[]> {
     const requests: QueryRequest[] = [];
     for (const entry of active) {
-      const basis = await loadBasis(this.options.db, entry.scope);
+      const cache = await requestCacheKeys(
+        this.options.db,
+        entry,
+        this.options.queryRegistry,
+        this.options.getMergeDeps
+      );
       requests.push({
         name: entry.spec.name,
         params: entry.spec.params,
-        ...(basis.last_hash !== null ? { lastHash: basis.last_hash } : {}),
-        ...(basis.last_checkpoint !== null
-          ? { checkpoint: basis.last_checkpoint }
-          : {}),
+        ...cache,
       });
     }
     return requests;
@@ -454,6 +519,8 @@ export class SubscriptionRuntime {
       return;
     }
     if (response.status === 'not_modified') {
+      const healed = await this.healNotModifiedIfDrifted(entry, response);
+      if (healed) return;
       markFirst(entry);
       this.options.onSynced();
       return;
@@ -468,6 +535,46 @@ export class SubscriptionRuntime {
     this.options.onSynced();
   }
 
+  /**
+   * Scope meta can outlive tampered local rows. If the server says
+   * `not_modified` but local content no longer matches `last_hash`, refetch.
+   */
+  private async healNotModifiedIfDrifted(
+    entry: Entry,
+    response: QueryResponse
+  ): Promise<boolean> {
+    if (response.status !== 'not_modified') return false;
+    const basis = await loadBasis(this.options.db, entry.scope);
+    if (basis.last_hash === null) return false;
+
+    const query = this.options.queryRegistry?.[entry.spec.name];
+    if (query === undefined) return false;
+
+    const mergeDeps = this.options.getMergeDeps();
+    const localHash = await computeLocalScopeHash({
+      db: this.options.db,
+      query,
+      params: entry.spec.params,
+      env: mergeDeps.env,
+    });
+    if (localHash === basis.last_hash) return false;
+
+    const [full] = await this.options.postQueries([
+      { name: entry.spec.name, params: entry.spec.params },
+    ]);
+    if (full === undefined || full.status !== 'ok') return false;
+
+    await applyFullMerge(mergeDeps, {
+      scopeHash: entry.scope,
+      checkpoint: full.checkpoint,
+      hash: full.hash,
+      tables: full.tables,
+    });
+    markFirst(entry);
+    this.options.onSynced();
+    return true;
+  }
+
   private emitSubscriptionsChange(): void {
     for (const cb of [...this.changeListeners]) {
       try {
@@ -476,12 +583,6 @@ export class SubscriptionRuntime {
         this.options.onError(error);
       }
     }
-  }
-
-  private resolveFlushWaiters(): void {
-    if (this.flushWaiters.length === 0) return;
-    const waiters = this.flushWaiters.splice(0);
-    for (const resolve of waiters) resolve();
   }
 
   private clearCoalesceTimer(): void {

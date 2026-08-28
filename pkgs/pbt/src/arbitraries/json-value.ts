@@ -1,13 +1,15 @@
 import fc from 'fast-check';
 
-/** Finite JSON numbers (no NaN / ±Infinity — those break canonical JSON). */
+/** Finite JSON numbers (no NaN / ±Infinity / -0 — JSON.stringify collapses -0 to 0). */
 export const arbFiniteNumber = (): fc.Arbitrary<number> =>
-  fc.double({
-    min: -1e9,
-    max: 1e9,
-    noNaN: true,
-    noDefaultInfinity: true,
-  });
+  fc
+    .double({
+      min: -1e9,
+      max: 1e9,
+      noNaN: true,
+      noDefaultInfinity: true,
+    })
+    .filter((n) => !Object.is(n, -0));
 
 /**
  * Object keys biased toward the JS integer-index gotcha

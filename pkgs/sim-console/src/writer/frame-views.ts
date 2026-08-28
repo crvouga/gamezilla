@@ -17,6 +17,7 @@ export function sanitizeViewNodeId(raw: string): string {
 
 /**
  * Write per-actor HTML views for one frame sequence number.
+ * Missing actors reuse {@link lastGoodHtml} so parked clients keep a pane.
  * Returns view metadata; caller still writes the primary `file` HTML.
  */
 export async function writeFrameViewBlobs(args: {
@@ -26,6 +27,8 @@ export async function writeFrameViewBlobs(args: {
   readonly frameSeq: number;
   readonly padFrame: (index: number) => string;
   readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
+  /** nodeId → last non-blank HTML written for this test (mutated in place). */
+  readonly lastGoodHtml?: Map<string, string>;
   readonly onHtml?: (html: string) => void;
 }): Promise<readonly SimulationFrameView[] | undefined> {
   if (!args.snapshotViews) return undefined;
@@ -35,18 +38,40 @@ export async function writeFrameViewBlobs(args: {
   } catch {
     return undefined;
   }
-  if (nodes.length === 0) return [];
+  const merged = mergeWithLastGoodViews(nodes, args.lastGoodHtml);
+  if (merged.length === 0) return [];
   const seq = args.padFrame(args.frameSeq);
   const out: SimulationFrameView[] = [];
-  for (const node of nodes) {
+  for (const node of merged) {
     const safeId = sanitizeViewNodeId(node.nodeId);
     const file = `frames/f-${seq}.${safeId}.html`;
     const key = testFrameKey(args.runId, args.testId, file);
     await storePutText(args.store, key, node.html, 'text/html; charset=utf-8');
+    args.lastGoodHtml?.set(node.nodeId, node.html);
     args.onHtml?.(node.html);
     out.push({ nodeId: node.nodeId, file });
   }
   return out;
+}
+
+/** Live snapshots win; fill gaps from the last non-blank HTML per node. */
+export function mergeWithLastGoodViews(
+  nodes: readonly SnapshotViewNode[],
+  lastGoodHtml: ReadonlyMap<string, string> | undefined
+): SnapshotViewNode[] {
+  const byId = new Map<string, SnapshotViewNode>();
+  for (const node of nodes) {
+    if (node.html.trim() === '') continue;
+    byId.set(node.nodeId, node);
+  }
+  if (lastGoodHtml !== undefined) {
+    for (const [nodeId, html] of lastGoodHtml) {
+      if (byId.has(nodeId)) continue;
+      if (html.trim() === '') continue;
+      byId.set(nodeId, { nodeId, html });
+    }
+  }
+  return [...byId.values()];
 }
 
 /** Prefer acting actor's view file; else first view; else undefined. */

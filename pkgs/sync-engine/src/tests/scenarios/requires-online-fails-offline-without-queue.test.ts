@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  requiresOnlineNote,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  requiresOnlineNote,
+} from '../apps/acme';
 
 describe('requires online fails offline without queue', () => {
   test('offline mutate fails with OFFLINE and does not queue', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 510,
     });
     const a = await world.addClient({ id: 'alice' });

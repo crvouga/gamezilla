@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { runSeed, seedsFromEnv } from '../../domain-packs/notes-app';
+import { runSeed, seedsFromEnv } from '../apps/acme';
 
 /** Committed corpus — modest multi-client profiles that settle reliably. */
 const CORPUS = [1, 7, 11, 17, 31, 42, 99, 404] as const;

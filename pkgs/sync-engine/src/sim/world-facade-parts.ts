@@ -1,9 +1,17 @@
+import { formatCheckpoint } from '../shared/commit-checkpoint';
+import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { SimClientHandle } from './client-handle';
-import { checkSeqMonotonicity, type InvariantViolation } from './invariants';
+import { SIM_SERVER_NODE_ID } from './clock-skew';
+import {
+  checkSeqMonotonicity,
+  type InvariantViolation,
+  isClosedDatabaseError,
+} from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 import { createSimNetHandle } from './net-effect';
 import { createSimNodeHandle } from './node-handle';
 import { unregisterSimWorld } from './scenario-dispose-hook';
+import { tamperClientLocalStorage } from './storage-faults';
 import type { UntilContext } from './until';
 import { runWorldNever, runWorldUntil } from './until';
 import type { SimWorld } from './world-api';
@@ -23,7 +31,13 @@ export async function checkClientSeqs(
   now: () => number
 ): Promise<InvariantViolation | null> {
   for (const c of clients.values()) {
-    const seq = await checkSeqMonotonicity(c.db);
+    let seq: InvariantViolation | null;
+    try {
+      seq = await checkSeqMonotonicity(c.db);
+    } catch (error) {
+      if (isClosedDatabaseError(error)) continue;
+      throw error;
+    }
     if (seq !== null) {
       return {
         ...seq,
@@ -32,6 +46,14 @@ export async function checkClientSeqs(
     }
   }
   return null;
+}
+
+/** Protocol-cut / expired: restore so queued mutations can drain. */
+function restoreNonRevokedAuth(k: BootedSimKernel): void {
+  for (const meta of k.metas.values()) {
+    if (k.authStatusByDevice.get(meta.deviceId) === 'revoked') continue;
+    k.authStatusByDevice.set(meta.deviceId, 'valid');
+  }
 }
 
 export function createArmCrashHook(
@@ -78,7 +100,8 @@ function bindNodeAndNet(args: {
       }),
     node: (id) =>
       createSimNodeHandle(k, id, {
-        crashClient: (cid) => crashClientImpl(k, cid),
+        // Process crash keeps sqlite so settle can drain pending mutations.
+        crashClient: (cid) => crashClientImpl(k, cid, { keepDb: true }),
         restartClient: (cid, opts) => restartClientImpl(k, cid, opts),
         crashServer,
         restartServer: (opts) => restartServerImpl(k, opts),
@@ -87,19 +110,72 @@ function bindNodeAndNet(args: {
   };
 }
 
+function clearBoundaryFaults(faultApi: WorldFaultApi): void {
+  faultApi.clearCrashArms();
+  faultApi.clearHttpFaults();
+  faultApi.clearPublishFault();
+  faultApi.clearPubsubFaults();
+}
+
+async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
+  // Query checkpoints embed server `now()`. Prefer the live allocator's
+  // high-water mark: prepareClientsForConverge may already have cleared
+  // forward skew, so clock-based floor alone underestimates what clients hold.
+  const fromAllocator = k.server.checkpointHighWater();
+  const fromClock = BigInt(
+    formatCheckpoint(k.nowFor(SIM_SERVER_NODE_ID), 999_999)
+  );
+  const checkpointFloor = fromAllocator > fromClock ? fromAllocator : fromClock;
+  k.clockSkew.set(SIM_SERVER_NODE_ID, 0);
+  for (const id of k.clients.keys()) {
+    k.clockSkew.set(id, 0);
+  }
+  try {
+    await restartServerImpl(k, {
+      preserveDb: true,
+      checkpointFloor,
+    });
+  } catch {
+    // already running
+  }
+  // Do not restart a healthy broker here — that remakes every client's MQTT
+  // session and drops in-flight row-image fanout (breaks partial-query peers
+  // and remake-count assertions). DST `heal` / prepareClientsForConverge
+  // still call brokerRestart after chaos.
+  restoreNonRevokedAuth(k);
+}
+
+function createWorldDispose(args: {
+  readonly k: BootedSimKernel;
+  readonly worldRef: { current: SimWorld | null };
+  readonly markDisposed: () => boolean;
+}): () => Promise<void> {
+  const { k, worldRef, markDisposed } = args;
+  return async () => {
+    if (markDisposed()) return;
+    const world = worldRef.current;
+    if (world !== null) unregisterSimWorld(world);
+    for (const c of [...k.clients.values()]) await c.dispose();
+    k.clients.clear();
+    k.unbindHttp();
+    k.broker.dispose();
+    await k.server.dispose();
+  };
+}
+
 export function bindWorldMethods(args: {
   readonly k: BootedSimKernel;
   readonly netEffects: NetEffectRegistry;
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
+  readonly faultApi: WorldFaultApi;
   readonly worldRef: { current: SimWorld | null };
   readonly markDisposed: () => boolean;
 }): Omit<SimWorld, typeof Symbol.asyncDispose> & {
   [Symbol.asyncDispose](): Promise<void>;
 } {
-  const { k, netEffects, armCrashHook, crashServer, worldRef, markDisposed } =
-    args;
-  const { clients, scheduler, network, broker, rng, domain } = k;
+  const { k, netEffects, armCrashHook, crashServer, faultApi } = args;
+  const { clients, scheduler, network, rng, domain } = k;
   const ctx = untilCtx(k);
   const { net, node } = bindNodeAndNet({
     k,
@@ -107,17 +183,7 @@ export function bindWorldMethods(args: {
     armCrashHook,
     crashServer,
   });
-
-  const dispose = async () => {
-    if (markDisposed()) return;
-    const world = worldRef.current;
-    if (world !== null) unregisterSimWorld(world);
-    for (const c of [...clients.values()]) await c.dispose();
-    clients.clear();
-    k.unbindHttp();
-    broker.dispose();
-    await k.server.dispose();
-  };
+  const dispose = createWorldDispose(args);
 
   return {
     seed: rng.seed,
@@ -151,7 +217,16 @@ export function bindWorldMethods(args: {
         domain,
         netEffects,
         now: () => k.clock.now(),
+        clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
+        healInfra: () => healInfraForSettle(k),
       }),
+    tamperLocalStorage: (clientId, tamper) =>
+      tamperClientLocalStorage(k, clientId, tamper),
+    brokerCrash: () => {
+      crashBrokerImpl(k);
+    },
+    brokerRestart: () => restartBrokerImpl(k),
+    clearBoundaryFaults: () => clearBoundaryFaults(faultApi),
     dispose,
     async [Symbol.asyncDispose]() {
       await dispose();

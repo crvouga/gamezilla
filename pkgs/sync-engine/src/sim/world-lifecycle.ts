@@ -5,6 +5,7 @@ import type {
   BoundaryFaultController,
   SimCrashEvent,
   SimHttpFault,
+  SimPubsubFault,
 } from './boundary-faults';
 import type { SimClientHandle } from './client-factory';
 import type { BootedSimKernel } from './world-types';
@@ -66,6 +67,8 @@ export type WorldFaultApi = {
   readonly clearHttpFaults: (nodeId?: string) => void;
   readonly armPublishFault: (count: number | 'next') => void;
   readonly clearPublishFault: () => void;
+  readonly armPubsubFault: (fault: SimPubsubFault) => void;
+  readonly clearPubsubFaults: () => void;
 };
 
 export function worldFaultApi(faults: BoundaryFaultController): WorldFaultApi {
@@ -76,5 +79,7 @@ export function worldFaultApi(faults: BoundaryFaultController): WorldFaultApi {
     clearHttpFaults: (nodeId) => faults.clearHttpFaults(nodeId),
     armPublishFault: (count) => faults.armPublishFault(count),
     clearPublishFault: () => faults.clearPublishFault(),
+    armPubsubFault: (fault) => faults.armPubsubFault(fault),
+    clearPubsubFaults: () => faults.clearPubsubFaults(),
   };
 }

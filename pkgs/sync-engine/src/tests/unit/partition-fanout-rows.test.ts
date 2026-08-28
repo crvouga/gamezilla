@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import type { Topic } from '@pkgs/pubsub/interface';
-import { notesTopicMap, userTopic } from '../../domain-packs/notes-app';
 import { partitionFanoutRowsByTopic } from '../../shared/partition-fanout-rows';
 import { defineTopicMap } from '../../shared/topic-map';
+import { acmeTopicMap, userTopic } from '../apps/acme';
 
 describe('partitionFanoutRowsByTopic', () => {
   test('keeps device-private rows off user topic when map returns empty', async () => {
@@ -50,7 +50,7 @@ describe('partitionFanoutRowsByTopic', () => {
 
   test('notes topic-map partition keeps open sessions off user wake bag', async () => {
     const partitioned = await partitionFanoutRowsByTopic({
-      topicMap: notesTopicMap,
+      topicMap: acmeTopicMap,
       ctx: {
         actorId: 'user-1',
         deviceId: 'device:phone',

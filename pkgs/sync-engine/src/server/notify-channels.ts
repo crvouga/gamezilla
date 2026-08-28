@@ -2,6 +2,7 @@ import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { QueryRow } from '../protocol';
+import { warnPush } from '../shared/is-pubsub-closed-error';
 import type { PushMessage } from '../shared/push-payload';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 
@@ -52,7 +53,7 @@ export async function notifyChannels(
       publish();
     }
   } catch (error: unknown) {
-    console.warn(`[pubsub] allocate/publish failed label=${label}`, error);
+    warnPush(`[pubsub] allocate/publish failed label=${label}`, error);
   }
 }
 
@@ -85,10 +86,7 @@ export function publishPushMessages(options: {
         : {}),
     };
     void options.pubsub.publish(topic, payload).catch((error: unknown) => {
-      console.warn(
-        `[pubsub] publish failed topic=${topic} label=${label}`,
-        error
-      );
+      warnPush(`[pubsub] publish failed topic=${topic} label=${label}`, error);
     });
   }
 }

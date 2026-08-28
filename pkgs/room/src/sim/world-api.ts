@@ -12,6 +12,8 @@ import type {
   RoomState,
 } from '../types';
 
+import type { RoomCrashEvent } from './boundary-faults';
+import type { RoomInvariantViolation } from './invariants';
 import type { RoomNetEffect, RoomNetSetArg, SimRoomNetHandle } from './network';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
 
@@ -34,6 +36,7 @@ export type RoomSimClientHandle<
   readonly hash: () => string;
   readonly isSynced: () => boolean;
   readonly isConnected: () => boolean;
+  readonly isCrashed: () => boolean;
   readonly room: () => RoomClient<S, C, E, string> | null;
   readonly disconnect: () => Promise<void>;
   readonly connect: () => Promise<void>;
@@ -56,6 +59,14 @@ export type RoomSimNodeHandle = {
    * destroying the room client (session take-over).
    */
   readonly takeOver: () => Promise<void>;
+  /** Tear down Room + transport; keep local storage for restart. */
+  readonly crash: () => Promise<void>;
+  /** Recreate Room from persisted (or wiped) local storage. */
+  readonly restart: (opts?: {
+    readonly wipeStorage?: boolean;
+  }) => Promise<void>;
+  /** Wipe local storage and reattach if the client was live. */
+  readonly clearLocalData: () => Promise<void>;
   readonly now: () => number;
 };
 
@@ -88,6 +99,12 @@ export type RoomSimWorld<
   readonly serverHash: () => Promise<string>;
   readonly assertConverged: () => Promise<void>;
   readonly drain: () => Promise<void>;
+  readonly checkInvariants: () => Promise<RoomInvariantViolation | null>;
+  readonly armCrashAt: (clientId: string, event: RoomCrashEvent) => void;
+  readonly clearBoundaryFaults: () => void;
+  readonly serverCrash: () => Promise<void>;
+  readonly serverRestart: () => Promise<void>;
+  readonly isServerCrashed: () => boolean;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
@@ -109,5 +126,7 @@ export type OpenRoomSimWorldArgs<
   readonly storage?: InMemoryRoomStorage;
 };
 
+export type { RoomCrashEvent } from './boundary-faults';
+export type { RoomInvariantViolation } from './invariants';
 // Re-export net types used by scenarios.
 export type { RoomNetEffect, RoomNetSetArg };

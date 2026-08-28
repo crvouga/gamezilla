@@ -1,20 +1,20 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
-  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('push tables filter wakes overlapping scopes', () => {
   test('folders-only push does not wake notesOnly peer; foldersOnly peer wakes', async () => {
     // rowImageFanout false: table filter gates wake+refetch (optimistic images
     // bypass the filter when fanout is on).
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 690,
       rowImageFanout: false,
     });

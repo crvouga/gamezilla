@@ -1,21 +1,21 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   createSpace,
   expectLiveNote,
   isLiveNote,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   setSpaceNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('push for just unsubscribed topic ignored', () => {
   test('leave races room push; ignored without error; engine stays healthy', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 812,
     });
     const a = await world.addClient({

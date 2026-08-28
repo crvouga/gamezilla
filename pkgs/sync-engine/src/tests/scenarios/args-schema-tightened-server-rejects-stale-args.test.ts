@@ -1,27 +1,27 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
+  acmeMutationRegistry,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
-  notesMutationRegistry,
   setNote,
   setNoteArgsLoose,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(
     'loose client args rejected by tight server (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });
       const a = await world.addClient({
         id: 'alice',
         mutationRegistry: {
-          ...notesMutationRegistry,
+          ...acmeMutationRegistry,
           [setNoteArgsLoose.name]: setNoteArgsLoose,
         },
       });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { notesTopicMap, userTopic } from '../../domain-packs/notes-app';
 import type { MutationDb } from '../../mutations/core/types';
+import { acmeTopicMap, userTopic } from '../apps/acme';
 
 describe('friend space topic map wakes peers', () => {
   test('live space owned by alice wakes friend bob via topic-map-db', async () => {
@@ -13,7 +13,7 @@ describe('friend space topic map wakes peers', () => {
       run: async () => ({ changes: 0, lastInsertRowid: 0 }),
     } as unknown as MutationDb;
 
-    const topics = await notesTopicMap['spaces']!.topics(
+    const topics = await acmeTopicMap['spaces']!.topics(
       {
         id: 'friend-space',
         owner_id: 'alice',
@@ -43,7 +43,7 @@ describe('friend space topic map wakes peers', () => {
       run: async () => ({ changes: 0, lastInsertRowid: 0 }),
     } as unknown as MutationDb;
 
-    const topics = await notesTopicMap['spaces']!.topics(
+    const topics = await acmeTopicMap['spaces']!.topics(
       {
         id: 'friend-space',
         owner_id: 'alice',

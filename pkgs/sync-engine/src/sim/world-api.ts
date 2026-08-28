@@ -12,6 +12,7 @@ import type { SimNodeHandle } from './node-handle';
 import type { SeededRng } from './rng';
 import type { SimScheduler } from './scheduler';
 import type { SimServer } from './server';
+import type { LocalStorageTamper } from './storage-faults';
 import type { SimTraffic } from './traffic';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
 import type { AddClientArgs } from './world-types';
@@ -46,6 +47,18 @@ export type SimWorld = {
   readonly pendingEventCount: () => number;
   readonly checkInvariants: () => Promise<InvariantViolation | null>;
   readonly assertConverged: () => Promise<void>;
+  readonly tamperLocalStorage: (
+    clientId: string,
+    tamper: LocalStorageTamper
+  ) => Promise<void>;
+  readonly brokerCrash: () => void;
+  readonly brokerRestart: () => Promise<void>;
+  /**
+   * Drop armed crash / HTTP / pubsub / publish faults. Settle and DST
+   * converge prep call this so leftover one-shots cannot fire on heal
+   * restarts (e.g. revoke → fresh DB migrate + onNextEngineOpenAfterCacheWipe).
+   */
+  readonly clearBoundaryFaults: () => void;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };

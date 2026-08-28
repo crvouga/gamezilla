@@ -1,20 +1,20 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteNote,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  notesDomainPack,
   readNoteTombstone,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('rebase onto peer tombstone pinned semantics', () => {
   test('pending setNote rebases onto peer tombstone and revives after upload', async () => {
     // setNote upsert clears deleted_at — pin revive semantics for all clients.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 820,
     });
     const a = await world.addClient({ id: 'alice' });

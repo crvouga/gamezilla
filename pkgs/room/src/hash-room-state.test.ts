@@ -15,6 +15,23 @@ describe('hashRoomState', () => {
     );
   });
 
+  test('__proto__ own key is preserved in the digest', () => {
+    const withProto = Object.defineProperty(
+      {} as Record<string, unknown>,
+      '__proto__',
+      {
+        value: { a: 1 },
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      }
+    );
+    expect(canonicalRoomJson(withProto)).toBe('{"__proto__":{"a":1}}');
+    expect(hashRoomState(withProto as RoomState)).not.toBe(
+      hashRoomState({} as RoomState)
+    );
+  });
+
   test('equivalent states with different key insertion order share a hash', () => {
     const ka = asKeyword('test/alpha');
     const kz = asKeyword('test/zeta');

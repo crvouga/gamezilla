@@ -12,7 +12,8 @@ function sortValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sortValue);
   const obj = value as Record<string, unknown>;
   const keys = Object.keys(obj).sort();
-  const out: Record<string, unknown> = {};
+  // Null prototype so a `__proto__` key is copied as data, not as [[Prototype]].
+  const out = Object.create(null) as Record<string, unknown>;
   for (const key of keys) {
     const v = obj[key];
     if (v !== undefined) out[key] = sortValue(v);

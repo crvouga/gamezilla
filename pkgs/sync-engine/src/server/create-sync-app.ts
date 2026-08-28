@@ -6,6 +6,7 @@ import { Hono } from 'hono';
 import type { MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
+import { createMonotonicCheckpoint } from '../shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { TopicMap } from '../shared/topic-map';
 import type { SyncSqlVariables } from './resolve-request-sql';
@@ -42,14 +43,9 @@ export type CreateSyncAppDeps = {
  * Always merges framework mutations into the product registry.
  */
 export function createSyncApp(deps: CreateSyncAppDeps) {
-  // Per-app counter — never module-scope (multi-sim / multi-app isolation).
-  let checkpointSeq = 0;
+  // Per-app allocator — never module-scope (multi-sim / multi-app isolation).
   const nextCheckpoint =
-    deps.nextCheckpoint ??
-    (() => {
-      checkpointSeq += 1;
-      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
-    });
+    deps.nextCheckpoint ?? createMonotonicCheckpoint(deps.now).next;
   const mutations = withFrameworkMutations(deps.mutations);
   const app = new Hono<{ Variables: SyncSqlVariables }>();
   mountQueryRoutes(app, {

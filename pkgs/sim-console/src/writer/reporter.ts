@@ -159,6 +159,8 @@ export class SimulationReporter {
     | undefined;
   /** SHA-256 → relative file already written for this test. */
   private readonly writtenDbBlobs = new Map<string, string>();
+  /** nodeId → last non-blank HTML (parked clients omitted from snapshotViews). */
+  private readonly lastGoodHtml = new Map<string, string>();
   /** Acting actor for the in-flight `record` (used to pick primary HTML file). */
   private currentActorId: string | undefined;
 
@@ -238,8 +240,11 @@ export class SimulationReporter {
     if (this.flushed && this.reportPath) {
       return this.toData(this.now());
     }
+    // Mark flushed only after a successful final publish — a thrown mid-write
+    // must remain retryable from dispose / await-using.
+    const data = await this.publishProgress({ final: true });
     this.flushed = true;
-    return this.publishProgress({ final: true });
+    return data;
   }
 
   /**
@@ -435,6 +440,7 @@ export class SimulationReporter {
       now: this.now,
       attribution: this.attribution,
       writtenDbBlobs: this.writtenDbBlobs,
+      lastGoodHtml: this.lastGoodHtml,
       ...(this.snapshotViews !== undefined
         ? { snapshotViews: this.snapshotViews }
         : {}),

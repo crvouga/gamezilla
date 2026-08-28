@@ -1,21 +1,21 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   deleteFolder,
   expectFoldersMatchServer,
   expectLiveNote,
   moveNote,
-  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 20,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -40,7 +40,7 @@ describe('folders and notes multi table converge', () => {
 
   test('moveNote updates folder_id on peers', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 21,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -64,7 +64,7 @@ describe('folders and notes multi table converge', () => {
 
   test('deleteFolder soft-deletes folder; notes remain', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 22,
     });
     const a = await world.addClient({ id: 'alice' });

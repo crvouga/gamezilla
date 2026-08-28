@@ -87,6 +87,35 @@ export function isPartitioned(
   );
 }
 
+/** Stochastic edge partition / heal driven by fault profile probabilities. */
+export function maybeFlipSpontaneousPartition(
+  state: SimNetworkState,
+  from: string,
+  to: string,
+  faults: SimFaultOptions
+): void {
+  if (from === to) return;
+  const key = edgeKey(from, to);
+  const reverse = edgeKey(to, from);
+  if (
+    faults.partitionProbability > 0 &&
+    !state.partitioned.has(key) &&
+    state.rng.bool(faults.partitionProbability)
+  ) {
+    state.partitioned.add(key);
+    state.partitioned.add(reverse);
+    return;
+  }
+  if (
+    faults.unpartitionProbability > 0 &&
+    state.partitioned.has(key) &&
+    state.rng.bool(faults.unpartitionProbability)
+  ) {
+    state.partitioned.delete(key);
+    state.partitioned.delete(reverse);
+  }
+}
+
 export function resolveFaults(
   state: SimNetworkState,
   nodeId: string,
@@ -196,6 +225,8 @@ export function networkSend(
     client !== null
       ? resolveFaults(state, client.nodeId, client.traffic)
       : state.defaultFaults;
+  maybeFlipSpontaneousPartition(state, from, to, faults);
+  if (isPartitioned(state, from, to)) return;
   if (state.rng.bool(faults.packetLossProbability)) return;
   const packet = { from, to, payload };
   scheduleDeliver(state, packet, faults);

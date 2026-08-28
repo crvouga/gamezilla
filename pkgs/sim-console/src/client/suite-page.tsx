@@ -11,7 +11,7 @@ import {
 import { useMemo } from 'react';
 
 import type { SuiteTestSummary } from '../types';
-import { formatMs } from './frames';
+import { formatMs, formatRunUpdatedAt } from './frames';
 import { ReportHeader } from './report-header';
 import {
   appBodyFrameSx,
@@ -83,11 +83,15 @@ export function SuitePage(props: {
   readonly bucketId: string;
   readonly runId: string;
   readonly tests: readonly SuiteTestSummary[];
+  /** Manifest / run `updatedAtMs` — shown next to the run id. */
+  readonly updatedAtMs?: number | null;
   readonly onOpenTest: (testId: string) => void;
 }) {
   const { bucketId, runId, tests, onOpenTest } = props;
   const passed = tests.filter((tt) => tt.status === 'passed').length;
   const bodySx = useAppBodyContentSx();
+  const updated = formatRunUpdatedAt(props.updatedAtMs);
+  const runLabel = updated != null ? `${runId} · ${updated}` : runId;
 
   const loadPage = useMemo(
     () => createMemoryPageLoader(() => tests, compareTests),
@@ -97,7 +101,7 @@ export function SuitePage(props: {
   return (
     <Box sx={appShellSx}>
       <ReportHeader
-        meta={`${bucketId} · ${runId} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
+        meta={`${bucketId} · ${runLabel} · ${tests.length} test${tests.length === 1 ? '' : 's'}${tests.length ? ` · ${passed} passed` : ''}`}
       />
       <ScrollView frameSx={appBodyFrameSx} sx={bodySx}>
         <Box sx={{ flex: 1, minHeight: 280, alignSelf: 'stretch' }}>

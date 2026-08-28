@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  setNoteUniqueSlug,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  setNoteUniqueSlug,
+} from '../apps/acme';
 
 describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(
     'unique conflict surfaces SLUG_TAKEN (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
         rowImageFanout: false,
       });

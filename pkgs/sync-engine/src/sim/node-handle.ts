@@ -1,4 +1,8 @@
-import type { SimCrashEvent, SimHttpFault } from './boundary-faults';
+import type {
+  SimCrashEvent,
+  SimHttpFault,
+  SimPubsubFault,
+} from './boundary-faults';
 import type { SimAuthStatus, SimClientHandle } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import type { RestartClientOpts } from './world-lifecycle';
@@ -17,6 +21,7 @@ export type SimNodeHandle = {
   now(): number;
   httpFault(fault: SimHttpFault): SkewEffect;
   publishFault(count: number | 'next'): SkewEffect;
+  pubsubFault(fault: SimPubsubFault): SkewEffect;
 };
 
 function syncDisposable(restore: () => void): SkewEffect {
@@ -101,6 +106,15 @@ export function createSimNodeHandle(
       k.faults.armPublishFault(count);
       return syncDisposable(() => {
         k.faults.clearPublishFault();
+      });
+    },
+    pubsubFault(fault) {
+      if (nodeId !== SIM_SERVER_NODE_ID) {
+        throw new Error('pubsubFault: server node only');
+      }
+      k.faults.armPubsubFault(fault);
+      return syncDisposable(() => {
+        k.faults.clearPubsubFaults();
       });
     },
   };

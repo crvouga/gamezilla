@@ -1,15 +1,11 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 40,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -27,7 +23,7 @@ describe('crash restart rehydrates and drains queue', () => {
 
   test('restart after crash rehydrates all live notes', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 41,
     });
     const a = await world.addClient({ id: 'alice' });

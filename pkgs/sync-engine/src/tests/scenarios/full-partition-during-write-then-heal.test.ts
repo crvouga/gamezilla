@@ -1,15 +1,11 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('full partition during write then heal', () => {
   test('partition then heal converges domain state', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 33,
     });
     const a = await world.addClient({ id: 'alice' });

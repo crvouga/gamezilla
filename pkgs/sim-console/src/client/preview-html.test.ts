@@ -1,12 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 
+import { applyPreviewIframeSrcdoc } from './apply-preview-iframe-srcdoc';
 import { formatMsStable } from './frames';
-import { PREVIEW_STRETCH_SHELL_CSS } from './preview-frame-css';
+import {
+  PREVIEW_IN_DOM_SHELL_CSS,
+  PREVIEW_STRETCH_SHELL_CSS,
+} from './preview-frame-css';
 import {
   isBlankSnapshotBody,
   patchPreviewHtml,
   prepareSnapshotHtml,
 } from './preview-html';
+
+describe('applyPreviewIframeSrcdoc', () => {
+  test('writes DOM srcdoc property and attribute', () => {
+    const attrs = new Map<string, string>();
+    const el = {
+      srcdoc: '',
+      setAttribute(name: string, value: string) {
+        attrs.set(name, value);
+      },
+    };
+    applyPreviewIframeSrcdoc(el, '<html>alice</html>');
+    expect(el.srcdoc).toBe('<html>alice</html>');
+    expect(attrs.get('srcdoc')).toBe('<html>alice</html>');
+  });
+});
 
 describe('isBlankSnapshotBody', () => {
   test('treats whitespace-only bodies as blank', () => {
@@ -57,8 +76,39 @@ describe('patchPreviewHtml', () => {
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('min(calc(100vw /');
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('390px');
     expect(PREVIEW_STRETCH_SHELL_CSS).toContain('844px');
-    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform:scale');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('transform:scale(min(');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain(
+      'transform-origin:center center'
+    );
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('position:absolute');
+    expect(PREVIEW_STRETCH_SHELL_CSS).toContain('inset:0;margin:auto');
+    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('translate(-50%,-50%)');
+    expect(PREVIEW_STRETCH_SHELL_CSS).not.toContain('left:0;top:0');
     expect(PREVIEW_STRETCH_SHELL_CSS).not.toMatch(/html,body\{[^}]*\d+px/);
+  });
+
+  test('PREVIEW_IN_DOM_SHELL_CSS scales with container queries', () => {
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('container-type:size');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('100cqw');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('100cqh');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain(
+      'transform-origin:center center'
+    );
+    expect(PREVIEW_IN_DOM_SHELL_CSS).toContain('inset:0;margin:auto');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).not.toContain('left:0;top:0');
+    expect(PREVIEW_IN_DOM_SHELL_CSS).not.toContain('100vw');
+  });
+
+  test('prepareSnapshotHtml scopes in-DOM shell to snapshot-host', () => {
+    const out = prepareSnapshotHtml(
+      '<body><div class="rn-root">ok</div></body>',
+      {
+        shellCss: PREVIEW_IN_DOM_SHELL_CSS,
+      }
+    );
+    expect(out.styleHtml).toContain('.snapshot-host');
+    expect(out.styleHtml).toContain('100cqw');
+    expect(out.bodyHtml).toContain('class="rn-root"');
   });
 
   test('injects stretch shell CSS into preview documents', () => {

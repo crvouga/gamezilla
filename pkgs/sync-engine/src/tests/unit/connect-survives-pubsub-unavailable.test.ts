@@ -4,7 +4,7 @@ import { SqlClientImplSqliteMem } from '@pkgs/sql-client/sqlite/impl-sqlite-mem'
 
 import { createLocalSyncEngine } from '../../client/create-local-sync-engine';
 import type { Timers } from '../../client/sim-ports';
-import { notesLocalSchema } from '../../domain-packs/notes-app';
+import { acmeLocalSchema } from '../apps/acme';
 
 const timers: Timers = {
   setTimeout: () => 0,
@@ -28,7 +28,7 @@ async function openEngine(createPubSub: () => PubSub | null) {
   await db.connect();
   const engine = await createLocalSyncEngine({
     db,
-    localSchema: notesLocalSchema,
+    localSchema: acmeLocalSchema,
     mutationRegistry: {},
     getMutationEnv: () => ({
       actorId: 'alice',

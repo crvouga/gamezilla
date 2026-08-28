@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   insertCatalogNote,
   isLiveNote,
-  notesDomainPack,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('non mutation catalog insert wakes empty hydrate', () => {
   // Chess-puzzle shaped bug: empty first sync of a world/entryChannel query,
@@ -14,7 +14,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1401,
     });
     const client = await world.addClient({ id: 'alice' });
@@ -35,7 +35,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1402,
     });
     const client = await world.addClient({ id: 'alice' });

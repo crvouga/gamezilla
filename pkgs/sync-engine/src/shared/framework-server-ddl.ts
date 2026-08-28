@@ -16,6 +16,9 @@ export const SYNC_ENGINE_WRITE_REJECTIONS = 'sync_engine_write_rejections';
 export const SYNC_ENGINE_SCOPE_META = 'sync_engine_scope_meta';
 export const SYNC_ENGINE_PUSH_APPLIED = 'sync_engine_push_applied';
 export const SYNC_ENGINE_TOPIC_SEQ = 'sync_engine_topic_seq';
+/** Client-only: peer rows applied from optimistic MQTT (healed on snapshot). */
+export const SYNC_ENGINE_OPTIMISTIC_PEER_ROWS =
+  'sync_engine_optimistic_peer_rows';
 
 /**
  * Single portable DDL for prod Postgres and sim SQLite.

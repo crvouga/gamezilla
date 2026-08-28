@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   isLiveNote,
-  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('auth revoked wipes db expired refreshes', () => {
   test('expired token refreshes; held queue drains and converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 601,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -34,7 +34,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
   test('revoked wipe drops unuploaded optimistic edit; restart rehydrates server only', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 602,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -65,7 +65,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
   test('expired during multi-mutation drain refreshes without loss', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 603,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -94,7 +94,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
   test('revoked mid-push session wipes and detaches topics', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 604,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -127,7 +127,7 @@ describe('auth revoked wipes db expired refreshes', () => {
 
   test('upgrade_required rejects without wiping local rows', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 605,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -150,5 +150,18 @@ describe('auth revoked wipes db expired refreshes', () => {
     await expectLiveNote(world.server.db, 'n-keep', {
       body: 'local-and-server',
     });
+  });
+
+  test('seq invariants skip a revoked client after server restart', async () => {
+    await using world = await openSimWorld({
+      domain: acmeDomainPack,
+      seed: 606,
+    });
+    const a = await world.addClient({ id: 'c0' });
+    await world.addClient({ id: 'c1' });
+    world.node('c0').auth('revoked');
+    await a.connect();
+    await world.node('server').restart({ preserveLocalDb: true });
+    expect(await world.checkInvariants()).toBeNull();
   });
 });

@@ -62,12 +62,16 @@ module.exports = () => {
     if (fs.existsSync(keysFile)) {
       fs.rmSync(keysFile, { force: true, maxRetries: 5, retryDelay: 100 });
     }
+    const staleFile = path.join(reportsDir, 'stale.json');
+    if (fs.existsSync(staleFile)) {
+      fs.rmSync(staleFile, { force: true });
+    }
     fs.mkdirSync(reportsDir, { recursive: true });
   }
 
   const seedScript = path.join(__dirname, 'scripts/build-sim-seed.ts');
   // Use Bun's TS runner — not `bunx tsx` (tsx wraps esbuild and leaves
-  // orphan `esbuild --service` processes when Jest force-exits).
+  // orphan `esbuild --service` processes if the Jest worker is killed).
   execFileSync('bun', [seedScript], {
     cwd: __dirname,
     stdio: 'inherit',

@@ -88,18 +88,26 @@ export class InfisicalCliDep {
   }
 
   install(): void {
-    this.installOrUpgrade('install');
+    this.dispatch('install');
   }
 
   upgrade(): void {
-    this.installOrUpgrade('upgrade');
+    this.dispatch('upgrade');
+  }
+
+  async installOrUpgrade(): Promise<void> {
+    if (which(INFISICAL_CLI_BIN)) {
+      this.upgrade();
+    } else {
+      this.install();
+    }
   }
 
   verify(): void {
     verifyRun(INFISICAL_CLI_BIN, ['--version']);
   }
 
-  private installOrUpgrade(method: 'install' | 'upgrade'): void {
+  private dispatch(method: 'install' | 'upgrade'): void {
     const path = whichPath(INFISICAL_CLI_BIN);
     const githubInstaller = createGithubInstaller(this.options.osFs);
     // PATH owns a user-local binary — update that (Homebrew would leave it stale).

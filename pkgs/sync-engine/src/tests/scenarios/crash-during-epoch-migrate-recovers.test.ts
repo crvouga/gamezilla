@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
   expectNotesMatchServer,
-  notesDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('crash during epoch migrate recovers', () => {
   test('crash after cache wipe mid migrate; next boot drains pending', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 834,
     });
     const a = await world.addClient({ id: 'alice' });

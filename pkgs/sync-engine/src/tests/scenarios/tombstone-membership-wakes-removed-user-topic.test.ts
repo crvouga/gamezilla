@@ -1,21 +1,21 @@
 import { describe, expect, test } from 'bun:test';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
+  acmeTopicMap,
   createSpace,
   joinSpace,
   leaveSpace,
-  notesDomainPack,
-  notesTopicMap,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
   userTopic,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('tombstone membership wakes removed user topic', () => {
   test('spaces_users tombstone post-image still maps to removed user topic', async () => {
     const topics = await topicsFromWriteCapture({
-      topicMap: notesTopicMap,
+      topicMap: acmeTopicMap,
       ctx: {
         actorId: 'alice',
         deviceId: 'd1',
@@ -43,7 +43,7 @@ describe('tombstone membership wakes removed user topic', () => {
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1201,
     });
     const a = await world.addClient({

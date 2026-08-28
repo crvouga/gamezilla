@@ -1,10 +1,6 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 /** Over MAX_FANOUT_BYTES (32KiB) so fanoutRowsWithinCap drops row images. */
 const HUGE_BODY = 'x'.repeat(33 * 1024);
@@ -13,7 +9,7 @@ describe('oversized fanout falls back to refetch', () => {
   test('oversized row images fall back to pushSeq-only; peers still converge', async () => {
     // rowImageFanout true (default): cap drops images; wake+refetch still converges.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 670,
     });
     const a = await world.addClient({ id: 'alice' });

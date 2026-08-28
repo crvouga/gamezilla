@@ -95,6 +95,7 @@ export function ReportViews(props: {
       bucketId={nav.bucketId}
       runId={runLabel}
       tests={data.tests}
+      updatedAtMs={data.suiteUpdatedAtMs}
       onOpenTest={(testId) => {
         onNav(navigateReport(nav, clearPlayerNav({ testId })));
       }}

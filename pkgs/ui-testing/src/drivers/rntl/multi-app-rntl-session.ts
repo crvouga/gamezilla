@@ -246,6 +246,7 @@ function cacheActorSnapshot(
   }
 ): void {
   const html = deps.facades.get(actorId)?.snapshotHtml?.(deps.options);
+  // Never wipe a non-blank cache when the live tree is a blank shell.
   if (html !== undefined && !isBlankSnapshotHtml(html)) {
     deps.snapshotCache.set(actorId, html);
   }
@@ -256,9 +257,13 @@ function rememberSnapshotHtml(
   actorId: string,
   html: string | undefined
 ): string | undefined {
-  if (html === undefined || isBlankSnapshotHtml(html)) return undefined;
-  snapshotCache.set(actorId, html);
-  return html;
+  if (html !== undefined && !isBlankSnapshotHtml(html)) {
+    snapshotCache.set(actorId, html);
+    return html;
+  }
+  const cached = snapshotCache.get(actorId);
+  if (cached !== undefined && !isBlankSnapshotHtml(cached)) return cached;
+  return undefined;
 }
 
 function readCachedSnapshots(
@@ -342,7 +347,9 @@ function buildMultiAppSession(deps: {
       deps.focusState.syncHost();
     },
     clearFocus() {
-      if (deps.focusState.activeActorId === undefined) return;
+      const active = deps.focusState.activeActorId;
+      if (active === undefined) return;
+      deps.focusState.cacheBlurredActor(active);
       deps.focusState.activeActorId = undefined;
       deps.focusState.syncHost();
     },

@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { openSimWorld } from '../../sim/world';
+import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 const EMOJI_RTL = 'hello 👋 مرحبا \u202Ertl';
 const WITH_NULL = `before\u0000after-${'x'.repeat(32)}`;
@@ -13,7 +9,7 @@ const HUGE = `${'🚀'.repeat(50)}${'a'.repeat(100_000)}`;
 describe('unicode null byte huge string roundtrip', () => {
   test('emoji RTL null-byte and huge body round-trip across peers', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 990,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -35,7 +31,7 @@ describe('unicode null byte huge string roundtrip', () => {
     'seed sweep unicode bodies hash-stable converge (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

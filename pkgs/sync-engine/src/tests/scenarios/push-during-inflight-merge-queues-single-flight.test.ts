@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesDomainPack,
-  readLiveNotes,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  expectNotesMatchServer,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
 
 describe('push during inflight merge queues single flight', () => {
   test('pushes during merge leave no torn intermediate; final converge', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 811,
       faults: {
         ...RELIABLE_FAULTS,

@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
-  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 const QUEUE_SIZE = 100;
 
 describe('mutation batch over max drains without dupes', () => {
   test('queue larger than MAX_MUTATIONS_BATCH drains across batches without dupes', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 650,
     });
     const a = await world.addClient({ id: 'alice' });

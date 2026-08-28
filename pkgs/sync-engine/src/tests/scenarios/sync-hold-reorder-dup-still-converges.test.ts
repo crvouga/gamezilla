@@ -1,11 +1,11 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld, type SimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
   for (const client of world.clients.values()) {
@@ -16,7 +16,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 describe('sync hold reorder dup still converges', () => {
   test('held sync still converges after release', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 503,
       rowImageFanout: false,
     });
@@ -37,7 +37,7 @@ describe('sync hold reorder dup still converges', () => {
 
   test('reordered sync still converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 504,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -57,7 +57,7 @@ describe('sync hold reorder dup still converges', () => {
 
   test('duplicate sync still converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 505,
     });
     const a = await world.addClient({ id: 'alice' });

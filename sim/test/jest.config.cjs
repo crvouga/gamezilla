@@ -84,7 +84,4 @@ module.exports = {
   // tmp purge mid-run cannot ENOENT write-file-atomic renames.
   cacheDirectory: path.join(__dirname, '.cache/jest'),
   globalSetup: '<rootDir>/jest.global-setup.cjs',
-  // In-process sim leaves Better Auth / Hono work after dispose; without this
-  // Jest waits on open handles and `--detectOpenHandles` exits non-zero.
-  forceExit: true,
 };

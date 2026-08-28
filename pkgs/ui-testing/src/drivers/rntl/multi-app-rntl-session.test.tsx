@@ -79,6 +79,20 @@ describe('createMultiAppRntlSession', () => {
     expect(onActorFocus).not.toHaveBeenCalled();
   });
 
+  it('clearFocus caches the active actor for later snapshotAllActors', async () => {
+    session = createMultiAppRntlSession();
+    const alice = session.mountActor('alice', createElement(DemoApp));
+    await alice.activate();
+    await alice.typeText(alice.query('email')!, 'alice@example.com');
+    session.clearFocus();
+    expect(session.activeActorId()).toBeUndefined();
+
+    session.mountActor('bob', createElement(DemoApp));
+    const snapshots = await session.snapshotAllActors();
+    expect(snapshots.get('alice')).toContain('alice@example.com');
+    expect(snapshots.get('bob')).toBeDefined();
+  });
+
   it('keeps the remaining actor interactive after one unmounts', async () => {
     session = createMultiAppRntlSession();
     const alice = session.mountActor('alice', createElement(DemoApp));

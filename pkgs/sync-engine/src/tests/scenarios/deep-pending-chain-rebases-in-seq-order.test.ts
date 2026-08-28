@@ -1,21 +1,21 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNotesMatchServer,
-  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 const CHAIN = 60;
 
 describe('deep pending chain rebases in seq order', () => {
   test('50+ pending folders+notes rebase in seq order to server truth', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 822,
     });
     const a = await world.addClient({ id: 'alice' });

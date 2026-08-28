@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
-  notesDomainPack,
   readLiveFolders,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('empty tables and zero row snapshot', () => {
   test('zero-row world converges; not_modified refresh stays empty', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1020,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -32,7 +32,7 @@ describe('empty tables and zero row snapshot', () => {
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
     // Pin upsert contract: empty secondary scope refresh must not wipe domain.
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 1021,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -55,7 +55,7 @@ describe('empty tables and zero row snapshot', () => {
     'seed sweep empty converge (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       await world.addClient({ id: 'alice' });

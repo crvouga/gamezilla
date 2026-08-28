@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   expectNoteNotLive,
-  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 610,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -34,5 +34,17 @@ describe('cache clear preserves pending mutations', () => {
     await expectLiveNote(a.db, 'n1', { body: 'durable-queued' });
     await expectLiveNote(b.db, 'n1', { body: 'durable-queued' });
     await expectLiveNote(world.server.db, 'n1', { body: 'durable-queued' });
+  });
+
+  test('cache clear during sync partition does not hang on in-flight upload', async () => {
+    await using world = await openSimWorld({
+      domain: acmeDomainPack,
+      seed: 611,
+    });
+    const a = await world.addClient({ id: 'alice' });
+    using _down = world.net('alice', 'sync').set('down');
+    await a.mutate(setNote, { id: 'n1', body: 'queued-while-down' });
+    await a.clearLocalData('cache');
+    expect(await readLiveNotes(a.db)).toEqual([]);
   });
 });

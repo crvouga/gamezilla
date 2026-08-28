@@ -36,7 +36,7 @@ export async function settleWorld(args: {
   args.world.network.setDefaultFaults(RELIABLE_FAULTS);
   for (const id of args.ids) {
     if (!args.world.clients.has(id)) {
-      await args.world.node(id).restart();
+      await args.world.node(id).restart({ preserveLocalDb: true });
     }
     args.world.clients.get(id)?.online(true);
     args.world.clients.get(id)?.foreground(true);

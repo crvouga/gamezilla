@@ -22,6 +22,11 @@ export interface GithubReleaseTarballInstallerOptions {
   readonly binName: string;
   /** Derive the archive name + format from the resolved version + os. */
   readonly archive: (version: string, os: Os) => GithubReleaseArchive;
+  /**
+   * Pin a release version (no leading `v`). When omitted, resolves
+   * `releases/latest`.
+   */
+  readonly version?: string;
   /** Where to drop the extracted binary. Default `os.defaultBinDir()`. */
   readonly installDir?: string;
   /** Test seam: inject a specific `Os`. */
@@ -54,7 +59,11 @@ export class GithubReleaseTarballInstaller implements Installer {
     const os = this.opts.os ?? currentOs();
     const installDir = this.opts.installDir ?? os.defaultBinDir();
     const osFs = this.opts.osFs ?? missingOsFs;
-    const version = resolveLatestSync(this.opts.repo);
+    const pinned = this.opts.version?.trim();
+    const version =
+      pinned !== undefined && pinned.length > 0
+        ? pinned.replace(/^v/, '')
+        : resolveLatestSync(this.opts.repo);
     if (version === null) {
       throw new Error(`failed to resolve latest release for ${this.opts.repo}`);
     }

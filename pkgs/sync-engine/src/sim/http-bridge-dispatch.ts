@@ -1,4 +1,5 @@
 import type { BoundaryFaultController } from './boundary-faults';
+import { corruptJsonString } from './corruption-faults';
 import type {
   SimHttpRequest,
   SimHttpResponse,
@@ -54,11 +55,19 @@ async function dispatchQuery(args: {
     return;
   }
   const body = await handlers.handleQuery(payload.requests);
+  const corrupt = clientNode
+    ? faults?.peekHttpFault(clientNode, 'corruptQueryResponse')
+    : undefined;
+  let wireBody: unknown = body;
+  if (corrupt?.kind === 'corruptQueryResponse') {
+    faults?.takeHttpFault(clientNode!, 'corruptQueryResponse');
+    wireBody = corruptJsonString(JSON.stringify(body), corrupt.variant);
+  }
   network.send(serverId, replyTo, {
     kind: 'query',
     correlationId: payload.correlationId,
     ok: true,
-    body,
+    body: wireBody as typeof body,
   } satisfies SimHttpResponse);
 }
 
@@ -134,7 +143,19 @@ async function dispatchMutations(args: {
     kind: 'mutations',
     correlationId: payload.correlationId,
     ok: true,
-    body,
+    body: (() => {
+      const corrupt = clientNode
+        ? faults?.peekHttpFault(clientNode, 'corruptMutationsResponse')
+        : undefined;
+      if (corrupt?.kind === 'corruptMutationsResponse') {
+        faults?.takeHttpFault(clientNode!, 'corruptMutationsResponse');
+        return corruptJsonString(
+          JSON.stringify(body),
+          corrupt.variant
+        ) as unknown as typeof body;
+      }
+      return body;
+    })(),
   } satisfies SimHttpResponse);
 }
 

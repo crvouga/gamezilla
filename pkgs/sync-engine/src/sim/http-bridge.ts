@@ -7,6 +7,7 @@ import type { QueryResponse } from '../queries/core/types';
 import type { BoundaryFaultController } from './boundary-faults';
 import { dispatchSimHttpRequest } from './http-bridge-dispatch';
 import {
+  abortAllPending,
   createSimHttpRpc,
   rejectAllPending,
   type SimHttpPending,
@@ -74,6 +75,8 @@ export type SimHttpClient = {
   readonly postMutations: (
     mutations: readonly MutationUploadRow[]
   ) => Promise<MutationUploadResult>;
+  /** Reject in-flight RPCs without unregistering (disconnect / reconnect). */
+  readonly abortPending: () => void;
   readonly dispose: () => void;
 };
 
@@ -106,11 +109,12 @@ export function createSimHttpClient(args: {
     if (waiter === undefined) return;
     pending.delete(payload.correlationId);
     const finish = () => waiter.resolve(payload);
-    if (args.onSyncResponseDelivered === undefined || nodeId === undefined) {
-      finish();
-      return;
+    finish();
+    if (args.onSyncResponseDelivered !== undefined && nodeId !== undefined) {
+      // Resolve RPC before boundary crash hooks — crash dispose awaits
+      // stopAndDrain on the same in-flight query sweep.
+      void Promise.resolve(args.onSyncResponseDelivered());
     }
-    void Promise.resolve(args.onSyncResponseDelivered()).then(finish, finish);
   });
 
   const rpc = createSimHttpRpc({
@@ -138,6 +142,9 @@ export function createSimHttpClient(args: {
         mutations,
       });
       return unwrapOk(res, 'mutations') as MutationUploadResult;
+    },
+    abortPending: () => {
+      abortAllPending(pending, 'sim http client disconnected');
     },
     dispose() {
       rejectAllPending(pending, 'sim http client disposed');

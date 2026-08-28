@@ -1,4 +1,4 @@
-import { describe, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import type { Timers } from '@pkgs/clock';
 import { HttpNetworkError } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -25,6 +25,45 @@ function stubDb(): SqlClient {
 }
 
 describe('SubscriptionRuntime first sync', () => {
+  test('stopAndDrain waits for an in-flight sweep to finish', async () => {
+    let markStarted: () => void = () => undefined;
+    let releaseSweep: () => void = () => undefined;
+    const sweepStarted = new Promise<void>((resolve) => {
+      markStarted = resolve;
+    });
+    const sweepGate = new Promise<void>((resolve) => {
+      releaseSweep = resolve;
+    });
+    const runtime = new SubscriptionRuntime({
+      db: stubDb(),
+      postQueries: async () => {
+        markStarted();
+        await sweepGate;
+        return [];
+      },
+      timers,
+      coalesceMs: 0,
+      reconcileIntervalMs: 0,
+      getMergeDeps: () => {
+        throw new Error('merge unused');
+      },
+      onError: () => undefined,
+      onSynced: () => undefined,
+    });
+    runtime.subscribe({ name: 'ownUser', params: {} });
+    runtime.start();
+    await sweepStarted;
+    let drained = false;
+    const drain = runtime.stopAndDrain().then(() => {
+      drained = true;
+    });
+    await Promise.resolve();
+    expect(drained).toBe(false);
+    releaseSweep();
+    await drain;
+    expect(drained).toBe(true);
+  });
+
   test('waitForFirstSync resolves when postQueries throws HttpNetworkError', async () => {
     const runtime = new SubscriptionRuntime({
       db: stubDb(),

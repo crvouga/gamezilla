@@ -1,12 +1,12 @@
 import { describe, test } from 'bun:test';
-import {
-  expectLiveNote,
-  expectNotesMatchServer,
-  notesDomainPack,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld, type SimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  expectNotesMatchServer,
+  setNote,
+} from '../apps/acme';
 
 async function expectClientsMatchServer(world: SimWorld): Promise<void> {
   for (const client of world.clients.values()) {
@@ -17,7 +17,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 401,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -39,7 +39,7 @@ describe('live loss dup reorder still converges', () => {
 
   test('dup live on bob converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 402,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -54,7 +54,7 @@ describe('live loss dup reorder still converges', () => {
 
   test('reordered live on bob converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 403,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -74,7 +74,7 @@ describe('live loss dup reorder still converges', () => {
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 404,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -99,7 +99,7 @@ describe('live loss dup reorder still converges', () => {
 
   test('live chaos + sync hold then release converges', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 405,
     });
     const a = await world.addClient({ id: 'alice' });

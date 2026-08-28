@@ -285,6 +285,8 @@ async function disposeSim(args: {
   roomNode: RoomServerApp;
   clientSql: Map<string, SimSqlHandle>;
   serverSql: SimSqlHandle;
+  /** Wait for in-flight Hono work before closing the DB. */
+  drainServerFetch: () => Promise<void>;
   /** Drop HTTP after clients close so late auth cannot hit a closed DB. */
   stopServerFetch: () => void;
 }): Promise<void> {
@@ -293,6 +295,7 @@ async function disposeSim(args: {
   // Close clients first so AuthBridge / session refresh stop scheduling work.
   for (const live of args.liveClients.values()) await live.close();
   args.liveClients.clear();
+  await args.drainServerFetch();
   args.stopServerFetch();
   args.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
@@ -307,14 +310,13 @@ function createSimHandle(kernel: SimKernel): Sim {
   const disposed = { value: false };
   let rawServerFetch: ReturnType<typeof serveFetch> | null = null;
   let hono: Server | null = null;
-  const serverFetch: ClientEnv['server'] = serializeFetch(
-    async (input, init) => {
-      if (disposed.value || rawServerFetch === null) {
-        throw new Error('createSim: server disposed or not spawned');
-      }
-      return rawServerFetch(input, init);
+  const serialized = serializeFetch(async (input, init) => {
+    if (disposed.value || rawServerFetch === null) {
+      throw new Error('createSim: server disposed or not spawned');
     }
-  );
+    return rawServerFetch(input, init);
+  });
+  const serverFetch: ClientEnv['server'] = serialized.fetch;
   const client = (id: string): ClientEnv =>
     makeSimClientEnv(kernel, { id, serverFetch, clientSql });
   return {
@@ -368,6 +370,7 @@ function createSimHandle(kernel: SimKernel): Sim {
         roomNode,
         clientSql,
         serverSql,
+        drainServerFetch: serialized.drain,
         stopServerFetch: () => {
           rawServerFetch = null;
           hono = null;

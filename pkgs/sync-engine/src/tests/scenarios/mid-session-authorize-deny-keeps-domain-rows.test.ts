@@ -1,17 +1,17 @@
 import { describe, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
   NOTES_AUTH_GATE_FOLDER_ID,
-  notesDomainPack,
   setFolder,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('mid session authorize deny keeps domain rows', () => {
   test('ownership flip denies scope; domain rows remain; other scopes sync', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 620,
     });
     const a = await world.addClient({ id: 'alice' });

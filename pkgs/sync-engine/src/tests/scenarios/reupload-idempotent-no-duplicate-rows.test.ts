@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
+import { openSimWorld } from '../../sim/world';
 import {
+  acmeDomainPack,
   expectLiveNote,
-  notesDomainPack,
   readLiveNotes,
   setNote,
-} from '../../domain-packs/notes-app';
-import { openSimWorld } from '../../sim/world';
+} from '../apps/acme';
 
 describe('reupload idempotent no duplicate rows', () => {
   test('reconnect after offline set does not duplicate domain rows', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 70,
     });
     const a = await world.addClient({ id: 'alice' });
@@ -34,7 +34,7 @@ describe('reupload idempotent no duplicate rows', () => {
 
   test('repeated setNote on same id keeps single live row', async () => {
     await using world = await openSimWorld({
-      domain: notesDomainPack,
+      domain: acmeDomainPack,
       seed: 71,
     });
     const a = await world.addClient({ id: 'alice' });

@@ -1,19 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  expectLiveNote,
-  notesDomainPack,
-  readLiveNotes,
-  setNote,
-} from '../../domain-packs/notes-app';
 import { RELIABLE_FAULTS } from '../../sim/faults';
 import { openSimWorld } from '../../sim/world';
+import {
+  acmeDomainPack,
+  expectLiveNote,
+  readLiveNotes,
+  setNote,
+} from '../apps/acme';
 
 describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(
     'mesh replay of mutations POST is idempotent (seed=%i)',
     async (seed) => {
       await using world = await openSimWorld({
-        domain: notesDomainPack,
+        domain: acmeDomainPack,
         seed,
       });
       const a = await world.addClient({ id: 'alice' });

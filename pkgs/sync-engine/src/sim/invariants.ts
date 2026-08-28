@@ -8,6 +8,22 @@ export type InvariantViolation = {
   readonly detail: string;
 };
 
+/** Revoke / dispose close the handle; seq checks must skip those clients. */
+export function isClosedDatabaseError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /closed database|already closed|database is closed/i.test(message);
+}
+
+/** Auth revoke wipes close the handle; preserveLocalDb must not reuse it. */
+export async function isDbOpen(db: SqlClient): Promise<boolean> {
+  try {
+    await db.query(sql<{ ok: number }>`SELECT 1 AS ok`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Pending mutation seqs must be strictly increasing per client. */
 export async function checkSeqMonotonicity(
   db: SqlClient

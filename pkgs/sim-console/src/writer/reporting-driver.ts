@@ -91,13 +91,20 @@ export function createReportingDriver(
       testId,
       state: WaitState | WaitTextCondition,
       options?: DriverWaitOptions
-    ) =>
-      record(
+    ) => {
+      // Short probe waits (search/space hit loops) are caught and retried by
+      // product drivers. Recording each miss as a failed step marks the whole
+      // report FAILED while Jest still passes — skip probes in the timeline.
+      if ((options?.timeoutMs ?? Number.POSITIVE_INFINITY) <= 150) {
+        return driver.wait(testId, state, options);
+      }
+      return record(
         'waitFor',
         `waitFor ${waitDetail(state)} ${formatTestId(testId)}`,
         () => driver.wait(testId, state, options),
         { testId, detail: waitDetail(state), pollFrames: true }
-      ),
+      );
+    },
     expect: createExpectRecorder(driver, record),
     isVisible: (testId) => driver.isVisible(testId),
     getText: (testId) => driver.getText(testId),
