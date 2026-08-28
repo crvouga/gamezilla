@@ -248,10 +248,10 @@ async function checkHttpEndpoint(opts: {
     const elapsed = cliClock.now() - started;
     const elapsedStr = fmtElapsed(elapsed);
 
-    const result = await httpProbe(url);
+    const result = await httpProbe(url, 15_000);
 
-    if (fallbackUrl && result.status === 0) {
-      const fallback = await httpProbe(fallbackUrl);
+    if (fallbackUrl && (result.status == null || result.status === 0)) {
+      const fallback = await httpProbe(fallbackUrl, 15_000);
       if (fallback.ok) {
         console.log(
           `Smoke ${opts.step}/${opts.total}: ${opts.label} ${url} unreachable, but ${opts.fallbackLabel ?? 'fallback'} ${fallbackUrl} is healthy (HTTP ${fallback.status}, ${elapsedStr}).`
@@ -260,12 +260,14 @@ async function checkHttpEndpoint(opts: {
       }
     }
 
-    if (result.status === 0) {
+    if (result.status == null || result.status === 0) {
       if (elapsed >= POST_DEPLOY_HTTP_MAX_WAIT_MS) {
-        assert.fail(`smoke-test: ${opts.label} unreachable at ${url}`);
+        assert.fail(
+          `smoke-test: ${opts.label} unreachable at ${url}${result.error ? `: ${result.error}` : ''}`
+        );
       }
       console.log(
-        `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error}`
+        `Waiting for ${opts.label} ${url} — attempt ${attempt}/${maxAttempts}, ${elapsedStr} elapsed (max ${maxWaitStr}): ${result.error ?? `HTTP ${String(result.status)}`}`
       );
       await sleep(POST_DEPLOY_HTTP_RETRY_MS);
       continue;

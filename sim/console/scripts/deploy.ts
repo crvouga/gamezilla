@@ -4,8 +4,10 @@ import { rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { productionSimOrigin } from '@libs/secrets/shared/deploy-origins';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/eas-mobile';
 import { ok } from '@libs/secrets/shared/fmt';
+import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
@@ -116,6 +118,8 @@ async function deploy(dryRun: boolean): Promise<void> {
     );
     return;
   }
+
+  await waitForHttp(productionSimOrigin(), { label: 'Sim Console' });
 
   console.log(
     `Sim Worker deployed (${PRODUCT_CONFIG.cloudflare.simWorker}) on sim.gamezilla.app.`
