@@ -17,8 +17,6 @@ type RecordMeta = {
   readonly testId?: string;
   readonly detail?: string;
   readonly snapshotBefore?: boolean;
-  /** Skip HTML snapshot (typing floods reports and is slow under load). */
-  readonly skipSnapshot?: boolean;
   readonly pollFrames?: boolean;
 };
 
@@ -71,7 +69,6 @@ export function createReportingDriver(
         {
           testId,
           detail: `text=${JSON.stringify(text)}`,
-          skipSnapshot: true,
         }
       ),
     clear: (testId) =>
@@ -79,7 +76,7 @@ export function createReportingDriver(
         'clearText',
         `clearText ${formatTestId(testId)}`,
         () => driver.clear(testId),
-        { testId, skipSnapshot: true }
+        { testId }
       ),
     key: (key: DriverKey) =>
       record('pressKey', `pressKey ${key}`, () => driver.key(key), {
@@ -160,7 +157,6 @@ function makeRecorder(
         : {}),
       ...(meta?.detail !== undefined ? { detail: meta.detail } : {}),
       ...(meta?.snapshotBefore === true ? { snapshotBefore: true } : {}),
-      ...(meta?.skipSnapshot === true ? { skipSnapshot: true } : {}),
       ...(meta?.pollFrames !== undefined
         ? { pollFrames: meta.pollFrames }
         : {}),

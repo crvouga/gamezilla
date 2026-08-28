@@ -176,6 +176,36 @@ describe('storeGetJson', () => {
 });
 
 describe('SimulationReporter + ObjectStore', () => {
+  test('captures a frame after typeText by default', async () => {
+    const store = new ObjectStoreImplInMemory();
+    const reporter = new SimulationReporter({
+      seed: '1',
+      ui: 'rntl',
+      store,
+      runId: 'run-type',
+      testId: 'type-frame',
+      now: () => 1000,
+    });
+    await reporter.record({
+      actorId: 'alice',
+      kind: 'typeText',
+      title: 'typeText testId("auth-email-input")',
+      detail: 'text="alice@example.com"',
+      run: async () => undefined,
+      snapshot: async () => '<html>filled-email</html>',
+      pollFrames: false,
+    });
+    const data = await reporter.flush();
+    const typeStep = data.steps.find((s) => s.kind === 'typeText');
+    expect(typeStep?.frames?.length).toBe(1);
+    expect(typeStep?.frames?.[0]?.file).toBe('frames/f-00001.html');
+    const html = await store.get(
+      'runs/run-type/tests/type-frame/frames/f-00001.html'
+    );
+    expect(html).not.toBeNull();
+    expect(await new Response(html!.body).text()).toContain('filled-email');
+  });
+
   test('skips null/empty HTML snapshots on close', async () => {
     const store = new ObjectStoreImplInMemory();
     const reporter = new SimulationReporter({
