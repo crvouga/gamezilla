@@ -2,9 +2,11 @@ import type {
   ClientTransport,
   ClientTransportHandlers,
 } from '../client/core/transport';
+import { ROOM_WIRE_KIND } from '../protocol/wire';
 import type { RoomServer } from '../server/core/room-server';
 import type { RoomCommandPayload, RoomEvent, RoomState } from '../types';
 
+import type { RoomBoundaryFaultController } from './boundary-faults';
 import type { SimRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
 
@@ -13,13 +15,24 @@ export type SimLoopbackRoomTransportArgs<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 > = {
-  readonly server: RoomServer<S, C, E, string>;
+  /** Live server lookup — survives serverCrash/restart. */
+  readonly getServer: () => RoomServer<S, C, E, string>;
   readonly connectionId: string;
   readonly identity: string;
   readonly clientKey: string;
   readonly network: SimRoomNetwork;
   readonly serverQueue: SerialQueue;
+  readonly boundary?: RoomBoundaryFaultController;
+  /** Fired when a one-shot crash arm trips for this client. */
+  readonly onBoundaryCrash?: (clientKey: string) => void;
 };
+
+function wireKind(payload: unknown): string | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  if (!('kind' in payload)) return null;
+  const kind = (payload as { kind: unknown }).kind;
+  return typeof kind === 'string' ? kind : null;
+}
 
 /**
  * Loopback transport that routes C→S and S→C frames through {@link SimRoomNetwork}
@@ -38,19 +51,23 @@ export class SimLoopbackRoomTransport<
   /** When false, C→S is dropped (local Room stays alive for offline dispatch). */
   private linkUp = true;
   private connectionId: string;
-  private readonly server: RoomServer<S, C, E, string>;
+  private readonly getServer: () => RoomServer<S, C, E, string>;
   private readonly identity: string;
   private readonly clientKey: string;
   private readonly network: SimRoomNetwork;
   private readonly serverQueue: SerialQueue;
+  private readonly boundary: RoomBoundaryFaultController | undefined;
+  private readonly onBoundaryCrash: ((clientKey: string) => void) | undefined;
 
   constructor(args: SimLoopbackRoomTransportArgs<S, C, E>) {
-    this.server = args.server;
+    this.getServer = args.getServer;
     this.connectionId = args.connectionId;
     this.identity = args.identity;
     this.clientKey = args.clientKey;
     this.network = args.network;
     this.serverQueue = args.serverQueue;
+    this.boundary = args.boundary;
+    this.onBoundaryCrash = args.onBoundaryCrash;
   }
 
   setConnectionId(connectionId: string): void {
@@ -103,7 +120,7 @@ export class SimLoopbackRoomTransport<
           .catch(() => undefined)
           .then(() =>
             this.serverQueue.enqueue(() =>
-              this.server.handleClientMessage(
+              this.getServer().handleClientMessage(
                 this.connectionId,
                 this.identity,
                 payload
@@ -130,7 +147,7 @@ export class SimLoopbackRoomTransport<
         .catch(() => undefined)
         .then(() =>
           this.serverQueue.enqueue(() =>
-            this.server.handleClientMessage(
+            this.getServer().handleClientMessage(
               this.connectionId,
               this.identity,
               payload
@@ -159,8 +176,32 @@ export class SimLoopbackRoomTransport<
   }
 
   deliverToClientNow(payload: unknown): void {
+    this.maybeTripBoundary(payload);
     for (const h of [...this.handlers]) {
       h(payload);
+    }
+  }
+
+  private maybeTripBoundary(payload: unknown): void {
+    if (this.boundary === undefined) return;
+    const kind = wireKind(payload);
+    if (kind === ROOM_WIRE_KIND.welcome) {
+      if (this.boundary.takeCrash(this.clientKey, 'afterNextWelcome')) {
+        this.onBoundaryCrash?.(this.clientKey);
+      }
+    }
+    if (kind === ROOM_WIRE_KIND.committed) {
+      if (this.boundary.takeCrash(this.clientKey, 'afterNextCommitted')) {
+        this.onBoundaryCrash?.(this.clientKey);
+      }
+      if (this.boundary.takeCrash(this.clientKey, 'afterNextCommandAck')) {
+        this.onBoundaryCrash?.(this.clientKey);
+      }
+    }
+    if (kind === ROOM_WIRE_KIND.rejected) {
+      if (this.boundary.takeCrash(this.clientKey, 'afterNextCommandAck')) {
+        this.onBoundaryCrash?.(this.clientKey);
+      }
     }
   }
 

@@ -36,6 +36,30 @@ if (process.env.SIM_REPORT === undefined) {
   process.env.SIM_REPORT = '0';
 }
 
+// Better Auth session atoms sit on nanostores. When the last listener drops,
+// nanostores schedules `STORE_UNMOUNT_DELAY` (1000ms) before onMount cleanup.
+// Those wall timers keep Jest from exiting (open-handles warning). Unref them
+// so cleanup still runs while the process is alive, but does not block exit.
+(function unrefNanostoresUnmountDelay() {
+  const NANOSTORES_UNMOUNT_DELAY_MS = 1000;
+  const wallSetTimeout = global.setTimeout;
+  global.setTimeout = function patchedSetTimeout(fn, ms, ...args) {
+    const handle = wallSetTimeout(fn, ms, ...args);
+    if (
+      ms === NANOSTORES_UNMOUNT_DELAY_MS &&
+      handle != null &&
+      typeof handle === 'object' &&
+      typeof handle.unref === 'function'
+    ) {
+      const stack = new Error().stack ?? '';
+      if (stack.includes('nanostores')) {
+        handle.unref();
+      }
+    }
+    return handle;
+  };
+})();
+
 (function installNodeStoragePolyfill() {
   if (typeof globalThis.localStorage !== 'undefined') return;
   function makeStorage() {

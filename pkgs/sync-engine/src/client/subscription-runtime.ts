@@ -119,6 +119,12 @@ function mergePending(
   return set;
 }
 
+function resolveWaiters(waiters: Array<() => void>): void {
+  if (waiters.length === 0) return;
+  const pending = waiters.splice(0);
+  for (const resolve of pending) resolve();
+}
+
 async function loadBasis(
   db: SqlClient,
   scope: string
@@ -185,6 +191,8 @@ export class SubscriptionRuntime {
   private reconcileTimer: unknown = null;
   private inFlight = false;
   private flushWaiters: Array<() => void> = [];
+  /** Resolves when the current in-flight sweep finishes after {@link stop}. */
+  private inFlightDrain: Array<() => void> = [];
 
   constructor(private readonly options: SubscriptionRuntimeOptions) {
     this.lifecycle = options.lifecycle ?? alwaysOnLifecycle();
@@ -214,7 +222,19 @@ export class SubscriptionRuntime {
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
     for (const entry of this.entries.values()) entry.generation += 1;
-    this.resolveFlushWaiters();
+    resolveWaiters(this.flushWaiters);
+  }
+
+  /**
+   * Soft-stop, then wait for any in-flight sweep/merge to finish so callers can
+   * safely close the underlying SqlClient afterward.
+   */
+  async stopAndDrain(): Promise<void> {
+    this.stop();
+    if (!this.inFlight) return;
+    await new Promise<void>((resolve) => {
+      this.inFlightDrain.push(resolve);
+    });
   }
 
   reset(): void {
@@ -388,13 +408,13 @@ export class SubscriptionRuntime {
 
   private async flushPending(): Promise<void> {
     if (!this.running || !this.foregrounded) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     if (this.inFlight) return;
     const pending = this.pending;
     if (pending === null) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     this.pending = null;
@@ -403,7 +423,7 @@ export class SubscriptionRuntime {
         ? this.listSweepEntries()
         : this.listSweepEntries().filter((e) => pending.has(e.scope));
     if (active.length === 0) {
-      this.resolveFlushWaiters();
+      resolveWaiters(this.flushWaiters);
       return;
     }
     this.inFlight = true;
@@ -411,8 +431,9 @@ export class SubscriptionRuntime {
       await this.sweepEntries(active);
     } finally {
       this.inFlight = false;
+      resolveWaiters(this.inFlightDrain);
       if (this.pending !== null) this.scheduleFlush();
-      else this.resolveFlushWaiters();
+      else resolveWaiters(this.flushWaiters);
     }
   }
 
@@ -559,12 +580,6 @@ export class SubscriptionRuntime {
         this.options.onError(error);
       }
     }
-  }
-
-  private resolveFlushWaiters(): void {
-    if (this.flushWaiters.length === 0) return;
-    const waiters = this.flushWaiters.splice(0);
-    for (const resolve of waiters) resolve();
   }
 
   private clearCoalesceTimer(): void {

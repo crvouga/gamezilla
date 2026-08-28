@@ -333,7 +333,8 @@ async function connectState(state: LocalEngineState): Promise<void> {
 async function disconnectState(state: LocalEngineState): Promise<void> {
   state.connected = false;
   detachPush(state);
-  state.runtime.stop();
+  // Drain in-flight sweep/merge before callers close SqlClient (pool releaseAll).
+  await state.runtime.stopAndDrain();
   await state.uploadQueue.stop();
   state.status.patch({ connection: 'disconnected', hasSynced: false });
 }
@@ -343,7 +344,7 @@ async function revokeDatabase(state: LocalEngineState): Promise<void> {
   state.disposeExternalDbChanged?.();
   state.disposeExternalDbChanged = null;
   detachPush(state);
-  state.runtime.stop();
+  await state.runtime.stopAndDrain();
   await state.uploadQueue.stop();
   await state.options.db.disconnect();
   await state.options.deleteDatabase();

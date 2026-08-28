@@ -20,6 +20,17 @@ export const SQLITE_TYPE_SQL: Record<ColumnType, SqlitePhysicalType> = {
   json: 'TEXT',
 };
 
+/** information_schema `udt_name` values that map to a logical token. */
+export const PG_UDT_TO_TOKEN: Readonly<Record<string, ColumnType>> = {
+  uuid: 'uuid',
+  text: 'text',
+  int8: 'integer',
+  int4: 'integer',
+  bool: 'boolean',
+  timestamptz: 'timestamp',
+  jsonb: 'json',
+};
+
 /** Map information_schema / pg type names back to logical tokens. */
 export function pgTypeToToken(
   udtName: string,
@@ -27,14 +38,15 @@ export function pgTypeToToken(
 ): ColumnType | null {
   const u = udtName.toLowerCase();
   const d = dataType.toLowerCase();
-  if (u === 'uuid' || d === 'uuid') return 'uuid';
-  if (u === 'text' || d === 'text') return 'text';
-  if (u === 'int8' || d === 'bigint') return 'integer';
-  if (u === 'int4' || d === 'integer') return 'integer';
-  if (u === 'bool' || d === 'boolean') return 'boolean';
-  if (u === 'timestamptz' || d === 'timestamp with time zone')
-    return 'timestamp';
-  if (u === 'jsonb' || d === 'jsonb') return 'json';
+  const fromUdt = PG_UDT_TO_TOKEN[u];
+  if (fromUdt) return fromUdt;
+  if (d === 'uuid') return 'uuid';
+  if (d === 'text') return 'text';
+  if (d === 'bigint') return 'integer';
+  if (d === 'integer') return 'integer';
+  if (d === 'boolean') return 'boolean';
+  if (d === 'timestamp with time zone') return 'timestamp';
+  if (d === 'jsonb') return 'json';
   return null;
 }
 

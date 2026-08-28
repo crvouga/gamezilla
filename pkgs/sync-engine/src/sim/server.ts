@@ -37,6 +37,8 @@ export type SimServer = {
     readonly tables: readonly string[];
     readonly label: string;
   }) => Promise<void>;
+  /** Highest query checkpoint issued by this process (for remake floor). */
+  readonly checkpointHighWater: () => bigint;
   readonly dispose: () => Promise<void>;
 };
 
@@ -54,6 +56,10 @@ export type OpenSimServerArgs = {
   /** Reuse an existing server DB (server crash/restart with preserveDb). */
   readonly existingDb?: SqlClient;
   readonly onDisposeDb?: () => Promise<void>;
+  /**
+   * Seed query-checkpoint high-water mark (sim remake after forward clock skew).
+   */
+  readonly checkpointFloor?: bigint;
 };
 
 function buildHandlerCtx(args: {
@@ -117,6 +123,13 @@ export async function openSimServer(
     isAnon: true,
   };
 
+  const checkpoints = createMonotonicCheckpoint(
+    args.now,
+    args.checkpointFloor !== undefined
+      ? { initialLast: args.checkpointFloor }
+      : undefined
+  );
+
   const ctx = buildHandlerCtx({
     db,
     now: args.now,
@@ -129,7 +142,7 @@ export async function openSimServer(
     setAuth: (auth) => {
       stickyAuth = auth;
     },
-    nextCheckpoint: createMonotonicCheckpoint(args.now),
+    nextCheckpoint: checkpoints.next,
     rowImageFanout: args.rowImageFanout !== false,
     ...(args.topicMap !== undefined ? { topicMap: args.topicMap } : {}),
     ...(args.faults !== undefined ? { faults: args.faults } : {}),
@@ -158,6 +171,7 @@ export async function openSimServer(
         label,
       });
     },
+    checkpointHighWater: checkpoints.highWater,
     dispose: () => closeDb(),
   };
 }

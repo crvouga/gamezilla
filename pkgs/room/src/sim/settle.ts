@@ -1,3 +1,4 @@
+import type { InMemoryClientStorage } from '../client/adapters/storage/memory';
 import type { RoomClient } from '../client/core/room-client';
 import { RoomMetaAttr, roomAttrNamespace } from '../client/core/room-meta';
 import type { InMemoryRoomStorage } from '../server/adapters/memory';
@@ -23,9 +24,12 @@ export type RoomSimClientSlot<
   readonly key: string;
   room: RoomClient<S, C, E, string> | null;
   transport: SimLoopbackRoomTransport<S, C, E> | null;
+  /** Persisted across crash/restart so offline queues survive process death. */
+  clientStorage: InMemoryClientStorage;
   connectionId: string;
   identity: string;
   clientId: string;
+  crashed: boolean;
   scheduleDispose?: () => void;
 };
 
@@ -136,27 +140,89 @@ export type ConvergeCtx<
   readonly module: RoomModule<S, C, E, string>;
   readonly storage: InMemoryRoomStorage;
   readonly topic: string;
-  readonly server: RoomServer<S, C, E, string>;
+  /** Live server lookup — must not capture a pre-restart reference. */
+  readonly getServer: () => RoomServer<S, C, E, string>;
   readonly ensureConnected: (key: string) => Promise<void>;
+  /** Clear one-shot arms + revive crashed nodes before hash settle. */
+  readonly prepareForSettle?: () => Promise<void>;
 };
+
+function clientsAllSynced<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(clients: ReadonlyMap<string, RoomSimClientSlot<S, C, E>>): boolean {
+  for (const slot of clients.values()) {
+    if (slot.room === null) return false;
+    if (!RoomMetaAttr.isSynced.from(slot.room.getSnapshot())) return false;
+  }
+  return true;
+}
+
+async function nudgeUntilSynced<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(ctx: DrainCtx<S, C, E>): Promise<void> {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await drainRoomSim(ctx);
+    if (clientsAllSynced(ctx.clients)) return;
+    ctx.clockAdvance(25);
+  }
+}
+
+function assertSlotMatchesServer<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(
+  ctx: ConvergeCtx<S, C, E>,
+  slot: RoomSimClientSlot<S, C, E>,
+  serverHash: string
+): void {
+  if (slot.room === null) {
+    throw new Error(
+      `assertConverged: missing room key=${slot.key} seed=${ctx.seed.toString(16)}`
+    );
+  }
+  if (!RoomMetaAttr.isSynced.from(slot.room.getSnapshot())) {
+    throw new Error(
+      `assertConverged: client not synced key=${slot.key} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
+    );
+  }
+  const clientHash = clientDomainHash(ctx.module, slot.room);
+  if (clientHash !== serverHash) {
+    throw new Error(
+      `assertConverged: hash mismatch key=${slot.key} client=${clientHash} server=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
+    );
+  }
+}
 
 export async function assertRoomConverged<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(ctx: ConvergeCtx<S, C, E>): Promise<void> {
+  if (ctx.prepareForSettle !== undefined) {
+    await ctx.prepareForSettle();
+  }
   ctx.network.healAll();
+  // Deliver frames released from hold/delay BEFORE soft-cycling connections
+  // (otherwise pending deliver callbacks see a stale/missing connectionId).
+  await drainRoomSim(ctx);
   for (const key of ctx.clients.keys()) {
     await ctx.ensureConnected(key);
   }
-  await drainRoomSim(ctx);
+
+  // Nudge a few drain rounds so welcome/sync can complete after soft cycles.
+  await nudgeUntilSynced(ctx);
 
   const serverHash = await serverDomainHash({
     module: ctx.module,
     storage: ctx.storage,
     topic: ctx.topic,
   });
-  const liveHash = ctx.module.hash(ctx.server.getCommittedState());
+  const liveHash = ctx.module.hash(ctx.getServer().getCommittedState());
   if (liveHash !== serverHash) {
     throw new Error(
       `assertConverged: live committed diverged from log fold live=${liveHash} log=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
@@ -164,22 +230,6 @@ export async function assertRoomConverged<
   }
 
   for (const slot of ctx.clients.values()) {
-    if (slot.room === null) {
-      throw new Error(
-        `assertConverged: missing room key=${slot.key} seed=${ctx.seed.toString(16)}`
-      );
-    }
-    const snap = slot.room.getSnapshot();
-    if (!RoomMetaAttr.isSynced.from(snap)) {
-      throw new Error(
-        `assertConverged: client not synced key=${slot.key} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
-      );
-    }
-    const clientHash = clientDomainHash(ctx.module, slot.room);
-    if (clientHash !== serverHash) {
-      throw new Error(
-        `assertConverged: hash mismatch key=${slot.key} client=${clientHash} server=${serverHash} seed=${ctx.seed.toString(16)} now=${String(ctx.now())}`
-      );
-    }
+    assertSlotMatchesServer(ctx, slot, serverHash);
   }
 }

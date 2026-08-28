@@ -21,7 +21,13 @@ export const PRODUCT_CONFIG = {
      * is `gamezilla-client`; `wrangler deploy --env production` publishes as this.
      */
     clientWorker: 'gamezilla-client-production',
+    /**
+     * Assets-only Sim Console Worker. Top-level `name` in `sim/console/wrangler.toml`
+     * is `gamezilla-sim`; `wrangler deploy --env production` publishes as this.
+     */
+    simWorker: 'gamezilla-sim-production',
   },
+
   postgres: {
     /** Application tables live in the standard Postgres `public` schema. */
     schema: 'public',

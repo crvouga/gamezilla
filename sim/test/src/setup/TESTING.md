@@ -47,8 +47,10 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
 **Reports** (`SIM_REPORT`):
 
-- Default: off in Jest (`SIM_REPORT=0`) for speed.
-- Set `SIM_REPORT=1` to write HTML frames under `sim/console/public/reports`.
+- Default: off in Jest (`SIM_REPORT=0`) for speed; leaves any existing dump under
+  `sim/console/public/reports` in place (header shows the run’s `updatedAt`
+  timestamp so age is obvious).
+- Set `SIM_REPORT=1` (or `bun test:sim:report`) to wipe + rewrite HTML frames.
 
 View captured timelines in **`bun run dev`** (`@sim/console` → Reports).
 Production browsing of reports stays on the API Worker `/sim-console` mount

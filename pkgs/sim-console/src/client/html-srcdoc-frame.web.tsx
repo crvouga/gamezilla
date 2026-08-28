@@ -1,51 +1,49 @@
 /**
- * Web iframe host for static report frame previews (`srcdoc` + strict sandbox).
- * Native falls back to `html-srcdoc-frame.tsx`.
+ * Web snapshot preview host (in-DOM). Native falls back to `html-srcdoc-frame.tsx`.
  *
- * Do **not** add `allow-same-origin`: opaque origin keeps Expo/Metro HMR from
- * injecting the dev bundle into preview iframes (same-origin sandboxed frames
- * otherwise log "Blocked script execution … allow-scripts is not set").
+ * Sandboxed `srcdoc` iframes stay blank in Cursor's embedded browser even when
+ * `srcdoc` is set and the iframe has a non-zero box (Playwright paints the same
+ * HTML). Mount the prepared snapshot body into a `.snapshot-host` instead.
  */
-import { Box, Text } from '@pkgs/ui';
+import { useLayoutEffect, useRef } from 'react';
 
-import { emptySx, paneSx } from './tokens';
-
-/** Static HTML only — no scripts, no same-origin (see module doc). */
-const PREVIEW_SANDBOX = '';
+import { HtmlPaneEmpty } from './html-pane-empty';
 
 export function HtmlSrcdocFrame(props: {
   readonly title: string;
+  /** Prepared in-DOM markup: scoped `<style>` tags + snapshot body. */
   readonly srcdoc: string | null;
 }) {
+  const hostRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    const host = hostRef.current;
+    const html = props.srcdoc;
+    if (host == null || html == null || html.length === 0) return;
+    host.innerHTML = html;
+  }, [props.srcdoc]);
+
   if (props.srcdoc == null || props.srcdoc.length === 0) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>No HTML snapshot for this frame.</Text>
-      </Box>
-    );
+    return <HtmlPaneEmpty kind="blank" />;
   }
 
   return (
-    <Box sx={shellSx}>
-      <iframe
-        title={props.title}
-        sandbox={PREVIEW_SANDBOX}
-        srcDoc={props.srcdoc}
-        style={{
-          width: '100%',
-          height: '100%',
-          border: 0,
-          display: 'block',
-          background: 'hsla(240, 5%, 4%, 1)',
-        }}
-      />
-    </Box>
+    <div
+      ref={hostRef}
+      className="snapshot-host"
+      title={props.title}
+      style={hostStyle}
+    />
   );
 }
 
-const shellSx = {
-  ...paneSx,
+const hostStyle = {
+  position: 'relative',
+  flex: 1,
   minWidth: 0,
+  minHeight: 0,
+  width: '100%',
+  height: '100%',
   overflow: 'hidden',
   backgroundColor: 'hsla(240, 5%, 4%, 1)',
 } as const;

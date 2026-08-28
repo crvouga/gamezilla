@@ -1,3 +1,4 @@
+import { formatCheckpoint } from '../shared/commit-checkpoint';
 import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { SimClientHandle } from './client-handle';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
@@ -117,15 +118,23 @@ function clearBoundaryFaults(faultApi: WorldFaultApi): void {
 }
 
 async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
-  // Query checkpoints embed server `now()`. A negative skew (or NTP step)
-  // then a server remake would mint checkpoints ≤ clients' last_checkpoint
-  // and every merge would look stale. Clear skew before remaking HTTP.
+  // Query checkpoints embed server `now()`. Prefer the live allocator's
+  // high-water mark: prepareClientsForConverge may already have cleared
+  // forward skew, so clock-based floor alone underestimates what clients hold.
+  const fromAllocator = k.server.checkpointHighWater();
+  const fromClock = BigInt(
+    formatCheckpoint(k.nowFor(SIM_SERVER_NODE_ID), 999_999)
+  );
+  const checkpointFloor = fromAllocator > fromClock ? fromAllocator : fromClock;
   k.clockSkew.set(SIM_SERVER_NODE_ID, 0);
   for (const id of k.clients.keys()) {
     k.clockSkew.set(id, 0);
   }
   try {
-    await restartServerImpl(k, { preserveDb: true });
+    await restartServerImpl(k, {
+      preserveDb: true,
+      checkpointFloor,
+    });
   } catch {
     // already running
   }

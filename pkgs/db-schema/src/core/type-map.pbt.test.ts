@@ -4,6 +4,7 @@ import { assertProperty, fc } from '@pkgs/pbt';
 import {
   normalizeSqliteType,
   PG_TYPE_SQL,
+  PG_UDT_TO_TOKEN,
   pgTypeToToken,
   SQLITE_TYPE_SQL,
   sqlitePhysicalOf,
@@ -46,7 +47,9 @@ describe('type-map properties', () => {
     assertProperty(
       'unknown types rejected',
       fc.property(
-        fc.stringMatching(/^[a-z]{3,8}$/),
+        fc
+          .stringMatching(/^[a-z]{3,8}$/)
+          .filter((udt) => !(udt in PG_UDT_TO_TOKEN)),
         fc.constantFrom('TEXT', 'INTEGER', 'BLOB', 'REAL', 'FOO'),
         (udt, declared) => {
           expect(pgTypeToToken(udt, 'USER-DEFINED')).toBeNull();

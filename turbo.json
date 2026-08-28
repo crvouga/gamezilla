@@ -203,13 +203,21 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
+    "@sim/console#deploy": {
+      "cache": false,
+      "dependsOn": ["@apps/server#deploy"]
+    },
     "@libs/billing#billing:sync": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
     "@apps/server#smoke": {
       "cache": false,
-      "dependsOn": ["@apps/client#deploy", "@libs/billing#billing:sync"]
+      "dependsOn": [
+        "@apps/client#deploy",
+        "@sim/console#deploy",
+        "@libs/billing#billing:sync"
+      ]
     },
     "@apps/client#deploy:ota": {
       "cache": false,

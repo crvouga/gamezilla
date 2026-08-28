@@ -281,7 +281,9 @@ replays are idempotent.
 | Tool | When to use |
 |------|-------------|
 | **`openLoopbackRoom`** (`@pkgs/room/tests`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`openRoomSimWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, hash converge, seed replay, Schedule wakes |
+| **`openRoomSimWorld`** (`@pkgs/room/tests` → `sim/world`) | Multi-client DST: partitions, delays, soft disconnect, crash/restart, hash converge, seed replay, Schedule wakes |
+| **`tests/dst/` + `assertDstProperty`** | Shrinking `fc.commands` world search + fault-catalog slice PBTs (sync-engine-shaped kernel) |
+| **`runRoomSeed`** | Non-shrinking seeded fuzz (`ROOM_SIM_SEED` / `SIM_SEED`); determinism + long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
 
@@ -290,7 +292,20 @@ Scripts:
 ```bash
 bun run --filter @pkgs/room test       # all package tests
 bun run --filter @pkgs/room test:sim   # DST scenarios + kit only
+bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_SEED)
+bun run test:pbt:random                # nightly random exploration
 ```
+
+### Shrinking DST kernel (`tests/dst/`)
+
+Mirrors `@pkgs/sync-engine`’s command/model loop (no sync-engine import — room stays a leaf):
+
+1. `RoomDstAction` union (domain + library chaos)
+2. `WorldModel` + `modelAllowsAction` so shrinks stay legal
+3. `fc.commands` → `runShrunkWorldProperty` → replay + `assertConverged`
+4. Const fault catalogs (`NET_FAULT_PROFILES`, `BYZANTINE_INJECT_KINDS`, `WORLD_PBT_CRASH_EVENTS`) exhausted by slice PBTs
+
+On find: capture `FC_SEED` / `replayPath` → pin in `room-world.pbt.test.ts` or a named `.sim.test.ts` → log in [`PBT_FINDINGS.md`](../../../PBT_FINDINGS.md).
 
 ### DST five concepts (room-shaped)
 
@@ -298,10 +313,11 @@ bun run --filter @pkgs/room test:sim   # DST scenarios + kit only
 |---------|-----|-------|
 | Time | `runFor` / `until` / `never` | Virtual clock + net queue; timers fire on `clock.advance` |
 | Network | `world.net(id).set('hold'\|'down'\|'ok'\|FaultProfile)` | Disposable restore-prior stack; asymmetric `{ toServer, toClient }` |
-| Node | `world.node(id).disconnect()` / `.reconnect()` / `.takeOver()` | Soft session; stable client id |
-| Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `lastRejection`, inject helpers | Black-box |
-| Server | `serverSnapshot()`, `serverHash()`, `server`, `storage` | Storage log fold (authority) |
-| Settle | `assertConverged()` | Heal nets, drain; live committed + every client hash == log fold |
+| Node | `disconnect` / `reconnect` / `takeOver` / `crash` / `restart` / `clearLocalData` | Soft session + hard crash with persisted client storage |
+| Client | `dispatch`, `snapshot`, `hash`, `isSynced`, `isConnected`, `isCrashed`, inject helpers | Black-box |
+| Server | `serverSnapshot()`, `serverHash()`, `serverCrash` / `serverRestart`, `storage` | Storage log fold (authority); hydrate on restart |
+| Settle | `assertConverged()` | Clear arms, revive crashed nodes, heal nets, soft-cycle, drain; hashes == log fold |
+| Invariants | `checkInvariants()` | Per-step: log seq contiguity + live committed == storage fold |
 
 Connectivity triad — do not conflate:
 
@@ -440,6 +456,19 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 | `inc-dec-conflict-order.sim.test.ts` | E5 | Inc/dec under jitter → final equals server fold |
 | `seeded-workload-determinism.sim.test.ts` | E9 | Same seed (`SIM_SEED`) → identical multi-client hash twice (incl. mid hold) |
 | `long-chaos-determinism.sim.test.ts` | E1/E9 | ≥3 clients seeded chaos (hold/down/soft) → hash ×2 |
+| `crash-restart.sim.test.ts` | E8 | Client crash keeps queue; server crash+hydrate; boundary arm; invariants |
+
+### Engine DST — shrinking PBT / fault catalogs (`tests/scenarios/*.pbt.test.ts`)
+
+| File | Asserts / use case |
+|------|--------------------|
+| `room-world.pbt.test.ts` | `fc.commands` over counter + library chaos → converge; pin slots |
+| `net-faults.pbt.test.ts` | Exhaust hold/down/asymmetric/`NET_FAULT_PROFILES` → converge |
+| `byzantine-wire.pbt.test.ts` | Exhaust `BYZANTINE_INJECT_KINDS` → settle restores server hash |
+| `session-lifecycle.pbt.test.ts` | takeOver / crash / clearLocalData / serverCrash / commandId / multi-tab |
+| `schedule-anticheat.pbt.test.ts` | MatchClock start/move/flag under hold; early FlagFall; lagging move |
+| `authz-graph.pbt.test.ts` | Owner claim+bump; non-owner bump rejected across reconnect/takeOver |
+| `long-chaos.pbt.test.ts` | `runRoomSeed` determinism + converge (replaces ad-hoc chaos loop) |
 
 ### Engine DST — identity / dedup / authz / adversarial
 

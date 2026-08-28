@@ -1,9 +1,7 @@
-import { Box, Text } from '@pkgs/ui';
-
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
+import { HtmlPaneEmpty } from './html-pane-empty';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
-import { emptySx, paneSx } from './tokens';
 
 /**
  * Native-safe HTML preview fallback. The DOM iframe renderer is web-only
@@ -20,17 +18,7 @@ export function HtmlPane(props: {
 }) {
   const file = resolveHtmlFile(props.frame, props.nodeId, props.node);
   if (file == null) {
-    return (
-      <Box sx={paneSx}>
-        <Text sx={emptySx}>
-          No HTML snapshot for node `{props.nodeId ?? '—'}` on this frame.
-        </Text>
-      </Box>
-    );
+    return <HtmlPaneEmpty kind="missing" nodeId={props.nodeId} />;
   }
-  return (
-    <Box sx={paneSx}>
-      <Text sx={emptySx}>HTML preview requires web.</Text>
-    </Box>
-  );
+  return <HtmlPaneEmpty kind="unsupported" />;
 }

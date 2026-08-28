@@ -61,11 +61,17 @@ export async function restartClientImpl(
 
 export async function restartServerImpl(
   k: BootedSimKernel,
-  opts?: { readonly preserveDb?: boolean }
+  opts?: {
+    readonly preserveDb?: boolean;
+    readonly checkpointFloor?: bigint;
+  }
 ): Promise<void> {
   k.unbindHttp();
   const preserve = opts?.preserveDb !== false;
   const existingDb = preserve ? k.server.db : undefined;
+  const prevHw = k.server.checkpointHighWater();
+  const explicit = opts?.checkpointFloor ?? 0n;
+  const checkpointFloor = explicit > prevHw ? explicit : prevHw;
   if (!preserve) {
     await k.server.dispose();
   }
@@ -99,6 +105,7 @@ export async function restartServerImpl(
     ...(existingDb !== undefined
       ? { existingDb, onDisposeDb: () => Promise.resolve() }
       : {}),
+    ...(checkpointFloor > 0n ? { checkpointFloor } : {}),
   });
   k.unbindHttp = bindSimHttpServer({
     network: k.network,

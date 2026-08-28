@@ -26,6 +26,10 @@ function httpEndpoints(outputs: DeployOutputs): readonly HttpEndpointCheck[] {
       url: outputs.client_url,
     },
     {
+      label: 'Sim Console',
+      url: outputs.sim_url,
+    },
+    {
       label: 'API /api/health',
       url: outputs.api_url,
       probePath: '/api/health',
@@ -197,7 +201,7 @@ async function checkDns(outputs: DeployOutputs): Promise<void> {
     return;
   }
 
-  for (const sub of ['www', 'api', 'emqx']) {
+  for (const sub of ['www', 'api', 'sim', 'emqx']) {
     const host = `${sub}.${domain}`;
 
     const localRecords = await lookupViaDefaultResolver(host);

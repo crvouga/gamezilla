@@ -15,6 +15,7 @@ import type {
   RoomState,
 } from '../types';
 
+import type { RoomBoundaryFaultController } from './boundary-faults';
 import type { SimRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
 import {
@@ -38,12 +39,19 @@ export type WorldKernel<
   readonly createId: CreateId;
   readonly rng: SeededRng;
   readonly storage: InMemoryRoomStorage;
-  readonly server: RoomServer<S, C, E, string>;
+  /** Mutable — replaced on serverCrash/restart. */
+  server: RoomServer<S, C, E, string>;
   readonly network: SimRoomNetwork;
   readonly serverQueue: SerialQueue;
   readonly slots: Map<string, RoomSimClientSlot<S, C, E>>;
   readonly handles: Map<string, RoomSimClientHandle<S, C, E>>;
-  readonly scheduleDispose: () => void;
+  readonly boundary: RoomBoundaryFaultController;
+  serverCrashed: boolean;
+  scheduleDispose: () => void;
+  /** Rebind schedule inject after server recreate. */
+  bindScheduleInject: (server: RoomServer<S, C, E, string>) => void;
+  /** Optional crash hook when a boundary arm trips. */
+  onBoundaryCrash?: (clientKey: string) => void;
 };
 
 function asRoomError(v: unknown): RoomError | null {
@@ -52,21 +60,61 @@ function asRoomError(v: unknown): RoomError | null {
   return v as RoomError;
 }
 
+function drainKernel<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(k: WorldKernel<S, C, E>): Promise<void> {
+  return drainRoomSim({
+    seed: k.seed,
+    now: () => k.clock.now(),
+    network: k.network,
+    serverQueue: k.serverQueue,
+    clockAdvance: (ms) => k.clock.advance(ms),
+    clients: k.slots,
+  });
+}
+
+function unregisterActorPeers<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): void {
+  for (const id of k.server.connectionIdsForActor(
+    slot.identity,
+    slot.clientId
+  )) {
+    k.server.unregisterConnection(id);
+  }
+}
+
 export async function attachClient<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
+>(
+  k: WorldKernel<S, C, E>,
+  slot: RoomSimClientSlot<S, C, E>,
+  opts?: { readonly wipeStorage?: boolean }
+): Promise<void> {
   if (slot.room !== null) return;
+  if (opts?.wipeStorage === true) {
+    slot.clientStorage = new InMemoryClientStorage();
+  }
+  slot.crashed = false;
   const connectionId = `conn-${slot.key}-${k.createId()}`;
   slot.connectionId = connectionId;
   const transport = new SimLoopbackRoomTransport<S, C, E>({
-    server: k.server,
+    getServer: () => k.server,
     connectionId,
     identity: slot.identity,
     clientKey: slot.key,
     network: k.network,
     serverQueue: k.serverQueue,
+    boundary: k.boundary,
+    onBoundaryCrash: (key) => {
+      k.onBoundaryCrash?.(key);
+    },
   });
   unregisterActorPeers(k, slot);
   k.server.registerConnection(
@@ -85,7 +133,7 @@ export async function attachClient<
   const room = await RoomClient.open<S, C, E, string>({
     topic: k.topic,
     module: k.module,
-    storage: new InMemoryClientStorage(),
+    storage: slot.clientStorage,
     transport,
     identity: slot.identity,
     clock: k.clock,
@@ -100,19 +148,6 @@ export async function attachClient<
   slot.room = room;
   slot.scheduleDispose = clientSchedule.dispose;
   await drainKernel(k);
-}
-
-function unregisterActorPeers<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
->(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): void {
-  for (const id of k.server.connectionIdsForActor(
-    slot.identity,
-    slot.clientId
-  )) {
-    k.server.unregisterConnection(id);
-  }
 }
 
 export async function softDisconnectClient<
@@ -137,6 +172,10 @@ export async function softReconnectClient<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
+  if (slot.crashed) {
+    await restartClient(k, slot);
+    return;
+  }
   if (slot.room === null || slot.transport === null) {
     await attachClient(k, slot);
     return;
@@ -163,7 +202,7 @@ export async function takeOverClient<
   C extends RoomCommandPayload,
   E extends RoomEvent,
 >(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
-  if (slot.room === null || slot.transport === null) {
+  if (slot.crashed || slot.room === null || slot.transport === null) {
     await attachClient(k, slot);
     return;
   }
@@ -185,11 +224,74 @@ export async function takeOverClient<
   if (!transport.isConnected) {
     transport.softReconnect();
   } else {
-    // Already open: force a fresh welcome via soft cycle.
     transport.softDisconnect();
     transport.softReconnect();
   }
   await drainKernel(k);
+}
+
+/** Sync tear-down so boundary arms can crash before the next dispatch. */
+export function crashClientSync<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): void {
+  if (slot.crashed && slot.room === null) return;
+  const room = slot.room;
+  const transport = slot.transport;
+  const connectionId = slot.connectionId;
+  slot.scheduleDispose?.();
+  delete slot.scheduleDispose;
+  slot.room = null;
+  slot.transport = null;
+  slot.connectionId = '';
+  slot.crashed = true;
+  room?.destroy();
+  transport?.destroy();
+  if (connectionId.length > 0) {
+    k.server.unregisterConnection(connectionId);
+  }
+}
+
+/** Hard crash: tear down Room + transport; keep {@link RoomSimClientSlot.clientStorage}. */
+export async function crashClient<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
+  crashClientSync(k, slot);
+  await drainKernel(k);
+}
+
+/** Restart after crash (or soft-missing room), optionally wiping local storage. */
+export async function restartClient<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(
+  k: WorldKernel<S, C, E>,
+  slot: RoomSimClientSlot<S, C, E>,
+  opts?: { readonly wipeStorage?: boolean }
+): Promise<void> {
+  if (slot.room !== null) {
+    await crashClient(k, slot);
+  }
+  await attachClient(k, slot, opts);
+}
+
+export async function clearClientLocalData<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(k: WorldKernel<S, C, E>, slot: RoomSimClientSlot<S, C, E>): Promise<void> {
+  const wasConnected = slot.room !== null && !slot.crashed;
+  if (slot.room !== null) {
+    await crashClient(k, slot);
+  }
+  slot.clientStorage = new InMemoryClientStorage();
+  if (wasConnected || slot.crashed) {
+    await attachClient(k, slot);
+  }
 }
 
 export async function destroyClient<
@@ -204,6 +306,7 @@ export async function destroyClient<
   delete slot.scheduleDispose;
   slot.room = null;
   slot.transport = null;
+  slot.crashed = true;
   room?.destroy();
   transport?.destroy();
   if (connectionId.length > 0) {
@@ -212,19 +315,25 @@ export async function destroyClient<
   await drainKernel(k);
 }
 
-async function drainKernel<
+/** Re-register live transports on a fresh server after hydrate. */
+export function rebindLiveConnections<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
->(k: WorldKernel<S, C, E>): Promise<void> {
-  await drainRoomSim({
-    seed: k.seed,
-    now: () => k.clock.now(),
-    network: k.network,
-    serverQueue: k.serverQueue,
-    clockAdvance: (ms) => k.clock.advance(ms),
-    clients: k.slots,
-  });
+>(k: WorldKernel<S, C, E>): void {
+  for (const slot of k.slots.values()) {
+    if (slot.transport === null || slot.room === null || slot.crashed) continue;
+    if (slot.connectionId.length === 0) continue;
+    const transport = slot.transport;
+    k.server.registerConnection(
+      slot.connectionId,
+      (msg) => {
+        transport.enqueueFromServer(msg);
+      },
+      { id: slot.identity, clientId: slot.clientId },
+      { silent: true }
+    );
+  }
 }
 
 export function buildClientHandle<
@@ -265,6 +374,7 @@ export function buildClientHandle<
       if (slot.room === null || slot.transport === null) return false;
       return RoomMetaAttr.isConnected.from(slot.room.getSnapshot());
     },
+    isCrashed: () => slot.crashed,
     room: () => slot.room,
     disconnect: async () => {
       await softDisconnectClient(k, slot);
@@ -320,6 +430,27 @@ export function buildNodeHandle<
         throw new Error(`node.takeOver: unknown client ${key}`);
       }
       await takeOverClient(k, slot);
+    },
+    crash: async () => {
+      const slot = k.slots.get(key);
+      if (slot === undefined) {
+        throw new Error(`node.crash: unknown client ${key}`);
+      }
+      await crashClient(k, slot);
+    },
+    restart: async (opts) => {
+      const slot = k.slots.get(key);
+      if (slot === undefined) {
+        throw new Error(`node.restart: unknown client ${key}`);
+      }
+      await restartClient(k, slot, opts);
+    },
+    clearLocalData: async () => {
+      const slot = k.slots.get(key);
+      if (slot === undefined) {
+        throw new Error(`node.clearLocalData: unknown client ${key}`);
+      }
+      await clearClientLocalData(k, slot);
     },
   };
 }

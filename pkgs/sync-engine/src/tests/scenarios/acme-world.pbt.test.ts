@@ -235,6 +235,39 @@ describe('acme world PBT / DST', () => {
     }
   });
 
+  test('server skew forward then silent insert still converges', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 3,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: false,
+        bufferOutboundLive: true,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        { kind: 'skew', nodeId: 'server', skewMs: 60_000 },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'setFolder',
+          args: { id: 'f0', title: '' },
+        },
+        {
+          kind: 'server',
+          name: 'insertCatalogNoteSilent',
+          args: { noteId: 'n0', body: '' },
+        },
+        { kind: 'protocolCut', clientId: 'c0' },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test(
     'runSeed is deterministic for a generated seed',
     async () => {

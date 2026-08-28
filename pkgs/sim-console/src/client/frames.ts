@@ -80,6 +80,21 @@ export function formatMsStable(ms: number | null | undefined): string {
   return `${(ms / 1000).toFixed(2)}s`.padStart(6, '\u2007');
 }
 
+/** Stable UTC stamp for run ids / header meta. */
+export function formatRunUpdatedAt(
+  ms: number | null | undefined
+): string | null {
+  if (ms == null || !Number.isFinite(ms) || ms <= 0) return null;
+  try {
+    return new Date(ms)
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d+Z$/, 'Z');
+  } catch {
+    return null;
+  }
+}
+
 export function firstFrameForStep(
   frames: readonly FlatFrame[],
   stepIndex: number
@@ -133,8 +148,9 @@ export function frameOwnedByNode(frame: FlatFrame, nodeId: string): boolean {
 
 /**
  * Latest frame at or before `playheadIdx` owned by `nodeId`.
- * Used so parked clients keep their last snapshot while the playhead
- * advances through another actor's frames.
+ * Prefers frames that carry that node's HTML/db views (multi-actor
+ * captures update every client on each step) so parked clients track the
+ * playhead instead of freezing on the last step they authored.
  */
 export function resolveFrameForNode(
   frames: readonly FlatFrame[],
@@ -143,10 +159,6 @@ export function resolveFrameForNode(
 ): FlatFrame | null {
   if (frames.length === 0 || playheadIdx < 0) return null;
   const end = Math.min(playheadIdx, frames.length - 1);
-  for (let i = end; i >= 0; i--) {
-    const frame = frames[i]!;
-    if (frame.step.actorId === nodeId) return frame;
-  }
   for (let i = end; i >= 0; i--) {
     const frame = frames[i]!;
     if (frameOwnedByNode(frame, nodeId)) return frame;

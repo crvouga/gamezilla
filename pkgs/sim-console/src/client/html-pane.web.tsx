@@ -1,35 +1,26 @@
 /**
- * Web HTML snapshot preview (iframe + srcdoc). Native falls back to
+ * Web HTML snapshot preview (in-DOM host). Native falls back to
  * `html-pane.tsx` ("HTML preview requires web.").
  */
-import { Box, Text } from '@pkgs/ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { ReportApiClient } from './api-client';
 import type { FlatFrame } from './frames';
+import { HtmlPaneEmpty } from './html-pane-empty';
 import { HtmlSrcdocFrame } from './html-srcdoc-frame';
 import { resolveHtmlFile, type TopologyNodeInfo } from './node-views';
 import { loadPreviewFontCss } from './preview-fonts';
-import { PREVIEW_STRETCH_SHELL_CSS } from './preview-frame-css';
+import { PREVIEW_IN_DOM_SHELL_CSS } from './preview-frame-css';
 import {
   isBlankSnapshotBody,
-  patchPreviewHtml,
+  prepareSnapshotHtml,
   snapshotBodyHtml,
 } from './preview-html';
-import { emptySx, paneSx } from './tokens';
 
-/** Patched srcdoc keyed by frame URL — survives scrub across panes. */
-const patchedSrcdocCache = new Map<string, string>();
-/** Last non-blank patched srcdoc per frame URL (hold while parked actor omits a view). */
-const lastGoodSrcdocCache = new Map<string, string>();
-
-function HtmlPaneMessage(props: { readonly message: ReactNode }) {
-  return (
-    <Box sx={paneSx}>
-      <Text sx={emptySx} label={props.message} />
-    </Box>
-  );
-}
+/** Prepared in-DOM markup keyed by frame URL — survives scrub across panes. */
+const preparedMarkupCache = new Map<string, string>();
+/** Last non-blank prepared markup per frame URL (hold while parked actor omits a view). */
+const lastGoodMarkupCache = new Map<string, string>();
 
 function useHtmlPaneSrcdoc(args: {
   readonly file: string | null;
@@ -54,10 +45,10 @@ function useHtmlPaneSrcdoc(args: {
     let cancelled = false;
     const url = api.testFrameUrl(bucketId, runId, testId, file);
 
-    const applyPatched = (patched: string) => {
+    const applyPrepared = (prepared: string, bodyHtml: string) => {
       if (cancelled) return;
-      if (isBlankSnapshotBody(snapshotBodyHtml(patched))) {
-        const held = lastGoodSrcdocCache.get(url);
+      if (isBlankSnapshotBody(bodyHtml)) {
+        const held = lastGoodMarkupCache.get(url);
         if (held !== undefined) {
           setBlankSnapshot(false);
           setSrcdoc((prev) => (prev === held ? prev : held));
@@ -68,15 +59,15 @@ function useHtmlPaneSrcdoc(args: {
         setError(null);
         return;
       }
-      lastGoodSrcdocCache.set(url, patched);
+      lastGoodMarkupCache.set(url, prepared);
       setBlankSnapshot(false);
-      setSrcdoc((prev) => (prev === patched ? prev : patched));
+      setSrcdoc((prev) => (prev === prepared ? prev : prepared));
       setError(null);
     };
 
-    const cached = patchedSrcdocCache.get(url);
+    const cached = preparedMarkupCache.get(url);
     if (cached !== undefined) {
-      applyPatched(cached);
+      applyPrepared(cached, snapshotBodyHtml(cached));
       return;
     }
 
@@ -89,15 +80,15 @@ function useHtmlPaneSrcdoc(args: {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         if (cancelled) return;
-        const patched = patchPreviewHtml(html, {
-          shellCss: PREVIEW_STRETCH_SHELL_CSS,
+        const payload = prepareSnapshotHtml(html, {
+          shellCss: PREVIEW_IN_DOM_SHELL_CSS,
           fontCss,
         });
-        patchedSrcdocCache.set(url, patched);
-        applyPatched(patched);
+        const prepared = `${payload.styleHtml}${payload.bodyHtml}`;
+        preparedMarkupCache.set(url, prepared);
+        applyPrepared(prepared, payload.bodyHtml);
       } catch (err) {
         if (cancelled) return;
-        // Keep prior srcdoc on transient fetch errors while scrubbing.
         setError(err instanceof Error ? err.message : String(err));
       }
     })();
@@ -136,26 +127,16 @@ export function HtmlPane(props: {
   });
 
   if (file == null) {
-    return (
-      <HtmlPaneMessage
-        message={<>No snapshot for `{props.nodeId ?? '—'}` on this step.</>}
-      />
-    );
+    return <HtmlPaneEmpty kind="missing" nodeId={props.nodeId} />;
   }
   if (blankSnapshot && srcdoc == null) {
-    return (
-      <HtmlPaneMessage
-        message={
-          <>Snapshot for `{props.nodeId ?? '—'}` is empty on this step.</>
-        }
-      />
-    );
+    return <HtmlPaneEmpty kind="blank" nodeId={props.nodeId} />;
   }
   if (srcdoc == null && error != null) {
-    return <HtmlPaneMessage message={`Failed to load snapshot: ${error}`} />;
+    return <HtmlPaneEmpty kind="error" detail={error} />;
   }
   if (srcdoc == null) {
-    return <HtmlPaneMessage message="Loading snapshot…" />;
+    return <HtmlPaneEmpty kind="loading" />;
   }
 
   return <HtmlSrcdocFrame title={`frame ${file}`} srcdoc={srcdoc} />;

@@ -44,6 +44,8 @@ export async function writeReporterFrame(args: {
   readonly now: () => number;
   readonly attribution: MutableUiAttribution;
   readonly writtenDbBlobs: Map<string, string>;
+  /** nodeId → last non-blank HTML (parked clients carry forward). */
+  readonly lastGoodHtml: Map<string, string>;
   readonly snapshotViews?: () => Promise<readonly SnapshotViewNode[]>;
   readonly snapshotDatabases?: () => Promise<readonly SnapshotDatabaseNode[]>;
   readonly snapshotCheckpoint?: () =>
@@ -57,6 +59,7 @@ export async function writeReporterFrame(args: {
     testId: args.testId,
     frameSeq: args.frameSeq,
     padFrame,
+    lastGoodHtml: args.lastGoodHtml,
     ...(args.snapshotViews !== undefined
       ? { snapshotViews: args.snapshotViews }
       : {}),

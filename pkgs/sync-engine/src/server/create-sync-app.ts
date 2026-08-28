@@ -45,7 +45,7 @@ export type CreateSyncAppDeps = {
 export function createSyncApp(deps: CreateSyncAppDeps) {
   // Per-app allocator — never module-scope (multi-sim / multi-app isolation).
   const nextCheckpoint =
-    deps.nextCheckpoint ?? createMonotonicCheckpoint(deps.now);
+    deps.nextCheckpoint ?? createMonotonicCheckpoint(deps.now).next;
   const mutations = withFrameworkMutations(deps.mutations);
   const app = new Hono<{ Variables: SyncSqlVariables }>();
   mountQueryRoutes(app, {
