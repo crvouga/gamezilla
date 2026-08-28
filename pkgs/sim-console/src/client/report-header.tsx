@@ -1,6 +1,7 @@
 import { Box, Text } from '@pkgs/ui';
 import type { ReactNode } from 'react';
 
+import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
 import {
   appHeaderMiddleSx,
   appHeaderSx,
@@ -17,19 +18,24 @@ export function ReportHeader(props: {
   readonly end?: ReactNode;
 }) {
   const { leading, badge, title, meta, end } = props;
+  const { compactChrome } = useSimConsoleLayout();
+  const showMeta =
+    !compactChrome && meta !== undefined && meta !== null && meta !== '';
   return (
     <Box sx={appHeaderSx}>
       {leading}
       {badge}
       <Box sx={appHeaderMiddleSx}>
         {title}
-        {meta !== undefined && meta !== null && meta !== '' ? (
-          <Text sx={[metaSx, { flexShrink: 0 }]} numberOfLines={1}>
+        {showMeta ? (
+          <Text sx={[metaSx, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>
             {meta}
           </Text>
         ) : null}
       </Box>
-      {end != null ? <Box sx={appHeaderTrailingSx}>{end}</Box> : null}
+      {end != null ? (
+        <Box sx={[appHeaderTrailingSx, { flexShrink: 0 }]}>{end}</Box>
+      ) : null}
     </Box>
   );
 }

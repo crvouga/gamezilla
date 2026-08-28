@@ -9,6 +9,10 @@ import {
 } from '../debugger-chrome';
 import type { FlatFrame } from '../frames';
 import { PlayerStrip } from '../player-strip';
+import {
+  showDebuggerInstanceTabs,
+  useSimConsoleLayout,
+} from './use-sim-console-layout';
 
 export type DebuggerInstance = {
   readonly id: string;
@@ -62,9 +66,16 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
     onViewChange,
     children,
   } = props;
+  const { compactChrome, multiClientColumns } = useSimConsoleLayout();
   const showKindStrip = kindTabs.length > 1;
-  const showInstances = kind !== 'client' && instances.length > 1;
+  const showInstances = showDebuggerInstanceTabs({
+    kind,
+    instanceCount: instances.length,
+    multiClientColumns,
+  });
   const showViewStrip = views.length > 1;
+  const trailingInStrip = !compactChrome ? kindTrailing : undefined;
+  const trailingAsRow = compactChrome ? kindTrailing : undefined;
 
   return (
     <Box sx={shellSx}>
@@ -77,12 +88,15 @@ export function DebuggerShell(props: DebuggerShellProps): ReactNode {
             onSelect={onSelectFrame}
           />
         ) : null}
+        {trailingAsRow !== undefined ? (
+          <Box sx={trailingOnlySx}>{trailingAsRow}</Box>
+        ) : null}
         <KindChrome
           showStrip={showKindStrip}
           kindTabs={kindTabs}
           kind={kind}
           onKindChange={onKindChange}
-          kindTrailing={kindTrailing}
+          kindTrailing={trailingInStrip}
         />
         {showInstances ? (
           <TabStrip
@@ -147,7 +161,6 @@ const paneSx = {
 const trailingOnlySx = {
   flexDirection: 'row',
   alignItems: 'center',
-  justifyContent: 'flex-end',
   paddingLeft: 4,
   paddingRight: 4,
   paddingTop: 2,
@@ -155,4 +168,5 @@ const trailingOnlySx = {
   borderBottomWidth: 1,
   borderColor: 'border',
   background: 'surfaceMuted',
+  minWidth: 0,
 } as const;

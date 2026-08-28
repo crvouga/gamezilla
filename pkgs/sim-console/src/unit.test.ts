@@ -4,6 +4,10 @@ import { join } from 'node:path';
 import { wallTimers } from '@pkgs/clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import {
+  showDebuggerInstanceTabs,
+  simConsoleLayoutFromBreakpoint,
+} from './client/debugger/sim-console-layout';
+import {
   type FlatFrame,
   frameOwnedByNode,
   resolveFrameForNode,
@@ -800,6 +804,55 @@ describe('resolveHtmlFile', () => {
     expect(resolveHtmlFile(frame, 'alice', clientNode)).toBe(
       'frames/f-00001.alice.html'
     );
+  });
+});
+
+describe('simConsoleLayout', () => {
+  test('mobile is compact single-client', () => {
+    expect(simConsoleLayoutFromBreakpoint('mobile')).toEqual({
+      compactChrome: true,
+      multiClientColumns: false,
+    });
+  });
+
+  test('tablet and desktop keep multi-client columns', () => {
+    expect(simConsoleLayoutFromBreakpoint('tablet').multiClientColumns).toBe(
+      true
+    );
+    expect(simConsoleLayoutFromBreakpoint('desktop').multiClientColumns).toBe(
+      true
+    );
+  });
+
+  test('showDebuggerInstanceTabs for clients only when single-column', () => {
+    expect(
+      showDebuggerInstanceTabs({
+        kind: 'client',
+        instanceCount: 2,
+        multiClientColumns: true,
+      })
+    ).toBe(false);
+    expect(
+      showDebuggerInstanceTabs({
+        kind: 'client',
+        instanceCount: 2,
+        multiClientColumns: false,
+      })
+    ).toBe(true);
+    expect(
+      showDebuggerInstanceTabs({
+        kind: 'room',
+        instanceCount: 2,
+        multiClientColumns: true,
+      })
+    ).toBe(true);
+    expect(
+      showDebuggerInstanceTabs({
+        kind: 'client',
+        instanceCount: 1,
+        multiClientColumns: false,
+      })
+    ).toBe(false);
   });
 });
 

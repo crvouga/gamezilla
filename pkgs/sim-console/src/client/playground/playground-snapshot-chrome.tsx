@@ -20,6 +20,7 @@ import type {
   PlaygroundSession,
   PlaygroundSnapshotInfo,
 } from '../../shared/ports';
+import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
 import {
   formatSnapshotAge,
   formatSnapshotBytes,
@@ -201,6 +202,7 @@ function SnapshotSelect(props: {
   readonly sort: SortKey;
   readonly nowMs: number;
   readonly checkedIds: ReadonlySet<string>;
+  readonly compact: boolean;
   readonly onSelectId: (id: string) => void;
   readonly onSort: (sort: SortKey) => void;
   readonly onToggleChecked: (id: string, next: boolean) => void;
@@ -215,6 +217,7 @@ function SnapshotSelect(props: {
     sort,
     nowMs,
     checkedIds,
+    compact,
     onSelectId,
     onSort,
     onToggleChecked,
@@ -225,14 +228,7 @@ function SnapshotSelect(props: {
     sortedSnaps.length > 0 && sortedSnaps.every((s) => checkedIds.has(s.id));
   const someChecked = sortedSnaps.some((s) => checkedIds.has(s.id));
   return (
-    <Box
-      sx={{
-        width: SELECT_WIDTH,
-        flexShrink: 0,
-        minWidth: 0,
-        alignSelf: 'center',
-      }}
-    >
+    <Box sx={compact ? selectCompactSx : selectDesktopSx}>
       <Select
         size="sm"
         options={sortedSnaps.map((s) => ({
@@ -262,27 +258,83 @@ function SnapshotSelect(props: {
         }
         loading={list.busy}
         error={list.error}
-        renderOption={(option, selected, onPick) => {
-          const snap = snapById.get(option.value);
-          if (snap === undefined) return null;
-          const outdated = !snap.compatible;
-          return (
-            <SnapshotOptionRow
-              snap={snap}
-              nowMs={nowMs}
-              selected={selected}
-              outdated={outdated}
-              busy={list.busy}
-              checked={checkedIds.has(snap.id)}
-              onToggleChecked={(next) => onToggleChecked(snap.id, next)}
-              onPick={onPick}
-            />
-          );
-        }}
+        renderOption={(option, selected, onPick) => (
+          <SnapshotSelectOption
+            snap={snapById.get(option.value)}
+            nowMs={nowMs}
+            selected={selected}
+            busy={list.busy}
+            checked={
+              snapById.get(option.value) !== undefined &&
+              checkedIds.has(option.value)
+            }
+            onToggleChecked={(next) => onToggleChecked(option.value, next)}
+            onPick={onPick}
+          />
+        )}
       />
     </Box>
   );
 }
+
+function SnapshotSelectOption(props: {
+  readonly snap: PlaygroundSnapshotInfo | undefined;
+  readonly nowMs: number;
+  readonly selected: boolean;
+  readonly busy: boolean;
+  readonly checked: boolean;
+  readonly onToggleChecked: (next: boolean) => void;
+  readonly onPick: () => void;
+}) {
+  const { snap } = props;
+  if (snap === undefined) return null;
+  return (
+    <SnapshotOptionRow
+      snap={snap}
+      nowMs={props.nowMs}
+      selected={props.selected}
+      outdated={!snap.compatible}
+      busy={props.busy}
+      checked={props.checked}
+      onToggleChecked={props.onToggleChecked}
+      onPick={props.onPick}
+    />
+  );
+}
+
+const selectCompactSx = {
+  flex: 1,
+  minWidth: 0,
+  alignSelf: 'center',
+} as const;
+
+const selectDesktopSx = {
+  width: SELECT_WIDTH,
+  flexShrink: 0,
+  minWidth: 0,
+  alignSelf: 'center',
+} as const;
+
+const chromeRowCompactSx = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  gap: 0.5,
+  flexShrink: 1,
+  flex: 1,
+  minWidth: 0,
+  alignSelf: 'stretch',
+} as const;
+
+const chromeRowDesktopSx = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  gap: 0.5,
+  flexShrink: 0,
+  minWidth: 0,
+  alignSelf: 'stretch',
+} as const;
 
 function SnapshotChromeActions(props: {
   readonly list: SnapshotListApi;
@@ -351,28 +403,19 @@ function SnapshotChromeActions(props: {
   );
 }
 
-/** TabStrip trailing: snapshot Select + save / reload / palette icon buttons. */
+/** Snapshot Select + save / reload / palette icon buttons. */
 export function PlaygroundSnapshotChrome(props: {
   readonly session: PlaygroundSession;
 }) {
   const { session } = props;
+  const { compactChrome } = useSimConsoleLayout();
   const list = usePlaygroundSnapshots(session);
   const state = useSnapshotChromeState(list);
   const { open: openPalette } = useCommandPalette();
   const nowMs = session.clock.now();
-  const deleteCount = state.pendingDeleteIds?.length ?? 0;
 
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: 0.5,
-        flexShrink: 0,
-        alignSelf: 'stretch',
-      }}
-    >
+    <Box sx={compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}>
       <SnapshotSelect
         list={list}
         sortedSnaps={state.sortedSnaps}
@@ -381,6 +424,7 @@ export function PlaygroundSnapshotChrome(props: {
         sort={state.sort}
         nowMs={nowMs}
         checkedIds={state.checkedIds}
+        compact={compactChrome}
         onSelectId={state.setSelectedId}
         onSort={state.setSort}
         onToggleChecked={state.onToggleChecked}
@@ -396,6 +440,18 @@ export function PlaygroundSnapshotChrome(props: {
         onPurge={() => state.setPurgeOpen(true)}
         openPalette={openPalette}
       />
+      <SnapshotChromeModals state={state} />
+    </Box>
+  );
+}
+
+function SnapshotChromeModals(props: {
+  readonly state: ReturnType<typeof useSnapshotChromeState>;
+}) {
+  const { state } = props;
+  const deleteCount = state.pendingDeleteIds?.length ?? 0;
+  return (
+    <>
       <MutationModal
         visible={state.pendingDeleteIds !== null}
         onClose={state.closeDelete}
@@ -426,6 +482,6 @@ export function PlaygroundSnapshotChrome(props: {
         onSuccess={state.closePurge}
         stackId="playground-snapshot-chrome-purge"
       />
-    </Box>
+    </>
   );
 }

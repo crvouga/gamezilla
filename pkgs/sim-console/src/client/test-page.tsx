@@ -63,7 +63,7 @@ export function TestPage(props: {
   );
   const instances = instancesForKind(nodes, 'client');
   const selected =
-    findNodeForInstance(nodes, 'client', null) ?? instances[0] ?? null;
+    findNodeForInstance(nodes, 'client', nav.node) ?? instances[0] ?? null;
   const reportView: DebuggerViewId = 'ui';
 
   useDefaultNav({

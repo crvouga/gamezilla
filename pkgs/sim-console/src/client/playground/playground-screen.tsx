@@ -179,7 +179,10 @@ function ReadyPlaygroundScreen(props: {
         onKindChange={chrome.onKindChange}
         instances={instances}
         instanceId={instanceId}
-        onInstanceChange={chrome.onInstanceChange}
+        onInstanceChange={(id) => {
+          chrome.onInstanceChange(id);
+          if (kind === 'client') onFocusedClientIdChange(id);
+        }}
         views={views}
         view={view}
         onViewChange={(next) => chrome.onViewChange(next)}

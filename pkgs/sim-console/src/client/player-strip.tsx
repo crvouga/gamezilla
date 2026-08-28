@@ -10,6 +10,7 @@ import {
 } from '@pkgs/ui';
 import { useEffect, useRef, useState } from 'react';
 
+import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
 import type { FlatFrame } from './frames';
 import { formatMs, formatMsStable } from './frames';
 import { playbackToggleAction } from './playback';
@@ -20,6 +21,8 @@ type Speed = (typeof SPEEDS)[number];
 
 const TRANSPORT_SIZE = 40;
 const TRANSPORT_ICON = 20;
+const TRANSPORT_SIZE_COMPACT = 36;
+const TRANSPORT_ICON_COMPACT = 18;
 
 export function PlayerStrip(props: {
   readonly frames: readonly FlatFrame[];
@@ -27,9 +30,11 @@ export function PlayerStrip(props: {
   readonly onSelect: (index: number) => void;
 }) {
   const playback = usePlayback(props);
+  const { compactChrome } = useSimConsoleLayout();
   return (
     <Box sx={stripSx}>
       <Transport
+        compact={compactChrome}
         playing={playback.playing}
         speed={playback.speed}
         elapsedMs={playback.elapsedMs}
@@ -202,6 +207,7 @@ function bindPlaybackButtons(args: {
 }
 
 function Transport(props: {
+  readonly compact: boolean;
   readonly playing: boolean;
   readonly speed: Speed;
   readonly elapsedMs: number;
@@ -213,28 +219,42 @@ function Transport(props: {
   readonly onNext: () => void;
   readonly onCycleSpeed: () => void;
 }) {
+  const size = props.compact ? TRANSPORT_SIZE_COMPACT : TRANSPORT_SIZE;
+  const icon = props.compact ? TRANSPORT_ICON_COMPACT : TRANSPORT_ICON;
   return (
     <Box
       sx={{
         flexDirection: 'row',
         flexWrap: 'nowrap',
         alignItems: 'center',
-        gap: 3,
+        gap: props.compact ? 1.5 : 3,
+        minWidth: 0,
       }}
     >
-      <TransportButtons {...props} />
-      <Box sx={{ flexDirection: 'row', alignItems: 'baseline', gap: 0.5 }}>
-        <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
-          {formatMsStable(props.elapsedMs)}
-        </Text>
-        <Text sx={{ color: 'textSecondary', fontSize: 12 }}>/</Text>
-        <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
-          {formatMs(props.totalMs)}
-        </Text>
-      </Box>
+      <TransportButtons
+        size={size}
+        icon={icon}
+        playing={props.playing}
+        atStart={props.atStart}
+        atEnd={props.atEnd}
+        onPrev={props.onPrev}
+        onTogglePlay={props.onTogglePlay}
+        onNext={props.onNext}
+      />
+      {props.compact ? null : (
+        <Box sx={{ flexDirection: 'row', alignItems: 'baseline', gap: 0.5 }}>
+          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
+            {formatMsStable(props.elapsedMs)}
+          </Text>
+          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>/</Text>
+          <Text sx={{ color: 'textSecondary', fontSize: 12 }}>
+            {formatMs(props.totalMs)}
+          </Text>
+        </Box>
+      )}
       <IconButton
         label="Playback speed"
-        size={TRANSPORT_SIZE}
+        size={size}
         onPress={props.onCycleSpeed}
         background="surface"
       >
@@ -245,6 +265,8 @@ function Transport(props: {
 }
 
 function TransportButtons(props: {
+  readonly size: number;
+  readonly icon: number;
   readonly playing: boolean;
   readonly atStart: boolean;
   readonly atEnd: boolean;
@@ -257,29 +279,29 @@ function TransportButtons(props: {
     <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 1.5 }}>
       <IconButton
         label="Previous frame"
-        size={TRANSPORT_SIZE}
+        size={props.size}
         disabled={props.atStart}
         onPress={props.onPrev}
         background="surface"
       >
-        <ChevronLeftIcon size={TRANSPORT_ICON} />
+        <ChevronLeftIcon size={props.icon} />
       </IconButton>
       <IconButton
         label={props.playing ? 'Pause' : 'Play'}
-        size={TRANSPORT_SIZE}
+        size={props.size}
         onPress={props.onTogglePlay}
         background="tintSubtle"
       >
-        <PlayFace size={TRANSPORT_ICON} color="tint" />
+        <PlayFace size={props.icon} color="tint" />
       </IconButton>
       <IconButton
         label="Next frame"
-        size={TRANSPORT_SIZE}
+        size={props.size}
         disabled={props.atEnd}
         onPress={props.onNext}
         background="surface"
       >
-        <ChevronRightIcon size={TRANSPORT_ICON} />
+        <ChevronRightIcon size={props.icon} />
       </IconButton>
     </Box>
   );

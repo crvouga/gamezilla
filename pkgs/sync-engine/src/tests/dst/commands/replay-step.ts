@@ -23,6 +23,10 @@ export async function restartClientForConverge(
   clientId: string,
   opts?: { readonly preserveLocalDb?: boolean }
 ): Promise<void> {
+  // Drop unfired armCrashAt / HTTP arms so mid-replay heal restarts (e.g.
+  // after tamperLocalStorage) are not crashed during waitForSessionSync when
+  // pending uploads drain after partition heal.
+  world.clearBoundaryFaults();
   await ensureServerUp(world);
   world.node(clientId).auth('valid');
   await world.node(clientId).restart({

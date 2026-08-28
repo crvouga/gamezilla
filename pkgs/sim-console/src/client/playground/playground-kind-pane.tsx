@@ -12,6 +12,7 @@ import type {
 } from '../../shared/ports';
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn, DebuggerColumns } from '../debugger/debugger-columns';
+import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
 import {
   ClientPlaygroundPanel,
   PubSubPlaygroundPanel,
@@ -85,6 +86,7 @@ export function PlaygroundKindPane(props: {
         session={session}
         clients={clients}
         view={view}
+        instanceId={instanceId}
         snapshotEpoch={snapshotEpoch}
         focusedClientId={focusedClientId}
         onFocusedClientIdChange={onFocusedClientIdChange}
@@ -147,6 +149,7 @@ function ClientLiveColumns(props: {
   readonly session: PlaygroundSession;
   readonly clients: readonly PlaygroundActor[];
   readonly view: DebuggerViewId;
+  readonly instanceId: string | null;
   readonly snapshotEpoch: number;
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
@@ -162,12 +165,14 @@ function ClientLiveColumns(props: {
     session,
     clients,
     view,
+    instanceId,
     snapshotEpoch,
     focusedClientId,
     onFocusedClientIdChange,
     onOutsidePointerDown,
     clientColumnShell,
   } = props;
+  const { multiClientColumns } = useSimConsoleLayout();
   if (clients.length === 0) {
     return <EmptyKind body="No clients in this session." />;
   }
@@ -176,7 +181,14 @@ function ClientLiveColumns(props: {
       {...(onOutsidePointerDown !== undefined ? { onOutsidePointerDown } : {})}
     >
       {clients.map((actor) => {
-        const focused = focusedClientId === actor.id;
+        const selected =
+          instanceId !== null
+            ? actor.id === instanceId
+            : actor.id === clients[0]?.id;
+        const visible = multiClientColumns || selected;
+        const focused = multiClientColumns
+          ? focusedClientId === actor.id
+          : selected;
         const panel = (
           <ClientPlaygroundPanel
             actor={actor}
@@ -185,15 +197,32 @@ function ClientLiveColumns(props: {
             view={view}
           />
         );
-        if (clientColumnShell !== undefined) {
-          return clientColumnShell({
-            actor,
-            focused,
-            onActivate: () => onFocusedClientIdChange(actor.id),
-            children: panel,
-          });
-        }
-        return <DebuggerColumn key={actor.id}>{panel}</DebuggerColumn>;
+        const body =
+          clientColumnShell !== undefined ? (
+            clientColumnShell({
+              actor,
+              focused,
+              onActivate: () => onFocusedClientIdChange(actor.id),
+              children: panel,
+            })
+          ) : (
+            <DebuggerColumn key={actor.id}>{panel}</DebuggerColumn>
+          );
+        if (multiClientColumns) return body;
+        return (
+          <Box
+            key={actor.id}
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              minHeight: 0,
+              flexDirection: 'column',
+              display: visible ? 'flex' : 'none',
+            }}
+          >
+            {body}
+          </Box>
+        );
       })}
     </DebuggerColumns>
   );

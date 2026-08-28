@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { ReportApiClient } from './api-client';
 import { DebuggerColumn, DebuggerColumns } from './debugger/debugger-columns';
+import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
 import { EventsPane } from './events-pane';
 import type { FlatFrame } from './frames';
 import { resolveFrameForNode } from './frames';
@@ -62,10 +63,16 @@ function ReportClientPane(props: {
   readonly frames: readonly FlatFrame[];
   readonly selectedIdx: number;
 }): ReactNode {
+  const { multiClientColumns } = useSimConsoleLayout();
+  const visibleInstances = visibleReportClients(
+    props.instances,
+    props.selected,
+    multiClientColumns
+  );
   if (props.view === 'events') {
     return (
       <DebuggerColumns>
-        {props.instances.map((node) => {
+        {visibleInstances.map((node) => {
           const nodeFrame = resolveFrameForNode(
             props.frames,
             props.selectedIdx,
@@ -90,7 +97,7 @@ function ReportClientPane(props: {
   if (props.view === 'db') {
     return (
       <DebuggerColumns>
-        {props.instances.map((node) => {
+        {visibleInstances.map((node) => {
           const nodeFrame = resolveFrameForNode(
             props.frames,
             props.selectedIdx,
@@ -111,7 +118,7 @@ function ReportClientPane(props: {
       </DebuggerColumns>
     );
   }
-  if (props.instances.length === 0) {
+  if (visibleInstances.length === 0) {
     return (
       <Box sx={paneSx}>
         <Text sx={emptySx}>No client nodes for this frame.</Text>
@@ -120,7 +127,7 @@ function ReportClientPane(props: {
   }
   return (
     <DebuggerColumns>
-      {props.instances.map((node) => {
+      {visibleInstances.map((node) => {
         const nodeFrame = resolveFrameForNode(
           props.frames,
           props.selectedIdx,
@@ -147,6 +154,17 @@ function ReportClientPane(props: {
       })}
     </DebuggerColumns>
   );
+}
+
+function visibleReportClients(
+  instances: readonly TopologyNodeInfo[],
+  selected: TopologyNodeInfo | null,
+  multiClientColumns: boolean
+): readonly TopologyNodeInfo[] {
+  if (multiClientColumns) return instances;
+  if (selected !== null) return [selected];
+  const first = instances[0];
+  return first !== undefined ? [first] : [];
 }
 
 const columnSx = {
