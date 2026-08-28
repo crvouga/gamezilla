@@ -56,4 +56,11 @@ describe('turbo deploy graph invariants', () => {
     expect(deps as string[]).toContain('@sim/console#deploy');
     expect(deps as string[]).toContain('@apps/client#deploy');
   });
+
+  test('secrets provision runs after install:cli (avoid infisical race)', () => {
+    const turbo = loadTurboJson();
+    const deps = turbo.tasks?.['@libs/secrets#provision']?.dependsOn;
+    expect(Array.isArray(deps)).toBe(true);
+    expect(deps as string[]).toContain('@tools#install:cli');
+  });
 });

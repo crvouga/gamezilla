@@ -160,7 +160,8 @@
       "outputLogs": "new-only"
     },
     "@libs/secrets#provision": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["@tools#install:cli"]
     },
     "@libs/db#provision": {
       "cache": false,
