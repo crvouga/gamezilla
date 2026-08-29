@@ -635,6 +635,13 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
     **double-apply** (pinned by `late-retry-after-prune-window-documented`).
     Keep retention longer than max client offline/retry windows, or accept
     double-apply as the documented failure mode.
+10. **Server DDL before client writers** — mixed app versions are safe for
+    **reads** via column-intersect merge (extra server columns ignored; local-only
+    columns not clobbered). Clients that **write** a new column/table before the
+    server has migrated that DDL will fail upload (infra retry / no wipe). Ship
+    server migrate first; pinned by `client-ahead-column-mutation-no-wipe`.
+11. **Malformed mutation `args` JSON** — permanent `INVALID_ARGS` reject (not an
+    infra retry storm).
 
 ---
 
@@ -1333,7 +1340,7 @@ rewrite-safe (public + sim world API + domain packs only).
 | `delayed-sync-after-ack-no-optimistic-flicker.test.ts` | Delayed/reordered sync after ack never reverts optimistic body |
 | `replay-pins-now-to-mutation-created-at.test.ts` | Replay + rebase pin `env.now` to `createdAt` under skew |
 
-### Schema drift & versioning (11)
+### Schema drift & versioning (16)
 
 | File | Proves |
 |------|--------|
@@ -1348,6 +1355,21 @@ rewrite-safe (public + sim world API + domain packs only).
 | `args-schema-tightened-server-rejects-stale-args.test.ts` | Tightened zod args → permanent reject; no crash loop |
 | `scope-hash-stable-under-param-key-order.test.ts` | Param key order does not double-subscribe |
 | *(also)* `set-note-v1-v2-interleaved-converge.test.ts` | V1-only client still replays while V2 exists |
+| `mixed-schema-three-clients-partition-converge.test.ts` | Baseline + color + tags clients under partition converge |
+| `mixed-schema-tombstone-and-pending-rebase.test.ts` | Pending color mutate revives peer tombstone; color kept |
+| `server-schema-upgrade-mid-session.test.ts` | Server adds column mid-life; old clients ignore color |
+| `client-ahead-column-mutation-no-wipe.test.ts` | Client writes new column before server DDL; no wipe |
+| `schema-drift.pbt.test.ts` | DST restartWithSchema + mixed-variant clients converge |
+
+### Corruption / poison payloads (5)
+
+| File | Proves |
+|------|--------|
+| `corruption-safety.pbt.test.ts` | HTTP/pubsub corruption + storage tampers (incl. queued args / last_hash) heal |
+| `corrupt-queued-args-permanent-reject.test.ts` | Non-JSON queued args → `INVALID_ARGS`; healthy mutate drains |
+| `merge-snapshot-and-row-images.unit.test.ts` | Intersect, poison snapshot rollback, row-image skip bad ids |
+| `replay-malformed-args.unit.test.ts` | `JSON.parse` SyntaxError → permanent reject |
+| `parse-push-malformed.unit.test.ts` | Malformed push shapes never throw |
 
 ### Idempotency / retries (8)
 

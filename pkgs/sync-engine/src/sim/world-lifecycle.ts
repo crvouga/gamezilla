@@ -16,6 +16,10 @@ export type RestartClientOpts = {
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
+  readonly sessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
 };
 
 export async function crashClientImpl(

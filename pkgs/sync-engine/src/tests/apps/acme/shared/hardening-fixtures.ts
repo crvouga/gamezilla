@@ -141,6 +141,73 @@ export const acmeLocalSchemaExtraTable: LocalDomainSchema = {
   cacheTableNames: ACME_APP_TABLES_EXTRA_TABLE,
 };
 
+/** Both `notes.color` and `tags` — mixed-schema multi-client worlds. */
+export const acmeAppSchemaExtraColumnAndTable = registerTables([
+  defineTable({
+    domain: 'folders',
+    name: 'folders',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'notes',
+    name: 'notes',
+    columns: {
+      folder_id: 'text',
+      space_id: 'text',
+      title: 'text',
+      body: 'text',
+      color: 'text',
+      owner_id: 'text',
+    },
+    indexes: ['folder_id', 'owner_id', 'space_id'],
+  }),
+  defineTable({
+    domain: 'tags',
+    name: 'tags',
+    columns: { label: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces',
+    columns: { title: 'text', owner_id: 'text' },
+    indexes: ['owner_id'],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_users',
+    columns: { space_id: 'text', user_id: 'text' },
+    indexes: ['space_id', 'user_id'],
+    uniqueIndexes: [['space_id', 'user_id']],
+  }),
+  defineTable({
+    domain: 'spaces',
+    name: 'spaces_open_sessions',
+    columns: {
+      space_id: 'text',
+      device_id: 'text',
+      opened_at: 'timestamp',
+    },
+    indexes: ['device_id', 'space_id'],
+    uniqueIndexes: [['device_id', 'space_id']],
+  }),
+]);
+
+export const ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE = [
+  'folders',
+  'notes',
+  'tags',
+  'spaces',
+  'spaces_users',
+  'spaces_open_sessions',
+] as const;
+
+export const acmeLocalSchemaExtraColumnAndTable: LocalDomainSchema = {
+  domainSchema: acmeAppSchemaExtraColumnAndTable,
+  cacheTableNames: ACME_APP_TABLES_EXTRA_COLUMN_AND_TABLE,
+};
+
 /** V2 query name — same hydrate as notesWorld. */
 export const notesWorldV2Query = defineQuery({
   name: 'notesWorldV2',

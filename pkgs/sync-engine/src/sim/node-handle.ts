@@ -46,6 +46,9 @@ export function createSimNodeHandle(
     readonly crashServer: () => Promise<void>;
     readonly restartServer: (opts?: {
       readonly preserveDb?: boolean;
+      readonly localSchema?: import('../client/local-schema-migrate').LocalDomainSchema;
+      readonly mutationRegistry?: import('../mutations/core/types').MutationRegistry;
+      readonly queryRegistry?: import('../queries/core/types').QueryRegistry;
     }) => Promise<void>;
     readonly armCrashHook: (id: string, event: SimCrashEvent) => void;
   }
@@ -72,6 +75,15 @@ export function createSimNodeHandle(
       if (nodeId === SIM_SERVER_NODE_ID) {
         await ops.restartServer({
           preserveDb: opts?.preserveLocalDb !== false,
+          ...(opts?.localSchema !== undefined
+            ? { localSchema: opts.localSchema }
+            : {}),
+          ...(opts?.mutationRegistry !== undefined
+            ? { mutationRegistry: opts.mutationRegistry }
+            : {}),
+          ...(opts?.queryRegistry !== undefined
+            ? { queryRegistry: opts.queryRegistry }
+            : {}),
         });
         return undefined;
       }

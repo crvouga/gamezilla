@@ -2,7 +2,11 @@ import { unsafe } from '@pkgs/sql';
 
 import type { BootedSimKernel } from './world-types';
 
-export type LocalStorageTamper = 'corruptCheckpoint' | 'flipDomainRow';
+export type LocalStorageTamper =
+  | 'corruptCheckpoint'
+  | 'flipDomainRow'
+  | 'corruptQueuedArgs'
+  | 'corruptLastHash';
 
 /** Tamper a client's preserved local SQLite (live or last crash bundle). */
 export async function tamperClientLocalStorage(
@@ -26,6 +30,20 @@ export async function tamperClientLocalStorage(
       await db.run(
         unsafe(
           `UPDATE notes SET body = 'sim-tampered' WHERE deleted_at IS NULL LIMIT 1`
+        )
+      );
+      break;
+    case 'corruptQueuedArgs':
+      await db.run(
+        unsafe(
+          `UPDATE sync_engine_mutations SET args = '__not_json__' WHERE id IN (SELECT id FROM sync_engine_mutations LIMIT 1)`
+        )
+      );
+      break;
+    case 'corruptLastHash':
+      await db.run(
+        unsafe(
+          `UPDATE sync_engine_scope_meta SET last_hash = '__sim_corrupt_hash__'`
         )
       );
       break;

@@ -7,6 +7,7 @@ import { replayActionsOnWorld, SCHEMA_VARIANTS } from '../dst/commands';
 import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
+const TRIGGER_C1 = acmeSetNoteOp('c1', 'n1', 'schema-drift-peer');
 
 function schemaSequence(arm: LibraryAction): DstAction[] {
   return [arm, TRIGGER, { kind: 'idle', ms: 40 }, { kind: 'heal' }];
@@ -39,6 +40,48 @@ describe('schema drift PBT', () => {
                 opened.world,
                 schemaSequence(arm)
               );
+              await opened.world.assertConverged();
+            } finally {
+              await opened.world.dispose();
+            }
+          }
+        ),
+        { numRuns: 6 }
+      );
+    },
+    { timeout: 120_000 }
+  );
+
+  test(
+    'mixed-schema clients both mutate then converge',
+    async () => {
+      await assertDstProperty(
+        'mixed schema drift sequences converge',
+        fc.asyncProperty(
+          arbWorldSeed(),
+          arbWorldKnobs(),
+          fc.constantFrom('extraColumn', 'extraTable') as fc.Arbitrary<
+            'extraColumn' | 'extraTable'
+          >,
+          async (seed, knobs, variant) => {
+            const actions: DstAction[] = [
+              {
+                kind: 'restartWithSchema',
+                clientId: 'c0',
+                variant,
+              },
+              TRIGGER,
+              TRIGGER_C1,
+              { kind: 'idle', ms: 40 },
+              { kind: 'heal' },
+            ];
+            const opened = await openPbtWorld({
+              app: acmeDstApp,
+              seed,
+              knobs: { ...knobs, clientCount: 2 },
+            });
+            try {
+              await replayActionsOnWorld(acmeDstApp, opened.world, actions);
               await opened.world.assertConverged();
             } finally {
               await opened.world.dispose();

@@ -95,6 +95,20 @@ export async function replayMutation(
             message: failure.message,
           };
         }
+        // Malformed JSON (SyntaxError) is a permanent client bug — not infra.
+        if (e instanceof SyntaxError) {
+          const failure = {
+            rule: m.name,
+            code: 'INVALID_ARGS',
+            message: 'Malformed mutation args.',
+          };
+          await recordRejectedInTxn(txc, m, failure, deps);
+          return {
+            status: 'rejected' as const,
+            code: failure.code,
+            message: failure.message,
+          };
+        }
         throw e;
       }
 

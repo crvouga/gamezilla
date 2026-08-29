@@ -32,6 +32,7 @@ export { createSimMembershipChannels } from './membership-channels';
 export { befriend } from './shared/friendship-mutations';
 export {
   acmeLocalSchemaExtraColumn,
+  acmeLocalSchemaExtraColumnAndTable,
   acmeLocalSchemaExtraTable,
   ghostMutation,
   notesAuthorizeThrowQuery,
@@ -49,6 +50,11 @@ export {
   setTag,
   tagsWorldQuery,
 } from './shared/hardening-fixtures';
+export {
+  acmeRestartOptsForVariant,
+  acmeSchemaForVariant,
+  type AcmeSchemaVariant,
+} from './schema-variants';
 export {
   createSpace,
   endSpace,

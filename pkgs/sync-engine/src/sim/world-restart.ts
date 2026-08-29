@@ -1,3 +1,9 @@
+import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema/sqlite';
+import { createLogger } from '@pkgs/logger';
+
+import type { LocalDomainSchema } from '../client/local-schema-migrate';
+import type { MutationRegistry } from '../mutations/core/types';
+import type { QueryRegistry } from '../queries/core/types';
 import type { SimClientHandle } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
 import { bindSimHttpServer } from './http-bridge';
@@ -11,6 +17,22 @@ import {
 } from './world-lifecycle';
 import { addClientImpl } from './world-ops-add-client';
 import type { AddClientArgs, BootedSimKernel } from './world-types';
+
+/** Silent migrate logger — level silent; `now` unused but required by createLogger. */
+const serverMigrateLogger = createLogger({
+  name: 'world-restart-server-migrate',
+  level: 'silent',
+  now: () => 0,
+});
+
+export type RestartServerOpts = {
+  readonly preserveDb?: boolean;
+  readonly checkpointFloor?: bigint;
+  /** Additive domain schema migrate on preserved DB (rolling upgrade). */
+  readonly localSchema?: LocalDomainSchema;
+  readonly mutationRegistry?: MutationRegistry;
+  readonly queryRegistry?: QueryRegistry;
+};
 
 export async function restartClientImpl(
   k: BootedSimKernel,
@@ -53,6 +75,9 @@ export async function restartClientImpl(
     ...(opts?.queryRegistry !== undefined
       ? { queryRegistry: opts.queryRegistry }
       : {}),
+    ...(opts?.sessionQuery !== undefined
+      ? { sessionQuery: opts.sessionQuery }
+      : {}),
   };
   const handle = await addClientImpl(k, args);
   if (preserve) meta.lastDbBundle = handle.dbBundle;
@@ -61,10 +86,7 @@ export async function restartClientImpl(
 
 export async function restartServerImpl(
   k: BootedSimKernel,
-  opts?: {
-    readonly preserveDb?: boolean;
-    readonly checkpointFloor?: bigint;
-  }
+  opts?: RestartServerOpts
 ): Promise<void> {
   k.unbindHttp();
   const preserve = opts?.preserveDb !== false;
@@ -75,6 +97,25 @@ export async function restartServerImpl(
   if (!preserve) {
     await k.server.dispose();
   }
+
+  const localSchema = opts?.localSchema ?? k.domain.localSchema;
+  const mutationRegistry = opts?.mutationRegistry ?? k.domain.mutationRegistry;
+  const queryRegistry = opts?.queryRegistry ?? k.domain.queryRegistry;
+
+  // Rolling upgrade: additive migrate preserved DB to the new domain schema.
+  if (existingDb !== undefined && opts?.localSchema !== undefined) {
+    await new SqliteSchemaDatabaseMigration(opts.localSchema.domainSchema, {
+      ownership: 'declared-only',
+    }).migrate({ sqlClient: existingDb, logger: serverMigrateLogger });
+    // Keep domain pack in sync so later heal/settle restarts use the new schema.
+    (k as { domain: BootedSimKernel['domain'] }).domain = {
+      ...k.domain,
+      localSchema,
+      mutationRegistry,
+      queryRegistry,
+    };
+  }
+
   k.server = await openSimServer({
     now: () => k.nowFor(SIM_SERVER_NODE_ID),
     createId: k.nextId,
@@ -97,9 +138,9 @@ export async function restartServerImpl(
       };
     },
     rowImageFanout: k.worldArgs.rowImageFanout !== false,
-    localSchema: k.domain.localSchema,
-    mutationRegistry: k.domain.mutationRegistry,
-    queryRegistry: k.domain.queryRegistry,
+    localSchema,
+    mutationRegistry,
+    queryRegistry,
     faults: k.faults,
     ...(k.domain.topicMap !== undefined ? { topicMap: k.domain.topicMap } : {}),
     ...(existingDb !== undefined

@@ -67,7 +67,12 @@ export const PUBSUB_FAULTS: readonly SimPubsubFault[] = [
   { kind: 'duplicatePublish', count: 1 },
 ];
 
-export const STORAGE_TAMPERS = ['corruptCheckpoint', 'flipDomainRow'] as const;
+export const STORAGE_TAMPERS = [
+  'corruptCheckpoint',
+  'flipDomainRow',
+  'corruptQueuedArgs',
+  'corruptLastHash',
+] as const;
 
 export const SCHEMA_VARIANTS = [
   'baseline',

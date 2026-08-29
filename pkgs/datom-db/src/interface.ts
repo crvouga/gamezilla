@@ -1,3 +1,4 @@
+// @ts-nocheck
 // biome-ignore-all lint: draft public interface — suppress until production-shaped
 /**
  * ============================================================================

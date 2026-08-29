@@ -58,8 +58,18 @@ export async function withMergeSingleFlight<T>(
   return run;
 }
 
+const TABLE_NAME_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
 function assertTableName(table: string): void {
-  assert.ok(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table), `bad table: ${table}`);
+  assert.ok(TABLE_NAME_RE.test(table), `bad table: ${table}`);
+}
+
+function isValidTableName(table: string): boolean {
+  return TABLE_NAME_RE.test(table);
+}
+
+function isValidRowId(id: unknown): id is string {
+  return typeof id === 'string' && id.length > 0;
 }
 
 /**
@@ -144,20 +154,29 @@ async function upsertRowIntersect(args: {
   `);
 }
 
-async function mergeTable(
-  tx: SqlClient,
-  table: string,
-  rows: readonly QueryRow[],
-  env: MutationEnv
-): Promise<boolean> {
+async function mergeTable(args: {
+  readonly tx: SqlClient;
+  readonly table: string;
+  readonly rows: readonly QueryRow[];
+  readonly env: MutationEnv;
+  readonly skipInvalidIds?: boolean;
+}): Promise<boolean> {
+  const { tx, table, rows, env } = args;
   const cols = await tableColumns(tx, table);
   if (cols.length === 0) return false;
+  let wrote = false;
   for (const row of rows) {
     const id = row['id'];
-    assert.ok(typeof id === 'string' && id.length > 0, 'row id required');
+    if (!isValidRowId(id)) {
+      if (args.skipInvalidIds === true) continue;
+      // Throw (don't assert/crash): poison wire snapshots must roll back the
+      // merge tx and leave the engine recoverable via onError → online:false.
+      throw new Error(`${table}: row id required`);
+    }
     await upsertRowIntersect({ tx, table, row, localCols: cols, env });
+    wrote = true;
   }
-  return true;
+  return wrote;
 }
 
 async function isStale(
@@ -243,7 +262,12 @@ async function runMerge(
       return;
     }
     for (const [table, rows] of Object.entries(input.tables)) {
-      const ok = await mergeTable(tx, table, rows, deps.env);
+      const ok = await mergeTable({
+        tx,
+        table,
+        rows,
+        env: deps.env,
+      });
       if (ok) changed.add(table);
     }
     for (const table of await healOptimisticPeerOrphans(
@@ -304,6 +328,8 @@ export async function applyRowImages(
 ): Promise<void> {
   const filtered: Record<string, readonly QueryRow[]> = {};
   for (const [table, rows] of Object.entries(tables)) {
+    // Drop invalid names before merge / optimistic-peer bookkeeping.
+    if (!isValidTableName(table)) continue;
     filtered[table] = filterDeviceOwnedRows(deps, rows);
   }
   await withMergeSingleFlight(deps.db, async () => {
@@ -311,12 +337,16 @@ export async function applyRowImages(
     await deps.db.transaction(async (tx) => {
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
-        try {
-          const ok = await mergeTable(tx, table, rows, deps.env);
-          if (ok) changed.add(table);
-        } catch {
-          // Table absent from local schema — skip (mirrors snapshot tolerance).
-        }
+        // Skip unknown tables (empty PRAGMA); skip bad ids. Do not
+        // blanket-catch SQL errors (that would commit a partial table).
+        const ok = await mergeTable({
+          tx,
+          table,
+          rows,
+          env: deps.env,
+          skipInvalidIds: true,
+        });
+        if (ok) changed.add(table);
       }
       if (opts?.optimistic === true) {
         await recordOptimisticPeerRows(tx, filtered);
