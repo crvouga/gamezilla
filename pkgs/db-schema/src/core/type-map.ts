@@ -7,6 +7,10 @@ export const PG_TYPE_SQL: Record<ColumnType, string> = {
   boolean: 'boolean',
   timestamp: 'timestamptz',
   json: 'jsonb',
+  real: 'double precision',
+  blob: 'bytea',
+  numeric: 'numeric',
+  date: 'date',
 };
 
 export const SQLITE_TYPE_SQL: Record<ColumnType, SqlitePhysicalType> = {
@@ -18,6 +22,10 @@ export const SQLITE_TYPE_SQL: Record<ColumnType, SqlitePhysicalType> = {
   // TEXT into INTEGER, so local physical type must be TEXT.
   timestamp: 'TEXT',
   json: 'TEXT',
+  real: 'REAL',
+  blob: 'BLOB',
+  numeric: 'TEXT',
+  date: 'TEXT',
 };
 
 /** information_schema `udt_name` values that map to a logical token. */
@@ -29,6 +37,10 @@ export const PG_UDT_TO_TOKEN: Readonly<Record<string, ColumnType>> = {
   bool: 'boolean',
   timestamptz: 'timestamp',
   jsonb: 'json',
+  float8: 'real',
+  bytea: 'blob',
+  numeric: 'numeric',
+  date: 'date',
 };
 
 /** Map information_schema / pg type names back to logical tokens. */
@@ -47,6 +59,10 @@ export function pgTypeToToken(
   if (d === 'boolean') return 'boolean';
   if (d === 'timestamp with time zone') return 'timestamp';
   if (d === 'jsonb') return 'json';
+  if (d === 'double precision' || d === 'real') return 'real';
+  if (d === 'bytea') return 'blob';
+  if (d === 'numeric' || d === 'decimal') return 'numeric';
+  if (d === 'date') return 'date';
   return null;
 }
 
@@ -58,6 +74,8 @@ export function normalizeSqliteType(
   declared: string
 ): SqlitePhysicalType | null {
   const t = declared.toUpperCase();
-  if (t === 'TEXT' || t === 'INTEGER') return t;
+  if (t === 'TEXT' || t === 'INTEGER' || t === 'REAL' || t === 'BLOB') {
+    return t;
+  }
   return null;
 }

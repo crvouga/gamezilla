@@ -3,6 +3,12 @@ import type { ColumnType, ManagedImplicitColumn } from './types';
 
 type ErrorBrand<M extends string> = { readonly __error: M };
 
+type IsColumnSpecObject<V> = V extends {
+  readonly type: ColumnType;
+}
+  ? true
+  : false;
+
 type ValidateColMap<Cols, Table extends string> = {
   readonly [K in keyof Cols]: K extends string
     ? K extends ManagedImplicitColumn
@@ -10,7 +16,9 @@ type ValidateColMap<Cols, Table extends string> = {
       : AssertSnakeCase<K> extends K
         ? Cols[K] extends ColumnType
           ? Cols[K]
-          : ErrorBrand<`tables.${Table}.${K}: invalid column type`>
+          : IsColumnSpecObject<Cols[K]> extends true
+            ? Cols[K]
+            : ErrorBrand<`tables.${Table}.${K}: invalid column type`>
         : AssertSnakeCase<K>
     : never;
 };
@@ -192,7 +200,13 @@ type ValidateDepsArr<T> = T extends {
 
 type UnknownKeys<T> = Exclude<
   keyof T & string,
-  'tables' | 'indexes' | 'uniqueIndexes' | 'deprecations'
+  | 'tables'
+  | 'indexes'
+  | 'uniqueIndexes'
+  | 'deprecations'
+  | 'checks'
+  | 'views'
+  | 'enums'
 >;
 
 /**
@@ -230,7 +244,7 @@ export type SchemaInput<T> = [ValidateSchema<T>] extends [T]
   : ValidateSchema<T>;
 
 export type SchemaLiteral = {
-  readonly tables: Record<string, Record<string, string>>;
+  readonly tables: Record<string, Record<string, string | { type: string }>>;
   readonly indexes?: readonly (readonly [string, ...string[]])[];
   readonly uniqueIndexes?: readonly (readonly [string, ...string[]])[];
   readonly deprecations?: readonly (

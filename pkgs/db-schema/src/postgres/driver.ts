@@ -33,6 +33,18 @@ type IndexOp = Extract<
   { kind: 'create_index' | 'drop_index' }
 >;
 
+const TABLE_TX_KINDS = new Set<ServerOperation['kind']>([
+  'create_table',
+  'add_column',
+  'backfill',
+  'add_check',
+  'add_foreign_key',
+  'create_view',
+  'replace_view',
+  'create_enum',
+  'add_enum_value',
+]);
+
 async function runIndexOp(
   client: PostgresSqlClient,
   op: IndexOp,
@@ -52,10 +64,8 @@ async function runIndexOp(
 
 /**
  * Postgres schema reconciler. Non-destructive by construction: only create
- * table / add column / create|drop package-prefixed indexes.
- *
- * Namespace comes from `client.dbScope.schema` (placement only). Undeclared
- * tables in that namespace are invisible.
+ * table / add column / backfill / create|drop package-prefixed indexes /
+ * expand portable objects. Never DROP TABLE/COLUMN, ALTER TYPE, or RENAME.
  */
 export function postgres(
   schema: Schema,
@@ -85,17 +95,21 @@ export function postgres(
           throw new Error(`db-schema postgres reconcile drift:\n${detail}`);
         }
 
-        const tableOps = plan.operations.filter(
-          (o) => o.kind === 'create_table' || o.kind === 'add_column'
+        const tableOps = plan.operations.filter((o) =>
+          TABLE_TX_KINDS.has(o.kind)
         );
         const indexOps = plan.operations.filter(
-          (o) => o.kind === 'create_index' || o.kind === 'drop_index'
+          (o): o is IndexOp =>
+            o.kind === 'create_index' || o.kind === 'drop_index'
         );
 
         if (tableOps.length > 0) {
           const runTableOps = async (tx: PostgresSqlClient): Promise<void> => {
             for (const op of tableOps) {
-              await tx.run(emitServerOperation(op));
+              const stmt = emitServerOperation(op, { concurrently: false });
+              // Skip no-op portable enum SELECT 1 when not native.
+              if (op.kind === 'create_enum' && !op.nativePostgres) continue;
+              await tx.run(stmt);
             }
           };
           if (alreadyInTransaction) {
@@ -107,7 +121,6 @@ export function postgres(
           }
         }
 
-        // CREATE INDEX CONCURRENTLY cannot run inside a transaction.
         const concurrently = !alreadyInTransaction;
         for (const op of indexOps) {
           await runIndexOp(client, op, concurrently);

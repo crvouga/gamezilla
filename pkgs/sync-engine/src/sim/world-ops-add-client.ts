@@ -27,6 +27,15 @@ async function waitForSessionSync(
   await sessionSync;
 }
 
+function pickCarry<T>(
+  next: T | undefined,
+  prior: T | undefined
+): { readonly value: T } | undefined {
+  if (next !== undefined) return { value: next };
+  if (prior !== undefined) return { value: prior };
+  return undefined;
+}
+
 function registerClientMeta(
   ctx: BootedSimKernel,
   clientArgs: AddClientArgs
@@ -34,6 +43,14 @@ function registerClientMeta(
   const actorId = clientArgs.actorId ?? clientArgs.id;
   const deviceId = `device:${clientArgs.id}`;
   const prior = ctx.metas.get(clientArgs.id);
+  const schema = pickCarry(clientArgs.localSchema, prior?.lastLocalSchema);
+  const mutations = pickCarry(
+    clientArgs.mutationRegistry,
+    prior?.lastMutationRegistry
+  );
+  const queries = pickCarry(clientArgs.queryRegistry, prior?.lastQueryRegistry);
+  const session = pickCarry(clientArgs.sessionQuery, prior?.lastSessionQuery);
+  const epoch = pickCarry(clientArgs.schemaEpoch, prior?.lastSchemaEpoch);
   const meta: ClientMeta = {
     id: clientArgs.id,
     actorId,
@@ -41,6 +58,13 @@ function registerClientMeta(
     ...(prior?.lastDbBundle !== undefined
       ? { lastDbBundle: prior.lastDbBundle }
       : {}),
+    ...(schema !== undefined ? { lastLocalSchema: schema.value } : {}),
+    ...(mutations !== undefined
+      ? { lastMutationRegistry: mutations.value }
+      : {}),
+    ...(queries !== undefined ? { lastQueryRegistry: queries.value } : {}),
+    ...(session !== undefined ? { lastSessionQuery: session.value } : {}),
+    ...(epoch !== undefined ? { lastSchemaEpoch: epoch.value } : {}),
   };
   ctx.metas.set(clientArgs.id, meta);
   ctx.authByDevice.set(deviceId, meta);

@@ -21,6 +21,19 @@ export type ClientMeta = {
   readonly deviceId: string;
   /** Last preserved local DB across crash/failed reopen (epoch-migrate arms). */
   lastDbBundle?: SimClientDbBundle;
+  /**
+   * Last applied domain schema / registries for this client. Preserve-DB
+   * restarts reuse these so additive upgrades (extra column/table) are not
+   * remigrated against the pack baseline (SQLite refuses undeclared extras).
+   */
+  lastLocalSchema?: LocalDomainSchema;
+  lastMutationRegistry?: MutationRegistry;
+  lastQueryRegistry?: QueryRegistry;
+  lastSessionQuery?: {
+    readonly name: string;
+    readonly params: Readonly<Record<string, unknown>>;
+  };
+  lastSchemaEpoch?: number;
 };
 
 export type WorldClientOpts = {

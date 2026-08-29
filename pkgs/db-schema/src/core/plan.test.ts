@@ -305,7 +305,7 @@ describe('planServer', () => {
 });
 
 describe('planClient', () => {
-  test('never returns drift — converges extras via rebuild', () => {
+  test('non-deprecated extra column is drift (not silent rebuild)', () => {
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
@@ -327,16 +327,74 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['todos', 'ghost']),
     };
-    const ops = planClient(sampleSchema._declared, catalog);
+    const plan = planClient(sampleSchema._declared, catalog);
+    expect(plan.ok).toBe(false);
+    if (plan.ok) return;
+    expect(plan.drift.some((d) => d.path === 'todos.extra_col')).toBe(true);
+  });
+
+  test('deprecated extra column rebuilds; undeclared tables drop under whole-db', () => {
+    const schema = defineSchema({
+      tables: {
+        todos: {
+          user_id: 'uuid',
+          title: 'text',
+          done: 'boolean',
+          status: 'text',
+          due_at: 'timestamp',
+        },
+      },
+      deprecations: [['todos', 'extra_col', 'unused']],
+    });
+    const catalog: IntrospectedCatalog = {
+      tables: new Map([
+        [
+          'todos',
+          tableWithColumns('todos', [
+            { name: 'id', type: 'TEXT', nullable: false, isPrimaryKey: true },
+            { name: 'created_at', type: 'TEXT' },
+            { name: 'updated_at', type: 'TEXT' },
+            { name: 'deleted_at', type: 'TEXT' },
+            { name: 'user_id', type: 'TEXT' },
+            { name: 'title', type: 'TEXT' },
+            { name: 'done', type: 'INTEGER' },
+            { name: 'status', type: 'TEXT' },
+            { name: 'due_at', type: 'TEXT' },
+            { name: 'extra_col', type: 'TEXT' },
+          ]),
+        ],
+      ]),
+      indexes: [],
+      allTableNames: new Set(['todos', 'ghost']),
+    };
+    const plan = planClient(schema._declared, catalog);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
     expect(
-      ops.some((o) => o.kind === 'drop_table' && o.table === 'ghost')
+      plan.operations.some(
+        (o) => o.kind === 'drop_table' && o.table === 'ghost'
+      )
     ).toBe(true);
     expect(
-      ops.some((o) => o.kind === 'rebuild_table' && o.table === 'todos')
+      plan.operations.some(
+        (o) => o.kind === 'rebuild_table' && o.table === 'todos'
+      )
     ).toBe(true);
   });
 
   test('preserves _meta through rebuild plan', () => {
+    const schema = defineSchema({
+      tables: {
+        todos: {
+          user_id: 'uuid',
+          title: 'text',
+          done: 'boolean',
+          status: 'text',
+          due_at: 'timestamp',
+        },
+      },
+      deprecations: [['todos', 'extra_col', 'unused']],
+    });
     const catalog: IntrospectedCatalog = {
       tables: new Map([
         [
@@ -359,8 +417,10 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['todos']),
     };
-    const ops = planClient(sampleSchema._declared, catalog);
-    const rebuild = ops.find((o) => o.kind === 'rebuild_table');
+    const plan = planClient(schema._declared, catalog);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    const rebuild = plan.operations.find((o) => o.kind === 'rebuild_table');
     expect(rebuild?.kind).toBe('rebuild_table');
     if (rebuild?.kind !== 'rebuild_table') return;
     expect([...rebuild.preserveUnderscoreExtras] as string[]).toContain(
@@ -375,7 +435,6 @@ describe('planClient', () => {
         [
           'todos',
           tableWithColumns('todos', [
-            // wrong physical type for text → TEXT expected; INTEGER is mismatch
             {
               name: 'id',
               type: 'INTEGER',
@@ -396,8 +455,10 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['todos']),
     };
-    const ops = planClient(sampleSchema._declared, catalog);
-    expect(ops.some((o) => o.kind === 'rebuild_table')).toBe(true);
+    const plan = planClient(sampleSchema._declared, catalog);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    expect(plan.operations.some((o) => o.kind === 'rebuild_table')).toBe(true);
   });
 
   test('additive missing column without rebuild', () => {
@@ -425,10 +486,14 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['notes']),
     };
-    const ops = planClient(schema._declared, catalog);
-    expect(ops.some((o) => o.kind === 'rebuild_table')).toBe(false);
+    const plan = planClient(schema._declared, catalog);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    expect(plan.operations.some((o) => o.kind === 'rebuild_table')).toBe(false);
     expect(
-      ops.some((o) => o.kind === 'add_column' && o.column === 'title')
+      plan.operations.some(
+        (o) => o.kind === 'add_column' && o.column === 'title'
+      )
     ).toBe(true);
   });
 
@@ -453,10 +518,12 @@ describe('planClient', () => {
       indexes: [],
       allTableNames: new Set(['todos', 'sync_engine_mutations', 'ghost']),
     };
-    const ops = planClient(sampleSchema._declared, catalog, {
+    const plan = planClient(sampleSchema._declared, catalog, {
       ownership: 'declared-only',
     });
-    expect(ops.some((o) => o.kind === 'drop_table')).toBe(false);
+    expect(plan.ok).toBe(true);
+    if (!plan.ok) return;
+    expect(plan.operations.some((o) => o.kind === 'drop_table')).toBe(false);
   });
 });
 

@@ -47,7 +47,7 @@ describe('sqlite reconcile integration', () => {
     expect(notes?.columns.some((c) => c.name === 'title')).toBe(true);
   });
 
-  test('converge: drop unknown table and extra column', async () => {
+  test('extra column without deprecation fails; ghost table still drops', async () => {
     const { client } = openMemoryClient();
     await client.run(raw(`CREATE TABLE ghost (id TEXT PRIMARY KEY) STRICT`));
     await client.run(
@@ -65,6 +65,31 @@ describe('sqlite reconcile integration', () => {
 
     const schema = defineSchema({
       tables: { notes: { body: 'text' } },
+    });
+    await expect(sqlite(schema, client).reconcile()).rejects.toThrow(
+      /extra|deprecation/
+    );
+  });
+
+  test('converge: drop unknown table; deprecate then drop extra column', async () => {
+    const { client } = openMemoryClient();
+    await client.run(raw(`CREATE TABLE ghost (id TEXT PRIMARY KEY) STRICT`));
+    await client.run(
+      raw(
+        `CREATE TABLE notes (
+          id TEXT PRIMARY KEY,
+          created_at TEXT,
+          updated_at TEXT,
+          deleted_at TEXT,
+          body TEXT,
+          extra TEXT
+        ) STRICT`
+      )
+    );
+
+    const schema = defineSchema({
+      tables: { notes: { body: 'text' } },
+      deprecations: [['notes', 'extra', 'unused']],
     });
     await sqlite(schema, client).reconcile();
 
@@ -101,6 +126,7 @@ describe('sqlite reconcile integration', () => {
 
     const schema = defineSchema({
       tables: { notes: { body: 'text' } },
+      deprecations: [['notes', 'extra', 'unused']],
     });
     await sqlite(schema, client).reconcile();
 

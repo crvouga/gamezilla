@@ -16,7 +16,7 @@ import {
   type RestartClientOpts,
 } from './world-lifecycle';
 import { addClientImpl } from './world-ops-add-client';
-import type { AddClientArgs, BootedSimKernel } from './world-types';
+import type { AddClientArgs, BootedSimKernel, ClientMeta } from './world-types';
 
 /** Silent migrate logger — level silent; `now` unused but required by createLogger. */
 const serverMigrateLogger = createLogger({
@@ -33,6 +33,63 @@ export type RestartServerOpts = {
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
 };
+
+type StickySchemaArgs = Pick<
+  AddClientArgs,
+  | 'localSchema'
+  | 'mutationRegistry'
+  | 'queryRegistry'
+  | 'sessionQuery'
+  | 'schemaEpoch'
+>;
+
+/**
+ * Preserve-DB reopen must remigrate with the schema that produced the DB.
+ * Pack baseline after an additive upgrade fails SQLite reconcile (undeclared
+ * extras need an explicit deprecation entry).
+ */
+function resolveStickySchemaArgs(
+  meta: ClientMeta,
+  opts: RestartClientOpts | undefined,
+  preserve: boolean
+): StickySchemaArgs {
+  const pick = <T>(next: T | undefined, sticky: T | undefined): T | undefined =>
+    next ?? (preserve ? sticky : undefined);
+  const localSchema = pick(opts?.localSchema, meta.lastLocalSchema);
+  const mutationRegistry = pick(
+    opts?.mutationRegistry,
+    meta.lastMutationRegistry
+  );
+  const queryRegistry = pick(opts?.queryRegistry, meta.lastQueryRegistry);
+  const sessionQuery = pick(opts?.sessionQuery, meta.lastSessionQuery);
+  const schemaEpoch = pick(opts?.schemaEpoch, meta.lastSchemaEpoch);
+  return {
+    ...(localSchema !== undefined ? { localSchema } : {}),
+    ...(mutationRegistry !== undefined ? { mutationRegistry } : {}),
+    ...(queryRegistry !== undefined ? { queryRegistry } : {}),
+    ...(sessionQuery !== undefined ? { sessionQuery } : {}),
+    ...(schemaEpoch !== undefined ? { schemaEpoch } : {}),
+  };
+}
+
+function finalizeRestartMeta(
+  live: ClientMeta | undefined,
+  handle: SimClientHandle,
+  opts: RestartClientOpts | undefined,
+  preserve: boolean
+): void {
+  if (live === undefined) return;
+  if (preserve) {
+    live.lastDbBundle = handle.dbBundle;
+    return;
+  }
+  // Fresh DB: drop sticky upgrade unless this restart re-supplied it.
+  if (opts?.localSchema === undefined) delete live.lastLocalSchema;
+  if (opts?.mutationRegistry === undefined) delete live.lastMutationRegistry;
+  if (opts?.queryRegistry === undefined) delete live.lastQueryRegistry;
+  if (opts?.sessionQuery === undefined) delete live.lastSessionQuery;
+  if (opts?.schemaEpoch === undefined) delete live.lastSchemaEpoch;
+}
 
 export async function restartClientImpl(
   k: BootedSimKernel,
@@ -63,24 +120,10 @@ export async function restartClientImpl(
     id: meta.id,
     actorId: meta.actorId,
     ...(existingDb !== undefined ? { existingDb } : {}),
-    ...(opts?.schemaEpoch !== undefined
-      ? { schemaEpoch: opts.schemaEpoch }
-      : {}),
-    ...(opts?.localSchema !== undefined
-      ? { localSchema: opts.localSchema }
-      : {}),
-    ...(opts?.mutationRegistry !== undefined
-      ? { mutationRegistry: opts.mutationRegistry }
-      : {}),
-    ...(opts?.queryRegistry !== undefined
-      ? { queryRegistry: opts.queryRegistry }
-      : {}),
-    ...(opts?.sessionQuery !== undefined
-      ? { sessionQuery: opts.sessionQuery }
-      : {}),
+    ...resolveStickySchemaArgs(meta, opts, preserve),
   };
   const handle = await addClientImpl(k, args);
-  if (preserve) meta.lastDbBundle = handle.dbBundle;
+  finalizeRestartMeta(k.metas.get(id), handle, opts, preserve);
   return handle;
 }
 

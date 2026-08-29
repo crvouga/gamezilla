@@ -1,4 +1,9 @@
-import type { ColumnType, ReadonlyDeclaredSchema, Snapshot } from './types';
+import type {
+  ColumnType,
+  DeclaredColumn,
+  ReadonlyDeclaredSchema,
+  Snapshot,
+} from './types';
 
 function sortKeys<T>(obj: Record<string, T>): Record<string, T> {
   const out: Record<string, T> = {};
@@ -13,7 +18,11 @@ function sortNestedTables(
 ): Snapshot['tables'] {
   const sorted: Record<string, Record<string, ColumnType>> = {};
   for (const table of Object.keys(tables).sort()) {
-    sorted[table] = sortKeys({ ...tables[table]! });
+    const cols: Record<string, ColumnType> = {};
+    for (const [name, col] of Object.entries(tables[table]!)) {
+      cols[name] = (col as DeclaredColumn).type;
+    }
+    sorted[table] = sortKeys(cols);
   }
   return sorted;
 }
@@ -36,10 +45,22 @@ export function buildSnapshot(declared: ReadonlyDeclaredSchema): Snapshot {
   const deprecations = [...declared.deprecations].sort((a, b) =>
     compareCodeUnit(tupleJson(a), tupleJson(b))
   );
+  const checks = [...declared.checks].sort((a, b) =>
+    compareCodeUnit(`${a.table}.${a.name}`, `${b.table}.${b.name}`)
+  );
+  const views = [...declared.views].sort((a, b) =>
+    compareCodeUnit(a.name, b.name)
+  );
+  const enums = [...declared.enums].sort((a, b) =>
+    compareCodeUnit(a.name, b.name)
+  );
   return {
     tables: sortNestedTables(declared.tables),
     indexes,
     uniqueIndexes,
     deprecations,
+    checks,
+    views,
+    enums,
   };
 }

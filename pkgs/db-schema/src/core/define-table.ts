@@ -1,36 +1,12 @@
+import { type ColumnSpecInput, parseTableColumnMap } from './column-spec';
+import { assertDialectSqlShape, type DialectSql } from './dialect-sql';
 import { assertSnakeCaseIdent } from './snake-case';
-import type { ColumnType, DeprecationDef, IndexDef } from './types';
-import { COLUMN_TYPE_SET, MANAGED_IMPLICIT_SET } from './types';
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function parseTableColumns(
-  tableName: string,
-  cols: unknown
-): Record<string, ColumnType> {
-  if (!isPlainObject(cols)) {
-    throw new Error(`tables.${tableName}: columns must be an object`);
-  }
-  const tableCols: Record<string, ColumnType> = {};
-  for (const [colName, token] of Object.entries(cols)) {
-    const path = `tables.${tableName}.${colName}`;
-    assertSnakeCaseIdent(colName, path);
-    if (MANAGED_IMPLICIT_SET.has(colName)) {
-      throw new Error(
-        `${path}: '${colName}' is engine-owned (implicit on every table)`
-      );
-    }
-    if (typeof token !== 'string' || !COLUMN_TYPE_SET.has(token)) {
-      throw new Error(
-        `${path}: column type must be one of uuid|text|integer|boolean|timestamp|json`
-      );
-    }
-    tableCols[colName] = token as ColumnType;
-  }
-  return tableCols;
-}
+import type {
+  CheckDef,
+  DeclaredColumn,
+  DeprecationDef,
+  IndexDef,
+} from './types';
 
 function assertMatchesDomain(
   tableName: string,
@@ -112,31 +88,58 @@ function normalizeDeprecations(
   return out;
 }
 
+function normalizeChecks(
+  tableName: string,
+  entries:
+    | readonly { readonly name: string; readonly sql: DialectSql }[]
+    | undefined
+): CheckDef[] {
+  if (entries === undefined) return [];
+  const out: CheckDef[] = [];
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i]!;
+    const path = `checks[${i}]`;
+    assertSnakeCaseIdent(entry.name, `${path}.name`);
+    out.push({
+      name: entry.name,
+      table: tableName,
+      sql: assertDialectSqlShape(entry.sql, `${path}.sql`),
+    });
+  }
+  return out;
+}
+
 export type TableDefInput = {
   readonly domain: string;
   readonly name: string;
-  readonly columns: Record<string, ColumnType>;
+  readonly columns: Record<string, ColumnSpecInput>;
   readonly indexes?: readonly (string | readonly string[])[];
   readonly uniqueIndexes?: readonly (string | readonly string[])[];
   readonly deprecations?: readonly (
     | readonly [string, string]
     | readonly [string]
   )[];
+  readonly checks?: readonly {
+    readonly name: string;
+    readonly sql: DialectSql;
+  }[];
 };
 
 export type TableDefSlice = {
   readonly domain: string;
   readonly name: string;
-  readonly columns: Record<string, ColumnType>;
+  readonly columns: Record<string, DeclaredColumn>;
   readonly indexes: readonly IndexDef[];
   readonly uniqueIndexes: readonly IndexDef[];
   readonly deprecations: readonly DeprecationDef[];
+  readonly checks: readonly CheckDef[];
 };
 
 export type TableDef = {
   readonly domain: string;
   readonly name: string;
   readonly _slice: TableDefSlice;
+  readonly kind: 'table';
 };
 
 /**
@@ -146,7 +149,7 @@ export function defineTable(input: TableDefInput): TableDef {
   const path = `defineTable(${input.name})`;
   assertSnakeCaseIdent(input.name, `${path}.name`);
   assertMatchesDomain(input.name, input.domain, path);
-  const columns = parseTableColumns(input.name, input.columns);
+  const columns = parseTableColumnMap(input.name, input.columns);
   const indexes = normalizeIndexEntries(input.name, 'indexes', input.indexes);
   const uniqueIndexes = normalizeIndexEntries(
     input.name,
@@ -154,7 +157,9 @@ export function defineTable(input: TableDefInput): TableDef {
     input.uniqueIndexes
   );
   const deprecations = normalizeDeprecations(input.name, input.deprecations);
+  const checks = normalizeChecks(input.name, input.checks);
   return Object.freeze({
+    kind: 'table' as const,
     domain: input.domain,
     name: input.name,
     _slice: Object.freeze({
@@ -164,6 +169,7 @@ export function defineTable(input: TableDefInput): TableDef {
       indexes,
       uniqueIndexes,
       deprecations,
+      checks,
     }),
   });
 }

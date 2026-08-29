@@ -1,3 +1,4 @@
+import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { planClient } from '../core/plan';
 import type { Schema } from '../core/types';
@@ -18,15 +19,21 @@ export type SqliteDriver = {
   reconcile(): Promise<void>;
 };
 
+function schemaHasForeignKeys(schema: Schema): boolean {
+  for (const cols of Object.values(schema._declared.tables)) {
+    for (const col of Object.values(cols)) {
+      if (col.references !== undefined) return true;
+    }
+  }
+  return false;
+}
+
 /**
  * SQLite schema reconciler.
  *
- * Default `ownership: 'whole-db'`: the bound database is wholly owned —
- * unknown tables/columns are dropped; type-mismatched columns trigger a
- * rebuild. Non-managed `_`-prefixed columns are preserved through rebuilds.
- *
- * `ownership: 'declared-only'`: undeclared tables are invisible (like Postgres).
- * Use this when the same SQLite file also holds sync-engine framework tables.
+ * Extra columns without a deprecation entry fail (same safety as Postgres).
+ * Deprecated columns may be dropped via rebuild. Undeclared tables are dropped
+ * only under `ownership: 'whole-db'`.
  */
 export function sqlite(
   schema: Schema,
@@ -37,12 +44,21 @@ export function sqlite(
   return {
     async reconcile(): Promise<void> {
       const declared = schema._declared;
+      if (schemaHasForeignKeys(schema)) {
+        await client.run(raw(`PRAGMA foreign_keys = ON`));
+      }
       // Do not wrap in `client.transaction()`: SQLite auto-commits DDL
       // (CREATE/ALTER/DROP), which fights expo-sqlite web's BEGIN/COMMIT and
       // surfaces as "Error finalizing statement" on OPFS.
       const catalog = await readSqliteCatalog(client, declared);
-      const ops = planClient(declared, catalog, { ownership });
-      for (const op of ops) {
+      const plan = planClient(declared, catalog, { ownership });
+      if (!plan.ok) {
+        const detail = plan.drift
+          .map((d) => `${d.path}: ${d.message}`)
+          .join('\n');
+        throw new Error(`db-schema sqlite reconcile drift:\n${detail}`);
+      }
+      for (const op of plan.operations) {
         for (const stmt of emitClientOperation(op, declared)) {
           await client.run(stmt);
         }

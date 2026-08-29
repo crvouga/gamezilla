@@ -27,16 +27,14 @@ const _ok = registerTables([
 ]);
 void _ok;
 
-// ServerOperation kinds must be additive-only
+// ServerOperation kinds must be additive/expand-only (no client contract ops)
 type ServerKinds = ServerOperation['kind'];
-type AssertAdditive = ServerKinds extends
-  | 'create_table'
-  | 'add_column'
-  | 'create_index'
-  | 'drop_index'
-  ? true
-  : false;
-const _additive: AssertAdditive = true;
+type ForbiddenServer = Extract<
+  ServerKinds,
+  'drop_table' | 'drop_column' | 'rebuild_table' | 'drop_view'
+>;
+type AssertNoDestructive = [ForbiddenServer] extends [never] ? true : false;
+const _additive: AssertNoDestructive = true;
 void _additive;
 
 type HasDropTable = 'drop_table' extends ServerKinds ? true : false;
@@ -50,3 +48,7 @@ void _noDropColumn;
 type HasRebuild = 'rebuild_table' extends ServerKinds ? true : false;
 const _noRebuild: HasRebuild = false;
 void _noRebuild;
+
+type HasBackfill = 'backfill' extends ServerKinds ? true : false;
+const _hasBackfill: HasBackfill = true;
+void _hasBackfill;
