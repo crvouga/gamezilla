@@ -146,13 +146,29 @@ async function persistSessionFromResponse(
 ): Promise<void> {
   ctx.bearerStore.captureFromResponse(res);
   if (!res.ok) {
-    throw new Error(AUTH_NETWORK_ERROR);
+    throw new Error(await signInHttpFailureMessage(res));
   }
   const body = (await res.json()) as SessionBody;
   if (typeof body.token === 'string' && body.token.length > 0) {
     await ctx.bearerStore.write(body.token);
   }
   ctx.bus.bump();
+}
+
+async function signInHttpFailureMessage(res: Response): Promise<string> {
+  let detail = '';
+  try {
+    const text = (await res.text()).trim();
+    if (text.length > 0) {
+      detail = text.length > 200 ? `${text.slice(0, 200)}…` : text;
+    }
+  } catch {
+    // ignore body read failures
+  }
+  if (detail.length > 0) {
+    return `${AUTH_NETWORK_ERROR} (${String(res.status)}: ${detail})`;
+  }
+  return `${AUTH_NETWORK_ERROR} (${String(res.status)})`;
 }
 
 async function exchangeCode(ctx: SignInCtx, code: string): Promise<void> {
@@ -196,7 +212,7 @@ async function signInGoogle(ctx: SignInCtx): Promise<void> {
     { provider: 'google', callbackUrl: ctx.callbackUrl }
   );
   if (!startRes.ok) {
-    throw new Error(AUTH_NETWORK_ERROR);
+    throw new Error(await signInHttpFailureMessage(startRes));
   }
   const startBody = (await startRes.json()) as {
     readonly authorizationUrl?: string;
@@ -205,7 +221,7 @@ async function signInGoogle(ctx: SignInCtx): Promise<void> {
     typeof startBody.authorizationUrl !== 'string' ||
     startBody.authorizationUrl.length === 0
   ) {
-    throw new Error(AUTH_NETWORK_ERROR);
+    throw new Error(`${AUTH_NETWORK_ERROR} (missing authorizationUrl)`);
   }
   const result = await ctx.config.openAuthSession(
     startBody.authorizationUrl,

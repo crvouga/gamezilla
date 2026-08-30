@@ -238,6 +238,53 @@ describe('acme world PBT / DST', () => {
     }
   });
 
+  // FC_SEED=201419579 shrink: armCrashAt + protocolCut + mutate +
+  // restartWithSchema must not hang waitForSessionSync on pending upload.
+  test('armCrashAt protocolCut restartWithSchema still session-syncs', async () => {
+    const opened = await openPbtWorld({
+      app: acmeDstApp,
+      seed: 892161,
+      knobs: {
+        rowImageFanout: false,
+        liveResendOnReconnect: true,
+        bufferOutboundLive: false,
+        clientCount: 2,
+      },
+    });
+    try {
+      await replayActionsOnWorld(acmeDstApp, opened.world, [
+        {
+          kind: 'armCrashAt',
+          clientId: 'c0',
+          event: 'afterNextMutationsPostAccepted',
+        },
+        {
+          kind: 'protocolCut',
+          clientId: 'c0',
+        },
+        {
+          kind: 'domain',
+          clientId: 'c0',
+          mutation: 'createSpace',
+          args: { id: 's0', title: '' },
+        },
+        {
+          kind: 'restartWithSchema',
+          clientId: 'c0',
+          variant: 'baseline',
+        },
+        {
+          kind: 'tamperLocalStorage',
+          clientId: 'c0',
+          tamper: 'corruptCheckpoint',
+        },
+      ]);
+      await opened.world.assertConverged();
+    } finally {
+      await opened.world.dispose();
+    }
+  });
+
   test('auth revoked then serverRestart skips closed-db seq checks', async () => {
     const opened = await openPbtWorld({
       app: acmeDstApp,

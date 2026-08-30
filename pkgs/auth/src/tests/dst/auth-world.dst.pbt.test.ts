@@ -2,12 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { assertDstProperty, assertProperty, fc } from '@pkgs/pbt';
 
 import { AUTH_SESSION_TTL_MS } from '../../shared/auth-constants';
+import { runAuthCommands } from './apply-auth-cmd';
 import {
   type AuthCmd,
   type AuthFabric,
   appFetch,
   openAuthWorld,
-  runAuthCommands,
   worldFingerprint,
 } from './world';
 

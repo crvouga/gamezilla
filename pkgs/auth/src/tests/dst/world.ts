@@ -222,10 +222,6 @@ export type AuthCmd =
     }
   | { readonly kind: 'setGoogleFault'; readonly fault: boolean };
 
-import { applyAuthCmd } from './apply-auth-cmd';
-
-export { applyAuthCmd };
-
 export async function assertAuthInvariants(world: AuthWorld): Promise<void> {
   for (const [, client] of world.clients) {
     if (client.bearer === null) continue;
@@ -264,14 +260,4 @@ export async function worldFingerprint(world: AuthWorld): Promise<string> {
     .map(([id, c]) => `${id}:${c.bearer ?? ''}`)
     .sort();
   return JSON.stringify({ users, accounts, sessions, bearers });
-}
-
-export async function runAuthCommands(
-  world: AuthWorld,
-  cmds: readonly AuthCmd[]
-): Promise<void> {
-  for (const cmd of cmds) {
-    await applyAuthCmd(world, cmd);
-    await assertAuthInvariants(world);
-  }
 }

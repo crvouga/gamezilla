@@ -1,4 +1,9 @@
-import { type AuthCmd, type AuthWorld, appFetch } from './world';
+import {
+  type AuthCmd,
+  type AuthWorld,
+  appFetch,
+  assertAuthInvariants,
+} from './world';
 
 async function applyDevComplete(
   world: AuthWorld,
@@ -139,5 +144,15 @@ export async function applyAuthCmd(
       const _exhaustive: never = cmd;
       void _exhaustive;
     }
+  }
+}
+
+export async function runAuthCommands(
+  world: AuthWorld,
+  cmds: readonly AuthCmd[]
+): Promise<void> {
+  for (const cmd of cmds) {
+    await applyAuthCmd(world, cmd);
+    await assertAuthInvariants(world);
   }
 }

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import { reportsPublicBaseUrlFromHost } from './reports-public-base-core';
 
 describe('reportsPublicBaseUrlFromHost', () => {

@@ -4,6 +4,9 @@
 
 import type { Client } from '@apps/client/product/create-client';
 import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
+import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
+import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
+import { assert } from '@pkgs/assert';
 import type { SimClock } from '@pkgs/clock';
 import type {
   SimCheckpoint,
@@ -135,10 +138,26 @@ export async function importCheckpointSql(
   checkpoint: SimCheckpoint
 ): Promise<void> {
   await ctx.serverHandle.importBytes(checkpoint.serverSql);
+  // Sticky / saved snaps may predate schema (e.g. idp_*). Remigrate accretes
+  // missing tables without wiping restored data.
+  const pool = ctx.serverHandle.pool;
+  assert.defined(
+    pool,
+    'importCheckpointSql: server handle requires pool for remigrate'
+  );
+  await migrateSimPostgres({
+    sqlClient: ctx.serverHandle.sqlClient,
+    pool,
+    now: () => ctx.clock.now(),
+  });
   for (const id of checkpoint.clientIds) {
     const handle = await ensureClientSqlHandle(ctx, id);
     const bytes = checkpoint.clientSql[id];
     if (bytes !== undefined) await handle.importBytes(bytes);
+    await migrateSimClientSqlite({
+      sqlClient: handle.sqlClient,
+      now: () => ctx.clock.now(),
+    });
   }
   await reconcileServerProfilesFromClients(ctx, checkpoint.clientIds);
   for (const id of checkpoint.clientIds) {

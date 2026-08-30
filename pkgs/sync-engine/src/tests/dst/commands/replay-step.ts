@@ -49,6 +49,10 @@ export async function prepareReplayAction(
   state: ReplayRestartState
 ): Promise<void> {
   if (action.kind === 'restart' || action.kind === 'restartWithSchema') {
+    // Unfired armCrashAt (e.g. afterNextMutationsPostAccepted) must not
+    // crash the remade engine during waitForSessionSync when pending
+    // uploads drain after auth heal / protocolCut restore.
+    world.clearBoundaryFaults();
     healNetworkForSettle(world);
     await ensureServerUp(world);
   }

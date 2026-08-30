@@ -203,6 +203,10 @@ msgstr "Add hex (6 chars, no #)"
 msgid "Add people"
 msgstr "Add people"
 
+#: libs/auth/src/public/sign-in-dev-body.tsx
+msgid "alice"
+msgstr "alice"
+
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -211,10 +215,6 @@ msgstr "All"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 msgid "All themes"
 msgstr "All themes"
-
-#: libs/auth/src/public/sign-in-email-sign-up-body.tsx
-msgid "Already have an account? Sign in"
-msgstr "Already have an account? Sign in"
 
 #: apps/client/src/providers/local-database/boot-screens.tsx
 msgid "Another tab could not share the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
@@ -485,12 +485,6 @@ msgstr "Component"
 msgid "Confirm"
 msgstr "Confirm"
 
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
-msgid "Confirm password"
-msgstr "Confirm password"
-
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirmed"
 msgstr "Confirmed"
@@ -521,6 +515,10 @@ msgstr "Connection"
 #: pkgs/room-widgets/src/pages/playground-page.tsx
 msgid "Connection {id}"
 msgstr "Connection {id}"
+
+#: libs/auth/src/public/sign-in-dev-body.tsx
+msgid "Continue"
+msgstr "Continue"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Continue with dev IDP"
@@ -629,10 +627,6 @@ msgstr "Couldn't save"
 msgid "create"
 msgstr "create"
 
-#: libs/auth/src/public/sign-in-email-sign-up-body.tsx
-msgid "Create account"
-msgstr "Create account"
-
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
@@ -712,6 +706,10 @@ msgstr "Deleted"
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Deleting…"
 msgstr "Deleting…"
+
+#: libs/client-config/src/root/client/client-config-entity-card.tsx
+msgid "Dev OAuth"
+msgstr "Dev OAuth"
 
 #: libs/chess/src/public/chess-settings/chess-settings-developer-screen.tsx
 #: libs/chess/src/public/chess-settings/chess-settings-screen.tsx
@@ -808,15 +806,9 @@ msgstr "Edit profile"
 msgid "Elo trend and game log."
 msgstr "Elo trend and game log."
 
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
-
-#: libs/client-config/src/root/client/client-config-entity-card.tsx
-msgid "Email / password"
-msgstr "Email / password"
 
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "EMQX / Obs"
@@ -1265,10 +1257,6 @@ msgstr "Name: {appName}"
 msgid "Navigation"
 msgstr "Navigation"
 
-#: libs/auth/src/public/sign-in-email-sign-in-body.tsx
-msgid "Need an account? Create one"
-msgstr "Need an account? Create one"
-
 #: apps/client/src/settings/settings-screen.tsx
 msgid "Network reachability and API server health"
 msgstr "Network reachability and API server health"
@@ -1451,12 +1439,6 @@ msgstr "Overall"
 #: pkgs/chess-board/src/chess-board.example.tsx
 msgid "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
 msgstr "Pass `theme` to override any board color (squares, highlights, arrows, feedback)."
-
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
-msgid "Password"
-msgstr "Password"
 
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 msgid "People"
@@ -1831,7 +1813,6 @@ msgid "sign in"
 msgstr "sign in"
 
 #: apps/client/src/ui/app-commands/account-command.tsx
-#: libs/auth/src/public/sign-in-email-sign-in-body.tsx
 #: libs/auth/src/root/client/account-actions-row.tsx
 #: libs/friends/src/root/client/friends-signed-in-gate.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
@@ -1858,10 +1839,6 @@ msgstr "Sign in to view your notifications"
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with dev IDP"
 msgstr "Sign in with dev IDP"
-
-#: libs/auth/src/public/sign-in-modal-body.tsx
-msgid "Sign in with email"
-msgstr "Sign in with email"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.ts
 msgid "Sign in with Google"
@@ -2082,6 +2059,11 @@ msgstr "Straight and knight L-shape arrows, dashed plan lines, and color overrid
 msgid "Style"
 msgstr "Style"
 
+#: libs/auth/src/public/sign-in-dev-body.tsx
+#: libs/auth/src/public/sign-in-dev-body.tsx
+msgid "Subject"
+msgstr "Subject"
+
 #: apps/client/src/connection/offline-indicator.tsx
 #: apps/client/src/ui/status-bar/connectivity-status-bar-item.tsx
 msgid "Sync issue"
@@ -2273,8 +2255,6 @@ msgstr "Use system theme"
 msgid "User-drawn arrows"
 msgstr "User-drawn arrows"
 
-#: libs/auth/src/public/sign-in-email-fields.tsx
-#: libs/auth/src/public/sign-in-email-fields.tsx
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
@@ -2393,7 +2373,6 @@ msgstr "You're signed in on this device."
 msgid "You're signed out on this device."
 msgstr "You're signed out on this device."
 
-#: libs/auth/src/public/sign-in-email-fields.tsx
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
@@ -2414,7 +2393,6 @@ msgstr "Your live spaces"
 msgid "Your rating"
 msgstr "Your rating"
 
-#: libs/auth/src/public/sign-in-email-fields.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 msgid "your_handle"
 msgstr "your_handle"
