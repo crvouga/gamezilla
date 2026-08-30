@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   ensureProfileEmpty,
@@ -15,7 +15,7 @@ import {
  */
 describe('same actor empty profile fanout does not wipe peer', () => {
   test('empty ensureProfile seed does not blank peer username', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1501,
       rowImageFanout: true,

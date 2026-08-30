@@ -3,8 +3,9 @@ import { assertDstProperty, fc } from '@pkgs/pbt';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DstAction, LibraryAction } from '../dst/actions';
-import { PUBSUB_FAULTS, replayActionsOnWorld } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { PUBSUB_FAULTS } from '../dst/commands';
+import { openWorld } from '../../sim/world';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'broker-chaos');
 
@@ -16,7 +17,7 @@ describe('broker chaos PBT', () => {
   test(
     'brokerRestart then peer faults still converges',
     async () => {
-      const opened = await openPbtWorld({
+      await using world = await openWorld({
         app: acmeDstApp,
         seed: 1_000_000,
         knobs: {
@@ -26,8 +27,7 @@ describe('broker chaos PBT', () => {
           clientCount: 3,
         },
       });
-      try {
-        await replayActionsOnWorld(acmeDstApp, opened.world, [
+        await world.playActions([
           { kind: 'brokerRestart' },
           {
             kind: 'setFaults',
@@ -40,10 +40,7 @@ describe('broker chaos PBT', () => {
             },
           },
         ]);
-        await opened.world.assertConverged();
-      } finally {
-        await opened.world.dispose();
-      }
+        await world.assertConverged();
     },
     { timeout: 30_000 }
   );
@@ -59,21 +56,14 @@ describe('broker chaos PBT', () => {
           fc.constantFrom(...PUBSUB_FAULTS),
           async (seed, knobs, fault) => {
             const arm: LibraryAction = { kind: 'armPubsubFault', fault };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                brokerSequence(arm)
+              await world.playActions(brokerSequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -95,23 +85,19 @@ describe('broker chaos PBT', () => {
             { kind: 'brokerRestart' } as const
           ),
           async (seed, knobs, arm) => {
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(acmeDstApp, opened.world, [
+              await world.playActions([
                 arm,
                 TRIGGER,
                 { kind: 'brokerRestart' },
                 { kind: 'idle', ms: 40 },
                 { kind: 'heal' },
               ]);
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }

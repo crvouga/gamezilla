@@ -3,8 +3,9 @@ import { assertDstProperty, fc } from '@pkgs/pbt';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DstAction, LibraryAction } from '../dst/actions';
-import { replayActionsOnWorld, SCHEMA_VARIANTS } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { SCHEMA_VARIANTS } from '../dst/commands';
+import { openWorld } from '../../sim/world';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'schema-drift');
 const TRIGGER_C1 = acmeSetNoteOp('c1', 'n1', 'schema-drift-peer');
@@ -29,21 +30,13 @@ describe('schema drift PBT', () => {
               clientId: 'c0',
               variant,
             };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                schemaSequence(arm)
-              );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.playActions(schemaSequence(arm));
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -75,17 +68,13 @@ describe('schema drift PBT', () => {
               { kind: 'idle', ms: 40 },
               { kind: 'heal' },
             ];
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs: { ...knobs, clientCount: 2 },
             });
-            try {
-              await replayActionsOnWorld(acmeDstApp, opened.world, actions);
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.playActions(actions);
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -95,7 +84,7 @@ describe('schema drift PBT', () => {
   );
 
   test('extraColumn then extraTable remigrate converges (PBT shrink)', async () => {
-    const opened = await openPbtWorld({
+    await using world = await openWorld({
       app: acmeDstApp,
       seed: 287086,
       knobs: {
@@ -105,8 +94,7 @@ describe('schema drift PBT', () => {
         clientCount: 2,
       },
     });
-    try {
-      await replayActionsOnWorld(acmeDstApp, opened.world, [
+      await world.playActions([
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -119,14 +107,11 @@ describe('schema drift PBT', () => {
         },
         { kind: 'auth', clientId: 'c0', status: 'valid' },
       ]);
-      await opened.world.assertConverged();
-    } finally {
-      await opened.world.dispose();
-    }
+      await world.assertConverged();
   });
 
   test('mixed extraColumn without row images converges (PBT shrink)', async () => {
-    const opened = await openPbtWorld({
+    await using world = await openWorld({
       app: acmeDstApp,
       seed: 1,
       knobs: {
@@ -136,8 +121,7 @@ describe('schema drift PBT', () => {
         clientCount: 2,
       },
     });
-    try {
-      await replayActionsOnWorld(acmeDstApp, opened.world, [
+      await world.playActions([
         {
           kind: 'restartWithSchema',
           clientId: 'c0',
@@ -148,10 +132,7 @@ describe('schema drift PBT', () => {
         { kind: 'idle', ms: 40 },
         { kind: 'heal' },
       ]);
-      await opened.world.assertConverged();
-    } finally {
-      await opened.world.dispose();
-    }
+      await world.assertConverged();
   });
 
   test(
@@ -170,17 +151,13 @@ describe('schema drift PBT', () => {
               { kind: 'auth', clientId: 'c0', status: 'valid' },
               { kind: 'heal' },
             ];
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(acmeDstApp, opened.world, actions);
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.playActions(actions);
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }

@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('server crash mid request client retries', () => {
   test('server dies mid traffic; restart; clients retry and converge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 833,
     });

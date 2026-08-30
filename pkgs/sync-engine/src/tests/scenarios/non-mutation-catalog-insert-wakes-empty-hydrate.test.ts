@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -13,7 +13,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   // the client fast; without notify the reconcile tick still heals.
 
   test('insertCatalogNote notify true wakes client after empty hydrate', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1401,
     });
@@ -34,7 +34,7 @@ describe('non mutation catalog insert wakes empty hydrate', () => {
   });
 
   test('insertCatalogNote notify false heals via reconcile tick', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1402,
     });

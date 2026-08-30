@@ -10,11 +10,11 @@ import {
 import type { NetEffectRegistry } from './net-effect';
 import { createSimNetHandle } from './net-effect';
 import { createSimNodeHandle } from './node-handle';
-import { unregisterSimWorld } from './scenario-dispose-hook';
+import { unregisterWorld } from './scenario-dispose-hook';
 import { tamperClientLocalStorage } from './storage-faults';
 import type { UntilContext } from './until';
 import { runWorldNever, runWorldUntil } from './until';
-import type { SimWorld } from './world-api';
+import type { World } from './world-api';
 import {
   crashClientImpl,
   fireCrashIfArmed,
@@ -84,7 +84,7 @@ function bindNodeAndNet(args: {
   readonly netEffects: NetEffectRegistry;
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
-}): Pick<SimWorld, 'net' | 'node'> {
+}): Pick<World, 'net' | 'node'> {
   const { k, netEffects, armCrashHook, crashServer } = args;
   const { clients, network } = k;
   return {
@@ -147,14 +147,14 @@ async function healInfraForSettle(k: BootedSimKernel): Promise<void> {
 
 function createWorldDispose(args: {
   readonly k: BootedSimKernel;
-  readonly worldRef: { current: SimWorld | null };
+  readonly worldRef: { current: World | null };
   readonly markDisposed: () => boolean;
 }): () => Promise<void> {
   const { k, worldRef, markDisposed } = args;
   return async () => {
     if (markDisposed()) return;
     const world = worldRef.current;
-    if (world !== null) unregisterSimWorld(world);
+    if (world !== null) unregisterWorld(world);
     for (const c of [...k.clients.values()]) await c.dispose();
     k.clients.clear();
     k.unbindHttp();
@@ -169,9 +169,18 @@ export function bindWorldMethods(args: {
   readonly armCrashHook: ReturnType<typeof createArmCrashHook>;
   readonly crashServer: () => Promise<void>;
   readonly faultApi: WorldFaultApi;
-  readonly worldRef: { current: SimWorld | null };
+  readonly worldRef: { current: World | null };
   readonly markDisposed: () => boolean;
-}): Omit<SimWorld, typeof Symbol.asyncDispose> & {
+}): Omit<
+  World,
+  | typeof Symbol.asyncDispose
+  | 'clientIds'
+  | 'knobs'
+  | 'playActions'
+  | 'runCommands'
+  | 'resetClockSkews'
+  | 'runWithInvariants'
+> & {
   [Symbol.asyncDispose](): Promise<void>;
 } {
   const { k, netEffects, armCrashHook, crashServer, faultApi } = args;

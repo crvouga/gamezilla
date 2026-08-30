@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('denied query detaches scope keeps rows', () => {
   test('denied query detaches scope without wiping domain', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 512,
     });

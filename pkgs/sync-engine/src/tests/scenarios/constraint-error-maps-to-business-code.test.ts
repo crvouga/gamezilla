@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ describe('constraint error maps to business code', () => {
   test.each([870, 871, 872])(
     'unique conflict surfaces SLUG_TAKEN (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

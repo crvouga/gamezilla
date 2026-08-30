@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('online mutate no optimistic body flicker', () => {
   test('online mutate never reverts optimistic body before quiescence', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 700,
     });

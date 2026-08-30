@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, setNote } from '../apps/acme';
 
 const IMMEDIATE_DRAIN_MS = 0;
@@ -13,7 +13,7 @@ const PEER_VISIBLE_BUDGET_MS =
 describe('peer visibility under 200ms sim budget', () => {
   test('peer visibility under 200ms sim time', async () => {
     expect(PEER_VISIBLE_BUDGET_MS).toBeLessThan(200);
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 19,
       faults: {

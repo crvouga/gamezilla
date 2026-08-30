@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -12,7 +12,7 @@ describe('seq restart after wipe harmless', () => {
   test.each([840, 841, 842])(
     'cache clear then new mutates converge (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

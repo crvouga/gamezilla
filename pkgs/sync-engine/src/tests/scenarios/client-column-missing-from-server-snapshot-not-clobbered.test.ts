@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchemaExtraColumn,
@@ -13,7 +13,7 @@ describe('client column missing from server snapshot not clobbered', () => {
     'local color survives peer body update (seed=%i)',
     async (seed) => {
       // Server stays on base schema (no color). Client has extra column.
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

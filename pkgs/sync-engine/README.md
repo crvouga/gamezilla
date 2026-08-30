@@ -341,7 +341,7 @@ is the safety net so peers do not stay forever-stale.
 | `createSyncApp({ rowImageFanout })` | **false** | Opt-in |
 | Client `push.rowImageFanout` | **false** | Opt-in |
 | Product Gamezilla (`apps/*`) | **true** | Both API + client set true |
-| `openSimWorld` | **true** | `!== false` |
+| `openWorld` | **true** | `!== false` |
 
 When off, pushes are wake+refetch only (still correct). When on, contiguous
 `pushSeq` + `rows` may apply via `applyRowImages` without updating
@@ -773,8 +773,8 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openSimWorld` (named regression pins) |
-| Property / DST | `src/tests/scenarios/*.pbt.test.ts` | Shrinking `fc.commands` over `SimWorld` — hostile fault exploration |
+| Scenarios | `src/tests/scenarios/*.test.ts` | Black-box multi-client correctness via `openWorld` (named regression pins) |
+| Property / DST | `src/tests/scenarios/*.pbt.test.ts` | Shrinking `fc.commands` over `World` — hostile fault exploration |
 | Unit PBT | `src/tests/unit/*.pbt.test.ts` | Pure helpers (checkpoints, topic map, …) |
 | Kernel harness | `src/tests/harness/*.test.ts` | RNG / scheduler / timers; membership topic sync |
 | Public unit helper | `@pkgs/sync-engine/test` | `createInMemorySyncEngine` (no full world) |
@@ -817,9 +817,10 @@ era — cleanup is open design space; do not reintroduce `_row_scopes` to
 
 TigerBeetle-style DST in `src/sim/` (not a public export). **One seed →
 identical timeline.** The harness is domain-agnostic: callers inject a
-`SimDomainPack`. Scenarios compose `openSimWorld` with an app fixture from
-`src/tests/apps/acme/` (`acmeDomainPack`); PBT/DST inject `acmeDstApp` via
-`openPbtWorld({ app })`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert
+`SimDomainPack`. Scenarios compose `openWorld` with an app fixture from
+`src/tests/apps/acme/` (`acmeDomainPack`); PBT/DST use the same
+`openWorld({ app: acmeDstApp, knobs })` and call `world.playActions` /
+`world.runCommands`; fuzz calls `runDstSeed({ app: acmeDstApp })`. Assert
 **live domain rows only** — never framework tables or private modules.
 
 ```text
@@ -889,16 +890,43 @@ embed `seed=<hex>` and virtual `now=` for replay.
 ```ts
 import { describe, test } from 'bun:test';
 import { acmeDomainPack, setNote } from '../apps/acme';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 
 describe('example', () => {
   test('mutate converges', async () => {
-    await using world = await openSimWorld({ seed: 42, domain: acmeDomainPack });
+    await using world = await openWorld({ seed: 42, domain: acmeDomainPack });
     const a = await world.addClient({ id: 'alice' });
     await a.mutate(setNote, { id: 'n1', body: 'hi' });
     await world.assertConverged();
   });
 });
+```
+
+PBT / DST (same `World`, pass `app` to boot clients + enable `playActions`):
+
+```ts
+import { acmeDstApp } from '../apps/acme/dst-app';
+import { openWorld } from '../../sim/world';
+
+await using world = await openWorld({
+  app: acmeDstApp,
+  seed: 42,
+  knobs: {
+    rowImageFanout: true,
+    liveResendOnReconnect: false,
+    bufferOutboundLive: false,
+    clientCount: 2,
+  },
+});
+await world.playActions([
+  {
+    kind: 'domain',
+    clientId: 'c0',
+    mutation: 'setNote',
+    args: { id: 'n0', body: 'x', title: '' },
+  },
+]);
+await world.assertConverged();
 ```
 
 Scoped hold + latency budget + negative window:
@@ -951,11 +979,15 @@ world.node('alice').now(); // base + skew
 
 #### Knobs
 
-**World open** (`OpenSimWorldArgs` on `openSimWorld`):
+**World open** (`OpenWorldArgs` on `openWorld`):
 
 | Knob | Default | Meaning |
 |------|---------|---------|
 | `seed` | required | Root RNG seed (`number \| bigint \| string`) |
+| `domain` | — | Scenario path: domain pack (`acmeDomainPack`) |
+| `app` | — | PBT/DST path: `DstApp` (implies `domain = app.pack`, boots `c0..`) |
+| `knobs` | — | PBT knobs (`rowImageFanout`, reconnect/buffer, `clientCount`) |
+| `clientCount` | `2` when `app` set | Booted clients when opening with `app` |
 | `faults` | `RELIABLE_FAULTS` | Omit unless customizing — bare `faults: RELIABLE_FAULTS` is banned by CI |
 | `sampleFaults` | `false` | Ignore `faults`; sample lossy profile from `rng.fork('faults')` |
 | `rowImageFanout` | `true` | Live pushes apply row images; `false` → wake query refetch |
@@ -1246,7 +1278,7 @@ Three distinct monotonic sequences — do not conflate them:
 ## Scenario catalog
 
 Black-box correctness under `src/tests/scenarios/` (**112** files) plus harness
-`src/tests/harness/kernel.test.ts`. Most scenarios compose `openSimWorld` with
+`src/tests/harness/kernel.test.ts`. Most scenarios compose `openWorld` with
 `acmeDomainPack` + domain asserts from `src/tests/apps/acme/`.
 Row-image fanout is on unless a test sets `rowImageFanout: false`. File names
 describe the behavior under test. Production-hardening phases (schema drift

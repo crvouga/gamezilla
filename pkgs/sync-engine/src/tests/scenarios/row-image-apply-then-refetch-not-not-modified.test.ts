@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 describe('row image apply then refetch not not modified', () => {
   test('live row-image paint while sync held still converges after refetch', async () => {
     // Row images must not advance content hash; release+refetch stays sound.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 801,
     });

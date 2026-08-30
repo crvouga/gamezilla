@@ -61,8 +61,10 @@ async function migrateTurboCacheInAllEnvs(): Promise<void> {
 }
 
 /**
- * IdP rename: BETTER_AUTH_SECRET → AUTH_SECRET. Copy before orphan purge
- * drops the legacy key; leave missing envs for seedInAllEnvs.
+ * IdP rename: BETTER_AUTH_SECRET → AUTH_SECRET.
+ * Allowlisted for better-auth vocabulary (legacy secret name only).
+ * Copy before orphan purge drops the legacy key; leave missing envs for
+ * seedInAllEnvs.
  */
 async function migrateAuthSecretRenameInAllEnvs(): Promise<void> {
   const active = activeSecretsEnv();

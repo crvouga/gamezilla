@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('held sync upload retries on release', () => {
   test('held sync keeps queue pending then confirms after release', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 502,
     });

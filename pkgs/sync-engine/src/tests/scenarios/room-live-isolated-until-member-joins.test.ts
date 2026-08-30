@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   createSpace,
@@ -13,7 +13,7 @@ import {
 
 describe('room live isolated until member joins', () => {
   test('live on room-B does not reach alice in room-A until join', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 804,
     });

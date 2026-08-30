@@ -4,6 +4,10 @@ import type { QueryRegistry } from '../queries/core/types';
 import type { SimClientHandle } from './client-handle';
 import type { SimClock } from './clock';
 import type { SimDomainPack } from './domain-pack';
+import type { DstAction } from './dst/actions';
+import type { DstApp } from './dst/app';
+import type { WorldKnobs } from './dst/knobs';
+import type { WorldCmd } from './dst/run-commands';
 import type { SimFaultOptions } from './faults';
 import type { InvariantViolation } from './invariants';
 import type { SimNetHandle } from './net-effect';
@@ -17,7 +21,7 @@ import type { SimTraffic } from './traffic';
 import type { NeverOpts, UntilOpts, UntilTarget } from './until';
 import type { AddClientArgs } from './world-types';
 
-export type SimWorld = {
+export type World = {
   readonly seed: bigint;
   /** @internal Lab / harness */
   readonly clock: SimClock;
@@ -29,6 +33,9 @@ export type SimWorld = {
   readonly network: SimNetwork;
   readonly server: SimServer;
   readonly clients: ReadonlyMap<string, SimClientHandle>;
+  /** Booted client ids when opened with `app` / `clientCount`; else empty. */
+  readonly clientIds: readonly string[];
+  readonly knobs: WorldKnobs | null;
   readonly nextId: () => string;
   readonly addClient: (args: AddClientArgs) => Promise<SimClientHandle>;
   readonly net: (nodeId: string, traffic?: SimTraffic) => SimNetHandle;
@@ -59,18 +66,29 @@ export type SimWorld = {
    * restarts (e.g. revoke → fresh DB migrate + onNextEngineOpenAfterCacheWipe).
    */
   readonly clearBoundaryFaults: () => void;
+  /** Replay DST actions (requires world opened with `app`). */
+  readonly playActions: (actions: readonly DstAction[]) => Promise<void>;
+  /** Model-check then replay shrinking commands (requires `app`). */
+  readonly runCommands: (cmds: Iterable<WorldCmd>) => Promise<void>;
+  readonly resetClockSkews: () => void;
+  readonly runWithInvariants: (run: () => Promise<void>) => Promise<void>;
   readonly dispose: () => Promise<void>;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
-export type OpenSimWorldArgs = {
+export type OpenWorldArgs = {
   readonly seed: number | bigint | string;
   readonly faults?: SimFaultOptions;
   readonly sampleFaults?: boolean;
   readonly rowImageFanout?: boolean;
   readonly liveResendOnReconnect?: boolean;
   readonly bufferOutboundLive?: boolean;
-  readonly domain: SimDomainPack;
+  /** Scenario path — domain pack only. */
+  readonly domain?: SimDomainPack;
+  /** PBT/DST path — implies domain = app.pack and boots clients. */
+  readonly app?: DstApp;
+  readonly knobs?: WorldKnobs;
+  readonly clientCount?: number;
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;

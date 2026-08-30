@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   createSpace,
@@ -13,7 +13,7 @@ import {
 
 describe('peer create during leave keeps mqtt session', () => {
   test('peer create during leave does not remake MQTT; rejoin hydrates', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 802,
     });

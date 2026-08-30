@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -12,7 +12,7 @@ import {
 
 describe('hard query limit truncates hydrate', () => {
   test('hard limit truncates hydrate; engine stays healthy and world converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 630,
     });
@@ -44,7 +44,7 @@ describe('hard query limit truncates hydrate', () => {
   });
 
   test('multi-table truncate then shrink below limit eventually consistent', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 631,
     });

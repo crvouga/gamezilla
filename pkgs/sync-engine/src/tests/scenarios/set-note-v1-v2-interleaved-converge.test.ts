@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeMutationRegistry,
@@ -21,7 +21,7 @@ function mutationRegistryV1Only(): typeof acmeMutationRegistry {
 
 describe('set note v1 v2 interleaved converge', () => {
   test('setNote and setNoteV2 interleaved writes converge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 660,
     });
@@ -45,7 +45,7 @@ describe('set note v1 v2 interleaved converge', () => {
   });
 
   test('mutation-v2-rollout-old-client-still-replays-v1', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 661,
     });

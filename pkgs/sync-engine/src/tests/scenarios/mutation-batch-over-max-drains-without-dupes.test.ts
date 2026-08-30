@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ const QUEUE_SIZE = 100;
 
 describe('mutation batch over max drains without dupes', () => {
   test('queue larger than MAX_MUTATIONS_BATCH drains across batches without dupes', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 650,
     });

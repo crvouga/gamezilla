@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('authorize throw equals denied', () => {
   test('authorize throw detaches scope, keeps domain rows, stays healthy', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 930,
     });
@@ -35,7 +35,7 @@ describe('authorize throw equals denied', () => {
   test.each([931, 932, 933])(
     'seed sweep authorize-throw stays healthy (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

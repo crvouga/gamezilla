@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+import { openWorld, type World } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -8,7 +8,7 @@ import {
   setNote,
 } from '../apps/acme';
 
-async function expectClientsMatchServer(world: SimWorld): Promise<void> {
+async function expectClientsMatchServer(world: World): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
@@ -16,7 +16,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 
 describe('live loss dup reorder still converges', () => {
   test('lossy live on bob still converges after clear', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 401,
     });
@@ -38,7 +38,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('dup live on bob converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 402,
     });
@@ -53,7 +53,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('reordered live on bob converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 403,
     });
@@ -73,7 +73,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('asymmetric: alice reliable, bob lossy+dup+reorder', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 404,
     });
@@ -98,7 +98,7 @@ describe('live loss dup reorder still converges', () => {
   });
 
   test('live chaos + sync hold then release converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 405,
     });

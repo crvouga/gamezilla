@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('concurrent topic seq allocation monotonic', () => {
   test('overlapping mutates on shared topic converge without torn state', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 920,
     });
@@ -45,7 +45,7 @@ describe('concurrent topic seq allocation monotonic', () => {
   test.each([921, 922, 923])(
     'seed sweep concurrent writers converge (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

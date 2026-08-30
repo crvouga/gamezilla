@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchemaExtraColumn,
@@ -17,7 +17,7 @@ describe('server schema upgrade mid session', () => {
   test.each([2120, 2121, 2122])(
     'server adds color mid-life; old clients ignore; new client stores (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

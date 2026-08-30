@@ -7,7 +7,8 @@ import {
 } from '../apps/acme/assert';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
+import { openWorld } from '../../sim/world';
 
 type TombstoneStep =
   | { readonly kind: 'set'; readonly body: string }
@@ -31,47 +32,44 @@ describe('tombstone revive PBT', () => {
             { minLength: 1, maxLength: 8 }
           ),
           async (seed, knobs, steps) => {
-            const opened = await openPbtWorld({ app: acmeDstApp, seed, knobs });
+            await using world = await openWorld({
+              app: acmeDstApp,
+              seed,
+              knobs,
+            });
             const noteId = 'n0';
-            try {
-              const client = opened.world.clients.get('c0')!;
-              let lastBody = '';
-              let everSet = false;
-              let deleted = false;
+            const client = world.clients.get('c0')!;
+            let lastBody = '';
+            let everSet = false;
+            let deleted = false;
 
-              for (const step of steps as TombstoneStep[]) {
-                if (step.kind === 'set') {
-                  everSet = true;
-                  lastBody = step.body;
-                  deleted = false;
-                  await client.mutate(setNote, {
-                    id: noteId,
-                    body: step.body,
-                    title: '',
-                  });
-                } else if (everSet) {
-                  deleted = true;
-                  await client.mutate(deleteNote, { id: noteId });
-                }
+            for (const step of steps as TombstoneStep[]) {
+              if (step.kind === 'set') {
+                everSet = true;
+                lastBody = step.body;
+                deleted = false;
+                await client.mutate(setNote, {
+                  id: noteId,
+                  body: step.body,
+                  title: '',
+                });
+              } else if (everSet) {
+                deleted = true;
+                await client.mutate(deleteNote, { id: noteId });
               }
+            }
 
-              await opened.world.assertConverged();
+            await world.assertConverged();
 
-              if (!everSet) return;
+            if (!everSet) return;
 
-              const tomb = await readNoteTombstone(
-                opened.world.server.db,
-                noteId
-              );
-              if (deleted) {
-                expect(tomb).not.toBeNull();
-                await expectNoteNotLive(client.db, noteId);
-              } else {
-                expect(tomb).toBeNull();
-                await expectLiveNote(client.db, noteId, { body: lastBody });
-              }
-            } finally {
-              await opened.world.dispose();
+            const tomb = await readNoteTombstone(world.server.db, noteId);
+            if (deleted) {
+              expect(tomb).not.toBeNull();
+              await expectNoteNotLive(client.db, noteId);
+            } else {
+              expect(tomb).toBeNull();
+              await expectLiveNote(client.db, noteId, { body: lastBody });
             }
           }
         ),
@@ -92,28 +90,28 @@ describe('tombstone revive PBT', () => {
           fc.string({ maxLength: 8 }),
           fc.string({ maxLength: 8 }),
           async (seed, knobs, body1, body2) => {
-            const opened = await openPbtWorld({ app: acmeDstApp, seed, knobs });
+            await using world = await openWorld({
+              app: acmeDstApp,
+              seed,
+              knobs,
+            });
             const noteId = 'n0';
-            try {
-              const client = opened.world.clients.get('c0')!;
-              await client.mutate(setNote, {
-                id: noteId,
-                body: body1,
-                title: '',
-              });
-              await client.mutate(deleteNote, { id: noteId });
-              await client.mutate(setNote, {
-                id: noteId,
-                body: body2,
-                title: '',
-              });
-              await opened.world.assertConverged();
-              await expectLiveNote(client.db, noteId, { body: body2 });
-              for (const peer of opened.world.clients.values()) {
-                await expectLiveNote(peer.db, noteId, { body: body2 });
-              }
-            } finally {
-              await opened.world.dispose();
+            const client = world.clients.get('c0')!;
+            await client.mutate(setNote, {
+              id: noteId,
+              body: body1,
+              title: '',
+            });
+            await client.mutate(deleteNote, { id: noteId });
+            await client.mutate(setNote, {
+              id: noteId,
+              body: body2,
+              title: '',
+            });
+            await world.assertConverged();
+            await expectLiveNote(client.db, noteId, { body: body2 });
+            for (const peer of world.clients.values()) {
+              await expectLiveNote(peer.db, noteId, { body: body2 });
             }
           }
         ),

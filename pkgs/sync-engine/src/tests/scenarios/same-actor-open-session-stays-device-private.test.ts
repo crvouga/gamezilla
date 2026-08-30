@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   createSpace,
@@ -17,7 +17,7 @@ import {
  */
 describe('same actor open session stays device private', () => {
   test('createSpace open-session row images do not land on peer device', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1401,
       rowImageFanout: true,

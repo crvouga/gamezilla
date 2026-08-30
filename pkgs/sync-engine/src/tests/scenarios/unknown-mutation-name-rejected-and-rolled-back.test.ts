@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeMutationRegistry,
@@ -13,7 +13,7 @@ describe('unknown mutation name rejected and rolled back', () => {
   test.each([770, 771, 772])(
     'ghostMutation rejected; merge heals (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

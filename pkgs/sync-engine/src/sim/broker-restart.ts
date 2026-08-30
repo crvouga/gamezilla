@@ -44,7 +44,7 @@ async function drainDisconnect(
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error('SimWorld: disconnect timeout during broker restart');
+    throw new Error('World: disconnect timeout during broker restart');
   }
   await disconnect;
 }

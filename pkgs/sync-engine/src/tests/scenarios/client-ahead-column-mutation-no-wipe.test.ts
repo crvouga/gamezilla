@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchemaExtraColumn,
@@ -16,7 +16,7 @@ describe('client ahead column mutation no wipe', () => {
     'client writes color before server DDL: no wipe, no hot loop (seed=%i)',
     async (seed) => {
       // Unsupported deploy order — pin that the engine stays healthy.
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

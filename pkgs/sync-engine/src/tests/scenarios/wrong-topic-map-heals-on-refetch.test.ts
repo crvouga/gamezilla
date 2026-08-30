@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 describe('wrong topic map heals on refetch', () => {
   // Companion to channel-exhaustiveness: wrong topic-map wake ⇒ silent staleness.
   test('peer stays stale until explicit refetch after wrong topic wake', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1080,
       rowImageFanout: false,
@@ -45,7 +45,7 @@ describe('wrong topic map heals on refetch', () => {
   test.each([1081, 1082, 1083])(
     'seed sweep wrong topic heals via refresh (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

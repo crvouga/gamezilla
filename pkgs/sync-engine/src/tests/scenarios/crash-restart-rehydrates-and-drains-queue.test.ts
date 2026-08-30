@@ -1,10 +1,10 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('crash restart rehydrates and drains queue', () => {
   test('offline queue drains after reconnect', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 40,
     });
@@ -22,7 +22,7 @@ describe('crash restart rehydrates and drains queue', () => {
   });
 
   test('restart after crash rehydrates all live notes', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 41,
     });

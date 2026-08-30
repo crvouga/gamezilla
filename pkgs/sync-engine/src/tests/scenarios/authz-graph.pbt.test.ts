@@ -3,7 +3,8 @@ import { assertDstProperty, fc } from '@pkgs/pbt';
 import { expectLiveNote, readLiveNotes } from '../apps/acme/assert';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import { deleteNote, setNote } from '../apps/acme/shared/mutations';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { openWorld } from '../../sim/world';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 describe('authz graph PBT', () => {
   test(
@@ -18,23 +19,22 @@ describe('authz graph PBT', () => {
           fc.string({ maxLength: 12 }),
           async (seed, knobs, noteId, body) => {
             if (knobs.clientCount < 2) return;
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              const owner = opened.clientIds[0]!;
-              const peer = opened.clientIds[1]!;
-              const ownerClient = opened.world.clients.get(owner)!;
-              const peerClient = opened.world.clients.get(peer)!;
+              const owner = world.clientIds[0]!;
+              const peer = world.clientIds[1]!;
+              const ownerClient = world.clients.get(owner)!;
+              const peerClient = world.clients.get(peer)!;
 
               await ownerClient.mutate(setNote, {
                 id: noteId,
                 body,
                 title: '',
               });
-              await opened.world.assertConverged();
+              await world.assertConverged();
 
               const denied = await peerClient.mutate(deleteNote, {
                 id: noteId,
@@ -46,12 +46,9 @@ describe('authz graph PBT', () => {
                 true
               );
 
-              await opened.world.assertConverged();
+              await world.assertConverged();
               await expectLiveNote(ownerClient.db, noteId, { body });
               await expectLiveNote(peerClient.db, noteId, { body });
-            } finally {
-              await opened.world.dispose();
-            }
           }
         ),
         { numRuns: 8 }
@@ -81,29 +78,25 @@ describe('authz graph PBT', () => {
             { minLength: 1, maxLength: 6 }
           ),
           async (seed, knobs, writes) => {
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
               for (const w of writes) {
-                const client = opened.world.clients.get('c0')!;
+                const client = world.clients.get('c0')!;
                 await client.mutate(setNote, {
                   id: w.noteId,
                   body: w.body,
                   title: '',
                 });
               }
-              await opened.world.assertConverged();
-              const serverNotes = await readLiveNotes(opened.world.server.db);
-              for (const client of opened.world.clients.values()) {
+              await world.assertConverged();
+              const serverNotes = await readLiveNotes(world.server.db);
+              for (const client of world.clients.values()) {
                 const local = await readLiveNotes(client.db);
                 expect(local).toEqual([...serverNotes]);
               }
-            } finally {
-              await opened.world.dispose();
-            }
           }
         ),
         { numRuns: 6 }

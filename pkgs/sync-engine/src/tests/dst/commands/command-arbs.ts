@@ -1,8 +1,12 @@
 import fc from 'fast-check';
 
-import type { DstAction, LibraryAction } from '../actions';
-import type { DstApp } from '../app';
-import { applyActionToModel, modelAllowsAction } from '../model';
+import type { DstAction, LibraryAction } from '../../../sim/dst/actions';
+import type { DstApp } from '../../../sim/dst/app';
+import type { WorldCmd } from '../../../sim/dst/run-commands';
+import {
+  applyActionToModel,
+  modelAllowsAction,
+} from '../../../sim/dst/world-model';
 import {
   chaosCommandArbs,
   connectivityCommandArbs,
@@ -11,7 +15,6 @@ import {
   lifecycleCommandArbs,
   networkCommandArbs,
 } from './generators';
-import type { WorldCmd } from './index-types';
 
 function actionCmd(app: DstApp, action: DstAction): WorldCmd {
   return {
@@ -24,7 +27,7 @@ function actionCmd(app: DstApp, action: DstAction): WorldCmd {
   };
 }
 
-/** Weighted command pool for shrinking DST over SimWorld. */
+/** Weighted command pool for shrinking DST over World. */
 export function buildWorldCommandPool(
   app: DstApp,
   clientIds: readonly string[]

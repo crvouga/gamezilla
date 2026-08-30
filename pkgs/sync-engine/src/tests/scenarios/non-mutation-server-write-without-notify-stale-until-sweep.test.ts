@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -12,7 +12,7 @@ describe('non mutation server write without notify stale until sweep', () => {
   // Domain write outside mutation replay should notify; missed notify heals
   // via the reconcile tick (safety net), not forever-stale.
   test('writeNoteBody notify false heals via reconcile tick', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1090,
     });
@@ -44,7 +44,7 @@ describe('non mutation server write without notify stale until sweep', () => {
   test.each([1091, 1092, 1093])(
     'silent write heals on reconcile tick (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

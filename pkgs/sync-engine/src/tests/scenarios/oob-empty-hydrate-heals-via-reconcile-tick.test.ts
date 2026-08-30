@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -15,7 +15,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
   // Missed notifyChannels must still heal via the reconcile tick (no nudge).
 
   test('silent catalog insert after empty hydrate heals without nudge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1501,
     });
@@ -36,7 +36,7 @@ describe('oob empty hydrate heals via reconcile tick', () => {
   });
 
   test('silent catalog update heals without nudge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1502,
     });

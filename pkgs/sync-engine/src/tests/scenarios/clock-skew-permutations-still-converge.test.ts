@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+import { openWorld, type World } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -32,20 +32,20 @@ const CLOCK_ORDERS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-function applyOrder(world: SimWorld, order: ClockOrder): void {
+function applyOrder(world: World, order: ClockOrder): void {
   world.node('alice').skewClock(order.alice);
   world.node('bob').skewClock(order.bob);
   world.node('server').skewClock(order.server);
 }
 
-async function expectClientsMatchServer(world: SimWorld): Promise<void> {
+async function expectClientsMatchServer(world: World): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
 }
 
 async function offlineConflictThenConverge(
-  world: SimWorld,
+  world: World,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -69,7 +69,7 @@ async function offlineConflictThenConverge(
 }
 
 async function onlineOptimisticRace(
-  world: SimWorld,
+  world: World,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -88,7 +88,7 @@ async function onlineOptimisticRace(
 }
 
 async function aheadDeleteBehindPending(
-  world: SimWorld,
+  world: World,
   order: ClockOrder
 ): Promise<void> {
   applyOrder(world, order);
@@ -126,7 +126,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `offline conflict converges (${order.label})`,
       async () => {
-        await using world = await openSimWorld({
+        await using world = await openWorld({
           domain: acmeDomainPack,
           seed: 101,
         });
@@ -138,7 +138,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `online optimistic race converges (${order.label})`,
       async () => {
-        await using world = await openSimWorld({
+        await using world = await openWorld({
           domain: acmeDomainPack,
           seed: 102,
         });
@@ -150,7 +150,7 @@ describe('clock skew permutations still converge', () => {
     test(
       `ahead delete vs behind pending converges (${order.label})`,
       async () => {
-        await using world = await openSimWorld({
+        await using world = await openWorld({
           domain: acmeDomainPack,
           seed: 103,
         });

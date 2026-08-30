@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchema,
@@ -17,7 +17,7 @@ describe('server snapshot with unknown column merges cleanly', () => {
   test.each([730, 731, 732])(
     'client without color ignores server color key (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         localSchema: acmeLocalSchemaExtraColumn,

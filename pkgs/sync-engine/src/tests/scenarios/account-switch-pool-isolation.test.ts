@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createSyncEnginePool } from '@pkgs/sync-engine/client';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ import {
 
 describe('account switch pool isolation', () => {
   test('createSyncEnginePool closes prior identity SQLite before next open', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 950,
       rowImageFanout: false,
@@ -81,7 +81,7 @@ describe('account switch pool isolation', () => {
   });
 
   test('concurrent getOrCreate for different identities does not overlap create', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 960,
       rowImageFanout: false,
@@ -130,7 +130,7 @@ describe('account switch pool isolation', () => {
   test.each([951, 952, 953])(
     'seed sweep dual-client pool stand-in isolates pending (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

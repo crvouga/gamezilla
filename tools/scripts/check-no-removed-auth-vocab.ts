@@ -8,6 +8,8 @@ import { join, relative } from 'node:path';
 const ROOT = join(import.meta.dirname, '../..');
 const ALLOWLIST = new Set([
   'libs/runtime/src/server/cutover-legacy-auth-to-idp-migration.ts',
+  'libs/secrets/src/scripts/provision-secrets.ts',
+  'libs/secrets/src/scripts/seed-auth-secret.ts',
   'tools/scripts/check-no-removed-auth-vocab.ts',
   'tools/biome-plugins/forbid-removed-auth-sdk-imports.grit',
 ]);

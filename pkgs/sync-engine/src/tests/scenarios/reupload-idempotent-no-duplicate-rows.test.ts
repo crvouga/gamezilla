@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('reupload idempotent no duplicate rows', () => {
   test('reconnect after offline set does not duplicate domain rows', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 70,
     });
@@ -33,7 +33,7 @@ describe('reupload idempotent no duplicate rows', () => {
   });
 
   test('repeated setNote on same id keeps single live row', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 71,
     });

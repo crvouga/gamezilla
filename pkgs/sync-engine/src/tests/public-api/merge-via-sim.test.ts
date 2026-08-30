@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '@pkgs/sync-engine/test';
+import { openWorld } from '@pkgs/sync-engine/test';
 
 import {
   acmeDomainPack,
@@ -16,9 +16,9 @@ import {
  * Public-API / sim pins for merge semantics that bulk upsert must preserve:
  * column-intersect (missing keys), tombstone upsert, pending rebase.
  */
-describe('public API: merge via openSimWorld', () => {
+describe('public API: merge via openWorld', () => {
   test('missing server keys do not null local-only columns', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 9001,
     });
@@ -45,7 +45,7 @@ describe('public API: merge via openSimWorld', () => {
   });
 
   test('tombstone upsert removes live peer row; pending rebase wins after disconnect', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 9002,
     });

@@ -7,10 +7,10 @@ import {
   CORRUPTION_VARIANTS,
   HTTP_FAULTS,
   PUBSUB_FAULTS,
-  replayActionsOnWorld,
   STORAGE_TAMPERS,
 } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { openWorld } from '../../sim/world';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER = acmeSetNoteOp('c0', 'n0', 'corruption');
 
@@ -40,21 +40,14 @@ describe('corruption safety PBT', () => {
               clientId: 'c0',
               fault,
             };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                corruptionSequence(arm)
+              await world.playActions(corruptionSequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -80,21 +73,14 @@ describe('corruption safety PBT', () => {
               kind: 'armPubsubFault',
               fault: { kind: 'corruptPubsubPayload', variant },
             };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                corruptionSequence(arm)
+              await world.playActions(corruptionSequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -113,23 +99,19 @@ describe('corruption safety PBT', () => {
           arbWorldKnobs(),
           fc.constantFrom(...STORAGE_TAMPERS),
           async (seed, knobs, tamper) => {
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(acmeDstApp, opened.world, [
+              await world.playActions([
                 TRIGGER,
                 { kind: 'tamperLocalStorage', clientId: 'c0', tamper },
                 { kind: 'restart', clientId: 'c0' },
                 { kind: 'idle', ms: 40 },
                 { kind: 'heal' },
               ]);
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }

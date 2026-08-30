@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('single client mutate uploads and persists', () => {
   test('single client mutate uploads and is visible locally', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1,
     });
@@ -16,7 +16,7 @@ describe('single client mutate uploads and persists', () => {
   });
 
   test('title and body both persist after converge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 2,
     });

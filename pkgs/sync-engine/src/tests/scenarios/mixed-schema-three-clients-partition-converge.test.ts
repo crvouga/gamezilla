@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchema,
@@ -22,7 +22,7 @@ describe('mixed schema three clients partition converge', () => {
   test.each([2100, 2101, 2102])(
     'baseline + color + tags under partition then heal (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         localSchema: acmeLocalSchemaExtraColumnAndTable,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchemaExtraColumn,
@@ -12,7 +12,7 @@ import {
 
 describe('preserveLocalDb remigrate after additive schema', () => {
   test('restart without localSchema keeps extra column (no drift fail)', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 42,
     });
@@ -43,7 +43,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('restartWithSchema then crash+preserve remigrate converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 43,
       rowImageFanout: false,
@@ -71,7 +71,7 @@ describe('preserveLocalDb remigrate after additive schema', () => {
   });
 
   test('extraColumn then extraTable remigrate drops color via deprecation', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 44,
     });

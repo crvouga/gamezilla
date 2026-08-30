@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { SYNC_PROTOCOL_VERSION } from '../../protocol';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ import {
 describe('pending mutations across protocol cut drain', () => {
   test('offline queue drains under current protocol (preserve-and-drain)', async () => {
     expect(SYNC_PROTOCOL_VERSION).toBe(3);
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1210,
     });

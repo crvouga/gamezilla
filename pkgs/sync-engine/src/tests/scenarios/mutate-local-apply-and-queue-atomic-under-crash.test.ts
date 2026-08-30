@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ import {
 
 describe('mutate local apply and queue atomic under crash', () => {
   test('crash after mutate resolves offline: write everywhere or nowhere', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 831,
     });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { RELIABLE_FAULTS } from '../../sim/faults';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -12,7 +12,7 @@ describe('same batch posted twice verdicts stable', () => {
   test.each([820, 821, 822])(
     'mesh replay of mutations POST is idempotent (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

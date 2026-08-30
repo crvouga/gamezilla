@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, readLiveNotes, setNote } from '../apps/acme';
 
 describe('two offline same id single winner', () => {
   test('two clients offline conflict then converge to one winner', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 7,
     });

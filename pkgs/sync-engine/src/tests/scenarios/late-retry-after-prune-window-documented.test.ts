@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 describe('late retry after prune window documented', () => {
@@ -9,7 +9,7 @@ describe('late retry after prune window documented', () => {
       // Known limitation: pruning idempotency rows lets a late retry with the
       // same mutation id apply again (setNote upsert → last write wins).
       // Retention jobs must keep the window longer than max client retry life.
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

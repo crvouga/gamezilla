@@ -1,6 +1,6 @@
 import { describe, test } from 'bun:test';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine/test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -12,7 +12,7 @@ describe('epoch bump mid offline session then drain', () => {
   test.each([720, 721, 722])(
     'offline upgrade drains after later connect (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

@@ -1,4 +1,4 @@
-import type { DstApp } from '../../dst/app';
+import type { DstApp } from '../../../sim/dst/app';
 import {
   acmeDomainOpArbs,
   acmeServerOpArbs,
@@ -13,6 +13,10 @@ import {
 } from './domain-model';
 import { acmeDomainPack } from './domain-pack';
 import { insertCatalogNote } from './insert-catalog-note';
+import {
+  type AcmeSchemaVariant,
+  acmeRestartOptsForVariant,
+} from './schema-variants';
 import { writeNoteBody } from './write-note-body';
 
 export const acmeDstApp: DstApp = {
@@ -20,6 +24,8 @@ export const acmeDstApp: DstApp = {
   domainOpArbs: acmeDomainOpArbs,
   serverOpArbs: acmeServerOpArbs,
   pickDomainOrServerOp: pickAcmeDomainOrServerOp,
+  restartOptsForVariant: (variant) =>
+    acmeRestartOptsForVariant(variant as AcmeSchemaVariant),
   serverOps: {
     writeNoteBodySilent: async (world, args) => {
       const noteId = args['noteId'];

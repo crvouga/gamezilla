@@ -22,7 +22,7 @@ async function waitForSessionSync(
     maxSteps: 50_000,
   });
   if (!ok) {
-    throw new Error(`SimWorld: session sync timeout for ${clientId}`);
+    throw new Error(`World: session sync timeout for ${clientId}`);
   }
   await sessionSync;
 }
@@ -175,7 +175,7 @@ export async function addClientImpl(
   clientArgs: AddClientArgs
 ): Promise<SimClientHandle> {
   if (ctx.clients.has(clientArgs.id)) {
-    throw new Error(`SimWorld: client ${clientArgs.id} already exists`);
+    throw new Error(`World: client ${clientArgs.id} already exists`);
   }
   const ids = registerClientMeta(ctx, clientArgs);
   const handle = await buildSimClient(simClientBuildArgs(ctx, clientArgs, ids));

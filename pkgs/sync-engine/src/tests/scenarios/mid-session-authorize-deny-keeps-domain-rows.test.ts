@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 
 describe('mid session authorize deny keeps domain rows', () => {
   test('ownership flip denies scope; domain rows remain; other scopes sync', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 620,
     });

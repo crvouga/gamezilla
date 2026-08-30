@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, setFolder, setNote } from '../apps/acme';
 
 describe('scope churn no leaked timers or subscriptions', () => {
   test('rapid subscribe/unsubscribe settles to active session topics only', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1030,
     });
@@ -44,7 +44,7 @@ describe('scope churn no leaked timers or subscriptions', () => {
   test.each([1031, 1032, 1033])(
     'seed sweep churn returns to session topics (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

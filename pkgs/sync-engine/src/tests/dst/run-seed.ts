@@ -1,8 +1,8 @@
 import { bootClients, settleWorld } from '../../sim/replay-steps';
-import { openSimWorld } from '../../sim/world';
-import type { DstAction } from './actions';
-import type { DstApp } from './app';
-import { dispatchDstAction } from './dispatch';
+import { openWorld } from '../../sim/world';
+import type { DstAction } from '../../sim/dst/actions';
+import type { DstApp } from '../../sim/dst/app';
+import { dispatchDstAction } from '../../sim/dst/dispatch';
 import { pickDstAction } from './pick-library-action';
 
 export type RunSeedResult =
@@ -33,7 +33,7 @@ type WorkloadLoopFail = {
 
 async function runWorkloadLoop(args: {
   readonly app: DstApp;
-  readonly world: Awaited<ReturnType<typeof openSimWorld>>;
+  readonly world: Awaited<ReturnType<typeof openWorld>>;
   readonly ids: readonly string[];
   readonly steps: number;
 }): Promise<{
@@ -74,7 +74,8 @@ async function runWorkloadLoop(args: {
 export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
   const clientCount = opts.clientCount ?? 2;
   const steps = opts.steps ?? 40;
-  const world = await openSimWorld({
+  // Domain-only open so we can boot clients with optional fault sampling.
+  await using world = await openWorld({
     seed: opts.seed,
     domain: opts.app.pack,
     sampleFaults: false,
@@ -105,8 +106,6 @@ export async function runDstSeed(opts: RunSeedOptions): Promise<RunSeedResult> {
       steps: done,
       error: message,
     };
-  } finally {
-    await world.dispose();
   }
 }
 

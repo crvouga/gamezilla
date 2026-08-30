@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'in-txn fail rolls back then full apply (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });
@@ -36,7 +36,7 @@ describe('server 500 mid batch full retry idempotent', () => {
   test.each([850, 851, 852])(
     'post-commit fail acks via retry dedupe (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed: seed + 10,
       });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { unsafe } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -13,7 +13,7 @@ describe('corrupt queued args permanent reject', () => {
   test.each([2140, 2141, 2142])(
     'non-json queued args reject permanently; healthy mutate drains (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });
@@ -61,7 +61,7 @@ describe('corrupt queued args permanent reject', () => {
   );
 
   test('brand-new note with corrupt queued args tombstones after reject', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 2143,
     });

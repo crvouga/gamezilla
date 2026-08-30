@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -11,7 +11,7 @@ import {
 
 describe('soft delete tombstone propagates and revives', () => {
   test('delete tombstones on peer after converge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 13,
     });
@@ -31,7 +31,7 @@ describe('soft delete tombstone propagates and revives', () => {
   });
 
   test('setNote after delete revives the row', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 14,
     });

@@ -9,8 +9,9 @@ export type { SimDomainPack, SimSessionQuery } from '../sim/domain-pack';
 export { emptySimPushChannels } from '../sim/domain-pack';
 export type { SeededRng } from '../sim/rng';
 export type { NeverOpts, UntilOpts, UntilTarget } from '../sim/until';
-export { openSimWorld } from '../sim/world';
+export { openWorld } from '../sim/world';
 export type {
-  OpenSimWorldArgs,
-  SimWorld,
+  OpenWorldArgs,
+  World,
 } from '../sim/world-api';
+export type { DstAction, DstApp, WorldKnobs } from '../sim/dst';

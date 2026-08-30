@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchema,
@@ -20,7 +20,7 @@ describe('mixed schema tombstone and pending rebase', () => {
   test.each([2110, 2111, 2112])(
     'pending setNoteColor revives peer tombstone; color kept (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         localSchema: acmeLocalSchemaExtraColumn,

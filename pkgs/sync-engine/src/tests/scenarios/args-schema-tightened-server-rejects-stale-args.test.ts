@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeMutationRegistry,
@@ -13,7 +13,7 @@ describe('args schema tightened server rejects stale args', () => {
   test.each([790, 791, 792])(
     'loose client args rejected by tight server (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

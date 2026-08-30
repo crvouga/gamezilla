@@ -91,7 +91,7 @@ export function createSimNodeHandle(
     },
     auth(status) {
       if (nodeId === SIM_SERVER_NODE_ID) {
-        throw new Error('SimWorld.node(server).auth: clients only');
+        throw new Error('World.node(server).auth: clients only');
       }
       const meta = k.metas.get(nodeId);
       if (meta === undefined) throw new Error(`unknown client ${nodeId}`);

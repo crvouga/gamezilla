@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('connect disconnect flapping under load', () => {
   test('online/foreground flap under mutation storm still converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1050,
     });
@@ -53,7 +53,7 @@ describe('connect disconnect flapping under load', () => {
   test.each([1051, 1052, 1053])(
     'seed sweep flap + mutate converges (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

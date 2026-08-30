@@ -20,15 +20,18 @@ export {
 } from './in-memory-sync-engine';
 export {
   emptySimPushChannels,
+  type DstAction,
+  type DstApp,
   type NeverOpts,
-  type OpenSimWorldArgs,
-  openSimWorld,
+  type OpenWorldArgs,
+  openWorld,
   type SeededRng,
   type SimClientHandle,
   type SimClock,
   type SimDomainPack,
   type SimSessionQuery,
-  type SimWorld,
+  type World,
+  type WorldKnobs,
   type UntilOpts,
   type UntilTarget,
 } from './sim-exports';

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ const STORM = 150;
 
 describe('mutation storm batching order preserved', () => {
   test('offline queue drains; last-write-wins body matches seq order', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1060,
     });
@@ -50,7 +50,7 @@ describe('mutation storm batching order preserved', () => {
   test.each([1061, 1062, 1063])(
     'seed sweep modest storm preserves final body (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

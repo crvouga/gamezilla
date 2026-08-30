@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('sim scenario API', () => {
   test('await using + net hold restore', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 2,
     });
@@ -28,7 +28,7 @@ describe('sim scenario API', () => {
   });
 
   test('until drives outcome promise', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 3,
     });
@@ -42,7 +42,7 @@ describe('sim scenario API', () => {
   });
 
   test('never holds for negative window', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 7,
     });
@@ -59,7 +59,7 @@ describe('sim scenario API', () => {
   });
 
   test('never fails when target becomes true', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 8,
     });
@@ -72,7 +72,7 @@ describe('sim scenario API', () => {
   });
 
   test('assertConverged neutralizes net effects', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 4,
     });
@@ -87,7 +87,7 @@ describe('sim scenario API', () => {
   });
 
   test('skewClock restores prior', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 5,
     });
@@ -101,7 +101,7 @@ describe('sim scenario API', () => {
   });
 
   test('nested net set restore-prior LIFO', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 6,
     });

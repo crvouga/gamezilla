@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('prune concurrent with replay safe', () => {
   test('prune interleaved with uploads; retries dedupe; world converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 940,
     });
@@ -53,7 +53,7 @@ describe('prune concurrent with replay safe', () => {
   test.each([941, 942, 943])(
     'seed sweep prune + mutate converges (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

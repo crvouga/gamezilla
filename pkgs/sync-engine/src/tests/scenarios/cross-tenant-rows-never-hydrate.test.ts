@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -14,7 +14,7 @@ import {
 describe('cross tenant rows never hydrate', () => {
   test('denied notesOwned peer never hydrates owner private rows', async () => {
     // rowImageFanout false: authorize deny must not be bypassed by images.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 980,
       rowImageFanout: false,
@@ -58,7 +58,7 @@ describe('cross tenant rows never hydrate', () => {
   test.each([981, 982, 983])(
     'seed sweep authorize filter keeps stranger rows out (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

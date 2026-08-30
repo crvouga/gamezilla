@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -9,7 +9,7 @@ import {
 
 describe('two client mutual writes converge', () => {
   test('peer sees note after assertConverged', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 3,
     });
@@ -23,7 +23,7 @@ describe('two client mutual writes converge', () => {
   });
 
   test.each([1, 2, 42, 99])('seed sweep converges (seed=%i)', async (seed) => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed,
     });

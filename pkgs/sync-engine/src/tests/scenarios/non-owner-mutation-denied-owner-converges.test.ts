@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -10,7 +10,7 @@ import {
 
 describe('non owner mutation denied owner converges', () => {
   test('non-owner delete is rejected; note stays live on peers', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 50,
     });
@@ -32,7 +32,7 @@ describe('non owner mutation denied owner converges', () => {
   });
 
   test('owner delete succeeds', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 51,
     });

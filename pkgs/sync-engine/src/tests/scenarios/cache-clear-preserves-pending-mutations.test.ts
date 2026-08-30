@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 
 describe('cache clear preserves pending mutations', () => {
   test('cache clear wipes domain but durable queue uploads on reconnect', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 610,
     });
@@ -37,7 +37,7 @@ describe('cache clear preserves pending mutations', () => {
   });
 
   test('cache clear during sync partition does not hang on in-flight upload', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 611,
     });

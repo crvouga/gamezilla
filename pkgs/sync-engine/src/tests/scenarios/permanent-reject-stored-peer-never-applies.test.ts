@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acknowledgeWriteRejectionMutation,
   acmeDomainPack,
@@ -12,7 +12,7 @@ import {
 describe('permanent reject stored peer never applies', () => {
   test('server reject stores write_rejection and merge restores domain', async () => {
     // rowImageFanout off: rejected optimistic body must not poison peers.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 501,
       rowImageFanout: false,

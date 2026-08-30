@@ -1,9 +1,9 @@
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
-import type { SimWorld } from './world-api';
+import type { World } from './world-api';
 
 /** Add N clients and optionally enable DST / sampled network faults. */
 export async function bootClients(args: {
-  readonly world: SimWorld;
+  readonly world: World;
   readonly clientCount: number;
   readonly sampleFaults: boolean;
   /** Mild fixed reorder/loss faults (ignored when sampleFaults is true). */
@@ -27,7 +27,7 @@ export async function bootClients(args: {
 
 /** Heal partitions, clear holds/faults, bring clients online, assert converge. */
 export async function settleWorld(args: {
-  readonly world: SimWorld;
+  readonly world: World;
   readonly ids: readonly string[];
 }): Promise<void> {
   for (const id of args.ids) {

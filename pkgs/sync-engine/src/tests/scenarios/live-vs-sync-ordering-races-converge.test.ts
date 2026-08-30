@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+import { openWorld, type World } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -24,13 +24,13 @@ const RACE_SKEWS: readonly ClockOrder[] = [
   { label: 'S < B < A', alice: AHEAD, bob: MID, server: BEHIND },
 ];
 
-async function expectClientsMatchServer(world: SimWorld): Promise<void> {
+async function expectClientsMatchServer(world: World): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
 }
 
-async function liveBeforeSync(world: SimWorld): Promise<void> {
+async function liveBeforeSync(world: World): Promise<void> {
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -46,7 +46,7 @@ async function liveBeforeSync(world: SimWorld): Promise<void> {
   await expectClientsMatchServer(world);
 }
 
-async function syncBeforeLive(world: SimWorld): Promise<void> {
+async function syncBeforeLive(world: World): Promise<void> {
   const a = await world.addClient({ id: 'alice' });
   const b = await world.addClient({ id: 'bob' });
   await a.mutate(setNote, { id: 'warm', body: 'w' });
@@ -68,7 +68,7 @@ async function syncBeforeLive(world: SimWorld): Promise<void> {
 
 describe('live vs sync ordering races converge', () => {
   test('live before sync (refetch path)', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 301,
       rowImageFanout: false,
@@ -77,7 +77,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('sync before live', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 302,
       rowImageFanout: false,
@@ -87,7 +87,7 @@ describe('live vs sync ordering races converge', () => {
 
   for (const order of RACE_SKEWS) {
     test(`live before sync skew ${order.label}`, async () => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed: 310,
         rowImageFanout: false,
@@ -99,7 +99,7 @@ describe('live vs sync ordering races converge', () => {
     });
 
     test(`sync before live skew ${order.label}`, async () => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed: 320,
         rowImageFanout: false,
@@ -112,7 +112,7 @@ describe('live vs sync ordering races converge', () => {
   }
 
   test('stale sync after live fanout', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 303,
     });
@@ -132,7 +132,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held sync converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 304,
     });
@@ -153,7 +153,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('optimistic + held live converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 305,
     });
@@ -173,7 +173,7 @@ describe('live vs sync ordering races converge', () => {
   });
 
   test('live-only partition then heal converges via sync', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 306,
     });

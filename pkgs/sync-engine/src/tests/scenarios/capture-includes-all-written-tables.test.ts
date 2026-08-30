@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ describe('capture includes all written tables', () => {
   // Formerly "undeclared folder write misses table filter" — AST capture
   // records both folders + notes, so foldersOnly peers wake immediately.
   test('foldersOnly peer receives folder write from multi-table mutation', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1070,
       rowImageFanout: true,
@@ -42,7 +42,7 @@ describe('capture includes all written tables', () => {
   test.each([1071, 1072, 1073])(
     'seed sweep multi-table capture visible (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: true,

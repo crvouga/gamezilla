@@ -10,7 +10,5 @@ export type SignInCredentials = {
   readonly subject?: string;
   readonly email?: string;
   readonly name?: string;
-  /** @deprecated Email/password removed; kept optional for call-site migration. */
-  readonly password?: string;
   readonly mode?: 'sign-in' | 'sign-up';
 };

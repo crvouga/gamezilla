@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 
 describe('empty tables and zero row snapshot', () => {
   test('zero-row world converges; not_modified refresh stays empty', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1020,
     });
@@ -31,7 +31,7 @@ describe('empty tables and zero row snapshot', () => {
 
   test('absence in snapshot does not delete unrelated live rows outside scope', async () => {
     // Pin upsert contract: empty secondary scope refresh must not wipe domain.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1021,
     });
@@ -54,7 +54,7 @@ describe('empty tables and zero row snapshot', () => {
   test.each([1022, 1023, 1024])(
     'seed sweep empty converge (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

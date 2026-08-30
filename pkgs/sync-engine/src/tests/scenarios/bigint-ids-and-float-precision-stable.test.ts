@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import { acmeDomainPack, expectLiveNote, setNote } from '../apps/acme';
 
 /** String ids that look like JS-unsafe bigints (stay exact as text). */
@@ -11,7 +11,7 @@ const BIG_IDS = [
 
 describe('bigint ids and float precision stable', () => {
   test('string bigint ids and float JSON body round-trip stable', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1010,
     });
@@ -41,7 +41,7 @@ describe('bigint ids and float precision stable', () => {
   test.each([1011, 1012, 1013])(
     'seed sweep bigint-looking ids converge (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

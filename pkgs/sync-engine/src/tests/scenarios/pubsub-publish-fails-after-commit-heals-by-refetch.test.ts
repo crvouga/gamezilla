@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
   // Pins Consistency table “Push lost”: commit acks, fanout drop, heal via refetch.
   test('lost publish leaves peers stale until foreground refetch', async () => {
     // rowImageFanout false: isolate server publish loss (no optimistic images).
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 901,
       rowImageFanout: false,
@@ -44,7 +44,7 @@ describe('pubsub publish fails after commit heals by refetch', () => {
   test.each([902, 903, 904])(
     'seed sweep: publish fault then reconnect heals (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         rowImageFanout: false,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -11,7 +11,7 @@ import {
 
 describe('replay pins now to mutation created at', () => {
   test('replay pins env.now to mutation createdAt under client clock skew', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 720,
     });
@@ -45,7 +45,7 @@ describe('replay pins now to mutation created at', () => {
 
   test('rebase env.now pinned to createdAt under skew before upload', async () => {
     // Offline pending delete + peer merge before upload: rebase uses createdAt.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 721,
     });

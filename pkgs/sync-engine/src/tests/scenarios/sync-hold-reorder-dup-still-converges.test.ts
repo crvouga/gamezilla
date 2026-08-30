@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test';
-import { openSimWorld, type SimWorld } from '../../sim/world';
+import { openWorld, type World } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -7,7 +7,7 @@ import {
   setNote,
 } from '../apps/acme';
 
-async function expectClientsMatchServer(world: SimWorld): Promise<void> {
+async function expectClientsMatchServer(world: World): Promise<void> {
   for (const client of world.clients.values()) {
     await expectNotesMatchServer(client.db, world.server.db);
   }
@@ -15,7 +15,7 @@ async function expectClientsMatchServer(world: SimWorld): Promise<void> {
 
 describe('sync hold reorder dup still converges', () => {
   test('held sync still converges after release', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 503,
       rowImageFanout: false,
@@ -36,7 +36,7 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('reordered sync still converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 504,
     });
@@ -56,7 +56,7 @@ describe('sync hold reorder dup still converges', () => {
   });
 
   test('duplicate sync still converges', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 505,
     });

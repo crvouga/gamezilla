@@ -1,16 +1,16 @@
-import type { SimWorld } from '../../../sim/world-api';
-import type { DstAction } from '../actions';
-import type { DstApp } from '../app';
-import { dispatchDstAction } from '../dispatch';
+import type { DstWorldSurface } from './world-surface';
+import type { DstAction } from './actions';
+import type { DstApp } from './app';
+import { dispatchDstAction } from './dispatch';
 
 /** Clear partitions/holds/faults so restart and sync can complete. */
-export function healNetworkForSettle(world: SimWorld): void {
+export function healNetworkForSettle(world: DstWorldSurface): void {
   world.network.releaseAll();
   world.network.healAll();
   world.network.clearNodeFaults();
 }
 
-async function ensureServerUp(world: SimWorld): Promise<void> {
+async function ensureServerUp(world: DstWorldSurface): Promise<void> {
   try {
     await world.node('server').restart({ preserveLocalDb: true });
   } catch {
@@ -19,7 +19,7 @@ async function ensureServerUp(world: SimWorld): Promise<void> {
 }
 
 export async function restartClientForConverge(
-  world: SimWorld,
+  world: DstWorldSurface,
   clientId: string,
   opts?: { readonly preserveLocalDb?: boolean }
 ): Promise<void> {
@@ -44,7 +44,7 @@ export function createReplayRestartState(): ReplayRestartState {
 }
 
 export async function prepareReplayAction(
-  world: SimWorld,
+  world: DstWorldSurface,
   action: DstAction,
   state: ReplayRestartState
 ): Promise<void> {
@@ -70,7 +70,7 @@ export async function prepareReplayAction(
 
 export function trackRemovedClients(
   aliveBefore: ReadonlySet<string>,
-  world: SimWorld,
+  world: DstWorldSurface,
   state: ReplayRestartState
 ): void {
   for (const id of aliveBefore) {
@@ -99,7 +99,7 @@ export function trackRestartFromAction(
 
 /** `upgrade_required` / expired: restore so queued mutations can drain. */
 export function restoreSettleAuth(
-  world: SimWorld,
+  world: DstWorldSurface,
   skip: ReadonlySet<string> = new Set()
 ): void {
   for (const id of world.clients.keys()) {
@@ -109,10 +109,10 @@ export function restoreSettleAuth(
 }
 
 export async function finishReplayStep(
-  world: SimWorld,
+  world: DstWorldSurface,
   action: DstAction,
   state: ReplayRestartState,
-  assertStep: (world: SimWorld) => Promise<void>
+  assertStep: (world: DstWorldSurface) => Promise<void>
 ): Promise<void> {
   if (action.kind === 'connect' && state.needsRestart.has(action.clientId)) {
     world.clearBoundaryFaults();
@@ -147,7 +147,7 @@ export async function finishReplayStep(
 }
 
 export async function dispatchReplayAction(
-  world: SimWorld,
+  world: DstWorldSurface,
   app: DstApp,
   action: DstAction
 ): Promise<void> {

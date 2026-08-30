@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteFolder,
@@ -14,7 +14,7 @@ import {
 
 describe('folders and notes multi table converge', () => {
   test('folder + note hydrate on peer', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 20,
     });
@@ -39,7 +39,7 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('moveNote updates folder_id on peers', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 21,
     });
@@ -63,7 +63,7 @@ describe('folders and notes multi table converge', () => {
   });
 
   test('deleteFolder soft-deletes folder; notes remain', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 22,
     });

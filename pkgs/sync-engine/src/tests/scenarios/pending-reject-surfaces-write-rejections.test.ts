@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -11,7 +11,7 @@ import {
 describe('pending reject surfaces write rejections', () => {
   test('pending rejectable mutate uploads after reconnect, surfaces write_rejection, domain rolls back', async () => {
     // rowImageFanout off: rejected optimistic must not poison peers via images.
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 711,
       rowImageFanout: false,

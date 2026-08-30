@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -12,7 +12,7 @@ const PEER_VISIBLE_BUDGET_MS = 200;
 
 describe('buffer outbound live flush on reconnect', () => {
   test('default: no outbound buffer; peers wait for upload/sync', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 701,
     });
@@ -34,7 +34,7 @@ describe('buffer outbound live flush on reconnect', () => {
   });
 
   test('bufferOutboundLive: peer sees note while publisher sync held', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 702,
       bufferOutboundLive: true,
@@ -57,7 +57,7 @@ describe('buffer outbound live flush on reconnect', () => {
   });
 
   test('bufferOutboundLive: peer visible under latency budget via live', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 703,
       bufferOutboundLive: true,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -15,7 +15,7 @@ const TOMBSTONE_COUNT = 120;
 describe('tombstone accumulation still converges', () => {
   // README known limitation 1 SQLite growth — soft-delete catalogs accumulate.
   test('hundreds of tombstones; live queries stay correct and converge', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1040,
     });
@@ -42,7 +42,7 @@ describe('tombstone accumulation still converges', () => {
   test.each([1041, 1042, 1043])(
     'seed sweep modest tombstone piles converge (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

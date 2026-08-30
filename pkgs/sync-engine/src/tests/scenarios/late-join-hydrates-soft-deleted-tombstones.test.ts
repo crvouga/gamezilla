@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   deleteNote,
@@ -10,7 +10,7 @@ import {
 
 describe('late join hydrates soft deleted tombstones', () => {
   test('peer that joins after delete gets tombstone from snapshot', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 511,
     });

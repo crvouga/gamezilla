@@ -3,8 +3,9 @@ import { assertDstProperty, fc } from '@pkgs/pbt';
 import { acmeSetNoteOp } from '../apps/acme/domain-model';
 import { acmeDstApp } from '../apps/acme/dst-app';
 import type { DomainOp, DstAction, LibraryAction } from '../dst/actions';
-import { HTTP_FAULTS, replayActionsOnWorld } from '../dst/commands';
-import { arbWorldKnobs, arbWorldSeed, openPbtWorld } from '../dst/world-config';
+import { HTTP_FAULTS } from '../dst/commands';
+import { openWorld } from '../../sim/world';
+import { arbWorldKnobs, arbWorldSeed } from '../../sim/dst/knobs';
 
 const TRIGGER: DomainOp = acmeSetNoteOp('c0', 'n0', 'boundary');
 
@@ -44,21 +45,14 @@ describe('boundary faults PBT', () => {
               clientId: 'c0',
               fault,
             };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                boundarySequence(arm)
+              await world.playActions(boundarySequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 8 }
@@ -78,21 +72,14 @@ describe('boundary faults PBT', () => {
           fc.constantFrom(1, 2, 'next' as const),
           async (seed, knobs, count) => {
             const arm: LibraryAction = { kind: 'publishFault', count };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                boundarySequence(arm)
+              await world.playActions(boundarySequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }
@@ -124,21 +111,14 @@ describe('boundary faults PBT', () => {
               clientId: 'c0',
               event,
             };
-            const opened = await openPbtWorld({
+            await using world = await openWorld({
               app: acmeDstApp,
               seed,
               knobs,
             });
-            try {
-              await replayActionsOnWorld(
-                acmeDstApp,
-                opened.world,
-                crashBoundarySequence(arm)
+              await world.playActions(crashBoundarySequence(arm)
               );
-              await opened.world.assertConverged();
-            } finally {
-              await opened.world.dispose();
-            }
+              await world.assertConverged();
           }
         ),
         { numRuns: 6 }

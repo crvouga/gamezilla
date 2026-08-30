@@ -13,6 +13,7 @@
     "billing:check": "bun run --filter @libs/billing billing:check",
     "billing:sync": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/billing billing:sync",
     "check": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts lint tc test @apps/server#build @apps/room-server#build //#check @libs/secrets#check",
+    "check:full": "",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server check:api",
     "check:ci": "echo 'deprecated: use bun check' && exit 1",
     "check:ci:build": "echo 'deprecated: use bun check' && exit 1",

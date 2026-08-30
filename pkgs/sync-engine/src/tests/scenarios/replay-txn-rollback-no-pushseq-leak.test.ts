@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   expectLiveNote,
@@ -10,7 +10,7 @@ import {
 
 describe('replay txn rollback no pushseq leak', () => {
   test('in-txn fail rolls back; peer sees no push; retry applies once', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 910,
       rowImageFanout: false,
@@ -56,7 +56,7 @@ describe('replay txn rollback no pushseq leak', () => {
   test.each([911, 912, 913])(
     'seed sweep converges after in-txn fault (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
       });

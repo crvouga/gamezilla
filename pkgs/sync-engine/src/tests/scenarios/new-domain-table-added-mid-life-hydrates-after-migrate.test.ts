@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeLocalSchema,
@@ -17,7 +17,7 @@ describe('new domain table added mid life hydrates after migrate', () => {
   test.each([750, 751, 752])(
     'tags hydrate after client schema upgrade (seed=%i)',
     async (seed) => {
-      await using world = await openSimWorld({
+      await using world = await openWorld({
         domain: acmeDomainPack,
         seed,
         localSchema: acmeLocalSchemaExtraTable,

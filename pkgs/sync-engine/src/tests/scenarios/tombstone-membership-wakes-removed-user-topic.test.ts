@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine/shared';
-import { openSimWorld } from '../../sim/world';
+import { openWorld } from '../../sim/world';
 import {
   acmeDomainPack,
   acmeTopicMap,
@@ -42,7 +42,7 @@ describe('tombstone membership wakes removed user topic', () => {
   });
 
   test('leave soft-delete converges peers and drops leaver room topic', async () => {
-    await using world = await openSimWorld({
+    await using world = await openWorld({
       domain: acmeDomainPack,
       seed: 1201,
     });

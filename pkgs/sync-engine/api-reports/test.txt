@@ -1,13 +1,15 @@
 alwaysOnLifecycle
 createControllableLifecycle
 createInMemorySyncEngine
+DstAction
+DstApp
 emptySimPushChannels
 ensureFrameworkSchema
 InMemorySyncEngineOptions
 LocalMigratePhase
 NeverOpts
-openSimWorld
-OpenSimWorldArgs
+openWorld
+OpenWorldArgs
 pruneMutationArtifacts
 SCHEMA_EPOCH
 SeededRng
@@ -15,7 +17,8 @@ SimClientHandle
 SimClock
 SimDomainPack
 SimSessionQuery
-SimWorld
 UntilOpts
 UntilTarget
 withFrameworkMutations
+World
+WorldKnobs
